@@ -25,7 +25,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 class AssistantsConfig(CremeAppConfig):
     name = 'creme.assistants'
-    verbose_name = _(u'Assistants (Todos, Memo, ...)')
+    verbose_name = _('Assistants (Todos, Memo, ...)')
     dependencies = ['creme.creme_core']
 
     def ready(self):
@@ -37,20 +37,31 @@ class AssistantsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.TodosBrick,
-                                bricks.MemosBrick,
-                                bricks.AlertsBrick,
-                                bricks.ActionsOnTimeBrick,
-                                bricks.ActionsNotOnTimeBrick,
-                                bricks.UserMessagesBrick,
-                               )
+        brick_registry.register(
+            bricks.TodosBrick,
+            bricks.MemosBrick,
+            bricks.AlertsBrick,
+            bricks.ActionsOnTimeBrick,
+            bricks.ActionsNotOnTimeBrick,
+            bricks.UserMessagesBrick,
+        )
+
+    def register_function_fields(self, function_field_registry):
+        from creme.creme_core.models import CremeEntity
+
+        from . import function_fields as ffields
+
+        function_field_registry.register(
+            CremeEntity,
+            ffields.AlertsField,
+            ffields.MemosField,
+            ffields.TodosField,
+        )
 
     def register_reminders(self, reminder_registry):
         from . import reminders
 
         reg_reminder = reminder_registry.register
-        # reg_reminder(reminders.reminder_alert)
-        # reg_reminder(reminders.reminder_todo)
         reg_reminder(reminders.ReminderAlert)
         reg_reminder(reminders.ReminderTodo)
 

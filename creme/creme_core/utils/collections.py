@@ -71,7 +71,7 @@ class ClassKeyedMap:
 
     @staticmethod
     def _nearest_parent_class(klass, classes):  # TODO: in utils ??
-        # class Klass1(object): pass
+        # class Klass1: pass
         # class Klass2(Klass1): pass
         # Klass2.mro() #=> [<class 'Klass2'>, <class 'Klass1'>, <type 'object'>]
         # -> So the smallest order corresponds to the nearest class
@@ -146,6 +146,80 @@ class ClassKeyedMap:
 
     def values(self):
         return self._data.values()
+
+
+class InheritedDataChain:
+    """An associative collection where:
+     - keys are classes
+     - values are instances built by the collection itself
+       (with a given factory -- like standard <collections.defaultdict>).
+
+    The main feature is the 'chain()' method, which yields, for a given key-class, the values
+    of this class _and_ of the parent class.
+    So its useful to retrieved accumulated data, like a method which would use too
+    the super()'s data, but in a way external to some classes (it's more 'hookable'/extensible).
+    """
+    def __init__(self, default_factory):
+        """@param default_factory: A callable which returns an instance (typically a class)."""
+        self._default_factory = default_factory
+        self._data = {}
+
+    def __contains__(self, key_class):
+        """@param key_class: A class."""
+        return key_class in self._data
+
+    def __delitem__(self, key_class):
+        """
+        @param key_class: A class.
+        @raise: KeyError.
+        """
+        del self._data[key_class]
+
+    def __getitem__(self, key_class):
+        """
+        @param key_class: A class
+        @return: An instance of 'default_factory' (see __init__) ;
+                 the instance is created if it does not exist yet.
+        """
+        if not isinstance(key_class, type):
+            raise ValueError('The key must be a class')
+
+        try:
+            return self._data[key_class]
+        except KeyError:
+            self._data[key_class] = value = self._default_factory()
+
+            return value
+
+    def chain(self, key_class, parent_first=True):
+        """A generator which yields the data related to the key-class (if they exist)
+        and the data of the parent classes (if they exist), then data of the grand parent etc...
+
+        @param key_class: A class ; data related to it & related to its parents classes are yielded.
+        @param parent_first: If True (default value), the value related to a parent key-class
+               is returned before the value related to its child key-class.
+        @return: Instances of 'default_factory' (see __init__).
+        """
+        get_order = {cls: i for i, cls in enumerate(key_class.mro())}.get
+        pondered_values = []
+
+        for kls, value in self._data.items():
+            if issubclass(key_class, kls):
+                pondered_values.append((get_order(kls), value))
+
+        pondered_values.sort(key=lambda t: t[0], reverse=parent_first)
+
+        # TODO: cache
+        for __order, value in pondered_values:
+            yield value
+
+    def get(self, key_class, default=None):
+        """Retrieve the value associated to a key-class if it exists.
+        @param key_class: A class (the key).
+        @param default: An object returned if the key is not found ; <None> by default.
+        @return: An instance of 'default_factory', or 'default' if the key is not found.
+        """
+        return self._data.get(key_class, default)
 
 
 ################################################################################

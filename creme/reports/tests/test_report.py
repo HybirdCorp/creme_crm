@@ -15,10 +15,11 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
 
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import REL_SUB_HAS
+    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
             EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger,
             CremePropertyType, CremeProperty, HeaderFilter, FieldsConfig)
@@ -846,7 +847,8 @@ class ReportTestCase(BaseReportsTestCase):
                                  cells_desc=[EntityCellRegularField.build(model=FakeInvoice, name='name'),
                                              EntityCellRegularField.build(model=FakeInvoice, name='user'),
                                              EntityCellRelation(model=FakeInvoice, rtype=rt),
-                                             EntityCellFunctionField(model=FakeInvoice, func_field=FakeInvoice.function_fields.get('get_pretty_properties')),
+                                             # EntityCellFunctionField(model=FakeInvoice, func_field=FakeInvoice.function_fields.get('get_pretty_properties')),
+                                             EntityCellFunctionField.build(model=FakeInvoice, func_field_name='get_pretty_properties'),
                                             ],
                                  )
 
@@ -1142,7 +1144,8 @@ class ReportTestCase(BaseReportsTestCase):
         rtype_id = FAKE_REL_SUB_EMPLOYED_BY
         rtype = self.get_object_or_fail(RelationType, pk=rtype_id)
 
-        funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
         self.assertIsNotNone(funcfield)
 
         response = self.client.post(self._build_editfields_url(report),

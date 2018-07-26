@@ -19,6 +19,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
             SetCredentials, Currency, SettingValue, FieldsConfig)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -1007,7 +1008,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         opportunity = self._create_opportunity_n_organisations()[0]
-        funf = opportunity.function_fields.get('get_weighted_sales')
+        # funf = opportunity.function_fields.get('get_weighted_sales')
+        funf = function_field_registry.get(Opportunity, 'get_weighted_sales')
         self.assertIsNotNone(funf)
 
         self.assertIsNone(opportunity.estimated_sales)
@@ -1027,7 +1029,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomOrganisation
     def test_get_weighted_sales02(self):
         "With field 'estimated_sales' hidden with FieldsConfig"
-        self.login()
+        user = self.login()
 
         FieldsConfig.create(Opportunity,
                             descriptions=[('estimated_sales', {FieldsConfig.HIDDEN: True})]
@@ -1040,7 +1042,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNumQueries(0):
             w_sales = opportunity.get_weighted_sales()
 
-        self.assertEqual(_(u'Error: «Estimated sales» is hidden'), w_sales)
+        self.assertEqual(_('Error: «Estimated sales» is hidden'), w_sales)
+
+        # ---
+        funf = function_field_registry.get(Opportunity, 'get_weighted_sales')
+        self.assertEqual(_('Error: «Estimated sales» is hidden'),
+                         funf(opportunity, user).for_html()
+                        )
 
     def test_delete_currency(self):
         user = self.login()
@@ -1219,11 +1227,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         # 2 errors: retrieving of SalesPhase failed, creation of Opportunity failed
         self.assertEqual(2, len(result.messages))
 
-        vname = _(u'Opportunity')
-        self.assertEqual([_(u'No «{model}» has been created.').format(model=vname),
-                          _(u'No «{model}» has been updated.').format(model=vname),
-                          ungettext(u'{count} line in the file.',
-                                    u'{count} lines in the file.',
+        vname = _('Opportunity')
+        self.assertEqual([_('No «{model}» has been created.').format(model=vname),
+                          _('No «{model}» has been updated.').format(model=vname),
+                          ungettext('{count} line in the file.',
+                                    '{count} lines in the file.',
                                     1
                                    ).format(count=1),
                          ],
@@ -1261,7 +1269,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                )
                                      )
         self.assertFormError(response, 'form', 'sales_phase',
-                             _(u'This field is required.')
+                             _('This field is required.')
                             )
 
     def test_csv_import04(self):
@@ -1355,8 +1363,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         response = self.client.post(url, data=dict(data, target_persons_organisation_create=True))
         self.assertFormError(response, 'form', 'target',
-                             _(u'You are not allowed to create: %(model)s') % {
-                                    'model': _(u'Organisation'),
+                             _('You are not allowed to create: %(model)s') % {
+                                    'model': _('Organisation'),
                                 }
                             )
         self.assertFormError(response, 'form', 'sales_phase',

@@ -69,7 +69,8 @@ class BaseReportsTestCase(CremeTestCase):
         cells = [EntityCellRegularField.build(model=FakeContact, name='last_name'),
                  EntityCellRegularField.build(model=FakeContact, name='user'),
                  EntityCellRelation(model=FakeContact, rtype=RelationType.objects.get(pk=REL_SUB_HAS)),
-                 EntityCellFunctionField(model=FakeContact, func_field=FakeContact.function_fields.get('get_pretty_properties')),
+                 # EntityCellFunctionField(model=FakeContact, func_field=FakeContact.function_fields.get('get_pretty_properties')),
+                 EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
                 ]
         cells.extend(extra_cells)
 

@@ -19,6 +19,7 @@
 ################################################################################
 
 from datetime import timedelta
+import warnings
 
 from django.conf import settings
 from django.db.models import (Model, PositiveIntegerField, CharField, TextField,
@@ -29,18 +30,18 @@ from django.utils.formats import date_format
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.core.function_field import FunctionField
+# from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.templatetags.creme_date import timedelta_pprint
+# from creme.creme_core.templatetags.creme_date import timedelta_pprint
 
 from .criticity import Criticity
 from .priority import Priority
 from .status import Status, OPEN_PK, CLOSED_PK
 
 
-class _ResolvingDurationField(FunctionField):
-    name         = 'get_resolving_duration'
-    verbose_name = _(u'Resolving duration')
+# class _ResolvingDurationField(FunctionField):
+#     name         = 'get_resolving_duration'
+#     verbose_name = _('Resolving duration')
 
 
 class TicketNumber(Model):
@@ -57,12 +58,12 @@ class TicketNumber(Model):
 
 
 class TicketMixin(CremeEntity):
-    title        = CharField(_(u'Title'), max_length=100, blank=True, null=False)
-    description  = TextField(_(u'Description'))
-    status       = ForeignKey(Status, verbose_name=_(u'Status'), on_delete=PROTECT).set_tags(clonable=False)
-    priority     = ForeignKey(Priority, verbose_name=_(u'Priority'), on_delete=PROTECT)
-    criticity    = ForeignKey(Criticity, verbose_name=_(u'Criticity'), on_delete=PROTECT)
-    solution     = TextField(_(u'Solution'), blank=True, null=False)
+    title        = CharField(_('Title'), max_length=100, blank=True, null=False)
+    description  = TextField(_('Description'))
+    status       = ForeignKey(Status, verbose_name=_('Status'), on_delete=PROTECT).set_tags(clonable=False)
+    priority     = ForeignKey(Priority, verbose_name=_('Priority'), on_delete=PROTECT)
+    criticity    = ForeignKey(Criticity, verbose_name=_('Criticity'), on_delete=PROTECT)
+    solution     = TextField(_('Solution'), blank=True, null=False)
 
     class Meta:
         app_label = 'tickets'
@@ -73,23 +74,23 @@ class TicketMixin(CremeEntity):
 
 
 class AbstractTicket(TicketMixin):
-    number       = PositiveIntegerField(_(u'Number'), unique=True, editable=False)\
+    number       = PositiveIntegerField(_('Number'), unique=True, editable=False)\
                                        .set_tags(clonable=False)
-    closing_date = DateTimeField(_(u'Closing date'), blank=True, null=True,
+    closing_date = DateTimeField(_('Closing date'), blank=True, null=True,
                                  editable=False,
                                 ).set_tags(clonable=False)
 
-    function_fields = CremeEntity.function_fields.new(_ResolvingDurationField())
+    # function_fields = CremeEntity.function_fields.new(_ResolvingDurationField())
 
-    creation_label = _(u'Create a ticket')
-    save_label     = _(u'Save the ticket')
+    creation_label = _('Create a ticket')
+    save_label     = _('Save the ticket')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'tickets'
-        verbose_name = _(u'Ticket')
-        verbose_name_plural = _(u'Tickets')
+        verbose_name = _('Ticket')
+        verbose_name_plural = _('Tickets')
         ordering = ('title',)
 
     def __init__(self, *args, **kwargs):
@@ -98,7 +99,7 @@ class AbstractTicket(TicketMixin):
         self.old_status_id = self.status_id
 
     def __str__(self):
-        return u'#{} - {}'.format(self.number, self.title)
+        return '#{} - {}'.format(self.number, self.title)
 
     def get_absolute_url(self):
         return reverse('tickets__view_ticket', args=(self.id,))
@@ -125,6 +126,13 @@ class AbstractTicket(TicketMixin):
         return attrs
 
     def get_resolving_duration(self):
+        warnings.warn('tickets.models.AbstractTicket.get_resolving_duration() is deprecated ; '
+                      'use tickets.function_fields.ResolvingDurationField instead.',
+                      DeprecationWarning
+                     )
+
+        from creme.creme_core.templatetags.creme_date import timedelta_pprint
+
         if self.status_id == CLOSED_PK:
             closing_date = self.closing_date
 
@@ -156,15 +164,15 @@ class Ticket(AbstractTicket):
 
 class AbstractTicketTemplate(TicketMixin):
     """Used by 'recurrents' app if it is installed"""
-    creation_label = _(u'Create a ticket template')
-    save_label     = _(u'Save the ticket template')
+    creation_label = _('Create a ticket template')
+    save_label     = _('Save the ticket template')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'tickets'
-        verbose_name = _(u'Ticket template')
-        verbose_name_plural = _(u'Ticket templates')
+        verbose_name = _('Ticket template')
+        verbose_name_plural = _('Ticket templates')
         ordering = ('title',)
 
     def get_absolute_url(self):
@@ -194,7 +202,7 @@ class AbstractTicketTemplate(TicketMixin):
 
         return get_ticket_model().objects\
                                  .create(user=self.user,
-                                         title=u'{} {}'.format(
+                                         title='{} {}'.format(
                                                     self.title,
                                                     date_format(now_value.date(), 'DATE_FORMAT'),
                                                 ),  # TODO: use localtime() ?

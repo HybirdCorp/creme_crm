@@ -11,8 +11,8 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.entity_cell import EntityCellFunctionField
-    from creme.creme_core.core.function_field import FunctionField
-    from creme.creme_core.models import FieldsConfig, SetCredentials  # CremeProperty
+    from creme.creme_core.core.function_field import FunctionField, function_field_registry
+    from creme.creme_core.models import FieldsConfig, SetCredentials
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
@@ -37,7 +37,7 @@ class FunctionFieldTestCase(_BillingTestCase):
 
     def create_line(self, related_document, unit_price, quantity):
         return ProductLine.objects.create(user=self.user,
-                                          on_the_fly_item="on_the_fly_item",
+                                          on_the_fly_item='on_the_fly_item',
                                           related_document=related_document,
                                           unit_price=unit_price,
                                           quantity=quantity,
@@ -99,7 +99,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(invoice02, 2000, 1)
         self.assertEqual(7000, get_total_pending(target, user))
 
-        funf = target.function_fields.get('total_pending_payment')
+        # funf = target.function_fields.get('total_pending_payment')
+        funf = function_field_registry.get(Organisation, 'total_pending_payment')
         self.assertIsNotNone(funf)
 
         val = number_format('7000.00', use_l10n=True)
@@ -160,7 +161,8 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         bool(Organisation.get_all_managed_by_creme())  # Fill cache
 
-        funf = target01.function_fields.get('total_pending_payment')
+        # funf = target01.function_fields.get('total_pending_payment')
+        funf = function_field_registry.get(Organisation, 'total_pending_payment')
         self.assertIsNotNone(funf)
 
         with self.assertNumQueries(2):
@@ -258,7 +260,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(invoice02, 2500, 1)
         self.create_line(invoice03, 750, 1)  # Not used
 
-        funf = target.function_fields.get('total_pending_payment')
+        # funf = target.function_fields.get('total_pending_payment')
+        funf = function_field_registry.get(Organisation, 'total_pending_payment')
         funf.populate_entities([target], user)
         self.assertEqual(number_format('5500.00', use_l10n=True), funf(target, user).for_csv())
 
@@ -277,7 +280,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(invoice, 2000, 1)
 
         bool(Organisation.get_all_managed_by_creme())  # Fill cache
-        funf = target.function_fields.get('total_pending_payment')
+        # funf = target.function_fields.get('total_pending_payment')
+        funf = function_field_registry.get(Organisation, 'total_pending_payment')
 
         with self.assertNumQueries(2):
             total1 = funf(target, user).for_csv()
@@ -311,7 +315,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(invoice, 2000, 1)
 
         bool(Organisation.get_all_managed_by_creme())  # Fill cache
-        funf = target.function_fields.get('total_pending_payment')
+        # funf = target.function_fields.get('total_pending_payment')
+        funf = function_field_registry.get(Organisation, 'total_pending_payment')
 
         with self.assertNumQueries(2):
             funf.populate_entities([target], user)
@@ -377,7 +382,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote02, 300, 1)
         self.assertEqual(5300, get_total_won_quote_last_year(target, user))
 
-        funf = target.function_fields.get('total_won_quote_last_year')
+        # funf = target.function_fields.get('total_won_quote_last_year')
+        funf = function_field_registry.get(Organisation, 'total_won_quote_last_year')
         self.assertIsNotNone(funf)
 
         val = number_format('5300.00', use_l10n=True)
@@ -403,7 +409,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         with self.assertNumQueries(0):
             total = get_total_won_quote_last_year(target, user)
 
-        self.assertEqual(_(u'Error: «Acceptation date» is hidden'), total)
+        self.assertEqual(_('Error: «Acceptation date» is hidden'), total)
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
@@ -440,7 +446,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote03, 500,  1)  # Not used
         self.create_line(quote04, 300, 1)   # Not used
 
-        funf = target01.function_fields.get('total_won_quote_last_year')
+        # funf = target01.function_fields.get('total_won_quote_last_year')
+        funf = function_field_registry.get(Organisation, 'total_won_quote_last_year')
         self.assertIsNotNone(funf)
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
@@ -468,7 +475,8 @@ class FunctionFieldTestCase(_BillingTestCase):
                             descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
                            )
 
-        funf = target1.function_fields.get('total_won_quote_last_year')
+        # funf = target1.function_fields.get('total_won_quote_last_year')
+        funf = function_field_registry.get(Organisation, 'total_won_quote_last_year')
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
 
@@ -480,7 +488,7 @@ class FunctionFieldTestCase(_BillingTestCase):
             total1 = get_total_won_quote_last_year(target1, user)
             total2 = get_total_won_quote_last_year(target2, user)
 
-        msg = _(u'Error: «Acceptation date» is hidden')
+        msg = _('Error: «Acceptation date» is hidden')
         self.assertEqual(msg, total1)
         self.assertEqual(msg, total2)
 
@@ -524,7 +532,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote02, 1000, 1)
         self.assertEqual(6000, get_total_won_quote_this_year(target, user))
 
-        funf = target.function_fields.get('total_won_quote_this_year')
+        # funf = target.function_fields.get('total_won_quote_this_year')
+        funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
         self.assertIsNotNone(funf)
 
         val = number_format('6000.00', use_l10n=True)
@@ -542,14 +551,15 @@ class FunctionFieldTestCase(_BillingTestCase):
                             descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
                            )
 
-        funf = target.function_fields.get('total_won_quote_this_year')
+        # funf = target.function_fields.get('total_won_quote_this_year')
+        funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
 
         with self.assertNumQueries(0):
             total = funf(target, user).for_csv()
 
-        self.assertEqual(_(u'Error: «Acceptation date» is hidden'), total)
+        self.assertEqual(_('Error: «Acceptation date» is hidden'), total)
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
@@ -585,7 +595,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote03, 1000, 1)  # Not used
         self.create_line(quote04, 300, 1)  # Not used
 
-        funf = target01.function_fields.get('total_won_quote_this_year')
+        # funf = target01.function_fields.get('total_won_quote_this_year')
+        funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
         self.assertIsNotNone(funf)
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
@@ -613,7 +624,8 @@ class FunctionFieldTestCase(_BillingTestCase):
                             descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
                            )
 
-        funf = target1.function_fields.get('total_won_quote_this_year')
+        # funf = target1.function_fields.get('total_won_quote_this_year')
+        funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
 
@@ -624,24 +636,32 @@ class FunctionFieldTestCase(_BillingTestCase):
             total1 = get_total_won_quote_this_year(target1, user)
             total2 = get_total_won_quote_this_year(target2, user)
 
-        msg = _(u'Error: «Acceptation date» is hidden')
+        msg = _('Error: «Acceptation date» is hidden')
         self.assertEqual(msg, total1)
         self.assertEqual(msg, total2)
 
     @skipIfCustomQuote
     def test_functionfields(self):
         user = self.login()
-        quote, source, target = self.create_quote_n_orgas("YOLO")
+        quote, source, target = self.create_quote_n_orgas('YOLO')
 
-        with self.assertNoException():
-            off_mngr = Organisation.function_fields
-            cff_mngr = Contact.function_fields
-
-        for funf in chain(off_mngr, cff_mngr):
-            self.assertIsInstance(funf, FunctionField)
-
-            if funf.name in {'total_pending_payment',
-                             'total_won_quote_this_year',
-                             'total_won_quote_last_year',
-                             }:
+        # with self.assertNoException():
+        #     off_mngr = Organisation.function_fields
+        #     cff_mngr = Contact.function_fields
+        #
+        # for funf in chain(off_mngr, cff_mngr):
+        #     self.assertIsInstance(funf, FunctionField)
+        #
+        #     if funf.name in {'total_pending_payment',
+        #                      'total_won_quote_this_year',
+        #                      'total_won_quote_last_year',
+        #                     }:
+        #         self.assertEqual('0', funf(target, user).for_html())
+        for model in (Organisation, Contact):
+            for name in ('total_pending_payment',
+                         'total_won_quote_this_year',
+                         'total_won_quote_last_year',
+                        ):
+                funf = function_field_registry.get(model, name)
+                self.assertIsNotNone(funf, 'Function field {}/{} is None ?!'.format(model, name))
                 self.assertEqual('0', funf(target, user).for_html())

@@ -2,7 +2,7 @@
 
 try:
     from ..base import CremeTestCase
-    from creme.creme_core.utils.collections import LimitedList, ClassKeyedMap, OrderedSet
+    from creme.creme_core.utils.collections import LimitedList, ClassKeyedMap, OrderedSet, InheritedDataChain
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -150,6 +150,124 @@ class ClassKeyedMapTestCase(CremeTestCase):
 
         class Klass6: pass
         self.assertIs(Klass3, nearest(Klass4, [Klass2, Klass5, Klass3, Klass6, Klass1]))
+
+
+class InheritedDataChainTestCase(CremeTestCase):
+    def test_get_item(self):
+        class Klass1: pass
+        class Klass2: pass
+
+        class InnerClass:
+            pass
+
+        idc = InheritedDataChain(InnerClass)
+
+        with self.assertNoException():
+            instance1 = idc[Klass1]
+
+        self.assertIsInstance(instance1, InnerClass)
+        self.assertIs(instance1, idc[Klass1])
+
+        instance2 = idc[Klass2]
+        self.assertIsInstance(instance2, InnerClass)
+        self.assertIsNot(instance1, instance2)
+
+        # Bad value key
+        with self.assertRaises(ValueError):
+            __ = idc[1]
+
+    def test_chain01(self):
+        class Klass1: pass
+        class Klass2: pass
+
+        class InnerClass:
+            pass
+
+        idc = InheritedDataChain(InnerClass)
+
+        with self.assertNoException():
+            chain1 = list(idc.chain(Klass1))
+
+        self.assertFalse(chain1)
+
+        instance1 = idc[Klass1]
+        chain1 = list(idc.chain(Klass1))
+        self.assertEqual(1, len(chain1))
+        self.assertIs(instance1, chain1[0])
+        self.assertIs(instance1, next(idc.chain(Klass1)))
+
+        instance2 = idc[Klass2]
+        self.assertEqual([instance2], list(idc.chain(Klass2)))
+
+    def test_chain02(self):
+        "Inheritance."
+        class Klass1: pass
+        class Klass2(Klass1): pass
+        class Klass3(Klass2): pass
+
+        class InnerClass:
+            data = None
+
+            def __repr__(self):
+                return 'InnerClass(data={})'.format(self.data)
+
+        idc = InheritedDataChain(InnerClass)
+        instance1 = idc[Klass1]; instance1.data = Klass1.__name__
+        instance2 = idc[Klass2]; instance2.data = Klass2.__name__
+        self.assertEqual([instance1, instance2],
+                         list(idc.chain(Klass2))
+                        )
+
+        instance3 = idc[Klass3]; instance3.data = Klass3.__name__
+        self.assertEqual([instance1, instance2, instance3],
+                         list(idc.chain(Klass3))
+                        )
+
+        # Reversed
+        self.assertEqual([instance3, instance2, instance1],
+                         list(idc.chain(Klass3, parent_first=False))
+                        )
+
+    def test_get(self):
+        class Klass1: pass
+
+        class InnerClass:
+            pass
+
+        idc = InheritedDataChain(InnerClass)
+        self.assertIsNone(idc.get(Klass1))
+        self.assertEqual(-1, idc.get(Klass1, -1))
+
+        instance1 = idc[Klass1]
+        self.assertEqual(instance1, idc.get(Klass1))
+
+    def test_del(self):
+        class Klass1: pass
+
+        class InnerClass:
+            pass
+
+        idc = InheritedDataChain(InnerClass)
+        __ = idc[Klass1]
+
+        del idc[Klass1]
+        self.assertIsNone(idc.get(Klass1))
+
+    def test_contains(self):
+        class Klass1: pass
+        class Klass2: pass
+
+        class InnerClass:
+            pass
+
+        idc = InheritedDataChain(InnerClass)
+        self.assertNotIn(Klass1, idc)
+        self.assertNotIn(Klass2, idc)
+        self.assertNotIn(1,      idc)
+
+        __ = idc[Klass1]
+        self.assertIn(Klass1, idc)
+        self.assertNotIn(Klass2, idc)
 
 
 class OrderedSetTestCase(CremeTestCase):

@@ -20,22 +20,22 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.core.entity_cell import EntityCellFunctionField
-from creme.creme_core.gui.bricks import EntityBrick
+from creme.creme_core.core.function_field import FunctionField
+from creme.creme_core.templatetags.creme_date import timedelta_pprint
 
-from . import get_ticket_model
-from .function_fields import ResolvingDurationField
+from .models.status import CLOSED_PK
 
 
-class TicketBrick(EntityBrick):
-    verbose_name = _('Information on the ticket')
+class ResolvingDurationField(FunctionField):
+    name         = 'get_resolving_duration'
+    verbose_name = _('Resolving duration')
 
-    def _get_cells(self, entity, context):
-        # cells = super(TicketBrick, self)._get_cells(entity=entity, context=context)
-        cells = super()._get_cells(entity=entity, context=context)
+    def __call__(self, entity, user):
+        if entity.status_id == CLOSED_PK:
+            closing_date = entity.closing_date
 
-        cells.append(EntityCellFunctionField(model=get_ticket_model(), func_field=ResolvingDurationField()))
-        return cells
+            value = timedelta_pprint(closing_date - entity.created) if closing_date else '?'
+        else:
+            value = ''
 
-    def _get_title(self, entity, context):
-        return self.verbose_name
+        return self.result_type(value)

@@ -19,7 +19,8 @@ try:
     from creme.creme_core.core.batch_process import batch_operator_manager, BatchAction
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
-    from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldsManager
+    from creme.creme_core.core.function_field import (FunctionField, FunctionFieldResult,
+        FunctionFieldsManager, _FunctionFieldRegistry, function_field_registry)
     from creme.creme_core.core.imprint import _ImprintManager
     from creme.creme_core.core.job import JobManager
     from creme.creme_core.core.reminder import Reminder, ReminderRegistry, reminder_registry
@@ -176,6 +177,124 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertIs(ff01, ffm02.get(fname01)) # ok ?
         self.assertEqual([ff01, ff02], sorted(ffm02, key=lambda ff: ff.name))
 
+    def test_registry01(self):
+        class Klass1: pass
+        class Klass2(Klass1): pass
+
+        registry = _FunctionFieldRegistry()
+
+        fname11 = 'name11'
+        fname12 = 'name12'
+        fname13 = 'name13'
+        fname2  = 'name2'
+
+        class TestFunctionField11(FunctionField):
+            name         = fname11
+            verbose_name = 'Verbose name 11'
+
+        class TestFunctionField12(FunctionField):
+            name         = fname12
+            verbose_name = 'Verbose name 12'
+
+        class TestFunctionField13(FunctionField):
+            name         = fname13
+            verbose_name = 'Verbose name 13'
+
+        class TestFunctionField2(FunctionField):
+            name         = fname2
+            verbose_name = 'Verbose name 2'
+
+        registry.register(Klass1, TestFunctionField11, TestFunctionField12, TestFunctionField13)
+        registry.register(Klass2, TestFunctionField2)
+        self.assertIsInstance(registry.get(Klass1, fname11), TestFunctionField11)
+        self.assertIsInstance(registry.get(Klass1, fname12), TestFunctionField12)
+        self.assertIsInstance(registry.get(Klass1, fname13), TestFunctionField13)
+        self.assertIsNone(registry.get(Klass1, 'unknown'))
+        self.assertIsNone(registry.get(Klass1, fname2))
+
+        self.assertIsInstance(registry.get(Klass2, fname11), TestFunctionField11)
+        self.assertIsInstance(registry.get(Klass2, fname12), TestFunctionField12)
+        self.assertIsInstance(registry.get(Klass2, fname2),  TestFunctionField2)
+
+        self.assertIsNone(registry.get(Klass1, fname2))
+
+        # Function fields
+        self.assertEqual({TestFunctionField11, TestFunctionField12, TestFunctionField13},
+                         {ff.__class__ for ff in registry.fields(Klass1)}
+                        )
+        self.assertEqual({TestFunctionField11, TestFunctionField12, TestFunctionField13, TestFunctionField2},
+                         {ff.__class__ for ff in registry.fields(Klass2)}
+                        )
+
+        # Unregister -----
+        registry.unregister(Klass1, TestFunctionField11, TestFunctionField12)
+        self.assertIsNone(registry.get(Klass1, fname11))
+        self.assertIsNone(registry.get(Klass1, fname12))
+        self.assertIsInstance(registry.get(Klass1, fname13), TestFunctionField13)
+
+        self.assertIsNone(registry.get(Klass2, fname11))
+
+    def test_registry02(self):
+        "Duplicates error"
+        class Klass: pass
+
+        registry = _FunctionFieldRegistry()
+
+        class TestFunctionField1(FunctionField):
+            name         = 'name1'
+            verbose_name = 'Verbose name 1'
+
+        class TestFunctionField2(FunctionField):
+            name         = TestFunctionField1.name # <==
+            verbose_name = 'Verbose name 2'
+
+        registry.register(Klass, TestFunctionField1)
+
+        with self.assertRaises(_FunctionFieldRegistry.RegistrationError):
+            registry.register(Klass, TestFunctionField2)
+
+    def test_registry03(self):
+        "Get overridden field"
+        class Klass1: pass
+        class Klass2(Klass1): pass
+
+        registry = _FunctionFieldRegistry()
+
+        fname1 = 'name1'
+        fname2 = 'name2'
+
+        class TestFunctionField1(FunctionField):
+            name         = fname1
+            verbose_name = 'Verbose name 1'
+
+        class TestFunctionField2(FunctionField):
+            name         = fname2
+            verbose_name = 'Verbose name 2'
+
+        class TestFunctionField22(FunctionField):
+            name         = TestFunctionField2.name  # <== Override
+            verbose_name = 'Verbose name 2'
+
+        registry.register(Klass1, TestFunctionField1, TestFunctionField2)
+        registry.register(Klass2, TestFunctionField22)
+        self.assertIsInstance(registry.get(Klass2, fname1), TestFunctionField1)
+        self.assertIsInstance(registry.get(Klass2, fname2), TestFunctionField22)  # Not TestFunctionField2
+
+    def test_registry04(self):
+        "Unregister() error"
+        class Klass: pass
+
+        registry = _FunctionFieldRegistry()
+
+        class TestFunctionField(FunctionField):
+            name         = 'name'
+            verbose_name = 'Verbose name'
+
+        with self.assertRaises(_FunctionFieldRegistry.RegistrationError):
+            registry.unregister(Klass, TestFunctionField)
+
+    # TODO: test other classes
+
 
 class BatchOperatorTestCase(CremeTestCase):
     def test_upper(self):
@@ -291,9 +410,9 @@ class BatchActionTestCase(CremeTestCase):
         with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(FakeContact, 'last_name', 'rm_start', value='three')  # Not int
 
-        self.assertEqual(_(u'{operator} : {message}.').format(
-                                operator=_(u'Remove the start (N characters)'),
-                                message=_(u'enter a whole number'),
+        self.assertEqual(_('{operator} : {message}.').format(
+                                operator=_('Remove the start (N characters)'),
+                                message=_('enter a whole number'),
                             ),
                          str(cm.exception)
                         )
@@ -301,18 +420,18 @@ class BatchActionTestCase(CremeTestCase):
         with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(FakeContact, 'last_name', 'rm_end', value='-3')  # Not positive
 
-        self.assertEqual(_(u'{operator} : {message}.').format(
-                                operator=_(u'Remove the end (N characters)'),
-                                message=_(u'enter a positive number'),
+        self.assertEqual(_('{operator} : {message}.').format(
+                                operator=_('Remove the end (N characters)'),
+                                message=_('enter a positive number'),
                             ),
                          str(cm.exception)
                         )
 
     def test_unicode01(self):
         baction = BatchAction(FakeContact, 'first_name', 'upper', value='')
-        self.assertEqual(_(u'{field} ➔ {operator}').format(
-                                field=_(u'First name'),
-                                operator=_(u'To upper case'),
+        self.assertEqual(_('{field} ➔ {operator}').format(
+                                field=_('First name'),
+                                operator=_('To upper case'),
                             ),
                          str(baction)
                         )
@@ -321,9 +440,9 @@ class BatchActionTestCase(CremeTestCase):
         "With argument"
         value = 'Foobarbaz'
         baction = BatchAction(FakeContact, 'last_name', 'rm_substr', value=value)
-        self.assertEqual(_(u'{field} ➔ {operator}: «{value}»').format(
-                                field=_(u'Last name'),
-                                operator=_(u'Remove a sub-string'),
+        self.assertEqual(_('{field} ➔ {operator}: «{value}»').format(
+                                field=_('Last name'),
+                                operator=_('Remove a sub-string'),
                                 value=value,
                             ),
                          str(baction)
@@ -442,7 +561,7 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_customfield02(self):
         "FLOAT CustomField"
-        customfield = CustomField.objects.create(name=u'Weight', field_type=CustomField.FLOAT,
+        customfield = CustomField.objects.create(name='Weight', field_type=CustomField.FLOAT,
                                                  content_type=self.contact_ct
                                                 )
 
@@ -453,7 +572,7 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_customfield03(self):
         "DATE CustomField"
-        customfield = CustomField.objects.create(name=u'Day', field_type=CustomField.DATETIME,
+        customfield = CustomField.objects.create(name='Day', field_type=CustomField.DATETIME,
                                                  content_type=self.contact_ct
                                                 )
 
@@ -464,7 +583,7 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_customfield04(self):
         "BOOL CustomField"
-        customfield = CustomField.objects.create(name=u'Is fun ?', field_type=CustomField.BOOL,
+        customfield = CustomField.objects.create(name='Is fun ?', field_type=CustomField.BOOL,
                                                  content_type=self.contact_ct
                                                 )
 
@@ -504,8 +623,8 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
     def test_build_4_relation(self):
-        loves = RelationType.create(('test-subject_love', u'Is loving'),
-                                    ('test-object_love',  u'Is loved by')
+        loves = RelationType.create(('test-subject_love', 'Is loving'),
+                                    ('test-object_love',  'Is loved by')
                                    )[0]
         cell = EntityCellRelation(model=FakeContact, rtype=loves)
         self.assertIsInstance(cell, EntityCellRelation)
@@ -523,7 +642,8 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_functionfield01(self):
         name = 'get_pretty_properties'
-        funfield = FakeContact.function_fields.get(name)
+        # funfield = FakeContact.function_fields.get(name)
+        funfield = function_field_registry.get(FakeContact, name)
         self.assertIsNotNone(funfield)
 
         cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)

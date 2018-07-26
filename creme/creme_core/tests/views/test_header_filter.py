@@ -14,6 +14,7 @@ try:
     from creme.creme_core.tests.views.base import ViewsTestCase
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import (HeaderFilter, FieldsConfig,
             RelationType, CustomField)
 except Exception as e:
@@ -105,7 +106,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                                  field_type=CustomField.INT,
                                                  content_type=ct,
                                                 )
-        funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 
         url = self._build_add_url(ct)
         response = self.assertGET200(url)

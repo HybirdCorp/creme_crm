@@ -16,6 +16,7 @@ try:
             HistoryBrick, CustomFieldsBrick)
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui import bricks as gui_bricks
     from creme.creme_core.gui.bricks import Brick, SpecificRelationsBrick
     from creme.creme_core.models import (RelationType, CustomField, FieldsConfig, UserRole,
@@ -1562,7 +1563,8 @@ class BricksConfigTestCase(CremeTestCase):
 
         self.assertIn('cells', fields)
 
-        funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
         field_fname = 'first_name'
         field_lname = 'last_name'
         response = self.client.post(
@@ -1684,7 +1686,8 @@ class BricksConfigTestCase(CremeTestCase):
         url = self._build_rbrick_editctype_url(rb_item, FakeContact)
         self.assertGET200(url)
 
-        funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
         field_fname = 'first_name'
         field_lname = 'last_name'
         self.assertNoFormError(self.client.post(
@@ -1949,7 +1952,8 @@ class BricksConfigTestCase(CremeTestCase):
                                                  field_type=CustomField.INT,
                                                  content_type=ct,
                                                 )
-        funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 
         name = 'info'
         cbc_item = CustomBrickConfigItem.objects.create(id='tests-contacts1',

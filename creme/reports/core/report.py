@@ -28,6 +28,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.models import CremeEntity, RelationType, CustomField
 from creme.creme_core.utils.meta import FieldInfo
@@ -84,10 +85,10 @@ class ReportHand:
     def _generate_flattened_report(self, entities, user, scope):
         columns = self._report_field.sub_report.columns
 
-        return u', '.join('/'.join(u'{}: {}'.format(column.title, column.get_value(entity, user, scope))
-                                        for column in columns
-                                  ) for entity in entities
-                         )
+        return ', '.join('/'.join('{}: {}'.format(column.title, column.get_value(entity, user, scope))
+                                      for column in columns
+                                 ) for entity in entities
+                        )
 
     # TODO: scope ??
     def _get_related_instances(self, entity, user):
@@ -146,7 +147,7 @@ class ReportHand:
         if issubclass(qs.model, CremeEntity):
             qs = EntityCredentials.filter(user, qs)
 
-        return u', '.join(str(extract(instance)) for instance in qs)
+        return ', '.join(str(extract(instance)) for instance in qs)
 
     def _get_value_single(self, entity, user, scope):
         """Used as _get_value() method by subclasses which does not manage
@@ -187,7 +188,7 @@ class ReportHand:
         else:
             value = self._get_value(entity, user, scope)
 
-        return u'' if value is None else value
+        return '' if value is None else value
 
     @property
     def hidden(self):
@@ -205,7 +206,7 @@ class ReportHand:
 
 @REPORT_HANDS_MAP(RFT_FIELD)
 class RHRegularField(ReportHand):
-    verbose_name = _(u'Regular field')
+    verbose_name = _('Regular field')
 
     _field_info = None  # Set by __new__()
 
@@ -346,9 +347,9 @@ class RHManyToManyField(RHRegularField):
 
         if len(field_info) > 1:
             attr_name = self._field_info[1].name
-            # TODO: move "or u''" in base class ??
+            # TODO: move "or ''" in base class ??
             self._related_model_value_extractor = \
-                lambda instance: getattr(instance, attr_name, None) or u''
+                lambda instance: getattr(instance, attr_name, None) or ''
         else:
             self._related_model_value_extractor = str
 
@@ -365,7 +366,7 @@ class RHManyToManyField(RHRegularField):
 
 @REPORT_HANDS_MAP(RFT_CUSTOM)
 class RHCustomField(ReportHand):
-    verbose_name = _(u'Custom field')
+    verbose_name = _('Custom field')
 
     def __init__(self, report_field):
         try:
@@ -378,12 +379,12 @@ class RHCustomField(ReportHand):
 
     def _get_value_single_on_allowed(self, entity, user, scope):
         cvalue = entity.get_custom_value(self._cfield)
-        return str(cvalue.value) if cvalue else u''
+        return str(cvalue.value) if cvalue else ''
 
 
 @REPORT_HANDS_MAP(RFT_RELATION)
 class RHRelation(ReportHand):
-    verbose_name = _(u'Relationship')
+    verbose_name = _('Relationship')
 
     def __init__(self, report_field):
         rtype_id = report_field.name
@@ -411,10 +412,10 @@ class RHRelation(ReportHand):
     # TODO: extract algorithm that retrieve efficiently real entity from CremeEntity.get_related_entities()
     def _get_value_no_subreport(self, entity, user, scope):
         has_perm = user.has_perm_to_view
-        return u', '.join(str(e)
+        return ', '.join(str(e)
                             for e in entity.get_related_entities(self._rtype.id, True)
                                 if has_perm(e)
-                         )
+                        )
 
     def get_linkable_ctypes(self):
         return self._rtype.object_ctypes.all()
@@ -426,10 +427,11 @@ class RHRelation(ReportHand):
 
 @REPORT_HANDS_MAP(RFT_FUNCTION)
 class RHFunctionField(ReportHand):
-    verbose_name = _(u'Computed field')
+    verbose_name = _('Computed field')
 
     def __init__(self, report_field):
-        funcfield = report_field.model.function_fields.get(report_field.name)
+        # funcfield = report_field.model.function_fields.get(report_field.name)
+        funcfield = function_field_registry.get(report_field.model, report_field.name)
         if not funcfield:
             raise ReportHand.ValueError('Invalid function field: "{}"'.format(report_field.name))
 
@@ -444,7 +446,7 @@ class RHFunctionField(ReportHand):
 
 
 class RHAggregate(ReportHand):
-    verbose_name = _(u'Aggregated value')
+    verbose_name = _('Aggregated value')
 
     def __init__(self, report_field):
         self._cache_key   = None
@@ -462,7 +464,7 @@ class RHAggregate(ReportHand):
 
         # super(RHAggregate, self).__init__(report_field,
         super().__init__(report_field,
-                         title=u'{} - {}'.format(aggregation.title, verbose_name),
+                         title='{} - {}'.format(aggregation.title, verbose_name),
                         )
 
     def _build_query_n_vname(self, report_field, field_name, aggregation):
@@ -495,7 +497,7 @@ class RHAggregateRegularField(RHAggregate):
 
 @REPORT_HANDS_MAP(RFT_AGG_CUSTOM)
 class RHAggregateCustomField(RHAggregate):
-    verbose_name = _(u'Aggregated value (custom field)')
+    verbose_name = _('Aggregated value (custom field)')
 
     def _build_query_n_vname(self, report_field, field_name, aggregation):
         try:
@@ -513,7 +515,7 @@ class RHAggregateCustomField(RHAggregate):
 
 @REPORT_HANDS_MAP(RFT_RELATED)
 class RHRelated(ReportHand):
-    verbose_name = _(u'Related field')
+    verbose_name = _('Related field')
 
     def __init__(self, report_field):
         related_field = self._get_related_field(report_field.model, report_field.name)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,9 +20,8 @@
 
 from collections import defaultdict
 import datetime
-# from decimal import Decimal
+import logging
 
-# from django.db.models import Sum
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -32,53 +31,43 @@ from creme.creme_core.models import Relation, FieldsConfig
 from creme import persons
 
 from creme import billing
-from .constants import REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_ISSUED  # REL_OBJ_BILL_RECEIVED
+from .constants import REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_ISSUED
 
 
-Contact      = persons.get_contact_model()
+logger = logging.getLogger(__name__)
+
+# Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
 Invoice = billing.get_invoice_model()
 Quote   = billing.get_quote_model()
 
 
-# OLD VERSION
-# def sum_totals_no_vat(model, entity, **kwargs):
-#     billings = entity.relations.filter(type=REL_OBJ_BILL_RECEIVED).values_list('object_entity', flat=True)
-#
-#     creme_orgas_billings_ids = []
-#     for orga in Organisation.get_all_managed_by_creme():
-#         creme_orgas_billings_ids.extend(orga.relations.filter(type=REL_OBJ_BILL_ISSUED,
-#                                                               object_entity_id__in=billings,
-#                                                              )
-#                                                       .values_list('object_entity', flat=True))
-#
-#     billing_documents = model.objects.filter(id__in=creme_orgas_billings_ids,
-#                                              is_deleted=False,
-#                                              total_no_vat__isnull=False,
-#                                              **kwargs)
-#
-#     return sum(billing_document.total_no_vat for billing_document in billing_documents)
-# OLD VERSION with AGGREGATE()
-# def sum_totals_no_vat(model, entity, **kwargs):
-#     billings = entity.relations.filter(type=REL_OBJ_BILL_RECEIVED).values_list('object_entity', flat=True)
-#
-#     creme_orgas_billings_ids = []
-#     for orga in Organisation.get_all_managed_by_creme():
-#         creme_orgas_billings_ids.extend(orga.relations.filter(type=REL_OBJ_BILL_ISSUED,
-#                                                               object_entity_id__in=billings,
-#                                                              )
-#                                                       .values_list('object_entity', flat=True))
-#
-#
-#     total = model.objects.filter(id__in=creme_orgas_billings_ids,
-#                                  is_deleted=False,
-#                                  total_no_vat__isnull=False,
-#                                  **kwargs) \
-#                          .aggregate(sum_total=Sum('total_no_vat'))['sum_total']
-#
-#     return Decimal(0) if total is None else total
-# def sum_totals_no_vat(model, entity, **kwargs):
+class TemplateBaseVerboseStatusField(FunctionField):
+    name         = 'get_verbose_status'
+    verbose_name = _('Status')
+
+    # TODO ?
+    # @classmethod
+    # def populate_entities(cls, entities):
+
+    def __call__(self, entity, user):
+        vstatus = entity._verbose_status_cache  # TODO: store in self instead ?
+
+        if vstatus is None or vstatus.id != entity.status_id:
+            status_model = entity.ct.model_class()._meta.get_field('status').remote_field.model
+
+            try:
+                vstatus = status_model.objects.get(id=entity.status_id)
+            except status_model.DoesNotExist as e:
+                logger.warning('Invalid status in TemplateBase(id=%s) [%s]', entity.id, e)
+                vstatus = status_model(id=entity.status_id, name='')
+
+            entity._verbose_status_cache = vstatus
+
+        return self.result_type(vstatus.name)
+
+
 def sum_totals_no_vat(model, entity, user, **kwargs):
     all_totals = dict(EntityCredentials.filter(
                             user,
@@ -130,7 +119,6 @@ def sum_totals_no_vat_multi(model, entities, user, **kwargs):
                          )
 
 
-# def get_total_pending(entity):
 def get_total_pending(entity, user):
     return sum_totals_no_vat(Invoice, entity, user, status__pending_payment=True)
 
@@ -138,20 +126,10 @@ def get_total_pending(entity, user):
 def get_total_pending_multi(entities, user):
     return sum_totals_no_vat_multi(Invoice, entities, user, status__pending_payment=True)
 
-# def _get_quote_fieldsconfig(entity):
-#     fc = getattr(entity, '_fconfig_quote_cache', None)
-#
-#     if fc is None:
-#         entity._fconfig_quote_cache = fc = FieldsConfig.get_4_model(Quote)
-#
-#     return fc
 
-
-# def get_total_won_quote_last_year(entity):
 def get_total_won_quote_last_year(entity, user):
-    # if _get_quote_fieldsconfig(entity).is_fieldname_hidden('acceptation_date'):
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
-        return ugettext(u'Error: «Acceptation date» is hidden')
+        return ugettext('Error: «Acceptation date» is hidden')
 
     return sum_totals_no_vat(Quote, entity, user,
                              status__won=True,
@@ -161,7 +139,7 @@ def get_total_won_quote_last_year(entity, user):
 
 def get_total_won_quote_last_year_multi(entities, user):
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
-        msg = ugettext(u'Error: «Acceptation date» is hidden')
+        msg = ugettext('Error: «Acceptation date» is hidden')
         return ((entity, msg) for entity in entities)
 
     return sum_totals_no_vat_multi(Quote, entities, user,
@@ -170,12 +148,10 @@ def get_total_won_quote_last_year_multi(entities, user):
                                   )
 
 
-# def get_total_won_quote_this_year(entity):
 def get_total_won_quote_this_year(entity, user):
     # TODO: factorise (decorator in creme_core ?)
-    # if _get_quote_fieldsconfig(entity).is_fieldname_hidden('acceptation_date'):
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
-        return ugettext(u'Error: «Acceptation date» is hidden')
+        return ugettext('Error: «Acceptation date» is hidden')
 
     return sum_totals_no_vat(Quote, entity, user,
                              status__won=True,
@@ -186,7 +162,7 @@ def get_total_won_quote_this_year(entity, user):
 def get_total_won_quote_this_year_multi(entities, user):
     # TODO: factorise
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
-        msg = ugettext(u'Error: «Acceptation date» is hidden')
+        msg = ugettext('Error: «Acceptation date» is hidden')
         return ((entity, msg) for entity in entities)
 
     return sum_totals_no_vat_multi(Quote, entities, user,
@@ -195,21 +171,10 @@ def get_total_won_quote_this_year_multi(entities, user):
                                   )
 
 
-# class _BaseTotalWonQuote(FunctionField):
-#     result_type = FunctionFieldDecimal  # Useful to get the right CSS class in list-view
-#
-#     @classmethod
-#     def populate_entities(cls, entities):
-#         fc = FieldsConfig.get_4_model(Quote)
-#
-#         for entity in entities:
-#             entity._fconfig_quote_cache = fc
-
 class _BaseTotalFunctionField(FunctionField):
     result_type = FunctionFieldDecimal  # Useful to get the right CSS class in list-view
     cache_attr  = None  # OVERLOAD ME
 
-    # def __call__(self, entity):
     def __call__(self, entity, user):
         total = None
         cache_attr = self.cache_attr
@@ -250,15 +215,12 @@ class _BaseTotalFunctionField(FunctionField):
         raise NotImplementedError
 
 
-# class _TotalPendingPayment(FunctionField):
+# TODO: rename this class without '_' prefix ?
+# TODO: prefix name with 'billing' (need data migration)
 class _TotalPendingPayment(_BaseTotalFunctionField):
     name         = 'total_pending_payment'
-    verbose_name = _(u'Total Pending Payment')
-    # result_type  = FunctionFieldDecimal  # Useful to get the right CSS class in list-view
+    verbose_name = _('Total Pending Payment')
     cache_attr   = '_cached_billing_total_pending_payment'
-
-    # def __call__(self, entity):
-    #     return FunctionFieldDecimal(get_total_pending(entity))
 
     @classmethod
     def single_func(cls):
@@ -269,14 +231,10 @@ class _TotalPendingPayment(_BaseTotalFunctionField):
         return get_total_pending_multi
 
 
-# class _TotalWonQuoteThisYear(_BaseTotalWonQuote):
 class _TotalWonQuoteThisYear(_BaseTotalFunctionField):
     name         = 'total_won_quote_this_year'
-    verbose_name = _(u'Total Won Quote This Year')
+    verbose_name = _('Total Won Quote This Year')
     cache_attr   = '_cached_billing_total_won_quote_this_year'
-
-    # def __call__(self, entity):
-    #     return FunctionFieldDecimal(get_total_won_quote_this_year(entity))
 
     @classmethod
     def single_func(cls):
@@ -287,14 +245,10 @@ class _TotalWonQuoteThisYear(_BaseTotalFunctionField):
         return get_total_won_quote_this_year_multi
 
 
-# class _TotalWonQuoteLastYear(_BaseTotalWonQuote):
 class _TotalWonQuoteLastYear(_BaseTotalFunctionField):
     name         = 'total_won_quote_last_year'
-    verbose_name = _(u'Total Won Quote Last Year')
+    verbose_name = _('Total Won Quote Last Year')
     cache_attr   = '_cached_billing_total_won_quote_last_year'
-
-    # def __call__(self, entity):
-    #     return FunctionFieldDecimal(get_total_won_quote_last_year(entity))
 
     @classmethod
     def single_func(cls):
@@ -305,13 +259,13 @@ class _TotalWonQuoteLastYear(_BaseTotalFunctionField):
         return get_total_won_quote_last_year_multi
 
 
-def hook_organisation():
-    Organisation.function_fields.add(_TotalPendingPayment(),
-                                     _TotalWonQuoteThisYear(),
-                                     _TotalWonQuoteLastYear()
-                                    )
-
-    Contact.function_fields.add(_TotalPendingPayment(),
-                                _TotalWonQuoteThisYear(),
-                                _TotalWonQuoteLastYear()
-                               )
+# def hook_organisation():
+#     Organisation.function_fields.add(_TotalPendingPayment(),
+#                                      _TotalWonQuoteThisYear(),
+#                                      _TotalWonQuoteLastYear()
+#                                     )
+#
+#     Contact.function_fields.add(_TotalPendingPayment(),
+#                                 _TotalWonQuoteThisYear(),
+#                                 _TotalWonQuoteLastYear()
+#                                )

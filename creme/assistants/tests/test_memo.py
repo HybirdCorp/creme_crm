@@ -10,6 +10,7 @@ try:
     from django.urls import reverse
     from django.utils.timezone import now
 
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import CremeEntity, FakeOrganisation, FakeMailingList
 
     from ..models import Memo
@@ -94,9 +95,10 @@ will be truncate by str() method"""
         self.assertEqual(0, Memo.objects.count())
 
     def test_function_field01(self):
-        funf = CremeEntity.function_fields.get('assistants-get_memos')
+        # funf = CremeEntity.function_fields.get('assistants-get_memos')
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
         self.assertIsNotNone(funf)
-        self.assertEqual(u'<ul></ul>', funf(self.entity, self.user).for_html())
+        self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
 
     def _oldify_memo(self, memo):
         cdate = memo.creation_date
@@ -104,7 +106,8 @@ will be truncate by str() method"""
         memo.save()
 
     def test_function_field02(self):
-        funf = CremeEntity.function_fields.get('assistants-get_memos')
+        # funf = CremeEntity.function_fields.get('assistants-get_memos')
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
 
         self._oldify_memo(self._create_memo('Content01'))
         self._create_memo('Content02')
@@ -112,7 +115,7 @@ will be truncate by str() method"""
         with self.assertNumQueries(1):
             result = funf(self.entity, self.user)
 
-        self.assertEqual(u'<ul><li>Content02</li><li>Content01</li></ul>', result.for_html())
+        self.assertEqual('<ul><li>Content02</li><li>Content01</li></ul>', result.for_html())
 
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'"
@@ -124,7 +127,8 @@ will be truncate by str() method"""
         self._oldify_memo(self._create_memo('Content03', entity=entity02))
         self._create_memo('Content04', entity=entity02)
 
-        funf = CremeEntity.function_fields.get('assistants-get_memos')
+        # funf = CremeEntity.function_fields.get('assistants-get_memos')
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
 
         with self.assertNumQueries(1):
             funf.populate_entities([self.entity, entity02], user)
@@ -133,8 +137,8 @@ will be truncate by str() method"""
             result1 = funf(self.entity, user)
             result2 = funf(entity02, user)
 
-        self.assertEqual(u'<ul><li>Content02</li><li>Content01</li></ul>', result1.for_html())
-        self.assertEqual(u'<ul><li>Content04</li><li>Content03</li></ul>', result2.for_html())
+        self.assertEqual('<ul><li>Content02</li><li>Content01</li></ul>', result1.for_html())
+        self.assertEqual('<ul><li>Content04</li><li>Content03</li></ul>', result2.for_html())
 
     def test_merge(self):
         def creator(contact01, contact02):

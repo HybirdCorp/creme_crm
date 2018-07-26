@@ -20,13 +20,13 @@
 
 from datetime import timedelta
 import logging
-# import warnings
+import warnings
 
 from django.urls import reverse
 from django.db.models import PositiveIntegerField
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import pgettext_lazy  # ugettext_lazy as _
 
-from creme.creme_core.core.function_field import FunctionField
+# from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.models.fields import CTypeForeignKey
 
 from .base import Base
@@ -35,29 +35,26 @@ from .base import Base
 logger = logging.getLogger(__name__)
 
 
-class _VerboseStatusField(FunctionField):
-    name         = 'get_verbose_status'
-    verbose_name = _(u'Status')
+# class _VerboseStatusField(FunctionField):
+#     name         = 'get_verbose_status'
+#     verbose_name = _('Status')
 
-# TODO:
-#    @classmethod
-#    def populate_entities(cls, entities):
 
 
 class AbstractTemplateBase(Base):
     ct        = CTypeForeignKey(editable=False).set_tags(viewable=False)
     status_id = PositiveIntegerField(editable=False).set_tags(viewable=False)  # TODO: avoid deletion of status
 
-    function_fields = Base.function_fields.new(_VerboseStatusField())
-    creation_label = pgettext_lazy('billing', u'Create a template')
-    save_label     = pgettext_lazy('billing', u'Save the template')
+    # function_fields = Base.function_fields.new(_VerboseStatusField())
+    creation_label = pgettext_lazy('billing', 'Create a template')
+    save_label     = pgettext_lazy('billing', 'Save the template')
 
     _verbose_status_cache = None
 
     class Meta(Base.Meta):
         abstract = True
-        verbose_name = pgettext_lazy('billing', u'Template')
-        verbose_name_plural = pgettext_lazy('billing', u'Templates')
+        verbose_name = pgettext_lazy('billing', 'Template')
+        verbose_name_plural = pgettext_lazy('billing', 'Templates')
 
     def get_absolute_url(self):
         return reverse('billing__view_template', args=(self.id,))
@@ -79,6 +76,11 @@ class AbstractTemplateBase(Base):
         return reverse('billing__list_templates')
 
     def get_verbose_status(self):
+        warnings.warn('models.AbstractTemplateBase.get_verbose_status() is deprecated ; '
+                      'use function_fields.TemplateBaseVerboseStatusField instead.',
+                      DeprecationWarning
+                     )
+
         vstatus = self._verbose_status_cache
 
         if vstatus is None or vstatus.id != self.status_id:
@@ -95,7 +97,12 @@ class AbstractTemplateBase(Base):
         return vstatus.name
 
     @property
-    def verbose_status(self):  # TODO: deprecate ??
+    def verbose_status(self):
+        warnings.warn('AbstractTemplateBase.verbose_status is deprecated '
+                      '(see get_verbose_status() warning).',
+                      DeprecationWarning
+                     )
+
         return self.get_verbose_status()
 
     def create_entity(self):

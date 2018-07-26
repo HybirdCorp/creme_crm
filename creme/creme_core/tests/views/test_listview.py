@@ -25,6 +25,7 @@ try:
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.gui.listview import ListViewState
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             HeaderFilter, RelationType, Relation, FieldsConfig,
@@ -2120,11 +2121,12 @@ class ListViewTestCase(ViewsTestCase):
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
 
-        func_field = FakeOrganisation.function_fields.get('tests-get_fake_todos')
+        # func_field = FakeOrganisation.function_fields.get('tests-get_fake_todos')
+        func_field = function_field_registry.get(FakeOrganisation, 'tests-fake_todos')
         self._build_hf(EntityCellFunctionField(model=FakeOrganisation, func_field=func_field))
 
         response = self.assertPOST200(self.url, data={'regular_field-name': '',
-                                                      'function_field-%s' % func_field.name: bebop.name,
+                                                      'function_field-{}'.format(func_field.name): bebop.name,
                                                      }
                                      )
         orgas_set = self._get_entities_set(response)

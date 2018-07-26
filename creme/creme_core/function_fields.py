@@ -18,24 +18,30 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.core.entity_cell import EntityCellFunctionField
-from creme.creme_core.gui.bricks import EntityBrick
-
-from . import get_ticket_model
-from .function_fields import ResolvingDurationField
+from .core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+from .models import CremeEntity
 
 
-class TicketBrick(EntityBrick):
-    verbose_name = _('Information on the ticket')
+class PropertiesField(FunctionField):
+    name         = 'get_pretty_properties'
+    verbose_name = _('Properties')
+    has_filter   = True  # ==> quick search in ListView
+    result_type  = FunctionFieldResultsList
 
-    def _get_cells(self, entity, context):
-        # cells = super(TicketBrick, self)._get_cells(entity=entity, context=context)
-        cells = super()._get_cells(entity=entity, context=context)
+    @classmethod
+    def filter_in_result(cls, search_string):
+        # Should we make a separated query to retrieve first the searched types ?
+        return Q(properties__type__text__icontains=search_string)
 
-        cells.append(EntityCellFunctionField(model=get_ticket_model(), func_field=ResolvingDurationField()))
-        return cells
+    def __call__(self, entity, user):
+        return FunctionFieldResultsList(
+            FunctionFieldResult(str(p))
+                for p in entity.get_properties()
+        )
 
-    def _get_title(self, entity, context):
-        return self.verbose_name
+    @classmethod
+    def populate_entities(cls, entities, user):
+        CremeEntity.populate_properties(entities)
