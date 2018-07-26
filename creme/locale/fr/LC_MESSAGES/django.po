@@ -1,14 +1,14 @@
 # FR LOCALISATION OF ROOT TEMPLATES
-# Copyright (C) 2017 Hybird
+# Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -i "activesync/*" -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "media_managers/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*"
+# > django-admin.py makemessages -l fr -i "activesync/*" -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme 1.7\n"
+"Project-Id-Version: Creme 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-13 23:43+0100\n"
+"POT-Creation-Date: 2018-07-26 17:32+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,19 +16,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: settings.py:121
+#: settings.py:127
 msgid "Format: Day-Month-Year (Ex:31-12-2017)"
 msgstr "Format : Jour-Mois-Année (Ex:31-12-2017)"
 
-#: settings.py:135
+#: settings.py:141
 msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)"
 msgstr "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2017 23:59:59)"
 
-#: settings.py:450
+#: settings.py:487
 msgid "Ice cream"
 msgstr "Crème glacée"
 
-#: settings.py:451
+#: settings.py:488
 msgid "Chantilly"
 msgstr "Chantilly"
 
@@ -40,13 +40,21 @@ msgstr "Creme — Erreur 403"
 msgid "Your are not allowed to access this page."
 msgstr "Vous n'êtes pas authorisé à accéder à cette page."
 
-#: templates/404.html:6
+#: templates/404.html:21
 msgid "Creme — 404 Error"
 msgstr "Creme — Erreur 404"
 
-#: templates/404.html:8
+#: templates/404.html:24
 msgid "The page you have requested is not found."
 msgstr "La page que vous avez demandée est introuvable."
+
+#: templates/404.html:26
+msgid "Details"
+msgstr "Détails"
+
+#: templates/404.html:28
+msgid "Hide details"
+msgstr "Cacher les détails"
 
 #: templates/409.html:6
 msgid "Creme — 409 Error"
@@ -61,7 +69,7 @@ msgstr ""
 msgid "Creme — 500 Error"
 msgstr "Creme — Erreur 500"
 
-#: templates/about/base.html:6 templates/about/base.html.py:142
+#: templates/about/base.html:6 templates/about/base.html:142
 msgid "About CremeCRM"
 msgstr "À propos de CremeCRM"
 
@@ -110,19 +118,19 @@ msgstr "Discuter avec nous"
 msgid "Connection"
 msgstr "Connexion"
 
-#: templates/authent/base.html:377
+#: templates/authent/base.html:421
 msgid "Log to <span class=\"app-label\">Crème CRM</span>"
 msgstr "Se connecter à <span class=\"app-label\">Crème CRM</span>"
 
-#: templates/authent/base.html:382
+#: templates/authent/base.html:429
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: templates/authent/base.html:386
+#: templates/authent/base.html:435
 msgid "Password"
 msgstr "Mot de passe"
 
-#: templates/authent/base.html:391
+#: templates/authent/base.html:442
 msgid "Log in"
 msgstr "Se connecter"
 
