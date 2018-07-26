@@ -166,9 +166,14 @@ class _FunctionFieldRegistry:
         @param model: A model class.
         @return: Instances of FunctionField.
         """
-        for ffields_dict in self._func_fields_classes.chain(model):
-            for ff_cls in ffields_dict.values():
-                yield ff_cls()
+        all_fields = {
+            ff_cls.name: ff_cls
+                for model_ffields in self._func_fields_classes.chain(model)
+                    for ff_cls in model_ffields.values()
+        }
+
+        for ff_cls in all_fields.values():
+            yield ff_cls()
 
     # TODO: accept instance too ?
     # TODO: 'default' argument ?
