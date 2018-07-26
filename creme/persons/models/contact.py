@@ -45,80 +45,79 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractContact(CremeEntity, PersonWithAddressesMixin):
-    civility   = ForeignKey(other_models.Civility, verbose_name=_(u'Civility'),
+    civility   = ForeignKey(other_models.Civility, verbose_name=_('Civility'),
                             blank=True, null=True, on_delete=SET_NULL,
                            )
-    last_name  = CharField(_(u'Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
-    first_name = CharField(_(u'First name'), max_length=100, blank=True)  # NB: same max_length than CremeUser.first_name
+    last_name  = CharField(_('Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
+    first_name = CharField(_('First name'), max_length=100, blank=True)  # NB: same max_length than CremeUser.first_name
 
-    description = TextField(_(u'Description'), blank=True).set_tags(optional=True)
+    description = TextField(_('Description'), blank=True).set_tags(optional=True)
 
     skype    = CharField('Skype', max_length=100, blank=True).set_tags(optional=True)
-    phone    = PhoneField(_(u'Phone number'), max_length=100, blank=True)\
+    phone    = PhoneField(_('Phone number'), max_length=100, blank=True)\
                          .set_tags(optional=True)
-    mobile   = PhoneField(_(u'Mobile'), max_length=100, blank=True).set_tags(optional=True)
-    fax      = CharField(_(u'Fax'), max_length=100, blank=True).set_tags(optional=True)
-    email    = EmailField(_(u'Email address'), blank=True).set_tags(optional=True)
-    url_site = URLField(_(u'Web Site'), max_length=500, blank=True)\
+    mobile   = PhoneField(_('Mobile'), max_length=100, blank=True).set_tags(optional=True)
+    fax      = CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
+    email    = EmailField(_('Email address'), blank=True).set_tags(optional=True)
+    url_site = URLField(_('Web Site'), max_length=500, blank=True)\
                        .set_tags(optional=True)
 
-    position      = ForeignKey(other_models.Position, verbose_name=_(u'Position'),
+    position      = ForeignKey(other_models.Position, verbose_name=_('Position'),
                                blank=True, null=True, on_delete=SET_NULL,
                               ).set_tags(optional=True)
-    full_position = CharField(_(u'Detailed position'), max_length=500, blank=True)\
+    full_position = CharField(_('Detailed position'), max_length=500, blank=True)\
                              .set_tags(optional=True)
 
-    sector   = ForeignKey(other_models.Sector, verbose_name=_(u'Line of business'),
+    sector   = ForeignKey(other_models.Sector, verbose_name=_('Line of business'),
                           blank=True, null=True, on_delete=SET_NULL,
                          ).set_tags(optional=True)
 
-    language = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),
+    language = ManyToManyField(Language, verbose_name=_('Spoken language(s)'),
                                blank=True, editable=False,
                               ).set_tags(viewable=False) # TODO: remove this field
 
-    is_user = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
+    is_user = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Related user'),
                          blank=True, null=True, related_name='related_contact',
                          on_delete=SET_NULL, editable=False
                         ).set_tags(clonable=False) \
-                         .set_null_label(pgettext_lazy('persons-is_user', u'None'))
+                         .set_null_label(pgettext_lazy('persons-is_user', 'None'))
 
-    birthday = DateField(_(u'Birthday'), blank=True, null=True).set_tags(optional=True)
-    image    = ImageEntityForeignKey(verbose_name=_(u'Photograph'),
+    birthday = DateField(_('Birthday'), blank=True, null=True).set_tags(optional=True)
+    image    = ImageEntityForeignKey(verbose_name=_('Photograph'),
                                      blank=True, null=True, on_delete=SET_NULL,
                                     ).set_tags(optional=True)
 
     # objects = CremeEntityManager()
 
-    # Needed because we expand its function fields in other apps (ie. billing)
-    # TODO: refactor
-    function_fields = CremeEntity.function_fields.new()
+    # # Needed because we expand its function fields in other apps (ie. billing)
+    # function_fields = CremeEntity.function_fields.new()
 
     search_score = 101
 
-    creation_label = _(u'Create a contact')
-    save_label     = _(u'Save the contact')
+    creation_label = _('Create a contact')
+    save_label     = _('Save the contact')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'persons'
         ordering = ('last_name', 'first_name')
-        verbose_name = _(u'Contact')
-        verbose_name_plural = _(u'Contacts')
+        verbose_name = _('Contact')
+        verbose_name_plural = _('Contacts')
         index_together = ('last_name', 'first_name', 'cremeentity_ptr')
 
     def __str__(self):
         civ = self.civility
 
         if civ and civ.shortcut:
-            return ugettext(u'{civility} {first_name} {last_name}').format(
+            return ugettext('{civility} {first_name} {last_name}').format(
                         civility=civ.shortcut,
                         first_name=self.first_name,
                         last_name=self.last_name,
             )
 
         if self.first_name:
-            return ugettext(u'{first_name} {last_name}').format(
+            return ugettext('{first_name} {last_name}').format(
                             first_name=self.first_name,
                             last_name=self.last_name,
             )
@@ -127,17 +126,17 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     def _check_deletion(self):
         if self.is_user is not None:
-            raise SpecificProtectedError(ugettext(u'A user is associated with this contact.'),
+            raise SpecificProtectedError(ugettext('A user is associated with this contact.'),
                                          [self]
                                         )
 
     def clean(self):
         if self.is_user_id:
             if not self.first_name:
-                raise ValidationError(ugettext(u'This Contact is related to a user and must have a first name.'))
+                raise ValidationError(ugettext('This Contact is related to a user and must have a first name.'))
 
             if not self.email:
-                raise ValidationError(ugettext(u'This Contact is related to a user and must have an e-mail address.'))
+                raise ValidationError(ugettext('This Contact is related to a user and must have an e-mail address.'))
 
     def get_employers(self):
         return get_organisation_model().objects.filter(relations__type=REL_OBJ_EMPLOYED_BY,
@@ -190,8 +189,8 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         # TODO: assert user is not a team + enforce non team clean() ?
         return get_contact_model().objects.create(user=user, is_user=user,
                                                   last_name=user.last_name or user.username.title(),
-                                                  first_name=user.first_name or _(u'N/A'),
-                                                  email=user.email or _(u'complete@Me.com'),
+                                                  first_name=user.first_name or _('N/A'),
+                                                  email=user.email or _('complete@Me.com'),
                                                   **kwargs
                                                  )
 

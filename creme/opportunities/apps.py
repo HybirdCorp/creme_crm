@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 class OpportunitiesConfig(CremeAppConfig):
     name = 'creme.opportunities'
-    verbose_name = _(u'Opportunities')
+    verbose_name = _('Opportunities')
     dependencies = ['creme.persons', 'creme.products']
 
     def ready(self):
@@ -67,10 +67,14 @@ class OpportunitiesConfig(CremeAppConfig):
         brick_registry.register_hat(Opportunity, secondary_brick_classes=(bricks.OpportunityCardHatBrick,))
 
     def register_buttons(self, button_registry):
-        # from . import buttons
-        # button_registry.register(buttons.linked_opportunity_button)
         from . import buttons
+
         button_registry.register(buttons.LinkedOpportunityButton)
+
+    def register_function_fields(self, function_field_registry):
+        from .function_fields import TurnoverField
+
+        function_field_registry.register(self.Opportunity, TurnoverField)
 
     def register_icons(self, icon_registry):
         icon_registry.register(self.Opportunity, 'images/opportunity_%(size)s.png')
@@ -98,14 +102,14 @@ class OpportunitiesConfig(CremeAppConfig):
 
         container = creme_menu.get('features') \
                               .get_or_create(creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
-                                             defaults={'label': _(u'Commercial')},
+                                             defaults={'label': _('Commercial')},
                                             ) \
                               .add(URLItem.list_view('opportunities-opportunities', model=Opportunity), priority=10)
         creme_menu.get('creation', 'main_entities') \
                   .add(URLItem.creation_view('opportunities-create_opportunity', model=Opportunity), priority=50)
 
         create_any = creme_menu.get('creation', 'any_forms') \
-                               .get_or_create_group('opportunities-commercial', _(u'Commercial'), priority=20) \
+                               .get_or_create_group('opportunities-commercial', _('Commercial'), priority=20) \
                                .add_link('opportunities-create_opportunity', Opportunity, priority=3)
 
         if self.billing_installed:
@@ -133,12 +137,12 @@ class OpportunitiesConfig(CremeAppConfig):
 
         def won_opportunities():
             count = Opportunity.objects.filter(sales_phase__won=True).count()
-            return npgettext('opportunities-stats', u'{count} won', u'{count} won', count).format(count=count)
+            return npgettext('opportunities-stats', '{count} won', '{count} won', count).format(count=count)
 
         statistics_registry.register(
             id='opportunities', label=Opportunity._meta.verbose_name_plural,
             func=lambda: [won_opportunities(),
-                          pgettext('opportunities-stats', u'{count} in all').format(count=Opportunity.objects.count()),
+                          pgettext('opportunities-stats', '{count} in all').format(count=Opportunity.objects.count()),
                          ],
             perm='opportunities', priority=10,
         )
@@ -158,9 +162,9 @@ class OpportunitiesConfig(CremeAppConfig):
             linked_invoice    = get_rtype(id=REL_SUB_LINKED_INVOICE)
             linked_quote      = get_rtype(id=REL_SUB_LINKED_QUOTE)
         except Exception as e:
-            logger.info("A problem occurred: %s\n"
-                        "It can happen during unitests or during the 'populate' phase. "
-                        "Otherwise, has the database correctly been populated?", e
+            logger.info('A problem occurred: %s\n'
+                        'It can happen during unit tests or during the "populate" phase. '
+                        'Otherwise, has the database correctly been populated?', e
                        )
         else:
             Invoice    = get_invoice_model()

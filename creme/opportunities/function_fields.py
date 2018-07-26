@@ -18,24 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.core.entity_cell import EntityCellFunctionField
-from creme.creme_core.gui.bricks import EntityBrick
-
-from . import get_ticket_model
-from .function_fields import ResolvingDurationField
+from creme.creme_core.core import function_field
+from creme.creme_core.models import FieldsConfig
 
 
-class TicketBrick(EntityBrick):
-    verbose_name = _('Information on the ticket')
+class TurnoverField(function_field.FunctionField):
+    name         = 'get_weighted_sales'
+    verbose_name = _('Weighted sales')
+    result_type  = function_field.FunctionFieldDecimal
 
-    def _get_cells(self, entity, context):
-        # cells = super(TicketBrick, self)._get_cells(entity=entity, context=context)
-        cells = super()._get_cells(entity=entity, context=context)
+    def __call__(self, entity, user):
+        is_hidden = FieldsConfig.get_4_model(entity.__class__).is_fieldname_hidden
 
-        cells.append(EntityCellFunctionField(model=get_ticket_model(), func_field=ResolvingDurationField()))
-        return cells
+        if is_hidden('estimated_sales'):
+            value = ugettext('Error: «Estimated sales» is hidden')
+        elif is_hidden('chance_to_win'):
+            value = ugettext(r'Error: «% of chance to win» is hidden')
+        else:
+            value = (entity.estimated_sales or 0) * (entity.chance_to_win or 0) / 100.0
 
-    def _get_title(self, entity, context):
-        return self.verbose_name
+        return self.result_type(value)

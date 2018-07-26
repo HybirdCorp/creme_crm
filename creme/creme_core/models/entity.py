@@ -32,7 +32,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList, FunctionFieldsManager
+# from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList, FunctionFieldsManager
 
 from .auth import Sandbox
 from .base import CremeModel  # CremeAbstractEntity, _SEARCH_FIELD_MAX_LENGTH
@@ -55,37 +55,37 @@ class EntityAction:
         self.is_allowed = is_allowed
 
 
-class _PrettyPropertiesField(FunctionField):
-    name         = 'get_pretty_properties'
-    verbose_name = _(u'Properties')
-    has_filter   = True  # ==> quick search in ListView
-    result_type  = FunctionFieldResultsList
-
-    @classmethod
-    def filter_in_result(cls, search_string):
-        # Should we make a separated query to retrieve first the searched types ?
-        return Q(properties__type__text__icontains=search_string)
-
-    def __call__(self, entity, user):
-        return FunctionFieldResultsList(FunctionFieldResult(str(p))
-                                            for p in entity.get_properties()
-                                       )
-
-    @classmethod
-    def populate_entities(cls, entities, user):
-        CremeEntity.populate_properties(entities)
+# class _PrettyPropertiesField(FunctionField):
+#     name         = 'get_pretty_properties'
+#     verbose_name = _('Properties')
+#     has_filter   = True  # ==> quick search in ListView
+#     result_type  = FunctionFieldResultsList
+#
+#     @classmethod
+#     def filter_in_result(cls, search_string):
+#         # Should we make a separated query to retrieve first the searched types ?
+#         return Q(properties__type__text__icontains=search_string)
+#
+#     def __call__(self, entity, user):
+#         return FunctionFieldResultsList(FunctionFieldResult(str(p))
+#                                             for p in entity.get_properties()
+#                                        )
+#
+#     @classmethod
+#     def populate_entities(cls, entities, user):
+#         CremeEntity.populate_properties(entities)
 
 
 # class CremeEntity(CremeAbstractEntity):
 class CremeEntity(CremeModel):
-    created  = CreationDateTimeField(_(u'Creation date'), editable=False).set_tags(clonable=False)
-    modified = ModificationDateTimeField(_(u'Last modification'), editable=False).set_tags(clonable=False)
+    created  = CreationDateTimeField(_('Creation date'), editable=False).set_tags(clonable=False)
+    modified = ModificationDateTimeField(_('Last modification'), editable=False).set_tags(clonable=False)
 
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
     header_filter_search_field = CharField(max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False).set_tags(viewable=False)
 
     is_deleted = BooleanField(default=False, editable=False).set_tags(viewable=False)
-    user       = CremeUserForeignKey(verbose_name=_(u'Owner user'))
+    user       = CremeUserForeignKey(verbose_name=_('Owner user'))
 
     uuid    = UUIDField(unique=True, editable=False, default=uuid.uuid4).set_tags(viewable=False)
     sandbox = ForeignKey(Sandbox, null=True, editable=False, on_delete=PROTECT).set_tags(viewable=False)
@@ -94,14 +94,14 @@ class CremeEntity(CremeModel):
 
     _real_entity = None
 
-    function_fields = FunctionFieldsManager(_PrettyPropertiesField())
+    # function_fields = FunctionFieldsManager(_PrettyPropertiesField())
 
     # Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
     # TODO: use tag instead.
     allowed_related = set()
 
-    creation_label = _(u'Create an entity')
-    save_label     = _(u'Save the entity')
+    creation_label = _('Create an entity')
+    save_label     = _('Save the entity')
     # multi_creation_label = _('Add entities')  TODO ??
     # multi_save_label = _('Save the entities')  TODO ??
 
@@ -153,7 +153,7 @@ class CremeEntity(CremeModel):
         real_entity = self.get_real_entity()
 
         if self is real_entity:
-            return u"Creme entity: {}".format(self.id)
+            return 'Creme entity: {}'.format(self.id)
 
         return str(real_entity)
 
@@ -166,7 +166,7 @@ class CremeEntity(CremeModel):
 
     def allowed_str(self, user):
         return str(self) if user.has_perm_to_view(self) else \
-               ugettext(u'Entity #{id} (not viewable)').format(id=self.id)
+               ugettext('Entity #{id} (not viewable)').format(id=self.id)
 
     def get_real_entity(self):
         # return self._get_real_entity(CremeEntity)
@@ -297,7 +297,7 @@ class CremeEntity(CremeModel):
         for entity in entities:
             for relation_type_id in relation_type_ids:
                 entity._relations_map[relation_type_id] = relations_map[entity.id][relation_type_id]
-                logger.debug(u'Fill relations cache id=%s type=%s', entity.id, relation_type_id)
+                logger.debug('Fill relations cache id=%s type=%s', entity.id, relation_type_id)
 
     def get_custom_value(self, custom_field):
         cvalue = None
@@ -321,7 +321,7 @@ class CremeEntity(CremeModel):
             for custom_field in custom_fields:
                 cf_id = custom_field.id
                 entity._cvalues_map[cf_id] = cvalues_map[entity_id].get(cf_id)
-                # logger.debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
+                # logger.debug('Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
 
     def get_entity_summary(self, user):
         return escape(self.allowed_str(user))
@@ -343,7 +343,7 @@ class CremeEntity(CremeModel):
         edit_url = self.get_edit_absolute_url()
         if edit_url:
             actions.append(EntityAction(edit_url,
-                                        text=ugettext(u'Edit'),
+                                        text=ugettext('Edit'),
                                         is_allowed=user.has_perm_to_change(self),
                                         icon='edit',
                                        )
@@ -352,7 +352,7 @@ class CremeEntity(CremeModel):
         delete_url = self.get_delete_absolute_url()
         if delete_url:
             actions.append(EntityAction(delete_url,
-                                        text=ugettext(u'Delete'),
+                                        text=ugettext('Delete'),
                                         is_allowed=user.has_perm_to_delete(self),
                                         icon='delete',
                                         attrs={'data-action': 'delete'},
@@ -360,10 +360,10 @@ class CremeEntity(CremeModel):
                           )
 
         return {'default': EntityAction(self.get_absolute_url(),
-                                        text=ugettext(u'See'),
+                                        text=ugettext('See'),
                                         is_allowed=True,
                                         icon='view',
-                                        verbose=ugettext(u'Go to the entity {entity}').format(entity=self),
+                                        verbose=ugettext('Go to the entity {entity}').format(entity=self),
                                        ),
                 'others':  actions,
                }
@@ -398,7 +398,7 @@ class CremeEntity(CremeModel):
 
         for entity in entities:
             entity_id = entity.id
-            logger.debug(u'Fill properties cache entity_id=%s', entity_id)
+            logger.debug('Fill properties cache entity_id=%s', entity_id)
             entity._properties = properties_map[entity_id]
 
     def save(self, *args, **kwargs):

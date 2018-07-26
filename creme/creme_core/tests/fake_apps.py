@@ -11,6 +11,7 @@ def ready():
 
     already_run = True
 
+    from ..core.function_field import function_field_registry
     from ..core.imprint import imprint_manager
     # from ..gui import (brick_registry, import_form_registry,
     #         merge_form_registry, quickforms_registry, smart_columns_registry)
@@ -19,27 +20,32 @@ def ready():
     from ..gui.listview import smart_columns_registry
     from ..gui.mass_import import import_form_registry
     from ..gui.merge import merge_form_registry
+    from ..models import CremeEntity
     from ..registry import creme_registry
 
     from .fake_bricks import FakeAppPortalBrick
     from .fake_constants import FAKE_REL_SUB_EMPLOYED_BY
     from .fake_forms import (FakeContactQuickForm, FakeOrganisationQuickForm,
             get_csv_form_builder, get_merge_form_builder)
+    from .fake_function_fields import FakeTodosField
     from .fake_models import (FakeContact, FakeOrganisation, FakeImage,
             FakeActivity, FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
 
-    creme_registry.register_entity_models(FakeContact,
-                                          FakeOrganisation,
-                                          FakeImage,
-                                          FakeActivity,
-                                          FakeEmailCampaign,
-                                          FakeMailingList,
-                                          FakeInvoice,
-                                          FakeInvoiceLine,
-                                          FakeConfigEntity,
-                                         )
+    creme_registry.register_entity_models(
+        FakeContact,
+        FakeOrganisation,
+        FakeImage,
+        FakeActivity,
+        FakeEmailCampaign,
+        FakeMailingList,
+        FakeInvoice,
+        FakeInvoiceLine,
+        FakeConfigEntity,
+    )
+
+    function_field_registry.register(CremeEntity, FakeTodosField)
 
     imprint_manager.register(FakeOrganisation, hours=2)
     imprint_manager.register(FakeContact, minutes=60)

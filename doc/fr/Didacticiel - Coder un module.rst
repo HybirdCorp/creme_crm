@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 17-07-2018 pour la version 2.0 de Creme
+:Version: 26-07-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -1555,11 +1555,13 @@ Champs fonctions
 ~~~~~~~~~~~~~~~~
 
 Ce sont des champs qui n'existent pas en base de données, et qui permettent
-d'effectuer des calculs ou des requêtes afin de présenter des l'information
-utile aux utilisateurs. Ils sont être disponibles dans les vues en listes et
-les blocs personnalisés. ::
+d'effectuer des calculs ou des requêtes afin de présenter des informations
+utiles aux utilisateurs. Ils sont être disponibles dans les vues en liste et
+les blocs personnalisés.
 
-    [...]
+Dans notre exemple le champ fonction affichera l'age dun castor. Créez un
+fichier ``function_fields.py`` ::
+
     from datetime import date
 
     from django.utils.translation import ugettext
@@ -1567,48 +1569,48 @@ les blocs personnalisés. ::
     from creme.creme_core.core.function_field import FunctionField
 
 
-    class _BeaverAgeField(FunctionField):
-        name         = 'get_age'
-        verbose_name = _('Age')
-
-
-    class Beaver(CremeEntity):
-        [...]
-
-        function_fields = CremeEntity.function_fields.new(_ResolvingDurationField())
-
-        [...]
-
-        def get_age(self):
-            birthday = self.birthday
-
-            if not birthday:
-                return ugettext('N/A')
-
-            return ugettext('{} year(s)').format(date.today().year - birthday.year)
-
-
-**Notes** Dans le cas le plus simple, le *name* du FunctionField, qui lui sert
-d'identifiant (quand on enregistre une vue de liste par exemple) est aussi le
-nom d'une méthode de votre entité. Vous pouvez aussi définir le code de votre
-champ fonction dans ce dernier (c'est pratique pour en rajouter dans une entité
-d'une app dont vous ne voulez pas toucher le code) : ::
-
-    from creme.creme_core.core.function_field import FunctionField,  FunctionFieldResult
-
-    class _BeaverAgeField(FunctionField):
-        name         = 'compute_age'
+    class BeaverAgeField(FunctionField):
+        name         = 'beavers-age'
         verbose_name = _('Age')
 
         def __call__(self, entity, user):
             birthday = entity.birthday
 
-            if not birthday:
-                age = ugettext('N/A)
-            else:
-                age = ugettext('{} year(s)').format(date.today().year - birthday.year)
+            return self.result_type(
+                ugettext('{} year(s)').format(date.today().year - birthday.year)
+                if birthday else
+                ugettext('N/A')
+            )
 
-            return FunctionFieldResult(age)
+
+L'attribut ``name`` sera utilisé comme identifiant ; L'attribut ``verbose_name``
+sera utilisé par exemple dans la vue de liste comme titre de colonne (comme
+l'attribut homonyme des champs classiques des modèles par exemple).
+
+**Note** : le resultat doit être du type ``FunctionFieldResult`` (ou d'une de ses
+classes filles, comme ``FunctionFieldDecimal`` ou ``FunctionFieldResultsList``),
+qui est la valeur par défaut de ``FunctionField.result_type`` ; ce type va
+permettre de formatter coorectement la valeur, selon qu'on affiche du HTML
+ou qu'on exporte du CSV.
+
+Puis dans votre ``apps.py``, ajoutez la méthode ``register_function_fields()``
+telle que : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_function_fields(self, function_field_registry):  # <- NEW
+            from . import function_fields
+
+            function_field_registry.register(Beaver, function_fields.BeaverAgeField)
+
+
+**Notes** : comme vous précisez le modèle associé à votre champ fonction, il est
+aisé d'enrichir un modèle venu d'une autre app. Et comme les champs fonctions
+sont hérités, si vous en ajoutez un à ``CremeEntity``, il sera disponible dans
+tous les types d'entités.
 
 
 Modifier les apps existantes

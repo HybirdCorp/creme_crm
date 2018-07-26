@@ -159,7 +159,7 @@ class CremeAppConfig(AppConfig):
             if hasattr(self, 'register_creme_app'):
                 logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
 
-            from .core import imprint, reminder, sandbox, setting_key
+            from .core import function_field, imprint, reminder, sandbox, setting_key
             from .gui import (bricks, bulk_update, button_menu, fields_config, field_printers, icons,
                       listview, mass_import, menu, merge, quick_forms, statistics)
 
@@ -170,6 +170,7 @@ class CremeAppConfig(AppConfig):
             self.register_buttons(button_menu.button_registry)
             self.register_fields_config(fields_config.fields_config_registry)
             self.register_field_printers(field_printers.field_printers_registry)
+            self.register_function_fields(function_field.function_field_registry)
             self.register_icons(icons.icon_registry)
             self.register_imprints(imprint.imprint_manager)
             self.register_mass_import(mass_import.import_form_registry)
@@ -207,6 +208,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_field_printers(self, field_printers_registry):
+        pass
+
+    def register_function_fields(self, function_field_registry):
         pass
 
     def register_icons(self, icon_registry):
@@ -248,7 +252,7 @@ class CremeAppConfig(AppConfig):
 
 class CremeCoreConfig(CremeAppConfig):
     name = 'creme.creme_core'
-    verbose_name = _(u'Core')
+    verbose_name = _('Core')
 
     @property
     def url_root(self):
@@ -294,24 +298,24 @@ class CremeCoreConfig(CremeAppConfig):
         from .gui.quick_forms import quickforms_registry
 
         creme_menu.add(ContainerItem('creme', label='Creme')
-                          .add(URLItem('home', url=reverse('creme_core__home'), label=_(u'Home')), priority=10)
+                          .add(URLItem('home', url=reverse('creme_core__home'), label=_('Home')), priority=10)
                           .add(TrashItem('trash'), priority=20)  # TODO: icon ?
                           .add(ItemGroup('user', label=_(u'User'))
-                                  .add(URLItem('my_page', url=reverse('creme_core__my_page'), label=_(u'My page')),
+                                  .add(URLItem('my_page', url=reverse('creme_core__my_page'), label=_('My page')),
                                        priority=10,
                                       )
-                                  .add(URLItem('my_jobs', url=reverse('creme_core__my_jobs'), label=_(u'My jobs')),
+                                  .add(URLItem('my_jobs', url=reverse('creme_core__my_jobs'), label=_('My jobs')),
                                        priority=20,
                                       ),
                                priority=30,
                               )
-                          .add(URLItem('logout', url=reverse('creme_logout'), label=_(u'Log out')), priority=40),
+                          .add(URLItem('logout', url=reverse('creme_logout'), label=_('Log out')), priority=40),
                        priority=10,
                       ) \
                   .add(ItemGroup('features')
                             .add(ContainerItem('tools', label=_(u'Tools'))
                                     .add(URLItem('creme_core-jobs', url=reverse('creme_core__jobs'),
-                                                 label=_(u'Jobs'), perm=lambda user: user.is_superuser  # TODO: '*superuser*'' ?
+                                                 label=_('Jobs'), perm=lambda user: user.is_superuser  # TODO: '*superuser*'' ?
                                                 ),
                                          priority=5,
                                         ),
@@ -319,28 +323,29 @@ class CremeCoreConfig(CremeAppConfig):
                                 ),
                        priority=20,
                       ) \
-                  .add(ContainerItem('creation', label=_(u'+ Creation'))
-                           .add(ItemGroup('main_entities', label=_(u'Main entities')), priority=10)
+                  .add(ContainerItem('creation', label=_('+ Creation'))
+                           .add(ItemGroup('main_entities', label=_('Main entities')), priority=10)
                            .add(QuickCreationItemGroup('quick_forms', registry=quickforms_registry), priority=20)
-                           .add(CreationFormsItem('any_forms', label=_(u'Other type of entity')), priority=30),
+                           .add(CreationFormsItem('any_forms', label=_('Other type of entity')), priority=30),
                        priority=30,
                       ) \
-                  .add(LastViewedEntitiesItem('recent_entities', label=_(u'Recent entities')), priority=40)
+                  .add(LastViewedEntitiesItem('recent_entities', label=_('Recent entities')), priority=40)
 
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.PropertiesBrick,
-                                bricks.RelationsBrick,
-                                bricks.CustomFieldsBrick,
-                                bricks.HistoryBrick,
-                                bricks.ImprintsBrick,
-                                bricks.TrashBrick,
-                                bricks.StatisticsBrick,
-                                bricks.JobBrick,
-                                bricks.JobsBrick,
-                                bricks.MyJobsBrick,
-                               )
+        brick_registry.register(
+            bricks.PropertiesBrick,
+            bricks.RelationsBrick,
+            bricks.CustomFieldsBrick,
+            bricks.HistoryBrick,
+            bricks.ImprintsBrick,
+            bricks.TrashBrick,
+            bricks.StatisticsBrick,
+            bricks.JobBrick,
+            bricks.JobsBrick,
+            bricks.MyJobsBrick,
+        )
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import CremeProperty
@@ -352,6 +357,12 @@ class CremeCoreConfig(CremeAppConfig):
 
         button_registry.register(buttons.Restrict2SuperusersButton)
 
+    def register_function_fields(self, function_field_registry):
+        from .function_fields import PropertiesField
+        from .models.entity import CremeEntity
+
+        function_field_registry.register(CremeEntity, PropertiesField)
+
     def register_sanboxes(self, sandbox_type_registry):
         from . import sandboxes
 
@@ -360,10 +371,11 @@ class CremeCoreConfig(CremeAppConfig):
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 
-        setting_key_registry.register(setting_keys.block_opening_key,
-                                      setting_keys.block_showempty_key,
-                                      setting_keys.currency_symbol_key,
-                                     )
+        setting_key_registry.register(
+            setting_keys.block_opening_key,
+            setting_keys.block_showempty_key,
+            setting_keys.currency_symbol_key,
+        )
 
     # TODO: better API + move some code to creme_config ??
     @staticmethod

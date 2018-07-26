@@ -25,7 +25,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 class TicketsConfig(CremeAppConfig):
     name = 'creme.tickets'
-    verbose_name = _(u'Tickets')
+    verbose_name = _('Tickets')
     dependencies = ['creme.creme_core']
 
     def all_apps_ready(self):
@@ -45,10 +45,14 @@ class TicketsConfig(CremeAppConfig):
         brick_registry.register_4_model(self.Ticket, TicketBrick)
 
     def register_buttons(self, button_registry):
-        # from .buttons import linked_2_ticket_button
-        # button_registry.register(linked_2_ticket_button)
         from . import buttons
+
         button_registry.register(buttons.Linked2TicketButton)
+
+    def register_function_fields(self, function_field_registry):
+        from .function_fields import ResolvingDurationField
+
+        function_field_registry.register(self.Ticket, ResolvingDurationField)
 
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register
@@ -75,7 +79,7 @@ class TicketsConfig(CremeAppConfig):
         creme_menu.get('features', 'tools') \
                   .add(creme_menu.URLItem.list_view('tickets-tickets', model=Ticket), priority=100)
         creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('tools', _(u'Tools'), priority=100) \
+                  .get_or_create_group('tools', _('Tools'), priority=100) \
                   .add_link('tickets-create_ticket', Ticket, priority=100)
 
     def register_smart_columns(self, smart_columns_registry):

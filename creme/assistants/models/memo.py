@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
+# from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -26,17 +26,17 @@ from django.db.models import TextField, BooleanField, ForeignKey, PositiveIntege
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
-from creme.creme_core.models import CremeModel, CremeEntity
+# from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+from creme.creme_core.models import CremeModel  # CremeEntity
 from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
 from creme.creme_core.utils import ellipsis
 
 
 class Memo(CremeModel):
-    content       = TextField(_(u'Content'))
-    on_homepage   = BooleanField(_(u'Displayed on homepage'), blank=True, default=False)
-    creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
-    user          = CremeUserForeignKey(verbose_name=_(u'Owner user'))
+    content       = TextField(_('Content'))
+    on_homepage   = BooleanField(_('Displayed on homepage'), blank=True, default=False)
+    creation_date = CreationDateTimeField(_('Creation date'), editable=False)
+    user          = CremeUserForeignKey(verbose_name=_('Owner user'))
 
     # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name='memo_entity_set', editable=False, on_delete=CASCADE)
@@ -45,8 +45,8 @@ class Memo(CremeModel):
 
     class Meta:
         app_label = 'assistants'
-        verbose_name = _(u'Memo')
-        verbose_name_plural = _(u'Memos')
+        verbose_name = _('Memo')
+        verbose_name_plural = _('Memos')
 
     def __str__(self):
         # NB: translate for unicode can not take 2 arguments...
@@ -73,33 +73,33 @@ class Memo(CremeModel):
         return self.creme_entity
 
 
-class _GetMemos(FunctionField):
-    name         = 'assistants-get_memos'
-    verbose_name = _(u'Memos')
-    result_type  = FunctionFieldResultsList
-
-    def __call__(self, entity, user):
-        cache = getattr(entity, '_memos_cache', None)
-
-        if cache is None:
-            cache = entity._memos_cache = list(Memo.objects.filter(entity_id=entity.id)
-                                                           .order_by('-creation_date')
-                                                           .values_list('content', flat=True)
-                                              )
-
-        return FunctionFieldResultsList(FunctionFieldResult(content) for content in cache)
-
-    @classmethod
-    def populate_entities(cls, entities, user):
-        memos_map = defaultdict(list)
-
-        for content, e_id in Memo.objects.filter(entity_id__in=[e.id for e in entities]) \
-                                         .order_by('-creation_date') \
-                                         .values_list('content', 'entity_id'):
-            memos_map[e_id].append(content)
-
-        for entity in entities:
-            entity._memos_cache = memos_map[entity.id]
-
-
-CremeEntity.function_fields.add(_GetMemos())
+# class _GetMemos(FunctionField):
+#     name         = 'assistants-get_memos'
+#     verbose_name = _(u'Memos')
+#     result_type  = FunctionFieldResultsList
+#
+#     def __call__(self, entity, user):
+#         cache = getattr(entity, '_memos_cache', None)
+#
+#         if cache is None:
+#             cache = entity._memos_cache = list(Memo.objects.filter(entity_id=entity.id)
+#                                                            .order_by('-creation_date')
+#                                                            .values_list('content', flat=True)
+#                                               )
+#
+#         return FunctionFieldResultsList(FunctionFieldResult(content) for content in cache)
+#
+#     @classmethod
+#     def populate_entities(cls, entities, user):
+#         memos_map = defaultdict(list)
+#
+#         for content, e_id in Memo.objects.filter(entity_id__in=[e.id for e in entities]) \
+#                                          .order_by('-creation_date') \
+#                                          .values_list('content', 'entity_id'):
+#             memos_map[e_id].append(content)
+#
+#         for entity in entities:
+#             entity._memos_cache = memos_map[entity.id]
+#
+#
+# CremeEntity.function_fields.add(_GetMemos())

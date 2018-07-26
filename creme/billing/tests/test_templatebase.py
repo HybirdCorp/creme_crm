@@ -7,6 +7,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import Relation
 
     from creme.persons.tests.base import skipIfCustomOrganisation
@@ -90,12 +91,12 @@ class TemplateBaseTestCase(_BillingTestCase):
         tpl = self._create_templatebase(Invoice, invoice_status.id)
 
         with self.assertNoException():
-            funf = tpl.function_fields.get('get_verbose_status')
+            # funf = tpl.function_fields.get('get_verbose_status')
+            funf = function_field_registry.get(TemplateBase, 'get_verbose_status')
 
         self.assertIsNotNone(funf)
 
         with self.assertNumQueries(1):
-            # status_str = funf(tpl).for_html()
             status_str = funf(tpl, self.user).for_html()
 
         self.assertEqual(str(invoice_status), status_str)

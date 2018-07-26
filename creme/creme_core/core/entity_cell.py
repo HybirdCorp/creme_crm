@@ -32,7 +32,8 @@ from ..models.fields import DatePeriodField
 from ..utils.collections import ClassKeyedMap
 from ..utils.db import populate_related
 from ..utils.meta import FieldInfo
-from .function_field import FunctionFieldDecimal, FunctionFieldResultsList
+
+from .function_field import FunctionFieldDecimal, FunctionFieldResultsList, function_field_registry
 
 
 logger = logging.getLogger(__name__)
@@ -209,7 +210,6 @@ class EntityCellRegularField(EntityCell):
 
     def __init__(self, model, name, field_info, is_hidden=False):
         "Use build() instead of using this constructor directly."
-        # self._model = model
         self._field_info = field_info
         self._printer_html = self._printer_csv = None
 
@@ -279,10 +279,6 @@ class EntityCellRegularField(EntityCell):
     def is_multiline(self):
         return any(isinstance(f, MULTILINE_FIELDS) for f in self._field_info)
 
-    # @property
-    # def model(self):
-    #     return self._model
-
     def _get_field_class(self):
         return self._field_info[-1].__class__
 
@@ -294,6 +290,8 @@ class EntityCellRegularField(EntityCell):
         printer = self._printer_html
 
         if printer is None:
+            # TODO: pass the 'field_printers_registry' in a context dict when building our instance
+            #       (see EntityCellFunctionField too)
             from ..gui.field_printers import field_printers_registry
 
             self._printer_html = printer = \
@@ -387,7 +385,6 @@ class EntityCellFunctionField(EntityCell):
         FunctionFieldDecimal: models.DecimalField,
     }
 
-    # def __init__(self, func_field):
     def __init__(self, model, func_field):
         self._functionfield = func_field
 
@@ -401,7 +398,9 @@ class EntityCellFunctionField(EntityCell):
 
     @staticmethod
     def build(model, func_field_name):
-        func_field = model.function_fields.get(func_field_name)
+        # func_field = model.function_fields.get(func_field_name)
+        # TODO: pass the 'function_field_registry' in a context
+        func_field = function_field_registry.get(model, func_field_name)
 
         if func_field is None:
             logger.warning('EntityCellFunctionField: function field "%s" does not exist', func_field_name)
@@ -475,31 +474,30 @@ class EntityCellRelation(EntityCell):
         related_entities = entity.get_related_entities(self.value, True)
 
         if not related_entities:
-            return u''
+            return ''
 
         if len(related_entities) == 1:
             return widget_entity_hyperlink(related_entities[0], user)
 
-        return format_html(u'<ul>{}</ul>',
+        return format_html('<ul>{}</ul>',
                            format_html_join(
-                               '', u'<li>{}</li>',
+                               '', '<li>{}</li>',
                                ([widget_entity_hyperlink(e, user)] for e in related_entities)
                            )
                           )
 
     def render_csv(self, entity, user):
         has_perm = user.has_perm_to_view
-        return u'/'.join(str(o)
+        return '/'.join(str(o)
                             for o in entity.get_related_entities(self.value, True)
                                 if has_perm(o)
-                        )
+                       )
 
 
 # @CELLS_MAP TODO ??
 class EntityCellVolatile(EntityCell):
     type_id = 'volatile'
 
-    # def __init__(self, value, title, render_func, is_hidden=False):
     def __init__(self, model, value, title, render_func, is_hidden=False):
         self._render_func = render_func
         # super(EntityCellVolatile, self).__init__(model=model,

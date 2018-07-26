@@ -3,7 +3,6 @@
 try:
     from datetime import timedelta, datetime
     from functools import partial
-    # from json import loads as load_json
 
     from django.conf import settings
     from django.contrib.auth import get_user_model
@@ -17,6 +16,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.bricks import JobErrorsBrick
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     from creme.creme_core.models import (CremeEntity, DateReminder,
             SettingValue, HistoryLine, JobResult)
@@ -25,8 +25,8 @@ try:
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeMailingList
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    from ..constants import MIN_HOUR_4_TODO_REMINDER
     from ..bricks import TodosBrick
+    from ..constants import MIN_HOUR_4_TODO_REMINDER
     from ..models import ToDo, Alert
     from .base import AssistantsTestCase
 except Exception as e:
@@ -123,7 +123,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
                }
         response = self.assertPOST200(url, data=data)
         self.assertFormError(response, 'form', 'deadline_hour',
-                             _(u'The hour is required if you set a date.')
+                             _('The hour is required if you set a date.')
                             )
 
         self.assertNoFormError(self.client.post(url, data=dict(data, deadline_hour=9)))
@@ -210,7 +210,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
                                     )
         self.assertEqual('application/json', response['Content-Type'])
 
-        # content = load_json(response.content)
         content = response.json()
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
@@ -232,7 +231,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(todos))
 
         response = self.assertGET200(reverse('creme_core__reload_home_bricks'), data={'brick_id': TodosBrick.id_})
-        # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
 
         content = response.json()
@@ -246,44 +244,20 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(page.object_list))
         self.assertEqual(set(todos), set(page.object_list))
 
-    # def test_block_reload03(self):
-    #     "Portal"
-    #     self._create_several_todos()
-    #
-    #     ct_id = ContentType.objects.get_for_model(FakeContact).id
-    #     todos = ToDo.get_todos_for_ctypes([ct_id], self.user)
-    #     self.assertEqual(2, len(todos))
-    #
-    #     response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
-    #                                  data={'brick_id': TodosBrick.id_,
-    #                                        'ct_id': ct_id,
-    #                                       },
-    #                                 )
-    #     self.assertEqual('application/json', response['Content-Type'])
-    #
-    #     content = response.json()
-    #     self.assertEqual(1, len(content))
-    #     self.assertEqual(2, len(content[0]))
-    #     self.assertEqual(TodosBrick.id_, content[0][0])
-    #
-    #     with self.assertNoException():
-    #         page = response.context['page']
-    #
-    #     self.assertEqual(2, len(page.object_list))
-    #     self.assertEqual(set(todos), set(page.object_list))
-
     def _oldify_todo(self, todo):
         cdate = todo.creation_date
         todo.creation_date = cdate - timedelta(days=1)
         todo.save()
 
     def test_function_field01(self):
-        funf = CremeEntity.function_fields.get('assistants-get_todos')
+        # funf = CremeEntity.function_fields.get('assistants-get_todos')
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
         self.assertIsNotNone(funf)
-        self.assertEqual(u'<ul></ul>', funf(self.entity, self.user).for_html())
+        self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
 
     def test_function_field02(self):
-        funf = CremeEntity.function_fields.get('assistants-get_todos')
+        # funf = CremeEntity.function_fields.get('assistants-get_todos')
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
         self._oldify_todo(self._create_todo('Todo01', 'Description01'))
         self._create_todo('Todo02', 'Description02')
 
@@ -294,12 +268,12 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         with self.assertNumQueries(1):
             result = funf(self.entity, self.user)
 
-        self.assertEqual(u'<ul><li>Todo02</li><li>Todo01</li></ul>', result.for_html())
+        self.assertEqual('<ul><li>Todo02</li><li>Todo01</li></ul>', result.for_html())
 
         # limit to 3 ToDos
         # self._create_todo('Todo03', 'Description03')
         # self._create_todo('Todo04', 'Description04')
-        # self.assertEqual(u'<ul><li>Todo04</li><li>Todo03</li><li>Todo02</li></ul>', funf(self.entity))
+        # self.assertEqual('<ul><li>Todo04</li><li>Todo03</li><li>Todo02</li></ul>', funf(self.entity))
 
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'"
@@ -314,7 +288,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         entity02 = CremeEntity.objects.create(user=user)
         self._create_todo('Todo04', 'Description04', entity=entity02)
 
-        funf = CremeEntity.function_fields.get('assistants-get_todos')
+        # funf = CremeEntity.function_fields.get('assistants-get_todos')
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
 
         with self.assertNumQueries(1):
             funf.populate_entities([self.entity, entity02], user)
@@ -323,8 +298,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
             result1 = funf(self.entity, user)
             result2 = funf(entity02, user)
 
-        self.assertEqual(u'<ul><li>Todo02</li><li>Todo01</li></ul>', result1.for_html())
-        self.assertEqual(u'<ul><li>Todo04</li></ul>',                result2.for_html())
+        self.assertEqual('<ul><li>Todo02</li><li>Todo01</li></ul>', result1.for_html())
+        self.assertEqual('<ul><li>Todo04</li></ul>',                result2.for_html())
 
     def test_merge(self):
         def creator(contact01, contact02):
@@ -360,7 +335,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         create_todo(title='Todo#3')
         todo4 = create_todo(title='Todo#4', deadline=now_value, is_ok=True)
 
-        # ReminderCommand().execute(verbosity=0)
         self.assertLess(job.type.next_wakeup(job, now_value), now())
 
         self.execute_reminder_job(job)
@@ -381,7 +355,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         message = messages[0]
         self.assertEqual([user.email], message.to)
-        self.assertEqual(_(u'Reminder concerning a Creme CRM todo related to {entity}').format(entity=self.entity),
+        self.assertEqual(_('Reminder concerning a Creme CRM todo related to {entity}').format(entity=self.entity),
                          message.subject
                         )
         self.assertIn(todo1.title, message.body)
@@ -456,10 +430,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(jresults))
 
         jresult = jresults[0]
-        self.assertEqual([_(u'An error occurred while sending emails related to «{model}»').format(
+        self.assertEqual([_('An error occurred while sending emails related to «{model}»').format(
                                     model=ToDo._meta.verbose_name,
                                 ),
-                          _(u'Original error: {}').format(err_msg),
+                          _('Original error: {}').format(err_msg),
                          ],
                          jresult.messages
                         )
@@ -621,13 +595,13 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(2, len(vmodifs))
 
-        self.assertEqual(_(u'Edit <{type}>: “{value}”').format(
-                                type=_(u'Todo'),
+        self.assertEqual(_('Edit <{type}>: “{value}”').format(
+                                type=_('Todo'),
                                 value=todo,
                             ),
                          vmodifs[0]
                         )
-        self.assertEqual(_(u'Set field “{field}”').format(field=_(u'Description')),
+        self.assertEqual(_('Set field “{field}”').format(field=_('Description')),
                          vmodifs[1]
                         )
 
@@ -649,8 +623,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
 
-        self.assertEqual(_(u'Delete <{type}>: “{value}”').format(
-                                type=_(u'Todo'),
+        self.assertEqual(_('Delete <{type}>: “{value}”').format(
+                                type=_('Todo'),
                                 value=todo,
                             ),
                          vmodifs[0]

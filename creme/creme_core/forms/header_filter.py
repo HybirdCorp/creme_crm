@@ -19,25 +19,23 @@
 ################################################################################
 
 from collections import defaultdict
-# from json import dumps as json_dump
 import logging
 
 from django.db.transaction import atomic
 from django.forms.fields import EMPTY_VALUES, Field, ValidationError
-# from django.forms.utils import flatatt
 from django.forms.widgets import Widget
-# from django.template.loader import render_to_string
-# from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from ..core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+from ..core.function_field import function_field_registry
 from ..gui.listview import smart_columns_registry
 from ..models import (CremeEntity, RelationType, CustomField, EntityCredentials,
         HeaderFilter, FieldsConfig)
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.unicode_collation import collator
+
 from .base import CremeModelForm
 
 
@@ -166,7 +164,8 @@ class EntityCellsField(Field):
     def _choices_4_functionfields(self, ct, builders):
         self.widget.function_fields = ffields_choices = []  # TODO: sort ?
 
-        for f in ct.model_class().function_fields:
+        # for f in ct.model_class().function_fields:
+        for f in function_field_registry.fields(ct.model_class()):
             field_id = _FFIELD_PREFIX + f.name
             ffields_choices.append((field_id, f.verbose_name))
             builders[field_id] = EntityCellsField._build_4_functionfield

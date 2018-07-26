@@ -17,7 +17,7 @@ try:
            FakeImage, FakeImageCategory)  # FakeFileComponent
     from creme.creme_core.core.field_tags import InvalidFieldTag
     from creme.creme_core.core.function_field import (FunctionField,
-            FunctionFieldResult, FunctionFieldResultsList)
+            FunctionFieldResult, FunctionFieldResultsList, function_field_registry)
     from creme.creme_core.models import (CremeEntity, CremePropertyType, CremeProperty,
             RelationType, Relation, Language, CustomField, CustomFieldEnumValue,
             CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean, CustomFieldString,
@@ -107,7 +107,7 @@ class EntityTestCase(CremeTestCase):
         self.ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
     def test_fieldtags_clonable(self):
-        naruto = FakeContact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
+        naruto = FakeContact.objects.create(user=self.user, first_name='Naruto', last_name='Uzumaki')
         get_field = naruto._meta.get_field
 
         self.assertFalse(get_field('created').get_tag('clonable'))
@@ -123,7 +123,7 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(InvalidFieldTag, field.set_tags, stuff=True)
 
     def test_fieldtags_viewable(self):
-        naruto = FakeContact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
+        naruto = FakeContact.objects.create(user=self.user, first_name='Naruto', last_name='Uzumaki')
         get_field = naruto._meta.get_field
 
         self.assertTrue(get_field('modified').get_tag('viewable'))
@@ -133,7 +133,7 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('cremeentity_ptr').get_tag('viewable'))
 
     def test_fieldtags_optional(self):
-        naruto = FakeContact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
+        naruto = FakeContact.objects.create(user=self.user, first_name='Naruto', last_name='Uzumaki')
         get_field = naruto._meta.get_field
 
         self.assertFalse(get_field('modified').get_tag('optional'))
@@ -201,10 +201,10 @@ class EntityTestCase(CremeTestCase):
         image = FakeImage.objects.create(user=user, name='Naruto selfie')
 
         naruto = FakeContact.objects.create(user=user, civility=civility,
-                                            first_name=u'Naruto', last_name=u'Uzumaki',
+                                            first_name='Naruto', last_name='Uzumaki',
                                             description=u"Ninja", birthday=now(),
                                             phone='123456', mobile=u"+81 0 0 0 00 01",
-                                            email=u"naruto.uzumaki@konoha.jp",
+                                            email='naruto.uzumaki@konoha.jp',
                                             image=image,
                                             )
         naruto.language = [language]
@@ -324,46 +324,39 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(ProtectedError, ce1.delete)
         self.assertRaises(ProtectedError, ce2.delete)
 
-    # def test_delete_clean_filefield01(self):
-    #     "Deleting a model with a filefield also deletes related file"
-    #     embed_doc = FakeFileComponent.objects.create()
-    #     embed_doc.filedata.save("salade.txt", ContentFile("salade"), save=True)
-    #     filepath = embed_doc.filedata.path
-    #     self.assertTrue(exists(filepath))
-    #     self.assertNoException(embed_doc.delete)
-    #     self.assertFalse(exists(filepath))
+    # def test_functionfields(self):
+    #     with self.assertNoException():
+    #         ff_mngr = CremeEntity.function_fields
+    #         all_ff = list(ff_mngr)
+    #
+    #     for funf in all_ff:
+    #         self.assertIsInstance(funf, FunctionField)
+    #
+    #         if funf.name == 'get_pretty_properties':
+    #             pp_ff = funf
+    #             break
+    #     else:
+    #         self.fail('No "get_pretty_properties" function field found')
+    #
+    #     self.assertEqual(_('Properties'), str(pp_ff.verbose_name))
+    #     self.assertTrue(pp_ff.has_filter)
+    #     self.assertFalse(pp_ff.is_hidden)
+    #     self.assertIsNone(pp_ff.choices)
 
-    # def test_delete_clean_filefield02(self):
-    #     "Handle empty filefield + model clean & deletion"
-    #     embed_doc = FakeFileComponent.objects.create()
-    #     self.assertNoException(embed_doc.delete)
-
-    def test_functionfields(self):
-        with self.assertNoException():
-            ff_mngr = CremeEntity.function_fields
-            all_ff = list(ff_mngr)
-
-        for funf in all_ff:
-            self.assertIsInstance(funf, FunctionField)
-
-            if funf.name == 'get_pretty_properties':
-                pp_ff = funf
-                break
-        else:
-            self.fail('No "get_pretty_properties" function field found')
-
-        self.assertEqual(_(u'Properties'), str(pp_ff.verbose_name))
-        self.assertTrue(pp_ff.has_filter)
-        self.assertFalse(pp_ff.is_hidden)
-        self.assertIsNone(pp_ff.choices)
-
-    def test_prettypropertiesfield01(self):
+    # def test_prettypropertiesfield01(self):
+    def test_properties_functionfield01(self):
         user = self.user
         entity = CremeEntity.objects.create(user=user)
 
-        pp_ff = CremeEntity.function_fields.get('get_pretty_properties')
+        # pp_ff = CremeEntity.function_fields.get('get_pretty_properties')
+        pp_ff = function_field_registry.get(CremeEntity, 'get_pretty_properties')
         self.assertIsNotNone(pp_ff)
         self.assertIsInstance(pp_ff, FunctionField)
+
+        self.assertEqual(_('Properties'), str(pp_ff.verbose_name))
+        self.assertTrue(pp_ff.has_filter)
+        self.assertFalse(pp_ff.is_hidden)
+        self.assertIsNone(pp_ff.choices)
 
         ptype1 = CremePropertyType.create(str_pk='test-prop_awesome', text='Awesome')
         CremeProperty.objects.create(type=ptype1, creme_entity=entity)
@@ -379,13 +372,15 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result.for_html())
         self.assertEqual('Awesome/Wonderful',                           result.for_csv())
 
-    def test_prettypropertiesfield02(self):  # Prefetch with populate_entities()
+    # def test_prettypropertiesfield02(self):
+    def test_properties_functionfield02(self):  # Prefetch with populate_entities()
         user = self.user
         create_entity = CremeEntity.objects.create
         entity1 = create_entity(user=user)
         entity2 = create_entity(user=user)
 
-        pp_ff = CremeEntity.function_fields.get('get_pretty_properties')
+        # pp_ff = CremeEntity.function_fields.get('get_pretty_properties')
+        pp_ff = function_field_registry.get(CremeEntity, 'get_pretty_properties')
 
         ptype1 = CremePropertyType.create(str_pk='test-prop_awesome',   text='Awesome')
         ptype2 = CremePropertyType.create(str_pk='test-prop_wonderful', text='Wonderful')

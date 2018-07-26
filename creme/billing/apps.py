@@ -25,7 +25,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 class BillingConfig(CremeAppConfig):
     name = 'creme.billing'
-    verbose_name = _(u'Billing')
+    verbose_name = _('Billing')
     dependencies = ['creme.persons', 'creme.products']
 
     def all_apps_ready(self):
@@ -45,9 +45,8 @@ class BillingConfig(CremeAppConfig):
         self.register_billing_lines()
 
         from . import signals
-        from .function_fields import hook_organisation
-
-        hook_organisation()
+        # from .function_fields import hook_organisation
+        # hook_organisation()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Invoice, self.Quote,
@@ -69,21 +68,22 @@ class BillingConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.ProductLinesBrick,
-                                bricks.ServiceLinesBrick,
-                                bricks.CreditNotesBrick,
-                                bricks.TotalBrick,
-                                bricks.TargetBrick,
-                                bricks.ReceivedInvoicesBrick,
-                                bricks.PaymentInformationBrick,
-                                bricks.BillingPaymentInformationBrick,
-                                bricks.ReceivedQuotesBrick,
-                                bricks.ReceivedSalesOrdersBrick,
-                                bricks.ReceivedCreditNotesBrick,
-                                bricks.BillingDetailedAddressBrick,
-                                bricks.BillingPrettyAddressBrick,
-                                bricks.PersonsStatisticsBrick,
-                               )
+        brick_registry.register(
+            bricks.ProductLinesBrick,
+            bricks.ServiceLinesBrick,
+            bricks.CreditNotesBrick,
+            bricks.TotalBrick,
+            bricks.TargetBrick,
+            bricks.ReceivedInvoicesBrick,
+            bricks.PaymentInformationBrick,
+            bricks.BillingPaymentInformationBrick,
+            bricks.ReceivedQuotesBrick,
+            bricks.ReceivedSalesOrdersBrick,
+            bricks.ReceivedCreditNotesBrick,
+            bricks.BillingDetailedAddressBrick,
+            bricks.BillingPrettyAddressBrick,
+            bricks.PersonsStatisticsBrick,
+        )
         brick_registry.register_invalid_models(self.ProductLine, self.ServiceLine)
 
         register_hat = brick_registry.register_hat
@@ -99,12 +99,11 @@ class BillingConfig(CremeAppConfig):
         register = bulk_update_registry.register
         register(self.ProductLine,   exclude=['on_the_fly_item'])
         register(self.ServiceLine,   exclude=['on_the_fly_item'])
-        register(PaymentInformation, exclude=['organisation']) # TODO: tags modifiable=False ??
+        register(PaymentInformation, exclude=['organisation'])  # TODO: tags modifiable=False ??
 
     def register_buttons(self, button_registry):
-        # from .buttons import button_list
-        # button_registry.register(*button_list)
         from . import buttons
+
         button_registry.register(
             buttons.GenerateInvoiceNumberButton,
             buttons.AddQuoteButton,
@@ -118,6 +117,22 @@ class BillingConfig(CremeAppConfig):
         from .utils import print_discount
 
         field_printers_registry.register(BillingDiscountField, print_discount)
+
+    def register_function_fields(self, function_field_registry):
+        from creme import persons
+
+        from . import function_fields as ffields
+
+        register = function_field_registry.register
+        register(self.TemplateBase, ffields.TemplateBaseVerboseStatusField)
+
+        for model in (persons.get_organisation_model(), persons.get_contact_model()):
+            register(
+                model,
+                ffields._TotalPendingPayment,
+                ffields._TotalWonQuoteThisYear,
+                ffields._TotalWonQuoteLastYear,
+            )
 
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register
@@ -166,7 +181,7 @@ class BillingConfig(CremeAppConfig):
         LvURLItem = creme_menu.URLItem.list_view
         creme_menu.get('features') \
                   .get_or_create(creme_menu.ContainerItem, 'management', priority=50,
-                                 defaults={'label': _(u'Management')},
+                                 defaults={'label': _('Management')},
                                 ) \
                   .add(LvURLItem('billing-quotes',        model=Quote),            priority=10) \
                   .add(LvURLItem('billing-invoices',      model=Invoice),          priority=15) \
@@ -175,7 +190,7 @@ class BillingConfig(CremeAppConfig):
                   .add(LvURLItem('billing-product_lines', model=self.ProductLine), priority=200) \
                   .add(LvURLItem('billing-service_lines', model=self.ServiceLine), priority=210)
         creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('management', _(u'Management'), priority=50) \
+                  .get_or_create_group('management', _('Management'), priority=50) \
                   .add_link('billing-create_quote',   Quote,      priority=10) \
                   .add_link('billing-create_invoice', Invoice,    priority=15) \
                   .add_link('billing-create_cnote',   CreditNote, priority=50) \
@@ -187,13 +202,13 @@ class BillingConfig(CremeAppConfig):
         setting_key_registry.register(setting_keys.payment_info_key)
 
     def register_smart_columns(self, smart_columns_registry):
-        from .constants import REL_SUB_BILL_RECEIVED
+        from . import constants
 
         for model in (self.Invoice, self.Quote, self.SalesOrder, self.CreditNote):
             smart_columns_registry.register_model(model) \
                                   .register_field('number') \
                                   .register_field('status') \
-                                  .register_relationtype(REL_SUB_BILL_RECEIVED)
+                                  .register_relationtype(constants.REL_SUB_BILL_RECEIVED)
 
     def register_statistics(self, statistics_registry):
         Invoice = self.Invoice
@@ -210,7 +225,9 @@ class BillingConfig(CremeAppConfig):
                                     ) \
                            .register(id='billing-quotes', label=Quote._meta.verbose_name_plural,
                                      func=lambda: [won_quotes(),
-                                                   pgettext('billing-quote_stats', u'{count} in all').format(count=Quote.objects.count()),
+                                                   pgettext('billing-quote_stats', '{count} in all').format(
+                                                       count=Quote.objects.count(),
+                                                   ),
                                                   ],
                                      perm='billing', priority=22,
                                     ) \

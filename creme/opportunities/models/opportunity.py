@@ -20,6 +20,7 @@
 
 # import logging
 from functools import partial
+import warnings
 
 from django.apps import apps
 from django.core.exceptions import ValidationError
@@ -30,9 +31,9 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal
+# from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal
 from creme.creme_core.models import (CremeEntity, CremeModel, Relation,
-        FieldsConfig, Currency, Vat)
+        Currency, Vat)  # FieldsConfig
 from creme.creme_core.models.fields import BasicAutoField
 
 from creme.persons import get_contact_model, get_organisation_model
@@ -46,24 +47,17 @@ from .. import constants
 # logger = logging.getLogger(__name__)
 
 
-class _TurnoverField(FunctionField):
-    name         = 'get_weighted_sales'
-    verbose_name = _(u'Weighted sales')
-    result_type  = FunctionFieldDecimal
-
-    # @classmethod
-    # def populate_entities(cls, entities):
-    #     fc = FieldsConfig.get_4_model(entities[0].__class__)
-    #
-    #     for entity in entities:
-    #         entity._fconfig_cache = fc
+# class _TurnoverField(FunctionField):
+#     name         = 'get_weighted_sales'
+#     verbose_name = _('Weighted sales')
+#     result_type  = FunctionFieldDecimal
 
 
 class SalesPhase(CremeModel):
-    name  = CharField(_(u'Name'), max_length=100, blank=False, null=False)
+    name  = CharField(_('Name'), max_length=100, blank=False, null=False)
     order = BasicAutoField(_('Order'))
-    won   = BooleanField(pgettext_lazy('opportunities-sales_phase', u'Won'), default=False)
-    lost  = BooleanField(pgettext_lazy('opportunities-sales_phase', u'Lost'), default=False)
+    won   = BooleanField(pgettext_lazy('opportunities-sales_phase', 'Won'), default=False)
+    lost  = BooleanField(pgettext_lazy('opportunities-sales_phase', 'Lost'), default=False)
 
     creation_label = pgettext_lazy('opportunities-sales_phase', 'Create a phase')
 
@@ -72,8 +66,8 @@ class SalesPhase(CremeModel):
 
     class Meta:
         app_label = 'opportunities'
-        verbose_name = _(u'Sale phase')
-        verbose_name_plural = _(u'Sale phases')
+        verbose_name = _('Sale phase')
+        verbose_name_plural = _('Sale phases')
         ordering = ('order',)
 
     def clean(self):
@@ -85,7 +79,7 @@ class SalesPhase(CremeModel):
 
 
 class Origin(CremeModel):
-    name = CharField(_(u'Origin'), max_length=100, blank=False, null=False)
+    name = CharField(_('Origin'), max_length=100, blank=False, null=False)
 
     creation_label = pgettext_lazy('opportunities-origin', 'Create an origin')
 
@@ -94,44 +88,44 @@ class Origin(CremeModel):
 
     class Meta:
         app_label = 'opportunities'
-        verbose_name = _(u'Origin of opportunity')
-        verbose_name_plural = _(u'Origins of opportunity')
+        verbose_name = _('Origin of opportunity')
+        verbose_name_plural = _('Origins of opportunity')
         ordering = ('name',)
 
 
 class AbstractOpportunity(CremeEntity):
-    name                  = CharField(_(u'Name of the opportunity'), max_length=100)
-    reference             = CharField(_(u'Reference'), max_length=100, blank=True)\
+    name                  = CharField(_('Name of the opportunity'), max_length=100)
+    reference             = CharField(_('Reference'), max_length=100, blank=True)\
                                      .set_tags(optional=True)
-    estimated_sales       = PositiveIntegerField(_(u'Estimated sales'),
+    estimated_sales       = PositiveIntegerField(_('Estimated sales'),
                                                  blank=True, null=True,
                                                 ).set_tags(optional=True)
-    made_sales            = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)\
+    made_sales            = PositiveIntegerField(_('Made sales'), blank=True, null=True)\
                                                 .set_tags(optional=True)
-    currency              = ForeignKey(Currency, verbose_name=_(u'Currency'),
+    currency              = ForeignKey(Currency, verbose_name=_('Currency'),
                                        default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
                                       )
-    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'),
+    sales_phase           = ForeignKey(SalesPhase, verbose_name=_('Sales phase'),
                                        on_delete=PROTECT,
                                       )
     chance_to_win         = PositiveIntegerField(_(r'% of chance to win'),
                                                  blank=True, null=True,
                                                 ).set_tags(optional=True)
-    expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)\
+    expected_closing_date = DateField(_('Expected closing date'), blank=True, null=True)\
                                      .set_tags(optional=True)
-    closing_date          = DateField(_(u'Actual closing date'), blank=True, null=True)\
+    closing_date          = DateField(_('Actual closing date'), blank=True, null=True)\
                                      .set_tags(optional=True)
-    origin                = ForeignKey(Origin, verbose_name=_(u'Origin'),
+    origin                = ForeignKey(Origin, verbose_name=_('Origin'),
                                        blank=True, null=True, on_delete=SET_NULL,
                                       ).set_tags(optional=True)
-    description           = TextField(_(u'Description'), blank=True).set_tags(optional=True)
-    first_action_date     = DateField(_(u'Date of the first action'), blank=True, null=True)\
+    description           = TextField(_('Description'), blank=True).set_tags(optional=True)
+    first_action_date     = DateField(_('Date of the first action'), blank=True, null=True)\
                                      .set_tags(optional=True)
 
-    function_fields = CremeEntity.function_fields.new(_TurnoverField())
+    # function_fields = CremeEntity.function_fields.new(_TurnoverField())
 
-    creation_label = _(u'Create an opportunity')
-    submit_label   = _(u'Save the opportunity')
+    creation_label = _('Create an opportunity')
+    submit_label   = _('Save the opportunity')
 
     search_score = 100
 
@@ -143,8 +137,8 @@ class AbstractOpportunity(CremeEntity):
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'opportunities'
-        verbose_name = _(u'Opportunity')
-        verbose_name_plural = _(u'Opportunities')
+        verbose_name = _('Opportunity')
+        verbose_name_plural = _('Opportunities')
         ordering = ('name',)
 
     def __str__(self):
@@ -186,10 +180,17 @@ class AbstractOpportunity(CremeEntity):
         return reverse('opportunities__list_opportunities')
 
     def get_weighted_sales(self):
+        warnings.warn('models.AbstractOpportunity.get_weighted_sales() is deprecated ; '
+                      'use function_fields.TurnoverField instead.',
+                      DeprecationWarning
+                     )
+
+        from creme.creme_core.models import FieldsConfig
+
         is_hidden = FieldsConfig.get_4_model(self.__class__).is_fieldname_hidden
 
         if is_hidden('estimated_sales'):
-            return ugettext(u'Error: «Estimated sales» is hidden')
+            return ugettext('Error: «Estimated sales» is hidden')
 
         if is_hidden('chance_to_win'):
             return ugettext(r'Error: «% of chance to win» is hidden')

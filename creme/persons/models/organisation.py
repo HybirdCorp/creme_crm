@@ -37,63 +37,62 @@ from . import base, other_models
 
 
 class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
-    name = CharField(_(u'Name'), max_length=200)
+    name = CharField(_('Name'), max_length=200)
 
-    description = TextField(_(u'Description'), blank=True).set_tags(optional=True)
-    is_managed  = BooleanField(_(u'Managed by Creme'), default=False, editable=False)
+    description = TextField(_('Description'), blank=True).set_tags(optional=True)
+    is_managed  = BooleanField(_('Managed by Creme'), default=False, editable=False)
 
-    phone    = PhoneField(_(u'Phone number'), max_length=100, blank=True).set_tags(optional=True)
-    fax      = CharField(_(u'Fax'), max_length=100, blank=True).set_tags(optional=True)
-    email    = EmailField(_(u'Email address'), blank=True).set_tags(optional=True)
-    url_site = URLField(_(u'Web Site'), max_length=500, blank=True).set_tags(optional=True)
+    phone    = PhoneField(_('Phone number'), max_length=100, blank=True).set_tags(optional=True)
+    fax      = CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
+    email    = EmailField(_('Email address'), blank=True).set_tags(optional=True)
+    url_site = URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
 
-    sector     = ForeignKey(other_models.Sector, verbose_name=_(u'Sector'),
+    sector     = ForeignKey(other_models.Sector, verbose_name=_('Sector'),
                             blank=True, null=True, on_delete=SET_NULL,
                            ).set_tags(optional=True)
-    legal_form = ForeignKey(other_models.LegalForm, verbose_name=_(u'Legal form'),
+    legal_form = ForeignKey(other_models.LegalForm, verbose_name=_('Legal form'),
                             blank=True, null=True, on_delete=SET_NULL,
                            ).set_tags(optional=True)
-    staff_size = ForeignKey(other_models.StaffSize, verbose_name=_(u'Staff size'),
+    staff_size = ForeignKey(other_models.StaffSize, verbose_name=_('Staff size'),
                             blank=True, null=True, on_delete=SET_NULL,
                            ).set_tags(optional=True)
 
-    capital        = PositiveIntegerField(_(u'Capital'), blank=True, null=True)\
+    capital        = PositiveIntegerField(_('Capital'), blank=True, null=True)\
                                          .set_tags(optional=True)
-    annual_revenue = CharField(_(u'Annual revenue'), max_length=100, blank=True)\
+    annual_revenue = CharField(_('Annual revenue'), max_length=100, blank=True)\
                               .set_tags(optional=True)
 
-    siren = CharField(_(u'SIREN'), max_length=100, blank=True).set_tags(optional=True)
-    naf   = CharField(_(u'NAF code'), max_length=100, blank=True).set_tags(optional=True)
-    siret = CharField(_(u'SIRET'), max_length=100, blank=True).set_tags(optional=True)
-    rcs   = CharField(_(u'RCS/RM'), max_length=100, blank=True).set_tags(optional=True)
+    siren = CharField(_('SIREN'), max_length=100, blank=True).set_tags(optional=True)
+    naf   = CharField(_('NAF code'), max_length=100, blank=True).set_tags(optional=True)
+    siret = CharField(_('SIRET'), max_length=100, blank=True).set_tags(optional=True)
+    rcs   = CharField(_('RCS/RM'), max_length=100, blank=True).set_tags(optional=True)
 
-    tvaintra       = CharField(_(u'VAT number'), max_length=100, blank=True)\
+    tvaintra       = CharField(_('VAT number'), max_length=100, blank=True)\
                               .set_tags(optional=True)
-    subject_to_vat = BooleanField(_(u'Subject to VAT'), default=True).set_tags(optional=True)
+    subject_to_vat = BooleanField(_('Subject to VAT'), default=True).set_tags(optional=True)
 
-    creation_date = DateField(_(u'Date of creation of the organisation'),
+    creation_date = DateField(_('Date of creation of the organisation'),
                               blank=True, null=True,
                              ).set_tags(optional=True)
-    image         = ImageEntityForeignKey(verbose_name=_(u'Logo'),
+    image         = ImageEntityForeignKey(verbose_name=_('Logo'),
                                           blank=True, null=True, on_delete=SET_NULL,
                                          ).set_tags(optional=True)
 
-    # Needed because we expand it's function fields in other apps (ie. billing)
-    # TODO: refactor
-    function_fields = CremeEntity.function_fields.new()
+    # # Needed because we expand it's function fields in other apps (ie. billing)
+    # function_fields = CremeEntity.function_fields.new()
 
     search_score = 102
 
-    creation_label = _(u'Create an organisation')
-    save_label = _(u'Save the organisation')
+    creation_label = _('Create an organisation')
+    save_label = _('Save the organisation')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'persons'
         ordering = ('name',)
-        verbose_name = _(u'Organisation')
-        verbose_name_plural = _(u'Organisations')
+        verbose_name = _('Organisation')
+        verbose_name_plural = _('Organisations')
         index_together = ('name', 'cremeentity_ptr')
 
     def __str__(self):
@@ -101,7 +100,7 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     def _check_deletion(self):
         if self.is_managed and self.__class__.objects.filter(is_managed=True).count() == 1:
-            raise SpecificProtectedError(ugettext(u'The last managed organisation cannot be deleted.'),
+            raise SpecificProtectedError(ugettext('The last managed organisation cannot be deleted.'),
                                          [self]
                                         )
 

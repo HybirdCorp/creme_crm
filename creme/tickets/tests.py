@@ -15,6 +15,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import RelationType, HeaderFilter
     from creme.creme_core.templatetags.creme_date import timedelta_pprint
 
@@ -149,8 +150,10 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(ticket.closing_date)
         self.assertFalse(ticket.get_resolving_duration())
 
-        with self.assertNoException():
-            funf = ticket.function_fields.get('get_resolving_duration')
+        # with self.assertNoException():
+        #     funf = ticket.function_fields.get('get_resolving_duration')
+        funf = function_field_registry.get(Ticket, 'get_resolving_duration')
+        self.assertIsNotNone(funf)
 
         self.assertEqual('', funf(ticket, user).for_html())
 
@@ -282,7 +285,8 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertTrue(ticket.closing_date)
         self.assertTrue(ticket.get_resolving_duration())
-        self.assertTrue(ticket.function_fields.get('get_resolving_duration')(ticket, user))
+        # self.assertTrue(ticket.function_fields.get('get_resolving_duration')(ticket, user))
+        self.assertTrue(function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user))
 
     def test_listview01(self):
         self.login()

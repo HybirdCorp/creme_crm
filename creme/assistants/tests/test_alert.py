@@ -13,6 +13,7 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     from creme.creme_core.models import CremeEntity, DateReminder, FakeOrganisation, FakeMailingList
 
@@ -135,12 +136,14 @@ class AlertTestCase(AssistantsTestCase):
         self.assertTrue(self.refresh(alert).is_validated)
 
     def test_function_field01(self):
-        funf = CremeEntity.function_fields.get('assistants-get_alerts')
+        # funf = CremeEntity.function_fields.get('assistants-get_alerts')
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
         self.assertIsNotNone(funf)
-        self.assertEqual(u'<ul></ul>', funf(self.entity, self.user).for_html())
+        self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
 
     def test_function_field02(self):
-        funf = CremeEntity.function_fields.get('assistants-get_alerts')
+        # funf = CremeEntity.function_fields.get('assistants-get_alerts')
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
 
         self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
         self._create_alert('Alert02', 'Description02', trigger_date='2010-10-20')
@@ -152,7 +155,7 @@ class AlertTestCase(AssistantsTestCase):
         with self.assertNumQueries(1):
             result = funf(self.entity, self.user)
 
-        self.assertEqual(u'<ul><li>Alert02</li><li>Alert01</li></ul>', result.for_html())
+        self.assertEqual('<ul><li>Alert02</li><li>Alert01</li></ul>', result.for_html())
 
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'"
@@ -168,7 +171,8 @@ class AlertTestCase(AssistantsTestCase):
 
         self._create_alert('Alert04', 'Description04', trigger_date='2010-10-3', entity=entity02)
 
-        funf = CremeEntity.function_fields.get('assistants-get_alerts')
+        # funf = CremeEntity.function_fields.get('assistants-get_alerts')
+        funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
 
         with self.assertNumQueries(1):
             funf.populate_entities([self.entity, entity02], user)
@@ -177,8 +181,8 @@ class AlertTestCase(AssistantsTestCase):
             result1 = funf(self.entity, user)
             result2 = funf(entity02, user)
 
-        self.assertEqual(u'<ul><li>Alert02</li><li>Alert01</li></ul>', result1.for_html())
-        self.assertEqual(u'<ul><li>Alert04</li></ul>',                 result2.for_html())
+        self.assertEqual('<ul><li>Alert02</li><li>Alert01</li></ul>', result1.for_html())
+        self.assertEqual('<ul><li>Alert04</li></ul>',                 result2.for_html())
 
     def test_merge(self):
         def creator(contact01, contact02):
@@ -231,7 +235,7 @@ class AlertTestCase(AssistantsTestCase):
 
         message = messages[0]
         self.assertEqual([user.email], message.to)
-        self.assertEqual(_(u'Reminder concerning a Creme CRM alert related to {entity}').format(entity=self.entity),
+        self.assertEqual(_('Reminder concerning a Creme CRM alert related to {entity}').format(entity=self.entity),
                          message.subject
                         )
         self.assertIn(alert1.title, message.body)

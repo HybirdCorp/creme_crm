@@ -13,7 +13,7 @@ else:
     from django.urls import reverse
     from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
-    from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+    # from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
     from ..models import CremeModel, CremeEntity, Language
     from ..models.fields import PhoneField, BasicAutoField, MoneyField, DatePeriodField
 
@@ -327,16 +327,16 @@ else:
             ordering = ('title',)
 
 
-    class _GetFakeTodos(FunctionField):
-        name         = 'tests-get_fake_todos'
-        verbose_name = _(u'Fake Todos')
-        # has_filter   = False #==> cannot search
-        result_type  = FunctionFieldResultsList
-
-        def __call__(self, entity, user):
-            return FunctionFieldResultsList(FunctionFieldResult('Todo {} #{}'.format(entity, i))
-                                                for i in range(1, 3)
-                                           )
+    # class _GetFakeTodos(FunctionField):
+    #     name         = 'tests-get_fake_todos'
+    #     verbose_name = _(u'Fake Todos')
+    #     # has_filter   = False #==> cannot search
+    #     result_type  = FunctionFieldResultsList
+    #
+    #     def __call__(self, entity, user):
+    #         return FunctionFieldResultsList(FunctionFieldResult('Todo {} #{}'.format(entity, i))
+    #                                             for i in range(1, 3)
+    #                                        )
 
 
     class FakeOrganisation(CremeEntity):
@@ -371,7 +371,7 @@ else:
                                             limit_choices_to=lambda: {'user__is_staff': False},
                                            )
 
-        function_fields = CremeEntity.function_fields.new(_GetFakeTodos())
+        # function_fields = CremeEntity.function_fields.new(_GetFakeTodos())
 
         search_score = 102
 #        creation_label = _('Create an organisation')

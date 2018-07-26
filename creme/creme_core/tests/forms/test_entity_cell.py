@@ -5,9 +5,10 @@ try:
 
     from ..fake_models import FakeContact
     from .base import FieldTestCase
-    from creme.creme_core.forms.header_filter import EntityCellsField
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.function_field import function_field_registry
+    from creme.creme_core.forms.header_filter import EntityCellsField
     from creme.creme_core.models import RelationType, CustomField
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -64,7 +65,8 @@ class EntityCellsFieldTestCase(FieldTestCase):
                                                  field_type=CustomField.INT,
                                                  content_type=self.ct_contact,
                                                 )
-        funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
+        funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 
         field = EntityCellsField(content_type=self.ct_contact)
         cells = field.clean('relation-{},'
