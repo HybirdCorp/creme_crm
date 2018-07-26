@@ -254,7 +254,7 @@ class FunctionFieldsTestCase(CremeTestCase):
             registry.register(Klass, TestFunctionField2)
 
     def test_registry03(self):
-        "Get overridden field"
+        "Overridden field"
         class Klass1: pass
         class Klass2(Klass1): pass
 
@@ -279,6 +279,14 @@ class FunctionFieldsTestCase(CremeTestCase):
         registry.register(Klass2, TestFunctionField22)
         self.assertIsInstance(registry.get(Klass2, fname1), TestFunctionField1)
         self.assertIsInstance(registry.get(Klass2, fname2), TestFunctionField22)  # Not TestFunctionField2
+
+        # Function fields
+        self.assertEqual({TestFunctionField1, TestFunctionField2},
+                         {ff.__class__ for ff in registry.fields(Klass1)}
+                        )
+        self.assertEqual({TestFunctionField1, TestFunctionField22},
+                         {ff.__class__ for ff in registry.fields(Klass2)}
+                        )
 
     def test_registry04(self):
         "Unregister() error"
