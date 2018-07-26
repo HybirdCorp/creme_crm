@@ -3,6 +3,30 @@
 
 {% block icon %}<img width="200px" height="200px" src="{% media_url 'common/images/404_200.png' %}"/>{% endblock %}
 
+{% block style %}
+    {{block.super}}
+
+    .error-details {
+        margin-top: 10px;
+    }
+
+    #error-details-content p {
+        padding-top: 0px;
+        margin-top: 0px;
+        margin-left: 10px;
+        color: #555;
+    }
+{% endblock %}
+
 {% block title %}{% trans 'Creme — 404 Error' %}{% endblock %}
 
-{% block error_message %}{% trans 'The page you have requested is not found.' %}{% endblock %}
+{% block error_message %}
+    {% trans 'The page you have requested is not found.' %}
+    <div class="error-details">
+        <a id="expand-error-details" href="#" onclick="document.getElementById('error-details-content').style.display = 'block'; this.style.display = 'none';">{% trans 'Details' %}</a>
+        <div id="error-details-content" style="display:none;">
+            <a id="collapse-error-details" href="#" onclick="document.getElementById('error-details-content').style.display = 'none'; document.getElementById('expand-error-details').style.display = 'block';">{% trans 'Hide details' %}</a>
+            <p>{{exception}}</p>
+        </div>
+    </div>
+{% endblock %}
