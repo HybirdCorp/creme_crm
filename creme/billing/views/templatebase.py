@@ -45,7 +45,8 @@ def edit(request, template_id):
 
 
 @login_required
-@permission_required('recurrents')
+# @permission_required('recurrents')
+@permission_required('billing')
 def detailview(request, template_id):
     user = request.user
     has_perm = user.has_perm
