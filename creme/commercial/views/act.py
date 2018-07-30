@@ -73,7 +73,8 @@ def abstract_edit_objective_pattern(request, objpattern_id, form=forms.Objective
 
 
 def abstract_view_act(request, act_id,
-                      template='creme_core/generics/view_entity.html',
+                      # template='creme_core/generics/view_entity.html',
+                      template='commercial/view_act.html',
                      ):
     return generic.view_entity(request, act_id, Act, template=template)
 
