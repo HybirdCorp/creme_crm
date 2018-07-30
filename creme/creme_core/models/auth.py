@@ -48,20 +48,20 @@ logger = logging.getLogger(__name__)
 
 
 class UserRole(Model):
-    name              = CharField(_(u'Name'), max_length=100, unique=True)
-    # superior         = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
-    creatable_ctypes  = ManyToManyField(ContentType, verbose_name=_(u'Creatable resources'),  related_name='roles_allowing_creation') # null=True,
-    exportable_ctypes = ManyToManyField(ContentType, verbose_name=_(u'Exportable resources'), related_name='roles_allowing_export')   # null=True,
+    name              = CharField(_('Name'), max_length=100, unique=True)
+    # superior         = ForeignKey('self', verbose_name=_('Superior'), null=True) #related_name='subordinates'
+    creatable_ctypes  = ManyToManyField(ContentType, verbose_name=_('Creatable resources'),  related_name='roles_allowing_creation') # null=True,
+    exportable_ctypes = ManyToManyField(ContentType, verbose_name=_('Exportable resources'), related_name='roles_allowing_export')   # null=True,
     raw_allowed_apps  = TextField(default='')  # Use 'allowed_apps' property
     raw_admin_4_apps  = TextField(default='')  # Use 'admin_4_apps' property
 
-    creation_label = _(u'Create a role')
-    save_label     = _(u'Save the role')
+    creation_label = _('Create a role')
+    save_label     = _('Save the role')
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Role')
-        verbose_name_plural = _(u'Roles')
+        verbose_name = _('Role')
+        verbose_name_plural = _('Roles')
 
     def __init__(self, *args, **kwargs):
         # super(UserRole, self).__init__(*args, **kwargs)
@@ -265,8 +265,8 @@ class SetCredentials(Model):
     ESET_ALL = 1  # => all entities
     ESET_OWN = 2  # => his own entities
 
-    ESETS_MAP = {ESET_ALL: _(u'all entities'),
-                 ESET_OWN: _(u"user's own entities"),
+    ESETS_MAP = {ESET_ALL: _('all entities'),
+                 ESET_OWN: _("user's own entities"),
                 }
 
     class Meta:
@@ -284,17 +284,17 @@ class SetCredentials(Model):
         if value & EntityCredentials.UNLINK: append(ugettext('Unlink'))
 
         if not perms:
-            append(ugettext(u'Nothing allowed'))
+            append(ugettext('Nothing allowed'))
 
         args = {'set':   SetCredentials.ESETS_MAP[self.set_type],
-                'perms': u', '.join(perms),
+                'perms': ', '.join(perms),
                }
 
         if self.ctype:
             args['type'] = self.ctype
-            format_str = ugettext(u'For {set} of type “{type}”: {perms}')
+            format_str = ugettext('For {set} of type “{type}”: {perms}')
         else:
-            format_str = ugettext(u'For {set}: {perms}')
+            format_str = ugettext('For {set}: {perms}')
 
         return format_str.format(**args)
 
@@ -498,52 +498,52 @@ class CremeUserManager(BaseUserManager):
 
 class CremeUser(AbstractBaseUser):
     # NB: auth.models.AbstractUser.username max_length == 150 (since django 1.10) => increase too ?
-    username = CharField(_(u'Username'), max_length=30, unique=True,
-                         help_text=_(u'Required. 30 characters or fewer. '
-                                     u'Letters, digits and @/./+/-/_ only.'
+    username = CharField(_('Username'), max_length=30, unique=True,
+                         help_text=_('Required. 30 characters or fewer. '
+                                     'Letters, digits and @/./+/-/_ only.'
                                     ),
                          validators=[RegexValidator(re_compile('^[\w.@+-]+$'),
-                                                    _(u'Enter a valid username. '
-                                                      u'This value may contain only letters, numbers, '
-                                                      u'and @/./+/-/_ characters.'),
+                                                    _('Enter a valid username. '
+                                                      'This value may contain only letters, numbers, '
+                                                      'and @/./+/-/_ characters.'),
                                                     'invalid',
                                                    ),
                                     ],
                          error_messages={
-                             'unique': _(u'A user with that username already exists.'),
+                             'unique': _('A user with that username already exists.'),
                          },
                         )
-    last_name  = CharField(_(u'Last name'), max_length=100, blank=True)
-    first_name = CharField(_(u'First name'), max_length=100, blank=True)\
+    last_name  = CharField(_('Last name'), max_length=100, blank=True)
+    first_name = CharField(_('First name'), max_length=100, blank=True)\
                           .set_tags(viewable=False)  # NB: blank=True for teams
-    email      = EmailField(_(u'Email address'), blank=True)
+    email      = EmailField(_('Email address'), blank=True)
 
-    date_joined = DateTimeField(_(u'Date joined'), default=now).set_tags(viewable=False)
-    is_active   = BooleanField(_(u'Active?'), default=True,
+    date_joined = DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
+    is_active   = BooleanField(_('Active?'), default=True,
                                # help_text=_('Designates whether this user should be treated as '
                                #             'active. Deselect this instead of deleting accounts.'
                                #            ), TODO
                               ).set_tags(viewable=False)
 
-    is_staff     = BooleanField(_(u'Is staff?'), default=False,
+    is_staff     = BooleanField(_('Is staff?'), default=False,
                                 # help_text=_('Designates whether the user can log into this admin site.'), TODO
                                ).set_tags(viewable=False)
-    is_superuser = BooleanField(_(u'Is a superuser?'), default=False,
+    is_superuser = BooleanField(_('Is a superuser?'), default=False,
                                 # help_text=_('If True, can create groups & events.') TODO
                                ).set_tags(viewable=False)
-    role         = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True,
+    role         = ForeignKey(UserRole, verbose_name=_('Role'), null=True,
                               on_delete=PROTECT,
                              ).set_tags(viewable=False)
 
-    is_team       = BooleanField(verbose_name=_(u'Is a team?'), default=False).set_tags(viewable=False)
-    teammates_set = ManyToManyField('self', verbose_name=_(u'Teammates'),
+    is_team       = BooleanField(verbose_name=_('Is a team?'), default=False).set_tags(viewable=False)
+    teammates_set = ManyToManyField('self', verbose_name=_('Teammates'),
                                     symmetrical=False, related_name='teams_set',
                                    ).set_tags(viewable=False)
 
-    time_zone = CharField(_(u'Time zone'), max_length=50, default=settings.TIME_ZONE,
+    time_zone = CharField(_('Time zone'), max_length=50, default=settings.TIME_ZONE,
                           choices=[(tz, tz) for tz in pytz.common_timezones],
                          ).set_tags(viewable=False)
-    theme     = CharField(_(u'Theme'), max_length=50,
+    theme     = CharField(_('Theme'), max_length=50,
                           default=settings.THEMES[0][0],
                           choices=settings.THEMES,
                          ).set_tags(viewable=False)
@@ -556,8 +556,8 @@ class CremeUser(AbstractBaseUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'email']
 
-    creation_label = _(u'Create a user')
-    save_label     = _(u'Save the user')
+    creation_label = _('Create a user')
+    save_label     = _('Save the user')
 
     _settings = None
     _teams = None
@@ -566,8 +566,8 @@ class CremeUser(AbstractBaseUser):
     class Meta:
         # abstract = True TODO: class AbstractCremeUser ?
         ordering = ('username',)
-        verbose_name = _(u'User')
-        verbose_name_plural = _(u'Users')
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
         app_label = 'creme_core'
 
     def __str__(self):
@@ -575,14 +575,14 @@ class CremeUser(AbstractBaseUser):
 
     def get_full_name(self):
         if self.is_team:
-            return ugettext(u'{user} (team)').format(user=self.username)
+            return ugettext('{user} (team)').format(user=self.username)
 
         # TODO: we could also check related contact to find first_name, last_name
         first_name = self.first_name
         last_name  = self.last_name
 
         if first_name and last_name:
-            return ugettext(u'{first_name} {last_name}.').format(
+            return ugettext('{first_name} {last_name}.').format(
                         first_name=first_name,
                         last_name=last_name[0],
             )
@@ -635,7 +635,7 @@ class CremeUser(AbstractBaseUser):
 
     @property  # NB notice that cache and credentials are well updated when using this property
     def teammates(self):
-        """Dictionary of teamates users
+        """Dictionary of teammates users
             key: user ID.
             value CremeUser instance.
         """
@@ -645,7 +645,6 @@ class CremeUser(AbstractBaseUser):
 
         if teammates is None:
             logger.debug('User.teammates: Cache MISS for user_id=%s', self.id)
-            # self._teammates = teammates = {u.id: u for u in self.teammates_set.all()}
             self._teammates = teammates = self.teammates_set.in_bulk()
         else:
             logger.debug('User.teammates: Cache HIT for user_id=%s', self.id)
@@ -657,7 +656,6 @@ class CremeUser(AbstractBaseUser):
         assert self.is_team
         assert not any(user.is_team for user in users)
 
-        # self.teammates_set = users
         self.teammates_set.set(users)
         self._teammates = None  # Clear cache (we could rebuild it but ...)
 
@@ -701,18 +699,27 @@ class CremeUser(AbstractBaseUser):
     def has_perm_to_access(self, app_name):  # TODO: rename "app_label"
         return self.is_superuser or self.role.is_app_allowed_or_administrable(app_name)
 
+    @staticmethod  # TODO: move in utils ?
+    def _get_app_verbose_name(app_label):
+        try:
+            return apps.get_app_config(app_label).verbose_name
+        except LookupError:
+            return ugettext('Invalid app "{}"').format(app_label)
+
+    def has_perm_to_access_or_die(self, app_label):
+        if not self.has_perm_to_access(app_label):
+            raise PermissionDenied(ugettext('You are not allowed to access to the app: {}').format(
+                                        self._get_app_verbose_name(app_label)
+                                    )
+                                  )
+
     def has_perm_to_admin(self, app_name):  # TODO: rename "app_label"
         return self.is_superuser or self.role.is_app_administrable(app_name)
 
     def has_perm_to_admin_or_die(self, app_name):  # TODO: rename 'app_label'
         if not self.has_perm_to_admin(app_name):
-            try:
-                verbose_name = apps.get_app_config(app_name).verbose_name
-            except LookupError:
-                verbose_name = ugettext('Invalid app "{}"').format(app_name)
-
             raise PermissionDenied(ugettext('You are not allowed to configure this app: {}').format(
-                                        verbose_name
+                                        self._get_app_verbose_name(app_name)
                                     )
                                   )
 
@@ -728,7 +735,7 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_change_or_die(self, entity):
         if not self.has_perm_to_change(entity):
-            raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: {}').format(
+            raise PermissionDenied(ugettext('You are not allowed to edit this entity: {}').format(
                                         entity.allowed_str(self)
                                     )
                                   )
@@ -742,7 +749,7 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_create_or_die(self, model_or_entity):
         if not self.has_perm_to_create(model_or_entity):
-            raise PermissionDenied(ugettext(u'You are not allowed to create: {}').format(
+            raise PermissionDenied(ugettext('You are not allowed to create: {}').format(
                                         model_or_entity._meta.verbose_name
                                     )
                                   )
@@ -755,7 +762,7 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_delete_or_die(self, entity):
         if not self.has_perm_to_delete(entity):
-            raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: {}').format(
+            raise PermissionDenied(ugettext('You are not allowed to delete this entity: {}').format(
                                         entity.allowed_str(self)
                                     )
                                   )
@@ -769,7 +776,7 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_export_or_die(self, model_or_entity):
         if not self.has_perm_to_export(model_or_entity):
-            raise PermissionDenied(ugettext(u'You are not allowed to export: {}').format(
+            raise PermissionDenied(ugettext('You are not allowed to export: {}').format(
                                         model_or_entity._meta.verbose_name
                                     )
                                   )
@@ -799,11 +806,11 @@ class CremeUser(AbstractBaseUser):
 
         if not self.has_perm_to_link(entity_or_model, owner):
             if isinstance(entity_or_model, CremeEntity):
-                msg = ugettext(u'You are not allowed to link this entity: {}').format(
+                msg = ugettext('You are not allowed to link this entity: {}').format(
                                         entity_or_model.allowed_str(self)
                                     )
             else:
-                msg = ugettext(u'You are not allowed to link: {}').format(
+                msg = ugettext('You are not allowed to link: {}').format(
                                     entity_or_model._meta.verbose_name
                                 )
 
@@ -815,7 +822,7 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_unlink_or_die(self, entity):
         if not self.has_perm_to_unlink(entity):
-            raise PermissionDenied(ugettext(u'You are not allowed to unlink this entity: {}').format(
+            raise PermissionDenied(ugettext('You are not allowed to unlink this entity: {}').format(
                                         entity.allowed_str(self)
                                     )
                                   )
@@ -826,7 +833,7 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_view_or_die(self, entity):
         if not self.has_perm_to_view(entity):
-            raise PermissionDenied(ugettext(u'You are not allowed to view this entity: {}').format(
+            raise PermissionDenied(ugettext('You are not allowed to view this entity: {}').format(
                                         entity.allowed_str(self)
                                     )
                                   )
@@ -848,12 +855,12 @@ class Sandbox(Model):
     this sandbox are only accessible to the superusers (like the Sandbox built in creme_core.populate.py)
     """
     uuid      = UUIDField(unique=True, editable=False, default=uuid.uuid4)
-    type_id   = CharField(u'Type of sandbox', max_length=48, editable=False)
-    role      = ForeignKey(UserRole, verbose_name=u'Related role', null=True,
+    type_id   = CharField('Type of sandbox', max_length=48, editable=False)
+    role      = ForeignKey(UserRole, verbose_name='Related role', null=True,
                            default=None, on_delete=CASCADE, editable=False,
                           )
-    # superuser = BooleanField(u'related to superusers', default=False, editable=False)
-    user      = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Related user',
+    # superuser = BooleanField('related to superusers', default=False, editable=False)
+    user      = ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Related user',
                            null=True, default=None, on_delete=CASCADE, editable=False,
                           )
 

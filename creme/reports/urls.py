@@ -42,27 +42,26 @@ if not report_model_is_custom():
         url(r'^reports[/]?$',                        report.listview,   name='reports__list_reports'),
         url(r'^report/add[/]?$',                     report.add,        name='reports__create_report'),
         url(r'^report/edit/(?P<report_id>\d+)[/]?$', report.edit,       name='reports__edit_report'),
-        url(r'^report/(?P<report_id>\d+)[/]?$',      report.detailview, name='reports__view_report'),
+        # url(r'^report/(?P<report_id>\d+)[/]?$',      report.detailview, name='reports__view_report'),
+        url(r'^report/(?P<report_id>\d+)[/]?$',      report.ReportDetail.as_view(), name='reports__view_report'),
     ]
 
 if not rgraph_model_is_custom():
     urlpatterns += [
         url(r'^graph/(?P<report_id>\d+)/add[/]?$', graph.add,        name='reports__create_graph'),
         url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.edit,       name='reports__edit_graph'),
-        url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.detailview, name='reports__view_graph'),
+        # url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.detailview, name='reports__view_graph'),
+        url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.ReportGraphDetail.as_view(), name='reports__view_graph'),
     ]
 
 if settings.TESTS_ON:
     from .tests import fake_views
 
     urlpatterns += [
-        # url(r'^tests/folders[/]?$',                        'folder_listview', name='reports__list_fake_folders'),
-        # url(r'^tests/folder/add[/]?$',                     'folder_add',      name='reports__create_fake_folder'),
-        # url(r'^tests/folder/edit/(?P<folder_id>\d+)[/]?$', 'folder_edit',     name='reports__edit_fake_folder'),
-        url(r'^tests/folder/(?P<folder_id>\d+)[/]?$', fake_views.folder_detailview, name='reports__view_fake_folder'),
+        # url(r'^tests/folder/(?P<folder_id>\d+)[/]?$', fake_views.folder_detailview, name='reports__view_fake_folder'),
+        url(r'^tests/folder/(?P<folder_id>\d+)[/]?$', fake_views.FakeReportsFolderDetail.as_view(),
+            name='reports__view_fake_folder'
+           ),
 
         url(r'^tests/documents[/]?$', fake_views.document_listview, name='reports__list_fake_documents'),
-        # url(r'^tests/document/add[/]?$',                       'document_add',        name='reports__create_fake_document),
-        # url(r'^tests/document/edit/(?P<document_id>\d+)[/]?$', 'document_edit',       name='reports__edit_fake_document'),
-        # url(r'^tests/document/(?P<object_id>\d+)[/]?$',        'document_detailview', name='reports__view_fake_document),
     ]

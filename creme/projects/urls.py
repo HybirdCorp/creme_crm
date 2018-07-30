@@ -39,7 +39,8 @@ if not project_model_is_custom():
         url(r'^projects[/]?$',                         project.listview,   name='projects__list_projects'),
         url(r'^project/add[/]?$',                      project.add,        name='projects__create_project'),
         url(r'^project/edit/(?P<project_id>\d+)[/]?$', project.edit,       name='projects__edit_project'),
-        url(r'^project/(?P<project_id>\d+)[/]?$',      project.detailview, name='projects__view_project'),
+        # url(r'^project/(?P<project_id>\d+)[/]?$',      project.detailview, name='projects__view_project'),
+        url(r'^project/(?P<project_id>\d+)[/]?$',      project.ProjectDetail.as_view(), name='projects__view_project'),
     ]
 
 if not task_model_is_custom():
@@ -47,5 +48,6 @@ if not task_model_is_custom():
         url(r'^project/(?P<project_id>\d+)/task/add[/]?$', task.add,         name='projects__create_task'),
         url(r'^task/edit/(?P<task_id>\d+)[/]?$',           task.edit,        name='projects__edit_task'),
         url(r'^task/edit/(?P<task_id>\d+)/popup[/]?$',     task.edit_popup,  name='projects__edit_task_popup'),  # TODO: Merge with edit ?
-        url(r'^task/(?P<task_id>\d+)[/]?$',                task.detailview,  name='projects__view_task'),
+        # url(r'^task/(?P<task_id>\d+)[/]?$',                task.detailview,  name='projects__view_task'),
+        url(r'^task/(?P<task_id>\d+)[/]?$',                task.ProjectTaskDetail.as_view(), name='projects__view_task'),
     ]

@@ -239,6 +239,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
+        # --
+        response = self.assertGET200(opportunity.get_absolute_url())
+        self.assertTemplateUsed(response, 'opportunities/view_opportunity.html')
+
     @skipIfCustomOrganisation
     def test_createview02(self):
         user = self.login()

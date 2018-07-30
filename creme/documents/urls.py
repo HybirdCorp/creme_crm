@@ -21,7 +21,8 @@ if not documents.folder_model_is_custom():
         url(r'^folder/add[/]?$',                          folder.add,        name='documents__create_folder'),
         url(r'^folder/(?P<folder_id>\d+)/add/child[/]?$', folder.add_child,  name='documents__create_child_folder'),
         url(r'^folder/edit/(?P<folder_id>\d+)[/]?$',      folder.edit,       name='documents__edit_folder'),
-        url(r'^folder/(?P<folder_id>\d+)[/]?$',           folder.detailview, name='documents__view_folder'),
+        # url(r'^folder/(?P<folder_id>\d+)[/]?$',           folder.detailview, name='documents__view_folder'),
+        url(r'^folder/(?P<folder_id>\d+)[/]?$',           folder.FolderDetail.as_view(), name='documents__view_folder'),
     ]
 
 if not documents.document_model_is_custom():
@@ -32,7 +33,8 @@ if not documents.document_model_is_custom():
         url(r'^document/add[/]?$',                           document.add,         name='documents__create_document'),
         url(r'^document/add_related/(?P<entity_id>\d+)[/]?', document.add_related, name='documents__create_related_document'),
         url(r'^document/edit/(?P<document_id>\d+)[/]?$',     document.edit,        name='documents__edit_document'),
-        url(r'^document/(?P<object_id>\d+)[/]?$',            document.detailview,  name='documents__view_document'),
+        # url(r'^document/(?P<object_id>\d+)[/]?$',            document.detailview,  name='documents__view_document'),
+        url(r'^document/(?P<document_id>\d+)[/]?$',          document.DocumentDetail.as_view(), name='documents__view_document'),
 
         # url(r'^quickforms/from_widget/document/csv/add/(?P<count>\d)*[/]?$',
         url(r'^quickforms/from_widget/document/csv/add[/]?$',

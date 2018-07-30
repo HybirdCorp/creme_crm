@@ -27,7 +27,7 @@ else:
 
 
     class FakeFolderCategory(CremeModel):
-        name = models.CharField(_(u'Category name'), max_length=100, unique=True)
+        name = models.CharField(_('Category name'), max_length=100, unique=True)
 #        is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
         def __str__(self):
@@ -35,19 +35,19 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            verbose_name = u'Test Folder category'
-            verbose_name_plural = u'Test Folder categories'
+            verbose_name = 'Test Folder category'
+            verbose_name_plural = 'Test Folder categories'
             ordering = ('name',)
 
 
     class FakeFolder(CremeEntity):
-        title     = models.CharField(_(u'Title'), max_length=100)
-#        description   = models.TextField(_(u'Description'), null=True, blank=True).set_tags(optional=True)
-        parent    = models.ForeignKey('self', verbose_name=_(u'Parent folder'),
+        title     = models.CharField(_('Title'), max_length=100)
+#        description   = models.TextField(_('Description'), null=True, blank=True).set_tags(optional=True)
+        parent    = models.ForeignKey('self', verbose_name=_('Parent folder'),
                                       blank=True, null=True, related_name='children',
                                       on_delete=models.CASCADE,  # TODO: PROTECT
                                      )
-        category  = models.ForeignKey(FakeFolderCategory, verbose_name=_(u'Category'),
+        category  = models.ForeignKey(FakeFolderCategory, verbose_name=_('Category'),
                                       blank=True, null=True, on_delete=models.SET_NULL,
                                       # related_name='folder_category_set',
                                      )
@@ -59,8 +59,8 @@ else:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
 #            unique_together = ('title', 'folder', 'category')
-            verbose_name = u'Test Folder'
-            verbose_name_plural = u'Test Folders'
+            verbose_name = 'Test Folder'
+            verbose_name_plural = 'Test Folders'
             ordering = ('title',)
 
         def __str__(self):
@@ -68,10 +68,10 @@ else:
 
 
     class FakeDocument(CremeEntity):
-        title       = models.CharField(_(u'Title'), max_length=100)
-#        description = models.TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
-        filedata    = models.FileField(_(u'File'), max_length=100, upload_to='upload/creme_core-tests')
-        linked_folder = models.ForeignKey(FakeFolder, verbose_name=_(u'Folder'), on_delete=models.PROTECT)
+        title       = models.CharField(_('Title'), max_length=100)
+#        description = models.TextField(_('Description'), blank=True, null=True).set_tags(optional=True)
+        filedata    = models.FileField(_('File'), max_length=100, upload_to='upload/creme_core-tests')
+        linked_folder = models.ForeignKey(FakeFolder, verbose_name=_('Folder'), on_delete=models.PROTECT)
 
 #        creation_label = _('Create a document')
 
@@ -79,11 +79,11 @@ else:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
             verbose_name = 'Test Document'
-            verbose_name_plural = u'Test Documents'
+            verbose_name_plural = 'Test Documents'
             ordering = ('title',)
 
         def __str__(self):
-            return u'{} - {}'.format(self.linked_folder, self.title)
+            return '{} - {}'.format(self.linked_folder, self.title)
 
 #        def get_absolute_url(self):
 #           return "/documents/document/%s" % self.id
@@ -97,44 +97,44 @@ else:
 
 
     class FakeFileComponent(CremeModel):
-        filedata = models.FileField(_(u'File'), max_length=100,
+        filedata = models.FileField(_('File'), max_length=100,
                                     upload_to='upload/creme_core-tests',
                                     null=True, blank=True,
                                    )
 
         class Meta:
             app_label = 'creme_core'
-            verbose_name = u'Test File component'
-            verbose_name_plural = u'Test File components'
+            verbose_name = 'Test File component'
+            verbose_name_plural = 'Test File components'
 
 
     class FakeImageCategory(CremeModel):
-        name = models.CharField(_(u'Name'), max_length=100)
+        name = models.CharField(_('Name'), max_length=100)
 
         def __str__(self):
             return self.name
 
         class Meta:
             app_label = 'creme_core'
-            verbose_name = u'Test Image category'
-            verbose_name_plural = u'Test Image categories'
+            verbose_name = 'Test Image category'
+            verbose_name_plural = 'Test Image categories'
             ordering = ('name',)
 
 
     class FakeImage(CremeEntity):
-        name        = models.CharField(_(u'Name'), max_length=100, blank=True, null=True)
-        description = models.TextField(_(u'Description'), blank=True, null=True)\
+        name        = models.CharField(_('Name'), max_length=100, blank=True, null=True)
+        description = models.TextField(_('Description'), blank=True, null=True)\
                             .set_tags(optional=True)
 #        image       = ImageField(_('Image'), height_field='height', width_field='width',
 #                                 upload_to='upload/images', max_length=500)
-        filedata    = models.FileField(_(u'File'), max_length=100, editable=False,
+        filedata    = models.FileField(_('File'), max_length=100, editable=False,
                                        upload_to='upload/creme_core-tests',
                                       )
         categories  = models.ManyToManyField(FakeImageCategory,
-                                             verbose_name=_(u'Categories'),
+                                             verbose_name=_('Categories'),
                                              related_name='+', blank=True,
                                             )
-        exif_date   = models.DateField(_(u'Exif date'), blank=True, null=True)\
+        exif_date   = models.DateField(_('Exif date'), blank=True, null=True)\
                             .set_tags(optional=True)
 
 #        creation_label = _('Create an image')
@@ -142,8 +142,8 @@ else:
         class Meta:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
-            verbose_name = u'Test Image'
-            verbose_name_plural = u'Test Images'
+            verbose_name = 'Test Image'
+            verbose_name_plural = 'Test Images'
             ordering = ('name',)
 
         def __str__(self):
@@ -165,56 +165,56 @@ else:
 
 
     class FakeCivility(CremeModel):
-        title    = models.CharField(_(u'Title'), max_length=100)
-        shortcut = models.CharField(_(u'Shortcut'), max_length=100)
+        title    = models.CharField(_('Title'), max_length=100)
+        shortcut = models.CharField(_('Shortcut'), max_length=100)
 
         def __str__(self):
             return self.title
 
         class Meta:
             app_label = 'creme_core'
-            verbose_name = u'Test civility'
-            verbose_name_plural = u'Test civilities'
+            verbose_name = 'Test civility'
+            verbose_name_plural = 'Test civilities'
             ordering = ('title',)
 
 
     class FakePosition(CremeModel):
-        title = models.CharField(_(u'Title'), max_length=100)
+        title = models.CharField(_('Title'), max_length=100)
 
         def __str__(self):
             return self.title
 
         class Meta:
             app_label = 'creme_core'
-            verbose_name = u'Test People position'
-            verbose_name_plural = u'Test People positions'
+            verbose_name = 'Test People position'
+            verbose_name_plural = 'Test People positions'
             ordering = ('title',)
 
 
     class FakeSector(CremeModel):
-        title     = models.CharField(_(u'Title'), max_length=100)
+        title     = models.CharField(_('Title'), max_length=100)
         is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
-        order     = BasicAutoField(_(u'Order'))  # Used by creme_config
+        order     = BasicAutoField(_('Order'))  # Used by creme_config
 
         def __str__(self):
             return self.title
 
         class Meta:
             app_label = 'creme_core'
-            verbose_name = u'Test sector'
-            verbose_name_plural = u'Test sectors'
+            verbose_name = 'Test sector'
+            verbose_name_plural = 'Test sectors'
             ordering = ('order',)
 
 
     class FakeAddress(CremeModel):
-        value      = models.TextField(_(u'Address'), blank=True, null=True)
-        zipcode    = models.CharField(_(u'Zip code'), max_length=100, blank=True, null=True) \
+        value      = models.TextField(_('Address'), blank=True, null=True)
+        zipcode    = models.CharField(_('Zip code'), max_length=100, blank=True, null=True) \
                            .set_tags(optional=True)
-        city       = models.CharField(_(u'City'), max_length=100, blank=True, null=True) \
+        city       = models.CharField(_('City'), max_length=100, blank=True, null=True) \
                            .set_tags(optional=True)
-        department = models.CharField(_(u'Department'), max_length=100, blank=True, null=True) \
+        department = models.CharField(_('Department'), max_length=100, blank=True, null=True) \
                            .set_tags(optional=True)
-        country    = models.CharField(_(u'Country'), max_length=40, blank=True, null=True) \
+        country    = models.CharField(_('Country'), max_length=40, blank=True, null=True) \
                            .set_tags(optional=True)
 
         entity     = models.ForeignKey(CremeEntity, related_name='+', editable=False, on_delete=models.CASCADE) \
@@ -222,11 +222,11 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            verbose_name = u'Test address'
-            verbose_name_plural = u'Test addresses'
+            verbose_name = 'Test address'
+            verbose_name_plural = 'Test addresses'
 
         def __str__(self):
-            return u' '.join(filter(None, [self.value, self.zipcode, self.city, self.department, self.country]))
+            return ' '.join(filter(None, [self.value, self.zipcode, self.city, self.department, self.country]))
 
         def get_edit_absolute_url(self):
             return reverse('creme_core__edit_fake_address', args=(self.id,))
@@ -236,47 +236,47 @@ else:
 
 
     class FakeContact(CremeEntity):
-        civility    = models.ForeignKey(FakeCivility, verbose_name=_(u'Civility'),
+        civility    = models.ForeignKey(FakeCivility, verbose_name=_('Civility'),
                                         blank=True, null=True, on_delete=models.SET_NULL,
                                        )
-        last_name   = models.CharField(_(u'Last name'), max_length=100)
-        first_name  = models.CharField(_(u'First name'), max_length=100,
+        last_name   = models.CharField(_('Last name'), max_length=100)
+        first_name  = models.CharField(_('First name'), max_length=100,
                                        blank=True, null=True,
                                       ).set_tags(optional=True)
-        is_a_nerd   = models.BooleanField(_(u'Is a Nerd'), default=False)
-        description = models.TextField(_(u'Description'), blank=True, null=True) \
+        is_a_nerd   = models.BooleanField(_('Is a Nerd'), default=False)
+        description = models.TextField(_('Description'), blank=True, null=True) \
                             .set_tags(optional=True)
-        phone       = PhoneField(_(u'Phone number'), max_length=100,
+        phone       = PhoneField(_('Phone number'), max_length=100,
                                  blank=True, null=True,
                                 ).set_tags(optional=True)
-        mobile      = PhoneField(_(u'Mobile'), max_length=100,
+        mobile      = PhoneField(_('Mobile'), max_length=100,
                                  blank=True, null=True,
                                 ).set_tags(optional=True)
-        position    = models.ForeignKey(FakePosition, verbose_name=_(u'Position'),
+        position    = models.ForeignKey(FakePosition, verbose_name=_('Position'),
                                         blank=True, null=True, on_delete=models.SET_NULL,
                                        ).set_tags(optional=True)
-        sector      = models.ForeignKey(FakeSector, verbose_name=_(u'Line of business'),
+        sector      = models.ForeignKey(FakeSector, verbose_name=_('Line of business'),
                                         blank=True, null=True, on_delete=models.SET_NULL,
                                         limit_choices_to=lambda: ~Q(title='[INVALID]'),
                                        ).set_tags(optional=True)
-        email       = models.EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
-        url_site    = models.URLField(_(u'Web Site'), max_length=500, blank=True, null=True)
-        languages   = models.ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True,
+        email       = models.EmailField(_('Email address'), max_length=100, blank=True, null=True)
+        url_site    = models.URLField(_('Web Site'), max_length=500, blank=True, null=True)
+        languages   = models.ManyToManyField(Language, verbose_name=_('Spoken language(s)'), blank=True,
                                              limit_choices_to=~Q(name__contains='[deprecated]'),
                                             )
-        address     = models.ForeignKey(FakeAddress, verbose_name=_(u'Billing address'),
+        address     = models.ForeignKey(FakeAddress, verbose_name=_('Billing address'),
                                         blank=True, null=True,  editable=False,
                                         related_name='+', on_delete=models.SET_NULL,
                                        ).set_tags(enumerable=False)  # clonable=False useless
-        is_user     = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
+        is_user     = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Related user'),
                                         blank=True, null=True, editable=False,
                                         related_name='+',
                                         on_delete=models.SET_NULL,
                                        ).set_tags(clonable=False, enumerable=False) \
-                                        .set_null_label(pgettext_lazy('persons-is_user', u'None'))
-        birthday    = models.DateField(_(u'Birthday'), blank=True, null=True) \
+                                        .set_null_label(pgettext_lazy('persons-is_user', 'None'))
+        birthday    = models.DateField(_('Birthday'), blank=True, null=True) \
                             .set_tags(optional=True)
-        image       = models.ForeignKey(FakeImage, verbose_name=_(u'Photograph'),
+        image       = models.ForeignKey(FakeImage, verbose_name=_('Photograph'),
                                         blank=True, null=True, on_delete=models.SET_NULL,
                                        ).set_tags(optional=True)
 
@@ -287,12 +287,12 @@ else:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
             ordering = ('last_name', 'first_name')
-            verbose_name = u'Test Contact'
-            verbose_name_plural = u'Test Contacts'
+            verbose_name = 'Test Contact'
+            verbose_name_plural = 'Test Contacts'
             index_together = ('last_name', 'first_name', 'cremeentity_ptr')
 
         def __str__(self):
-            return u'{} {}'.format(self.first_name, self.last_name)
+            return '{} {}'.format(self.first_name, self.last_name)
 
         def clean(self):
             if self.is_user_id and not self.first_name:
@@ -315,21 +315,21 @@ else:
 
 
     class FakeLegalForm(CremeModel):
-        title = models.CharField(_(u'Title'), max_length=100)
+        title = models.CharField(_('Title'), max_length=100)
 
         def __str__(self):
             return self.title
 
         class Meta:
             app_label = 'creme_core'
-            verbose_name = u'Test legal form'
-            verbose_name_plural = u'Test Legal forms'
+            verbose_name = 'Test legal form'
+            verbose_name_plural = 'Test Legal forms'
             ordering = ('title',)
 
 
     # class _GetFakeTodos(FunctionField):
     #     name         = 'tests-get_fake_todos'
-    #     verbose_name = _(u'Fake Todos')
+    #     verbose_name = _('Fake Todos')
     #     # has_filter   = False #==> cannot search
     #     result_type  = FunctionFieldResultsList
     #
@@ -340,33 +340,33 @@ else:
 
 
     class FakeOrganisation(CremeEntity):
-        name            = models.CharField(_(u'Name'), max_length=200)
-        phone           = PhoneField(_(u'Phone number'), max_length=100,
+        name            = models.CharField(_('Name'), max_length=200)
+        phone           = PhoneField(_('Phone number'), max_length=100,
                                      blank=True, null=True,
                                     )
-        email           = models.EmailField(_(u'Email address'), max_length=100,
+        email           = models.EmailField(_('Email address'), max_length=100,
                                             blank=True, null=True,
                                            )
-        url_site        = models.URLField(_(u'Web Site'), max_length=500,
+        url_site        = models.URLField(_('Web Site'), max_length=500,
                                           blank=True, null=True,
                                          ).set_tags(optional=True)
-        sector          = models.ForeignKey(FakeSector, verbose_name=_(u'Sector'),
+        sector          = models.ForeignKey(FakeSector, verbose_name=_('Sector'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
                                           ).set_tags(optional=True)
-        capital         = models.PositiveIntegerField(_(u'Capital'), blank=True, null=True)\
+        capital         = models.PositiveIntegerField(_('Capital'), blank=True, null=True)\
                                 .set_tags(optional=True)
-        subject_to_vat  = models.BooleanField(_(u'Subject to VAT'), default=True)
-        legal_form      = models.ForeignKey(FakeLegalForm, verbose_name=_(u'Legal form'),
+        subject_to_vat  = models.BooleanField(_('Subject to VAT'), default=True)
+        legal_form      = models.ForeignKey(FakeLegalForm, verbose_name=_('Legal form'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
                                             limit_choices_to={'title__endswith': '[OK]'},
                                            )
-        address         = models.ForeignKey(FakeAddress, verbose_name=_(u'Billing address'),
+        address         = models.ForeignKey(FakeAddress, verbose_name=_('Billing address'),
                                             blank=True, null=True, editable=False,
                                             related_name='+', on_delete=models.SET_NULL,
                                            ).set_tags(enumerable=False)
-        description     = models.TextField(_(u'Description'), blank=True, null=True)
-        creation_date   = models.DateField(_(u'Date of creation'), blank=True, null=True)
-        image           = models.ForeignKey(FakeImage, verbose_name=_(u'Logo'),
+        description     = models.TextField(_('Description'), blank=True, null=True)
+        creation_date   = models.DateField(_('Date of creation'), blank=True, null=True)
+        image           = models.ForeignKey(FakeImage, verbose_name=_('Logo'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
                                             limit_choices_to=lambda: {'user__is_staff': False},
                                            )
@@ -380,8 +380,8 @@ else:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
             ordering = ('name',)
-            verbose_name = u'Test Organisation'
-            verbose_name_plural = u'Test Organisations'
+            verbose_name = 'Test Organisation'
+            verbose_name_plural = 'Test Organisations'
             index_together = ('name', 'cremeentity_ptr')
 
         def __str__(self):
@@ -403,8 +403,8 @@ else:
 
 
     class FakeActivityType(CremeModel):
-        name  = models.CharField(_(u'Name'), max_length=100, unique=True)
-        order = BasicAutoField(_(u'Order'))  # Used by creme_config
+        name  = models.CharField(_('Name'), max_length=100, unique=True)
+        order = BasicAutoField(_('Order'))  # Used by creme_config
 
         class Meta:
             app_label = 'creme_core'
@@ -414,10 +414,10 @@ else:
 
 
     class FakeActivity(CremeEntity):
-        title = models.CharField(_(u'Title'), max_length=100, unique=True)
-        start = models.DateTimeField(_(u'Start'), blank=True, null=True)
-        end   = models.DateTimeField(_(u'End'), blank=True, null=True)
-        type  = models.ForeignKey(FakeActivityType, verbose_name=_(u'Activity type'),
+        title = models.CharField(_('Title'), max_length=100, unique=True)
+        start = models.DateTimeField(_('Start'), blank=True, null=True)
+        end   = models.DateTimeField(_('End'), blank=True, null=True)
+        type  = models.ForeignKey(FakeActivityType, verbose_name=_('Activity type'),
                                   on_delete=models.PROTECT,  # editable=False,
                                  )
 
@@ -426,8 +426,8 @@ else:
         class Meta:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
-            verbose_name = u'Test Activity'
-            verbose_name_plural = u'Test Activities'
+            verbose_name = 'Test Activity'
+            verbose_name_plural = 'Test Activities'
             ordering = ('-start',)
 
         def __str__(self):
@@ -445,13 +445,13 @@ else:
 
 
     class FakeMailingList(CremeEntity):
-        name = models.CharField(_(u'Name of the mailing list'), max_length=80)
+        name = models.CharField(_('Name of the mailing list'), max_length=80)
 
         class Meta:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
-            verbose_name = u'Test Mailing list'
-            verbose_name_plural = u'Test Mailing lists'
+            verbose_name = 'Test Mailing list'
+            verbose_name_plural = 'Test Mailing lists'
             ordering = ('name',)
 
         def __str__(self) :
@@ -469,14 +469,14 @@ else:
 
 
     class FakeEmailCampaign(CremeEntity):
-        name          = models.CharField(_(u'Name of the campaign'), max_length=100, blank=False, null=False)
-        mailing_lists = models.ManyToManyField(FakeMailingList, verbose_name=_(u'Related mailing lists'), blank=True)
+        name          = models.CharField(_('Name of the campaign'), max_length=100, blank=False, null=False)
+        mailing_lists = models.ManyToManyField(FakeMailingList, verbose_name=_('Related mailing lists'), blank=True)
 
         class Meta:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
-            verbose_name = u'Test campaign'
-            verbose_name_plural = u'Test campaigns'
+            verbose_name = 'Test campaign'
+            verbose_name_plural = 'Test campaigns'
             ordering = ('name',)
 
         def __str__(self):
@@ -494,24 +494,24 @@ else:
 
 
     class FakeInvoice(CremeEntity):
-        name             = models.CharField(_(u'Name'), max_length=100)
-        number           = models.CharField(_(u'Number'), max_length=100, blank=True, null=True)
-        issuing_date     = models.DateField(_(u'Issuing date'), blank=True, null=True)
-        expiration_date  = models.DateField(_(u'Expiration date'), blank=True, null=True)\
+        name             = models.CharField(_('Name'), max_length=100)
+        number           = models.CharField(_('Number'), max_length=100, blank=True, null=True)
+        issuing_date     = models.DateField(_('Issuing date'), blank=True, null=True)
+        expiration_date  = models.DateField(_('Expiration date'), blank=True, null=True)\
                                  .set_tags(optional=True)
-        periodicity      = DatePeriodField(_(u'Periodicity of the generation'), blank=True, null=True)
-        total_vat        = MoneyField(_(u'Total with VAT'), max_digits=14, decimal_places=2,
+        periodicity      = DatePeriodField(_('Periodicity of the generation'), blank=True, null=True)
+        total_vat        = MoneyField(_('Total with VAT'), max_digits=14, decimal_places=2,
                                       blank=True, null=True, editable=False, default=0,
                                      )
-        total_no_vat     = MoneyField(_(u'Total without VAT'), max_digits=14, decimal_places=2,
+        total_no_vat     = MoneyField(_('Total without VAT'), max_digits=14, decimal_places=2,
                                       blank=True, null=True, editable=False, default=0,
                                      ).set_tags(optional=True)
 
         class Meta:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
-            verbose_name = u'Test Invoice'
-            verbose_name_plural = u'Test Invoices'
+            verbose_name = 'Test Invoice'
+            verbose_name_plural = 'Test Invoices'
             # ordering = ('name',)
             ordering = ('name', '-expiration_date')
 
@@ -531,18 +531,18 @@ else:
 
     class FakeInvoiceLine(CremeEntity):
         linked_invoice = models.ForeignKey(FakeInvoice, on_delete=models.CASCADE)
-        item          = models.CharField(u'Item', max_length=100, blank=True, null=True)
-        quantity      = models.DecimalField(_(u'Quantity'),
+        item          = models.CharField('Item', max_length=100, blank=True, null=True)
+        quantity      = models.DecimalField(_('Quantity'),
                                             max_digits=10, decimal_places=2,
                                             default=Decimal('1.00'),
                                            )
-        unit_price    = models.DecimalField(_(u'Unit price'), default=Decimal(),
+        unit_price    = models.DecimalField(_('Unit price'), default=Decimal(),
                                             max_digits=10, decimal_places=2,
                                            )
-        discount      = models.DecimalField(_(u'Discount'), default=Decimal(),
+        discount      = models.DecimalField(_('Discount'), default=Decimal(),
                                             max_digits=10, decimal_places=2,
                                            )
-        discount_unit = models.PositiveIntegerField(_(u'Discount Unit'),
+        discount_unit = models.PositiveIntegerField(_('Discount Unit'),
                                                     blank=True, null=True,
                                                     choices=FAKE_DISCOUNT_UNIT.items(),
                                                     default=FAKE_PERCENT_UNIT,
@@ -551,8 +551,8 @@ else:
         class Meta:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
-            verbose_name = u'Test Invoice Line'
-            verbose_name_plural = u'Test Invoice Lines'
+            verbose_name = 'Test Invoice Line'
+            verbose_name_plural = 'Test Invoice Lines'
             ordering = ('created',)
 
         @staticmethod
@@ -564,8 +564,8 @@ else:
 
 
     class FakeProduct(CremeEntity):
-        name   = models.CharField(_(u'Name'), max_length=100)
-        images = models.ManyToManyField(FakeImage, blank=True, verbose_name=_(u'Images'),
+        name   = models.CharField(_('Name'), max_length=100)
+        images = models.ManyToManyField(FakeImage, blank=True, verbose_name=_('Images'),
                                         limit_choices_to={'user__is_active': True},
                                         # related_name='products',
                                        )
@@ -575,8 +575,8 @@ else:
         class Meta:
             app_label = 'creme_core'
             manager_inheritance_from_future = True
-            verbose_name = u'Test Product'
-            verbose_name_plural = u'Test Products'
+            verbose_name = 'Test Product'
+            verbose_name_plural = 'Test Products'
             ordering = ('name',)
 
         def __str__(self):

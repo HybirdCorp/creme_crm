@@ -18,38 +18,46 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.views import generic
 
 from .. import get_ticket_model
 from ..constants import DEFAULT_HFILTER_TICKET
-from ..forms.ticket import TicketCreateForm, TicketEditForm
+from ..forms import ticket as ticket_forms
 from ..models import Priority, Criticity
 
 
 Ticket = get_ticket_model()
 
+# Function views --------------------------------------------------------------
 
-def abstract_add_ticket(request, form=TicketCreateForm,
+
+def abstract_add_ticket(request, form=ticket_forms.TicketCreateForm,
                         submit_label=Ticket.save_label,
                        ):
-    return add_entity(request, form,
-                      extra_initial={'priority':  Priority.objects.first(),
-                                     'criticity': Criticity.objects.first(),
-                                    },
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_initial={'priority':  Priority.objects.first(),
+                                             'criticity': Criticity.objects.first(),
+                                            },
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
-def abstract_edit_ticket(request, ticket_id, form=TicketEditForm):
-    return edit_entity(request, ticket_id, Ticket, form)
+def abstract_edit_ticket(request, ticket_id, form=ticket_forms.TicketEditForm):
+    return generic.edit_entity(request, ticket_id, Ticket, form)
 
 
 def abstract_view_ticket(request, ticket_id,
                          template='tickets/view_ticket.html',
                         ):
-    return view_entity(request, ticket_id, Ticket, template=template)
+    warnings.warn('tickets.views.ticket.abstract_view_ticket() is deprecated ; '
+                  'use the class-based view TicketDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, ticket_id, Ticket, template=template)
 
 
 @login_required
@@ -67,10 +75,22 @@ def edit(request, ticket_id):
 @login_required
 @permission_required('tickets')
 def detailview(request, ticket_id):
+    warnings.warn('tickets.views.ticket.detailview() is deprecated.',
+                  DeprecationWarning
+                 )
     return abstract_view_ticket(request, ticket_id)
 
 
 @login_required
 @permission_required('tickets')
 def listview(request):
-    return list_view(request, Ticket, hf_pk=DEFAULT_HFILTER_TICKET)
+    return generic.list_view(request, Ticket, hf_pk=DEFAULT_HFILTER_TICKET)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class TicketDetail(generic.detailview.EntityDetail):
+    model = Ticket
+    template_name = 'tickets/view_ticket.html'
+    pk_url_kwarg = 'ticket_id'

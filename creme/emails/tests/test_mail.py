@@ -34,8 +34,6 @@ except Exception as e:
 
 @skipIfCustomEntityEmail
 class EntityEmailTestCase(_EmailsTestCase):
-    # clean_files_in_teardown = True  # see CremeTestCase
-
     @classmethod
     def setUpClass(cls):
         # super(EntityEmailTestCase, cls).setUpClass()
@@ -59,7 +57,6 @@ class EntityEmailTestCase(_EmailsTestCase):
                             )
 
     def _build_send_from_template_url(self, entity):
-        # return '/emails/mail/add_from_template/%s' % entity.id
         return reverse('emails__create_email_from_template', args=(entity.id,))
 
     def _get_job(self):
@@ -112,8 +109,11 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=user.linked_contact)
         self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_RECEIVED, object_entity=contact)
 
-        self.assertGET200(reverse('emails__view_email', args=(email.id,)))
-        self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
+        response = self.assertGET200(reverse('emails__view_email', args=(email.id,)))
+        self.assertTemplateUsed(response, 'emails/view_entity_mail.html')
+
+        response = self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
+        self.assertTemplateUsed(response, 'emails/view_entity_mail_popup.html')
 
         messages = mail.outbox
         self.assertEqual(1, len(messages))

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.urls import reverse
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -25,6 +27,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
 from ... import billing
+
 from ..constants import DEFAULT_HFILTER_TEMPLATE
 from ..forms.templatebase import TemplateBaseEditForm
 
@@ -32,6 +35,8 @@ from ..forms.templatebase import TemplateBaseEditForm
 TemplateBase = billing.get_template_base_model()
 SalesOrder = billing.get_sales_order_model()
 Invoice = billing.get_invoice_model()
+
+# Function views --------------------------------------------------------------
 
 
 def abstract_edit_templatebase(request, template_id, form=TemplateBaseEditForm):
@@ -48,6 +53,11 @@ def edit(request, template_id):
 # @permission_required('recurrents')
 @permission_required('billing')
 def detailview(request, template_id):
+    warnings.warn('billing.views.templatebase.detailview() is deprecated ; '
+                  'use the class-based view TemplateBaseDetail instead.',
+                  DeprecationWarning
+                 )
+
     user = request.user
     has_perm = user.has_perm
     isnt_staff = not user.is_staff
@@ -69,3 +79,12 @@ def listview(request):
     return generic.list_view(request, TemplateBase, hf_pk=DEFAULT_HFILTER_TEMPLATE,
                              extra_dict={'add_url': reverse('recurrents__create_generator')},
                             )
+
+
+# Class-based views  ----------------------------------------------------------
+
+class TemplateBaseDetail(generic.detailview.EntityDetail):
+    model = TemplateBase
+    template_name = 'billing/view_template.html'
+    pk_url_kwarg = 'template_id'
+

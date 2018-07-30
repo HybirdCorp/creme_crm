@@ -170,8 +170,15 @@ class ProjectsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        # return self.get_object_or_fail(ProjectTask, project=project, title=title)
         return self.get_object_or_fail(ProjectTask, linked_project=project, title=title)
+
+    def test_project_detailview(self):
+        self.login()
+
+        status = ProjectStatus.objects.all()[0]
+        project = self.create_project('Eva00', status, '2010-10-11', '2010-12-31')[0]
+        response = self.assertGET200(project.get_absolute_url())
+        self.assertTemplateUsed(response, 'projects/view_project.html')
 
     def test_project_createview01(self):
         user = self.login()
@@ -219,8 +226,8 @@ class ProjectsTestCase(CremeTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'responsibles',
-                             _(u'Some entities are not linkable: {}').format(
-                                    _(u'Entity #{id} (not viewable)').format(id=manager.id)
+                             _('Some entities are not linkable: {}').format(
+                                    _('Entity #{id} (not viewable)').format(id=manager.id)
                                 )
                             )
 
@@ -241,13 +248,13 @@ class ProjectsTestCase(CremeTestCase):
 
         create_dt = self.create_datetime
         self.assertFormError(response, 'form', None,
-                             _(u'Start ({start}) must be before end ({end}).').format(
+                             _('Start ({start}) must be before end ({end}).').format(
                                     start=date_format(create_dt(2012, 2, 16), 'DATE_FORMAT'),
                                     end=date_format(create_dt(2012, 2, 15), 'DATE_FORMAT'),
                                 )
                             )
 
-    def test_project_lisview(self):
+    def test_project_listview(self):
         self.login()
 
         self.create_project('Eva00')
@@ -283,7 +290,7 @@ class ProjectsTestCase(CremeTestCase):
 
         create_dt = self.create_datetime
         self.assertFormError(response, 'form', None,
-                             _(u'Start ({start}) must be before end ({end}).').format(
+                             _('Start ({start}) must be before end ({end}).').format(
                                     start=date_format(create_dt(2012, 3, 27), 'DATE_FORMAT'),
                                     end=date_format(create_dt(2012, 3, 25), 'DATE_FORMAT'),
                                 )
@@ -306,12 +313,12 @@ class ProjectsTestCase(CremeTestCase):
 
         def post(duration):
             return self.client.post(url, follow=True,
-                                    data={'user':                user.id,
-                                          'title':               title,
-                                          'start':               '2010-10-11 15:00',
-                                          'end':                 '2010-10-11 17:00',
-                                          'duration':            duration,
-                                          'tstatus':             tstatus.id,
+                                    data={'user':     user.id,
+                                          'title':    title,
+                                          'start':    '2010-10-11 15:00',
+                                          'end':      '2010-10-11 17:00',
+                                          'duration': duration,
+                                          'tstatus':  tstatus.id,
                                          }
                                     )
 
@@ -376,7 +383,7 @@ class ProjectsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'parent_tasks',
-                             _(u'This entity does not exist.')
+                             _('This entity does not exist.')
                             )
 
     @skipIfCustomTask
@@ -473,7 +480,7 @@ class ProjectsTestCase(CremeTestCase):
         # Error: already parent
         self.assertFormError(self.client.post(url, data={'parents': self.formfield_value_multi_creator_entity(task02)}),
                              'form', 'parents',
-                             _(u'This entity does not exist.')
+                             _('This entity does not exist.')
                             )
 
     @skipIfCustomTask
@@ -491,7 +498,7 @@ class ProjectsTestCase(CremeTestCase):
                                     data={'parents': self.formfield_value_multi_creator_entity(task01)},
                                    )
         self.assertFormError(response, 'form', 'parents',
-                             _(u'This entity does not exist.')
+                             _('This entity does not exist.')
                             )
 
     @skipIfCustomTask
@@ -523,7 +530,7 @@ class ProjectsTestCase(CremeTestCase):
                                     data={'parents': self.formfield_value_multi_creator_entity(task03)},
                                    )
         self.assertFormError(response, 'form', 'parents',
-                             _(u'This entity does not exist.')
+                             _('This entity does not exist.')
                             )
 
     @skipIfCustomTask
@@ -702,7 +709,7 @@ class ProjectsTestCase(CremeTestCase):
                                        )
         self.assertEqual(1, len(self.refresh(task).related_activities))
         self.assertFormError(response, 'form', None,
-            _(u'{participant} already participates to the activity «{activity}» between {start} and {end}.').format(
+            _('{participant} already participates to the activity «{activity}» between {start} and {end}.').format(
                     participant=worker,
                     activity=act1,
                     start='16:59:00',
@@ -833,7 +840,7 @@ class ProjectsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'resource',
-                             _(u'This entity does not exist.')
+                             _('This entity does not exist.')
                             )
 
     @skipIfCustomActivity
@@ -966,7 +973,6 @@ class ProjectsTestCase(CremeTestCase):
                                          )
 
         if parents is not None:
-            # task.parent_tasks = parents
             task.parent_tasks.set(parents)
 
         return task

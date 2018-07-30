@@ -39,8 +39,8 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(id=constants.REL_SUB_HAS).exists()
 
-        RelationType.create((constants.REL_SUB_HAS, _(u'owns')),
-                            (constants.REL_OBJ_HAS, _(u'belongs to')))
+        RelationType.create((constants.REL_SUB_HAS, _('owns')),
+                            (constants.REL_OBJ_HAS, _('belongs to')))
 
         # ---------------------------
         create_svalue = SettingValue.objects.get_or_create
@@ -49,7 +49,7 @@ class Populator(BasePopulator):
         create_svalue(key_id=setting_keys.currency_symbol_key.id, defaults={'value': True})
 
         # ---------------------------
-        create_if_needed(Currency, {'pk': constants.DEFAULT_CURRENCY_PK}, name=_(u'Euro'), local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)
+        create_if_needed(Currency, {'pk': constants.DEFAULT_CURRENCY_PK}, name=_('Euro'), local_symbol=_('€'), international_symbol=_('EUR'), is_custom=False)
 
         # ---------------------------
         create_job = Job.objects.get_or_create
@@ -80,7 +80,7 @@ class Populator(BasePopulator):
             login = password = 'root'
             root = get_user_model().objects.create_superuser(pk=1, username=login, password=password,
                                                              first_name='Fulbert', last_name='Creme',
-                                                             email=_(u'replaceMe@byYourAddress.com'),
+                                                             email=_('replaceMe@byYourAddress.com'),
                                                             )
 
             if self.verbosity:
@@ -93,10 +93,10 @@ class Populator(BasePopulator):
                                  )
 
             # ---------------------------
-            create_if_needed(Currency, {'pk': 2}, name=_(u'United States dollar'), local_symbol=_(u'$'), international_symbol=_(u'USD'))
+            create_if_needed(Currency, {'pk': 2}, name=_('United States dollar'), local_symbol=_('$'), international_symbol=_('USD'))
 
-            create_if_needed(Language, {'pk': 1}, name=_(u'French'),  code='FRA')
-            create_if_needed(Language, {'pk': 2}, name=_(u'English'), code='EN')
+            create_if_needed(Language, {'pk': 1}, name=_('French'),  code='FRA')
+            create_if_needed(Language, {'pk': 2}, name=_('English'), code='EN')
 
             # ---------------------------
             LEFT = BrickDetailviewLocation.LEFT

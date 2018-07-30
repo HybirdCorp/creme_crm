@@ -18,34 +18,42 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.views import generic
 
 from .. import get_messagetemplate_model
 from ..constants import DEFAULT_HFILTER_MTEMPLATE
-from ..forms.template import TemplateCreateForm, TemplateEditForm
+from ..forms import template as tpl_forms
 
 
 MessageTemplate = get_messagetemplate_model()
 
+# Function views --------------------------------------------------------------
 
-def abstract_add_messagetemplate(request, form=TemplateCreateForm,
+
+def abstract_add_messagetemplate(request, form=tpl_forms.TemplateCreateForm,
                                  submit_label=MessageTemplate.save_label,
                                 ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
-def abstract_edit_messagetemplate(request, template_id, form=TemplateEditForm):
-    return edit_entity(request, template_id, MessageTemplate, form)
+def abstract_edit_messagetemplate(request, template_id, form=tpl_forms.TemplateEditForm):
+    return generic.edit_entity(request, template_id, MessageTemplate, form)
 
 
 def abstract_view_messagetemplate(request, template_id,
                                   template='sms/view_template.html',
                                  ):
-    return view_entity(request, template_id, MessageTemplate, template=template)
+    warnings.warn('sms.views.template.abstract_view_messagetemplate() is deprecated ; '
+                  'use the class-based view MessageTemplateDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, template_id, MessageTemplate, template=template)
 
 
 @login_required
@@ -63,10 +71,22 @@ def edit(request, template_id):
 @login_required
 @permission_required('sms')
 def detailview(request, template_id):
+    warnings.warn('sms.views.template.detailview() is deprecated.',
+                  DeprecationWarning
+                 )
     return abstract_view_messagetemplate(request, template_id)
 
 
 @login_required
 @permission_required('sms')
 def listview(request):
-    return list_view(request, MessageTemplate, hf_pk=DEFAULT_HFILTER_MTEMPLATE)
+    return generic.list_view(request, MessageTemplate, hf_pk=DEFAULT_HFILTER_MTEMPLATE)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class MessageTemplateDetail(generic.detailview.EntityDetail):
+    model = MessageTemplate
+    template_name = 'sms/view_template.html'
+    pk_url_kwarg = 'template_id'

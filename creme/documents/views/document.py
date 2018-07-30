@@ -18,14 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
-        list_view, add_model_with_popup)
+from creme.creme_core.views import generic
 
 from .. import get_folder_model, get_document_model
 from ..constants import DEFAULT_HFILTER_DOCUMENT
@@ -34,19 +35,22 @@ from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, Docu
 
 Document = get_document_model()
 
+# Function views --------------------------------------------------------------
+
 
 def abstract_add_document(request, form=DocumentCreateForm,
                           submit_label=Document.save_label,
                          ):
     folder = get_folder_model().objects.first()
 
-    return add_entity(request, form,
-                      # TODO: uncomment when CreatorEntityField can be initialized with instance..
-                      # # extra_initial={'folder': Folder.objects.first()},
-                      # extra_initial={'folder': folder.id if folder else None},
-                      extra_initial={'linked_folder': folder.id if folder else None},
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(
+        request, form,
+        # TODO: uncomment when CreatorEntityField can be initialized with instance..
+        # # extra_initial={'folder': Folder.objects.first()},
+        # extra_initial={'folder': folder.id if folder else None},
+        extra_initial={'linked_folder': folder.id if folder else None},
+        extra_template_dict={'submit_label': submit_label},
+    )
 
 
 def abstract_add_related_document(request, entity_id, form=RelatedDocumentCreateForm,
@@ -60,20 +64,24 @@ def abstract_add_related_document(request, entity_id, form=RelatedDocumentCreate
     user.has_perm_to_link_or_die(entity)
     user.has_perm_to_link_or_die(Document, owner=None)
 
-    return add_model_with_popup(request, form, title % entity,
+    return generic.add_model_with_popup(request, form, title % entity,
                                 initial={'entity': entity},
                                 submit_label=submit_label,
                                )
 
 
 def abstract_edit_document(request, document_id, form=DocumentEditForm):
-    return edit_entity(request, document_id, Document, form)
+    return generic.edit_entity(request, document_id, Document, form)
 
 
 def abstract_view_document(request, object_id,
                            template='documents/view_document.html',
                           ):
-    return view_entity(request, object_id, Document, template=template)
+    warnings.warn('documents.views.document.abstract_view_document() is deprecated ; '
+                  'use the class-based view DocumentDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, object_id, Document, template=template)
 
 
 @login_required
@@ -97,10 +105,20 @@ def edit(request, document_id):
 @login_required
 @permission_required('documents')
 def detailview(request, object_id):
+    warnings.warn('documents.views.document.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_document(request, object_id)
 
 
 @login_required
 @permission_required('documents')
 def listview(request):
-    return list_view(request, Document, hf_pk=DEFAULT_HFILTER_DOCUMENT)
+    return generic.list_view(request, Document, hf_pk=DEFAULT_HFILTER_DOCUMENT)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class DocumentDetail(generic.detailview.EntityDetail):
+    model = Document
+    template_name = 'documents/view_document.html'
+    pk_url_kwarg = 'document_id'

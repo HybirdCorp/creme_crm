@@ -94,6 +94,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                       )
 
         response = self.assertGET200(ticket.get_absolute_url())
+        self.assertTemplateUsed(response, 'tickets/view_ticket.html')
 
         with self.assertNoException():
             retr_ticket = response.context['object']

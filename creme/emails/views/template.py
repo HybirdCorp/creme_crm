@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -25,8 +27,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import (add_entity, add_to_entity,
-        edit_entity, view_entity, list_view)
+from creme.creme_core.views import generic
 
 from .. import get_emailtemplate_model
 from ..constants import DEFAULT_HFILTER_TEMPLATE
@@ -35,23 +36,29 @@ from ..forms.template import EmailTemplateForm, EmailTemplateAddAttachment
 
 EmailTemplate = get_emailtemplate_model()
 
+# Function views --------------------------------------------------------------
+
 
 def abstract_add_template(request, form=EmailTemplateForm,
                           submit_label=EmailTemplate.save_label,
                          ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_edit_template(request, template_id, form=EmailTemplateForm):
-    return edit_entity(request, template_id, EmailTemplate, form)
+    return generic.edit_entity(request, template_id, EmailTemplate, form)
 
 
 def abstract_view_template(request, template_id,
                            template='emails/view_template.html',
                           ):
-    return view_entity(request, template_id, EmailTemplate, template=template)
+    warnings.warn('emails.views.mail.abstract_view_template() is deprecated ; '
+                  'use the class-based view EmailTemplateDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, template_id, EmailTemplate, template=template)
 
 
 @login_required
@@ -69,24 +76,26 @@ def edit(request, template_id):
 @login_required
 @permission_required('emails')
 def detailview(request, template_id):
+    warnings.warn('emails.views.mail.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_template(request, template_id)
 
 
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, EmailTemplate, hf_pk=DEFAULT_HFILTER_TEMPLATE)
+    return generic.list_view(request, EmailTemplate, hf_pk=DEFAULT_HFILTER_TEMPLATE)
 
 
 @login_required
 @permission_required('emails')
 def add_attachment(request, template_id):
-    return add_to_entity(request, template_id, EmailTemplateAddAttachment,
-                         ugettext(u'New attachments for «%s»'),
-                         entity_class=EmailTemplate,
-                         submit_label=_(u'Save the attachments'),
-                         template='creme_core/generics/blockform/link_popup.html',
-                        )
+    return generic.add_to_entity(
+        request, template_id, EmailTemplateAddAttachment,
+        ugettext('New attachments for «%s»'),
+        entity_class=EmailTemplate,
+        submit_label=_('Save the attachments'),
+        template='creme_core/generics/blockform/link_popup.html',
+    )
 
 
 @login_required
@@ -100,7 +109,15 @@ def delete_attachment(request, template_id):
     template.attachments.remove(attachment_id)
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(template)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class EmailTemplateDetail(generic.detailview.EntityDetail):
+    model = EmailTemplate
+    template_name = 'emails/view_template.html'
+    pk_url_kwarg = 'template_id'

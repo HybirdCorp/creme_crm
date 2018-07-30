@@ -20,7 +20,7 @@
 
 from datetime import datetime
 from functools import partial
-# import warnings
+import warnings
 
 from django.db.models import Q
 from django.http import Http404, HttpResponse
@@ -170,12 +170,20 @@ def abstract_edit_activity(request, activity_id, model=Activity, form=act_forms.
 def abstract_view_activity(request, activity_id,
                            template='activities/view_activity.html',
                           ):
+    warnings.warn('activities.views.activity.abstract_view_activity() is deprecated ; '
+                  'use the class-based view ActivityDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, activity_id, model=Activity, template=template)
 
 
 def abstract_view_activity_popup(request, activity_id,
                                  template='activities/view_activity_popup.html',
                                 ):
+    warnings.warn('activities.views.activity.abstract_view_activity_popup() is deprecated ; '
+                  'use the class-based view ActivityPopup instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, activity_id, model=Activity, template=template)
 
 
@@ -212,12 +220,14 @@ def edit(request, activity_id):
 @login_required
 @permission_required('activities')
 def detailview(request, activity_id):
+    warnings.warn('activities.views.activity.detailview() is deprecated', DeprecationWarning)
     return abstract_view_activity(request, activity_id)
 
 
 @login_required
 @permission_required('activities')
 def popupview(request, activity_id):
+    warnings.warn('activities.views.activity.popupview() is deprecated', DeprecationWarning)
     return abstract_view_activity_popup(request, activity_id)
 
 
@@ -234,6 +244,21 @@ def listview(request, type_id=None):
                              extra_dict={'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )},
                              **kwargs
                             )
+
+
+# Class-based views  ----------------------------------------------------------
+
+class ActivityDetail(generic.detailview.EntityDetail):
+    model = Activity
+    template_name = 'activities/view_activity.html'
+    pk_url_kwarg = 'activity_id'
+
+
+class ActivityPopup(ActivityDetail):
+    template_name = 'activities/view_activity_popup.html'
+
+
+# Other views  ----------------------------------------------------------------
 
 
 @login_required

@@ -25,7 +25,8 @@ if not event_model_is_custom():
         url(r'^events[/]?$',                       event.listview,   name='events__list_events'),
         url(r'^event/add[/]?$',                    event.add,        name='events__create_event'),
         url(r'^event/edit/(?P<event_id>\d+)[/]?$', event.edit,       name='events__edit_event'),
-        url(r'^event/(?P<event_id>\d+)[/]?$',      event.detailview, name='events__view_event'),
+        # url(r'^event/(?P<event_id>\d+)[/]?$',      event.detailview, name='events__view_event'),
+        url(r'^event/(?P<event_id>\d+)[/]?$',      event.EventDetail.as_view(), name='events__view_event'),
     ]
 
 if not opportunity_model_is_custom():

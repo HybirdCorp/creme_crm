@@ -197,6 +197,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertRedirects(response, gen.get_absolute_url())
+        self.assertTemplateUsed(response, 'recurrents/view_generator.html')
 
         gen = self.refresh(gen)
         self.assertEqual(name, gen.name)

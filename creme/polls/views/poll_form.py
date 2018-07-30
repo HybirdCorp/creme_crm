@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.core.exceptions import PermissionDenied
 from django.db.models import ProtectedError
 from django.http import HttpResponse, Http404
@@ -27,8 +29,7 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import jsonify
-from creme.creme_core.views.generic import (add_entity, add_to_entity,
-        edit_entity, edit_related_to_entity, view_entity, list_view)
+from creme.creme_core.views import generic
 
 from .. import get_pollform_model
 from ..constants import DEFAULT_HFILTER_PFORM
@@ -41,23 +42,29 @@ from ..utils import StatsTree, NodeStyle  # TODO: templatetag instead ?
 
 PollForm = get_pollform_model()
 
+# Function views --------------------------------------------------------------
+
 
 def abstract_add_pollform(request, form=PollFormForm,
                           submit_label=PollForm.save_label,
                          ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_edit_pollform(request, pform_id, form=PollFormForm):
-    return edit_entity(request, pform_id, PollForm, form)
+    return generic.edit_entity(request, pform_id, PollForm, form)
 
 
 def abstract_view_pollform(request, pform_id,
                            template='polls/view_pollform.html',
                           ):
-    return view_entity(request, pform_id, PollForm, template=template)
+    warnings.warn('polls.views.poll_form.abstract_view_pollform() is deprecated ; '
+                  'use the class-based view PollFormDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, pform_id, PollForm, template=template)
 
 
 @login_required
@@ -75,31 +82,32 @@ def edit(request, pform_id):
 @login_required
 @permission_required('polls')
 def detailview(request, pform_id):
+    warnings.warn('polls.views.poll_form.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_pollform(request, pform_id)
 
 
 @login_required
 @permission_required('polls')
 def listview(request):
-    return list_view(request, PollForm, hf_pk=DEFAULT_HFILTER_PFORM)
+    return generic.list_view(request, PollForm, hf_pk=DEFAULT_HFILTER_PFORM)
 
 
 @login_required
 @permission_required('polls')
 def add_line(request, pform_id):
-    return add_to_entity(request, pform_id, PollFormLineCreateForm,
-                         _(u'New question for «%s»'),
-                         entity_class=PollForm,
-                         submit_label=PollFormLine.save_label,
-                        )
+    return generic.add_to_entity(request, pform_id, PollFormLineCreateForm,
+                                _('New question for «%s»'),
+                                entity_class=PollForm,
+                                submit_label=PollFormLine.save_label,
+                               )
 
 
 @login_required
 @permission_required('polls')
 def edit_line(request, line_id):
-    return edit_related_to_entity(request, line_id, PollFormLine,
-                                  PollFormLineEditForm, _(u'Question for «%s»'),
-                                 )
+    return generic.edit_related_to_entity(request, line_id, PollFormLine,
+                                          PollFormLineEditForm, _('Question for «%s»'),
+                                         )
 
 
 @login_required
@@ -119,7 +127,6 @@ def disable_line(request, line_id):
         raise PermissionDenied(e.args[0]) from e
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(pform)
@@ -133,30 +140,30 @@ def edit_line_conditions(request, line_id):
     if line.disabled:
         raise Http404('You can not add condition to a disabled line.')
 
-    return add_to_entity(request, line.pform_id, PollFormLineConditionsForm,
-                         _(u'Condition for «%s»'),
-                         entity_class=PollForm,
-                         initial={'line': line},
-                         submit_label=PollFormLineCondition.save_label,
-                        )
+    return generic.add_to_entity(request, line.pform_id, PollFormLineConditionsForm,
+                                 _('Condition for «%s»'),
+                                 entity_class=PollForm,
+                                 initial={'line': line},
+                                 submit_label=PollFormLineCondition.save_label,
+                                )
 
 
 @login_required
 @permission_required('polls')
 def add_section(request, pform_id):
-    return add_to_entity(request, pform_id, PollFormSectionCreateForm,
-                         _(u'New section for «%s»'),
-                         entity_class=PollForm,
-                         submit_label=PollFormSection.save_label,
-                        )
+    return generic.add_to_entity(request, pform_id, PollFormSectionCreateForm,
+                                 _('New section for «%s»'),
+                                 entity_class=PollForm,
+                                 submit_label=PollFormSection.save_label,
+                                )
 
 
 @login_required
 @permission_required('polls')
 def edit_section(request, section_id):
-    return edit_related_to_entity(request, section_id, PollFormSection,
-                                  PollFormSectionEditForm, _(u'Section for «%s»'),
-                                 )
+    return generic.edit_related_to_entity(request, section_id, PollFormSection,
+                                          PollFormSectionEditForm, _('Section for «%s»'),
+                                         )
 
 
 @login_required
@@ -164,12 +171,12 @@ def edit_section(request, section_id):
 def add_section_child(request, section_id):
     parent_section = get_object_or_404(PollFormSection, pk=section_id)
 
-    return add_to_entity(request, parent_section.pform_id, PollFormSectionCreateForm,
-                         _(u'New section for «%s»'),
-                         entity_class=PollForm,
-                         initial={'parent': parent_section},
-                         submit_label=PollFormSection.save_label,
-                        )
+    return generic.add_to_entity(request, parent_section.pform_id, PollFormSectionCreateForm,
+                                 _('New section for «%s»'),
+                                 entity_class=PollForm,
+                                 initial={'parent': parent_section},
+                                 submit_label=PollFormSection.save_label,
+                                )
 
 
 @login_required
@@ -177,12 +184,12 @@ def add_section_child(request, section_id):
 def add_line_to_section(request, section_id):
     section = get_object_or_404(PollFormSection, pk=section_id)
 
-    return add_to_entity(request, section.pform_id, PollFormLineCreateForm,
-                         _(u'New question for «%s»'),
-                         entity_class=PollForm,
-                         initial={'section': section},
-                         submit_label=PollFormLine.save_label,
-                        )
+    return generic.add_to_entity(request, section.pform_id, PollFormLineCreateForm,
+                                 _('New question for «%s»'),
+                                 entity_class=PollForm,
+                                 initial={'section': section},
+                                 submit_label=PollFormLine.save_label,
+                                )
 
 
 @login_required
@@ -210,3 +217,11 @@ def get_choices(request, line_id):
         raise Http404('This line type has no choices.')
 
     return choices
+
+# Class-based views  ----------------------------------------------------------
+
+
+class PollFormDetail(generic.detailview.EntityDetail):
+    model = PollForm
+    template_name = 'polls/view_pollform.html'
+    pk_url_kwarg = 'pform_id'

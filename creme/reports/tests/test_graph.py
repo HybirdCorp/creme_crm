@@ -227,6 +227,12 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(rgraph.get_absolute_url())
         self.assertTemplateUsed(response, 'reports/view_graph.html')
 
+        with self.assertNoException():
+            chart_registry = response.context['report_charts']
+
+        from ..report_chart_registry import report_chart_registry
+        self.assertIs(chart_registry, report_chart_registry)
+
         # ------------------------------------------------------------
         # response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC', use_GET=True))
         response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))

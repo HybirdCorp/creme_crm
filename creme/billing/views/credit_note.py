@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
@@ -32,6 +34,8 @@ from ..forms import credit_note as cnote_forms
 
 
 CreditNote = get_credit_note_model()
+
+# Function views --------------------------------------------------------------
 
 
 def abstract_add_credit_note(request, form=cnote_forms.CreditNoteCreateForm,
@@ -62,6 +66,10 @@ def abstract_edit_cnote_comment(request, credit_note_id, form=cnote_forms.Credit
 
 
 def abstract_view_creditnote(request, credit_note_id, template='billing/view_credit_note.html'):
+    warnings.warn('billing.views.credit_note.abstract_view_creditnote() is deprecated ; '
+                  'use the class-based view CreditNoteDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, credit_note_id, CreditNote, template=template)
 
 
@@ -92,6 +100,7 @@ def edit_comment(request, credit_note_id):
 @login_required
 @permission_required('billing')
 def detailview(request, credit_note_id):
+    warnings.warn('billing.views.credit_note.detailview() is deprecated', DeprecationWarning)
     return abstract_view_creditnote(request, credit_note_id)
 
 
@@ -118,3 +127,11 @@ def delete_related_credit_note(request, credit_note_id, base_id):
     relation.delete()
 
     return redirect(subject.get_real_entity())
+
+
+# Class-based views  ----------------------------------------------------------
+
+class CreditNoteDetail(generic.detailview.EntityDetail):
+    model = CreditNote
+    template_name = 'billing/view_credit_note.html'
+    pk_url_kwarg = 'credit_note_id'

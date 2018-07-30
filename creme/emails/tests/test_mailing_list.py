@@ -49,7 +49,10 @@ class MailingListsTestCase(_EmailsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.get_object_or_fail(MailingList, name=name)
+        ml = self.get_object_or_fail(MailingList, name=name)
+
+        response = self.assertGET200(ml.get_absolute_url())
+        self.assertTemplateUsed(response, 'emails/view_mailing_list.html')
 
     def test_edit(self):
         name = 'my_mailinglist'
@@ -149,7 +152,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         # --------------------
         response = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'})  # Invalid address
-        self.assertFormError(response, 'form', 'recipients', _(u'Enter a valid email address.'))
+        self.assertFormError(response, 'form', 'recipients', _('Enter a valid email address.'))
 
         # --------------------
         recipient = mlist.emailrecipient_set.all()[0]
@@ -169,10 +172,10 @@ class MailingListsTestCase(_EmailsTestCase):
 
         # TODO: it seems django validator does manages address with unicode chars:
         #       is it a problem
-        # recipients = ['spike.spiegel@bebop.com', u'jet.bläck@bebop.com']
-        # recipients = ['spike.spiegel@bebop.com', u'jet.black@bebop.com']
+        # recipients = ['spike.spiegel@bebop.com', 'jet.bläck@bebop.com']
+        # recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
         recipient1 = 'spike.spiegel@bebop.com'
-        recipient2 = u'jet.black@bebop.com'
+        recipient2 = 'jet.black@bebop.com'
 
         csvfile = StringIO(end.join([' ' + recipient1, recipient2 + ' ']) + ' ')
         csvfile.name = 'recipients.csv'  # Django uses this
@@ -185,15 +188,15 @@ class MailingListsTestCase(_EmailsTestCase):
 
     def test_recipients02(self):
         "From CSV file (Unix EOF)"
-        self._aux_test_add_recipients_csv(end=u'\n')
+        self._aux_test_add_recipients_csv(end='\n')
 
     def test_recipients03(self):
         "From CSV file (Windows EOF)"
-        self._aux_test_add_recipients_csv(end=u'\r\n')
+        self._aux_test_add_recipients_csv(end='\r\n')
 
     def test_recipients04(self):
         "From CSV file (old Mac EOF)"
-        self._aux_test_add_recipients_csv(end=u'\r')
+        self._aux_test_add_recipients_csv(end='\r')
 
     @skipIfCustomContact
     def test_ml_contacts01(self):
@@ -254,7 +257,7 @@ class MailingListsTestCase(_EmailsTestCase):
         create = partial(Contact.objects.create, user=self.user)
         recipients = [create(first_name='Ranma', last_name='Saotome'),
                       create(first_name='Genma', last_name='Saotome'),
-                      create(first_name='Akane', last_name=u'Tendô'),
+                      create(first_name='Akane', last_name='Tendô'),
                      ]
         expected_ids = {recipients[0].id, recipients[1].id}
 
@@ -375,7 +378,7 @@ class MailingListsTestCase(_EmailsTestCase):
         url = self._build_addorgafilter_url(mlist)
         response = self.assertPOST200(url, data={'filters': priv_efilter.id})
         self.assertFormError(response, 'form', 'filters',
-                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                             _('Select a valid choice. That choice is not one of the available choices.')
                             )
 
         response = self.client.post(url, data={'filters': efilter.id})
@@ -426,11 +429,11 @@ class MailingListsTestCase(_EmailsTestCase):
                                                       data={'child': child.id},
                                                      )
 
-        children_error = _(u'List already in the children')
+        children_error = _('List already in the children')
         self.assertFormError(post(mlist01, mlist02), 'form', 'child', children_error)
         self.assertFormError(post(mlist01, mlist03), 'form', 'child', children_error)
 
-        parents_error = _(u'List already in the parents')
+        parents_error = _('List already in the parents')
         self.assertFormError(post(mlist02, mlist01), 'form', 'child', parents_error)
         self.assertFormError(post(mlist03, mlist01), 'form', 'child', parents_error)
-        self.assertFormError(post(mlist01, mlist01), 'form', 'child', _(u"A list can't be its own child"))
+        self.assertFormError(post(mlist01, mlist01), 'form', 'child', _("A list can't be its own child"))

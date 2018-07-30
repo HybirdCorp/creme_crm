@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -38,6 +40,8 @@ from ..models import Category, SubCategory
 Product = get_product_model()
 Service = get_service_model()
 
+# Function views --------------------------------------------------------------
+
 
 def abstract_add_product(request, form=product_forms.ProductCreateForm,
                          submit_label=Product.save_label,
@@ -54,6 +58,10 @@ def abstract_edit_product(request, product_id, form=product_forms.ProductEditFor
 def abstract_view_product(request, product_id,
                           template='products/view_product.html',
                          ):
+    warnings.warn('products.views.product.abstract_view_product() is deprecated ; '
+                  'use the class-based view ProductDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, product_id, Product, template=template)
 
 
@@ -72,6 +80,7 @@ def edit(request, product_id):
 @login_required
 @permission_required('products')
 def detailview(request, product_id):
+    warnings.warn('products.views.product.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_product(request, product_id)
 
 
@@ -116,7 +125,15 @@ def remove_image(request, entity_id):
     entity.images.remove(img_id)
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(entity)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class ProductDetail(generic.detailview.EntityDetail):
+    model = Product
+    template_name = 'products/view_product.html'
+    pk_url_kwarg = 'product_id'

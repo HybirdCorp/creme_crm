@@ -106,12 +106,10 @@ class BrickTestCaseMixin:
 
 # TODO: rename (MassImportBaseTestCaseMixin)
 class CSVImportBaseTestCaseMixin:
-    # clean_files_in_teardown = True  # See CremeTestCase
-
     def _assertNoResultError(self, results):
         for r in results:
             if r.messages:
-                self.fail('Import error: %s' % r.messages)
+                self.fail('Import error: {}'.format(r.messages))
 
     def _build_file(self, content, extension=None):
         tmpfile = NamedTemporaryFile(suffix=".%s" % extension if extension else '')
@@ -134,7 +132,6 @@ class CSVImportBaseTestCaseMixin:
                                           'title':       title,
                                           'description': 'CSV file for contacts',
                                           'filedata':    tmpfile,
-                                          # 'folder':      folder.id,
                                           'linked_folder': folder.id,
                                          }
                                    )

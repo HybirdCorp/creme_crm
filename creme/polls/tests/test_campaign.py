@@ -25,12 +25,13 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
 
     def _create_segment(self, name, label):  # TODO: inline ?
-        ptype = CremePropertyType.create('polls-prop_{}'.format(name), u'is from segment "{}"'.format(label))
+        ptype = CremePropertyType.create('polls-prop_{}'.format(name), 'is from segment "{}"'.format(label))
         return MarketSegment.objects.create(name=label, property_type=ptype)
 
     def test_detailview01(self):
         camp = PollCampaign.objects.create(user=self.user, name='Camp#1')
         response = self.assertGET200(camp.get_absolute_url())
+        self.assertTemplateUsed(response, 'polls/view_campaign.html')
         self.assertContains(response, camp.name)
         self.assertTemplateUsed(response, 'polls/bricks/campaign-preplies.html')
         self.get_brick_node(self.get_html_tree(response.content), PollCampaignRepliesBrick.id_)

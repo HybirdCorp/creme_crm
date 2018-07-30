@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -25,40 +27,43 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import require_model_fields
-from creme.creme_core.views.generic import (add_entity, add_to_entity,
-        edit_entity, view_entity, list_view)
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 
 from .. import get_mailinglist_model
 from ..constants import DEFAULT_HFILTER_MAILINGLIST
-from ..forms.mailing_list import (MailingListForm, AddChildForm,
-        AddContactsForm, AddOrganisationsForm,
-        AddContactsFromFilterForm, AddOrganisationsFromFilterForm)
+from ..forms import mailing_list as ml_forms
 
 
-Contact      = get_contact_model()
-Organisation = get_organisation_model()
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 MailingList  = get_mailinglist_model()
 
+# Function views --------------------------------------------------------------
 
-def abstract_add_mailinglist(request, form=MailingListForm,
+
+def abstract_add_mailinglist(request, form=ml_forms.MailingListForm,
                              submit_label=MailingList.save_label,
                             ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
-def abstract_edit_mailinglist(request, ml_id, form=MailingListForm):
-    return edit_entity(request, ml_id, MailingList, form)
+def abstract_edit_mailinglist(request, ml_id, form=ml_forms.MailingListForm):
+    return generic.edit_entity(request, ml_id, MailingList, form)
 
 
 def abstract_view_mailinglist(request, ml_id,
                               template='emails/view_mailing_list.html',
                              ):
-    return view_entity(request, ml_id, MailingList, template=template)
+    warnings.warn('emails.views.mailing_list.abstract_view_mailinglist() is deprecated ; '
+                  'use the class-based view EntityEmailDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, ml_id, MailingList, template=template)
 
 
 @login_required
@@ -76,72 +81,78 @@ def edit(request, ml_id):
 @login_required
 @permission_required('emails')
 def detailview(request, ml_id):
+    warnings.warn('emails.views.mailing_list.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_mailinglist(request, ml_id)
 
 
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, MailingList, hf_pk=DEFAULT_HFILTER_MAILINGLIST)
+    return generic.list_view(request, MailingList, hf_pk=DEFAULT_HFILTER_MAILINGLIST)
 
 
 @login_required
 @permission_required('emails')
 @require_model_fields(Contact, 'email')
 def add_contacts(request, ml_id):
-    return add_to_entity(request, ml_id, AddContactsForm,
-                         ugettext(u'New contacts for «%s»'),
-                         entity_class=MailingList,
-                         submit_label=_(u'Link the contacts'),  # TODO: multi_link_label ??
-                         template='creme_core/generics/blockform/link_popup.html',
-                        )
+    return generic.add_to_entity(
+        request, ml_id, ml_forms.AddContactsForm,
+        ugettext('New contacts for «%s»'),
+        entity_class=MailingList,
+        submit_label=_('Link the contacts'),  # TODO: multi_link_label ??
+        template='creme_core/generics/blockform/link_popup.html',
+    )
 
 
 @login_required
 @permission_required('emails')
 @require_model_fields(Contact, 'email')
 def add_contacts_from_filter(request, ml_id):
-    return add_to_entity(request, ml_id, AddContactsFromFilterForm,
-                         ugettext(u'New contacts for «%s»'),
-                         entity_class=MailingList,
-                         submit_label=_(u'Link the contacts'),
-                         template='creme_core/generics/blockform/link_popup.html',
-                        )
+    return generic.add_to_entity(
+        request, ml_id, ml_forms.AddContactsFromFilterForm,
+        ugettext('New contacts for «%s»'),
+        entity_class=MailingList,
+        submit_label=_('Link the contacts'),
+        template='creme_core/generics/blockform/link_popup.html',
+    )
 
 
 @login_required
 @permission_required('emails')
 @require_model_fields(Organisation, 'email')
 def add_organisations(request, ml_id):
-    return add_to_entity(request, ml_id, AddOrganisationsForm,
-                         ugettext(u'New organisations for «%s»'),
-                         entity_class=MailingList,
-                         submit_label=_(u'Link the organisations'),
-                         template='creme_core/generics/blockform/link_popup.html',
-                        )
+    return generic.add_to_entity(
+        request, ml_id, ml_forms.AddOrganisationsForm,
+        ugettext('New organisations for «%s»'),
+        entity_class=MailingList,
+        submit_label=_('Link the organisations'),
+        template='creme_core/generics/blockform/link_popup.html',
+    )
 
 
 @login_required
 @permission_required('emails')
 @require_model_fields(Organisation, 'email')
 def add_organisations_from_filter(request, ml_id):
-    return add_to_entity(request, ml_id, AddOrganisationsFromFilterForm,
-                         ugettext(u'New organisations for «%s»'),
-                         entity_class=MailingList,
-                         submit_label=_(u'Link the organisations'),
-                         template='creme_core/generics/blockform/link_popup.html',
-                        )
+    return generic.add_to_entity(
+        request, ml_id, ml_forms.AddOrganisationsFromFilterForm,
+        ugettext('New organisations for «%s»'),
+        entity_class=MailingList,
+        submit_label=_('Link the organisations'),
+        template='creme_core/generics/blockform/link_popup.html',
+    )
 
 
 @login_required
 @permission_required('emails')
 def add_children(request, ml_id):
-    return add_to_entity(request, ml_id, AddChildForm,
-                         ugettext(u'New child lists for «%s»'),
-                         entity_class=MailingList,
-                         submit_label=_(u'Link the mailing list'),
-                         template='creme_core/generics/blockform/link_popup.html',
-                        )
+    return generic.add_to_entity(
+        request, ml_id, ml_forms.AddChildForm,
+        ugettext('New child lists for «%s»'),
+        entity_class=MailingList,
+        submit_label=_(u'Link the mailing list'),
+        template='creme_core/generics/blockform/link_popup.html',
+    )
 
 
 # TODO: Conflict error if 'email' field is hidden ?
@@ -156,7 +167,6 @@ def _delete_aux(request, ml_id, deletor):
     deletor(ml, subobject_id)
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(ml)
@@ -172,3 +182,13 @@ def delete_organisation(request, ml_id):
 
 def delete_child(request, ml_id):
     return _delete_aux(request, ml_id, lambda ml, child_id: ml.children.remove(child_id))
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class MailingListDetail(generic.detailview.EntityDetail):
+    model = MailingList
+    template_name = 'emails/view_mailing_list.html'
+    pk_url_kwarg = 'ml_id'
+

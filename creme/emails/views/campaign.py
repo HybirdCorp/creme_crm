@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -25,8 +27,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import (add_entity, add_to_entity,
-        edit_entity, view_entity, list_view)
+from creme.creme_core.views import generic
 
 from .. import get_emailcampaign_model
 from ..constants import DEFAULT_HFILTER_CAMPAIGN
@@ -35,23 +36,29 @@ from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddML
 
 EmailCampaign = get_emailcampaign_model()
 
+# Function views --------------------------------------------------------------
+
 
 def abstract_add_campaign(request, form=CampaignCreateForm,
                           submit_label=EmailCampaign.save_label,
                          ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_edit_campaign(request, campaign_id, form=CampaignEditForm):
-    return edit_entity(request, campaign_id, EmailCampaign, form)
+    return generic.edit_entity(request, campaign_id, EmailCampaign, form)
 
 
 def abstract_view_campaign(request, campaign_id,
                            template='emails/view_campaign.html'
                           ):
-    return view_entity(request, campaign_id, EmailCampaign, template=template)
+    warnings.warn('emails.views.campaign.abstract_view_campaign() is deprecated ; '
+                  'use the class-based view EmailCampaignDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, campaign_id, EmailCampaign, template=template)
 
 
 @login_required
@@ -69,24 +76,26 @@ def edit(request, campaign_id):
 @login_required
 @permission_required('emails')
 def detailview(request, campaign_id):
+    warnings.warn('emails.views.campaign.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_campaign(request, campaign_id)
 
 
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, EmailCampaign, hf_pk=DEFAULT_HFILTER_CAMPAIGN)
+    return generic.list_view(request, EmailCampaign, hf_pk=DEFAULT_HFILTER_CAMPAIGN)
 
 
 @login_required
 @permission_required('emails')
 def add_ml(request, campaign_id):
-    return add_to_entity(request, campaign_id, CampaignAddMLForm,
-                         ugettext(u'New mailing lists for «%s»'),
-                         entity_class=EmailCampaign,
-                         submit_label=_(u'Link the mailing lists'),
-                         template='creme_core/generics/blockform/link_popup.html',
-                        )
+    return generic.add_to_entity(
+        request, campaign_id, CampaignAddMLForm,
+        ugettext('New mailing lists for «%s»'),
+        entity_class=EmailCampaign,
+        submit_label=_('Link the mailing lists'),
+        template='creme_core/generics/blockform/link_popup.html',
+    )
 
 
 @login_required
@@ -100,7 +109,15 @@ def delete_ml(request, campaign_id):
     campaign.mailing_lists.remove(ml_id)
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(campaign)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class EmailCampaignDetail(generic.detailview.EntityDetail):
+    model = EmailCampaign
+    template_name = 'emails/view_campaign.html'
+    pk_url_kwarg = 'campaign_id'

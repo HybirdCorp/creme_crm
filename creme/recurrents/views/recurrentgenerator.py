@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.transaction import atomic
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
@@ -27,7 +29,7 @@ from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import view_entity, list_view, edit_entity
+from creme.creme_core.views import generic
 
 from .. import get_rgenerator_model
 from ..constants import DEFAULT_HFILTER_RGENERATOR
@@ -105,13 +107,17 @@ class RecurrentGeneratorWizard(SessionWizardView):
 
 
 def abstract_edit_rgenerator(request, generator_id, form=generator_forms.RecurrentGeneratorEditForm):
-    return edit_entity(request, generator_id, RecurrentGenerator, form)
+    return generic.edit_entity(request, generator_id, RecurrentGenerator, form)
 
 
 def abstract_view_rgenerator(request, generator_id,
                              template='recurrents/view_generator.html',
                             ):
-    return view_entity(request, generator_id, RecurrentGenerator, template=template)
+    warnings.warn('recurrents.views.recurrentgenerator.abstract_view_rgenerator() is deprecated ; '
+                  'use the class-based view RecurrentGeneratorDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, generator_id, RecurrentGenerator, template=template)
 
 
 @login_required
@@ -123,10 +129,19 @@ def edit(request, generator_id):
 @login_required
 @permission_required('recurrents')
 def detailview(request, generator_id):
+    warnings.warn('recurrents.views.recurrentgenerator.detailview().',
+                  DeprecationWarning
+                 )
     return abstract_view_rgenerator(request, generator_id)
+
+
+class RecurrentGeneratorDetail(generic.detailview.EntityDetail):
+    model = RecurrentGenerator
+    template_name = 'recurrents/view_generator.html'
+    pk_url_kwarg = 'generator_id'
 
 
 @login_required
 @permission_required('recurrents')
 def listview(request):
-    return list_view(request, RecurrentGenerator, hf_pk=DEFAULT_HFILTER_RGENERATOR)
+    return generic.list_view(request, RecurrentGenerator, hf_pk=DEFAULT_HFILTER_RGENERATOR)

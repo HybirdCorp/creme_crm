@@ -37,6 +37,10 @@ class TemplatesTestCase(_EmailsTestCase):
         self.assertEqual(body,      template.body)
         self.assertEqual(body_html, template.body_html)
 
+        # ----
+        response = self.assertGET200(template.get_absolute_url())
+        self.assertTemplateUsed(response, 'emails/view_template.html')
+
     def test_createview02(self):
         "Validation error"
         response = self.assertPOST200(reverse('emails__create_template'), follow=True,
@@ -48,12 +52,12 @@ class TemplatesTestCase(_EmailsTestCase):
                                            }
                                      )
 
-        error_msg = _(u'The following variables are invalid: %(vars)s')
+        error_msg = _('The following variables are invalid: %(vars)s')
         self.assertFormError(response, 'form', 'body',
-                             error_msg % {'vars': [u'unexisting_var']}
+                             error_msg % {'vars': ['unexisting_var']}
                             )
         self.assertFormError(response, 'form', 'body_html',
-                             error_msg % {'vars': [u'foobar_var']}
+                             error_msg % {'vars': ['foobar_var']}
                             )
 
     def test_editview01(self):

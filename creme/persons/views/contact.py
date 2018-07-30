@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
@@ -33,6 +35,8 @@ from ..forms.contact import RelatedContactForm, ContactForm
 
 
 Contact = get_contact_model()
+
+# Function views --------------------------------------------------------------
 
 
 def abstract_add_contact(request, form=ContactForm,
@@ -90,6 +94,10 @@ def abstract_edit_contact(request, contact_id, form=ContactForm,
 def abstract_view_contact(request, contact_id,
                           template='persons/view_contact.html',
                          ):
+    warnings.warn('persons.views.contact.abstract_view_contact() is deprecated ; '
+                  'use the class-based view ContactDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, contact_id, model=Contact, template=template)
 
 
@@ -114,6 +122,7 @@ def edit(request, contact_id):
 @login_required
 @permission_required('persons')
 def detailview(request, contact_id):
+    warnings.warn('persons.views.contact.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_contact(request, contact_id)
 
 
@@ -121,3 +130,12 @@ def detailview(request, contact_id):
 @permission_required('persons')
 def listview(request):
     return generic.list_view(request, Contact, hf_pk=DEFAULT_HFILTER_CONTACT)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class ContactDetail(generic.detailview.EntityDetail):
+    model = Contact
+    template_name = 'persons/view_contact.html'
+    pk_url_kwarg = 'contact_id'

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -31,6 +33,8 @@ from ..forms.base import AddImagesForm
 
 
 Service = get_service_model()
+
+# Function views --------------------------------------------------------------
 
 
 def abstract_add_service(request, form=service_forms.ServiceCreateForm,
@@ -48,6 +52,10 @@ def abstract_edit_service(request, service_id, form=service_forms.ServiceEditFor
 def abstract_view_service(request, service_id,
                           template='products/view_service.html',
                          ):
+    warnings.warn('products.views.service.abstract_view_service() is deprecated ; '
+                  'use the class-based view ServiceDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, service_id, Service, template=template)
 
 
@@ -66,6 +74,7 @@ def edit(request, service_id):
 @login_required
 @permission_required('products')
 def detailview(request, service_id):
+    warnings.warn('products.views.service.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_service(request, service_id)
 
 
@@ -84,3 +93,11 @@ def add_images(request, service_id):
                                  submit_label=_(u'Link the images'),
                                  template='creme_core/generics/blockform/link_popup.html',
                                 )
+
+# Class-based views  ----------------------------------------------------------
+
+
+class ServiceDetail(generic.detailview.EntityDetail):
+    model = Service
+    template_name = 'products/view_service.html'
+    pk_url_kwarg = 'service_id'

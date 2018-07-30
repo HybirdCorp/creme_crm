@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -26,8 +28,7 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import (add_entity, add_to_entity,
-        view_entity, edit_entity, list_view)
+from creme.creme_core.views import generic
 
 from .. import get_graph_model
 from ..constants import DEFAULT_HFILTER_GRAPH
@@ -40,19 +41,23 @@ Graph = get_graph_model()
 def abstract_add_graph(request, form=GraphForm,
                        submit_label=Graph.save_label,
                       ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_edit_graph(request, graph_id, form=GraphForm):
-    return edit_entity(request, graph_id, Graph, form)
+    return generic.edit_entity(request, graph_id, Graph, form)
 
 
 def abstract_view_graph(request, graph_id,
                         template='graphs/view_graph.html',
                        ):
-    return view_entity(request, graph_id, Graph, template=template)
+    warnings.warn('graphs.views.graph.abstract_view_graph() is deprecated ; '
+                  'use the class-based view GraphDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, graph_id, Graph, template=template)
 
 
 @login_required
@@ -86,23 +91,25 @@ def edit(request, graph_id):
 @login_required
 @permission_required('graphs')
 def detailview(request, graph_id):
+    warnings.warn('graphs.views.graph.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_graph(request, graph_id)
 
 
 @login_required
 @permission_required('graphs')
 def listview(request):
-    return list_view(request, Graph, hf_pk=DEFAULT_HFILTER_GRAPH)
+    return generic.list_view(request, Graph, hf_pk=DEFAULT_HFILTER_GRAPH)
 
 
 @login_required
 @permission_required('graphs')
 def add_relation_types(request, graph_id):
-    return add_to_entity(request, graph_id, AddRelationTypesForm,
-                         _(u'Add relation types to «%s»'),
-                         entity_class=Graph,
-                         template='creme_core/generics/blockform/link_popup.html',
-                        )
+    return generic.add_to_entity(
+        request, graph_id, AddRelationTypesForm,
+        _('Add relation types to «%s»'),
+        entity_class=Graph,
+        template='creme_core/generics/blockform/link_popup.html',
+    )
 
 
 @login_required
@@ -114,5 +121,13 @@ def delete_relation_type(request, graph_id):
     request.user.has_perm_to_change_or_die(graph)
     graph.orbital_relation_types.remove(rtype_id)
 
-    # return HttpResponse(content_type='text/javascript')
     return HttpResponse()
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class GraphDetail(generic.detailview.EntityDetail):
+    model = Graph
+    template_name = 'graphs/view_graph.html'
+    pk_url_kwarg = 'graph_id'

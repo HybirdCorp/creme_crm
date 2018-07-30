@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.http import Http404
 from django.shortcuts import redirect
 
@@ -33,6 +35,8 @@ from ..models import ProjectStatus
 
 
 Project = get_project_model()
+
+# Function views --------------------------------------------------------------
 
 
 def abstract_add_project(request, form=project_forms.ProjectCreateForm,
@@ -51,6 +55,10 @@ def abstract_edit_project(request, project_id, form=project_forms.ProjectEditFor
 def abstract_view_project(request, project_id,
                           template='projects/view_project.html',
                          ):
+    warnings.warn('project.views.project.abstract_view_project() is deprecated ; '
+                  'use the class-based view ProjectDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, project_id, Project, template=template)
 
 
@@ -75,6 +83,7 @@ def listview(request):
 @login_required
 @permission_required('projects')
 def detailview(request, project_id):
+    warnings.warn('project.views.project.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_project(request, project_id)
 
 
@@ -92,3 +101,12 @@ def close(request, project_id):
     project.save()
 
     return redirect(project)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class ProjectDetail(generic.detailview.EntityDetail):
+    model = Project
+    template_name = 'projects/view_project.html'
+    pk_url_kwarg = 'project_id'

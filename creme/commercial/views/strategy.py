@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
+import warnings
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
@@ -43,6 +43,8 @@ from ..models import (MarketSegment, MarketSegmentDescription, CommercialAsset, 
 
 Strategy = get_strategy_model()
 
+# Function views --------------------------------------------------------------
+
 
 def abstract_add_strategy(request, form=forms.StrategyForm,
                           submit_label=Strategy.save_label,
@@ -59,6 +61,10 @@ def abstract_edit_strategy(request, strategy_id, form=forms.StrategyForm):
 def abstract_view_strategy(request, strategy_id,
                            template='commercial/view_strategy.html',
                           ):
+    warnings.warn('commercial.views.strategy.abstract_view_strategy() is deprecated ; '
+                  'use the class-based view StrategyDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, strategy_id, Strategy, template=template)
 
 
@@ -77,6 +83,7 @@ def edit(request, strategy_id):
 @login_required
 @permission_required('commercial')
 def detailview(request, strategy_id):
+    warnings.warn('commercial.views.strategy.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_strategy(request, strategy_id)
 
 
@@ -85,6 +92,17 @@ def detailview(request, strategy_id):
 def listview(request):
     return generic.list_view(request, Strategy, hf_pk=DEFAULT_HFILTER_STRATEGY)
 
+
+# Class-based views  ----------------------------------------------------------
+
+
+class StrategyDetail(generic.detailview.EntityDetail):
+    model = Strategy
+    template_name = 'commercial/view_strategy.html'
+    pk_url_kwarg = 'strategy_id'
+
+
+# Other views  ----------------------------------------------------------------
 
 @login_required
 @permission_required('commercial')

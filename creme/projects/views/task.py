@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.db.models import ProtectedError
 from django.http import HttpResponse
@@ -69,6 +70,10 @@ def abstract_edit_ptask_popup(request, task_id, form=task_forms.TaskEditForm):
 def abstract_view_ptask(request, task_id,
                         template='projects/view_task.html',
                        ):
+    warnings.warn('project.views.task.abstract_view_ptask() is deprecated ; '
+                  'use the class-based view ProjectTaskDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, task_id, ProjectTask, template=template)
 
 
@@ -81,6 +86,7 @@ def add(request, project_id):
 @login_required
 @permission_required('projects')
 def detailview(request, task_id):
+    warnings.warn('project.views.task.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_ptask(request, task_id)
 
 
@@ -116,6 +122,14 @@ def delete_parent(request):
     task.parent_tasks.remove(parent_id)
 
     return HttpResponse()
+
+
+# Class-based views  ----------------------------------------------------------
+
+class ProjectTaskDetail(generic.detailview.EntityDetail):
+    model = ProjectTask
+    template_name = 'projects/view_task.html'
+    pk_url_kwarg = 'task_id'
 
 
 # Activities -------------------------------------------------------------------
