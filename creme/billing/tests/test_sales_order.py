@@ -5,14 +5,17 @@ try:
     from decimal import Decimal
 
     from django.urls import reverse
+    from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import Currency
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import Currency, SetCredentials
 
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from ..models import SalesOrderStatus
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from .base import _BillingTestCase, skipIfCustomSalesOrder, SalesOrder
+    from ..models import SalesOrderStatus
+
+    from .base import _BillingTestCase, skipIfCustomSalesOrder, SalesOrder, Organisation, Invoice
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -20,10 +23,41 @@ except Exception as e:
 @skipIfCustomOrganisation
 @skipIfCustomSalesOrder
 class SalesOrderTestCase(_BillingTestCase):
-    def setUp(self):
-        self.login()
+    def test_detailview01(self):
+        self.login(is_superuser=False,
+                   allowed_apps=['billing', 'persons'],
+                   creatable_models=[Organisation, SalesOrder, Invoice],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW |
+                                            EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        order = self.create_salesorder_n_orgas('My order')[0]
+        response = self.assertGET200(order.get_absolute_url())
+        self.assertTemplateUsed(response, 'billing/view_sales_order.html')
+        self.assertContains(response, '<form id="id_convert2invoice"')
+
+    def test_detailview02(self):
+        "Cannot create invoice => convert button disabled"
+        self.login(is_superuser=False,
+                   allowed_apps=['billing', 'persons'],
+                   creatable_models=[Organisation, SalesOrder],  # Invoice
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW |
+                                            EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        order = self.create_salesorder_n_orgas('My order')[0]
+        response = self.assertGET200(order.get_absolute_url())
+        self.assertContains(response, _('Convert to Invoice'))
+        self.assertNotContains(response, '<form id="id_convert2invoice"')
 
     def test_createview01(self):
+        self.login()
         self.assertGET200(reverse('billing__create_order'))
 
         currency = Currency.objects.all()[0]
@@ -38,6 +72,8 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
 
     def test_create_linked(self):
+        user = self.login()
+
         source, target = self.create_orgas()
         url = reverse('billing__create_related_order', args=(target.id,))
         response = self.assertGET200(url)
@@ -55,7 +91,7 @@ class SalesOrderTestCase(_BillingTestCase):
         currency = Currency.objects.all()[0]
         status   = SalesOrderStatus.objects.all()[1]
         response = self.client.post(url, follow=True,
-                                    data={'user':            self.user.pk,
+                                    data={'user':            user.pk,
                                           'name':            name,
                                           'issuing_date':    '2013-12-13',
                                           'expiration_date': '2014-1-20',
@@ -78,6 +114,8 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
 
     def test_editview(self):
+        user = self.login()
+
         name = 'my sales order'
         order, source, target = self.create_salesorder_n_orgas(name)
 
@@ -85,12 +123,12 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         name     = name.title()
-        currency = Currency.objects.create(name=u'Marsian dollar', local_symbol=u'M$',
-                                           international_symbol=u'MUSD', is_custom=True,
+        currency = Currency.objects.create(name='Marsian dollar', local_symbol='M$',
+                                           international_symbol='MUSD', is_custom=True,
                                           )
         status   = SalesOrderStatus.objects.all()[1]
         response = self.client.post(url, follow=True,
-                                    data={'user':            self.user.pk,
+                                    data={'user':            user.pk,
                                           'name':            name,
                                           'issuing_date':    '2012-2-12',
                                           'expiration_date': '2012-3-13',
@@ -111,6 +149,8 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertEqual(status,                           order.status)
 
     def test_listview(self):
+        self.login()
+
         order1 = self.create_salesorder_n_orgas('Order1')[0]
         order2 = self.create_salesorder_n_orgas('Order2')[0]
 
@@ -123,10 +163,14 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertEqual({order1, order2}, set(orders_page.paginator.object_list))
 
     def test_delete_status01(self):
+        self.login()
+
         status = SalesOrderStatus.objects.create(name='OK')
         self.assertDeleteStatusOK(status, 'sales_order_status')
 
     def test_delete_status02(self):
+        self.login()
+
         status = SalesOrderStatus.objects.create(name='OK')
         order = self.create_salesorder_n_orgas('Order', status=status)[0]
 
@@ -134,8 +178,10 @@ class SalesOrderTestCase(_BillingTestCase):
 
     @skipIfCustomAddress
     def test_csv_import(self):
+        self.login()
         self._aux_test_csv_import(SalesOrder, SalesOrderStatus)
 
     @skipIfCustomAddress
     def test_csv_import_update(self):
+        self.login()
         self._aux_test_csv_import_update(SalesOrder, SalesOrderStatus)
