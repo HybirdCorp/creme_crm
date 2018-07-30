@@ -61,6 +61,7 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertEqual(sub_cat,             service.sub_category)
 
         self.assertRedirects(response, service.get_absolute_url())
+        self.assertTemplateUsed(response, 'products/view_service.html')
 
     def test_editview(self):
         user = self.login()
@@ -187,7 +188,7 @@ class ServiceTestCase(_ProductsTestCase):
 
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images', _(u'Some entities are not linkable: {}').format(img_4))
+        self.assertFormError(response, 'form', 'images', _('Some entities are not linkable: {}').format(img_4))
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)

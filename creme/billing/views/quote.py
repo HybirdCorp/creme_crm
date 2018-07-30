@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -33,6 +35,8 @@ from ..views.workflow import generic_add_related
 Quote = billing.get_quote_model()
 Invoice = billing.get_invoice_model()
 SalesOrder = billing.get_sales_order_model()
+
+# Function views --------------------------------------------------------------
 
 
 def abstract_add_quote(request, form=quote_forms.QuoteCreateForm,
@@ -60,6 +64,11 @@ def abstract_edit(request, quote_id, form=quote_forms.QuoteEditForm):
 
 
 def abstract_view_quote(request, quote_id, template='billing/view_quote.html'):
+    warnings.warn('billing.views.quote.abstract_view_quote() is deprecated ; '
+                  'use the class-based view QuoteDetail instead.',
+                  DeprecationWarning
+                 )
+
     user = request.user
     has_perm = user.has_perm
     isnt_staff = not user.is_staff
@@ -95,6 +104,7 @@ def edit(request, quote_id):
 @login_required
 @permission_required('billing')
 def detailview(request, quote_id):
+    warnings.warn('billing.views.quote.deatilview() is deprecated.', DeprecationWarning)
     return abstract_view_quote(request, quote_id)
 
 
@@ -102,3 +112,11 @@ def detailview(request, quote_id):
 @permission_required('billing')
 def listview(request):
     return generic.list_view(request, Quote, hf_pk=DEFAULT_HFILTER_QUOTE)
+
+
+# Class-based views  ----------------------------------------------------------
+
+class QuoteDetail(generic.detailview.EntityDetail):
+    model = Quote
+    template_name = 'billing/view_quote.html'
+    pk_url_kwarg = 'quote_id'

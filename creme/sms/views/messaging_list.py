@@ -18,15 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import (add_entity, add_to_entity,
-        edit_entity, view_entity, list_view)
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views import generic
 
 from .. import get_messaginglist_model
 from ..constants import DEFAULT_HFILTER_MLIST
@@ -39,19 +40,23 @@ MessagingList = get_messaginglist_model()
 def abstract_add_messaginglist(request, form=MessagingListForm,
                                submit_label=MessagingList.save_label,
                               ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_edit_messaginglist(request, mlist_id, form=MessagingListForm):
-    return edit_entity(request, mlist_id, MessagingList, form)
+    return generic.edit_entity(request, mlist_id, MessagingList, form)
 
 
 def abstract_view_messaginglist(request, mlist_id,
                                 template='sms/view_messaginglist.html',
                                ):
-    return view_entity(request, mlist_id, MessagingList, template=template)
+    warnings.warn('sms.views.messaging_list.abstract_view_messaginglist() is deprecated ; '
+                  'use the class-based view MessagingListDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, mlist_id, MessagingList, template=template)
 
 
 @login_required
@@ -70,35 +75,36 @@ def edit(request, mlist_id):
 @login_required
 @permission_required('sms')
 def detailview(request, mlist_id):
+    warnings.warn('sms.views.messaging_list.deatilview() is deprecated.', DeprecationWarning)
     return abstract_view_messaginglist(request, mlist_id)
 
 
 @login_required
 @permission_required('sms')
 def listview(request):
-    return list_view(request, MessagingList, hf_pk=DEFAULT_HFILTER_MLIST)
+    return generic.list_view(request, MessagingList, hf_pk=DEFAULT_HFILTER_MLIST)
 
 
 @login_required
 @permission_required('sms')
 def add_contacts(request, mlist_id):
-    return add_to_entity(request, mlist_id, AddContactsForm,
-                         ugettext(u'New contacts for «%s»'),
-                         entity_class=MessagingList,
-                         submit_label=_(u'Link the contacts'),
-                         template='creme_core/generics/blockform/link_popup.html',
-                        )
+    return generic.add_to_entity(request, mlist_id, AddContactsForm,
+                                 ugettext('New contacts for «%s»'),
+                                 entity_class=MessagingList,
+                                 submit_label=_('Link the contacts'),
+                                 template='creme_core/generics/blockform/link_popup.html',
+                                )
 
 
 @login_required
 @permission_required('sms')
 def add_contacts_from_filter(request, mlist_id):
-    return add_to_entity(request, mlist_id, AddContactsFromFilterForm,
-                         ugettext(u'New contacts for «%s»'),
-                         entity_class=MessagingList,
-                         submit_label=_(u'Link the contacts'),
-                         template='creme_core/generics/blockform/link_popup.html',
-                        )
+    return generic.add_to_entity(request, mlist_id, AddContactsFromFilterForm,
+                                 ugettext('New contacts for «%s»'),
+                                 entity_class=MessagingList,
+                                 submit_label=_('Link the contacts'),
+                                 template='creme_core/generics/blockform/link_popup.html',
+                                )
 
 
 @login_required
@@ -112,7 +118,6 @@ def _delete_aux(request, mlist_id, deletor):
     deletor(messaging_list, subobject_id)
 
     if request.is_ajax():
-        # return HttpResponse('', content_type='text/javascript')
         return HttpResponse()
 
     return redirect(messaging_list)
@@ -120,3 +125,13 @@ def _delete_aux(request, mlist_id, deletor):
 
 def delete_contact(request, mlist_id):
     return _delete_aux(request, mlist_id, lambda ml, contact_id: ml.contacts.remove(contact_id))
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class MessagingListDetail(generic.detailview.EntityDetail):
+    model = MessagingList
+    template_name = 'sms/view_messaginglist.html'
+    pk_url_kwarg = 'mlist_id'
+

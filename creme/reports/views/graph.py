@@ -41,6 +41,8 @@ from ..report_chart_registry import report_chart_registry
 logger = logging.getLogger(__name__)
 ReportGraph = get_rgraph_model()
 
+# Function views --------------------------------------------------------------
+
 
 def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
                         title=_(u'Create a graph for «%s»'),
@@ -56,6 +58,10 @@ def abstract_edit_rgraph(request, graph_id, form=ReportGraphForm,
 
 
 def abstract_view_rgraph(request, graph_id, template='reports/view_graph.html'):
+    warnings.warn('reports.views.graph.abstract_view_rgraph() is deprecated ; '
+                  'use the class-based view ReportGraphDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, graph_id, ReportGraph,
                                template=template,
                                extra_template_dict={'report_charts': report_chart_registry},
@@ -77,6 +83,7 @@ def edit(request, graph_id):
 @login_required
 @permission_required('reports')
 def detailview(request, graph_id):
+    warnings.warn('reports.views.graph.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_rgraph(request, graph_id)
 
 
@@ -177,3 +184,18 @@ def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):
 
     # TODO: send error too ?
     return {'x': x, 'y': y}
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class ReportGraphDetail(generic.detailview.EntityDetail):
+    model = ReportGraph
+    template_name = 'reports/view_graph.html'
+    pk_url_kwarg = 'graph_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['report_charts'] = report_chart_registry
+
+        return context

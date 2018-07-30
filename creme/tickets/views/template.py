@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import edit_entity, view_entity, list_view
+from creme.creme_core.views import generic
 
 from .. import get_tickettemplate_model
 from ..constants import DEFAULT_HFILTER_TTEMPLATE
@@ -30,13 +32,17 @@ TicketTemplate = get_tickettemplate_model()
 
 
 def abstract_edit_ticket_template(request, template_id, form=TicketTemplateForm):
-    return edit_entity(request, template_id, TicketTemplate, form)
+    return generic.edit_entity(request, template_id, TicketTemplate, form)
 
 
 def abstract_view_ticket_template(request, template_id,
                                   template='tickets/view_template.html',
                                  ):
-    return view_entity(request, template_id, TicketTemplate, template=template)
+    warnings.warn('tickets.views.template.abstract_view_ticket_template() is deprecated ; '
+                  'use the class-based view TicketTemplateDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, template_id, TicketTemplate, template=template)
 
 
 @login_required
@@ -48,10 +54,19 @@ def edit(request, template_id):
 @login_required
 @permission_required('tickets')
 def detailview(request, template_id):
+    warnings.warn('tickets.views.template.detailview() is deprecated.',
+                  DeprecationWarning
+                 )
     return abstract_view_ticket_template(request, template_id)
 
 
 @login_required
 @permission_required('tickets')
 def listview(request):
-    return list_view(request, TicketTemplate, hf_pk=DEFAULT_HFILTER_TTEMPLATE)
+    return generic.list_view(request, TicketTemplate, hf_pk=DEFAULT_HFILTER_TTEMPLATE)
+
+
+class TicketTemplateDetail(generic.detailview.EntityDetail):
+    model = TicketTemplate
+    template_name = 'tickets/view_template.html'
+    pk_url_kwarg = 'template_id'

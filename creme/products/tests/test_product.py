@@ -91,6 +91,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(sub_cat,             product.sub_category)
 
         self.assertRedirects(response, product.get_absolute_url())
+        self.assertTemplateUsed(response, 'products/view_product.html')
         self.assertTemplateUsed(response, 'products/bricks/images.html')
 
     @skipIfCustomProduct
@@ -118,7 +119,7 @@ class ProductTestCase(_ProductsTestCase):
                                           'code':         42,
                                           'description':  'A fake god',
                                           'unit_price':   '1.23',
-                                          'unit':         "anything",
+                                          'unit':         'anything',
                                           'sub_category': self._cat_field(sub_cat.category, sub_cat),
                                           'images':       self.formfield_value_multi_creator_entity(*images),
                                         }
@@ -127,7 +128,7 @@ class ProductTestCase(_ProductsTestCase):
         response = post(img_1, img_3)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'images',
-                             _(u'Some entities are not linkable: {}').format(img_3),
+                             _('Some entities are not linkable: {}').format(img_3),
                             )
 
         response = post(img_1, img_2)
@@ -295,7 +296,7 @@ class ProductTestCase(_ProductsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'sub_category',
-                             _(u"This sub-category causes constraint error.")
+                             _('This sub-category causes constraint error.')
                             )
 
         product = self.refresh(product)
@@ -365,7 +366,7 @@ class ProductTestCase(_ProductsTestCase):
                                     }
                                    )
         self.assertFormError(response, 'form', 'sub_category',
-                             _(u"This sub-category causes constraint error.")
+                             _('This sub-category causes constraint error.')
                             )
 
         product = self.refresh(product)
@@ -439,7 +440,7 @@ class ProductTestCase(_ProductsTestCase):
                                     }
                                    )
         self.assertFormError(response, 'form', 'sub_category',
-                             _(u'This sub-category causes constraint error.')
+                             _('This sub-category causes constraint error.')
                             )
 
         product1 = self.refresh(product1)
@@ -482,7 +483,7 @@ class ProductTestCase(_ProductsTestCase):
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'images',
-                             _(u'Some entities are not linkable: {}').format(img_4),
+                             _('Some entities are not linkable: {}').format(img_4),
                             )
 
         response = post(img_1, img_2)
@@ -704,27 +705,27 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(3, len(jr_errors))
 
         jr_error1 = jr_errors[0]
-        self.assertEqual([_(u'The category «{cat}» and the sub-category «{sub_cat}» are not matching.').format(
+        self.assertEqual([_('The category «{cat}» and the sub-category «{sub_cat}» are not matching.').format(
                                 cat=cat2,
                                 sub_cat=sub_cat11,
                             ),
-                          _(u'This field cannot be null.'),  # TODO: the message should indicate the name of the field.
-                          _(u'This field cannot be null.'),
+                          _('This field cannot be null.'),  # TODO: the message should indicate the name of the field.
+                          _('This field cannot be null.'),
                          ],
                          jr_error1.messages
                         )
         self.assertIsNone(jr_error1.entity)
 
-        self.assertEqual([_(u'The category «{}» does not exist').format('invalid'),
-                          _(u'This field cannot be null.'),
-                          _(u'This field cannot be null.'),
+        self.assertEqual([_('The category «{}» does not exist').format('invalid'),
+                          _('This field cannot be null.'),
+                          _('This field cannot be null.'),
                          ],
                          jr_errors[1].messages
                         )
 
-        self.assertEqual([_(u'The sub-category «{}» does not exist').format('invalid'),
-                          _(u'This field cannot be null.'),
-                          _(u'This field cannot be null.'),
+        self.assertEqual([_('The sub-category «{}» does not exist').format('invalid'),
+                          _('This field cannot be null.'),
+                          _('This field cannot be null.'),
                          ],
                          jr_errors[2].messages
                         )

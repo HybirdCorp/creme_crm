@@ -22,7 +22,8 @@ if not opportunity_model_is_custom():
             name='opportunities__create_related_opportunity_popup',
            ),
         url(r'^opportunity/edit/(?P<opp_id>\d+)[/]?$',        opportunity.edit,       name='opportunities__edit_opportunity'),
-        url(r'^opportunity/(?P<opp_id>\d+)[/]?$',             opportunity.detailview, name='opportunities__view_opportunity'),
+        # url(r'^opportunity/(?P<opp_id>\d+)[/]?$',             opportunity.detailview, name='opportunities__view_opportunity'),
+        url(r'^opportunity/(?P<opp_id>\d+)[/]?$',             opportunity.OpportunityDetail.as_view(), name='opportunities__view_opportunity'),
     ]
 
 if apps.is_installed('creme.billing'):

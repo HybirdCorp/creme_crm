@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -32,7 +34,7 @@ from creme.creme_core.core.entity_cell import EntityCellRelation, EntityCellVola
 from creme.creme_core.models import RelationType
 from creme.creme_core.models.entity import EntityAction
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.views import generic
 
 from creme.persons import get_contact_model
 
@@ -48,24 +50,30 @@ Contact = get_contact_model()
 Event   = get_event_model()
 Opportunity = get_opportunity_model()
 
+# Function views --------------------------------------------------------------
+
 
 def abstract_add_event(request, form=EventForm,
                        submit_label=Event.save_label,
                       ):
-    return add_entity(request, form,
-                      extra_initial={'type': EventType.objects.first()},
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_initial={'type': EventType.objects.first()},
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_edit_event(request, event_id, form=EventForm):
-    return edit_entity(request, event_id, Event, form)
+    return generic.edit_entity(request, event_id, Event, form)
 
 
 def abstract_view_event(request, event_id,
                         template='events/view_event.html',
                        ):
-    return view_entity(request, event_id, Event, template=template)
+    warnings.warn('events.views.abstract_view_event() is deprecated ; '
+                  'use the class-based view EventDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, event_id, Event, template=template)
 
 
 @login_required
@@ -83,26 +91,27 @@ def edit(request, event_id):
 @login_required
 @permission_required('events')
 def detailview(request, event_id):
+    warnings.warn('events.views.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_event(request, event_id)
 
 
 @login_required
 @permission_required('events')
 def listview(request):
-    return list_view(request, Event, hf_pk=constants.DEFAULT_HFILTER_EVENT)
+    return generic.list_view(request, Event, hf_pk=constants.DEFAULT_HFILTER_EVENT)
 
 
 INV_STATUS_MAP = {
-        constants.INV_STATUS_NOT_INVITED: _(u'Not invited'),
-        constants.INV_STATUS_NO_ANSWER:   _(u'Did not answer'),
-        constants.INV_STATUS_ACCEPTED:    _(u'Accepted the invitation'),
-        constants.INV_STATUS_REFUSED:     _(u'Refused the invitation'),
+        constants.INV_STATUS_NOT_INVITED: _('Not invited'),
+        constants.INV_STATUS_NO_ANSWER:   _('Did not answer'),
+        constants.INV_STATUS_ACCEPTED:    _('Accepted the invitation'),
+        constants.INV_STATUS_REFUSED:     _('Refused the invitation'),
     }
 
 PRES_STATUS_MAP = {
-        constants.PRES_STATUS_DONT_KNOW: _(u'N/A'),
-        constants.PRES_STATUS_COME:      pgettext_lazy('events-presence_status', u'Come'),
-        constants.PRES_STATUS_NOT_COME:  pgettext_lazy('events-presence_status', u'Not come'),
+        constants.PRES_STATUS_DONT_KNOW: _('N/A'),
+        constants.PRES_STATUS_COME:      pgettext_lazy('events-presence_status', 'Come'),
+        constants.PRES_STATUS_NOT_COME:  pgettext_lazy('events-presence_status', 'Not come'),
     }
 
 
@@ -116,7 +125,7 @@ def build_get_actions(event, entity):
                 'others':  [EntityAction(reverse('events__create_related_opportunity',
                                                  args=(event.id, entity.id),
                                                 ),
-                                         ugettext(u'Create an opportunity'),
+                                         ugettext('Create an opportunity'),
                                          user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event),
                                          icon='opportunity',
                                         ),
@@ -172,26 +181,13 @@ class ListViewPostProcessor:
             current_status = constants.INV_STATUS_NO_ANSWER
 
         has_perm = user.has_perm_to_link
-        # select = ["""<select onchange="creme.events.saveContactStatus('%s', this);" %s>""" % (
-        #                 reverse('events__set_invitation_status', args=(event.id, entity.id)),
-        #                 '' if has_perm(event) and has_perm(entity) else 'disabled="True"',
-        #             )
-        #          ]
-        # select.extend(u'<option value="%s" %s>%s</option>' % (
-        #                     status,
-        #                     'selected' if status == current_status else '',
-        #                     status_name
-        #                 ) for status, status_name in INV_STATUS_MAP.iteritems()
-        #             )
-        # select.append('</select>')
-        #
-        # return u''.join(select)
+
         return format_html(
-            u"""<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>""",
+            """<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>""",
             url=reverse('events__set_invitation_status', args=(event.id, entity.id)),
             attrs='' if has_perm(event) and has_perm(entity) else mark_safe(' disabled="True"'),
             options=format_html_join(
-                '', u'<option value="{}"{}>{}</option>',
+                '', '<option value="{}"{}>{}</option>',
                 ((status, ' selected' if status == current_status else '', status_name)
                      for status, status_name in INV_STATUS_MAP.items()
                 )
@@ -211,26 +207,13 @@ class ListViewPostProcessor:
             current_status = constants.PRES_STATUS_DONT_KNOW
 
         has_perm = user.has_perm_to_link
-        # select = ["""<select onchange="creme.events.saveContactStatus('%s', this);" %s>""" % (
-        #                 reverse('events__set_presence_status', args=(event.id, entity.id)),
-        #                 '' if has_perm(event) and has_perm(entity) else 'disabled="True"',
-        #             )
-        #          ]
-        # select.extend(u'<option value="%s" %s>%s</option>' % (
-        #                     status,
-        #                     'selected' if status == current_status else '',
-        #                     status_name
-        #                 ) for status, status_name in PRES_STATUS_MAP.iteritems()
-        #              )
-        # select.append('</select>')
-        #
-        # return u''.join(select)
+
         return format_html(
-            u"""<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>""",
+            """<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>""",
             url=reverse('events__set_presence_status', args=(event.id, entity.id)),
             attrs='' if has_perm(event) and has_perm(entity) else mark_safe(' disabled="True"'),
             options=format_html_join(
-                '', u'<option value="{}"{}>{}</option>',
+                '', '<option value="{}"{}>{}</option>',
                 ((status, ' selected' if status == current_status else '', status_name)
                      for status, status_name in PRES_STATUS_MAP.items()
                 )
@@ -252,21 +235,23 @@ def list_contacts(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     request.user.has_perm_to_view_or_die(event)
 
-    return list_view(request, Contact,
-                     extra_dict={'list_title': _(u'List of contacts related to «{}»').format(event),
-                                 'add_url':    '',
-                                 'event_entity': event,  # For ID & to check perm (see 'lv_button_link_contacts.html')
-                                 'extra_bt_templates': ('events/lv_button_link_contacts.html',),
-                                },
-                     extra_q=Q(relations__type__in=_FILTER_RELATIONTYPES),
-                     post_process=ListViewPostProcessor(event),
-                    )
+    return generic.list_view(
+        request, Contact,
+        extra_dict={
+            'list_title': _('List of contacts related to «{}»').format(event),
+            'add_url':    '',
+            'event_entity': event,  # For ID & to check perm (see 'lv_button_link_contacts.html')
+            'extra_bt_templates': ('events/lv_button_link_contacts.html',),
+        },
+        extra_q=Q(relations__type__in=_FILTER_RELATIONTYPES),
+        post_process=ListViewPostProcessor(event),
+    )
 
 
 @login_required
 @permission_required('events')
 def link_contacts(request, event_id):
-    return edit_entity(request, event_id, Event, AddContactsToEventForm)
+    return generic.edit_entity(request, event_id, Event, AddContactsToEventForm)
 
 
 def _get_status(request, valid_status):
@@ -304,7 +289,6 @@ def set_invitation_status(request, event_id, contact_id):
 
     event.set_invitation_status(contact, status, user)
 
-    # return HttpResponse(content_type='text/javascript')
     return HttpResponse()
 
 
@@ -317,7 +301,6 @@ def set_presence_status(request, event_id, contact_id):
 
     event.set_presence_status(contact, status, user)
 
-    # return HttpResponse(content_type='text/javascript')
     return HttpResponse()
 
 
@@ -329,12 +312,21 @@ def abstract_add_related_opportunity(request, event_id, contact_id,
 
     request.user.has_perm_to_link_or_die(event)
 
-    return add_entity(request, form,
-                      extra_initial={'event': event, 'contact': contact},
-                     )
+    return generic.add_entity(request, form,
+                              extra_initial={'event': event, 'contact': contact},
+                             )
 
 
 @login_required
 @permission_required(('events', 'opportunities', cperm(Opportunity)))
 def add_opportunity(request, event_id, contact_id):
     return abstract_add_related_opportunity(request, event_id, contact_id)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class EventDetail(generic.detailview.EntityDetail):
+    model = Event
+    template_name = 'events/view_event.html'
+    pk_url_kwarg = 'event_id'

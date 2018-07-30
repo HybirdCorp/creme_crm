@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.db.models.query_utils import Q
 from django.shortcuts import get_object_or_404
@@ -26,8 +27,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity
-from creme.creme_core.views.generic.listview import list_view
+from creme.creme_core.views import generic
 
 from .. import get_folder_model
 from ..constants import DEFAULT_HFILTER_FOLDER
@@ -38,12 +38,14 @@ logger = logging.getLogger(__name__)
 Folder = get_folder_model()
 
 
+# Function views --------------------------------------------------------------
+
 def abstract_add_folder(request, form=FolderForm,
                         submit_label=Folder.save_label,
                        ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_add_child_folder(request, folder_id, form=ChildFolderForm,
@@ -55,21 +57,26 @@ def abstract_add_child_folder(request, folder_id, form=ChildFolderForm,
 
     user.has_perm_to_link_or_die(parent_folder)
 
-    return add_model_with_popup(request, form,
-                                title=title % parent_folder.allowed_str(user),
-                                initial={'parent': parent_folder},
-                                submit_label=submit_label,
-                               )
+    return generic.add_model_with_popup(
+        request, form,
+        title=title % parent_folder.allowed_str(user),
+        initial={'parent': parent_folder},
+        submit_label=submit_label,
+    )
 
 
 def abstract_edit_folder(request, folder_id, form=FolderForm):
-    return edit_entity(request, folder_id, Folder, form)
+    return generic.edit_entity(request, folder_id, Folder, form)
 
 
 def abstract_view_folder(request, folder_id,
                          template='documents/view_folder.html',
                         ):
-    return view_entity(request, folder_id, Folder, template=template)
+    warnings.warn('documents.views.folder.abstract_view_folder() is deprecated ; '
+                  'use the class-based view FolderDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, folder_id, Folder, template=template)
 
 
 def abstract_list_folders(request, **extra_kwargs):
@@ -100,16 +107,17 @@ def abstract_list_folders(request, **extra_kwargs):
                 parents.append(folder)
                 template_dict['list_sub_title'] = u' > '.join(f.title for f in parents)
 
-    return list_view(request, Folder,
-                     hf_pk=DEFAULT_HFILTER_FOLDER,
-                     extra_q=extra_q,
-                     extra_dict={'parent_id': parent_id or '',
-                                 'extra_bt_templates': ('documents/frags/previous.html', ),
-                                 'previous_id': previous_id,
-                                },
-                     post_process=post_process,
-                     **extra_kwargs
-                    )
+    return generic.list_view(
+        request, Folder,
+        hf_pk=DEFAULT_HFILTER_FOLDER,
+        extra_q=extra_q,
+        extra_dict={'parent_id': parent_id or '',
+                    'extra_bt_templates': ('documents/frags/previous.html', ),
+                    'previous_id': previous_id,
+                   },
+        post_process=post_process,
+        **extra_kwargs
+    )
 
 
 @login_required
@@ -133,6 +141,7 @@ def edit(request, folder_id):
 @login_required
 @permission_required('documents')
 def detailview(request, folder_id):
+    warnings.warn('documents.views.folder.abstract_view_folder() is deprecated.', DeprecationWarning)
     return abstract_view_folder(request, folder_id)
 
 
@@ -140,3 +149,12 @@ def detailview(request, folder_id):
 @permission_required('documents')
 def listview(request):
     return abstract_list_folders(request)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class FolderDetail(generic.detailview.EntityDetail):
+    model = Folder
+    template_name = 'documents/view_folder.html'
+    pk_url_kwarg = 'folder_id'

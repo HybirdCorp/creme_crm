@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 26-07-2018 pour la version 2.0 de Creme
+:Version: 30-07-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -458,26 +458,25 @@ vue n'existe pas encore.
 La vue détaillée
 ~~~~~~~~~~~~~~~~
 
-Ajoutons cette fonction de vue (dans ``views/beaver.py`` donc, si vous suivez) : ::
+Ajoutons cette classe de vue (dans ``views/beaver.py`` donc, si vous suivez) : ::
 
-    @login_required
-    @permission_required('beavers')
-    def detailview(request, beaver_id):
-        return generic.view_entity(request, beaver_id, Beaver)
+    class BeaverDetail(generic.detailview.EntityDetail):
+        model = Beaver
+        pk_url_kwarg = 'beaver_id'
 
 
 Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette URL : ::
 
     urlpatterns = [
-        url(r'^beavers[/]?$',                   beaver.listview,   name='beavers__list_beavers'),
-        url(r'^beaver/add[/]?$',                beaver.add,        name='beavers__create_beaver'),
-        url(r'^beaver/(?P<beaver_id>\d+)[/]?$', beaver.detailview, name='beavers__view_beaver'),  # < -- NEW
+        url(r'^beavers[/]?$',                   beaver.listview, name='beavers__list_beavers'),
+        url(r'^beaver/add[/]?$',                beaver.add,      name='beavers__create_beaver'),
+        url(r'^beaver/(?P<beaver_id>\d+)[/]?$', beaver.BeaverDetail.as_view(), name='beavers__view_beaver'),  # < -- NEW
     ]
 
 En rafraîchissant notre page dans le navigateur, nous obtenons bien la vue
 détaillée espérée.
 
-Pour que les prochaines création de castor n'aboutisse pas sur une erreur 404,
+Pour que les prochaines créations de castor n'aboutissent pas sur une erreur 404,
 nous créons la méthode ``get_absolute_url()`` : ::
 
     # -*- coding: utf-8 -*-
@@ -509,10 +508,10 @@ Ajoutons cette vue dans ``views/beaver.py`` : ::
 Rajoutons l'URL associée : ::
 
     urlpatterns = [
-        url(r'^beavers[/]?$',                        beaver.listview,   name='beavers__list_beavers'),
-        url(r'^beaver/add[/]?$',                     beaver.add,        name='beavers__create_beaver'),
-        url(r'^beaver/edit/(?P<beaver_id>\d+)[/]?$', beaver.edit,       name='beavers__edit_beaver'),  # < -- NEW
-        url(r'^beaver/(?P<beaver_id>\d+)[/]?$',      beaver.detailview, name='beavers__view_beaver'),
+        url(r'^beavers[/]?$',                        beaver.listview, name='beavers__list_beavers'),
+        url(r'^beaver/add[/]?$',                     beaver.add,      name='beavers__create_beaver'),
+        url(r'^beaver/edit/(?P<beaver_id>\d+)[/]?$', beaver.edit,     name='beavers__edit_beaver'),  # < -- NEW
+        url(r'^beaver/(?P<beaver_id>\d+)[/]?$',      beaver.BeaverDetail.as_view(), name='beavers__view_beaver'),
     ]
 
 
@@ -692,7 +691,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2017-02-27 18:24+0100\n"
+    "POT-Creation-Date: 2018-07-27 18:24+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -744,7 +743,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2017-02-27 18:24+0100\n"
+    "POT-Creation-Date: 2018-07-27 18:24+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1254,7 +1253,7 @@ Créez le fichier ``creme/beavers/bricks.py`` : ::
         # Si on définit cette méthode, on indique que ce bloc est capable de s'afficher
         # sur les vue détaillée (c'est une autre méthode pour l'accueil:  home_display()).
         def detailview_display(self, context):
-            # L'entité courante est injectée dans le contexte par la vue generic.view_entity()
+            # L'entité courante est injectée dans le contexte par la vue generic.detailview.EntityDetail
             # et par la vue de rechargement bricks.reload_detailview().
             beaver = context['object']
 
@@ -1677,7 +1676,7 @@ la méthode ``ForeignKey.formfield()`` (définie dans Django) : ::
             ForeignKey.formfield = new_fk_formfield  # On écrase avec notre propre méthode.
 
 
-**Variables globales & attribut de classes** : souvent le code de Creme/Django
+**Variables globales & attributs de classes** : souvent le code de Creme/Django
 est conçu pour être modifié facilement de l'extérieur, sans qu'une API complexe
 ne soit nécessaire. Il faut juste se balader dans le code source et le comprendre.
 Par exemple, dans les classes des champs de formulaire, le *widget* associé
@@ -1703,7 +1702,10 @@ dans ``creme/creme_core/apps.py`` : ::
             forms.DateTimeField.widget = widgets.DateTimeWidget
             forms.TimeField.widget     = widgets.TimeWidget
 
-De la même manière, les comportements dans Creme sont souvent stockés
+On pourra faire pareil avec les attributs de classe des vues (celles basées sur
+des classes, pas celles sous forme de fonctions évidemment).
+
+De manière général, les comportements dans Creme sont souvent stockés
 dans des dictionnaires globaux, plutôt qu'en dur dans des blocs
 ``if ... elif ... elif ...``. Il est alors aisé d'ajouter, supprimer
 ou modifier lesdits comportements.
@@ -1850,10 +1852,17 @@ plus avancées:
 Surcharge des templates
 ***********************
 
-Une des manières les plus simples de modifier une app existante pour l'adapter à
-ses propres besoin consiste à surcharger tout ou partie de ses templates.
+Nous en avons déjà parlé, il est possible, depuis votre AppConfig, de modifier
+l'attribut ``template_name`` des classes-vues, afin de faire utiliser à une vue
+venant d'une autre app un template situé dans la vôtre. L'avantage est que votre
+template pourra étendre le template remplacé ; ce qui est utile dans le cas où
+le nouveau template ressemble beaucoup à celui remplacé (à condition bien sûr
+que ce dernier utilise intelligemment des ``{% block %}``).
 
-Pour cela, Creme s'appuie sur le système de chargement des templates de Django.
+Mais si ce n'est pas possible (ou souhaité), il y a une autre façon de faire utiliser
+à une autre app vos propres templates : la surcharge de template. Pour cela, il suffit
+de s'appuyer sur le système de chargement des templates de Django.
+
 Si vous regardez votre fichier ``settings.py``, vous pouvez y trouver la
 variable suivante : ::
 
@@ -2026,7 +2035,7 @@ d'URLs ne sont définies que lorsque le modèle n'est pas personnalisé : ::
             url(r'^tickets[/]?$',                        ticket.listview,   name='tickets__list_tickets'),
             url(r'^ticket/add[/]?$',                     ticket.add,        name='tickets__create_ticket'),
             url(r'^ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.edit,       name='tickets__edit_ticket'),
-            url(r'^ticket/(?P<ticket_id>\d+)[/]?$',      ticket.detailview, name='tickets__view_ticket'),
+            url(r'^ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(), name='tickets__view_ticket'),
         ]
 
     [...]

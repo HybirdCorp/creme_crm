@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import HttpResponse
@@ -35,6 +37,8 @@ from ..forms import organisation as orga_forms
 
 
 Organisation = get_organisation_model()
+
+# Function views --------------------------------------------------------------
 
 
 def abstract_add_organisation(request, form=orga_forms.OrganisationForm,
@@ -57,6 +61,10 @@ def abstract_edit_organisation(request, organisation_id, form=orga_forms.Organis
 def abstract_view_organisation(request,organisation_id,
                                template='persons/view_organisation.html',
                               ):
+    warnings.warn('persons.views.organisation.abstract_view_organisation() is deprecated ; '
+                  'use the class-based view OrganisationDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, organisation_id, model=Organisation,
                                template=template,
                               )
@@ -77,6 +85,7 @@ def edit(request, organisation_id):
 @login_required
 @permission_required('persons')
 def detailview(request, organisation_id):
+    warnings.warn('persons.views.organisation.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_organisation(request, organisation_id)
 
 
@@ -101,6 +110,16 @@ def list_my_leads_my_customers(request):
                                       ),
                             )
 
+
+# Class-based views  ----------------------------------------------------------
+
+class OrganisationDetail(generic.detailview.EntityDetail):
+    model = Organisation
+    template_name = 'persons/view_organisation.html'
+    pk_url_kwarg = 'organisation_id'
+
+
+# Other views  ----------------------------------------------------------------
 
 @login_required
 @permission_required('creme_core.can_admin')

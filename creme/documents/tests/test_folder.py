@@ -13,7 +13,7 @@ try:
     from creme.documents import constants
     from creme.documents.models import FolderCategory
 except Exception as e:
-    print('Error in <{}>: {}' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomDocument
@@ -112,8 +112,8 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         user = self.user
 
         create_folder = partial(Folder.objects.create, user=user, parent_folder=None)
-        parent = create_folder(title=u'Parent folder', description='Parent description')
-        unused = create_folder(title=u'Unused parent', description='Unused description')
+        parent = create_folder(title='Parent folder', description='Parent description')
+        unused = create_folder(title='Unused parent', description='Unused description')
 
         url = reverse('documents__create_child_folder', args=(parent.id,))
         self.assertGET200(url)
@@ -134,7 +134,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertEqual(parent,      folder.parent_folder)
 
     def test_editview01(self):
-        title = u'Test folder'
+        title = 'Test folder'
         description = 'Test description'
         folder = Folder.objects.create(title=title,
                                        description=description,
@@ -145,7 +145,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         url = folder.get_edit_absolute_url()
         self.assertGET200(url)
 
-        title       += u' edited'
+        title       += ' edited'
         description = description.upper()
         parent      = Folder.objects.all()[0]
         category = parent.category
@@ -168,8 +168,8 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
     def test_editview02(self):
         "A folder cannot be its own parent"
         user = self.user
-        folder = Folder.objects.create(title=u'Test folder',
-                                       description=u'Test description',
+        folder = Folder.objects.create(title='Test folder',
+                                       description='Test description',
                                        parent_folder=None,
                                        user=user,
                                       )
@@ -190,9 +190,9 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         create_folder = partial(Folder.objects.create, user=user,
                                 description=u'Test description',
                                )
-        folder1 = create_folder(title=u'Test folder#1')
-        folder2 = create_folder(title=u'Test folder#2', parent_folder=folder1)
-        folder3 = create_folder(title=u'Test folder#3', parent_folder=folder2)
+        folder1 = create_folder(title='Test folder#1')
+        folder2 = create_folder(title='Test folder#2', parent_folder=folder1)
+        folder3 = create_folder(title='Test folder#3', parent_folder=folder2)
 
         response = self.assertPOST200(folder1.get_edit_absolute_url(), follow=True,
                                       data={'user':          user.pk,
@@ -202,7 +202,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
                                             }
                                     )
         self.assertFormError(response, 'form', 'parent_folder',
-                             _(u'This folder is one of the child folders of «%(folder)s»') % {
+                             _('This folder is one of the child folders of «%(folder)s»') % {
                                     'folder': folder1,
                                   }
                             )
@@ -214,8 +214,8 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         create_folder = partial(Folder.objects.create, user=self.user,
                                 description=u'Test description',
                                )
-        folder1 = create_folder(title=u'Test folder#1', category=cat1)
-        folder2 = create_folder(title=u'Test folder#2', category=cat2)
+        folder1 = create_folder(title='Test folder#1', category=cat1)
+        folder2 = create_folder(title='Test folder#2', category=cat2)
 
         url = self.build_inneredit_url(folder1, 'parent_folder')
         self.assertGET200(url)
@@ -234,8 +234,8 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         create_folder = partial(Folder.objects.create, user=self.user,
                                 description=u'Test description',
                                )
-        folder1 = create_folder(title=u'Test folder#1')
-        folder2 = create_folder(title=u'Test folder#2', category=cat)
+        folder1 = create_folder(title='Test folder#1')
+        folder2 = create_folder(title='Test folder#2', category=cat)
 
         response = self.client.post(self.build_inneredit_url(folder1, 'parent_folder'),
                                     data={'field_value': folder2.pk}
@@ -251,14 +251,14 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         create_folder = partial(Folder.objects.create, user=self.user,
                                 description=u'Test description',
                                )
-        folder1 = create_folder(title=u'Test folder#1')
-        folder2 = create_folder(title=u'Test folder#2', parent_folder=folder1)
-        folder3 = create_folder(title=u'Test folder#3', parent_folder=folder2)
+        folder1 = create_folder(title='Test folder#1')
+        folder2 = create_folder(title='Test folder#2', parent_folder=folder1)
+        folder3 = create_folder(title='Test folder#3', parent_folder=folder2)
 
         url = self.build_inneredit_url(folder1, 'parent_folder')
         response = self.assertPOST200(url, data={'field_value': folder3.id})
         self.assertFormError(response, 'form', None,
-                             _(u'This folder is one of the child folders of «%(folder)s»') % {
+                             _('This folder is one of the child folders of «%(folder)s»') % {
                                     'folder': folder1,
                                   }
                             )
@@ -272,10 +272,10 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         create_folder = partial(Folder.objects.create, user=self.user,
                                 description=u'Test description',
                                )
-        folder1 = create_folder(title=u'Test folder#1')
-        folder2 = create_folder(title=u'Test folder#2', parent_folder=folder1)
-        folder3 = create_folder(title=u'Test folder#3', parent_folder=folder2)
-        folder4 = create_folder(title=u'Test folder#4')
+        folder1 = create_folder(title='Test folder#1')
+        folder2 = create_folder(title='Test folder#2', parent_folder=folder1)
+        folder3 = create_folder(title='Test folder#3', parent_folder=folder2)
+        folder4 = create_folder(title='Test folder#4')
 
         url = self.build_bulkupdate_url(Folder, 'parent_folder')
         self.assertGET200(url)
@@ -286,13 +286,13 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
                                          }
                                    )
         self.assertContains(response,
-                            _(u'This folder is one of the child folders of «%(folder)s»') % {
+                            _('This folder is one of the child folders of «%(folder)s»') % {
                                     'folder': folder1,
                                   },
                             1
                            )
         self.assertContains(response,
-                            _(u'«%(folder)s» cannot be its own parent') % {
+                            _('«%(folder)s» cannot be its own parent') % {
                                     'folder': folder3,
                                   },
                             1
@@ -404,7 +404,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         title = 'Boring title'
         doc = self._create_doc(title, folder=folder)
-        # self.assertEqual(folder, doc.folder)
         self.assertEqual(folder, doc.linked_folder)
 
         folder.trash()
@@ -424,7 +423,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         self.assertPOST403(folder.get_delete_absolute_url())
 
-    # def test_block(self):
     def test_brick(self):
         "Brick which display contained docs"
         from creme.documents.bricks import FolderDocsBrick

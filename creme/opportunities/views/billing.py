@@ -38,8 +38,8 @@ from creme.billing import (get_invoice_model, get_quote_model, get_sales_order_m
         get_product_line_model, get_service_line_model)
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-from .. import get_opportunity_model
 from .. import constants
+from .. import get_opportunity_model
 
 
 Invoice     = get_invoice_model()
@@ -79,7 +79,6 @@ def current_quote(request, opp_id, quote_id, action):
         relations.delete()
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(opp)
@@ -125,7 +124,7 @@ def generate_new_doc(request, opp_id, ct_id):
     create_relation(type_id=rtype_id,              object_entity=opp)
 
     document.generate_number()  # Need the relationship with emitter organisation
-    document.name = _(u'{number} ({opportunity})').format(number=document.number, opportunity=opp.name)
+    document.name = _('{number} ({opportunity})').format(number=document.number, opportunity=opp.name)
     document.save()
 
     relations = Relation.objects.filter(subject_entity=opp.id,
@@ -157,7 +156,6 @@ def generate_new_doc(request, opp_id, ct_id):
         workflow_action(opp.emitter, opp.target, user)
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(opp)

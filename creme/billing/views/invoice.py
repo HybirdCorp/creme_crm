@@ -19,6 +19,7 @@
 ################################################################################
 
 from datetime import date
+import warnings
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -36,6 +37,7 @@ from ..views.workflow import generic_add_related
 
 Invoice = get_invoice_model()
 
+# Function views --------------------------------------------------------------
 
 def abstract_add_invoice(request, form=invoice_forms.InvoiceCreateForm,
                          initial_status=constants.DEFAULT_DRAFT_INVOICE_STATUS,
@@ -64,6 +66,10 @@ def abstract_edit_invoice(request, invoice_id, form=invoice_forms.InvoiceEditFor
 
 
 def abstract_view_invoice(request, invoice_id, template='billing/view_invoice.html'):
+    warnings.warn('billing.views.invoice.abstract_view_invoice() is deprecated ; '
+                  'use the class-based view InvoiceDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, invoice_id, Invoice,
                                template=template,
                               )
@@ -90,6 +96,7 @@ def edit(request, invoice_id):
 @login_required
 @permission_required('billing')
 def detailview(request, invoice_id):
+    warnings.warn('billing.views.invoice.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_invoice(request, invoice_id)
 
 
@@ -121,5 +128,12 @@ def generate_number(request, invoice_id):
     else:
         raise Http404('This invoice has already a number: {}.'.format(invoice))
 
-    # return HttpResponse(content_type='text/javascript')
     return HttpResponse()
+
+
+# Class-based views  ----------------------------------------------------------
+
+class InvoiceDetail(generic.detailview.EntityDetail):
+    model = Invoice
+    template_name = 'billing/view_invoice.html'
+    pk_url_kwarg = 'invoice_id'

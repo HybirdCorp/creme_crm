@@ -101,6 +101,9 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(self.create_datetime(2010, 11, 3), event.start_date)
         self.assertIsNone(event.end_date)
 
+        response = self.assertGET200(event.get_absolute_url())
+        self.assertTemplateUsed(response, 'events/view_event.html')
+
     def test_event_createview02(self):
         "End data, hours"
         self.login()
@@ -128,7 +131,7 @@ class EventsTestCase(CremeTestCase):
                                             'end_date':   '2016-7-28 18:30',
                                            })
         self.assertFormError(response, 'form', 'end_date',
-                             _(u'The end date must be after the start date.')
+                             _('The end date must be after the start date.')
                             )
 
     def test_event_createview04(self):
@@ -591,7 +594,7 @@ class EventsTestCase(CremeTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'related_contacts',
-                             _(u'Contact %(contact)s is present twice.') % {
+                             _('Contact %(contact)s is present twice.') % {
                                     'contact': casca,
                                 }
                             )
@@ -621,7 +624,7 @@ class EventsTestCase(CremeTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'related_contacts',
-                             [_(u'Some entities are not linkable: {}').format(casca)]
+                             [_('Some entities are not linkable: {}').format(casca)]
                             )
 
     def test_delete_type(self):
@@ -717,7 +720,7 @@ class EventsTestCase(CremeTestCase):
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', 'target', 
-                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                             _('Select a valid choice. That choice is not one of the available choices.')
                             )
 
         data['target'] = hawks.id,

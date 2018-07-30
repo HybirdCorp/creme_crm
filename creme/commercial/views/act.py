@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -43,6 +45,8 @@ from ..models import ActType, ActObjective, MarketSegment, ActObjectivePatternCo
 Opportunity = get_opportunity_model()
 Act = get_act_model()
 ActObjectivePattern = get_pattern_model()
+
+# Function views --------------------------------------------------------------
 
 
 def abstract_add_act(request, form=forms.ActForm,
@@ -76,12 +80,20 @@ def abstract_view_act(request, act_id,
                       # template='creme_core/generics/view_entity.html',
                       template='commercial/view_act.html',
                      ):
+    warnings.warn('commercial.views.act.abstract_view_act() is deprecated ; '
+                  'use the class-based view ActDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, act_id, Act, template=template)
 
 
 def abstract_view_objective_pattern(request, objpattern_id,
                                     template='commercial/view_pattern.html',
                                    ):
+    warnings.warn('commercial.views.act.abstract_view_objective_pattern() is deprecated ; '
+                  'use the class-based view ActObjectivePatternDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, objpattern_id, ActObjectivePattern,
                                template=template,
                               )
@@ -151,13 +163,32 @@ def edit_objective_pattern(request, objpattern_id):
 @login_required
 @permission_required('commercial')
 def detailview(request, act_id):
+    warnings.warn('commercial.views.act.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_act(request, act_id)
 
 
 @login_required
 @permission_required('commercial')
 def objective_pattern_detailview(request, objpattern_id):
+    warnings.warn('commercial.views.act.objective_pattern_detailview() is deprecated.', DeprecationWarning)
     return abstract_view_objective_pattern(request, objpattern_id)
+
+
+# Class-based views  ----------------------------------------------------------
+
+class ActDetail(generic.detailview.EntityDetail):
+    model = Act
+    template_name = 'commercial/view_act.html'
+    pk_url_kwarg = 'act_id'
+
+
+class ActObjectivePatternDetail(generic.detailview.EntityDetail):
+    model = ActObjectivePattern
+    template_name = 'commercial/view_pattern.html'
+    pk_url_kwarg = 'objpattern_id'
+
+
+# Other views  ----------------------------------------------------------------
 
 
 @login_required

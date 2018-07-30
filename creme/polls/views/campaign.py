@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import view_entity, add_entity, edit_entity, list_view
+from creme.creme_core.views import generic
 
 from .. import get_pollcampaign_model
 from ..constants import DEFAULT_HFILTER_PCAMPAIGN
@@ -29,23 +31,29 @@ from ..forms.campaign import PollCampaignForm
 
 PollCampaign = get_pollcampaign_model()
 
+# Function views --------------------------------------------------------------
+
 
 def abstract_add_pcampaign(request, form=PollCampaignForm,
                            submit_label=PollCampaign.save_label,
                           ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_edit_pcampaign(request, campaign_id, form=PollCampaignForm):
-    return edit_entity(request, campaign_id, PollCampaign, form)
+    return generic.edit_entity(request, campaign_id, PollCampaign, form)
 
 
 def abstract_view_pcampaign(request, campaign_id,
                             template='polls/view_campaign.html',
                            ):
-    return view_entity(request, campaign_id, PollCampaign, template=template)
+    warnings.warn('polls.views.campaign.abstract_view_campaign() is deprecated ; '
+                  'use the class-based view PollCampaignDetail instead.',
+                  DeprecationWarning
+                 )
+    return generic.view_entity(request, campaign_id, PollCampaign, template=template)
 
 
 @login_required
@@ -63,10 +71,22 @@ def edit(request, campaign_id):
 @login_required
 @permission_required('polls')
 def detailview(request, campaign_id):
+    warnings.warn('polls.views.campaign.detailview() is deprecated.',
+                  DeprecationWarning
+                 )
     return abstract_view_pcampaign(request, campaign_id)
 
 
 @login_required
 @permission_required('polls')
 def listview(request):
-    return list_view(request, PollCampaign, hf_pk=DEFAULT_HFILTER_PCAMPAIGN)
+    return generic.list_view(request, PollCampaign, hf_pk=DEFAULT_HFILTER_PCAMPAIGN)
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class PollCampaignDetail(generic.detailview.EntityDetail):
+    model = PollCampaign
+    template_name = 'polls/view_campaign.html'
+    pk_url_kwarg = 'campaign_id'

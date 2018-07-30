@@ -18,7 +18,7 @@ try:
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.activities import get_activity_model
-    from creme.activities.models import ActivityType  # Activity
+    from creme.activities.models import ActivityType
     from creme.activities.tests.base import skipIfCustomActivity
 
     from .base import (_PollsTestCase, skipIfCustomPollForm,
@@ -45,7 +45,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         try:
             question_f = response.context['form'].fields['question']
         except KeyError as e:
-            self.fail('It seems that the form is already complete (<{}> occured: {})'.format(
+            self.fail('It seems that the form is already complete (<{}> occurred: {})'.format(
                             e.__class__.__name__, e)
                      )
 
@@ -74,16 +74,16 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         return reverse('polls__create_reply_from_person', args=(person.id,))
 
     def _build_reply_with_bool_line(self):
-        return self._build_reply_with_1_line(PollLineType.BOOL, 'Do you like spam ?')
+        return self._build_reply_with_1_line(PollLineType.BOOL, 'Do you like spam?')
 
     def _build_reply_with_enumorstring_line(self):
         return self._build_reply_with_1_line(PollLineType.ENUM_OR_STRING,
-                                             'What is the main color of a swallow ?',
+                                             'What is the main color of a swallow?',
                                              choices=[[1, 'White'], [2, 'Black'], [3, 'Green']],
                                             )
 
     def _build_reply_with_int_line(self, lower_bound=None, upper_bound=None):
-        return self._build_reply_with_1_line(PollLineType.INT, 'How many swallows are there ?',
+        return self._build_reply_with_1_line(PollLineType.INT, 'How many swallows are there?',
                                              lower_bound=lower_bound, upper_bound=upper_bound,
                                             )
 
@@ -97,15 +97,15 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def _build_reply_with_text_line(self):
         return self._build_reply_with_1_line(PollLineType.TEXT,
-                                             'What is the difference between a swallow (argue) ?',
+                                             'What is the difference between a swallow (argue)?',
                                             )
 
     def _build_reply_with_2_lines(self):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        fline1 = create_line('How many swallows are there ?', qtype=PollLineType.INT)
-        fline2 = create_line("What is your swallow's name ?", qtype=PollLineType.STRING)
+        fline1 = create_line('How many swallows are there?', qtype=PollLineType.INT)
+        fline2 = create_line("What is your swallow's name?", qtype=PollLineType.STRING)
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         self.assertIs(preply.is_complete, False)
@@ -120,13 +120,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform  = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        fline1 = create_line('How do you like swallows ?', qtype=PollLineType.ENUM,
+        fline1 = create_line('How do you like swallows?', qtype=PollLineType.ENUM,
                              choices=[[1, 'A little'], [2, 'A lot']]
                             )
-        self.fline2 = create_line('What type of swallow do you prefer ?', conds_use_or=True)
+        self.fline2 = create_line('What type of swallow do you prefer?', conds_use_or=True)
 
         if not only_2_questions:
-            self.fline3 = create_line('Do you eat swallows ?')
+            self.fline3 = create_line('Do you eat swallows?')
 
         PollFormLineCondition.objects.create(line=self.fline2, source=fline1, raw_answer='2',
                                              operator=PollFormLineCondition.EQUALS
@@ -147,9 +147,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         ENUM = PollLineType.ENUM
         create_line = self._get_formline_creator(pform)
         choices = [[1, 'A little'], [2, 'A lot']]
-        fline1      = create_line('How do you like swallows ?', qtype=ENUM, choices=choices)
-        self.fline2 = create_line('How do you like parrots ?',  qtype=ENUM, choices=choices)
-        self.fline3 = create_line('Do you love all birds ?', conds_use_or=conds_use_or)
+        fline1      = create_line('How do you like swallows?', qtype=ENUM, choices=choices)
+        self.fline2 = create_line('How do you like parrots?',  qtype=ENUM, choices=choices)
+        self.fline3 = create_line('Do you love all birds?', conds_use_or=conds_use_or)
 
         create_cond = partial(PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS)
         create_cond(line=self.fline3, source=fline1,      raw_answer='2')
@@ -164,7 +164,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform  = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        fline1      = create_line('Do you like swallows ?', qtype=PollLineType.BOOL)
+        fline1      = create_line('Do you like swallows?', qtype=PollLineType.BOOL)
         self.fline2 = create_line('Talk about them',        qtype=PollLineType.STRING)
 
         PollFormLineCondition.objects.create(line=self.fline2, source=fline1,
@@ -181,7 +181,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        fline1 = create_line('What nuts do you like ?', qtype=PollLineType.ENUM_OR_STRING,
+        fline1 = create_line('What nuts do you like?', qtype=PollLineType.ENUM_OR_STRING,
                              choices=[[1, 'Coco nuts'], [2, 'Peanuts']]
                             )
         self.fline2 = create_line('Talk about them')
@@ -200,7 +200,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform  = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        fline1 = create_line('What nuts do you like ?', qtype=PollLineType.MULTI_ENUM,
+        fline1 = create_line('What nuts do you like?', qtype=PollLineType.MULTI_ENUM,
                              choices=[[1, 'Coco nuts'], [2, 'Peanuts'], [3, 'Pistachio'], [4, 'Almonds']]
                             )
         self.fline2 = create_line('Talk about them')
@@ -301,12 +301,12 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         section11 = create_section(name='11', order=2, parent=section1)
 
         create_l = self._get_formline_creator(pform)
-        fline1 = create_l('What is the difference between a swallow ?', qtype=PollLineType.INT)
-        fline2 = create_l('What type of swallow ?',                     section1)
-        fline3 = create_l('How do you like swallows ?',                 section11, qtype=PollLineType.ENUM,
+        fline1 = create_l('What is the difference between a swallow?', qtype=PollLineType.INT)
+        fline2 = create_l('What type of swallow?',                     section1)
+        fline3 = create_l('How do you like swallows?',                 section11, qtype=PollLineType.ENUM,
                           choices=[[1, 'A little'], [2, 'A lot'], [3, 'Passionately']],
                          )
-        fline4 = create_l('Do you eat swallows ?', section11, conds_use_or=True)
+        fline4 = create_l('Do you eat swallows?', section11, conds_use_or=True)
 
         PollFormLineCondition.objects.create(line=fline4, source=fline3, raw_answer='1',
                                              operator=PollFormLineCondition.EQUALS
@@ -393,7 +393,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                             'name': 'Reply#1',
                                            },
                                      )
-        self.assertFormError(response, 'form', 'pform', _(u'This field is required.'))
+        self.assertFormError(response, 'form', 'pform', _('This field is required.'))
 
     def test_createview03(self):
         "Create view: validation error when no line"
@@ -407,7 +407,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                            }
                                      )
         self.assertFormError(response, 'form', 'pform',
-                             _(u'The form must contain one line at least.')
+                             _('The form must contain one line at least.')
                             )
 
     def test_createview04(self):
@@ -416,7 +416,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         PollFormLine.objects.create(pform=pform, type=PollLineType.STRING, order=1,
-                                    question='What is the difference between a swallow ?',
+                                    question='What is the difference between a swallow?',
                                     disabled=True,  # <=========
                                    )
 
@@ -427,7 +427,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                            }
                                      )
         self.assertFormError(response, 'form', 'pform',
-                             _(u'The form must contain one line at least.')
+                             _('The form must contain one line at least.')
                             )
 
     def test_createview05(self):
@@ -436,9 +436,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1', type=PollType.objects.all()[0])
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.STRING)
-        create_line(question='What is the name of your swallow ?', order=2)  # The 1rst line is not 1 !
-        create_line(question='What type of swallow is it ?',       order=5)
-        create_line(question='What is its favorite nut ?',         order=7)
+        create_line(question='What is the name of your swallow?', order=2)  # The 1rst line is not 1 !
+        create_line(question='What type of swallow is it?',       order=5)
+        create_line(question='What is its favorite nut?',         order=7)
 
         name = 'Reply#1'
         response = self.client.post(self.ADD_REPLY_URL, follow=True,
@@ -453,15 +453,19 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertFalse(preply.is_complete)
         self.assertEqual([1, 2, 3], list(preply.lines.values_list('order', flat=True)))
 
+        # ---
+        response = self.assertGET200(preply.get_absolute_url())
+        self.assertTemplateUsed(response, 'polls/view_pollreply.html')
+
     def test_createview06(self):
         "Create view : create several replies"
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        create_line('What is the name of your swallow ?')
-        create_line('What type of swallow is it ?')
-        create_line('What is its favorite nut ?')
+        create_line('What is the name of your swallow?')
+        create_line('What type of swallow is it?')
+        create_line('What is its favorite nut?')
 
         name = 'Reply'
         reply_number = 5
@@ -489,8 +493,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        create_line('What is the name of your blade ?')
-        create_line('What type of blade is it ?')
+        create_line('What is the name of your blade?')
+        create_line('What type of blade is it?')
 
         create_contact = partial(Contact.objects.create, user=user)
         leina     = create_contact(first_name='Leina',     last_name='Vance')
@@ -524,8 +528,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        create_line('Do you like swallows ?')
-        create_line('What type of swallow ?')
+        create_line('Do you like swallows?')
+        create_line('What type of swallow?')
 
         url = self._build_preply_from_pform_url(pform)
         self.assertGET200(url)
@@ -551,7 +555,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Create from PollForm: no _valid_ lines causes a 404 error"
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
-        self._get_formline_creator(pform)('What is the difference between a swallow ?',
+        self._get_formline_creator(pform)('What is the difference between a swallow?',
                                       qtype=PollLineType.STRING,
                                       disabled=True,  # <=========
                                      )
@@ -563,8 +567,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        lines = [create_line('Do you like swallows ?', disabled=True),
-                 create_line('Do you love swallows ?'),
+        lines = [create_line('Do you like swallows?', disabled=True),
+                 create_line('Do you love swallows?'),
                 ]
 
         preply = self._build_preply_from_pform(pform)
@@ -577,7 +581,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
         choices = [[1, 'White'], [2, 'black']]
-        line = self._get_formline_creator(pform)('What are your favorite colors ?',
+        line = self._get_formline_creator(pform)('What are your favorite colors?',
                                                  qtype=PollLineType.ENUM,
                                                  choices=choices,
                                                  del_choices=[[3, 'Red']],
@@ -598,8 +602,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        create_line('Do you like swallows ?')
-        create_line('What type of swallow ?')
+        create_line('Do you like swallows?')
+        create_line('What type of swallow?')
 
         name = 'Reply'
         reply_number = 5
@@ -668,7 +672,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                       data={'replies': '[{}]'.format(preply.id)}
                                      )
         self.assertFormError(response, 'form', 'replies', 
-                             _(u'Some entities are not editable: {}').format(preply)
+                             _('Some entities are not editable: {}').format(preply)
                             )
 
     @skipIfCustomActivity
@@ -691,8 +695,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        create_line('Do you like swords ?')
-        create_line('What type of sword ?')
+        create_line('Do you like swords?')
+        create_line('What type of sword?')
 
         name = 'Reply'
         response = self.client.post(url,
@@ -735,8 +739,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform2 = create_pform(name='Form#2', type=ptype2)
 
         create_line = self._get_formline_creator(pform2)
-        create_line('What type of swallow ?')
-        create_line('Do you like swallows ?')
+        create_line('What type of swallow?')
+        create_line('Do you like swallows?')
 
         name = 'reply#1'
         preply = PollReply.objects.create(user=user, pform=pform1, type=ptype1, name=name)
@@ -816,8 +820,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = post(claudette)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'related_person',
-                             _(u'You are not allowed to link this entity: {}').format(
-                                     _(u'Entity #{id} (not viewable)').format(id=claudette.id)
+                             _('You are not allowed to link this entity: {}').format(
+                                     _('Entity #{id} (not viewable)').format(id=claudette.id)
                                 )
                             )
 
@@ -931,7 +935,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                               },
                                    )
         self.assertFormError(response, 'form', 'field_value',
-                             _(u'You are not allowed to link this entity: {}').format(leina)
+                             _('You are not allowed to link this entity: {}').format(leina)
                             )
 
         # ----
@@ -996,10 +1000,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         fsection11 = create_section(name='11', order=1, parent=fsection1)
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.STRING)
-        fline0    = create_line(question='What is the difference between a swallow ?',  order=1)
-        fline1_1  = create_line(question='What type of swallow ?', section=fsection1,   order=2)
-        fline11_2 = create_line(question='Do you eat swallows ?',  section=fsection11,  order=4)
-        fline11_1 = create_line(question='Do you like swallows ?', section=fsection11,  order=3)
+        fline0    = create_line(question='What is the difference between a swallow?',  order=1)
+        fline1_1  = create_line(question='What type of swallow?', section=fsection1,   order=2)
+        fline11_2 = create_line(question='Do you eat swallows?',  section=fsection11,  order=4)
+        fline11_1 = create_line(question='Do you like swallows?', section=fsection11,  order=3)
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
 
@@ -1030,7 +1034,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Fill one STRING question"
         self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
-        fline = self._get_formline_creator(pform)('What is the difference between a swallow ?')
+        fline = self._get_formline_creator(pform)('What is the difference between a swallow?')
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline  = PollReplyLine.objects.get(pform_line=fline)
@@ -1072,7 +1076,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         preply, rline = self._build_reply_with_int_line()
         self.assertFormError(self._fill(preply, 'notanint', check_errors=False),
-                             'form', 'answer', [_(u'Enter a whole number.')]
+                             'form', 'answer', [_('Enter a whole number.')]
                             )
 
         answer = 42
@@ -1086,13 +1090,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         upper_bound = 20
         preply, rline = self._build_reply_with_int_line(lower_bound, upper_bound)
         self.assertFormError(self._fill(preply, 5, check_errors=False), 'form', 'answer',
-                             _(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
+                             _('Ensure this value is greater than or equal to %(limit_value)s.') % {
                                  'limit_value': lower_bound,
                                 }
                             )
 
         self.assertFormError(self._fill(preply, 25, check_errors=False), 'form', 'answer',
-                             _(u'Ensure this value is less than or equal to %(limit_value)s.') % {
+                             _('Ensure this value is less than or equal to %(limit_value)s.') % {
                                  'limit_value': upper_bound,
                                 }
                             )
@@ -1123,21 +1127,21 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         preply, rline = self._build_reply_with_bool_line()
         self.assertFormError(self.client.post(self._build_fill_url(preply), follow=True),
-                             'form', 'answer', _(u'The answer is required.')
+                             'form', 'answer', _('The answer is required.')
                             )
 
     def test_fillview_date01(self):
         "One DATE question"
         self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
-        fline = self._get_formline_creator(pform)('When is your birthday ?', 
+        fline = self._get_formline_creator(pform)('When is your birthday?',
                                                   qtype=PollLineType.DATE,
                                                  )
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline  = self.get_object_or_fail(PollReplyLine, pform_line=fline)
 
         self.assertFormError(self._fill(preply, 'notanint', check_errors=False),
-                             'form', 'answer', _(u'Enter a valid date.')
+                             'form', 'answer', _('Enter a valid date.')
                             )
 
         self.assertNoFormError(self._fill(preply, '8-6-2012'))
@@ -1147,19 +1151,19 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "One HOUR question"
         self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
-        fline = self._get_formline_creator(pform)('What is the best hour to see a killer rabbit ?',
+        fline = self._get_formline_creator(pform)('What is the best hour to see a killer rabbit?',
                                                   qtype=PollLineType.HOUR,
                                                  )
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline  = self.get_object_or_fail(PollReplyLine, pform_line=fline)
 
         self.assertFormError(self._fill(preply, -1, check_errors=False), 'form', 'answer',
-                             _(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
+                             _('Ensure this value is greater than or equal to %(limit_value)s.') % {
                                  'limit_value': 0,
                                 }
                             )
         self.assertFormError(self._fill(preply, 24, check_errors=False), 'form', 'answer',
-                             _(u'Ensure this value is less than or equal to %(limit_value)s.') % {
+                             _('Ensure this value is less than or equal to %(limit_value)s.') % {
                                  'limit_value': 23,
                                 }
                             )
@@ -1172,7 +1176,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green']]
-        fline = self._get_formline_creator(pform)('What is the main color of a swallow ?',
+        fline = self._get_formline_creator(pform)('What is the main color of a swallow?',
                                               qtype= PollLineType.ENUM, choices=choices,
                                              )
 
@@ -1189,13 +1193,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         answer = 'Invalid choice'
         self.assertFormError(self._fill(preply, answer, check_errors=False), 'form', 'answer',
-                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': answer
                                 },
                             )
 
         self.assertFormError(self.client.post(self._build_fill_url(preply), follow=True),
-                             'form', 'answer', _(u'The answer is required.'),
+                             'form', 'answer', _('The answer is required.'),
                             )
 
         self.assertNoFormError(self._fill(preply, 2))
@@ -1208,7 +1212,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']]
-        fline = self._get_formline_creator(pform)('What are the main colors of a swallow ?',
+        fline = self._get_formline_creator(pform)('What are the main colors of a swallow?',
                                               qtype=PollLineType.MULTI_ENUM,
                                               choices=choices,
                                              )
@@ -1225,7 +1229,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsInstance(answer_field.widget, UnorderedMultipleChoiceWidget)
 
         self.assertFormError(self._fill(preply, [5, 7], check_errors=False), 'form', 'answer',
-                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': 5
                                 },
                             )
@@ -1242,7 +1246,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         answer = 42
         self.assertFormError(self._fill(preply, {'answer_0': answer, 'answer_1': ''}, check_errors=False),
                              'form', 'answer',
-                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': answer
                                 },
                             )
@@ -1298,7 +1302,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         preply, rline = self._build_reply_with_int_line()
         self.assertFormError(self._fill(preply, '', not_applicable=False, check_errors=False),
-                             'form', 'answer', _(u'The answer is required.')
+                             'form', 'answer', _('The answer is required.')
                             )
 
     def test_fillview_wizard01(self):
@@ -1503,7 +1507,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Edit answer: one INT answer already answered."
         self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
-        question = 'How many swallows are there ?'
+        question = 'How many swallows are there?'
         fline = self._get_formline_creator(pform)(question, qtype=PollLineType.INT)
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
@@ -1532,7 +1536,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         "Edit answer: one INT answer not answered (so reply becomes fully filled)"
         pform = PollForm.objects.create(user=self.user, name='Form#1')
-        fline = self._get_formline_creator(pform)('How many swallows are there ?',
+        fline = self._get_formline_creator(pform)('How many swallows are there?',
                                                   qtype=PollLineType.INT,
                                                  )
         preply = self._build_preply_from_pform(pform, 'Reply#1')
@@ -1547,8 +1551,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        fline1 = create_line('What is your name ?')
-        fline2 = create_line('What is your nick name ?')
+        fline1 = create_line('What is your name?')
+        fline2 = create_line('What is your nick name?')
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         self.assertFalse(preply.is_complete)
@@ -1568,7 +1572,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.BOOL)
         flines = [create_line(order=i, question=question)
-                    for i, question in enumerate(('OK ?', 'Alright ?', 'Cool ?'), start=1)
+                    for i, question in enumerate(('OK?', 'Alright?', 'Cool?'), start=1)
                  ]
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
@@ -1611,11 +1615,11 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform  = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        fline1 = create_line('Do you like swallows ?', qtype=PollLineType.BOOL)
-        fline2 = create_line('How do you like swallows ?', qtype=PollLineType.ENUM,
+        fline1 = create_line('Do you like swallows?', qtype=PollLineType.BOOL)
+        fline2 = create_line('How do you like swallows?', qtype=PollLineType.ENUM,
                              conds_use_or=True, choices=[[1, 'A little'], [2, 'A lot']],
                             )
-        fline3 = create_line('Why do you love them so much ?', conds_use_or=True)
+        fline3 = create_line('Why do you love them so much?', conds_use_or=True)
 
         create_cond = partial(PollFormLineCondition.objects.create,
                               operator=PollFormLineCondition.EQUALS
@@ -1682,8 +1686,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform  = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        fline1 = create_line('What is your name ?')
-        fline2 = create_line('What is your nick name ?')
+        fline1 = create_line('What is your name?')
+        fline2 = create_line('What is your nick name?')
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         self.assertFalse(preply.is_complete)
@@ -1730,7 +1734,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "One ENUM answer already answered"
         self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
-        fline = self._get_formline_creator(pform)('What type of swallow ?',
+        fline = self._get_formline_creator(pform)('What type of swallow?',
                                                   qtype=PollLineType.ENUM,
                                                   choices=[[1, 'European'], [2, 'African']]
                                                  )
@@ -1752,7 +1756,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "One DATE answer already answered"
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
-        fline = self._get_formline_creator(pform)('When is your birthday ?',
+        fline = self._get_formline_creator(pform)('When is your birthday?',
                                                   qtype=PollLineType.DATE,
                                                  )
         preply = self._build_preply_from_pform(pform, 'Reply#1')
@@ -1777,7 +1781,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.BOOL)
         flines = [create_line(order=i, question=question)
-                    for i, question in enumerate(('OK ?', 'Alright ?', 'Cool ?'), start=1)
+                    for i, question in enumerate(('OK?', 'Alright?', 'Cool?'), start=1)
                  ]
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
@@ -1790,7 +1794,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def _build_rline_for_stat(self, type, answer, choices=None):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
-        fline = self._get_formline_creator(pform)('What do you think about swallows ?',
+        fline = self._get_formline_creator(pform)('What do you think about swallows?',
                                            qtype=type, choices=choices,
                                           )
 
@@ -1843,7 +1847,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_stats_rline_enum_or_string(self):
         self.login()
         rline = self._build_rline_for_stat(PollLineType.ENUM_OR_STRING,
-                                           {'answer_0': 0, 'answer_1': 'doh ?'},
+                                           {'answer_0': 0, 'answer_1': 'doh?'},
                                            [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
                                           )
         self.assertEqual({('White', 0), ('Black', 0), ('Green', 0), ('Purple', 0), (_('Other'), 1)},
@@ -1872,15 +1876,15 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         create_line = self._get_formline_creator(pform)
         colors = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']]
-        fline1 = create_line('What do you think about swallows ?')
-        fline2 = create_line('How many swallows have you seen ?',  qtype=PollLineType.INT)
-        fline3 = create_line('What type of swallow ?',             qtype=PollLineType.ENUM,
+        fline1 = create_line('What do you think about swallows?')
+        fline2 = create_line('How many swallows have you seen?',  qtype=PollLineType.INT)
+        fline3 = create_line('What type of swallow?',             qtype=PollLineType.ENUM,
                              choices=[[1, 'European'], [2, 'African']],
                             )
-        fline4 = create_line('What are the best colors for a swallow ?',
+        fline4 = create_line('What are the best colors for a swallow?',
                              qtype=PollLineType.MULTI_ENUM, choices=colors,
                             )
-        fline5 = create_line('What is your preferred color for a swallow ?',
+        fline5 = create_line('What is your preferred color for a swallow?',
                              qtype=PollLineType.ENUM_OR_STRING, choices=colors,
                             )
 
@@ -1889,14 +1893,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply3 = self._build_preply_from_pform(pform, 'Reply#3')  # No answer --> no stats
         preply4 = self._build_preply_from_pform(pform, 'Reply#4')
 
-        answer_1_1 = u'They are cool'
+        answer_1_1 = 'They are cool'
         answer_2_1 = 5
         self._fill(preply1, answer_1_1, answer_2_1, 1, [1, 2], {'answer_0': 1, 'answer_1': ''})
 
-        answer_1_2 = u'They are very cool'
+        answer_1_2 = 'They are very cool'
         self._fill(preply2, answer_1_2, answer_2_1, 2, [1], {'answer_0': 0, 'answer_1': 'Blue'})
 
-        answer_1_4 = u'They are very very cool'
+        answer_1_4 = 'They are very very cool'
         answer_2_4 = 10
         self._fill(preply4, answer_1_4, answer_2_4, 2, [1, 2, 4], {'answer_0': 0, 'answer_1': 'Red'})
 
@@ -1921,22 +1925,22 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                          },
                          set(stats2)
                         )
-        self.assertEqual({(u'European', 1, round((1.0 * 100.0) / 3.0, 2)),
-                          (u'African',  2, round((2.0 * 100.0) / 3.0, 2)),
+        self.assertEqual({('European', 1, round((1.0 * 100.0) / 3.0, 2)),
+                          ('African',  2, round((2.0 * 100.0) / 3.0, 2)),
                          },
                          set(stats3)
                         )
-        self.assertEqual({(u'White',  3, round((3.0 * 100.0) / 6.0, 2)),
-                          (u'Black',  2, round((2.0 * 100.0) / 6.0, 2)),
-                          (u'Green',  0, 0.0),
-                          (u'Purple', 1, round((1.0 * 100.0) / 6.0, 2)),
+        self.assertEqual({('White',  3, round((3.0 * 100.0) / 6.0, 2)),
+                          ('Black',  2, round((2.0 * 100.0) / 6.0, 2)),
+                          ('Green',  0, 0.0),
+                          ('Purple', 1, round((1.0 * 100.0) / 6.0, 2)),
                          },
                          set(stats4)
                         )
-        self.assertEqual({(u'White',   1, round((1.0 * 100.0) / 3.0, 2)),
-                          (u'Black',   0, 0.0),
-                          (u'Green',   0, 0.0),
-                          (u'Purple',  0, 0.0),
+        self.assertEqual({('White',   1, round((1.0 * 100.0) / 3.0, 2)),
+                          ('Black',   0, 0.0),
+                          ('Green',   0, 0.0),
+                          ('Purple',  0, 0.0),
                           (_('Other'), 2, round((2.0 * 100.0) / 3.0, 2)),
                          },
                          set(stats5)
@@ -1950,10 +1954,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         answer2 = 'Sometimes'
         ENUM = PollLineType.ENUM
         create_line = self._get_formline_creator(pform)
-        fline1 = create_line('What type of swallow ?', qtype=ENUM,
+        fline1 = create_line('What type of swallow?', qtype=ENUM,
                              choices=[[1, 'European'], [2, answer1]],
                             )
-        fline2 = create_line('Do you eat swallows ?', qtype=ENUM,
+        fline2 = create_line('Do you eat swallows?', qtype=ENUM,
                              choices=[[1, answer2], [2, 'Never']],
                             )
 

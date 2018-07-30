@@ -699,6 +699,12 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(user.has_perm_to_access('creme_core'))
         self.assertFalse(user.has_perm_to_access('creme_config'))
 
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_to_access_or_die('creme_core')
+        self.assertEqual(_('You are not allowed to access to the app: {}').format(_('Core')),
+                         str(cm.exception)
+                        )
+
         role.allowed_apps = ['creme_core', 'creme_config']
         role.save()
 
@@ -715,6 +721,9 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(user.has_perm('creme_config'))
         if apps.is_installed('creme.documents'):
             self.assertFalse(user.has_perm('documents'))
+
+        with self.assertNoException():
+            user.has_perm_to_access_or_die('creme_core')
 
         self.assertTrue(user.has_perm_to_access('creme_core'))
         self.assertTrue(user.has_perm_to_access('creme_config'))

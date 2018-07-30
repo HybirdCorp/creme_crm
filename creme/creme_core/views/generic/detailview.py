@@ -21,15 +21,18 @@
 from collections import defaultdict
 from itertools import chain
 import logging
+import warnings
 
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.generic import DetailView
 
+from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.imprint import imprint_manager
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
-from creme.creme_core.models import BrickDetailviewLocation
+from creme.creme_core.models import CremeEntity, BrickDetailviewLocation
 
 
 logger = logging.getLogger(__name__)
@@ -87,9 +90,16 @@ def detailview_bricks(user, entity):
            }
 
 
-def view_entity(request, object_id, model, # path='',
+def view_entity(request, object_id, model,
                 template='creme_core/generics/view_entity.html',
                 extra_template_dict=None):
+    warnings.warn('creme_core.views.generics.detailview.view_entity() is deprecated ; '
+                  'use the class-based view EntityDetail instead.',
+                  DeprecationWarning
+                 )
+
+    from django.shortcuts import get_object_or_404, render
+
     entity = get_object_or_404(model, pk=object_id)
 
     user = request.user
@@ -104,10 +114,40 @@ def view_entity(request, object_id, model, # path='',
         'bricks_reload_url': reverse('creme_core__reload_detailview_bricks', args=(entity.id,)),
     }
 
-    # if path:
-    #     raise ValueError('The argument "path" is deprecated & will be removed in Creme 1.8')
-
     if extra_template_dict is not None:
         template_dict.update(extra_template_dict)
 
     return render(request, template, template_dict)
+
+
+class EntityDetail(DetailView):
+    model = CremeEntity
+    template_name = 'creme_core/generics/view_entity.html'
+    pk_url_kwarg = 'entity_id'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        request.user.has_perm_to_access_or_die(self.model._meta.app_label)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        entity = self.object
+
+        context['bricks'] = detailview_bricks(self.request.user, entity)
+        context['bricks_reload_url'] = reverse('creme_core__reload_detailview_bricks', args=(entity.id,))
+
+        return context
+
+    def get_object(self, queryset=None):
+        entity = super().get_object(queryset=queryset)
+
+        request = self.request
+        user = request.user
+        user.has_perm_to_view_or_die(entity)
+
+        LastViewedItem(request, entity)
+        imprint_manager.create_imprint(entity=entity, user=user)
+
+        return entity

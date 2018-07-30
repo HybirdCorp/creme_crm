@@ -168,20 +168,18 @@ if settings.TESTS_ON:
 
     urlpatterns += [
         url(r'^tests/documents[/]?$', fake_views.document_listview, name='creme_core__list_fake_documents'),
-        # url(r'^tests/document/add[/]?$',                  'fake_views.document_add',        name='creme_core__create_fake_document'),
-        # url(r'^tests/document/edit/(?P<doc_id>\d+)[/]?$', 'fake_views.document_edit',       name='creme_core__edit_fake_document'),
-        # url(r'^tests/document/(?P<doc_id>\d+)[/]?$',      'fake_views.document_detailview', name='creme_core__view_fake_document'),
 
         url(r'^tests/images[/]?$',                  fake_views.image_listview, name='creme_core__list_fake_images'),
-        # url(r'^tests/image/add[/]?$',                    'fake_views.image_add',  name='creme_core__create_fake_image'),
-        # url(r'^tests/image/edit/(?P<image_id>\d+)[/]?$', 'fake_views.image_edit', name='creme_core__edit_fake_image'),
-        url(r'^tests/image/(?P<image_id>\d+)[/]?$', fake_views.image_detailview, name='creme_core__view_fake_image'),
+        # url(r'^tests/image/(?P<image_id>\d+)[/]?$', fake_views.image_detailview, name='creme_core__view_fake_image'),
+        url(r'^tests/image/(?P<image_id>\d+)[/]?$', fake_views.FakeImageDetail.as_view(), name='creme_core__view_fake_image'),
 
         url(r'^tests/contacts[/]?$',                         fake_views.contact_listview,   name='creme_core__list_fake_contacts'),
         url(r'^tests/contact/add[/]?$',                      fake_views.contact_add,        name='creme_core__create_fake_contact'),
         url(r'^tests/contact/edit/(?P<contact_id>\d+)[/]?$', fake_views.contact_edit,       name='creme_core__edit_fake_contact'),
-        url(r'^tests/contact/(?P<contact_id>\d+)[/]?$',      fake_views.contact_detailview, name='creme_core__view_fake_contact'),
+        # url(r'^tests/contact/(?P<contact_id>\d+)[/]?$',      fake_views.contact_detailview, name='creme_core__view_fake_contact'),
+        url(r'^tests/contact/(?P<contact_id>\d+)[/]?$',      fake_views.FakeContactDetail.as_view(), name='creme_core__view_fake_contact'),
 
+        # NB: keep legacy views until Creme 2.1
         url(r'^tests/organisations[/]?$',                      fake_views.organisation_listview,   name='creme_core__list_fake_organisations'),
         url(r'^tests/organisation/add[/]?$',                   fake_views.organisation_add,        name='creme_core__create_fake_organisation'),
         url(r'^tests/organisation/edit/(?P<orga_id>\d+)[/]?$', fake_views.organisation_edit,       name='creme_core__edit_fake_organisation'),
@@ -191,19 +189,12 @@ if settings.TESTS_ON:
         url(r'^tests/address/edit/(?P<address_id>\d+)[/]?$', fake_views.address_edit, name='creme_core__edit_fake_address'),
 
         url(r'^tests/activities[/]?$', fake_views.activity_listview, name='creme_core__list_fake_activities'),
-        # url(r'^tests/activity/add[/]?$',                  'fake_views.activity_add',        name='creme_core__create_fake_activity'),
-        # url(r'^tests/activity/edit/(?P<act_id>\d+)[/]?$', 'fake_views.activity_edit',       name='creme_core__edit_fake_activity'),
-        # url(r'^tests/activity/(?P<act_id>\d+)[/]?$',      'fake_views.activity_detailview', name='creme_core__view_fake_activity'),
 
         url(r'^tests/e_campaigns[/]?$', fake_views.campaign_listview, name='creme_core__list_fake_ecampaigns'),
-        # url(r'^tests/e_campaign/add[/]?$',                       'fake_views.campaign_add',        name='creme_core__create_fake_ecampaign'),
-        # url(r'^tests/e_campaign/edit/(?P<campaign_id>\d+)[/]?$', 'fake_views.campaign_edit',       name='creme_core__edit_fake_ecampaign'),
-        # url(r'^tests/e_campaign/(?P<campaign_id>\d+)[/]?$',      'fake_views.campaign_detailview', name='creme_core__view_fake_ecampaign'),
 
-        url(r'^tests/invoices[/]?$',                    fake_views.invoice_listview, name='creme_core__list_fake_invoices'),
-        # url(r'^tests/invoice/add[/]?$',                      'fake_views.invoice_add',  name='creme_core__create_fake_invoice'),
-        # url(r'^tests/invoice/edit/(?P<invoice_id>\d+)[/]?$', 'fake_views.invoice_edit', name='creme_core__edit_fake_invoice'),
-        url(r'^tests/invoice/(?P<invoice_id>\d+)[/]?$', fake_views.invoice_detailview, name='creme_core__view_fake_invoice'),
+        url(r'^tests/invoices[/]?$',                    fake_views.invoice_listview,   name='creme_core__list_fake_invoices'),
+        # url(r'^tests/invoice/(?P<invoice_id>\d+)[/]?$', fake_views.invoice_detailview, name='creme_core__view_fake_invoice'),
+        url(r'^tests/invoice/(?P<invoice_id>\d+)[/]?$', fake_views.FakeInvoiceDetail.as_view(), name='creme_core__view_fake_invoice'),
 
         url(r'^tests/invoice_lines[/]?$', fake_views.invoice_lines_listview, name='creme_core__list_fake_invoicelines'),
     ]

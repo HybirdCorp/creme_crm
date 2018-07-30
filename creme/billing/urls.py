@@ -32,7 +32,8 @@ if not billing.invoice_model_is_custom():
         url(r'^invoice/add/(?P<target_id>\d+)[/]?$',              invoice.add_related,     name='billing__create_related_invoice'),
         url(r'^invoice/edit/(?P<invoice_id>\d+)[/]?$',            invoice.edit,            name='billing__edit_invoice'),
         url(r'^invoice/generate_number/(?P<invoice_id>\d+)[/]?$', invoice.generate_number, name='billing__generate_invoice_number'),
-        url(r'^invoice/(?P<invoice_id>\d+)[/]?$',                 invoice.detailview,      name='billing__view_invoice'),
+        # url(r'^invoice/(?P<invoice_id>\d+)[/]?$',                 invoice.detailview,      name='billing__view_invoice'),
+        url(r'^invoice/(?P<invoice_id>\d+)[/]?$',                 invoice.InvoiceDetail.as_view(), name='billing__view_invoice'),
     ]
 
 if not billing.quote_model_is_custom():
@@ -43,7 +44,8 @@ if not billing.quote_model_is_custom():
         url(r'^quote/add[/]?$',                    quote.add,         name='billing__create_quote'),
         url(r'^quote/add/(?P<target_id>\d+)[/]?$', quote.add_related, name='billing__create_related_quote'),
         url(r'^quote/edit/(?P<quote_id>\d+)[/]?$', quote.edit,        name='billing__edit_quote'),
-        url(r'^quote/(?P<quote_id>\d+)[/]?$',      quote.detailview,  name='billing__view_quote'),
+        # url(r'^quote/(?P<quote_id>\d+)[/]?$',      quote.detailview,  name='billing__view_quote'),
+        url(r'^quote/(?P<quote_id>\d+)[/]?$',      quote.QuoteDetail.as_view(), name='billing__view_quote'),
     ]
 
 if not billing.sales_order_model_is_custom():
@@ -54,7 +56,8 @@ if not billing.sales_order_model_is_custom():
         url(r'^sales_order/add[/]?$',                    sales_order.add,         name='billing__create_order'),
         url(r'^sales_order/add/(?P<target_id>\d+)[/]?$', sales_order.add_related, name='billing__create_related_order'),
         url(r'^sales_order/edit/(?P<order_id>\d+)[/]?$', sales_order.edit,        name='billing__edit_order'),
-        url(r'^sales_order/(?P<order_id>\d+)[/]?$',      sales_order.detailview,  name='billing__view_order'),
+        # url(r'^sales_order/(?P<order_id>\d+)[/]?$',      sales_order.detailview,  name='billing__view_order'),
+        url(r'^sales_order/(?P<order_id>\d+)[/]?$',      sales_order.SalesOrderDetail.as_view(), name='billing__view_order'),
     ]
 
 if not billing.credit_note_model_is_custom():
@@ -64,7 +67,8 @@ if not billing.credit_note_model_is_custom():
         url(r'^credit_note[/]?$',                                                              credit_note.listview,                   name='billing__list_cnotes'),  # TODO: change to '^credit_noteS'
         url(r'^credit_note/add[/]?$',                                                          credit_note.add,                        name='billing__create_cnote'),
         url(r'^credit_note/edit/(?P<credit_note_id>\d+)[/]?$',                                 credit_note.edit,                       name='billing__edit_cnote'),
-        url(r'^credit_note/(?P<credit_note_id>\d+)[/]?$',                                      credit_note.detailview,                 name='billing__view_cnote'),
+        # url(r'^credit_note/(?P<credit_note_id>\d+)[/]?$',                                      credit_note.detailview,                 name='billing__view_cnote'),
+        url(r'^credit_note/(?P<credit_note_id>\d+)[/]?$',                                      credit_note.CreditNoteDetail.as_view(), name='billing__view_cnote'),
         url(r'^credit_note/editcomment/(?P<credit_note_id>\d+)[/]?$',                          credit_note.edit_comment,               name='billing__edit_cnote_comment'),
         url(r'^credit_note/add_related_to/(?P<base_id>\d+)[/]?$',                              credit_note.link_to_credit_notes,       name='billing__link_to_cnotes'),
         url(r'^credit_note/delete_related/(?P<credit_note_id>\d+)/from/(?P<base_id>\d+)[/]?$', credit_note.delete_related_credit_note, name='billing__delete_related_cnote'),
@@ -76,7 +80,8 @@ if not billing.template_base_model_is_custom():
     urlpatterns += [
         url(r'^templates[/]?$',                          templatebase.listview,   name='billing__list_templates'),
         url(r'^template/edit/(?P<template_id>\d+)[/]?$', templatebase.edit,       name='billing__edit_template'),
-        url(r'^template/(?P<template_id>\d+)[/]?$',      templatebase.detailview, name='billing__view_template'),
+        # url(r'^template/(?P<template_id>\d+)[/]?$',      templatebase.detailview, name='billing__view_template'),
+        url(r'^template/(?P<template_id>\d+)[/]?$',      templatebase.TemplateBaseDetail.as_view(), name='billing__view_template'),
     ]
 
 if not billing.product_line_model_is_custom():

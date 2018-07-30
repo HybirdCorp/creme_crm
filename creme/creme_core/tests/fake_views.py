@@ -14,10 +14,13 @@ def document_listview(request):
     return generic.list_view(request, fake_models.FakeDocument)
 
 
-@login_required
-@permission_required('creme_core')
-def image_detailview(request, image_id):
-    return generic.view_entity(request, image_id, fake_models.FakeImage)
+# @login_required
+# @permission_required('creme_core')
+# def image_detailview(request, image_id):
+#     return generic.view_entity(request, image_id, fake_models.FakeImage)
+class FakeImageDetail(generic.detailview.EntityDetail):
+    model = fake_models.FakeImage
+    pk_url_kwarg = 'image_id'
 
 
 @login_required
@@ -41,12 +44,15 @@ def contact_edit(request, contact_id):
                               )
 
 
-@login_required
-@permission_required('creme_core')
-def contact_detailview(request, contact_id):
-    return generic.view_entity(request, contact_id, fake_models.FakeContact,
-                               # '/tests/contact',
-                              )
+# @login_required
+# @permission_required('creme_core')
+# def contact_detailview(request, contact_id):
+#     return generic.view_entity(request, contact_id, fake_models.FakeContact)
+
+class FakeContactDetail(generic.detailview.EntityDetail):
+    model = fake_models.FakeContact
+    # template_name = 'creme_core/tests/view-fake-contact.html'  TODO ?
+    pk_url_kwarg = 'contact_id'
 
 
 @login_required
@@ -72,6 +78,7 @@ def organisation_edit(request, orga_id):
 @login_required
 @permission_required('creme_core')
 def organisation_detailview(request, orga_id):
+    # NB: keep legacy for tests
     return generic.view_entity(request, orga_id, fake_models.FakeOrganisation)
 
 
@@ -112,10 +119,13 @@ def campaign_listview(request):
     return generic.list_view(request, fake_models.FakeEmailCampaign)
 
 
-@login_required
-@permission_required('creme_core')
-def invoice_detailview(request, invoice_id):
-    return generic.view_entity(request, invoice_id, fake_models.FakeInvoice)
+# @login_required
+# @permission_required('creme_core')
+# def invoice_detailview(request, invoice_id):
+#     return generic.view_entity(request, invoice_id, fake_models.FakeInvoice)
+class FakeInvoiceDetail(generic.detailview.EntityDetail):
+    model = fake_models.FakeInvoice
+    pk_url_kwarg = 'invoice_id'
 
 
 @login_required

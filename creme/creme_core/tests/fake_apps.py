@@ -13,8 +13,6 @@ def ready():
 
     from ..core.function_field import function_field_registry
     from ..core.imprint import imprint_manager
-    # from ..gui import (brick_registry, import_form_registry,
-    #         merge_form_registry, quickforms_registry, smart_columns_registry)
     from ..gui.bricks import brick_registry
     from ..gui.quick_forms import quickforms_registry
     from ..gui.listview import smart_columns_registry

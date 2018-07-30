@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import Template, Context
@@ -38,6 +40,8 @@ from ..models import LightWeightEmail
 
 
 EntityEmail = get_entityemail_model()
+
+# Function views --------------------------------------------------------------
 
 
 @login_required
@@ -63,7 +67,7 @@ def view_lightweight_mail(request, mail_id):
     request.user.has_perm_to_view_or_die(email.sending.campaign)
 
     template = 'emails/view_email.html'  # TODO: rename (lw-mail-popup.html ?)
-    ctx_dict = {'mail': email, 'title': _(u'Details of the mail')}
+    ctx_dict = {'mail': email, 'title': _('Details of the mail')}
 
     if request.is_ajax():
         return generic.inner_popup(request, template, ctx_dict,
@@ -74,13 +78,22 @@ def view_lightweight_mail(request, mail_id):
 
 
 def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html'):
+    warnings.warn('emails.views.mail.abstract_view_email() is deprecated ; '
+                  'use the class-based view EntityEmailDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, mail_id, EntityEmail,
                                template=template,
+                               # NB: not used...
                                extra_template_dict={'sent_status': MAIL_STATUS_SENT},
                               )
 
 
 def abstract_popupview(request, mail_id, template='emails/view_entity_mail_popup.html'):
+    warnings.warn('emails.views.mail.abstract_popupview() is deprecated ; '
+                  'use the class-based view EntityEmailPopup instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, mail_id, EntityEmail, template=template)
 
 
@@ -154,12 +167,14 @@ def abstract_create_from_template_n_send(request, entity_id,
 @login_required
 @permission_required('emails')
 def detailview(request, mail_id):
+    warnings.warn('emails.views.mail.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_email(request, mail_id)
 
 
 @login_required
 @permission_required('emails')
 def popupview(request, mail_id):
+    warnings.warn('emails.views.mail.popupview() is deprecated.', DeprecationWarning)
     return abstract_popupview(request, mail_id)
 
 
@@ -191,3 +206,16 @@ def resend_mails(request):  # TODO: unit test
         email.send()
 
     return {}
+
+
+# Class-based views  ----------------------------------------------------------
+
+
+class EntityEmailDetail(generic.detailview.EntityDetail):
+    model = EntityEmail
+    template_name = 'emails/view_entity_mail.html'
+    pk_url_kwarg = 'mail_id'
+
+
+class EntityEmailPopup(EntityEmailDetail):
+    template_name = 'emails/view_entity_mail_popup.html'
