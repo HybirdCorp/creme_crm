@@ -63,6 +63,7 @@ def abstract_view_salesorder(request, order_id, template='billing/view_sales_ord
 
     return generic.view_entity(request, order_id, SalesOrder,
                                template=template,
+                               # NB: useless, but this view is deprecated is a next patch...
                                extra_template_dict={
                                     'can_create_invoice': user.has_perm(cperm(Invoice)) and not user.is_staff,
                                },

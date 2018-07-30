@@ -1,5 +1,7 @@
-{% load i18n %}
-{% if has_perm  and not object.is_deleted %}
+{% load i18n creme_core_tags creme_ctype %}
+{# {% if has_perm  and not object.is_deleted %} #}
+{% ctype_for_swappable 'BILLING_SALES_ORDER_MODEL' as order_ctype %}{% has_perm_to create order_ctype as creation_perm %}
+{% if creation_perm and not user.is_staff and not object.is_deleted %}
     <a class="menu_button" onclick="$('#id_convert2order', $(this)).submit();">
         {% trans 'Convert to Salesorder' %}
         <div style="display:none;">

@@ -46,6 +46,12 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         return tpl
 
+    def test_detailview(self):
+        invoice_status1 = self.get_object_or_fail(InvoiceStatus, pk=3)
+        tpl = self._create_templatebase(Invoice, invoice_status1.id)
+        response = self.assertGET200(tpl.get_absolute_url())
+        self.assertTemplateUsed(response, 'billing/view_template.html')
+
     def test_status01(self):
         invoice_status1 = self.get_object_or_fail(InvoiceStatus, pk=3)
         tpl = self._create_templatebase(Invoice, invoice_status1.id)

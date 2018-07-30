@@ -17,7 +17,7 @@ try:
     from ..models import QuoteStatus
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomServiceLine,
-           Organisation, Address, Quote, ServiceLine)
+           Organisation, Address, Quote, Invoice, SalesOrder, ServiceLine)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -25,6 +25,49 @@ except Exception as e:
 @skipIfCustomOrganisation
 @skipIfCustomQuote
 class QuoteTestCase(_BillingTestCase):
+    def test_detailview01(self):
+        "Cannot create Sales Orders => convert button disabled"
+        self.login(is_superuser=False,
+                   allowed_apps=['billing', 'persons'],
+                   creatable_models=[Organisation, Quote, Invoice],  # Not SalesOrder
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW |
+                                            EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        quote = self.create_quote_n_orgas('My Quote')[0]
+        response = self.assertGET200(quote.get_absolute_url())
+        self.assertTemplateUsed(response, 'billing/view_quote.html')
+
+        self.assertContains(response, '<form id="id_convert2invoice"')
+
+        self.assertContains(response, _('Convert to Salesorder'))
+        self.assertNotContains(response, '<form id="id_convert2order"')
+
+    def test_detailview02(self):
+        "Cannot create Invoice => convert button disabled"
+        self.login(is_superuser=False,
+                   allowed_apps=['billing', 'persons'],
+                   creatable_models=[Organisation, Quote, SalesOrder],  # Not Invoice
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW |
+                                            EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        quote = self.create_quote_n_orgas('My Quote')[0]
+        response = self.assertGET200(quote.get_absolute_url())
+        self.assertTemplateUsed(response, 'billing/view_quote.html')
+
+        self.assertContains(response, '<form id="id_convert2order"')
+
+        self.assertNotContains(response, '<form id="id_convert2invoice"')
+        self.assertContains(response, _('Convert to Invoice'))
+
+
     def test_createview01(self):
         self.login()
         self.assertGET200(reverse('billing__create_quote'))
