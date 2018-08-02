@@ -141,7 +141,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('phone', creme_fields.PhoneField(max_length=100, verbose_name='Phone number', blank=True)),
                 ('mobile', creme_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
-                ('skype', models.CharField(max_length=100, verbose_name=b'Skype', blank=True)),
+                ('skype', models.CharField(max_length=100, verbose_name='Skype', blank=True)),
                 ('fax', models.CharField(max_length=100, verbose_name='Fax', blank=True)),
                 ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
                 ('url_site', models.URLField(max_length=500, verbose_name='Web Site', blank=True)),

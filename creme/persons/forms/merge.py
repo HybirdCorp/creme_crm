@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import chain
+# from itertools import chain
 
 from django.utils.translation import ugettext as _
 
@@ -42,7 +42,7 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         if isinstance(entity1, Contact):  # TODO: create a ContactMergeForm ?
             if entity2.is_user:
                 if entity1.is_user:
-                    raise self.CanNotMergeError(_(u'Can not merge 2 Contacts which represent some users.'))
+                    raise self.CanNotMergeError(_('Can not merge 2 Contacts which represent some users.'))
 
                 entity1, entity2 = entity2, entity1
         else:
@@ -71,47 +71,80 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
         return initial
 
-    def _save_address(self, entity1, entity2, attr_name, cleaned_data, prefix, name):
-        address = getattr(entity1, attr_name, None)
-        empty = True
-        was_none = False
+    # def _save_address(self, entity1, entity2, attr_name, cleaned_data, prefix, name):
+    #     address = getattr(entity1, attr_name, None)
+    #     empty = True
+    #     was_none = False
+    #
+    #     if address is None:
+    #         address = getattr(entity2, attr_name) or Address(name=name)
+    #         address.owner = entity1
+    #         was_none = True
+    #
+    #     for fname in self._address_field_names:
+    #         value = cleaned_data.get(prefix + fname)
+    #         setattr(address, fname, value)
+    #
+    #         if value:
+    #             empty = False
+    #
+    #     if not empty:  # We do not use Address.__bool__() because we ignore the address' name.
+    #         address.save()
+    #         setattr(entity1, attr_name, address)
+    #         return was_none, ()
+    #
+    #     if not was_none:
+    #         setattr(entity1, attr_name, None)
+    #         return True, [address] if address.pk else ()
+    #
+    #     return True, ()
+    def _handle_addresses(self, entity1, entity2, attr_name, cleaned_data, prefix, name):
+        entity1_has_changed = False
 
-        if address is None:
-            address = getattr(entity2, attr_name) or Address(name=name)
-            address.owner = entity1
-            was_none = True
+        address1 = getattr(entity1, attr_name, None)
+        address2 = getattr(entity2, attr_name, None)
 
+        address = address1 if address1 is not None else \
+                  address2 if address2 is not None else \
+                  Address(name=name)
+
+        address_is_empty = True  # We do not use Address.__bool__() because we ignore the address' name.
         for fname in self._address_field_names:
             value = cleaned_data.get(prefix + fname)
             setattr(address, fname, value)
 
             if value:
-                empty = False
+                address_is_empty = False
 
-        if not empty:  # We do not use Address.__bool__() because we ignore the address' name.
-            address.save()
-            setattr(entity1, attr_name, address)
-            return was_none, ()
+        if not address_is_empty or address.pk is not None:
+            address.owner = entity1
+            address.save()  # TODO: only if has changed ?
 
-        if not was_none:
-            setattr(entity1, attr_name, None)
-            return True, [address] if address.pk else ()
+            if address is address1:
+                if address2 is not None:
+                    address2.delete()
+            else:
+                setattr(entity1, attr_name, address)
+                entity1_has_changed = True
 
-        return True, ()
+        return entity1_has_changed
 
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
         # super(_PersonMergeForm, self)._post_entity1_update(entity1, entity2, cleaned_data)
         super()._post_entity1_update(entity1, entity2, cleaned_data)
-        save_address = self._save_address
+        # save_address = self._save_address
+        handle_addr = self._handle_addresses
 
-        must_save1, to_del1 = save_address(entity1, entity2, 'billing_address',  cleaned_data, _BILL_PREFIX, _('Billing address'))
-        must_save2, to_del2 = save_address(entity1, entity2, 'shipping_address', cleaned_data, _SHIP_PREFIX, _('Shipping address'))
+        # must_save1, to_del1 = save_address(entity1, entity2, 'billing_address',  cleaned_data, _BILL_PREFIX, _('Billing address'))
+        # must_save2, to_del2 = save_address(entity1, entity2, 'shipping_address', cleaned_data, _SHIP_PREFIX, _('Shipping address'))
+        must_save1 = handle_addr(entity1, entity2, 'billing_address',  cleaned_data, _BILL_PREFIX, _('Billing address'))
+        must_save2 = handle_addr(entity1, entity2, 'shipping_address', cleaned_data, _SHIP_PREFIX, _('Shipping address'))
 
         if must_save1 or must_save2:
             entity1.save()
 
-        for address in chain(to_del1, to_del2):
-            address.delete()
+        # for address in chain(to_del1, to_del2):
+        #     address.delete()
 
 
 # TODO: can we build the form once instead of build it each time ??
@@ -146,8 +179,8 @@ def get_merge_form_builder(model, base_form_class=_PersonMergeForm):
     shipping_address_fnames = add_fields('shipping_address', _SHIP_PREFIX)
 
     attrs['blocks'] = MergeEntitiesBaseForm.blocks.new(
-                            ('billing_address',  _(u'Billing address'),  billing_address_fnames),
-                            ('shipping_address', _(u'Shipping address'), shipping_address_fnames),
+                            ('billing_address',  _('Billing address'),  billing_address_fnames),
+                            ('shipping_address', _('Shipping address'), shipping_address_fnames),
                         )
 
     return type('PersonMergeForm', (base_form_class,), attrs)

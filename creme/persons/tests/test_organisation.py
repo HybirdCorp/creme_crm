@@ -463,40 +463,40 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga02 = create_orga(name='Nerv')
 
         create_address = Address.objects.create
-        bill_addr01 = create_address(name="Billing address 01",
-                                     address="BA1 - Address", po_box="BA1 - PO box",
-                                     zipcode="BA1 - Zip code", city="BA1 - City",
-                                     department="BA1 - Department",
-                                     state="BA1 - State", country="BA1 - Country",
+        bill_addr01 = create_address(name='Billing address 01',
+                                     address='BA1 - Address', po_box='BA1 - PO box',
+                                     zipcode='BA1 - Zip code', city='BA1 - City',
+                                     department='BA1 - Department',
+                                     state='BA1 - State', country='BA1 - Country',
                                      owner=orga01,
                                     )
-        ship_addr01 = create_address(name="Shipping address 01",
-                                     address="SA1 - Address", po_box="SA1 - PO box",
-                                     zipcode="SA1 - Zip code", city="SA1 - City",
-                                     department="SA1 - Department",
-                                     state="SA1 - State", country="SA1 - Country",
+        ship_addr01 = create_address(name='Shipping address 01',
+                                     address='SA1 - Address', po_box='SA1 - PO box',
+                                     zipcode='SA1 - Zip code', city='SA1 - City',
+                                     department='SA1 - Department',
+                                     state='SA1 - State', country='SA1 - Country',
                                      owner=orga01,
                                     )
-        other_addr01 = create_address(name="Other address 01", owner=orga01)
+        other_addr01 = create_address(name='Other address 01', owner=orga01)
         orga01.billing_address = bill_addr01
         orga01.shipping_address = ship_addr01
         orga01.save()
 
-        bill_addr02 = create_address(name="Billing address 02",
-                                     address="BA2 - Address", po_box="BA2 - PO box",
-                                     zipcode="BA2 - Zip code", city="BA2 - City",
-                                     department="BA2 - Department",
-                                     state="BA2 - State", country="BA2 - Country",
+        bill_addr02 = create_address(name='Billing address 02',
+                                     address='BA2 - Address', po_box='BA2 - PO box',
+                                     zipcode='BA2 - Zip code', city='BA2 - City',
+                                     department='BA2 - Department',
+                                     state='BA2 - State', country='BA2 - Country',
                                      owner=orga02,
                                     )
-        ship_addr02 = create_address(name="Shipping address 02",
-                                     address="SA2 - Address", po_box="SA2 - PO box",
-                                     zipcode="SA2 - Zip code", city="SA2 - City",
-                                     department="SA2 - Department",
-                                     state="SA2 - State", country="SA2 - Country",
+        ship_addr02 = create_address(name='Shipping address 02',
+                                     address='SA2 - Address', po_box='SA2 - PO box',
+                                     zipcode='SA2 - Zip code', city='SA2 - City',
+                                     department='SA2 - Department',
+                                     state='SA2 - State', country='SA2 - Country',
                                      owner=orga02,
                                     )
-        other_addr02 = create_address(name="Other address 02", owner=orga02)
+        other_addr02 = create_address(name='Other address 02', owner=orga02)
 
         orga02.billing_address = bill_addr02
         orga02.shipping_address = ship_addr02
@@ -613,6 +613,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual('Merged country 2',    shipping_address.country)
         self.assertEqual('Merged department 2', shipping_address.department)
 
+        self.assertDoesNotExist(bill_addr02)
+        self.assertDoesNotExist(ship_addr02)
+
     @skipIfCustomAddress
     def test_merge02(self):
         "Merging addresses (no existing address)"
@@ -698,11 +701,11 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga01 = create_orga(name='NERV')
         orga02 = create_orga(name='Nerv')
 
-        bill_addr01 = Address.objects.create(name="Billing address 01",
-                                             address="BA1 - Address", po_box="BA1 - PO box",
-                                             zipcode="BA1 - Zip code", city="BA1 - City",
-                                             department="BA1 - Department",
-                                             state="BA1 - State", country="BA1 - Country",
+        bill_addr01 = Address.objects.create(name='Billing address 01',
+                                             address='BA1 - Address', po_box='BA1 - PO box',
+                                             zipcode='BA1 - Zip code', city='BA1 - City',
+                                             department='BA1 - Department',
+                                             state='BA1 - State', country='BA1 - Country',
                                              owner=orga01,
                                             )
         orga01.billing_address = bill_addr01
@@ -759,9 +762,18 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNoException():
             orga01 = self.refresh(orga01)
 
-        self.assertFalse(Address.objects.filter(object_id=orga01.id))
-        self.assertIsNone(orga01.billing_address)
+        # self.assertFalse(Address.objects.filter(object_id=orga01.id))
+        # self.assertIsNone(orga01.billing_address)
+        # self.assertIsNone(orga01.shipping_address)
+
         self.assertIsNone(orga01.shipping_address)
+
+        merged_bill_addr = orga01.billing_address
+        self.assertIsNotNone(merged_bill_addr)
+        self.assertEqual(bill_addr01.id, merged_bill_addr.id)
+        self.assertEqual(orga01, merged_bill_addr.owner)
+        self.assertFalse(merged_bill_addr.address)
+        self.assertFalse(merged_bill_addr.city)
 
     @skipIfCustomAddress
     def test_merge04(self):
@@ -1004,8 +1016,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
-        self.assertEqual([_(u'Import «{model}» from {doc}').format(
-                                model=_(u'Organisation'),
+        self.assertEqual([_('Import «{model}» from {doc}').format(
+                                model=_('Organisation'),
                                 doc=doc,
                             )
                          ],
@@ -1019,22 +1031,22 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         billing_address = self.get_object_or_fail(Organisation, name=name1).billing_address
         self.assertIsNotNone(billing_address)
-        self.assertEqual(_(u'Billing address'), billing_address.name)
+        self.assertEqual(_('Billing address'), billing_address.name)
         self.assertEqual(city1,                billing_address.city)
 
         shipping_address = self.get_object_or_fail(Organisation, name=name2).shipping_address
         self.assertIsNotNone(shipping_address)
-        self.assertEqual(_(u'Shipping address'), shipping_address.name)
+        self.assertEqual(_('Shipping address'), shipping_address.name)
         self.assertEqual(city2,                 shipping_address.city)
 
-        self.assertEqual([ungettext(u'{count} «{model}» has been created.',
-                                    u'{count} «{model}» have been created.',
+        self.assertEqual([ungettext('{count} «{model}» has been created.',
+                                    '{count} «{model}» have been created.',
                                     lines_count
                                    ).format(count=lines_count,
-                                            model=_(u'Organisations'),
+                                            model=_('Organisations'),
                                            ),
-                          ungettext(u'{count} line in the file.',
-                                    u'{count} lines in the file.',
+                          ungettext('{count} line in the file.',
+                                    '{count} lines in the file.',
                                     lines_count
                                    ).format(count=lines_count),
                          ],
@@ -1173,7 +1185,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         # Managed Organisations are excluded
         response = self.assertPOST200(url, data={'organisations': '[{}]'.format(orga1.id)})
-        self.assertFormError(response, 'form', 'organisations', _(u'This entity does not exist.'))
+        self.assertFormError(response, 'form', 'organisations', _('This entity does not exist.'))
 
     def test_set_orga_as_not_managed(self):
         self.login()

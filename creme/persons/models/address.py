@@ -18,47 +18,53 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.fields import GenericForeignKey
+# from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField, CASCADE
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeModel, FieldsConfig
+from creme.creme_core.models import CremeModel, CremeEntity, FieldsConfig
+from creme.creme_core.models import fields as creme_fields
 
 
 class AbstractAddress(CremeModel):
-    name       = CharField(_(u'Name'), max_length=100, blank=True)
-    address    = TextField(_(u'Address'), blank=True)
-    po_box     = CharField(_(u'PO box'), max_length=50, blank=True).set_tags(optional=True)
-    zipcode    = CharField(_(u'Zip code'), max_length=100, blank=True).set_tags(optional=True)
-    city       = CharField(_(u'City'), max_length=100, blank=True).set_tags(optional=True)
-    department = CharField(_(u'Department'), max_length=100, blank=True).set_tags(optional=True)
-    state      = CharField(_(u'State'), max_length=100, blank=True).set_tags(optional=True)
-    country    = CharField(_(u'Country'), max_length=40, blank=True).set_tags(optional=True)
+    name       = models.CharField(_('Name'),       max_length=100, blank=True)
+    address    = models.TextField(_('Address'),    blank=True)
+    po_box     = models.CharField(_('PO box'),     max_length=50,  blank=True).set_tags(optional=True)
+    zipcode    = models.CharField(_('Zip code'),   max_length=100, blank=True).set_tags(optional=True)
+    city       = models.CharField(_('City'),       max_length=100, blank=True).set_tags(optional=True)
+    department = models.CharField(_('Department'), max_length=100, blank=True).set_tags(optional=True)
+    state      = models.CharField(_('State'),      max_length=100, blank=True).set_tags(optional=True)
+    country    = models.CharField(_('Country'),    max_length=40,  blank=True).set_tags(optional=True)
 
-    # TODO: use a real ForeignKey to CremeEntity (+ remove signal handlers )
-    content_type = ForeignKey(ContentType, related_name="object_set", editable=False, on_delete=CASCADE)\
-                             .set_tags(viewable=False)
-    object_id    = PositiveIntegerField(editable=False).set_tags(viewable=False)
-    owner        = GenericForeignKey(ct_field="content_type", fk_field="object_id")
+    # content_type = models.ForeignKey(ContentType, related_name="object_set", editable=False, on_delete=models.CASCADE)\
+    #                                 .set_tags(viewable=False)
+    # object_id    = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
+    # owner        = GenericForeignKey(ct_field='content_type', fk_field='object_id')
+    content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False) \
+                               .set_tags(viewable=False)
+    object       = models.ForeignKey(CremeEntity, related_name='persons_addresses',
+                                     editable=False, on_delete=models.CASCADE,
+                                    ).set_tags(viewable=False)
+    owner        = creme_fields.RealEntityForeignKey(ct_field='content_type', fk_field='object')
 
     STR_FIELD_NAMES = [
         ['address', 'zipcode', 'city', 'department'],
         ['po_box', 'state', 'country'],
     ]
-    STR_SEPARATOR = u' '
+    STR_SEPARATOR = ' '
 
     # class Meta:
     class Meta(CremeModel.Meta):
         abstract = True
         app_label = 'persons'
-        verbose_name = _(u'Address')
-        verbose_name_plural = _(u'Addresses')
+        verbose_name = _('Address')
+        verbose_name_plural = _('Addresses')
         ordering = ('id',)
 
     def __str__(self):
-        s = u''
+        s = ''
         join = self.STR_SEPARATOR.join
         allowed_fnames = set(self.info_field_names())
         get_field_value = (lambda fname: None if fname not in allowed_fnames else
@@ -82,7 +88,7 @@ class AbstractAddress(CremeModel):
         return any(fvalue for fname, fvalue in self.info_fields)
 
     def clone(self, entity):
-        """Returns a new cloned (saved) address for a (saved) entity"""
+        """Returns a new cloned (saved) address for a (saved) entity."""
         return Address.objects.create(object_id=entity.id,
                                       content_type=ContentType.objects.get_for_model(entity),
                                       **dict(self.info_fields)
@@ -91,7 +97,8 @@ class AbstractAddress(CremeModel):
     @classmethod
     def info_field_names(cls):
         is_field_hidden = FieldsConfig.get_4_model(cls).is_field_hidden
-        excluded = {'id', 'content_type', 'object_id'}
+        # excluded = {'id', 'content_type', 'object_id'}
+        excluded = {'id', 'content_type', 'object'}  # TODO: just exclude not viewable ?
         return tuple(f.name
                         for f in cls._meta.fields
                             if f.name not in excluded and not is_field_hidden(f)
