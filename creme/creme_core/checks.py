@@ -104,3 +104,18 @@ def check_entity_ordering(**kwargs):
                          )
 
     return errors
+
+
+# NB: E007
+@register(CoreTags.models)
+def check_real_entity_foreign_keys(**kwargs):
+    from .models.fields import RealEntityForeignKey
+
+    errors = []
+
+    for model in apps.get_models():
+        for field in vars(model).values():
+            if isinstance(field, RealEntityForeignKey):
+                errors.extend(field.check())
+
+    return errors

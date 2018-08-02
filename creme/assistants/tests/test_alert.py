@@ -300,6 +300,9 @@ class AlertTestCase(AssistantsTestCase):
         alert3 = create_alert(title='Alert#3')
         create_alert(title='Alert#4', user=self.other_user)  # No (other user)
 
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
+        create_alert(title='Alert#5', creme_entity=entity2)  # No (deleted entity)
+
         alerts = Alert.get_alerts_for_home(user=user)
         self.assertIsInstance(alerts, QuerySet)
         self.assertEqual(Alert, alerts.model)

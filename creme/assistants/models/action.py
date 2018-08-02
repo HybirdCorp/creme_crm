@@ -18,37 +18,40 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
-        ForeignKey, PositiveIntegerField, CASCADE)
-from django.utils.translation import ugettext_lazy as _
+# from django.contrib.contenttypes.fields import GenericForeignKey
+# from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeModel
-from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
+from creme.creme_core import models as creme_models
+from creme.creme_core.models import fields as creme_fields
 
 
-class Action(CremeModel):
-    title               = CharField(_(u'Title'), max_length=200)
-    is_ok               = BooleanField(_(u'Expected reaction has been done'), editable=False, default=False)
-    description         = TextField(_(u'Source action'), blank=True)
-    creation_date       = CreationDateTimeField(_(u'Creation date'), editable=False)
-    expected_reaction   = TextField(_(u'Target action'), blank=True)
-    deadline            = DateTimeField(_(u'Deadline'))
-    validation_date     = DateTimeField(_(u'Validation date'), blank=True, null=True, editable=False)
+class Action(creme_models.CremeModel):
+    title             = models.CharField(_('Title'), max_length=200)
+    is_ok             = models.BooleanField(_('Expected reaction has been done'), editable=False, default=False)
+    description       = models.TextField(_('Source action'), blank=True)
+    creation_date     = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
+    expected_reaction = models.TextField(_('Target action'), blank=True)
+    deadline          = models.DateTimeField(_('Deadline'))
+    validation_date   = models.DateTimeField(_('Validation date'), blank=True, null=True, editable=False)
 
-    # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
-    entity_content_type = ForeignKey(ContentType, related_name='action_entity_set', editable=False, on_delete=CASCADE)
-    entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
-    creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
+    # entity_content_type = models.ForeignKey(ContentType, related_name='action_entity_set', editable=False, on_delete=models.CASCADE)
+    # entity_id           = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
+    # creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field='entity_id')
+    entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
+    entity              = models.ForeignKey(creme_models.CremeEntity, related_name='assistants_actions',
+                                            editable=False, on_delete=models.CASCADE,
+                                           ).set_tags(viewable=False)
+    creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
-    user                = CremeUserForeignKey(verbose_name=_(u'Owner user'))
+    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
     class Meta:
         app_label = 'assistants'
-        verbose_name = _(u'Action')
-        verbose_name_plural = _(u'Actions')
+        verbose_name = _('Action')
+        verbose_name_plural = _('Actions')
 
     def __str__(self):
         return self.title
@@ -68,14 +71,23 @@ class Action(CremeModel):
 
     @staticmethod
     def get_actions_it_for_home(user, today):
-        return Action.objects.filter(is_ok=False, deadline__gt=today, user__in=[user] + user.teams) \
+        return Action.objects.filter(is_ok=False,
+                                     deadline__gt=today,
+                                     user__in=[user] + user.teams,
+                                     entity__is_deleted=False,
+                                    ) \
                              .select_related('user')
 
     @staticmethod
     def get_actions_nit_for_home(user, today):
-        return Action.objects.filter(is_ok=False, deadline__lte=today, user__in=[user] + user.teams) \
+        return Action.objects.filter(is_ok=False,
+                                     deadline__lte=today,
+                                     user__in=[user] + user.teams,
+                                     entity__is_deleted=False,
+                                    ) \
                              .select_related('user')
 
+    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_actions_it_for_ctypes(ct_ids, user, today):
         return Action.objects.filter(entity_content_type__in=ct_ids,
@@ -85,6 +97,7 @@ class Action(CremeModel):
                                     ) \
                              .select_related('user')
 
+    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_actions_nit_for_ctypes(ct_ids, user, today):
         return Action.objects.filter(entity_content_type__in=ct_ids,

@@ -180,6 +180,9 @@ will be truncate by str() method"""
         memo3 = create_memo(content='Memo#3')
         create_memo(content='Memo#4', user=self.other_user)  # No (other user)
 
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
+        create_memo(content='Memo#4', creme_entity=entity2)  # Not retrieved (deleted entity)
+
         memos = Memo.get_memos_for_home(user=user)
         self.assertIsInstance(memos, QuerySet)
         self.assertEqual(Memo, memos.model)

@@ -21,31 +21,29 @@
 from functools import partial
 import logging
 
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
-        ForeignKey, PositiveIntegerField, PROTECT, CASCADE)
+# from django.contrib.contenttypes.fields import GenericForeignKey
+# from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.db.transaction import atomic
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
-from creme.creme_core.models import CremeModel, JobResult  # CremeEntity
-from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.models import CremeModel, CremeEntity, JobResult, fields as creme_fields
 
 
 logger = logging.getLogger(__name__)
 
 
 class UserMessagePriority(CremeModel):
-    title     = CharField(_(u'Title'), max_length=200)
-    is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    title     = models.CharField(_('Title'), max_length=200)
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = pgettext_lazy('assistants-messaqe_priority', u'Create a priority')
+    creation_label = pgettext_lazy('assistants-messaqe_priority', 'Create a priority')
 
     class Meta:
         app_label = 'assistants'
-        verbose_name = _(u'Priority of user message')
-        verbose_name_plural = _(u'Priorities of user message')
+        verbose_name = _('Priority of user message')
+        verbose_name_plural = _('Priorities of user message')
         ordering = ('title',)
 
     def __str__(self):
@@ -53,28 +51,32 @@ class UserMessagePriority(CremeModel):
 
 
 class UserMessage(CremeModel):
-    title         = CharField(_(u'Title'), max_length=200)
-    body          = TextField(_(u'Message body'))
-    creation_date = DateTimeField(_(u'Creation date'))
-    priority      = ForeignKey(UserMessagePriority, verbose_name=_(u'Priority'), on_delete=PROTECT)
-    sender        = CremeUserForeignKey(verbose_name=_(u'Sender'),
-                                        related_name='sent_assistants_messages_set',
-                                       )
-    recipient     = CremeUserForeignKey(verbose_name=_(u'Recipient'),
-                                        related_name='received_assistants_messages_set',
-                                       )
+    title         = models.CharField(_('Title'), max_length=200)
+    body          = models.TextField(_('Message body'))
+    creation_date = models.DateTimeField(_('Creation date'))
+    priority      = models.ForeignKey(UserMessagePriority, verbose_name=_('Priority'), on_delete=models.PROTECT)
+    sender        = creme_fields.CremeUserForeignKey(verbose_name=_('Sender'),
+                                                     related_name='sent_assistants_messages_set',
+                                                    )
+    recipient     = creme_fields.CremeUserForeignKey(verbose_name=_('Recipient'),
+                                                     related_name='received_assistants_messages_set',
+                                                    )
 
-    email_sent = BooleanField(default=False)
+    email_sent = models.BooleanField(default=False)
 
-    # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
-    entity_content_type = ForeignKey(ContentType, null=True, on_delete=CASCADE)
-    entity_id           = PositiveIntegerField(null=True)
-    creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
+    # entity_content_type = models.ForeignKey(ContentType, null=True, on_delete=models.CASCADE)
+    # entity_id           = models.PositiveIntegerField(null=True)
+    # creme_entity        = GenericForeignKey(ct_field='entity_content_type', fk_field='entity_id')
+    entity_content_type = creme_fields.EntityCTypeForeignKey(null=True, related_name='+', editable=False)
+    entity              = models.ForeignKey(CremeEntity, null=True,  related_name='assistants_messages',
+                                            editable=False, on_delete=models.CASCADE,
+                                           ).set_tags(viewable=False)
+    creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
     class Meta:
         app_label = 'assistants'
-        verbose_name = _(u'User message')
-        verbose_name_plural = _(u'User messages')
+        verbose_name = _('User message')
+        verbose_name_plural = _('User messages')
 
     def __str__(self):
         return self.title
@@ -85,8 +87,9 @@ class UserMessage(CremeModel):
 
     @staticmethod
     def get_messages_for_home(user):
-        return UserMessage.objects.filter(recipient=user).select_related('sender')
+        return UserMessage.objects.filter(recipient=user, entity__is_deleted=False).select_related('sender')
 
+    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_messages_for_ctypes(ct_ids, user):
         return UserMessage.objects.filter(entity_content_type__in=ct_ids, recipient=user).select_related('sender')
@@ -96,7 +99,7 @@ class UserMessage(CremeModel):
     def create_messages(users, title, body, priority_id, sender, entity):
         """Create UserMessages instances to sent to several users.
         Notice that teams are treated as several Users.
-        @param users A sequence of CremeUser objects ; duplicates are removed.
+        @param users: A sequence of CremeUser objects ; duplicates are removed.
         """
         users_map = {}
         for user in users:
@@ -119,7 +122,6 @@ class UserMessage(CremeModel):
         usermessages_send_type.refresh_job()
 
     @staticmethod
-    # def send_mails():
     def send_mails(job):
         from django.conf import settings
         from django.core.mail import EmailMessage, get_connection
@@ -129,8 +131,8 @@ class UserMessage(CremeModel):
         if not usermessages:
             return
 
-        subject_format = ugettext(u'User message from Creme: {}')
-        body_format    = ugettext(u'{user} sent you the following message:\n{body}')
+        subject_format = ugettext('User message from Creme: {}')
+        body_format    = ugettext('{user} sent you the following message:\n{body}')
         EMAIL_SENDER   = settings.EMAIL_SENDER
 
         messages = [EmailMessage(subject_format.format(msg.title),
@@ -146,13 +148,10 @@ class UserMessage(CremeModel):
         except Exception as e:
             logger.critical('Error while sending user-messages emails (%s)', e)
             JobResult.objects.create(job=job,
-                                     messages=[ugettext(u'An error occurred while sending emails'),
-                                               ugettext(u'Original error: {}').format(e),
+                                     messages=[ugettext('An error occurred while sending emails'),
+                                               ugettext('Original error: {}').format(e),
                                               ],
                                     )
 
-        # for msg in usermessages:
-        #     msg.email_sent = True
-        #     msg.save()
         UserMessage.objects.filter(pk__in=[m.id for m in usermessages]) \
                            .update(email_sent=True)
