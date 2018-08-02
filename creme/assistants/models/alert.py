@@ -20,32 +20,34 @@
 
 # from collections import defaultdict
 
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import (CharField, TextField, BooleanField, DateTimeField,
-        ForeignKey, PositiveIntegerField, CASCADE)
+# from django.contrib.contenttypes.fields import GenericForeignKey
+# from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeModel  # CremeEntity
-from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core import models as creme_models
+from creme.creme_core.models import fields as creme_fields
 # from creme.creme_core.core.function_field import (FunctionField, FunctionFieldResult,
 #         FunctionFieldResultsList)
 
 
-class Alert(CremeModel):
-    title        = CharField(_('Title'), max_length=200)
-    description  = TextField(_('Description'), blank=True)
-    is_validated = BooleanField(_('Validated'), editable=False, default=False)
-    reminded     = BooleanField(_('Notification sent'), editable=False, default=False)  # Need by creme_core.core.reminder
-    trigger_date = DateTimeField(_('Trigger date'))
+class Alert(creme_models.CremeModel):
+    title        = models.CharField(_('Title'), max_length=200)
+    description  = models.TextField(_('Description'), blank=True)
+    is_validated = models.BooleanField(_('Validated'), editable=False, default=False)
+    reminded     = models.BooleanField(_('Notification sent'), editable=False, default=False)  # Need by creme_core.core.reminder
+    trigger_date = models.DateTimeField(_('Trigger date'))
+    user         = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
-    entity_content_type = ForeignKey(ContentType, related_name='alert_entity_set', editable=False, on_delete=CASCADE)
-    entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
-    creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field='entity_id')
-
-    user = CremeUserForeignKey(verbose_name=_('Owner user'))
+    # entity_content_type = models.ForeignKey(ContentType, related_name='alert_entity_set', editable=False, on_delete=models.CASCADE)
+    # entity_id           = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
+    # creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field='entity_id')
+    entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
+    entity              = models.ForeignKey(creme_models.CremeEntity, related_name='assistants_alerts',
+                                            editable=False, on_delete=models.CASCADE,
+                                           ).set_tags(viewable=False)
+    creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
     class Meta:
         app_label = 'assistants'
@@ -64,8 +66,13 @@ class Alert(CremeModel):
 
     @staticmethod
     def get_alerts_for_home(user):
-        return Alert.objects.filter(is_validated=False, user__in=[user] + user.teams).select_related('user')
+        return Alert.objects.filter(is_validated=False,
+                                    user__in=[user] + user.teams,
+                                    entity__is_deleted=False,
+                                   )\
+                            .select_related('user')
 
+    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_alerts_for_ctypes(ct_ids, user):
         return Alert.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams, is_validated=False) \

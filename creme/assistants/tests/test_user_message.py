@@ -10,7 +10,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.models import Job, JobResult
+    from creme.creme_core.models import Job, JobResult, FakeOrganisation
 
     from ..creme_jobs import usermessages_send_type
     from ..models import UserMessage, UserMessagePriority
@@ -128,8 +128,8 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(len(messages), 2)
 
         message = messages[0]
-        self.assertEqual(_(u'User message from Creme: {}').format(title), message.subject)
-        self.assertEqual(_(u'{user} sent you the following message:\n{body}').format(
+        self.assertEqual(_('User message from Creme: {}').format(title), message.subject)
+        self.assertEqual(_('{user} sent you the following message:\n{body}').format(
                                 user=self.user,
                                 body=body,
                             ),
@@ -200,6 +200,44 @@ class UserMessageTestCase(AssistantsTestCase):
         messages = UserMessage.objects.all()
         self.assertEqual(4, len(messages))
         self.assertEqual(set(users), {msg.recipient for msg in messages})
+
+    def test_get_messages(self):
+        priority = UserMessagePriority.objects.create(title='Important')
+        user3    = User.objects.create_user('User3', email='user01@foobar.com',
+                                            first_name='User01', last_name='Foo',
+                                           )
+        entity1 = self.entity
+        entity2 = FakeOrganisation.objects.create(user=self.user, name='Thousand sunny')
+
+        create_msg = self._create_usermessage
+        create_msg('TITLE#1', 'BODY#1', priority, [self.other_user], entity1)
+        create_msg('TITLE#2', 'BODY#2', priority, [user3],           entity1)
+        create_msg('TITLE#3', 'BODY#3', priority, [user3],           entity2)
+
+        self.assertEqual(['TITLE#2'],
+                         [msg.title for msg in UserMessage.get_messages(entity=entity1, user=user3)]
+                        )
+
+    def test_get_messages_for_home(self):
+        priority = UserMessagePriority.objects.create(title='Important')
+        user3    = User.objects.create_user('User3', email='user01@foobar.com',
+                                            first_name='User01', last_name='Foo',
+                                           )
+        entity1 = self.entity
+        entity2 = FakeOrganisation.objects.create(user=self.user, name='Thousand sunny')
+        entity3 = FakeOrganisation.objects.create(user=self.user, name='World gvt')
+
+        create_msg = self._create_usermessage
+        create_msg('TITLE#1', 'BODY#1', priority, [self.other_user], entity1)
+        create_msg('TITLE#2', 'BODY#2', priority, [user3],           entity1)
+        create_msg('TITLE#3', 'BODY#3', priority, [user3],           entity2)
+        create_msg('TITLE#4', 'BODY#4', priority, [user3],           entity3)
+
+        entity3.trash()  # So the related messages will be avoided.
+
+        self.assertEqual(['TITLE#2', 'TITLE#3'],
+                         [msg.title for msg in UserMessage.get_messages_for_home(user3).order_by('id')]
+                        )
 
     def test_delete_related01(self):
         priority = UserMessagePriority.objects.create(title='Important')
@@ -296,8 +334,8 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(1, len(jresults))
 
         jresult = jresults[0]
-        self.assertEqual([_(u'An error occurred while sending emails'),
-                          _(u'Original error: {}').format(err_msg),
+        self.assertEqual([_('An error occurred while sending emails'),
+                          _('Original error: {}').format(err_msg),
                          ],
                          jresult.messages
                         )

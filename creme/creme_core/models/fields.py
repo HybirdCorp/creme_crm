@@ -22,6 +22,8 @@ from json import loads as jsonloads, dumps as jsondumps
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core import checks
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
         PositiveIntegerField, OneToOneField, ForeignKey, SET, CASCADE, Max)
 from django.utils.timezone import now
@@ -227,7 +229,7 @@ class CTypeOneToOneField(OneToOneField):
         return name, path, args, kwargs
 
     def get_internal_type(self):
-        return "OneToOneField"
+        return 'OneToOneField'
 
     def formfield(self, **kwargs):
         from ..forms.fields import CTypeChoiceField
@@ -237,6 +239,175 @@ class CTypeOneToOneField(OneToOneField):
         # BEWARE: we don't call super(CTypeOneToOneField, self).formfield(**defaults)
         # to avoid useless/annoying 'queryset' arg
         return super(OneToOneField, self).formfield(**defaults)
+
+
+class RealEntityForeignKey:
+    """ Provide a "virtual" field which uses & combines 2 ForeignKeys :
+     - a ForeignKey to CremeEntity.
+     - a ForeignKey to ContentType (tips: it work  well with a EntityCTypeForeignKey).
+
+    So it can directly reference an instance of class inheriting CremeEntity
+    (what we call "real entity").
+
+    It allows to :
+     - get the real entity with only 1 query  (a simple ForeignKey to CremeEntity
+       will retrieve a CremeEntity, then .get_real_entity() will perform a second query).
+     - set the 2 FKs at once.
+
+    Unlike GenericForeignKey, the ID if the CremeEntity is stored in a real ForeignKey  ;
+    so we can perform classical filters on this ForeignKey that we could not perform
+    with a PositiveIntegerField.
+    """
+    # Field flags
+    auto_created = False
+    concrete = False
+    editable = False
+    hidden = False
+
+    is_relation = True
+    many_to_many = False
+    many_to_one = True
+    one_to_many = False
+    one_to_one = False
+    related_model = None
+    remote_field = None
+
+    def __init__(self, ct_field, fk_field):
+        self._ct_field_name = ct_field
+        self._fk_field_name = fk_field
+
+        # TODO ?
+        # self.rel = None
+        # self.column = None
+
+        self.name = None
+        self.model = None
+        self.cache_attr = None
+
+    def __str__(self):
+        model = self.model
+
+        return '{}.{}.{}'.format(
+            model._meta.app_label,
+            model._meta.object_name,
+            self.name,
+        )
+
+    def contribute_to_class(self, cls, name, **kwargs):
+        self.name = name
+        self.model = cls
+        self.cache_attr = '_{}_cache'.format(name)
+        cls._meta.add_field(self, private=True)  # TODO: test ?
+        setattr(cls, name, self)
+
+    def check(self, **kwargs):
+        from .entity import CremeEntity
+
+        errors = []
+        errors.extend(self._check_field_name())
+        errors.extend(self._check_fk('_ct_field_name', ContentType))
+        errors.extend(self._check_fk('_fk_field_name', CremeEntity))
+
+        return errors
+
+    def _check_field_name(self):
+        if self.name.endswith('_'):
+            yield checks.Error('Field names must not end with an underscore.',
+                               obj=self,
+                               id='fields.E001',
+                              )
+
+    def _check_fk(self, attr_name, related_model):
+        fname = getattr(self, attr_name)
+        meta = self.model._meta
+
+        try:
+            field = meta.get_field(fname)
+        except FieldDoesNotExist:
+            yield checks.Error(
+                'The RealEntityForeignKey references the non-existent field "{}".'.format(fname),
+                obj=self,
+                id='creme.E007',
+            )
+        else:
+            if not isinstance(field, ForeignKey):
+                yield checks.Error(
+                    '"{}.{}" is not a ForeignKey.'.format(meta.object_name, fname),
+                    obj=self,
+                    id='creme.E007',
+                )
+            elif field.remote_field.model != related_model:
+                rel_meta = related_model._meta
+
+                yield checks.Error(
+                    '"{}.{}" is not a ForeignKey to "{}.{}".'.format(
+                        meta.object_name, fname, rel_meta.app_label, rel_meta.object_name
+                    ),
+                    obj=self,
+                    id='creme.E007',
+                )
+
+    @staticmethod
+    def _ctype_or_die(ct):
+        if ct is None:
+            raise ValueError('The content type is not set while the entity is. '
+                             'HINT: set both by hand or just use the RealEntityForeignKey setter.'
+                            )
+
+    def __get__(self, instance, cls=None):
+        # TODO ?
+        # if instance is None:
+        #     return self
+
+        real_entity = getattr(instance, self.cache_attr, None)
+
+        if real_entity is None:
+            get_field = self.model._meta.get_field
+
+            # NB:  <ct = getattr(instance, self._ct_field_name)> will perform an additional
+            # query if the field is not a (Entity)CTypeForeignKey instance.  TODO: unit test
+            ct_field = get_field(self._ct_field_name)
+            ct_id = getattr(instance, ct_field.get_attname())
+            ct = ContentType.objects.get_for_id(ct_id) if ct_id else None
+
+            fk_field = get_field(self._fk_field_name)
+            fk_cache_name = fk_field.get_cache_name()
+
+            if hasattr(instance, fk_cache_name):
+                entity = getattr(instance, fk_cache_name)
+
+                if entity is None:
+                    real_entity = None
+                else:
+                    self._ctype_or_die(ct)
+
+                    if entity.entity_type_id != ct.id:
+                        raise ValueError('The content type does not match this entity.')
+
+                    real_entity = entity.get_real_entity()
+            else:
+                entity_id = getattr(instance, fk_field.get_attname())
+
+                if entity_id is None:
+                    real_entity = None
+                else:
+                    self._ctype_or_die(ct)
+
+                    real_entity = ct.model_class()._default_manager.get(id=entity_id)
+
+            setattr(instance, self.cache_attr, real_entity)
+
+        return real_entity
+
+    def __set__(self, instance, value):
+        ct = None
+
+        if value is not None:
+            ct = value.entity_type
+
+        setattr(instance, self._ct_field_name, ct)
+        setattr(instance, self._fk_field_name, value)
+        # setattr(instance, self.cache_attr, value)  # We use the cache of FK/entity instead.
 
 
 class BasicAutoField(PositiveIntegerField):
@@ -332,7 +503,7 @@ class CreationDateTimeField(DateTimeField):
         super().__init__(*args, **kwargs)
 
     def get_internal_type(self):
-        return "DateTimeField"
+        return 'DateTimeField'
 
     def deconstruct(self):
         # name, path, args, kwargs = super(CreationDateTimeField, self).deconstruct()

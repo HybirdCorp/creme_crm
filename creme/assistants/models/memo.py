@@ -20,28 +20,32 @@
 
 # from collections import defaultdict
 
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import TextField, BooleanField, ForeignKey, PositiveIntegerField, CASCADE
+# from django.contrib.contenttypes.fields import GenericForeignKey
+# from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 # from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
-from creme.creme_core.models import CremeModel  # CremeEntity
-from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
+from creme.creme_core import models as creme_models
+from creme.creme_core.models import fields as creme_fields
 from creme.creme_core.utils import ellipsis
 
 
-class Memo(CremeModel):
-    content       = TextField(_('Content'))
-    on_homepage   = BooleanField(_('Displayed on homepage'), blank=True, default=False)
-    creation_date = CreationDateTimeField(_('Creation date'), editable=False)
-    user          = CremeUserForeignKey(verbose_name=_('Owner user'))
+class Memo(creme_models.CremeModel):
+    content       = models.TextField(_('Content'))
+    on_homepage   = models.BooleanField(_('Displayed on homepage'), blank=True, default=False)
+    creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
+    user          = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
-    entity_content_type = ForeignKey(ContentType, related_name='memo_entity_set', editable=False, on_delete=CASCADE)
-    entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
-    creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
+    # entity_content_type = models.ForeignKey(ContentType, related_name='memo_entity_set', editable=False, on_delete=models.CASCADE)
+    # entity_id           = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
+    # creme_entity        = GenericForeignKey(ct_field='entity_content_type', fk_field='entity_id')
+    entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
+    entity              = models.ForeignKey(creme_models.CremeEntity,  related_name='assistants_memos',
+                                            editable=False, on_delete=models.CASCADE,
+                                           ).set_tags(viewable=False)
+    creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
     class Meta:
         app_label = 'assistants'
@@ -61,9 +65,13 @@ class Memo(CremeModel):
 
     @staticmethod
     def get_memos_for_home(user):
-        return Memo.objects.filter(on_homepage=True, user__in=[user] + user.teams) \
+        return Memo.objects.filter(on_homepage=True,
+                                   user__in=[user] + user.teams,
+                                   entity__is_deleted=False,
+                                  ) \
                           .select_related('user')
 
+    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_memos_for_ctypes(ct_ids, user):
         return Memo.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams) \

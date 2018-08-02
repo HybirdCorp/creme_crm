@@ -30,6 +30,7 @@ from .models import Action, Alert, Memo, ToDo, UserMessage
 
 
 class _AssistantsBrick(QuerysetBrick):
+    # TODO: move to a method in RealEntityForeignKey ? (like GenericForeignKey.get_prefetch_queryset() ?)
     @staticmethod
     def _populate_related_real_entities(assistants):
         assistants = [assistant for assistant in assistants if assistant.entity_id]
@@ -102,7 +103,7 @@ class TodosBrick(_AssistantsBrick):
     id_           = QuerysetBrick.generate_id('assistants', 'todos')
     dependencies  = (ToDo,)
     order_by      = '-creation_date'
-    verbose_name  = _(u'Todos')
+    verbose_name  = _('Todos')
     template_name = 'assistants/bricks/todos.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -122,7 +123,7 @@ class MemosBrick(_AssistantsBrick):
     id_           = QuerysetBrick.generate_id('assistants', 'memos')
     dependencies  = (Memo,)
     order_by      = '-creation_date'
-    verbose_name  = _(u'Memos')
+    verbose_name  = _('Memos')
     template_name = 'assistants/bricks/memos.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -142,7 +143,7 @@ class AlertsBrick(_AssistantsBrick):
     id_           = QuerysetBrick.generate_id('assistants', 'alerts')
     dependencies  = (Alert,)
     order_by      = '-trigger_date'
-    verbose_name  = _(u'Alerts')
+    verbose_name  = _('Alerts')
     template_name = 'assistants/bricks/alerts.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -162,7 +163,7 @@ class ActionsOnTimeBrick(_AssistantsBrick):
     id_           = QuerysetBrick.generate_id('assistants', 'actions_it')
     dependencies  = (Action,)
     order_by      = 'deadline'
-    verbose_name  = _(u'Actions in time')
+    verbose_name  = _('Actions in time')
     template_name = 'assistants/bricks/actions-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -182,14 +183,14 @@ class ActionsNotOnTimeBrick(_AssistantsBrick):
     id_           = QuerysetBrick.generate_id('assistants', 'actions_nit')
     dependencies  = (Action,)
     order_by      = 'deadline'
-    verbose_name  = _(u'Reactions not in time')
+    verbose_name  = _('Reactions not in time')
     template_name = 'assistants/bricks/actions-not-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
         return Action.get_actions_nit(entity, context['today'])
 
     def _get_queryset_for_home(self, context):
-        return  Action.get_actions_nit_for_home(context['user'], context['today'])
+        return Action.get_actions_nit_for_home(context['user'], context['today'])
 
     # def _get_queryset_for_portal(self, ct_ids, context):
     #     warnings.warn('assistants.bricks.ActionsNotOnTimeBrick._get_queryset_for_portal() is deprecated.',
@@ -202,7 +203,7 @@ class UserMessagesBrick(_AssistantsBrick):
     id_           = QuerysetBrick.generate_id('assistants', 'messages')
     dependencies  = (UserMessage,)
     order_by      = '-creation_date'
-    verbose_name  = _(u'User messages')
+    verbose_name  = _('User messages')
     template_name = 'assistants/bricks/messages.html'
 
     def _get_queryset_for_detailview(self, entity, context):

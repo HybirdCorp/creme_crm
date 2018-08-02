@@ -20,32 +20,34 @@
 
 # from collections import defaultdict
 
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
-        ForeignKey, PositiveIntegerField, CASCADE)
+# from django.contrib.contenttypes.fields import GenericForeignKey
+# from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 # from creme.creme_core.core.function_field import (FunctionField,
 #         FunctionFieldResult, FunctionFieldResultsList)
-from creme.creme_core.models import CremeModel  # CremeEntity
-from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
+from creme.creme_core.models import CremeModel, CremeEntity, fields as creme_fields
 
 
 class ToDo(CremeModel):
-    title         = CharField(_('Title'), max_length=200)
-    is_ok         = BooleanField(_('Done ?'), editable=False, default=False)
-    reminded      = BooleanField(_('Notification sent'), editable=False, default=False)  # Needed by creme_core.core.reminder
-    description   = TextField(_('Description'), blank=True)
-    creation_date = CreationDateTimeField(_('Creation date'), editable=False)
-    deadline      = DateTimeField(_('Deadline'), blank=True, null=True)
-    user          = CremeUserForeignKey(verbose_name=_('Owner user'))
+    title         = models.CharField(_('Title'), max_length=200)
+    is_ok         = models.BooleanField(_('Done ?'), editable=False, default=False)
+    reminded      = models.BooleanField(_('Notification sent'), editable=False, default=False)  # Needed by creme_core.core.reminder
+    description   = models.TextField(_('Description'), blank=True)
+    creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
+    deadline      = models.DateTimeField(_('Deadline'), blank=True, null=True)
+    user          = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
-    entity_content_type = ForeignKey(ContentType, related_name='todo_entity_set', editable=False, on_delete=CASCADE)
-    entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
-    creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
+    # entity_content_type = models.ForeignKey(ContentType, related_name='todo_entity_set', editable=False, on_delete=models.CASCADE)
+    # entity_id           = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
+    # creme_entity        = GenericForeignKey(ct_field='entity_content_type', fk_field='entity_id')
+    entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
+    entity              = models.ForeignKey(CremeEntity,  related_name='assistants_todos',
+                                            editable=False, on_delete=models.CASCADE,
+                                           ).set_tags(viewable=False)
+    creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
     class Meta:
         app_label = 'assistants'
@@ -64,8 +66,10 @@ class ToDo(CremeModel):
 
     @staticmethod
     def get_todos_for_home(user):
-        return ToDo.objects.filter(user__in=[user] + user.teams).select_related('user')
+        return ToDo.objects.filter(user__in=[user] + user.teams, entity__is_deleted=False)\
+                           .select_related('user')
 
+    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_todos_for_ctypes(ct_ids, user):
         return ToDo.objects.filter(entity_content_type__in=ct_ids,

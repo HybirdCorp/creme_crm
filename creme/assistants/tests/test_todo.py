@@ -672,6 +672,9 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         todo3 = create_todo(title='Todo#3', user=team1)
         create_todo(title='Todo#4', user=team2)  # No (other team)
 
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
+        create_todo(title='Todo#5', creme_entity=entity2)  # No (deleted entity)
+
         todos = ToDo.get_todos_for_home(user=user)
         self.assertIsInstance(todos, QuerySet)
         self.assertEqual(ToDo, todos.model)
