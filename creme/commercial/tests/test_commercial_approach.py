@@ -258,6 +258,41 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         orga.delete()
         self.assertDoesNotExist(comapp)
 
+    def test_get_approaches01(self):
+        "Related to entity"
+        user = self.user
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        nerv  = create_orga(name='NERV')
+        seele = create_orga(name='Seele')
+
+        create_commapp = CommercialApproach.objects.create
+        commapp1 = create_commapp(title='Commapp #1', creme_entity=nerv)
+        create_commapp(title='Commapp #2', creme_entity=seele)
+
+        self.assertEqual([commapp1],
+                         list(CommercialApproach.get_approaches(nerv.id))
+                        )
+
+    def test_get_approaches02(self):
+        "Not related to entity"
+        user = self.user
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        nerv  = create_orga(name='NERV')
+        seele = create_orga(name='Seele', is_deleted=True)
+
+        misato = Contact.objects.create(user=user, last_name='Katsuragi', first_name='Misato')
+
+        create_commapp = CommercialApproach.objects.create
+        commapp1 = create_commapp(title='Commapp #1', creme_entity=nerv)
+        create_commapp(title='Commapp #2', creme_entity=seele)
+        commapp3 = create_commapp(title='Commapp #2', creme_entity=misato)
+
+        self.assertEqual([commapp1, commapp3],
+                         list(CommercialApproach.get_approaches().order_by('id'))
+                        )
+
     # @override_settings(BLOCK_SIZE=5) useless, because the setting value is already read when we override this
     @skipIfCustomOrganisation
     @skipIfCustomContact
@@ -359,11 +394,11 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(messages))
 
         message = messages[0]
-        self.assertEqual(_(u"[CremeCRM] The organisation «{}» seems neglected").format(customer),
+        self.assertEqual(_('[CremeCRM] The organisation «{}» seems neglected').format(customer),
                          message.subject
                         )
-        self.assertEqual(_(u"It seems you haven't created a commercial approach "
-                           u"for the organisation «{orga}» since {delay} days.").format(
+        self.assertEqual(_("It seems you haven't created a commercial approach "
+                           "for the organisation «{orga}» since {delay} days.").format(
                                 orga=customer,
                                 delay=30,
                             ),
@@ -496,8 +531,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(jresults))
 
         jresult = jresults[0]
-        self.assertEqual([_(u'An error has occurred while sending emails'),
-                          _(u'Original error: {}').format(err_msg),
+        self.assertEqual([_('An error has occurred while sending emails'),
+                          _('Original error: {}').format(err_msg),
                          ],
                          jresult.messages
                         )

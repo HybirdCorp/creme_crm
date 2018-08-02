@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,11 @@
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import pre_delete, post_save
+from django.db.models.signals import post_save  # pre_delete
 from django.dispatch import receiver
 
 from creme.creme_core.models import Relation, CremeEntity
-from creme.creme_core.signals import pre_merge_related
+# from creme.creme_core.signals import pre_merge_related
 
 from creme.activities import get_activity_model
 from creme.activities.constants import REL_OBJ_ACTIVITY_SUBJECT
@@ -60,16 +60,16 @@ def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
                 create_relation(object_entity=relation.object_entity)
 
 
-@receiver(pre_delete, sender=CremeEntity)
-def dispose_comapps(sender, instance, **kwargs):
-    CommercialApproach.objects.filter(entity_id=instance.id).delete()
-
-
-@receiver(pre_merge_related)
-def handle_merge(sender, other_entity, **kwargs):
-    for commapp in CommercialApproach.objects.filter(entity_id=other_entity.id):
-        commapp.creme_entity = sender
-        commapp.save()
+# @receiver(pre_delete, sender=CremeEntity)
+# def dispose_comapps(sender, instance, **kwargs):
+#     CommercialApproach.objects.filter(entity_id=instance.id).delete()
+#
+#
+# @receiver(pre_merge_related)
+# def handle_merge(sender, other_entity, **kwargs):
+#     for commapp in CommercialApproach.objects.filter(entity_id=other_entity.id):
+#         commapp.creme_entity = sender
+#         commapp.save()
 
 
 @receiver(post_save, sender=get_activity_model())
