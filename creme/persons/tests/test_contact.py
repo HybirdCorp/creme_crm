@@ -90,7 +90,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         build_contact = partial(Contact, last_name=last_name)
         self.assertEqual(last_name, str(build_contact()))
         self.assertEqual(last_name, str(build_contact(first_name='')))
-        self.assertEqual(_(u'{first_name} {last_name}').format(
+        self.assertEqual(_('{first_name} {last_name}').format(
                                 first_name=first_name,
                                 last_name=last_name,
                             ),
@@ -98,7 +98,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                         )
 
         captain = Civility.objects.create(title='Captain')  # No shortcut
-        self.assertEqual(_(u'{first_name} {last_name}').format(
+        self.assertEqual(_('{first_name} {last_name}').format(
                                 first_name=first_name,
                                 last_name=last_name,
                             ),
@@ -107,7 +107,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         captain.shortcut = shortcut = 'Cpt'
         captain.save()
-        self.assertEqual(_(u'{civility} {first_name} {last_name}').format(
+        self.assertEqual(_('{civility} {first_name} {last_name}').format(
                                 civility=shortcut,
                                 first_name=first_name,
                                 last_name=last_name,
@@ -185,12 +185,12 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         billing_address = contact.billing_address
         self.assertIsNotNone(billing_address)
         self.assertEqual(b_address,            billing_address.address)
-        self.assertEqual(_(u'Billing address'), billing_address.name)
+        self.assertEqual(_('Billing address'), billing_address.name)
 
         shipping_address = contact.shipping_address
         self.assertIsNotNone(shipping_address)
         self.assertEqual(s_address,             shipping_address.address)
-        self.assertEqual(_(u'Shipping address'), shipping_address.name)
+        self.assertEqual(_('Shipping address'), shipping_address.name)
 
         self.assertContains(response, b_address)
         self.assertContains(response, s_address)
@@ -382,7 +382,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertRaises(ValidationError) as cm:
             contact.full_clean()
 
-        self.assertEqual([_(u'This Contact is related to a user and must have a first name.')],
+        self.assertEqual([_('This Contact is related to a user and must have a first name.')],
                          cm.exception.messages
                         )
 
@@ -391,7 +391,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertRaises(ValidationError) as cm:
             contact.full_clean()
 
-        self.assertEqual([_(u'This Contact is related to a user and must have an e-mail address.')],
+        self.assertEqual([_('This Contact is related to a user and must have an e-mail address.')],
                          cm.exception.messages
                         )
 
@@ -502,8 +502,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                            }
                                      )
         self.assertFormError(response, 'form', 'user',
-                             _(u'You are not allowed to link with the «{models}» of this user.').format(
-                                    models=_(u'Contacts'),
+                             _('You are not allowed to link with the «{models}» of this user.').format(
+                                    models=_('Contacts'),
                                 )
                             )
 
@@ -524,23 +524,23 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                         )
 
         create_rtype = RelationType.create
-        rtype1 = create_rtype(('persons-subject_test_rtype1', u'RType #1',     [Organisation]),
-                              ('persons-object_test_rtype1',  u'Rtype sym #1', [Contact]),
+        rtype1 = create_rtype(('persons-subject_test_rtype1', 'RType #1',     [Organisation]),
+                              ('persons-object_test_rtype1',  'Rtype sym #1', [Contact]),
                              )[0]
         self.assertGET200(self._build_addrelated_uri(orga.id, rtype1.id))
 
-        rtype2 = create_rtype(('persons-subject_test_badrtype1', u'Bad RType #1',     [Organisation]),
-                              ('persons-object_test_badrtype1',  u'Bad RType sym #1', [Document]),  # <==
+        rtype2 = create_rtype(('persons-subject_test_badrtype1', 'Bad RType #1',     [Organisation]),
+                              ('persons-object_test_badrtype1',  'Bad RType sym #1', [Document]),  # <==
                              )[0]
         self.assertGET409(self._build_addrelated_uri(orga.id, rtype2.id))
 
-        rtype3 = create_rtype(('persons-subject_test_badrtype2', u'Bad RType #2',     [Document]),  # <==
-                              ('persons-object_test_badrtype2',  u'Bad RType sym #2', [Contact]),
+        rtype3 = create_rtype(('persons-subject_test_badrtype2', 'Bad RType #2',     [Document]),  # <==
+                              ('persons-object_test_badrtype2',  'Bad RType sym #2', [Contact]),
                              )[0]
         self.assertGET409(self._build_addrelated_uri(orga.id, rtype3.id))
 
-        rtype4 = create_rtype(('persons-subject_test_badrtype3', u'Bad RType #3',     [Organisation]),
-                              ('persons-object_test_badrtype3',  u'Bad RType sym #3', [Contact]),
+        rtype4 = create_rtype(('persons-subject_test_badrtype3', 'Bad RType #3',     [Organisation]),
+                              ('persons-object_test_badrtype3',  'Bad RType sym #3', [Contact]),
                               is_internal=True,  # <==
                              )[0]
         self.assertGET409(self._build_addrelated_uri(orga.id, rtype4.id))
@@ -551,8 +551,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Acme')
-        rtype = RelationType.create(('persons-subject_test_linked', u'is the employee of the month at', [Contact]),
-                                    ('persons-object_test_linked',  u'has the employee of the month',   [Organisation]),
+        rtype = RelationType.create(('persons-subject_test_linked', 'is the employee of the month at', [Contact]),
+                                    ('persons-object_test_linked',  'has the employee of the month',   [Organisation]),
                                     is_internal=True,
                                    )[0]
 
@@ -566,7 +566,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                             }
                                     )
         self.assertFormError(response, 'form', 'relation',
-                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                             _('Select a valid choice. That choice is not one of the available choices.')
                             )
 
     @skipIfCustomAddress
@@ -664,7 +664,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNoException():
             orga_f = response.context['formset'][0].fields['organisation']
 
-        self.assertEqual(_(u'If no organisation is found, a new one will be created.'),
+        self.assertEqual(_('If no organisation is found, a new one will be created.'),
                          orga_f.help_text
                         )
         self.assertIsInstance(orga_f.widget, TextInput)
@@ -673,7 +673,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         response = self.client.post(url, data={'form-TOTAL_FORMS':   len(data),
                                                'form-INITIAL_FORMS': 0,
-                                               'form-MAX_NUM_FORMS': u'',
+                                               'form-MAX_NUM_FORMS': '',
                                                'form-0-user':        user.id,
                                                'form-0-first_name':  data[0][0],
                                                'form-0-last_name':   data[0][1],
@@ -710,7 +710,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_quickform_url(len(data)),
                                     data={'form-TOTAL_FORMS':      len(data),
                                           'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-MAX_NUM_FORMS':    '',
                                           'form-0-user':           self.user.id,
                                           'form-0-first_name':     data[0][0],
                                           'form-0-last_name':      data[0][1],
@@ -755,7 +755,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_quickform_url(len(data)),
                                     data={'form-TOTAL_FORMS':      len(data),
                                           'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-MAX_NUM_FORMS':    '',
                                           'form-0-user':           user.id,
                                           'form-0-first_name':     data[0][0],
                                           'form-0-last_name':      data[0][1],
@@ -797,14 +797,14 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNoException():
             orga_f = response.context['formset'][0].fields['organisation']
 
-        self.assertEqual(_(u'Enter the name of an existing Organisation.'),
+        self.assertEqual(_('Enter the name of an existing Organisation.'),
                          str(orga_f.help_text)
                         )
 
         response = self.client.post(url,
                                     data={'form-TOTAL_FORMS':      1,
                                           'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-MAX_NUM_FORMS':    '',
                                           'form-0-user':           user.id,
                                           'form-0-first_name':     'Faye',
                                           'form-0-last_name':      'Valentine',
@@ -812,7 +812,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertFormsetError(response, 'formset', 0, 'organisation',
-                                [_(u'You are not allowed to create an Organisation.')]
+                                [_('You are not allowed to create an Organisation.')]
                                )
         self.assertEqual(contact_count, Contact.objects.count())
         self.assertEqual(orga_count, Organisation.objects.count())
@@ -839,7 +839,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertIsInstance(orga_f.widget, Label)
         self.assertFalse(str(orga_f.help_text))
-        self.assertEqual(_(u'You are not allowed to link with an Organisation'),
+        self.assertEqual(_('You are not allowed to link with an Organisation'),
                          orga_f.initial
                         )
 
@@ -848,7 +848,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.client.post(url,
                          data={'form-TOTAL_FORMS':      1,
                                'form-INITIAL_FORMS':    0,
-                               'form-MAX_NUM_FORMS':    u'',
+                               'form-MAX_NUM_FORMS':    '',
                                'form-0-user':           user.id,
                                'form-0-first_name':     first_name,
                                'form-0-last_name':      last_name,
@@ -879,7 +879,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             orga_f = response.context['formset'][0].fields['organisation']
 
         self.assertIsInstance(orga_f.widget, Label)
-        self.assertEqual(_(u'You are not allowed to link with a Contact'),
+        self.assertEqual(_('You are not allowed to link with a Contact'),
                          orga_f.initial
                         )
 
@@ -905,15 +905,15 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         last_name = 'Valentine'
         data = {'form-TOTAL_FORMS':     1,
                 'form-INITIAL_FORMS':   0,
-                'form-MAX_NUM_FORMS':   u'',
+                'form-MAX_NUM_FORMS':   '',
                 'form-0-user':          self.other_user.id,
                 'form-0-first_name':    'Faye',
                 'form-0-last_name':     'Valentine',
                }
         response = self.client.post(url, data=dict(data, **{'form-0-organisation': 'Bebop'}))
         self.assertFormsetError(response, 'formset', 0, None,
-                                [_(u'You are not allowed to link with the «{models}» of this user.').format(
-                                        models=_(u'Contacts'),
+                                [_('You are not allowed to link with the «{models}» of this user.').format(
+                                        models=_('Contacts'),
                                     )
                                 ]
                                )
@@ -935,7 +935,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_quickform_url(1),
                                     data={'form-TOTAL_FORMS':      1,
                                           'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-MAX_NUM_FORMS':    '',
                                           'form-0-user':           user.id,
                                           'form-0-first_name':     'Faye',
                                           'form-0-last_name':      'Valentine',
@@ -943,7 +943,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertFormsetError(response, 'formset', 0, 'organisation',
-                                [_(u'Several Organisations with this name have been found.')]
+                                [_('Several Organisations with this name have been found.')]
                                )
 
     @skipIfCustomOrganisation
@@ -965,7 +965,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_quickform_url(1),
                                     data={'form-TOTAL_FORMS':      1,
                                           'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-MAX_NUM_FORMS':    '',
                                           'form-0-user':           user.id,
                                           'form-0-first_name':     first_name,
                                           'form-0-last_name':      last_name,
@@ -994,7 +994,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_quickform_url(1),
                                     data={'form-TOTAL_FORMS':      1,
                                           'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-MAX_NUM_FORMS':    '',
                                           'form-0-user':           user.id,
                                           'form-0-first_name':     'Faye',
                                           'form-0-last_name':      'Valentine',
@@ -1002,7 +1002,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertFormsetError(response, 'formset', 0, 'organisation',
-                                _(u'No linkable Organisation found.')
+                                _('No linkable Organisation found.')
                                )
 
     def test_quickform11(self):
@@ -1022,7 +1022,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_quickform_url(1),
                                     data={'form-TOTAL_FORMS':      1,
                                           'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-MAX_NUM_FORMS':    '',
                                           'form-0-user':           self.other_user.id,
                                           'form-0-first_name':     'Faye',
                                           'form-0-last_name':      'Valentine',
@@ -1030,8 +1030,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertFormsetError(response, 'formset', 0, None,
-                                _(u'You are not allowed to link with the «{models}» of this user.').format(
-                                        models=_(u'Organisations'),
+                                _('You are not allowed to link with the «{models}» of this user.').format(
+                                        models=_('Organisations'),
                                     )
                                )
 
@@ -1050,7 +1050,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_quickform_url(1),
                                     data={'form-TOTAL_FORMS':    1,
                                           'form-INITIAL_FORMS':  0,
-                                          'form-MAX_NUM_FORMS':  u'',
+                                          'form-MAX_NUM_FORMS':  '',
                                           'form-0-user':         user.id,
                                           'form-0-first_name':   first_name,
                                           'form-0-last_name':    last_name,
@@ -1072,11 +1072,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         contact02 = create_contact(first_name='FAYE', last_name='VALENTINE')
 
         create_address = Address.objects.create
-        bill_addr01 = create_address(name="Billing address 01",
-                                     address="BA1 - Address", po_box="BA1 - PO box",
-                                     zipcode="BA1 - Zip code", city="BA1 - City",
-                                     department="BA1 - Department",
-                                     state="BA1 - State", country="BA1 - Country",
+        bill_addr01 = create_address(name='Billing address 01',
+                                     address='BA1 - Address', po_box='BA1 - PO box',
+                                     zipcode='BA1 - Zip code', city='BA1 - City',
+                                     department='BA1 - Department',
+                                     state='BA1 - State', country='BA1 - Country',
                                      owner=contact01,
                                     )
         # NB: no shipping address for contact01
@@ -1084,14 +1084,14 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         contact01.save()
 
         # NB: no billing address for contact02
-        ship_addr02 = create_address(name="Shipping address 02",
-                                     address="SA2 - Address", po_box="SA2 - PO box",
-                                     zipcode="SA2 - Zip code", city="SA2 - City",
-                                     department="SA2 - Department",
-                                     state="SA2 - State", country="SA2 - Country",
+        ship_addr02 = create_address(name='Shipping address 02',
+                                     address='SA2 - Address', po_box='SA2 - PO box',
+                                     zipcode='SA2 - Zip code', city='SA2 - City',
+                                     department='SA2 - Department',
+                                     state='SA2 - State', country='SA2 - Country',
                                      owner=contact02,
                                     )
-        other_addr02 = create_address(name="Other address 02", owner=contact02)
+        other_addr02 = create_address(name='Other address 02', owner=contact02)
 
         contact02.shipping_address = ship_addr02
         contact02.save()
@@ -1225,11 +1225,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         contact01 = create_contact(first_name='Faye', last_name='Valentine')
         contact02 = create_contact(first_name='FAYE', last_name='VALENTINE')
 
-        ship_addr02 = Address.objects.create(name="Shipping address 02",
-                                             address="SA2 - Address", po_box="SA2 - PO box",
-                                             zipcode="SA2 - Zip code", city="SA2 - City",
-                                             department="SA2 - Department",
-                                             state="SA2 - State", country="SA2 - Country",
+        ship_addr02 = Address.objects.create(name='Shipping address 02',
+                                             address='SA2 - Address', po_box='SA2 - PO box',
+                                             zipcode='SA2 - Zip code', city='SA2 - City',
+                                             department='SA2 - Department',
+                                             state='SA2 - State', country='SA2 - Country',
                                              owner=contact02,
                                             )
         contact02.shipping_address = ship_addr02
@@ -1322,9 +1322,19 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNoException():
             contact01 = self.refresh(contact01)
 
-        self.assertFalse(Address.objects.filter(object_id=contact01.id))
+        # self.assertFalse(Address.objects.filter(object_id=contact01.id))
+        # self.assertIsNone(contact01.billing_address)
+        # self.assertIsNone(contact01.shipping_address)
+        # self.assertDoesNotExist(ship_addr02)
+
         self.assertIsNone(contact01.billing_address)
-        self.assertIsNone(contact01.shipping_address)
+
+        merged_ship_addr = contact01.shipping_address
+        self.assertIsNotNone(merged_ship_addr)
+        self.assertEqual(ship_addr02.id, merged_ship_addr.id)
+        self.assertEqual(contact01, merged_ship_addr.owner)
+        self.assertFalse(merged_ship_addr.address)
+        self.assertFalse(merged_ship_addr.city)
 
     def test_merge03(self):
         "Merge 1 Contact which represents a user with another Contact"
@@ -1356,7 +1366,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                }
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', None,
-                             _(u'This Contact is related to a user and must have an e-mail address.')
+                             _('This Contact is related to a user and must have an e-mail address.')
                             )
 
         response = self.client.post(url, follow=True,
@@ -1411,7 +1421,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                }
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', None,
-                             _(u'This Contact is related to a user and must have an e-mail address.')
+                             _('This Contact is related to a user and must have an e-mail address.')
                             )
 
         response = self.client.post(url, follow=True,
@@ -1506,8 +1516,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         count = Contact.objects.count()
-        lines = [("Rei",   "Ayanami"),
-                 ("Asuka", "Langley"),
+        lines = [('Rei',   'Ayanami'),
+                 ('Asuka', 'Langley'),
                 ]
 
         doc = self._build_csv_doc(lines)
@@ -1682,10 +1692,10 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         kirika = user.linked_contact
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(u'<a href="{}">{}</a>'.format(kirika.get_absolute_url(), kirika),
+        self.assertEqual('<a href="{}">{}</a>'.format(kirika.get_absolute_url(), kirika),
                          get_html_val(deunan, 'user', user)
                         )
-        self.assertEqual(u'<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
+        self.assertEqual('<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
                          get_html_val(deunan, 'is_user', user)
                         )
 
