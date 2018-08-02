@@ -19,32 +19,39 @@
 ################################################################################
 
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey, CASCADE
+# from django.contrib.contenttypes.fields import GenericForeignKey
+# from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeModel
-from creme.creme_core.models.fields import CreationDateTimeField
+from creme.creme_core import models as creme_models
+from creme.creme_core.models import fields as creme_fields
 
 
-class CommercialApproach(CremeModel):
-    title          = CharField(_(u'Title'), max_length=200)
-    ok_or_in_futur = BooleanField(_(u'Done?'), editable=False, default=False)  # TODO: Future ?
-    description    = TextField(_(u'Description'), blank=True)
-    creation_date  = CreationDateTimeField(_(u'Creation date'), editable=False)
+class CommercialApproach(creme_models.CremeModel):
+    title          = models.CharField(_('Title'), max_length=200)
+    ok_or_in_futur = models.BooleanField(_('Done?'), editable=False, default=False)  # TODO: Future ?
+    description    = models.TextField(_('Description'), blank=True)
+    creation_date  = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
 
-    related_activity = ForeignKey(settings.ACTIVITIES_ACTIVITY_MODEL, null=True, editable=False, on_delete=CASCADE)
+    related_activity = models.ForeignKey(settings.ACTIVITIES_ACTIVITY_MODEL, null=True,
+                                         editable=False, on_delete=models.CASCADE,
+                                        )
 
-    # TODO: use real ForeignKey to CremeEntity ( + remove the signal handlers)
-    entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set", editable=False, on_delete=CASCADE)
-    entity_id           = PositiveIntegerField(editable=False)  # .set_tags(viewable=False) uncomment if it becomes an auxiliary (get_related_entity())
-    creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
+    # entity_content_type = models.ForeignKey(ContentType, related_name="comapp_entity_set", editable=False, on_delete=models.CASCADE)
+    # entity_id           = models.PositiveIntegerField(editable=False)  # .set_tags(viewable=False) uncomment if it becomes an auxiliary (get_related_entity())
+    # creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
+    entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
+    entity              = models.ForeignKey(creme_models.CremeEntity, related_name='commercial_approaches',
+                                            editable=False, on_delete=models.CASCADE,
+                                           )  # .set_tags(viewable=False) uncomment if it becomes an auxiliary (get_related_entity())
+    creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
+
 
     class Meta:
         app_label = 'commercial'
-        verbose_name = _(u'Commercial approach')
-        verbose_name_plural = _(u'Commercial approaches')
+        verbose_name = _('Commercial approach')
+        verbose_name_plural = _('Commercial approaches')
 
     def __str__(self):
         return self.title
@@ -54,11 +61,10 @@ class CommercialApproach(CremeModel):
         queryset = CommercialApproach.objects.filter(ok_or_in_futur=False) \
                                              .select_related('related_activity')
 
-        if entity_pk:
-            queryset = queryset.filter(entity_id=entity_pk)
+        return queryset.filter(entity_id=entity_pk) if entity_pk else \
+               queryset.exclude(entity__is_deleted=True)
 
-        return queryset
-
+    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_approaches_for_ctypes(ct_ids):
         return CommercialApproach.objects.filter(entity_content_type__in=ct_ids, ok_or_in_futur=False) \
