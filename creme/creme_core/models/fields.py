@@ -34,12 +34,12 @@ from ..utils.date_period import date_period_registry, DatePeriod
 
 
 # TODO: add a form field ?? (validation)
-# TODO: fix the max_lenght value ?,
+# TODO: fix the max_length value ?,
 class PhoneField(CharField):
     pass
 
 
-# TODO: Make a real api for this
+# TODO: Make a real API for this
 class DurationField(CharField):
     pass
 

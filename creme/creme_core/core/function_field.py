@@ -57,6 +57,16 @@ class FunctionFieldDecimal(FunctionFieldResult):
     def for_csv(self):
         return self._format_decimal()
 
+
+class FunctionFieldLink(FunctionFieldResult):
+    def __init__(self, label, url):
+        super().__init__(label)
+        self._url = url
+
+    def for_html(self):
+        return format_html('<a href="{}">{}</a>', self._url, self._data)
+
+
 # TODO: other types (date, datetime...)
 
 
@@ -69,7 +79,8 @@ class FunctionField:
     verbose_name = ''  # Verbose name (used by HeaderFilter)
     has_filter   = False  # See EntityCell.has_a_filter
     is_hidden    = False  # See EntityCell.is_hidden
-    choices      = None  # Choices for list_view filtering. Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
+    choices      = None  # Choices for list_view filtering.
+                         # Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
     result_type  = FunctionFieldResult  # TODO: what about FunctionFieldResultsList([FunctionFieldDecimal(...), ...])
                                         #         ==> FunctionFieldResultsList or FunctionFieldDecimal ??
 

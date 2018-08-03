@@ -225,7 +225,7 @@ class ListViewTestCase(ViewsTestCase):
         rtype_cell_content = content[5]
         self.assertIsInstance(rtype_cell_content, list)
         self.assertEqual(1, len(rtype_cell_content))
-        self.assertEqual(u'<a href="/tests/contact/{id}">{value}</a>'.format(id=spike.id, value=spike).encode(),
+        self.assertEqual('<a href="/tests/contact/{id}">{value}</a>'.format(id=spike.id, value=spike).encode(),
                          html_tostring(rtype_cell_content[0]).strip()
                         )
 
@@ -234,7 +234,9 @@ class ListViewTestCase(ViewsTestCase):
         ptype_cell_content = content[6]
         self.assertIsInstance(ptype_cell_content, list)
         self.assertEqual(1, len(ptype_cell_content))
-        self.assertEqual(u'<ul><li>{}</li></ul>'.format(ptype1.text).encode(),
+        self.assertEqual('<ul><li><a href="{}">{}</a></li></ul>'.format(
+                                ptype1.get_absolute_url(), ptype1.text,
+                            ).encode(),
                          html_tostring(ptype_cell_content[0]).strip()
                         )
         self.assertNotIn(ptype2.text, content)  # NB: not really useful...

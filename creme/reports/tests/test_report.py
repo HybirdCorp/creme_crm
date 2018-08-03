@@ -210,7 +210,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         field = columns[3]
         self.assertEqual('get_pretty_properties', field.name)
-        self.assertEqual(_('Properties'),        field.title)
+        self.assertEqual(_('Properties'),         field.title)
         self.assertEqual(RFT_FUNCTION,            field.type)
 
         field = columns[4]

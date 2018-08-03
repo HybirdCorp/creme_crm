@@ -369,8 +369,13 @@ class EntityTestCase(CremeTestCase):
 
         self.assertIsInstance(result, FunctionFieldResult)
         self.assertIsInstance(result, FunctionFieldResultsList)
-        self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result.for_html())
-        self.assertEqual('Awesome/Wonderful',                           result.for_csv())
+        self.assertEqual('<ul><li><a href="{}">{}</a></li><li><a href="{}">{}</a></li></ul>'.format(
+                                ptype1.get_absolute_url(), ptype1.text,
+                                ptype2.get_absolute_url(), ptype2.text,
+                            ),
+                         result.for_html()
+                        )
+        self.assertEqual('Awesome/Wonderful', result.for_csv())
 
     # def test_prettypropertiesfield02(self):
     def test_properties_functionfield02(self):  # Prefetch with populate_entities()
@@ -396,8 +401,17 @@ class EntityTestCase(CremeTestCase):
             result1 = pp_ff(entity1, user)
             result2 = pp_ff(entity2, user)
 
-        self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result1.for_html())
-        self.assertEqual('<ul><li>Wonderful</li></ul>',                 result2.for_html())
+        self.assertEqual('<ul><li><a href="{}">{}</a></li><li><a href="{}">{}</a></li></ul>'.format(
+                                ptype1.get_absolute_url(), ptype1.text,
+                                ptype2.get_absolute_url(), ptype2.text,
+                            ),
+                         result1.for_html()
+                        )
+        self.assertEqual('<ul><li><a href="{}">{}</a></li></ul>'.format(
+                                ptype2.get_absolute_url(), ptype2.text,
+                            ),
+                         result2.for_html()
+                        )
 
     def test_customfield_value(self):
         create_field = partial(CustomField.objects.create,

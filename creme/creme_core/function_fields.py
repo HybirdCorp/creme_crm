@@ -21,7 +21,7 @@
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
-from .core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+from .core.function_field import FunctionField, FunctionFieldLink, FunctionFieldResultsList
 from .models import CremeEntity
 
 
@@ -38,7 +38,7 @@ class PropertiesField(FunctionField):
 
     def __call__(self, entity, user):
         return FunctionFieldResultsList(
-            FunctionFieldResult(str(p))
+            FunctionFieldLink(label=str(p), url=p.type.get_absolute_url())
                 for p in entity.get_properties()
         )
 
