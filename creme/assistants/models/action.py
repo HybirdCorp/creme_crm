@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 # from django.contrib.contenttypes.fields import GenericForeignKey
 # from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -28,6 +30,11 @@ from creme.creme_core import models as creme_models
 from creme.creme_core.models import fields as creme_fields
 
 
+class ActionManager(models.Manager):
+    def filter_by_user(self, user):
+        return self.filter(user__in=[user] + user.teams)
+
+
 class Action(creme_models.CremeModel):
     title             = models.CharField(_('Title'), max_length=200)
     is_ok             = models.BooleanField(_('Expected reaction has been done'), editable=False, default=False)
@@ -36,6 +43,7 @@ class Action(creme_models.CremeModel):
     expected_reaction = models.TextField(_('Target action'), blank=True)
     deadline          = models.DateTimeField(_('Deadline'))
     validation_date   = models.DateTimeField(_('Validation date'), blank=True, null=True, editable=False)
+    user              = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
     # entity_content_type = models.ForeignKey(ContentType, related_name='action_entity_set', editable=False, on_delete=models.CASCADE)
     # entity_id           = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
@@ -46,7 +54,7 @@ class Action(creme_models.CremeModel):
                                            ).set_tags(viewable=False)
     creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
-    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+    objects = ActionManager()
 
     class Meta:
         app_label = 'assistants'
@@ -61,35 +69,39 @@ class Action(creme_models.CremeModel):
 
     @staticmethod
     def get_actions_it(entity, today):
+        warnings.warn('Action.get_actions_it() is deprecated.', DeprecationWarning)
         return Action.objects.filter(entity_id=entity.id, is_ok=False, deadline__gt=today) \
                              .select_related('user')
 
     @staticmethod
     def get_actions_nit(entity, today):
+        warnings.warn('Action.get_actions_nit() is deprecated.', DeprecationWarning)
         return Action.objects.filter(entity_id=entity.id, is_ok=False, deadline__lte=today) \
                              .select_related('user')
 
     @staticmethod
     def get_actions_it_for_home(user, today):
+        warnings.warn('Action.get_actions_it_for_home() is deprecated.', DeprecationWarning)
         return Action.objects.filter(is_ok=False,
                                      deadline__gt=today,
                                      user__in=[user] + user.teams,
-                                     entity__is_deleted=False,
+                                     # entity__is_deleted=False,
                                     ) \
                              .select_related('user')
 
     @staticmethod
     def get_actions_nit_for_home(user, today):
+        warnings.warn('Action.get_actions_nit_for_home() is deprecated.', DeprecationWarning)
         return Action.objects.filter(is_ok=False,
                                      deadline__lte=today,
                                      user__in=[user] + user.teams,
-                                     entity__is_deleted=False,
+                                     # entity__is_deleted=False,
                                     ) \
                              .select_related('user')
 
-    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_actions_it_for_ctypes(ct_ids, user, today):
+        warnings.warn('Action.get_actions_it_for_ctypes() is deprecated.', DeprecationWarning)
         return Action.objects.filter(entity_content_type__in=ct_ids,
                                      user__in=[user] + user.teams,
                                      is_ok=False,
@@ -97,9 +109,9 @@ class Action(creme_models.CremeModel):
                                     ) \
                              .select_related('user')
 
-    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_actions_nit_for_ctypes(ct_ids, user, today):
+        warnings.warn('Action.get_actions_nit_for_ctypes() is deprecated.', DeprecationWarning)
         return Action.objects.filter(entity_content_type__in=ct_ids,
                                      user__in=[user] + user.teams,
                                      is_ok=False,

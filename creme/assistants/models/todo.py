@@ -19,6 +19,7 @@
 ################################################################################
 
 # from collections import defaultdict
+import warnings
 
 # from django.contrib.contenttypes.fields import GenericForeignKey
 # from django.contrib.contenttypes.models import ContentType
@@ -29,6 +30,11 @@ from django.utils.translation import ugettext_lazy as _
 # from creme.creme_core.core.function_field import (FunctionField,
 #         FunctionFieldResult, FunctionFieldResultsList)
 from creme.creme_core.models import CremeModel, CremeEntity, fields as creme_fields
+
+
+class ToDoManager(models.Manager):
+    def filter_by_user(self, user):
+        return self.filter(user__in=[user] + user.teams)
 
 
 class ToDo(CremeModel):
@@ -49,6 +55,8 @@ class ToDo(CremeModel):
                                            ).set_tags(viewable=False)
     creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
+    objects = ToDoManager()
+
     class Meta:
         app_label = 'assistants'
         verbose_name = _('Todo')
@@ -62,16 +70,23 @@ class ToDo(CremeModel):
 
     @staticmethod
     def get_todos(entity):
+        warnings.warn('ToDo.get_todos() is deprecated.', DeprecationWarning)
         return ToDo.objects.filter(entity_id=entity.id).select_related('user')
 
     @staticmethod
     def get_todos_for_home(user):
-        return ToDo.objects.filter(user__in=[user] + user.teams, entity__is_deleted=False)\
+        warnings.warn('ToDo.get_todos_for_home() is deprecated ; '
+                      'use ToDo.objects.filter_by_user() instead.',
+                      DeprecationWarning
+                     )
+        return ToDo.objects.filter(user__in=[user] + user.teams,
+                                   # entity__is_deleted=False
+                                  )\
                            .select_related('user')
 
-    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_todos_for_ctypes(ct_ids, user):
+        warnings.warn('ToDo.get_todos_for_ctypes() is deprecated.', DeprecationWarning)
         return ToDo.objects.filter(entity_content_type__in=ct_ids,
                                    user__in=[user] + user.teams
                                   ).select_related('user')

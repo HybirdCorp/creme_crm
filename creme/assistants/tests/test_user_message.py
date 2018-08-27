@@ -225,15 +225,15 @@ class UserMessageTestCase(AssistantsTestCase):
                                            )
         entity1 = self.entity
         entity2 = FakeOrganisation.objects.create(user=self.user, name='Thousand sunny')
-        entity3 = FakeOrganisation.objects.create(user=self.user, name='World gvt')
+        # entity3 = FakeOrganisation.objects.create(user=self.user, name='World gvt')
 
         create_msg = self._create_usermessage
         create_msg('TITLE#1', 'BODY#1', priority, [self.other_user], entity1)
         create_msg('TITLE#2', 'BODY#2', priority, [user3],           entity1)
         create_msg('TITLE#3', 'BODY#3', priority, [user3],           entity2)
-        create_msg('TITLE#4', 'BODY#4', priority, [user3],           entity3)
+        # create_msg('TITLE#4', 'BODY#4', priority, [user3],           entity3)
 
-        entity3.trash()  # So the related messages will be avoided.
+        # entity3.trash()  # So the related messages will be avoided.
 
         self.assertEqual(['TITLE#2', 'TITLE#3'],
                          [msg.title for msg in UserMessage.get_messages_for_home(user3).order_by('id')]
