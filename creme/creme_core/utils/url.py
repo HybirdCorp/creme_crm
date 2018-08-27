@@ -41,11 +41,11 @@ class TemplateURLBuilder:
         You want something like '/my_app/list_elements/65/$count'.
 
         In your file my_app.urls.py your URL is declared as:
-            url(r'^list_elements/(?P<ctype_id>\d+)/(?P<count>\d+)$', my_views.lis_elements, name='list_my_app_elements'),
+            url(r'^list_elements/(?P<ctype_id>\d+)/(?P<count>\d+)$', my_views.list_elements, name='list_my_app_elements'),
 
         So you want to create a template-like URL for the parameter 'count' of the view (the 'ctype_id' is fixed).
             builder = TemplateURLBuilder(count=(TemplateURLBuilder.Int, '$count'))
-            url = builder.resolve(kwargs={'ctype_id': 65})
+            url = builder.resolve('list_my_app_elements', kwargs={'ctype_id': 65})
 
     BEWARE:
         The way the template is built uses string replacement with place holders. In order to avoid ambiguous
