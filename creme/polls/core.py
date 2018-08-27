@@ -142,7 +142,7 @@ class PollLineType:
 
 
 class IntPollLineType(PollLineType):
-    verbose_name = _(u'Integer')
+    verbose_name = _('Integer')
 
     def __init__(self, **kwargs):
         # super(IntPollLineType, self).__init__(**kwargs)
@@ -161,7 +161,7 @@ class IntPollLineType(PollLineType):
 
         if lower_bound is not None and upper_bound is not None:
             if lower_bound >= upper_bound:
-                raise ValidationError(ugettext(u'The upper bound must be greater than the lower bound.'),
+                raise ValidationError(ugettext('The upper bound must be greater than the lower bound.'),
                                       code='invalid_bounds',
                                      )
 
@@ -175,12 +175,12 @@ class IntPollLineType(PollLineType):
             if max_value is None:
                 return self.verbose_name
 
-            return ugettext(u'Integer lesser than {max_value}').format(max_value=max_value)
+            return ugettext('Integer lesser than {max_value}').format(max_value=max_value)
 
         if max_value is None:
-            return ugettext(u'Integer greater than {min_value}').format(min_value=min_value)
+            return ugettext('Integer greater than {min_value}').format(min_value=min_value)
 
-        return ugettext(u'Integer between {min_value} and {max_value}').format(
+        return ugettext('Integer between {min_value} and {max_value}').format(
                             min_value=min_value,
                             max_value=max_value,
         )
@@ -194,10 +194,14 @@ class IntPollLineType(PollLineType):
 
 
 class BoolPollLineType(PollLineType):
-    verbose_name = _(u'Boolean (Yes/No)')
-    _CHOICES     = {1: _('Yes'),
-                    0: _('No'),
-                   }
+    verbose_name = _('Boolean (Yes/No)')
+    # _CHOICES     = {1: _('Yes'),
+    #                 0: _('No'),
+    #                }
+    _CHOICES = OrderedDict([
+        (0, _('No')),
+        (1, _('Yes')),
+    ])
 
     def _cast_answer_4_decoding(self, answer):
         return self._CHOICES[answer]
@@ -217,7 +221,7 @@ class BoolPollLineType(PollLineType):
 
 
 class StringPollLineType(PollLineType):
-    verbose_name = _(u'String')
+    verbose_name = _('String')
 
     def _formfield(self, initial):
         return CharField(initial=initial)
@@ -227,7 +231,7 @@ class StringPollLineType(PollLineType):
 
 
 class TextPollLineType(PollLineType):
-    verbose_name = _(u'Text area')
+    verbose_name = _('Text area')
 
     def _formfield(self, initial):
         return CharField(widget=Textarea(), initial=initial)
@@ -237,7 +241,7 @@ class TextPollLineType(PollLineType):
 
 
 class DatePollLineType(PollLineType):
-    verbose_name = _(u'Date')
+    verbose_name = _('Date')
 
     def _cast_answer_4_encoding(self, answer):
         return date_2_dict(answer)
@@ -253,16 +257,16 @@ class DatePollLineType(PollLineType):
 
 
 class HourPollLineType(PollLineType):
-    verbose_name = _(u'Hour')
+    verbose_name = _('Hour')
 
     def formfield(self, initial):
         return IntegerField(min_value=0, max_value=23, initial=initial)
 
 
 class EnumPollLineType(PollLineType):
-    verbose_name     = _(u'Choice list')
-    _description     = _(u'Choice list ({})')
-    _description_del = _(u'Choice list ({choices}) (deleted: {del_choices})')
+    verbose_name     = _('Choice list')
+    _description     = _('Choice list ({})')
+    _description_del = _('Choice list ({choices}) (deleted: {del_choices})')
 
     def __init__(self, **kwargs):
         # super(EnumPollLineType, self).__init__(**kwargs)
@@ -270,7 +274,7 @@ class EnumPollLineType(PollLineType):
         choices = kwargs.get('choices') or ()
 
         if len(choices) < 2:
-            raise ValidationError(ugettext(u'Give 2 choices at least.'))
+            raise ValidationError(ugettext('Give 2 choices at least.'))
 
         self._args['choices'] = choices
 
@@ -322,9 +326,9 @@ class EnumPollLineType(PollLineType):
 
 
 class MultiEnumPollLineType(EnumPollLineType):
-    verbose_name     = _(u'Multiple choice list')
-    _description     = _(u'Multiple choice list ({})')
-    _description_del = _(u'Multiple choice list ({choices}) (deleted: {del_choices})')
+    verbose_name     = _('Multiple choice list')
+    _description     = _('Multiple choice list ({})')
+    _description_del = _('Multiple choice list ({choices}) (deleted: {del_choices})')
 
     def _cast_answer_4_decoding(self, answer):
         indices = set(answer)
@@ -350,9 +354,9 @@ class MultiEnumPollLineType(EnumPollLineType):
 
 
 class EnumOrStringPollLineType(EnumPollLineType):
-    verbose_name     = _(u'Choice list with free choice')
-    _description     = _(u'Choice list with free choice ({})')
-    _description_del = _(u'Choice list with free choice ({choices}) (deleted: {del_choices})')
+    verbose_name     = _('Choice list with free choice')
+    _description     = _('Choice list with free choice ({})')
+    _description_del = _('Choice list with free choice ({choices}) (deleted: {del_choices})')
 
     def _cast_answer_4_decoding(self, answer):
         if len(answer) == 1:
@@ -413,7 +417,7 @@ class EnumOrStringPollLineType(EnumPollLineType):
 
 
 class CommentPollLineType(PollLineType):
-    verbose_name = _(u'Comment')
+    verbose_name = _('Comment')
     editable     = False
 
     def get_stats(self, raw_answer):
@@ -421,14 +425,14 @@ class CommentPollLineType(PollLineType):
 
 
 POLL_LINE_TYPES = OrderedDict([
-                        (PollLineType.INT,            IntPollLineType),
-                        (PollLineType.BOOL,           BoolPollLineType),
-                        (PollLineType.STRING,         StringPollLineType),
-                        (PollLineType.TEXT,           TextPollLineType),
-                        (PollLineType.DATE,           DatePollLineType),
-                        (PollLineType.HOUR,           HourPollLineType),
-                        (PollLineType.ENUM,           EnumPollLineType),
-                        (PollLineType.MULTI_ENUM,     MultiEnumPollLineType),
-                        (PollLineType.ENUM_OR_STRING, EnumOrStringPollLineType),
-                        (PollLineType.COMMENT,        CommentPollLineType),
-                    ])
+    (PollLineType.INT,            IntPollLineType),
+    (PollLineType.BOOL,           BoolPollLineType),
+    (PollLineType.STRING,         StringPollLineType),
+    (PollLineType.TEXT,           TextPollLineType),
+    (PollLineType.DATE,           DatePollLineType),
+    (PollLineType.HOUR,           HourPollLineType),
+    (PollLineType.ENUM,           EnumPollLineType),
+    (PollLineType.MULTI_ENUM,     MultiEnumPollLineType),
+    (PollLineType.ENUM_OR_STRING, EnumOrStringPollLineType),
+    (PollLineType.COMMENT,        CommentPollLineType),
+])

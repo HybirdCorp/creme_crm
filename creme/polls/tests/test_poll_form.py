@@ -81,7 +81,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.client.post(self.build_addline_url(pform),
                                     data={'question': 'What are the main colors of a swallow ?',
                                           'type':     qtype,
-                                          'choices':  u'\r\n'.join(choices),
+                                          'choices':  '\r\n'.join(choices),
                                          }
                                     )
         self.assertNoFormError(response)
@@ -357,7 +357,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertStillExists(sub_section1)
         self.assertStillExists(sub_section2)
         self.assertStillExists(line)
-        self.assertEqual(_(u'There is at least one question in this section.'),
+        self.assertEqual(_('There is at least one question in this section.'),
                          smart_text(response.content)
                         )
 
@@ -391,7 +391,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsNone(line.section)
 
         plt = line.poll_line_type
-        desc = _(u'String')
+        desc = _('String')
         self.assertEqual(desc, plt.verbose_name)
         self.assertEqual(desc, plt.description)
 
@@ -418,7 +418,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsNone(line.section)
 
         plt = line.poll_line_type
-        desc = _(u'Text area')
+        desc = _('Text area')
         self.assertEqual(desc, plt.verbose_name)
         self.assertEqual(desc, plt.description)
 
@@ -442,7 +442,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsNone(line.type_args)
 
         plt = line.poll_line_type
-        desc = _(u'Integer')
+        desc = _('Integer')
         self.assertEqual(desc, plt.verbose_name)
         self.assertEqual(desc, plt.description)
 
@@ -464,7 +464,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         line = pform.lines.all()[0]
         self.assertEqual({'lower_bound': lower_bound}, json_load(line.type_args))
-        self.assertEqual(_(u'Integer greater than {min_value}').format(min_value=lower_bound),
+        self.assertEqual(_('Integer greater than {min_value}').format(min_value=lower_bound),
                          str(line.poll_line_type.description)
                         )
 
@@ -483,7 +483,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         line = pform.lines.all()[0]
         self.assertEqual({'upper_bound': upper_bound}, json_load(line.type_args))
-        self.assertEqual(_(u'Integer lesser than {max_value}').format(max_value=upper_bound),
+        self.assertEqual(_('Integer lesser than {max_value}').format(max_value=upper_bound),
                          str(line.poll_line_type.description)
                         )
 
@@ -506,7 +506,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual({'lower_bound': lower_bound, 'upper_bound': upper_bound},
                         json_load(line.type_args),
                        )
-        self.assertEqual(_(u'Integer between {min_value} and {max_value}').format(
+        self.assertEqual(_('Integer between {min_value} and {max_value}').format(
                                 min_value=lower_bound,
                                 max_value=upper_bound,
                             ),
@@ -526,7 +526,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                                }
                                           )
             self.assertFormError(response, 'form', None,
-                                 [_(u'The upper bound must be greater than the lower bound.')]
+                                 [_('The upper bound must be greater than the lower bound.')]
                                 )
 
         post(10, 3)
@@ -576,7 +576,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsNone(line.type_args)
 
         plt = line.poll_line_type
-        desc = _(u'Date')
+        desc = _('Date')
         self.assertEqual(desc, plt.verbose_name)
         self.assertEqual(desc, plt.description)
 
@@ -600,7 +600,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsNone(line.type_args)
 
         plt = line.poll_line_type
-        desc = _(u'Hour')
+        desc = _('Hour')
         self.assertEqual(desc, plt.verbose_name)
         self.assertEqual(desc, plt.description)
 
@@ -617,8 +617,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         plt = line.poll_line_type
         self.assertEqual(choices, plt.get_choices())
         self.assertEqual(choices, plt.get_editable_choices())
-        self.assertEqual(_(u'Choice list'), plt.verbose_name)
-        self.assertEqual(_(u'Choice list ({})').format('White / Black / Green'),
+        self.assertEqual(_('Choice list'), plt.verbose_name)
+        self.assertEqual(_('Choice list ({})').format('White / Black / Green'),
                          plt.description
                         )
 
@@ -629,10 +629,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             response = self.assertPOST200(self.build_addline_url(pform),
                                           data={'question': 'What is the main color of a swallow ?',
                                                 'type':     PollLineType.ENUM,
-                                                'choices':  u'\n'.join(choices),
+                                                'choices':  '\n'.join(choices),
                                                }
                                           )
-            self.assertFormError(response, 'form', None, _(u'Give 2 choices at least.'))
+            self.assertFormError(response, 'form', None, _('Give 2 choices at least.'))
 
         post()
         post('White')
@@ -646,8 +646,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']]
         self.assertEqual(choices, plt.get_choices())
         self.assertEqual(choices, plt.get_editable_choices())
-        self.assertEqual(_(u'Multiple choice list'), plt.verbose_name)
-        self.assertEqual(_(u'Multiple choice list ({})').format('White / Black / Green / Purple'),
+        self.assertEqual(_('Multiple choice list'), plt.verbose_name)
+        self.assertEqual(_('Multiple choice list ({})').format('White / Black / Green / Purple'),
                          plt.description
                         )
 
@@ -658,10 +658,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             response = self.assertPOST200(self.build_addline_url(pform),
                                           data={'question': 'What are the main colors of a swallow ?',
                                                 'type':     PollLineType.MULTI_ENUM,
-                                                'choices':  u'\n'.join(choices),
+                                                'choices':  '\n'.join(choices),
                                                }
                                           )
-            self.assertFormError(response, 'form', None, _(u'Give 2 choices at least.'))
+            self.assertFormError(response, 'form', None, _('Give 2 choices at least.'))
 
         post()
         post('White')
@@ -677,8 +677,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(choices,                     plt.get_editable_choices())
 
         self.assertFalse(plt.get_deleted_choices())
-        self.assertEqual(_(u'Choice list with free choice'), plt.verbose_name)
-        self.assertEqual(_(u'Choice list with free choice ({})').format('White / Black / Green / Orange'),
+        self.assertEqual(_('Choice list with free choice'), plt.verbose_name)
+        self.assertEqual(_('Choice list with free choice ({})').format('White / Black / Green / Orange'),
                          plt.description
                         )
 
@@ -698,7 +698,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsNone(line.type_args)
 
         plt = line.poll_line_type
-        desc = _(u'Comment')
+        desc = _('Comment')
         self.assertEqual(desc, plt.verbose_name)
         self.assertEqual(desc, plt.description)
 
@@ -716,8 +716,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             order_field = response.context['form'].fields['index']
 
-        self.assertEqual([(0, _(u'Start of section')),
-                          (1, _(u'End of section')),
+        self.assertEqual([(0, _('Start of section')),
+                          (1, _('End of section')),
                          ],
                          order_field.choices
                         )
@@ -856,11 +856,11 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             order_field = response.context['form'].fields['index']
 
-        msg_fmt = _(u'Before: «{question}» (#{number})')
-        self.assertEqual([(0, _(u'Start of section')),
+        msg_fmt = _('Before: «{question}» (#{number})')
+        self.assertEqual([(0, _('Start of section')),
                           (1,  msg_fmt.format(question=line2.question, number=2)),
                           (2,  msg_fmt.format(question=line3.question, number=3)),
-                          (3, _(u'End of section')),
+                          (3, _('End of section')),
                          ],
                          order_field.choices
                         )
@@ -986,7 +986,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                          },
                          plt._args
                         )
-        self.assertEqual(_(u'Choice list ({choices}) (deleted: {del_choices})').format(
+        self.assertEqual(_('Choice list ({choices}) (deleted: {del_choices})').format(
                                 choices='Yellow / Cyan',
                                 del_choices='White / Red',
                             ),
@@ -1067,7 +1067,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                      del_choices=[[1, 'White'], [4, 'Blue']],
                                      qtype=PollLineType.MULTI_ENUM
                                      )
-        self.assertEqual(_(u'Multiple choice list ({choices}) (deleted: {del_choices})').format(
+        self.assertEqual(_('Multiple choice list ({choices}) (deleted: {del_choices})').format(
                                 choices='Black / Red',
                                 del_choices='White / Blue',
                             ),
@@ -1080,7 +1080,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                      del_choices=[[1, 'Grey'], [4, 'Blue']],
                                      qtype=PollLineType.ENUM_OR_STRING
                                      )
-        self.assertEqual(_(u'Choice list with free choice ({choices}) (deleted: {del_choices})').format(
+        self.assertEqual(_('Choice list with free choice ({choices}) (deleted: {del_choices})').format(
                                 choices='Brown / Red',
                                 del_choices='Grey / Blue',
                             ),
@@ -1139,8 +1139,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                            }
                                      )
         self.assertFormError(response, 'form', 'old_choices',
-                             _(u'You can not delete the choice "%(choice)s" because it '
-                               u'is used in a condition by the question "%(question)s".'
+                             _('You can not delete the choice "%(choice)s" because it '
+                               'is used in a condition by the question "%(question)s".'
                               ) % {'choice': 'A little bit',
                                    'question': line3.question,
                                   }
@@ -1596,7 +1596,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(403, response.status_code)
         self.assertFalse(self.assertStillExists(line2).disabled)
         self.assertStillExists(cond)
-        self.assertEqual(_(u'There is at least one other question which depends on this question.'),
+        self.assertEqual(_('There is at least one other question which depends on this question.'),
                          smart_text(response.content)
                         )
 
@@ -1672,7 +1672,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(403, response.status_code)
         self.assertStillExists(line2)
         self.assertStillExists(cond)
-        self.assertEqual(_(u'There is at least one other question which depends on this question.'),
+        self.assertEqual(_('There is at least one other question which depends on this question.'),
                          smart_text(response.content)
                         )
 
@@ -1685,7 +1685,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                                 )
 
         response = self.assertGET200(self.build_choices_url(line))
-        # self.assertEqual(choices, load_json(response.content))
         self.assertEqual(choices, response.json())
 
     def test_get_choices02(self):
@@ -1697,7 +1696,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                                  choices=choices,
                                                 )
         response = self.assertGET200(self.build_choices_url(line))
-        # self.assertEqual(choices, load_json(response.content))
         self.assertEqual(choices, response.json())
 
     def test_get_choices03(self):
@@ -1709,7 +1707,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                                  choices=choices,
                                                 )
         response = self.assertGET200(self.build_choices_url(line))
-        # self.assertEqual([[0, _('Other')]] + choices, load_json(response.content))
         self.assertEqual([[0, _('Other')]] + choices, response.json())
 
     def test_get_choices04(self):
@@ -1719,7 +1716,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                            order=1, type=PollLineType.BOOL,
                                           )
         response = self.assertGET200(self.build_choices_url(line))
-        # self.assertEqual([[0, _('No')], [1, _('Yes')]], load_json(response.content))
         self.assertEqual([[0, _('No')], [1, _('Yes')]], response.json())
 
     def test_get_choices_error01(self):
@@ -1762,11 +1758,11 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         # line3.use_or = True; line3.save()
         # line4.use_or = True; line3.save()
 
-        with self.assertNumQueries(1): #TODO 0
+        with self.assertNumQueries(1):  # TODO: 0
             conditions = line1.get_conditions()
         self.assertEqual([], conditions)
 
-        with self.assertNumQueries(1): #TODO 0
+        with self.assertNumQueries(1):  # TODO: 0
             conditions = line2.get_conditions()
         self.assertEqual([], conditions)
 
@@ -1842,8 +1838,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         cond4 = create_cond(line=line_with_conds, source=line3, raw_answer=dumps([1]))
 
         nodes = SectionTree(pform)
-        msg_fmt1 = _(u'The answer to the question #{number} is «{answer}».')
-        msg_fmt2 = _(u'The answer to the question #{number} contains «{answer}».')
+        msg_fmt1 = _('The answer to the question #{number} is «{answer}».')
+        msg_fmt2 = _('The answer to the question #{number} contains «{answer}».')
         self.assertEqual(msg_fmt1.format(number=1, answer='A lot'),
                          poll_line_condition(nodes, cond1)
                         )
