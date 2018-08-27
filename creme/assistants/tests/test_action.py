@@ -213,9 +213,9 @@ class ActionTestCase(AssistantsTestCase):
         create_action(title='Action#6', deadline=yesterday, is_ok=True)  # No
         create_action(title='Action#7', deadline=yesterday, user=self.other_user)  # No
 
-        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
-        create_action(title='Action#8', creme_entity=entity2)  # No (deleted entity)
-        create_action(title='Action#9', creme_entity=entity2, deadline=yesterday)  # No (deleted entity + deadline)
+        # entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
+        # create_action(title='Action#8', creme_entity=entity2)  # No (deleted entity)
+        # create_action(title='Action#9', creme_entity=entity2, deadline=yesterday)  # No (deleted entity + deadline)
 
         actions = Action.get_actions_it_for_home(user=user, today=now_value)
         self.assertIsInstance(actions, QuerySet)
@@ -343,6 +343,38 @@ class ActionTestCase(AssistantsTestCase):
         # --
         self.assertCountEqual([action5],
                               Action.get_actions_nit_for_ctypes(user=user, today=now_value, ct_ids=ct_ids)
+                             )
+
+    def test_manager_filter_by_user(self):
+        user = self.user
+        now_value = now()
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_action = partial(Action.objects.create, creme_entity=self.entity,
+                                user=user, deadline=now_value + timedelta(days=1),
+                               )
+
+        action1 = create_action(title='Action#1')
+        create_action(title='Action#2', user=team2)  # No (other team)
+        action3 = create_action(title='Action#3', user=team1)
+
+        self.assertCountEqual([action1, action3],
+                              Action.objects.filter_by_user(user)
                              )
 
 

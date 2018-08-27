@@ -19,6 +19,7 @@
 ################################################################################
 
 # from collections import defaultdict
+import warnings
 
 # from django.contrib.contenttypes.fields import GenericForeignKey
 # from django.contrib.contenttypes.models import ContentType
@@ -30,6 +31,11 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core import models as creme_models
 from creme.creme_core.models import fields as creme_fields
 from creme.creme_core.utils import ellipsis
+
+
+class MemoManager(models.Manager):
+    def filter_by_user(self, user):
+        return self.filter(user__in=[user] + user.teams)
 
 
 class Memo(creme_models.CremeModel):
@@ -47,6 +53,8 @@ class Memo(creme_models.CremeModel):
                                            ).set_tags(viewable=False)
     creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
+    objects = MemoManager()
+
     class Meta:
         app_label = 'assistants'
         verbose_name = _('Memo')
@@ -61,19 +69,21 @@ class Memo(creme_models.CremeModel):
 
     @staticmethod
     def get_memos(entity):
+        warnings.warn('Memo.get_memos() is deprecated.', DeprecationWarning)
         return Memo.objects.filter(entity_id=entity.id).select_related('user')
 
     @staticmethod
     def get_memos_for_home(user):
+        warnings.warn('Memo.get_memos_for_home() is deprecated.', DeprecationWarning)
         return Memo.objects.filter(on_homepage=True,
                                    user__in=[user] + user.teams,
-                                   entity__is_deleted=False,
+                                   # entity__is_deleted=False,
                                   ) \
                           .select_related('user')
 
-    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_memos_for_ctypes(ct_ids, user):
+        warnings.warn('Memo.get_memos_for_ctypes() is deprecated.', DeprecationWarning)
         return Memo.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams) \
                            .select_related('user')
 

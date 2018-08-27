@@ -20,6 +20,7 @@
 
 from functools import partial
 import logging
+import warnings
 
 # from django.contrib.contenttypes.fields import GenericForeignKey
 # from django.contrib.contenttypes.models import ContentType
@@ -83,20 +84,27 @@ class UserMessage(CremeModel):
 
     @staticmethod
     def get_messages(entity, user):
+        warnings.warn('UserMessage.get_messages() is deprecated.', DeprecationWarning)
         return UserMessage.objects.filter(entity_id=entity.id, recipient=user).select_related('sender')
 
     @staticmethod
     def get_messages_for_home(user):
-        return UserMessage.objects.filter(recipient=user, entity__is_deleted=False).select_related('sender')
+        warnings.warn('UserMessage.get_messages_for_home() is deprecated.', DeprecationWarning)
+        return UserMessage.objects.filter(recipient=user,
+                                          # entity__is_deleted=False
+                                         ).select_related('sender')
 
-    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_messages_for_ctypes(ct_ids, user):
+        warnings.warn('UserMessage.get_messages_for_ctypes() is deprecated.', DeprecationWarning)
         return UserMessage.objects.filter(entity_content_type__in=ct_ids, recipient=user).select_related('sender')
 
-    @staticmethod
+    # @staticmethod
+    # @atomic
+    # def create_messages(users, title, body, priority_id, sender, entity):
+    @classmethod
     @atomic
-    def create_messages(users, title, body, priority_id, sender, entity):
+    def create_messages(cls, users, title, body, priority_id, sender, entity):
         """Create UserMessages instances to sent to several users.
         Notice that teams are treated as several Users.
         @param users: A sequence of CremeUser objects ; duplicates are removed.
@@ -108,25 +116,30 @@ class UserMessage(CremeModel):
             else:
                 users_map[user.id] = user
 
-        build_msg = partial(UserMessage, creation_date=now(),
+        # build_msg = partial(UserMessage, creation_date=now(),
+        build_msg = partial(cls, creation_date=now(),
                             title=title, body=body,
                             priority_id=priority_id,
                             sender=sender, creme_entity=entity,
                            )
-        UserMessage.objects.bulk_create(build_msg(recipient=user)
-                                            for user in users_map.values()
-                                       )
+        # UserMessage.objects.bulk_create(build_msg(recipient=user)
+        cls.objects.bulk_create(build_msg(recipient=user)
+                                    for user in users_map.values()
+                               )
 
         from ..creme_jobs import usermessages_send_type
 
         usermessages_send_type.refresh_job()
 
-    @staticmethod
-    def send_mails(job):
+    # @staticmethod
+    # def send_mails(job):
+    @classmethod
+    def send_mails(cls, job):
         from django.conf import settings
         from django.core.mail import EmailMessage, get_connection
 
-        usermessages = list(UserMessage.objects.filter(email_sent=False))
+        # usermessages = list(UserMessage.objects.filter(email_sent=False))
+        usermessages = list(cls.objects.filter(email_sent=False))
 
         if not usermessages:
             return
@@ -153,5 +166,6 @@ class UserMessage(CremeModel):
                                               ],
                                     )
 
-        UserMessage.objects.filter(pk__in=[m.id for m in usermessages]) \
-                           .update(email_sent=True)
+        # UserMessage.objects.filter(pk__in=[m.id for m in usermessages]) \
+        cls.objects.filter(pk__in=[m.id for m in usermessages]) \
+                   .update(email_sent=True)

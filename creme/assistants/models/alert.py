@@ -19,6 +19,7 @@
 ################################################################################
 
 # from collections import defaultdict
+import warnings
 
 # from django.contrib.contenttypes.fields import GenericForeignKey
 # from django.contrib.contenttypes.models import ContentType
@@ -30,6 +31,11 @@ from creme.creme_core import models as creme_models
 from creme.creme_core.models import fields as creme_fields
 # from creme.creme_core.core.function_field import (FunctionField, FunctionFieldResult,
 #         FunctionFieldResultsList)
+
+
+class AlertManager(models.Manager):
+    def filter_by_user(self, user):
+        return self.filter(user__in=[user] + user.teams)
 
 
 class Alert(creme_models.CremeModel):
@@ -49,6 +55,8 @@ class Alert(creme_models.CremeModel):
                                            ).set_tags(viewable=False)
     creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
+    objects = AlertManager()
+
     class Meta:
         app_label = 'assistants'
         verbose_name = _('Alert')
@@ -62,19 +70,21 @@ class Alert(creme_models.CremeModel):
 
     @staticmethod
     def get_alerts(entity):
+        warnings.warn('Alert.get_alerts() is deprecated.', DeprecationWarning)
         return Alert.objects.filter(is_validated=False, entity_id=entity.id).select_related('user')
 
     @staticmethod
     def get_alerts_for_home(user):
+        warnings.warn('Alert.get_alerts_for_home() is deprecated.', DeprecationWarning)
         return Alert.objects.filter(is_validated=False,
                                     user__in=[user] + user.teams,
-                                    entity__is_deleted=False,
+                                    # entity__is_deleted=False,
                                    )\
                             .select_related('user')
 
-    # TODO: remove ? exclude deleted entities ?
     @staticmethod
     def get_alerts_for_ctypes(ct_ids, user):
+        warnings.warn('Alert.get_alerts_for_ctypes() is deprecated.', DeprecationWarning)
         return Alert.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams, is_validated=False) \
                             .select_related('user')
 

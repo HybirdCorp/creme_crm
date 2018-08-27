@@ -197,7 +197,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         for i in range(1, 4):
             self._create_todo('Todo{}'.format(i), 'Description {}'.format(i))
 
-        todos = ToDo.get_todos(self.entity)
+        # todos = ToDo.get_todos(self.entity)
+        todos = ToDo.objects.filter(entity=self.entity.id)
         self.assertEqual(3, len(todos))
         self.assertEqual(set(ToDo.objects.values_list('id', flat=True)),
                          {t.id for t in todos}
@@ -227,7 +228,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self._create_several_todos()
         self.assertEqual(3, ToDo.objects.count())
 
-        todos = ToDo.get_todos_for_home(self.user)
+        # todos = ToDo.get_todos_for_home(self.user)
+        todos = ToDo.objects.filter_by_user(self.user)
         self.assertEqual(2, len(todos))
 
         response = self.assertGET200(reverse('creme_core__reload_home_bricks'), data={'brick_id': TodosBrick.id_})
@@ -672,8 +674,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         todo3 = create_todo(title='Todo#3', user=team1)
         create_todo(title='Todo#4', user=team2)  # No (other team)
 
-        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
-        create_todo(title='Todo#5', creme_entity=entity2)  # No (deleted entity)
+        # entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
+        # create_todo(title='Todo#5', creme_entity=entity2)  # No (deleted entity)
 
         todos = ToDo.get_todos_for_home(user=user)
         self.assertIsInstance(todos, QuerySet)
@@ -718,3 +720,35 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         self.assertEqual({todo1, todo3, todo5}, set(todos))
         self.assertEqual(3, len(todos))
+
+    def test_manager_filter_by_user(self):
+        user = self.user
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=user)
+        todo1 = create_todo(title='Todo#1')
+        create_todo(title='Todo#2', user=self.other_user)  # No (other user)
+        todo3 = create_todo(title='Todo#3', user=team1)
+        create_todo(title='Todo#4', user=team2)  # No (other team)
+
+        todos = ToDo.objects.filter_by_user(user)
+        self.assertIsInstance(todos, QuerySet)
+        self.assertEqual(ToDo, todos.model)
+
+        self.assertEqual({todo1, todo3}, set(todos))
+        self.assertEqual(2, len(todos))

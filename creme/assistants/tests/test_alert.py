@@ -300,8 +300,8 @@ class AlertTestCase(AssistantsTestCase):
         alert3 = create_alert(title='Alert#3')
         create_alert(title='Alert#4', user=self.other_user)  # No (other user)
 
-        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
-        create_alert(title='Alert#5', creme_entity=entity2)  # No (deleted entity)
+        # entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
+        # create_alert(title='Alert#5', creme_entity=entity2)  # No (deleted entity)
 
         alerts = Alert.get_alerts_for_home(user=user)
         self.assertIsInstance(alerts, QuerySet)
@@ -400,3 +400,35 @@ class AlertTestCase(AssistantsTestCase):
         alerts = Alert.get_alerts_for_ctypes(user=user, ct_ids=[self.entity.entity_type_id, entity2.entity_type_id])
         self.assertEqual({alert1, alert3, alert4}, set(alerts))
         self.assertEqual(3, len(alerts))
+
+    def test_manager_filter_by_user(self):
+        "Teams"
+        user = self.user
+        now_value = now()
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
+                               user=user, trigger_date=now_value,
+                              )
+        alert1 = create_alert(title='Alert#1')
+        create_alert(title='Alert#2', user=team2)  # No (other team)
+        alert3 = create_alert(title='Alert#3', user=team1)
+
+        alerts = Alert.objects.filter_by_user(user=user)
+        self.assertEqual({alert1, alert3}, set(alerts))
+        self.assertEqual(2, len(alerts))
