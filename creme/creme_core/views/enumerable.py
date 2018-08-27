@@ -21,13 +21,14 @@
 from itertools import chain
 
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.models import CustomFieldEnumValue, CustomField, EntityFilter
-from creme.creme_core.utils import get_ct_or_404, jsonify
+from creme.creme_core.utils import get_ct_or_404, jsonify, build_ct_choices, creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
 
 # from creme.creme_config.registry import config_registry, NotRegisteredInConfig
@@ -55,6 +56,12 @@ def json_list_enumerable(request, ct_id):
                       ],
                       key=key,
                      )
+
+    if model is ContentType:
+        # NB: we are sure that entities' ContentTypes are user-friendly.
+        #     Currently, only the form for EntityFilters on reports.Report
+        #     uses it, & it needs only entities ctypes.
+        return build_ct_choices(creme_entity_content_types())
 
     if not issubclass(model, get_user_model()):
         app_name = ct.app_label

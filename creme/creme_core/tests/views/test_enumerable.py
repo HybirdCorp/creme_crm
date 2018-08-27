@@ -8,7 +8,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
-    from ..fake_models import FakeContact, FakeCivility
+    from ..fake_models import FakeContact, FakeOrganisation, FakeCivility
     from creme.creme_core.models import (CustomField, CustomFieldEnumValue,
             EntityFilter, EntityFilterCondition)
     from creme.creme_core.utils.unicode_collation import collator
@@ -59,6 +59,20 @@ class EnumerableViewsTestCase(ViewsTestCase):
         url = self._build_enum_url(User)
         response = self.assertGET200(url)
         self.assertEqual([[c.id, str(c)] for c in User.objects.all()], response.json())
+
+    def test_model_contenttype(self):
+        self.login()
+
+        url = self._build_enum_url(ContentType)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = dict(response.json())
+
+        get_ct = ContentType.objects.get_for_model
+        self.assertEqual(choices.get(get_ct(FakeContact).id),      str(FakeContact._meta.verbose_name))
+        self.assertEqual(choices.get(get_ct(FakeOrganisation).id), str(FakeOrganisation._meta.verbose_name))
+        self.assertIsNone(choices.get(get_ct(FakeCivility).id))
 
     def test_model_entityfilter(self):
         self.maxDiff = None
