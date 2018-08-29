@@ -776,6 +776,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                  )
                          )
 
+    @skipIf(lcabMissing, 'Lcab seems not installed')
     # def test_get_create_form_view02(self):
     def test_get_create_form_view03(self):
         # crudity_registry = registry.crudity_registry
