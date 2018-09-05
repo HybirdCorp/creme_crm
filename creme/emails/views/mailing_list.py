@@ -47,6 +47,10 @@ MailingList  = get_mailinglist_model()
 def abstract_add_mailinglist(request, form=ml_forms.MailingListForm,
                              submit_label=MailingList.save_label,
                             ):
+    warnings.warn('emails.views.mailing_list.abstract_add_mailinglist() is deprecated ; '
+                  'use the class-based view MailingListCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -60,7 +64,7 @@ def abstract_view_mailinglist(request, ml_id,
                               template='emails/view_mailing_list.html',
                              ):
     warnings.warn('emails.views.mailing_list.abstract_view_mailinglist() is deprecated ; '
-                  'use the class-based view EntityEmailDetail instead.',
+                  'use the class-based view MailingListDetail instead.',
                   DeprecationWarning
                  )
     return generic.view_entity(request, ml_id, MailingList, template=template)
@@ -69,6 +73,7 @@ def abstract_view_mailinglist(request, ml_id,
 @login_required
 @permission_required(('emails', cperm(MailingList)))
 def add(request):
+    warnings.warn('emails.views.mailing_list.add() is deprecated.', DeprecationWarning)
     return abstract_add_mailinglist(request)
 
 
@@ -185,6 +190,10 @@ def delete_child(request, ml_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class MailingListCreation(generic.add.EntityCreation):
+    model = MailingList
+    form_class = ml_forms.MailingListForm
 
 
 class MailingListDetail(generic.detailview.EntityDetail):

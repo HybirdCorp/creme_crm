@@ -1,7 +1,8 @@
 {% load i18n creme_core_tags creme_widgets %}
 {% has_perm_to link object as obj_link_perm %}{% trans 'Linked contact' as img_title %}
 {% if has_perm and obj_link_perm and contact_link_perm %}
-    <a class="menu_button menu-button-icon" href="{% url 'persons__create_related_contact' object.pk %}?callback_url=" onclick="this.href+=window.location.href">
+{#    <a class="menu_button menu-button-icon" href="{% url 'persons__create_related_contact' object.pk %}?callback_url=" onclick="this.href+=window.location.href"> #}
+    <a class="menu_button menu-button-icon" href="{% url 'persons__create_related_contact' object.id %}">
         {% widget_icon name='contact' size='instance-button' label=img_title %}
         {% trans 'Create a linked contact' %}
     </a>

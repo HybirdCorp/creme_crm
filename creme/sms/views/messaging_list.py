@@ -40,6 +40,10 @@ MessagingList = get_messaginglist_model()
 def abstract_add_messaginglist(request, form=MessagingListForm,
                                submit_label=MessagingList.save_label,
                               ):
+    warnings.warn('sms.views.messaging_list.abstract_add_messaginglist() is deprecated ; '
+                  'use the class-based view MessagingListDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -60,9 +64,9 @@ def abstract_view_messaginglist(request, mlist_id,
 
 
 @login_required
-# @permission_required(('sms', 'sms.add_messaginglist'))
 @permission_required(('sms', cperm(MessagingList)))
 def add(request):
+    warnings.warn('sms.views.messaging_list.add() is deprecated.', DeprecationWarning)
     return abstract_add_messaginglist(request)
 
 
@@ -75,7 +79,7 @@ def edit(request, mlist_id):
 @login_required
 @permission_required('sms')
 def detailview(request, mlist_id):
-    warnings.warn('sms.views.messaging_list.deatilview() is deprecated.', DeprecationWarning)
+    warnings.warn('sms.views.messaging_list.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_messaginglist(request, mlist_id)
 
 
@@ -128,6 +132,11 @@ def delete_contact(request, mlist_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+
+class MessagingListCreation(generic.add.EntityCreation):
+    model = MessagingList
+    form_class = MessagingListForm
 
 
 class MessagingListDetail(generic.detailview.EntityDetail):

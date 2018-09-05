@@ -31,7 +31,7 @@ from creme.creme_core.views import generic
 
 from .. import get_emailtemplate_model
 from ..constants import DEFAULT_HFILTER_TEMPLATE
-from ..forms.template import EmailTemplateForm, EmailTemplateAddAttachment
+from ..forms import template as tpl_forms
 
 
 EmailTemplate = get_emailtemplate_model()
@@ -39,15 +39,19 @@ EmailTemplate = get_emailtemplate_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_template(request, form=EmailTemplateForm,
+def abstract_add_template(request, form=tpl_forms.EmailTemplateForm,
                           submit_label=EmailTemplate.save_label,
                          ):
+    warnings.warn('emails.views.mail.abstract_add_template() is deprecated ; '
+                  'use the class-based view EmailTemplateCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
 
 
-def abstract_edit_template(request, template_id, form=EmailTemplateForm):
+def abstract_edit_template(request, template_id, form=tpl_forms.EmailTemplateForm):
     return generic.edit_entity(request, template_id, EmailTemplate, form)
 
 
@@ -64,6 +68,7 @@ def abstract_view_template(request, template_id,
 @login_required
 @permission_required(('emails', cperm(EmailTemplate)))
 def add(request):
+    warnings.warn('emails.views.mail.add() is deprecated.', DeprecationWarning)
     return abstract_add_template(request)
 
 
@@ -90,7 +95,7 @@ def listview(request):
 @permission_required('emails')
 def add_attachment(request, template_id):
     return generic.add_to_entity(
-        request, template_id, EmailTemplateAddAttachment,
+        request, template_id, tpl_forms.EmailTemplateAddAttachment,
         ugettext('New attachments for «%s»'),
         entity_class=EmailTemplate,
         submit_label=_('Save the attachments'),
@@ -115,6 +120,10 @@ def delete_attachment(request, template_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class EmailTemplateCreation(generic.add.EntityCreation):
+    model = EmailTemplate
+    form_class = tpl_forms.EmailTemplateForm
 
 
 class EmailTemplateDetail(generic.detailview.EntityDetail):

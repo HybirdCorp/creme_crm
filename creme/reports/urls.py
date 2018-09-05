@@ -40,7 +40,8 @@ urlpatterns = [
 if not report_model_is_custom():
     urlpatterns += [
         url(r'^reports[/]?$',                        report.listview,   name='reports__list_reports'),
-        url(r'^report/add[/]?$',                     report.add,        name='reports__create_report'),
+        # url(r'^report/add[/]?$',                     report.add,        name='reports__create_report'),
+        url(r'^report/add[/]?$',                     report.ReportCreation.as_view(), name='reports__create_report'),
         url(r'^report/edit/(?P<report_id>\d+)[/]?$', report.edit,       name='reports__edit_report'),
         # url(r'^report/(?P<report_id>\d+)[/]?$',      report.detailview, name='reports__view_report'),
         url(r'^report/(?P<report_id>\d+)[/]?$',      report.ReportDetail.as_view(), name='reports__view_report'),

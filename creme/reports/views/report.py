@@ -46,10 +46,13 @@ Report = get_report_model()
 
 
 def abstract_add_report(request, form=report_forms.ReportCreateForm,
-                        # TODO: improve widgets & drop this template
                         template='reports/add_report.html',
                         submit_label=Report.save_label,
                        ):
+    warnings.warn('reports.views.report.abstract_add_report() is deprecated ; '
+                  'use the class-based view ReportCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form, template=template,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -72,6 +75,7 @@ def abstract_view_report(request, report_id,
 @login_required
 @permission_required(('reports', cperm(Report)))
 def add(request):
+    warnings.warn('reports.views.report.add() is deprecated.', DeprecationWarning)
     return abstract_add_report(request)
 
 
@@ -84,7 +88,7 @@ def edit(request, report_id):
 @login_required
 @permission_required('reports')
 def detailview(request, report_id):
-    warnings.warn('reports.views.report.detail() is deprecated.', DeprecationWarning)
+    warnings.warn('reports.views.report.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_report(request, report_id)
 
 
@@ -218,6 +222,12 @@ def set_selected(request):
 
 
 # Class-based views  ----------------------------------------------------------
+
+
+class ReportCreation(generic.add.EntityCreation):
+    model = Report
+    form_class = report_forms.ReportCreateForm
+    template_name = 'reports/add_report.html'  # TODO: improve widgets & drop this template
 
 
 class ReportDetail(generic.detailview.EntityDetail):

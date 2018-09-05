@@ -22,7 +22,8 @@ urlpatterns = [
 if not graph_model_is_custom():
     urlpatterns += [
         url(r'^graphs[/]?$',                       graph.listview,   name='graphs__list_graphs'),
-        url(r'^graph/add[/]?$',                    graph.add,        name='graphs__create_graph'),
+        # url(r'^graph/add[/]?$',                    graph.add,        name='graphs__create_graph'),
+        url(r'^graph/add[/]?$',                    graph.GraphCreation.as_view(), name='graphs__create_graph'),
         url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.edit,       name='graphs__edit_graph'),
         # url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.detailview, name='graphs__view_graph'),
         url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.GraphDetail.as_view(), name='graphs__view_graph'),

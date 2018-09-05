@@ -52,6 +52,10 @@ ActObjectivePattern = get_pattern_model()
 def abstract_add_act(request, form=forms.ActForm,
                      submit_label=Act.save_label,
                     ):
+    warnings.warn('commercial.views.act.abstract_add_act() is deprecated ; '
+                  'use the class-based view ActCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_initial={'act_type': ActType.objects.first(),
                                              'segment':  MarketSegment.objects.first(),
@@ -63,6 +67,10 @@ def abstract_add_act(request, form=forms.ActForm,
 def abstract_add_objective_pattern(request, form=forms.ObjectivePatternForm,
                                    submit_label=ActObjectivePattern.save_label,
                                   ):
+    warnings.warn('commercial.views.act.abstract_add_objective_pattern() is deprecated ; '
+                  'use the class-based view ActObjectivePatternCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -101,7 +109,7 @@ def abstract_view_objective_pattern(request, objpattern_id,
 
 def abstract_add_opportunity(request, act_id, form=OpportunityCreateForm,
                              template='creme_core/generics/blockform/add_popup.html',
-                             title=_(u'Create a linked opportunity'),
+                             title=_('Create a linked opportunity'),
                              submit_label=Opportunity.save_label,
                             ):
     act = get_object_or_404(Act, pk=act_id)
@@ -139,12 +147,14 @@ def abstract_add_opportunity(request, act_id, form=OpportunityCreateForm,
 @login_required
 @permission_required(('commercial', cperm(Act)))
 def add(request):
+    warnings.warn('commercial.views.act.add() is deprecated.', DeprecationWarning)
     return abstract_add_act(request)
 
 
 @login_required
 @permission_required(('commercial', cperm(ActObjectivePattern)))
 def add_objective_pattern(request):
+    warnings.warn('commercial.views.act.add_objective_pattern() is deprecated.', DeprecationWarning)
     return abstract_add_objective_pattern(request)
 
 
@@ -175,6 +185,23 @@ def objective_pattern_detailview(request, objpattern_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class ActCreation(generic.add.EntityCreation):
+    model = Act
+    form_class = forms.ActForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['act_type'] = ActType.objects.first()
+        initial['segment']  = MarketSegment.objects.first()
+
+        return initial
+
+
+class ActObjectivePatternCreation(generic.add.EntityCreation):
+    model = ActObjectivePattern
+    form_class = forms.ObjectivePatternForm
+
 
 class ActDetail(generic.detailview.EntityDetail):
     model = Act
@@ -213,7 +240,7 @@ def add_opportunity(request, act_id):
 @permission_required('commercial')
 def _add_objective(request, act_id, form_class):
     return generic.add_to_entity(request, act_id, form_class,
-                                 ugettext(u'New objective for «%s»'),
+                                 ugettext('New objective for «%s»'),
                                  entity_class=Act,
                                  submit_label=_('Save the objective'),
                                 )
@@ -231,7 +258,7 @@ def add_objectives_from_pattern(request, act_id):
 @permission_required('commercial')
 def add_pattern_component(request, objpattern_id):
     return generic.add_to_entity(request, objpattern_id, forms.PatternComponentForm,
-                                 ugettext(u'New objective for «%s»'),
+                                 ugettext('New objective for «%s»'),
                                  entity_class=ActObjectivePattern,
                                  submit_label=_('Save the objective'),
                                 )
@@ -267,14 +294,14 @@ def _add_subpattern_component(request, component_id, form_class, title):
 def add_child_pattern_component(request, component_id):
     return _add_subpattern_component(request, component_id,
                                      forms.PatternChildComponentForm,
-                                     ugettext(u'New child objective for «%s»'),
+                                     ugettext('New child objective for «%s»'),
                                     )
 
 
 def add_parent_pattern_component(request, component_id):
     return _add_subpattern_component(request, component_id,
                                      forms.PatternParentComponentForm,
-                                     ugettext(u'New parent objective for «%s»'),
+                                     ugettext('New parent objective for «%s»'),
                                     )
 
 
@@ -283,7 +310,7 @@ def add_parent_pattern_component(request, component_id):
 def edit_objective(request, objective_id):
     return generic.edit_related_to_entity(request, objective_id, ActObjective,
                                           forms.ObjectiveForm,
-                                          ugettext(u'Objective for «%s»'),
+                                          ugettext('Objective for «%s»'),
                                          )
 
 

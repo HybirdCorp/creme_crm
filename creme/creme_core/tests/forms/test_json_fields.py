@@ -226,7 +226,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         #                                     ),
         self.assertEqual({'ctype': {'id': ct_id,
                                     'create': '',
-                                    'create_label': _(u'Create an entity'),
+                                    'create_label': _('Create a contact'),
                                    },
                           'entity': contact.id,
                          },
@@ -236,7 +236,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.user = self.user
         self.assertEqual({'ctype': {'id': ct_id,
                                     'create': reverse('creme_core__quick_form', args=(ct_id,)),
-                                    'create_label': _(u'Create an entity'),
+                                    'create_label': _('Create a contact'),
                                    },
                           'entity': contact.id,
                          },
@@ -519,17 +519,17 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         build_url = self._build_quick_forms_url
 
-        def build_entry_v1(ctype_id, entity_id):
+        def build_entry_v1(ctype_id, entity_id, label):
             return {'ctype': {'create': reverse('creme_core__quick_form', args=(ctype_id,)),
                               'id': ctype_id,
-                              'create_label': _(u'Create an entity'),
+                              'create_label': label,
                              },
                     'entity': entity_id,
                    }
 
         field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
-        self.assertEqual([build_entry_v1(contact_ct_id, 1),
-                          build_entry_v1(orga_ct_id, 5),
+        self.assertEqual([build_entry_v1(contact_ct_id, 1, contact_label),
+                          build_entry_v1(orga_ct_id, 5,    orga_label),
                          ],
                          json_load(field.from_python([
                              {'ctype': {'id': contact_ct_id,
@@ -546,31 +546,31 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
         # No user
-        def build_entry_v2(ctype_id, entity_id):
+        def build_entry_v2(ctype_id, entity_id, label):
             return {'ctype': {'create': '',
                               'id': ctype_id,
-                              'create_label': _(u'Create an entity'),
+                              'create_label': label,
                              },
                     'entity': entity_id,
                    }
-        self.assertEqual([build_entry_v2(contact_ct_id, contact.id),
-                          build_entry_v2(orga_ct_id,    orga.id),
+        self.assertEqual([build_entry_v2(contact_ct_id, contact.id, contact_label),
+                          build_entry_v2(orga_ct_id,    orga.id,    orga_label),
                          ],
                          json_load(field.from_python([contact, orga]))
                         )
 
         # With user
-        def build_entry_v3(ctype_id, entity_id):
+        def build_entry_v3(ctype_id, entity_id, label):
             return {'ctype': {'create': reverse('creme_core__quick_form', args=(ctype_id,)),
                               'id': ctype_id,
-                              'create_label': _(u'Create an entity'),
+                              'create_label': label,
                              },
                     'entity': entity_id,
                    }
 
         field.user = user
-        self.assertEqual([build_entry_v3(contact_ct_id, contact.id),
-                          build_entry_v3(orga_ct_id,    orga.id),
+        self.assertEqual([build_entry_v3(contact_ct_id, contact.id, contact_label),
+                          build_entry_v3(orga_ct_id,    orga.id,    orga_label),
                          ],
                          json_load(field.from_python([contact, orga]))
                         )

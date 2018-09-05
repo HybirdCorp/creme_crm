@@ -37,6 +37,10 @@ MessageTemplate = get_messagetemplate_model()
 def abstract_add_messagetemplate(request, form=tpl_forms.TemplateCreateForm,
                                  submit_label=MessageTemplate.save_label,
                                 ):
+    warnings.warn('sms.views.template.abstract_add_messagetemplate() is deprecated ; '
+                  'use the class-based view MessageTemplateCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -59,6 +63,7 @@ def abstract_view_messagetemplate(request, template_id,
 @login_required
 @permission_required(('sms', cperm(MessageTemplate)))
 def add(request):
+    warnings.warn('sms.views.template.add() is deprecated.', DeprecationWarning)
     return abstract_add_messagetemplate(request)
 
 
@@ -71,9 +76,7 @@ def edit(request, template_id):
 @login_required
 @permission_required('sms')
 def detailview(request, template_id):
-    warnings.warn('sms.views.template.detailview() is deprecated.',
-                  DeprecationWarning
-                 )
+    warnings.warn('sms.views.template.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_messagetemplate(request, template_id)
 
 
@@ -84,6 +87,10 @@ def listview(request):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class MessageTemplateCreation(generic.add.EntityCreation):
+    model = MessageTemplate
+    form_class = tpl_forms.TemplateCreateForm
 
 
 class MessageTemplateDetail(generic.detailview.EntityDetail):

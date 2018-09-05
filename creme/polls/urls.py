@@ -38,7 +38,8 @@ if not polls.pollcampaign_model_is_custom():
 
     urlpatterns += [
         url(r'^campaigns[/]?$',                          campaign.listview,   name='polls__list_campaigns'),
-        url(r'^campaign/add[/]?$',                       campaign.add,        name='polls__create_campaign'),
+        # url(r'^campaign/add[/]?$',                       campaign.add,        name='polls__create_campaign'),
+        url(r'^campaign/add[/]?$',                       campaign.PollCampaignCreation.as_view(), name='polls__create_campaign'),
         url(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.edit,       name='polls__edit_campaign'),
         # url(r'^campaign/(?P<campaign_id>\d+)[/]?$',      campaign.detailview, name='polls__view_campaign'),
         url(r'^campaign/(?P<campaign_id>\d+)[/]?$',      campaign.PollCampaignDetail.as_view(), name='polls__view_campaign'),
@@ -47,7 +48,8 @@ if not polls.pollcampaign_model_is_custom():
 if not polls.pollform_model_is_custom():
     urlpatterns += [
         url(r'^poll_forms[/]?$',                       poll_form.listview,   name='polls__list_forms'),
-        url(r'^poll_form/add[/]?$',                    poll_form.add,        name='polls__create_form'),
+        # url(r'^poll_form/add[/]?$',                    poll_form.add,        name='polls__create_form'),
+        url(r'^poll_form/add[/]?$',                    poll_form.PollFormCreation.as_view(), name='polls__create_form'),
         url(r'^poll_form/edit/(?P<pform_id>\d+)[/]?$', poll_form.edit,       name='polls__edit_form'),
         # url(r'^poll_form/(?P<pform_id>\d+)[/]?$',      poll_form.detailview, name='polls__view_form'),
         url(r'^poll_form/(?P<pform_id>\d+)[/]?$',      poll_form.PollFormDetail.as_view(), name='polls__view_form'),
@@ -56,7 +58,9 @@ if not polls.pollform_model_is_custom():
 if not polls.pollreply_model_is_custom():
     urlpatterns += [
         url(r'^poll_replies[/]?$',                                      poll_reply.listview,          name='polls__list_replies'),
-        url(r'^poll_reply/add[/]?$',                                    poll_reply.add,               name='polls__create_reply'),
+        # TODO: change url (reply->replies or add_several ??)
+        # url(r'^poll_reply/add[/]?$',                                    poll_reply.add,               name='polls__create_reply'),
+        url(r'^poll_reply/add[/]?$',                                    poll_reply.PollRepliesCreation.as_view(), name='polls__create_reply'),
         url(r'^poll_reply/add_from_pform/(?P<pform_id>\d+)[/]?$',       poll_reply.add_from_pform,    name='polls__create_reply_from_pform'),
         url(r'^poll_reply/add_from_campaign/(?P<campaign_id>\d+)[/]?$', poll_reply.add_from_campaign, name='polls__create_reply_from_campaign'),
         url(r'^poll_reply/add_from_person/(?P<person_id>\d+)[/]?$',     poll_reply.add_from_person,   name='polls__create_reply_from_person'),

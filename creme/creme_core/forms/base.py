@@ -43,8 +43,9 @@ class _FieldBlock:
 
     def __init__(self, verbose_name, field_names):
         """
-        @param verbose_name name of the block (displayed in the output)
-        @param field_names sequence of strings (fields names in the form) or string '*' (wildcard->all remaining fields)
+        @param verbose_name: Name of the block (displayed in the output).
+        @param field_names: Sequence of strings (fields names in the form)
+               or string '*' (wildcard->all remaining fields).
         """
         self.name = verbose_name
         self.field_names = list(field_names) if field_names != '*' else field_names
@@ -193,16 +194,16 @@ class HookableForm:
 
     def as_span(self):  # TODO: in another base class
         """Returns this form rendered as HTML <span>s."""
-        return self._html_output(normal_row=u'<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
-                                 error_row=u'%s',
+        return self._html_output(normal_row='<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
+                                 error_row='%s',
                                  row_ender='</span>',
-                                 help_text_html=u' <span class="helptext">%s</span>',
+                                 help_text_html=' <span class="helptext">%s</span>',
                                  errors_on_separate_row=False,
                                 )
 
 
 class CremeForm(Form, HookableForm):
-    blocks = FieldBlockManager(('general', _(u'General information'), '*'))
+    blocks = FieldBlockManager(('general', _('General information'), '*'))
 
     def __init__(self, user, *args, **kwargs):
         """@param user The user who sends the request (i order to check the permissions)"""
@@ -229,7 +230,7 @@ class CremeForm(Form, HookableForm):
 
 
 class CremeModelForm(ModelForm, HookableForm):
-    blocks = FieldBlockManager(('general', _(u'General information'), '*'))
+    blocks = FieldBlockManager(('general', _('General information'), '*'))
 
     class Meta:
         fields = '__all__'

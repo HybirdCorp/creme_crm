@@ -27,7 +27,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db.models.query_utils import Q
-from django.http import Http404
+# from django.http import Http404
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
@@ -288,7 +288,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
 
     template_dict = {
         'model':              model,
-        'list_title':         _(u'List of {models}').format(models=model._meta.verbose_name_plural),
+        'list_title':         _('List of {models}').format(models=model._meta.verbose_name_plural),
         'sub_title':          '',
         'header_filters':     header_filters,
         'entity_filters':     entity_filters,
@@ -335,10 +335,28 @@ def list_view(request, model, **kwargs):
     try:
         template_name, template_dict = list_view_content(request, model, mode=mode, **kwargs)
     except NoHeaderFilterAvailable:
-        from ..header_filter import add as add_header_filter
-        return add_header_filter(request, ContentType.objects.get_for_model(model).id,
-                                 {'help_message': _(u'The desired list does not have any view, please create one.')}
-                                )
+        # from ..header_filter import add as add_header_filter
+        # return add_header_filter(request, ContentType.objects.get_for_model(model).id,
+        #                          {'help_message': _('The desired list does not have any view, please create one.')}
+        #                         )
+        from ..header_filter import HeaderFilterCreation
+
+        logger.critical('No HeaderFilter is available for <%s> ; '
+                        'the developer should have created one in "populate.py" script',
+                        model
+                       )
+
+        class EmergencyHeaderFilterCreation(HeaderFilterCreation):
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data()
+                context['help_message'] = _('The desired list does not have any view, please create one.')
+
+                return context
+
+            def get_success_url(self):
+                return self.request.path
+
+        return EmergencyHeaderFilterCreation.as_view()(request, ct_id=ContentType.objects.get_for_model(model).id)
 
     return render(request, template_name, template_dict)
 
@@ -348,14 +366,15 @@ def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, lv_state_id=None
     """ Displays a list-view selector in an inner popup.
     @param model: Class inheriting CremeEntity.
     @param mode: Selection mode, in (MODE_SINGLE_SELECTION, MODE_MULTIPLE_SELECTION).
-    @param kwargs: See list_view_content()
+    @param kwargs: See list_view_content().
     """
     assert mode in (MODE_SINGLE_SELECTION, MODE_MULTIPLE_SELECTION)
 
-    if not request.user.has_perm(model._meta.app_label):
-        raise Http404(_(u'You are not allowed to access to this app'))
+    # if not request.user.has_perm(model._meta.app_label):
+    #     raise Http404(_('You are not allowed to access to this app'))
+    request.user.has_perm_to_access_or_die(model._meta.app_label)
 
-    # TODO: only use GET of GET request etc...
+    # TODO: only use GET on GET request etc...
     request_get = request.GET.get
     kwargs['show_actions'] = bool(int(request_get('sa', False)))
     extra_dict = {
@@ -378,7 +397,7 @@ def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, lv_state_id=None
     except NoHeaderFilterAvailable:
         # TODO: true HeaderFilter creation in inner popup
         return inner_popup(request, '', {}, is_valid=False,
-                           html=_(u'The desired list does not have any view, please create one.')
+                           html=_('The desired list does not have any view, please create one.')
                           )
 
     return inner_popup(request, template_name, template_dict, is_valid=False)

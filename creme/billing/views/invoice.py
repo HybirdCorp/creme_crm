@@ -34,6 +34,7 @@ from ..forms import invoice as invoice_forms
 from ..models import InvoiceStatus
 from ..views.workflow import generic_add_related
 
+from . import base
 
 Invoice = get_invoice_model()
 
@@ -43,6 +44,10 @@ def abstract_add_invoice(request, form=invoice_forms.InvoiceCreateForm,
                          initial_status=constants.DEFAULT_DRAFT_INVOICE_STATUS,
                          submit_label=Invoice.save_label,
                         ):
+    warnings.warn('billing.views.invoice.abstract_add_invoice() is deprecated ; '
+                  'use the class-based view InvoiceCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_initial={'status': initial_status},
                               extra_template_dict={'submit_label': submit_label},
@@ -78,6 +83,7 @@ def abstract_view_invoice(request, invoice_id, template='billing/view_invoice.ht
 @login_required
 @permission_required(('billing', cperm(Invoice)))
 def add(request):
+    warnings.warn('billing.views.invoice.add() is deprecated.', DeprecationWarning)
     return abstract_add_invoice(request)
 
 
@@ -132,6 +138,12 @@ def generate_number(request, invoice_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class InvoiceCreation(base.BaseCreation):
+    model = Invoice
+    form_class = invoice_forms.InvoiceCreateForm
+    initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
+
 
 class InvoiceDetail(generic.detailview.EntityDetail):
     model = Invoice

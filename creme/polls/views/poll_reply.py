@@ -59,6 +59,10 @@ def abstract_add_pollreply(request, form=preply_forms.PollRepliesCreateForm,
                            template='creme_core/generics/blockform/add.html',
                            submit_label=PollReply.multi_save_label,
                           ):
+    warnings.warn('polls.views.poll_reply.abstract_add_pollreply() is deprecated ; '
+                  'use the class-based view PollRepliesCreation instead.',
+                  DeprecationWarning
+                 )
     if request.method == 'POST':
         POST = request.POST
         reply_form = form(user=request.user, data=POST)
@@ -152,10 +156,10 @@ def abstract_view_pollreply(request, preply_id,
     return generic.view_entity(request, preply_id, PollReply, template=template)
 
 
-# TODO: change url (reply->replies or add_several ??)
 @login_required
 @permission_required(('polls', _CREATION_PERM))
 def add(request):
+    warnings.warn('polls.views.poll_reply.add() is deprecated.', DeprecationWarning)
     return abstract_add_pollreply(request)
 
 
@@ -424,6 +428,14 @@ def edit_line(request, preply_id, line_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+# TODO: use PollReply.multi_creation_label when all views are class based.
+#       then fix PollReply.creation_label
+
+class PollRepliesCreation(generic.add.EntityCreation):
+    model = PollReply
+    form_class = preply_forms.PollRepliesCreateForm
+    submit_label = PollReply.multi_save_label
 
 
 class PollReplyDetail(generic.detailview.EntityDetail):

@@ -14,12 +14,14 @@ urlpatterns = [
 
 if not persons.contact_model_is_custom():
     urlpatterns += [
-        url(r'^contact/add/(?P<number>\w+)[/]?$', views.add_contact, name='cti__create_contact'),
+        # url(r'^contact/add/(?P<number>\w+)[/]?$', views.add_contact, name='cti__create_contact'),
+        url(r'^contact/add/(?P<number>\w+)[/]?$', views.CTIContactCreation.as_view(), name='cti__create_contact'),
     ]
 
 if not persons.organisation_model_is_custom():
     urlpatterns += [
-        url(r'^organisation/add/(?P<number>\w+)[/]?$', views.add_orga, name='cti__create_organisation'),
+        # url(r'^organisation/add/(?P<number>\w+)[/]?$', views.add_orga, name='cti__create_organisation'),
+        url(r'^organisation/add/(?P<number>\w+)[/]?$', views.CTIOrganisationCreation.as_view(), name='cti__create_organisation'),
     ]
 
 if not activities.activity_model_is_custom():

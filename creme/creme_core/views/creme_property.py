@@ -27,13 +27,14 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 # TODO: move them to creme_core ?
-from creme.creme_config.forms.creme_property_type import CremePropertyTypeAddForm, CremePropertyTypeEditForm
+from creme.creme_config.forms import creme_property_type as ptype_forms
 
 from ..auth.decorators import login_required, permission_required
-from ..forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
+from ..forms import creme_property as prop_forms
 from ..gui.bricks import QuerysetBrick, Brick
 from ..models import CremeEntity, CremePropertyType
 from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
+
 from . import generic, bricks as bricks_views
 from .utils import build_cancel_path
 
@@ -59,24 +60,26 @@ def add_properties_bulk(request, ct_id):
         filtered[has_perm(entity)].append(entity)
 
     if request.method == 'POST':
-        form = AddPropertiesBulkForm(model=model, user=user,
-                                     entities=filtered[True],
-                                     forbidden_entities=filtered[False],
-                                     data=request.POST,
-                                    )
+        form = prop_forms.AddPropertiesBulkForm(
+                    model=model, user=user,
+                    entities=filtered[True],
+                    forbidden_entities=filtered[False],
+                    data=request.POST,
+        )
 
         if form.is_valid():
             form.save()
     else:
-        form = AddPropertiesBulkForm(model=model, user=user,
-                                     entities=filtered[True],
-                                     forbidden_entities=filtered[False],
-                                    )
+        form = prop_forms.AddPropertiesBulkForm(
+                    model=model, user=user,
+                    entities=filtered[True],
+                    forbidden_entities=filtered[False],
+        )
 
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                                {'form':  form,
-                                'title': _(u'Multiple adding of properties'),
-                                'submit_label': _(u'Add the properties'),
+                                'title': _('Multiple adding of properties'),
+                                'submit_label': _('Add the properties'),
                                },
                                is_valid=form.is_valid(),
                                reload=False,
@@ -86,39 +89,42 @@ def add_properties_bulk(request, ct_id):
 
 @login_required
 def add_to_entity(request, entity_id):
-    return generic.add_to_entity(request, entity_id, AddPropertiesForm,
-                                 _(u'New properties for «%s»'),
-                                 submit_label=_(u'Add the properties'),
+    return generic.add_to_entity(request, entity_id, prop_forms.AddPropertiesForm,
+                                 _('New properties for «%s»'),
+                                 submit_label=_('Add the properties'),
                                 )
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add_type(request):
-    # NB: does not work because it is not a ModelForm
-    # return add_entity(request, CremePropertyTypeAddForm)
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add_type(request):
+#     if request.method == 'POST':
+#         POST = request.POST
+#         form = ptype_forms.CremePropertyTypeAddForm(user=request.user, data=POST)
+#
+#         if form.is_valid():
+#             ptype = form.save()
+#
+#             return redirect(ptype)
+#
+#         cancel_url = POST.get('cancel_url')
+#     else:  # GET
+#         form = ptype_forms.CremePropertyTypeAddForm(user=request.user)
+#         cancel_url = build_cancel_path(request)
+#
+#     return render(request, 'creme_core/generics/blockform/add.html',
+#                   {'form':         form,
+#                    'title':        CremePropertyType.creation_label,
+#                    'submit_label': _('Save the type of property'),
+#                    'cancel_url':   cancel_url,
+#                   }
+#                  )
+class PropertyTypeCreation(generic.add.CremeModelCreation):
+    model = CremePropertyType
+    form_class = ptype_forms.CremePropertyTypeAddForm
 
-    if request.method == 'POST':
-        POST = request.POST
-        form = CremePropertyTypeAddForm(user=request.user, data=POST)
-
-        if form.is_valid():
-            ptype = form.save()
-
-            return redirect(ptype)
-
-        cancel_url = POST.get('cancel_url')
-    else:  # GET
-        form = CremePropertyTypeAddForm(user=request.user)
-        cancel_url = build_cancel_path(request)
-
-    return render(request, 'creme_core/generics/blockform/add.html',
-                  {'form':         form,
-                   'title':        CremePropertyType.creation_label,
-                   'submit_label': _(u'Save the type of property'),
-                   'cancel_url':   cancel_url,
-                  }
-                 )
+    def check_view_permission(self):
+        self.request.user.has_perm_to_admin_or_die('creme_core')
 
 
 @login_required
@@ -131,7 +137,7 @@ def edit_type(request, ptype_id):
 
     if request.method == 'POST':
         POST = request.POST
-        form = CremePropertyTypeEditForm(ptype, user=request.user, data=POST)
+        form = ptype_forms.CremePropertyTypeEditForm(ptype, user=request.user, data=POST)
 
         if form.is_valid():
             form.save()
@@ -140,13 +146,13 @@ def edit_type(request, ptype_id):
 
         cancel_url = POST.get('cancel_url')
     else:  # GET
-        form = CremePropertyTypeEditForm(ptype, user=request.user)
+        form = ptype_forms.CremePropertyTypeEditForm(ptype, user=request.user)
         cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
                   {'form': form,
                    'object': ptype,
-                   'submit_label': _(u'Save the modifications'),
+                   'submit_label': _('Save the modifications'),
                    'cancel_url': cancel_url,
                   }
                  )

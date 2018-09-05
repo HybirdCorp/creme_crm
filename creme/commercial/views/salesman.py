@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.urls import reverse
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
@@ -27,6 +29,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, list_view
 
 from creme.persons import get_contact_model
+from creme.persons.views.contact import ContactCreation
 
 from ..constants import PROP_IS_A_SALESMAN
 from ..forms.salesman import SalesManCreateForm
@@ -39,8 +42,12 @@ def abstract_add_salesman(request, form=SalesManCreateForm,
                           submit_label=_('Save the salesman'),
                           template='persons/add_contact_form.html',
                          ):
+    warnings.warn('commercial.views.salesman.abstract_add_salesman() is deprecated ; '
+                  'use the class-based view SalesManCreation instead.',
+                  DeprecationWarning
+                 )
     return add_entity(request, form, template=template,
-                      extra_template_dict={'title': _(u'Create a salesman'),
+                      extra_template_dict={'title': _('Create a salesman'),
                                            'submit_label': submit_label,
                                           },
                      )
@@ -61,6 +68,7 @@ def abstract_list_salesmen(request, title=_(u'List of salesmen')):
 @login_required
 @permission_required('persons', cperm(Contact))
 def add(request):
+    warnings.warn('commercial.views.salesman.add() is deprecated.', DeprecationWarning)
     return abstract_add_salesman(request)
 
 
@@ -68,3 +76,13 @@ def add(request):
 @permission_required('persons')
 def listview(request):
     return abstract_list_salesmen(request)
+
+
+# Class-Based views ------------------------------------------------------------
+
+class SalesManCreation(ContactCreation):
+    form_class = SalesManCreateForm
+    title = _('Create a salesman')
+
+    def get_submit_label(self):
+        return _('Save the salesman')

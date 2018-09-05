@@ -29,11 +29,15 @@ def image_listview(request):
     return generic.list_view(request, fake_models.FakeImage)
 
 
-@login_required
-@permission_required('creme_core')
-@permission_required('creme_core.add_fakecontact')
-def contact_add(request):
-    return generic.add_entity(request, fake_forms.FakeContactForm)
+# @login_required
+# @permission_required('creme_core')
+# @permission_required('creme_core.add_fakecontact')
+# def contact_add(request):
+#     return generic.add_entity(request, fake_forms.FakeContactForm)
+
+class FakeContactCreation(generic.add.EntityCreation):
+    model = fake_models.FakeContact
+    form_class = fake_forms.FakeContactForm
 
 
 @login_required

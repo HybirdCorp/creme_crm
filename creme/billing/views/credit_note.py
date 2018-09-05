@@ -31,7 +31,7 @@ from creme.creme_core.views.decorators import require_model_fields
 
 from .. import get_credit_note_model, constants
 from ..forms import credit_note as cnote_forms
-
+from . import base
 
 CreditNote = get_credit_note_model()
 
@@ -42,14 +42,18 @@ def abstract_add_credit_note(request, form=cnote_forms.CreditNoteCreateForm,
                              initial_status=1,
                              submit_label=CreditNote.save_label,
                             ):
+    warnings.warn('billing.views.credit_note.abstract_add_credit_note() is deprecated ; '
+                  'use the class-based view CreditNoteCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form, extra_initial={'status': initial_status},
                               extra_template_dict={'submit_label': submit_label},
                              )
 
 
 def abstract_link_to_credit_notes(request, base_id, form=cnote_forms.CreditNoteRelatedForm,
-                                  title=_(u'Credit notes for «%s»'),
-                                  submit_label=_(u'Save the credit notes'),
+                                  title=_('Credit notes for «%s»'),
+                                  submit_label=_('Save the credit notes'),
                                  ):
     return generic.add_to_entity(request, base_id, form, title, link_perm=True,
                                  submit_label=submit_label,
@@ -76,6 +80,7 @@ def abstract_view_creditnote(request, credit_note_id, template='billing/view_cre
 @login_required
 @permission_required(('billing', cperm(CreditNote)))
 def add(request):
+    warnings.warn('billing.views.credit_note.add() is deprecated', DeprecationWarning)
     return abstract_add_credit_note(request)
 
 
@@ -130,6 +135,11 @@ def delete_related_credit_note(request, credit_note_id, base_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class CreditNoteCreation(base.BaseCreation):
+    model = CreditNote
+    form_class = cnote_forms.CreditNoteCreateForm
+
 
 class CreditNoteDetail(generic.detailview.EntityDetail):
     model = CreditNote

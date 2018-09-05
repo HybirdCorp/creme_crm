@@ -37,7 +37,8 @@ if not activity_model_is_custom():
 if not project_model_is_custom():
     urlpatterns += [
         url(r'^projects[/]?$',                         project.listview,   name='projects__list_projects'),
-        url(r'^project/add[/]?$',                      project.add,        name='projects__create_project'),
+        # url(r'^project/add[/]?$',                      project.add,        name='projects__create_project'),
+        url(r'^project/add[/]?$',                      project.ProjectCreation.as_view(), name='projects__create_project'),
         url(r'^project/edit/(?P<project_id>\d+)[/]?$', project.edit,       name='projects__edit_project'),
         # url(r'^project/(?P<project_id>\d+)[/]?$',      project.detailview, name='projects__view_project'),
         url(r'^project/(?P<project_id>\d+)[/]?$',      project.ProjectDetail.as_view(), name='projects__view_project'),

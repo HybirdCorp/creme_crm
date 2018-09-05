@@ -60,7 +60,8 @@ property_patterns = [
     url(r'^delete_from_type[/]?$',               creme_property.delete_from_type,    name='creme_core__remove_property'),
 
     # Property type
-    url(r'^type/add[/]?$',                                creme_property.add_type,        name='creme_core__create_ptype'),
+    # url(r'^type/add[/]?$',                                creme_property.add_type,        name='creme_core__create_ptype'),
+    url(r'^type/add[/]?$',                                creme_property.PropertyTypeCreation.as_view(), name='creme_core__create_ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)[/]?$',               creme_property.type_detailview, name='creme_core__ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.edit_type,       name='creme_core__edit_ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.delete_type,     name='creme_core__delete_ptype'),
@@ -77,7 +78,8 @@ bricks_patterns = [
 ]
 
 entity_filter_patterns = [
-    url(r'^add/(?P<ct_id>\d+)[/]?$',      entity_filter.add,    name='creme_core__create_efilter'),
+    # url(r'^add/(?P<ct_id>\d+)[/]?$',      entity_filter.add,    name='creme_core__create_efilter'),
+    url(r'^add/(?P<ct_id>\d+)[/]?$',      entity_filter.EntityFilterCreation.as_view(), name='creme_core__create_efilter'),
     url(r'^edit/(?P<efilter_id>.+)[/]?$', entity_filter.edit,   name='creme_core__edit_efilter'),
     url(r'^delete[/]?$',                  entity_filter.delete, name='creme_core__delete_efilter'),
 
@@ -90,7 +92,8 @@ entity_filter_patterns = [
 ]
 
 headerfilter_patterns = [
-    url(r'^add/(?P<content_type_id>\d+)[/]?$',      header_filter.add,           name='creme_core__create_hfilter'),
+    # url(r'^add/(?P<content_type_id>\d+)[/]?$',      header_filter.add,           name='creme_core__create_hfilter'),
+    url(r'^add/(?P<ct_id>\d+)[/]?$',                header_filter.HeaderFilterCreation.as_view(), name='creme_core__create_hfilter'),
     url(r'^edit/(?P<header_filter_id>[\w-]+)[/]?$', header_filter.edit,          name='creme_core__edit_hfilter'),
     url(r'^delete[/]*',                             header_filter.delete,        name='creme_core__delete_hfilter'),
     url(r'^get_for_ctype[/]?$',                     header_filter.get_for_ctype, name='creme_core__hfilters'),
@@ -174,12 +177,14 @@ if settings.TESTS_ON:
         url(r'^tests/image/(?P<image_id>\d+)[/]?$', fake_views.FakeImageDetail.as_view(), name='creme_core__view_fake_image'),
 
         url(r'^tests/contacts[/]?$',                         fake_views.contact_listview,   name='creme_core__list_fake_contacts'),
-        url(r'^tests/contact/add[/]?$',                      fake_views.contact_add,        name='creme_core__create_fake_contact'),
+        # url(r'^tests/contact/add[/]?$',                      fake_views.contact_add,        name='creme_core__create_fake_contact'),
+        url(r'^tests/contact/add[/]?$',                      fake_views.FakeContactCreation.as_view(), name='creme_core__create_fake_contact'),
         url(r'^tests/contact/edit/(?P<contact_id>\d+)[/]?$', fake_views.contact_edit,       name='creme_core__edit_fake_contact'),
         # url(r'^tests/contact/(?P<contact_id>\d+)[/]?$',      fake_views.contact_detailview, name='creme_core__view_fake_contact'),
         url(r'^tests/contact/(?P<contact_id>\d+)[/]?$',      fake_views.FakeContactDetail.as_view(), name='creme_core__view_fake_contact'),
 
         # NB: keep legacy views until Creme 2.1
+        # TODO: remove tests for legacy views when these views are converted to new Class-Bases Views
         url(r'^tests/organisations[/]?$',                      fake_views.organisation_listview,   name='creme_core__list_fake_organisations'),
         url(r'^tests/organisation/add[/]?$',                   fake_views.organisation_add,        name='creme_core__create_fake_organisation'),
         url(r'^tests/organisation/edit/(?P<orga_id>\d+)[/]?$', fake_views.organisation_edit,       name='creme_core__edit_fake_organisation'),

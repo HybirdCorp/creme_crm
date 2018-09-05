@@ -43,6 +43,10 @@ Folder = get_folder_model()
 def abstract_add_folder(request, form=FolderForm,
                         submit_label=Folder.save_label,
                        ):
+    warnings.warn('documents.views.folder.abstract_add_folder() is deprecated ; '
+                  'use the class-based view FolderDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -123,6 +127,7 @@ def abstract_list_folders(request, **extra_kwargs):
 @login_required
 @permission_required(('documents', cperm(Folder)))
 def add(request):
+    warnings.warn('documents.views.folder.add() is deprecated.', DeprecationWarning)
     return abstract_add_folder(request)
 
 
@@ -152,6 +157,10 @@ def listview(request):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class FolderCreation(generic.add.EntityCreation):
+    model = Folder
+    form_class = FolderForm
 
 
 class FolderDetail(generic.detailview.EntityDetail):

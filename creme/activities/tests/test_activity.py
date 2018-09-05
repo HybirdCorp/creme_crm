@@ -3,7 +3,6 @@
 try:
     from datetime import datetime, date, time  # timedelta
     from functools import partial
-    # from json import loads as json_loads
 
     from django.apps import apps
     from django.contrib.auth import get_user_model
@@ -150,11 +149,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         check_content(efilter, 'Task01', 'Task02')
 
         sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_DISPLAY_REVIEW)
-        # self.assertIsNone(sv.user)
         self.assertIs(sv.value, True)
 
         sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
-        # self.assertIsNone(sv.user)
         self.assertIs(sv.value, True)
 
     # def test_portal(self):
@@ -168,7 +165,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         # Empty
         response = self.assertGET200(build_url(''))
-        # self.assertListEqual([], json_loads(response.content))
         self.assertListEqual([], response.json())
 
         # Valid type
@@ -176,7 +172,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertListEqual(list(ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_TASK)
                                                          .values_list('id', 'name')
                                  ),
-                             # json_loads(response.content)
                              response.json()
                             )
 
@@ -192,27 +187,39 @@ class ActivityTestCase(_ActivitiesTestCase):
         dojo = Organisation.objects.create(user=user, name='Dojo')
 
         url = self.ADD_URL
-        self.assertGET200(url)
+        lv_url = Activity.get_lv_absolute_url()
+        response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+        self.assertTemplateUsed(response, 'activities/add_activity_form.html')
+        self.assertTemplateUsed(response, 'activities/frags/activity_form_content.html')
+
+        context = response.context
+        self.assertEqual(_('Create an activity'), context.get('title'))
+        self.assertEqual(_('Save the activity'),  context.get('submit_label'))
+        self.assertEqual(lv_url,                  context.get('cancel_url'))
 
         title = 'My task'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(user)
-        response = self.client.post(url, follow=True,
-                                    data={'user':               user.pk,
-                                          'title':              title,
-                                          'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-                                          'status':             status.pk,
-                                          'start':              '2010-1-10',
-                                          'start_time':         '17:30:00',
-                                          'end':                '2010-1-10',
-                                          'end_time':           '18:45:00',
-                                          'my_participation_0': True,
-                                          'my_participation_1': my_calendar.pk,
-                                          'other_participants': self.formfield_value_multi_creator_entity(genma),
-                                          'subjects':           self.formfield_value_multi_generic_entity(ranma),
-                                          'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={'user':               user.pk,
+                  'title':              title,
+
+                  'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                  'status':             status.pk,
+
+                  'start':              '2010-1-10',
+                  'start_time':         '17:30:00',
+                  'end':                '2010-1-10',
+                  'end_time':           '18:45:00',
+
+                  'my_participation_0': True,
+                  'my_participation_1': my_calendar.pk,
+                  'other_participants': self.formfield_value_multi_creator_entity(genma),
+                  'subjects':           self.formfield_value_multi_generic_entity(ranma),
+                  'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
+                 }
+        )
         self.assertNoFormError(response)
 
         act = self.get_object_or_fail(Activity, type=constants.ACTIVITYTYPE_TASK, title=title)
@@ -279,7 +286,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                              _(u'You are not allowed to link this entity: {}').format(mireille)
                             )
 
-        fmt = _(u'Some entities are not linkable: {}').format
+        fmt = _('Some entities are not linkable: {}').format
         self.assertFormError(response, 'form', 'participating_users', fmt(other_user.linked_contact))
         self.assertFormError(response, 'form', 'other_participants',  fmt(genma))
         self.assertFormError(response, 'form', 'subjects',            fmt(akane))
@@ -543,15 +550,15 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', None,
-                             _(u"You can't set the end of your activity without setting its start")
+                             _("You can't set the end of your activity without setting its start")
                             )
 
         response = self.assertPOST200(url, follow=True, data=dict(data, start='2013-3-30'))
-        self.assertFormError(response, 'form', None, _(u'End time is before start time'))
+        self.assertFormError(response, 'form', None, _('End time is before start time'))
 
         response = self.assertPOST200(url, follow=True, data=dict(data, start='2013-3-29', busy=True))
         self.assertFormError(response, 'form', None,
-                             _(u"A floating on the day activity can't busy its participants")
+                             _("A floating on the day activity can't busy its participants")
                             )
 
     def test_createview_errors02(self):
@@ -569,7 +576,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            },
                                      )
         self.assertFormError(response, 'form', 'subjects',
-                             _(u'This content type is not allowed.')
+                             _('This content type is not allowed.')
                             )
 
     @skipIfCustomContact
@@ -592,7 +599,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                         }
                                      )
         self.assertFormError(response, 'form', 'other_participants',
-                             _(u'This entity does not exist.')
+                             _('This entity does not exist.')
                             )
 
     @skipIfNotInstalled('creme.assistants')
@@ -632,7 +639,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         alert1 = alerts[0]
         self.assertEqual(_('Alert of activity'), alert1.title)
-        self.assertEqual(_(u'Alert related to {activity}').format(activity=act), alert1.description)
+        self.assertEqual(_('Alert related to {activity}').format(activity=act), alert1.description)
         self.assertEqual(create_dt(2010, 2, 10, 10, 5), alert1.trigger_date)
 
         self.assertEqual(create_dt(2010, 1, 8, 0, 0), alerts[1].trigger_date)
@@ -778,7 +785,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         dojo = Organisation.objects.create(user=user, name='Dojo')
 
         url = reverse('activities__create_activity', args=('meeting',))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertEqual(_('Create a meeting'), response.context.get('title'))
 
         # TODO: help text of end (duration)
 
@@ -824,7 +832,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         subtype = self.get_object_or_fail(ActivitySubType, pk=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING)
 
         url = reverse('activities__create_activity', args=('phonecall',))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertEqual(_('Create a phone call'), response.context.get('title'))
 
         title = 'My call'
         my_calendar = Calendar.get_user_default_calendar(user)
@@ -861,7 +870,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'type_selector',
-                             _(u'This type causes constraint error.')
+                             _('This type causes constraint error.')
                             )
 
     def test_create_view_task01(self):
@@ -938,6 +947,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(meeting.id,   relation.object_entity_id)
 
     def test_createview_related02(self):
+        "Link to a user-Contact => selected a participating user"
         self.login()
 
         response = self.assertGET200(self._build_add_related_uri(self.other_user.linked_contact,
@@ -952,6 +962,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfCustomOrganisation
     def test_createview_related03(self):
+        "Link to an Entity which can be a subject."
         self.login()
 
         dojo = Organisation.objects.create(user=self.user, name='Tendo no dojo')
@@ -963,6 +974,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual([dojo.id], [e.id for e in subjects.initial])
 
     def test_createview_related04(self):
+        "Link to an Entity which cannot be a participant/subject."
         self.login()
 
         linked = Activity.objects.create(user=self.user, title='Meet01',
@@ -974,6 +986,21 @@ class ActivityTestCase(_ActivitiesTestCase):
             linked_entities = response.context['form'].fields['linked_entities']
 
         self.assertEqual([linked.id], [e.id for e in linked_entities.initial])
+
+    def test_createview_related05(self):
+        "Not allowed to LINK"
+        user = self.login(is_superuser=False, creatable_models=[Activity])
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE,  # Not LINK
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        linked = Activity.objects.create(user=user, title='Meet01',
+                                         type_id=constants.ACTIVITYTYPE_MEETING,
+                                        )
+        self.assertGET403(self._build_add_related_uri(linked, constants.ACTIVITYTYPE_PHONECALL))
 
     @skipIfCustomContact
     def test_createview_related_meeting01(self):
@@ -1021,7 +1048,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'type_selector',
-                             _(u'This type causes constraint error.'),
+                             _('This type causes constraint error.'),
                             )
 
     @skipIfCustomContact
@@ -1168,7 +1195,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             )
         self.assertFormError(
             response, 'form', None,
-            _(u"{participant} already participates to the activity «{activity}» between {start} and {end}.").format(
+            _('{participant} already participates to the activity «{activity}» between {start} and {end}.').format(
                 participant=contact,
                 activity=task02,
                 start='14:30:00',
@@ -1518,8 +1545,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     #     url = self.build_bulkedit_url([activity1, activity2], 'type')
     #     response = self.assertGET200(url)
     #     self.assertContains(response,
-    #                         escape(ungettext(u'The type of %s activity cannot be changed because it is an indisponibility.',
-    #                                          u'The type of %s activities cannot be changed because they are indisponibilities.',
+    #                         escape(ungettext('The type of %s activity cannot be changed because it is an indisponibility.',
+    #                                          'The type of %s activities cannot be changed because they are indisponibilities.',
     #                                          1
     #                                         ) % 1
     #                               )
@@ -1821,7 +1848,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         response = self.assertPOST200(uri, data={'participants': self.formfield_value_multi_creator_entity(contact)})
         self.assertFormError(response, 'form', 'participants',
-                             _(u'Some entities are not linkable: {}').format(contact)
+                             _('Some entities are not linkable: {}').format(contact)
                             )
         self.assertFalse(Relation.objects.filter(subject_entity=activity.id,
                                                  type=constants.REL_OBJ_PART_2_ACTIVITY,
@@ -1976,8 +2003,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         # Avoid duplicates
         response = self.assertPOST200(uri, data=data)
         self.assertFormError(response, 'form', 'subjects',
-                             ungettext(u'This entity is already a subject: %(duplicates)s',
-                                       u'These entities are already subjects: %(duplicates)s',
+                             ungettext('This entity is already a subject: %(duplicates)s',
+                                       'These entities are already subjects: %(duplicates)s',
                                        1
                                       ) % {'duplicates': orga}
                             )
@@ -2016,7 +2043,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         response = self.assertPOST200(uri, data={'subjects': self.formfield_value_multi_generic_entity(orga)})
         self.assertFormError(response, 'form', 'subjects',
-                             _(u'Some entities are not linkable: {}').format(orga)
+                             _('Some entities are not linkable: {}').format(orga)
                             )
         self.assertFalse(Relation.objects.filter(subject_entity=activity.id,
                                                  type=constants.REL_OBJ_ACTIVITY_SUBJECT,
@@ -2035,7 +2062,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       data={'subjects': self.formfield_value_multi_generic_entity(bad_subject)}
                                      )
         self.assertFormError(response, 'form', 'subjects',
-                             _(u"This content type is not allowed.")
+                             _('This content type is not allowed.')
                             )
 
     def test_indisponibility_createview01(self):
@@ -2071,8 +2098,14 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
         other_user = self.other_user
 
+        url = self.ADD_INDISPO_URL
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'activities/add_activity_form.html')
+        self.assertTemplateUsed(response, 'activities/frags/indispo_form_content.html')
+        self.assertEqual(_('Create an unavailability'), response.context.get('title'))
+
         title = 'Away'
-        response = self.client.post(self.ADD_INDISPO_URL, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={'user':               user.pk,
                                           'title':              title,
                                           'start':              '2010-1-10',
@@ -2208,11 +2241,11 @@ class ActivityTestCase(_ActivitiesTestCase):
                }
 
         response = self.client.post(url, data=data)
-        self.assertFormError(response, 'form', None, _(u'No participant'))
+        self.assertFormError(response, 'form', None, _('No participant'))
 
         response = self.client.post(url, data=dict(data, my_participation_0=True))
         self.assertFormError(response, 'form', 'my_participation',
-                             _(u'Enter a value if you check the box.')
+                             _('Enter a value if you check the box.')
                             )
 
         response = self.client.post(url, data=dict(data,
@@ -2357,16 +2390,16 @@ class ActivityTestCase(_ActivitiesTestCase):
     #                                        'UID:http://cremecrm.com\n'
     #                                       )
     #                    )
-    #     self.assertIn(u'SUMMARY:Act#2\n'
-    #                   u'DTSTART:20130402T090000Z\n'
-    #                   u'DTEND:20130402T100000Z\n'
-    #                   u'LOCATION:\n'
-    #                   u'CATEGORIES:%s\n'
-    #                   u'STATUS:\n'
-    #                   u'END:VEVENT\n' %  act2.type.name,
+    #     self.assertIn('SUMMARY:Act#2\n'
+    #                   'DTSTART:20130402T090000Z\n'
+    #                   'DTEND:20130402T100000Z\n'
+    #                   'LOCATION:\n'
+    #                   'CATEGORIES:%s\n'
+    #                   'STATUS:\n'
+    #                   'END:VEVENT\n' %  act2.type.name,
     #                   content
     #                  )
-    #     self.assertIn(u'SUMMARY:Act#1\n', content)
+    #     self.assertIn('SUMMARY:Act#1\n', content)
     #     self.assertTrue(content.endswith('END:VCALENDAR'))
 
     def test_dl_ical(self):
@@ -2397,16 +2430,16 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            'UID:http://cremecrm.com\n'
                                           )
                        )
-        self.assertIn(u'SUMMARY:Act#2\n'
-                      u'DTSTART:20130402T090000Z\n'
-                      u'DTEND:20130402T100000Z\n'
-                      u'LOCATION:\n'
-                      u'CATEGORIES:{}\n'
-                      u'STATUS:\n'
-                      u'END:VEVENT\n'.format(act2.type.name),
+        self.assertIn('SUMMARY:Act#2\n'
+                      'DTSTART:20130402T090000Z\n'
+                      'DTEND:20130402T100000Z\n'
+                      'LOCATION:\n'
+                      'CATEGORIES:{}\n'
+                      'STATUS:\n'
+                      'END:VEVENT\n'.format(act2.type.name),
                       content
                      )
-        self.assertIn(u'SUMMARY:Act#1\n', content)
+        self.assertIn('SUMMARY:Act#1\n', content)
         self.assertTrue(content.endswith('END:VCALENDAR'))
 
     def test_clone01(self):

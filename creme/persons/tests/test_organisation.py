@@ -96,7 +96,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         url = reverse('persons__create_organisation')
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'persons/add_organisation_form.html')
 
         count = Organisation.objects.count()
         name  = 'Spectre'

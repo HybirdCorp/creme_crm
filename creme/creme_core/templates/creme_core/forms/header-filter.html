@@ -9,6 +9,6 @@
         {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form_title %}
     {% else %}
         {% blocktrans with view=form.instance asvar form_title %}Edit the view of list «{{view}}»{% endblocktrans %}
-        {% include "creme_core/generics/blockform/base.html" with icon_name='header_filter' icon_label=_('View of list') title=form_title %}
+        {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form_title %}
     {% endif %}
 {% endblock %}

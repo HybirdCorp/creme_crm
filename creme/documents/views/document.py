@@ -30,7 +30,7 @@ from creme.creme_core.views import generic
 
 from .. import get_folder_model, get_document_model
 from ..constants import DEFAULT_HFILTER_DOCUMENT
-from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, DocumentEditForm
+from ..forms import document as doc_forms
 
 
 Document = get_document_model()
@@ -38,9 +38,14 @@ Document = get_document_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_document(request, form=DocumentCreateForm,
+def abstract_add_document(request, form=doc_forms.DocumentCreateForm,
                           submit_label=Document.save_label,
                          ):
+    warnings.warn('documents.views.document.abstract_add_document() is deprecated ; '
+                  'use the class-based view DocumentCreation instead.',
+                  DeprecationWarning
+                 )
+
     folder = get_folder_model().objects.first()
 
     return generic.add_entity(
@@ -53,8 +58,9 @@ def abstract_add_document(request, form=DocumentCreateForm,
     )
 
 
-def abstract_add_related_document(request, entity_id, form=RelatedDocumentCreateForm,
-                                  title=_(u'New document for «%s»'),
+def abstract_add_related_document(request, entity_id,
+                                  form=doc_forms.RelatedDocumentCreateForm,
+                                  title=_('New document for «%s»'),
                                   submit_label=Document.save_label,
                                  ):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
@@ -65,12 +71,12 @@ def abstract_add_related_document(request, entity_id, form=RelatedDocumentCreate
     user.has_perm_to_link_or_die(Document, owner=None)
 
     return generic.add_model_with_popup(request, form, title % entity,
-                                initial={'entity': entity},
-                                submit_label=submit_label,
-                               )
+                                        initial={'entity': entity},
+                                        submit_label=submit_label,
+                                       )
 
 
-def abstract_edit_document(request, document_id, form=DocumentEditForm):
+def abstract_edit_document(request, document_id, form=doc_forms.DocumentEditForm):
     return generic.edit_entity(request, document_id, Document, form)
 
 
@@ -87,6 +93,7 @@ def abstract_view_document(request, object_id,
 @login_required
 @permission_required(('documents', cperm(Document)))
 def add(request):
+    warnings.warn('documents.views.document.add() is deprecated.', DeprecationWarning)
     return abstract_add_document(request)
 
 
@@ -116,6 +123,19 @@ def listview(request):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class DocumentCreation(generic.add.EntityCreation):
+    model = Document
+    form_class = doc_forms.DocumentCreateForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+        # TODO: would be cool to initialize with an instance like:
+        #       initial['linked_folder'] = get_folder_model().objects.first()
+        folder = get_folder_model().objects.first()
+        initial['linked_folder'] = folder.id if folder else None
+
+        return initial
 
 
 class DocumentDetail(generic.detailview.EntityDetail):

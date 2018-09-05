@@ -1325,14 +1325,17 @@ class _EntityFilterForm(CremeModelForm):
 
 
 class EntityFilterCreateForm(_EntityFilterForm):
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, ctype, *args, **kwargs):
         # super(EntityFilterCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self._entity_type = self.instance.entity_type = ct = self.initial['content_type']
+        # self._entity_type = self.instance.entity_type = ct = self.initial['content_type']
+        self._entity_type = self.instance.entity_type = ctype
         fields = self.fields
 
         for field_name in self._CONDITIONS_FIELD_NAMES:
-            fields[field_name].initialize(ct)
+            # fields[field_name].initialize(ct)
+            fields[field_name].initialize(ctype)
 
         fields['use_or'].initial = 'False'
 
