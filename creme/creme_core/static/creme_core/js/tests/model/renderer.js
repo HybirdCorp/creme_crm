@@ -427,22 +427,46 @@ QUnit.test('creme.model.ChoiceRenderer.parse (converter)', function(assert) {
                         {value:[5, 6], label:'c', help: undefined, disabled:true,  selected:false, visible: true, tags:[]},]);
 });
 
+QUnit.test('creme.model.ChoiceRenderer.choicesFromTuples ([])', function(assert) {
+    var options = creme.model.ChoiceRenderer.choicesFromTuples();
+    deepEqual([], options);
+
+    options = creme.model.ChoiceRenderer.choicesFromTuples([]);
+    deepEqual([], options);
+});
+
 QUnit.test('creme.model.ChoiceRenderer.choicesFromTuples ([value, label])', function(assert) {
     var data = [[[1, 2], 'a'], [[3, 4], 'b'], [[5, 6], 'c']];
     var options = creme.model.ChoiceRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{value:[1, 2], label:'a', disabled:false, selected:false, visible: true},
-                        {value:[3, 4], label:'b', disabled:false, selected:false, visible: true},
-                        {value:[5, 6], label:'c', disabled:false, selected:false, visible: true}]);
+    deepEqual(options, [{value:[1, 2], label:'a', help: undefined, disabled:false, selected:false, visible: true},
+                        {value:[3, 4], label:'b', help: undefined, disabled:false, selected:false, visible: true},
+                        {value:[5, 6], label:'c', help: undefined, disabled:false, selected:false, visible: true}]);
 });
 
 QUnit.test('creme.model.ChoiceRenderer.choicesFromTuples (value)', function(assert) {
-    var data = ['a', 'b', 'c'];
+    var data = ['a', 'b', 'c', null];
     var options = creme.model.ChoiceRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{value:'a', label:'a', disabled:false, selected:false, visible: true},
-                        {value:'b', label:'b', disabled:false, selected:false, visible: true},
-                        {value:'c', label:'c', disabled:false, selected:false, visible: true}]);
+    deepEqual(options, [{value:'a', label:'a', help: undefined, disabled:false, selected:false, visible: true},
+                        {value:'b', label:'b', help: undefined, disabled:false, selected:false, visible: true},
+                        {value:'c', label:'c', help: undefined, disabled:false, selected:false, visible: true},
+                        {value:null, label:'null', help: undefined, disabled:false, selected:false, visible: true}]);
+});
+
+QUnit.test('creme.model.ChoiceRenderer.choicesFromTuples ({value: value, label:label})', function(assert) {
+    var data = [{value:[1, 2], label:'a'},
+                {value:[3, 4], label:'b'},
+                {value:[5, 6], label:'c'},
+                {value:7},
+                {value:null, label:'empty'}];
+    var options = creme.model.ChoiceRenderer.choicesFromTuples(data);
+
+    deepEqual(options, [{value:[1, 2], label:'a', help: undefined, disabled:false, selected:false, visible: true},
+                        {value:[3, 4], label:'b', help: undefined, disabled:false, selected:false, visible: true},
+                        {value:[5, 6], label:'c', help: undefined, disabled:false, selected:false, visible: true},
+                        {value:7, label:'7', help: undefined, disabled:false, selected:false, visible: true},
+                        {value:null, label:'empty', help: undefined, disabled:false, selected:false, visible: true}]);
 });
 
 assertOptionGroups = function(element, expected) {
@@ -847,21 +871,60 @@ QUnit.test('creme.model.ChoiceGroupRenderer (parse)', function(assert) {
                                                  '</options></select>')));
 });
 
+QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples ([])', function(assert) {
+    var options = creme.model.ChoiceGroupRenderer.choicesFromTuples();
+    deepEqual([], options);
+
+    options = creme.model.ChoiceGroupRenderer.choicesFromTuples([]);
+    deepEqual([], options);
+});
+
+QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples ([value, label])', function(assert) {
+    var data = [[1, 'a'], [24, 'b'], [5, 'D'], [12.5, 'c']];
+    var options = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
+
+    deepEqual(options, [{group: undefined, value:1,    label:'a', help: undefined, disabled:false, selected:false, visible: true},
+                        {group: undefined, value:24,   label:'b', help: undefined, disabled:false, selected:false, visible: true},
+                        {group: undefined, value:5,    label:'D', help: undefined, disabled:false, selected:false, visible: true},
+                        {group: undefined, value:12.5, label:'c', help: undefined, disabled:false, selected:false, visible: true}]);
+});
+
 QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples ([value, label, group])', function(assert) {
     var data = [[[1, 2], 'a'], [[3, 4], 'b', 'group1'], [[5, 6], 'c', 'group2'], [7, 'd', 'group1']];
     var options = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{group: undefined, value:[1, 2], label:'a', disabled:false, selected:false, visible: true},
-                        {group: 'group1',  value:[3, 4], label:'b', disabled:false, selected:false, visible: true},
-                        {group: 'group2',  value:[5, 6], label:'c', disabled:false, selected:false, visible: true},
-                        {group: 'group1',  value:7,      label:'d', disabled:false, selected:false, visible: true}]);
+    deepEqual(options, [{group: undefined, value:[1, 2], label:'a', help: undefined, disabled:false, selected:false, visible: true},
+                        {group: 'group1',  value:[3, 4], label:'b', help: undefined, disabled:false, selected:false, visible: true},
+                        {group: 'group2',  value:[5, 6], label:'c', help: undefined, disabled:false, selected:false, visible: true},
+                        {group: 'group1',  value:7,      label:'d', help: undefined, disabled:false, selected:false, visible: true}]);
 });
 
 QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples (value)', function(assert) {
-    var data = ['a', 'b', 'c'];
+    var data = ['a', 'b', 'c', null];
     var options = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
 
-    deepEqual(options, [{group: undefined, value:'a', label:'a', disabled:false, selected:false, visible: true},
-                        {group: undefined, value:'b', label:'b', disabled:false, selected:false, visible: true},
-                        {group: undefined, value:'c', label:'c', disabled:false, selected:false, visible: true}]);
+    deepEqual(options, [{group: undefined, value:'a', label:'a', help: undefined, disabled:false, selected:false, visible: true},
+                        {group: undefined, value:'b', label:'b', help: undefined, disabled:false, selected:false, visible: true},
+                        {group: undefined, value:'c', label:'c', help: undefined, disabled:false, selected:false, visible: true},
+                        {group: undefined, value:null, label:'null', help: undefined, disabled:false, selected:false, visible: true}]);
+});
+
+QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples ({value: value, label:label})', function(assert) {
+    var data = [{value:[1, 2], label:'a'},
+                {value:[3, 4], label:'b', group:'group1'},
+                {value:[5, 6], label:'c', group:'group2'},
+                {value:7, label:'d', group:'group1'},
+                {value:8, group:'group2'},
+                {value:null, group:'group2'},
+                {value:null, label:'empty', group:'group2'}];
+
+    var options = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
+
+    deepEqual(options, [{group: undefined, value:[1, 2], label:'a',     help: undefined, disabled:false, selected:false, visible: true},
+                        {group: 'group1',  value:[3, 4], label:'b',     help: undefined, disabled:false, selected:false, visible: true},
+                        {group: 'group2',  value:[5, 6], label:'c',     help: undefined, disabled:false, selected:false, visible: true},
+                        {group: 'group1',  value:7,      label:'d',     help: undefined, disabled:false, selected:false, visible: true},
+                        {group: 'group2',  value:8,      label:'8',     help: undefined, disabled:false, selected:false, visible: true},
+                        {group: 'group2',  value:null,   label:'null',  help: undefined, disabled:false, selected:false, visible: true},
+                        {group: 'group2',  value:null,   label:'empty', help: undefined, disabled:false, selected:false, visible: true}]);
 });

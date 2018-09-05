@@ -48,9 +48,8 @@ def json_list_enumerable(request, ct_id):
 
         return sorted([{'value': filter.pk,
                         'label': filter.name,
-                        'help':  u'{} ({})'.format(filter.entity_type, filter.user)
-                                 if filter.is_private else
-                                 str(filter.entity_type),
+                        'help':  _(u'Private ({})').format(filter.user)
+                                 if filter.is_private else '',
                         'group': str(filter.entity_type),
                        } for filter in EntityFilter.objects.all()
                       ],
