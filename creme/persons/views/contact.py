@@ -22,6 +22,7 @@ import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
+from django.utils.http import is_safe_url
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -77,9 +78,15 @@ def abstract_add_related_contact(request, orga_id, rtype_id,
 
         initial['relation_type'] = rtype.symmetric_type
 
+    redirect_to = request.POST.get('callback_url') or request.GET.get('callback_url')
+    redirect_to_is_safe = is_safe_url(
+        url=redirect_to,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    )
+
     return generic.add_entity(request, form,
-                              url_redirect=request.POST.get('callback_url') or
-                                           request.GET.get('callback_url'),
+                              url_redirect=redirect_to if redirect_to_is_safe else '',
                               template=template, extra_initial=initial,
                               extra_template_dict={'submit_label': submit_label},
                              )
