@@ -16,7 +16,7 @@ try:
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import (HeaderFilter, FieldsConfig,
-            RelationType, CustomField)
+            RelationType, CustomField, EntityFilter, EntityFilterCondition)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -93,11 +93,48 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('created__range', cell.filter_string)
         self.assertIs(cell.is_hidden, False)
 
-        self.assertRedirects(response, '{}?hfilter={}'.format(FakeOrganisation.get_lv_absolute_url(), hfilter.pk))
+        # self.assertRedirects(response, '{}?hfilter={}'.format(FakeOrganisation.get_lv_absolute_url(), hfilter.pk))
+        lv_url = FakeOrganisation.get_lv_absolute_url()
+        self.assertRedirects(response, lv_url)
+
+        # --
+        context = self.assertGET200(lv_url).context
+        selected_hfilter = context['header_filters'].selected
+        self.assertIsInstance(selected_hfilter, HeaderFilter)
+        self.assertEqual(hfilter.id, selected_hfilter.id)
+        self.assertEqual(hfilter.id, context['list_view_state'].header_filter_id)
 
     def test_create02(self):
         user = self.login()
 
+        lv_url = FakeContact.get_lv_absolute_url()
+
+        # Create a view to post the entity filter
+        HeaderFilter.create(
+            pk='creme_core-tests_views_header_filter_test_create02',
+            name='A FakeContact view',  # Starts with "A" => first
+            model=FakeContact,
+            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                        (EntityCellRegularField, {'name': 'first_name'}),
+                        (EntityCellRegularField, {'name': 'email'}),
+                      ],
+        )
+
+        # Set a filter in the session (should be kept)
+        efilter = EntityFilter.create('creme_core-tests_views_header_filter_test_create02',
+                            name='Misato', model=FakeContact,
+                            is_custom=True,
+                            conditions=[EntityFilterCondition.build_4_field(
+                                    model=FakeContact,
+                                    operator=EntityFilterCondition.EQUALS,
+                                    name='first_name', values=['Misato'],
+                                ),
+                            ],
+                           )
+        response = self.assertPOST200(lv_url, data={'filter': efilter.id})
+        self.assertEqual(efilter.id, response.context['list_view_state'].entity_filter_id)
+
+        # --
         ct = self.contact_ct
         loves = RelationType.create(('test-subject_love', u'Is loving'),
                                     ('test-object_love',  u'Is loved by')
@@ -165,7 +202,18 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertIsInstance(cell, EntityCellCustomField)
         self.assertEqual(str(customfield.id), cell.value)
 
-        self.assertRedirects(response, '{}?hfilter={}'.format(FakeContact.get_lv_absolute_url(), hfilter.pk))
+        # self.assertRedirects(response, '{}?hfilter={}'.format(FakeContact.get_lv_absolute_url(), hfilter.pk))
+        self.assertRedirects(response, lv_url)
+
+        # --
+        context = self.assertGET200(lv_url).context
+        selected_hfilter = context['header_filters'].selected
+        self.assertIsInstance(selected_hfilter, HeaderFilter)
+        self.assertEqual(hfilter.id, selected_hfilter.id)
+
+        lvs = context['list_view_state']
+        self.assertEqual(hfilter.id, lvs.header_filter_id)
+        self.assertEqual(efilter.id, lvs.entity_filter_id)
 
     def test_create03(self):
         "Check app credentials"
@@ -213,31 +261,42 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.get_object_or_fail(HeaderFilter, name=name)
 
     def test_create05(self):
+        "Use cancel_url for redirection."
+        self.login()
+
+        callback = FakeOrganisation.get_lv_absolute_url()
+        response = self.client.post(self._build_add_url(self.contact_ct), follow=True,
+                                    data={'name':      'DefaultHeaderFilter',
+                                          'cells':     'regular_field-first_name',
+                                          'cancel_url': callback,
+                                         },
+                                   )
+
+        self.assertNoFormError(response)
+        self.assertRedirects(response, callback)
+
+    def test_create06(self):
         "A staff user can create a private filter for another user"
         self.login(is_staff=True)
 
         name = 'DefaultHeaderFilter'
-        callback = FakeOrganisation.get_lv_absolute_url()
         response = self.client.post(self._build_add_url(self.contact_ct), follow=True,
                                     data={'name': name,
                                           'user': self.other_user.id,
                                           'is_private': 'on',
                                           'cells': 'regular_field-first_name',
-                                          'cancel_url': callback,
                                          },
                                    )
 
         self.assertNoFormError(response)
         self.get_object_or_fail(HeaderFilter, name=name)
 
-        self.assertRedirects(response, '{}?hfilter={}'.format(callback, HeaderFilter.objects.first().pk))
-
-    def test_create06(self):
+    def test_create07(self):
         "Not an Entity type"
         self.login()
         self.assertGET409(self._build_add_url(ContentType.objects.get_for_model(RelationType)))
 
-    def test_create07(self):
+    def test_create08(self):
         "FieldsConfig"
         self.login()
 

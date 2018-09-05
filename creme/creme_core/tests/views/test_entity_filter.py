@@ -13,8 +13,9 @@ try:
     from creme.creme_core.tests.views.base import ViewsTestCase
     from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeCivility,
             FakeImage, FakeDocument, FakeFolder, FakeProduct)
+    from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
-            EntityFilterVariable, CustomField, RelationType, CremePropertyType)
+            EntityFilterVariable, HeaderFilter, CustomField, RelationType, CremePropertyType)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -136,7 +137,16 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                                condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
-        self.assertRedirects(response, '{}?filter={}'.format(FakeContact.get_lv_absolute_url(), efilter.id))
+        # self.assertRedirects(response, '{}?filter={}'.format(FakeContact.get_lv_absolute_url(), efilter.id))
+        lv_url = FakeContact.get_lv_absolute_url()
+        self.assertRedirects(response, lv_url)
+
+        # --
+        context = self.assertGET200(lv_url).context
+        selected_efilter = context['entity_filters'].selected
+        self.assertIsInstance(selected_efilter, EntityFilter)
+        self.assertEqual(efilter.id, selected_efilter.id)
+        self.assertEqual(efilter.id, context['list_view_state'].entity_filter_id)
 
     def test_create02(self):
         user = self.login()
@@ -282,6 +292,58 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(subfilter.id,                        condition.name)
 
     def test_create03(self):
+        "Existing state session is kept."
+        self.login()
+
+        lv_url = FakeOrganisation.get_lv_absolute_url()
+        ct = self.ct_orga
+
+        # Set a header filter in the session (should be kept)
+        hfilter1 = HeaderFilter.objects.filter(entity_type=ct).first()
+        self.assertIsNotNone(hfilter1)
+        hfilter2 = HeaderFilter.create(
+            pk='creme_core-tests_views_entity_filter_test_create03',
+            name='Ze last FakeContact view',
+            model=FakeOrganisation,
+            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                        (EntityCellRegularField, {'name': 'email'}),
+                       ],
+        )
+        self.assertGreater(hfilter2.name, hfilter1.name)
+
+        response = self.assertPOST200(lv_url, data={'hfilter': hfilter2.id})
+        self.assertEqual(hfilter2.id, response.context['list_view_state'].header_filter_id)
+
+        # --
+        name = 'Filter "nerv"'
+        response = self.client.post(self._build_add_url(ct), follow=True,
+                                    data={'name': name,
+                                          'use_or': 'False',
+                                          'fields_conditions': self._build_rfields_data(
+                                                operator=EntityFilterCondition.CONTAINS,
+                                                name='name',
+                                                value='NERV',
+                                            ),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertRedirects(response, lv_url)
+
+        efilter = self.get_object_or_fail(EntityFilter, entity_type=ct, name=name)
+
+        self.assertRedirects(response, lv_url)
+
+        # --
+        context = self.assertGET200(lv_url).context
+        selected_efilter = context['entity_filters'].selected
+        self.assertIsInstance(selected_efilter, EntityFilter)
+        self.assertEqual(efilter.id, selected_efilter.id)
+
+        lvs = context['list_view_state']
+        self.assertEqual(efilter.id, lvs.entity_filter_id)
+        self.assertEqual(hfilter2.id, lvs.header_filter_id)
+
+    def test_create04(self):
         "Date sub-field + callback_url"
         self.login()
 
@@ -313,9 +375,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                          condition.name)
         self.assertEqual({'name': daterange_type},            condition.decoded_value)
 
-        self.assertRedirects(response, '{}?filter={}'.format(callback_url, efilter.id))
+        # self.assertRedirects(response, '{}?filter={}'.format(callback_url, efilter.id))
+        self.assertRedirects(response, callback_url)
 
-    def test_create04(self):
+    def test_create05(self):
         "Error: no conditions of any type"
         self.login()
 
@@ -329,7 +392,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                              errors=_('The filter must have at least one condition.')
                             )
 
-    def test_create05(self):
+    def test_create06(self):
         "Cannot create a private filter for another user (but OK with one of our teams)"
         user = self.login()
 
@@ -368,7 +431,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.get_object_or_fail(EntityFilter, name=name)
 
-    def test_create06(self):
+    def test_create07(self):
         "A staff  user can create a private filter for another user"
         user = self.login(is_staff=True)
 
@@ -421,7 +484,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.get_object_or_fail(EntityFilter, name=name)
 
-    def test_create07(self):
+    def test_create08(self):
         "Not an Entity type"
         self.login()
         self.assertGET409(self._build_add_url(ContentType.objects.get_for_model(RelationType)))
