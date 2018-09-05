@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
+import warnings
 import logging
 
 from django.core.exceptions import PermissionDenied
@@ -40,6 +40,10 @@ logger = logging.getLogger(__name__)
 
 
 def _set_current_hf(request, path, hf_instance):
+    warnings.warn('creme_core.views.header_filter._set_current_hf() is deprecated.',
+                  DeprecationWarning
+                 )
+
     lvs = ListViewState.get_state(request, path)
     if lvs:
         lvs.header_filter_id = hf_instance.id
@@ -58,16 +62,29 @@ def add(request, content_type_id, extra_template_dict=None):
     if not issubclass(model, CremeEntity):
         raise ConflictError(u'This model is not a entity model: {}'.format(model))
 
+    post_save = None
     callback_url = request.POST.get('cancel_url')
 
     if not callback_url:
         try:
-            callback_url = '{}?hfilter=%s'.format(model.get_lv_absolute_url())
+            # callback_url = '{}?hfilter=%s'.format(model.get_lv_absolute_url())
+            callback_url = model.get_lv_absolute_url()
         except AttributeError:
             logger.debug('%s has no get_lv_absolute_url() method ?!', model)
-            callback_url = '/'
+            # callback_url = '/'
+    # else:
+    #     callback_url = '{}?hfilter=%s'.format(callback_url)
+
+    if callback_url:
+        # Set current HeaderFilter
+        def post_save(request_, instance):
+            lvs = ListViewState.get_state(request_, callback_url) or \
+                  ListViewState(url=callback_url)
+
+            lvs.header_filter_id = instance.id
+            lvs.register_in_session(request_)
     else:
-        callback_url = '{}?hfilter=%s'.format(callback_url)
+        callback_url = '/'
 
     ctx = {}
     if extra_template_dict:
@@ -78,7 +95,8 @@ def add(request, content_type_id, extra_template_dict=None):
                       template='creme_core/forms/header-filter.html',
                       extra_initial={'content_type': ct_entity},
                       extra_template_dict=ctx,
-                      function_post_save=lambda r, i: _set_current_hf(r, callback_url, i),
+                      # function_post_save=lambda r, i: _set_current_hf(r, callback_url, i),
+                      function_post_save=post_save,
                      )
 
 

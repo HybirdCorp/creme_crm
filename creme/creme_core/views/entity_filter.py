@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging  # warnings
+import logging
+import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
@@ -42,6 +43,10 @@ logger = logging.getLogger(__name__)
 
 
 def _set_current_efilter(request, path, filter_instance):
+    warnings.warn('creme_core.views.entity_filter._set_current_efilter() is deprecated.',
+                  DeprecationWarning
+                 )
+
     lvs = ListViewState.get_state(request, path)
     if lvs:
         lvs.entity_filter_id = filter_instance.id
@@ -60,22 +65,36 @@ def add(request, ct_id):
     if not issubclass(model, CremeEntity):
         raise ConflictError(u'This model is not a entity model: {}'.format(model))
 
+    post_save = None
     callback_url = request.POST.get('cancel_url')
 
     if not callback_url:
         try:
-            callback_url = '{}?filter=%s'.format(model.get_lv_absolute_url())
+            # callback_url = '{}?filter=%s'.format(model.get_lv_absolute_url())
+            callback_url = model.get_lv_absolute_url()
         except AttributeError:
             logger.debug('%s has no get_lv_absolute_url() method ?!', model)
-            callback_url = '/'
+            # callback_url = '/'
+    # else:
+    #     callback_url = '{}?filter=%s'.format(callback_url)
+
+    if callback_url:
+        # Set current EntityFilter
+        def post_save(request_, instance):
+            lvs = ListViewState.get_state(request_, callback_url) or \
+                  ListViewState(url=callback_url)
+
+            lvs.entity_filter_id = instance.id
+            lvs.register_in_session(request_)
     else:
-        callback_url = '{}?filter=%s'.format(callback_url)
+        callback_url = '/'
 
     return add_entity(request, EntityFilterCreateForm,
                       url_redirect=callback_url,
                       template='creme_core/forms/entity-filter.html',
                       extra_initial={'content_type': ct},
-                      function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
+                      # function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
+                      function_post_save=post_save,
                      )
 
 
