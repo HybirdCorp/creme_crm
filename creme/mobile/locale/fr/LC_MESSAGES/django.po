@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-05 12:06+0200\n"
+"POT-Creation-Date: 2018-09-05 11:37+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -521,7 +521,7 @@ msgid "Your search is too short."
 msgstr "Votre recherche est trop courte."
 
 #: views.py:481
-msgid "You cannot create a call to youself."
+msgid "You cannot create a call to yourself."
 msgstr "Vous ne pouvez pas créer un appel vers vous-même."
 
 #: views.py:540 views.py:577
