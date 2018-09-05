@@ -569,6 +569,29 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                              _('Select a valid choice. That choice is not one of the available choices.')
                             )
 
+    @skipIfCustomOrganisation
+    def test_create_linked_contact06(self):
+        "Unsafe redirection URL"
+        user = self.login()
+        orga = Organisation.objects.create(user=user, name='Acme')
+
+        first_name = 'Bugs'
+        last_name = 'Bunny'
+        response = self.client.post(self._build_addrelated_uri(orga.id, url='http://kernel.org'),
+                                    data={'user':          user.id,
+
+                                          'orga_overview': 'dontcare',
+                                          'relation':      REL_SUB_EMPLOYED_BY,
+
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                         },
+                                   )
+        self.assertNoFormError(response, status=302)
+
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertRedirects(response, contact.get_absolute_url())
+
     @skipIfCustomAddress
     def test_clone(self):
         "Addresses & is_user are problematic"
