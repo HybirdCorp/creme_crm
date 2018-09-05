@@ -483,7 +483,7 @@ def _get_participants(user, POST):
     person_id = get_from_POST_or_404(POST, 'person_id', int)
 
     if person_id == me.id:
-        raise ConflictError(_('You cannot create a call to youself.'))
+        raise ConflictError(_('You cannot create a call to yourself.'))
 
     person = _get_person_or_404(person_id, user)
     user.has_perm_to_link_or_die(person)
