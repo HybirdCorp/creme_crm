@@ -41,6 +41,10 @@ Graph = get_graph_model()
 def abstract_add_graph(request, form=GraphForm,
                        submit_label=Graph.save_label,
                       ):
+    warnings.warn('graphs.views.graph.abstract_dd_graph() is deprecated ; '
+                  'use the class-based view GraphCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -63,6 +67,7 @@ def abstract_view_graph(request, graph_id,
 @login_required
 @permission_required(('graphs', cperm(Graph)))
 def add(request):
+    warnings.warn('graphs.views.graph.add() is deprecated.', DeprecationWarning)
     return abstract_add_graph(request)
 
 
@@ -78,7 +83,7 @@ def dl_png(request, graph_id):
         return graph.generate_png(user)
     except Graph.GraphException:
         return render(request, 'graphs/graph_error.html',
-                      {'error_message': _(u'This graph is too big!')},
+                      {'error_message': _('This graph is too big!')},
                      )
 
 
@@ -125,6 +130,11 @@ def delete_relation_type(request, graph_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+
+class GraphCreation(generic.add.EntityCreation):
+    model = Graph
+    form_class = GraphForm
 
 
 class GraphDetail(generic.detailview.EntityDetail):

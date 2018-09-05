@@ -19,22 +19,25 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from .. import utils
 from ..auth.decorators import login_required
-from ..core.exceptions import ConflictError
-from ..forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm
+# from ..core.exceptions import ConflictError
+# from ..forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm
+from ..forms import entity_filter as efilter_forms
 from ..gui.listview import ListViewState
-from ..models import EntityFilter, RelationType, CremeEntity
-from .generic import add_entity
+from ..models import EntityFilter, RelationType  # CremeEntity
+from . import generic
+# from .generic import add_entity
 from .utils import build_cancel_path
 
 # TODO: factorise with HeaderFilter ??
@@ -42,60 +45,111 @@ from .utils import build_cancel_path
 logger = logging.getLogger(__name__)
 
 
-def _set_current_efilter(request, path, filter_instance):
-    warnings.warn('creme_core.views.entity_filter._set_current_efilter() is deprecated.',
-                  DeprecationWarning
-                 )
+# def _set_current_efilter(request, path, filter_instance):
+#     warnings.warn('creme_core.views.entity_filter._set_current_efilter() is deprecated.',
+#                   DeprecationWarning
+#                  )
+#
+#     lvs = ListViewState.get_state(request, path)
+#     if lvs:
+#         lvs.entity_filter_id = filter_instance.id
+#         lvs.register_in_session(request)
 
-    lvs = ListViewState.get_state(request, path)
-    if lvs:
-        lvs.entity_filter_id = filter_instance.id
+
+# @login_required
+# def add(request, ct_id):
+#     ct = utils.get_ct_or_404(ct_id)
+#
+#     if not request.user.has_perm(ct.app_label):
+#         raise PermissionDenied(_(u"You are not allowed to access to this app"))
+#
+#     model = ct.model_class()
+#
+#     if not issubclass(model, CremeEntity):
+#         raise ConflictError(u'This model is not a entity model: {}'.format(model))
+#
+#     post_save = None
+#     callback_url = request.POST.get('cancel_url')
+#
+#     if not callback_url:
+#         try:
+#             # callback_url = '{}?filter=%s'.format(model.get_lv_absolute_url())
+#             callback_url = model.get_lv_absolute_url()
+#         except AttributeError:
+#             logger.debug('%s has no get_lv_absolute_url() method ?!', model)
+#             # callback_url = '/'
+#     # else:
+#     #     callback_url = '{}?filter=%s'.format(callback_url)
+#
+#     if callback_url:
+#         # Set current EntityFilter
+#         def post_save(request_, instance):
+#             lvs = ListViewState.get_state(request_, callback_url) or \
+#                   ListViewState(url=callback_url)
+#
+#             lvs.entity_filter_id = instance.id
+#             lvs.register_in_session(request_)
+#     else:
+#         callback_url = '/'
+#
+#     return generic.add_entity(request, efilter_forms.EntityFilterCreateForm,
+#                       url_redirect=callback_url,
+#                       template='creme_core/forms/entity-filter.html',
+#                       extra_initial={'content_type': ct},
+#                       # function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
+#                       function_post_save=post_save,
+#                      )
+class EntityFilterCreation(generic.base.EntityCTypeRelatedMixin,
+                           generic.add.CremeModelCreation,
+                          ):
+    model = EntityFilter
+    form_class = efilter_forms.EntityFilterCreateForm
+    template_name = 'creme_core/forms/entity-filter.html'
+    ctype_form_kwarg = 'ctype'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lv_url = None
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs[self.ctype_form_kwarg] = self.get_ctype()
+
+        return kwargs
+
+    def build_lv_url(self):
+        url = self.lv_url
+
+        if url is None:
+            url = self.request.POST.get('cancel_url')
+
+            if not url:
+                model = self.object.entity_type.model_class()
+
+                try:
+                    url = model.get_lv_absolute_url()
+                except AttributeError:
+                    logger.debug('"%s" has no get_lv_absolute_url() method ?!', model)
+                    url = ''
+
+            self.lv_url = url
+
+        return url
+
+    def get_success_url(self):
+        return self.build_lv_url() or reverse('creme_core__home')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        request = self.request
+        lv_url = self.build_lv_url()
+        lvs = ListViewState.get_state(request, lv_url) or \
+              ListViewState(url=lv_url)
+        lvs.entity_filter_id = self.object.id
         lvs.register_in_session(request)
 
-
-@login_required
-def add(request, ct_id):
-    ct = utils.get_ct_or_404(ct_id)
-
-    if not request.user.has_perm(ct.app_label):
-        raise PermissionDenied(_(u"You are not allowed to access to this app"))
-
-    model = ct.model_class()
-
-    if not issubclass(model, CremeEntity):
-        raise ConflictError(u'This model is not a entity model: {}'.format(model))
-
-    post_save = None
-    callback_url = request.POST.get('cancel_url')
-
-    if not callback_url:
-        try:
-            # callback_url = '{}?filter=%s'.format(model.get_lv_absolute_url())
-            callback_url = model.get_lv_absolute_url()
-        except AttributeError:
-            logger.debug('%s has no get_lv_absolute_url() method ?!', model)
-            # callback_url = '/'
-    # else:
-    #     callback_url = '{}?filter=%s'.format(callback_url)
-
-    if callback_url:
-        # Set current EntityFilter
-        def post_save(request_, instance):
-            lvs = ListViewState.get_state(request_, callback_url) or \
-                  ListViewState(url=callback_url)
-
-            lvs.entity_filter_id = instance.id
-            lvs.register_in_session(request_)
-    else:
-        callback_url = '/'
-
-    return add_entity(request, EntityFilterCreateForm,
-                      url_redirect=callback_url,
-                      template='creme_core/forms/entity-filter.html',
-                      extra_initial={'content_type': ct},
-                      # function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
-                      function_post_save=post_save,
-                     )
+        return response
 
 
 @login_required
@@ -110,7 +164,7 @@ def edit(request, efilter_id):
     if request.method == 'POST':
         POST = request.POST
         cancel_url = POST.get('cancel_url')
-        efilter_form = EntityFilterEditForm(user=user, data=POST, instance=efilter)
+        efilter_form = efilter_forms.EntityFilterEditForm(user=user, data=POST, instance=efilter)
 
         if efilter_form.is_valid():
             efilter_form.save()
@@ -119,14 +173,14 @@ def edit(request, efilter_id):
                                         efilter.entity_type.model_class().get_lv_absolute_url()
                                        )
     else:
-        efilter_form = EntityFilterEditForm(user=user, instance=efilter)
+        efilter_form = efilter_forms.EntityFilterEditForm(user=user, instance=efilter)
         cancel_url = build_cancel_path(request)
 
     return render(request,
                   'creme_core/forms/entity-filter.html',
                   {'form': efilter_form,
                    'cancel_url': cancel_url,
-                   'submit_label': _(u'Save the modified filter'),
+                   'submit_label': _('Save the modified filter'),
                   }
                  )
 
@@ -144,13 +198,13 @@ def delete(request):
         except EntityFilter.DependenciesError as e:
             return_msg = str(e)
         except ProtectedError as e:
-            return_msg = _(u'«{}» can not be deleted because of its dependencies.').format(efilter)
+            return_msg = _('«{}» can not be deleted because of its dependencies.').format(efilter)
             return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
                                            {'objects': e.args[1][:25], 'user': request.user},
                                            request=request,
                                           )
         else:
-            return_msg = _(u'Filter successfully deleted')
+            return_msg = _('Filter successfully deleted')
             status = 200
     else:
         return_msg = msg
@@ -169,7 +223,7 @@ def get_content_types(request, rtype_id):
     content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all() or \
                     utils.creme_entity_content_types()
 
-    choices = [(0, _(u'All'))]
+    choices = [(0, _('All'))]
     choices.extend((ct.id, str(ct)) for ct in content_types)
 
     return choices
@@ -184,10 +238,11 @@ def get_for_ctype(request):
     ct = utils.get_ct_or_404(ct_id)
     user = request.user
 
-    if not user.has_perm(ct.app_label):  # TODO: helper in auth.py ??
-        raise PermissionDenied(_(u'You are not allowed to access to this app'))
+    # if not user.has_perm(ct.app_label):
+    #     raise PermissionDenied(_('You are not allowed to access to this app'))
+    user.has_perm_to_access_or_die(ct.app_label)
 
-    choices = [('', _(u'All'))] if include_all else []
+    choices = [('', _('All'))] if include_all else []
     choices.extend(EntityFilter.get_for_user(user, ct).values_list('id', 'name'))
 
     return choices

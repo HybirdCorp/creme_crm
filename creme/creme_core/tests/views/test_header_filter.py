@@ -50,8 +50,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def _build_add_url(self, ctype):
         return reverse('creme_core__create_hfilter', args=(ctype.id,))
 
-    def _build_edit_url(self, hf):
-        return reverse('creme_core__edit_hfilter', args=(hf.id,))
+    # def _build_edit_url(self, hf):
+    #     return reverse('creme_core__edit_hfilter', args=(hf.id,))
 
     # def _build_get4ctype_url(self, ctype, use_GET=False):
     #     return reverse('creme_core__hfilters', args=(ctype.id,)) if not use_GET else \
@@ -66,7 +66,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ct))
 
         url = self._build_add_url(ct)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/forms/header-filter.html')
 
         name = 'DefaultHeaderFilter'
         response = self.client.post(url, data={'name':  name,
@@ -136,10 +137,10 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         # --
         ct = self.contact_ct
-        loves = RelationType.create(('test-subject_love', u'Is loving'),
-                                    ('test-object_love',  u'Is loved by')
+        loves = RelationType.create(('test-subject_love', 'Is loving'),
+                                    ('test-object_love',  'Is loved by')
                                    )[0]
-        customfield = CustomField.objects.create(name=u'Size (cm)',
+        customfield = CustomField.objects.create(name='Size (cm)',
                                                  field_type=CustomField.INT,
                                                  content_type=ct,
                                                 )
@@ -155,7 +156,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         build_4_field = partial(EntityCellRegularField.build, model=FakeContact)
         self.assertCellsEqual([build_4_field(name='first_name'),
                                build_4_field(name='last_name'),
-                               EntityCellRelation(model=FakeContact, rtype=RelationType.objects.get(pk=FAKE_REL_SUB_EMPLOYED_BY)),
+                               EntityCellRelation(model=FakeContact,
+                                                  rtype=RelationType.objects.get(pk=FAKE_REL_SUB_EMPLOYED_BY),
+                                                 ),
                               ],
                               cells_f.initial
                              )
@@ -345,7 +348,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  cells_desc=[EntityCellRegularField.build(model=FakeContact, name=field1)],
                                 )
 
-        url = self._build_edit_url(hf)
+        url = hf.get_edit_absolute_url()
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -386,7 +389,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  cells_desc=[EntityCellRegularField.build(model=FakeContact, name=field1)],
                                 )
 
-        url = self._build_edit_url(hf)
+        url = hf.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += ' (edited)'
@@ -416,7 +419,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
                                  model=FakeContact, is_custom=True, user=self.other_user,
                                 )
-        self.assertGET403(self._build_edit_url(hf))
+        self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit04(self):
         "User do not have the app credentials"
@@ -425,7 +428,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
                                  model=FakeContact, is_custom=True, user=user,
                                 )
-        self.assertGET403(self._build_edit_url(hf))
+        self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit05(self):
         "User belongs to the team -> OK"
@@ -437,7 +440,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
                                  model=FakeContact, is_custom=True, user=my_team,
                                 )
-        self.assertGET200(self._build_edit_url(hf))
+        self.assertGET200(hf.get_edit_absolute_url())
 
     def test_edit06(self):
         "User does not belong to the team -> error"
@@ -453,7 +456,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
                                  model=FakeContact, is_custom=True, user=my_team,
                                 )
-        self.assertGET403(self._build_edit_url(hf))
+        self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit07(self):
         "Private filter -> cannot be edited by another user (even a super-user)"
@@ -463,7 +466,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  model=FakeContact, is_custom=True,
                                  is_private=True, user=self.other_user,
                                 )
-        self.assertGET403(self._build_edit_url(hf))
+        self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit08(self):
         "Staff users can edit all HeaderFilters + private filters must be assigned"
@@ -473,7 +476,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  model=FakeContact, is_custom=True,
                                  is_private=True, user=self.other_user,
                                 )
-        url = self._build_edit_url(hf)
+        url = hf.get_edit_absolute_url()
         self.assertGET200(url)
 
         response = self.assertPOST200(url, follow=True,
@@ -484,7 +487,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'user',
-                             _(u'A private view of list must be assigned to a user/team.')
+                             _('A private view of list must be assigned to a user/team.')
                             )
 
     def test_edit09(self):
@@ -494,7 +497,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
                                  model=FakeContact, is_custom=False,
                                 )
-        url = self._build_edit_url(hf)
+        url = hf.get_edit_absolute_url()
         self.assertGET200(url)
 
         callback = FakeOrganisation.get_lv_absolute_url()
@@ -530,7 +533,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                          ]
                            )
 
-        response = self.assertGET200(self._build_edit_url(hf))
+        response = self.assertGET200(hf.get_edit_absolute_url())
 
         with self.assertNoException():
             widget = response.context['form'].fields['cells'].widget

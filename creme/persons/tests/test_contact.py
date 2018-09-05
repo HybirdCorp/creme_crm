@@ -7,6 +7,7 @@ try:
     from django.core.exceptions import ValidationError
     from django.forms.widgets import TextInput
     from django.urls import reverse
+    from django.utils.html import escape
     from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
@@ -61,13 +62,15 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             'billaddr_department_colselect': 0,  'shipaddr_department_colselect': 0,
         }
 
-    def _build_addrelated_uri(self, orga_id, rtype_id=None, url='/'):
+    # def _build_addrelated_uri(self, orga_id, rtype_id=None, url='/'):
+    def _build_addrelated_url(self, orga_id, rtype_id=None):
         kwargs = {'orga_id': orga_id}
 
         if rtype_id:
             kwargs['rtype_id'] = rtype_id
 
-        return reverse('persons__create_related_contact', kwargs=kwargs) + '?callback_url=' + url
+        # return reverse('persons__create_related_contact', kwargs=kwargs) + '?callback_url=' + url
+        return reverse('persons__create_related_contact', kwargs=kwargs)
 
     def test_empty_fields(self):
         user = self.login()
@@ -128,7 +131,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         url = reverse('persons__create_contact')
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'persons/add_contact_form.html')
 
         count = Contact.objects.count()
         first_name = 'Spike'
@@ -422,13 +426,16 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Acme')
-        redir = orga.get_absolute_url()
-        uri = self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, redir)
-        self.assertGET200(uri)
+        # redir = orga.get_absolute_url()
+        # uri = self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, redir)
+        url = self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY)
+        # self.assertGET200(uri)
+        self.assertGET200(url)
 
         first_name = 'Bugs'
         last_name = 'Bunny'
-        response = self.client.post(uri, follow=True,
+        # response = self.client.post(uri, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={'orga_overview': 'dontcare',
                                           'relation':      'dontcare',
                                           'user':          user.pk,
@@ -437,7 +444,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          },
                                    )
         self.assertNoFormError(response)
-        self.assertRedirects(response, redir)
+        # self.assertRedirects(response, redir)
+        self.assertRedirects(response, orga.get_absolute_url())
 
         contact = self.get_object_or_fail(Contact, first_name=first_name)
         self.assertRelationCount(1, orga, REL_OBJ_EMPLOYED_BY, contact)
@@ -449,12 +457,15 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Acme')
-        uri = self._build_addrelated_uri(orga.id, url=orga.get_absolute_url())
-        self.assertGET200(uri)
+        # uri = self._build_addrelated_uri(orga.id, url=orga.get_absolute_url())
+        url = self._build_addrelated_url(orga.id)
+        # self.assertGET200(uri)
+        self.assertGET200(url)
 
         first_name = 'Bugs'
         last_name = 'Bunny'
-        response = self.client.post(uri, follow=True,
+        # response = self.client.post(uri, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={'orga_overview': 'dontcare',
                                           'relation':      REL_SUB_EMPLOYED_BY,
                                           'user':          user.pk,
@@ -483,17 +494,22 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_link(orga))
 
-        uri = self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, orga.get_absolute_url())
-        self.assertGET403(uri)
+        # uri = self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, orga.get_absolute_url())
+        url = self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY)
+        # self.assertGET403(uri)
+        self.assertGET403(url)
 
         get_ct = ContentType.objects.get_for_model
         create_sc(value=EntityCredentials.LINK, ctype=get_ct(Organisation))
-        self.assertGET403(uri)
+        # self.assertGET403(uri)
+        self.assertGET403(url)
 
         create_sc(value=EntityCredentials.LINK, ctype=get_ct(Contact))
-        self.assertGET200(uri)
+        # self.assertGET200(uri)
+        self.assertGET200(url)
 
-        response = self.assertPOST200(uri, follow=True,
+        # response = self.assertPOST200(uri, follow=True,
+        response = self.assertPOST200(url, follow=True,
                                       data={'orga_overview': 'dontcare',
                                             'relation':      'dontcare',
                                             'user':          self.other_user.pk,
@@ -509,88 +525,143 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_create_linked_contact04(self):
+        "Cannot VIEW the organisation => error"
+        user = self.login(is_superuser=False, creatable_models=[Contact])
+
+        SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
+                  EntityCredentials.DELETE | EntityCredentials.UNLINK,
+            ctype=ContentType.objects.get_for_model(Contact),  # Not Organisation
+        )
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        self.assertFalse(user.has_perm_to_view(orga))
+
+        # response = self.client.get(self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, orga.get_absolute_url()))
+        response = self.client.get(self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY))
+        self.assertContains(response,
+                            escape(_('You are not allowed to view this entity: {}').format(
+                                    _('Entity #{id} (not viewable)').format(id=orga.id)
+                                  )),
+                            status_code=403
+                           )
+
+    @skipIfCustomOrganisation
+    def test_create_linked_contact05(self):
+        "Cannot LINK the organisation => error"
+        user = self.login(is_superuser=False, creatable_models=[Contact])
+
+        get_ct = ContentType.objects.get_for_model
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role,
+                            set_type=SetCredentials.ESET_ALL,
+                           )
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK,
+                  ctype=get_ct(Contact),  # Not Organisation
+                 )
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
+                  ctype=get_ct(Organisation),
+                 )
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        self.assertTrue(user.has_perm_to_view(orga))
+        self.assertFalse(user.has_perm_to_link(orga))
+
+        # uri = self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, orga.get_absolute_url())
+        url = self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY)
+        # self.assertGET403(uri)
+        self.assertGET403(url)
+
+    @skipIfCustomOrganisation
+    def test_create_linked_contact06(self):
+        "Misc errors"
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Acme')
 
-        self.assertGET404(self._build_addrelated_uri(1024,  # Doesn't exist
+        self.assertGET404(self._build_addrelated_url(1024,  # Doesn't exist
                                                      REL_OBJ_EMPLOYED_BY,
-                                                     orga.get_absolute_url(),
-                                                   )
+                                                     # orga.get_absolute_url(),
+                                                     )
                          )
-        self.assertGET404(self._build_addrelated_uri(orga.id,
+        self.assertGET404(self._build_addrelated_url(orga.id,
                                                      'IDONOTEXIST',
-                                                     orga.get_absolute_url(),
-                                                    )
+                                                     # orga.get_absolute_url(),
+                                                     )
                         )
 
         create_rtype = RelationType.create
         rtype1 = create_rtype(('persons-subject_test_rtype1', 'RType #1',     [Organisation]),
                               ('persons-object_test_rtype1',  'Rtype sym #1', [Contact]),
                              )[0]
-        self.assertGET200(self._build_addrelated_uri(orga.id, rtype1.id))
+        self.assertGET200(self._build_addrelated_url(orga.id, rtype1.id))
 
         rtype2 = create_rtype(('persons-subject_test_badrtype1', 'Bad RType #1',     [Organisation]),
                               ('persons-object_test_badrtype1',  'Bad RType sym #1', [Document]),  # <==
                              )[0]
-        self.assertGET409(self._build_addrelated_uri(orga.id, rtype2.id))
+        self.assertGET409(self._build_addrelated_url(orga.id, rtype2.id))
 
         rtype3 = create_rtype(('persons-subject_test_badrtype2', 'Bad RType #2',     [Document]),  # <==
                               ('persons-object_test_badrtype2',  'Bad RType sym #2', [Contact]),
                              )[0]
-        self.assertGET409(self._build_addrelated_uri(orga.id, rtype3.id))
+        self.assertGET409(self._build_addrelated_url(orga.id, rtype3.id))
 
         rtype4 = create_rtype(('persons-subject_test_badrtype3', 'Bad RType #3',     [Organisation]),
                               ('persons-object_test_badrtype3',  'Bad RType sym #3', [Contact]),
                               is_internal=True,  # <==
                              )[0]
-        self.assertGET409(self._build_addrelated_uri(orga.id, rtype4.id))
+        self.assertGET409(self._build_addrelated_url(orga.id, rtype4.id))
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact05(self):
+    def test_create_linked_contact07(self):
         "Avoid internal RelationType"
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Acme')
-        rtype = RelationType.create(('persons-subject_test_linked', 'is the employee of the month at', [Contact]),
-                                    ('persons-object_test_linked',  'has the employee of the month',   [Organisation]),
-                                    is_internal=True,
-                                   )[0]
+        rtype = RelationType.create(
+            ('persons-subject_test_linked', 'is the employee of the month at', [Contact]),
+            ('persons-object_test_linked',  'has the employee of the month',   [Organisation]),
+            is_internal=True,
+        )[0]
 
-        response = self.assertPOST200(self._build_addrelated_uri(orga.id),
+        response = self.assertPOST200(self._build_addrelated_url(orga.id),
                                       follow=True,
                                       data={'orga_overview': 'dontcare',
                                             'relation':      rtype.id,
                                             'user':          user.pk,
                                             'first_name':    'Bugs',
                                             'last_name':     'Bunny',
-                                            }
-                                    )
+                                           }
+                                      )
         self.assertFormError(response, 'form', 'relation',
                              _('Select a valid choice. That choice is not one of the available choices.')
                             )
 
-    @skipIfCustomOrganisation
-    def test_create_linked_contact06(self):
-        "Unsafe redirection URL"
-        user = self.login()
-        orga = Organisation.objects.create(user=user, name='Acme')
-
-        first_name = 'Bugs'
-        last_name = 'Bunny'
-        response = self.client.post(self._build_addrelated_uri(orga.id, url='http://kernel.org'),
-                                    data={'user':          user.id,
-
-                                          'orga_overview': 'dontcare',
-                                          'relation':      REL_SUB_EMPLOYED_BY,
-
-                                          'first_name':    first_name,
-                                          'last_name':     last_name,
-                                         },
-                                   )
-        self.assertNoFormError(response, status=302)
-
-        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertRedirects(response, contact.get_absolute_url())
+    # @skipIfCustomOrganisation
+    # def test_create_linked_contact06(self):
+    #     "Unsafe redirection URL"
+    #     user = self.login()
+    #     orga = Organisation.objects.create(user=user, name='Acme')
+    #
+    #     first_name = 'Bugs'
+    #     last_name = 'Bunny'
+    #     response = self.client.post(self._build_addrelated_uri(orga.id, url='http://kernel.org'),
+    #                                 data={'user':          user.id,
+    #
+    #                                       'orga_overview': 'dontcare',
+    #                                       'relation':      REL_SUB_EMPLOYED_BY,
+    #
+    #                                       'first_name':    first_name,
+    #                                       'last_name':     last_name,
+    #                                      },
+    #                                )
+    #     self.assertNoFormError(response, status=302)
+    #
+    #     contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+    #     self.assertRedirects(response, contact.get_absolute_url())
 
     @skipIfCustomAddress
     def test_clone(self):

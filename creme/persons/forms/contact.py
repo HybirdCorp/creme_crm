@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, ModelChoiceField
 from django.forms.widgets import TextInput
@@ -37,7 +39,7 @@ Organisation = persons.get_organisation_model()
 
 class ContactForm(_BasePersonForm):
     blocks = _BasePersonForm.blocks.new(
-                ('details', _(u'Contact details'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']),
+                ('details', _('Contact details'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']),
             )
 
     class Meta(_BasePersonForm.Meta):
@@ -57,34 +59,57 @@ class ContactForm(_BasePersonForm):
 
 
 class RelatedContactForm(ContactForm):
-    orga_overview = CharField(label=_(u'Concerned organisation'), widget=Label, initial=_('No one'))
+    orga_overview = CharField(label=_('Concerned organisation'), widget=Label, initial=_('No one'))
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, linked_orga=None, rtype=None, *args, **kwargs):
         # super(RelatedContactForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.linked_orga = self.initial.get('linked_orga')
+        # self.linked_orga = self.initial.get('linked_orga')
+        if not linked_orga:
+            linked_orga = self.initial.get('linked_orga')
+            if linked_orga:
+                warnings.warn('RelatedContactForm: the use of initial for "linked_orga" is deprecated ; '
+                              'use constructor argument "linked_orga" instead.',
+                              DeprecationWarning
+                             )
+
+        self.linked_orga = linked_orga
 
         if not self.linked_orga:
+            warnings.warn('RelatedContactForm: empty "linked_orga" argument is deprecated ;.',
+                          DeprecationWarning
+                         )
             return
 
         fields = self.fields
         fields['orga_overview'].initial = self.linked_orga
-        self.relation_type = self.initial.get('relation_type')
+        # self.relation_type = self.initial.get('relation_type')
+        if not rtype:
+            rtype = self.initial.get('relation_type')
+            if rtype:
+                warnings.warn('RelatedContactForm: the use of initial for "rtype" is deprecated ; ',
+                              'use constructor argument "rtype" instead.',
+                              DeprecationWarning
+                             )
+
+        self.relation_type = rtype
 
         if self.relation_type:
-            relation_field = CharField(label=ugettext(u'Relation type'),
+            relation_field = CharField(label=ugettext('Relation type'),
                                        widget=TextInput(attrs={'readonly': 'readonly'}),
                                        initial=self.relation_type,  # TODO: required=False ??
                                       )
         else:
             get_ct = ContentType.objects.get_for_model
-            relation_field = ModelChoiceField(label=ugettext(u"Status in the organisation"),
+            relation_field = ModelChoiceField(label=ugettext('Status in the organisation'),
                                               # TODO: factorise (see User form hooking)
-                                              queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
-                                                                                   object_ctypes=get_ct(Organisation),
-                                                                                   is_internal=False,
-                                                                                  ),
-                                             )
+                                              queryset=RelationType.objects.filter(
+                                                            subject_ctypes=get_ct(Contact),
+                                                            object_ctypes=get_ct(Organisation),
+                                                            is_internal=False,
+                                                          ),
+                                              )
 
         fields['relation'] = relation_field
 

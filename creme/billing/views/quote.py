@@ -31,6 +31,7 @@ from ..constants import DEFAULT_HFILTER_QUOTE
 from ..forms import quote as quote_forms
 from ..views.workflow import generic_add_related
 
+from . import base
 
 Quote = billing.get_quote_model()
 Invoice = billing.get_invoice_model()
@@ -43,6 +44,10 @@ def abstract_add_quote(request, form=quote_forms.QuoteCreateForm,
                        initial_status=1,
                        submit_label=Quote.save_label,
                       ):
+    warnings.warn('billing.views.quote.abstract_view_quote() is deprecated ; '
+                  'use the class-based view QuoteCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form, extra_initial={'status': initial_status},
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -50,7 +55,7 @@ def abstract_add_quote(request, form=quote_forms.QuoteCreateForm,
 
 def abstract_add_related_quote(request, target_id, form=quote_forms.QuoteCreateForm,
                                initial_status=1,
-                               title=_(u'Create a quote for «%s»'),
+                               title=_('Create a quote for «%s»'),
                                submit_label=Quote.save_label,
                               ):
     return generic_add_related(request, target_id, form=form,
@@ -86,6 +91,7 @@ def abstract_view_quote(request, quote_id, template='billing/view_quote.html'):
 @login_required
 @permission_required(('billing', cperm(Quote)))
 def add(request):
+    warnings.warn('billing.views.quote.add() is deprecated.', DeprecationWarning)
     return abstract_add_quote(request)
 
 
@@ -104,7 +110,7 @@ def edit(request, quote_id):
 @login_required
 @permission_required('billing')
 def detailview(request, quote_id):
-    warnings.warn('billing.views.quote.deatilview() is deprecated.', DeprecationWarning)
+    warnings.warn('billing.views.quote.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_quote(request, quote_id)
 
 
@@ -115,6 +121,11 @@ def listview(request):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class QuoteCreation(base.BaseCreation):
+    model = Quote
+    form_class = quote_forms.QuoteCreateForm
+
 
 class QuoteDetail(generic.detailview.EntityDetail):
     model = Quote

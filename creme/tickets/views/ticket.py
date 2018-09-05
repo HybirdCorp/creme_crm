@@ -38,6 +38,10 @@ Ticket = get_ticket_model()
 def abstract_add_ticket(request, form=ticket_forms.TicketCreateForm,
                         submit_label=Ticket.save_label,
                        ):
+    warnings.warn('tickets.views.ticket.abstract_add_ticket() is deprecated ; '
+                  'use the class-based view TicketCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_initial={'priority':  Priority.objects.first(),
                                              'criticity': Criticity.objects.first(),
@@ -63,6 +67,7 @@ def abstract_view_ticket(request, ticket_id,
 @login_required
 @permission_required(('tickets', cperm(Ticket)))
 def add(request):
+    warnings.warn('tickets.views.ticket.add() is deprecated.', DeprecationWarning)
     return abstract_add_ticket(request)
 
 
@@ -75,9 +80,7 @@ def edit(request, ticket_id):
 @login_required
 @permission_required('tickets')
 def detailview(request, ticket_id):
-    warnings.warn('tickets.views.ticket.detailview() is deprecated.',
-                  DeprecationWarning
-                 )
+    warnings.warn('tickets.views.ticket.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_ticket(request, ticket_id)
 
 
@@ -88,6 +91,17 @@ def listview(request):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class TicketCreation(generic.add.EntityCreation):
+    model = Ticket
+    form_class = ticket_forms.TicketCreateForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['priority']  = Priority.objects.first()
+        initial['criticity'] = Criticity.objects.first()
+
+        return initial
 
 
 class TicketDetail(generic.detailview.EntityDetail):

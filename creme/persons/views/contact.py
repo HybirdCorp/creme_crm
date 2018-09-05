@@ -22,7 +22,6 @@ import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
-from django.utils.http import is_safe_url
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -44,6 +43,10 @@ def abstract_add_contact(request, form=ContactForm,
                          template='persons/add_contact_form.html',
                          submit_label=Contact.save_label,
                         ):
+    warnings.warn('persons.views.contact.abstract_add_contact() is deprecated ; '
+                  'use the class-based view ContactCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form, template=template,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -54,10 +57,17 @@ def abstract_add_related_contact(request, orga_id, rtype_id,
                                  template='persons/add_contact_form.html',
                                  submit_label=Contact.save_label,
                                 ):
+    warnings.warn('persons.views.contact.abstract_add_related_contact() is deprecated ; '
+                  'use the class-based view RelatedContactCreation instead.',
+                  DeprecationWarning
+                 )
+
+    from django.utils.http import is_safe_url
+
     user = request.user
     linked_orga = get_object_or_404(get_organisation_model(), pk=orga_id)
-    user.has_perm_to_link_or_die(linked_orga)
     user.has_perm_to_view_or_die(linked_orga)  # Displayed in the form....
+    user.has_perm_to_link_or_die(linked_orga)
 
     user.has_perm_to_link_or_die(Contact)
 
@@ -111,12 +121,14 @@ def abstract_view_contact(request, contact_id,
 @login_required
 @permission_required(('persons', cperm(Contact)))
 def add(request):
+    warnings.warn('persons.views.contact.add() is deprecated.', DeprecationWarning)
     return abstract_add_contact(request)
 
 
 @login_required
 @permission_required(('persons', cperm(Contact)))
 def add_related_contact(request, orga_id, rtype_id=None):
+    warnings.warn('persons.views.contact.add_related_contact() is deprecated.', DeprecationWarning)
     return abstract_add_related_contact(request, orga_id, rtype_id)
 
 
@@ -139,7 +151,73 @@ def listview(request):
     return generic.list_view(request, Contact, hf_pk=DEFAULT_HFILTER_CONTACT)
 
 
-# Class-based views  ----------------------------------------------------------
+# Class-based views  -----------------------------------------------------------
+
+class ContactCreation(generic.add.EntityCreation):
+    model = Contact
+    form_class = ContactForm
+    template_name = 'persons/add_contact_form.html'
+
+
+class RelatedContactCreation(ContactCreation):
+    form_class = RelatedContactForm
+    orga_id_url_kwarg = 'orga_id'
+    rtype_id_url_kwarg = 'rtype_id'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.linked_orga = None
+
+    def get(self, *args, **kwargs):
+        self.linked_orga = self.get_linked_orga()
+        return super().get(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        self.linked_orga = self.get_linked_orga()
+        return super().post(*args, **kwargs)
+
+    def check_view_permission(self):
+        super(RelatedContactCreation, self).check_view_permission()
+        self.request.user.has_perm_to_link_or_die(Contact)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['linked_orga'] = self.linked_orga
+        kwargs['rtype'] = self.get_rtype()
+
+        return kwargs
+
+    def get_linked_orga(self):
+        orga = get_object_or_404(get_organisation_model(),
+                                 id=self.kwargs[self.orga_id_url_kwarg],
+                                )
+
+        user = self.request.user
+        user.has_perm_to_view_or_die(orga)  # Displayed in the form....
+        user.has_perm_to_link_or_die(orga)
+
+        return orga
+
+    def get_rtype(self):
+        rtype_id = self.kwargs.get(self.rtype_id_url_kwarg)
+
+        if rtype_id:
+            rtype = get_object_or_404(RelationType, id=rtype_id)
+
+            if rtype.is_internal:
+                raise ConflictError('This RelationType cannot be used because it is internal.')
+
+            if not rtype.is_compatible(self.linked_orga.entity_type_id):
+                raise ConflictError('This RelationType is not compatible with Organisation as subject')
+
+            # TODO: improve API of is_compatible()
+            if not rtype.symmetric_type.is_compatible(ContentType.objects.get_for_model(Contact).id):
+                raise ConflictError('This RelationType is not compatible with Contact as relationship-object')
+
+            return rtype.symmetric_type
+
+    def get_success_url(self):
+        return self.linked_orga.get_absolute_url()
 
 
 class ContactDetail(generic.detailview.EntityDetail):

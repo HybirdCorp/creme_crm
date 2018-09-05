@@ -315,41 +315,101 @@ class EntityCellsField(Field):
         return cells
 
 
-# TODO: create and edit form ????
-class HeaderFilterForm(CremeModelForm):
-    cells = EntityCellsField(label=_(u'Columns'))
+# class HeaderFilterForm(CremeModelForm):
+#     cells = EntityCellsField(label=_('Columns'))
+#
+#     blocks = CremeModelForm.blocks.new(('cells', _('Columns'), ['cells']))
+#
+#     class Meta(CremeModelForm.Meta):
+#         model = HeaderFilter
+#         help_texts = {
+#             'user': _('All users can see the view, but only the owner can edit or delete it'),
+#             'is_private': _('A private view of list can only be used by its owner '
+#                             '(or the teammates if the owner is a team)'
+#                            ),
+#         }
+#
+#     def __init__(self, *args, **kwargs):
+#         super(HeaderFilterForm, self).__init__(*args, **kwargs)
+#         instance = self.instance
+#         fields   = self.fields
+#         fields['user'].empty_label = _('All users')
+#
+#         cells_f = fields['cells']
+#
+#         if instance.id:
+#             if not instance.is_custom:
+#                 del fields['is_private']
+#
+#             cells = instance.cells
+#             cells_f.non_hiddable_cells = cells
+#             cells_f.content_type = instance.entity_type
+#             cells_f.initial = cells
+#         else:
+#             cells_f.content_type = instance.entity_type = ct = self.initial.get('content_type')
+#             cells_f.initial = smart_columns_registry.get_cells(ct.model_class())
+#
+#     def clean(self):
+#         cdata = self.cleaned_data
+#
+#         if not self._errors:
+#             is_private = cdata.get('is_private', False)
+#
+#             if is_private:
+#                 owner = cdata.get('user')
+#
+#                 if not owner:
+#                     self.add_error('user', _('A private view of list must be assigned to a user/team.'))
+#                 else:
+#                     req_user = self.user
+#
+#                     if not req_user.is_staff:
+#                         if owner.is_team:
+#                             if req_user.id not in owner.teammates:
+#                                 self.add_error('user', _('A private view of list must belong to you (or one of your teams).'))
+#                         elif owner != req_user:
+#                             self.add_error('user', _('A private view of list must belong to you (or one of your teams).'))
+#
+#         return cdata
+#
+#     @atomic
+#     def save(self):
+#         instance = self.instance
+#         instance.cells = self.cleaned_data['cells']
+#
+#         if instance.id:
+#             super(HeaderFilterForm, self).save()
+#         else:
+#             ct = instance.entity_type
+#
+#             super(HeaderFilterForm, self).save(commit=False)
+#             generate_string_id_and_save(HeaderFilter, [instance],
+#                                         'creme_core-userhf_{}-{}'.format(ct.app_label, ct.model)
+#                                        )
+#
+#         return instance
+class _HeaderFilterForm(CremeModelForm):
+    error_messages = {
+        'orphan_private':  _('A private view of list must be assigned to a user/team.'),
+        'foreign_private': _('A private view of list must belong to you (or one of your teams).')
+    }
+
+    cells = EntityCellsField(label=_('Columns'))
 
     blocks = CremeModelForm.blocks.new(('cells', _('Columns'), ['cells']))
 
     class Meta(CremeModelForm.Meta):
         model = HeaderFilter
         help_texts = {
-            'user': _(u'All users can see the view, but only the owner can edit or delete it'),
-            'is_private': _(u'A private view of list can only be used by its owner '
-                            u'(or the teammates if the owner is a team)'
+            'user': _('All users can see the view, but only the owner can edit or delete it'),
+            'is_private': _('A private view of list can only be used by its owner '
+                            '(or the teammates if the owner is a team)'
                            ),
         }
 
     def __init__(self, *args, **kwargs):
-        # super(HeaderFilterForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        instance = self.instance
-        fields   = self.fields
-        fields['user'].empty_label = _(u'All users')
-
-        cells_f = fields['cells']
-
-        if instance.id:
-            if not instance.is_custom:
-                del fields['is_private']
-
-            cells = instance.cells
-            cells_f.non_hiddable_cells = cells
-            cells_f.content_type = instance.entity_type
-            cells_f.initial = cells
-        else:
-            cells_f.content_type = instance.entity_type = ct = self.initial.get('content_type')
-            cells_f.initial = smart_columns_registry.get_cells(ct.model_class())
+        self.fields['user'].empty_label = _('All users')
 
     def clean(self):
         cdata = self.cleaned_data
@@ -361,34 +421,66 @@ class HeaderFilterForm(CremeModelForm):
                 owner = cdata.get('user')
 
                 if not owner:
-                    self.add_error('user', _(u'A private view of list must be assigned to a user/team.'))
+                    self.add_error('user',
+                                   ValidationError(self.error_messages['orphan_private'],
+                                                   code='orphan_private',
+                                                  )
+                                  )
                 else:
                     req_user = self.user
 
                     if not req_user.is_staff:
                         if owner.is_team:
                             if req_user.id not in owner.teammates:
-                                self.add_error('user', _(u'A private view of list must belong to you (or one of your teams).'))
+                                self.add_error('user',
+                                               ValidationError(self.error_messages['foreign_private'],
+                                                               code='foreign_private',
+                                                              )
+                                              )
                         elif owner != req_user:
-                            self.add_error('user', _(u'A private view of list must belong to you (or one of your teams).'))
+                            self.add_error('user',
+                                           ValidationError(self.error_messages['foreign_private'],
+                                                           code='foreign_private',
+                                                          )
+                                          )
+
+            self.instance.cells = cdata['cells']
 
         return cdata
 
+
+class HeaderFilterCreateForm(_HeaderFilterForm):
+    def __init__(self, ctype, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        cells_f = self.fields['cells']
+        cells_f.content_type = self.instance.entity_type = ctype
+        cells_f.initial = smart_columns_registry.get_cells(ctype.model_class())
+
     @atomic
-    def save(self):
+    def save(self, *args, **kwargs):
         instance = self.instance
-        instance.cells = self.cleaned_data['cells']
+        ct = instance.entity_type
 
-        if instance.id:
-            # super(HeaderFilterForm, self).save()
-            super().save()
-        else:
-            ct = instance.entity_type
-
-            # super(HeaderFilterForm, self).save(commit=False)
-            super().save(commit=False)
-            generate_string_id_and_save(HeaderFilter, [instance],
-                                        'creme_core-userhf_%s-%s' % (ct.app_label, ct.model)
-                                       )
+        kwargs['commit'] = False
+        super().save(*args, **kwargs)
+        generate_string_id_and_save(HeaderFilter, [instance],
+                                    'creme_core-userhf_{}-{}'.format(ct.app_label, ct.model)
+                                   )
 
         return instance
+
+
+class HeaderFilterEditForm(_HeaderFilterForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = self.instance
+        fields = self.fields
+
+        if not instance.is_custom:
+            del fields['is_private']
+
+        cells_f = fields['cells']
+        cells = instance.cells
+        cells_f.non_hiddable_cells = cells
+        cells_f.content_type = instance.entity_type
+        cells_f.initial = cells

@@ -40,6 +40,10 @@ Service = get_service_model()
 def abstract_add_service(request, form=service_forms.ServiceCreateForm,
                          submit_label=Service.save_label,
                         ):
+    warnings.warn('products.views.service.abstract_add_service() is deprecated ; '
+                  'use the class-based view ServiceCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -62,6 +66,7 @@ def abstract_view_service(request, service_id,
 @login_required
 @permission_required(('products', cperm(Service)))
 def add(request):
+    warnings.warn('products.views.service.add() is deprecated.', DeprecationWarning)
     return abstract_add_service(request)
 
 
@@ -95,6 +100,11 @@ def add_images(request, service_id):
                                 )
 
 # Class-based views  ----------------------------------------------------------
+
+
+class ServiceCreation(generic.add.EntityCreation):
+    model = Service
+    form_class = service_forms.ServiceCreateForm
 
 
 class ServiceDetail(generic.detailview.EntityDetail):

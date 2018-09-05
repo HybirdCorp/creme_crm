@@ -31,7 +31,7 @@ from creme.creme_core.views import generic
 
 from .. import get_emailcampaign_model
 from ..constants import DEFAULT_HFILTER_CAMPAIGN
-from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddMLForm
+from ..forms import campaign as camp_forms
 
 
 EmailCampaign = get_emailcampaign_model()
@@ -39,15 +39,19 @@ EmailCampaign = get_emailcampaign_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_campaign(request, form=CampaignCreateForm,
+def abstract_add_campaign(request, form=camp_forms.CampaignCreateForm,
                           submit_label=EmailCampaign.save_label,
                          ):
+    warnings.warn('emails.views.campaign.abstract_add_campaign() is deprecated ; '
+                  'use the class-based view EmailCampaignCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
 
 
-def abstract_edit_campaign(request, campaign_id, form=CampaignEditForm):
+def abstract_edit_campaign(request, campaign_id, form=camp_forms.CampaignEditForm):
     return generic.edit_entity(request, campaign_id, EmailCampaign, form)
 
 
@@ -64,6 +68,7 @@ def abstract_view_campaign(request, campaign_id,
 @login_required
 @permission_required(('emails', cperm(EmailCampaign)))
 def add(request):
+    warnings.warn('emails.views.campaign.add() is deprecated.', DeprecationWarning)
     return abstract_add_campaign(request)
 
 
@@ -90,7 +95,7 @@ def listview(request):
 @permission_required('emails')
 def add_ml(request, campaign_id):
     return generic.add_to_entity(
-        request, campaign_id, CampaignAddMLForm,
+        request, campaign_id, camp_forms.CampaignAddMLForm,
         ugettext('New mailing lists for «%s»'),
         entity_class=EmailCampaign,
         submit_label=_('Link the mailing lists'),
@@ -115,6 +120,10 @@ def delete_ml(request, campaign_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class EmailCampaignCreation(generic.add.EntityCreation):
+    model = EmailCampaign
+    form_class = camp_forms.CampaignCreateForm
 
 
 class EmailCampaignDetail(generic.detailview.EntityDetail):

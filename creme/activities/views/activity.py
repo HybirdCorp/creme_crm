@@ -50,6 +50,8 @@ _CREATION_PERM_STR = cperm(Activity)
 def _add_activity(request, form_class,
                   content_template='activities/frags/activity_form_content.html',
                   type_id=None, **form_args):
+    warnings.warn('activities.views.activity._add_activity() is deprecated.', DeprecationWarning)
+
     if request.method == 'POST':
         POST = request.POST
         form = form_class(activity_type_id=type_id, user=request.user, data=POST, **form_args)
@@ -83,6 +85,11 @@ _TYPES_MAP = {
 
 
 def abstract_add_activity(request, act_type=None, form=act_forms.ActivityCreateForm):
+    warnings.warn('activities.views.activity.abstract_add_activity() is deprecated ; '
+                  'use the class-based view ActivityCreation instead.',
+                  DeprecationWarning
+                 )
+
     if act_type is None:
         type_id = None
     else:
@@ -97,12 +104,20 @@ def abstract_add_activity(request, act_type=None, form=act_forms.ActivityCreateF
 def abstract_add_unavailability(request, form=act_forms.IndisponibilityCreateForm,
                                 content='activities/frags/indispo_form_content.html',
                                ):
+    warnings.warn('activities.views.activity.abstract_add_unavailability() is deprecated ; '
+                  'use the class-based view UnavailabilityCreation instead.',
+                  DeprecationWarning
+                 )
     return _add_activity(request, form, content_template=content,
                          type_id=constants.ACTIVITYTYPE_INDISPO,
                         )
 
 
 def abstract_add_related_activity(request, entity_id, form=act_forms.RelatedActivityCreateForm):
+    warnings.warn('activities.views.activity.abstract_add_related_activity() is deprecated ; '
+                  'use the class-based view RelatedActivityCreation instead.',
+                  DeprecationWarning
+                 )
     act_type_id = request.GET.get('activity_type')
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
@@ -130,7 +145,7 @@ def abstract_add_related_activity(request, entity_id, form=act_forms.RelatedActi
 
 def abstract_add_activity_popup(request, form=act_forms.CalendarActivityCreateForm,
                                 template='activities/add_popup_activity_form.html',
-                                title=_(u'New activity'),
+                                title=_('New activity'),
                                 submit_label=Activity.save_label,
                                ):
     if request.method == 'POST':
@@ -190,18 +205,21 @@ def abstract_view_activity_popup(request, activity_id,
 @login_required
 @permission_required(('activities', _CREATION_PERM_STR))
 def add(request, act_type=None):
+    warnings.warn('activities.views.activity.add() is deprecated', DeprecationWarning)
     return abstract_add_activity(request, act_type)
 
 
 @login_required
 @permission_required(('activities', _CREATION_PERM_STR))
 def add_indisponibility(request):
+    warnings.warn('activities.views.activity.add_indisponibility() is deprecated', DeprecationWarning)
     return abstract_add_unavailability(request)
 
 
 @login_required
 @permission_required(('activities', _CREATION_PERM_STR))
 def add_related(request, entity_id):
+    warnings.warn('activities.views.activity.add_related() is deprecated', DeprecationWarning)
     return abstract_add_related_activity(request, entity_id)
 
 
@@ -247,6 +265,122 @@ def listview(request, type_id=None):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class ActivityCreation(generic.add.EntityCreation):
+    model = Activity
+    form_class = act_forms.ActivityCreateForm
+    template_name = 'activities/add_activity_form.html'
+    type_name_url_kwarg = 'act_type'
+    form_template_name = 'activities/frags/activity_form_content.html'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.type_id = None
+
+    def get(self, request, *args, **kwargs):
+        self.type_id = self.get_type_id()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.type_id = self.get_type_id()
+        return super().post(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['content_template'] = self.form_template_name
+
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['activity_type_id'] = self.type_id
+
+        return kwargs
+
+    def get_type_id(self):
+        act_type = self.kwargs.get(self.type_name_url_kwarg)
+
+        if act_type is None:
+            type_id = None
+        else:
+            type_id = _TYPES_MAP.get(act_type)  # TODO: self.TYPES_MAP ?
+
+            if not type_id:
+                raise Http404('No activity type matches with: {}'.format(act_type))
+
+        return type_id
+
+    def get_title(self):
+        return Activity.get_creation_title(self.type_id)
+
+
+class UnavailabilityCreation(ActivityCreation):
+    form_class = act_forms.IndisponibilityCreateForm
+    form_template_name = 'activities/frags/indispo_form_content.html'
+
+    def get_type_id(self):
+        return constants.ACTIVITYTYPE_INDISPO
+
+
+class RelatedActivityCreation(ActivityCreation):
+    form_class = act_forms.RelatedActivityCreateForm
+    entity_pk_url_kwargs = 'entity_id'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.related_entity = None
+        self.rtype_id       = None
+
+    def get(self, request, *args, **kwargs):
+        self.related_entity = self.get_related_entity()
+        self.rtype_id       = self.get_rtype_id()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.related_entity = self.get_related_entity()
+        self.rtype_id = self.get_rtype_id()
+        return super().post(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['related_entity']   = self.related_entity
+        kwargs['relation_type_id'] = self.rtype_id
+
+        return kwargs
+
+    def get_related_entity(self):
+        entity = get_object_or_404(CremeEntity,
+                                   pk=self.kwargs[self.entity_pk_url_kwargs],
+                                  ).get_real_entity()
+        self.request.user.has_perm_to_link_or_die(entity)
+
+        return entity
+
+    def get_rtype_id(self):
+        entity = self.related_entity
+
+        if isinstance(entity, get_contact_model()):
+            rtype_id = constants.REL_SUB_PART_2_ACTIVITY
+        else:
+            rtype = RelationType.objects.get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
+            rtype_id = constants.REL_SUB_ACTIVITY_SUBJECT \
+                       if rtype.is_compatible(entity.entity_type_id) else \
+                       constants.REL_SUB_LINKED_2_ACTIVITY  # Not custom, & all ContentTypes should be accepted
+
+        return rtype_id
+
+    def get_success_url(self):
+        # TODO: use 'cancel_url' if it is set ?
+        return self.related_entity.get_absolute_url()
+
+    def get_type_id(self):
+        type_id = self.request.GET.get('activity_type')  # TODO: attribute
+
+        if type_id:
+            get_object_or_404(ActivityType, pk=type_id)
+
+        return type_id
+
 
 class ActivityDetail(generic.detailview.EntityDetail):
     model = Activity

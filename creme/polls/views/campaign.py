@@ -37,6 +37,10 @@ PollCampaign = get_pollcampaign_model()
 def abstract_add_pcampaign(request, form=PollCampaignForm,
                            submit_label=PollCampaign.save_label,
                           ):
+    warnings.warn('polls.views.campaign.abstract_add_pcampaign() is deprecated ; '
+                  'use the class-based view PollCampaignCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -49,7 +53,7 @@ def abstract_edit_pcampaign(request, campaign_id, form=PollCampaignForm):
 def abstract_view_pcampaign(request, campaign_id,
                             template='polls/view_campaign.html',
                            ):
-    warnings.warn('polls.views.campaign.abstract_view_campaign() is deprecated ; '
+    warnings.warn('polls.views.campaign.abstract_view_pcampaign() is deprecated ; '
                   'use the class-based view PollCampaignDetail instead.',
                   DeprecationWarning
                  )
@@ -59,6 +63,7 @@ def abstract_view_pcampaign(request, campaign_id,
 @login_required
 @permission_required(('polls', cperm(PollCampaign)))
 def add(request):
+    warnings.warn('polls.views.campaign.add() is deprecated.', DeprecationWarning)
     return abstract_add_pcampaign(request)
 
 
@@ -71,9 +76,7 @@ def edit(request, campaign_id):
 @login_required
 @permission_required('polls')
 def detailview(request, campaign_id):
-    warnings.warn('polls.views.campaign.detailview() is deprecated.',
-                  DeprecationWarning
-                 )
+    warnings.warn('polls.views.campaign.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_pcampaign(request, campaign_id)
 
 
@@ -84,6 +87,10 @@ def listview(request):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class PollCampaignCreation(generic.add.EntityCreation):
+    model = PollCampaign
+    form_class = PollCampaignForm
 
 
 class PollCampaignDetail(generic.detailview.EntityDetail):

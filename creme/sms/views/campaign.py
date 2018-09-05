@@ -41,6 +41,10 @@ SMSCampaign = get_smscampaign_model()
 def abstract_add_smscampaign(request, form=CampaignCreateForm,
                              submit_label=SMSCampaign.save_label,
                             ):
+    warnings.warn('sms.views.campaign.abstract_add_smscampaign() is deprecated ; '
+                  'use the class-based view SMSCampaignCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -61,9 +65,9 @@ def abstract_view_smscampaign(request, campaign_id,
 
 
 @login_required
-# @permission_required(('sms', 'sms.add_smscampaign'))
 @permission_required(('sms', cperm(SMSCampaign)))
 def add(request):
+    warnings.warn('sms.views.campaign.add() is deprecated.', DeprecationWarning)
     return abstract_add_smscampaign(request)
 
 
@@ -126,6 +130,10 @@ def delete_messaging_list(request, campaign_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class SMSCampaignCreation(generic.add.EntityCreation):
+    model = SMSCampaign
+    form_class = CampaignCreateForm
 
 
 class SMSCampaignDetail(generic.detailview.EntityDetail):

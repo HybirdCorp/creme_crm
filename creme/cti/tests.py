@@ -228,21 +228,26 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         phone = '121366'
         url = reverse('cti__create_contact', args=(phone,))
         response = self.assertGET200(url)
+        self.assertTemplateUsed('persons/add_contact_form.html')
 
         with self.assertNoException():
             form = response.context['form']
 
         self.assertEqual(phone, form.initial.get('phone'))
 
+        first_name = 'Minnie'
+        last_name = 'May'
         self.assertNoFormError(self.client.post(url, follow=True,
                                                 data={'user':       user.id,
-                                                      'first_name': 'Minnie',
-                                                      'last_name':  'May',
+                                                      'first_name': first_name,
+                                                      'last_name':  last_name,
                                                       'phone':      phone,
                                                      }
                                                )
                               )
-        self.get_object_or_fail(Contact, phone=phone)
+        contact = self.get_object_or_fail(Contact, phone=phone)
+        self.assertEqual(last_name,  contact.last_name)
+        self.assertEqual(first_name, contact.first_name)
 
     @skipIfCustomOrganisation
     def test_create_orga(self):
@@ -251,20 +256,23 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         phone = '987654'
         url = reverse('cti__create_organisation', args=(phone,))
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'persons/add_organisation_form.html')
 
         with self.assertNoException():
             form = response.context['form']
 
         self.assertEqual(phone, form.initial.get('phone'))
 
+        name = 'Gunsmith cats'
         self.assertNoFormError(self.client.post(url, follow=True,
                                                 data={'user':  user.id,
-                                                      'name':  'Gunsmith cats',
+                                                      'name':  name,
                                                       'phone': phone,
                                                      }
                                                )
                               )
-        self.get_object_or_fail(Organisation, phone=phone)
+        orga = self.get_object_or_fail(Organisation, phone=phone)
+        self.assertEqual(name, orga.name)
 
     @skipIfCustomContact
     @skipIfCustomActivity

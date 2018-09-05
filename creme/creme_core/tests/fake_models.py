@@ -281,7 +281,8 @@ else:
                                        ).set_tags(optional=True)
 
         search_score = 101
-#        creation_label = _('Create a contact')
+        creation_label = _('Create a contact')
+        save_label     = _('Save the contact')
 
         class Meta:
             app_label = 'creme_core'
@@ -374,7 +375,8 @@ else:
         # function_fields = CremeEntity.function_fields.new(_GetFakeTodos())
 
         search_score = 102
-#        creation_label = _('Create an organisation')
+        creation_label = _('Create an organisation')
+        save_label = _('Save the organisation')
 
         class Meta:
             app_label = 'creme_core'

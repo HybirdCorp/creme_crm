@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,14 +26,18 @@ from creme.creme_core.forms import CremeForm, MultiEntityCTypeChoiceField
 
 
 class _CremePropertyTypeBaseForm(CremeForm):
-    text           = CharField(label=_(u'Text'), help_text=_("For example: 'is pretty'"))
-    is_copiable    = BooleanField(label=_(u'Is copiable'), initial=True, required=False,
-                                  help_text=_(u'Are the properties with this type copied when an entity is cloned?'),
+    text           = CharField(label=_('Text'), help_text=_("For example: 'is pretty'"))
+    is_copiable    = BooleanField(label=_('Is copiable'), initial=True, required=False,
+                                  help_text=_('Are the properties with this type copied when an entity is cloned?'),
                                  )
-    subject_ctypes = MultiEntityCTypeChoiceField(label=_(u'Related to types of entities'),
-                                                 help_text=_(u'No selected type means that all types are accepted'),
+    subject_ctypes = MultiEntityCTypeChoiceField(label=_('Related to types of entities'),
+                                                 help_text=_('No selected type means that all types are accepted'),
                                                  required=False,
                                                 )
+
+    def __init__(self, instance=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance = instance
 
 
 class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
@@ -41,7 +45,7 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
         text = self.cleaned_data['text']
 
         if CremePropertyType.objects.filter(text=text).exists():  # TODO: unique constraint in model too ??
-            raise ValidationError(ugettext(u"A property type with this name already exists"),
+            raise ValidationError(ugettext("A property type with this name already exists"),
                                   code='duplicated_name',
                                  )
 
@@ -63,9 +67,9 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
 class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
     def __init__(self, instance, *args, **kwargs):
         # super(CremePropertyTypeEditForm, self).__init__(*args, **kwargs)
-        super().__init__(*args, **kwargs)
+        super().__init__(instance=instance, *args, **kwargs)
 
-        self.instance = instance
+        # self.instance = instance
         fields = self.fields
 
         fields['text'].initial           = instance.text

@@ -124,7 +124,7 @@ DEFAULT_ENCODING = 'UTF8'
 
 DATE_FORMAT         = 'd-m-Y'
 SHORT_DATE_FORMAT   = 'd-m-Y'
-DATE_FORMAT_VERBOSE = _(u'Format: Day-Month-Year (Ex:31-12-2017)')
+DATE_FORMAT_VERBOSE = _('Format: Day-Month-Year (Ex:31-12-2017)')
 DATE_FORMAT_JS      = {
     DATE_FORMAT: 'dd-mm-yy',
 }
@@ -138,7 +138,7 @@ DATE_INPUT_FORMATS = [
 ]
 
 DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
-DATETIME_FORMAT_VERBOSE = _(u'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)')
+DATETIME_FORMAT_VERBOSE = _('Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)')
 DATETIME_INPUT_FORMATS  = [
     '%d-%m-%Y', '%d/%m/%Y',
     '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d',
@@ -457,7 +457,7 @@ TEST_RUNNER = 'creme.creme_core.utils.test.CremeDiscoverRunner'
 BLOCK_SIZE = 10  # Lines number in common blocks
 MAX_LAST_ITEMS = 9  # Max number of items in the 'Last viewed items' bar
 
-HIDDEN_VALUE = u'??'  # Used to replace contents which a user is not allowed to see.
+HIDDEN_VALUE = '??'  # Used to replace contents which a user is not allowed to see.
 
 # List-view
 PAGE_SIZES = [10, 25, 50, 100, 200]  # Available page sizes  (list of integers)
@@ -1006,7 +1006,7 @@ CRUDITY_BACKENDS = [
         'limit_froms': (),
         'in_sandbox': True,
         'body_map': {},
-        'subject': u'*',
+        'subject': '*',
     },
 ]
 

@@ -42,6 +42,10 @@ Opportunity = get_opportunity_model()
 def abstract_add_opportunity(request, form=OpportunityCreateForm,
                              submit_label=Opportunity.save_label,
                             ):
+    warnings.warn('opportunities.views.opportunity.abstract_add_opportunity() is deprecated ; '
+                  'use the class-based view OpportunityCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_initial={'sales_phase': SalesPhase.objects.first()},
                               extra_template_dict={'submit_label': submit_label},
@@ -97,6 +101,7 @@ def abstract_view_opportunity(request, opp_id,
 @login_required
 @permission_required(('opportunities', cperm(Opportunity)))
 def add(request):
+    warnings.warn('opportunities.views.opportunity.add() is deprecated .', DeprecationWarning)
     return abstract_add_opportunity(request)
 
 
@@ -128,6 +133,16 @@ def listview(request):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class OpportunityCreation(generic.add.EntityCreation):
+    model = Opportunity
+    form_class = OpportunityCreateForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['sales_phase'] = SalesPhase.objects.first()
+
+        return initial
 
 
 class OpportunityDetail(generic.detailview.EntityDetail):

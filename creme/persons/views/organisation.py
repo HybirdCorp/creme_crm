@@ -45,6 +45,10 @@ def abstract_add_organisation(request, form=orga_forms.OrganisationForm,
                               template='persons/add_organisation_form.html',
                               submit_label=Organisation.save_label,
                              ):
+    warnings.warn('persons.views.organisation.abstract_add_organisation() is deprecated ; '
+                  'use the class-based view OrganisationCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form, template=template,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -73,6 +77,7 @@ def abstract_view_organisation(request,organisation_id,
 @login_required
 @permission_required(('persons', cperm(Organisation)))
 def add(request):
+    warnings.warn('persons.views.organisation.add() is deprecated.', DeprecationWarning)
     return abstract_add_organisation(request)
 
 
@@ -113,10 +118,16 @@ def list_my_leads_my_customers(request):
 
 # Class-based views  ----------------------------------------------------------
 
+class OrganisationCreation(generic.add.EntityCreation):
+    model = Organisation
+    form_class = orga_forms.OrganisationForm
+    template_name = 'persons/add_organisation_form.html'
+
+
 class OrganisationDetail(generic.detailview.EntityDetail):
     model = Organisation
     template_name = 'persons/view_organisation.html'
-    pk_url_kwarg = 'organisation_id'
+    pk_url_kwarg = 'orga_id'
 
 
 # Other views  ----------------------------------------------------------------

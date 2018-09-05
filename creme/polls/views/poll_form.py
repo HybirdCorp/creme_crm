@@ -48,6 +48,10 @@ PollForm = get_pollform_model()
 def abstract_add_pollform(request, form=PollFormForm,
                           submit_label=PollForm.save_label,
                          ):
+    warnings.warn('polls.views.poll_form.abstract_add_pollform() is deprecated ; '
+                  'use the class-based view PollFormCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -70,6 +74,7 @@ def abstract_view_pollform(request, pform_id,
 @login_required
 @permission_required(('polls', cperm(PollForm)))
 def add(request):
+    warnings.warn('polls.views.poll_form.add() is deprecated.', DeprecationWarning)
     return abstract_add_pollform(request)
 
 
@@ -219,6 +224,11 @@ def get_choices(request, line_id):
     return choices
 
 # Class-based views  ----------------------------------------------------------
+
+
+class PollFormCreation(generic.add.EntityCreation):
+    model = PollForm
+    form_class = PollFormForm
 
 
 class PollFormDetail(generic.detailview.EntityDetail):

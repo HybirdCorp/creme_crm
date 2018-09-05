@@ -56,6 +56,10 @@ Opportunity = get_opportunity_model()
 def abstract_add_event(request, form=EventForm,
                        submit_label=Event.save_label,
                       ):
+    warnings.warn('events.views.abstract_add_event() is deprecated ; '
+                  'use the class-based view EventCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_initial={'type': EventType.objects.first()},
                               extra_template_dict={'submit_label': submit_label},
@@ -79,6 +83,7 @@ def abstract_view_event(request, event_id,
 @login_required
 @permission_required(('events', cperm(Event)))
 def add(request):
+    warnings.warn('events.views.add() is deprecated.', DeprecationWarning)
     return abstract_add_event(request)
 
 
@@ -324,6 +329,16 @@ def add_opportunity(request, event_id, contact_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class EventCreation(generic.add.EntityCreation):
+    model = Event
+    form_class = EventForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['type'] = EventType.objects.first()
+
+        return initial
 
 
 class EventDetail(generic.detailview.EntityDetail):

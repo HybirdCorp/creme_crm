@@ -9,7 +9,6 @@ from creme.opportunities import opportunity_model_is_custom
 from . import act_model_is_custom, pattern_model_is_custom, strategy_model_is_custom
 from .views import commercial_approach, market_segment, act, strategy  # portal
 
-
 urlpatterns = [
     # url(r'^$', portal.portal, name='commercial__portal'),
 
@@ -61,18 +60,21 @@ urlpatterns = [
     url(r'^bricks/reload/matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$', strategy.reload_matrix_brick, name='commercial__reload_matrix_brick'),
 ]
 
+
 if not contact_model_is_custom():
     from .views import salesman
 
     urlpatterns += [
         url(r'^salesmen[/]?$',     salesman.listview, name='commercial__list_salesmen'),
-        url(r'^salesman/add[/]?$', salesman.add,      name='commercial__create_salesman'),
+        # url(r'^salesman/add[/]?$', salesman.add,      name='commercial__create_salesman'),
+        url(r'^salesman/add[/]?$', salesman.SalesManCreation.as_view(), name='commercial__create_salesman'),
     ]
 
 if not act_model_is_custom():
     urlpatterns += [
         url(r'^acts[/]?$',                     act.listview,   name='commercial__list_acts'),
-        url(r'^act/add[/]?$',                  act.add,        name='commercial__create_act'),
+        # url(r'^act/add[/]?$',                  act.add,        name='commercial__create_act'),
+        url(r'^act/add[/]?$',                  act.ActCreation.as_view(), name='commercial__create_act'),
         url(r'^act/edit/(?P<act_id>\d+)[/]?$', act.edit,       name='commercial__edit_act'),
         # url(r'^act/(?P<act_id>\d+)[/]?$',      act.detailview, name='commercial__view_act'),
         url(r'^act/(?P<act_id>\d+)[/]?$',      act.ActDetail.as_view(), name='commercial__view_act'),
@@ -87,7 +89,8 @@ if not pattern_model_is_custom():
     urlpatterns += [
         # TODO: a separated file for pattern ???
         url(r'^objective_patterns[/]?$',                            act.listview_objective_pattern,   name='commercial__list_patterns'),
-        url(r'^objective_pattern/add[/]?$',                         act.add_objective_pattern,        name='commercial__create_pattern'),
+        # url(r'^objective_pattern/add[/]?$',                         act.add_objective_pattern,        name='commercial__create_pattern'),
+        url(r'^objective_pattern/add[/]?$',                         act.ActObjectivePatternCreation.as_view(), name='commercial__create_pattern'),
         url(r'^objective_pattern/edit/(?P<objpattern_id>\d+)[/]?$', act.edit_objective_pattern,       name='commercial__edit_pattern'),
         # url(r'^objective_pattern/(?P<objpattern_id>\d+)[/]?$',      act.objective_pattern_detailview, name='commercial__view_pattern'),
         url(r'^objective_pattern/(?P<objpattern_id>\d+)[/]?$',      act.ActObjectivePatternDetail.as_view(), name='commercial__view_pattern'),
@@ -96,7 +99,8 @@ if not pattern_model_is_custom():
 if not strategy_model_is_custom():
     urlpatterns += [
         url(r'^strategies[/]?$',                         strategy.listview,   name='commercial__list_strategies'),
-        url(r'^strategy/add[/]?$',                       strategy.add,        name='commercial__create_strategy'),
+        # url(r'^strategy/add[/]?$',                       strategy.add,        name='commercial__create_strategy'),
+        url(r'^strategy/add[/]?$',                       strategy.StrategyCreation.as_view(), name='commercial__create_strategy'),
         url(r'^strategy/edit/(?P<strategy_id>\d+)[/]?$', strategy.edit,       name='commercial__edit_strategy'),
         # url(r'^strategy/(?P<strategy_id>\d+)[/]?$',      strategy.detailview, name='commercial__view_strategy'),
         url(r'^strategy/(?P<strategy_id>\d+)[/]?$',      strategy.StrategyDetail.as_view(), name='commercial__view_strategy'),

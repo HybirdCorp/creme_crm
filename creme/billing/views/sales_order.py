@@ -32,6 +32,7 @@ from ..constants import DEFAULT_HFILTER_ORDER
 from ..forms import sales_order as order_forms
 from ..views.workflow import generic_add_related
 
+from . import base
 
 SalesOrder = billing.get_sales_order_model()
 Invoice = billing.get_invoice_model()
@@ -43,6 +44,10 @@ def abstract_add_salesorder(request, form=order_forms.SalesOrderCreateForm,
                             initial_status=1,
                             submit_label=SalesOrder.save_label,
                            ):
+    warnings.warn('billing.views.sales_order.abstract_add_salesorder() is deprecated ; '
+                  'use the class-based view SalesOrderCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form, extra_initial={'status': initial_status},
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -83,6 +88,7 @@ def abstract_view_salesorder(request, order_id, template='billing/view_sales_ord
 @login_required
 @permission_required(('billing', cperm(SalesOrder)))
 def add(request):
+    warnings.warn('billing.views.sales_order.add() is deprecated.', DeprecationWarning)
     return abstract_add_salesorder(request)
 
 
@@ -112,6 +118,11 @@ def listview(request):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class SalesOrderCreation(base.BaseCreation):
+    model = SalesOrder
+    form_class = order_forms.SalesOrderCreateForm
+
 
 class SalesOrderDetail(generic.detailview.EntityDetail):
     model = SalesOrder

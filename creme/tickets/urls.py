@@ -15,7 +15,8 @@ if not tickets.ticket_model_is_custom():
 
     urlpatterns += [
         url(r'^tickets[/]?$',                        ticket.listview,   name='tickets__list_tickets'),
-        url(r'^ticket/add[/]?$',                     ticket.add,        name='tickets__create_ticket'),
+        # url(r'^ticket/add[/]?$',                     ticket.add,        name='tickets__create_ticket'),
+        url(r'^ticket/add[/]?$',                     ticket.TicketCreation.as_view(), name='tickets__create_ticket'),
         url(r'^ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.edit,       name='tickets__edit_ticket'),
         # url(r'^ticket/(?P<ticket_id>\d+)[/]?$',      ticket.detailview, name='tickets__view_ticket'),
         url(r'^ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(), name='tickets__view_ticket'),

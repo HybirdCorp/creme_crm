@@ -42,6 +42,10 @@ Project = get_project_model()
 def abstract_add_project(request, form=project_forms.ProjectCreateForm,
                          submit_label=Project.save_label,
                         ):
+    warnings.warn('project.views.project.abstract_add_project() is deprecated ; '
+                  'use the class-based view ProjectCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_initial={'status': ProjectStatus.objects.first()},
                               extra_template_dict={'submit_label': submit_label},
@@ -65,6 +69,7 @@ def abstract_view_project(request, project_id,
 @login_required
 @permission_required(('projects', cperm(Project)))
 def add(request):
+    warnings.warn('project.views.project.add() is deprecated.', DeprecationWarning)
     return abstract_add_project(request)
 
 
@@ -104,6 +109,16 @@ def close(request, project_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+class ProjectCreation(generic.add.EntityCreation):
+    model = Project
+    form_class = project_forms.ProjectCreateForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['status'] = ProjectStatus.objects.first()
+
+        return initial
 
 
 class ProjectDetail(generic.detailview.EntityDetail):

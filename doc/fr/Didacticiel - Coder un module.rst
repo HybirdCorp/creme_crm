@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 30-07-2018 pour la version 2.0 de Creme
+:Version: 29-08-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -409,21 +409,18 @@ Il s'agit d'un formulaire lié à notre modèle tout simple.
 Puis nous modifions ``views/beaver.py``, en ajoutant ceci à la fin (vous pouvez
 ramener les ``import`` au début, avec les autres directives ``import`` bien sûr) : ::
 
-    from django.utils.translation import ugettext_lazy as _
-
     from ..forms.beaver import BeaverForm
 
-    @login_required
-    @permission_required('beavers', 'beavers.add_beaver')
-    def add(request):
-        return generic.add_entity(request, BeaverForm)
+    class BeaverCreation(generic.add.EntityCreation):
+        model = Beaver
+        form_class = BeaverForm
 
 
-Rajoutons l'entrée qui référence ``beaver.add`` dans ``beavers/urls.py`` : ::
+Rajoutons l'entrée qui référence ``beaver.BeaverCreation`` dans ``beavers/urls.py`` : ::
 
     urlpatterns = [
-        url(r'^beavers[/]?$',    beaver.listview, name='beavers__list_beavers'),
-        url(r'^beaver/add[/]?$', beaver.add,      name='beavers__create_beaver'),
+        url(r'^beavers[/]?$',    beaver.listview,                 name='beavers__list_beavers'),
+        url(r'^beaver/add[/]?$', beaver.BeaverCreation.as_view(), name='beavers__create_beaver'),
     ]
 
 
@@ -449,10 +446,10 @@ nommer correctement les éléments d'interface (bouton, menu etc…) : ::
 
 Si nous rechargeons la vue des castors, un bouton 'Create a beaver' est apparu.
 Quand nous cliquons dessus, nous obtenons bien le formulaire attendu. Mais quand
-nous validons notre formulaire correctement rempli, nous générons une erreur 404
-à nouveau. Pas de panique : la vue ``add_entity`` a juste demandé à
-afficher la vue détaillée de notre castor. Celui-ci a bien été créé, mais cette
-vue n'existe pas encore.
+nous validons notre formulaire correctement rempli, nous obtenons une erreur 500.
+Pas de panique : la classe de vue ``EntityCreation`` a juste demandé à afficher
+la vue détaillée de notre castor. Celui-ci a bien été créé, mais cette vue
+n'existe pas encore.
 
 
 La vue détaillée
@@ -468,9 +465,9 @@ Ajoutons cette classe de vue (dans ``views/beaver.py`` donc, si vous suivez) : :
 Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette URL : ::
 
     urlpatterns = [
-        url(r'^beavers[/]?$',                   beaver.listview, name='beavers__list_beavers'),
-        url(r'^beaver/add[/]?$',                beaver.add,      name='beavers__create_beaver'),
-        url(r'^beaver/(?P<beaver_id>\d+)[/]?$', beaver.BeaverDetail.as_view(), name='beavers__view_beaver'),  # < -- NEW
+        url(r'^beavers[/]?$',                   beaver.listview,                 name='beavers__list_beavers'),
+        url(r'^beaver/add[/]?$',                beaver.EntityCreation.as_view(), name='beavers__create_beaver'),
+        url(r'^beaver/(?P<beaver_id>\d+)[/]?$', beaver.BeaverDetail.as_view(),   name='beavers__view_beaver'),  # < -- NEW
     ]
 
 En rafraîchissant notre page dans le navigateur, nous obtenons bien la vue
@@ -508,10 +505,10 @@ Ajoutons cette vue dans ``views/beaver.py`` : ::
 Rajoutons l'URL associée : ::
 
     urlpatterns = [
-        url(r'^beavers[/]?$',                        beaver.listview, name='beavers__list_beavers'),
-        url(r'^beaver/add[/]?$',                     beaver.add,      name='beavers__create_beaver'),
-        url(r'^beaver/edit/(?P<beaver_id>\d+)[/]?$', beaver.edit,     name='beavers__edit_beaver'),  # < -- NEW
-        url(r'^beaver/(?P<beaver_id>\d+)[/]?$',      beaver.BeaverDetail.as_view(), name='beavers__view_beaver'),
+        url(r'^beavers[/]?$',                        beaver.listview,                 name='beavers__list_beavers'),
+        url(r'^beaver/add[/]?$',                     beaver.EntityCreation.as_view(), name='beavers__create_beaver'),
+        url(r'^beaver/edit/(?P<beaver_id>\d+)[/]?$', beaver.edit,                     name='beavers__edit_beaver'),  # < -- NEW
+        url(r'^beaver/(?P<beaver_id>\d+)[/]?$',      beaver.BeaverDetail.as_view(),   name='beavers__view_beaver'),
     ]
 
 

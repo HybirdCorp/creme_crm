@@ -313,7 +313,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                             )
 
         url = self.ADD_REPLY_URL
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        context = response.context
+        self.assertEqual(_('Create replies'),   context.get('title'))
+        self.assertEqual(_('Save the replies'), context.get('submit_label'))
 
         name = 'Reply#1'
         response = self.client.post(url, follow=True,

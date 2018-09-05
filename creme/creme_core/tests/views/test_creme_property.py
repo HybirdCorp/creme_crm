@@ -105,7 +105,14 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         url = self.ADD_TYPE_URL
-        self.assertGET200(url)
+        referer_url = reverse('creme_core__my_page')
+        response = self.assertGET200(url, HTTP_REFERER='http://testserver' + referer_url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add.html')
+
+        context = response.context
+        self.assertEqual(CremePropertyType.creation_label, context.get('title'))
+        self.assertEqual(_('Save the type of property'),   context.get('submit_label'))
+        self.assertEqual(referer_url,                      context.get('cancel_url'))
 
         text = 'is beautiful'
         self.assertFalse(CremePropertyType.objects.filter(text=text))
@@ -120,6 +127,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertRedirects(response, ptype.get_absolute_url())
 
     def test_add_type02(self):
+        "Constraints on ContentTypes, 'is_copiable'"
         self.login()
 
         get_ct = ContentType.objects.get_for_model
@@ -139,6 +147,16 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         ctypes = ptype.subject_ctypes.all()
         self.assertEqual(2,           len(ctypes))
         self.assertEqual(set(ct_ids), {ct.id for ct in ctypes})
+
+    def test_add_type03(self):
+        "Not allowed"
+        self.login(is_superuser=False)
+        self.assertGET403(self.ADD_TYPE_URL)
+
+    def test_add_type04(self):
+        "Not super-user"
+        self.login(is_superuser=False, admin_4_apps=('creme_core',))
+        self.assertGET200(self.ADD_TYPE_URL)
 
     def test_edit_type01(self):
         "is_custom=False"

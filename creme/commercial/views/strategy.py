@@ -49,6 +49,10 @@ Strategy = get_strategy_model()
 def abstract_add_strategy(request, form=forms.StrategyForm,
                           submit_label=Strategy.save_label,
                          ):
+    warnings.warn('commercial.views.strategy.abstract_add_strategy() is deprecated ; '
+                  'use the class-based view StrategyCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
                              )
@@ -71,6 +75,7 @@ def abstract_view_strategy(request, strategy_id,
 @login_required
 @permission_required(('commercial', cperm(Strategy)))
 def add(request):
+    warnings.warn('commercial.views.strategy.add() is deprecated.', DeprecationWarning)
     return abstract_add_strategy(request)
 
 
@@ -95,6 +100,10 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
+class StrategyCreation(generic.add.EntityCreation):
+    model = Strategy
+    form_class = forms.StrategyForm
+
 
 class StrategyDetail(generic.detailview.EntityDetail):
     model = Strategy
@@ -108,7 +117,7 @@ class StrategyDetail(generic.detailview.EntityDetail):
 @permission_required('commercial')
 def add_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
-                                 ugettext(u'New market segment for «%s»'),
+                                 ugettext('New market segment for «%s»'),
                                  entity_class=Strategy,
                                  submit_label=MarketSegment.save_label,
                                 )
@@ -118,7 +127,7 @@ def add_segment(request, strategy_id):
 @permission_required('commercial')
 def link_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
-                                 ugettext(u'New market segment for «%s»'),
+                                 ugettext('New market segment for «%s»'),
                                  entity_class=Strategy,
                                  submit_label=MarketSegment.save_label,  # TODO: MarketSegmentDescription ?
                                 )
@@ -128,7 +137,7 @@ def link_segment(request, strategy_id):
 @permission_required('commercial')
 def add_asset(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AssetForm,
-                                 ugettext(u'New commercial asset for «%s»'),
+                                 ugettext('New commercial asset for «%s»'),
                                  entity_class=Strategy,
                                  submit_label=CommercialAsset.save_label,
                                 )
@@ -138,7 +147,7 @@ def add_asset(request, strategy_id):
 @permission_required('commercial')
 def add_charm(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.CharmForm,
-                                 ugettext(u'New segment charm for «%s»'),
+                                 ugettext('New segment charm for «%s»'),
                                  entity_class=Strategy,
                                  submit_label=MarketSegmentCharm.save_label,
                                 )
@@ -148,18 +157,18 @@ def add_charm(request, strategy_id):
 @permission_required('commercial')
 def add_evalorga(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
-                                 ugettext(u'New organisation(s) for «%s»'),
+                                 ugettext('New organisation(s) for «%s»'),
                                  entity_class=Strategy,
-                                 submit_label=_(u'Link the organisation(s)'),
+                                 submit_label=_('Link the organisation(s)'),
                                  template='creme_core/generics/blockform/link_popup.html',
                                 )
 
 
 @login_required
 @permission_required('commercial')
-def edit_segment(request, strategy_id, seginfo_id):
+def edit_segment(request, strategy_id, seginfo_id):  # TODO: remove 'strategy_id'
     return generic.edit_related_to_entity(request, seginfo_id, MarketSegmentDescription,
-                                          forms.SegmentEditForm, ugettext(u'Segment for «%s»'),
+                                          forms.SegmentEditForm, ugettext('Segment for «%s»'),
                                          )
 
 
@@ -167,7 +176,7 @@ def edit_segment(request, strategy_id, seginfo_id):
 @permission_required('commercial')
 def edit_asset(request, asset_id):
     return generic.edit_related_to_entity(request, asset_id, CommercialAsset,
-                                          forms.AssetForm, ugettext(u'Asset for «%s»'),
+                                          forms.AssetForm, ugettext('Asset for «%s»'),
                                          )
 
 
@@ -175,7 +184,7 @@ def edit_asset(request, asset_id):
 @permission_required('commercial')
 def edit_charm(request, charm_id):
     return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm,
-                                          forms.CharmForm, ugettext(u'Charm for «%s»'),
+                                          forms.CharmForm, ugettext('Charm for «%s»'),
                                          )
 
 
@@ -191,7 +200,6 @@ def delete_evalorga(request, strategy_id):
     MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(strategy)
@@ -214,7 +222,7 @@ def _orga_view(request, strategy_id, orga_id, template):
     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
 
     if not strategy.evaluated_orgas.filter(pk=orga_id).exists():
-        raise Http404(ugettext(u'This organisation «{orga}» is not (no more ?) evaluated by the strategy «{strategy}»').format(
+        raise Http404(ugettext('This organisation «{orga}» is not (no more ?) evaluated by the strategy «{strategy}»').format(
                             orga=orga, strategy=strategy)
                      )
 
@@ -251,7 +259,6 @@ def _set_score(request, strategy_id, method_name):
     except Exception as e:
         raise Http404(str(e)) from e
 
-    # return HttpResponse(content_type='text/javascript')
     return HttpResponse()
 
 
@@ -279,7 +286,6 @@ def set_segment_category(request, strategy_id):
     except Exception as e:
         raise Http404(str(e)) from e
 
-    # return HttpResponse(content_type='text/javascript')
     return HttpResponse()
 
 
