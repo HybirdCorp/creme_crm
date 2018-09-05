@@ -84,11 +84,21 @@ creme.model.ChoiceRenderer.choicesFromTuples = function(data) {
 
     if (istuple) {
         return data.map(function(entry) {
-            return {value: entry[0], label: entry[1], visible: true, disabled: false, selected: false};
+            return {value: entry[0], label: entry[1], help: undefined, visible: true, disabled: false, selected: false};
         });
     } else {
         return data.map(function(entry) {
-            return {value: entry, label: '' + entry, visible: true, disabled: false, selected: false};
+            var value = null, label = 'null', help;
+
+            if (!Object.isNone(entry)) {
+                value = entry.value !== undefined ? entry.value : entry;
+                label = entry.label !== undefined ? entry.label : String(value);
+                help = entry.help;
+            }
+
+            return {
+                value: value, label: label, help: help, visible: true, disabled: false, selected: false
+            };
         });
     }
 };
@@ -211,14 +221,23 @@ creme.model.ChoiceGroupRenderer.choicesFromTuples = function(data) {
     if (istuple) {
         return data.map(function(entry) {
             if (entry.length > 2) {
-                return {value: entry[0], label: entry[1], group: entry[2], visible: true, disabled: false, selected: false};
+                return {value: entry[0], label: entry[1], group: entry[2], help: undefined, visible: true, disabled: false, selected: false};
             } else {
-                return {value: entry[0], label: entry[1], group: undefined, visible: true, disabled: false, selected: false};
+                return {value: entry[0], label: entry[1], group: undefined, help: undefined, visible: true, disabled: false, selected: false};
             }
         });
     } else {
         return data.map(function(entry) {
-            return {value: entry, label: '' + entry, group: undefined, visible: true, disabled: false, selected: false};
+            var value = null, label = 'null', group, help;
+
+            if (!Object.isNone(entry)) {
+                value = entry.value !== undefined ? entry.value : entry;
+                label = entry.label !== undefined ? entry.label : String(value);
+                help = entry.help;
+                group = entry.group;
+            }
+
+            return {value: value, label: label, group: group, help: help, visible: true, disabled: false, selected: false};
         });
     }
 };
