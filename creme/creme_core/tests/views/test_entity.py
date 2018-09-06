@@ -20,7 +20,8 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.bricks import TrashBrick
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
-    from creme.creme_core.gui.bulk_update import bulk_update_registry
+    # from creme.creme_core.gui.bulk_update import bulk_update_registry
+    from creme.creme_core.gui import bulk_update
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
             SetCredentials, Sandbox,
             CremePropertyType, CremeProperty, HistoryLine, FieldsConfig, history,
@@ -792,6 +793,17 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
 
 class _BulkEditTestCase(ViewsTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._original_bulk_update_registry = bulk_update.bulk_update_registry
+        bulk_update.bulk_update_registry = bulk_update._BulkUpdateRegistry()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        bulk_update.bulk_update_registry = cls._original_bulk_update_registry
+
     def get_cf_values(self, cf, entity):
         return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
 
@@ -1301,23 +1313,23 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         # super(BulkUpdateTestCase, cls).setUpClass()
         super().setUpClass()
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
-        cls.contact_bulk_status = bulk_update_registry.status(FakeContact)
+        cls.contact_bulk_status = bulk_update.bulk_update_registry.status(FakeContact)
 
     def setUp(self):
         # super(BulkUpdateTestCase, self).setUp()
         super().setUp()
-        contact_status = bulk_update_registry.status(FakeContact)
+        contact_status = bulk_update.bulk_update_registry.status(FakeContact)
 
         self._contact_innerforms = contact_status._innerforms
-        bulk_update_registry.status(FakeContact)._innerforms = {}
+        bulk_update.bulk_update_registry.status(FakeContact)._innerforms = {}
 
         self._contact_excludes = contact_status.excludes
-        bulk_update_registry.status(FakeContact).excludes = set()
+        bulk_update.bulk_update_registry.status(FakeContact).excludes = set()
 
     def tearDown(self):
         # super(BulkUpdateTestCase, self).tearDown()
         super().tearDown()
-        contact_status = bulk_update_registry.status(FakeContact)
+        contact_status = bulk_update.bulk_update_registry.status(FakeContact)
         contact_status._innerforms = self._contact_innerforms
         contact_status.excludes = self._contact_excludes
 
@@ -1425,8 +1437,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.login()
 
         fname = 'position'
-        bulk_update_registry.register(FakeContact, exclude=[fname])
-        self.assertFalse(bulk_update_registry.is_updatable(FakeContact, 'position'))
+        bulk_update.bulk_update_registry.register(FakeContact, exclude=[fname])
+        self.assertFalse(bulk_update.bulk_update_registry.is_updatable(FakeContact, 'position'))
 
         unemployed = FakePosition.objects.create(title='unemployed')
         mario, luigi, url = self.create_2_contacts_n_url(field=fname)
@@ -1532,7 +1544,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         class _InnerEditBirthday(BulkDefaultEditForm):
             pass
 
-        bulk_update_registry.register(FakeContact, innerforms={'birthday': _InnerEditBirthday})
+        bulk_update.bulk_update_registry.register(FakeContact, innerforms={'birthday': _InnerEditBirthday})
 
         mario, luigi, url = self.create_2_contacts_n_url(field='birthday')
         response = self.client.post(url, data={'field_value': '31-01-2000',
@@ -1994,7 +2006,7 @@ class InnerEditTestCase(_BulkEditTestCase):
             def clean(self):
                 raise ValidationError('invalid name')
 
-        bulk_update_registry.register(FakeContact, innerforms={'last_name': _InnerEditName})
+        bulk_update.bulk_update_registry.register(FakeContact, innerforms={'last_name': _InnerEditName})
 
         mario = self.create_contact()
         url = self.build_inneredit_url(mario, 'last_name')
@@ -2011,7 +2023,7 @@ class InnerEditTestCase(_BulkEditTestCase):
                 BulkDefaultEditForm._bulk_clean_entity(self, entity, values)
                 raise ValidationError('invalid name')
 
-        bulk_update_registry.register(FakeContact, innerforms={'last_name': _InnerEditName})
+        bulk_update.bulk_update_registry.register(FakeContact, innerforms={'last_name': _InnerEditName})
 
         mario = self.create_contact()
         url = self.build_inneredit_url(mario, 'last_name')

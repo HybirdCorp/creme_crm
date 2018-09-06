@@ -40,7 +40,8 @@ from ..core.paginator import FlowPaginator
 from ..forms import CremeEntityForm
 from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
-from ..gui.bulk_update import bulk_update_registry, FieldNotAllowed
+# from ..gui.bulk_update import bulk_update_registry, FieldNotAllowed
+from ..gui import bulk_update  # NB: do no import <bulk_update_registry> to facilitate unit testing
 from ..models import CremeEntity, EntityCredentials, FieldsConfig, Sandbox
 from ..models.fields import UnsafeHTMLField
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify, bool_from_str_extended
@@ -71,7 +72,7 @@ def get_creme_entities_repr(request, entities_ids):
     return [{'id': e_id,
              'text': entity.get_real_entity().get_entity_summary(user)
                      if has_perm(entity) else
-                     _(u'Entity #{id} (not viewable)').format(id=e_id)
+                     _('Entity #{id} (not viewable)').format(id=e_id)
             } for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
                 if entity is not None
            ]
@@ -123,7 +124,7 @@ def get_info_fields(request, ct_id):
         required_field = required_fields[0]
         kwargs['printer'] = lambda field: str(field.verbose_name) \
                                           if field.name != required_field else \
-                                          _(u'{field} [CREATION]').format(field=field.verbose_name)
+                                          _('{field} [CREATION]').format(field=field.verbose_name)
 
     is_hidden = FieldsConfig.get_4_model(model).is_field_hidden
 
@@ -139,7 +140,7 @@ def clone(request):
     entity    = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
     if entity.get_clone_absolute_url() != CremeEntity.get_clone_absolute_url():
-        raise Http404(_(u'This model does not use the generic clone view.'))
+        raise Http404(_('This model does not use the generic clone view.'))
 
     user = request.user
     user.has_perm_to_create_or_die(entity)
@@ -158,7 +159,7 @@ def search_and_view(request):
     value     = get_from_GET_or_404(GET, 'value')
 
     if not value:  # Avoid useless queries
-        raise Http404(u'Void "value" arg')
+        raise Http404('Void "value" arg')
 
     user = request.user
     has_perm = user.has_perm
@@ -168,10 +169,10 @@ def search_and_view(request):
         try:
             ct = ContentType.objects.get_by_natural_key(*model_id.split('-'))
         except (ContentType.DoesNotExist, TypeError) as e:
-            raise Http404(u'This model does not exist: {}'.format(model_id)) from e
+            raise Http404('This model does not exist: {}'.format(model_id)) from e
 
         if not has_perm(ct.app_label):
-            raise PermissionDenied(_(u'You are not allowed to access to this app'))
+            raise PermissionDenied(_('You are not allowed to access to this app'))
 
         model = ct.model_class()
 
@@ -179,7 +180,7 @@ def search_and_view(request):
             models.append(model)
 
     if not models:
-        raise Http404(u'No valid model')
+        raise Http404('No valid model')
 
     fconfigs = FieldsConfig.get_4_models(models)
 
@@ -193,7 +194,7 @@ def search_and_view(request):
                 pass
             else:
                 if fconfigs[model].is_field_hidden(field):
-                    raise ConflictError(_(u'This field is hidden.'))
+                    raise ConflictError(_('This field is hidden.'))
 
                 query |= Q(**{field.name: value})
 
@@ -203,7 +204,7 @@ def search_and_view(request):
             if found:
                 return redirect(found)
 
-    raise Http404(_(u'No entity corresponding to your search was found.'))
+    raise Http404(_('No entity corresponding to your search was found.'))
 
 
 # TODO: remove when bulk_update_registry has been rework to manage different type of cells (eg: RelationType => LINK)
@@ -219,10 +220,10 @@ def inner_edit_field(request, ct_id, id, field_name):
     instance = get_object_or_404(model, pk=id)
 
     if not _bulk_has_perm(instance, user):
-        raise PermissionDenied(_(u'You are not allowed to edit this entity'))
+        raise PermissionDenied(_('You are not allowed to edit this entity'))
 
     try:
-        form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
+        form_class = bulk_update.bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
 
         if request.method == 'POST':
             form = form_class(entities=[instance], user=user, data=request.POST)  # TODO: rename 'entities' arg
@@ -231,12 +232,12 @@ def inner_edit_field(request, ct_id, id, field_name):
                 form.save()
         else:
             form = form_class(entities=[instance], user=user)
-    except (FieldDoesNotExist, FieldNotAllowed):
-        return HttpResponseBadRequest(_(u'The field «{}» does not exist or cannot be edited').format(field_name))
+    except (FieldDoesNotExist, bulk_update.FieldNotAllowed):
+        return HttpResponseBadRequest(_('The field «{}» does not exist or cannot be edited').format(field_name))
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Edit «{object}»').format(object=instance),
+                        'title': _('Edit «{object}»').format(object=instance),
                        },
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,
@@ -252,12 +253,12 @@ def bulk_update_field(request, ct_id, field_name=None):
         raise Http404('The model must be a CremeEntity')
 
     if field_name is None:
-        field_name = bulk_update_registry.get_default_field(model).name
+        field_name = bulk_update.bulk_update_registry.get_default_field(model).name
 
     try:
-        form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
-    except (FieldDoesNotExist, FieldNotAllowed):
-        return HttpResponseBadRequest(_(u'The field «{}» does not exist or cannot be edited').format(field_name))
+        form_class = bulk_update.bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
+    except (FieldDoesNotExist, bulk_update.FieldNotAllowed):
+        return HttpResponseBadRequest(_('The field «{}» does not exist or cannot be edited').format(field_name))
 
     meta = model._meta
 
@@ -267,7 +268,7 @@ def bulk_update_field(request, ct_id, field_name=None):
         filtered = EntityCredentials.filter(user, entities, perm=EntityCredentials.CHANGE)
 
         if not filtered:
-            raise PermissionDenied(_(u'You are not allowed to edit these entities'))
+            raise PermissionDenied(_('You are not allowed to edit these entities'))
 
         form = form_class(entities=filtered, user=user, data=request.POST, is_bulk=True)
 
@@ -287,31 +288,31 @@ def bulk_update_field(request, ct_id, field_name=None):
 
             # TODO: modification_label/bulk_label/... in model instead (fr: masculin/féminin)
             if initial_count == success_count:
-                summary = ungettext(u'{success} «{model}» has been successfully modified.',
-                                    u'{success} «{model}» have been successfully modified.',
+                summary = ungettext('{success} «{model}» has been successfully modified.',
+                                    '{success} «{model}» have been successfully modified.',
                                     success_count
                                    )
             else:
-                summary = ungettext(u'{success} of {initial} «{model}» has been successfully modified.',
-                                    u'{success} of {initial} «{model}» have been successfully modified.',
+                summary = ungettext('{success} of {initial} «{model}» has been successfully modified.',
+                                    '{success} of {initial} «{model}» have been successfully modified.',
                                     success_count
                                    )
 
                 if forbidden_count:
-                    summary += u' ' + ungettext(u'{forbidden} was not editable.',
-                                                u'{forbidden} were not editable.',
-                                                forbidden_count
-                                               )
+                    summary += ' ' + ungettext('{forbidden} was not editable.',
+                                               '{forbidden} were not editable.',
+                                               forbidden_count
+                                              )
 
                 if invalid_count: 
-                    summary += u' ' + ungettext(u'{invalid} has returned an error.',
-                                                u'{invalid} have returned an error.',
-                                                invalid_count
-                                               )
+                    summary += ' ' + ungettext('{invalid} has returned an error.',
+                                               '{invalid} have returned an error.',
+                                               invalid_count
+                                              )
 
             return render(request, 'creme_core/frags/bulk_process_report.html',
                           {'form':  form,
-                           'title': _(u'Multiple update'),
+                           'title': _('Multiple update'),
                            'summary': summary.format(**context),
                           },
                          )
@@ -324,14 +325,14 @@ def bulk_update_field(request, ct_id, field_name=None):
     #                      _(u'%%s «%s» have been selected.') % meta.verbose_name_plural,
     #                 )
     help_message = format_html(
-        u'<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}"></span>',
-        msg=_(u'%s «{model}» has been selected.').format(model=meta.verbose_name),
-        plural=_(u'%s «{model}» have been selected.').format(model=meta.verbose_name_plural),
+        '<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}"></span>',
+        msg=_('%s «{model}» has been selected.').format(model=meta.verbose_name),
+        plural=_('%s «{model}» have been selected.').format(model=meta.verbose_name_plural),
     )
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Multiple update'),
+                        'title': _('Multiple update'),
                         # 'help_message': mark_safe(help_message),
                         'help_message': help_message,
                        },
@@ -414,18 +415,18 @@ def merge(request):
     return render(request,
                   'creme_core/forms/merge.html',
                   {'form':   merge_form,
-                   'title': _(u'Merge «{entity1}» with «{entity2}»').format(
+                   'title': _('Merge «{entity1}» with «{entity2}»').format(
                                    entity1=entity1,
                                    entity2=entity2,
                                 ),
-                   'help_message': _(u'You are going to merge two entities into a new one.\n'
-                                      'Choose which information you want the old entities '
-                                      'give to the new entity.\n'
-                                      'The relationships, the properties and the other links '
-                                      'with any of old entities will be automatically '
-                                      'available in the new merged entity.'
-                                     ),
-                   'submit_label': _(u'Merge'),
+                   'help_message': _('You are going to merge two entities into a new one.\n'
+                                     'Choose which information you want the old entities '
+                                     'give to the new entity.\n'
+                                     'The relationships, the properties and the other links '
+                                     'with any of old entities will be automatically '
+                                     'available in the new merged entity.'
+                                    ),
+                   'submit_label': _('Merge'),
                    'cancel_url': cancel_url,
                   }
                  )
@@ -471,13 +472,13 @@ def empty_trash(request):
                 try:
                     entity.delete()
                 except ProtectedError:
-                    errors.append(_(u'«{entity}» can not be deleted because of its dependencies.').format(
+                    errors.append(_('«{entity}» can not be deleted because of its dependencies.').format(
                                         entity=entity.allowed_str(user)
                                     )
                                  )
                 except Exception as e:
                     logger.exception('Error when trying to empty the trash')
-                    errors.append(_(u'«{entity}» deletion caused an unexpected error [{error}].').format(
+                    errors.append(_('«{entity}» deletion caused an unexpected error [{error}].').format(
                                         entity=entity.allowed_str(user),
                                         error=e,
                                     )
@@ -491,15 +492,15 @@ def empty_trash(request):
     # TODO: factorise ??
     if not errors:
         status = 200
-        message = _(u'Operation successfully completed')
+        message = _('Operation successfully completed')
     else:
         status = 409
         # message = _(u'The following entities cannot be deleted') + \
         #           u'<ul>%s</ul>' % u'\n'.join(u'<li>%s</li>' % msg for msg in errors)
         message = format_html(
-            u'{}<ul>{}</ul>',
-            _(u'The following entities cannot be deleted'),
-            format_html_join(u'', u'<li>{}</li>', ((msg,) for msg in errors)),
+            '{}<ul>{}</ul>',
+            _('The following entities cannot be deleted'),
+            format_html_join('', '<li>{}</li>', ((msg,) for msg in errors)),
         )
 
     # return HttpResponse(message, content_type='text/javascript', status=status)
@@ -513,7 +514,7 @@ def restore_entity(request, entity_id):
                                                   .get_real_entity()
 
     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-        raise Http404(_(u'This model does not use the generic deletion view.'))
+        raise Http404(_('This model does not use the generic deletion view.'))
 
     if hasattr(entity, 'get_related_entity'):
         raise Http404('Can not restore an auxiliary entity')  # See trash_entity()
@@ -531,7 +532,7 @@ def restore_entity(request, entity_id):
 def _delete_entity(user, entity):
     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
         return (404,
-                _(u'«{entity}» does not use the generic deletion view.').format(
+                _('«{entity}» does not use the generic deletion view.').format(
                         entity=entity.allowed_str(user),
                     )
                )
@@ -541,15 +542,15 @@ def _delete_entity(user, entity):
 
         if related is None:
             logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity.id)
-            return 403, _(u'You are not allowed to delete this entity: {}').format(entity.allowed_str(user))
+            return 403, _('You are not allowed to delete this entity: {}').format(entity.allowed_str(user))
 
         if not user.has_perm_to_change(related):
-            return 403, _(u'{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
+            return 403, _('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
 
         trash = False
     else:
         if not user.has_perm_to_delete(entity):
-            return 403, _(u'{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
+            return 403, _('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
 
         trash = not entity.is_deleted
 
@@ -560,14 +561,14 @@ def _delete_entity(user, entity):
             entity.delete()
     except SpecificProtectedError as e:
         return (400,
-                u'{} {}'.format(
-                    _(u'«{entity}» can not be deleted.').format(entity=entity.allowed_str(user)),
+                '{} {}'.format(
+                    _('«{entity}» can not be deleted.').format(entity=entity.allowed_str(user)),
                     e.args[0],
                   ),
                )
     except ProtectedError as e:
         return (400,
-                _(u'«{entity}» can not be deleted because of its dependencies.').format(
+                _('«{entity}» can not be deleted because of its dependencies.').format(
                         entity=entity.allowed_str(user),
                     ),
                 {'protected_objects': e.args[1]},
@@ -575,7 +576,7 @@ def _delete_entity(user, entity):
     except Exception as e:
         logger.exception('Error when trying to empty the trash')
         return (400,
-                _(u'«{entity}» deletion caused an unexpected error [{error}].').format(
+                _('«{entity}» deletion caused an unexpected error [{error}].').format(
                         entity=entity.allowed_str(user),
                         error=e,
                     )
@@ -591,7 +592,7 @@ def delete_entities(request):
         return HttpResponse('Bad POST argument', status=400)
 
     if not entity_ids:
-        return HttpResponse(_(u'No selected entities'), status=400)
+        return HttpResponse(_('No selected entities'), status=400)
 
     logger.debug('delete_entities() -> ids: %s ', entity_ids)
 
@@ -616,7 +617,7 @@ def delete_entities(request):
 
     if not errors:
         status = 200
-        message = _(u'Operation successfully completed')
+        message = _('Operation successfully completed')
         content_type = None
     else:
         status = min(errors)
