@@ -101,7 +101,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         self.assertEqual(sorted([{'value': f.id,
                                   'label': f.name,
                                   'group': str(f.entity_type),
-                                  'help':  _(u'Private ({})'.format(f.user) if f.is_private else ''),
+                                  'help':  _(u'Private ({})').format(f.user) if f.is_private else '',
                                  } for f in EntityFilter.objects.all()
                                 ],
                                 key=lambda e: sort_key(e['group'] + e['label'])
