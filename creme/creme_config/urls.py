@@ -169,5 +169,5 @@ urlpatterns = [
         url(r'^(?P<object_id>[\w-]+)/reorder[/]?$', generics_views.reorder,               name='creme_config__reorder_instance'),
         url(r'^delete[/]?$',                        generics_views.delete_model,          name='creme_config__delete_instance'),
         url(r'^reload[/]?$',                        generics_views.reload_model_brick,    name='creme_config__reload_model_brick'),
-    ]))
+    ])),
 ]

@@ -140,20 +140,26 @@ creme_core_patterns = [
 
     url(r'^list_view/download[/]?$', list_view_export.dl_listview, name='creme_core__dl_listview'),
 
-    url(r'^mass_import/(?P<ct_id>\d+)[/]?$',            mass_import.mass_import,     name='creme_core__mass_import'),
-    url(r'^mass_import/dl_errors/(?P<job_id>\d+)[/]?$', mass_import.download_errors, name='creme_core__dl_mass_import_errors'),
+    url(r'^mass_import/', include([
+        url(r'^(?P<ct_id>\d+)[/]?$',            mass_import.mass_import,     name='creme_core__mass_import'),
+        url(r'^dl_errors/(?P<job_id>\d+)[/]?$', mass_import.download_errors, name='creme_core__dl_mass_import_errors'),
+    ])),
 
     # TODO: change url (remove 'list_view'...)?? (then group other "list_view/" URLs)
     url(r'^list_view/batch_process/(?P<ct_id>\d+)[/]?$',                          batch_process.batch_process, name='creme_core__batch_process'),
     url(r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)[/]?$', batch_process.get_ops,       name='creme_core__batch_process_ops'),
 
     # Search
-    url(r'^search[/]?$',              search.search,       name='creme_core__search'),
-    url(r'^search/light[/]?$',        search.light_search, name='creme_core__light_search'),
-    url(r'^search/reload_brick[/]?$', search.reload_brick, name='creme_core__reload_search_brick'),
+    url(r'^search[/]?$',           search.search,       name='creme_core__search'),
+    url(r'^search/', include([
+        url(r'^light[/]?$',        search.light_search, name='creme_core__light_search'),
+        url(r'^reload_brick[/]?$', search.reload_brick, name='creme_core__reload_search_brick'),
+    ])),
 
-    url(r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)[/]?$',   quick_forms.add,             name='creme_core__quick_forms'),
-    url(r'^quickforms/from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.add_from_widget, name='creme_core__quick_form'),
+    url(r'^quickforms/', include([
+        url(r'^(?P<ct_id>\d+)/(?P<count>\d)[/]?$',   quick_forms.add,             name='creme_core__quick_forms'),
+        url(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.add_from_widget, name='creme_core__quick_form'),
+    ])),
 ]
 
 
