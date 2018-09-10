@@ -62,7 +62,8 @@ property_patterns = [
     # Property type
     # url(r'^type/add[/]?$',                                creme_property.add_type,        name='creme_core__create_ptype'),
     url(r'^type/add[/]?$',                                creme_property.PropertyTypeCreation.as_view(), name='creme_core__create_ptype'),
-    url(r'^type/(?P<ptype_id>[\w-]+)[/]?$',               creme_property.type_detailview, name='creme_core__ptype'),
+    # url(r'^type/(?P<ptype_id>[\w-]+)[/]?$',               creme_property.type_detailview, name='creme_core__ptype'),
+    url(r'^type/(?P<ptype_id>[\w-]+)[/]?$',               creme_property.PropertyTypeDetail.as_view(),   name='creme_core__ptype'),
     # url(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.edit_type,       name='creme_core__edit_ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.PropertyTypeEdition.as_view(),  name='creme_core__edit_ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.delete_type,     name='creme_core__delete_ptype'),

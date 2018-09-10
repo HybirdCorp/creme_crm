@@ -285,25 +285,51 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
         return self._render(btc)
 
 
-@login_required
-def type_detailview(request, ptype_id):
-    ptype = get_object_or_404(CremePropertyType, id=ptype_id)
-    ctypes = ptype.subject_ctypes.all()
+# @login_required
+# def type_detailview(request, ptype_id):
+#     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
+#     ctypes = ptype.subject_ctypes.all()
+#
+#     bricks = [PropertyTypeInfoBrick(ptype, ctypes)]
+#     bricks.extend(TaggedEntitiesBrick(ptype, ctype)
+#                       for ctype in (ctypes or creme_entity_content_types())
+#                  )
+#
+#     if ctypes:
+#         bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))
+#
+#     return render(request, 'creme_core/view_property_type.html',
+#                   {'object': ptype,
+#                    'blocks': bricks,
+#                    'bricks_reload_url': reverse('creme_core__reload_ptype_bricks', args=(ptype_id,)),
+#                   }
+#                  )
+class PropertyTypeDetail(generic.detailview.CremeModelDetail):
+    model = CremePropertyType
+    template_name = 'creme_core/view_property_type.html'
+    pk_url_kwarg = 'ptype_id'
 
-    bricks = [PropertyTypeInfoBrick(ptype, ctypes)]
-    bricks.extend(TaggedEntitiesBrick(ptype, ctype)
-                      for ctype in (ctypes or creme_entity_content_types())
-                 )
+    # TODO: Mixin for bricks rendering ?
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['bricks'] = self.get_bricks()
+        context['bricks_reload_url'] = reverse('creme_core__reload_ptype_bricks', args=(self.object.id,))
 
-    if ctypes:
-        bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))
+        return context
 
-    return render(request, 'creme_core/view_property_type.html',
-                  {'object': ptype,
-                   'blocks': bricks,  # TODO: rename 'bricks'
-                   'bricks_reload_url': reverse('creme_core__reload_ptype_bricks', args=(ptype_id,)),
-                  }
-                 )
+    def get_bricks(self):
+        ptype = self.object
+        ctypes = ptype.subject_ctypes.all()
+
+        bricks = [PropertyTypeInfoBrick(ptype, ctypes)]
+        bricks.extend(TaggedEntitiesBrick(ptype, ctype)
+                          for ctype in (ctypes or creme_entity_content_types())
+                     )
+
+        if ctypes:
+            bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))
+
+        return bricks
 
 
 @login_required

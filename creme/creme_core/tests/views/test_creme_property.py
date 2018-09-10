@@ -437,6 +437,9 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/view_property_type.html')
         self.assertTemplateUsed(response, 'creme_core/bricks/ptype-info.html')
         self.assertTemplateUsed(response, 'creme_core/bricks/tagged-entities.html')
+        self.assertEqual(reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
+                         response.context.get('bricks_reload_url')
+                        )
 
         with self.assertNoException():
             ctxt_ptype = response.context['object']
