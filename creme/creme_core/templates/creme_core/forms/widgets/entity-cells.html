@@ -56,7 +56,7 @@
 {% endcomment %}
             <div class="custom_field_selectors inline_selectors">
                 <h4 class="selector_title">{% trans 'Custom fields'%}</h4>
-                {% if custom_fields %}
+                {% if widget.custom_fields %}
                     <ul class="selector_list">
                         {% for cfield_id, cfield_name in widget.custom_fields %}
                         <li class="selector" data-column="{{cfield_id}}"><input type="checkbox" /><label>{{cfield_name}}</label></li>
