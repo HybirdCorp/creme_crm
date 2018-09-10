@@ -61,7 +61,8 @@ if not emails.emailcampaign_model_is_custom():
         url(r'^campaigns[/]?$',                          campaign.listview,   name='emails__list_campaigns'),
         # url(r'^campaign/add[/]?$',                       campaign.add,        name='emails__create_campaign'),
         url(r'^campaign/add[/]?$',                       campaign.EmailCampaignCreation.as_view(), name='emails__create_campaign'),
-        url(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.edit,       name='emails__edit_campaign'),
+        # url(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.edit,       name='emails__edit_campaign'),
+        url(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.EmailCampaignEdition.as_view(), name='emails__edit_campaign'),
         # url(r'^campaign/(?P<campaign_id>\d+)[/]?$',      campaign.detailview, name='emails__view_campaign'),
         url(r'^campaign/(?P<campaign_id>\d+)[/]?$',      campaign.EmailCampaignDetail.as_view(), name='emails__view_campaign'),
     ]
@@ -71,7 +72,8 @@ if not emails.emailtemplate_model_is_custom():
         url(r'^templates[/]?$',                          template.listview,   name='emails__list_templates'),
         # url(r'^template/add[/]?$',                       template.add,        name='emails__create_template'),
         url(r'^template/add[/]?$',                       template.EmailTemplateCreation.as_view(), name='emails__create_template'),
-        url(r'^template/edit/(?P<template_id>\d+)[/]?$', template.edit,       name='emails__edit_template'),
+        # url(r'^template/edit/(?P<template_id>\d+)[/]?$', template.edit,       name='emails__edit_template'),
+        url(r'^template/edit/(?P<template_id>\d+)[/]?$', template.EmailTemplateEdition.as_view(), name='emails__edit_template'),
         # url(r'^template/(?P<template_id>\d+)[/]?$',      template.detailview, name='emails__view_template'),
         url(r'^template/(?P<template_id>\d+)[/]?$',      template.EmailTemplateDetail.as_view(), name='emails__view_template'),
     ]
@@ -92,7 +94,8 @@ if not emails.mailinglist_model_is_custom():
         url(r'^mailing_lists[/]?$',                    mailing_list.listview,   name='emails__list_mlists'),
         # url(r'^mailing_list/add[/]?$',                 mailing_list.add,        name='emails__create_mlist'),
         url(r'^mailing_list/add[/]?$',                 mailing_list.MailingListCreation.as_view(), name='emails__create_mlist'),
-        url(r'^mailing_list/edit/(?P<ml_id>\d+)[/]?$', mailing_list.edit,       name='emails__edit_mlist'),
+        # url(r'^mailing_list/edit/(?P<ml_id>\d+)[/]?$', mailing_list.edit,       name='emails__edit_mlist'),
+        url(r'^mailing_list/edit/(?P<ml_id>\d+)[/]?$', mailing_list.MailingListEdition.as_view(), name='emails__edit_mlist'),
         # url(r'^mailing_list/(?P<ml_id>\d+)[/]?$',      mailing_list.detailview, name='emails__view_mlist'),
         url(r'^mailing_list/(?P<ml_id>\d+)[/]?$',      mailing_list.MailingListDetail.as_view(), name='emails__view_mlist'),
     ]

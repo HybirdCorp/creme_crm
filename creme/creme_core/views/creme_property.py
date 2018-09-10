@@ -36,7 +36,7 @@ from ..models import CremeEntity, CremePropertyType
 from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
 
 from . import generic, bricks as bricks_views
-from .utils import build_cancel_path
+# from .utils import build_cancel_path
 
 # TODO: Factorise with views in creme_config
 
@@ -127,35 +127,44 @@ class PropertyTypeCreation(generic.add.CremeModelCreation):
         self.request.user.has_perm_to_admin_or_die('creme_core')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def edit_type(request, ptype_id):
-    ptype = get_object_or_404(CremePropertyType, id=ptype_id)
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def edit_type(request, ptype_id):
+#     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
+#
+#     if not ptype.is_custom:
+#         raise Http404("Can't edit a standard PropertyType")
+#
+#     if request.method == 'POST':
+#         POST = request.POST
+#         form = ptype_forms.CremePropertyTypeEditForm(ptype, user=request.user, data=POST)
+#
+#         if form.is_valid():
+#             form.save()
+#
+#             return redirect(ptype)
+#
+#         cancel_url = POST.get('cancel_url')
+#     else:  # GET
+#         form = ptype_forms.CremePropertyTypeEditForm(ptype, user=request.user)
+#         cancel_url = build_cancel_path(request)
+#
+#     return render(request, 'creme_core/generics/blockform/edit.html',
+#                   {'form': form,
+#                    'object': ptype,
+#                    'submit_label': _('Save the modifications'),
+#                    'cancel_url': cancel_url,
+#                   }
+#                  )
+class PropertyTypeEdition(generic.edit.CremeModelEdition):
+    # model = CremePropertyType
+    queryset = CremePropertyType.objects.filter(is_custom=True)
+    form_class = ptype_forms.CremePropertyTypeEditForm
+    pk_url_kwarg = 'ptype_id'
 
-    if not ptype.is_custom:
-        raise Http404("Can't edit a standard PropertyType")
-
-    if request.method == 'POST':
-        POST = request.POST
-        form = ptype_forms.CremePropertyTypeEditForm(ptype, user=request.user, data=POST)
-
-        if form.is_valid():
-            form.save()
-
-            return redirect(ptype)
-
-        cancel_url = POST.get('cancel_url')
-    else:  # GET
-        form = ptype_forms.CremePropertyTypeEditForm(ptype, user=request.user)
-        cancel_url = build_cancel_path(request)
-
-    return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'form': form,
-                   'object': ptype,
-                   'submit_label': _('Save the modifications'),
-                   'cancel_url': cancel_url,
-                  }
-                 )
+    # TODO: factorise with PropertyTypeCreation
+    def check_view_permission(self):
+        self.request.user.has_perm_to_admin_or_die('creme_core')
 
 
 @login_required
@@ -169,7 +178,6 @@ def delete_from_type(request):
     ptype.cremeproperty_set.filter(creme_entity=entity).delete()
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(ptype)

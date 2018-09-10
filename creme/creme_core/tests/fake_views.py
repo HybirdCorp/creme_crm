@@ -40,12 +40,17 @@ class FakeContactCreation(generic.add.EntityCreation):
     form_class = fake_forms.FakeContactForm
 
 
-@login_required
-@permission_required('creme_core')
-def contact_edit(request, contact_id):
-    return generic.edit_entity(request, contact_id, fake_models.FakeContact,
-                               fake_forms.FakeContactForm,
-                              )
+# @login_required
+# @permission_required('creme_core')
+# def contact_edit(request, contact_id):
+#     return generic.edit_entity(request, contact_id, fake_models.FakeContact,
+#                                fake_forms.FakeContactForm,
+#                               )
+
+class FakeContactEdition(generic.edit.EntityEdition):
+    model = fake_models.FakeContact
+    form_class = fake_forms.FakeContactForm
+    pk_url_kwarg = 'contact_id'
 
 
 # @login_required

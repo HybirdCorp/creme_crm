@@ -78,9 +78,12 @@ class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
 
     def save(self):
         get_data = self.cleaned_data.get
-        CremePropertyType.create(self.instance.id, get_data('text'),
-                                 get_data('subject_ctypes'), is_custom=True,
-                                 is_copiable=get_data('is_copiable'),
-                                )
+        ptype = CremePropertyType.create(self.instance.id, get_data('text'),
+                                         get_data('subject_ctypes'),
+                                         is_custom=True,
+                                         is_copiable=get_data('is_copiable'),
+                                        )
         # super(CremePropertyTypeEditForm, self).save()
         super().save()
+
+        return ptype

@@ -205,7 +205,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         contact = Contact.objects.create(user=user, first_name=first_name, last_name='Valentine')
 
         url = contact.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'persons/edit_contact_form.html')
 
         last_name = 'Spiegel'
         response = self.assertPOST200(url, follow=True,

@@ -30,7 +30,7 @@ from creme.creme_core.views import generic
 
 from .. import get_smscampaign_model
 from ..constants import DEFAULT_HFILTER_SMSCAMPAIGN
-from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddListForm
+from ..forms import campaign as camp_forms
 
 
 SMSCampaign = get_smscampaign_model()
@@ -38,7 +38,7 @@ SMSCampaign = get_smscampaign_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_smscampaign(request, form=CampaignCreateForm,
+def abstract_add_smscampaign(request, form=camp_forms.CampaignCreateForm,
                              submit_label=SMSCampaign.save_label,
                             ):
     warnings.warn('sms.views.campaign.abstract_add_smscampaign() is deprecated ; '
@@ -50,7 +50,11 @@ def abstract_add_smscampaign(request, form=CampaignCreateForm,
                              )
 
 
-def abstract_edit_smscampaign(request, campaign_id, form=CampaignEditForm):
+def abstract_edit_smscampaign(request, campaign_id, form=camp_forms.CampaignEditForm):
+    warnings.warn('sms.views.campaign.abstract_edit_smscampaign() is deprecated ; '
+                  'use the class-based view SMSCampaignEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, campaign_id, SMSCampaign, form)
 
 
@@ -74,6 +78,7 @@ def add(request):
 @login_required
 @permission_required('sms')
 def edit(request, campaign_id):
+    warnings.warn('sms.views.campaign.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_smscampaign(request, campaign_id)
 
 
@@ -107,7 +112,7 @@ def listview(request):
 @login_required
 @permission_required('sms')
 def add_messaging_list(request, campaign_id):
-    return generic.add_to_entity(request, campaign_id, CampaignAddListForm,
+    return generic.add_to_entity(request, campaign_id, camp_forms.CampaignAddListForm,
                                  ugettext('New messaging lists for «%s»'),
                                  entity_class=SMSCampaign,
                                  submit_label=_('Link the messaging lists'),
@@ -133,10 +138,16 @@ def delete_messaging_list(request, campaign_id):
 
 class SMSCampaignCreation(generic.add.EntityCreation):
     model = SMSCampaign
-    form_class = CampaignCreateForm
+    form_class = camp_forms.CampaignCreateForm
 
 
 class SMSCampaignDetail(generic.detailview.EntityDetail):
     model = SMSCampaign
     template_name = 'sms/view_campaign.html'
+    pk_url_kwarg = 'campaign_id'
+
+
+class SMSCampaignEdition(generic.edit.EntityEdition):
+    model = SMSCampaign
+    form_class = camp_forms.CampaignEditForm
     pk_url_kwarg = 'campaign_id'

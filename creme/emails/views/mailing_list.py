@@ -57,6 +57,10 @@ def abstract_add_mailinglist(request, form=ml_forms.MailingListForm,
 
 
 def abstract_edit_mailinglist(request, ml_id, form=ml_forms.MailingListForm):
+    warnings.warn('emails.views.mailing_list.abstract_edit_mailinglist() is deprecated ; '
+                  'use the class-based view MailingListEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, ml_id, MailingList, form)
 
 
@@ -80,6 +84,7 @@ def add(request):
 @login_required
 @permission_required('emails')
 def edit(request, ml_id):
+    warnings.warn('emails.views.mailing_list.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_mailinglist(request, ml_id)
 
 
@@ -199,5 +204,11 @@ class MailingListCreation(generic.add.EntityCreation):
 class MailingListDetail(generic.detailview.EntityDetail):
     model = MailingList
     template_name = 'emails/view_mailing_list.html'
+    pk_url_kwarg = 'ml_id'
+
+
+class MailingListEdition(generic.edit.EntityEdition):
+    model = MailingList
+    form_class = ml_forms.MailingListForm
     pk_url_kwarg = 'ml_id'
 

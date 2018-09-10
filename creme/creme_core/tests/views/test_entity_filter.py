@@ -91,6 +91,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.role.save()
         response = self.assertGET200(uri)
         self.assertTemplateUsed(response, 'creme_core/forms/entity-filter.html')
+        self.assertIn(_('Create a filter for «%(ctype)s»') % {'ctype': 'Test Contact'},
+                      response.content.decode(),
+                     )
 
         # TODO: test widgets instead
 #        with self.assertNoException():
@@ -879,8 +882,18 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         url = efilter.get_edit_absolute_url()
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/forms/entity-filter.html')
+        self.assertIn(_('Edit the filter «%(filter)s»') % {'filter': efilter.name},
+                      response.content.decode()
+                     )
 
-        formfields = response.context['form'].fields
+        with self.assertNoException():
+            context = response.context
+            submit_label = context['submit_label']
+            formfields = context['form'].fields
+
+        self.assertEqual(_('Save the modified filter'), submit_label)
+
         self.assertEqual(FakeContact, formfields['fields_conditions'].model)
         self.assertEqual(FakeContact, formfields['relations_conditions'].model)
         self.assertEqual(FakeContact, formfields['relsubfilfers_conditions'].model)

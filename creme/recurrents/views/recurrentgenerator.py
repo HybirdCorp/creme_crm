@@ -107,6 +107,10 @@ class RecurrentGeneratorWizard(SessionWizardView):
 
 
 def abstract_edit_rgenerator(request, generator_id, form=generator_forms.RecurrentGeneratorEditForm):
+    warnings.warn('recurrents.views.recurrentgenerator.abstract_edit_rgenerator() is deprecated ; '
+                  'use the class-based view RecurrentGeneratorEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, generator_id, RecurrentGenerator, form)
 
 
@@ -123,16 +127,21 @@ def abstract_view_rgenerator(request, generator_id,
 @login_required
 @permission_required('recurrents')
 def edit(request, generator_id):
+    warnings.warn('recurrents.views.recurrentgenerator.edit().', DeprecationWarning)
     return abstract_edit_rgenerator(request, generator_id)
 
 
 @login_required
 @permission_required('recurrents')
 def detailview(request, generator_id):
-    warnings.warn('recurrents.views.recurrentgenerator.detailview().',
-                  DeprecationWarning
-                 )
+    warnings.warn('recurrents.views.recurrentgenerator.detailview().', DeprecationWarning)
     return abstract_view_rgenerator(request, generator_id)
+
+
+@login_required
+@permission_required('recurrents')
+def listview(request):
+    return generic.list_view(request, RecurrentGenerator, hf_pk=DEFAULT_HFILTER_RGENERATOR)
 
 
 class RecurrentGeneratorDetail(generic.detailview.EntityDetail):
@@ -141,7 +150,7 @@ class RecurrentGeneratorDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'generator_id'
 
 
-@login_required
-@permission_required('recurrents')
-def listview(request):
-    return generic.list_view(request, RecurrentGenerator, hf_pk=DEFAULT_HFILTER_RGENERATOR)
+class RecurrentGeneratorEdition(generic.edit.EntityEdition):
+    model = RecurrentGenerator
+    form_class = generator_forms.RecurrentGeneratorEditForm
+    pk_url_kwarg = 'generator_id'

@@ -52,6 +52,10 @@ def abstract_add_campaign(request, form=camp_forms.CampaignCreateForm,
 
 
 def abstract_edit_campaign(request, campaign_id, form=camp_forms.CampaignEditForm):
+    warnings.warn('emails.views.campaign.abstract_edit_campaign() is deprecated ; '
+                  'use the class-based view EmailCampaignEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, campaign_id, EmailCampaign, form)
 
 
@@ -75,6 +79,7 @@ def add(request):
 @login_required
 @permission_required('emails')
 def edit(request, campaign_id):
+    warnings.warn('emails.views.campaign.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_campaign(request, campaign_id)
 
 
@@ -129,4 +134,10 @@ class EmailCampaignCreation(generic.add.EntityCreation):
 class EmailCampaignDetail(generic.detailview.EntityDetail):
     model = EmailCampaign
     template_name = 'emails/view_campaign.html'
+    pk_url_kwarg = 'campaign_id'
+
+
+class EmailCampaignEdition(generic.edit.EntityEdition):
+    model = EmailCampaign
+    form_class = camp_forms.CampaignEditForm
     pk_url_kwarg = 'campaign_id'

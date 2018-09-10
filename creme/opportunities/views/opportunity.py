@@ -30,7 +30,7 @@ from creme.creme_core.views import generic
 
 from .. import get_opportunity_model
 from ..constants import DEFAULT_HFILTER_OPPORTUNITY
-from ..forms.opportunity import OpportunityCreateForm, OpportunityEditForm
+from ..forms import opportunity as opp_forms
 from ..models import SalesPhase
 
 
@@ -39,7 +39,7 @@ Opportunity = get_opportunity_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_opportunity(request, form=OpportunityCreateForm,
+def abstract_add_opportunity(request, form=opp_forms.OpportunityCreateForm,
                              submit_label=Opportunity.save_label,
                             ):
     warnings.warn('opportunities.views.opportunity.abstract_add_opportunity() is deprecated ; '
@@ -52,7 +52,7 @@ def abstract_add_opportunity(request, form=OpportunityCreateForm,
                              )
 
 
-def abstract_add_related_opportunity(request, entity_id, form=OpportunityCreateForm,
+def abstract_add_related_opportunity(request, entity_id, form=opp_forms.OpportunityCreateForm,
                                      title=_(u'New opportunity related to «%s»'),
                                      submit_label=Opportunity.save_label,
                                      inner_popup=False,
@@ -84,7 +84,11 @@ def abstract_add_related_opportunity(request, entity_id, form=OpportunityCreateF
     return response
 
 
-def abstract_edit_opportunity(request, opp_id, form=OpportunityEditForm):
+def abstract_edit_opportunity(request, opp_id, form=opp_forms.OpportunityEditForm):
+    warnings.warn('opportunities.views.opportunity.abstract_edit_opportunity() is deprecated ; '
+                  'use the class-based view OpportunityEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, opp_id, Opportunity, form)
 
 
@@ -116,6 +120,7 @@ def add_to(request, ce_id, inner_popup=False):
 @login_required
 @permission_required('opportunities')
 def edit(request, opp_id):
+    warnings.warn('opportunities.views.opportunity.edit() is deprecated .', DeprecationWarning)
     return abstract_edit_opportunity(request, opp_id)
 
 
@@ -136,7 +141,7 @@ def listview(request):
 
 class OpportunityCreation(generic.add.EntityCreation):
     model = Opportunity
-    form_class = OpportunityCreateForm
+    form_class = opp_forms.OpportunityCreateForm
 
     def get_initial(self):
         initial = super().get_initial()
@@ -148,4 +153,10 @@ class OpportunityCreation(generic.add.EntityCreation):
 class OpportunityDetail(generic.detailview.EntityDetail):
     model = Opportunity
     template_name = 'opportunities/view_opportunity.html'
+    pk_url_kwarg = 'opp_id'
+
+
+class OpportunityEdition(generic.edit.EntityEdition):
+    model = Opportunity
+    form_class = opp_forms.OpportunityEditForm
     pk_url_kwarg = 'opp_id'

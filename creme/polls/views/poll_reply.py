@@ -147,12 +147,20 @@ def abstract_add_preply_from_person(request, person_id,
 
 
 def abstract_edit_pollreply(request, preply_id, form=preply_forms.PollReplyEditForm):
+    warnings.warn('polls.views.poll_reply.abstract_edit_pollreply() is deprecated ; '
+                  'use the class-based view PollReplyEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, preply_id, PollReply, form)
 
 
 def abstract_view_pollreply(request, preply_id,
                             template='polls/view_pollreply.html',
                            ):
+    warnings.warn('polls.views.poll_reply.abstract_view_pollreply() is deprecated ; '
+                  'use the class-based view PollReplyDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.view_entity(request, preply_id, PollReply, template=template)
 
 
@@ -184,12 +192,14 @@ def add_from_person(request, person_id):
 @login_required
 @permission_required('polls')
 def edit(request, preply_id):
+    warnings.warn('polls.views.poll_reply.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_pollreply(request, preply_id)
 
 
 @login_required
 @permission_required('polls')
 def detailview(request, preply_id):
+    warnings.warn('polls.views.poll_reply.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_pollreply(request, preply_id)
 
 
@@ -441,4 +451,10 @@ class PollRepliesCreation(generic.add.EntityCreation):
 class PollReplyDetail(generic.detailview.EntityDetail):
     model = PollReply
     template_name = 'polls/view_pollreply.html'
+    pk_url_kwarg = 'preply_id'
+
+
+class PollReplyEdition(generic.edit.EntityEdition):
+    model = PollReply
+    form_class = preply_forms.PollReplyEditForm
     pk_url_kwarg = 'preply_id'

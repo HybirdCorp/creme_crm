@@ -77,10 +77,18 @@ def abstract_add_objective_pattern(request, form=forms.ObjectivePatternForm,
 
 
 def abstract_edit_act(request, act_id, form=forms.ActForm):
+    warnings.warn('commercial.views.act.abstract_edit_act() is deprecated ; '
+                  'use the class-based view ActEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, act_id, Act, form)
 
 
 def abstract_edit_objective_pattern(request, objpattern_id, form=forms.ObjectivePatternForm):
+    warnings.warn('commercial.views.act.abstract_edit_objective_pattern() is deprecated ; '
+                  'use the class-based view ActObjectivePatternEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, objpattern_id, ActObjectivePattern, form)
 
 
@@ -161,12 +169,14 @@ def add_objective_pattern(request):
 @login_required
 @permission_required('commercial')
 def edit(request, act_id):
+    warnings.warn('commercial.views.act.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_act(request, act_id)
 
 
 @login_required
 @permission_required('commercial')
 def edit_objective_pattern(request, objpattern_id):
+    warnings.warn('commercial.views.act.edit_objective_pattern() is deprecated.', DeprecationWarning)
     return abstract_edit_objective_pattern(request, objpattern_id)
 
 
@@ -212,6 +222,18 @@ class ActDetail(generic.detailview.EntityDetail):
 class ActObjectivePatternDetail(generic.detailview.EntityDetail):
     model = ActObjectivePattern
     template_name = 'commercial/view_pattern.html'
+    pk_url_kwarg = 'objpattern_id'
+
+
+class ActEdition(generic.edit.EntityEdition):
+    model = Act
+    form_class = forms.ActForm
+    pk_url_kwarg = 'act_id'
+
+
+class ActObjectivePatternEdition(generic.edit.EntityEdition):
+    model = ActObjectivePattern
+    form_class = forms.ObjectivePatternForm
     pk_url_kwarg = 'objpattern_id'
 
 

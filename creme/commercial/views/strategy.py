@@ -59,6 +59,10 @@ def abstract_add_strategy(request, form=forms.StrategyForm,
 
 
 def abstract_edit_strategy(request, strategy_id, form=forms.StrategyForm):
+    warnings.warn('commercial.views.strategy.abstract_edit_strategy() is deprecated ; '
+                  'use the class-based view StrategyCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, strategy_id, Strategy, form)
 
 
@@ -82,6 +86,7 @@ def add(request):
 @login_required
 @permission_required('commercial')
 def edit(request, strategy_id):
+    warnings.warn('commercial.views.strategy.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_strategy(request, strategy_id)
 
 
@@ -108,6 +113,12 @@ class StrategyCreation(generic.add.EntityCreation):
 class StrategyDetail(generic.detailview.EntityDetail):
     model = Strategy
     template_name = 'commercial/view_strategy.html'
+    pk_url_kwarg = 'strategy_id'
+
+
+class StrategyEdition(generic.edit.EntityEdition):
+    model = Strategy
+    form_class = forms.StrategyForm
     pk_url_kwarg = 'strategy_id'
 
 

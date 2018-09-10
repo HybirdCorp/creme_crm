@@ -105,6 +105,10 @@ def abstract_add_related_contact(request, orga_id, rtype_id,
 def abstract_edit_contact(request, contact_id, form=ContactForm,
                           template='persons/edit_contact_form.html',
                          ):
+    warnings.warn('persons.views.contact.abstract_edit_contact() is deprecated ; '
+                  'use the class-based view ContactEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, contact_id, model=Contact, edit_form=form, template=template)
 
 
@@ -135,6 +139,7 @@ def add_related_contact(request, orga_id, rtype_id=None):
 @login_required
 @permission_required('persons')
 def edit(request, contact_id):
+    warnings.warn('persons.views.contact.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_contact(request, contact_id)
 
 
@@ -223,4 +228,11 @@ class RelatedContactCreation(ContactCreation):
 class ContactDetail(generic.detailview.EntityDetail):
     model = Contact
     template_name = 'persons/view_contact.html'
+    pk_url_kwarg = 'contact_id'
+
+
+class ContactEdition(generic.edit.EntityEdition):
+    model = Contact
+    form_class = ContactForm
+    template_name = 'persons/edit_contact_form.html'
     pk_url_kwarg = 'contact_id'

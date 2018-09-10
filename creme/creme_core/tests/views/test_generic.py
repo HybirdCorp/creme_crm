@@ -9,9 +9,11 @@ try:
     from .base import ViewsTestCase, BrickTestCaseMixin
     from .. import fake_forms
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.bricks import PropertiesBrick
     from creme.creme_core.gui.last_viewed import LastViewedItem
-    from creme.creme_core.models import FakeOrganisation, FakeContact, Imprint
+    from creme.creme_core.models import (SetCredentials, Imprint,
+            FakeOrganisation, FakeContact)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -260,7 +262,7 @@ class CreationTestCase(ViewsTestCase):
                                     data={'user': user.id,
                                           # 'last_name': name,  # NB: Missing
                                           'cancel_url': lv_url,
-                                          }
+                                         }
                                     )
         self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
         self.assertEqual(lv_url, response.context.get('cancel_url'))
@@ -292,3 +294,207 @@ class CreationTestCase(ViewsTestCase):
         "Not super-user"
         self.login(is_superuser=False, creatable_models=[FakeContact])
         self.assertGET200(reverse('creme_core__create_fake_contact'))
+
+
+class EditionTestCase(ViewsTestCase):
+    def test_edit_entity01(self):
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Ner')
+        url = orga.get_edit_absolute_url()
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit.html')
+
+        context = response.context
+        self.assertIsInstance(context.get('form'), fake_forms.FakeOrganisationForm)
+        self.assertEqual(_('Save the modifications'),  context.get('submit_label'))
+        self.assertIsNone(context.get('cancel_url', -1))
+
+        name = 'Nerv'
+        description = 'DESCRIPTION'
+        response = self.client.post(url, follow=True,
+                                    data={'user':        user.id,
+                                          'name':        name,
+                                          'description': description,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        orga = self.refresh(orga)
+        self.assertEqual(name,        orga.name)
+        self.assertEqual(description, orga.description)
+
+        self.assertRedirects(response, orga.get_absolute_url())
+
+    def test_edit_entity02(self):
+        "Invalid ID"
+        self.login()
+        self.assertGET404(reverse('creme_core__edit_fake_organisation', args=(1024,)))
+
+    def test_edit_entity03(self):
+        "ValidationError + cancel_url"
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+        url = orga.get_edit_absolute_url()
+
+        lv_url = FakeOrganisation.get_lv_absolute_url()
+        response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+        self.assertEqual(lv_url, response.context.get('cancel_url'))
+
+        response = self.client.post(url, follow=True,
+                                    data={'user': user.id,
+                                          # 'name': name,  # NB: Missing
+                                          'cancel_url': lv_url,
+                                         }
+                                   )
+        self.assertFormError(response, 'form', 'name', _('This field is required.'))
+        self.assertEqual(lv_url, response.context.get('cancel_url'))
+
+    def test_edit_entity04(self):
+        "Not app credentials"
+        self.login(is_superuser=False, allowed_apps=['creme_config'])
+
+        response = self.assertGET403(reverse('creme_core__edit_fake_organisation', args=(1024,)))
+        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+
+    def test_edit_entity05(self):
+        "Not edition credentials"
+        self.login(is_superuser=False)
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            # EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        orga = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
+
+        response = self.assertGET403(orga.get_edit_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+
+    def test_edit_entity06(self):
+        "Not logged"
+        url = reverse('creme_core__edit_fake_organisation', args=(1024,))
+        response = self.assertGET(302, url)
+        self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
+
+    def test_edit_entity07(self):
+        "Not super-user"
+        user = self.login(is_superuser=False)
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+        self.assertGET200(orga.get_edit_absolute_url())
+
+    def test_entity_edition01(self):
+        user = self.login()
+        contact = FakeContact.objects.create(user=user,
+                                             first_name='Spik',
+                                             last_name='Spiege',
+                                            )
+        url = contact.get_edit_absolute_url()
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit.html')
+
+        context = response.context
+        self.assertIsInstance(context.get('form'), fake_forms.FakeContactForm)
+        self.assertEqual(_('Edit «{}»').format(contact), context.get('title'))
+        self.assertEqual(_('Save the modifications'),    context.get('submit_label'))
+        self.assertIsNone(context.get('cancel_url', -1))
+
+        first_name = 'Spike'
+        last_name = 'Spiegel'
+        description = 'DESCRIPTION'
+
+        # from creme.creme_core.utils.profiling import QueriesPrinter
+        # with QueriesPrinter():
+        response = self.client.post(url, follow=True,
+                                    data={'user':        user.id,
+                                          'first_name':  first_name,
+                                          'last_name':   last_name,
+                                          'description': description,
+                                         }
+                                   )
+
+        self.assertNoFormError(response)
+
+        contact = self.refresh(contact)
+        self.assertEqual(last_name,   contact.last_name)
+        self.assertEqual(first_name,  contact.first_name)
+        self.assertEqual(description, contact.description)
+
+        self.assertRedirects(response, contact.get_absolute_url())
+
+    def test_entity_edition02(self):
+        "Invalid ID"
+        self.login()
+        self.assertGET404(reverse('creme_core__edit_fake_contact', args=(1024,)))
+
+    def test_entity_edition03(self):
+        "ValidationError + cancel_url"
+        user = self.login()
+        contact = FakeContact.objects.create(user=user,
+                                             first_name='Spik',
+                                             last_name='Spiegel',
+                                            )
+        url = contact.get_edit_absolute_url()
+
+        lv_url = FakeContact.get_lv_absolute_url()
+        response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+        self.assertEqual(lv_url, response.context.get('cancel_url'))
+
+        response = self.client.post(url, follow=True,
+                                    data={'user': user.id,
+                                          'first_name': 'Spike',
+                                          # 'last_name': last_name,  # NB: Missing
+                                          'cancel_url': lv_url,
+                                         }
+                                   )
+        self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
+        self.assertEqual(lv_url, response.context.get('cancel_url'))
+
+    def test_entity_edition04(self):
+        "Not app credentials"
+        self.login(is_superuser=False, allowed_apps=['creme_config'])
+
+        response = self.assertGET403(reverse('creme_core__edit_fake_contact', args=(1024,)))
+        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+        self.assertIn(escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
+                      response.content.decode()
+                     )
+
+    def test_entity_edition05(self):
+        "Not edition credentials"
+        self.login(is_superuser=False)
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            # EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        contact = FakeContact.objects.create(user=self.other_user,
+                                             first_name='Spike',
+                                             last_name='Spiegel',
+                                            )
+
+        response = self.assertGET403(contact.get_edit_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+
+    def test_entity_edition06(self):
+        "Not logged"
+        url = reverse('creme_core__edit_fake_contact', args=(1024,))
+        response = self.assertGET(302, url)
+        self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
+
+    def test_entity_edition07(self):
+        "Not super-user"
+        user = self.login(is_superuser=False)
+        contact = FakeContact.objects.create(user=user,
+                                             first_name='Spike',
+                                             last_name='Spiegel',
+                                            )
+        self.assertGET200(contact.get_edit_absolute_url())

@@ -52,6 +52,10 @@ def abstract_add_template(request, form=tpl_forms.EmailTemplateForm,
 
 
 def abstract_edit_template(request, template_id, form=tpl_forms.EmailTemplateForm):
+    warnings.warn('emails.views.mail.abstract_edit_template() is deprecated ; '
+                  'use the class-based view EmailTemplateEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, template_id, EmailTemplate, form)
 
 
@@ -75,6 +79,7 @@ def add(request):
 @login_required
 @permission_required('emails')
 def edit(request, template_id):
+    warnings.warn('emails.views.mail.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_template(request, template_id)
 
 
@@ -129,4 +134,10 @@ class EmailTemplateCreation(generic.add.EntityCreation):
 class EmailTemplateDetail(generic.detailview.EntityDetail):
     model = EmailTemplate
     template_name = 'emails/view_template.html'
+    pk_url_kwarg = 'template_id'
+
+
+class EmailTemplateEdition(generic.edit.EntityEdition):
+    model = EmailTemplate
+    form_class = tpl_forms.EmailTemplateForm
     pk_url_kwarg = 'template_id'

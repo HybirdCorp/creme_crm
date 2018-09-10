@@ -59,6 +59,10 @@ def abstract_add_report(request, form=report_forms.ReportCreateForm,
 
 
 def abstract_edit_report(request, report_id, form=report_forms.ReportEditForm):
+    warnings.warn('reports.views.report.abstract_edit_report() is deprecated ; '
+                  'use the class-based view ReportEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, report_id, Report, form)
 
 
@@ -82,6 +86,7 @@ def add(request):
 @login_required
 @permission_required('reports')
 def edit(request, report_id):
+    warnings.warn('reports.views.report.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_report(request, report_id)
 
 
@@ -233,4 +238,10 @@ class ReportCreation(generic.add.EntityCreation):
 class ReportDetail(generic.detailview.EntityDetail):
     model = Report
     template_name = 'reports/view_report.html'
+    pk_url_kwarg = 'report_id'
+
+
+class ReportEdition(generic.edit.EntityEdition):
+    model = Report
+    form_class = report_forms.ReportEditForm
     pk_url_kwarg = 'report_id'

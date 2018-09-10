@@ -47,6 +47,10 @@ def abstract_add_messagetemplate(request, form=tpl_forms.TemplateCreateForm,
 
 
 def abstract_edit_messagetemplate(request, template_id, form=tpl_forms.TemplateEditForm):
+    warnings.warn('sms.views.template.abstract_edit_messagetemplate() is deprecated ; '
+                  'use the class-based view MessageTemplateEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, template_id, MessageTemplate, form)
 
 
@@ -70,6 +74,7 @@ def add(request):
 @login_required
 @permission_required('sms')
 def edit(request, template_id):
+    warnings.warn('sms.views.template.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_messagetemplate(request, template_id)
 
 
@@ -96,4 +101,10 @@ class MessageTemplateCreation(generic.add.EntityCreation):
 class MessageTemplateDetail(generic.detailview.EntityDetail):
     model = MessageTemplate
     template_name = 'sms/view_template.html'
+    pk_url_kwarg = 'template_id'
+
+
+class MessageTemplateEdition(generic.edit.EntityEdition):
+    model = MessageTemplate
+    form_class = tpl_forms.TemplateEditForm
     pk_url_kwarg = 'template_id'
