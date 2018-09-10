@@ -32,7 +32,7 @@ from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.imprint import imprint_manager
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
-from creme.creme_core.models import CremeEntity, BrickDetailviewLocation
+from creme.creme_core.models import CremeModel, CremeEntity, BrickDetailviewLocation
 
 
 logger = logging.getLogger(__name__)
@@ -120,16 +120,39 @@ def view_entity(request, object_id, model,
     return render(request, template, template_dict)
 
 
-class EntityDetail(DetailView):
+class CremeModelDetail(DetailView):
+    """ Base class for detail view in Creme.
+    You'll have to override at least the attribute 'model.
+    """
+    model = CremeModel
+    template_name = 'creme_core/detailview.html'
+    pk_url_kwarg = 'object_id'
+
+    def check_view_permission(self):
+        pass
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.check_view_permission()
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class EntityDetail(CremeModelDetail):
+    """ Base class for detail view of CremeEntities.
+
+    It manages :
+      - The permission checking.
+      - The correct template context to have the Bricks corresponding to the model.
+      - The Insertion of the entity in the last-viewed items.
+      - The creation of an Imprint instance (if needed).
+    """
     model = CremeEntity
     template_name = 'creme_core/generics/view_entity.html'
     pk_url_kwarg = 'entity_id'
 
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        request.user.has_perm_to_access_or_die(self.model._meta.app_label)
-
-        return super().dispatch(request, *args, **kwargs)
+    def check_view_permission(self):
+        self.request.user.has_perm_to_access_or_die(self.model._meta.app_label)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
