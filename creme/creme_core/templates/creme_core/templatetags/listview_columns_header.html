@@ -10,9 +10,18 @@
                     {% if widget_type == 'select' %}
                         <select name="{{cell.key}}" title="{{cell.title}}">
                             <option value="">{% trans 'All' %}</option>
+{% comment %}
                             {% for options in widget_ctx.values %}
                                 <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %} {% if options.value == NULL_FK %}class="search-nullfk"{% endif %}>{{options.text}}</option>
                             {% endfor %}
+{% endcomment %}
+                        {% for group_name, group_choices in widget_ctx.values %}
+                            {% if group_name %}<optgroup label="{{group_name}}">{% endif %}
+                            {% for choice in group_choices %}
+                            <option value="{{choice.value}}" {% if search and choice.selected %}selected{% endif %} {% if choice.value == NULL_FK %}class="search-nullfk"{% endif %}>{{choice.text}}</option>
+                            {% endfor %}
+                            {% if group_name %}</optgroup>{% endif %}
+                        {% endfor %}
                         </select>
                     {% elif widget_type == 'checkbox' %}
                         <select name="{{cell.key}}" title="{{cell.title}}">
@@ -26,7 +35,7 @@
                             <div class="date-start">
                                 <label for="id_{{cell.key}}{{whoami}}">{% trans 'Start' %}</label>
                                 <input name="{{cell.key}}" id="id_{{cell.key}}{{whoami}}" title="{{cell.title}}"
-                                       type="{{widget_type}} " data-format="{{widget_ctx.format}}"
+                                       type="{{widget_type}}" data-format="{{widget_ctx.format}}"
                                        value="{% if search %}{{widget_ctx.values.start}}{% endif %}"/>
                             </div>
                             <div class="date-end">

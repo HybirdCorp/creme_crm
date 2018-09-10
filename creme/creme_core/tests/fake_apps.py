@@ -25,7 +25,7 @@ def ready():
     from .fake_constants import FAKE_REL_SUB_EMPLOYED_BY
     from .fake_forms import (FakeContactQuickForm, FakeOrganisationQuickForm,
             get_csv_form_builder, get_merge_form_builder)
-    from .fake_function_fields import FakeTodosField
+    from . import fake_function_fields
     from .fake_models import (FakeContact, FakeOrganisation, FakeImage,
             FakeActivity, FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)
 
@@ -43,7 +43,8 @@ def ready():
         FakeConfigEntity,
     )
 
-    function_field_registry.register(CremeEntity, FakeTodosField)
+    function_field_registry.register(CremeEntity,     fake_function_fields.FakeTodosField)
+    function_field_registry.register(FakeInvoiceLine, fake_function_fields.GreatDiscountField)
 
     imprint_manager.register(FakeOrganisation, hours=2)
     imprint_manager.register(FakeContact, minutes=60)

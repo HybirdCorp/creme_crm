@@ -54,15 +54,15 @@ from .widgets import (DynamicInput, SelectorList, ChainedInput, Label,
 TRUE = 'true'
 FALSE = 'false'
 
-_BOOL_OPTIONS = ((TRUE, _(u'True')), (FALSE, _(u'False')))
+_BOOL_OPTIONS = ((TRUE, _('True')), (FALSE, _('False')))
 _HAS_PROPERTY_OPTIONS = OrderedDict([
-        (TRUE,  _(u'Has the property')),
-        (FALSE, _(u'Does not have the property')),
+        (TRUE,  _('Has the property')),
+        (FALSE, _('Does not have the property')),
     ])
 
 _HAS_RELATION_OPTIONS = OrderedDict([
-        (TRUE,  _(u'Has the relationship')),
-        (FALSE, _(u'Does not have the relationship')),
+        (TRUE,  _('Has the relationship')),
+        (FALSE, _('Does not have the relationship')),
     ])
 
 
@@ -72,9 +72,11 @@ boolean_str = lambda val: TRUE if val else FALSE
 
 
 class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector ??
-    def __init__(self, fields=(), operators=(), attrs=None, autocomplete=False):
+    # def __init__(self, fields=(), operators=(), attrs=None, autocomplete=False):
+    def __init__(self, model=CremeEntity, fields=(), operators=(), attrs=None, autocomplete=False):
         # super(FieldConditionWidget, self).__init__(attrs)
         super().__init__(attrs)
+        self.model = model
         self.fields = fields
         self.operators = operators
         self.autocomplete = autocomplete
@@ -87,8 +89,13 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
         add_input('^enum(__null)?.({})$'.format(EQUALS_OPS),
                   widget=DynamicSelectMultiple, attrs=field_attrs,
                   # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-                  url=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${field.ctype}'))
-                                        .resolve('creme_core__list_enumerable'),
+                  # TODO: remove "field.ctype" ?
+                  # url=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${field.ctype}'))
+                  #                       .resolve('creme_core__list_enumerable'),
+                  url=TemplateURLBuilder(field=(TemplateURLBuilder.Word, '${field.name}'))
+                                        .resolve('creme_core__enumerable_choices',
+                                                 kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id},
+                                                ),
                  )
 
         pinput.add_dselect('^user(__null)?.({})$'.format(EQUALS_OPS),
@@ -124,14 +131,14 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
 
         if subfield is not None:
             category = field.verbose_name
-            choice_type = FieldConditionWidget.field_choicetype(subfield)
-            choice_label = u'[{}] - {}'.format(category, subfield.verbose_name)
+            choice_type = self.field_choicetype(subfield)
+            choice_label = '[{}] - {}'.format(category, subfield.verbose_name)
             choice_value = {'name': name, 'type': choice_type}
 
             if choice_type in EntityFilterCondition._FIELDTYPES_RELATED:
                 choice_value['ctype'] = ContentType.objects.get_for_model(subfield.remote_field.model).id
         else:
-            choice_type = FieldConditionWidget.field_choicetype(field)
+            choice_type = self.field_choicetype(field)
             choice_label = field.verbose_name
             choice_value = {'name': name, 'type': choice_type}
 
@@ -200,13 +207,16 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
 
 
 class RegularFieldsConditionsWidget(SelectorList):
-    def __init__(self, fields=(), attrs=None, enabled=True):  # TODO: use/remove 'enabled'
+    # def __init__(self, fields=(), attrs=None, enabled=True):
+    def __init__(self, model=CremeEntity, fields=(), attrs=None, enabled=True):  # TODO: use/remove 'enabled'
         # super(RegularFieldsConditionsWidget, self).__init__(None, attrs)
         super().__init__(None, attrs)
+        self.model = model
         self.fields = fields
 
     def get_context(self, name, value, attrs):
-        self.selector = FieldConditionWidget(fields=self.fields,
+        self.selector = FieldConditionWidget(model=self.model,
+                                             fields=self.fields,
                                              # TODO: given by form field ?
                                              operators=EntityFilterCondition._OPERATOR_MAP,
                                              autocomplete=True,
@@ -228,7 +238,7 @@ class DateFieldsConditionsWidget(SelectorList):
 
         if subfield is not None:
             category = field.verbose_name
-            choice_label = u'[{}] - {}'.format(category, subfield.verbose_name)  # TODO: factorise
+            choice_label = '[{}] - {}'.format(category, subfield.verbose_name)  # TODO: factorise
             is_null = subfield.null
         else:
             category = ''
@@ -299,10 +309,10 @@ class CustomFieldConditionSelector(FieldConditionWidget):
                          NullableDateRangeSelect, attrs={'auto': False},
                         )
         pinput.add_input('^boolean(__null)?.*',
-                         DynamicSelect, options=((TRUE, _(u'True')), (FALSE, _(u'False'))), attrs=field_attrs,
+                         DynamicSelect, options=((TRUE, _('True')), (FALSE, _('False'))), attrs=field_attrs,
                         )
         pinput.add_input('(string|.*__null)?.({})$'.format(EntityFilterCondition.ISEMPTY),
-                         DynamicSelect, options=((TRUE, _(u'True')), (FALSE, _(u'False'))), attrs=field_attrs,
+                         DynamicSelect, options=((TRUE, _('True')), (FALSE, _('False'))), attrs=field_attrs,
                         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
 
@@ -341,7 +351,7 @@ class CustomFieldConditionWidget(SelectorList):
         fields = list(self.fields)
 
         if not fields:
-            return Label(empty_label=_(u'No custom field at present.'))\
+            return Label(empty_label=_('No custom field at present.'))\
                         .get_context(name=name, value=value, attrs=attrs)
 
         self.selector = CustomFieldConditionSelector(fields=fields, autocomplete=True,
@@ -365,7 +375,7 @@ class DateCustomFieldsConditionsWidget(SelectorList):
         options = list(self.date_fields_options)
 
         if not options:
-            return Label(empty_label=_(u'No date custom field at present.'))\
+            return Label(empty_label=_('No date custom field at present.'))\
                         .get_context(name=name, value=value, attrs=attrs)
 
         self.selector = chained_input = ChainedInput()
@@ -438,7 +448,7 @@ class RelationSubfiltersConditionsWidget(SelectorList):
                    )
         add_dselect('filter',
                     options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
-                    attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _(u'(no filter)')},
+                    attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _('(no filter)')},
                    )
 
         # return super(RelationSubfiltersConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
@@ -493,9 +503,9 @@ class _ConditionsField(JSONField):
 class RegularFieldsConditionsField(_ConditionsField):
     widget = RegularFieldsConditionsWidget
     default_error_messages = {
-        'invalidfield':    _(u'This field is invalid with this model.'),
-        'invalidoperator': _(u'This operator is invalid.'),
-        'invalidvalue':    _(u'This value is invalid.'),
+        'invalidfield':    _('This field is invalid with this model.'),
+        'invalidoperator': _('This operator is invalid.'),
+        'invalidvalue':    _('This value is invalid.'),
     }
     excluded_fields = (ModelFileField,)
 
@@ -529,7 +539,9 @@ class RegularFieldsConditionsField(_ConditionsField):
             self._model = model
             self._fields = None  # Clear cache
 
-            self.widget.fields = CallableChoiceIterator(lambda: self._get_fields().items())
+            widget = self.widget
+            widget.model = model
+            widget.fields = CallableChoiceIterator(lambda: self._get_fields().items())
 
     def _get_fields(self):
         if self._fields is None:
@@ -574,7 +586,7 @@ class RegularFieldsConditionsField(_ConditionsField):
             elif isinstance(field, ModelBooleanField):
                 values = search_info['values'][0]
             else:
-                values = u','.join(str(value) for value in search_info['values'])
+                values = ','.join(str(value) for value in search_info['values'])
 
             if field_entry['type'] in EntityFilterCondition._FIELDTYPES_RELATED:
                 field_entry['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
@@ -651,9 +663,9 @@ class RegularFieldsConditionsField(_ConditionsField):
 class DateFieldsConditionsField(_ConditionsField):
     widget = DateFieldsConditionsWidget
     default_error_messages = {
-        'invalidfield':     _(u'This field is not a date field for this model.'),
-        'invaliddaterange': _(u'This date range is invalid.'),
-        'emptydates':       _(u'Please enter a start date and/or a end date.'),
+        'invalidfield':     _('This field is not a date field for this model.'),
+        'invaliddaterange': _('This date range is invalid.'),
+        'emptydates':       _('Please enter a start date and/or a end date.'),
     }
 
     _non_hiddable_fnames = ()
@@ -710,7 +722,7 @@ class DateFieldsConditionsField(_ConditionsField):
         """@param date_dict: dict or None; if not None => {"year": 2011, "month": 7, "day": 25}"""
         return date_format(date(**date_dict), 'DATE_FORMAT') if date_dict else ''
 
-    # TODO : factorise with RegularFieldsConditionsField
+    # TODO: factorise with RegularFieldsConditionsField
     def _value_to_jsonifiable(self, value):
         fields = self._get_fields()
         dicts = []
@@ -799,9 +811,9 @@ class DateFieldsConditionsField(_ConditionsField):
 class CustomFieldsConditionsField(_ConditionsField):
     widget = CustomFieldConditionWidget
     default_error_messages = {
-        'invalidcustomfield': _(u'This custom field is invalid with this model.'),
-        'invalidoperator':    _(u'This operator is invalid.'),
-        'invalidvalue':       _(u'This value is invalid.'),
+        'invalidcustomfield': _('This custom field is invalid with this model.'),
+        'invalidoperator':    _('This operator is invalid.'),
+        'invalidvalue':       _('This value is invalid.'),
     }
 
     _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATETIME,)) # TODO: "!= DATE" instead
@@ -828,7 +840,7 @@ class CustomFieldsConditionsField(_ConditionsField):
             field_type = customfield_rname_choicetype(search_info['rname'])
             field_entry = {'id': int(condition.name), 'type': field_type}
 
-            value = u','.join(str(v) for v in search_info['value'])
+            value = ','.join(str(v) for v in search_info['value'])
 
             # HACK : lower serialisation of boolean (combobox waiting for 'true' and not 'True')
             if search_info['rname'] == CustomFieldBoolean.get_related_name():
@@ -925,7 +937,7 @@ class CustomFieldsConditionsField(_ConditionsField):
 class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsConditionsField):
     widget = DateCustomFieldsConditionsWidget
     default_error_messages = {
-        'invalidcustomfield': _(u'This date custom field is invalid with this model.'),
+        'invalidcustomfield': _('This date custom field is invalid with this model.'),
     }
 
     @CustomFieldsConditionsField.model.setter
@@ -995,9 +1007,9 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
 class RelationsConditionsField(_ConditionsField):
     widget = RelationsConditionsWidget
     default_error_messages = {
-        'invalidrtype':  _(u'This type of relationship type is invalid with this model.'),
-        'invalidct':     _(u'This content type is invalid.'),
-        'invalidentity': _(u'This entity is invalid.'),
+        'invalidrtype':  _('This type of relationship type is invalid with this model.'),
+        'invalidct':     _('This content type is invalid.'),
+        'invalidentity': _('This entity is invalid.'),
     }
 
     @_ConditionsField.model.setter
@@ -1112,7 +1124,7 @@ class RelationsConditionsField(_ConditionsField):
 class RelationSubfiltersConditionsField(RelationsConditionsField):
     widget = RelationSubfiltersConditionsWidget
     default_error_messages = {
-        'invalidfilter': _(u'This filter is invalid.'),
+        'invalidfilter': _('This filter is invalid.'),
     }
 
     def _condition_to_dict(self, condition):
@@ -1168,7 +1180,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
 class PropertiesConditionsField(_ConditionsField):
     widget = PropertiesConditionsWidget
     default_error_messages = {
-        'invalidptype': _(u'This property type is invalid with this model.'),
+        'invalidptype': _('This property type is invalid with this model.'),
     }
 
     @_ConditionsField.model.setter
@@ -1240,28 +1252,28 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
 class _EntityFilterForm(CremeModelForm):
     # Notice that we do not use 0/1 because it is linked to a boolean field,
     # so the value given to the widget for the selected choice is 'True' or 'False'...
-    use_or = ChoiceField(label=_(u'The entity is accepted if'),
-                         choices=(('False', _(u'all the conditions are met')),
-                                  ('True',  _(u'any condition is met')),
+    use_or = ChoiceField(label=_('The entity is accepted if'),
+                         choices=(('False', _('all the conditions are met')),
+                                  ('True',  _('any condition is met')),
                                  ),
                          widget=CremeRadioSelect,
                         )
 
-    fields_conditions           = RegularFieldsConditionsField(label=_(u'On regular fields'), required=False,
-                                                               help_text=_(u'You can write several values, separated by commas.')
+    fields_conditions           = RegularFieldsConditionsField(label=_('On regular fields'), required=False,
+                                                               help_text=_('You can write several values, separated by commas.')
                                                               )
-    datefields_conditions       = DateFieldsConditionsField(label=_(u'On date fields'), required=False)
-    customfields_conditions     = CustomFieldsConditionsField(label=_(u'On custom fields'), required=False)
-    datecustomfields_conditions = DateCustomFieldsConditionsField(label=_(u'On date custom fields'), required=False)
-    relations_conditions        = RelationsConditionsField(label=_(u'On relationships'), required=False,
-                                                           help_text=_(u'Do not select any entity if you want to match them all.')
+    datefields_conditions       = DateFieldsConditionsField(label=_('On date fields'), required=False)
+    customfields_conditions     = CustomFieldsConditionsField(label=_('On custom fields'), required=False)
+    datecustomfields_conditions = DateCustomFieldsConditionsField(label=_('On date custom fields'), required=False)
+    relations_conditions        = RelationsConditionsField(label=_('On relationships'), required=False,
+                                                           help_text=_('Do not select any entity if you want to match them all.')
                                                           )
-    relsubfilfers_conditions    = RelationSubfiltersConditionsField(label=_(u'On relationships with results of other filters'), required=False)
-    properties_conditions       = PropertiesConditionsField(label=_(u'On properties'), required=False)
-    subfilters_conditions       = SubfiltersConditionsField(label=_(u'Sub-filters'), required=False)
+    relsubfilfers_conditions    = RelationSubfiltersConditionsField(label=_('On relationships with results of other filters'), required=False)
+    properties_conditions       = PropertiesConditionsField(label=_('On properties'), required=False)
+    subfilters_conditions       = SubfiltersConditionsField(label=_('Sub-filters'), required=False)
 
     error_messages = {
-        'no_condition': _(u'The filter must have at least one condition.'),
+        'no_condition': _('The filter must have at least one condition.'),
     }
 
     _CONDITIONS_FIELD_NAMES = ('fields_conditions', 'datefields_conditions',
@@ -1270,21 +1282,21 @@ class _EntityFilterForm(CremeModelForm):
                                'properties_conditions', 'subfilters_conditions',
                               )
 
-    blocks = CremeModelForm.blocks.new(('conditions', _(u'Conditions'), _CONDITIONS_FIELD_NAMES))
+    blocks = CremeModelForm.blocks.new(('conditions', _('Conditions'), _CONDITIONS_FIELD_NAMES))
 
     class Meta(CremeModelForm.Meta):
         model = EntityFilter
         help_texts = {
-            'user': _(u'All users can see this filter, but only the owner can edit or delete it'),
-            'is_private': _(u'A private filter can only be used by its owner '
-                            u'(or the teammates if the owner is a team)'
+            'user': _('All users can see this filter, but only the owner can edit or delete it'),
+            'is_private': _('A private filter can only be used by its owner '
+                            '(or the teammates if the owner is a team)'
                            ),
         }
 
     def __init__(self, *args, **kwargs):
         # super(_EntityFilterForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.fields['user'].empty_label = _(u'All users')
+        self.fields['user'].empty_label = _('All users')
 
     def get_cleaned_conditions(self):
         cdata = self.cleaned_data
@@ -1312,9 +1324,9 @@ class _EntityFilterForm(CremeModelForm):
             if not req_user.is_staff and is_private and owner:
                 if owner.is_team:
                     if req_user.id not in owner.teammates:
-                        self.add_error('user', _(u'A private filter must belong to you (or one of your teams).'))
+                        self.add_error('user', _('A private filter must belong to you (or one of your teams).'))
                 elif owner != req_user:
-                    self.add_error('user', _(u'A private filter must belong to you (or one of your teams).'))
+                    self.add_error('user', _('A private filter must belong to you (or one of your teams).'))
 
             try:
                 self.instance.check_privacy(self.get_cleaned_conditions(), is_private, owner)

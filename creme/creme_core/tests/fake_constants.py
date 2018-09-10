@@ -13,6 +13,6 @@ FAKE_REL_OBJ_BILL_RECEIVED = 'creme_core-object_fake_bill_received'
 
 FAKE_PERCENT_UNIT = 1
 FAKE_AMOUNT_UNIT  = 2
-FAKE_DISCOUNT_UNIT = {FAKE_PERCENT_UNIT: _(u"Percent"),
-                      FAKE_AMOUNT_UNIT:  _(u"Amount"),
+FAKE_DISCOUNT_UNIT = {FAKE_PERCENT_UNIT: _('Percent'),
+                      FAKE_AMOUNT_UNIT:  _('Amount'),
                      }

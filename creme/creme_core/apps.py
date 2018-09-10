@@ -159,7 +159,7 @@ class CremeAppConfig(AppConfig):
             if hasattr(self, 'register_creme_app'):
                 logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
 
-            from .core import function_field, imprint, reminder, sandbox, setting_key
+            from .core import enumerable, function_field, imprint, reminder, sandbox, setting_key
             from .gui import (bricks, bulk_update, button_menu, fields_config, field_printers, icons,
                       listview, mass_import, menu, merge, quick_forms, statistics)
 
@@ -168,6 +168,7 @@ class CremeAppConfig(AppConfig):
             self.register_bricks(bricks.brick_registry)
             self.register_bulk_update(bulk_update.bulk_update_registry)
             self.register_buttons(button_menu.button_registry)
+            self.register_enumerable(enumerable.enumerable_registry)
             self.register_fields_config(fields_config.fields_config_registry)
             self.register_field_printers(field_printers.field_printers_registry)
             self.register_function_fields(function_field.function_field_registry)
@@ -202,6 +203,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_buttons(self, button_registry):
+        pass
+
+    def register_enumerable(self, enumerable_registry):
         pass
 
     def register_fields_config(self, fields_config_registry):
@@ -356,6 +360,17 @@ class CremeCoreConfig(CremeAppConfig):
         from . import buttons
 
         button_registry.register(buttons.Restrict2SuperusersButton)
+
+    def register_enumerable(self, enumerable_registry):
+        from . import enumerators, models
+
+        enumerable_registry.register_related_model(models.EntityFilter,
+                                                   enumerators.EntityFilterEnumerator,
+                                                  )
+        # TODO: register_related_model(models.HeaderFilter, ...) ?
+        enumerable_registry.register_field_type(models.fields.EntityCTypeForeignKey,
+                                                enumerators.EntityCTypeForeignKeyEnumerator,
+                                               )
 
     def register_function_fields(self, function_field_registry):
         from .function_fields import PropertiesField

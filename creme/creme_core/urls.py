@@ -100,8 +100,9 @@ headerfilter_patterns = [
 ]
 
 enumerable_patterns = [
-    url(r'^(?P<ct_id>\d+)/json[/]?$',        enumerable.json_list_enumerable,        name='creme_core__list_enumerable'),
-    url(r'^custom/(?P<cf_id>\d+)/json[/]?$', enumerable.json_list_enumerable_custom, name='creme_core__cfield_enums'),
+    url(r'^(?P<ct_id>\d+)/json[/]?$',                  enumerable.json_list_enumerable,        name='creme_core__list_enumerable'),  # DEPRECATED
+    url(r'^(?P<ct_id>\d+)/(?P<field>[\w]+)/json[/]?$', enumerable.ChoicesView.as_view(),       name='creme_core__enumerable_choices'),
+    url(r'^custom/(?P<cf_id>\d+)/json[/]?$',           enumerable.json_list_enumerable_custom, name='creme_core__cfield_enums'),
 
     # TODO: move to entity_filter_patterns
     url(r'^userfilter/json[/]?$', enumerable.json_list_userfilter, name='creme_core__efilter_user_choices'),
