@@ -59,7 +59,7 @@ class LimitedList:
 
 
 class ClassKeyedMap:
-    """A kind of dictionnary where key must be classes (with single inheritance).
+    """A kind of dictionary where key must be classes (with single inheritance).
     When a value is not found, the value of the nearest parent (in the class
     inheritance meaning), in the map, is used. If there is no parent class,
     a default value given a construction is used.

@@ -171,7 +171,7 @@ class CTypeForeignKey(ForeignKey):
 
     # TODO: factorise
     def get_internal_type(self):
-        return "ForeignKey"
+        return 'ForeignKey'
 
     def formfield(self, **kwargs):
         from ..forms.fields import CTypeChoiceField

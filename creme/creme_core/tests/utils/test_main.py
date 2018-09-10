@@ -335,6 +335,7 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(1, len(my_logger.data))
         self.assertTrue(my_logger.data[0].startswith('An exception occurred in <error_paluzza>.\n'))
 
+    # TODO: add test for Windows
     def test_secure_filename(self):
         self.assertEqual('My_cool_movie.mov', secure_filename('My cool movie.mov'))
         self.assertEqual('etc_passwd',        secure_filename('../../../etc/passwd'))
@@ -351,8 +352,6 @@ class MiscTestCase(CremeTestCase):
                                 )
                            ).size
         self.assertEqual((200, 200), size)
-
-    # TODO: add test for Windows
 
 
 class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase

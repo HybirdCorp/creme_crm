@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 import logging
 # import warnings
 
@@ -29,14 +30,15 @@ from django.utils.translation import ugettext as _
 
 from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
         EntityCellFunctionField, EntityCellRelation)
+from ..core.enumerable import enumerable_registry, Enumerator
 from ..core.paginator import FlowPaginator
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.listview import NULL_FK
 from ..gui.merge import merge_form_registry
 from ..gui.pager import PagerContext
 from ..models import CustomField
-from ..models.fields import EntityCTypeForeignKey
-from ..utils import creme_entity_content_types, build_ct_choices
+# from ..models.fields import EntityCTypeForeignKey
+# from ..utils import creme_entity_content_types, build_ct_choices
 from ..views.entity import _bulk_has_perm
 
 
@@ -118,11 +120,11 @@ def _build_bool_search_widget(widget_ctx, search_value):
     selected_value = search_value[0] if search_value else None
     widget_ctx['type'] = 'checkbox'
     widget_ctx['values'] = [{'value':    '1',
-                             'text':     _("Yes"),
+                             'text':     _('Yes'),
                              'selected': 'selected' if selected_value == '1' else ''
                             },
                             {'value':    '0',
-                             'text':     _("No"),
+                             'text':     _('No'),
                              'selected': 'selected' if selected_value == '0' else ''
                             }
                            ]
@@ -144,11 +146,24 @@ def _build_select_search_widget(widget_ctx, search_value, choices):
     # selected_value = str(search_value[0].decode('utf-8')) if search_value else None  # meh
     selected_value = search_value[0] if search_value else None  # meh
     widget_ctx['type'] = 'select'
-    widget_ctx['values'] = [{'value':    key,
-                             'text':     str(val),
-                             'selected': 'selected' if selected_value == str(key) else ''
-                            } for key, val in choices
-                           ]
+    # widget_ctx['values'] = [{'value':    key,
+    #                          'text':     str(val),
+    #                          'selected': 'selected' if selected_value == str(key) else ''
+    #                         } for key, val in choices
+    #                        ]
+    groups = defaultdict(list)
+
+    for choice in choices:
+        value = str(choice['value'])
+        groups[choice.get('group')].append(
+            # TODO: use "help" ? (need to display entirely pour widget, not a regular <select>)
+            {'value': value,
+             'text': choice['label'],
+             'selected': selected_value == value,
+            }
+        )
+
+    widget_ctx['values'] = list(groups.items())
 
 
 # TODO: add methods to EntityCells ? -> map of behaviours instead
@@ -167,27 +182,41 @@ def get_listview_columns_header(context):
             field = cell.field_info[-1]
 
             if isinstance(field, (ForeignKey, ManyToManyField)):  # TODO: hasattr(field, 'rel') ?
+                # TODO: generalise the system of 'header_filter_search_field' ??
                 if cell.filter_string.endswith('__header_filter_search_field__icontains'):
                     if search_value:
                         widget_ctx['value'] = search_value[0]
                 else:
-                    if isinstance(field, EntityCTypeForeignKey):
-                        choices = build_ct_choices(creme_entity_content_types())
-                    elif not field.get_tag('enumerable'):
-                        # TODO: generalise the system of 'header_filter_search_field' ??
+                    # if isinstance(field, EntityCTypeForeignKey):
+                    #     choices = build_ct_choices(creme_entity_content_types())
+                    # elif not field.get_tag('enumerable'):
+                    #     # todo: generalise the system of 'header_filter_search_field' ??
+                    #     continue
+                    # else:
+                    #     choices = []
+                    #
+                    #     if field.null or field.many_to_many:
+                    #         choices.append((NULL_FK, _('* is empty *')))
+                    #
+                    #     choices.extend((o.id, o) for o in field.remote_field.model.objects.distinct())
+                    #
+                    # _build_select_search_widget(widget_ctx, search_value, choices)
+                    try:
+                        enumerator = enumerable_registry.enumerator_by_field(field)
+                    except ValueError:
                         continue
                     else:
-                        choices = []
+                        choices = enumerator.choices(context['user'])
 
                         if field.null or field.many_to_many:
-                            choices.append((NULL_FK, _('* is empty *')))
+                            choices.insert(0, {'value': NULL_FK, 'label': _('* is empty *')})
 
-                        choices.extend((o.id, o) for o in field.remote_field.model.objects.distinct())
-
-                    _build_select_search_widget(widget_ctx, search_value, choices)
+                        _build_select_search_widget(widget_ctx, search_value, choices)
             elif field.choices:
-                # NB: not tested with grouped choices
-                _build_select_search_widget(widget_ctx, search_value, field.choices)
+                # _build_select_search_widget(widget_ctx, search_value, field.choices)
+                _build_select_search_widget(widget_ctx, search_value,
+                                            Enumerator.convert_choices(field.choices)
+                                           )
             elif isinstance(field, BooleanField):
                 _build_bool_search_widget(widget_ctx, search_value)
             elif isinstance(field, DateField):
@@ -197,7 +226,10 @@ def get_listview_columns_header(context):
         elif isinstance(cell, EntityCellFunctionField):
             choices = cell.function_field.choices
             if choices is not None:
-                _build_select_search_widget(widget_ctx, search_value, choices)
+                # _build_select_search_widget(widget_ctx, search_value, choices)
+                _build_select_search_widget(widget_ctx, search_value,
+                                            Enumerator.convert_choices(choices)
+                                           )
             elif search_value:
                 widget_ctx['value'] = search_value[0]
         elif isinstance(cell, EntityCellRelation):
@@ -208,8 +240,10 @@ def get_listview_columns_header(context):
             field_type = cf.field_type
 
             if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-                choices = [(NULL_FK, _('* is empty *'))]
-                choices.extend(cf.customfieldenumvalue_set.values_list('id', 'value'))
+                # choices = [(NULL_FK, _('* is empty *'))]
+                # choices.extend(cf.customfieldenumvalue_set.values_list('id', 'value'))
+                choices = [{'value': NULL_FK, 'label': _('* is empty *')}]
+                choices.extend(Enumerator.convert_choices(cf.customfieldenumvalue_set.values_list('id', 'value')))
 
                 _build_select_search_widget(widget_ctx, search_value, choices)
             elif field_type == CustomField.DATETIME:
@@ -243,15 +277,10 @@ def get_listview_columns_header(context):
 
 @register.simple_tag
 def listview_header_colspan(cells, is_readonly, is_single_select):
-    if is_readonly:
-        colspan = len(cells)
-    else:
-        colspan = sum(2 if cell.type_id != 'actions' else 1 for cell in cells)
+    colspan = len(cells) if is_readonly else \
+              sum(2 if cell.type_id != 'actions' else 1 for cell in cells)
 
-    if not is_single_select:
-        colspan += 1
-
-    return colspan
+    return colspan if is_single_select else colspan + 1
 
 
 @register.filter('listview_column_colspan')

@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 29-08-2018 pour la version 2.0 de Creme
+:Version: 05-09-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -2764,6 +2764,37 @@ Mais il est possible qu'un job propose un formulaire configuration plus poussé,
 la méthode ``JobType.get_config_form_class()`` ; les données supplémentaires
 peuvent être stockées dans l'instance de ``Job``, qui possède une propriété
 ``data`` (attention les données doivent pouvoir être sérialisée en JSON).
+
+
+Personnaliser les énumérations dans les filtres et vues de liste
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Il est possible de changer le comportement des énumérations d'instances pointées
+par une ``ForeignKey`` (ou un ``ManyToManyField``), que l'on trouve dans le
+formulaire de filtre (que l'on trouverait pour le champ ``Beaver.status``) et
+la recherche rapide des vues en liste. Comme vu précédemment, lesdites
+``ForeignKey`` devront avoir le *tag* ``enumerable`` à ``True`` pour pouvoir
+renvoyer une liste de choix.
+
+Si on souhaite juste limiter les choix possibles pour une ``ForeignKey`` précise,
+on préfèrera utiliser l'attribut "limit_choices_to" sur ladite ``ForeignKey``
+(puisque cela affectera automatiquement tous les formulaires du modèle en question).
+
+Mais outre la possibilité de limiter les choix, cela permet d'avoir des labels
+plus adaptés et aussi de regrouper certains choix entre eux. Par exemple
+Creme utilise ça pour personnaliser les énumération des ``ForeignKey`` pointant
+le modèle ``EntityFilter`` (ce qui n'arrive actuellement que dans le modèle
+``reports.Report``) ; les filtres sont regroupés selon le type de fiche auxquel
+ils sont attachés.
+
+Voici par exemple ce qu'on peut trouver dans le fichier ``creme_core/apps.py`` : ::
+
+    def register_enumerable(self, enumerable_registry):
+        from . import enumerators, models
+
+        enumerable_registry.register_related_model(models.EntityFilter,
+                                                   enumerators.EntityFilterEnumerator,
+                                                  )
 
 
 Liste des différents services

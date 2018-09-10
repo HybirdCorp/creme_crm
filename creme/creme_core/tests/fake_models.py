@@ -14,8 +14,7 @@ else:
     from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
     # from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
-    from ..models import CremeModel, CremeEntity, Language
-    from ..models.fields import PhoneField, BasicAutoField, MoneyField, DatePeriodField
+    from ..models import CremeModel, CremeEntity, Language, EntityFilter, fields as core_fields
 
     from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
 
@@ -23,6 +22,7 @@ else:
                'FakeImageCategory', 'FakeImage', 'FakeCivility', 'FakePosition', 'FakeSector', 'FakeAddress',
                'FakeContact', 'FakeLegalForm', 'FakeOrganisation', 'FakeActivityType', 'FakeActivity',
                'FakeMailingList', 'FakeEmailCampaign', 'FakeInvoice', 'FakeInvoiceLine', 'FakeProduct',
+               'FakeReport',
               )
 
 
@@ -194,7 +194,7 @@ else:
     class FakeSector(CremeModel):
         title     = models.CharField(_('Title'), max_length=100)
         is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
-        order     = BasicAutoField(_('Order'))  # Used by creme_config
+        order     = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
 
         def __str__(self):
             return self.title
@@ -246,12 +246,12 @@ else:
         is_a_nerd   = models.BooleanField(_('Is a Nerd'), default=False)
         description = models.TextField(_('Description'), blank=True, null=True) \
                             .set_tags(optional=True)
-        phone       = PhoneField(_('Phone number'), max_length=100,
-                                 blank=True, null=True,
-                                ).set_tags(optional=True)
-        mobile      = PhoneField(_('Mobile'), max_length=100,
-                                 blank=True, null=True,
-                                ).set_tags(optional=True)
+        phone       = core_fields.PhoneField(_('Phone number'), max_length=100,
+                                             blank=True, null=True,
+                                            ).set_tags(optional=True)
+        mobile      = core_fields.PhoneField(_('Mobile'), max_length=100,
+                                             blank=True, null=True,
+                                            ).set_tags(optional=True)
         position    = models.ForeignKey(FakePosition, verbose_name=_('Position'),
                                         blank=True, null=True, on_delete=models.SET_NULL,
                                        ).set_tags(optional=True)
@@ -342,9 +342,9 @@ else:
 
     class FakeOrganisation(CremeEntity):
         name            = models.CharField(_('Name'), max_length=200)
-        phone           = PhoneField(_('Phone number'), max_length=100,
-                                     blank=True, null=True,
-                                    )
+        phone           = core_fields.PhoneField(_('Phone number'), max_length=100,
+                                                 blank=True, null=True,
+                                                )
         email           = models.EmailField(_('Email address'), max_length=100,
                                             blank=True, null=True,
                                            )
@@ -406,7 +406,7 @@ else:
 
     class FakeActivityType(CremeModel):
         name  = models.CharField(_('Name'), max_length=100, unique=True)
-        order = BasicAutoField(_('Order'))  # Used by creme_config
+        order = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
 
         class Meta:
             app_label = 'creme_core'
@@ -496,18 +496,18 @@ else:
 
 
     class FakeInvoice(CremeEntity):
-        name             = models.CharField(_('Name'), max_length=100)
-        number           = models.CharField(_('Number'), max_length=100, blank=True, null=True)
-        issuing_date     = models.DateField(_('Issuing date'), blank=True, null=True)
-        expiration_date  = models.DateField(_('Expiration date'), blank=True, null=True)\
-                                 .set_tags(optional=True)
-        periodicity      = DatePeriodField(_('Periodicity of the generation'), blank=True, null=True)
-        total_vat        = MoneyField(_('Total with VAT'), max_digits=14, decimal_places=2,
-                                      blank=True, null=True, editable=False, default=0,
-                                     )
-        total_no_vat     = MoneyField(_('Total without VAT'), max_digits=14, decimal_places=2,
-                                      blank=True, null=True, editable=False, default=0,
-                                     ).set_tags(optional=True)
+        name            = models.CharField(_('Name'), max_length=100)
+        number          = models.CharField(_('Number'), max_length=100, blank=True, null=True)
+        issuing_date    = models.DateField(_('Issuing date'), blank=True, null=True)
+        expiration_date = models.DateField(_('Expiration date'), blank=True, null=True)\
+                                .set_tags(optional=True)
+        periodicity     = core_fields.DatePeriodField(_('Periodicity of the generation'), blank=True, null=True)
+        total_vat       = core_fields.MoneyField(_('Total with VAT'), max_digits=14, decimal_places=2,
+                                                 blank=True, null=True, editable=False, default=0,
+                                                )
+        total_no_vat    = core_fields.MoneyField(_('Total without VAT'), max_digits=14, decimal_places=2,
+                                                 blank=True, null=True, editable=False, default=0,
+                                                ).set_tags(optional=True)
 
         class Meta:
             app_label = 'creme_core'
@@ -533,22 +533,22 @@ else:
 
     class FakeInvoiceLine(CremeEntity):
         linked_invoice = models.ForeignKey(FakeInvoice, on_delete=models.CASCADE)
-        item          = models.CharField('Item', max_length=100, blank=True, null=True)
-        quantity      = models.DecimalField(_('Quantity'),
-                                            max_digits=10, decimal_places=2,
-                                            default=Decimal('1.00'),
-                                           )
-        unit_price    = models.DecimalField(_('Unit price'), default=Decimal(),
-                                            max_digits=10, decimal_places=2,
-                                           )
-        discount      = models.DecimalField(_('Discount'), default=Decimal(),
-                                            max_digits=10, decimal_places=2,
-                                           )
-        discount_unit = models.PositiveIntegerField(_('Discount Unit'),
-                                                    blank=True, null=True,
-                                                    choices=FAKE_DISCOUNT_UNIT.items(),
-                                                    default=FAKE_PERCENT_UNIT,
-                                                   )
+        item           = models.CharField('Item', max_length=100, blank=True, null=True)
+        quantity       = models.DecimalField(_('Quantity'),
+                                             max_digits=10, decimal_places=2,
+                                             default=Decimal('1.00'),
+                                            )
+        unit_price     = models.DecimalField(_('Unit price'), default=Decimal(),
+                                             max_digits=10, decimal_places=2,
+                                            )
+        discount       = models.DecimalField(_('Discount'), default=Decimal(),
+                                             max_digits=10, decimal_places=2,
+                                            )
+        discount_unit  = models.PositiveIntegerField(_('Discount Unit'),
+                                                     blank=True, null=True,
+                                                     choices=FAKE_DISCOUNT_UNIT.items(),
+                                                     default=FAKE_PERCENT_UNIT,
+                                                    )
 
         class Meta:
             app_label = 'creme_core'
@@ -586,3 +586,25 @@ else:
 
         # def get_absolute_url(self):
         #     return '/tests/product/%s' % self.id
+
+
+    class FakeReport(CremeEntity):
+        name    = models.CharField(_('Name'), max_length=100)
+        ctype   = core_fields.EntityCTypeForeignKey(verbose_name=_('Entity type'))
+        efilter = models.ForeignKey(EntityFilter, verbose_name=_('Filter'),
+                                    blank=True, null=True,
+                                    on_delete=models.PROTECT,
+                                   ).set_null_label(_('No filter'))
+
+        # creation_label = _('Create a report')
+        # save_label     = _('Save the report')
+
+        class Meta:
+            app_label = 'creme_core'
+            manager_inheritance_from_future = True
+            verbose_name = 'Test Report'
+            verbose_name_plural = 'Test Reports'
+            ordering = ('name',)
+
+        def __str__(self):
+            return self.name

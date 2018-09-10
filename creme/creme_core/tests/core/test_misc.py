@@ -7,6 +7,7 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.db import models
+    from django.db.models.fields import FieldDoesNotExist
     from django.test.utils import override_settings
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -19,6 +20,7 @@ try:
     from creme.creme_core.core.batch_process import batch_operator_manager, BatchAction
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.enumerable import _EnumerableRegistry, Enumerator
     from creme.creme_core.core.function_field import (FunctionField, FunctionFieldResult,
         FunctionFieldsManager, _FunctionFieldRegistry, function_field_registry)
     from creme.creme_core.core.imprint import _ImprintManager
@@ -28,7 +30,9 @@ try:
     from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
     from creme.creme_core.creme_jobs import reminder_type
     from creme.creme_core.models import (RelationType, Job, Imprint, Sandbox,
-        CustomField, CustomFieldEnumValue, FakeContact, FakeDocument)
+        CustomField, CustomFieldEnumValue, FakeContact, FakeOrganisation, FakeCivility,
+        FakeDocument, FakeImageCategory, FakeImage, Language, FakeAddress, FakeReport)
+    from creme.creme_core.models.fields import CTypeForeignKey, EntityCTypeForeignKey
     from creme.creme_core.utils.date_period import HoursPeriod
     from creme.creme_core.utils.dates import round_hour
 except Exception as e:
@@ -70,7 +74,6 @@ class BackendsTestCase(CremeTestCase):
             registry.get_backend(CSVImportBackend.id)
 
     # TODO: test with invalid path
-
 
 
 class FunctionFieldsTestCase(CremeTestCase):
@@ -470,7 +473,8 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name=field_name)
         self.assertIsInstance(cell, EntityCellRegularField)
         self.assertEqual(field_name,      cell.value)
-        self.assertEqual(_(u'First name'), cell.title)
+        self.assertEqual(_('First name'), cell.title)
+        self.assertEqual('regular_field-first_name', cell.key)
         self.assertIs(cell.has_a_filter, True)
         self.assertIs(cell.editable, True)
         self.assertIs(cell.sortable, True)
@@ -493,6 +497,7 @@ class EntityCellTestCase(CremeTestCase):
     def test_build_4_field04(self):
         "ForeignKey"
         cell = EntityCellRegularField.build(model=FakeContact, name='position')
+        self.assertEqual('regular_field-position', cell.key)
         self.assertEqual('position', cell.filter_string)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
@@ -505,6 +510,7 @@ class EntityCellTestCase(CremeTestCase):
     def test_build_4_field05(self):
         "Basic ForeignKey subfield"
         cell = EntityCellRegularField.build(model=FakeContact, name='position__title')
+        self.assertEqual('regular_field-position__title', cell.key)
         self.assertEqual('position__title__icontains', cell.filter_string)
 
         cell = EntityCellRegularField.build(model=FakeContact, name='image__name')
@@ -513,7 +519,7 @@ class EntityCellTestCase(CremeTestCase):
     def test_build_4_field06(self):
         "Date ForeignKey subfield"
         cell = EntityCellRegularField.build(model=FakeContact, name='image__created')
-        self.assertEqual(u'{} - {}'.format(_('Photograph'), _('Creation date')), cell.title)
+        self.assertEqual('{} - {}'.format(_('Photograph'), _('Creation date')), cell.title)
         self.assertEqual('image__created__range', cell.filter_string)
 
     def test_build_4_field07(self):
@@ -544,7 +550,7 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_customfield01(self):
         "INT CustomField"
-        name = u'Size (cm)'
+        name = 'Size (cm)'
         customfield = CustomField.objects.create(name=name, field_type=CustomField.INT,
                                                  content_type=self.contact_ct
                                                 )
@@ -553,6 +559,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsInstance(cell, EntityCellCustomField)
         self.assertEqual(str(customfield.id), cell.value)
         self.assertEqual(name,                cell.title)
+        self.assertEqual('custom_field-{}'.format(customfield.id), cell.key)
         self.assertIs(cell.has_a_filter, True)
         self.assertIs(cell.editable,     False)
         self.assertIs(cell.sortable,     False)
@@ -639,6 +646,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(FakeContact,     cell.model)
         self.assertEqual(str(loves.id),   cell.value)
         self.assertEqual(loves.predicate, cell.title)
+        self.assertEqual('relation-{}'.format(loves.id), cell.key)
         self.assertIs(cell.has_a_filter, True)
         self.assertIs(cell.editable,     False)
         self.assertIs(cell.sortable,     False)
@@ -658,6 +666,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsInstance(cell, EntityCellFunctionField)
         self.assertEqual(name,            cell.value)
         self.assertEqual(str(funfield.verbose_name), cell.title)
+        self.assertEqual('function_field-{}'.format(funfield.name), cell.key)
         self.assertIs(cell.has_a_filter, True)  # TODO: test with a non-filterable FunctionField
         self.assertIs(cell.editable,     False)
         self.assertIs(cell.sortable,     False)
@@ -691,18 +700,18 @@ class EntityCellTestCase(CremeTestCase):
 class SettingKeyTestCase(CremeTestCase):
     def test_register(self):
         sk1 = SettingKey('creme_core-test_sk_string',
-                         description=u'Page title',
+                         description='Page title',
                          app_label='creme_core',
                          type=SettingKey.STRING,
                          blank=True,
                         )
         sk2 = SettingKey('creme_core-test_sk_int',
-                         description=u'Page size',
+                         description='Page size',
                          app_label='creme_core',
                          type=SettingKey.INT, hidden=False,
                         )
         sk3 = SettingKey('creme_core-test_sk_bool',
-                         description=u'Page hidden',
+                         description='Page hidden',
                          app_label='creme_core',
                          type=SettingKey.BOOL,
                         )
@@ -746,13 +755,13 @@ class SettingKeyTestCase(CremeTestCase):
 
     def test_duplicate(self):
         sk1 = SettingKey('creme_core-test_sk_string',
-                         description=u'Page title',
+                         description='Page title',
                          app_label='creme_core',
                          type=SettingKey.STRING,
                          blank=True,
                         )
         sk2 = SettingKey(sk1.id,  # <===
-                         description=u'Page size',
+                         description='Page size',
                          app_label='creme_core',
                          type=SettingKey.INT, hidden=False,
                         )
@@ -979,7 +988,7 @@ class SandboxTestCase(CremeTestCase):
 
     def test_sandbox_data(self):
         user = self.login()
-        fmt = u'Restricted to "{}"'
+        fmt = 'Restricted to "{}"'
 
         class TestSandboxType3(SandboxType):
             id = SandboxType.generate_id('creme_core', 'test3')
@@ -1074,3 +1083,216 @@ class ImprintManagerTestCase(CremeTestCase):
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
 
         self.assertIsNone(manager.create_imprint(entity=willy, user=user))
+
+
+class EnumerableTestCase(CremeTestCase):
+    def test_basic_choices_fk(self):
+        user = self.login()
+        registry = _EnumerableRegistry()
+
+        enum1 = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
+        expected = [{'value': id, 'label': title}
+                        for id, title in FakeCivility.objects.values_list('id', 'title')
+                   ]
+        self.assertEqual(expected, enum1.choices(user))
+
+        # --
+        field = FakeContact._meta.get_field('civility')
+        enum2 = registry.enumerator_by_field(field=field)
+        self.assertEqual(expected, enum2.choices(user))
+
+    def test_basic_choices_m2m(self):
+        user = self.login()
+        registry = _EnumerableRegistry()
+
+        enum1 = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
+        expected = [{'value': id, 'label': name}
+                        for id, name in FakeImageCategory.objects.values_list('id', 'name')
+                   ]
+        self.assertEqual(expected, enum1.choices(user))
+
+        # --
+        field = FakeImage._meta.get_field('categories')
+        enum2 = registry.enumerator_by_field(field)
+        self.assertEqual(expected, enum2.choices(user))
+
+    def test_basic_choices_limited_choices_to(self):
+        user = self.login()
+        registry = _EnumerableRegistry()
+
+        create_lang = Language.objects.create
+        lang1 = create_lang(name='Klingon [deprecated]')
+        lang2 = create_lang(name='Namek')
+
+        enum1 = registry.enumerator_by_fieldname(model=FakeContact, field_name='languages')
+        choices = enum1.choices(user)
+        ids = {t['value'] for t in choices}
+        self.assertIn(lang2.id, ids)
+        self.assertNotIn(lang1.id, ids)
+
+        # --
+        field = FakeContact._meta.get_field('languages')
+        enum2 = registry.enumerator_by_field(field)
+        self.assertEqual(choices, enum2.choices(user))
+
+    def test_choices_not_entity_model(self):
+        registry = _EnumerableRegistry()
+
+        with self.assertRaises(ValueError) as error_ctxt1:
+            registry.enumerator_by_fieldname(model=FakeAddress, field_name='entity')
+
+        self.assertEqual('This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
+                         str(error_ctxt1.exception)
+                        )
+
+        # --
+        field = FakeAddress._meta.get_field('entity')
+
+        with self.assertRaises(ValueError) as error_ctxt2:
+            registry.enumerator_by_field(field)
+
+        self.assertEqual('This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
+                         str(error_ctxt2.exception)
+                        )
+
+    def test_choices_field_does_not_exist(self):
+        registry = _EnumerableRegistry()
+
+        with self.assertRaises(FieldDoesNotExist):
+            registry.enumerator_by_fieldname(model=FakeContact, field_name='unknown')
+
+    def test_choices_field_not_enumerable(self):
+        registry = _EnumerableRegistry()
+
+        with self.assertRaises(ValueError) as error_ctxt1:
+            registry.enumerator_by_fieldname(model=FakeContact, field_name='address')
+
+        self.assertEqual('This field is not enumerable: creme_core.FakeContact.address',
+                         str(error_ctxt1.exception)
+                        )
+
+        # --
+        field = FakeContact._meta.get_field('address')
+        with self.assertRaises(ValueError) as error_ctxt2:
+            registry.enumerator_by_field(field)
+
+        self.assertEqual('This field is not enumerable: creme_core.FakeContact.address',
+                         str(error_ctxt2.exception)
+                        )
+
+    def test_register_related_model(self):
+        class FakeCivilityEnumerator1(Enumerator):
+            pass
+
+        registry = _EnumerableRegistry()
+        registry.register_related_model(FakeCivility, FakeCivilityEnumerator1)
+
+        enumerator = partial(registry.enumerator_by_fieldname, model=FakeContact)
+        self.assertIsInstance(enumerator(field_name='civility'),
+                              FakeCivilityEnumerator1
+                             )
+        self.assertNotIsInstance(enumerator(field_name='sector'),
+                                 FakeCivilityEnumerator1
+                                )
+
+        # Model already registered
+        class FakeCivilityEnumerator2(Enumerator):
+            pass
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register_related_model(FakeCivility, FakeCivilityEnumerator2)
+
+    def test_register_specific_field(self):
+        class FakeContactSectorEnumerator1(Enumerator):
+            pass
+
+        registry = _EnumerableRegistry()
+        registry.register_field(FakeContact, field_name='sector',
+                                enumerator_class=FakeContactSectorEnumerator1,
+                               )
+
+        enumerator1 = registry.enumerator_by_fieldname
+        self.assertIsInstance(enumerator1(model=FakeContact, field_name='sector'),
+                              FakeContactSectorEnumerator1
+                             )
+        self.assertNotIsInstance(enumerator1(model=FakeOrganisation, field_name='sector'),
+                                 FakeContactSectorEnumerator1
+                                )
+
+        # --
+        field = FakeContact._meta.get_field('sector')
+        self.assertIsInstance(registry.enumerator_by_field(field),
+                              FakeContactSectorEnumerator1
+                             )
+
+        # Field registered
+        class FakeContactSectorEnumerator2(Enumerator):
+            pass
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register_field(FakeContact, field_name='sector',
+                                    enumerator_class=FakeContactSectorEnumerator2,
+                                   )
+
+    def test_register_field_type01(self):
+        class EntityCTypeForeignKeyEnumerator(Enumerator):
+            pass
+
+        registry = _EnumerableRegistry()
+        registry.register_field_type(EntityCTypeForeignKey,
+                                     enumerator_class=EntityCTypeForeignKeyEnumerator,
+                                    )
+
+        self.assertIsInstance(registry.enumerator_by_fieldname(model=FakeReport, field_name='ctype'),
+                              EntityCTypeForeignKeyEnumerator
+                             )
+
+    def test_register_field_type02(self):
+        "Inheritance"
+        class CTypeForeignKeyEnumerator(Enumerator):
+            pass
+
+        registry = _EnumerableRegistry()
+        registry.register_field_type(CTypeForeignKey,
+                                     enumerator_class=CTypeForeignKeyEnumerator,
+                                    )
+
+        self.assertIsInstance(registry.enumerator_by_fieldname(model=FakeReport, field_name='ctype'),
+                              CTypeForeignKeyEnumerator
+                             )
+
+    def test_convert_choices(self):
+        self.assertEqual(
+            [{'value': 1, 'label': 'Bad'},
+             {'value': 2, 'label': 'Not bad'},
+             {'value': 3, 'label': 'Great'},
+            ],
+            list(Enumerator.convert_choices(
+                [(1, 'Bad'), (2, 'Not bad'), (3, 'Great')]
+            ))
+        )
+
+    def test_convert_choices_with_group(self):
+        self.assertEqual(
+            [{'value': 'vinyl',   'label': 'Vinyl',    'group': 'Audio'},
+             {'value': 'cd',      'label': 'CD',       'group': 'Audio'},
+             {'value': 'vhs',     'label': 'VHS Tape', 'group': 'Video'},
+             {'value': 'dvd',     'label': 'DVD',      'group': 'Video'},
+             {'value': 'unknown', 'label': 'Unknown'},
+
+            ],
+            list(Enumerator.convert_choices(
+                [('Audio',
+                    (('vinyl', 'Vinyl'),
+                     ('cd',    'CD'),
+                    )
+                 ),
+                 ('Video',
+                    (('vhs', 'VHS Tape'),
+                     ('dvd', 'DVD'),
+                    )
+                 ),
+                 ('unknown', 'Unknown'),
+                ]
+            ))
+        )
