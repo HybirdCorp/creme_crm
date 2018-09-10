@@ -77,6 +77,10 @@ def abstract_add_related_document(request, entity_id,
 
 
 def abstract_edit_document(request, document_id, form=doc_forms.DocumentEditForm):
+    warnings.warn('documents.views.document.abstract_edit_document() is deprecated ; '
+                  'use the class-based view DocumentEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, document_id, Document, form)
 
 
@@ -106,6 +110,7 @@ def add_related(request, entity_id):
 @login_required
 @permission_required('documents')
 def edit(request, document_id):
+    warnings.warn('documents.views.document.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_document(request, document_id)
 
 
@@ -141,4 +146,10 @@ class DocumentCreation(generic.add.EntityCreation):
 class DocumentDetail(generic.detailview.EntityDetail):
     model = Document
     template_name = 'documents/view_document.html'
+    pk_url_kwarg = 'document_id'
+
+
+class DocumentEdition(generic.edit.EntityEdition):
+    model = Document
+    form_class = doc_forms.DocumentEditForm
     pk_url_kwarg = 'document_id'

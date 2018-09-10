@@ -56,6 +56,10 @@ def abstract_add_product(request, form=product_forms.ProductCreateForm,
 
 
 def abstract_edit_product(request, product_id, form=product_forms.ProductEditForm):
+    warnings.warn('products.views.product.abstract_edit_product() is deprecated ; '
+                  'use the class-based view ProductEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, product_id, Product, form)
 
 
@@ -79,6 +83,7 @@ def add(request):
 @login_required
 @permission_required('products')
 def edit(request, product_id):
+    warnings.warn('products.views.product.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_product(request, product_id)
 
 
@@ -145,4 +150,10 @@ class ProductCreation(generic.add.EntityCreation):
 class ProductDetail(generic.detailview.EntityDetail):
     model = Product
     template_name = 'products/view_product.html'
+    pk_url_kwarg = 'product_id'
+
+
+class ProductEdition(generic.edit.EntityEdition):
+    model = Product
+    form_class = product_forms.ProductEditForm
     pk_url_kwarg = 'product_id'

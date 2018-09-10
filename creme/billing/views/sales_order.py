@@ -65,6 +65,10 @@ def abstract_add_related_salesorder(request, target_id,
 
 
 def abstract_edit_salesorder(request, order_id, form=order_forms.SalesOrderEditForm):
+    warnings.warn('billing.views.sales_order.abstract_edit_salesorder() is deprecated ; '
+                  'use the class-based view SalesOrderDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, order_id, SalesOrder, form)
 
 
@@ -101,6 +105,7 @@ def add_related(request, target_id):
 @login_required
 @permission_required('billing')
 def edit(request, order_id):
+    warnings.warn('billing.views.sales_order.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_salesorder(request, order_id)
 
 
@@ -127,4 +132,10 @@ class SalesOrderCreation(base.BaseCreation):
 class SalesOrderDetail(generic.detailview.EntityDetail):
     model = SalesOrder
     template_name = 'billing/view_sales_order.html'
+    pk_url_kwarg = 'order_id'
+
+
+class SalesOrderEdition(generic.edit.EntityEdition):
+    model = SalesOrder
+    form_class = order_forms.SalesOrderEditForm
     pk_url_kwarg = 'order_id'

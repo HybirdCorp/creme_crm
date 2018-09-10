@@ -47,6 +47,10 @@ def abstract_add_pcampaign(request, form=PollCampaignForm,
 
 
 def abstract_edit_pcampaign(request, campaign_id, form=PollCampaignForm):
+    warnings.warn('polls.views.campaign.abstract_edit_pcampaign() is deprecated ; '
+                  'use the class-based view PollCampaignEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, campaign_id, PollCampaign, form)
 
 
@@ -70,6 +74,7 @@ def add(request):
 @login_required
 @permission_required('polls')
 def edit(request, campaign_id):
+    warnings.warn('polls.views.campaign.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_pcampaign(request, campaign_id)
 
 
@@ -96,4 +101,10 @@ class PollCampaignCreation(generic.add.EntityCreation):
 class PollCampaignDetail(generic.detailview.EntityDetail):
     model = PollCampaign
     template_name = 'polls/view_campaign.html'
+    pk_url_kwarg = 'campaign_id'
+
+
+class PollCampaignEdition(generic.edit.EntityEdition):
+    model = PollCampaign
+    form_class = PollCampaignForm
     pk_url_kwarg = 'campaign_id'

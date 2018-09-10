@@ -18,13 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
+# import warnings
 
-from django.core.exceptions import PermissionDenied
+# from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
+from django.shortcuts import get_object_or_404  # render
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from .. import utils
@@ -32,12 +31,12 @@ from ..auth.decorators import login_required
 # from ..core.exceptions import ConflictError
 # from ..forms.header_filter import HeaderFilterForm
 from ..forms import header_filter as hf_forms
-from ..gui.listview import ListViewState
+# from ..gui.listview import ListViewState
 from ..models import HeaderFilter  # CremeEntity
 
-from . import generic
+from . import generic, entity_filter
 # from .generic import add_entity
-from .utils import build_cancel_path
+# from .utils import build_cancel_path
 
 
 logger = logging.getLogger(__name__)
@@ -102,92 +101,62 @@ logger = logging.getLogger(__name__)
 #                       # function_post_save=lambda r, i: _set_current_hf(r, callback_url, i),
 #                       function_post_save=post_save,
 #                      )
-class HeaderFilterCreation(generic.base.EntityCTypeRelatedMixin,
+class HeaderFilterCreation(entity_filter.FilterCreationMixin,
+                           generic.base.EntityCTypeRelatedMixin,
                            generic.add.CremeModelCreation,
                           ):
     model = HeaderFilter
     form_class = hf_forms.HeaderFilterCreateForm
     template_name = 'creme_core/forms/header-filter.html'
-    ctype_form_kwarg = 'ctype'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.lv_url = None
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs[self.ctype_form_kwarg] = self.get_ctype()
-
-        return kwargs
-
-    def build_lv_url(self):
-        url = self.lv_url
-
-        if url is None:
-            url = self.request.POST.get('cancel_url')
-
-            if not url:
-                model = self.object.entity_type.model_class()
-
-                try:
-                    url = model.get_lv_absolute_url()
-                except AttributeError:
-                    logger.debug('"%s" has no get_lv_absolute_url() method ?!', model)
-                    url = ''
-
-            self.lv_url = url
-
-        return url
-
-    def get_success_url(self):
-        return self.build_lv_url() or reverse('creme_core__home')
 
     def form_valid(self, form):
         response = super().form_valid(form)
-
-        request = self.request
-        lv_url = self.build_lv_url()
-        lvs = ListViewState.get_state(request, lv_url) or \
-              ListViewState(url=lv_url)
-        lvs.header_filter_id = self.object.id
-        lvs.register_in_session(request)
+        self.save_in_session('header_filter_id')
 
         return response
 
 
-@login_required
-def edit(request, header_filter_id):
-    hf = get_object_or_404(HeaderFilter, pk=header_filter_id)
-    user = request.user
-    allowed, msg = hf.can_edit(user)
-
-    if not allowed:
-        raise PermissionDenied(msg)
-
-    if request.method == 'POST':
-        POST = request.POST
-        cancel_url = POST.get('cancel_url')
-        # hf_form = HeaderFilterForm(user=user, data=POST, instance=hf)
-        hf_form = hf_forms.HeaderFilterEditForm(user=user, data=POST, instance=hf)
-
-        if hf_form.is_valid():
-            hf_form.save()
-
-            return HttpResponseRedirect(cancel_url or
-                                        hf.entity_type.model_class().get_lv_absolute_url()
-                                       )
-    else:
-        # hf_form = HeaderFilterForm(user=user, instance=hf)
-        hf_form = hf_forms.HeaderFilterEditForm(user=user, instance=hf)
-        cancel_url = build_cancel_path(request)
-
-    return render(request,
-                  'creme_core/forms/header-filter.html',
-                  {'form': hf_form,
-                   'cancel_url': cancel_url,
-                   'submit_label': _('Save the modified view'),
-                  }
-                 )
+# @login_required
+# def edit(request, header_filter_id):
+#     hf = get_object_or_404(HeaderFilter, pk=header_filter_id)
+#     user = request.user
+#     allowed, msg = hf.can_edit(user)
+#
+#     if not allowed:
+#         raise PermissionDenied(msg)
+#
+#     if request.method == 'POST':
+#         POST = request.POST
+#         cancel_url = POST.get('cancel_url')
+#         # hf_form = HeaderFilterForm(user=user, data=POST, instance=hf)
+#         hf_form = hf_forms.HeaderFilterEditForm(user=user, data=POST, instance=hf)
+#
+#         if hf_form.is_valid():
+#             hf_form.save()
+#
+#             return HttpResponseRedirect(cancel_url or
+#                                         hf.entity_type.model_class().get_lv_absolute_url()
+#                                        )
+#     else:
+#         # hf_form = HeaderFilterForm(user=user, instance=hf)
+#         hf_form = hf_forms.HeaderFilterEditForm(user=user, instance=hf)
+#         cancel_url = build_cancel_path(request)
+#
+#     return render(request,
+#                   'creme_core/forms/header-filter.html',
+#                   {'form': hf_form,
+#                    'cancel_url': cancel_url,
+#                    'submit_label': _('Save the modified view'),
+#                   }
+#                  )
+class HeaderFilterEdition(entity_filter.FilterEditionMixin,
+                          generic.edit.CremeModelEdition
+                         ):
+    model = HeaderFilter
+    form_class = hf_forms.HeaderFilterEditForm
+    template_name = 'creme_core/forms/header-filter.html'
+    pk_url_kwarg = 'hfilter_id'
+    submit_label = _('Save the modified view')
 
 
 @login_required

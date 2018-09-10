@@ -70,6 +70,10 @@ def abstract_add_child_folder(request, folder_id, form=ChildFolderForm,
 
 
 def abstract_edit_folder(request, folder_id, form=FolderForm):
+    warnings.warn('documents.views.folder.abstract_edit_folder() is deprecated ; '
+                  'use the class-based view FolderEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, folder_id, Folder, form)
 
 
@@ -140,6 +144,7 @@ def add_child(request, folder_id):
 @login_required
 @permission_required('documents')
 def edit(request, folder_id):
+    warnings.warn('documents.views.folder.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_folder(request, folder_id)
 
 
@@ -166,4 +171,10 @@ class FolderCreation(generic.add.EntityCreation):
 class FolderDetail(generic.detailview.EntityDetail):
     model = Folder
     template_name = 'documents/view_folder.html'
+    pk_url_kwarg = 'folder_id'
+
+
+class FolderEdition(generic.edit.EntityEdition):
+    model = Folder
+    form_class = FolderForm
     pk_url_kwarg = 'folder_id'

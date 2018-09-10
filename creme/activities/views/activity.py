@@ -179,6 +179,10 @@ def abstract_add_activity_popup(request, form=act_forms.CalendarActivityCreateFo
 
 
 def abstract_edit_activity(request, activity_id, model=Activity, form=act_forms.ActivityEditForm):
+    warnings.warn('activities.views.activity.abstract_edit_activity_popup() is deprecated ; '
+                  'use the class-based view ActivityEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, activity_id, model, form)
 
 
@@ -232,6 +236,7 @@ def add_popup(request):
 @login_required
 @permission_required('activities')
 def edit(request, activity_id):
+    warnings.warn('activities.views.activity.edit() is deprecated', DeprecationWarning)
     return abstract_edit_activity(request, activity_id)
 
 
@@ -390,6 +395,12 @@ class ActivityDetail(generic.detailview.EntityDetail):
 
 class ActivityPopup(ActivityDetail):
     template_name = 'activities/view_activity_popup.html'
+
+
+class ActivityEdition(generic.edit.EntityEdition):
+    model = Activity
+    form_class = act_forms.ActivityEditForm
+    pk_url_kwarg = 'activity_id'
 
 
 # Other views  ----------------------------------------------------------------

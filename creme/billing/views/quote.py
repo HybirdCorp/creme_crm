@@ -65,6 +65,10 @@ def abstract_add_related_quote(request, target_id, form=quote_forms.QuoteCreateF
 
 
 def abstract_edit(request, quote_id, form=quote_forms.QuoteEditForm):
+    warnings.warn('billing.views.quote.abstract_edit_quote() is deprecated ; '
+                  'use the class-based view QuoteEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, quote_id, Quote, form)
 
 
@@ -104,6 +108,7 @@ def add_related(request, target_id):
 @login_required
 @permission_required('billing')
 def edit(request, quote_id):
+    warnings.warn('billing.views.quote.edit() is deprecated.', DeprecationWarning)
     return abstract_edit(request, quote_id)
 
 
@@ -130,4 +135,10 @@ class QuoteCreation(base.BaseCreation):
 class QuoteDetail(generic.detailview.EntityDetail):
     model = Quote
     template_name = 'billing/view_quote.html'
+    pk_url_kwarg = 'quote_id'
+
+
+class QuoteEdition(generic.edit.EntityEdition):
+    model = Quote
+    form_class = quote_forms.QuoteEditForm
     pk_url_kwarg = 'quote_id'

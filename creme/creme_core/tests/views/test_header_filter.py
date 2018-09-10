@@ -68,6 +68,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         url = self._build_add_url(ct)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/forms/header-filter.html')
+        self.assertIn(_('Create a view of list for «%(ctype)s»') % {'ctype': 'Test Organisation'},
+                      response.content.decode(),
+                     )
 
         name = 'DefaultHeaderFilter'
         response = self.client.post(url, data={'name':  name,
@@ -350,17 +353,24 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         url = hf.get_edit_absolute_url()
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/forms/header-filter.html')
+        self.assertIn(_('Edit the view of list «%(view)s»') % {'view': hf.name},
+                      response.content.decode()
+                     )
 
         with self.assertNoException():
-            cells_f = response.context['form'].fields['cells']
+            context = response.context
+            cells_f      = context['form'].fields['cells']
+            submit_label = context['submit_label']
 
         self.assertCellsEqual(hf.cells, cells_f.initial)
+        self.assertEqual(_('Save the modified view'), submit_label)
 
         name = 'Entity view v2'
         field2 = 'last_name'
         response = self.client.post(url, data={'name':  name,
-                                               'cells': 'regular_field-%s,'
-                                                        'regular_field-%s' % (
+                                               'cells': 'regular_field-{},'
+                                                        'regular_field-{}'.format(
                                                                 field1, field2,
                                                             ),
                                               },

@@ -51,6 +51,10 @@ def abstract_add_graph(request, form=GraphForm,
 
 
 def abstract_edit_graph(request, graph_id, form=GraphForm):
+    warnings.warn('graphs.views.graph.abstract_edit_graph() is deprecated ; '
+                  'use the class-based view GraphEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, graph_id, Graph, form)
 
 
@@ -90,6 +94,7 @@ def dl_png(request, graph_id):
 @login_required
 @permission_required('graphs')
 def edit(request, graph_id):
+    warnings.warn('graphs.views.graph.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_graph(request, graph_id)
 
 
@@ -140,4 +145,10 @@ class GraphCreation(generic.add.EntityCreation):
 class GraphDetail(generic.detailview.EntityDetail):
     model = Graph
     template_name = 'graphs/view_graph.html'
+    pk_url_kwarg = 'graph_id'
+
+
+class GraphEdition(generic.edit.EntityEdition):
+    model = Graph
+    form_class = GraphForm
     pk_url_kwarg = 'graph_id'

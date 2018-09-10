@@ -67,6 +67,10 @@ def abstract_add_event(request, form=EventForm,
 
 
 def abstract_edit_event(request, event_id, form=EventForm):
+    warnings.warn('events.views.abstract_edit_event() is deprecated ; '
+                  'use the class-based view EventEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, event_id, Event, form)
 
 
@@ -90,6 +94,7 @@ def add(request):
 @login_required
 @permission_required('events')
 def edit(request, event_id):
+    warnings.warn('events.views.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_event(request, event_id)
 
 
@@ -256,6 +261,10 @@ def list_contacts(request, event_id):
 @login_required
 @permission_required('events')
 def link_contacts(request, event_id):
+    warnings.warn('events.views.link_contacts() is deprecated ; '
+                  'use the class-based view AddContactsToEvent instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, event_id, Event, AddContactsToEventForm)
 
 
@@ -344,4 +353,16 @@ class EventCreation(generic.add.EntityCreation):
 class EventDetail(generic.detailview.EntityDetail):
     model = Event
     template_name = 'events/view_event.html'
+    pk_url_kwarg = 'event_id'
+
+
+class EventEdition(generic.edit.EntityEdition):
+    model = Event
+    form_class = EventForm
+    pk_url_kwarg = 'event_id'
+
+
+class AddContactsToEvent(generic.edit.EntityEdition):
+    model = Event
+    form_class = AddContactsToEventForm
     pk_url_kwarg = 'event_id'

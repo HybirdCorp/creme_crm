@@ -50,6 +50,10 @@ def abstract_add_messaginglist(request, form=MessagingListForm,
 
 
 def abstract_edit_messaginglist(request, mlist_id, form=MessagingListForm):
+    warnings.warn('sms.views.messaging_list.abstract_edit_messaginglist() is deprecated ; '
+                  'use the class-based view MessagingListDetail instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, mlist_id, MessagingList, form)
 
 
@@ -73,6 +77,7 @@ def add(request):
 @login_required
 @permission_required('sms')
 def edit(request, mlist_id):
+    warnings.warn('sms.views.messaging_list.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_messaginglist(request, mlist_id)
 
 
@@ -144,3 +149,8 @@ class MessagingListDetail(generic.detailview.EntityDetail):
     template_name = 'sms/view_messaginglist.html'
     pk_url_kwarg = 'mlist_id'
 
+
+class MessagingListEdition(generic.edit.EntityEdition):
+    model = MessagingList
+    form_class = MessagingListForm
+    pk_url_kwarg = 'mlist_id'

@@ -246,7 +246,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         name = 'Bebop'
         orga = Organisation.objects.create(user=user, name=name)
         url = orga.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'persons/edit_organisation_form.html')
 
         name += '_edited'
         zipcode = '123456'

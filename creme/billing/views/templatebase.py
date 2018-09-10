@@ -40,12 +40,17 @@ Invoice = billing.get_invoice_model()
 
 
 def abstract_edit_templatebase(request, template_id, form=TemplateBaseEditForm):
+    warnings.warn('billing.views.templatebase.abstract_edit_templatebase() is deprecated ; '
+                  'use the class-based view TemplateBaseEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, template_id, TemplateBase, form)
 
 
 @login_required
 @permission_required('billing')
 def edit(request, template_id):
+    warnings.warn('billing.views.templatebase.edit().', DeprecationWarning)
     return abstract_edit_templatebase(request, template_id)
 
 
@@ -88,3 +93,8 @@ class TemplateBaseDetail(generic.detailview.EntityDetail):
     template_name = 'billing/view_template.html'
     pk_url_kwarg = 'template_id'
 
+
+class TemplateBaseEdition(generic.edit.EntityEdition):
+    model = TemplateBase
+    form_class = TemplateBaseEditForm
+    pk_url_kwarg = 'template_id'

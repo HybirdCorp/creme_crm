@@ -53,6 +53,10 @@ def abstract_add_project(request, form=project_forms.ProjectCreateForm,
 
 
 def abstract_edit_project(request, project_id, form=project_forms.ProjectEditForm):
+    warnings.warn('project.views.project.abstract_edit_project() is deprecated ; '
+                  'use the class-based view ProjectEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, project_id, Project, form)
 
 
@@ -76,6 +80,7 @@ def add(request):
 @login_required
 @permission_required('projects')
 def edit(request, project_id):
+    warnings.warn('project.views.project.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_project(request, project_id)
 
 
@@ -124,4 +129,10 @@ class ProjectCreation(generic.add.EntityCreation):
 class ProjectDetail(generic.detailview.EntityDetail):
     model = Project
     template_name = 'projects/view_project.html'
+    pk_url_kwarg = 'project_id'
+
+
+class ProjectEdition(generic.edit.EntityEdition):
+    model = Project
+    form_class = project_forms.ProjectEditForm
     pk_url_kwarg = 'project_id'

@@ -61,6 +61,10 @@ def abstract_link_to_credit_notes(request, base_id, form=cnote_forms.CreditNoteR
 
 
 def abstract_edit_credit_note(request, credit_note_id, form=cnote_forms.CreditNoteEditForm):
+    warnings.warn('billing.views.credit_note.abstract_edit_creditnote() is deprecated ; '
+                  'use the class-based view CreditNoteEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, credit_note_id, CreditNote, form)
 
 
@@ -93,6 +97,7 @@ def link_to_credit_notes(request, base_id):
 @login_required
 @permission_required('billing')
 def edit(request, credit_note_id):
+    warnings.warn('billing.views.credit_note.edit() is deprecated', DeprecationWarning)
     return abstract_edit_credit_note(request, credit_note_id)
 
 
@@ -144,4 +149,10 @@ class CreditNoteCreation(base.BaseCreation):
 class CreditNoteDetail(generic.detailview.EntityDetail):
     model = CreditNote
     template_name = 'billing/view_credit_note.html'
-    pk_url_kwarg = 'credit_note_id'
+    pk_url_kwarg = 'cnote_id'
+
+
+class CreditNoteEdition(generic.edit.EntityEdition):
+    model = CreditNote
+    form_class = cnote_forms.CreditNoteEditForm
+    pk_url_kwarg = 'cnote_id'

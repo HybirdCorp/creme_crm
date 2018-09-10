@@ -67,6 +67,10 @@ def abstract_add_related_invoice(request, target_id, form=invoice_forms.InvoiceC
 
 
 def abstract_edit_invoice(request, invoice_id, form=invoice_forms.InvoiceEditForm):
+    warnings.warn('billing.views.invoice.abstract_edit_invoice() is deprecated ; '
+                  'use the class-based view InvoiceEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, invoice_id, Invoice, form)
 
 
@@ -96,6 +100,7 @@ def add_related(request, target_id):
 @login_required
 @permission_required('billing')
 def edit(request, invoice_id):
+    warnings.warn('billing.views.invoice.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_invoice(request, invoice_id)
 
 
@@ -148,4 +153,11 @@ class InvoiceCreation(base.BaseCreation):
 class InvoiceDetail(generic.detailview.EntityDetail):
     model = Invoice
     template_name = 'billing/view_invoice.html'
+    pk_url_kwarg = 'invoice_id'
+
+
+class InvoiceEdition(generic.edit.EntityEdition):
+    model = Invoice
+    form_class = invoice_forms.InvoiceEditForm
+    template_name = 'persons/edit_organisation_form.html'
     pk_url_kwarg = 'invoice_id'

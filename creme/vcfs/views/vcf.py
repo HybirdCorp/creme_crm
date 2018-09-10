@@ -42,7 +42,8 @@ def abstract_vcf_import(request, file_form=VcfForm, import_form=VcfImportForm,
                         title=_('Import contact from VCF file'),
                        ):
     user = request.user
-    submit_label = _('Save the contact')
+    # submit_label = _('Save the contact')
+    submit_label = Contact.save_label
 
     if request.method == 'POST':
         POST = request.POST

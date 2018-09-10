@@ -22,7 +22,8 @@ if not opportunity_model_is_custom():
         url(r'^opportunity/add_to/(?P<ce_id>\d+)/popup[/]?$', opportunity.add_to, {'inner_popup': True},
             name='opportunities__create_related_opportunity_popup',
            ),
-        url(r'^opportunity/edit/(?P<opp_id>\d+)[/]?$',        opportunity.edit,       name='opportunities__edit_opportunity'),
+        # url(r'^opportunity/edit/(?P<opp_id>\d+)[/]?$',        opportunity.edit,       name='opportunities__edit_opportunity'),
+        url(r'^opportunity/edit/(?P<opp_id>\d+)[/]?$',        opportunity.OpportunityEdition.as_view(), name='opportunities__edit_opportunity'),
         # url(r'^opportunity/(?P<opp_id>\d+)[/]?$',             opportunity.detailview, name='opportunities__view_opportunity'),
         url(r'^opportunity/(?P<opp_id>\d+)[/]?$',             opportunity.OpportunityDetail.as_view(), name='opportunities__view_opportunity'),
     ]

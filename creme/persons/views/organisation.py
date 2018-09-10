@@ -57,6 +57,10 @@ def abstract_add_organisation(request, form=orga_forms.OrganisationForm,
 def abstract_edit_organisation(request, organisation_id, form=orga_forms.OrganisationForm,
                                template='persons/edit_organisation_form.html',
                               ):
+    warnings.warn('persons.views.organisation.abstract_edit_organisation() is deprecated ; '
+                  'use the class-based view OrganisationEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, organisation_id, model=Organisation,
                                edit_form=form, template=template,
                               )
@@ -84,6 +88,7 @@ def add(request):
 @login_required
 @permission_required('persons')
 def edit(request, organisation_id):
+    warnings.warn('persons.views.organisation.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_organisation(request, organisation_id)
 
 
@@ -127,6 +132,13 @@ class OrganisationCreation(generic.add.EntityCreation):
 class OrganisationDetail(generic.detailview.EntityDetail):
     model = Organisation
     template_name = 'persons/view_organisation.html'
+    pk_url_kwarg = 'orga_id'
+
+
+class OrganisationEdition(generic.edit.EntityEdition):
+    model = Organisation
+    form_class = orga_forms.OrganisationForm
+    template_name = 'persons/edit_organisation_form.html'
     pk_url_kwarg = 'orga_id'
 
 

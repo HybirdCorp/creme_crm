@@ -51,6 +51,10 @@ def abstract_add_ticket(request, form=ticket_forms.TicketCreateForm,
 
 
 def abstract_edit_ticket(request, ticket_id, form=ticket_forms.TicketEditForm):
+    warnings.warn('tickets.views.ticket.abstract_edit_ticket() is deprecated ; '
+                  'use the class-based view TicketEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, ticket_id, Ticket, form)
 
 
@@ -74,6 +78,7 @@ def add(request):
 @login_required
 @permission_required('tickets')
 def edit(request, ticket_id):
+    warnings.warn('tickets.views.ticket.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_ticket(request, ticket_id)
 
 
@@ -107,4 +112,10 @@ class TicketCreation(generic.add.EntityCreation):
 class TicketDetail(generic.detailview.EntityDetail):
     model = Ticket
     template_name = 'tickets/view_ticket.html'
+    pk_url_kwarg = 'ticket_id'
+
+
+class TicketEdition(generic.edit.EntityEdition):
+    model = Ticket
+    form_class = ticket_forms.TicketEditForm
     pk_url_kwarg = 'ticket_id'

@@ -24,10 +24,10 @@ import logging
 from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404  # render
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from .. import utils
 from ..auth.decorators import login_required
@@ -38,11 +38,68 @@ from ..gui.listview import ListViewState
 from ..models import EntityFilter, RelationType  # CremeEntity
 from . import generic
 # from .generic import add_entity
-from .utils import build_cancel_path
-
-# TODO: factorise with HeaderFilter ??
+# from .utils import build_cancel_path
 
 logger = logging.getLogger(__name__)
+
+
+class FilterMixin:
+    """Code factorisation with HeaderFilter views."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lv_url = None
+
+    def build_lv_url(self):
+        url = self.lv_url
+
+        if url is None:
+            url = self.request.POST.get('cancel_url')
+
+            if not url:
+                model = self.object.entity_type.model_class()
+
+                try:
+                    url = model.get_lv_absolute_url()
+                except AttributeError:
+                    logger.debug('"%s" has no get_lv_absolute_url() method ?!', model)
+                    url = ''
+
+            self.lv_url = url
+
+        return url
+
+    def get_success_url(self):
+        return self.build_lv_url() or reverse('creme_core__home')
+
+
+class FilterCreationMixin(FilterMixin):
+    ctype_form_kwarg = 'ctype'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs[self.ctype_form_kwarg] = self.get_ctype()
+
+        return kwargs
+
+    def save_in_session(self, lvs_attr):
+        request = self.request
+        lv_url = self.build_lv_url()
+        lvs = ListViewState.get_state(request, lv_url) or \
+              ListViewState(url=lv_url)
+
+        setattr(lvs, lvs_attr, self.object.id)
+        lvs.register_in_session(request)
+
+
+class FilterEditionMixin(FilterMixin):
+    def get_object(self, *args, **kwargs):
+        filter_ = super().get_object(*args, **kwargs)
+
+        allowed, msg = filter_.can_edit(self.request.user)
+        if not allowed:
+            raise PermissionDenied(msg)
+
+        return filter_
 
 
 # def _set_current_efilter(request, path, filter_instance):
@@ -61,7 +118,7 @@ logger = logging.getLogger(__name__)
 #     ct = utils.get_ct_or_404(ct_id)
 #
 #     if not request.user.has_perm(ct.app_label):
-#         raise PermissionDenied(_(u"You are not allowed to access to this app"))
+#         raise PermissionDenied(ugettext(u"You are not allowed to access to this app"))
 #
 #     model = ct.model_class()
 #
@@ -99,90 +156,58 @@ logger = logging.getLogger(__name__)
 #                       # function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
 #                       function_post_save=post_save,
 #                      )
-class EntityFilterCreation(generic.base.EntityCTypeRelatedMixin,
+class EntityFilterCreation(FilterCreationMixin,
+                           generic.base.EntityCTypeRelatedMixin,
                            generic.add.CremeModelCreation,
                           ):
     model = EntityFilter
     form_class = efilter_forms.EntityFilterCreateForm
     template_name = 'creme_core/forms/entity-filter.html'
-    ctype_form_kwarg = 'ctype'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.lv_url = None
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs[self.ctype_form_kwarg] = self.get_ctype()
-
-        return kwargs
-
-    def build_lv_url(self):
-        url = self.lv_url
-
-        if url is None:
-            url = self.request.POST.get('cancel_url')
-
-            if not url:
-                model = self.object.entity_type.model_class()
-
-                try:
-                    url = model.get_lv_absolute_url()
-                except AttributeError:
-                    logger.debug('"%s" has no get_lv_absolute_url() method ?!', model)
-                    url = ''
-
-            self.lv_url = url
-
-        return url
-
-    def get_success_url(self):
-        return self.build_lv_url() or reverse('creme_core__home')
 
     def form_valid(self, form):
         response = super().form_valid(form)
-
-        request = self.request
-        lv_url = self.build_lv_url()
-        lvs = ListViewState.get_state(request, lv_url) or \
-              ListViewState(url=lv_url)
-        lvs.entity_filter_id = self.object.id
-        lvs.register_in_session(request)
+        self.save_in_session('entity_filter_id')
 
         return response
 
 
-@login_required
-def edit(request, efilter_id):
-    efilter = get_object_or_404(EntityFilter, pk=efilter_id)
-    user = request.user
-    allowed, msg = efilter.can_edit(user)
-
-    if not allowed:
-        raise PermissionDenied(msg)
-
-    if request.method == 'POST':
-        POST = request.POST
-        cancel_url = POST.get('cancel_url')
-        efilter_form = efilter_forms.EntityFilterEditForm(user=user, data=POST, instance=efilter)
-
-        if efilter_form.is_valid():
-            efilter_form.save()
-
-            return HttpResponseRedirect(cancel_url or
-                                        efilter.entity_type.model_class().get_lv_absolute_url()
-                                       )
-    else:
-        efilter_form = efilter_forms.EntityFilterEditForm(user=user, instance=efilter)
-        cancel_url = build_cancel_path(request)
-
-    return render(request,
-                  'creme_core/forms/entity-filter.html',
-                  {'form': efilter_form,
-                   'cancel_url': cancel_url,
-                   'submit_label': _('Save the modified filter'),
-                  }
-                 )
+# @login_required
+# def edit(request, efilter_id):
+#     efilter = get_object_or_404(EntityFilter, pk=efilter_id)
+#     user = request.user
+#     allowed, msg = efilter.can_edit(user)
+#
+#     if not allowed:
+#         raise PermissionDenied(msg)
+#
+#     if request.method == 'POST':
+#         POST = request.POST
+#         cancel_url = POST.get('cancel_url')
+#         efilter_form = efilter_forms.EntityFilterEditForm(user=user, data=POST, instance=efilter)
+#
+#         if efilter_form.is_valid():
+#             efilter_form.save()
+#
+#             return HttpResponseRedirect(cancel_url or
+#                                         efilter.entity_type.model_class().get_lv_absolute_url()
+#                                        )
+#     else:
+#         efilter_form = efilter_forms.EntityFilterEditForm(user=user, instance=efilter)
+#         cancel_url = build_cancel_path(request)
+#
+#     return render(request,
+#                   'creme_core/forms/entity-filter.html',
+#                   {'form': efilter_form,
+#                    'cancel_url': cancel_url,
+#                    'submit_label': _('Save the modified filter'),
+#                   }
+#                  )
+class EntityFilterEdition(FilterEditionMixin, generic.edit.CremeModelEdition):
+    model = EntityFilter
+    form_class = efilter_forms.EntityFilterEditForm
+    template_name = 'creme_core/forms/entity-filter.html'
+    pk_url_kwarg = 'efilter_id'
+    submit_label = _('Save the modified filter')
 
 
 @login_required
@@ -198,13 +223,13 @@ def delete(request):
         except EntityFilter.DependenciesError as e:
             return_msg = str(e)
         except ProtectedError as e:
-            return_msg = _('«{}» can not be deleted because of its dependencies.').format(efilter)
+            return_msg = ugettext('«{}» can not be deleted because of its dependencies.').format(efilter)
             return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
                                            {'objects': e.args[1][:25], 'user': request.user},
                                            request=request,
                                           )
         else:
-            return_msg = _('Filter successfully deleted')
+            return_msg = ugettext('Filter successfully deleted')
             status = 200
     else:
         return_msg = msg
@@ -223,7 +248,7 @@ def get_content_types(request, rtype_id):
     content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all() or \
                     utils.creme_entity_content_types()
 
-    choices = [(0, _('All'))]
+    choices = [(0, ugettext('All'))]
     choices.extend((ct.id, str(ct)) for ct in content_types)
 
     return choices
@@ -239,10 +264,10 @@ def get_for_ctype(request):
     user = request.user
 
     # if not user.has_perm(ct.app_label):
-    #     raise PermissionDenied(_('You are not allowed to access to this app'))
+    #     raise PermissionDenied(ugettext('You are not allowed to access to this app'))
     user.has_perm_to_access_or_die(ct.app_label)
 
-    choices = [('', _('All'))] if include_all else []
+    choices = [('', ugettext('All'))] if include_all else []
     choices.extend(EntityFilter.get_for_user(user, ct).values_list('id', 'name'))
 
     return choices

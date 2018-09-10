@@ -46,7 +46,7 @@ ProjectTask = projects.get_task_model()
 
 
 def abstract_add_ptask(request, project_id, form=task_forms.TaskCreateForm,
-                       title=_(u'Create a task for «%s»'),
+                       title=_('Create a task for «%s»'),
                        submit_label=ProjectTask.save_label,
                       ):
     return generic.add_to_entity(request, project_id, form, title,
@@ -56,6 +56,10 @@ def abstract_add_ptask(request, project_id, form=task_forms.TaskCreateForm,
 
 
 def abstract_edit_ptask(request, task_id, form=task_forms.TaskEditForm):
+    warnings.warn('projects.views.task.abstract_edit_ptask() is deprecated ; '
+                  'use the class-based view ProjectTaskEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, task_id, ProjectTask, form)
 
 
@@ -70,7 +74,7 @@ def abstract_edit_ptask_popup(request, task_id, form=task_forms.TaskEditForm):
 def abstract_view_ptask(request, task_id,
                         template='projects/view_task.html',
                        ):
-    warnings.warn('project.views.task.abstract_view_ptask() is deprecated ; '
+    warnings.warn('projects.views.task.abstract_view_ptask() is deprecated ; '
                   'use the class-based view ProjectTaskDetail instead.',
                   DeprecationWarning
                  )
@@ -86,13 +90,14 @@ def add(request, project_id):
 @login_required
 @permission_required('projects')
 def detailview(request, task_id):
-    warnings.warn('project.views.task.detailview() is deprecated.', DeprecationWarning)
+    warnings.warn('projects.views.task.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_ptask(request, task_id)
 
 
 @login_required
 @permission_required('projects')
 def edit(request, task_id):
+    warnings.warn('projects.views.task.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_ptask(request, task_id)
 
 
@@ -132,10 +137,16 @@ class ProjectTaskDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'task_id'
 
 
+class ProjectTaskEdition(generic.edit.EntityEdition):
+    model = ProjectTask
+    form_class = task_forms.TaskEditForm
+    pk_url_kwarg = 'task_id'
+
+
 # Activities -------------------------------------------------------------------
 
 def abstract_add_activity(request, task_id, form=task_forms.RelatedActivityCreateForm,
-                          title=_(u'New activity related to «%s»'),
+                          title=_('New activity related to «%s»'),
                           submit_label=Activity.save_label,
                          ):
     task = get_object_or_404(ProjectTask, pk=task_id)
@@ -188,10 +199,10 @@ def delete_activity(request):
     except ProtectedError:
         logger.exception('Error when deleting an activity of project')
         status = 409
-        msg = ugettext(u'Can not be deleted because of its dependencies.')
+        msg = ugettext('Can not be deleted because of its dependencies.')
     except Exception as e:
         status = 400
-        msg = ugettext(u'The deletion caused an unexpected error [{}].').format(e)
+        msg = ugettext('The deletion caused an unexpected error [{}].').format(e)
     else:
         msg = ugettext('Operation successfully completed')
         status = 200

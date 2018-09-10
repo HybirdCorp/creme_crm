@@ -58,6 +58,10 @@ def abstract_add_pollform(request, form=PollFormForm,
 
 
 def abstract_edit_pollform(request, pform_id, form=PollFormForm):
+    warnings.warn('polls.views.poll_form.abstract_edit_pollform() is deprecated ; '
+                  'use the class-based view PollFormEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, pform_id, PollForm, form)
 
 
@@ -81,6 +85,7 @@ def add(request):
 @login_required
 @permission_required('polls')
 def edit(request, pform_id):
+    warnings.warn('polls.views.poll_form.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_pollform(request, pform_id)
 
 
@@ -234,4 +239,10 @@ class PollFormCreation(generic.add.EntityCreation):
 class PollFormDetail(generic.detailview.EntityDetail):
     model = PollForm
     template_name = 'polls/view_pollform.html'
+    pk_url_kwarg = 'pform_id'
+
+
+class PollFormEdition(generic.edit.EntityEdition):
+    model = PollForm
+    form_class = PollFormForm
     pk_url_kwarg = 'pform_id'

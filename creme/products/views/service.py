@@ -50,6 +50,10 @@ def abstract_add_service(request, form=service_forms.ServiceCreateForm,
 
 
 def abstract_edit_service(request, service_id, form=service_forms.ServiceEditForm):
+    warnings.warn('products.views.service.abstract_edit_service() is deprecated ; '
+                  'use the class-based view ServiceEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_entity(request, service_id, Service, form)
 
 
@@ -73,6 +77,7 @@ def add(request):
 @login_required
 @permission_required('products')
 def edit(request, service_id):
+    warnings.warn('products.views.service.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_service(request, service_id)
 
 
@@ -110,4 +115,10 @@ class ServiceCreation(generic.add.EntityCreation):
 class ServiceDetail(generic.detailview.EntityDetail):
     model = Service
     template_name = 'products/view_service.html'
+    pk_url_kwarg = 'service_id'
+
+
+class ServiceEdition(generic.edit.EntityEdition):
+    model = Service
+    form_class = service_forms.ServiceEditForm
     pk_url_kwarg = 'service_id'
