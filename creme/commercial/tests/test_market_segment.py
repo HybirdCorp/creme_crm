@@ -17,6 +17,9 @@ except Exception as e:
 
 
 class MarketSegmentTestCase(CommercialBaseTestCase):
+    def setUp(self):
+        self.login()
+
     def _build_delete_url(self, segment):
         return reverse('commercial__delete_segment', args=(segment.id,))
 

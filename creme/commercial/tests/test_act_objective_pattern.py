@@ -18,6 +18,9 @@ except Exception as e:
 
 @skipIfCustomPattern
 class ActObjectivePatternTestCase(CommercialBaseTestCase):
+    def setUp(self):
+        self.login()
+
     def _build_addcomp_url(self, pattern):
         return reverse('commercial__create_component', args=(pattern.id,))
 
