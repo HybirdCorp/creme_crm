@@ -22,10 +22,12 @@ import warnings
 
 from django.urls import reverse
 from django.db.models import Q
+from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.models import CremeProperty
 from creme.creme_core.views.generic import add_entity, list_view
 
 from creme.persons import get_contact_model
@@ -81,8 +83,14 @@ def listview(request):
 # Class-Based views ------------------------------------------------------------
 
 class SalesManCreation(ContactCreation):
-    form_class = SalesManCreateForm
     title = _('Create a salesman')
+
+    def form_valid(self, form):
+        with atomic():
+            response = super().form_valid(form)
+            CremeProperty.objects.create(type_id=PROP_IS_A_SALESMAN, creme_entity=self.object)
+
+        return response
 
     def get_submit_label(self):
         return _('Save the salesman')

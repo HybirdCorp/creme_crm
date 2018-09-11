@@ -2,6 +2,7 @@
 
 try:
     from django.urls import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -35,7 +36,12 @@ class CommercialTestCase(CremeTestCase):
         user = self.login()
 
         url = self.ADD_SALESMAN_URL
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'persons/add_contact_form.html')
+
+        context = response.context
+        self.assertEqual(_('Create a salesman'), context.get('title'))
+        self.assertEqual(_('Save the salesman'), context.get('submit_label'))
 
         first_name = 'John'
         last_name  = 'Doe'
