@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from creme.creme_core.models import CremeProperty
 
 from creme.persons.forms.contact import ContactForm
@@ -26,6 +28,12 @@ from ..constants import PROP_IS_A_SALESMAN
 
 
 class SalesManCreateForm(ContactForm):
+    def __init__(self, *args, **kwargs):
+        warnings.warn('commercial.forms.salesman.SalesManCreateForm is deprecated.',
+                      DeprecationWarning
+                     )
+        super().__init__(*args, **kwargs)
+
     def save(self, *args, **kwargs):
         # instance = super(SalesManCreateForm, self).save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
