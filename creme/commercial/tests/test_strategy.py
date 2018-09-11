@@ -24,6 +24,9 @@ except Exception as e:
 
 @skipIfCustomStrategy
 class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
+    def setUp(self):
+        self.login()
+
     def _build_link_segment_url(self, strategy):
         return reverse('commercial__link_segment', args=(strategy.id,))
 
