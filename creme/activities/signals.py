@@ -19,6 +19,7 @@
 ################################################################################
 
 from functools import partial
+import logging
 
 from django.conf import settings
 from django.db.models import signals
@@ -31,7 +32,7 @@ from creme.persons import get_organisation_model, constants as persons_constants
 from .constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
 from .models import Calendar
 
-
+logger = logging.getLogger(__name__)
 Organisation = get_organisation_model()
 
 
@@ -74,13 +75,20 @@ def _set_orga_as_subject(sender, instance, **kwargs):
                          defaults={'user': instance.user},
                         )
 
+    # TODO: regroup queries to check existing Relations
     for orga in Organisation.objects.filter(relations__type__in=(persons_constants.REL_OBJ_EMPLOYED_BY,
                                                                  persons_constants.REL_OBJ_MANAGES,
                                                                 ),
                                             relations__object_entity=instance.subject_entity_id,
                                            ) \
                                     .exclude(is_deleted=False, is_managed=True):
-        create_rel(subject_entity=orga)
+        try:
+            create_rel(subject_entity=orga)
+        except Relation.MultipleObjectsReturned:
+            logger.warning('_set_orga_as_subject(): duplicated '
+                           'Relation <subject=%s type=%s object=%s>',
+                           orga.id, REL_SUB_ACTIVITY_SUBJECT, activity.id,
+                          )
 
 
 @receiver(signals.pre_delete, sender=settings.AUTH_USER_MODEL)

@@ -384,7 +384,7 @@ class ActivityCreateForm(_ActivityCreateForm):
         if i_participate:
             instance.calendars.add(my_calendar)
 
-        # TODO: improve Relation model in order to avoid duplication automatically
+        # TODO: improve Relation model in order to avoid duplication automatically + helper function
         create_relation = partial(Relation.objects.get_or_create, object_entity_id=instance.id,
                                   defaults={'user': instance.user},
                                  )
