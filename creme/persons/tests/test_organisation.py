@@ -352,15 +352,30 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertEqual(id(qs1), id(qs2))
 
-    def _become_test(self, url_name, relation_type):
+    def _become_test(self, url_name, relation_type_id):
         user = self.login()
 
         mng_orga = self._build_managed_orga()
         customer = Contact.objects.create(user=user, first_name='Jet', last_name='Black')
 
-        response = self.assertPOST200(reverse(url_name, args=(customer.id,)), data={'id': mng_orga.id}, follow=True)
+        url = reverse(url_name, args=(customer.id,))
+        data = {'id': mng_orga.id}
+        response = self.assertPOST200(url, data=data, follow=True)
         self.assertTrue(response.redirect_chain)
-        self.get_object_or_fail(Relation, subject_entity=customer, object_entity=mng_orga, type=relation_type)
+        self.get_object_or_fail(Relation, subject_entity=customer, object_entity=mng_orga, type=relation_type_id)
+
+        # POST twice
+        self.assertPOST200(url, data=data, follow=True)
+        self.assertRelationCount(1, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id)
+
+        # Duplicated Relation  # TODO: remove when Relations cannot be duplicated
+        Relation.objects.create(subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id, user=user)
+
+        with self.assertNoException():
+            response = self.client.post(url, data=data, follow=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertRelationCount(2, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id)
 
     def test_become_customer01(self):
         self._become_test('persons__become_customer', constants.REL_SUB_CUSTOMER_SUPPLIER)
