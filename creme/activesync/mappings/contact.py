@@ -147,6 +147,7 @@ def create_or_update_organisation(contact, d, user, history=None):
         except Organisation.MultipleObjectsReturned:
             org = Organisation.objects.filter(name__iexact=organisation, user=user)[0]
 
+        # TODO: beware to duplicated Relation ?
         Relation.objects.get_or_create(subject_entity=contact,
                                        type=RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY),
                                        object_entity=org,

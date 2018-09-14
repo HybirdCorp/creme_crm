@@ -111,7 +111,7 @@ class CSVImportCommand(BaseCommand):
 #             Relation.objects.get_or_create(subject_entity=self._create_contact(raw),
 #                                            type=self.rtype_manages,
 #                                            object_entity=organisation,
-#                                            user=self.user,
+#                                            defaults={'user': self.user},
 #                                           )
 #
 #     def _manage_line(self, idx, line, line_dict):

@@ -18,9 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from creme.creme_core.models import Relation
 
 from . import constants
+
+logger = logging.getLogger(__name__)
 
 
 def transform_target_into_prospect(source, target, user):
@@ -28,11 +32,17 @@ def transform_target_into_prospect(source, target, user):
     Be careful target is subject of REL_SUB_PROSPECT relation and source is
     object of relation.
     """
-    Relation.objects.get_or_create(subject_entity=target,
-                                   type_id=constants.REL_SUB_PROSPECT,
-                                   object_entity=source,
-                                   defaults={'user': user},
-                                  )
+    try:
+        Relation.objects.get_or_create(subject_entity=target,
+                                       type_id=constants.REL_SUB_PROSPECT,
+                                       object_entity=source,
+                                       defaults={'user': user},
+                                      )
+    except Relation.MultipleObjectsReturned:
+        logger.warning('transform_target_into_prospect(): duplicated '
+                       'Relation <subject=%s type=%s object=%s>',
+                       target.id, constants.REL_SUB_PROSPECT, source.id,
+                      )
 
 
 def transform_target_into_customer(source, target, user):
@@ -40,8 +50,14 @@ def transform_target_into_customer(source, target, user):
     Be careful target is subject of REL_SUB_CUSTOMER_SUPPLIER relation and
     source is object of relation.
     """
-    Relation.objects.get_or_create(subject_entity=target,
-                                   type_id=constants.REL_SUB_CUSTOMER_SUPPLIER,
-                                   object_entity=source,
-                                   defaults={'user': user},
-                                  )
+    try:
+        Relation.objects.get_or_create(subject_entity=target,
+                                       type_id=constants.REL_SUB_CUSTOMER_SUPPLIER,
+                                       object_entity=source,
+                                       defaults={'user': user},
+                                      )
+    except Relation.MultipleObjectsReturned:
+        logger.warning('transform_target_into_customer(): duplicated '
+                       'Relation <subject=%s type=%s object=%s>',
+                       target.id, constants.REL_SUB_PROSPECT, source.id,
+                      )
