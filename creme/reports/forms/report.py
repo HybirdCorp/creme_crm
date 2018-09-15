@@ -89,13 +89,13 @@ _CUSTOM_AGG_PREFIX  = _EntityCellCustomAggregate.type_id + '-'
 
 
 class ReportCreateForm(CremeEntityForm):
-    hf     = AjaxModelChoiceField(label=_(u'Existing view'), queryset=HeaderFilter.objects.none(),
+    hf     = AjaxModelChoiceField(label=_('Existing view'), queryset=HeaderFilter.objects.none(),
                                   required=False,
-                                  help_text=_(u'If you select a view of list, '
-                                              u'the columns of the report will be copied from it.'
+                                  help_text=_('If you select a view of list, '
+                                              'the columns of the report will be copied from it.'
                                              ),
                                  )
-    filter = AjaxModelChoiceField(label=_(u'Filter'), queryset=EntityFilter.objects.none(), required=False)
+    filter = AjaxModelChoiceField(label=_('Filter'), queryset=EntityFilter.objects.none(), required=False)
 
     class Meta(CremeEntityForm.Meta):
         model = Report
@@ -110,11 +110,11 @@ class ReportCreateForm(CremeEntityForm):
 
             hf = get_data('hf')
             if hf and not hf.can_view(self.user, ct)[0]:
-                self.add_error('hf', _(u'Select a valid choice. That choice is not one of the available choices.'))
+                self.add_error('hf', _('Select a valid choice. That choice is not one of the available choices.'))
 
             efilter = get_data('filter')
             if efilter and not efilter.can_view(self.user, ct)[0]:
-                self.add_error('filter', _(u'Select a valid choice. That choice is not one of the available choices.'))
+                self.add_error('filter', _('Select a valid choice. That choice is not one of the available choices.'))
 
         return cleaned_data
 
@@ -146,7 +146,7 @@ class ReportEditForm(CremeEntityForm):
         super().__init__(*args, **kwargs)
         fields = self.fields
         filter_f = fields['filter']
-        filter_f.empty_label = ugettext(u'All')
+        filter_f.empty_label = ugettext('All')
         filter_f.queryset = filter_f.queryset.filter(entity_type=self.instance.ct)
 
         efilter = self.instance.filter
@@ -154,13 +154,13 @@ class ReportEditForm(CremeEntityForm):
         if efilter and not efilter.can_view(self.user)[0]:
             fields['filter_label'] = CharField(label=fields['filter'].label,
                                                required=False, widget=Label,
-                                               initial=_(u'The filter cannot be changed because it is private.'),
+                                               initial=_('The filter cannot be changed because it is private.'),
                                               )
             del fields['filter']
 
 
 class LinkFieldToReportForm(CremeForm):
-    report = CreatorEntityField(label=_(u'Sub-report linked to the column'), model=Report)
+    report = CreatorEntityField(label=_('Sub-report linked to the column'), model=Report)
 
     def __init__(self, field, ctypes, *args, **kwargs):
         # super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
@@ -264,7 +264,7 @@ class ReportHandsField(EntityCellsField):
                                             .choices():
                     # agg_id = _REGULAR_AGG_PREFIX + pattern % f_name
                     agg_id = _REGULAR_AGG_PREFIX + pattern.format(f_name)
-                    reg_agg_choices.append((agg_id, u'{} - {}'.format(title, f_vname)))
+                    reg_agg_choices.append((agg_id, '{} - {}'.format(title, f_vname)))
 
                     builders[agg_id] = ReportHandsField._build_4_regular_aggregate
 
@@ -272,21 +272,24 @@ class ReportHandsField(EntityCellsField):
                     if cf.field_type in authorized_customfields:
                         # agg_id = _CUSTOM_AGG_PREFIX + pattern % cf.id
                         agg_id = _CUSTOM_AGG_PREFIX + pattern.format(cf.id)
-                        cust_agg_choices.append((agg_id, u'{} - {}'.format(title, cf.name)))
+                        cust_agg_choices.append((agg_id, '{} - {}'.format(title, cf.name)))
                         builders[agg_id] = ReportHandsField._build_4_custom_aggregate
 
 
 class ReportFieldsForm(CremeForm):
-    columns = ReportHandsField(label=_(u'Columns'))
+    columns = ReportHandsField(label=_('Columns'))
 
-    def __init__(self, entity, *args, **kwargs):
-        self.report = entity
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, instance, *args, **kwargs):
+        # self.report = entity
+        self.report = instance
         # super(ReportFieldsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         cells = []
         model = self.report.ct.model_class()
-        for column in entity.columns:
+        # for column in entity.columns:
+        for column in instance.columns:
             # TODO: this is a hack : EntityCellWidgets only use value & type_id to check initial data
             #       it would be better to use a method column.hand.to_entity_cell()
             if column.hand:  # Check validity
@@ -301,7 +304,8 @@ class ReportFieldsForm(CremeForm):
 
         columns_f = self.fields['columns']
         columns_f.non_hiddable_cells = cells
-        columns_f.content_type = entity.ct
+        # columns_f.content_type = entity.ct
+        columns_f.content_type = instance.ct
         columns_f.initial = cells
 
     def _get_sub_report_n_selected(self, rfields, new_rfield):
@@ -335,13 +339,13 @@ class ReportFieldsForm(CremeForm):
 
 
 class ReportExportPreviewFilterForm(CremeForm):
-    doc_type    = ChoiceField(label=_(u'Extension'), required=False, choices=())
-    date_field  = ChoiceField(label=_(u'Date field'), required=False, choices=())
-    date_filter = DateRangeField(label=_(u'Date filter'), required=False)
+    doc_type    = ChoiceField(label=_('Extension'), required=False, choices=())
+    date_field  = ChoiceField(label=_('Date field'), required=False, choices=())
+    date_filter = DateRangeField(label=_('Date filter'), required=False)
 
     error_messages = {
-        'custom_start': _(u'If you chose a Date field, and select «customized» '
-                          u'you have to specify a start date and/or an end date.'
+        'custom_start': _('If you chose a Date field, and select «customized» '
+                          'you have to specify a start date and/or an end date.'
                          ),
     }
 
@@ -356,7 +360,7 @@ class ReportExportPreviewFilterForm(CremeForm):
         fields['doc_type'].choices = self._backend_choices()
 
     def _date_field_choices(self, report):
-        return chain([('', pgettext_lazy('reports-date_filter', u'None'))],
+        return chain([('', pgettext_lazy('reports-date_filter', 'None'))],
                      [(field.name, field.verbose_name)
                         for field in report.ct.model_class()._meta.fields
                             if is_date_field(field)
