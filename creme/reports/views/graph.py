@@ -23,7 +23,7 @@ import warnings
 
 from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core import utils
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -136,7 +136,7 @@ def get_available_report_graph_types(request, ct_id):
     gtypes = _get_available_report_graph_types(ct, abscissa_field)
 
     if gtypes is None:
-        result = [{'id': '', 'text': _(u'Choose an abscissa field')}]  # TODO: is the translation useful ??
+        result = [{'id': '', 'text': ugettext(u'Choose an abscissa field')}]  # TODO: is the translation useful ??
     else:
         result = [{'id':   type_id,
                    'text': str(RGRAPH_HANDS_MAP[type_id].verbose_name),
