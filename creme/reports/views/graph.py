@@ -30,7 +30,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem, RelationType, CustomField
 
-from .. import get_rgraph_model
+from .. import get_rgraph_model, get_report_model
 from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
         RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK)
 from ..core.graph import RGRAPH_HANDS_MAP
@@ -48,7 +48,12 @@ def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
                         title=_(u'Create a graph for «%s»'),
                         submit_label=ReportGraph.save_label,
                        ):
-    return generic.add_to_entity(request, report_id, form, title, submit_label=submit_label)
+    return generic.add_to_entity(request,
+                                 entity_id=report_id,
+                                 entity_class=get_report_model(),
+                                 form_class=form,
+                                 title=title, submit_label=submit_label,
+                                )
 
 
 def abstract_edit_rgraph(request, graph_id, form=ReportGraphForm,
