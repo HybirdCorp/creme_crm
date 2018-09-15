@@ -651,6 +651,11 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
 
+    def test_createview_bad_related(self):
+        "Not related to a Report => error"
+        orga = FakeOrganisation.objects.create(user=self.user, name='House Stark')
+        self.assertGET404(self._build_add_graph_url(orga))
+
     def test_createview_fieldsconfig(self):
         report = self._create_simple_organisations_report()
 
