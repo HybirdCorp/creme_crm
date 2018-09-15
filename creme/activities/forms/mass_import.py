@@ -631,14 +631,14 @@ def get_massimport_form_builder(header_dict, choices):
                                                               )
                                                        .values_list('subject_entity', flat=True)
                                       )
-                create_sub_rel = partial(Relation.objects.get_or_create, object_entity=instance,
-                                         type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-                                         defaults={'user': user},
-                                        )
-            else:
-                create_sub_rel = partial(Relation.objects.create, object_entity=instance,
-                                         type_id=constants.REL_SUB_ACTIVITY_SUBJECT, user=user,
-                                        )
+            #     create_sub_rel = partial(Relation.objects.get_or_create, object_entity=instance,
+            #                              type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
+            #                              defaults={'user': user},
+            #                             )
+            # else:
+            #     create_sub_rel = partial(Relation.objects.create, object_entity=instance,
+            #                              type_id=constants.REL_SUB_ACTIVITY_SUBJECT, user=user,
+            #                             )
 
             def add_participant(participant):
                 if participant.id not in participant_ids:
@@ -682,12 +682,21 @@ def get_massimport_form_builder(header_dict, choices):
                 if part_user is not None:
                     instance.calendars.add(Calendar.get_user_default_calendar(part_user))
 
+            # Subjects ----
             subjects, err_messages = cdata['subjects'].extract_value(line, self.user)
 
             for err_msg in err_messages:
                 self.append_error(err_msg)
 
+            create_sub_rel = partial(Relation.objects.get_or_create, object_entity=instance,
+                                     type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
+                                     defaults={'user': user},
+                                    )
+
             for subject in subjects:
-                create_sub_rel(subject_entity=subject)
+                try:
+                    create_sub_rel(subject_entity=subject)
+                except Relation.MultipleObjectsReturned:
+                    pass
 
     return ActivityMassImportForm
