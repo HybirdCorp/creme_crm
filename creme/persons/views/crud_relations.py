@@ -20,8 +20,8 @@
 
 import logging
 
-from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404  # redirect
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity, Relation, RelationType
@@ -65,7 +65,8 @@ def _link(request, entity_id, relation_type_id):
                        entity.id, relation_type_id, managed_orga.id,
                       )
 
-    return redirect(entity)
+    # return redirect(entity)
+    return HttpResponse()
 
 
 def become_customer(request, entity_id):

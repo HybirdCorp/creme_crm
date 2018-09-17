@@ -360,8 +360,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         url = reverse(url_name, args=(customer.id,))
         data = {'id': mng_orga.id}
-        response = self.assertPOST200(url, data=data, follow=True)
-        self.assertTrue(response.redirect_chain)
+        # response = self.assertPOST200(url, data=data, follow=True)
+        self.assertPOST200(url, data=data, follow=True)
+        # self.assertTrue(response.redirect_chain)
         self.get_object_or_fail(Relation, subject_entity=customer, object_entity=mng_orga, type=relation_type_id)
 
         # POST twice
