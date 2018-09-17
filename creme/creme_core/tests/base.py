@@ -216,11 +216,18 @@ class _CremeTestCase:
         status_code = response.status_code
 
         if status_code != status:
+            redirect = 'NO'
+            if hasattr(response, 'redirect_chain'):
+                redirect = response.redirect_chain
+            elif hasattr(response, 'url'):
+                redirect = response.url
+
             self.fail('Response status={status} (expected: {expected}) '
                       '[redirections={redirect}; content={content}]'.format(
                             status=status_code,
                             expected=status,
-                            redirect=response.redirect_chain,
+                            # redirect=response.redirect_chain,
+                            redirect=redirect,
                             content=response.content
                      ))
 
