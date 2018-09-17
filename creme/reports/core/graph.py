@@ -785,15 +785,22 @@ class GraphFetcher:
         self.error = None
         self.verbose_volatile_column = pgettext_lazy('reports-volatile_choice', 'None')
 
-    def fetch(self, order='ASC'):
-        return self.graph.fetch(order=order)
+    # def fetch(self, order='ASC'):
+    def fetch(self, user, order='ASC'):
+        # return self.graph.fetch(order=order)
+        return self.graph.fetch(user=user, order=order)
 
-    def _aux_fetch_4_entity(self, entity, order):
+    # def _aux_fetch_4_entity(self, entity, order):
+    def _aux_fetch_4_entity(self, entity, user, order):
         "To be overload in child classes"
-        return self.fetch(order=order)
+        return self.fetch(user=user, order=order)
 
-    def fetch_4_entity(self, entity, order='ASC'):
-        return ([], []) if self.error else self._aux_fetch_4_entity(entity, order)
+    # def fetch_4_entity(self, entity, order='ASC'):
+    def fetch_4_entity(self, entity, user, order='ASC'):
+        # return ([], []) if self.error else self._aux_fetch_4_entity(entity, order)
+        return ([], []) \
+               if self.error else \
+               self._aux_fetch_4_entity(entity=entity, user=user, order=order)
 
     @property
     def verbose_name(self):
@@ -827,9 +834,12 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
                               )
                 self.error = _('The field is invalid (not a foreign key).')
 
-    def _aux_fetch_4_entity(self, entity, order):
-        return self.graph.fetch(extra_q=Q(**{self._field_name: entity.pk}), order=order) \
-               if isinstance(entity, self._volatile_model) else ([], [])
+    # def _aux_fetch_4_entity(self, entity, order):
+    def _aux_fetch_4_entity(self, entity, order, user):
+        # return self.graph.fetch(extra_q=Q(**{self._field_name: entity.pk}), order=order) \
+        return self.graph.fetch(extra_q=Q(**{self._field_name: entity.pk}), order=order, user=user) \
+               if isinstance(entity, self._volatile_model) else\
+               ([], [])
 
     @staticmethod
     def validate_fieldname(graph, field_name):
@@ -864,9 +874,11 @@ class RelationLinkedGraphFetcher(GraphFetcher):
             self.verbose_volatile_column = str(rtype)
             self._rtype = rtype
 
-    def _aux_fetch_4_entity(self, entity, order):
+    # def _aux_fetch_4_entity(self, entity, order):
+    def _aux_fetch_4_entity(self, entity, order, user):
         return self.graph.fetch(extra_q=Q(relations__type=self._rtype,
                                           relations__object_entity=entity.pk,
                                          ),
+                                user=user,
                                 order=order,
                                )

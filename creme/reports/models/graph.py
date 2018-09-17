@@ -26,6 +26,7 @@ from django.db.models import PositiveIntegerField, CharField, BooleanField, Fore
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
+from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem
 
 from ..constants import RFT_RELATION, RFT_FIELD, GROUP_TYPES
@@ -66,11 +67,16 @@ class AbstractReportGraph(CremeEntity):
     def get_related_entity(self):
         return self.linked_report
 
-    def fetch(self, extra_q=None, order='ASC'):
+    # def fetch(self, extra_q=None, order='ASC'):
+    def fetch(self, user, extra_q=None, order='ASC'):
         assert order == 'ASC' or order == 'DESC'
 
         report = self.linked_report
-        entities = report.ct.model_class().objects.filter(is_deleted=False)
+        # entities = report.ct.model_class().objects.filter(is_deleted=False)
+        entities = EntityCredentials.filter(
+            user=user,
+            queryset=report.ct.model_class().objects.filter(is_deleted=False),
+        )
 
         if report.filter is not None:
             entities = report.filter.filter(entities)
