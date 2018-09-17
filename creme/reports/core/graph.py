@@ -162,7 +162,7 @@ class RGYCAggregation(ReportGraphYCalculator):
 
     @property
     def verbose_name(self):
-        return u'{} - {}'.format(self._name(), self._aggregation.title)
+        return '{} - {}'.format(self._name(), self._aggregation.title)
 
 
 class RGYCField(RGYCAggregation):
@@ -204,9 +204,7 @@ class ReportGraphHand:
         return ListViewURLBuilder(self._graph.model, self._graph.linked_report.filter)
 
     def _fetch(self, entities, order):
-        #TODO: Python3.3 version: yield from ()
-        return
-        yield
+        yield from ()
 
     def fetch(self, entities, order):
         """Returns the X & Y values.
@@ -345,7 +343,7 @@ class RGHDay(_RGHRegularField):
 
 @RGRAPH_HANDS_MAP(RGT_MONTH)
 class RGHMonth(_RGHRegularField):
-    verbose_name = _(u'By months')
+    verbose_name = _('By months')
 
     def _fetch(self, entities, order):
         abscissa = self._graph.abscissa
@@ -362,7 +360,7 @@ class RGHMonth(_RGHRegularField):
 
 @RGRAPH_HANDS_MAP(RGT_YEAR)
 class RGHYear(_RGHRegularField):
-    verbose_name = _(u"By years")
+    verbose_name = _('By years')
 
     def _fetch(self, entities, order):
         abscissa = self._graph.abscissa
@@ -403,7 +401,7 @@ class DateInterval:
 
 @RGRAPH_HANDS_MAP(RGT_RANGE)
 class RGHRange(_RGHRegularField):
-    verbose_name = _(u"By X days")
+    verbose_name = _('By X days')
 
     def __init__(self, graph):
         # super(RGHRange, self).__init__(graph)
@@ -413,8 +411,8 @@ class RGHRange(_RGHRegularField):
         vendor = connection.vendor
         if vendor not in {'sqlite', 'mysql', 'postgresql'}:
             logger.warning('Report graph data optimizations not available with DB vendor "%s",'
-                        ' reverting to slower fallback method.', vendor
-                       )
+                           ' reverting to slower fallback method.', vendor
+                          )
             self._fetch_method = self._fetch_fallback
 
     def _fetch(self, entities, order):
@@ -498,7 +496,7 @@ class RGHRange(_RGHRegularField):
 
 @RGRAPH_HANDS_MAP(RGT_FK)
 class RGHForeignKey(_RGHRegularField):
-    verbose_name = _(u"By values")
+    verbose_name = _('By values')
 
     def _fetch(self, entities, order):
         abscissa = self._graph.abscissa
@@ -518,7 +516,7 @@ class RGHForeignKey(_RGHRegularField):
 
 @RGRAPH_HANDS_MAP(RGT_RELATION)
 class RGHRelation(ReportGraphHand):
-    verbose_name = _(u"By values (of related entities)")
+    verbose_name = _('By values (of related entities)')
 
     def __init__(self, graph):
         # super(RGHRelation, self).__init__(graph)
@@ -632,7 +630,7 @@ class _RGHCustomField(ReportGraphHand):
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_DAY)
 class RGHCustomDay(_RGHCustomField):
-    verbose_name = _(u"By days")
+    verbose_name = _('By days')
 
     def _fetch(self, entities, order):
         return self._get_custom_dates_values(entities, self._graph.abscissa, 'day',
@@ -646,30 +644,30 @@ class RGHCustomDay(_RGHCustomField):
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_MONTH)
 class RGHCustomMonth(_RGHCustomField):
-    verbose_name = _(u"By months")
+    verbose_name = _('By months')
 
     def _fetch(self, entities, order):
         return self._get_custom_dates_values(entities, self._graph.abscissa, 'month',
                                              qdict_builder=lambda date: {'customfielddatetime__value__year':  date.year,
                                                                          'customfielddatetime__value__month': date.month,
                                                                         },
-                                             date_format="%m/%Y", order=order,
+                                             date_format='%m/%Y', order=order,
                                             )
 
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_YEAR)
 class RGHCustomYear(_RGHCustomField):
-    verbose_name = _(u"By years")
+    verbose_name = _('By years')
 
     def _fetch(self, entities, order):
         return self._get_custom_dates_values(entities, self._graph.abscissa, 'year',
                                              qdict_builder=lambda date: {'customfielddatetime__value__year': date.year},
-                                             date_format="%Y", order=order,
+                                             date_format='%Y', order=order,
                                             )
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_RANGE)
 class RGHCustomRange(_RGHCustomField):
-    verbose_name = _(u"By X days")
+    verbose_name = _('By X days')
 
     def __init__(self, graph):
         # super(RGHCustomRange, self).__init__(graph)
@@ -679,8 +677,8 @@ class RGHCustomRange(_RGHCustomField):
         vendor = connection.vendor
         if vendor not in {'sqlite', 'mysql', 'postgresql'}:
             logger.warning('Report graph data optimizations not available with DB vendor "%s",'
-                        ' reverting to slower fallback method.', vendor
-                       )
+                           ' reverting to slower fallback method.', vendor
+                          )
             self._fetch_method = self._fetch_fallback
 
     def _fetch(self, entities, order):
@@ -757,7 +755,7 @@ class RGHCustomRange(_RGHCustomField):
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_FK)
 class RGHCustomFK(_RGHCustomField):
-    verbose_name = _(u'By values (of custom choices)')
+    verbose_name = _('By values (of custom choices)')
 
     def _fetch(self, entities, order):
         entities_filter = entities.filter
@@ -785,7 +783,7 @@ class GraphFetcher:
     def __init__(self, graph):
         self.graph = graph
         self.error = None
-        self.verbose_volatile_column = pgettext_lazy('reports-volatile_choice', u'None')
+        self.verbose_volatile_column = pgettext_lazy('reports-volatile_choice', 'None')
 
     def fetch(self, order='ASC'):
         return self.graph.fetch(order=order)
@@ -799,7 +797,7 @@ class GraphFetcher:
 
     @property
     def verbose_name(self):
-        return u'{} - {}'.format(self.graph, self.verbose_volatile_column)
+        return '{} - {}'.format(self.graph, self.verbose_volatile_column)
 
 
 class RegularFieldLinkedGraphFetcher(GraphFetcher):
@@ -813,9 +811,9 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         try:
             field = model._meta.get_field(field_name)
         except FieldDoesNotExist:
-            logger.warning(u'Instance block: invalid field %s.%s in block config.',
-                        model.__name__, field_name,
-                       )
+            logger.warning('Instance block: invalid field %s.%s in block config.',
+                           model.__name__, field_name,
+                          )
             self.error = _('The field is invalid.')
         else:
             if isinstance(field, ForeignKey):
@@ -825,8 +823,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
                 self._volatile_model = field.remote_field.model
             else:
                 logger.warning('Instance block: field %s.%s in block config is not a FK.',
-                            model.__name__, field_name,
-                           )
+                               model.__name__, field_name,
+                              )
                 self.error = _('The field is invalid (not a foreign key).')
 
     def _aux_fetch_4_entity(self, entity, order):
@@ -858,8 +856,8 @@ class RelationLinkedGraphFetcher(GraphFetcher):
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:
             logger.warning('Instance block: invalid RelationType "%s" in block config.',
-                        rtype_id,
-                       )
+                           rtype_id,
+                          )
             self.error = _('The relationship type is invalid.')
             self.verbose_volatile_column = '??'
         else:
