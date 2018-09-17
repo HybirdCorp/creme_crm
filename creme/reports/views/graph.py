@@ -164,7 +164,7 @@ def cast_order(order):
 # def fetch_graph(request, graph_id, order=None):
 def fetch_graph(request, graph_id):
     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
-    x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(order=order)
+    x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(user=request.user, order=order)
 
     return {'x': x, 'y': y, 'graph_id': graph_id}  # TODO: graph_id useful ??
 
@@ -185,7 +185,9 @@ def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):
     instance_brick = get_object_or_404(InstanceBrickConfigItem, pk=instance_brick_id)
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     # x, y = ReportGraph.get_fetcher_from_instance_block(instance_brick).fetch_4_entity(entity, order)
-    x, y = ReportGraph.get_fetcher_from_instance_brick(instance_brick).fetch_4_entity(entity, order)
+    # x, y = ReportGraph.get_fetcher_from_instance_brick(instance_brick).fetch_4_entity(entity, order)
+    x, y = ReportGraph.get_fetcher_from_instance_brick(instance_brick) \
+                      .fetch_4_entity(entity=entity, order=order, user=request.user)
 
     # TODO: send error too ?
     return {'x': x, 'y': y}

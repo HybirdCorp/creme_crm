@@ -111,7 +111,10 @@ class ReportGraphBrick(Brick):
         ))
 
     def detailview_display(self, context):
-        x, y = self.fetcher.fetch_4_entity(context['object'])
+        # x, y = self.fetcher.fetch_4_entity(context['object'])
+        x, y = self.fetcher.fetch_4_entity(entity=context['object'],
+                                           user=context['user'],
+                                          )
 
         return self._auxiliary_display(context=context, x=x, y=y)
 
@@ -122,6 +125,7 @@ class ReportGraphBrick(Brick):
     #     return self.home_display(context)
 
     def home_display(self, context):
-        x, y = self.fetcher.fetch()
+        # x, y = self.fetcher.fetch()
+        x, y = self.fetcher.fetch(user=context['user'])
 
         return self._auxiliary_display(context=context, x=x, y=y)

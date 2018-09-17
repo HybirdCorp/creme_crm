@@ -125,6 +125,7 @@ class AbstractReport(CremeEntity):
 
         return set(asc_reports)
 
+    # TODO: move 'user' as first argument + no default value ?
     def _fetch(self, limit_to=None, extra_q=None, user=None):
         user = user or get_user_model()(is_superuser=True)
         entities = EntityCredentials.filter(user, self.ct.model_class().objects.filter(is_deleted=False))
