@@ -28,6 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import (CharField, TextField, ForeignKey, OneToOneField,
         PositiveIntegerField, PositiveSmallIntegerField, BooleanField, CASCADE)
 from django.db.models.signals import post_save
+from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _
 
 from ..constants import (SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
@@ -395,11 +396,14 @@ class InstanceBrickConfigItem(CremeModel):
     def __str__(self):
         return self.brick.verbose_name
 
+    @atomic
     # def delete(self, using=None):
     def delete(self, *args, **kwargs):
         brick_id = self.brick_id
         BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
         BrickState.objects.filter(brick_id=brick_id).delete()
+        BrickHomeLocation.objects.filter(brick_id=brick_id).delete()
+        BrickMypageLocation.objects.filter(brick_id=brick_id).delete()
 
         # super(InstanceBlockConfigItem, self).delete(using=using)
         super().delete(*args, **kwargs)
@@ -464,6 +468,7 @@ class CustomBrickConfigItem(CremeModel):
     def __str__(self):
         return self.name
 
+    @atomic
     def delete(self, *args, **kwargs):
         brick_id = self.generate_id()
         BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
