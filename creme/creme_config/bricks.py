@@ -482,8 +482,11 @@ class RelationBricksConfigBrick(_ConfigAdminBrick):
 # class InstanceBlocksConfigBrick(_ConfigAdminBrick):
 class InstanceBricksConfigBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'instance_blocks_config')
-    # BlockDetailviewLocation because they can be deleted if we delete a InstanceBlockConfigItem
-    dependencies  = (InstanceBrickConfigItem, BrickDetailviewLocation)
+    # BrickDetailviewLocation/BrickHomeLocation/BrickMypageLocation because
+    # they can be deleted if we delete a InstanceBlockConfigItem
+    dependencies  = (InstanceBrickConfigItem, BrickDetailviewLocation,
+                     BrickHomeLocation, BrickMypageLocation,
+                    )
     verbose_name  = u'Instance blocks configuration'
     template_name = 'creme_config/bricks/instancebricks-configs.html'
 
@@ -500,7 +503,7 @@ class CustomBricksConfigBrick(PaginatedBrick):
     verbose_name  = u'Custom blocks configuration'
     template_name = 'creme_config/bricks/custombricks-configs.html'
     page_size    = _PAGE_SIZE
-    permission   = None  # The portals can be viewed by all users => reloading can be done by all uers too.
+    permission   = None  # The portals can be viewed by all users => reloading can be done by all users too.
     configurable = False
 
     def detailview_display(self, context):

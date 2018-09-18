@@ -838,7 +838,13 @@ def brick_display(context, *bricks, **kwargs):
             bricks_to_render.append(brick_or_seq)
 
     # NB: the context is copied is order to a 'fresh' one for each brick, & so avoid annoying side-effects.
-    return mark_safe(''.join(render(brick, context=dict(context_dict)) for brick in bricks_to_render))
+    return mark_safe(
+        ''.join(filter(None,
+                       (render(brick, context=dict(context_dict))
+                           for brick in bricks_to_render
+                       )
+    )))
+
 
 
 @register.simple_tag(takes_context=True)

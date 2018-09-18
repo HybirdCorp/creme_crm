@@ -71,7 +71,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(motoko.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
         self.assertIn(motoko.phone, self.get_brick_tile(content_node, 'regular_field-phone').text)
 
-    def test_brick_declare_n_display(self):
+    def test_brick_declare_n_display01(self):
         "Named Brick"
         self.login()
 
@@ -83,15 +83,15 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                 return self.brick_str
 
         class FooBrick1(_FooBrick):
-            id_ = _FooBrick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display_01')
+            id_ = _FooBrick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01_01')
             brick_str = '<div>FOOBARBAZ #1</div>'
 
         class FooBrick2(_FooBrick):
-            id_ = _FooBrick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display_02')
+            id_ = _FooBrick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01_02')
             brick_str = '<div>FOOBARBAZ #2</div>'
 
         class FooBrick3(_FooBrick):
-            id_ = _FooBrick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display_03')
+            id_ = _FooBrick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01_03')
             verbose_name = u'Testing purpose'
             brick_str = '<div>FOOBARBAZ #3</div>'
 
@@ -113,6 +113,24 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                              ).render(context)
 
         self.assertEqual(FooBrick1.brick_str + FooBrick2.brick_str + FooBrick3.brick_str, render.strip())
+
+    def test_brick_declare_n_display02(self):
+        "Invalid Brick => no crash please"
+        self.login()
+
+        class InvalidBrick(Brick):
+            id_ = Brick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display02')
+            verbose_name = 'Testing purpose'
+
+        context = RequestContext(self._build_request(), {'my_brick': InvalidBrick()})
+
+        with self.assertNoException():
+            render = Template('{% load creme_bricks %}'
+                              '{% brick_declare my_brick %}'
+                              '{% brick_display my_brick %}'
+                             ).render(context)
+
+        self.assertFalse(render.strip())
 
     def test_brick_end(self):
         self.login()

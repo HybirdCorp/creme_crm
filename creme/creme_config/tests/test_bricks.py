@@ -20,7 +20,7 @@ try:
     from creme.creme_core.gui import bricks as gui_bricks
     from creme.creme_core.gui.bricks import Brick, SpecificRelationsBrick
     from creme.creme_core.models import (RelationType, CustomField, FieldsConfig, UserRole,
-             BrickDetailviewLocation, InstanceBrickConfigItem,
+             BrickDetailviewLocation, InstanceBrickConfigItem, BrickState,
              BrickHomeLocation, BrickMypageLocation, RelationBrickItem, CustomBrickConfigItem)
     from creme.creme_core.registry import creme_registry
 
@@ -1898,12 +1898,35 @@ class BricksConfigTestCase(CremeTestCase):
                     brick_id=InstanceBrickConfigItem.generate_id(DetailviewInstanceBrick, naru, ''),
                     entity=naru, verbose='All stuffes',
                 )
-        loc = BrickDetailviewLocation.create_if_needed(brick_id=ibi.brick_id, order=5,
-                                                       zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
-                                                      )
+
+        create_bdl = partial(BrickDetailviewLocation.create_if_needed,
+                             zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
+                            )
+        dloc1 = create_bdl(brick_id=ibi.brick_id,       order=5)
+        dloc2 = create_bdl(brick_id=CompleteBrick1.id_, order=6)
+
+        create_bhl = BrickHomeLocation.objects.create
+        hloc1 = create_bhl(brick_id=ibi.brick_id,       order=5)
+        hloc2 = create_bhl(brick_id=CompleteBrick1.id_, order=6)
+
+        create_bml = BrickMypageLocation.objects.create
+        mloc1 = create_bml(brick_id=ibi.brick_id,       order=5)
+        mloc2 = create_bml(brick_id=CompleteBrick1.id_, order=6)
+
+        create_state = BrickState.objects.create
+        state1 = create_state(brick_id=ibi.brick_id,       user=self.user)
+        state2 = create_state(brick_id=CompleteBrick1.id_, user=self.user)
+
         self.assertPOST200(reverse('creme_config__delete_instance_brick'), data={'id': ibi.id})
         self.assertDoesNotExist(ibi)
-        self.assertDoesNotExist(loc)
+        self.assertDoesNotExist(dloc1)
+        self.assertStillExists(dloc2)
+        self.assertDoesNotExist(hloc1)
+        self.assertStillExists(hloc2)
+        self.assertDoesNotExist(mloc1)
+        self.assertStillExists(mloc2)
+        self.assertDoesNotExist(state1)
+        self.assertStillExists(state2)
 
     # def test_add_custombrick(self):
     #     get_ct = ContentType.objects.get_for_model
