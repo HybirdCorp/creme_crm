@@ -749,6 +749,8 @@ TEST_CREME_CORE_JS = ['testcore.js',
                         'creme_core/js/tests/fallbacks.js',
                         'creme_core/js/tests/generators.js',
 
+                        'creme_core/js/tests/widgets/qunit-widget-mixin.js',
+                        'creme_core/js/tests/widgets/qunit-plot-mixin.js',
                         'creme_core/js/tests/widgets/base.js',
                         'creme_core/js/tests/widgets/widget.js',
                         'creme_core/js/tests/widgets/plot.js',

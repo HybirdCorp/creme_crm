@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -93,11 +93,10 @@ $.extend(creme.ajax.CacheBackendTimeout.prototype, {
  */
 
 creme.ajax.CacheBackend = function(backend, options) {
-    $.extend(this.options, options || {});
-
-    this.delegate = backend || new creme.ajax.Backend();
+    this.options = options || {};
+    this.delegate = backend || creme.ajax.defaultBackend();
     this.condition = this.options.condition || new creme.ajax.CacheBackendCondition();
-    this.entries  = {};
+    this.entries = {};
 };
 
 creme.ajax.CacheBackend.prototype = new creme.ajax.Backend();
@@ -109,6 +108,10 @@ $.extend(creme.ajax.CacheBackend.prototype, {
         var entry = this._getEntry(url, data, options.dataType);
 
         this._fetchEntry(entry, on_success, on_error, options);
+    },
+
+    reset: function() {
+        this.entries = {};
     },
 
     _getEntry: function(url, data, dataType) {
@@ -134,8 +137,13 @@ $.extend(creme.ajax.CacheBackend.prototype, {
 
     _fetchEntry: function(entry, on_success, on_error, options) {
         var self = this;
+        var isCacheExpired = this.condition.expired(entry, options);
 
-        if (!options.forcecache && !entry.waiting && (this.condition.expired(entry, options) === false)) {
+        if (options.debug) {
+            console.log('cacheajax > cache > url:', entry.url, 'expired:', isCacheExpired, 'waiting:', entry.waiting);
+        }
+
+        if (!options.forcecache && !entry.waiting && !isCacheExpired) {
             return creme.object.invoke(on_success, entry.response.data, entry.response.textStatus);
         }
 
@@ -149,6 +157,11 @@ $.extend(creme.ajax.CacheBackend.prototype, {
 
         if (!entry.waiting) {
             entry.waiting = true;
+
+            if (options.debug) {
+                console.log('cacheajax > miss > url:', entry.url, 'data:', entry.data, 'options:', options);
+            }
+
             this.delegate.get(entry.url, entry.data,
                 function(data, textStatus) {
                     entry.waiting = false;
@@ -159,9 +172,24 @@ $.extend(creme.ajax.CacheBackend.prototype, {
                     self._removeEntry(entry);
                     entry.waiting = false;
                     entry.events.trigger('complete', [false, data, status]);
-                },
-                options);
+                }, options);
         }
     }
 });
+
+var __defaultBackend = new creme.ajax.CacheBackend(creme.ajax.defaultBackend(),
+                                                   {condition: new creme.ajax.CacheBackendTimeout(120 * 1000)});
+
+creme.ajax.defaultCacheBackend = function(backend) {
+    if (backend === undefined) {
+        return __defaultBackend;
+    }
+
+    if (creme.ajax.Backend.prototype.isPrototypeOf(backend) === false) {
+        throw new Error('Default ajax cache backend must be a creme.ajax.Backend instance');
+    }
+
+    __defaultBackend = backend;
+};
+
 }(jQuery));

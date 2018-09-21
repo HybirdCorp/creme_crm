@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,12 +22,9 @@
 
 creme.widget = creme.widget || {};
 
-creme.widget.DYNAMIC_SELECT_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(),
-                                                                  {condition: new creme.ajax.CacheBackendTimeout(120 * 1000)});
-
 creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     options: {
-        backend: creme.widget.DYNAMIC_SELECT_BACKEND, // new creme.ajax.Backend({dataType:'json', sync:true}),
+        backend: undefined, // new creme.ajax.Backend({dataType:'json', sync:true}),
         datatype: 'string',
         url: '',
         filter: '',
@@ -40,7 +37,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     _create: function(element, options, cb, sync) {
         this._context = {};
-        this._backend = options.backend;
+        this._backend = options.backend || creme.ajax.defaultCacheBackend();
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
         this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
         this._multiple = creme.object.isTrue(options.multiple) && element.is('[multiple]');

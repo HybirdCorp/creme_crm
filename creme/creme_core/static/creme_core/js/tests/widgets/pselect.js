@@ -1,3 +1,10 @@
+(function($) {
+
+QUnit.module("creme.widget.pselect.js", new QUnitMixin({
+    beforeEach: function() {},
+    afterEach: function() {}
+}));
+
 function mock_pselect_create(key, noauto)
 {
     var select = creme.widget.buildTag($('<span/>'), 'ui-creme-polymorphicselect', {key:key}, !noauto)
@@ -28,14 +35,6 @@ function assertSelector(widget, type, value, query)
         equal(widget.selector(), undefined, 'empty selector');
     }
 }
-
-QUnit.module("creme.widgets.pselect.js", {
-  setup: function() {
-  },
-  teardown: function() {
-  }
-});
-
 
 QUnit.test('creme.widgets.pselect.create (empty, no selector)', function(assert) {
     var element = mock_pselect_create();
@@ -290,3 +289,5 @@ QUnit.test('creme.widgets.pselect.reset (type, value, multiple selector)', funct
     widget.reset();
     assertSelector(widget, 'password', '', '.ui-creme-dinput[type="password"]');
 });
+
+}(jQuery));

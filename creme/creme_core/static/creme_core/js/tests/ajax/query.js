@@ -1,28 +1,33 @@
-QUnit.module("creme.ajax.query.js", {
-    setup: function()
-    {
+(function($) {
+
+QUnit.module("creme.ajax.query.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMixin, {
+    buildMockBackend: function() {
+        return new creme.ajax.MockAjaxBackend({sync:true, name: 'creme.ajax.query.js'});
+    },
+
+    beforeEach: function() {
         var self = this;
 
-        this.backend = new creme.ajax.MockAjaxBackend({sync:true});
+        this.setMockBackendGET({
+            'mock/options/1': this.backend.response(200, ['a']),
+            'mock/options/2': this.backend.response(200, ['a', 'b']),
+            'mock/options/3': this.backend.response(200, ['a', 'b', 'c']),
+            'mock/options/empty': this.backend.response(200, []),
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+            'mock/custom': function(url, data, options) {
+                 return self._custom_GET(url, data, options);
+             }
+        });
 
-        $.extend(this.backend.GET, {'mock/options/1': this.backend.response(200, ['a']),
-                                    'mock/options/2': this.backend.response(200, ['a', 'b']),
-                                    'mock/options/3': this.backend.response(200, ['a', 'b', 'c']),
-                                    'mock/options/empty': this.backend.response(200, []),
-                                    'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                    'mock/error': this.backend.response(500, 'HTTP - Error 500'),
-                                    'mock/custom': function(url, data, options) {
-                                         return self._custom_GET(url, data, options);
-                                     }});
-
-        $.extend(this.backend.POST, {'mock/add/widget': this.backend.response(200, '<json>' + $.toJSON({value:'', added:[1, 'newitem']}) + '</json>'),
-                                     'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                     'mock/error': this.backend.response(500, 'HTTP - Error 500'),
-                                     'mock/custom': function(url, data, options) {
-                                         return self._custom_POST(url, data, options);
-                                     }});
-
-        this.resetMockCalls();
+        this.setMockBackendPOST({
+            'mock/add/widget': this.backend.response(200, '<json>' + $.toJSON({value:'', added:[1, 'newitem']}) + '</json>'),
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+            'mock/custom': function(url, data, options) {
+                return self._custom_POST(url, data, options);
+            }
+        });
     },
 
     teardown: function() {
@@ -34,37 +39,8 @@ QUnit.module("creme.ajax.query.js", {
 
     _custom_GET: function(url, data, options) {
         return this.backend.response(200, $.toJSON({url: url, method: 'GET', data: data}));
-    },
-
-    resetMockCalls: function() {
-        this._eventListenerCalls = {};
-    },
-
-    mockListenerCalls: function(name)
-    {
-        if (this._eventListenerCalls[name] === undefined)
-            this._eventListenerCalls[name] = [];
-
-        return this._eventListenerCalls[name];
-    },
-
-    mockListener: function(name)
-    {
-        var self = this;
-        return (function(name) {return function() {
-            self.mockListenerCalls(name).push(Array.copy(arguments));
-        }})(name);
-    },
-
-    assertRaises: function(block, expected, message) {
-        QUnit.assert.raises(block,
-               function(error) {
-                    ok(error instanceof expected, 'error is ' + expected);
-                    equal(message, '' + error);
-                    return true;
-               });
     }
-});
+}));
 
 function assertMockQueryErrorCalls(expected, calls)
 {
@@ -443,3 +419,5 @@ QUnit.test('creme.ajax.query (unknown action)', function(assert) {
               ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
+
+}(jQuery));

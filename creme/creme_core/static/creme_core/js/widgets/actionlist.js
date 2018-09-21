@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+
+"use strict";
 
 creme.widget.ActionButton = creme.component.Action.sub({
     _init_: function(delegate, button, options) {
@@ -24,17 +26,17 @@ creme.widget.ActionButton = creme.component.Action.sub({
         this._delegate = delegate;
         this._button = button;
 
-        this.onDone($.proxy(this._updateDelegate, this))
+        this.onDone($.proxy(this._updateDelegate, this));
     },
 
-    _updateDelegate: function(event, data)
-    {
+    _updateDelegate: function(event, data) {
         var delegate = this._delegate;
 
-        if (Object.isEmpty(delegate))
+        if (Object.isEmpty(delegate)) {
             return;
+        }
 
-        var data = creme.utils.JSON.clean(data, null);
+        data = creme.utils.JSON.clean(data, null);
 
         if (data !== null) {
             delegate.update(data);
@@ -57,10 +59,9 @@ creme.widget.ResetActionButton = creme.widget.ActionButton.sub({
         this._super_(creme.widget.ActionButton, '_init_', delegate, button, options);
     },
 
-    _run: function(options)
-    {
-        var options = creme.widget.parseopt(this._button, {value: ''});
-        this.done({value:options.value}, 'success');
+    _run: function(options) {
+        var button_options = creme.widget.parseopt(this._button, {value: ''});
+        this.done({value: button_options.value}, 'success');
     }
 });
 
@@ -69,14 +70,15 @@ creme.widget.CreateActionButton = creme.widget.ActionButton.sub({
         this._super_(creme.widget.ActionButton, '_init_', delegate, button, options);
     },
 
-    _dialogOptions: function()
-    {
-        var options = creme.widget.parseopt(this._button, {popupResizable: true,
-                                                           popupDraggable: true,
-                                                           popupWidth: window.screen.width / 2,
-                                                           popupHeight: 356,
-                                                           popupUrl: '',
-                                                           popupTitle: ''});
+    _dialogOptions: function() {
+        var options = creme.widget.parseopt(this._button, {
+                                                popupResizable: true,
+                                                popupDraggable: true,
+                                                popupWidth: window.screen.width / 2,
+                                                popupHeight: 356,
+                                                popupUrl: '',
+                                                popupTitle: ''
+                                            });
 
         var delegate = this._delegate;
 
@@ -88,8 +90,7 @@ creme.widget.CreateActionButton = creme.widget.ActionButton.sub({
         return options;
     },
 
-    updateButtonState: function()
-    {
+    updateButtonState: function() {
         var dialog_options = this._dialogOptions();
         var label = dialog_options.title || gettext('Add');
 
@@ -97,8 +98,7 @@ creme.widget.CreateActionButton = creme.widget.ActionButton.sub({
                     .text(label);
     },
 
-    _run: function(options)
-    {
+    _run: function(options) {
         var self = this;
         var dialog_options = this._dialogOptions();
 
@@ -121,14 +121,14 @@ creme.widget.CreateActionButton = creme.widget.ActionButton.sub({
 
 creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist', {
     options: {
+        backend: undefined,
         debug: true
     },
 
-    _create: function(element, options, cb, sync)
-    {
+    _create: function(element, options, cb, sync) {
         var self = this;
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
-        this._selector = creme.widget.create(self.selector(element), {disabled: !self._enabled});
+        this._selector = creme.widget.create(self.selector(element), {disabled: !self._enabled, backend: options.backend});
         this._dependencies = Array.isArray(options.dependencies) ? options.dependencies : (options.dependencies ? options.dependencies.split(' ') : []);
         this._context = {};
 
@@ -158,8 +158,7 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         return $('> li > button.ui-creme-actionbutton[name="' + name + '"]', element);
     },
 
-    doAction: function(element, name, listeners)
-    {
+    doAction: function(element, name, listeners) {
         var button = this.action(element, name);
 
         if (button.length === 1) {
@@ -177,36 +176,35 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         return creme.object.delegate(this._selector, 'dependencies') || [];
     },
 
-    url: function(element, url)
-    {
-        if (url === undefined)
+    url: function(element, url) {
+        if (url === undefined) {
             return creme.object.delegate(this._selector, 'url');
+        }
 
         creme.object.delegate(this._selector, 'url', url);
         return this;
     },
 
-    filter: function(element, filter)
-    {
-        if (filter === undefined)
+    filter: function(element, filter) {
+        if (filter === undefined) {
             return creme.object.delegate(this._selector, 'filter');
+        }
 
         creme.object.delegate(this._selector, 'filter', filter);
         return this;
     },
 
-    reload: function(element, data, cb, error_cb, sync)
-    {
+    reload: function(element, data, cb, error_cb, sync) {
         creme.object.delegate(this._selector, 'reload', data, cb, error_cb, sync);
         this._context = $.extend({}, this._context || {}, data);
         this._updateActionButtons(element);
         return this;
     },
 
-    val: function(element, value)
-    {
-        if (value === undefined)
+    val: function(element, value) {
+        if (value === undefined) {
             return creme.object.delegate(this._selector, 'val') || '';
+        }
 
         creme.object.delegate(this._selector, 'val', value);
         return this;
@@ -221,14 +219,12 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         return creme.object.delegate(this._selector, 'cleanedval') || null;
     },
 
-    update: function(element, data)
-    {
+    update: function(element, data) {
         creme.object.delegate(this._selector, 'update');
         return this;
     },
 
-    _updateActionButtons: function(element)
-    {
+    _updateActionButtons: function(element) {
         var self = this;
         var context = this._context;
 
@@ -241,23 +237,23 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         });
     },
 
-    _buildAction: function(element, button)
-    {
-        var action = new creme.component.Action();
-        var actiontype = creme.widget.parseopt(button, {action:'popup'}).action;
+    _buildAction: function(element, button) {
+        var actiontype = creme.widget.parseopt(button, {action: 'popup'}).action;
         var builder = this['_action_' + actiontype];
 
         if (Object.isFunc(builder)) {
             return builder(this._selector, button);
         }
 
-        return new creme.component.Action(function() {this.cancel();});
+        return new creme.component.Action(function() {
+            this.cancel();
+        });
     },
 
-    _handleAction: function(element, button, listeners)
-    {
+    _handleAction: function(element, button, listeners) {
         var action = this._buildAction(element, button);
-        var listeners = listeners || {};
+
+        listeners = listeners || {};
 
         if (!this._enabled) {
             return action.on(listeners).cancel();

@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2017  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,10 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
 
-creme.widget.ENTITY_SELECT_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(),
-                                                                 {condition: new creme.ajax.CacheBackendTimeout(120 * 1000)});
+"use strict";
 
 creme.widget.EntitySelectorMode = {
 //    MULTIPLE: 0,
@@ -36,13 +35,13 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         labelURL: '',
         label: gettext('Select'),
         qfilter: '',
-        backend: creme.widget.ENTITY_SELECT_BACKEND
+        backend: undefined
     },
 
-    _create: function(element, options, cb, sync)
-    {
+    _create: function(element, options, cb, sync) {
         var self = this;
 
+        this._backend = options.backend || creme.ajax.defaultCacheBackend();
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
 
         if (!this._enabled) {
@@ -64,13 +63,10 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
 
         // TODO: "_popupSelectMode" useful ??
 //        var selection = this._popupSelectMode = creme.widget.cleanval(options.popupSelection, creme.widget.EntitySelectorMode.SINGLE);
-        var selection = this._popupSelectMode = options.popupSelection === creme.widget.EntitySelectorMode.MULTIPLE ?
-                                                creme.widget.EntitySelectorMode.MULTIPLE :
-                                                creme.widget.EntitySelectorMode.SINGLE;
 
         this._popupURL = new creme.utils.Template(options.popupURL, {
                                                        qfilter: options.qfilter,
-                                                       selection: selection
+                                                       selection: options.popupSelection
                                                    });
 
         this._reloadLabel(element, cb, undefined, sync);
@@ -81,28 +77,26 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         return this._popupURL.tags();
     },
 
-    reload: function(element, data, cb, error_cb, sync)
-    {
+    reload: function(element, data, cb, error_cb, sync) {
         this._popupURL.update(data);
         this.val(element, null);
         creme.object.invoke(cb, element);
     },
 
-    update: function(element, data)
-    {
-        var data = creme.utils.JSON.clean(data, null);
+    update: function(element, data) {
+        data = creme.utils.JSON.clean(data, null);
 
         if (data != null) {
             this.val(element, data['value']);
         }
     },
 
-    _select: function(element, listeners)
-    {
+    _select: function(element, listeners) {
+        listeners = listeners || {};
+
         var self = this;
         var multiple = this.isMultiple();
         var url = this.popupURL(element);
-        var listeners = listeners || {};
 
         creme.lv_widget.listViewAction(url, {
                             multiple: multiple,
@@ -118,22 +112,20 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
                             creme.object.invoke(listeners.done, 'done', element, data);
                         })
                        .onCancel(function() {
-                            creme.object.invoke(listeners.cancel, 'cancel')
+                            creme.object.invoke(listeners.cancel, 'cancel');
                         })
                        .onFail(function() {
-                            creme.object.invoke(listeners.fail, 'fail')
+                            creme.object.invoke(listeners.fail, 'fail');
                         })
                        .start();
     },
 
-    _reloadLabel: function(element, on_success, on_error, sync)
-    {
+    _reloadLabel: function(element, on_success, on_error, sync) {
         var options = this.options;
         var button = $('button', element);
         var value = creme.widget.input(element).val();
 
-        if (Object.isEmpty(value) === true)
-        {
+        if (Object.isEmpty(value) === true) {
             button.text(options.label);
             creme.object.invoke(on_success, element);
             return;
@@ -142,21 +134,21 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         var url = creme.widget.template(options.labelURL, {'id': value});
         var default_label = gettext('Entity #%s (not viewable)').format(value);
 
-        options.backend.get(url, {fields:['summary']},
-                            function(data, status) {
-                                try {
-                                    button.html(data[0][0] || default_label);
-                                } catch(e) {
-                                    button.html(default_label);
-                                }
+        this._backend.get(url, {fields: ['summary']},
+                          function(data, status) {
+                              try {
+                                  button.html(data[0][0] || default_label);
+                              } catch (e) {
+                                  button.html(default_label);
+                              }
 
-                                creme.object.invoke(on_success, element, data);
-                            },
-                            function(data, error) {
-                                button.html(default_label);
-                                creme.object.invoke(on_error, element, error);
-                            },
-                            {dataType:'json', sync:sync});
+                              creme.object.invoke(on_success, element, data);
+                          },
+                          function(data, error) {
+                              button.html(default_label);
+                              creme.object.invoke(on_error, element, error);
+                          },
+                          {dataType: 'json', sync: sync});
     },
 
     // TODO: remove 'element' ?
@@ -166,7 +158,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
 
     // TODO: useful ?
     multiple: function(element, value) {
-        var value = value ? creme.widget.EntitySelectorMode.MULTIPLE : creme.widget.EntitySelectorMode.SINGLE;
+        value = value ? creme.widget.EntitySelectorMode.MULTIPLE : creme.widget.EntitySelectorMode.SINGLE;
         this._popupURL.update({selection: value});
     },
 
@@ -186,18 +178,17 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         this.val(element, null);
     },
 
-    val: function(element, value)
-    {
-        if (value === undefined)
+    val: function(element, value) {
+        if (value === undefined) {
             return creme.widget.input(element).val();
+        }
 
         creme.widget.input(element).val(value);
         this._reloadLabel(element);
         element.trigger('change');
     },
 
-    cleanedval: function(element)
-    {
+    cleanedval: function(element) {
         var value = this.val(element);
         return Object.isEmpty(value) ? null : value;
     }
