@@ -1,25 +1,31 @@
-QUnit.module("creme.cacheajax.js", {
-    setup: function() {
-        var self = this;
+(function($) {
 
-        this.backend = new creme.ajax.MockAjaxBackend({delay: 0});
-        $.extend(this.backend.GET, {'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                    'mock/error': this.backend.response(500, 'HTTP - Error 500'),
-                                    'mock/default': function(url, data, options) {
-                                        return self.backend.response(200, 'this is a test message %d'.format(self.backend.counts.GET));
-                                    },
-                                    'mock/html': function(url, data, options) {
-                                        return self._custom_GET(url, data, options);
-                                    }});
-
-        $.extend(this.backend.POST, {'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                     'mock/error': this.backend.response(500, 'HTTP - Error 500'),
-                                     'mock/html': function(url, data, options) {
-                                         return self._custom_POST(url, data, options);
-                                     }});
+QUnit.module("creme.cacheajax.js", new QUnitMixin(QUnitAjaxMixin, {
+    buildMockBackend: function() {
+        return new creme.ajax.MockAjaxBackend({sync:true, name: 'creme.cacheajax.js'});
     },
 
-    teardown: function() {
+    beforeEach: function() {
+        var self = this;
+
+        this.setMockBackendGET({
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+            'mock/default': function(url, data, options) {
+                return self.backend.response(200, 'this is a test message %d'.format(self.backend.counts.GET));
+            },
+            'mock/html': function(url, data, options) {
+                return self._custom_GET(url, data, options);
+            }
+        });
+
+        this.setMockBackendPOST({
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+             'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+             'mock/html': function(url, data, options) {
+                 return self._custom_POST(url, data, options);
+             }
+        });
     },
 
     _custom_GET: function(url, data, options) {
@@ -41,7 +47,7 @@ QUnit.module("creme.cacheajax.js", {
 
         return response;
     }
-});
+}));
 
 function assertCacheResponseOk(response, text)
 {
@@ -66,6 +72,22 @@ function assertCacheEntry(backend, url, data, response)
     equal(entry.dataType, backend.options.dataType, 'cache entry datatype');
     equal(entry.response.data, response, 'cache entry response');
 }
+
+QUnit.test('defaultBackend (invalid)', function(assert) {
+    deepEqual(this.backend, creme.ajax.defaultBackend());
+
+    this.assertRaises(function() {
+        creme.ajax.defaultBackend('not a backend')
+    }, Error, 'Error: Default ajax backend must be a creme.ajax.Backend instance');
+});
+
+QUnit.test('defaultCacheBackend (invalid)', function(assert) {
+    deepEqual(this.backend, creme.ajax.defaultCacheBackend());
+
+    this.assertRaises(function() {
+        creme.ajax.defaultCacheBackend('not a backend')
+    }, Error, 'Error: Default ajax cache backend must be a creme.ajax.Backend instance');
+});
 
 QUnit.test('CacheBackend.get (create entry)', function(assert) {
     var cache = new creme.ajax.CacheBackend(this.backend);
@@ -400,3 +422,31 @@ QUnit.test('CacheBackend.get (entry timeout, expired)', function() {
     }, 700);
 });
 
+QUnit.test('CacheBackend.reset', function() {
+    var self = this;
+    var condition = new creme.ajax.CacheBackendTimeout(500);
+    var cache = new creme.ajax.CacheBackend(this.backend, {condition: condition});
+
+    equal(0, Object.keys(cache.entries).length);
+
+    var response = this.doRequest(cache, 'mock/default');
+    assertCacheResponseOk(response, 'this is a test message 1');
+    equal(1, Object.keys(cache.entries).length);
+
+    response = this.doRequest(cache, 'mock/default');
+    assertCacheResponseOk(response, 'this is a test message 1');
+    equal(1, Object.keys(cache.entries).length);
+
+    cache.reset();
+    equal(0, Object.keys(cache.entries).length);
+
+    response = this.doRequest(cache, 'mock/default');
+    assertCacheResponseOk(response, 'this is a test message 2');
+    equal(1, Object.keys(cache.entries).length);
+
+    response = this.doRequest(cache, 'mock/default');
+    assertCacheResponseOk(response, 'this is a test message 2');
+    equal(1, Object.keys(cache.entries).length);
+});
+
+}(jQuery));

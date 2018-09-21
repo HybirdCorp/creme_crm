@@ -1,39 +1,30 @@
-MockEntitySelector = function(backend) {
-    return $.extend({}, creme.widget.EntitySelector, {
-        options: $.extend({}, creme.widget.EntitySelector.options, {backend:backend})
-    });
-};
-
-function mock_entityselector_create(options, noauto) {
-    var options = $.extend({label: "select a mock", labelURL: "mock/label/${id}"}, options);
-
-    var select = creme.widget.buildTag($('<span/>'), 'ui-creme-entityselector', options, !noauto)
-                     .append($('<button type="button"/>'))
-                     .append($('<input type="hidden" class="ui-creme-entityselector ui-creme-input"/>'));
-
-    return select;
-}
+(function($) {
 
 var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
 
-QUnit.module("creme.widgets.entityselector.js", {
-  setup: function() {
-      this.backend = new creme.ajax.MockAjaxBackend({sync:true});
-      $.extend(this.backend.GET, {'mock/label/1': this.backend.response(200, [['John Doe']]),
-                                  'mock/label/2': this.backend.response(200, [['Bean Bandit']]),
-                                  'mock/popup': this.backend.response(200, MOCK_FRAME_CONTENT),
-                                  'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                  'mock/error': this.backend.response(500, 'HTTP - Error 500')});
+QUnit.module("creme.widget.entityselector.js", new QUnitMixin(QUnitAjaxMixin, QUnitWidgetMixin, {
+    buildMockBackend: function() {
+        return new creme.ajax.MockAjaxBackend({sync:true, name: 'creme.widget.entityselector.js'});
+    },
 
-      creme.widget.unregister('ui-creme-entityselector');
-      creme.widget.declare('ui-creme-entityselector', new MockEntitySelector(this.backend));
-  },
-  teardown: function() {
-  }
-});
+    beforeEach: function() {
+        this.setMockBackendGET({
+            'mock/label/1': this.backend.response(200, [['John Doe']]),
+            'mock/label/2': this.backend.response(200, [['Bean Bandit']]),
+            'mock/popup': this.backend.response(200, MOCK_FRAME_CONTENT),
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500')
+        });
+    },
+
+    afterEach: function() {
+        $('.ui-dialog-content').dialog('destroy');
+        creme.widget.shutdown($('body'));
+    },
+}));
 
 QUnit.test('creme.widget.EntitySelector.create (empty, auto)', function(assert) {
-    var element = mock_entityselector_create();
+    var element = this.createEntitySelectorTag();
 
     creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -49,7 +40,7 @@ QUnit.test('creme.widget.EntitySelector.create (empty, auto)', function(assert) 
 });
 
 QUnit.test('creme.widget.EntitySelector.create (not empty, auto)', function(assert) {
-    var element = mock_entityselector_create();
+    var element = this.createEntitySelectorTag();
     creme.widget.input(element).val('1');
 
     creme.widget.create(element);
@@ -69,7 +60,7 @@ QUnit.test('creme.widget.EntitySelector.create (not empty, auto)', function(asse
 });
 
 QUnit.test('creme.widget.EntitySelector.create (auto, disabled)', function(assert) {
-    var element = mock_entityselector_create({disabled:''});
+    var element = this.createEntitySelectorTag({disabled:''});
     creme.widget.input(element).val('1');
 
     var widget = creme.widget.create(element);
@@ -79,7 +70,7 @@ QUnit.test('creme.widget.EntitySelector.create (auto, disabled)', function(asser
     equal("1", element.creme().widget().val());
     equal(element.creme().widget().delegate._enabled, false);
 
-    var element = mock_entityselector_create();
+    var element = this.createEntitySelectorTag();
     creme.widget.input(element).val('2');
 
     equal(element.is('[disabled]'), false);
@@ -95,7 +86,7 @@ QUnit.test('creme.widget.EntitySelector.create (auto, disabled)', function(asser
 });
 
 QUnit.test('creme.widget.EntitySelector.create (empty, popup url, auto)', function(assert) {
-    var element = mock_entityselector_create({popupURL:'mock/label'});
+    var element = this.createEntitySelectorTag({popupURL:'mock/label'});
 
     creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -111,7 +102,7 @@ QUnit.test('creme.widget.EntitySelector.create (empty, popup url, auto)', functi
 });
 
 QUnit.test('creme.widget.EntitySelector.create (empty, invalid label url, auto)', function(assert) {
-    var element = mock_entityselector_create({labelURL:'mock/label/unknown'});
+    var element = this.createEntitySelectorTag({labelURL:'mock/label/unknown'});
 
     creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -127,7 +118,7 @@ QUnit.test('creme.widget.EntitySelector.create (empty, invalid label url, auto)'
 });
 
 QUnit.test('creme.widget.EntitySelector.create (not empty, invalid label url, auto)', function(assert) {
-    var element = mock_entityselector_create({labelURL: 'mock/label/unknown'});
+    var element = this.createEntitySelectorTag({labelURL: 'mock/label/unknown'});
     creme.widget.input(element).val('1');
 
     creme.widget.create(element);
@@ -145,7 +136,7 @@ QUnit.test('creme.widget.EntitySelector.create (not empty, invalid label url, au
 });
 
 QUnit.test('creme.widget.EntitySelector.val', function(assert) {
-    var element = mock_entityselector_create();
+    var element = this.createEntitySelectorTag();
 
     creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -169,7 +160,7 @@ QUnit.test('creme.widget.EntitySelector.val', function(assert) {
 });
 
 QUnit.test('creme.widget.EntitySelector.multiple', function(assert) {
-    var element = mock_entityselector_create();
+    var element = this.createEntitySelectorTag();
     creme.widget.create(element);
 
     equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().delegate._popupURL.parameters().selection);
@@ -180,7 +171,7 @@ QUnit.test('creme.widget.EntitySelector.multiple', function(assert) {
     equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().delegate._popupURL.parameters().selection);
     equal(element.creme().widget().isMultiple(), true);
 
-    var element = mock_entityselector_create({popupSelection: creme.widget.EntitySelectorMode.MULTIPLE});
+    var element = this.createEntitySelectorTag({popupSelection: creme.widget.EntitySelectorMode.MULTIPLE});
     creme.widget.create(element);
 
     equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().options().popupSelection);
@@ -189,7 +180,7 @@ QUnit.test('creme.widget.EntitySelector.multiple', function(assert) {
 });
 
 QUnit.test('creme.widget.EntitySelector.reload (url)', function(assert) {
-    var element = mock_entityselector_create();
+    var element = this.createEntitySelectorTag();
     creme.widget.create(element);
     deepEqual([], element.creme().widget().dependencies());
 
@@ -206,7 +197,7 @@ QUnit.test('creme.widget.EntitySelector.reload (url)', function(assert) {
 });
 
 QUnit.test('creme.widget.EntitySelector.reload (template url, multiple)', function(assert) {
-    var element = mock_entityselector_create({popupURL:'mock/popup/${selection}'});
+    var element = this.createEntitySelectorTag({popupURL:'mock/popup/${selection}'});
 
     creme.widget.create(element);
     deepEqual(['selection'], element.creme().widget().dependencies());
@@ -221,7 +212,7 @@ QUnit.test('creme.widget.EntitySelector.reload (template url, multiple)', functi
 });
 
 QUnit.test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)', function(assert) {
-    var element = mock_entityselector_create({popupURL:'mock/popup/${selection}?q_filter=${qfilter}'});
+    var element = this.createEntitySelectorTag({popupURL:'mock/popup/${selection}?q_filter=${qfilter}'});
 
     creme.widget.create(element);
     deepEqual(['selection', 'qfilter'], element.creme().widget().dependencies());
@@ -240,7 +231,7 @@ QUnit.test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)
 });
 
 QUnit.test('creme.widget.EntitySelector.reset', function(assert) {
-    var element = mock_entityselector_create();
+    var element = this.createEntitySelectorTag();
     var widget = creme.widget.create(element);
     deepEqual([], element.creme().widget().dependencies());
 
@@ -255,3 +246,5 @@ QUnit.test('creme.widget.EntitySelector.reset', function(assert) {
     equal("", widget.val());
     equal("", widget.popupURL());
 });
+
+}(jQuery));

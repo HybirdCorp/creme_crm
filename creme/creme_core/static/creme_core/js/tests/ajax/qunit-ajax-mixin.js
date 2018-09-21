@@ -26,8 +26,11 @@
 
             this.backend = this.buildMockBackend();
 
-            // console.info('[qunit-ajax-mixin] setup backend', this.backend.options);
+            //console.info('[qunit-ajax-mixin] setup backend', this.backend.options);
             creme.ajax.defaultBackend(this.backend);
+
+            //console.info('[qunit-ajax-mixin] setup cache backend');
+            creme.ajax.defaultCacheBackend(this.backend);
         },
 
         afterEach: function(env) {
@@ -35,8 +38,13 @@
             creme.history.push = this.__historyPush;
             creme.history.replace = this.__historyReplace;
 
-            // console.info('[qunit-ajax-mixin] teardown backend');
+            //console.info('[qunit-ajax-mixin] teardown backend');
             creme.ajax.defaultBackend(new creme.ajax.Backend());
+
+            //console.info('[qunit-ajax-mixin] teardown cache backend');
+            creme.ajax.defaultCacheBackend(new creme.ajax.CacheBackend(creme.ajax.defaultBackend(), {
+                condition: new creme.ajax.CacheBackendTimeout(120 * 1000)
+            }));
         },
 
         buildMockBackend: function() {

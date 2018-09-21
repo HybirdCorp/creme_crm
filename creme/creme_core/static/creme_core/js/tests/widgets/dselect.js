@@ -1,58 +1,30 @@
-MockDynamicSelect = function(backend) {
-    return $.extend({}, creme.widget.DynamicSelect, {
-        options: {
-            url:'',
-            backend: backend,
-            datatype: 'string',
-            filter: ''
-        }
-    });
-};
+(function($) {
 
-function mock_dselect_create(url, noauto) {
-    var select = $('<select widget="ui-creme-dselect" class="ui-creme-dselect ui-creme-widget"/>');
+QUnit.module("creme.widget.dselect.js", new QUnitMixin(QUnitAjaxMixin, QUnitWidgetMixin, {
+    buildMockBackend: function() {
+        return new creme.ajax.MockAjaxBackend({sync:true, name: 'creme.widget.dselect.js'});
+    },
 
-    if (url !== undefined)
-        select.attr('url', url);
+    beforeEach: function() {
+        this.setMockBackendGET({
+            'mock/options': this.backend.response(200, [[1, 'a'], [15, 'b'], [12.5, 'c']]),
+            'mock/options/42': this.backend.response(200, [[1, 'a'], [15, 'b'], [12.5, 'c']]),
+            'mock/options/empty': this.backend.response(200, []),
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500')
+        });
+    },
 
-    if (!noauto)
-        select.addClass('widget-auto');
-
-    return select;
-}
-
-function mock_dselect_add_choice(element, label, value) {
-    var choice = $('<option value="' + (value.replace ? value.replace(/\"/g, '&quot;') : value) + '">' + label + '</option>');
-    $(element).append(choice);
-    return choice;
-}
-
-function mock_dselect_add_group(element, label) {
-    var group = $('<optgroup label="' + (label.replace ? label.replace(/\"/g, '&quot;') : label) + '"></optgroup>');
-    $(element).append(group);
-    return group;
-}
-
-QUnit.module("creme.widgets.dselect.js", {
-  setup: function() {
-      this.backend = new creme.ajax.MockAjaxBackend({sync:true});
-      $.extend(this.backend.GET, {'mock/options': this.backend.response(200, [[1, 'a'], [15, 'b'], [12.5, 'c']]),
-                                  'mock/options/42': this.backend.response(200, [[1, 'a'], [15, 'b'], [12.5, 'c']]),
-                                  'mock/options/empty': this.backend.response(200, []),
-                                  'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                  'mock/error': this.backend.response(500, 'HTTP - Error 500')});
-
-      creme.widget.unregister('ui-creme-dselect');
-      creme.widget.declare('ui-creme-dselect', new MockDynamicSelect(this.backend));
-  },
-  teardown: function() {
-  }
-});
+    afterEach: function() {
+        $('.ui-dialog-content').dialog('destroy');
+        creme.widget.shutdown($('body'));
+    }
+}));
 
 QUnit.test('creme.widget.DynamicSelect.create (empty)', function(assert) {
-    var element = mock_dselect_create();
+    var element = this.createDynamicSelectTag();
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -61,12 +33,12 @@ QUnit.test('creme.widget.DynamicSelect.create (empty)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.create (static)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    var widget = creme.widget.create(element);
+    var widget = creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -85,23 +57,23 @@ QUnit.test('creme.widget.DynamicSelect.create (static)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.create (static, disabled)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
 
     element.attr('disabled', '');
     equal(element.is('[disabled]'), true);
 
-    var widget = creme.widget.create(element);
+    var widget = creme.widget.create(element, {backend: this.backend});
 
     equal(element.hasClass('widget-ready'), true);
 
     equal(widget.delegate._enabled, false);
     equal(element.is('[disabled]'), true);
 
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
 
     equal(element.is('[disabled]'), false);
 
@@ -112,12 +84,12 @@ QUnit.test('creme.widget.DynamicSelect.create (static, disabled)', function(asse
 });
 
 QUnit.test('creme.widget.DynamicSelect.create (static, empty url)', function(assert) {
-    var element = mock_dselect_create('');
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag('');
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -134,9 +106,9 @@ QUnit.test('creme.widget.DynamicSelect.create (static, empty url)', function(ass
 
 
 QUnit.test('creme.widget.DynamicSelect.create (url)', function(assert) {
-    var element = mock_dselect_create('mock/options');
+    var element = this.createDynamicSelectTag('mock/options');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -157,9 +129,9 @@ QUnit.test('creme.widget.DynamicSelect.create (url)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.create (unknown url)', function(assert) {
-    var element = mock_dselect_create('unknown');
+    var element = this.createDynamicSelectTag('unknown');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -168,9 +140,9 @@ QUnit.test('creme.widget.DynamicSelect.create (unknown url)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.destroy', function(assert) {
-    var element = mock_dselect_create('mock/options');
+    var element = this.createDynamicSelectTag('mock/options');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -194,12 +166,12 @@ QUnit.test('creme.widget.DynamicSelect.destroy', function(assert) {
 
 QUnit.test('creme.widget.DynamicSelect.choices', function()
 {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.creme().widget().url(), "");
 
     deepEqual(element.creme().widget().choices(), [['1', 'a'], ['5', 'b'], ['3', 'c']]);
@@ -211,12 +183,12 @@ QUnit.test('creme.widget.DynamicSelect.choices', function()
 
 QUnit.test('creme.widget.DynamicSelect.choices (json)', function()
 {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', $.toJSON({id:1, name:'a'}));
-    mock_dselect_add_choice(element, 'b', $.toJSON({id:5, name:'b'}));
-    mock_dselect_add_choice(element, 'c', $.toJSON({id:3, name:'c'}));
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', $.toJSON({id:1, name:'a'}));
+    this.appendOptionTag(element, 'b', $.toJSON({id:5, name:'b'}));
+    this.appendOptionTag(element, 'c', $.toJSON({id:3, name:'c'}));
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.creme().widget().url(), "");
 
     deepEqual(element.creme().widget().choices(), [[$.toJSON({id:1, name:'a'}), 'a'], 
@@ -229,16 +201,16 @@ QUnit.test('creme.widget.DynamicSelect.choices (json)', function()
 });
 
 QUnit.test('creme.widget.DynamicSelect.groups', function(assert) {
-    var element = mock_dselect_create();
+    var element = this.createDynamicSelectTag();
 
-    var group1 = mock_dselect_add_group(element, 'group1');
-    mock_dselect_add_choice(group1, 'a', 1);
-    mock_dselect_add_choice(group1, 'b', 5);
+    var group1 = this.appendOptionGroupTag(element, 'group1');
+    this.appendOptionTag(group1, 'a', 1);
+    this.appendOptionTag(group1, 'b', 5);
 
-    var group2 = mock_dselect_add_group(element, 'group2');
-    mock_dselect_add_choice(element, 'c', 3);
+    var group2 = this.appendOptionGroupTag(element, 'group2');
+    this.appendOptionTag(element, 'c', 3);
 
-    var widget = creme.widget.create(element);
+    var widget = creme.widget.create(element, {backend: this.backend});
 
     deepEqual(element.creme().widget().choices(), [['1', 'a'], ['5', 'b'], ['3', 'c']]);
     deepEqual(element.creme().widget().choice('1'), ['1', 'a']);
@@ -250,12 +222,12 @@ QUnit.test('creme.widget.DynamicSelect.groups', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.url (static, unknown url)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.creme().widget().url(), "");
 
     var response = [];
@@ -276,9 +248,9 @@ QUnit.test('creme.widget.DynamicSelect.url (static, unknown url)', function(asse
 });
 
 QUnit.test('creme.widget.DynamicSelect.url (url, unknown url)', function(assert) {
-    var element = mock_dselect_create('mock/options');
+    var element = this.createDynamicSelectTag('mock/options');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.creme().widget().url(), "mock/options");
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
@@ -301,12 +273,12 @@ QUnit.test('creme.widget.DynamicSelect.url (url, unknown url)', function(assert)
 });
 
 QUnit.test('creme.widget.DynamicSelect.url (static)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.creme().widget().url(), "");
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
@@ -331,12 +303,12 @@ QUnit.test('creme.widget.DynamicSelect.url (static)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.reload (template url)', function(assert) {
-    var element = mock_dselect_create('mock/${name}${content}');
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag('mock/${name}${content}');
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.creme().widget().url(), null);
 
     var response = [];
@@ -391,12 +363,12 @@ QUnit.test('creme.widget.DynamicSelect.reload (template url)', function(assert) 
 });
 
 QUnit.test('creme.widget.DynamicSelect.update (undefined)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
 
     element.creme().widget().update(undefined);
     equal(3, $('option', element).length);
@@ -414,12 +386,12 @@ QUnit.test('creme.widget.DynamicSelect.update (undefined)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.update (add)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
 
     element.creme().widget().update({added:[[15, 'd'], [6, 'e']]});
     equal(5, $('option', element).length);
@@ -443,14 +415,14 @@ QUnit.test('creme.widget.DynamicSelect.update (add)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.update (remove)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
-    mock_dselect_add_choice(element, 'd', 33.5);
-    mock_dselect_add_choice(element, 'e', 12);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
+    this.appendOptionTag(element, 'd', 33.5);
+    this.appendOptionTag(element, 'e', 12);
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
 
     element.creme().widget().update({removed:[[1, 'a'], [33.5, 'd']]})
     equal(3, $('option', element).length);
@@ -476,12 +448,12 @@ QUnit.test('creme.widget.DynamicSelect.update (remove)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.update (add/remove)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
 
     element.creme().widget().update({added:[[6, 'bb']], removed:[5]})
     equal(3, $('option', element).length);
@@ -492,12 +464,12 @@ QUnit.test('creme.widget.DynamicSelect.update (add/remove)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (static)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(3, $('option', element).length);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('5', $('option:nth(1)', element).attr('value'));
@@ -514,12 +486,12 @@ QUnit.test('creme.widget.DynamicSelect.val (static)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (static, json)', function(assert) {
-    var element = mock_dselect_create().attr('datatype', 'json');
-    mock_dselect_add_choice(element, 'a', $.toJSON({'a': 1}));
-    mock_dselect_add_choice(element, 'b', $.toJSON({'b': 5}));
-    mock_dselect_add_choice(element, 'c', $.toJSON({'c': 3}));
+    var element = this.createDynamicSelectTag().attr('datatype', 'json');
+    this.appendOptionTag(element, 'a', $.toJSON({'a': 1}));
+    this.appendOptionTag(element, 'b', $.toJSON({'b': 5}));
+    this.appendOptionTag(element, 'c', $.toJSON({'c': 3}));
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(3, $('option', element).length);
     equal($.toJSON({'a': 1}), $('option:nth(0)', element).attr('value'));
     equal($.toJSON({'b': 5}), $('option:nth(1)', element).attr('value'));
@@ -543,12 +515,12 @@ QUnit.test('creme.widget.DynamicSelect.val (static, json)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (static, multiple)', function(assert) {
-    var element = mock_dselect_create().attr('multiple', 'multiple');
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag().attr('multiple', 'multiple');
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {multiple:true});
+    creme.widget.create(element, {multiple: true, backend: this.backend});
     equal(3, $('option', element).length);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('5', $('option:nth(1)', element).attr('value'));
@@ -569,14 +541,14 @@ QUnit.test('creme.widget.DynamicSelect.val (static, multiple)', function(assert)
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (static, multiple, json)', function(assert) {
-    var element = mock_dselect_create().attr('multiple', 'multiple')
+    var element = this.createDynamicSelectTag().attr('multiple', 'multiple')
                                        .attr('datatype', 'json');
 
-    mock_dselect_add_choice(element, 'a', $.toJSON({'a': 1}));
-    mock_dselect_add_choice(element, 'b', $.toJSON({'b': 5}));
-    mock_dselect_add_choice(element, 'c', $.toJSON({'c': 3}));
+    this.appendOptionTag(element, 'a', $.toJSON({'a': 1}));
+    this.appendOptionTag(element, 'b', $.toJSON({'b': 5}));
+    this.appendOptionTag(element, 'c', $.toJSON({'c': 3}));
 
-    creme.widget.create(element, {multiple:true});
+    creme.widget.create(element, {multiple: true, backend: this.backend});
     equal(3, $('option', element).length);
     equal($.toJSON({'a': 1}), $('option:nth(0)', element).attr('value'));
     equal($.toJSON({'b': 5}), $('option:nth(1)', element).attr('value'));
@@ -600,14 +572,17 @@ QUnit.test('creme.widget.DynamicSelect.val (static, multiple, json)', function(a
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (reload)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    this.backend.GET['mock/options'] = this.backend.response(200, [[1, 'a'], [24, 'b'], [5, 'D'], [12.5, 'c']]);
 
-    creme.widget.create(element);
+    this.setMockBackendGET({
+        'mock/options': this.backend.response(200, [[1, 'a'], [24, 'b'], [5, 'D'], [12.5, 'c']])
+    });
+
+    creme.widget.create(element, {backend: this.backend});
 
     element.creme().widget().val(5);
     deepEqual(element.creme().widget().selected(), ['5', 'b']);
@@ -621,14 +596,16 @@ QUnit.test('creme.widget.DynamicSelect.val (reload)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (reload, not exists)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    this.backend.GET['mock/options'] = this.backend.response(200, [[1, 'a'], [24, 'b'], [5, 'D'], [12.5, 'c']]);
+    this.setMockBackendGET({
+        'mock/options': this.backend.response(200, [[1, 'a'], [24, 'b'], [5, 'D'], [12.5, 'c']])
+    });
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
 
     element.creme().widget().val(3);
     deepEqual(element.creme().widget().selected(), ['3', 'c']);
@@ -642,12 +619,12 @@ QUnit.test('creme.widget.DynamicSelect.val (reload, not exists)', function(asser
 });
 
 QUnit.test('creme.widget.DynamicSelect.reset', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    var widget = creme.widget.create(element);
+    var widget = creme.widget.create(element, {backend: this.backend});
 
     widget.val(5);
     deepEqual(widget.selected(), ['5', 'b']);
@@ -657,14 +634,14 @@ QUnit.test('creme.widget.DynamicSelect.reset', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.filter (script)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
     element.attr('filter', 'item.value < 4');
 
-    var widget = creme.widget.create(element);
+    var widget = creme.widget.create(element, {backend: this.backend});
     equal('item.value < 4', widget.element.attr('filter'));
     equal('item.value < 4', widget.filter());
 
@@ -674,12 +651,12 @@ QUnit.test('creme.widget.DynamicSelect.filter (script)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.filter (script update)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
 
-    var widget = creme.widget.create(element);
+    var widget = creme.widget.create(element, {backend: this.backend});
     equal(3, $('option', element).length);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('5', $('option:nth(1)', element).attr('value'));
@@ -704,14 +681,14 @@ QUnit.test('creme.widget.DynamicSelect.filter (script update)', function(assert)
 });
 
 QUnit.test('creme.widget.DynamicSelect.filter (template)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
-    mock_dselect_add_choice(element, 'd', 7);
-    mock_dselect_add_choice(element, 'e', 4);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
+    this.appendOptionTag(element, 'd', 7);
+    this.appendOptionTag(element, 'e', 4);
 
-    var widget = creme.widget.create(element);
+    var widget = creme.widget.create(element, {backend: this.backend});
     deepEqual([], widget.dependencies());
     
     equal(5, $('option', element).length);
@@ -747,14 +724,14 @@ QUnit.test('creme.widget.DynamicSelect.filter (template)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicSelect.filter (context)', function(assert) {
-    var element = mock_dselect_create();
-    mock_dselect_add_choice(element, 'a', 1);
-    mock_dselect_add_choice(element, 'b', 5);
-    mock_dselect_add_choice(element, 'c', 3);
-    mock_dselect_add_choice(element, 'd', 7);
-    mock_dselect_add_choice(element, 'e', 4);
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
+    this.appendOptionTag(element, 'd', 7);
+    this.appendOptionTag(element, 'e', 4);
 
-    var widget = creme.widget.create(element, {dependencies:['max']});
+    var widget = creme.widget.create(element, {dependencies: ['max'], backend: this.backend});
     deepEqual(['max'], widget.dependencies());
     
     equal(5, $('option', element).length);
@@ -788,3 +765,28 @@ QUnit.test('creme.widget.DynamicSelect.filter (context)', function(assert) {
     equal('3', $('option:nth(2)', element).attr('value'));
     equal('4', $('option:nth(3)', element).attr('value'));
 });
+
+QUnit.test('creme.widget.DynamicSelect.options (render label)', function(assert) {
+    var element = this.createDynamicSelectTag();
+    var widget = creme.widget.create(element, {backend: this.backend});
+
+    this.setMockBackendGET({
+        'mock/options': this.backend.response(200, [
+            {value: 1},
+            {value: 24, label: 'A'},
+            {value: 5, label: 'A', group: 'group A'},
+            {value: 8, label: 'A', help: 'this is A'},
+            {value: 12.5, label: 'A', group: 'group A', help: 'this is A'}
+        ])
+    });
+
+    widget.url('mock/options');
+
+    equal('1', $('option:nth(0)', element).html());
+    equal('A', $('option:nth(1)', element).html());
+    equal('<span>A</span><span class="hidden">group A</span>', $('option:nth(2)', element).html());
+    equal('<span>A</span><span class="group-help">this is A</span>', $('option:nth(3)', element).html());
+    equal('<span>A</span><span class="group-help">this is A</span><span class="hidden">group A</span>', $('option:nth(4)', element).html());
+});
+
+}(jQuery));

@@ -1,10 +1,12 @@
+(function($) {
+
 var MOCK_AJAX_FORM_CONTENT = '<form action="mock/add"><input id="name" type="text"/></form>';
 
-QUnit.module("creme.mockajax.js", {
-    setup: function() {
+QUnit.module("creme.mockajax.js", new QUnitMixin({
+    beforeEach: function() {
         var self = this;
 
-        this.backend = new creme.ajax.MockAjaxBackend();
+        this.backend = new creme.ajax.MockAjaxBackend({sync: false});
         $.extend(this.backend.GET, {'mock/html': this.backend.response(200, 'this is a test'),
                                     'mock/add': this.backend.response(200, MOCK_AJAX_FORM_CONTENT),
                                     'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
@@ -22,7 +24,7 @@ QUnit.module("creme.mockajax.js", {
                                      }});
     },
 
-    teardown: function() {
+    afterEach: function() {
         $('.ui-dialog-content').dialog('destroy');
         creme.widget.shutdown($('body'));
     },
@@ -34,8 +36,7 @@ QUnit.module("creme.mockajax.js", {
     _custom_POST: function(url, data, options) {
         return this.backend.response(200, $.toJSON({url: url, method: 'POST', data: data}));
     }
-});
-
+}));
 
 QUnit.test('MockAjaxBackend.get', function(assert) {
     var response = {}
@@ -211,3 +212,4 @@ QUnit.test('MockAjaxBackend.post (custom)', function(assert) {
     equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'POST', data: {a: 1, b: 'test'}}));
 });
 
+}(jQuery));

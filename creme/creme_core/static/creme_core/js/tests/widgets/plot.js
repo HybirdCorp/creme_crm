@@ -1,74 +1,85 @@
+(function($) {
+
 var MOCK_PLOT_CONTENT_JSON_INVALID = '{"options": {, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_EMPTY_DATA = '{"options": {}, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_DEFAULT = '{"options": {}, "data":[[[1, 2],[3, 4],[5, 12]]]}';
 var MOCK_PLOT_CONTENT_DEFAULT = {options: {}, data: [[[1, 2],[3, 4],[5, 12]]]};
 
-QUnit.module("creme.widget.plot.js", {
-    setup: function() {
-        this.resetMockEvents();
+QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin, QUnitPlotMixin, QUnitWidgetMixin, {
+    buildMockBackend: function() {
+        return new creme.ajax.MockAjaxBackend({sync:true, name: 'creme.widget.plot.js'});
+    },
+
+    beforeEach: function() {
+        this.resetMockPlotEvents();
         this.resetMockPlots();
 
-        creme.utils.converters.register('mockPlotData', 'jqplotData', function(data) {
-            var result = [];
-
-            for(var s_index = 0; s_index < data.length; ++s_index)
-            {
-                var serie = data[s_index];
-                var s_result = [];
-
-                for(var index = 0; index < serie.length; ++index)
-                {
-                    var entry = serie[index];
-                    
-                    if (entry) {
-                        entry = [index + 1].concat(entry);
-                    } else {
-                        entry = [index + 1];
-                    }
-
-                    s_result.push(entry);
-                }
-
-                result.push(s_result);
-            }
-
-            return result;
-        });
-
-        creme.utils.converters.register('jqplotData', 'mockRendererData', function(data) {
-            var result = [];
-
-            for(var s_index = 0; s_index < data.length; ++s_index)
-            {
-                var serie = data[s_index];
-                var s_result = [];
-
-                for(var index = 0; index < serie.length; ++index)
-                {
-                    var entry = serie[index];
-
-                    if (entry && entry.length > 1) {
-                        entry = [entry[1], entry[0]].concat(entry.slice(2));
-                    }
-
-                    s_result.push(entry);
-                }
-
-                result.push(s_result);
-            }
-
-            return result;
-        });
+        creme.utils.converters.register('mockPlotData', 'jqplotData', this._mockPlotData_to_jqplotData);
+        creme.utils.converters.register('jqplotData', 'mockRendererData', this._jqplotData_to_mockRendererData);
     },
 
-    teardown: function() {
+    afterEach: function() {
+        this.resetMockPlotEvents();
+        this.resetMockPlots();
+
         this.cleanupMockPlots();
+
         creme.utils.converters.unregister('mockPlotData', 'jqplotData');
         creme.utils.converters.unregister('jqplotData', 'mockRendererData');
+
+        $('.ui-dialog-content').dialog('destroy');
+        creme.widget.shutdown($('body'));
     },
 
-    resetMockPlots: function()
-    {
+    _mockPlotData_to_jqplotData: function(data) {
+        var result = [];
+
+        for(var s_index = 0; s_index < data.length; ++s_index) {
+            var serie = data[s_index];
+            var s_result = [];
+
+            for(var index = 0; index < serie.length; ++index) {
+                var entry = serie[index];
+                
+                if (entry) {
+                    entry = [index + 1].concat(entry);
+                } else {
+                    entry = [index + 1];
+                }
+
+                s_result.push(entry);
+            }
+
+            result.push(s_result);
+        }
+
+        return result;
+    },
+
+    _jqplotData_to_mockRendererData: function(data) {
+        var result = [];
+
+        for(var s_index = 0; s_index < data.length; ++s_index) {
+            var serie = data[s_index];
+            var s_result = [];
+
+            for(var index = 0; index < serie.length; ++index) {
+                var entry = serie[index];
+
+                if (entry && entry.length > 1) {
+                    entry = [entry[1], entry[0]].concat(entry.slice(2));
+                }
+
+                s_result.push(entry);
+            }
+
+            result.push(s_result);
+        }
+
+        return result;
+    },
+
+    resetMockPlots: function() {
         this.plotContainer = $('#mock_creme_widget_plot_container');
 
         if (!this.plotContainer.get(0)) {
@@ -80,8 +91,7 @@ QUnit.module("creme.widget.plot.js", {
         this.mockPlots = [];
     },
 
-    cleanupMockPlots: function()
-    {
+    cleanupMockPlots: function() {
         for(var index = 0; index < this.mockPlots.length; ++index)
         {
             var plot = this.mockPlots[index];
@@ -94,21 +104,7 @@ QUnit.module("creme.widget.plot.js", {
         this.mockPlots = [];
     },
 
-    resetMockEvents: function()
-    {
-        this.plotError = null;
-        this.plotSuccess = null;
-    },
-
-    bindMockEvents: function(element)
-    {
-        var self = this;
-        element.bind('plotSuccess', function(e, plot) {self.plotSuccess = plot;});
-        element.bind('plotError', function(e, err) {self.plotError = err;});
-    },
-
-    createMockPlot: function(data, plotmode, savable, noauto) 
-    {
+    createMockPlot: function(data, plotmode, savable, noauto)  {
         var options = {
                          plotmode: plotmode || 'svg', 
                          savable: savable || false
@@ -120,85 +116,25 @@ QUnit.module("creme.widget.plot.js", {
         this.plotContainer.append(plot);
         this.mockPlots.push(plot);
 
-        this.bindMockEvents(plot);
+        this.bindMockPlotEvents(plot);
         return plot;
     }
-});
-
-function assertActive(element) {
-    equal(element.hasClass('widget-active'), true, 'is widget active');
-}
-
-function assertReady(element) {
-    assertActive(element);
-    equal(element.hasClass('widget-ready'), true, 'is widget ready');
-}
-
-function assertNotReady(element) {
-    assertActive(element);
-    equal(element.hasClass('widget-ready'), false, 'is widget not ready');
-}
-
-function assertNoPlot(context, element, error)
-{
-    equal(element.creme().widget().plot(), undefined, 'plot element');
-    equal($('.jqplot-target', element).length, 0, 'jqplot-target count');
-
-    equal(context.plotSuccess, null, 'no success');
-
-    if (error) {
-        equal('' + context.plotError, error);
-    } else {
-        equal(context.plotError !== null, true, 'has error');
-    }
-}
-
-function assertPlot(context, element)
-{
-    equal(typeof element.creme().widget().plot(), 'object', 'plot element');
-    equal($('.jqplot-target', element).length, 1, 'jqplot-target count');
-
-    deepEqual(context.plotSuccess, element.creme().widget().plot(), 'success');
-    equal(context.plotError, null, 'no error');
-}
-
-function assertEmptyPlot(context, element)
-{
-    equal(typeof element.creme().widget().plot(), 'object', 'plot element');
-    equal($('.jqplot-target', element).length, 0, 'jqplot-target count');
-
-    deepEqual(context.plotSuccess, element.creme().widget().plot(), 'success');
-    equal(context.plotError, null, 'no error');
-}
-
-function assertInvalidPlot(context, element, error)
-{
-    equal(typeof element.creme().widget().plot(), 'object');
-    equal($('.jqplot-target', element).length, 0);
-
-    equal(context.plotSuccess, null, 'no success');
-
-    if (error) {
-        equal(context.plotError, error);
-    } else {
-        equal(context.plotError !== null, true, 'has error');
-    }
-}
+}));
 
 QUnit.test('creme.widget.Plot.create (empty)', function(assert) {
     var element = this.createMockPlot('');
 
     creme.widget.create(element);
-    assertReady(element);
-    assertNoPlot(this, element, 'null');
+    this.assertReady(element);
+    this.assertNoPlot(this, element, 'null');
 });
 
 QUnit.test('creme.widget.Plot.create (invalid)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_INVALID);
 
     creme.widget.create(element);
-    assertReady(element);
-    assertNoPlot(this, element);
+    this.assertReady(element);
+    this.assertNoPlot(this, element);
 
     equal(this.plotError.message.substr(0, 'JSON parse error'.length), 'JSON parse error');
 });
@@ -214,18 +150,18 @@ QUnit.test('creme.widget.Plot.create (valid)', function(assert) {
         start();
     });
 
-    assertReady(element);
-    assertPlot(this, element);
+    this.assertReady(element);
+    this.assertPlot(this, element);
 });
 
 QUnit.test('creme.widget.Plot.draw (empty)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
 
-    assertReady(element);
-    assertNoPlot(this, element, 'null');
+    this.assertReady(element);
+    this.assertNoPlot(this, element, 'null');
 
-    this.resetMockEvents();
+    this.resetMockPlotEvents();
     stop(1);
 
     widget.draw(MOCK_PLOT_CONTENT_JSON_EMPTY_DATA, function() {
@@ -234,16 +170,16 @@ QUnit.test('creme.widget.Plot.draw (empty)', function(assert) {
         start();
     });
 
-    assertReady(element);
-    assertNoPlot(this, element, 'null');
+    this.assertReady(element);
+    this.assertNoPlot(this, element, 'null');
 });
 
 QUnit.test('creme.widget.Plot.draw (valid)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
-    this.resetMockEvents();
+    this.resetMockPlotEvents();
     stop(1);
 
     widget.draw(MOCK_PLOT_CONTENT_JSON_DEFAULT, function() {
@@ -252,31 +188,31 @@ QUnit.test('creme.widget.Plot.draw (valid)', function(assert) {
         start();
     });
 
-    assertReady(element);
-    assertPlot(this, element);
+    this.assertReady(element);
+    this.assertPlot(this, element);
 });
 
 QUnit.test('creme.widget.Plot.draw (invalid)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
-    this.resetMockEvents();
+    this.resetMockPlotEvents();
     stop(1);
 
     widget.draw(MOCK_PLOT_CONTENT_JSON_INVALID, undefined, function() {
         start();
     });
 
-    assertReady(element);
-    assertNoPlot(this, element);
+    this.assertReady(element);
+    this.assertNoPlot(this, element);
     equal(this.plotError.message.substr(0, 'JSON parse error'.length), 'JSON parse error');
 });
 
 QUnit.test('creme.widget.Plot.redraw (valid, data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
@@ -286,7 +222,7 @@ QUnit.test('creme.widget.Plot.redraw (valid, data)', function(assert) {
     deepEqual(widget.plotData(), [[[1, 2],[3, 4],[5, 12]]]);
     deepEqual(widget.plotOptions(), {});
 
-    this.resetMockEvents();
+    this.resetMockPlotEvents();
     stop(1);
 
     widget.redraw(function() {
@@ -296,21 +232,21 @@ QUnit.test('creme.widget.Plot.redraw (valid, data)', function(assert) {
         start();
     });
 
-    assertPlot(this, element);
+    this.assertPlot(this, element);
 });
 
 
 QUnit.test('creme.widget.Plot.redraw (empty, valid default)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertReady(element);
+    this.assertReady(element);
 
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
 
     widget.plotOptions({dataDefaults: [[[5, 2],[4, 4]]]});
 
-    this.resetMockEvents();
+    this.resetMockPlotEvents();
     stop(1);
 
     widget.redraw(function() {
@@ -320,7 +256,7 @@ QUnit.test('creme.widget.Plot.redraw (empty, valid default)', function(assert) {
         start();
     });
 
-    assertPlot(this, element);
+    this.assertPlot(this, element);
     deepEqual(widget.plotData(), []);
 });
 
@@ -328,7 +264,7 @@ QUnit.test('creme.widget.Plot.redraw (empty, valid default)', function(assert) {
 QUnit.test('creme.widget.Plot.redraw (valid, options)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
@@ -348,20 +284,20 @@ QUnit.test('creme.widget.Plot.redraw (valid, options)', function(assert) {
     deepEqual(widget.plotData(), [[[1, 2],[3, 4],[5, 12]]]);
     deepEqual(widget.plotOptions(), plot_options);
 
-    this.resetMockEvents();
+    this.resetMockPlotEvents();
     stop(1);
 
     widget.redraw(function() {
         start();
     });
 
-    assertPlot(this, element);
+    this.assertPlot(this, element);
 });
 
 QUnit.test('creme.widget.Plot.preprocess (convert data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
@@ -384,7 +320,7 @@ QUnit.test('creme.widget.Plot.preprocess (convert data)', function(assert) {
 QUnit.test('creme.widget.Plot.preprocess (preprocess data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
@@ -417,7 +353,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess data)', function(assert) {
 QUnit.test('creme.widget.Plot.preprocess (preprocess data chained)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
@@ -453,7 +389,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess data chained)', function(as
 QUnit.test('creme.widget.Plot.preprocess (convert + preprocess data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
@@ -488,7 +424,7 @@ QUnit.test('creme.widget.Plot.preprocess (convert + preprocess data)', function(
 QUnit.test('creme.widget.Plot.preprocess (preprocess options)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
@@ -557,7 +493,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess options)', function(assert)
 QUnit.test('creme.widget.Plot.preprocess (preprocess handlers)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
@@ -598,7 +534,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess handlers)', function(assert
 QUnit.test('creme.widget.Plot.preprocess (preprocess invalid handler)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
-    assertActive(element);
+    this.assertActive(element);
 
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
@@ -622,5 +558,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess invalid handler)', function
 
     widget.redraw();
 
-    assertNoPlot(this, element, 'Error: no such plot event handler "unknown"');
+    this.assertNoPlot(this, element, 'Error: no such plot event handler "unknown"');
 });
+
+}(jQuery));

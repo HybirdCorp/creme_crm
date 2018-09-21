@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,30 +16,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
 
-creme.widget.PLOT_SELECTOR_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(),
-                                                                 {condition: new creme.ajax.CacheBackendTimeout(120 * 1000)});
-
+"use strict";
 
 creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
     options: {
         'plot-data-url': '',
         'plot-name': undefined,
-        backend: creme.widget.PLOT_SELECTOR_BACKEND,
+        backend: undefined,
         initial: {}
     },
 
-    _create: function(element, options, cb, sync)
-    {
+    _create: function(element, options, cb, sync) {
         var self = this;
+
+        if (Object.isNone(options.backend)) {
+            this._backend = new creme.ajax.CacheBackend(creme.ajax.defaultBackend(), {
+                condition: new creme.ajax.CacheBackendTimeout(options.cacheTimeout * 1000)
+            });
+        } else {
+            this._backend = options.backend;
+        }
 
         this._plot_data_url = new creme.utils.Template(options['plot-data-url']);
         this._plot_name = (options['plot-name']) ? new creme.utils.Template(options['plot-name']) : undefined;
 
         options.initial = creme.widget.cleanval(options.initial, {});
 
-        this._initPlot(element, function() {self.reload(element, options.initial, cb, cb, sync);}, sync);
+        this._initPlot(element, function() {
+            self.reload(element, options.initial, cb, cb, sync);
+        }, sync);
     },
 
     _initPlot: function(element, cb, sync) {
@@ -50,8 +57,7 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
         return $('.ui-creme-jqueryplot:first', element).creme().widget();
     },
 
-    _updatePlotOptions: function(element, plot, data)
-    {
+    _updatePlotOptions: function(element, plot, data) {
         try {
             if (Object.isNone(this._plot_name)) {
                 plot.plotInfo(plot.plotScript());
@@ -69,15 +75,14 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
             }
 
             plot.plotOptions(plot_options);
-        } catch(error) {
+        } catch (error) {
             throw new Error('unable to update plot options : ' + error);
         }
     },
 
-    _updatePlotData: function(plot, data, cb, options)
-    {
+    _updatePlotData: function(plot, data, cb, options) {
         var self = this;
-        var backend = this.options.backend;
+        var backend = this._backend;
         var plot_data_url = this._plot_data_url;
 
         plot_data_url.update(data);
@@ -90,8 +95,9 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
 
         var url = plot_data_url.render();
 
-        if (Object.isEmpty(url))
+        if (Object.isEmpty(url)) {
             throw new Error('empty data url');
+        }
 
         backend.get(url, {},
                     function(data) {
@@ -103,11 +109,10 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
                         plot.plotData([]);
                         creme.object.invoke(cb, plot.plotData());
                     },
-                    $.extend({dataType:'json'}, options));
+                    $.extend({dataType: 'json'}, options));
     },
 
-    plotOptions: function(element)
-    {
+    plotOptions: function(element) {
         var options = [];
 
         $('> script[type="text/json"]', element).each(function() {
@@ -121,12 +126,12 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
         return $('> script[type="text/json"][name="' + name + '"]', element).html() || null;
     },
 
-    dependencies: function(element)
-    {
+    dependencies: function(element) {
         var deps = this._plot_data_url.tags();
 
-        if (this._plot_name)
+        if (this._plot_name) {
             deps = deps.concat(this._plot_name.tags());
+        }
 
         return deps;
     },
@@ -142,8 +147,7 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
         creme.object.invoke(cb, element, error);
     },
 
-    reload: function(element, data, cb, error_cb, sync, options)
-    {
+    reload: function(element, data, cb, error_cb, sync, options) {
         var self = this;
         var plot = this._delegate(element);
 
@@ -159,29 +163,28 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
             this._updatePlotData(plot, data,
                                  function(data) {
                                      plot.redraw(
-                                         function() {self._onRedrawOk(element, plot, data, cb);},
-                                         function() {self._onRedrawError(element, plot, null, error_cb);}
+                                         function() { self._onRedrawOk(element, plot, data, cb); },
+                                         function() { self._onRedrawError(element, plot, null, error_cb); }
                                      );
                                  }, options);
-        } catch(error) {
+        } catch (error) {
             self._onRedrawError(element, plot, error, error_cb);
         }
     },
 
     // TODO : use a better method for plot cache issue in reports. As temporary fix all cache is cleaned before popupNReload.
-    resetBackend: function(element)
-    {
-        if (this.options.backend && this.options.backend.entries) {
-            this.options.backend.entries = {};
+    resetBackend: function(element) {
+        if (Object.isFunc(this._backend.reset)) {
+            this._backend.reset();
         }
     },
 
-    reset: function(element)
-    {
+    reset: function(element) {
         this._plot_data_url.parameters({});
 
-        if (this._plot_name !== undefined)
+        if (this._plot_name !== undefined) {
             this._plot_name.parameters({});
+        }
 
         this.reload(element, this.options.initial);
     },

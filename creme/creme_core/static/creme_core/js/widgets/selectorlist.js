@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2017  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,15 +16,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+
+"use strict";
+
+/* global creme_media_url */
 
 creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
     options: {
         cloneLast: undefined
     },
 
-    _create: function(element, options, cb, sync)
-    {
+    _create: function(element, options, cb, sync) {
         var self = this;
 
         this._isCloneLast = creme.object.isTrue(options.cloneLast);
@@ -80,10 +83,10 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         return this.removeSelector(element, this.selector(element, index));
     },
 
-    removeSelector: function(element, selector)
-    {
-        if (Object.isEmpty(selector))
+    removeSelector: function(element, selector) {
+        if (Object.isEmpty(selector)) {
             return;
+        }
 
         selector.creme().destroy();
         selector.parents('li.selector:first').remove();
@@ -92,17 +95,16 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         return selector;
     },
 
-    appendLastSelector: function(element)
-    {
+    appendLastSelector: function(element) {
         var last = this.lastSelector(element);
         var value = this._isCloneLast && last.creme().isActive() ? last.creme().widget().val() : undefined;
         return this.appendSelector(element, value);
     },
 
-    appendSelector: function(element, value, action)
-    {
+    appendSelector: function(element, value, action) {
+        action = action || 'select';
+
         var self = this;
-        var action = action || 'select';
 
         return this._buildSelector(element, value, {
             done: function(event, selector, value) {
@@ -119,8 +121,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         });
     },
 
-    appendSelectors: function(element, values, action)
-    {
+    appendSelectors: function(element, values, action) {
         var self = this;
 
         return values.map(function(value) {
@@ -132,8 +133,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         return this.appendSelector(element, value, 'create');
     },
 
-    _buildSelector: function(element, value, listeners)
-    {
+    _buildSelector: function(element, value, listeners) {
         var self = this;
         var selector_model = this.selectorModel(element).clone();
 
@@ -183,19 +183,18 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         return selector;
     },
 
-    _update: function(element)
-    {
+    _update: function(element) {
         var values = creme.widget.values_list(this.selectors(element));
         creme.widget.input(element).val('[' + values.join(',') + ']');
     },
 
-    _updateSelectors: function(element, data)
-    {
+    _updateSelectors: function(element, data) {
         var self = this;
         var values = creme.widget.cleanval(data, []);
 
-        if (typeof values !== 'object')
+        if (typeof values !== 'object') {
             return;
+        }
 
         $('ul.selectors', element).empty();
 
@@ -204,10 +203,10 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         });
     },
 
-    val: function(element, value)
-    {
-        if (value === undefined)
+    val: function(element, value) {
+        if (value === undefined) {
             return creme.widget.input(element).val();
+        }
 
         this._updateSelectors(element, value);
         this._update(element);

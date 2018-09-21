@@ -90,6 +90,22 @@ MockCollectionBC = MockCollectionB.sub({
     }
 });
 
+QUnit.test('creme.component (Object)', function(assert) {
+    var klass = new creme.component.extend();
+    var obj = new klass();
+
+    deepEqual(klass.__super__, Object.prototype);
+
+    equal(Object.isFunc(obj._init_), true);
+    equal(Object.isFunc(klass.sub), true);
+
+    equal(Object.isSubClassOf(obj, Object), true, 'is Object');
+    equal(Object.isSubClassOf(obj, klass), true, 'is klass');
+    equal(Object.isSubClassOf(obj, creme.component.Component), false);
+    equal(Object.isSubClassOf(obj, MockComponentA), false);
+    equal(Object.isSubClassOf(obj, MockComponentAB), false);
+});
+
 QUnit.test('creme.component (Component)', function(assert) {
     var obj = new creme.component.Component();
 
@@ -241,25 +257,26 @@ QUnit.test('creme.component._super', function(assert) {
     equal(12, ab._super_(MockComponentA, 'add'));
 });
 
-//QUnit.test('creme.component.is', function(assert) {
-//    var obj = new creme.component.Component();
-//    var noobj = function() {};
-//
-//    equal(false, creme.component.is(null, creme.component.Component));
-//    equal(false, creme.component.is(undefined, creme.component.Component));
-//    equal(false, creme.component.is(noobj, creme.component.Component));
-//    equal(false, creme.component.is(15, creme.component.Component));
-//    equal(false, creme.component.is(obj, MockComponentAB));
-//    equal(false, creme.component.is(obj, creme.component.Component));
-//
-//    equal(true, creme.component.is(creme.component.Component, creme.component.Component));
-//    equal(true, creme.component.is(creme.component.Component, Object));
-//    equal(true, creme.component.is(Object, Object));
-//
-//    equal(true, creme.component.is(MockComponentAB, creme.component.Component));
-//    equal(true, creme.component.is(MockComponentAB, MockComponentA));
-//    equal(false, creme.component.is(MockComponentAB, MockComponentAC));
-//
-//    equal(true, creme.component.is(Object.getPrototypeOf(obj).constructor, creme.component.Component));
-//});
+/*
+QUnit.test('creme.component.is', function(assert) {
+    var obj = new creme.component.Component();
+    var noobj = function() {};
 
+    equal(false, creme.component.is(null, creme.component.Component));
+    equal(false, creme.component.is(undefined, creme.component.Component));
+    equal(false, creme.component.is(noobj, creme.component.Component));
+    equal(false, creme.component.is(15, creme.component.Component));
+    equal(false, creme.component.is(obj, MockComponentAB));
+    equal(false, creme.component.is(obj, creme.component.Component));
+
+    equal(true, creme.component.is(creme.component.Component, creme.component.Component));
+    equal(true, creme.component.is(creme.component.Component, Object));
+    equal(true, creme.component.is(Object, Object));
+
+    equal(true, creme.component.is(MockComponentAB, creme.component.Component));
+    equal(true, creme.component.is(MockComponentAB, MockComponentA));
+    equal(false, creme.component.is(MockComponentAB, MockComponentAC));
+
+    equal(true, creme.component.is(Object.getPrototypeOf(obj).constructor, creme.component.Component));
+});
+*/

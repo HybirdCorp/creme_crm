@@ -49,28 +49,6 @@ creme.component.extend = function(Parent, content) {
     return constructor;
 };
 
-//creme.component.is = function(constructor, Parent) {
-//    console.warn('Deprecated. use Object.isSubClassOf instead');
-//
-//    if (!(constructor instanceof Object)) {
-//        return false;
-//    }
-//
-//    if (!Object.isFunc(constructor)) {
-//        constructor = Object.getPrototypeOf(constructor);
-//    }
-//
-//    if (Parent === Object || constructor === Parent) {
-//        return true;
-//    }
-//
-//    if (constructor.prototype === undefined) {
-//        return false;
-//    }
-//
-//    return (constructor.__super__ !== undefined) && creme.component.is(constructor.__super__.constructor, Parent);
-//};
-
 creme.component.Component = creme.component.extend(Object, {
     _init_: function() {},
 
