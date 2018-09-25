@@ -56,8 +56,9 @@ relation_patterns = [
 
 property_patterns = [
     url(r'^add_to_entities/(?P<ct_id>\d+)[/]?$', creme_property.add_properties_bulk, name='creme_core__add_properties_bulk'),
-    url(r'^add/(?P<entity_id>\d+)[/]?$',         creme_property.add_to_entity,       name='creme_core__add_properties'),
-    url(r'^delete_from_type[/]?$',               creme_property.delete_from_type,    name='creme_core__remove_property'),
+    # url(r'^add/(?P<entity_id>\d+)[/]?$',         creme_property.add_to_entity,       name='creme_core__add_properties'),
+    url(r'^add/(?P<entity_id>\d+)[/]?$',         creme_property.PropertiesAdding.as_view(), name='creme_core__add_properties'),
+    url(r'^delete_from_type[/]?$',               creme_property.delete_from_type,           name='creme_core__remove_property'),
 
     # Property type
     # url(r'^type/add[/]?$',                                creme_property.add_type,        name='creme_core__create_ptype'),
@@ -202,8 +203,9 @@ if settings.TESTS_ON:
         url(r'^tests/organisation/edit/(?P<orga_id>\d+)[/]?$', fake_views.organisation_edit,       name='creme_core__edit_fake_organisation'),
         url(r'^tests/organisation/(?P<orga_id>\d+)[/]?$',      fake_views.organisation_detailview, name='creme_core__view_fake_organisation'),
 
-        url(r'^tests/address/add/(?P<entity_id>\d+)[/]?$',   fake_views.address_add,  name='creme_core__create_fake_address'),
-        url(r'^tests/address/edit/(?P<address_id>\d+)[/]?$', fake_views.address_edit, name='creme_core__edit_fake_address'),
+        url(r'^tests/address/legacy_add/(?P<entity_id>\d+)[/]?$', fake_views.address_add,                   name='creme_core__create_fake_address_legacy'),
+        url(r'^tests/address/add/(?P<entity_id>\d+)[/]?$',        fake_views.FakeAddressCreation.as_view(), name='creme_core__create_fake_address'),
+        url(r'^tests/address/edit/(?P<address_id>\d+)[/]?$',      fake_views.address_edit,                  name='creme_core__edit_fake_address'),
 
         url(r'^tests/activities[/]?$', fake_views.activity_listview, name='creme_core__list_fake_activities'),
 

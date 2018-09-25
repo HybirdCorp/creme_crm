@@ -76,7 +76,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
 
         url = self.ADD_URL
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        self.assertEqual(User.creation_label, context.get('title'))
+        self.assertEqual(User.save_label,     context.get('submit_label'))
 
         orga = Organisation.objects.create(user=self.user, name='Olympus', is_managed=True)
 
@@ -183,6 +185,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_create04(self):
+        "Not super-user => forbidden"
         user = self.login_not_as_superuser()
 
         url = self.ADD_URL
@@ -389,7 +392,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                         email='d.knut@eswat.ol',
                                         password='uselesspw',
                                        )
-        team  = self._create_team('Teamee', [user])
+        team = self._create_team('Teamee', [user])
 
         url = self._build_edit_url(team.id)
         self.assertGET404(url)
@@ -561,7 +564,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
 
         url = self.ADD_TEAM_URL
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        self.assertEqual(_('New team'),      context.get('title'))
+        self.assertEqual(_('Save the team'), context.get('submit_label'))
 
         create_user = partial(User.objects.create_user, password='uselesspw')
         user01 = create_user(username='Shogun',

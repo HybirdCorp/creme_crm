@@ -11,10 +11,12 @@ urlpatterns = [
 
     url(r'^graph/(?P<graph_id>\d+)/png[/]?$', graph.dl_png, name='graphs__dl_image'),
 
-    url(r'^graph/(?P<graph_id>\d+)/relation_types/add[/]?$',   graph.add_relation_types,   name='graphs__add_rtypes'),
-    url(r'^graph/(?P<graph_id>\d+)/relation_type/delete[/]?$', graph.delete_relation_type, name='graphs__remove_rtype'),
+    # url(r'^graph/(?P<graph_id>\d+)/relation_types/add[/]?$',   graph.add_relation_types,   name='graphs__add_rtypes'),
+    url(r'^graph/(?P<graph_id>\d+)/relation_types/add[/]?$',   graph.RelationTypesAdding.as_view(), name='graphs__add_rtypes'),
+    url(r'^graph/(?P<graph_id>\d+)/relation_type/delete[/]?$', graph.delete_relation_type,          name='graphs__remove_rtype'),
 
-    url(r'^graph/(?P<graph_id>\d+)/roots/add[/]?$', root_node.add,    name='graphs__add_roots'),
+    # url(r'^graph/(?P<graph_id>\d+)/roots/add[/]?$', root_node.add,    name='graphs__add_roots'),
+    url(r'^graph/(?P<graph_id>\d+)/roots/add[/]?$', root_node.RootNodesAdding.as_view(), name='graphs__add_roots'),
     url(r'^root/edit/(?P<root_id>\d+)[/]?',         root_node.edit,   name='graphs__edit_root'),
     url(r'^root/delete[/]?$',                       root_node.delete, name='graphs__remove_root'),
 ]

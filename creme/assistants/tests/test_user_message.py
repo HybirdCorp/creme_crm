@@ -67,7 +67,10 @@ class UserMessageTestCase(AssistantsTestCase):
         queue.clear()
 
         entity = self.entity
-        self.assertGET200(self._build_add_url(entity))
+        context = self.assertGET200(self._build_add_url(entity)).context
+        # self.assertEqual(_('New message about «%s»') % entity, context.get('title'))
+        self.assertEqual(_('New message about «{}»').format(entity), context.get('title'))
+        self.assertEqual(_('Save the message'),                   context.get('submit_label'))
 
         title    = 'TITLE'
         body     = 'BODY'

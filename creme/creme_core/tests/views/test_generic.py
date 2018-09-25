@@ -13,7 +13,7 @@ try:
     from creme.creme_core.bricks import PropertiesBrick
     from creme.creme_core.gui.last_viewed import LastViewedItem
     from creme.creme_core.models import (SetCredentials, Imprint,
-            FakeOrganisation, FakeContact)
+            FakeOrganisation, FakeContact, FakeAddress)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -294,6 +294,40 @@ class CreationTestCase(ViewsTestCase):
         "Not super-user"
         self.login(is_superuser=False, creatable_models=[FakeContact])
         self.assertGET200(reverse('creme_core__create_fake_contact'))
+
+    def test_add_to_entity(self):
+        user = self.login()
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        url = reverse('creme_core__create_fake_address_legacy', args=(nerv.id,))
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
+        self.assertEqual('Adding address to <%s>' % nerv, context.get('title'))
+        self.assertEqual(_('Save the address'),           context.get('submit_label'))
+
+        city = 'Tokyo'
+        response = self.client.post(url, data={'city': city})
+        self.assertNoFormError(response)
+        self.get_object_or_fail(FakeAddress, city=city, entity=nerv.id)
+
+    def test_adding_to_entity(self):
+        user = self.login()
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        url = reverse('creme_core__create_fake_address', args=(nerv.id,))
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
+        self.assertEqual('Adding address to <{}>'.format(nerv), context.get('title'))
+        self.assertEqual(_('Save the address'),                 context.get('submit_label'))
+
+        city = 'Tokyo'
+        response = self.client.post(url, data={'city': city})
+        self.assertNoFormError(response)
+        self.get_object_or_fail(FakeAddress, city=city, entity=nerv.id)
 
 
 class EditionTestCase(ViewsTestCase):

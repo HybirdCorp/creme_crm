@@ -19,6 +19,7 @@
 ################################################################################
 
 from json import loads as jsonloads
+import warnings
 
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse, Http404
@@ -32,6 +33,7 @@ from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.views import generic, decorators
 
 from ... import billing
+
 from .. import constants
 from ..forms import line as line_forms
 
@@ -42,9 +44,13 @@ ServiceLine = billing.get_service_line_model()
 
 def abstract_add_multiple_product_line(request, document_id,
                                        form=line_forms.ProductLineMultipleAddForm,
-                                       title=_(u'Add one or more product to «%s»'),
-                                       submit_label=_(u'Save the lines'),
+                                       title=_('Add one or more product to «%s»'),
+                                       submit_label=_('Save the lines'),
                                       ):
+    warnings.warn('billing.views.line.abstract_add_multiple_product_line() is deprecated ; '
+                  'use the class-based view ProductLinesCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_to_entity(request, document_id, form, title,
                                  link_perm=True, submit_label=submit_label,
                                 )
@@ -52,9 +58,13 @@ def abstract_add_multiple_product_line(request, document_id,
 
 def abstract_add_multiple_service_line(request, document_id,
                                        form=line_forms.ServiceLineMultipleAddForm,
-                                       title=_(u'Add one or more service to «%s»'),
-                                       submit_label=_(u'Save the lines'),
+                                       title=_('Add one or more service to «%s»'),
+                                       submit_label=_('Save the lines'),
                                       ):
+    warnings.warn('billing.views.line.abstract_add_multiple_service_line() is deprecated ; '
+                  'use the class-based view ServiceLinesCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_to_entity(request, document_id, form, title,
                                  link_perm=True, submit_label=submit_label,
                                 )
@@ -63,13 +73,49 @@ def abstract_add_multiple_service_line(request, document_id,
 @login_required
 @permission_required('billing')
 def add_multiple_product_line(request, document_id):
+    warnings.warn('billing.views.line.add_multiple_product_line() is deprecated.',
+                  DeprecationWarning
+                 )
     return abstract_add_multiple_product_line(request, document_id)
 
 
 @login_required
 @permission_required('billing')
 def add_multiple_service_line(request, document_id):
+    warnings.warn('billing.views.line.add_multiple_service_line() is deprecated.',
+                  DeprecationWarning
+                 )
     return abstract_add_multiple_service_line(request, document_id)
+
+
+# TODO: LINK credentials with add_popup.html ??
+class _LinesCreation(generic.add.AddingToEntity):
+    # model = Line
+    # form_class = line_forms._LineMultipleAddForm
+    submit_label = _('Save the lines')
+    # TODO: factorise (see populate.py)
+    entity_classes = [
+        billing.get_credit_note_model(),
+        billing.get_invoice_model(),
+        billing.get_quote_model(),
+        billing.get_sales_order_model(),
+        billing.get_template_base_model(),
+    ]
+
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_link_or_die(entity)
+
+
+class ProductLinesCreation(_LinesCreation):
+    model = ProductLine
+    form_class = line_forms.ProductLineMultipleAddForm
+    title_format = _('Add one or more product to «{}»')
+
+
+class ServiceLinesCreation(_LinesCreation):
+    model = ServiceLine
+    form_class = line_forms.ServiceLineMultipleAddForm
+    title_format = _('Add one or more service to «{}»')
 
 
 @login_required
@@ -92,7 +138,7 @@ def add_to_catalog(request, line_id):
     try:
         related_item_class = line.related_item_class()
     except AttributeError as e:
-        raise Http404('This entity is not a billing line') from e # ConflictError ??
+        raise Http404('This entity is not a billing line') from e  # TODO: ConflictError ??
 
     user = request.user
     user.has_perm_to_create_or_die(related_item_class)
@@ -109,8 +155,8 @@ def add_to_catalog(request, line_id):
 
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                                {'form': form,
-                                'title': _(u'Add this on the fly item to your catalog'),
-                                'submit_label': _(u'Add to the catalog'),
+                                'title': _('Add this on the fly item to your catalog'),
+                                'submit_label': _('Add to the catalog'),
                                },
                                is_valid=form.is_valid(),
                                reload=False,
@@ -188,5 +234,4 @@ def multi_save_lines(request, document_id):
     for formset in formset_to_save:
         formset.save()
 
-    # return HttpResponse(content_type='text/javascript')
     return HttpResponse()

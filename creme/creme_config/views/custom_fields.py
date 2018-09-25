@@ -19,35 +19,58 @@
 ################################################################################
 
 from django.http import HttpResponse
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CustomField
-from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.utils import get_from_POST_or_404  # get_ct_or_404
+from creme.creme_core.views import generic
 
-from ..forms.custom_fields import CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm
+from ..forms import custom_fields as cf_forms
+
+from .base import BaseConfigCreation
 from .portal import _config_portal
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add_ct(request):
-    return add_model_with_popup(request, CustomFieldsCTAddForm,
-                                _(u'New custom field configuration'),
-                                submit_label=_(u'Save the configuration'),
-                               )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add_ct(request):
+#     return generic.add_model_with_popup(
+#               request, cf_forms.CustomFieldsCTAddForm,
+#               _('New custom field configuration'),
+#               submit_label=_('Save the configuration'),
+#     )
+class FirstCTypeCustomFieldCreation(BaseConfigCreation):
+    model = CustomField
+    form_class = cf_forms.CustomFieldsCTAddForm
+    title = _('New custom field configuration')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add(request, ct_id):
-    ct = get_ct_or_404(ct_id)
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add(request, ct_id):
+#     ct = get_ct_or_404(ct_id)
+#
+#     return generic.add_model_with_popup(request, cf_forms.CustomFieldsAddForm,
+#                             ugettext('New custom field for «{model}»').format(model=ct),
+#                             initial={'ct': ct},
+#                            )
+class CustomFieldCreation(generic.base.EntityCTypeRelatedMixin,
+                          BaseConfigCreation,
+                         ):
+    model = CustomField
+    form_class = cf_forms.CustomFieldsAddForm
 
-    return add_model_with_popup(request, CustomFieldsAddForm,
-                                _(u'New custom field for «{model}»').format(model=ct),
-                                initial={'ct': ct},
-                               )
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['ctype'] = self.get_ctype()
+
+        return kwargs
+
+    def get_title(self):
+        return ugettext('New custom field for «{model}»').format(
+            model=self.get_ctype(),
+        )
 
 
 @login_required
@@ -58,7 +81,9 @@ def portal(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def edit(request, field_id):
-    return edit_model_with_popup(request, {'pk': field_id}, CustomField, CustomFieldsEditForm)
+    return generic.edit_model_with_popup(request, {'pk': field_id},
+                                         CustomField, cf_forms.CustomFieldsEditForm,
+                                        )
 
 
 @login_required
@@ -66,9 +91,6 @@ def edit(request, field_id):
 def delete_ct(request):
     for field in CustomField.objects.filter(content_type=get_from_POST_or_404(request.POST, 'id')):
         field.delete()
-
-    # if request.is_ajax():
-    #     return HttpResponse(content_type='text/javascript')
 
     return HttpResponse()
 
@@ -78,8 +100,5 @@ def delete_ct(request):
 def delete(request):
     field = CustomField.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
     field.delete()
-
-    # if request.is_ajax():
-    #     return HttpResponse(content_type='text/javascript')
 
     return HttpResponse()

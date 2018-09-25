@@ -25,10 +25,12 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import SearchConfigItem
-from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.utils import get_from_POST_or_404  # get_ct_or_404
+from creme.creme_core.views import generic
 
-from ..forms.search import SearchEditForm, SearchAddForm
+from ..forms import search as search_forms
+
+from .base import BaseConfigCreation
 from .portal import _config_portal
 
 
@@ -37,23 +39,42 @@ def portal(request):
     return _config_portal(request, 'creme_config/search_portal.html')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add(request, ct_id):
-    ctype = get_ct_or_404(ct_id)
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add(request, ct_id):
+#     ctype = get_ct_or_404(ct_id)
+#
+#     return generic.add_model_with_popup(
+#         request, search_forms.SearchAddForm,
+#         title=_('New search configuration for «{model}»').format(model=ctype),
+#         initial={'content_type': ctype},
+#     )
+class SearchConfigCreation(generic.base.EntityCTypeRelatedMixin,
+                           BaseConfigCreation,
+                          ):
+    model = SearchConfigItem
+    form_class = search_forms.SearchAddForm
 
-    return add_model_with_popup(request, SearchAddForm,
-                                title=_(u'New search configuration for «{model}»').format(model=ctype),
-                                initial={'content_type': ctype},
-                               )
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['ctype'] = self.get_ctype()
+
+        return kwargs
+
+    def get_title(self):
+        return _('New search configuration for «{model}»').format(
+            model=self.get_ctype(),
+        )
 
 
 @login_required
 @permission_required('creme_core.can_admin')
 def edit(request, search_config_id):
-    return edit_model_with_popup(request, query_dict={'pk': search_config_id},
-                                 model=SearchConfigItem, form_class=SearchEditForm,
-                                )
+    return generic.edit_model_with_popup(
+        request, query_dict={'pk': search_config_id},
+        model=SearchConfigItem,
+        form_class=search_forms.SearchEditForm,
+    )
 
 
 @login_required

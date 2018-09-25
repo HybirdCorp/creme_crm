@@ -50,7 +50,7 @@ Contact = get_contact_model()
 Event   = get_event_model()
 Opportunity = get_opportunity_model()
 
-# Function views --------------------------------------------------------------
+# Function views ---------------------------------------------------------------
 
 
 def abstract_add_event(request, form=EventForm,
@@ -337,7 +337,7 @@ def add_opportunity(request, event_id, contact_id):
     return abstract_add_related_opportunity(request, event_id, contact_id)
 
 
-# Class-based views  ----------------------------------------------------------
+# Class-based views  -----------------------------------------------------------
 
 class EventCreation(generic.add.EntityCreation):
     model = Event

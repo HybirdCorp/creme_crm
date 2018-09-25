@@ -451,7 +451,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(sub_cat, product2.sub_category)
         self.assertEqual(sub_cat.category, product2.category)
 
-    def test_add_images(self):
+    def test_add_images01(self):
         user = self.login_as_basic_user(Product)
 
         create_image = partial(self._create_image, user=user,
@@ -473,7 +473,13 @@ class ProductTestCase(_ProductsTestCase):
         product.images.set([img_3])
 
         url = reverse('products__add_images_to_product', args=(product.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New images for «%s»') % product, context.get('title'))
+        self.assertEqual(_('New images for «{}»').format(product), context.get('title'))
+        self.assertEqual(_('Link the images'),                     context.get('submit_label'))
 
         def post(*images):
             return self.client.post(url, follow=True,
@@ -495,6 +501,12 @@ class ProductTestCase(_ProductsTestCase):
         response = post(img_1, img_5)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'images', _('This entity does not exist.'))
+
+    def test_add_images02(self):
+        "Related is not a Product"
+        user = self.login()
+        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Aynami')
+        self.assertGET404(reverse('products__add_images_to_product', args=(rei.id,)))
 
     def test_remove_image(self):
         user = self.login()

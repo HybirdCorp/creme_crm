@@ -26,18 +26,19 @@ from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 
-_HELP_TEXT = _(u"""If an entity is linked to other entities by a relationship of this type,
+_HELP_TEXT = _("""If an entity is linked to other entities by a relationship of this type,
  the history lines that are about the edition of this entity will appear in the history of the others entities.""")
 
 
 class HistoryConfigForm(CremeForm):
-    relation_types = ModelMultipleChoiceField(label=_(u'Relation types'),
+    relation_types = ModelMultipleChoiceField(label=_('Relation types'),
                                               queryset=RelationType.objects.all(),
                                               help_text=_HELP_TEXT,
                                               widget=UnorderedMultipleChoiceWidget(columntype='wide'),
                                              )
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, instance=None, *args, **kwargs):
         # super(HistoryConfigForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 

@@ -44,21 +44,21 @@ _CATEGORY_MAP = {
 
 
 class AbstractStrategy(CremeEntity):
-    name            = CharField(_(u'Name'), max_length=100)
+    name            = CharField(_('Name'), max_length=100)
     evaluated_orgas = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL,
-                                      verbose_name=_(u'Evaluated organisation(s)'),
+                                      verbose_name=_('Evaluated organisation(s)'),
                                       editable=False,
                                      )
 
-    creation_label = _(u'Create a strategy')
-    save_label     = _(u'Save the strategy')
+    creation_label = _('Create a strategy')
+    save_label     = _('Save the strategy')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'commercial'
-        verbose_name = _(u'Commercial strategy')
-        verbose_name_plural = _(u'Commercial strategies')
+        verbose_name = _('Commercial strategy')
+        verbose_name_plural = _('Commercial strategies')
         ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
@@ -325,19 +325,22 @@ class MarketSegmentDescription(CremeModel):
                            editable=False, on_delete=CASCADE,
                           )
     segment   = ForeignKey(MarketSegment, on_delete=CASCADE)  # TODO: PROTECT
-    product   = TextField(_(u'Product'), blank=True)
-    place     = TextField(pgettext_lazy('commercial-4p', u'Place'), blank=True)
-    price     = TextField(_(u'Price'), blank=True)
-    promotion = TextField(_(u'Promotion'), blank=True)
+    product   = TextField(_('Product'), blank=True)
+    place     = TextField(pgettext_lazy('commercial-4p', 'Place'), blank=True)
+    price     = TextField(_('Price'), blank=True)
+    promotion = TextField(_('Promotion'), blank=True)
+
+    creation_label = _('Create a market segment')
+    save_label     = _('Save the market segment')
 
     class Meta:
         app_label = 'commercial'
-        verbose_name = _(u'Market segment description')
-        verbose_name_plural = _(u'Market segment descriptions')
+        verbose_name = _('Market segment description')
+        verbose_name_plural = _('Market segment descriptions')
 
     def __repr__(self):
-        return u'MarketSegmentDescription(strategy_id={}, segment_id={}, ' \
-               u'product={}, place={}, price={}, promotion={})'.format(
+        return 'MarketSegmentDescription(strategy_id={}, segment_id={}, ' \
+               'product={}, place={}, price={}, promotion={})'.format(
                 self.strategy_id, self.segment_id, self.product,
                 self.place, self.price, self.promotion,
             )
@@ -364,16 +367,16 @@ class MarketSegmentDescription(CremeModel):
 
 
 class CommercialAsset(CremeModel):
-    name     = CharField(_(u'Name'), max_length=100)
+    name     = CharField(_('Name'), max_length=100)
     strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='assets', editable=False, on_delete=CASCADE)
 
-    creation_label = _(u'Create a commercial asset')
-    save_label     = _(u'Save the commercial asset')
+    creation_label = _('Create a commercial asset')
+    save_label     = _('Save the commercial asset')
 
     class Meta:
         app_label = 'commercial'
-        verbose_name = _(u'Commercial asset')
-        verbose_name_plural = _(u'Commercial assets')
+        verbose_name = _('Commercial asset')
+        verbose_name_plural = _('Commercial assets')
 
     def __str__(self):
         return self.name
@@ -395,23 +398,23 @@ class CommercialAssetScore(CremeModel):
         app_label = 'commercial'
 
     def __str__(self):  # Debugging
-        return u'<AssetScore: orga={} score={} segment={} asset={}>'.format(
+        return '<AssetScore: orga={} score={} segment={} asset={}>'.format(
                     self.organisation, self.score, self.segment, self.asset)
 
 
 class MarketSegmentCharm(CremeModel):
-    name     = CharField(_(u'Name'), max_length=100)
+    name     = CharField(_('Name'), max_length=100)
     strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='charms',
                           editable=False, on_delete=CASCADE,
                          )
 
-    creation_label = _(u'Create a segment charm')
-    save_label     = _(u'Save the segment charm')
+    creation_label = _('Create a segment charm')
+    save_label     = _('Save the segment charm')
 
     class Meta:
         app_label = 'commercial'
-        verbose_name = _(u'Segment charm')
-        verbose_name_plural = _(u'Segment charms')
+        verbose_name = _('Segment charm')
+        verbose_name_plural = _('Segment charms')
 
     def __str__(self):
         return self.name
@@ -433,7 +436,7 @@ class MarketSegmentCharmScore(CremeModel):
         app_label = 'commercial'
 
     def __str__(self):  # Debugging
-        return u'<CharmScore: orga={} score={} segment={} charm={}>'.format(
+        return '<CharmScore: orga={} score={} segment={} charm={}>'.format(
                     self.organisation, self.score, self.segment, self.charm)
 
 
@@ -447,5 +450,5 @@ class MarketSegmentCategory(CremeModel):
         app_label = 'commercial'
 
     def __str__(self):  # Debugging
-        return u'<MarketSegmentCategory: orga={} cat={} segment={}>'.format(
+        return '<MarketSegmentCategory: orga={} cat={} segment={}>'.format(
                     self.organisation, self.category, self.segment)

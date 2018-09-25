@@ -27,7 +27,8 @@ class HistoryConfigTestCase(CremeTestCase):
         rtype02 = create_rt(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))[0]
 
         url = self.ADD_URL
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertEqual(_('New relation types'), response.context.get('title'))
 
         rtype_ids = [rtype01.id, rtype02.id]
         self.assertNoFormError(self.client.post(url, data={'relation_types': rtype_ids}))

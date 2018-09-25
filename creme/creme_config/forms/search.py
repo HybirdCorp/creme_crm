@@ -28,7 +28,7 @@ from creme.creme_core.utils.collections import OrderedSet
 
 
 class _SearchForm(CremeModelForm):
-    fields = MultipleChoiceField(label=_(u'Concerned fields'), required=False,
+    fields = MultipleChoiceField(label=_('Concerned fields'), required=False,
                                  choices=(), widget=OrderedMultipleChoiceWidget,
                                 )
 
@@ -43,23 +43,26 @@ class _SearchForm(CremeModelForm):
 
 
 class SearchAddForm(_SearchForm):
-    role = ModelChoiceField(label=_(u'Role'), queryset=UserRole.objects.none(),
+    role = ModelChoiceField(label=_('Role'), queryset=UserRole.objects.none(),
                             empty_label=None, required=False,
                            )
 
     class Meta(_SearchForm.Meta):
         exclude = ('content_type', 'field_names')
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, ctype, *args, **kwargs):
         # super(SearchAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         instance = self.instance
-        instance.content_type = self.initial['content_type']
+        # instance.content_type = self.initial['content_type']
+        instance.content_type = ctype
         self.fields['fields'].choices = instance.get_modelfields_choices()
 
         role_f = self.fields['role']
         used_role_ids = set(SearchConfigItem.objects
-                                            .filter(content_type=instance.content_type)
+                                            # .filter(content_type=instance.content_type)
+                                            .filter(content_type=ctype)
                                             .exclude(role__isnull=True, superuser=False)
                                             .values_list('role', flat=True)
                            )
@@ -67,7 +70,7 @@ class SearchAddForm(_SearchForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = u'*{}*'.format(ugettext(u'Superuser'))  # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = '*{}*'.format(ugettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 
@@ -100,5 +103,9 @@ class SearchEditForm(_SearchForm):
             return not is_hidden(root_name) or root_name in not_hiddable_fnames
 
         fields_f = self.fields['fields']
-        fields_f.choices = [c for c in self.instance.get_modelfields_choices() if keep_field(c[0])]
+        fields_f.choices = [
+            choice
+                for choice in self.instance.get_modelfields_choices()
+                    if keep_field(choice[0])
+        ]
         fields_f.initial = selected_fnames

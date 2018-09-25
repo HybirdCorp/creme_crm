@@ -40,7 +40,7 @@ from ..bricks import GenericModelBrick, SettingsBrick
 logger = logging.getLogger(__name__)
 
 
-def _get_appconf(user, app_name):
+def _get_appconf(user, app_name):  # TODO: get_appconf_or_404() ?
     from ..registry import config_registry
 
     user.has_perm_to_admin_or_die(app_name)
@@ -53,7 +53,7 @@ def _get_appconf(user, app_name):
     return app_config
 
 
-def _get_modelconf(app_config, model_name):
+def _get_modelconf(app_config, model_name):  # TODO: get_modelconf_or_404() ?
     # TODO: use only ct instead of model_name ???
     for modelconf in app_config.models():
         if modelconf.name_in_url == model_name:
@@ -66,16 +66,44 @@ def _popup_title(model_conf):
     model = model_conf.model
     title = getattr(model, 'creation_label', None)
 
-    return title if title is not None else _(u'New value: {model}').format(model=model._meta.verbose_name)
+    return title if title is not None else _('New value: {model}').format(model=model._meta.verbose_name)
 
 
-@login_required
-def add_model(request, app_name, model_name):
-    model_conf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
+# @login_required
+# def add_model(request, app_name, model_name):
+#     model_conf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
+#
+#     return generic.add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
+#                                         template='creme_core/generics/form/add_innerpopup.html',
+#                                        )
+class GenericCreation(generic.add.CremeModelCreationPopup):
+    template_name = 'creme_core/generics/form/add_innerpopup.html'
 
-    return generic.add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
-                                        template='creme_core/generics/form/add_innerpopup.html',
-                                       )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_conf = None
+
+    def get_model_conf(self):
+        mconf = self.model_conf
+
+        if mconf is None:
+            self.model_conf = mconf = \
+                _get_modelconf(app_config=_get_appconf(user=self.request.user,
+                                                       app_name=self.kwargs['app_name'],
+                                                      ),
+                               model_name=self.kwargs['model_name'],
+                              )
+
+        return mconf
+
+    def get_form_class(self):
+        return self.get_model_conf().model_form
+
+    def get_title(self):
+        return _popup_title(self.get_model_conf())
+
+    def get_submit_label(self):
+        return getattr(self.get_model_conf().model, 'save_label', None) or _('Save')
 
 
 @login_required
@@ -150,11 +178,10 @@ def delete_model(request, app_name, model_name):
     try:
         instance.delete()
     except ProtectedError as e:
-        msg = _(u'{} can not be deleted because of its dependencies.').format(instance)
+        msg = _('{} can not be deleted because of its dependencies.').format(instance)
 
         # TODO: factorise ??
         if request.is_ajax():
-            # return HttpResponse(msg, content_type='text/javascript', status=400)
             return HttpResponse(msg, status=400)
 
         raise Http404(msg) from e
@@ -184,10 +211,8 @@ def reorder(request, app_name, model_name, object_id):
     try:
         reorder_instances(moved_instance=instance, new_order=new_order)
     except Exception as e:
-        # return HttpResponse(e, status=409, content_type='text/javascript')
         return HttpResponse(e, status=409)
 
-    # return HttpResponse(content_type='text/javascript')
     return HttpResponse()
 
 
@@ -214,9 +239,9 @@ def reload_model_brick(request, app_name, model_name):
     request.user.has_perm_to_admin_or_die(app_name)
 
     return bricks_views.bricks_render_info(
-            request,
-            context=bricks_views.build_context(request),
-            bricks=[GenericModelBrick(app_name=app_name, model_name=model_name, model=model)],
+        request,
+        context=bricks_views.build_context(request),
+        bricks=[GenericModelBrick(app_name=app_name, model_name=model_name, model=model)],
     )
 
 
@@ -240,6 +265,8 @@ def reload_app_bricks(request, app_name):
 
         bricks.append(brick)
 
-    return bricks_views.bricks_render_info(request, bricks=bricks,
-                                           context=bricks_views.build_context(request, app_name=app_name),
-                                          )
+    return bricks_views.bricks_render_info(
+        request,
+        bricks=bricks,
+        context=bricks_views.build_context(request, app_name=app_name),
+    )

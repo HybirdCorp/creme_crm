@@ -20,8 +20,8 @@
 
 from django.core.validators import validate_email
 from django.forms import ValidationError, FileField
-from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_text
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiEmailField
@@ -56,11 +56,12 @@ def _detect_end_line(uploaded_file):
 
 
 class MailingListAddRecipientsForm(CremeForm):
-    recipients = MultiEmailField(label=_(u'Recipients'), help_text=_(u'Write a valid e-mail address per line.'))
+    recipients = MultiEmailField(label=_('Recipients'), help_text=_('Write a valid e-mail address per line.'))
 
-    blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
+    blocks = FieldBlockManager(('general', _('Recipients'), '*'))
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(MailingListAddRecipientsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
@@ -78,15 +79,16 @@ class MailingListAddRecipientsForm(CremeForm):
 
 
 class MailingListAddCSVForm(CremeForm):
-    recipients = FileField(label=_(u'Recipients'),
-                           help_text=_(u'A file containing one e-mail address per line '
-                                       u'(eg:creme@crm.com without quotation marks).'
+    recipients = FileField(label=_('Recipients'),
+                           help_text=_('A file containing one e-mail address per line '
+                                       '(eg:creme@crm.com without quotation marks).'
                                       )
                           )
 
-    blocks = FieldBlockManager(('general', _(u'CSV file'), '*'))
+    blocks = FieldBlockManager(('general', _('CSV file'), '*'))
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(MailingListAddCSVForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity

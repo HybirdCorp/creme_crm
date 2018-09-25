@@ -168,6 +168,10 @@ else:
         title    = models.CharField(_('Title'), max_length=100)
         shortcut = models.CharField(_('Shortcut'), max_length=100)
 
+        # NB: do not define (see creme.creme_config.tests.test_generics_views.GenericModelConfigTestCase.test_add01() )
+        # creation_label = _('Create a civility')
+        # save_label     = _('Save the civility')
+
         def __str__(self):
             return self.title
 
@@ -196,6 +200,9 @@ else:
         is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
         order     = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
 
+        creation_label = _('Create a sector')
+        save_label     = _('Save the sector')
+
         def __str__(self):
             return self.title
 
@@ -219,6 +226,9 @@ else:
 
         entity     = models.ForeignKey(CremeEntity, related_name='+', editable=False, on_delete=models.CASCADE) \
                            .set_tags(viewable=False)
+
+        creation_label = _('Create an address')
+        save_label     = _('Save the address')
 
         class Meta:
             app_label = 'creme_core'

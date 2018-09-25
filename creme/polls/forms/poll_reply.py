@@ -39,6 +39,7 @@ from creme import persons, polls
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 PollCampaign = polls.get_pollcampaign_model()
+PollForm     = polls.get_pollform_model()
 PollReply    = polls.get_pollreply_model()
 
 
@@ -60,25 +61,40 @@ class PollRepliesCreateForm(CremeForm):
     pform    = CreatorEntityField(label=_('Related form'), model=polls.get_pollform_model())
 
     # def __init__(self, *args, **kwargs):
-    def __init__(self, instance=None, *args, **kwargs):
+    def __init__(self, instance=None, entity=None, *args, **kwargs):
         # super(PollRepliesCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.instance = instance
         fields = self.fields
         fields['user'].initial = self.user.id
 
+        if entity is not None:
+            if isinstance(entity, PollCampaign):
+                del fields['campaign']
+                self.campaign = entity
+            elif isinstance(entity, PollForm):
+                del fields['pform']
+                self._set_pform_n_validate(entity, Http404)
+            elif isinstance(entity, (Contact, Organisation)):
+                del fields['persons']
+                del fields['number']
+                self.persons = [entity]
+
         get_initial = self.initial.get
 
+        # TODO: remove in 2.1
         pform = get_initial('pform')
         if pform:
             del fields['pform']
             self._set_pform_n_validate(pform, Http404)
 
+        # TODO: remove in 2.1
         campaign = get_initial('campaign')
         if campaign:
             del fields['campaign']
             self.campaign = campaign
 
+        # TODO: remove in 2.1
         linked_persons = get_initial('persons')
         if linked_persons is not None:
             del fields['persons']
@@ -176,12 +192,13 @@ class PersonAddRepliesForm(CremeForm):
                                       credentials=EntityCredentials.CHANGE,
                                      )
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(PersonAddRepliesForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
-        if not isinstance(entity, (Contact, Organisation)):
-            raise Http404('You can only link to Contacts & Organisations')
+        # if not isinstance(entity, (Contact, Organisation)):
+        #     raise Http404('You can only link to Contacts & Organisations')
 
         self.person = entity
 

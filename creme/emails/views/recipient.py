@@ -20,30 +20,45 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import add_to_entity
+# from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.views.generic import add_to_entity
+from creme.creme_core.views.generic.add import AddingToEntity
 
 from .. import get_mailinglist_model
-from ..forms.recipient import MailingListAddRecipientsForm, MailingListAddCSVForm
+from ..forms import recipient as forms
 from ..models import EmailRecipient
 
 
-@login_required
-@permission_required('emails')
-def add(request, ml_id):
-    return add_to_entity(request, ml_id, MailingListAddRecipientsForm,
-                         _(u'New recipients for «%s»'),
-                         entity_class=get_mailinglist_model(),
-                         submit_label=EmailRecipient.multi_save_label,
-                        )
+# @login_required
+# @permission_required('emails')
+# def add(request, ml_id):
+#     return add_to_entity(request, ml_id, forms.MailingListAddRecipientsForm,
+#                          _('New recipients for «%s»'),
+#                          entity_class=get_mailinglist_model(),
+#                          submit_label=EmailRecipient.multi_save_label,
+#                         )
+
+# @login_required
+# @permission_required('emails')
+# def add_from_csv(request, ml_id):
+#     return add_to_entity(request, ml_id, forms.MailingListAddCSVForm,
+#                          _('New recipients for «%s»'),
+#                          entity_class=get_mailinglist_model(),
+#                          submit_label=EmailRecipient.multi_save_label,
+#                         )
+
+class _RecipientsAddingBase(AddingToEntity):
+    model = EmailRecipient
+    # form_class = to be set
+    title_format = _('New recipients for «{}»')
+    submit_label = EmailRecipient.multi_save_label
+    entity_id_url_kwarg = 'ml_id'
+    entity_classes = get_mailinglist_model()
 
 
-@login_required
-@permission_required('emails')
-def add_from_csv(request, ml_id):
-    # TODO: fix the problem with inner popup + file input
-    return add_to_entity(request, ml_id, MailingListAddCSVForm,
-                         _(u'New recipients for «%s»'),
-                         entity_class=get_mailinglist_model(),
-                         submit_label=EmailRecipient.multi_save_label,
-                        )
+class RecipientsAdding(_RecipientsAddingBase):
+    form_class = forms.MailingListAddRecipientsForm
+
+
+class RecipientsAddingFromCSV(_RecipientsAddingBase):
+    form_class = forms.MailingListAddCSVForm

@@ -49,9 +49,6 @@ def skipIfCustomStrategy(test_func):
 class CommercialBaseTestCase(CremeTestCase):
     ADD_SEGMENT_URL = reverse('commercial__create_segment')
 
-    # def setUp(self):
-    #     self.login()
-
     def _build_add_segmentdesc_url(self, strategy):
         return reverse('commercial__create_segment_desc', args=(strategy.id,))
 

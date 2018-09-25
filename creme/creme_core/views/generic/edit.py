@@ -30,7 +30,7 @@ from django.views.generic import UpdateView
 from creme.creme_core import forms, models
 from creme.creme_core.auth.decorators import login_required
 
-from .base import CancellableMixin
+from . import base
 from .popup import inner_popup
 
 
@@ -155,7 +155,7 @@ def edit_model_with_popup(request, query_dict, model, form_class,
                       )
 
 
-class CremeModelEdition(CancellableMixin, UpdateView):
+class CremeModelEdition(base.CancellableMixin, base.PermissionsMixin, UpdateView):
     """ Base class for edition view with a form in Creme.
     You'll have to override at least the attributes 'model' & 'form_class'
     because the default ones are just abstract place-holders.
@@ -180,17 +180,14 @@ class CremeModelEdition(CancellableMixin, UpdateView):
     title = None  # None means a generic title is generated (see get_title()).
     submit_label = _('Save the modifications')
 
-    def check_view_permission(self):
-        pass
-
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.check_view_permission()
+        self.check_view_permissions(user=self.request.user)
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+        context = super().get_context_data(**kwargs)
         context['title'] = self.get_title()
         context['submit_label'] = self.get_submit_label()
         context['cancel_url'] = self.get_cancel_url()
@@ -234,8 +231,9 @@ class EntityEdition(CremeModelEdition):
     form_class = forms.CremeEntityForm
     pk_url_kwarg = 'entity_id'
 
-    def check_view_permission(self):
-        self.request.user.has_perm_to_access_or_die(self.model._meta.app_label)
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        user.has_perm_to_access_or_die(self.model._meta.app_label)
 
     def get_object(self, *args, **kwargs):
         entity = super().get_object(*args, **kwargs)

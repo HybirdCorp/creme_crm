@@ -12,7 +12,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import DEFAULT_CURRENCY_PK
     from creme.creme_core.models import (RelationType, Relation,
-            EntityFilter, EntityFilterCondition, SetCredentials)
+            EntityFilter, EntityFilterCondition, SetCredentials, FakeOrganisation)
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
@@ -304,11 +304,63 @@ class ActTestCase(CommercialBaseTestCase):
                             text=escape(_('You are not allowed to link: {}').format(Opportunity._meta.verbose_name))
                            )
 
+    def test_create_linked_opportunity04(self):
+        "Must be related to an Act"
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Acme')
+
+        self.assertGET404(reverse('commercial__create_opportunity', args=(orga.id,)))
+
+    def test_create_linked_opportunity05(self):
+        "Not super-user"
+        self.login(is_superuser=False,
+                   allowed_apps=('commercial', 'opportunities'),
+                   creatable_models=[Opportunity],
+                  )
+        SetCredentials.objects.create(
+            role=self.role, set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        )
+        act = self.create_act()
+        self.assertGET200(reverse('commercial__create_opportunity', args=(act.id,)))
+
+    def test_create_linked_opportunity06(self):
+        "Not super-user"
+        self.login(is_superuser=False,
+                   allowed_apps=('commercial', 'opportunities'),
+                   creatable_models=[Opportunity],
+                  )
+        SetCredentials.objects.create(
+            role=self.role, set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        )
+        act = self.create_act()
+        self.assertGET200(reverse('commercial__create_opportunity', args=(act.id,)))
+
+    def test_create_linked_opportunity07(self):
+        "Creation credentials"
+        self.login(is_superuser=False,
+                   allowed_apps=('commercial', 'opportunities'),
+                   # creatable_models=[Opportunity],
+                  )
+        SetCredentials.objects.create(
+            role=self.role, set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        )
+        act = self.create_act()
+        self.assertGET403(reverse('commercial__create_opportunity', args=(act.id,)))
+
     def test_add_objective01(self):
         self.login()
         act = self.create_act()
         url = self._build_addobjective_url(act)
-        self.assertGET200(url)
+
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New objective for «%s»') % act, context.get('title'))
+        self.assertEqual(_('New objective for «{}»').format(act), context.get('title'))
+        self.assertEqual(_('Save the objective'),                 context.get('submit_label'))
+
+        # ---
         self.assertEqual(0, ActObjective.objects.count())
 
         name = 'Objective#1'
@@ -417,9 +469,14 @@ class ActTestCase(CommercialBaseTestCase):
                                                      average_sales=5000,  # NB: 21000 / 5000 => Ratio = 5
                                                      segment=act.segment,
                                                     )
-
         url = self._build_addobjectivefrompattern_url(act)
-        self.assertGET200(url)
+
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New objective for «%s»') % act, context.get('title'))
+        self.assertEqual(_('New objective for «{}»').format(act), context.get('title'))
+        self.assertEqual(_('Save the objective'),                 context.get('submit_label'))
+
+        # ---
         self.assertNoFormError(self.client.post(url, data={'pattern': pattern.id}))
 
         objectives = ActObjective.objects.filter(act=act)

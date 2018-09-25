@@ -34,6 +34,8 @@ from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import CremeModel, CremeEntity, BrickDetailviewLocation
 
+from .base import PermissionsMixin
+
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +122,7 @@ def view_entity(request, object_id, model,
     return render(request, template, template_dict)
 
 
-class CremeModelDetail(DetailView):
+class CremeModelDetail(PermissionsMixin, DetailView):
     """ Base class for detail view in Creme.
     You'll have to override at least the attribute 'model.
     """
@@ -128,12 +130,9 @@ class CremeModelDetail(DetailView):
     template_name = 'creme_core/detailview.html'
     pk_url_kwarg = 'object_id'
 
-    def check_view_permission(self):
-        pass
-
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.check_view_permission()
+        self.check_view_permissions(user=self.request.user)
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -151,11 +150,12 @@ class EntityDetail(CremeModelDetail):
     template_name = 'creme_core/generics/view_entity.html'
     pk_url_kwarg = 'entity_id'
 
-    def check_view_permission(self):
-        self.request.user.has_perm_to_access_or_die(self.model._meta.app_label)
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        user.has_perm_to_access_or_die(self.model._meta.app_label)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+        context = super().get_context_data(**kwargs)
         entity = self.object
 
         context['bricks'] = detailview_bricks(self.request.user, entity)

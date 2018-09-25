@@ -122,57 +122,94 @@ class StrategyEdition(generic.edit.EntityEdition):
     pk_url_kwarg = 'strategy_id'
 
 
+class _AddToStrategy(generic.add.AddingToEntity):
+    entity_id_url_kwarg = 'strategy_id'
+    entity_classes = Strategy
+
+
+class SegmentDescCreation(_AddToStrategy):
+    model = MarketSegment
+    form_class = forms.SegmentCreateForm
+    title_format = _('New market segment for «{}»')
+
+
+class SegmentLinking(_AddToStrategy):
+    model = MarketSegmentDescription
+    form_class = forms.SegmentLinkForm
+    title_format = _('New market segment for «{}»')
+
+
+class AssetCreation(_AddToStrategy):
+    model = CommercialAsset
+    form_class = forms.AssetForm
+    title_format = _('New commercial asset for «{}»')
+
+
+class CharmCreation(_AddToStrategy):
+    model = MarketSegmentCharm
+    form_class = forms.CharmForm
+    title_format = _('New segment charm for «{}»')
+
+
+class EvaluatedOrgaAdding(_AddToStrategy):
+    # model = Organisation
+    form_class = forms.AddOrganisationForm
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    title_format = _('New organisation(s) for «{}»')
+    submit_label = _('Link the organisation(s)')
+
+
 # Other views  ----------------------------------------------------------------
 
-@login_required
-@permission_required('commercial')
-def add_segment(request, strategy_id):
-    return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
-                                 ugettext('New market segment for «%s»'),
-                                 entity_class=Strategy,
-                                 submit_label=MarketSegment.save_label,
-                                )
+# @login_required
+# @permission_required('commercial')
+# def add_segment(request, strategy_id):
+#     return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
+#                                  ugettext('New market segment for «%s»'),
+#                                  entity_class=Strategy,
+#                                  submit_label=MarketSegment.save_label,
+#                                 )
 
 
-@login_required
-@permission_required('commercial')
-def link_segment(request, strategy_id):
-    return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
-                                 ugettext('New market segment for «%s»'),
-                                 entity_class=Strategy,
-                                 submit_label=MarketSegment.save_label,  # TODO: MarketSegmentDescription ?
-                                )
+# @login_required
+# @permission_required('commercial')
+# def link_segment(request, strategy_id):
+#     return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
+#                                  ugettext('New market segment for «%s»'),
+#                                  entity_class=Strategy,
+#                                  submit_label=MarketSegment.save_label,  # todo: MarketSegmentDescription ?
+#                                 )
 
 
-@login_required
-@permission_required('commercial')
-def add_asset(request, strategy_id):
-    return generic.add_to_entity(request, strategy_id, forms.AssetForm,
-                                 ugettext('New commercial asset for «%s»'),
-                                 entity_class=Strategy,
-                                 submit_label=CommercialAsset.save_label,
-                                )
+# @login_required
+# @permission_required('commercial')
+# def add_asset(request, strategy_id):
+#     return generic.add_to_entity(request, strategy_id, forms.AssetForm,
+#                                  ugettext('New commercial asset for «%s»'),
+#                                  entity_class=Strategy,
+#                                  submit_label=CommercialAsset.save_label,
+#                                 )
 
 
-@login_required
-@permission_required('commercial')
-def add_charm(request, strategy_id):
-    return generic.add_to_entity(request, strategy_id, forms.CharmForm,
-                                 ugettext('New segment charm for «%s»'),
-                                 entity_class=Strategy,
-                                 submit_label=MarketSegmentCharm.save_label,
-                                )
+# @login_required
+# @permission_required('commercial')
+# def add_charm(request, strategy_id):
+#     return generic.add_to_entity(request, strategy_id, forms.CharmForm,
+#                                  ugettext('New segment charm for «%s»'),
+#                                  entity_class=Strategy,
+#                                  submit_label=MarketSegmentCharm.save_label,
+#                                 )
 
 
-@login_required
-@permission_required('commercial')
-def add_evalorga(request, strategy_id):
-    return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
-                                 ugettext('New organisation(s) for «%s»'),
-                                 entity_class=Strategy,
-                                 submit_label=_('Link the organisation(s)'),
-                                 template='creme_core/generics/blockform/link_popup.html',
-                                )
+# @login_required
+# @permission_required('commercial')
+# def add_evalorga(request, strategy_id):
+#     return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
+#                                  ugettext('New organisation(s) for «%s»'),
+#                                  entity_class=Strategy,
+#                                  submit_label=_('Link the organisation(s)'),
+#                                  template='creme_core/generics/blockform/link_popup.html',
+#                                 )
 
 
 @login_required

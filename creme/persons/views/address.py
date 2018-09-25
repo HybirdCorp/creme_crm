@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -26,28 +28,41 @@ from creme.creme_core.views import generic
 from .. import get_address_model
 from ..forms import address as address_forms
 
-
 Address = get_address_model()
 
 
+# Function views --------------------------------------------------------------
+
 def abstract_add_address(request, entity_id, form=address_forms.AddressForm,
-                         title=_(u'Adding address to «%s»'),
-                         submit_label=_(u'Save the address'),
+                         title=_('Adding address to «%s»'),
+                         submit_label=_('Save the address'),
                         ):
+    warnings.warn('persons.views.address.abstract_add_address() is deprecated ;'
+                  'use the class AddressCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
 
 
 def abstract_add_billing_address(request, entity_id, form=address_forms.BillingAddressForm,
-                                 title=_(u'Adding billing address to «%s»'),
-                                 submit_label=_(u'Save the address')
+                                 title=_('Adding billing address to «%s»'),
+                                 submit_label=_('Save the address')
                                 ):
+    warnings.warn('persons.views.address.abstract_add_billing_address() is deprecated ;'
+                  'use the class BillingAddressCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
 
 
 def abstract_add_shipping_address(request, entity_id, form=address_forms.ShippingAddressForm,
-                                  title=_(u'Adding shipping address to «%s»'),
-                                  submit_label=_(u'Save the address'),
+                                  title=_('Adding shipping address to «%s»'),
+                                  submit_label=_('Save the address'),
                                 ):
+    warnings.warn('persons.views.address.abstract_add_shipping_address() is deprecated ;'
+                  'use the class BillingAddressCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
 
 
@@ -56,13 +71,13 @@ def abstract_edit_address(request, address_id, form=None, title=None):
         address_type = request.GET.get('type')
 
         if address_type == 'billing':
-            title = _(u'Edit billing address for «%s»')
+            title = _('Edit billing address for «%s»')
             form = address_forms.BillingAddressForm
         elif address_type == 'shipping':
-            title = _(u'Edit shipping address for «%s»')
+            title = _('Edit shipping address for «%s»')
             form = address_forms.ShippingAddressForm
         else:
-            title = _(u'Edit address for «%s»')
+            title = _('Edit address for «%s»')
             form = address_forms.AddressForm
 
     return generic.edit_related_to_entity(request, address_id, Address, form, title_format=title)
@@ -71,18 +86,21 @@ def abstract_edit_address(request, address_id, form=None, title=None):
 @login_required
 @permission_required('persons')
 def add(request, entity_id):
+    warnings.warn('persons.views.address.add() is deprecated.', DeprecationWarning)
     return abstract_add_address(request, entity_id)
 
 
 @login_required
 @permission_required('persons')
 def add_billing(request, entity_id):
+    warnings.warn('persons.views.address.add_billing() is deprecated.', DeprecationWarning)
     return abstract_add_billing_address(request, entity_id)
 
 
 @login_required
 @permission_required('persons')
 def add_shipping(request, entity_id):
+    warnings.warn('persons.views.address.add_shipping() is deprecated.', DeprecationWarning)
     return abstract_add_shipping_address(request, entity_id)
 
 
@@ -90,3 +108,22 @@ def add_shipping(request, entity_id):
 @permission_required('persons')
 def edit(request, address_id):
     return abstract_edit_address(request, address_id)
+
+
+# Class-based views  -----------------------------------------------------------
+
+class AddressCreation(generic.add.AddingToEntity):
+    model = Address
+    form_class = address_forms.AddressForm
+    permissions = 'persons'
+    title_format = _('Adding address to «{}»')
+
+
+class BillingAddressCreation(AddressCreation):
+    form_class = address_forms.BillingAddressForm
+    title_format = _('Adding billing address to «{}»')
+
+
+class ShippingAddressCreation(AddressCreation):
+    form_class = address_forms.ShippingAddressForm
+    title_format = _('Adding shipping address to «{}»')

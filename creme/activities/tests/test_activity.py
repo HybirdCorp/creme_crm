@@ -1804,10 +1804,18 @@ class ActivityTestCase(_ActivitiesTestCase):
         c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
         c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
 
-        uri = self._buid_add_participants_url(activity)
-        self.assertGET200(uri)
+        url = self._buid_add_participants_url(activity)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('Adding participants to activity «%s»') % activity, context.get('title'))
+        self.assertEqual(_('Adding participants to activity «{}»').format(activity), context.get('title'))
+        self.assertEqual(_('Add the participants'),                                  context.get('submit_label'))
+
+        # ---
         self.assertNoFormError(
-            self.client.post(uri, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
+            self.client.post(url, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
         )
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
@@ -2033,11 +2041,18 @@ class ActivityTestCase(_ActivitiesTestCase):
         activity = self._create_meeting()
         orga = Organisation.objects.create(user=user, name='Ghibli')
 
-        uri = self._buid_add_subjects_url(activity)
-        self.assertGET200(uri)
+        url = self._buid_add_subjects_url(activity)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Adding subjects to activity «%s»') % activity, context.get('title'))
+        self.assertEqual(_('Adding subjects to activity «{}»').format(activity), context.get('title'))
+        self.assertEqual(_('Add the subjects'),                                  context.get('submit_label'))
+
+        # ---
         data = {'subjects': self.formfield_value_multi_generic_entity(orga)}
-        self.assertNoFormError(self.client.post(uri, data=data))
+        self.assertNoFormError(self.client.post(url, data=data))
 
         relations = Relation.objects.filter(subject_entity=activity.id,
                                             type=constants.REL_OBJ_ACTIVITY_SUBJECT,
@@ -2046,7 +2061,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(orga.id, relations[0].object_entity_id)
 
         # Avoid duplicates
-        response = self.assertPOST200(uri, data=data)
+        response = self.assertPOST200(url, data=data)
         self.assertFormError(response, 'form', 'subjects',
                              ungettext('This entity is already a subject: %(duplicates)s',
                                        'These entities are already subjects: %(duplicates)s',

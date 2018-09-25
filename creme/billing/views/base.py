@@ -21,14 +21,38 @@
 from creme.creme_core.views import generic
 
 from creme.billing.models import Base
+# from creme.billing.forms.base import BaseCreateForm
+
+from creme import persons
 
 
 class BaseCreation(generic.add.EntityCreation):
     model = Base
+    # form_class = BaseCreateForm
     initial_status = 1
 
     def get_initial(self):
         initial = super().get_initial()
         initial['status'] = self.initial_status
+
+        return initial
+
+
+class RelatedBaseCreation(generic.add.AddingToEntity):
+    model = Base
+    # form_class = BaseCreateForm
+    permissions = 'billing'  # Need creation perm too
+    initial_status = 1
+    entity_id_url_kwarg = 'target_id'
+    entity_classes = [
+        persons.get_organisation_model(),
+        persons.get_contact_model(),
+    ]
+    entity_form_kwarg = None
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['status'] = self.initial_status
+        initial['target'] = self.get_related_entity()
 
         return initial

@@ -25,14 +25,14 @@ from creme.creme_core.forms import CremeEntityForm, GenericEntityField
 from creme.creme_core.forms.validators import validate_linkable_entity
 from creme.creme_core.signals import form_post_save
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 
 from .. import get_opportunity_model
 
 
 Opportunity = get_opportunity_model()
-Organisation = get_organisation_model()
-Contact = get_contact_model()
+Organisation = persons.get_organisation_model()
+Contact = persons.get_contact_model()
 
 
 class OpportunityEditForm(CremeEntityForm):

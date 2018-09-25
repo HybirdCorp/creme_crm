@@ -28,6 +28,8 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from ..forms import creme_property_type as ptype_forms
+
+from .base import BaseConfigCreation
 from .portal import _config_portal
 
 
@@ -36,13 +38,18 @@ def portal(request):
     return _config_portal(request, 'creme_config/property_type_portal.html')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add(request):
-    return generic.add_model_with_popup(request, ptype_forms.CremePropertyTypeAddForm,
-                                _(u'New custom type of property'),
-                                submit_label=CremePropertyType.save_label,
-                               )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add(request):
+#     return generic.add_model_with_popup(
+#         request, ptype_forms.CremePropertyTypeAddForm,
+#         _('New custom type of property'),
+#         submit_label=CremePropertyType.save_label,
+#     )
+class PropertyTypeCreation(BaseConfigCreation):
+    model = CremePropertyType
+    form_class = ptype_forms.CremePropertyTypeAddForm
+    title = _('New custom type of property')
 
 
 @login_required
@@ -61,16 +68,17 @@ def edit(request, property_type_id):
     else:
         property_type_form = ptype_forms.CremePropertyTypeEditForm(property_type, user=request.user)
 
-    return generic.inner_popup(request,
-                       'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  property_type_form,
-                        'title': _(u'Edit the type «{property}»').format(property=property_type),
-                        'submit_label': _(u'Save the modifications'),
-                       },
-                       is_valid=property_type_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(
+        request,
+        'creme_core/generics/blockform/edit_popup.html',
+        {'form':  property_type_form,
+         'title': _('Edit the type «{property}»').format(property=property_type),
+         'submit_label': _('Save the modifications'),
+        },
+        is_valid=property_type_form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
 # TODO: use the view in creme_core instead

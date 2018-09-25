@@ -5,6 +5,7 @@ try:
     from functools import partial
     from json import dumps as json_dump
 
+    from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
@@ -37,13 +38,21 @@ class LineTestCase(_BillingTestCase):
         return reverse('billing__multi_save_lines', args=(bdocument.id,))
 
     @skipIfCustomProduct
-    def test_add_product_lines01(self):
+    def test_add_product_lines(self):
         "Multiple adding"
         self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = reverse('billing__create_product_lines', args=(invoice.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('Add one or more product to «%s»') % invoice, context.get('title'))
+        self.assertEqual(_('Add one or more product to «{}»').format(invoice), context.get('title'))
+        self.assertEqual(_('Save the lines'),                                  context.get('submit_label'))
+
+        # ---
         self.assertFalse(invoice.get_lines(ServiceLine))
 
         product1 = self.create_product()
@@ -63,19 +72,73 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(2, len(lines))
 
         line0, line1 = lines
-        self.assertEqual(quantity,        line0.quantity)
-        self.assertEqual(quantity,        line1.quantity)
+        self.assertEqual(quantity, line0.quantity)
+        self.assertEqual(quantity, line1.quantity)
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line0)
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line1)
         self.assertRelationCount(1, line0,   REL_SUB_LINE_RELATED_ITEM, product1)
         self.assertRelationCount(1, line1,   REL_SUB_LINE_RELATED_ITEM, product2)
 
-        self.assertEqual(Decimal('3.2'), invoice.total_no_vat)  # 2 * 0.8 + 2 * 0.8
+        self.assertEqual(Decimal('3.2'),  invoice.total_no_vat)  # 2 * 0.8 + 2 * 0.8
         self.assertEqual(Decimal('3.38'), invoice.total_vat)  # 3.2 * 1.07 = 3.38
 
         self.assertEqual(invoice.get_absolute_url(), line0.get_absolute_url())
 
         self.assertEqual(Product, line0.related_item_class())
+
+    def test_addlines_not_superuser(self):
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'billing'],
+                   creatable_models=[Invoice],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        self.assertGET200(reverse('billing__create_product_lines', args=(invoice.id,)))
+        self.assertGET200(reverse('billing__create_service_lines', args=(invoice.id,)))
+
+    def test_add_lines_link(self):
+        "LINK creds are needed"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'billing'],
+                   creatable_models=[Invoice],
+                  )
+        create_sc = partial(SetCredentials.objects.create, role=self.role,
+                            set_type=SetCredentials.ESET_ALL,
+                           )
+        create_sc(value=EntityCredentials.VIEW   |
+                        EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE |
+                        EntityCredentials.LINK   |
+                        EntityCredentials.UNLINK,
+                  ctype=ContentType.objects.get_for_model(Organisation),
+        )
+        create_sc(value=EntityCredentials.VIEW   |
+                        EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE |
+                        # EntityCredentials.LINK   |
+                        EntityCredentials.UNLINK,
+                  set_type=SetCredentials.ESET_ALL
+        )
+
+        invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        self.assertGET403(reverse('billing__create_product_lines', args=(invoice.id,)))
+        self.assertGET403(reverse('billing__create_service_lines', args=(invoice.id,)))
+
+    def test_addlines_bad_related(self):
+        "Related is not a billing entity"
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        self.assertGET404(reverse('billing__create_product_lines', args=(orga.id,)))
+        self.assertGET404(reverse('billing__create_service_lines', args=(orga.id,)))
 
     @skipIfCustomProduct
     def test_lines_with_negatives_values(self):
@@ -152,6 +215,15 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = reverse('billing__create_service_lines', args=(invoice.id,))
         self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('Add one or more service to «%s»') % invoice, context.get('title'))
+        self.assertEqual(_('Add one or more service to «{}»').format(invoice), context.get('title'))
+        self.assertEqual(_('Save the lines'),                                  context.get('submit_label'))
+
+        # ---
         self.assertFalse(invoice.get_lines(Service))
 
         service1 = self.create_service()
@@ -180,7 +252,7 @@ class LineTestCase(_BillingTestCase):
         self.assertRelationCount(1, line0,   REL_SUB_LINE_RELATED_ITEM, service1)
         self.assertRelationCount(1, line1,   REL_SUB_LINE_RELATED_ITEM, service2)
 
-        self.assertEqual(Decimal('21.6'), invoice.total_no_vat)  # 2 * 5.4 + 2 * 5.4
+        self.assertEqual(Decimal('21.6'),  invoice.total_no_vat)  # 2 * 5.4 + 2 * 5.4
         self.assertEqual(Decimal('25.84'), invoice.total_vat)  # 21.6 * 1.196 = 25.84
 
         self.assertEqual(Service, line0.related_item_class())

@@ -21,11 +21,12 @@
 # import warnings
 
 from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.bricks import build_context, bricks_render_info
-from creme.creme_core.views.generic import add_to_entity
+# from creme.creme_core.views.generic import add_to_entity
+from creme.creme_core.views.generic.add import AddingToEntity
 from creme.creme_core.utils import jsonify
 
 from .. import get_emailcampaign_model
@@ -34,14 +35,20 @@ from ..forms.sending import SendingCreateForm
 from ..models import EmailSending
 
 
-@login_required
-@permission_required('emails')
-def add(request, campaign_id):
-    return add_to_entity(request, campaign_id, SendingCreateForm,
-                         _(u'New sending for «%s»'),
-                         entity_class=get_emailcampaign_model(),
-                         submit_label=EmailSending.save_label,
-                        )
+# @login_required
+# @permission_required('emails')
+# def add(request, campaign_id):
+#     return add_to_entity(request, campaign_id, SendingCreateForm,
+#                          _('New sending for «%s»'),
+#                          entity_class=get_emailcampaign_model(),
+#                          submit_label=EmailSending.save_label,
+#                         )
+class SendingCreation(AddingToEntity):
+    model = EmailSending
+    form_class = SendingCreateForm
+    entity_id_url_kwarg = 'campaign_id'
+    entity_classes = get_emailcampaign_model()
+    title_format = _('New sending for «{}»')
 
 
 def _get_sending(request, sending_id):

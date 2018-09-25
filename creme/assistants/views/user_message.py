@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import inner_popup, add_to_entity as generic_add_to_entity
+from creme.creme_core.views import generic
 
 from creme.assistants.forms.user_message import UserMessageForm
 from creme.assistants.models import UserMessage
@@ -41,23 +41,28 @@ def add(request):
     else:
         message_form = UserMessageForm(entity=None, user=request.user)
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                       {'form':   message_form,
-                        'title':  _(u'New message'),
-                        'submit_label': _('Save the message'),
-                       },
-                       is_valid=message_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(
+        request, 'creme_core/generics/blockform/add_popup.html',
+        {'form':   message_form,
+         'title':  _('New message'),
+         'submit_label': _('Save the message'),
+        },
+        is_valid=message_form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
-@login_required
-def add_to_entity(request, entity_id):
-    return generic_add_to_entity(request, entity_id, UserMessageForm,
-                                 _(u'New message about «%s»'),
-                                 submit_label=_('Save the message'),
-                                )
+# @login_required
+# def add_to_entity(request, entity_id):
+#     return generic.add_to_entity(request, entity_id, UserMessageForm,
+#                                  _('New message about «%s»'),
+#                                  submit_label=_('Save the message'),
+#                                 )
+class RelatedUserMessageCreation(generic.add.AddingToEntity):
+    model = UserMessage
+    form_class = UserMessageForm
+    title_format = _('New message about «{}»')
 
 
 @login_required
@@ -70,7 +75,6 @@ def delete(request):
     msg.delete()
 
     if request.is_ajax():
-        # return HttpResponse("", content_type="text/javascript")
         return HttpResponse()
 
     entity = msg.creme_entity

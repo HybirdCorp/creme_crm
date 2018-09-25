@@ -35,7 +35,7 @@ class _FolderForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Folder
         help_texts = {
-            'category': _(u"The parent's category will be copied if you do not select one."),
+            'category': _("The parent's category will be copied if you do not select one."),
         }
 
     def save(self, *args, **kwargs):
@@ -49,7 +49,7 @@ class _FolderForm(CremeEntityForm):
 
 class FolderForm(_FolderForm):
     error_messages = {
-        'loop': _(u'This folder is one of the child folders of «%(folder)s»'),
+        'loop': _('This folder is one of the child folders of «%(folder)s»'),
     }
 
     def __init__(self, *args, **kwargs):
@@ -77,10 +77,12 @@ class ChildFolderForm(_FolderForm):
     class Meta(_FolderForm.Meta):
         exclude = ('parent_folder',)
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(ChildFolderForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.instance.parent_folder = self.initial.get('parent')
+        # self.instance.parent_folder = self.initial.get('parent')
+        self.instance.parent_folder = entity
 
 
 class ParentFolderBulkForm(BulkDefaultEditForm):
@@ -99,14 +101,14 @@ class ParentFolderBulkForm(BulkDefaultEditForm):
         if parent_folder:
             if parent_folder == entity:
                 # TODO: self.error_messages ?
-                raise ValidationError(ugettext(u'«%(folder)s» cannot be its own parent') % {
+                raise ValidationError(ugettext('«%(folder)s» cannot be its own parent') % {
                                             'folder': entity,
                                         },
                                       code='itself',
                                      )
 
             if entity.already_in_children(parent_folder.id):
-                raise ValidationError(ugettext(u'This folder is one of the child folders of «%(folder)s»') % {
+                raise ValidationError(ugettext('This folder is one of the child folders of «%(folder)s»') % {
                                             'folder': entity,
                                         },
                                       code='loop',

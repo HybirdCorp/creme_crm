@@ -9,6 +9,7 @@ try:
     from django.db.models.query import QuerySet
     from django.urls import reverse
     from django.utils.timezone import now
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import CremeEntity, FakeOrganisation, FakeMailingList
@@ -39,7 +40,10 @@ class MemoTestCase(AssistantsTestCase):
         self.assertFalse(Memo.objects.exists())
 
         entity = self.entity
-        self.assertGET200(self._build_add_url(entity))
+        context = self.assertGET200(self._build_add_url(entity)).context
+        # self.assertEqual(_('New Memo for «%s»') % entity, context.get('title'))
+        self.assertEqual(_('New memo for «{}»').format(entity), context.get('title'))
+        self.assertEqual(_('Save the memo'),                    context.get('submit_label'))
 
         homepage = True
         content = 'Content'

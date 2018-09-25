@@ -31,7 +31,7 @@ from creme.creme_core.views import generic
 
 from .. import get_folder_model
 from ..constants import DEFAULT_HFILTER_FOLDER
-from ..forms.folder import FolderForm, ChildFolderForm
+from ..forms import folder as f_forms
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ Folder = get_folder_model()
 
 # Function views --------------------------------------------------------------
 
-def abstract_add_folder(request, form=FolderForm,
+def abstract_add_folder(request, form=f_forms.FolderForm,
                         submit_label=Folder.save_label,
                        ):
     warnings.warn('documents.views.folder.abstract_add_folder() is deprecated ; '
@@ -52,24 +52,24 @@ def abstract_add_folder(request, form=FolderForm,
                              )
 
 
-def abstract_add_child_folder(request, folder_id, form=ChildFolderForm,
-                              title=_(u'New child folder for «%s»'),
-                              submit_label=Folder.save_label,
-                            ):
-    parent_folder = get_object_or_404(Folder, id=folder_id)
-    user = request.user
+# def abstract_add_child_folder(request, folder_id, form=f_forms.ChildFolderForm,
+#                               title=_('New child folder for «%s»'),
+#                               submit_label=Folder.save_label,
+#                             ):
+#     parent_folder = get_object_or_404(Folder, id=folder_id)
+#     user = request.user
+#
+#     user.has_perm_to_link_or_die(parent_folder)
+#
+#     return generic.add_model_with_popup(
+#         request, form,
+#         title=title % parent_folder.allowed_str(user),
+#         initial={'parent': parent_folder},
+#         submit_label=submit_label,
+#     )
 
-    user.has_perm_to_link_or_die(parent_folder)
 
-    return generic.add_model_with_popup(
-        request, form,
-        title=title % parent_folder.allowed_str(user),
-        initial={'parent': parent_folder},
-        submit_label=submit_label,
-    )
-
-
-def abstract_edit_folder(request, folder_id, form=FolderForm):
+def abstract_edit_folder(request, folder_id, form=f_forms.FolderForm):
     warnings.warn('documents.views.folder.abstract_edit_folder() is deprecated ; '
                   'use the class-based view FolderEdition instead.',
                   DeprecationWarning
@@ -108,12 +108,12 @@ def abstract_list_folders(request, **extra_kwargs):
     def post_process(template_dict, request):
         if folder is not None:
             parents = folder.get_parents()
-            template_dict['list_title'] = _(u'List sub-folders of «{}»').format(folder)
+            template_dict['list_title'] = _('List sub-folders of «{}»').format(folder)
 
             if parents:
                 parents.reverse()
                 parents.append(folder)
-                template_dict['list_sub_title'] = u' > '.join(f.title for f in parents)
+                template_dict['list_sub_title'] = ' > '.join(f.title for f in parents)
 
     return generic.list_view(
         request, Folder,
@@ -135,10 +135,10 @@ def add(request):
     return abstract_add_folder(request)
 
 
-@login_required
-@permission_required(('documents', cperm(Folder)))
-def add_child(request, folder_id):
-    return abstract_add_child_folder(request, folder_id)
+# @login_required
+# @permission_required(('documents', cperm(Folder)))
+# def add_child(request, folder_id):
+#     return abstract_add_child_folder(request, folder_id)
 
 
 @login_required
@@ -165,7 +165,22 @@ def listview(request):
 
 class FolderCreation(generic.add.EntityCreation):
     model = Folder
-    form_class = FolderForm
+    form_class = f_forms.FolderForm
+
+
+# TODO: no CHANGE credentials for parent ?
+# TODO: link_popup.html ?
+class ChildFolderCreation(generic.add.AddingToEntity):
+    model = Folder
+    form_class = f_forms.ChildFolderForm
+    permissions = ['documents', cperm(Folder)]
+    title_format = _('New child folder for «{}»')
+    entity_id_url_kwarg = 'folder_id'
+    entity_classes = Folder
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        user.has_perm_to_link_or_die(Folder, owner=None)
 
 
 class FolderDetail(generic.detailview.EntityDetail):
@@ -176,5 +191,5 @@ class FolderDetail(generic.detailview.EntityDetail):
 
 class FolderEdition(generic.edit.EntityEdition):
     model = Folder
-    form_class = FolderForm
+    form_class = f_forms.FolderForm
     pk_url_kwarg = 'folder_id'

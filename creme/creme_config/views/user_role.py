@@ -32,7 +32,7 @@ from creme.creme_core.auth.decorators import login_required, superuser_required,
 from creme.creme_core.models import UserRole, SetCredentials
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import add_model_with_popup, inner_popup
+from creme.creme_core.views import generic
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms.user_role import AddCredentialsForm, EditCredentialsForm, UserRoleDeleteForm
@@ -108,7 +108,7 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
 
 class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
     class _ExportableCTypesStep(user_role_forms.UserRoleExportableCTypesStep):
-        step_submit_label = _(u'Save the modifications')
+        step_submit_label = _('Save the modifications')
 
     form_list = (user_role_forms.UserRoleAppsStep,
                  user_role_forms.UserRoleAdminAppsStep,
@@ -117,7 +117,7 @@ class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
                 )
 
     template_name = 'creme_core/generics/blockform/edit_wizard_popup.html'
-    wizard_title = u'Edit role'  # Overloaded in dispatch()
+    wizard_title = 'Edit role'  # Overloaded in dispatch()
     # permission = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
 
     @method_decorator(login_required)
@@ -125,7 +125,7 @@ class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
         _check_superuser(self.request.user)  # TODO: set public ?
 
         self.role = role = get_object_or_404(UserRole, pk=kwargs['role_id'])
-        self.wizard_title = ugettext(u'Edit «{}»').format(role)
+        self.wizard_title = ugettext('Edit «{}»').format(role)
 
         # return super(UserRoleEditionWizard, self).dispatch(*args, **kwargs)
         return super().dispatch(*args, **kwargs)
@@ -173,15 +173,16 @@ def add_credentials(request, role_id):
     else:
         add_form = AddCredentialsForm(role, user=request.user)
 
-    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  add_form,
-                        'title': _(u'Add credentials to «{role}»').format(role=role),
-                        'submit_label': _(u'Add the credentials'),
-                       },
-                       is_valid=add_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(
+        request, 'creme_core/generics/blockform/edit_popup.html',
+        {'form':  add_form,
+         'title': _('Add credentials to «{role}»').format(role=role),
+         'submit_label': _('Add the credentials'),
+        },
+        is_valid=add_form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
 # TODO: edit_model_with_popup  => improve title creation
@@ -198,15 +199,16 @@ def edit_credentials(request, cred_id):
     else:
         edit_form = EditCredentialsForm(instance=creds, user=request.user)
 
-    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  edit_form,
-                        'title': _(u'Edit credentials for «{role}»').format(role=creds.role),
-                        'submit_label': _(u'Save the modifications'),
-                       },
-                       is_valid=edit_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(
+        request, 'creme_core/generics/blockform/edit_popup.html',
+        {'form':  edit_form,
+         'title': _('Edit credentials for «{role}»').format(role=creds.role),
+         'submit_label': _('Save the modifications'),
+        },
+        is_valid=edit_form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
 @login_required
@@ -217,13 +219,15 @@ def delete_credentials(request):
     return HttpResponse()
 
 
+# TODO: 'delete' icon
 @login_required
 @superuser_required
 def delete(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
 
-    return add_model_with_popup(request, UserRoleDeleteForm,
-                                _(u'Delete role «{}»').format(role),
-                                initial={'role_to_delete': role},
-                                submit_label=_(u'Delete the role'),
-                               )
+    return generic.add_model_with_popup(
+        request, UserRoleDeleteForm,
+        _('Delete role «{}»').format(role),
+        initial={'role_to_delete': role},
+        submit_label=_('Delete the role'),  # TODO: deletion_label ?
+    )

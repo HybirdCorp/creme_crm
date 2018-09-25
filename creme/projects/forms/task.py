@@ -74,7 +74,7 @@ class TaskEditForm(_TaskForm):
 
 
 class TaskCreateForm(_TaskForm):
-    parent_tasks = MultiCreatorEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
+    parent_tasks = MultiCreatorEntityField(label=_('Parent tasks'), required=False, model=ProjectTask)
 
     def __init__(self, entity, *args, **kwargs):
         # super(TaskCreateForm, self).__init__(*args, **kwargs)
@@ -100,7 +100,7 @@ class TaskCreateForm(_TaskForm):
 
 
 class TaskAddParentForm(CremeForm):
-    parents = MultiCreatorEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
+    parents = MultiCreatorEntityField(label=_('Parent tasks'), required=False, model=ProjectTask)
 
     class Meta:
         model = ProjectTask
@@ -127,8 +127,8 @@ class TaskAddParentForm(CremeForm):
 
 
 class RelatedActivityEditForm(CremeEntityForm):
-    resource      = CreatorEntityField(label=_(u'Allocated resource'), model=Resource)
-    type_selector = ActivityTypeField(label=_(u'Type'))
+    resource      = CreatorEntityField(label=_('Allocated resource'), model=Resource)
+    type_selector = ActivityTypeField(label=_('Type'))
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
@@ -228,13 +228,16 @@ class RelatedActivityEditForm(CremeEntityForm):
 
 
 class RelatedActivityCreateForm(RelatedActivityEditForm):
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
+        self._task = entity
         super().__init__(*args, **kwargs)
-        self._task = self._get_task()  # TODO: remove
+        # self._task = self._get_task()
 
     def _get_task(self):
-        return self.initial['task']
+        # return self.initial['task']
+        return self._task
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -245,7 +248,7 @@ class RelatedActivityCreateForm(RelatedActivityEditForm):
                                         Activity._meta.get_field('title').max_length - 9
                                        )
         # instance.title = u'%s - %s - %003d' % (p_name, t_name, len(task.related_activities) + 1)
-        instance.title = u'{project} - {task} - {count:03}'.format(
+        instance.title = '{project} - {task} - {count:03}'.format(
             project=p_name,
             task=t_name,
             count=len(task.related_activities) + 1,

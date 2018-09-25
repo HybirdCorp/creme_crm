@@ -36,8 +36,7 @@ from creme.creme_core.views import generic
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.forms.opportunity import OpportunityCreateForm
 
-from .. import get_act_model, get_pattern_model
-from ..constants import REL_SUB_COMPLETE_GOAL, DEFAULT_HFILTER_ACT, DEFAULT_HFILTER_PATTERN
+from .. import get_act_model, get_pattern_model, constants
 from ..forms import act as forms
 from ..models import ActType, ActObjective, MarketSegment, ActObjectivePatternComponent
 
@@ -120,6 +119,11 @@ def abstract_add_opportunity(request, act_id, form=OpportunityCreateForm,
                              title=_('Create a linked opportunity'),
                              submit_label=Opportunity.save_label,
                             ):
+    warnings.warn('commercial.views.act.abstract_add_opportunity() is deprecated ; '
+                  'use the class-based view RelatedOpportunityCreation instead.',
+                  DeprecationWarning
+                 )
+
     act = get_object_or_404(Act, pk=act_id)
     user = request.user
 
@@ -134,7 +138,7 @@ def abstract_add_opportunity(request, act_id, form=OpportunityCreateForm,
             with atomic():
                 opp = form_instance.save()
                 Relation.objects.create(subject_entity=opp,
-                                        type_id=REL_SUB_COMPLETE_GOAL,
+                                        type_id=constants.REL_SUB_COMPLETE_GOAL,
                                         object_entity=act,
                                         user=user,
                                        )
@@ -213,6 +217,34 @@ class ActObjectivePatternCreation(generic.add.EntityCreation):
     form_class = forms.ObjectivePatternForm
 
 
+class RelatedOpportunityCreation(generic.add.AddingToEntity):
+    model = Opportunity
+    form_class = OpportunityCreateForm
+    permissions = ['opportunities', cperm(Opportunity)]
+    title = _('Create a linked opportunity')
+    entity_id_url_kwarg = 'act_id'
+    entity_classes = Act
+    entity_form_kwarg = None
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        user.has_perm_to_link_or_die(Opportunity)
+
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_link_or_die(entity)
+
+    @atomic
+    def form_valid(self, form):
+        response = super().form_valid(form=form)
+        Relation.objects.create(subject_entity=form.instance,
+                                type_id=constants.REL_SUB_COMPLETE_GOAL,
+                                object_entity=self.related_entity,
+                                user=self.request.user,
+                               )
+
+        return response
+
+
 class ActDetail(generic.detailview.EntityDetail):
     model = Act
     template_name = 'commercial/view_act.html'
@@ -243,47 +275,65 @@ class ActObjectivePatternEdition(generic.edit.EntityEdition):
 @login_required
 @permission_required('commercial')
 def listview(request):
-    return generic.list_view(request, Act, hf_pk=DEFAULT_HFILTER_ACT)
+    return generic.list_view(request, Act, hf_pk=constants.DEFAULT_HFILTER_ACT)
 
 
 @login_required
 @permission_required('commercial')
 def listview_objective_pattern(request):
-    return generic.list_view(request, ActObjectivePattern, hf_pk=DEFAULT_HFILTER_PATTERN)
+    return generic.list_view(request, ActObjectivePattern, hf_pk=constants.DEFAULT_HFILTER_PATTERN)
 
 
 @login_required
 @permission_required(('opportunities', cperm(Opportunity)))
 def add_opportunity(request, act_id):
+    warnings.warn('commercial.views.act.add_opportunity() is deprecated.', DeprecationWarning)
     return abstract_add_opportunity(request, act_id)
 
 
-@login_required
-@permission_required('commercial')
-def _add_objective(request, act_id, form_class):
-    return generic.add_to_entity(request, act_id, form_class,
-                                 ugettext('New objective for «%s»'),
-                                 entity_class=Act,
-                                 submit_label=_('Save the objective'),
-                                )
+# @login_required
+# @permission_required('commercial')
+# def _add_objective(request, act_id, form_class):
+#     return generic.add_to_entity(request, act_id, form_class,
+#                                  ugettext('New objective for «%s»'),
+#                                  entity_class=Act,
+#                                  submit_label=_('Save the objective'),
+#                                 )
+class _ObjectiveCreationBase(generic.add.AddingToEntity):
+    model = ActObjective
+    # form_class = ...
+    title_format = _('New objective for «{}»')
+    entity_id_url_kwarg = 'act_id'
+    entity_classes = Act
 
 
-def add_objective(request, act_id):
-    return _add_objective(request, act_id, forms.ObjectiveForm)
+# def add_objective(request, act_id):
+#     return _add_objective(request, act_id, forms.ObjectiveForm)
+class ObjectiveCreation(_ObjectiveCreationBase):
+    form_class = forms.ObjectiveForm
 
 
-def add_objectives_from_pattern(request, act_id):
-    return _add_objective(request, act_id, forms.ObjectivesFromPatternForm)
+# def add_objectives_from_pattern(request, act_id):
+#     return _add_objective(request, act_id, forms.ObjectivesFromPatternForm)
+class ObjectiveCreationFromPattern(_ObjectiveCreationBase):
+    form_class = forms.ObjectivesFromPatternForm
 
 
-@login_required
-@permission_required('commercial')
-def add_pattern_component(request, objpattern_id):
-    return generic.add_to_entity(request, objpattern_id, forms.PatternComponentForm,
-                                 ugettext('New objective for «%s»'),
-                                 entity_class=ActObjectivePattern,
-                                 submit_label=_('Save the objective'),
-                                )
+# @login_required
+# @permission_required('commercial')
+# def add_pattern_component(request, objpattern_id):
+#     return generic.add_to_entity(request, objpattern_id, forms.PatternComponentForm,
+#                                  ugettext('New objective for «%s»'),
+#                                  entity_class=ActObjectivePattern,
+#                                  submit_label=_('Save the objective'),
+#                                 )
+class PatternComponentCreation(generic.add.AddingToEntity):
+    model = ActObjectivePatternComponent
+    form_class = forms.PatternComponentForm
+    title_format = _('New objective for «{}»')
+    submit_label = _('Save the objective')
+    entity_id_url_kwarg = 'objpattern_id'
+    entity_classes = ActObjectivePattern
 
 
 @login_required
@@ -380,7 +430,7 @@ def create_objective_entity(request, objective_id):
             with atomic():
                 entity = form.save()
                 Relation.objects.create(subject_entity=entity,
-                                        type_id=REL_SUB_COMPLETE_GOAL,
+                                        type_id=constants.REL_SUB_COMPLETE_GOAL,
                                         object_entity=objective.act,
                                         user=user,
                                        )

@@ -49,6 +49,8 @@ class CommercialApproach(creme_models.CremeModel):
                                            )  # .set_tags(viewable=False) uncomment if it becomes an auxiliary (get_related_entity())
     creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
+    creation_label = _('Create a commercial approach')
+    save_label     = _('Save the commercial approach')
 
     class Meta:
         app_label = 'commercial'

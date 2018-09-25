@@ -30,7 +30,6 @@ from ... import billing
 
 from ..constants import DEFAULT_HFILTER_ORDER
 from ..forms import sales_order as order_forms
-from ..views.workflow import generic_add_related
 
 from . import base
 
@@ -58,6 +57,12 @@ def abstract_add_related_salesorder(request, target_id,
                                     title=_(u'Create a salesorder for «%s»'),
                                     submit_label=SalesOrder.save_label,
                                    ):
+    warnings.warn('billing.views.sales_order.abstract_add_related_salesorder() is deprecated ; '
+                  'use the class-based view RelatedSalesOrderCreation instead.',
+                  DeprecationWarning
+                 )
+    from ..views.workflow import generic_add_related
+
     return generic_add_related(request, target_id, form=form,
                                title=title, status_id=initial_status,
                                submit_label=submit_label,
@@ -99,6 +104,7 @@ def add(request):
 @login_required
 @permission_required(('billing', cperm(SalesOrder)))
 def add_related(request, target_id):
+    warnings.warn('billing.views.sales_order.add_related() is deprecated.', DeprecationWarning)
     return abstract_add_related_salesorder(request, target_id)
 
 
@@ -127,6 +133,13 @@ def listview(request):
 class SalesOrderCreation(base.BaseCreation):
     model = SalesOrder
     form_class = order_forms.SalesOrderCreateForm
+
+
+class RelatedSalesOrderCreation(base.RelatedBaseCreation):
+    model = SalesOrder
+    form_class = order_forms.SalesOrderCreateForm
+    permissions = ('billing', cperm(SalesOrder))
+    title_format = _('Create a salesorder for «{}»')
 
 
 class SalesOrderDetail(generic.detailview.EntityDetail):

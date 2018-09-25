@@ -57,6 +57,9 @@ class ToDo(CremeModel):
 
     objects = ToDoManager()
 
+    creation_label = _('Create a todo')
+    save_label     = _('Save the todo')
+
     class Meta:
         app_label = 'assistants'
         verbose_name = _('Todo')

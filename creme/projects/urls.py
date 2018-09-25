@@ -30,7 +30,8 @@ urlpatterns = [
 
 if not activity_model_is_custom():
     urlpatterns += [
-        url(r'^task/(?P<task_id>\d+)/activity/add[/]?$', task.add_activity,  name='projects__create_activity'),
+        # url(r'^task/(?P<task_id>\d+)/activity/add[/]?$', task.add_activity,  name='projects__create_activity'),
+        url(r'^task/(?P<task_id>\d+)/activity/add[/]?$', task.RelatedActivityCreation.as_view(), name='projects__create_activity'),
         url(r'^activity/edit/(?P<activity_id>\d+)[/]?$', task.edit_activity, name='projects__edit_activity'),
     ]
 
@@ -47,10 +48,11 @@ if not project_model_is_custom():
 
 if not task_model_is_custom():
     urlpatterns += [
-        url(r'^project/(?P<project_id>\d+)/task/add[/]?$', task.add,         name='projects__create_task'),
+        # url(r'^project/(?P<project_id>\d+)/task/add[/]?$', task.add,         name='projects__create_task'),
+        url(r'^project/(?P<project_id>\d+)/task/add[/]?$', task.ProjectTaskCreation.as_view(), name='projects__create_task'),
         # url(r'^task/edit/(?P<task_id>\d+)[/]?$',           task.edit,        name='projects__edit_task'),
-        url(r'^task/edit/(?P<task_id>\d+)[/]?$',           task.ProjectTaskEdition.as_view(), name='projects__edit_task'),
+        url(r'^task/edit/(?P<task_id>\d+)[/]?$',           task.ProjectTaskEdition.as_view(),  name='projects__edit_task'),
         url(r'^task/edit/(?P<task_id>\d+)/popup[/]?$',     task.edit_popup,  name='projects__edit_task_popup'),  # TODO: Merge with edit ?
         # url(r'^task/(?P<task_id>\d+)[/]?$',                task.detailview,  name='projects__view_task'),
-        url(r'^task/(?P<task_id>\d+)[/]?$',                task.ProjectTaskDetail.as_view(), name='projects__view_task'),
+        url(r'^task/(?P<task_id>\d+)[/]?$',                task.ProjectTaskDetail.as_view(),   name='projects__view_task'),
     ]

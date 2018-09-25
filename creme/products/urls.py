@@ -9,8 +9,10 @@ from .views import product, service  # portal
 urlpatterns = [
     # url(r'^$', portal.portal, name='products__portal'),
 
-    url(r'^product/(?P<product_id>\d+)/add_images[/]?$', product.add_images,   name='products__add_images_to_product'),
-    url(r'^service/(?P<service_id>\d+)/add_images[/]?$', service.add_images,   name='products__add_images_to_service'),
+    # url(r'^product/(?P<product_id>\d+)/add_images[/]?$', product.add_images,   name='products__add_images_to_product'),
+    url(r'^product/(?P<product_id>\d+)/add_images[/]?$', product.ImagesAdding.as_view(), name='products__add_images_to_product'),
+    # url(r'^service/(?P<service_id>\d+)/add_images[/]?$', service.add_images,   name='products__add_images_to_service'),
+    url(r'^service/(?P<service_id>\d+)/add_images[/]?$', service.ImagesAdding.as_view(), name='products__add_images_to_service'),
     url(r'^images/remove/(?P<entity_id>\d+)[/]?$',       product.remove_image, name='products__remove_image'),
 
     url(r'^sub_category/(?P<category_id>\d+)/json[/]?$', product.get_subcategories, name='products__subcategories'),

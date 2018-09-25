@@ -34,8 +34,7 @@ from creme import products
 from creme.products.forms.fields import CategoryField
 
 from creme import billing
-from ..constants import (REL_SUB_LINE_RELATED_ITEM, DEFAULT_DECIMAL, DEFAULT_QUANTITY,
-        DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT)
+from .. import constants
 
 
 ProductLine = billing.get_product_line_model()
@@ -43,22 +42,27 @@ ServiceLine = billing.get_service_line_model()
 
 
 class _LineMultipleAddForm(core_forms.CremeForm):
-    quantity       = DecimalField(label=_(u'Quantity'), min_value=DEFAULT_DECIMAL,
-                                  initial=DEFAULT_QUANTITY, decimal_places=2,
+    quantity       = DecimalField(label=_('Quantity'),
+                                  min_value=constants.DEFAULT_DECIMAL,
+                                  initial=constants.DEFAULT_QUANTITY,
+                                  decimal_places=2,
                                  )
-    discount_value = DecimalField(label=_(u'Discount'),
-                                  min_value=DEFAULT_DECIMAL, max_value=Decimal('100'),
-                                  initial=DEFAULT_DECIMAL, decimal_places=2,
-                                  help_text=_(u'Percentage applied on the unit price'),
+    discount_value = DecimalField(label=_('Discount'),
+                                  min_value=constants.DEFAULT_DECIMAL,
+                                  max_value=Decimal('100'),
+                                  initial=constants.DEFAULT_DECIMAL,
+                                  decimal_places=2,
+                                  help_text=_('Percentage applied on the unit price'),
                                  )
-    vat            = ModelChoiceField(label=_(u'Vat'), queryset=Vat.objects.all(),
+    vat            = ModelChoiceField(label=_('Vat'), queryset=Vat.objects.all(),
                                       empty_label=None,
                                      )
 
     def _get_line_class(self):
         raise NotImplementedError
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(_LineMultipleAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.billing_document = entity
@@ -81,11 +85,11 @@ class _LineMultipleAddForm(core_forms.CremeForm):
 
 
 class ProductLineMultipleAddForm(_LineMultipleAddForm):
-    items = MultiCreatorEntityField(label=_(u'Products'), model=products.get_product_model())
+    items = MultiCreatorEntityField(label=_('Products'), model=products.get_product_model())
 
     blocks = core_forms.FieldBlockManager(
-        ('general',    _(u'Products choice'), ['items']),
-        ('additional', _(u'Optional global information applied to your selected products'), ['quantity', 'vat', 'discount_value'])
+        ('general',    _('Products choice'), ['items']),
+        ('additional', _('Optional global information applied to your selected products'), ['quantity', 'vat', 'discount_value'])
     )
 
     def _get_line_class(self):
@@ -93,11 +97,11 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
 
 
 class ServiceLineMultipleAddForm(_LineMultipleAddForm):
-    items = MultiCreatorEntityField(label=_(u'Services'), model=products.get_service_model())
+    items = MultiCreatorEntityField(label=_('Services'), model=products.get_service_model())
 
     blocks = core_forms.FieldBlockManager(
-        ('general',    _(u'Services choice'), ['items']),
-        ('additional', _(u'Optional global information applied to your selected services'), ['quantity', 'vat', 'discount_value'])
+        ('general',    _('Services choice'), ['items']),
+        ('additional', _('Optional global information applied to your selected services'), ['quantity', 'vat', 'discount_value'])
     )
 
     def _get_line_class(self):
@@ -107,7 +111,7 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 # NB: model (ie: _meta.model) is set later, because this class is only used as base class
 class LineEditForm(core_forms.CremeModelWithUserForm):
     # TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
-    vat_value = ModelChoiceField(label=_(u'Vat'), queryset=Vat.objects.all(),
+    vat_value = ModelChoiceField(label=_('Vat'), queryset=Vat.objects.all(),
                                  required=True,  # TODO: remove when null=False in the model
                                  empty_label=None,
                                 )
@@ -132,15 +136,15 @@ class LineEditForm(core_forms.CremeModelWithUserForm):
         fields['discount'].widget   = TextInput(attrs={'class': 'line-quantity_discount bound'})
 
         currency_str = related_document.currency.local_symbol
-        discount_units = [(DISCOUNT_PERCENT,     '%'),
-                          (DISCOUNT_LINE_AMOUNT, _(u'{currency} per line').format(currency=currency_str)),
-                          (DISCOUNT_ITEM_AMOUNT, _(u'{currency} per unit').format(currency=currency_str)),
+        discount_units = [(constants.DISCOUNT_PERCENT,     '%'),
+                          (constants.DISCOUNT_LINE_AMOUNT, _('{currency} per line').format(currency=currency_str)),
+                          (constants.DISCOUNT_ITEM_AMOUNT, _('{currency} per unit').format(currency=currency_str)),
                          ]
 
         line = self.instance
         fields['discount_unit'] = discount_unit_f = TypedChoiceField(choices=discount_units, coerce=int)
-        discount_unit_f.initial = DISCOUNT_PERCENT if line.discount_unit == DISCOUNT_PERCENT else \
-                                  (DISCOUNT_LINE_AMOUNT if line.total_discount else DISCOUNT_ITEM_AMOUNT) #HACK: see below
+        discount_unit_f.initial = constants.DISCOUNT_PERCENT if line.discount_unit == constants.DISCOUNT_PERCENT else \
+                                  (constants.DISCOUNT_LINE_AMOUNT if line.total_discount else constants.DISCOUNT_ITEM_AMOUNT) #HACK: see below
         discount_unit_f.required = True
         discount_unit_f.widget.attrs = {'class': 'bound'}
 
@@ -156,10 +160,10 @@ class LineEditForm(core_forms.CremeModelWithUserForm):
             discount_unit = cdata['discount_unit']
             total_discount = False
 
-            if discount_unit == DISCOUNT_LINE_AMOUNT:
+            if discount_unit == constants.DISCOUNT_LINE_AMOUNT:
                 total_discount = True
-            elif discount_unit == DISCOUNT_ITEM_AMOUNT:
-                discount_unit = DISCOUNT_LINE_AMOUNT
+            elif discount_unit == constants.DISCOUNT_ITEM_AMOUNT:
+                discount_unit = constants.DISCOUNT_LINE_AMOUNT
   
             line = self.instance
             line.total_discount = total_discount
@@ -179,7 +183,7 @@ class LineEditForm(core_forms.CremeModelWithUserForm):
 
 
 class AddToCatalogForm(core_forms.CremeForm):
-    sub_category = CategoryField(label=_(u'Sub-category'), required=False)
+    sub_category = CategoryField(label=_('Sub-category'), required=False)
 
     def __init__(self, user, line, related_item_class, *args, **kwargs):
         # super(AddToCatalogForm, self).__init__(user, *args, **kwargs)
@@ -189,13 +193,13 @@ class AddToCatalogForm(core_forms.CremeForm):
 
     def clean(self):
         if not self.user.has_perm_to_create(self.related_item_class):
-            raise ValidationError(ugettext(u'You are not allowed to create this entity'),
+            raise ValidationError(ugettext('You are not allowed to create this entity'),
                                   code='forbidden_creation',
                                  )
 
         if not self.line.on_the_fly_item:
-            raise ValidationError(ugettext(u'You are not allowed to add this item '
-                                           u'to the catalog because it is not on the fly'
+            raise ValidationError(ugettext('You are not allowed to add this item '
+                                           'to the catalog because it is not on the fly'
                                           ),
                                   code='not_on_the_fly',
                                  )
@@ -222,7 +226,7 @@ class AddToCatalogForm(core_forms.CremeForm):
         line.save()
 
         Relation.objects.create(subject_entity=line,
-                                type_id=REL_SUB_LINE_RELATED_ITEM,
+                                type_id=constants.REL_SUB_LINE_RELATED_ITEM,
                                 object_entity=item,
                                 user=self.user,
                                )

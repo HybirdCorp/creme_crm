@@ -15,17 +15,25 @@ if not opportunity_model_is_custom():
     from .views import opportunity
 
     urlpatterns += [
-        url(r'^opportunities[/]?$',                           opportunity.listview, name='opportunities__list_opportunities'),
+        url(r'^opportunities[/]?$',   opportunity.listview,                      name='opportunities__list_opportunities'),
         # url(r'^opportunity/add[/]?$',                         opportunity.add,      name='opportunities__create_opportunity'),
-        url(r'^opportunity/add[/]?$',                         opportunity.OpportunityCreation.as_view(), name='opportunities__create_opportunity'),
-        url(r'^opportunity/add_to/(?P<ce_id>\d+)[/]?$',       opportunity.add_to,   name='opportunities__create_related_opportunity'),
-        url(r'^opportunity/add_to/(?P<ce_id>\d+)/popup[/]?$', opportunity.add_to, {'inner_popup': True},
+        url(r'^opportunity/add[/]?$', opportunity.OpportunityCreation.as_view(), name='opportunities__create_opportunity'),
+        # url(r'^opportunity/add_to/(?P<ce_id>\d+)[/]?$',       opportunity.add_to,   name='opportunities__create_related_opportunity'),
+        url(r'^opportunity/add_to/(?P<person_id>\d+)[/]?$',
+            opportunity.RelatedOpportunityCreation.as_view(),
+            name='opportunities__create_related_opportunity',
+        ),
+        # url(r'^opportunity/add_to/(?P<ce_id>\d+)/popup[/]?$', opportunity.add_to, {'inner_popup': True},
+        #     name='opportunities__create_related_opportunity_popup',
+        #    ),
+        url(r'^opportunity/add_to/(?P<person_id>\d+)/popup[/]?$',
+            opportunity.RelatedOpportunityCreationPopup.as_view(),
             name='opportunities__create_related_opportunity_popup',
-           ),
+        ),
         # url(r'^opportunity/edit/(?P<opp_id>\d+)[/]?$',        opportunity.edit,       name='opportunities__edit_opportunity'),
-        url(r'^opportunity/edit/(?P<opp_id>\d+)[/]?$',        opportunity.OpportunityEdition.as_view(), name='opportunities__edit_opportunity'),
+        url(r'^opportunity/edit/(?P<opp_id>\d+)[/]?$', opportunity.OpportunityEdition.as_view(), name='opportunities__edit_opportunity'),
         # url(r'^opportunity/(?P<opp_id>\d+)[/]?$',             opportunity.detailview, name='opportunities__view_opportunity'),
-        url(r'^opportunity/(?P<opp_id>\d+)[/]?$',             opportunity.OpportunityDetail.as_view(), name='opportunities__view_opportunity'),
+        url(r'^opportunity/(?P<opp_id>\d+)[/]?$',      opportunity.OpportunityDetail.as_view(), name='opportunities__view_opportunity'),
     ]
 
 if apps.is_installed('creme.billing'):

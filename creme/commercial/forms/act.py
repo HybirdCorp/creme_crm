@@ -40,15 +40,15 @@ class ActForm(CremeEntityForm):
 
 
 class ObjectiveForm(CremeModelForm):
-    entity_counting = FilteredEntityTypeField(label=_(u'Entity counting'), required=False,
-                                              empty_label=_(u'Do not count entity'),
+    entity_counting = FilteredEntityTypeField(label=_('Entity counting'), required=False,
+                                              empty_label=_('Do not count entity'),
                                              )  # TODO: help text ???
 
     class Meta:
         model = ActObjective
         fields = '__all__'
         help_texts = {
-            'counter_goal': _(u'Integer value the counter has to reach'),
+            'counter_goal': _('Integer value the counter has to reach'),
         }
 
     def __init__(self, entity, *args, **kwargs):
@@ -83,11 +83,12 @@ class ObjectiveForm(CremeModelForm):
 
 
 class ObjectivesFromPatternForm(CremeForm):
-    pattern = ModelChoiceField(label=_(u'Pattern'), empty_label=None,
+    pattern = ModelChoiceField(label=_('Pattern'), empty_label=None,
                                queryset=ActObjectivePattern.objects.all()
                               )
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(ObjectivesFromPatternForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.act = entity
@@ -100,7 +101,7 @@ class ObjectivesFromPatternForm(CremeForm):
         create_objective = ActObjective.objects.create
         won_opps = int(ceil(float(act.expected_sales) / float(pattern.average_sales)))
 
-        create_objective(act=act, name=ugettext(u'Number of won opportunities'), counter_goal=won_opps)
+        create_objective(act=act, name=ugettext('Number of won opportunities'), counter_goal=won_opps)
 
         def create_objectives_from_components(comps, parent_goal):
             for comp in comps:
@@ -119,11 +120,11 @@ class ObjectivePatternForm(CremeEntityForm):
 
 
 class _PatternComponentForm(CremeModelForm):
-    entity_counting = FilteredEntityTypeField(label=_(u'Entity counting'), required=False,
-                                              empty_label=_(u'Do not count entity'),
+    entity_counting = FilteredEntityTypeField(label=_('Entity counting'), required=False,
+                                              empty_label=_('Do not count entity'),
                                              )  # TODO: help text ???
-    success_rate    = IntegerField(label=_(u'Success rate'), min_value=1, max_value=100,
-                                   help_text=_(u'Percentage of success')
+    success_rate    = IntegerField(label=_('Success rate'), min_value=1, max_value=100,
+                                   help_text=_('Percentage of success')
                                   )
 
     class Meta:

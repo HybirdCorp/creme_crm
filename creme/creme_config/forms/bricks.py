@@ -119,15 +119,15 @@ class _BrickLocationsForm(CremeForm):
 
 
 class _BrickDetailviewLocationsForm(_BrickLocationsForm):
-    hat    = ChoiceField(label=_(u'Header block'), widget=CremeRadioSelect)
-    top    = BrickLocationsField(label=_(u'Blocks to display on top'))
-    left   = BrickLocationsField(label=_(u'Blocks to display on left side'))
-    right  = BrickLocationsField(label=_(u'Blocks to display on right side'))
-    bottom = BrickLocationsField(label=_(u'Blocks to display on bottom'))
+    hat    = ChoiceField(label=_('Header block'), widget=CremeRadioSelect)
+    top    = BrickLocationsField(label=_('Blocks to display on top'))
+    left   = BrickLocationsField(label=_('Blocks to display on left side'))
+    right  = BrickLocationsField(label=_('Blocks to display on right side'))
+    bottom = BrickLocationsField(label=_('Blocks to display on bottom'))
 
     error_messages = {
-        'duplicated_block': _(u'The following block should be displayed only once: «%(block)s»'),
-        'empty_config':     _(u'Your configuration is empty !'),
+        'duplicated_block': _('The following block should be displayed only once: «%(block)s»'),
+        'empty_config':     _('Your configuration is empty !'),
     }
 
     _ZONES = (('top',    BrickDetailviewLocation.TOP),
@@ -136,14 +136,17 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
               ('bottom', BrickDetailviewLocation.BOTTOM)
              )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ctype=None, *args, **kwargs):
         # super(_BrickDetailviewLocationsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.ct = ct = self.initial['content_type']
+        # self.ct = ct = self.initial['content_type']
+        self.ct = ctype
+
         self.role = None
         self.superuser = False
         self.locations = ()
-        model = ct.model_class() if ct else None
+        # model = ct.model_class() if ct else None
+        model = ctype.model_class() if ctype else None
 
         self.choices = choices = [
             (brick.id_, str(brick.verbose_name))
@@ -214,14 +217,15 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
 
 
 class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
-    role = ModelChoiceField(label=_(u'Role'), queryset=UserRole.objects.none(),
+    role = ModelChoiceField(label=_('Role'), queryset=UserRole.objects.none(),
                             empty_label=None, required=False,
                            )
 
     # TODO: manage Meta.fields in '*'
-    blocks = FieldBlockManager(('general', _(u'Configuration'), ('role', 'hat', 'top', 'left', 'right', 'bottom')))
+    blocks = FieldBlockManager(('general', _('Configuration'), ('role', 'hat', 'top', 'left', 'right', 'bottom')))
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, instance=None, *args, **kwargs):
         # super(BrickDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         fields = self.fields
@@ -236,7 +240,7 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = u'*{}*'.format(ugettext(u'Superuser'))  # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = '*{}*'.format(ugettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 
@@ -252,12 +256,15 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
 
 
 class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, role, superuser, instance=None, *args, **kwargs):
         # super(BrickDetailviewLocationsEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        initial = self.initial
-        self.role      = role      = initial['role']
-        self.superuser = superuser = initial['superuser']
+        # initial = self.initial
+        # self.role      = role      = initial['role']
+        self.role      = role
+        # self.superuser = superuser = initial['superuser']
+        self.superuser = superuser
 
         self.locations = locations = \
             BrickDetailviewLocation.objects.filter(content_type=self.ct,
@@ -330,7 +337,7 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
 
 
 class BrickHomeLocationsForm(_BrickLocationsForm):
-    bricks = BrickLocationsField(label=_(u'Blocks to display on the home'))
+    bricks = BrickLocationsField(label=_('Blocks to display on the home'))
 
     def __init__(self, *args, **kwargs):
         # super(BrickHomeLocationsForm, self).__init__(*args, **kwargs)
@@ -351,7 +358,7 @@ class BrickHomeLocationsForm(_BrickLocationsForm):
 
 class BrickMypageLocationsForm(_BrickLocationsForm):
     # blocks = BrickLocationsField(label=_(u'Blocks to display on the "My Page" of the users'))
-    bricks = BrickLocationsField(label=_(u'Blocks to display on the «My Page» of the users'))
+    bricks = BrickLocationsField(label=_('Blocks to display on the «My Page» of the users'))
 
     def __init__(self, owner, *args, **kwargs):
         # super(BrickMypageLocationsForm, self).__init__(*args, **kwargs)
@@ -398,7 +405,7 @@ class RTypeBrickAddForm(CremeModelForm):
 
 
 class RTypeBrickItemAddCtypeForm(CremeModelForm):
-    ctype = EntityCTypeChoiceField(label=_(u'Customised resource'),
+    ctype = EntityCTypeChoiceField(label=_('Customised resource'),
                                    widget=DynamicSelect({'autocomplete': True}),
                                   )
 
@@ -427,14 +434,14 @@ class RTypeBrickItemAddCtypeForm(CremeModelForm):
 
 
 class RTypeBrickItemEditCtypeForm(CremeModelForm):
-    cells = EntityCellsField(label=_(u'Columns'))
+    cells = EntityCellsField(label=_('Columns'))
 
     class Meta:
         model = RelationBrickItem
         exclude = ('relation_type',)
 
     error_messages = {
-        'invalid_first': _(u'This type of field can not be the first column.'),
+        'invalid_first': _('This type of field can not be the first column.'),
     }
 
     def __init__(self, ctype, *args, **kwargs):
@@ -478,7 +485,7 @@ class RTypeBrickItemEditCtypeForm(CremeModelForm):
 
 
 class CustomBrickConfigItemCreateForm(CremeModelForm):
-    ctype = EntityCTypeChoiceField(label=_(u'Related resource'),
+    ctype = EntityCTypeChoiceField(label=_('Related resource'),
                                    widget=DynamicSelect(attrs={'autocomplete': True}),
                                   )
 
@@ -511,7 +518,7 @@ class CustomBrickConfigItemCreateForm(CremeModelForm):
 
 
 class CustomBrickConfigItemEditForm(CremeModelForm):
-    cells = EntityCellsField(label=_(u'Lines'))
+    cells = EntityCellsField(label=_('Lines'))
 
     blocks = CremeModelForm.blocks.new(('cells', 'Columns', ['cells']))
 

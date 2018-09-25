@@ -109,16 +109,15 @@ def listview(request):
     return generic.list_view(request, SMSCampaign, hf_pk=DEFAULT_HFILTER_SMSCAMPAIGN)
 
 
-@login_required
-@permission_required('sms')
-def add_messaging_list(request, campaign_id):
-    return generic.add_to_entity(request, campaign_id, camp_forms.CampaignAddListForm,
-                                 ugettext('New messaging lists for «%s»'),
-                                 entity_class=SMSCampaign,
-                                 submit_label=_('Link the messaging lists'),
-                                 template='creme_core/generics/blockform/link_popup.html',
-                                )
-
+# @login_required
+# @permission_required('sms')
+# def add_messaging_list(request, campaign_id):
+#     return generic.add_to_entity(request, campaign_id, camp_forms.CampaignAddListForm,
+#                                  ugettext('New messaging lists for «%s»'),
+#                                  entity_class=SMSCampaign,
+#                                  submit_label=_('Link the messaging lists'),
+#                                  template='creme_core/generics/blockform/link_popup.html',
+#                                 )
 
 @login_required
 @permission_required('sms')
@@ -151,3 +150,13 @@ class SMSCampaignEdition(generic.edit.EntityEdition):
     model = SMSCampaign
     form_class = camp_forms.CampaignEditForm
     pk_url_kwarg = 'campaign_id'
+
+
+class MessagingListsAdding(generic.add.AddingToEntity):
+    # model = MessagingList
+    form_class = camp_forms.CampaignAddListForm
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    title_format = _('New messaging lists for «{}»')
+    submit_label = _('Link the messaging lists')
+    entity_id_url_kwarg = 'campaign_id'
+    entity_classes = SMSCampaign

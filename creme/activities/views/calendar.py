@@ -23,7 +23,7 @@ from copy import copy
 from datetime import datetime, timedelta
 import logging
 from json import dumps as jsondumps
-# import warnings
+import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
@@ -93,12 +93,6 @@ def _get_datetime(data, key, default_func):
 
 # TODO: less query ?
 def _get_one_activity_per_calendar(calendar_ids, activities):
-    # act = []
-    # for activity in activities:
-    #     for calendar in activity.calendars.filter(id__in=calendar_ids):
-    #         activity.calendar = calendar
-    #         act.append(copy(activity))
-    # return act
     for activity in activities:
         for calendar in activity.calendars.filter(id__in=calendar_ids):
             copied = copy(activity)
@@ -154,7 +148,8 @@ def user_calendar(request):
         cal_user.filter_key = filter_key
         others_calendars[cal_user].append(calendar)
         creme_calendars_by_user[filter_key].append({'name': calendar.name,
-                                                    'id': calendar.id})
+                                                    'id': calendar.id,
+                                                   })
 
     floating_activities = []
     for activity in Activity.objects.filter(floating_type=constants.FLOATING,
@@ -171,7 +166,6 @@ def user_calendar(request):
 
     return render(request, 'activities/calendar.html',
                   {'user_username':           user.username,
-                   # 'events_url':              reverse('activities__calendars_activities', args=('',)),
                    'events_url':              reverse('activities__calendars_activities'),
                    'max_element_search':      constants.MAX_ELEMENT_SEARCH,
                    'my_calendars':            Calendar.objects.filter(user=user),
@@ -274,7 +268,7 @@ def update_activity_date(request):
                     )
 
     if collisions:
-        raise ConflictError(u', '.join(collisions))  # TODO: improve msg ??
+        raise ConflictError(', '.join(collisions))  # TODO: improve msg ??
 
     activity.save()
 
@@ -282,10 +276,21 @@ def update_activity_date(request):
 @login_required
 @permission_required('activities')
 def add_user_calendar(request):
-    return generic.add_model_with_popup(request, calendar_forms.CalendarForm, title=_(u'Create a calendar'),
-                                        # initial={'color': Calendar.new_color()},
+    warnings.warn('activities.views.calendar.add_user_calendar() is deprecated ; '
+                  'use the class UserCalendarCreation instead.',
+                  DeprecationWarning
+                 )
+
+    return generic.add_model_with_popup(request, calendar_forms.CalendarForm,
+                                        title=_('Create a calendar'),
                                         submit_label=_('Save the calendar'),
                                        )
+
+
+class UserCalendarCreation(generic.add.CremeModelCreationPopup):
+    model = Calendar
+    form_class = calendar_forms.CalendarForm
+    permissions = 'activities'
 
 
 @login_required
@@ -307,7 +312,7 @@ def delete_user_calendar(request):
 
     # TODO: factorise calendar credentials functions ?
     if not calendar.is_custom or (not user.is_superuser and calendar.user_id != user.id):
-        raise PermissionDenied(_(u'You are not allowed to delete this calendar.'))
+        raise PermissionDenied(_('You are not allowed to delete this calendar.'))
 
     # Attach all existing activities to the default calendar
     default_calendar = Calendar.get_user_default_calendar(user)
@@ -322,7 +327,6 @@ def delete_user_calendar(request):
 def link_user_calendar(request, activity_id):
     return generic.edit_model_with_popup(request, query_dict={'pk': activity_id},
                                          model=Activity, form_class=calendar_forms.ActivityCalendarLinkerForm,
-                                         title_format=_(u'Change calendar of «%s»'),
-                                         # can_change=lambda activity, user: user.has_perm_to_link(activity),
+                                         title_format=_('Change calendar of «%s»'),
                                          can_change=lambda activity, user: True,
                                         )

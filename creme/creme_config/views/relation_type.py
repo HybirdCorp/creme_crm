@@ -24,10 +24,12 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import RelationType, SemiFixedRelationType
-from creme.creme_core.views.generic import add_model_with_popup, inner_popup
+from creme.creme_core.views.generic import inner_popup  # add_model_with_popup
 from creme.creme_core.utils import get_from_POST_or_404
 
-from ..forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm, SemiFixedRelationTypeCreateForm
+from ..forms import relation_type as rtype_forms
+
+from .base import BaseConfigCreation
 from .portal import _config_portal
 
 
@@ -36,18 +38,26 @@ def portal(request):
     return _config_portal(request, 'creme_config/relation_type_portal.html')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add(request):
-    return add_model_with_popup(request, RelationTypeCreateForm, _(u'New custom type'),
-                                submit_label=RelationType.save_label,
-                               )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add(request):
+#     return add_model_with_popup(request, rtype_forms.RelationTypeCreateForm,
+#                                 _('New custom type'),
+#                                 submit_label=RelationType.save_label,
+#                                )
+class RelationTypeCreation(BaseConfigCreation):
+    model = RelationType
+    form_class = rtype_forms.RelationTypeCreateForm
+    title = _('New custom type')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add_semi_fixed(request):
-    return add_model_with_popup(request, SemiFixedRelationTypeCreateForm)
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add_semi_fixed(request):
+#     return add_model_with_popup(request, rtype_forms.SemiFixedRelationTypeCreateForm)
+class SemiFixedRelationTypeCreation(BaseConfigCreation):
+    model = SemiFixedRelationType
+    form_class = rtype_forms.SemiFixedRelationTypeCreateForm
 
 
 @login_required
@@ -60,18 +70,18 @@ def edit(request, relation_type_id):
         raise Http404("Can't edit a standard RelationType")
 
     if request.method == 'POST':
-        form = RelationTypeEditForm(relation_type, user=request.user, data=request.POST)
+        form = rtype_forms.RelationTypeEditForm(relation_type, user=request.user, data=request.POST)
 
         if form.is_valid():
             form.save()
     else:
-        form = RelationTypeEditForm(instance=relation_type, user=request.user)
+        form = rtype_forms.RelationTypeEditForm(instance=relation_type, user=request.user)
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': ugettext(u'Edit the type «{predicate}»').format(predicate=relation_type), # TODO: lazy interpolation
-                        'submit_label': _(u'Save the modifications'),
+                        'title': ugettext('Edit the type «{predicate}»').format(predicate=relation_type), # TODO: lazy interpolation
+                        'submit_label': _('Save the modifications'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,

@@ -94,10 +94,12 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
     class Meta(CustomFieldsBaseForm.Meta):
         exclude = ('content_type',)
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, ctype, *args, **kwargs):
         # super(CustomFieldsAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.ct = self.initial['ct']
+        # self.ct = self.initial['ct']
+        self.ct = ctype
 
     def clean_name(self):
         name = self.cleaned_data['name']

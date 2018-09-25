@@ -26,14 +26,14 @@ from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
 from creme.creme_core.models import EntityFilter
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 
 from .. import get_mailinglist_model
 
 
 MailingList   = get_mailinglist_model()
-Contact       = get_contact_model()
-Organisation  = get_organisation_model()
+Contact       = persons.get_contact_model()
+Organisation  = persons.get_organisation_model()
 
 
 class MailingListForm(CremeEntityForm):
@@ -43,11 +43,14 @@ class MailingListForm(CremeEntityForm):
 
 
 class AddContactsForm(CremeForm):
-    recipients = MultiCreatorEntityField(label=_(u'Contacts'), required=False, model=Contact)  # other filter (name + email)??
+    recipients = MultiCreatorEntityField(label=_('Contacts'),
+                                         required=False, model=Contact,
+                                        )  # other filter (name + email)??
 
-    blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
+    blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(AddContactsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
@@ -61,11 +64,14 @@ class AddContactsForm(CremeForm):
 
 
 class AddOrganisationsForm(CremeForm):  # TODO: factorise
-    recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation) # other filter (name + email)??
+    recipients = MultiCreatorEntityField(label=_('Organisations'),
+                                         required=False, model=Organisation,
+                                        ) # other filter (name + email)??
 
-    blocks = FieldBlockManager(('general', _(u'Organisations recipients'), '*'))
+    blocks = FieldBlockManager(('general', _('Organisations recipients'), '*'))
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(AddOrganisationsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
@@ -79,13 +85,15 @@ class AddOrganisationsForm(CremeForm):  # TODO: factorise
 
 
 class _AddPersonsFromFilterForm(CremeForm):
-    filters = ModelChoiceField(label=_(u'Filters'), queryset=EntityFilter.objects.none(),
-                               empty_label=_(u'All'), required=False,
+    filters = ModelChoiceField(label=_('Filters'),
+                               queryset=EntityFilter.objects.none(),
+                               empty_label=_('All'), required=False,
                               )
 
     person_model = None  # Contact/Organisation
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(_AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
@@ -110,7 +118,7 @@ class _AddPersonsFromFilterForm(CremeForm):
 
 
 class AddContactsFromFilterForm(_AddPersonsFromFilterForm):
-    blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
+    blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
 
     person_model = Contact
 
@@ -119,7 +127,7 @@ class AddContactsFromFilterForm(_AddPersonsFromFilterForm):
 
 
 class AddOrganisationsFromFilterForm(_AddPersonsFromFilterForm):
-    blocks = FieldBlockManager(('general', _(u'Organisations recipients'), '*'))
+    blocks = FieldBlockManager(('general', _('Organisations recipients'), '*'))
 
     person_model = Organisation
 
@@ -128,17 +136,18 @@ class AddOrganisationsFromFilterForm(_AddPersonsFromFilterForm):
 
 
 class AddChildForm(CremeForm):
-    child = CreatorEntityField(label=_(u'List'), model=MailingList)
+    child = CreatorEntityField(label=_('List'), model=MailingList)
 
     error_messages = {
-        'own_child': _(u"A list can't be its own child"),
-        'in_parents': _(u'List already in the parents'),
-        'in_children': _(u'List already in the children'),
+        'own_child':   _("A list can't be its own child"),
+        'in_parents':  _('List already in the parents'),
+        'in_children': _('List already in the children'),
     }
 
-    blocks = FieldBlockManager(('general', _(u'Child mailing list'), '*'))
+    blocks = FieldBlockManager(('general', _('Child mailing list'), '*'))
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(AddChildForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity

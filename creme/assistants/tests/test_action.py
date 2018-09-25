@@ -9,6 +9,7 @@ try:
     from django.db.models.query import QuerySet
     from django.urls import reverse
     from django.utils.timezone import now
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import (CremeEntity, BrickDetailviewLocation,
             FakeContact, FakeOrganisation, FakeMailingList)
@@ -51,7 +52,10 @@ class ActionTestCase(AssistantsTestCase):
         self.assertFalse(Action.objects.exists())
 
         entity = self.entity
-        self.assertGET200(self._build_add_url(entity))
+        context = self.assertGET200(self._build_add_url(entity)).context
+        # self.assertEqual(_('New action for «%s»') % entity, context.get('title'))
+        self.assertEqual(_('New action for «{}»').format(entity), context.get('title'))
+        self.assertEqual(_('Save the action'),                    context.get('submit_label'))
 
         title    = 'TITLE'
         descr    = 'DESCRIPTION'

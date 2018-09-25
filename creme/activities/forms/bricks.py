@@ -43,14 +43,15 @@ Contact = get_contact_model()
 
 
 class ParticipantCreateForm(CremeForm):
-    my_participation    = UserParticipationField(label=_(u'Do I participate to this activity?'), empty_label=None)
-    participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
+    my_participation    = UserParticipationField(label=_('Do I participate to this activity?'), empty_label=None)
+    participating_users = ModelMultipleChoiceField(label=_('Other participating users'),
                                                    queryset=get_user_model().objects.filter(is_staff=False),
                                                    required=False,
                                                   )
-    participants        = MultiCreatorEntityField(label=_(u'Participants'), model=Contact, required=False)
+    participants        = MultiCreatorEntityField(label=_('Participants'), model=Contact, required=False)
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(ParticipantCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.activity = entity
@@ -73,8 +74,8 @@ class ParticipantCreateForm(CremeForm):
         participants_field.force_creation = True  # TODO: in constructor ?
 
         if entity.is_auto_orga_subject_enabled():
-            participants_field.help_text = _(u'The organisations of the participants will '
-                                             u'be automatically added as subjects'
+            participants_field.help_text = _('The organisations of the participants will '
+                                             'be automatically added as subjects'
                                             )
 
         existing_users = [c.is_user.pk for c in existing if c.is_user]
@@ -152,9 +153,10 @@ class ParticipantCreateForm(CremeForm):
 
 class SubjectCreateForm(CremeForm):
     # TODO: qfilter to exclude current subjects, see MultiGenericEntityField
-    subjects = MultiGenericEntityField(label=_(u'Subjects'))
+    subjects = MultiGenericEntityField(label=_('Subjects'))
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(SubjectCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.activity = entity
@@ -174,11 +176,11 @@ class SubjectCreateForm(CremeForm):
         duplicates = [subject for subject in subjects if subject.id in already_subjects]
 
         if duplicates:
-            raise ValidationError(ungettext(u'This entity is already a subject: %(duplicates)s',
-                                            u'These entities are already subjects: %(duplicates)s',
+            raise ValidationError(ungettext('This entity is already a subject: %(duplicates)s',
+                                            'These entities are already subjects: %(duplicates)s',
                                             len(duplicates)
                                            ),
-                                  params={'duplicates': u', '.join(str(e) for e in duplicates)},
+                                  params={'duplicates': ', '.join(str(e) for e in duplicates)},
                                  )
 
         return subjects

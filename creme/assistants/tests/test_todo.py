@@ -87,10 +87,14 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         queue.clear()
 
         entity = self.entity
-        response = self.assertGET200(self._build_add_url(entity))
+        context = self.assertGET200(self._build_add_url(entity)).context
+        # self.assertEqual(_('New Todo for «%s»') % entity, context.get('title'))
+        self.assertEqual(_('New todo for «{}»').format(entity), context.get('title'))
+        self.assertEqual(_('Save the todo'),                    context.get('submit_label'))
+
 
         with self.assertNoException():
-            hours = response.context['form'].fields['deadline_hour'].choices
+            hours = context['form'].fields['deadline_hour'].choices
 
         self.assertIn((0, '0h'), hours)
         self.assertIn((23, '23h'), hours)

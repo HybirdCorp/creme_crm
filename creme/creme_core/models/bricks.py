@@ -53,10 +53,10 @@ logger = logging.getLogger(__name__)
 
 # class BlockDetailviewLocation(CremeModel):
 class BrickDetailviewLocation(CremeModel):
-    content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True)
-    role         = ForeignKey(UserRole, verbose_name=_(u'Related role'), null=True, default=None, on_delete=CASCADE)
+    content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
+    role         = ForeignKey(UserRole, verbose_name=_('Related role'), null=True, default=None, on_delete=CASCADE)
     # TODO: a UserRole for superusers instead ??
-    superuser    = BooleanField(u'related to superusers', default=False, editable=False)
+    superuser    = BooleanField('related to superusers', default=False, editable=False)
     brick_id     = CharField(max_length=100)
     order        = PositiveIntegerField()
     zone         = PositiveSmallIntegerField()
@@ -278,9 +278,12 @@ post_save.connect(BrickMypageLocation._copy_default_config, sender=settings.AUTH
 class RelationBrickItem(CremeModel):
     # TODO: 'brick_id' not really useful (can be dynamically generated with the RelationType)
     #        + in the 'brick_id': 1)remove the app_name  2)"specificblock_" => "rtypebrick_" (need data migration)
-    brick_id       = CharField(_(u'Block ID'), max_length=100, editable=False)
-    relation_type  = OneToOneField(RelationType, verbose_name=_(u'Related type of relationship'), on_delete=CASCADE)
+    brick_id       = CharField(_('Block ID'), max_length=100, editable=False)
+    relation_type  = OneToOneField(RelationType, verbose_name=_('Related type of relationship'), on_delete=CASCADE)
     json_cells_map = TextField(editable=False, default='{}')  # TODO: JSONField
+
+    creation_label = _('Create a type of block')
+    save_label     = _('Save the block')
 
     _cells_map = None
 
@@ -382,10 +385,10 @@ class RelationBrickItem(CremeModel):
 
 # class InstanceBlockConfigItem(CremeModel):
 class InstanceBrickConfigItem(CremeModel):
-    brick_id = CharField(_(u'Block ID'), max_length=300, blank=False, null=False, editable=False)
-    entity   = ForeignKey(CremeEntity, verbose_name=_(u'Block related entity'), on_delete=CASCADE)
+    brick_id = CharField(_('Block ID'), max_length=300, blank=False, null=False, editable=False)
+    entity   = ForeignKey(CremeEntity, verbose_name=_('Block related entity'), on_delete=CASCADE)
     data     = TextField(blank=True, null=True)
-    verbose  = CharField(_(u'Verbose'), max_length=200, blank=True, null=True)  # TODO: remove
+    verbose  = CharField(_('Verbose'), max_length=200, blank=True, null=True)  # TODO: remove
 
     _brick = None
 
@@ -424,11 +427,11 @@ class InstanceBrickConfigItem(CremeModel):
 
     @staticmethod
     def id_is_specific(brick_id):
-        return brick_id.startswith(u'instanceblock_')
+        return brick_id.startswith('instanceblock_')
 
     @staticmethod
     def generate_base_id(app_name, name):
-        return u'instanceblock_{}-{}'.format(app_name, name)
+        return 'instanceblock_{}-{}'.format(app_name, name)
 
     @staticmethod
     def generate_id(brick_class, entity, key):
@@ -440,7 +443,7 @@ class InstanceBrickConfigItem(CremeModel):
                              'forbidden character in key "{}"'.format(key)
                             )
 
-        return u'{}|{}-{}'.format(brick_class.id_, entity.id, key)
+        return '{}|{}-{}'.format(brick_class.id_, entity.id, key)
 
     @staticmethod
     def get_base_id(brick_id):
@@ -450,8 +453,8 @@ class InstanceBrickConfigItem(CremeModel):
 # class CustomBlockConfigItem(CremeModel):
 class CustomBrickConfigItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100, editable=False)
-    content_type = CTypeForeignKey(verbose_name=_(u'Related type'), editable=False)
-    name         = CharField(_(u'Name'), max_length=200)
+    content_type = CTypeForeignKey(verbose_name=_('Related type'), editable=False)
+    name         = CharField(_('Name'), max_length=200)
     json_cells   = TextField(editable=False, default='[]')  # TODO: JSONField
 
     _cells = None
@@ -529,7 +532,7 @@ class CustomBrickConfigItem(CremeModel):
 # class BlockState(CremeModel):
 class BrickState(CremeModel):
     user              = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
-    brick_id          = CharField(_(u'Block ID'), max_length=100)
+    brick_id          = CharField(_('Block ID'), max_length=100)
     is_open           = BooleanField(default=True)  # Is brick has to appear as opened or closed
     show_empty_fields = BooleanField(default=True)  # Are empty fields in brick have to be shown or not
 

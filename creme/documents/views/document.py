@@ -58,22 +58,22 @@ def abstract_add_document(request, form=doc_forms.DocumentCreateForm,
     )
 
 
-def abstract_add_related_document(request, entity_id,
-                                  form=doc_forms.RelatedDocumentCreateForm,
-                                  title=_('New document for «%s»'),
-                                  submit_label=Document.save_label,
-                                 ):
-    entity = get_object_or_404(CremeEntity, pk=entity_id)
-    user = request.user
-
-    user.has_perm_to_view_or_die(entity)
-    user.has_perm_to_link_or_die(entity)
-    user.has_perm_to_link_or_die(Document, owner=None)
-
-    return generic.add_model_with_popup(request, form, title % entity,
-                                        initial={'entity': entity},
-                                        submit_label=submit_label,
-                                       )
+# def abstract_add_related_document(request, entity_id,
+#                                   form=doc_forms.RelatedDocumentCreateForm,
+#                                   title=_('New document for «%s»'),
+#                                   submit_label=Document.save_label,
+#                                  ):
+#     entity = get_object_or_404(CremeEntity, pk=entity_id)
+#     user = request.user
+#
+#     user.has_perm_to_view_or_die(entity)
+#     user.has_perm_to_link_or_die(entity)
+#     user.has_perm_to_link_or_die(Document, owner=None)
+#
+#     return generic.add_model_with_popup(request, form, title % entity,
+#                                         initial={'entity': entity},
+#                                         submit_label=submit_label,
+#                                        )
 
 
 def abstract_edit_document(request, document_id, form=doc_forms.DocumentEditForm):
@@ -101,10 +101,10 @@ def add(request):
     return abstract_add_document(request)
 
 
-@login_required
-@permission_required(('documents', cperm(Document)))
-def add_related(request, entity_id):
-    return abstract_add_related_document(request, entity_id)
+# @login_required
+# @permission_required(('documents', cperm(Document)))
+# def add_related(request, entity_id):
+#     return abstract_add_related_document(request, entity_id)
 
 
 @login_required
@@ -141,6 +141,21 @@ class DocumentCreation(generic.add.EntityCreation):
         initial['linked_folder'] = folder.id if folder else None
 
         return initial
+
+
+class RelatedDocumentCreation(generic.add.AddingToEntity):
+    model = Document
+    form_class = doc_forms.RelatedDocumentCreateForm
+    permissions = ['documents', cperm(Document)]
+    title_format = _('New document for «{}»')
+
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_view_or_die(entity)
+        user.has_perm_to_link_or_die(entity)
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        user.has_perm_to_link_or_die(Document, owner=None)
 
 
 class DocumentDetail(generic.detailview.EntityDetail):

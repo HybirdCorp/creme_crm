@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, FieldsConfig
 from creme.creme_core.utils import jsonify
 from creme.creme_core.views import generic, decorators
@@ -35,14 +35,21 @@ from ..forms import payment_information as pi_forms
 from ..models import PaymentInformation
 
 
-@login_required
-@permission_required('billing')
-def add(request, entity_id):
-    return generic.add_to_entity(request, entity_id, pi_forms.PaymentInformationCreateForm,
-                                 _(u'New payment information in the organisation «%s»'),
-                                 entity_class=get_organisation_model(),
-                                 submit_label=_('Save the payment information'),
-                                )
+# @login_required
+# @permission_required('billing')
+# def add(request, entity_id):
+#     return generic.add_to_entity(request, entity_id, pi_forms.PaymentInformationCreateForm,
+#                                  _('New payment information in the organisation «%s»'),
+#                                  entity_class=get_organisation_model(),
+#                                  submit_label=_('Save the payment information'),
+#                                 )
+class PaymentInformationCreation(generic.add.AddingToEntity):
+    model = PaymentInformation
+    form_class = pi_forms.PaymentInformationCreateForm
+    permissions = 'billing'
+    entity_id_url_kwarg = 'orga_id'
+    entity_classes = get_organisation_model()
+    title_format = _('New payment information in the organisation «{}»')
 
 
 @login_required
@@ -50,7 +57,7 @@ def add(request, entity_id):
 def edit(request, payment_information_id):
     return generic.edit_related_to_entity(request, payment_information_id,
                                           PaymentInformation, pi_forms.PaymentInformationEditForm,
-                                          _(u'Payment information for «%s»'),
+                                          _('Payment information for «%s»'),
                                          )
 
 

@@ -14,12 +14,14 @@ class SignaturesTestCase(_EmailsTestCase):
         # return super(SignaturesTestCase, self).login(is_superuser, allowed_apps=allowed_apps, *args, **kwargs)
         return super().login(is_superuser, allowed_apps=allowed_apps, *args, **kwargs)
 
-    def test_create01(self):
-        self.login()
+    def test_create(self):
+        self.login(is_superuser=False)
         self.assertFalse(EmailSignature.objects.count())
 
         url = reverse('emails__create_signature')
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        self.assertEqual(EmailSignature.creation_label, context.get('title'))
+        self.assertEqual(EmailSignature.save_label,     context.get('submit_label'))
 
         name = 'Polite signature'
         body = 'I love you'
@@ -29,6 +31,10 @@ class SignaturesTestCase(_EmailsTestCase):
         self.assertEqual(body,      signature.body)
         self.assertEqual(self.user, signature.user)
         self.assertEqual(0,         signature.images.count())
+
+    def test_create_not_allowed(self):
+        self.login(is_superuser=False, allowed_apps=['persons'])
+        self.assertGET403(reverse('emails__create_signature'))
 
     # TODO: create with images....
 

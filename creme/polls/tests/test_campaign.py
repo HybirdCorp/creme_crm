@@ -5,8 +5,10 @@ try:
     from datetime import date
 
     from django.urls import reverse
+    from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import CremePropertyType
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import CremePropertyType, SetCredentials
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.commercial.models import MarketSegment
@@ -21,15 +23,16 @@ except Exception as e:
 
 @skipIfCustomPollCampaign
 class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
-    def setUp(self):
-        self.login()
+    # def setUp(self):
+    #     self.login()
 
     def _create_segment(self, name, label):  # TODO: inline ?
         ptype = CremePropertyType.create('polls-prop_{}'.format(name), 'is from segment "{}"'.format(label))
         return MarketSegment.objects.create(name=label, property_type=ptype)
 
     def test_detailview01(self):
-        camp = PollCampaign.objects.create(user=self.user, name='Camp#1')
+        user = self.login()
+        camp = PollCampaign.objects.create(user=user, name='Camp#1')
         response = self.assertGET200(camp.get_absolute_url())
         self.assertTemplateUsed(response, 'polls/view_campaign.html')
         self.assertContains(response, camp.name)
@@ -37,7 +40,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.get_brick_node(self.get_html_tree(response.content), PollCampaignRepliesBrick.id_)
 
     def test_createview01(self):
-        user = self.user
+        user = self.login()
         self.assertFalse(PollCampaign.objects.all())
 
         url = reverse('polls__create_campaign')
@@ -68,7 +71,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(expected_count, camp.expected_count)
 
     def test_editview01(self):
-        user = self.user
+        user = self.login()
         name = 'camp#1'
         camp = PollCampaign.objects.create(user=self.user, name=name)
 
@@ -96,7 +99,8 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(expected_count, camp.expected_count)
 
     def test_listview(self):
-        create_camp = partial(PollCampaign.objects.create, user=self.user)
+        user = self.login()
+        create_camp = partial(PollCampaign.objects.create, user=user)
         camps = [create_camp(name='Camp#%d' % i) for i in range(3)]
 
         response = self.assertGET200(PollCampaign.get_lv_absolute_url())
@@ -123,12 +127,13 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomPollReply
     def test_create_preply01(self):
         "Create several replies linked to the campaign"
+        user = self.login()
         pform, camp = self._create_pform_n_campaign()
 
         name = 'Reply'
         reply_number = 2
         response = self.client.post(self.ADD_REPLY_URL, follow=True,
-                                    data={'user':     self.user.id,
+                                    data={'user':     user.id,
                                           'name':     name,
                                           'pform':    pform.id,
                                           'number':   reply_number,
@@ -143,17 +148,25 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preply02(self):
+    def test_create_preply_from_campaign01(self):
         "Create several replies linked to a given campaign"
+        user = self.login()
         pform, camp = self._create_pform_n_campaign()
 
         url = reverse('polls__create_reply_from_campaign', args=(camp.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('New replies for «%s»') % camp, context.get('title'))
+        self.assertEqual(_('New replies for «{}»').format(camp), context.get('title'))
+        self.assertEqual(PollReply.multi_save_label,             context.get('submit_label'))
+
+        # ---
         name = 'Reply'
         reply_number = 2
         response = self.client.post(url, follow=True,
-                                    data={'user':   self.user.id,
+                                    data={'user':   user.id,
                                           'name':   name,
                                           'pform':  pform.id,
                                           'number': reply_number,
@@ -164,3 +177,62 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         for i in range(1, reply_number + 1):
             preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
             self.assertEqual(camp, preply.campaign)
+
+    @skipIfCustomPollForm
+    @skipIfCustomPollReply
+    def test_create_preply_from_campaign02(self):
+        "Not super user"
+        self.login(is_superuser=False, allowed_apps=['polls'],
+                   creatable_models=[PollReply],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        pform, camp = self._create_pform_n_campaign()
+        self.assertGET200(reverse('polls__create_reply_from_campaign', args=(camp.id,)))
+
+    @skipIfCustomPollForm
+    @skipIfCustomPollReply
+    def test_create_preply_from_campaign02(self):
+        "Creation creds are needed"
+        self.login(is_superuser=False, allowed_apps=['polls'],
+                   # creatable_models=[PollReply],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        pform, camp = self._create_pform_n_campaign()
+
+        self.assertGET403(reverse('polls__create_reply_from_campaign', args=(camp.id,)))
+
+    @skipIfCustomPollForm
+    @skipIfCustomPollReply
+    def test_create_preply_from_campaign03(self):
+        "LINK creds are needed"
+        self.login(is_superuser=False, allowed_apps=['polls'],
+                   creatable_models=[PollReply],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            # EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        pform, camp = self._create_pform_n_campaign()
+
+        self.assertGET403(reverse('polls__create_reply_from_campaign', args=(camp.id,)))

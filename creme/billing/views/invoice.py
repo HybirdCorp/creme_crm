@@ -32,7 +32,6 @@ from creme.creme_core.views import generic, decorators
 from .. import get_invoice_model, constants
 from ..forms import invoice as invoice_forms
 from ..models import InvoiceStatus
-from ..views.workflow import generic_add_related
 
 from . import base
 
@@ -59,6 +58,8 @@ def abstract_add_related_invoice(request, target_id, form=invoice_forms.InvoiceC
                                  title=_(u'Create an invoice for «%s»'),
                                  submit_label=Invoice.save_label,
                                 ):
+    from ..views.workflow import generic_add_related
+
     return generic_add_related(request, target_id=target_id,
                                form=form, title=title,
                                submit_label=submit_label,
@@ -147,6 +148,14 @@ def generate_number(request, invoice_id):
 class InvoiceCreation(base.BaseCreation):
     model = Invoice
     form_class = invoice_forms.InvoiceCreateForm
+    initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
+
+
+class RelatedInvoiceCreation(base.RelatedBaseCreation):
+    model = Invoice
+    form_class = invoice_forms.InvoiceCreateForm
+    permissions = ('billing', cperm(Invoice))
+    title_format = _('Create an invoice for «{}»')
     initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
 
 

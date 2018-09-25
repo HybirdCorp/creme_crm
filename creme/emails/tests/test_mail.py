@@ -76,10 +76,13 @@ class EntityEmailTestCase(_EmailsTestCase):
         contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law', email=recipient)
         url = self._build_create_entitymail_url(contact)
 
-        response = self.assertGET200(url)
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('Sending an email to «%s»') % contact, context.get('title'))
+        self.assertEqual(_('Sending an email to «{}»').format(contact), context.get('title'))
+        self.assertEqual(EntityEmail.sending_label,                     context.get('submit_label'))
 
         with self.assertNoException():
-            c_recipients = response.context['form'].fields['c_recipients']
+            c_recipients = context['form'].fields['c_recipients']
 
         self.assertEqual([contact.id], c_recipients.initial)
 
@@ -144,8 +147,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         self.assertEqual([orga.id], o_recipients.initial)
 
-        folder = Folder.objects.create(user=user, title=u'Test folder', parent_folder=None,
-                                       category=FolderCategory.objects.create(name=u'Test category'),
+        folder = Folder.objects.create(user=user, title='Test folder', parent_folder=None,
+                                       category=FolderCategory.objects.create(name='Test category'),
                                       )
 
         def create_doc(title, content):
@@ -234,10 +237,10 @@ class EntityEmailTestCase(_EmailsTestCase):
                  },
         )
         self.assertFormError(response, 'form', 'c_recipients',
-                             _(u'The email address for {} is invalid').format(contact01)
+                             _('The email address for {} is invalid').format(contact01)
                             )
         self.assertFormError(response, 'form', 'o_recipients',
-                             _(u'The email address for {} is invalid').format(orga01)
+                             _('The email address for {} is invalid').format(orga01)
                             )
 
     @skipIfCustomContact
@@ -252,7 +255,7 @@ class EntityEmailTestCase(_EmailsTestCase):
             c_recipients = response.context['form'].fields['c_recipients']
 
         self.assertIsNone(c_recipients.initial)
-        self.assertEqual(_(u'Beware: the contact «{}» has no email address!').format(contact),
+        self.assertEqual(_('Beware: the contact «{}» has no email address!').format(contact),
                          c_recipients.help_text
                         )
 
@@ -268,7 +271,7 @@ class EntityEmailTestCase(_EmailsTestCase):
             o_recipients = response.context['form'].fields['o_recipients']
 
         self.assertIsNone(o_recipients.initial)
-        self.assertEqual(_(u'Beware: the organisation «{}» has no email address!').format(orga),
+        self.assertEqual(_('Beware: the organisation «{}» has no email address!').format(orga),
                          o_recipients.help_text
                         )
 
@@ -327,10 +330,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(200, response.status_code)
 
         self.assertFormError(response, 'form', 'c_recipients',
-                             _(u'Some entities are not linkable: {}').format(contact01)
+                             _('Some entities are not linkable: {}').format(contact01)
                             )
         self.assertFormError(response, 'form', 'o_recipients',
-                             _(u'Some entities are not linkable: {}').format(orga01)
+                             _('Some entities are not linkable: {}').format(orga01)
                             )
 
     def test_createview07(self):
@@ -348,7 +351,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                            }
                                       )
         self.assertFormError(response, 'form', None,
-                             _(u'Select at least a Contact or an Organisation')
+                             _('Select at least a Contact or an Organisation')
                             )
 
     @skipIfCustomContact
@@ -368,7 +371,7 @@ class EntityEmailTestCase(_EmailsTestCase):
             recip_field = response.context['form'].fields['c_recipients']
 
         self.assertIsInstance(recip_field.widget, Label)
-        self.assertEqual(_(u'Beware: the field «Email address» is hidden ; please contact your administrator.'),
+        self.assertEqual(_('Beware: the field «Email address» is hidden ; please contact your administrator.'),
                          recip_field.initial
                         )
 
@@ -382,7 +385,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', None,
-                             _(u'Select at least a Contact or an Organisation')
+                             _('Select at least a Contact or an Organisation')
                             )
 
     @skipIfCustomOrganisation
@@ -402,7 +405,7 @@ class EntityEmailTestCase(_EmailsTestCase):
             recip_field = response.context['form'].fields['o_recipients']
 
         self.assertIsInstance(recip_field.widget, Label)
-        self.assertEqual(_(u'Beware: the field «Email address» is hidden ; please contact your administrator.'),
+        self.assertEqual(_('Beware: the field «Email address» is hidden ; please contact your administrator.'),
                          recip_field.initial
                         )
 
@@ -417,7 +420,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                  },
         )
         self.assertFormError(response, 'form', None,
-                             _(u'Select at least a Contact or an Organisation')
+                             _('Select at least a Contact or an Organisation')
                             )
 
     @skipIfCustomContact
@@ -460,6 +463,25 @@ class EntityEmailTestCase(_EmailsTestCase):
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
+    def test_createview11(self):
+        "No creation credentials"
+        user = self.login(is_superuser=False,
+                          creatable_models=(Contact, Organisation)  # No EntityEmail
+                         )
+        SetCredentials.objects.create(
+            role=user.role,
+            value=(EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                   EntityCredentials.LINK   |
+                   EntityCredentials.DELETE | EntityCredentials.UNLINK
+                  ),
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        contact02 = Contact.objects.create(user=user, first_name='Pino', last_name='AutoReiv')
+        self.assertGET403(self._build_create_entitymail_url(contact02))
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_createview_empty_email(self):
         "Empty email address"
         user = self.login()
@@ -485,10 +507,10 @@ class EntityEmailTestCase(_EmailsTestCase):
                  },
         )
         self.assertFormError(response, 'form', 'c_recipients',
-                             _(u'This entity does not exist.')
+                             _('This entity does not exist.')
                             )
         self.assertFormError(response, 'form', 'o_recipients',
-                             _(u'This entity does not exist.')
+                             _('This entity does not exist.')
                             )
 
     @skipIfCustomEmailTemplate

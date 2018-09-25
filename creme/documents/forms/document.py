@@ -88,10 +88,12 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         # exclude = _DocumentBaseForm.Meta.exclude + ('folder', )
         exclude = _DocumentBaseForm.Meta.exclude + ('linked_folder', )
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(RelatedDocumentCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.related_entity = self.initial['entity']
+        # self.related_entity = self.initial['entity']
+        self.related_entity = entity
         self.folder_category = None
         self.root_folder = None
 

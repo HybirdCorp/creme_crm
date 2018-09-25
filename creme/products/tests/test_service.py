@@ -179,7 +179,14 @@ class ServiceTestCase(_ProductsTestCase):
         service.images.set([img_3])
 
         url = reverse('products__add_images_to_service', args=(service.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New images for «%s»') % service, context.get('title'))
+        self.assertEqual(_('New images for «{}»').format(service), context.get('title'))
+        self.assertEqual(_('Link the images'),                     context.get('submit_label'))
+
 
         def post(*images):
             return self.client.post(url, follow=True,

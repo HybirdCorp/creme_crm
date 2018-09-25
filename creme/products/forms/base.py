@@ -29,7 +29,7 @@ from .fields import CategoryField
 
 
 class _BaseForm(CremeEntityForm):
-    sub_category = CategoryField(label=_(u'Sub-category'))
+    sub_category = CategoryField(label=_('Sub-category'))
 
     class Meta(CremeEntityForm.Meta):
         # model = OVERLOAD ME
@@ -58,9 +58,10 @@ class _BaseEditForm(_BaseForm):
 
 
 class AddImagesForm(CremeForm):
-    images = MultiImageEntityField(label=_(u'Images'))
+    images = MultiImageEntityField(label=_('Images'))
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(AddImagesForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.entity = entity

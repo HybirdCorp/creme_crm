@@ -5,6 +5,7 @@ try:
     from functools import partial
 
     from django.urls import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import Currency, FieldsConfig
 
@@ -28,9 +29,15 @@ class PaymentInformationTestCase(_BillingTestCase):
         return reverse('billing__set_default_payment_info', args=(pi.id, invoice.id))
 
     def test_createview01(self):
-        organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
+        organisation = Organisation.objects.create(user=self.user, name='Nintendo')
         url = self._build_add_url(organisation)
-        self.assertGET200(url)
+
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New payment information in the organisation «%s»') % organisation, context.get('title'))
+        self.assertEqual(_('New payment information in the organisation «{}»').format(organisation),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the payment information'), context.get('submit_label'))
 
         self.assertNoFormError(self.client.post(url, data={'user': self.user.pk,
                                                            'name': 'RIB of {}'.format(organisation),
@@ -46,8 +53,8 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertEqual(organisation, pi.organisation)
 
     def test_createview02(self):
-        organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
-        first_pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1", is_default=True)
+        organisation = Organisation.objects.create(user=self.user, name='Nintendo')
+        first_pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1', is_default=True)
 
         url = self._build_add_url(organisation)
         self.assertGET200(url)
@@ -72,7 +79,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertGET404(self._build_add_url(self.user.linked_contact))
 
     def test_editview01(self):
-        organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
+        organisation = Organisation.objects.create(user=self.user, name='Nintendo')
         pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1")
 
         # TODO: get_edit_absolute_url() ?
@@ -139,7 +146,7 @@ class PaymentInformationTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     def test_set_default_in_invoice01(self):
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
-        pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
+        pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
         url = self._build_setdefault_url(pi_sony, invoice)
         self.assertGET404(url)
         self.assertPOST200(url)
@@ -147,13 +154,13 @@ class PaymentInformationTestCase(_BillingTestCase):
 
     @skipIfCustomInvoice
     def test_set_default_in_invoice02(self):
-        sega = Organisation.objects.create(user=self.user, name=u"Sega")
+        sega = Organisation.objects.create(user=self.user, name='Sega')
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
 
         create_pi = PaymentInformation.objects.create
-        pi_nintendo = create_pi(organisation=nintendo_target, name="RIB nintendo")
-        pi_sony     = create_pi(organisation=sony_source,     name="RIB sony")
-        pi_sega     = create_pi(organisation=sega,            name="RIB sega")
+        pi_nintendo = create_pi(organisation=nintendo_target, name='RIB nintendo')
+        pi_sony     = create_pi(organisation=sony_source,     name='RIB sony')
+        pi_sega     = create_pi(organisation=sega,            name='RIB sega')
 
         def assertPostStatus(code, pi):
             self.assertEqual(code,
@@ -213,8 +220,8 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertIsNone(self.refresh(invoice).payment_info)
 
     def test_inneredit(self):
-        organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
-        pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1")
+        organisation = Organisation.objects.create(user=self.user, name='Nintendo')
+        pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1')
 
         build_url = self.build_inneredit_url
         url =  build_url(pi, 'name')

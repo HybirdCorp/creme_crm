@@ -31,11 +31,11 @@ from creme.creme_core.models import CremePropertyType, RelationType, SemiFixedRe
 
 
 _CTypesField = partial(MultiEntityCTypeChoiceField, required=False,
-                       label=_(u'Type constraint'),
-                       help_text=_(u'No constraint means that all types are accepted'),
+                       label=_('Type constraint'),
+                       help_text=_('No constraint means that all types are accepted'),
                       )
 _PropertyTypesField = partial(ModelMultipleChoiceField, required=False,
-                              label=_(u'Properties constraint'),
+                              label=_('Properties constraint'),
                               queryset=CremePropertyType.objects.all(),
                              )
 
@@ -44,40 +44,43 @@ class RelationTypeCreateForm(CremeForm):
     subject_ctypes     = _CTypesField()
     subject_properties = _PropertyTypesField()
 
-    subject_predicate   = CharField(label=_(u'Subject => object'))
-    subject_is_copiable = BooleanField(label=_(u'Direct relationship is copiable'), initial=True, required=False,
-                                       help_text=_(u'Are the relationships with this type copied '
-                                                   u'when the subject entity is cloned?'
+    subject_predicate   = CharField(label=_('Subject => object'))
+    subject_is_copiable = BooleanField(label=_('Direct relationship is copiable'), initial=True, required=False,
+                                       help_text=_('Are the relationships with this type copied '
+                                                   'when the subject entity is cloned?'
                                                   ),
                                       )
     subject_min_display = BooleanField(label=_(u"Display once on the subject's page"), required=False,
-                                       help_text=_(u'Do not display in the «Relationships» block (detail-view of '
-                                                   u'subject) when it is already displayed by another block.'
+                                       help_text=_('Do not display in the «Relationships» block (detail-view of '
+                                                   'subject) when it is already displayed by another block.'
                                                   ),
                                       )
 
-    object_predicate   = CharField(label=_(u'Object => subject'))
-    object_is_copiable = BooleanField(label=_(u'Symmetrical relationship is copiable'), initial=True, required=False,
-                                      help_text=_(u'Are the relationships with this type copied '
-                                                  u'when the object entity is cloned?'
+    object_predicate   = CharField(label=_('Object => subject'))
+    object_is_copiable = BooleanField(label=_('Symmetrical relationship is copiable'), initial=True, required=False,
+                                      help_text=_('Are the relationships with this type copied '
+                                                  'when the object entity is cloned?'
                                                  ),
                                      )
     object_min_display = BooleanField(label=_(u"Display once on the subject's page"), required=False,
-                                      help_text=_(u'Do not display in the «Relationships» block (detail-view of '
-                                                  u'object) when it is already displayed by another block.'
+                                      help_text=_('Do not display in the «Relationships» block (detail-view of '
+                                                  'object) when it is already displayed by another block.'
                                                  ),
                                      )
 
     object_ctypes      = _CTypesField()
     object_properties  = _PropertyTypesField()
 
-    blocks = FieldBlockManager(('subject',   _(u'Subject'),        ('subject_ctypes', 'subject_properties')),
-                               ('predicate', _(u'Verb/Predicate'), ('subject_predicate', 'subject_is_copiable', 'subject_min_display',
+    blocks = FieldBlockManager(('subject',   _('Subject'),        ('subject_ctypes', 'subject_properties')),
+                               ('predicate', _('Verb/Predicate'), ('subject_predicate', 'subject_is_copiable', 'subject_min_display',
                                                                     'object_predicate',  'object_is_copiable',  'object_min_display',
                                                                    )
                                ),
-                               ('object',    _(u'Object'),         ('object_ctypes', 'object_properties')),
+                               ('object',    _('Object'),         ('object_ctypes', 'object_properties')),
                               )
+
+    def __init__(self, instance=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def save(self, pk_subject='creme_config-subject_userrelationtype',
              pk_object='creme_config-object_userrelationtype',
@@ -130,7 +133,7 @@ class RelationTypeEditForm(RelationTypeCreateForm):
 
 
 class SemiFixedRelationTypeCreateForm(CremeModelForm):
-    semi_relation = RelationEntityField(label=_(u'Type and object'), autocomplete=True,
+    semi_relation = RelationEntityField(label=_('Type and object'), autocomplete=True,
                                         allowed_rtypes=RelationType.objects.filter(is_internal=False),
                                         credentials=EntityCredentials.VIEW,
                                        )
@@ -148,8 +151,8 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
 
             # TODO: unique_together in model
             if SemiFixedRelationType.objects.filter(relation_type=rtype, object_entity=entity).exists():
-                raise ValidationError(_(u'A semi-fixed type of relationship with '
-                                        u'this type and this object already exists.'
+                raise ValidationError(_('A semi-fixed type of relationship with '
+                                        'this type and this object already exists.'
                                        ),
                                       code='not_unique',
                                      )

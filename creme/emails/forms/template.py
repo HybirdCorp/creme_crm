@@ -39,17 +39,17 @@ from .. import get_emailtemplate_model
 Document = get_document_model()
 
 TEMPLATES_VARS = {'last_name', 'first_name', 'civility', 'name'}
-_TEMPLATES_VARS_4_HELP = u' '.join('{{%s}}' % var for var in TEMPLATES_VARS)
-_help_text = lazy((lambda: ugettext(u'You can use variables: {}').format(_TEMPLATES_VARS_4_HELP)), str)
+_TEMPLATES_VARS_4_HELP = ' '.join('{{%s}}' % var for var in TEMPLATES_VARS)
+_help_text = lazy((lambda: ugettext('You can use variables: {}').format(_TEMPLATES_VARS_4_HELP)), str)
 
 
 class EmailTemplateForm(CremeEntityForm):
-    body        = CharField(label=_(u'Body'), widget=Textarea, help_text=_help_text())
-    body_html   = CharField(label=_(u'Body (HTML)'), required=False, widget=TinyMCEEditor(), help_text=_help_text())
-    attachments = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
+    body        = CharField(label=_('Body'), widget=Textarea, help_text=_help_text())
+    body_html   = CharField(label=_('Body (HTML)'), required=False, widget=TinyMCEEditor(), help_text=_help_text())
+    attachments = MultiCreatorEntityField(label=_('Attachments'), required=False, model=Document)
 
     error_messages = {
-        'invalid_vars': _(u'The following variables are invalid: %(vars)s'),
+        'invalid_vars': _('The following variables are invalid: %(vars)s'),
     }
 
     class Meta(CremeEntityForm.Meta):
@@ -86,11 +86,12 @@ class EmailTemplateForm(CremeEntityForm):
 
 
 class EmailTemplateAddAttachment(CremeForm):
-    attachments = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
+    attachments = MultiCreatorEntityField(label=_('Attachments'), required=False, model=Document)
 
-    blocks = FieldBlockManager(('general', _(u'Attachments'), '*'))
+    blocks = FieldBlockManager(('general', _('Attachments'), '*'))
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(EmailTemplateAddAttachment, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.template = entity

@@ -31,7 +31,7 @@ from creme.creme_core.views import generic
 
 from .. import get_contact_model, get_organisation_model
 from ..constants import DEFAULT_HFILTER_CONTACT
-from ..forms.contact import RelatedContactForm, ContactForm
+from ..forms import contact as c_forms
 
 
 Contact = get_contact_model()
@@ -39,7 +39,7 @@ Contact = get_contact_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_contact(request, form=ContactForm,
+def abstract_add_contact(request, form=c_forms.ContactForm,
                          template='persons/add_contact_form.html',
                          submit_label=Contact.save_label,
                         ):
@@ -53,7 +53,7 @@ def abstract_add_contact(request, form=ContactForm,
 
 
 def abstract_add_related_contact(request, orga_id, rtype_id,
-                                 form=RelatedContactForm,
+                                 form=c_forms.RelatedContactForm,
                                  template='persons/add_contact_form.html',
                                  submit_label=Contact.save_label,
                                 ):
@@ -102,7 +102,7 @@ def abstract_add_related_contact(request, orga_id, rtype_id,
                              )
 
 
-def abstract_edit_contact(request, contact_id, form=ContactForm,
+def abstract_edit_contact(request, contact_id, form=c_forms.ContactForm,
                           template='persons/edit_contact_form.html',
                          ):
     warnings.warn('persons.views.contact.abstract_edit_contact() is deprecated ; '
@@ -160,12 +160,12 @@ def listview(request):
 
 class ContactCreation(generic.add.EntityCreation):
     model = Contact
-    form_class = ContactForm
+    form_class = c_forms.ContactForm
     template_name = 'persons/add_contact_form.html'
 
 
 class RelatedContactCreation(ContactCreation):
-    form_class = RelatedContactForm
+    form_class = c_forms.RelatedContactForm
     orga_id_url_kwarg = 'orga_id'
     rtype_id_url_kwarg = 'rtype_id'
 
@@ -181,8 +181,8 @@ class RelatedContactCreation(ContactCreation):
         self.linked_orga = self.get_linked_orga()
         return super().post(*args, **kwargs)
 
-    def check_view_permission(self):
-        super(RelatedContactCreation, self).check_view_permission()
+    def check_view_permissions(self, user):
+        super(RelatedContactCreation, self).check_view_permissions(user=user)
         self.request.user.has_perm_to_link_or_die(Contact)
 
     def get_form_kwargs(self):
@@ -233,6 +233,6 @@ class ContactDetail(generic.detailview.EntityDetail):
 
 class ContactEdition(generic.edit.EntityEdition):
     model = Contact
-    form_class = ContactForm
+    form_class = c_forms.ContactForm
     template_name = 'persons/edit_contact_form.html'
     pk_url_kwarg = 'contact_id'

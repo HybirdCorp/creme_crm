@@ -12,41 +12,54 @@ from .views import commercial_approach, market_segment, act, strategy  # portal
 urlpatterns = [
     # url(r'^$', portal.portal, name='commercial__portal'),
 
-    url(r'^approach/add/(?P<entity_id>\d+)[/]?$', commercial_approach.add, name='commercial__create_approach'),
+    # url(r'^approach/add/(?P<entity_id>\d+)[/]?$', commercial_approach.add, name='commercial__create_approach'),
+    url(r'^approach/add/(?P<entity_id>\d+)[/]?$',
+        commercial_approach.CommercialApproachCreation.as_view(),
+        name='commercial__create_approach',
+       ),
 
     # Segments
     url(r'^market_segments[/]?$',                           market_segment.listview, name='commercial__list_segments'),
-    url(r'^market_segment/add[/]?$',                        market_segment.add,      name='commercial__create_segment'),
+    # url(r'^market_segment/add[/]?$',                        market_segment.add,      name='commercial__create_segment'),
+    url(r'^market_segment/add[/]?$',                        market_segment.MarketSegmentCreation.as_view(), name='commercial__create_segment'),
     url(r'^market_segment/edit/(?P<segment_id>\d+)[/]?$',   market_segment.edit,     name='commercial__edit_segment'),
     url(r'^market_segment/delete/(?P<segment_id>\d+)[/]?$', market_segment.delete,   name='commercial__delete_segment'),
 
     # Objectives & opportunities
-    url(r'^act/(?P<act_id>\d+)/add/objective[/]?$',               act.add_objective,               name='commercial__create_objective'),
-    url(r'^act/(?P<act_id>\d+)/add/objectives_from_pattern[/]?$', act.add_objectives_from_pattern, name='commercial__create_objective_from_pattern'),
+    # url(r'^act/(?P<act_id>\d+)/add/objective[/]?$',               act.add_objective,               name='commercial__create_objective'),
+    url(r'^act/(?P<act_id>\d+)/add/objective[/]?$',               act.ObjectiveCreation.as_view(),            name='commercial__create_objective'),
+    # url(r'^act/(?P<act_id>\d+)/add/objectives_from_pattern[/]?$', act.add_objectives_from_pattern, name='commercial__create_objective_from_pattern'),
+    url(r'^act/(?P<act_id>\d+)/add/objectives_from_pattern[/]?$', act.ObjectiveCreationFromPattern.as_view(), name='commercial__create_objective_from_pattern'),
     url(r'^objective/(?P<objective_id>\d+)/edit[/]?$',            act.edit_objective,              name='commercial__edit_objective'),
     url(r'^objective/(?P<objective_id>\d+)/incr[/]?$',            act.incr_objective_counter,      name='commercial__incr_objective_counter'),
     url(r'^objective/(?P<objective_id>\d+)/create_entity[/]?$',   act.create_objective_entity,     name='commercial__create_entity_from_objective'),
 
     # Pattern component
-    url(r'^objective_pattern/(?P<objpattern_id>\d+)/add_component[/]?$',      act.add_pattern_component,        name='commercial__create_component'),
+    # url(r'^objective_pattern/(?P<objpattern_id>\d+)/add_component[/]?$',      act.add_pattern_component,        name='commercial__create_component'),
+    url(r'^objective_pattern/(?P<objpattern_id>\d+)/add_component[/]?$',      act.PatternComponentCreation.as_view(), name='commercial__create_component'),
     url(r'^objective_pattern/component/(?P<component_id>\d+)/add_child[/]*',  act.add_child_pattern_component,  name='commercial__create_child_component'),
     url(r'^objective_pattern/component/(?P<component_id>\d+)/add_parent[/]*', act.add_parent_pattern_component, name='commercial__create_parent_component'),
 
     # Segments
-    url(r'^strategy/(?P<strategy_id>\d+)/add/segment[/]?$',                      strategy.add_segment,  name='commercial__create_segment_desc'),
-    url(r'^strategy/(?P<strategy_id>\d+)/link/segment[/]?$',                     strategy.link_segment, name='commercial__link_segment'),
+    # url(r'^strategy/(?P<strategy_id>\d+)/add/segment[/]?$',                      strategy.add_segment,  name='commercial__create_segment_desc'),
+    url(r'^strategy/(?P<strategy_id>\d+)/add/segment[/]?$',                      strategy.SegmentDescCreation.as_view(), name='commercial__create_segment_desc'),
+    # url(r'^strategy/(?P<strategy_id>\d+)/link/segment[/]?$',                     strategy.link_segment, name='commercial__link_segment'),
+    url(r'^strategy/(?P<strategy_id>\d+)/link/segment[/]?$',                     strategy.SegmentLinking.as_view(),      name='commercial__link_segment'),
     url(r'^strategy/(?P<strategy_id>\d+)/segment/edit/(?P<seginfo_id>\d+)[/]?$', strategy.edit_segment, name='commercial__edit_segment_desc'),
 
     # Assets
-    url(r'^strategy/(?P<strategy_id>\d+)/add/asset[/]?$', strategy.add_asset,  name='commercial__create_asset'),
+    # url(r'^strategy/(?P<strategy_id>\d+)/add/asset[/]?$', strategy.add_asset,  name='commercial__create_asset'),
+    url(r'^strategy/(?P<strategy_id>\d+)/add/asset[/]?$', strategy.AssetCreation.as_view(), name='commercial__create_asset'),
     url(r'^asset/edit/(?P<asset_id>\d+)[/]?$',            strategy.edit_asset, name='commercial__edit_asset'),
 
     # Charms
-    url(r'^strategy/(?P<strategy_id>\d+)/add/charm[/]?$', strategy.add_charm,  name='commercial__create_charm'),
+    # url(r'^strategy/(?P<strategy_id>\d+)/add/charm[/]?$', strategy.add_charm,  name='commercial__create_charm'),
+    url(r'^strategy/(?P<strategy_id>\d+)/add/charm[/]?$', strategy.CharmCreation.as_view(),  name='commercial__create_charm'),
     url(r'^charm/edit/(?P<charm_id>\d+)[/]?$',            strategy.edit_charm, name='commercial__edit_charm'),
 
     # Evaluated organisations
-    url(r'^strategy/(?P<strategy_id>\d+)/add/organisation[/]?$',                         strategy.add_evalorga,    name='commercial__add_evaluated_orgas'),
+    # url(r'^strategy/(?P<strategy_id>\d+)/add/organisation[/]?$',                         strategy.add_evalorga,    name='commercial__add_evaluated_orgas'),
+    url(r'^strategy/(?P<strategy_id>\d+)/add/organisation[/]?$',                         strategy.EvaluatedOrgaAdding.as_view(), name='commercial__add_evaluated_orgas'),
     url(r'^strategy/(?P<strategy_id>\d+)/organisation/delete[/]?$',                      strategy.delete_evalorga, name='commercial__remove_evaluated_orga'),
     url(r'^strategy/(?P<strategy_id>\d+)/organisation/(?P<orga_id>\d+)/evaluation[/]?$', strategy.orga_evaluation, name='commercial__orga_evaluation'),
     url(r'^strategy/(?P<strategy_id>\d+)/organisation/(?P<orga_id>\d+)/synthesis[/]?$',  strategy.orga_synthesis,  name='commercial__orga_synthesis'),
@@ -83,7 +96,11 @@ if not act_model_is_custom():
 
 if not opportunity_model_is_custom():
     urlpatterns += [
-        url(r'^act/(?P<act_id>\d+)/add/opportunity[/]?$', act.add_opportunity, name='commercial__create_opportunity'),
+        # url(r'^act/(?P<act_id>\d+)/add/opportunity[/]?$', act.add_opportunity, name='commercial__create_opportunity'),
+        url(r'^act/(?P<act_id>\d+)/add/opportunity[/]?$',
+            act.RelatedOpportunityCreation.as_view(),
+            name='commercial__create_opportunity',
+           ),
     ]
 
 if not pattern_model_is_custom():

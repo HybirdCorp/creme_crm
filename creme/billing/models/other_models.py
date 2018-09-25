@@ -28,26 +28,26 @@ from creme.creme_core.models.fields import BasicAutoField
 
 
 class SettlementTerms(CremeModel):
-    name = CharField(_(u'Settlement terms'), max_length=100)
+    name = CharField(_('Settlement terms'), max_length=100)
 
-    creation_label = _(u'Create settlement terms')
+    creation_label = _('Create settlement terms')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'billing'
-        verbose_name        = pgettext_lazy('billing-singular', u'Settlement terms')
-        verbose_name_plural = pgettext_lazy('billing-plural',   u'Settlement terms')
+        verbose_name        = pgettext_lazy('billing-singular', 'Settlement terms')
+        verbose_name_plural = pgettext_lazy('billing-plural',   'Settlement terms')
         ordering = ('name',)
 
 
 class AbstractStatus(CremeModel):
-    name      = CharField(_(u'Name'), max_length=100)
+    name      = CharField(_('Name'), max_length=100)
     is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
     order     = BasicAutoField(_('Order'))  # Used by creme_config
 
-    creation_label = pgettext_lazy('billing-status', u'Create a status')
+    creation_label = pgettext_lazy('billing-status', 'Create a status')
 
     def __str__(self):
         return self.name
@@ -59,97 +59,100 @@ class AbstractStatus(CremeModel):
 
 
 class InvoiceStatus(AbstractStatus):
-    pending_payment = BooleanField(_(u'Pending payment'), default=False)
+    pending_payment = BooleanField(_('Pending payment'), default=False)
 
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name        = _(u'Invoice status')
-        verbose_name_plural = _(u'Invoice statuses')
+        verbose_name        = _('Invoice status')
+        verbose_name_plural = _('Invoice statuses')
 
 
 class QuoteStatus(AbstractStatus):
-    won = BooleanField(pgettext_lazy('billing-quote_status', u'Won'), default=False)
+    won = BooleanField(pgettext_lazy('billing-quote_status', 'Won'), default=False)
 
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name        = _(u'Quote status')
-        verbose_name_plural = _(u'Quote statuses')
+        verbose_name        = _('Quote status')
+        verbose_name_plural = _('Quote statuses')
 
 
 class SalesOrderStatus(AbstractStatus):
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name        = _(u'Sales order status')
-        verbose_name_plural = _(u'Sales order statuses')
+        verbose_name        = _('Sales order status')
+        verbose_name_plural = _('Sales order statuses')
 
 
 class CreditNoteStatus(AbstractStatus):
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name        = _(u'Credit note status')
-        verbose_name_plural = _(u'Credit note statuses')
+        verbose_name        = _('Credit note status')
+        verbose_name_plural = _('Credit note statuses')
 
 
 class AdditionalInformation(CremeModel):
-    name        = CharField(_(u'Name'), max_length=100)
-    description = TextField(verbose_name=_(u'Description'), blank=True)
+    name        = CharField(_('Name'), max_length=100)
+    description = TextField(verbose_name=_('Description'), blank=True)
     is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = pgettext_lazy('billing-additional_info', u'Create information')
+    creation_label = pgettext_lazy('billing-additional_info', 'Create information')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'billing'
-        verbose_name        = pgettext_lazy('billing-singular', u'Additional information')
-        verbose_name_plural = pgettext_lazy('billing-plural',   u'Additional information')
+        verbose_name        = pgettext_lazy('billing-singular', 'Additional information')
+        verbose_name_plural = pgettext_lazy('billing-plural',   'Additional information')
         ordering = ('name',)
 
 
 class PaymentTerms(CremeModel):
-    name        = CharField(pgettext_lazy('billing-singular', u'Payment terms'), max_length=100)
-    description = TextField(verbose_name=_(u'Description'), blank=True)
+    name        = CharField(pgettext_lazy('billing-singular', 'Payment terms'), max_length=100)
+    description = TextField(verbose_name=_('Description'), blank=True)
     is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = _(u'Create payment terms')
+    creation_label = _('Create payment terms')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'billing'
-        verbose_name        = pgettext_lazy('billing-singular', u'Payment terms')
-        verbose_name_plural = pgettext_lazy('billing-plural',   u'Payment terms')
+        verbose_name        = pgettext_lazy('billing-singular', 'Payment terms')
+        verbose_name_plural = pgettext_lazy('billing-plural',   'Payment terms')
         ordering = ('name',)
 
 
 class PaymentInformation(CremeModel):
-    name                  = CharField(_(u'Name'), max_length=200)
+    name                  = CharField(_('Name'), max_length=200)
 
-    bank_code             = CharField(_(u'Bank code'), max_length=12, blank=True)
-    counter_code          = CharField(_(u'Counter code'), max_length=12, blank=True)
-    account_number        = CharField(_(u'Account number'), max_length=12, blank=True)
-    rib_key               = CharField(_(u'RIB key'), max_length=12, blank=True)
-    banking_domiciliation = CharField(_(u'Banking domiciliation'), max_length=200, blank=True)
+    bank_code             = CharField(_('Bank code'), max_length=12, blank=True)
+    counter_code          = CharField(_('Counter code'), max_length=12, blank=True)
+    account_number        = CharField(_('Account number'), max_length=12, blank=True)
+    rib_key               = CharField(_('RIB key'), max_length=12, blank=True)
+    banking_domiciliation = CharField(_('Banking domiciliation'), max_length=200, blank=True)
 
-    iban                  = CharField(_(u'IBAN'), max_length=100, blank=True)
-    bic                   = CharField(_(u'BIC'), max_length=100, blank=True)
+    iban                  = CharField(_('IBAN'), max_length=100, blank=True)
+    bic                   = CharField(_('BIC'), max_length=100, blank=True)
 
-    is_default            = BooleanField(_(u'Is default?'), default=False)
+    is_default            = BooleanField(_('Is default?'), default=False)
     organisation          = ForeignKey(settings.PERSONS_ORGANISATION_MODEL,
-                                       verbose_name=pgettext_lazy('billing', u'Target organisation'),
+                                       verbose_name=pgettext_lazy('billing', 'Target organisation'),
                                        related_name='PaymentInformationOrganisation_set',
                                        on_delete=CASCADE,
                                       )
+
+    creation_label = _('Create a payment information')
+    save_label     = _('Save the payment information')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'billing'
-        verbose_name        = pgettext_lazy('billing-singular', u'Payment information')
-        verbose_name_plural = pgettext_lazy('billing-plural',   u'Payment information')
+        verbose_name        = pgettext_lazy('billing-singular', 'Payment information')
+        verbose_name_plural = pgettext_lazy('billing-plural',   'Payment information')
         ordering = ('name',)
 
     # TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too) ??

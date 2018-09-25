@@ -10,6 +10,7 @@ try:
 
     from django.conf import settings
     from django.urls import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
@@ -103,8 +104,15 @@ class GraphsTestCase(CremeTestCase):
         self.assertEqual(0, graph.orbital_relation_types.count())
 
         url = reverse('graphs__add_rtypes', args=(graph.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Add relation types to «%s»') % graph, context.get('title'))
+        self.assertEqual(_('Add relation types to «{}»').format(graph), context.get('title'))
+        self.assertEqual(_('Save'),                                     context.get('submit_label'))
+
+        # ---
         rtype_create = RelationType.create
         rtype01 = rtype_create(('test-subject_love', 'loves'),
                                ('test-object_love',  'is loved to')
@@ -210,8 +218,16 @@ class GraphsTestCase(CremeTestCase):
 
         graph = Graph.objects.create(user=user, name='Graph01')
         url = reverse('graphs__add_roots', args=(graph.id,))
-        self.assertGET200(url)
 
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('Add root nodes to «%s»') % graph, context.get('title'))
+        self.assertEqual(_('Add root nodes to «{}»').format(graph), context.get('title'))
+        self.assertEqual(_('Save'),                                 context.get('submit_label'))
+
+        # ----
         response = self.client.post(url, data={'entities': self.formfield_value_multi_generic_entity(
                                                                 contact, orga,
                                                             ),

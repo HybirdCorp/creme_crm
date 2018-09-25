@@ -106,8 +106,12 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         pattern  = self._create_pattern()
 
         url = self._build_addcomp_url(pattern)
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New objective for «%s»') % pattern, context.get('title'))
+        self.assertEqual(_('New objective for «{}»').format(pattern), context.get('title'))
+        self.assertEqual(_('Save the objective'),                     context.get('submit_label'))
 
+        # ---
         name = 'Signed opportunities'
         response = self.client.post(url, data={'name':            name,
                                                'success_rate':    10,
