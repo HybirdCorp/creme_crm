@@ -19,34 +19,36 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, Q, CASCADE
+from django.db import models
+from django.db.models.query_utils import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from ..signals import pre_merge_related, pre_replace_related
+from .. import signals
+
 from .base import CremeModel
 from .entity import CremeEntity
 
 
 class CremePropertyType(CremeModel):
-    id             = CharField(primary_key=True, max_length=100)
-    text           = CharField(_(u'Text'), max_length=200, unique=True)
-    subject_ctypes = ManyToManyField(ContentType, blank=True,
-                                     verbose_name=_(u'Applies on entities with following types'),
-                                     related_name='subject_ctypes_creme_property_set',  # TODO: '+'
-                                    )
-    is_custom      = BooleanField(default=False)  # TODO: editable=False ??
+    id             = models.CharField(primary_key=True, max_length=100)
+    text           = models.CharField(_('Text'), max_length=200, unique=True)
+    subject_ctypes = models.ManyToManyField(ContentType, blank=True,
+                                            verbose_name=_('Applies on entities with following types'),
+                                            related_name='subject_ctypes_creme_property_set',  # TODO: '+'
+                                           )
+    is_custom      = models.BooleanField(default=False, editable=False)
     # If True, the properties with this type can be copied (ie: when cloning or converting an entity).
-    is_copiable    = BooleanField(_(u'Is copiable'), default=True)
+    is_copiable    = models.BooleanField(_('Is copiable'), default=True)
 
-    creation_label = _(u'Create a type of property')
-    save_label     = _(u'Save the type of property')
+    creation_label = _('Create a type of property')
+    save_label     = _('Save the type of property')
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Type of property')
-        verbose_name_plural = _(u'Types of property')
+        verbose_name = _('Type of property')
+        verbose_name_plural = _('Types of property')
         ordering = ('text',)
 
     def __str__(self):
@@ -104,13 +106,13 @@ class CremePropertyType(CremeModel):
 
 
 class CremeProperty(CremeModel):
-    type         = ForeignKey(CremePropertyType, on_delete=CASCADE)
-    creme_entity = ForeignKey(CremeEntity, related_name='properties', on_delete=CASCADE)
+    type         = models.ForeignKey(CremePropertyType, on_delete=models.CASCADE)
+    creme_entity = models.ForeignKey(CremeEntity, related_name='properties', on_delete=models.CASCADE)
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Property')
-        verbose_name_plural = _(u'Properties')
+        verbose_name = _('Property')
+        verbose_name_plural = _('Properties')
         unique_together = ('type', 'creme_entity')
 
     def __str__(self):
@@ -120,7 +122,7 @@ class CremeProperty(CremeModel):
         return self.creme_entity
 
 
-@receiver(pre_merge_related)
+@receiver(signals.pre_merge_related)
 def _handle_merge(sender, other_entity, **kwargs):
     """Delete 'Duplicated' CremeProperties (ie: exist in the removed entity &
     the remaining entity).
@@ -137,7 +139,7 @@ def _handle_merge(sender, other_entity, **kwargs):
         prop.delete()
 
 
-@receiver(pre_replace_related, sender=CremePropertyType)
+@receiver(signals.pre_replace_related, sender=CremePropertyType)
 def _handle_replacement(sender, old_instance, new_instance, **kwargs):
     """Delete 'Duplicated' CremeProperties (ie: one entity has 2 properties
     with the old & the new types).
