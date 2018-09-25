@@ -20,6 +20,7 @@
 
 import warnings
 
+from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
@@ -175,6 +176,8 @@ class CremeModelCreation(CancellableMixin, CreateView):
       - Title of the form
       - Label for the submit button
       - Cancel button.
+
+    Notice that POST requests are managed within a SQL transaction.
     """
     model = models.CremeModel  # TO BE OVERRIDDEN
     form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
@@ -212,6 +215,10 @@ class CremeModelCreation(CancellableMixin, CreateView):
     def get_submit_label(self):
         label = self.submit_label
         return self.model.save_label if label is None else label
+
+    @atomic
+    def post(self, *args, **kwargs):
+        return super().post(*args, **kwargs)
 
 
 # TODO: assert model is an entity ?
