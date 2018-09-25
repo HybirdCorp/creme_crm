@@ -20,29 +20,40 @@
 
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import add_to_entity
+# from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.views.generic import add_to_entity
+from creme.creme_core.views.generic.add import AddingToEntity
 
 from .. import get_messaginglist_model
-from ..forms.recipient import MessagingListAddRecipientsForm, MessagingListAddCSVForm
+from ..forms import recipient as forms
 from ..models import Recipient
 
 
-@login_required
-@permission_required('sms')
-def add(request, mlist_id):
-    return add_to_entity(request, mlist_id, MessagingListAddRecipientsForm,
-                         _(u'New recipients for «%s»'),
-                         entity_class=get_messaginglist_model(),
-                         submit_label=Recipient.multi_save_label,
-                        )
+# @login_required
+# @permission_required('sms')
+# def add(request, mlist_id):
+#     return add_to_entity(request, mlist_id, forms.MessagingListAddRecipientsForm,
+#                          _('New recipients for «%s»'),
+#                          entity_class=get_messaginglist_model(),
+#                          submit_label=Recipient.multi_save_label,
+#                         )
+class RecipientsAdding(AddingToEntity):
+    model = Recipient
+    form_class = forms.MessagingListAddRecipientsForm
+    entity_id_url_kwarg = 'mlist_id'
+    entity_classes = get_messaginglist_model()
+    title_format = _('New recipients for «{}»')
+    submit_label = Recipient.multi_save_label
 
 
-@login_required
-@permission_required('sms')
-def add_from_csv(request, mlist_id):
-    return add_to_entity(request, mlist_id, MessagingListAddCSVForm,
-                         _(u'New recipients for «%s»'),
-                         entity_class=get_messaginglist_model(),
-                         submit_label=Recipient.multi_save_label,
-                        )
+# @login_required
+# @permission_required('sms')
+# def add_from_csv(request, mlist_id):
+#     return add_to_entity(request, mlist_id, forms.MessagingListAddCSVForm,
+#                          _('New recipients for «%s»'),
+#                          entity_class=get_messaginglist_model(),
+#                          submit_label=Recipient.multi_save_label,
+#                         )
+class RecipientsAddingFromCSV(RecipientsAdding):
+    form_class = forms.MessagingListAddCSVForm
+    entity_classes = get_messaginglist_model()

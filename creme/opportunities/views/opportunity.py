@@ -28,6 +28,8 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.views import generic
 
+from creme import persons
+
 from .. import get_opportunity_model
 from ..constants import DEFAULT_HFILTER_OPPORTUNITY
 from ..forms import opportunity as opp_forms
@@ -53,10 +55,16 @@ def abstract_add_opportunity(request, form=opp_forms.OpportunityCreateForm,
 
 
 def abstract_add_related_opportunity(request, entity_id, form=opp_forms.OpportunityCreateForm,
-                                     title=_(u'New opportunity related to «%s»'),
+                                     title=_('New opportunity related to «%s»'),
                                      submit_label=Opportunity.save_label,
                                      inner_popup=False,
                                     ):
+    warnings.warn('opportunities.views.opportunity.abstract_add_related_opportunity() is deprecated ; '
+                  'use the class-based views RelatedOpportunityCreation & '
+                  'RelatedOpportunityCreationPopup instead.',
+                  DeprecationWarning
+                 )
+
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     user = request.user
 
@@ -65,10 +73,11 @@ def abstract_add_related_opportunity(request, entity_id, form=opp_forms.Opportun
     # Target/emitter relationships are internal (they are mandatory
     # and can be seen as ForeignKeys).
 
-    # TODO: this is not an easy way to init the field...
-    initial = {'target': form(user).fields['target'].from_python(entity),
-               'sales_phase': SalesPhase.objects.first(),
-              }
+    initial = {
+        # 'target': form(user).fields['target'].from_python(entity),
+        'target':      entity,
+        'sales_phase': SalesPhase.objects.first(),
+    }
 
     if inner_popup:
         response = generic.add_model_with_popup(request, form,
@@ -112,6 +121,7 @@ def add(request):
 @login_required
 @permission_required(('opportunities', cperm(Opportunity)))
 def add_to(request, ce_id, inner_popup=False):
+    warnings.warn('opportunities.views.opportunity.add_to() is deprecated .', DeprecationWarning)
     return abstract_add_related_opportunity(request, entity_id=ce_id,
                                             inner_popup=inner_popup,
                                            )
@@ -139,13 +149,66 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class OpportunityCreation(generic.add.EntityCreation):
+class _BaseOpportunityCreation(generic.add.EntityCreation):
     model = Opportunity
     form_class = opp_forms.OpportunityCreateForm
 
     def get_initial(self):
         initial = super().get_initial()
         initial['sales_phase'] = SalesPhase.objects.first()
+
+        return initial
+
+
+class OpportunityCreation(_BaseOpportunityCreation):
+    pass
+
+
+class RelatedOpportunityCreation(generic.base.EntityRelatedMixin,
+                                 _BaseOpportunityCreation,
+                                ):
+    entity_id_url_kwarg = 'person_id'
+    entity_classes = [
+        persons.get_contact_model(),
+        persons.get_organisation_model(),
+    ]
+
+    def check_related_entity_permissions(self, entity, user):
+        # We don't need the link credentials with future Opportunity because
+        # Target/emitter relationships are internal (they are mandatory
+        # and can be seen as ForeignKeys).
+        user.has_perm_to_link_or_die(entity)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['target'] = self.get_related_entity()
+
+        return initial
+
+
+# TODO: factorise ?
+class RelatedOpportunityCreationPopup(generic.add.AddingToEntity):
+    model = Opportunity
+    form_class = opp_forms.OpportunityCreateForm
+    permissions = ['opportunities', cperm(Opportunity)]
+    title_format = _('New opportunity related to «{}»')
+    entity_id_url_kwarg = 'person_id'
+    entity_form_kwarg = None
+    entity_classes = [
+        persons.get_contact_model(),
+        persons.get_organisation_model(),
+    ]
+
+    def check_related_entity_permissions(self, entity, user):
+        # We don't need the link credentials with future Opportunity because
+        # Target/emitter relationships are internal (they are mandatory
+        # and can be seen as ForeignKeys).
+        user.has_perm_to_link_or_die(entity)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['sales_phase'] = SalesPhase.objects.first()
+        initial['target'] = self.get_related_entity()
 
         return initial
 

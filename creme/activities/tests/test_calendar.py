@@ -257,7 +257,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
 
         url = self.ADD_URL
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        self.assertEqual(_('Create a calendar'), context.get('title'))
+        self.assertEqual(_('Save the calendar'), context.get('submit_label'))
 
         name = 'My pretty calendar'
         color = '009900'
@@ -280,7 +282,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_add_user_calendar02(self):
         "Only one default calendar"
-        user = self.login()
+        user = self.login(is_superuser=False)
         cal1 = Calendar.get_user_default_calendar(user)
 
         name = 'My pretty calendar'
@@ -297,6 +299,11 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertTrue(cal2.is_default)
         self.assertTrue(cal2.is_public)
         self.assertFalse(self.refresh(cal1).is_default)
+
+    def test_add_user_calendar03(self):
+        "Not allowed"
+        self.login(is_superuser=False, allowed_apps=['persons'])
+        self.assertGET403(self.ADD_URL)
 
     def test_edit_user_calendar01(self):
         user = self.login()

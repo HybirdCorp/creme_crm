@@ -22,7 +22,7 @@ import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -96,16 +96,16 @@ def listview(request):
     return generic.list_view(request, EmailTemplate, hf_pk=DEFAULT_HFILTER_TEMPLATE)
 
 
-@login_required
-@permission_required('emails')
-def add_attachment(request, template_id):
-    return generic.add_to_entity(
-        request, template_id, tpl_forms.EmailTemplateAddAttachment,
-        ugettext('New attachments for «%s»'),
-        entity_class=EmailTemplate,
-        submit_label=_('Save the attachments'),
-        template='creme_core/generics/blockform/link_popup.html',
-    )
+# @login_required
+# @permission_required('emails')
+# def add_attachment(request, template_id):
+#     return generic.add_to_entity(
+#         request, template_id, tpl_forms.EmailTemplateAddAttachment,
+#         ugettext('New attachments for «%s»'),
+#         entity_class=EmailTemplate,
+#         submit_label=_('Save the attachments'),
+#         template='creme_core/generics/blockform/link_popup.html',
+#     )
 
 
 @login_required
@@ -141,3 +141,13 @@ class EmailTemplateEdition(generic.edit.EntityEdition):
     model = EmailTemplate
     form_class = tpl_forms.EmailTemplateForm
     pk_url_kwarg = 'template_id'
+
+
+class AttachmentsAdding(generic.add.AddingToEntity):
+    # model = Document
+    form_class = tpl_forms.EmailTemplateAddAttachment
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    title_format = _('New attachments for «{}»')
+    submit_label = _('Save the attachments')
+    entity_id_url_kwarg = 'template_id'
+    entity_classes = EmailTemplate

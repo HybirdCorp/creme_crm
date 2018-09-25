@@ -116,8 +116,12 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         except Exception as e:
             print('Error in OpportunitiesTestCase.setUpClass(): {}'.format(e))
 
-    def _build_addrelated_url(self, entity):
-        return reverse('opportunities__create_related_opportunity', args=(entity.id,))
+    def _build_addrelated_url(self, entity, popup=False):
+        return reverse(
+            'opportunities__create_related_opportunity_popup' if popup else
+            'opportunities__create_related_opportunity',
+            args=(entity.id,)
+        )
 
     # def _genericfield_format_entity(self, entity):
     #     return '{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
@@ -335,8 +339,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                            }
                                      )
 
-        fmt1 = _(u'You are not allowed to link this entity: {}').format
-        fmt2 = _(u'Entity #{id} (not viewable)').format
+        fmt1 = _('You are not allowed to link this entity: {}').format
+        fmt2 = _('Entity #{id} (not viewable)').format
         self.assertFormError(response, 'form', 'target',  fmt1(fmt2(id=target.id)))
         self.assertFormError(response, 'form', 'emitter', fmt1(fmt2(id=emitter.id)))
 
@@ -365,8 +369,18 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         target, emitter = self._create_target_n_emitter()
         url = self._build_addrelated_url(target)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add.html')
 
+        context = response.context
+        self.assertEqual(Opportunity.creation_label, context.get('title'))
+        self.assertEqual(Opportunity.save_label,     context.get('submit_label'))
+
+        get_initial = context['form'].initial.get
+        self.assertIsInstance(get_initial('sales_phase'), SalesPhase)
+        self.assertEqual(target, get_initial('target'))
+
+        # ----
         salesphase = SalesPhase.objects.all()[0]
         name = 'Opportunity linked to {}'.format(target)
         response = self.client.post(url, data={'user':         user.pk,
@@ -405,9 +419,19 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         target, emitter = self._create_target_n_emitter()
-        url = reverse('opportunities__create_related_opportunity_popup', args=(target.id,))
-        self.assertGET200(url)
+        url = self._build_addrelated_url(target, popup=True)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('New opportunity related to «%s»') % target, context.get('title'))
+        self.assertEqual(_('New opportunity related to «{}»').format(target), context.get('title'))
+        self.assertEqual(Opportunity.save_label,                              context.get('submit_label'))
+
+        get_initial = context['form'].initial.get
+        self.assertIsInstance(get_initial('sales_phase'), SalesPhase)
+        self.assertEqual(target, get_initial('target'))
+        # ---
         salesphase = SalesPhase.objects.all()[0]
         name = 'Opportunity linked to {}'.format(target)
         response = self.client.post(url, data={'user':         user.pk,
@@ -440,6 +464,30 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         target = Organisation.objects.create(user=self.user, name='Target renegade')
         self.assertGET403(self._build_addrelated_url(target))
+        self.assertGET403(self._build_addrelated_url(target, popup=True))
+
+    def test_add_to_orga04(self):
+        "User must be allowed to created Opportunity"
+        user = self.login(is_superuser=False, allowed_apps=['persons', 'opportunities'],
+                          # creatable_models=[Opportunity],
+                         )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL
+        )
+
+        target = Organisation.objects.create(user=user, name='Target renegade')
+
+        url = self._build_addrelated_url(target)
+        self.assertGET403(url)
+
+        url_popup = self._build_addrelated_url(target, popup=True)
+        self.assertGET403(url_popup)
+
+        user.role.creatable_ctypes.add(ContentType.objects.get_for_model(Opportunity))
+        self.assertGET200(url)
+        self.assertGET200(url_popup)
 
     @skipIfCustomContact
     def test_add_to_contact01(self):
@@ -490,7 +538,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         target, emitter = self._create_target_n_emitter(contact=True)
-        url = reverse('opportunities__create_related_opportunity_popup', args=(target.id,))
+        url = self._build_addrelated_url(target, popup=True)
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
@@ -522,34 +570,37 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
+                                            EntityCredentials.DELETE | EntityCredentials.UNLINK,  # not LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
         target = Contact.objects.create(user=self.user, first_name='Target', last_name='Renegade')
         self.assertGET403(self._build_addrelated_url(target))
+        self.assertGET403(self._build_addrelated_url(target, popup=True))
 
     def test_add_to_something01(self):
         "Target is not a Contact/Organisation"
         user = self.login()
 
         target  = CremeEntity.objects.create(user=user)
-        emitter = Organisation.objects.create(user=user, name='My society', is_managed=True)
-        opportunity_count = Opportunity.objects.count()
+        # emitter = Organisation.objects.create(user=user, name='My society', is_managed=True)
+        # opportunity_count = Opportunity.objects.count()
 
-        url = self._build_addrelated_url(target)
-        self.assertGET200(url)  # TODO: is it normal ??
+        # url = self._build_addrelated_url(target)
+        # self.assertGET200(url)
+        self.assertGET404(self._build_addrelated_url(target))
+        self.assertGET404(self._build_addrelated_url(target, popup=True))
 
-        response = self.client.post(url, data={'user':         user.pk,
-                                               'name':         'Opp #1',
-                                               'sales_phase':  SalesPhase.objects.all()[0].id,
-                                               'closing_date': '2011-03-12',
-                                               'target':       self.formfield_value_generic_entity(target),
-                                               'emitter':      emitter.id,
-                                              }
-                                   )
-        self.assertFormError(response, 'form', 'target', _(u'This content type is not allowed.'))
-        self.assertEqual(opportunity_count, Opportunity.objects.count())  # No new opportunity was created
+        # response = self.client.post(url, data={'user':         user.pk,
+        #                                        'name':         'Opp #1',
+        #                                        'sales_phase':  SalesPhase.objects.all()[0].id,
+        #                                        'closing_date': '2011-03-12',
+        #                                        'target':       self.formfield_value_generic_entity(target),
+        #                                        'emitter':      emitter.id,
+        #                                       }
+        #                            )
+        # self.assertFormError(response, 'form', 'target', _('This content type is not allowed.'))
+        # self.assertEqual(opportunity_count, Opportunity.objects.count())  # No new opportunity was created
 
     @skipIfCustomOrganisation
     def test_editview01(self):
@@ -1057,7 +1108,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def test_delete_currency(self):
         user = self.login()
 
-        currency = Currency.objects.create(name=u'Berry', local_symbol=u'B', international_symbol=u'BRY')
+        currency = Currency.objects.create(name='Berry', local_symbol='B', international_symbol='BRY')
 
         create_orga = partial(Organisation.objects.create, user=user)
         opp = Opportunity.objects.create(user=user, name='Opp', currency=currency,

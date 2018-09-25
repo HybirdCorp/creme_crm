@@ -11,7 +11,8 @@ calendar_patterns = [
     url(r'^activities[/]?$',                calendar.get_users_activities, name='activities__calendars_activities'),
     # url(r'^users_activities/(?P<calendar_ids>([\d]+){0,1}(,[\d]+)*)[/]?$', calendar.get_users_activities, name='activities__calendars_activities'),
     url(r'^activity/update[/]?$',           calendar.update_activity_date, name='activities__set_activity_dates'),
-    url(r'^add[/]?$',                       calendar.add_user_calendar,    name='activities__create_calendar'),
+    # url(r'^add[/]?$',                       calendar.add_user_calendar,    name='activities__create_calendar'),
+    url(r'^add[/]?$',                       calendar.UserCalendarCreation.as_view(), name='activities__create_calendar'),
     url(r'^(?P<calendar_id>\d+)/edit[/]?$', calendar.edit_user_calendar,   name='activities__edit_calendar'),
     url(r'^delete[/]?$',                    calendar.delete_user_calendar, name='activities__delete_calendar'),
     url(r'^link/(?P<activity_id>\d+)[/]?$', calendar.link_user_calendar,   name='activities__link_calendar'),
@@ -25,10 +26,12 @@ urlpatterns = [
     url(r'^type/(?P<type_id>[\w-]*)/json[/]?$', activity.get_types, name='activities__get_types'),
 
     # Bricks
-    url(r'^activity/(?P<activity_id>\d+)/participant/add[/]?$', bricks.add_participant,    name='activities__add_participants'),
-    url(r'^activity/participant/delete[/]?$',                   bricks.delete_participant, name='activities__remove_participant'),
-    url(r'^activity/(?P<activity_id>\d+)/subject/add[/]?$',     bricks.add_subject,        name='activities__add_subjects'),
-    url(r'^linked_activity/unlink[/]?$',                        bricks.unlink_activity,    name='activities__unlink_activity'),
+    # url(r'^activity/(?P<activity_id>\d+)/participant/add[/]?$', bricks.add_participant,    name='activities__add_participants'),
+    url(r'^activity/(?P<activity_id>\d+)/participant/add[/]?$', bricks.ParticipantsAdding.as_view(), name='activities__add_participants'),
+    url(r'^activity/participant/delete[/]?$',                   bricks.delete_participant,           name='activities__remove_participant'),
+    # url(r'^activity/(?P<activity_id>\d+)/subject/add[/]?$',     bricks.add_subject,        name='activities__add_subjects'),
+    url(r'^activity/(?P<activity_id>\d+)/subject/add[/]?$',     bricks.SubjectsAdding.as_view(),     name='activities__add_subjects'),
+    url(r'^linked_activity/unlink[/]?$',                        bricks.unlink_activity,              name='activities__unlink_activity'),
 
     url(r'^calendar/', include(calendar_patterns)),
 ]

@@ -82,7 +82,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         orga = self.login()
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
-        self.assertGET200(self._build_add_url(orga))
+        context = self.assertGET200(self._build_add_url(orga)).context
+        # self.assertEqual(_('Adding address to «%s»') % orga, context.get('title'))
+        self.assertEqual(_('Adding address to «{}»').format(orga), context.get('title'))
+        self.assertEqual(_('Save the address'),                    context.get('submit_label'))
 
         name = 'Address#1'
         address_value = '21 jump street'
@@ -121,9 +124,13 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = reverse('persons__create_billing_address', args=(orga.id,))
         response = self.assertGET200(url)
+        context = response.context
+        # self.assertEqual(_('Adding billing address to «%s»') % orga, context.get('title'))
+        self.assertEqual(_('Adding billing address to «{}»').format(orga), context.get('title'))
+        self.assertEqual(_('Save the address'),                            context.get('submit_label'))
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = context['form'].fields
 
         self.assertIn('city',    fields)
         self.assertIn('address', fields)
@@ -144,12 +151,13 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(city,       address.city)
         self.assertEqual(addr_value, address.address)
         self.assertEqual('',         address.po_box)
-        self.assertEqual(_(u'Billing address'), address.name)
+        self.assertEqual(_('Billing address'), address.name)
 
         self.assertEqual(address, self.refresh(orga).billing_address)
 
     @skipIfCustomOrganisation
     def test_create_billing02(self):
+        "FK is hidden"
         orga = self.login()
 
         FieldsConfig.create(Organisation,
@@ -161,7 +169,11 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_create_shipping(self):
         orga = self.login()
         url = reverse('persons__create_shipping_address', args=(orga.id,))
-        self.assertGET200(url)
+
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('Adding shipping address to «%s»') % orga, context.get('title'))
+        self.assertEqual(_('Adding shipping address to «{}»').format(orga), context.get('title'))
+        self.assertEqual(_('Save the address'),                             context.get('submit_label'))
 
         addr_value = '21 jump street'
         country = 'Wonderland'
@@ -178,7 +190,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(country,    address.country)
         self.assertEqual(addr_value, address.address)
         self.assertEqual('',         address.zipcode)
-        self.assertEqual(_(u'Shipping address'), address.name)
+        self.assertEqual(_('Shipping address'), address.name)
 
         self.assertEqual(address, self.refresh(orga).shipping_address)
 
@@ -200,7 +212,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertContains(response, escape(_(u'Edit address for «%s»') % orga))
+        self.assertContains(response, escape(_('Edit address for «%s»') % orga))
 
         city = 'Groville'
         country = 'Groland'
@@ -235,20 +247,20 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url() + '?type=billing'
         response = self.assertGET200(url)
-        self.assertContains(response, escape(_(u'Edit billing address for «%s»') % orga))
+        self.assertContains(response, escape(_('Edit billing address for «%s»') % orga))
 
         city = 'Groville'
         response = self.client.post(url, data={'name':       name,
                                                'address':    address,
                                                'city':       city,
                                                'zipcode':    zipcode,
-                                             }
+                                              }
                                    )
         self.assertNoFormError(response)
 
         address = self.refresh(address)
         self.assertEqual(city, address.city)
-        self.assertEqual(_(u'Billing address'), address.name)
+        self.assertEqual(_('Billing address'), address.name)
 
     @skipIfCustomOrganisation
     def test_editview03(self):
@@ -265,20 +277,20 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url() + '?type=shipping'
         response = self.assertGET200(url)
-        self.assertContains(response, escape(_(u'Edit shipping address for «%s»') % orga))
+        self.assertContains(response, escape(_('Edit shipping address for «%s»') % orga))
 
         city = 'Groville'
         response = self.client.post(url, data={'name':       name,
                                                'address':    address,
                                                'city':       city,
                                                'zipcode':    zipcode,
-                                             }
+                                              }
                                    )
         self.assertNoFormError(response)
 
         address = self.refresh(address)
         self.assertEqual(city, address.city)
-        self.assertEqual(_(u'Shipping address'), address.name)
+        self.assertEqual(_('Shipping address'), address.name)
 
     @skipIfCustomOrganisation
     def test_deleteview(self):
@@ -322,21 +334,21 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                           state=state,
                           country=country,
                          )
-        self.assertEqual(u'{} {} {} {}'.format(address_value, zipcode, city, department),
+        self.assertEqual('{} {} {} {}'.format(address_value, zipcode, city, department),
                          str(address)
                         )
 
         address.zipcode = None
-        self.assertEqual(u'{} {} {}'.format(address_value, city, department), str(address))
+        self.assertEqual('{} {} {}'.format(address_value, city, department), str(address))
 
         address.department = None
-        self.assertEqual(u'{} {}'.format(address_value, city), str(address))
+        self.assertEqual('{} {}'.format(address_value, city), str(address))
 
         self.assertEqual(po_box, str(Address(po_box=po_box)))
         self.assertEqual(state, str(Address(state=state)))
         self.assertEqual(country, str(Address(country=country)))
 
-        self.assertEqual(u'{} {} {}'.format(po_box, state, country),
+        self.assertEqual('{} {} {}'.format(po_box, state, country),
                          str(Address(po_box=po_box, state=state, country=country))
                         )
 
@@ -361,7 +373,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                           state=state,
                           country='wtf',
                          )
-        self.assertEqual(u'{} {}'.format(address_value, city), str(address))
+        self.assertEqual('{} {}'.format(address_value, city), str(address))
 
         self.assertEqual(po_box, str(Address(po_box=po_box, state=state)))
 
@@ -456,8 +468,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, str(address)],
                          hline.modifications
                         )
-        self.assertEqual([_(u'Add <{type}>: “{value}”').format(
-                                    type=_(u'Address'),
+        self.assertEqual([_('Add <{type}>: “{value}”').format(
+                                    type=_('Address'),
                                     value=address,
                                 ),
                          ],

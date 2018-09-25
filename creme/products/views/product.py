@@ -22,7 +22,7 @@ import warnings
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext_lazy as _, ugettext
+# from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -33,9 +33,10 @@ from creme.creme_core.views import generic
 from .. import get_product_model, get_service_model
 from ..constants import DEFAULT_HFILTER_PRODUCT
 from ..forms import product as product_forms
-from ..forms.base import AddImagesForm
+# from ..forms.base import AddImagesForm
 from ..models import Category, SubCategory
 
+from .base import ImagesAddingBase
 
 Product = get_product_model()
 Service = get_service_model()
@@ -110,15 +111,15 @@ def get_subcategories(request, category_id):
                )
 
 
-@login_required
-@permission_required('products')
-def add_images(request, product_id):
-    return generic.add_to_entity(request, product_id, AddImagesForm,
-                                 ugettext(u'New images for «%s»'),
-                                 entity_class=Product,
-                                 submit_label=_(u'Link the images'),
-                                 template='creme_core/generics/blockform/link_popup.html',
-                                )
+# @login_required
+# @permission_required('products')
+# def add_images(request, product_id):
+#     return generic.add_to_entity(request, product_id, AddImagesForm,
+#                                  ugettext('New images for «%s»'),
+#                                  entity_class=Product,
+#                                  submit_label=_('Link the images'),
+#                                  template='creme_core/generics/blockform/link_popup.html',
+#                                 )
 
 
 @login_required
@@ -157,3 +158,8 @@ class ProductEdition(generic.edit.EntityEdition):
     model = Product
     form_class = product_forms.ProductEditForm
     pk_url_kwarg = 'product_id'
+
+
+class ImagesAdding(ImagesAddingBase):
+    entity_id_url_kwarg = 'product_id'
+    entity_classes = Product

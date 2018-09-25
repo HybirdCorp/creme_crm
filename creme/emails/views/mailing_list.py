@@ -22,7 +22,8 @@ import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -100,69 +101,64 @@ def detailview(request, ml_id):
 def listview(request):
     return generic.list_view(request, MailingList, hf_pk=DEFAULT_HFILTER_MAILINGLIST)
 
+# @login_required
+# @permission_required('emails')
+# @require_model_fields(Contact, 'email')
+# def add_contacts(request, ml_id):
+#     return generic.add_to_entity(
+#         request, ml_id, ml_forms.AddContactsForm,
+#         ugettext('New contacts for «%s»'),
+#         entity_class=MailingList,
+#         submit_label=_('Link the contacts'),  # todo: multi_link_label ??
+#         template='creme_core/generics/blockform/link_popup.html',
+#     )
 
-@login_required
-@permission_required('emails')
-@require_model_fields(Contact, 'email')
-def add_contacts(request, ml_id):
-    return generic.add_to_entity(
-        request, ml_id, ml_forms.AddContactsForm,
-        ugettext('New contacts for «%s»'),
-        entity_class=MailingList,
-        submit_label=_('Link the contacts'),  # TODO: multi_link_label ??
-        template='creme_core/generics/blockform/link_popup.html',
-    )
+# @login_required
+# @permission_required('emails')
+# @require_model_fields(Contact, 'email')
+# def add_contacts_from_filter(request, ml_id):
+#     return generic.add_to_entity(
+#         request, ml_id, ml_forms.AddContactsFromFilterForm,
+#         ugettext('New contacts for «%s»'),
+#         entity_class=MailingList,
+#         submit_label=_('Link the contacts'),
+#         template='creme_core/generics/blockform/link_popup.html',
+#     )
 
+# @login_required
+# @permission_required('emails')
+# @require_model_fields(Organisation, 'email')
+# def add_organisations(request, ml_id):
+#     return generic.add_to_entity(
+#         request, ml_id, ml_forms.AddOrganisationsForm,
+#         ugettext('New organisations for «%s»'),
+#         entity_class=MailingList,
+#         submit_label=_('Link the organisations'),
+#         template='creme_core/generics/blockform/link_popup.html',
+#     )
 
-@login_required
-@permission_required('emails')
-@require_model_fields(Contact, 'email')
-def add_contacts_from_filter(request, ml_id):
-    return generic.add_to_entity(
-        request, ml_id, ml_forms.AddContactsFromFilterForm,
-        ugettext('New contacts for «%s»'),
-        entity_class=MailingList,
-        submit_label=_('Link the contacts'),
-        template='creme_core/generics/blockform/link_popup.html',
-    )
+# @login_required
+# @permission_required('emails')
+# @require_model_fields(Organisation, 'email')
+# def add_organisations_from_filter(request, ml_id):
+#     return generic.add_to_entity(
+#         request, ml_id, ml_forms.AddOrganisationsFromFilterForm,
+#         ugettext('New organisations for «%s»'),
+#         entity_class=MailingList,
+#         submit_label=_('Link the organisations'),
+#         template='creme_core/generics/blockform/link_popup.html',
+#     )
 
-
-@login_required
-@permission_required('emails')
-@require_model_fields(Organisation, 'email')
-def add_organisations(request, ml_id):
-    return generic.add_to_entity(
-        request, ml_id, ml_forms.AddOrganisationsForm,
-        ugettext('New organisations for «%s»'),
-        entity_class=MailingList,
-        submit_label=_('Link the organisations'),
-        template='creme_core/generics/blockform/link_popup.html',
-    )
-
-
-@login_required
-@permission_required('emails')
-@require_model_fields(Organisation, 'email')
-def add_organisations_from_filter(request, ml_id):
-    return generic.add_to_entity(
-        request, ml_id, ml_forms.AddOrganisationsFromFilterForm,
-        ugettext('New organisations for «%s»'),
-        entity_class=MailingList,
-        submit_label=_('Link the organisations'),
-        template='creme_core/generics/blockform/link_popup.html',
-    )
-
-
-@login_required
-@permission_required('emails')
-def add_children(request, ml_id):
-    return generic.add_to_entity(
-        request, ml_id, ml_forms.AddChildForm,
-        ugettext('New child lists for «%s»'),
-        entity_class=MailingList,
-        submit_label=_(u'Link the mailing list'),
-        template='creme_core/generics/blockform/link_popup.html',
-    )
+# @login_required
+# @permission_required('emails')
+# def add_children(request, ml_id):
+#     return generic.add_to_entity(
+#         request, ml_id, ml_forms.AddChildForm,
+#         ugettext('New child lists for «%s»'),
+#         entity_class=MailingList,
+#         submit_label=_('Link the mailing list'),
+#         template='creme_core/generics/blockform/link_popup.html',
+#     )
 
 
 # TODO: Conflict error if 'email' field is hidden ?
@@ -212,3 +208,39 @@ class MailingListEdition(generic.edit.EntityEdition):
     form_class = ml_forms.MailingListForm
     pk_url_kwarg = 'ml_id'
 
+
+class _AddingToMailingList(generic.add.AddingToEntity):
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    entity_id_url_kwarg = 'ml_id'
+    entity_classes = MailingList
+
+
+@method_decorator(require_model_fields(Contact, 'email'), name='dispatch')
+class ContactsAdding(_AddingToMailingList):
+    # model = Contact
+    form_class = ml_forms.AddContactsForm
+    title_format = _('New contacts for «{}»')
+    submit_label = _('Link the contacts')  # TODO: multi_link_label ??
+
+
+class ContactsAddingFromFilter(ContactsAdding):
+    form_class = ml_forms.AddContactsFromFilterForm
+
+
+@method_decorator(require_model_fields(Organisation, 'email'), name='dispatch')
+class OrganisationsAdding(_AddingToMailingList):
+    # model = Organisation
+    form_class = ml_forms.AddOrganisationsForm
+    title_format = _('New organisations for «{}»')
+    submit_label = _('Link the organisations')  # TODO: multi_link_label ??
+
+
+class OrganisationsAddingFromFilter(OrganisationsAdding):
+    form_class = ml_forms.AddOrganisationsFromFilterForm
+
+
+class ChildrenAdding(_AddingToMailingList):
+    # model = MailingList
+    form_class = ml_forms.AddChildForm
+    title_format = _('New child list for «{}»')
+    submit_label = _('Link the mailing list')

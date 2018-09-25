@@ -11,36 +11,46 @@ urlpatterns = [
     # url(r'^$', portal.portal, name='emails__portal'),
 
     # Campaign: mailing_list block
-    url(r'^campaign/(?P<campaign_id>\d+)/mailing_list/add[/]?$',    campaign.add_ml,    name='emails__add_mlists_to_campaign'),
-    url(r'^campaign/(?P<campaign_id>\d+)/mailing_list/delete[/]?$', campaign.delete_ml, name='emails__remove_mlist_from_campaign'),
+    # url(r'^campaign/(?P<campaign_id>\d+)/mailing_list/add[/]?$',    campaign.add_ml,    name='emails__add_mlists_to_campaign'),
+    url(r'^campaign/(?P<campaign_id>\d+)/mailing_list/add[/]?$',    campaign.MailingListsAdding.as_view(), name='emails__add_mlists_to_campaign'),
+    url(r'^campaign/(?P<campaign_id>\d+)/mailing_list/delete[/]?$', campaign.delete_ml,                    name='emails__remove_mlist_from_campaign'),
 
     # Campaign: sending block
-    url(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.add, name='emails__create_sending'),
+    # url(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.add, name='emails__create_sending'),
+    url(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.SendingCreation.as_view(), name='emails__create_sending'),
 
     # Campaign: sending details block (TODO: remove 'campaign/' from url ??)
     url(r'^campaign/sending/(?P<sending_id>\d+)[/]?$',              sending.detailview,         name='emails__view_sending'),
     url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload[/]?$', sending.reload_mails_brick, name='emails__reload_lw_mails_brick'),
 
     # Mailing list: recipients block
-    url(r'^mailing_list/(?P<ml_id>\d+)/recipient/add[/]?$',     recipient.add,          name='emails__add_recipients'),
-    url(r'^mailing_list/(?P<ml_id>\d+)/recipient/add_csv[/]?$', recipient.add_from_csv, name='emails__add_recipients_from_csv'),
+    # url(r'^mailing_list/(?P<ml_id>\d+)/recipient/add[/]?$',     recipient.add,          name='emails__add_recipients'),
+    url(r'^mailing_list/(?P<ml_id>\d+)/recipient/add[/]?$',     recipient.RecipientsAdding.as_view(),        name='emails__add_recipients'),
+    # url(r'^mailing_list/(?P<ml_id>\d+)/recipient/add_csv[/]?$', recipient.add_from_csv, name='emails__add_recipients_from_csv'),
+    url(r'^mailing_list/(?P<ml_id>\d+)/recipient/add_csv[/]?$', recipient.RecipientsAddingFromCSV.as_view(), name='emails__add_recipients_from_csv'),
 
-    # Mailing list: contacts block
-    url(r'^mailing_list/(?P<ml_id>\d+)/contact/add[/]?$',             mailing_list.add_contacts,             name='emails__add_contacts_to_mlist'),
-    url(r'^mailing_list/(?P<ml_id>\d+)/contact/add_from_filter[/]?$', mailing_list.add_contacts_from_filter, name='emails__add_contacts_to_mlist_from_filter'),
-    url(r'^mailing_list/(?P<ml_id>\d+)/contact/delete[/]?$',          mailing_list.delete_contact,           name='emails__remove_contact_from_mlist'),
+    # Mailing list: contacts brick
+    # url(r'^mailing_list/(?P<ml_id>\d+)/contact/add[/]?$',             mailing_list.add_contacts,             name='emails__add_contacts_to_mlist'),
+    url(r'^mailing_list/(?P<ml_id>\d+)/contact/add[/]?$',             mailing_list.ContactsAdding.as_view(),           name='emails__add_contacts_to_mlist'),
+    # url(r'^mailing_list/(?P<ml_id>\d+)/contact/add_from_filter[/]?$', mailing_list.add_contacts_from_filter, name='emails__add_contacts_to_mlist_from_filter'),
+    url(r'^mailing_list/(?P<ml_id>\d+)/contact/add_from_filter[/]?$', mailing_list.ContactsAddingFromFilter.as_view(), name='emails__add_contacts_to_mlist_from_filter'),
+    url(r'^mailing_list/(?P<ml_id>\d+)/contact/delete[/]?$',          mailing_list.delete_contact,                     name='emails__remove_contact_from_mlist'),
 
-    # Mailing list: organisations block
-    url(r'^mailing_list/(?P<ml_id>\d+)/organisation/add[/]?$',             mailing_list.add_organisations,             name='emails__add_orgas_to_mlist'),
-    url(r'^mailing_list/(?P<ml_id>\d+)/organisation/add_from_filter[/]?$', mailing_list.add_organisations_from_filter, name='emails__add_orgas_to_mlist_from_filter'),
-    url(r'^mailing_list/(?P<ml_id>\d+)/organisation/delete[/]?$',          mailing_list.delete_organisation,           name='emails__remove_orga_from_mlist'),
+    # Mailing list: organisations brick
+    # url(r'^mailing_list/(?P<ml_id>\d+)/organisation/add[/]?$',             mailing_list.add_organisations,             name='emails__add_orgas_to_mlist'),
+    url(r'^mailing_list/(?P<ml_id>\d+)/organisation/add[/]?$',             mailing_list.OrganisationsAdding.as_view(),           name='emails__add_orgas_to_mlist'),
+    # url(r'^mailing_list/(?P<ml_id>\d+)/organisation/add_from_filter[/]?$', mailing_list.add_organisations_from_filter, name='emails__add_orgas_to_mlist_from_filter'),
+    url(r'^mailing_list/(?P<ml_id>\d+)/organisation/add_from_filter[/]?$', mailing_list.OrganisationsAddingFromFilter.as_view(), name='emails__add_orgas_to_mlist_from_filter'),
+    url(r'^mailing_list/(?P<ml_id>\d+)/organisation/delete[/]?$',          mailing_list.delete_organisation,                     name='emails__remove_orga_from_mlist'),
 
-    # Mailing list: child lists block
-    url(r'^mailing_list/(?P<ml_id>\d+)/child/add[/]?$',    mailing_list.add_children, name='emails__add_child_mlists'),
-    url(r'^mailing_list/(?P<ml_id>\d+)/child/delete[/]?$', mailing_list.delete_child, name='emails__remove_child_mlist'),
+    # Mailing list: child lists brick
+    # url(r'^mailing_list/(?P<ml_id>\d+)/child/add[/]?$',    mailing_list.add_children, name='emails__add_child_mlists'),
+    url(r'^mailing_list/(?P<ml_id>\d+)/child/add[/]?$',    mailing_list.ChildrenAdding.as_view(), name='emails__add_child_mlists'),
+    url(r'^mailing_list/(?P<ml_id>\d+)/child/delete[/]?$', mailing_list.delete_child,             name='emails__remove_child_mlist'),
 
-    # Template: attachment block
-    url(r'^template/(?P<template_id>\d+)/attachment/add[/]?$',    template.add_attachment,    name='emails__add_attachments_to_template'),
+    # Template: attachment brick
+    # url(r'^template/(?P<template_id>\d+)/attachment/add[/]?$',    template.add_attachment,    name='emails__add_attachments_to_template'),
+    url(r'^template/(?P<template_id>\d+)/attachment/add[/]?$',    template.AttachmentsAdding.as_view(), name='emails__add_attachments_to_template'),
     url(r'^template/(?P<template_id>\d+)/attachment/delete[/]?$', template.delete_attachment, name='emails__remove_attachment_from_template'),
 
     # Mails history blocks
@@ -50,7 +60,8 @@ urlpatterns = [
 
     # Signature
     url(r'^signature/', include([
-        url(r'^add[/]?$',                        signature.add,    name='emails__create_signature'),
+        # url(r'^add[/]?$',                        signature.add,    name='emails__create_signature'),
+        url(r'^add[/]?$',                        signature.SignatureCreation.as_view(), name='emails__create_signature'),
         url(r'^edit/(?P<signature_id>\d+)[/]?$', signature.edit,   name='emails__edit_signature'),
         url(r'^delete[/]?$',                     signature.delete, name='emails__delete_signature'),
     ])),
@@ -81,12 +92,13 @@ if not emails.emailtemplate_model_is_custom():
 if not emails.entityemail_model_is_custom():
     urlpatterns += [
         url(r'^mails[/]?$',                                     mail.listview,                    name='emails__list_emails'),
-        url(r'^mail/add/(?P<entity_id>\d+)[/]?$',               mail.create_n_send,               name='emails__create_email'),
+        # url(r'^mail/add/(?P<entity_id>\d+)[/]?$',               mail.create_n_send,               name='emails__create_email'),
+        url(r'^mail/add/(?P<entity_id>\d+)[/]?$',               mail.EntityEmailCreation.as_view(), name='emails__create_email'),
         url(r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$', mail.create_from_template_n_send, name='emails__create_email_from_template'),
         # url(r'^mail/(?P<mail_id>\d+)[/]?$',                     mail.detailview,                  name='emails__view_email'),
-        url(r'^mail/(?P<mail_id>\d+)[/]?$',                     mail.EntityEmailDetail.as_view(), name='emails__view_email'),
+        url(r'^mail/(?P<mail_id>\d+)[/]?$',                     mail.EntityEmailDetail.as_view(),   name='emails__view_email'),
         # url(r'^mail/(?P<mail_id>\d+)/popup[/]?$',               mail.popupview,                   name='emails__view_email_popup'),
-        url(r'^mail/(?P<mail_id>\d+)/popup[/]?$',               mail.EntityEmailPopup.as_view(),  name='emails__view_email_popup'),
+        url(r'^mail/(?P<mail_id>\d+)/popup[/]?$',               mail.EntityEmailPopup.as_view(),    name='emails__view_email_popup'),
     ]
 
 if not emails.mailinglist_model_is_custom():

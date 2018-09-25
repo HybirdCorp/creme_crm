@@ -7,9 +7,12 @@ try:
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
+    from creme.creme_core.models import SetCredentials, FakeOrganisation
 
     from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder, Folder
+
     from creme.documents import constants
     from creme.documents.models import FolderCategory
 except Exception as e:
@@ -27,13 +30,14 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         cls.ADD_URL  = reverse('documents__create_folder')
         cls.LIST_URL = reverse('documents__list_folders')
 
-    def setUp(self):
-        # super(FolderTestCase, self).setUp()
-        super().setUp()
-        self.login()
+    # def setUp(self):
+    #     # super(FolderTestCase, self).setUp()
+    #     super().setUp()
+    #     self.login()
 
     def test_createview01(self):
         "No parent folder"
+        user = self.login()
         url = self.ADD_URL
         self.assertGET200(url)
 
@@ -42,7 +46,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         description = 'Test description'
         response = self.client.post(url, follow=True,
-                                    data={'user':        self.user.pk,
+                                    data={'user':        user.pk,
                                           'title':       title,
                                           'description': description,
                                          }
@@ -56,7 +60,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_createview02(self):
         "Parent folder"
-        user = self.user
+        user = self.login()
         url = self.ADD_URL
 
         category = FolderCategory.objects.all()[0]
@@ -87,7 +91,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_createview03(self):
         "Parent folder's' category is copied if no category"
-        user = self.user
+        user = self.login()
 
         category = FolderCategory.objects.all()[0]
         parent_title = 'Test parent folder'
@@ -108,15 +112,18 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         folder = self.get_object_or_fail(Folder, title=title)
         self.assertEqual(category, folder.category)
 
-    def test_create_child(self):
-        user = self.user
+    def test_create_child01(self):
+        user = self.login()
 
         create_folder = partial(Folder.objects.create, user=user, parent_folder=None)
         parent = create_folder(title='Parent folder', description='Parent description')
         unused = create_folder(title='Unused parent', description='Unused description')
 
         url = reverse('documents__create_child_folder', args=(parent.id,))
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New child folder for «%s»') % parent, context.get('title'))
+        self.assertEqual(_('New child folder for «{}»').format(parent), context.get('title'))
+        self.assertEqual(Folder.save_label,                             context.get('submit_label'))
 
         title = 'Child folder'
         description = 'Child description'
@@ -133,13 +140,55 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertEqual(description, folder.description)
         self.assertEqual(parent,      folder.parent_folder)
 
+    def test_create_child02(self):
+        "Link credentials needed"
+        user = self.login(is_superuser=False, allowed_apps=['documents'],
+                          creatable_models=[Folder],
+                         )
+        sc = SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                  EntityCredentials.UNLINK,  # not EntityCredentials.LINK
+        )
+
+        parent = Folder.objects.create(user=user, title='Parent folder')
+        url = reverse('documents__create_child_folder', args=(parent.id,))
+        self.assertGET403(url)
+
+        sc.value = EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK
+        sc.save()
+        self.assertGET200(url)
+
+    def test_create_child03(self):
+        "Creation credentials needed"
+        user = self.login(is_superuser=False, allowed_apps=['documents'],
+                          # creatable_models=[Folder],
+                         )
+        SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        )
+
+        parent = Folder.objects.create(user=user, title='Parent folder')
+        self.assertGET403(reverse('documents__create_child_folder', args=(parent.id,)))
+
+    def test_create_child04(self):
+        "Not related to a Folder"
+        user = self.login()
+
+        orga = FakeOrganisation.objects.create(user=user, name='I am not a folder')
+        self.assertGET404(reverse('documents__create_child_folder', args=(orga.id,)))
+
     def test_editview01(self):
+        user = self.login()
         title = 'Test folder'
         description = 'Test description'
         folder = Folder.objects.create(title=title,
                                        description=description,
                                        parent_folder=None,
-                                       user=self.user,
+                                       user=user,
                                       )
 
         url = folder.get_edit_absolute_url()
@@ -150,7 +199,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         parent      = Folder.objects.all()[0]
         category = parent.category
         response = self.client.post(url, follow=True,
-                                    data={'user':          self.user.pk,
+                                    data={'user':          user.pk,
                                           'title':         title,
                                           'description':   description,
                                           'parent_folder': parent.id,
@@ -167,7 +216,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_editview02(self):
         "A folder cannot be its own parent"
-        user = self.user
+        user = self.login()
         folder = Folder.objects.create(title='Test folder',
                                        description='Test description',
                                        parent_folder=None,
@@ -186,9 +235,9 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_editview03(self):
         "A folder cannot be the parent of one of its parents"
-        user = self.user
+        user = self.login()
         create_folder = partial(Folder.objects.create, user=user,
-                                description=u'Test description',
+                                description='Test description',
                                )
         folder1 = create_folder(title='Test folder#1')
         folder2 = create_folder(title='Test folder#2', parent_folder=folder1)
@@ -209,10 +258,11 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertIsNone(self.refresh(folder1).parent_folder)
 
     def test_inneredit_parent01(self):
+        user = self.login()
         cat1, cat2 = FolderCategory.objects.all()[:2]
 
-        create_folder = partial(Folder.objects.create, user=self.user,
-                                description=u'Test description',
+        create_folder = partial(Folder.objects.create, user=user,
+                                description='Test description',
                                )
         folder1 = create_folder(title='Test folder#1', category=cat1)
         folder2 = create_folder(title='Test folder#2', category=cat2)
@@ -229,10 +279,11 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_inneredit_parent02(self):
         "The category of the parent is copied if there is none"
+        user = self.login()
         cat = FolderCategory.objects.all()[0]
 
-        create_folder = partial(Folder.objects.create, user=self.user,
-                                description=u'Test description',
+        create_folder = partial(Folder.objects.create, user=user,
+                                description='Test description',
                                )
         folder1 = create_folder(title='Test folder#1')
         folder2 = create_folder(title='Test folder#2', category=cat)
@@ -248,8 +299,10 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_inneredit_parent03(self):
         "Loops"
-        create_folder = partial(Folder.objects.create, user=self.user,
-                                description=u'Test description',
+        user = self.login()
+
+        create_folder = partial(Folder.objects.create, user=user,
+                                description='Test description',
                                )
         folder1 = create_folder(title='Test folder#1')
         folder2 = create_folder(title='Test folder#2', parent_folder=folder1)
@@ -269,8 +322,10 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertIsNone(self.refresh(folder1).parent_folder)
 
     def test_bulkedit_parent(self):
-        create_folder = partial(Folder.objects.create, user=self.user,
-                                description=u'Test description',
+        user = self.login()
+
+        create_folder = partial(Folder.objects.create, user=user,
+                                description='Test description',
                                )
         folder1 = create_folder(title='Test folder#1')
         folder2 = create_folder(title='Test folder#2', parent_folder=folder1)
@@ -303,7 +358,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertEqual(folder3, self.refresh(folder4).parent_folder)
 
     def test_listview01(self):
-        user = self.user
+        user = self.login()
         category = FolderCategory.objects.all()[0]
 
         create_folder = partial(Folder.objects.create, user=user,
@@ -322,16 +377,17 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertIn(folder1, folders)
         self.assertIn(folder2, folders)
 
-        self.assertEqual(_(u'List of {models}').format(models=Folder._meta.verbose_name_plural), title)
+        self.assertEqual(_('List of {models}').format(models=Folder._meta.verbose_name_plural), title)
 
         with self.assertRaises(KeyError):
             context['list_sub_title']
 
     def test_listview02(self):
         "With parent constraint"
+        user = self.login()
         cat = FolderCategory.objects.all()[0]
 
-        create_folder = partial(Folder.objects.create, user=self.user, category=cat)
+        create_folder = partial(Folder.objects.create, user=user, category=cat)
         grand_parent = create_folder(title='Docs', description='Contains docs')
         parent  = create_folder(title='Vectors', description='Contains Vector docs',
                                 parent_folder=grand_parent,
@@ -363,7 +419,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertNotIn(folder3, folders)
         self.assertNotIn(parent2, folders)
 
-        self.assertEqual(_(u'List sub-folders of «{}»').format(parent), title)
+        self.assertEqual(_('List sub-folders of «{}»').format(parent), title)
         self.assertEqual('{} > {}'.format(grand_parent.title, parent.title),
                          sub_title
                         )
@@ -378,8 +434,9 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertIn(grand_parent, folders)
 
     def test_folder_clone01(self):
+        user = self.login()
         title = 'folder'
-        folder = Folder.objects.create(user=self.user, title=title, description='d')
+        folder = Folder.objects.create(user=user, title=title, description='d')
 
         stack = [folder]
         stack_append = stack.append
@@ -391,7 +448,9 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_deleteview01(self):
         "No doc inside"
-        folder = Folder.objects.create(user=self.user, title='ToBeDel', description='remove me')
+        user = self.login()
+
+        folder = Folder.objects.create(user=user, title='ToBeDel', description='remove me')
         folder.trash()
 
         response = self.assertPOST200(folder.get_delete_absolute_url(), follow=True)
@@ -400,7 +459,9 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_deleteview02(self):
         "A doc inside protect from deletion"
-        folder = Folder.objects.create(user=self.user, title='ToBeDel', description='remove me')
+        user = self.login()
+
+        folder = Folder.objects.create(user=user, title='ToBeDel', description='remove me')
 
         title = 'Boring title'
         doc = self._create_doc(title, folder=folder)
@@ -413,12 +474,14 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_deleteview03(self):
         "Un deletable folder: 'Creme'"
+        self.login()
         folder = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_RELATED2ENTITIES)
 
         self.assertPOST403(folder.get_delete_absolute_url())
 
     def test_deleteview04(self):
         "Un deletable folder: 'Images'"
+        self.login()
         folder = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_IMAGES)
 
         self.assertPOST403(folder.get_delete_absolute_url())
@@ -427,9 +490,11 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         "Brick which display contained docs"
         from creme.documents.bricks import FolderDocsBrick
 
+        user = self.login()
+
         FolderDocsBrick.page_size = max(4, settings.BLOCK_SIZE)
 
-        folder = Folder.objects.create(user=self.user, title='PDF',
+        folder = Folder.objects.create(user=user, title='PDF',
                                        description='Contains PDF files',
                                        parent_folder=None,
                                        category=FolderCategory.objects.all()[0]
@@ -451,7 +516,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertNoInstanceLink(brick_node, doc3)
 
     def test_merge01(self):
-        user = self.user
+        user = self.login()
 
         create_folder = partial(Folder.objects.create, user=user)
         folder1 = create_folder(title='Folder#1', description='Folder#1')
@@ -509,7 +574,9 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_merge02(self):
         "One folder is the parent of the other one"
-        create_folder = partial(Folder.objects.create, user=self.user)
+        user = self.login()
+
+        create_folder = partial(Folder.objects.create, user=user)
         folder1 = create_folder(title='Folder#1', description='Folder#1')
         folder2 = create_folder(title='Folder#2', description='Folder#2', parent_folder=folder1)
         folder3 = create_folder(title='Folder#3', description='Folder#3', parent_folder=folder2)

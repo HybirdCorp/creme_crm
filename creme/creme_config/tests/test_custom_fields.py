@@ -25,7 +25,10 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertFalse(CustomField.objects.all())
 
         url = reverse('creme_config__create_first_ctype_custom_field')
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        self.assertEqual(_('New custom field configuration'), context.get('title'))
+        # self.assertEqual(_('Save the configuration'),         context.get('submit_label'))
+        self.assertEqual(_('Save the custom field'),          context.get('submit_label'))
 
         ct = ContentType.objects.get_for_model(FakeContact)
         name = 'Size'
@@ -77,7 +80,11 @@ class CustomFieldsTestCase(CremeTestCase):
         create_cf(content_type=orga_ct,    field_type=CustomField.INT,  name=name)  # <= same name but not same CT
 
         url = reverse('creme_config__create_custom_field', args=(contact_ct.id,))
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        self.assertEqual(_('New custom field for «{model}»').format(model='Test Contact'),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the custom field'),         context.get('submit_label'))
 
         field_type = CustomField.ENUM
         response = self.client.post(url, data={'name':        name,

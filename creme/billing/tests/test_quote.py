@@ -83,13 +83,20 @@ class QuoteTestCase(_BillingTestCase):
         quote, source, target = self.create_quote_n_orgas('My Quote Two')
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, source)
 
-    def test_create_related(self):
+    def test_create_related01(self):
         user = self.login()
 
         source, target = self.create_orgas()
         url = reverse('billing__create_related_quote', args=(target.id,))
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Create a quote for «%s»') % target, context.get('title'))
+        self.assertEqual(_('Create a quote for «{}»').format(target), context.get('title'))
+        self.assertEqual(Quote.save_label,                            context.get('submit_label'))
+
+        # ---
         with self.assertNoException():
             form = response.context['form']
 
@@ -124,6 +131,60 @@ class QuoteTestCase(_BillingTestCase):
 
         self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
+
+    def test_create_related02(self):
+        "Not a super-user"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'billing'],
+                   creatable_models=[Quote],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        source, target = self.create_orgas()
+        self.assertGET200(reverse('billing__create_related_quote', args=(target.id,)))
+
+    def test_create_related03(self):
+        "Creation creds are needed"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'billing'],
+                   # creatable_models=[Quote],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        source, target = self.create_orgas()
+        self.assertGET403(reverse('billing__create_related_quote', args=(target.id,)))
+
+    def test_create_related04(self):
+        "CHANGE creds are needed"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'billing'],
+                   creatable_models=[Quote],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            # EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        source, target = self.create_orgas()
+        self.assertGET403(reverse('billing__create_related_quote', args=(target.id,)))
 
     def test_editview01(self):
         user = self.login()

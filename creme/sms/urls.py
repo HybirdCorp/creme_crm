@@ -10,12 +10,14 @@ urlpatterns = [
     # url(r'^$', portal.portal, name='sms__portal'),
 
     # Campaign: messaging_lists block
-    url(r'^campaign/(?P<campaign_id>\d+)/messaging_list/add[/]?$',    campaign.add_messaging_list,    name='sms__add_mlists_to_campaign'),
+    # url(r'^campaign/(?P<campaign_id>\d+)/messaging_list/add[/]?$',    campaign.add_messaging_list,    name='sms__add_mlists_to_campaign'),
+    url(r'^campaign/(?P<campaign_id>\d+)/messaging_list/add[/]?$',    campaign.MessagingListsAdding.as_view(), name='sms__add_mlists_to_campaign'),
     url(r'^campaign/(?P<campaign_id>\d+)/messaging_list/delete[/]?$', campaign.delete_messaging_list, name='sms__remove_mlist_from_campaign'),
 
     # Campaign: sending block
-    url(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.add,    name='sms__create_sending'),
-    url(r'^campaign/sending/delete[/]?$',                   sending.delete, name='sms__delete_sending'),
+    # url(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.add,    name='sms__create_sending'),
+    url(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.SendingCreation.as_view(), name='sms__create_sending'),
+    url(r'^campaign/sending/delete[/]?$',                   sending.delete,                    name='sms__delete_sending'),
 
     # Campaign: sending details block
     url(r'^campaign/sending/(?P<id>\d+)[/]?$',                 sending.detailview,            name='sms__view_sending'),
@@ -25,12 +27,16 @@ urlpatterns = [
     url(r'^campaign/sending/(?P<id>\d+)/messages/reload[/]?$', sending.reload_messages_brick, name='sms__reload_messages_brick'),
 
     # MessagingList list: recipients brick
-    url(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add[/]?$',     recipient.add,          name='sms__add_recipients'),
-    url(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add_csv[/]?$', recipient.add_from_csv, name='sms__add_recipients_from_csv'),
+    # url(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add[/]?$',     recipient.add,          name='sms__add_recipients'),
+    url(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add[/]?$',     recipient.RecipientsAdding.as_view(),        name='sms__add_recipients'),
+    # url(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add_csv[/]?$', recipient.add_from_csv, name='sms__add_recipients_from_csv'),
+    url(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add_csv[/]?$', recipient.RecipientsAddingFromCSV.as_view(), name='sms__add_recipients_from_csv'),
 
     # MessagingList list: contacts brick
-    url(r'^messaging_list/(?P<mlist_id>\d+)/contact/add[/]?$',             messaging_list.add_contacts,             name='sms__add_contacts_to_mlist'),
-    url(r'^messaging_list/(?P<mlist_id>\d+)/contact/add_from_filter[/]?$', messaging_list.add_contacts_from_filter, name='sms__add_contacts_to_mlist_from_filter'),
+    # url(r'^messaging_list/(?P<mlist_id>\d+)/contact/add[/]?$',             messaging_list.add_contacts,             name='sms__add_contacts_to_mlist'),
+    url(r'^messaging_list/(?P<mlist_id>\d+)/contact/add[/]?$',             messaging_list.ContactsAdding.as_view(),           name='sms__add_contacts_to_mlist'),
+    # url(r'^messaging_list/(?P<mlist_id>\d+)/contact/add_from_filter[/]?$', messaging_list.add_contacts_from_filter, name='sms__add_contacts_to_mlist_from_filter'),
+    url(r'^messaging_list/(?P<mlist_id>\d+)/contact/add_from_filter[/]?$', messaging_list.ContactsAddingFromFilter.as_view(), name='sms__add_contacts_to_mlist_from_filter'),
     url(r'^messaging_list/(?P<mlist_id>\d+)/contact/delete[/]?',           messaging_list.delete_contact,           name='sms__remove_contact_from_mlist'),
 ]
 

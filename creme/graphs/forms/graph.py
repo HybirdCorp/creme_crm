@@ -40,7 +40,8 @@ class AddRelationTypesForm(CremeForm):
                                               widget=UnorderedMultipleChoiceWidget(columntype='wide'),
                                              )
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(AddRelationTypesForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.graph = entity

@@ -55,6 +55,9 @@ class Memo(creme_models.CremeModel):
 
     objects = MemoManager()
 
+    creation_label = _('Create a memo')
+    save_label     = _('Save the memo')
+
     class Meta:
         app_label = 'assistants'
         verbose_name = _('Memo')

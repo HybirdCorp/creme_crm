@@ -32,9 +32,8 @@ from creme.creme_core.utils import jsonify, get_from_POST_or_404
 from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic
 
-from .. import get_entityemail_model
-from ..constants import MAIL_STATUS_SENT, DEFAULT_HFILTER_EMAIL
-from ..forms.mail import EntityEmailForm, TemplateSelectionForm, EntityEmailFromTemplateForm
+from .. import get_entityemail_model, constants
+from ..forms import mail as mail_forms
 from ..forms.template import TEMPLATES_VARS
 from ..models import LightWeightEmail
 
@@ -85,7 +84,7 @@ def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html
     return generic.view_entity(request, mail_id, EntityEmail,
                                template=template,
                                # NB: not used...
-                               extra_template_dict={'sent_status': MAIL_STATUS_SENT},
+                               extra_template_dict={'sent_status': constants.MAIL_STATUS_SENT},
                               )
 
 
@@ -97,10 +96,14 @@ def abstract_popupview(request, mail_id, template='emails/view_entity_mail_popup
     return generic.view_entity(request, mail_id, EntityEmail, template=template)
 
 
-def abstract_create_n_send(request, entity_id, form=EntityEmailForm,
-                           title=_(u'Sending an email to «%s»'),
+def abstract_create_n_send(request, entity_id, form=mail_forms.EntityEmailForm,
+                           title=_('Sending an email to «%s»'),
                            submit_label=EntityEmail.sending_label,
                           ):
+    warnings.warn('emails.views.mail.abstract_create_n_send() is deprecated ; '
+                  'use the class-based view EntityEmailCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_to_entity(request, entity_id, form, title=title,
                                  link_perm=True, submit_label=submit_label,
                                 )
@@ -108,8 +111,8 @@ def abstract_create_n_send(request, entity_id, form=EntityEmailForm,
 
 # TODO: use a wizard. It seems hackish to work with inner popup & django.contrib.formtools.wizard.FormWizard
 def abstract_create_from_template_n_send(request, entity_id,
-                                         selection_form=TemplateSelectionForm,
-                                         email_form=EntityEmailFromTemplateForm,
+                                         selection_form=mail_forms.TemplateSelectionForm,
+                                         email_form=mail_forms.EntityEmailFromTemplateForm,
                                          template='creme_core/generics/blockform/add_popup.html',
                                         ):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
@@ -152,7 +155,7 @@ def abstract_create_from_template_n_send(request, entity_id,
 
     return generic.inner_popup(request, template,
                                {'form':   form,
-                                'title':  ugettext(u'Sending an email to «{entity}» (step {step}/2)').format(
+                                'title':  ugettext('Sending an email to «{entity}» (step {step}/2)').format(
                                                 entity=entity,
                                                 step=step,
                                             ),
@@ -181,12 +184,13 @@ def popupview(request, mail_id):
 @login_required
 @permission_required('emails')
 def listview(request):
-    return generic.list_view(request, EntityEmail, hf_pk=DEFAULT_HFILTER_EMAIL)
+    return generic.list_view(request, EntityEmail, hf_pk=constants.DEFAULT_HFILTER_EMAIL)
 
 
 @login_required
 @permission_required(('emails', cperm(EntityEmail)))
 def create_n_send(request, entity_id):
+    warnings.warn('emails.views.mail.create_n_send() is deprecated.', DeprecationWarning)
     return abstract_create_n_send(request, entity_id)
 
 
@@ -209,6 +213,17 @@ def resend_mails(request):  # TODO: unit test
 
 
 # Class-based views  ----------------------------------------------------------
+
+class EntityEmailCreation(generic.add.AddingToEntity):
+    model = EntityEmail
+    form_class = mail_forms.EntityEmailForm
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    permissions = ['emails', cperm(EntityEmail)]
+    title_format = _('Sending an email to «{}»')
+    submit_label = EntityEmail.sending_label
+
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_link_or_die(entity)
 
 
 class EntityEmailDetail(generic.detailview.EntityDetail):

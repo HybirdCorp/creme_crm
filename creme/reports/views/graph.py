@@ -30,9 +30,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem, RelationType, CustomField
 
-from .. import get_rgraph_model, get_report_model
-from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
-        RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK)
+from .. import get_rgraph_model, get_report_model, constants
 from ..core.graph import RGRAPH_HANDS_MAP
 from ..forms.graph import ReportGraphForm
 from ..report_chart_registry import report_chart_registry
@@ -45,9 +43,13 @@ ReportGraph = get_rgraph_model()
 
 
 def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
-                        title=_(u'Create a graph for «%s»'),
+                        title=_('Create a graph for «%s»'),
                         submit_label=ReportGraph.save_label,
                        ):
+    warnings.warn('reports.views.graph.abstract_add_rgraph() is deprecated ; '
+                  'use the class-based view ReportGraphCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_to_entity(request,
                                  entity_id=report_id,
                                  entity_class=get_report_model(),
@@ -57,7 +59,7 @@ def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
 
 
 def abstract_edit_rgraph(request, graph_id, form=ReportGraphForm,
-                         title=_(u'Edit a graph for «%s»'),
+                         title=_('Edit a graph for «%s»'),
                         ):
     return generic.edit_related_to_entity(request, graph_id, ReportGraph, form, title)
 
@@ -76,6 +78,7 @@ def abstract_view_rgraph(request, graph_id, template='reports/view_graph.html'):
 @login_required
 @permission_required('reports')
 def add(request, report_id):
+    warnings.warn('reports.views.graph.add() is deprecated.', DeprecationWarning)
     return abstract_add_rgraph(request, report_id)
 
 
@@ -108,10 +111,15 @@ def _get_available_report_graph_types(ct, name):
                 field_type = cf.field_type
 
                 if field_type == CustomField.DATETIME:
-                    return RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE
+                    return (
+                        constants.RGT_CUSTOM_DAY,
+                        constants.RGT_CUSTOM_MONTH,
+                        constants.RGT_CUSTOM_YEAR,
+                        constants.RGT_CUSTOM_RANGE,
+                    )
 
                 if field_type == CustomField.ENUM:
-                    return (RGT_CUSTOM_FK,)
+                    return (constants.RGT_CUSTOM_FK,)
 
                 logger.debug('get_available_report_graph_types(): only ENUM & DATETIME CustomField are allowed.')
         else:
@@ -121,13 +129,18 @@ def _get_available_report_graph_types(ct, name):
                 logger.debug('get_available_report_graph_types(): "%s" is not a field or a RelationType id', name)
             else:
                 # TODO: check compatible ??
-                return (RGT_RELATION,)
+                return (constants.RGT_RELATION,)
     else:
         if isinstance(field, (DateField, DateTimeField)):
-            return RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE
+            return (
+                constants.RGT_DAY,
+                constants.RGT_MONTH,
+                constants.RGT_YEAR,
+                constants.RGT_RANGE,
+            )
 
         if isinstance(field, ForeignKey):
-            return (RGT_FK,)
+            return (constants.RGT_FK,)
 
         logger.debug('get_available_report_graph_types(): "%s" is not a valid field for abscissa', name)
 
@@ -141,7 +154,7 @@ def get_available_report_graph_types(request, ct_id):
     gtypes = _get_available_report_graph_types(ct, abscissa_field)
 
     if gtypes is None:
-        result = [{'id': '', 'text': ugettext(u'Choose an abscissa field')}]  # TODO: is the translation useful ??
+        result = [{'id': '', 'text': ugettext('Choose an abscissa field')}]  # TODO: is the translation useful ??
     else:
         result = [{'id':   type_id,
                    'text': str(RGRAPH_HANDS_MAP[type_id].verbose_name),
@@ -194,6 +207,14 @@ def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):
 
 
 # Class-based views  ----------------------------------------------------------
+
+
+class ReportGraphCreation(generic.add.AddingToEntity):
+    model = ReportGraph
+    form_class = ReportGraphForm
+    title_format = _('Create a graph for «{}»')
+    entity_id_url_kwarg = 'report_id'
+    entity_classes = get_report_model()
 
 
 class ReportGraphDetail(generic.detailview.EntityDetail):

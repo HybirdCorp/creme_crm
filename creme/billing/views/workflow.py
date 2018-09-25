@@ -18,10 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.shortcuts import get_object_or_404
 
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.generic import add_model_with_popup
+
+warnings.warn('The module "billing.views.workflow" is deprecated ; '
+              'use "billing.views.base" instead.',
+              DeprecationWarning
+             )
 
 
 def generic_add_related(request, target_id, form, title, submit_label, status_id=None):

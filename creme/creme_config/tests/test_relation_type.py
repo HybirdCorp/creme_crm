@@ -27,7 +27,10 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_create01(self):
         url = self.ADD_URL
-        self.assertGET200(url)
+
+        context = self.assertGET200(url).context
+        self.assertEqual(_('New custom type'),    context.get('title'))
+        self.assertEqual(RelationType.save_label, context.get('submit_label'))
 
         count = RelationType.objects.count()
         subject_pred = 'loves'

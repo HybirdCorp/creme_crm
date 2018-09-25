@@ -38,15 +38,15 @@ _NAME_LENGTH = 100
 
 
 class ActType(CremeModel):
-    title     = CharField(_(u'Title'), max_length=75)
+    title     = CharField(_('Title'), max_length=75)
     is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = pgettext_lazy('commercial-act_type', u'Create a type')
+    creation_label = pgettext_lazy('commercial-act_type', 'Create a type')
 
     class Meta:
         app_label = 'commercial'
-        verbose_name = _(u'Type of commercial action')
-        verbose_name_plural = _(u'Types of commercial actions')
+        verbose_name = _('Type of commercial action')
+        verbose_name_plural = _('Types of commercial actions')
         ordering = ('title',)
 
     def __str__(self):
@@ -54,17 +54,17 @@ class ActType(CremeModel):
 
 
 class AbstractAct(CremeEntity):
-    name           = CharField(_(u'Name of the commercial action'), max_length=100)
-    expected_sales = PositiveIntegerField(_(u'Expected sales'))
-    cost           = PositiveIntegerField(_(u'Cost of the commercial action'), blank=True, null=True)
-    goal           = TextField(_(u'Goal of the action'), blank=True)
-    start          = DateField(_(u'Start'))
-    due_date       = DateField(_(u'Due date'))
-    act_type       = ForeignKey(ActType, verbose_name=_(u'Type'), on_delete=PROTECT)
-    segment        = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'), on_delete=PROTECT)
+    name           = CharField(_('Name of the commercial action'), max_length=100)
+    expected_sales = PositiveIntegerField(_('Expected sales'))
+    cost           = PositiveIntegerField(_('Cost of the commercial action'), blank=True, null=True)
+    goal           = TextField(_('Goal of the action'), blank=True)
+    start          = DateField(_('Start'))
+    due_date       = DateField(_('Due date'))
+    act_type       = ForeignKey(ActType, verbose_name=_('Type'), on_delete=PROTECT)
+    segment        = ForeignKey(MarketSegment, verbose_name=_('Related segment'), on_delete=PROTECT)
 
-    creation_label = _(u'Create a commercial action')
-    save_label     = _(u'Save the commercial action')
+    creation_label = _('Create a commercial action')
+    save_label     = _('Save the commercial action')
 
     _related_opportunities = None
 
@@ -72,8 +72,8 @@ class AbstractAct(CremeEntity):
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'commercial'
-        verbose_name = _(u'Commercial action')
-        verbose_name_plural = _(u'Commercial actions')
+        verbose_name = _('Commercial action')
+        verbose_name_plural = _('Commercial actions')
         ordering = ('name',)
 
     def __str__(self):
@@ -141,23 +141,26 @@ class Act(AbstractAct):
 
 
 class ActObjective(CremeModel):
-    name         = CharField(_(u'Name'), max_length=_NAME_LENGTH)
+    name         = CharField(_('Name'), max_length=_NAME_LENGTH)
     act          = ForeignKey(settings.COMMERCIAL_ACT_MODEL, related_name='objectives',
                               editable=False, on_delete=CASCADE,
                              )
-    counter      = PositiveIntegerField(_(u'Counter'), default=0, editable=False)
-    counter_goal = PositiveIntegerField(_(u'Value to reach'), default=1)
-    ctype        = CTypeForeignKey(verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
-    filter       = ForeignKey(EntityFilter, verbose_name=_(u'Filter on counted entities'),
+    counter      = PositiveIntegerField(_('Counter'), default=0, editable=False)
+    counter_goal = PositiveIntegerField(_('Value to reach'), default=1)
+    ctype        = CTypeForeignKey(verbose_name=_('Counted type'), null=True, blank=True, editable=False)
+    filter       = ForeignKey(EntityFilter, verbose_name=_('Filter on counted entities'),
                               null=True, blank=True, on_delete=PROTECT, editable=False,
                              )
+
+    creation_label = _('Create an objective')
+    save_label     = _('Save the objective')
 
     _count_cache = None
 
     class Meta:
         app_label = 'commercial'
-        verbose_name = _(u'Commercial Objective')
-        verbose_name_plural = _(u'Commercial Objectives')
+        verbose_name = _('Commercial Objective')
+        verbose_name_plural = _('Commercial Objectives')
         # ordering = ('name',) TODO ?
 
     def __str__(self):
@@ -202,12 +205,12 @@ class ActObjective(CremeModel):
 
 
 class AbstractActObjectivePattern(CremeEntity):
-    name          = CharField(_(u'Name'), max_length=100)
-    average_sales = PositiveIntegerField(_(u'Average sales'))
-    segment       = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'), on_delete=CASCADE)
+    name          = CharField(_('Name'), max_length=100)
+    average_sales = PositiveIntegerField(_('Average sales'))
+    segment       = ForeignKey(MarketSegment, verbose_name=_('Related segment'), on_delete=CASCADE)
 
-    creation_label = _(u'Create an objective pattern')
-    save_label     = _(u'Save the objective pattern')
+    creation_label = _('Create an objective pattern')
+    save_label     = _('Save the objective pattern')
 
     _components_cache = None
 
@@ -215,8 +218,8 @@ class AbstractActObjectivePattern(CremeEntity):
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'commercial'
-        verbose_name = _(u'Objective pattern')
-        verbose_name_plural = _(u'Objective patterns')
+        verbose_name = _('Objective pattern')
+        verbose_name_plural = _('Objective patterns')
         ordering = ('name',)
 
     def __str__(self):
@@ -272,12 +275,12 @@ class ActObjectivePattern(AbstractActObjectivePattern):
 class ActObjectivePatternComponent(CremeModel):
     pattern      = ForeignKey(ActObjectivePattern, related_name='components', editable=False, on_delete=CASCADE)
     parent       = ForeignKey('self', null=True, related_name='children', editable=False, on_delete=CASCADE)
-    name         = CharField(_(u'Name'), max_length=_NAME_LENGTH)
-    ctype        = CTypeForeignKey(verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
-    filter       = ForeignKey(EntityFilter, verbose_name=_(u'Filter on counted entities'),
+    name         = CharField(_('Name'), max_length=_NAME_LENGTH)
+    ctype        = CTypeForeignKey(verbose_name=_('Counted type'), null=True, blank=True, editable=False)
+    filter       = ForeignKey(EntityFilter, verbose_name=_('Filter on counted entities'),
                               null=True, blank=True, on_delete=PROTECT, editable=False,
                              )
-    success_rate = PositiveIntegerField(_(u'Success rate'))  # TODO: smallinteger ??
+    success_rate = PositiveIntegerField(_('Success rate'))  # TODO: smallinteger ??
 
     _children_cache = None
 

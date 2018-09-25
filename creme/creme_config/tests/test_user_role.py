@@ -585,9 +585,12 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role = UserRole.objects.create(name='CEO')
         url = self._build_del_role_url(role)
         response = self.assertGET200(url)
+        context = response.context
+        self.assertEqual(_('Delete role «{}»').format(role), context.get('title'))
+        self.assertEqual(_('Delete the role'),               context.get('submit_label'))
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = context['form'].fields
             info = fields['info']
 
         self.assertFalse(info.required)

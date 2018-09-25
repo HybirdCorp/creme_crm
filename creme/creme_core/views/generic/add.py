@@ -29,8 +29,7 @@ from django.views.generic import CreateView
 from creme.creme_core import forms, models
 from creme.creme_core.auth.decorators import login_required
 
-from .base import CancellableMixin
-from .popup import inner_popup
+from . import base, popup
 
 
 def add_entity(request, form_class, url_redirect='',
@@ -89,13 +88,18 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
                   template='creme_core/generics/blockform/add_popup.html',
                   link_perm=False, submit_label=_('Save')):
     """ Add models related to one CremeEntity (eg: a CremeProperty)
-    @param entity_id Id of a CremeEntity.
-    @param form_class Form which __init__'s method MUST HAVE an argument caled 'entity' (the related CremeEntity).
-    @param title Title of the Inner Popup: Must be a format string with one arg: the related entity.
-    @param entity_class If given, it's the entity's class (else it could be any class inheriting CremeEntity)
-    @param initial classical 'initial' of Forms
-    @param link_perm use LINK permission instead of CHANGE permission (default=False)
+    @param entity_id: Id of a CremeEntity.
+    @param form_class: Form which __init__'s method MUST HAVE an argument caled 'entity' (the related CremeEntity).
+    @param title: Title of the Inner Popup: Must be a format string with one arg: the related entity.
+    @param entity_class: If given, it's the entity's class (else it could be any class inheriting CremeEntity).
+    @param initial: Classical 'initial' of Forms.
+    @param link_perm: Use LINK permission instead of CHANGE permission (default=False).
     """
+    warnings.warn('creme_core.views.generic.add.add_to_entity() is deprecated ; '
+                  'use the class-based view AddingToEntity instead.',
+                  DeprecationWarning
+                 )
+
     entity = get_object_or_404(entity_class, pk=entity_id) if entity_class else \
              get_object_or_404(models.CremeEntity, pk=entity_id).get_real_entity()
     user = request.user
@@ -115,15 +119,16 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
     else:
         form = form_class(entity=entity, user=user, initial=initial)
 
-    return inner_popup(request, template,
-                       {'form':   form,
-                        'title':  title % entity,
-                        'submit_label': submit_label,
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return popup.inner_popup(
+        request, template,
+        {'form':   form,
+         'title':  title % entity,
+         'submit_label': submit_label,
+        },
+        is_valid=form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
 def add_model_with_popup(request, form_class, title=None, initial=None,
@@ -134,6 +139,11 @@ def add_model_with_popup(request, form_class, title=None, initial=None,
     @param initial: Classical 'initial' of Forms (passed when the request is a GET).
     @param submit_label: Label of the submission button.
     """
+    warnings.warn('creme_core.views.generic.add.add_model_with_popup() is deprecated ; '
+                  'use the class-based view CremeModelCreationPopup instead.',
+                  DeprecationWarning
+                 )
+
     if request.method == 'POST':
         form = form_class(user=request.user, data=request.POST, files=request.FILES or None, initial=initial)
 
@@ -151,21 +161,22 @@ def add_model_with_popup(request, form_class, title=None, initial=None,
         title = title or getattr(model, 'creation_label', _('New'))
         submit_label = submit_label or getattr(model, 'save_label', _('Save'))
 
-    return inner_popup(request, template,
-                       {'form':         form,
-                        'title':        title,
-                        'submit_label': submit_label,
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return popup.inner_popup(
+        request, template,
+        {'form':         form,
+         'title':        title,
+         'submit_label': submit_label,
+        },
+        is_valid=form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
 # Class-based views  -----------------------------------------------------------
 
 # TODO: add a system to be redirected from an argument "?next=" ?
-class CremeModelCreation(CancellableMixin, CreateView):
+class CremeModelCreation(base.CancellableMixin, base.PermissionsMixin, CreateView):
     """ Base class for creation view with a form in Creme.
     You'll have to override at least the attributes 'model' & 'form_class'
     because the default ones are just abstract place-holders.
@@ -185,17 +196,14 @@ class CremeModelCreation(CancellableMixin, CreateView):
     title = None  # None means model.creation_label is used (see get_title()).
     submit_label = None  # None means model.save_label is used (see get_submit_label()).
 
-    def check_view_permission(self):
-        pass
-
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.check_view_permission()
+        self.check_view_permissions(user=self.request.user)
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+        context = super().get_context_data(**kwargs)
         context['title'] = self.get_title()
         context['submit_label'] = self.get_submit_label()
         context['cancel_url'] = self.get_cancel_url()
@@ -230,8 +238,87 @@ class EntityCreation(CremeModelCreation):
     model = models.CremeEntity
     form_class = forms.CremeEntityForm
 
-    def check_view_permission(self):
-        user = self.request.user
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+
         model = self.model
         user.has_perm_to_access_or_die(model._meta.app_label)
         user.has_perm_to_create_or_die(model)
+
+
+class CremeModelCreationPopup(popup.InnerPopupMixin, CremeModelCreation):
+    """ Base class for creation view with a form in Creme within an Inner-Popup.
+    See CremeModelCreation.
+    """
+    model = models.CremeModel  # TO BE OVERRIDDEN
+    form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
+    template_name = 'creme_core/generics/blockform/add_popup.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_inner_popup'] = True  # TODO: in new base popup when including ?
+        context['persisted'] = self.get_persisted()  # TODO: remove from form-templates ?
+
+        return context
+
+    def get_success_url(self):
+        return ''
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def render_to_response(self, context, **response_kwargs):
+        from django.shortcuts import render
+
+        request = self.request
+
+        return render(request=request,
+                      template_name='creme_core/generics/inner_popup.html',
+                      context=self.get_popup_context(context),
+                     )
+
+
+class AddingToEntity(base.EntityRelatedMixin, CremeModelCreationPopup):
+    """ This specialisation of CremeModelCreationPopup creates some model
+    instances related to a CremeEntity.
+
+    Attributes:
+    entity_form_kwarg: The related entity is given to the form with this name.
+                       ('entity' by default).
+                       <None> means the entity is not passed to the form.
+    """
+    entity_form_kwarg = 'entity'
+    title_format = None  # If a {}-format string is given, it's used to built
+                         # the title with the related entity as argument (see get_title())
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+
+        entity_classes = self.entity_classes
+        if entity_classes is not None:
+            has_perm = user.has_perm_to_access_or_die
+
+            if isinstance(entity_classes, (list, tuple)):  # Sequence of classes
+                for app_label in {c._meta.app_label for c in entity_classes}:
+                    has_perm(app_label)
+            else:  # CremeEntity sub-model
+                has_perm(entity_classes._meta.app_label)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        entity = self.get_related_entity()
+        if self.entity_form_kwarg:
+            kwargs[self.entity_form_kwarg] = entity
+
+        return kwargs
+
+    def get_title(self):
+        title_format = self.title_format
+
+        return title_format.format(self.get_related_entity()
+                                       .allowed_str(self.request.user)
+                                  ) \
+               if title_format is not None else\
+               super().get_title()

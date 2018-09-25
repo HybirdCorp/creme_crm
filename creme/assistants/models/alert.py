@@ -57,6 +57,9 @@ class Alert(creme_models.CremeModel):
 
     objects = AlertManager()
 
+    creation_label = _('Create an alert')
+    save_label     = _('Save the alert')
+
     class Meta:
         app_label = 'assistants'
         verbose_name = _('Alert')

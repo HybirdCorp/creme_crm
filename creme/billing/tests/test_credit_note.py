@@ -4,10 +4,13 @@ try:
     from decimal import Decimal
     from functools import partial
 
+    from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import Relation, Currency, FieldsConfig
+    from creme.creme_core.auth import EntityCredentials
+    from creme.creme_core.models import (Relation, Currency, FieldsConfig,
+            SetCredentials, FakeOrganisation)
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
@@ -15,7 +18,7 @@ try:
     from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
     from .base import (_BillingTestCase, skipIfCustomCreditNote,
             skipIfCustomProductLine, skipIfCustomInvoice,
-            Organisation, CreditNote, ProductLine)
+            Organisation, CreditNote, Invoice, ProductLine)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -23,8 +26,8 @@ except Exception as e:
 @skipIfCustomOrganisation
 @skipIfCustomCreditNote
 class CreditNoteTestCase(_BillingTestCase):
-    def setUp(self):
-        self.login()
+    # def setUp(self):
+    #     self.login()
 
     def _build_editcomment_url(self, credit_note):
         return reverse('billing__edit_cnote_comment', args=(credit_note.id,))
@@ -75,11 +78,11 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_createview01(self):
         "Credit note total < billing document total where the credit note is applied"
+        user = self.login()
         self.assertGET200(reverse('billing__create_cnote'))
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
-        user = self.user
         create_line = partial(ProductLine.objects.create, user=user)
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
@@ -104,7 +107,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_createview02(self):
         "Credit note total > document billing total where the credit note is applied"
-        user = self.user
+        user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user)
@@ -127,7 +130,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_createview03(self):
         "Credit note in a negative Invoice -> a bigger negative Invoice"
-        user = self.user
+        user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user)
@@ -147,7 +150,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_unlink_from_invoice(self):
-        user = self.user
+        user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
         self.assertEqual([], invoice.get_credit_notes())
 
@@ -171,7 +174,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_trash_linked_to_invoice(self):
-        user = self.user
+        user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user)
@@ -197,10 +200,12 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
 
     def test_delete_status01(self):
+        self.login()
         status = CreditNoteStatus.objects.create(name='OK')
         self.assertDeleteStatusOK(status, 'credit_note_status')
 
     def test_delete_status02(self):
+        self.login()
         status = CreditNoteStatus.objects.create(name='OK')
         credit_note = self.create_credit_note_n_orgas('Credit Note 001', status=status)[0]
 
@@ -210,7 +215,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_addrelated_view(self):
         "Attach credit note to existing invoice"
-        user = self.user
+        user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
@@ -219,8 +224,16 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
         url = reverse('billing__link_to_cnotes', args=(invoice.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Credit notes for «%s»') % invoice, context.get('title'))
+        self.assertEqual(_('Credit notes for «{}»').format(invoice), context.get('title'))
+        # self.assertEqual(_('Save the credit notes'),                 context.get('submit_label'))
+        self.assertEqual(_('Link the credit notes'),                 context.get('submit_label'))
+
+        # ---
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
@@ -241,13 +254,14 @@ class CreditNoteTestCase(_BillingTestCase):
 
     def test_addrelated_view_no_invoice(self):
         "Cannot attach credit note to invalid invoice"
+        self.login()
         self.assertGET404(reverse('billing__link_to_cnotes', args=(12445,)))
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_addrelated_view_not_same_currency(self):
         "Cannot attach credit note in US Dollar to invoice in Euro"
-        user = self.user
+        user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
         us_dollar = Currency.objects.all()[1]
 
@@ -279,7 +293,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_addrelated_view_already_linked(self):
         "cannot attach credit note in US Dollar to invoice in Euro"
-        user = self.user
+        user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
         us_dollar = Currency.objects.all()[1]
 
@@ -319,7 +333,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_addrelated_view_already_not_same_target(self):
         "Cannot attach credit note in US Dollar to invoice in Euro"
-        user = self.user
+        user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
@@ -344,9 +358,59 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
     @skipIfCustomInvoice
+    def test_addrelated_view_notsuperuser(self):
+        self.login(is_superuser=False,
+                   allowed_apps=['billing', 'persons'],
+                   creatable_models=[Invoice],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        self.assertGET200(reverse('billing__link_to_cnotes', args=(invoice.id,)))
+
+    @skipIfCustomInvoice
+    def test_addrelated_view_linkcredentials(self):
+        self.login(is_superuser=False,
+                   allowed_apps=['billing', 'persons'],
+                   creatable_models=[Invoice],
+                  )
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role,
+                            set_type=SetCredentials.ESET_ALL,
+                           )
+        create_sc(value=EntityCredentials.VIEW   |
+                        EntityCredentials.CHANGE |
+                        EntityCredentials.LINK,
+                  ctype=ContentType.objects.get_for_model(Organisation),
+                 )
+        create_sc(value=EntityCredentials.VIEW   |
+                        EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE |
+                        # EntityCredentials.LINK   |   # <==
+                        EntityCredentials.UNLINK,
+                 )
+
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        self.assertGET403(reverse('billing__link_to_cnotes', args=(invoice.id,)))
+
+    @skipIfCustomInvoice
+    def test_addrelated_view_badrelated(self):
+        "No related to a compatible billing entity"
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Foo')
+        self.assertGET404(reverse('billing__link_to_cnotes', args=(orga.id,)))
+
+    @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_deleterelated_view(self):
-        user = self.user
+        user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
@@ -374,7 +438,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_deleterelated_view_not_exists(self):
-        user = self.user
+        user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
@@ -396,7 +460,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_deleterelated_view_not_allowed(self):
-        user = self.user
+        user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
@@ -423,6 +487,7 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 50)
 
     def test_editcomment01(self):
+        self.login()
         FieldsConfig.create(CreditNote,
                             descriptions=[('issuing_date', {FieldsConfig.HIDDEN: True})],
                            )
@@ -438,6 +503,7 @@ class CreditNoteTestCase(_BillingTestCase):
 
     def test_editcomment02(self):
         "'comment' is hidden"
+        self.login()
         FieldsConfig.create(CreditNote,
                             descriptions=[('comment', {FieldsConfig.HIDDEN: True})],
                            )

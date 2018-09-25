@@ -56,6 +56,9 @@ class Action(creme_models.CremeModel):
 
     objects = ActionManager()
 
+    creation_label = _('Create an action')
+    save_label     = _('Save the action')
+
     class Meta:
         app_label = 'assistants'
         verbose_name = _('Action')

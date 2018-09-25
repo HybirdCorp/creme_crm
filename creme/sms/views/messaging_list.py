@@ -31,13 +31,13 @@ from creme.creme_core.views import generic
 
 from .. import get_messaginglist_model
 from ..constants import DEFAULT_HFILTER_MLIST
-from ..forms.messaging_list import MessagingListForm, AddContactsForm, AddContactsFromFilterForm
+from ..forms import messaging_list as ml_forms
 
 
 MessagingList = get_messaginglist_model()
 
 
-def abstract_add_messaginglist(request, form=MessagingListForm,
+def abstract_add_messaginglist(request, form=ml_forms.MessagingListForm,
                                submit_label=MessagingList.save_label,
                               ):
     warnings.warn('sms.views.messaging_list.abstract_add_messaginglist() is deprecated ; '
@@ -49,7 +49,7 @@ def abstract_add_messaginglist(request, form=MessagingListForm,
                              )
 
 
-def abstract_edit_messaginglist(request, mlist_id, form=MessagingListForm):
+def abstract_edit_messaginglist(request, mlist_id, form=ml_forms.MessagingListForm):
     warnings.warn('sms.views.messaging_list.abstract_edit_messaginglist() is deprecated ; '
                   'use the class-based view MessagingListDetail instead.',
                   DeprecationWarning
@@ -94,26 +94,26 @@ def listview(request):
     return generic.list_view(request, MessagingList, hf_pk=DEFAULT_HFILTER_MLIST)
 
 
-@login_required
-@permission_required('sms')
-def add_contacts(request, mlist_id):
-    return generic.add_to_entity(request, mlist_id, AddContactsForm,
-                                 ugettext('New contacts for «%s»'),
-                                 entity_class=MessagingList,
-                                 submit_label=_('Link the contacts'),
-                                 template='creme_core/generics/blockform/link_popup.html',
-                                )
+# @login_required
+# @permission_required('sms')
+# def add_contacts(request, mlist_id):
+#     return generic.add_to_entity(request, mlist_id, ml_forms.AddContactsForm,
+#                                  ugettext('New contacts for «%s»'),
+#                                  entity_class=MessagingList,
+#                                  submit_label=_('Link the contacts'),
+#                                  template='creme_core/generics/blockform/link_popup.html',
+#                                 )
 
 
-@login_required
-@permission_required('sms')
-def add_contacts_from_filter(request, mlist_id):
-    return generic.add_to_entity(request, mlist_id, AddContactsFromFilterForm,
-                                 ugettext('New contacts for «%s»'),
-                                 entity_class=MessagingList,
-                                 submit_label=_('Link the contacts'),
-                                 template='creme_core/generics/blockform/link_popup.html',
-                                )
+# @login_required
+# @permission_required('sms')
+# def add_contacts_from_filter(request, mlist_id):
+#     return generic.add_to_entity(request, mlist_id, ml_forms.AddContactsFromFilterForm,
+#                                  ugettext('New contacts for «%s»'),
+#                                  entity_class=MessagingList,
+#                                  submit_label=_('Link the contacts'),
+#                                  template='creme_core/generics/blockform/link_popup.html',
+#                                 )
 
 
 @login_required
@@ -141,7 +141,7 @@ def delete_contact(request, mlist_id):
 
 class MessagingListCreation(generic.add.EntityCreation):
     model = MessagingList
-    form_class = MessagingListForm
+    form_class = ml_forms.MessagingListForm
 
 
 class MessagingListDetail(generic.detailview.EntityDetail):
@@ -152,5 +152,19 @@ class MessagingListDetail(generic.detailview.EntityDetail):
 
 class MessagingListEdition(generic.edit.EntityEdition):
     model = MessagingList
-    form_class = MessagingListForm
+    form_class = ml_forms.MessagingListForm
     pk_url_kwarg = 'mlist_id'
+
+
+class ContactsAdding(generic.add.AddingToEntity):
+    # model = Contact
+    form_class = ml_forms.AddContactsForm
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    entity_id_url_kwarg = 'mlist_id'
+    entity_classes = MessagingList
+    title_format = _('New contacts for «{}»')
+    submit_label = _('Link the contacts')
+
+
+class ContactsAddingFromFilter(ContactsAdding):
+    form_class = ml_forms.AddContactsFromFilterForm

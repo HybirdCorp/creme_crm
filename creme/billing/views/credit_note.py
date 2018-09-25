@@ -29,11 +29,14 @@ from creme.creme_core.models import Relation
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import require_model_fields
 
-from .. import get_credit_note_model, constants
+from ... import billing
+
+from .. import constants
 from ..forms import credit_note as cnote_forms
+
 from . import base
 
-CreditNote = get_credit_note_model()
+CreditNote = billing.get_credit_note_model()
 
 # Function views --------------------------------------------------------------
 
@@ -55,6 +58,10 @@ def abstract_link_to_credit_notes(request, base_id, form=cnote_forms.CreditNoteR
                                   title=_('Credit notes for «%s»'),
                                   submit_label=_('Save the credit notes'),
                                  ):
+    warnings.warn('billing.views.credit_note.abstract_link_to_credit_notes() is deprecated ; '
+                  'use the class-based view CreditNotesLinking instead.',
+                  DeprecationWarning
+                 )
     return generic.add_to_entity(request, base_id, form, title, link_perm=True,
                                  submit_label=submit_label,
                                 )
@@ -91,6 +98,9 @@ def add(request):
 @login_required
 @permission_required('billing')
 def link_to_credit_notes(request, base_id):
+    warnings.warn('billing.views.credit_note.link_to_credit_notes() is deprecated',
+                  DeprecationWarning
+                 )
     return abstract_link_to_credit_notes(request, base_id)
 
 
@@ -156,3 +166,21 @@ class CreditNoteEdition(generic.edit.EntityEdition):
     model = CreditNote
     form_class = cnote_forms.CreditNoteEditForm
     pk_url_kwarg = 'cnote_id'
+
+
+class CreditNotesLinking(generic.add.AddingToEntity):
+    model = CreditNote
+    form_class = cnote_forms.CreditNoteRelatedForm
+    # template_name = 'creme_core/generics/blockform/link_popup.html'  # TODO ?
+    title_format = _('Credit notes for «{}»')
+    submit_label = _('Link the credit notes')
+    entity_id_url_kwarg = 'base_id'
+    # TODO: factorise (see populate.py => REL_OBJ_CREDIT_NOTE_APPLIED)
+    entity_classes = [
+        billing.get_invoice_model(),
+        billing.get_quote_model(),
+        billing.get_sales_order_model(),
+    ]
+
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_link_or_die(entity)

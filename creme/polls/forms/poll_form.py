@@ -53,12 +53,17 @@ class PollFormSectionEditForm(CremeModelForm):
 
 
 class PollFormSectionCreateForm(PollFormSectionEditForm):
+    def __init__(self, parent=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parent = parent
+
     def save(self, *args, **kwargs):
         instance = self.instance
         pform = self.pform
         instance.pform = pform
 
-        parent = self.initial.get('parent')
+        # parent = self.initial.get('parent')
+        parent = self.parent
         instance.parent = parent
 
         # Order management -----------------------------------------------------
@@ -95,29 +100,32 @@ class _PollFormLineForm(CremeModelForm):
         self.pform = entity
 
 
-#TODO: get the fields from PollLineTypes objects ???
+# TODO: get the fields from PollLineTypes objects ???
 class PollFormLineCreateForm(_PollFormLineForm):
-    type        = TypedChoiceField(label=_(u'Type'), choices=PollLineType.choices(),
+    type        = TypedChoiceField(label=_('Type'), choices=PollLineType.choices(),
                                    coerce=int, initial=PollLineType.STRING
                                   )
-    lower_bound = IntegerField(label=_(u'Lower bound'), required=False,
-                               help_text=_(u'For integer type only.')
+    lower_bound = IntegerField(label=_('Lower bound'), required=False,
+                               help_text=_('For integer type only.')
                               )
-    upper_bound = IntegerField(label=_(u'Upper bound'), required=False,
-                               help_text=_(u'For integer type only.')
+    upper_bound = IntegerField(label=_('Upper bound'), required=False,
+                               help_text=_('For integer type only.')
                               )
-    choices     = CharField(widget=Textarea(), label=_(u'Available choices'), required=False,
-                            help_text=_(u'Give the possible choices (one per line) '
-                                        u'if you choose the type "Choice list".'
+    choices     = CharField(widget=Textarea(), label=_('Available choices'), required=False,
+                            help_text=_('Give the possible choices (one per line) '
+                                        'if you choose the type "Choice list".'
                                        )
                            )
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, section=None, *args, **kwargs):
         # super(PollFormLineCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.section = section = self.initial.get('section')
+        # self.section = section = self.initial.get('section')
+        self.section = section
         self.section_lines = section_lines = []  # Lines which are in the section where we create our line
-        self.next_lines = next_lines = []  # The lines after the one we create (but not in the same section): their order have to be incremented
+        self.next_lines = next_lines = []  # The lines after the one we create (but not in the same section):
+                                           # their order have to be incremented
         self.empty_section_order = 1  # Order of the last line before our section (used if our section is empty)
 
         nodes = list(SectionTree(self.pform))
@@ -148,13 +156,13 @@ class PollFormLineCreateForm(_PollFormLineForm):
         if section_lines:
             section_lines.reverse()
 
-            choices = [(0, ugettext(u'Start of section'))]
-            msg_fmt = ugettext(u'Before: «{question}» (#{number})') #TODO: cached_ugettext ??
+            choices = [(0, ugettext('Start of section'))]
+            msg_fmt = ugettext('Before: «{question}» (#{number})') #TODO: cached_ugettext ??
 
             choices.extend((i, msg_fmt.format(question=node.question, number=node.number))
                                 for i, node in enumerate(section_lines[1:], start=1)
                           )
-            choices.append((len(section_lines), ugettext(u'End of section')))
+            choices.append((len(section_lines), ugettext('End of section')))
 
             self.fields['index'] = TypedChoiceField(label=ugettext('Order'), coerce=int,
                                                     choices=choices, initial=len(choices) - 1
@@ -215,8 +223,8 @@ class PollFormLineEditForm(_PollFormLineForm):
 
     error_messages = {
         'empty_choices': _('Choices can not be empty.'),
-        'used_choice': _(u'You can not delete the choice "%(choice)s" because it '
-                         u'is used in a condition by the question "%(question)s".'
+        'used_choice': _('You can not delete the choice "%(choice)s" because it '
+                         'is used in a condition by the question "%(question)s".'
                         ),
     }
 
@@ -235,12 +243,12 @@ class PollFormLineEditForm(_PollFormLineForm):
             fields = self.fields
             self.initial_choices = choices
             fields['old_choices'] = ListEditionField(content=[c[1] for c in choices],
-                                                     label=ugettext(u'Existing choices'),
-                                                     help_text=ugettext(u'Uncheck the choices you want to delete.'),
+                                                     label=ugettext('Existing choices'),
+                                                     help_text=ugettext('Uncheck the choices you want to delete.'),
                                                     )
             fields['new_choices'] = CharField(widget=Textarea(), required=False,
-                                              label=ugettext(u'New choices of the list'),
-                                              help_text=ugettext(u'Give the new possible choices (one per line).')
+                                              label=ugettext('New choices of the list'),
+                                              help_text=ugettext('Give the new possible choices (one per line).')
                                              )
 
     def clean_old_choices(self):
@@ -315,17 +323,19 @@ class PollFormLineEditForm(_PollFormLineForm):
 
 
 class PollFormLineConditionsForm(CremeForm):
-    use_or     = TypedChoiceField(label=_(u'Use OR or AND between conditions'),
+    use_or     = TypedChoiceField(label=_('Use OR or AND between conditions'),
                                   choices=[(0, _('AND')), (1, _('OR'))],
                                   coerce=(lambda x: bool(int(x))),
                                   widget=CremeRadioSelect,
                                  )
     conditions = PollFormLineConditionsField(label=_('Conditions'), required=False)
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, line, instance=None, *args, **kwargs):
         # super(PollFormLineConditionsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.line = line = self.initial['line']
+        # self.line = line = self.initial['line']
+        self.line = line
         self.old_conditions = conditions = line.get_conditions()
 
         fields = self.fields

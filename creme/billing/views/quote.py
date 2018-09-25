@@ -27,9 +27,9 @@ from creme.creme_core.views import generic
 from creme.creme_core.auth.decorators import login_required, permission_required
 
 from ... import billing
+
 from ..constants import DEFAULT_HFILTER_QUOTE
 from ..forms import quote as quote_forms
-from ..views.workflow import generic_add_related
 
 from . import base
 
@@ -58,6 +58,12 @@ def abstract_add_related_quote(request, target_id, form=quote_forms.QuoteCreateF
                                title=_('Create a quote for «%s»'),
                                submit_label=Quote.save_label,
                               ):
+    warnings.warn('billing.views.quote.abstract_add_related_quote() is deprecated ; '
+                  'use the class-based view RelatedQuoteCreation instead.',
+                  DeprecationWarning
+                 )
+    from ..views.workflow import generic_add_related
+
     return generic_add_related(request, target_id, form=form,
                                title=title, status_id=initial_status,
                                submit_label=submit_label,
@@ -102,6 +108,7 @@ def add(request):
 @login_required
 @permission_required(('billing', cperm(Quote)))
 def add_related(request, target_id):
+    warnings.warn('billing.views.quote.add_related() is deprecated.', DeprecationWarning)
     return abstract_add_related_quote(request, target_id)
 
 
@@ -130,6 +137,13 @@ def listview(request):
 class QuoteCreation(base.BaseCreation):
     model = Quote
     form_class = quote_forms.QuoteCreateForm
+
+
+class RelatedQuoteCreation(base.RelatedBaseCreation):
+    model = Quote
+    form_class = quote_forms.QuoteCreateForm
+    permissions = ('billing', cperm(Quote))
+    title_format = _('Create a quote for «{}»')
 
 
 class QuoteDetail(generic.detailview.EntityDetail):

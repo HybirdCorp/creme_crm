@@ -38,7 +38,7 @@ from creme.creme_core.utils.media import get_current_theme
 from creme.creme_core.views import generic
 from creme.creme_core.views.utils import build_cancel_path
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 
 from .. import get_pollform_model, get_pollreply_model, get_pollcampaign_model
 from ..constants import DEFAULT_HFILTER_PREPLY
@@ -49,6 +49,8 @@ from ..utils import ReplySectionTree, NodeStyle
 
 
 logger = logging.getLogger(__name__)
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 PollReply = get_pollreply_model()
 _CREATION_PERM = cperm(PollReply)
 
@@ -86,12 +88,16 @@ def abstract_add_pollreply(request, form=preply_forms.PollRepliesCreateForm,
                  )
 
 
-# TODO: factorise ?
 def abstract_add_preply_from_campaign(request, campaign_id,
                                       form=preply_forms.PollRepliesCreateForm,
-                                      title=_(u'New replies for «%s»'),
+                                      title=_('New replies for «%s»'),
                                       submit_label=PollReply.multi_save_label,
                                      ):
+    warnings.warn('polls.views.poll_reply.abstract_add_preply_from_campaign() is deprecated ; '
+                  'use the class-based view PollRepliesCreationFromCampaign instead.',
+                  DeprecationWarning
+                 )
+
     campaign = get_object_or_404(get_pollcampaign_model(), pk=campaign_id)
     user = request.user
 
@@ -105,11 +111,15 @@ def abstract_add_preply_from_campaign(request, campaign_id,
                                        )
 
 
-# TODO: factorise ? (see documents.views)
 def abstract_add_preply_from_pform(request, pform_id, form=preply_forms.PollRepliesCreateForm,
                                    title=_('New replies for «%s»'),
                                    submit_label=PollReply.multi_save_label,
                                   ):
+    warnings.warn('polls.views.poll_reply.abstract_add_preply_from_pform() is deprecated ; '
+                  'use the class-based view PollRepliesCreationFromPForm instead.',
+                  DeprecationWarning
+                 )
+
     pform = get_object_or_404(get_pollform_model(), pk=pform_id)
     user = request.user
 
@@ -128,6 +138,11 @@ def abstract_add_preply_from_person(request, person_id,
                                     title=_('New replies for «%s»'),
                                     submit_label=PollReply.multi_save_label,
                                    ):
+    warnings.warn('polls.views.poll_reply.abstract_add_preply_from_person() is deprecated ; '
+                  'use the class-based view PollRepliesCreationFromPerson instead.',
+                  DeprecationWarning
+                 )
+
     person = get_object_or_404(CremeEntity, pk=person_id)
     user = request.user
 
@@ -136,7 +151,7 @@ def abstract_add_preply_from_person(request, person_id,
 
     person = person.get_real_entity()
 
-    if not isinstance(person, (get_contact_model(), get_organisation_model())):
+    if not isinstance(person, (Contact, Organisation)):
         raise Http404('You can only create from Contacts & Organisations')
 
     return generic.add_model_with_popup(request, form,
@@ -174,18 +189,21 @@ def add(request):
 @login_required
 @permission_required(('polls', _CREATION_PERM))
 def add_from_pform(request, pform_id):
+    warnings.warn('polls.views.poll_reply.add_from_pform() is deprecated.', DeprecationWarning)
     return abstract_add_preply_from_pform(request, pform_id)
 
 
 @login_required
 @permission_required(('polls', _CREATION_PERM))
 def add_from_campaign(request, campaign_id):
+    warnings.warn('polls.views.poll_reply.add_from_campaign() is deprecated.', DeprecationWarning)
     return abstract_add_preply_from_campaign(request, campaign_id)
 
 
 @login_required
 @permission_required(('polls', _CREATION_PERM))
 def add_from_person(request, person_id):
+    warnings.warn('polls.views.poll_reply.add_from_person() is deprecated.', DeprecationWarning)
     return abstract_add_preply_from_person(request, person_id)
 
 
@@ -209,20 +227,21 @@ def listview(request):
     return generic.list_view(request, PollReply, hf_pk=DEFAULT_HFILTER_PREPLY)
 
 
-@login_required
-@permission_required(('polls', 'persons'))
-def link_to_person(request, person_id):
-    return generic.add_to_entity(request, person_id, preply_forms.PersonAddRepliesForm,
-                                 ugettext('Existing replies for «%s»'), link_perm=True,
-                                 submit_label=_('Link to the replies'),
-                                 template='creme_core/generics/blockform/link_popup.html',
-                                )
+# @login_required
+# @permission_required(('polls', 'persons'))
+# def link_to_person(request, person_id):
+#     return generic.add_to_entity(request, person_id, preply_forms.PersonAddRepliesForm,
+#                                  ugettext('Existing replies for «%s»'),
+#                                  link_perm=True,
+#                                  submit_label=_('Link to the replies'),
+#                                  template='creme_core/generics/blockform/link_popup.html',
+#                                 )
 
 
 # TODO: do this job in template instead ??
 def _format_previous_answered_question(preply_id, line, style):
     if not line.applicable:
-        answer = pgettext('polls', u'N/A')
+        answer = pgettext('polls', 'N/A')
     elif isinstance(line.poll_line_type, MultiEnumPollLineType):  # TODO: isinstance(answer, list) ??
         answer = mark_safe(', '.join(escape(choice) for choice in line.answer))
     else:
@@ -242,7 +261,7 @@ def _format_previous_answered_question(preply_id, line, style):
         answer_str=ugettext('Answer'),
         answer=answer,
         url=reverse('polls__edit_reply_line_wizard', args=(preply_id, line.id)),
-        icon=get_icon_by_name('edit', theme=theme, label=_(u'Edit'),
+        icon=get_icon_by_name('edit', theme=theme, label=_('Edit'),
                               size_px=get_icon_size_px(theme, size='instance-button'),
                              ).render(css_class='polls-previous-edition'),
     )
@@ -355,7 +374,7 @@ def fill(request, preply_id):
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'title':        ugettext(u'Answers of the form : {}').format(preply),
+                  {'title':        ugettext('Answers of the form : {}').format(preply),
                    'form':         form,
                    'help_message': previous_answer,
                    'cancel_url':   preply.get_absolute_url(),
@@ -448,6 +467,33 @@ class PollRepliesCreation(generic.add.EntityCreation):
     submit_label = PollReply.multi_save_label
 
 
+class _RelatedRepliesCreationBase(generic.add.AddingToEntity):
+    model = PollReply
+    form_class = preply_forms.PollRepliesCreateForm
+    permissions = ('polls', _CREATION_PERM)
+    title_format = _('New replies for «{}»')
+    submit_label = PollReply.multi_save_label
+
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_view_or_die(entity)  # ??
+        user.has_perm_to_link_or_die(entity)
+
+
+class RepliesCreationFromCampaign(_RelatedRepliesCreationBase):
+    entity_id_url_kwarg = 'campaign_id'
+    entity_classes = get_pollcampaign_model()
+
+
+class RepliesCreationFromPForm(_RelatedRepliesCreationBase):
+    entity_id_url_kwarg = 'pform_id'
+    entity_classes = get_pollform_model()
+
+
+class RepliesCreationFromPerson(_RelatedRepliesCreationBase):
+    entity_id_url_kwarg = 'person_id'
+    entity_classes = [Contact, Organisation]
+
+
 class PollReplyDetail(generic.detailview.EntityDetail):
     model = PollReply
     template_name = 'polls/view_pollreply.html'
@@ -458,3 +504,17 @@ class PollReplyEdition(generic.edit.EntityEdition):
     model = PollReply
     form_class = preply_forms.PollReplyEditForm
     pk_url_kwarg = 'preply_id'
+
+
+class LinkingRepliesToPerson(generic.add.AddingToEntity):
+    # model = PollReply
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    form_class = preply_forms.PersonAddRepliesForm
+    title_format =  _('Existing replies for «{}»')
+    permissions = 'polls'
+    submit_label = _('Link to the replies')
+    entity_id_url_kwarg = 'person_id'
+    entity_classes = [Contact, Organisation]
+
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_link_or_die(entity)

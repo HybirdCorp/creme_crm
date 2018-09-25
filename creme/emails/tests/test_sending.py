@@ -14,7 +14,7 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.models import SetCredentials, SettingValue, Job
+    from creme.creme_core.models import SetCredentials, SettingValue, Job, FakeOrganisation
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
@@ -56,11 +56,15 @@ class SendingsTestCase(_EmailsTestCase):
 
         url = self._build_add_url(camp)
         response = self.assertGET200(url)
+        context = response.context
+        # self.assertEqual(_('New sending for «%s»') % camp, context.get('title'))
+        self.assertEqual(_('New sending for «{}»').format(camp), context.get('title'))
+        self.assertEqual(EmailSending.save_label,                context.get('submit_label'))
 
         with self.assertNoException():
-            sender = response.context['form'].fields['sender']
-
+            sender = context['form'].fields['sender']
         self.assertIsNone(sender.initial)
+
         sender_email = 'vicious@reddragons.mrs'
         self.assertNoFormError(self.client.post(url, data={'sender':   sender_email,
                                                            'type':     SENDING_TYPE_IMMEDIATE,
@@ -68,6 +72,8 @@ class SendingsTestCase(_EmailsTestCase):
                                                           }
                                                )
                               )
+
+        # --
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -75,13 +81,15 @@ class SendingsTestCase(_EmailsTestCase):
 
         self.assertEqual(sender_email, sender.initial)
 
-        response = self.assertPOST200(url, data={'sender':   u"another_email@address.com",
+        response = self.assertPOST200(url, data={'sender':   'another_email@address.com',
                                                  'type':     SENDING_TYPE_IMMEDIATE,
                                                  'template': template.id,
                                                 }
                                      )
-        self.assertFormError(response, 'form', 'sender',
-                             _(u"You are not allowed to modify the sender address, please contact your administrator."))
+        self.assertFormError(
+            response, 'form', 'sender',
+            _('You are not allowed to modify the sender address, please contact your administrator.')
+        )
 
     def test_sender_setting02(self):
         user = self.login(is_superuser=False,
@@ -107,7 +115,7 @@ class SendingsTestCase(_EmailsTestCase):
             sender = response.context['form'].fields['sender']
 
         self.assertEqual(
-            _(u"No sender email address has been configured, please contact your administrator."),
+            _('No sender email address has been configured, please contact your administrator.'),
             sender.initial)
         sender_email = 'vicious@reddragons.mrs'
 
@@ -116,8 +124,10 @@ class SendingsTestCase(_EmailsTestCase):
                                                'template': template.id,
                                               }
                                    )
-        self.assertFormError(response, 'form', 'sender',
-                             _(u"You are not allowed to modify the sender address, please contact your administrator."))
+        self.assertFormError(
+            response, 'form', 'sender',
+            _('You are not allowed to modify the sender address, please contact your administrator.')
+        )
 
         sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
         sender_setting.value = sender_email
@@ -417,10 +427,10 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertDatetimesAlmostEqual(sending.sending_date, wakeup)
 
         self.assertFormError(post(data=data), 'form', 'sending_date',
-                             _(u"Sending date required for a deferred sending")
+                             _('Sending date required for a deferred sending')
                             )
 
-        msg = _(u"Sending date must be is the future")
+        msg = _('Sending date must be is the future')
         self.assertFormError(post(data=dict(data,
                                             sending_date=(now_value - timedelta(days=1)).strftime('%Y-%m-%d')
                                            )
@@ -497,6 +507,13 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual([('<b>Hello</b> Spike Spiegel !', 'text/html')],
                          message.alternatives
                         )
+
+    def test_create07(self):
+        "No related to a campaign => error"
+        user = self.login()
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        self.assertGET404(self._build_add_url(nerv))
 
     def test_inneredit(self):
         user = self.login()

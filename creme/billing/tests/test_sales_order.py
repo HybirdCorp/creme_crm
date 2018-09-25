@@ -71,15 +71,21 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
 
-    def test_create_linked(self):
+    def test_create_related01(self):
         user = self.login()
 
         source, target = self.create_orgas()
         url = reverse('billing__create_related_order', args=(target.id,))
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('Create a salesorder for «%s»') % target, context.get('title'))
+        self.assertEqual(_('Create a salesorder for «{}»').format(target), context.get('title'))
+        self.assertEqual(SalesOrder.save_label,                            context.get('submit_label'))
 
         with self.assertNoException():
-            form = response.context['form']
+            form = context['form']
 
         self.assertEqual({'status': 1,
                           'target': target
@@ -87,6 +93,7 @@ class SalesOrderTestCase(_BillingTestCase):
                          form.initial
                         )
 
+        # ---
         name = 'Order#1'
         currency = Currency.objects.all()[0]
         status   = SalesOrderStatus.objects.all()[1]
@@ -112,6 +119,60 @@ class SalesOrderTestCase(_BillingTestCase):
 
         self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
+
+    def test_create_related02(self):
+        "Not a super-user"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'billing'],
+                   creatable_models=[SalesOrder],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        source, target = self.create_orgas()
+        self.assertGET200(reverse('billing__create_related_order', args=(target.id,)))
+
+    def test_create_related03(self):
+        "Creation creds are needed"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'billing'],
+                   # creatable_models=[SalesOrder],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        source, target = self.create_orgas()
+        self.assertGET403(reverse('billing__create_related_order', args=(target.id,)))
+
+    def test_create_related04(self):
+        "CHANGE creds are needed"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'billing'],
+                   creatable_models=[SalesOrder],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            # EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        source, target = self.create_orgas()
+        self.assertGET403(reverse('billing__create_related_order', args=(target.id,)))
 
     def test_editview(self):
         user = self.login()

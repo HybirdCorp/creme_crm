@@ -49,6 +49,9 @@ class AbstractAddress(CremeModel):
                                     ).set_tags(viewable=False)
     owner        = creme_fields.RealEntityForeignKey(ct_field='content_type', fk_field='object')
 
+    creation_label = _('Create an address')
+    save_label     = _('Save the address')
+
     STR_FIELD_NAMES = [
         ['address', 'zipcode', 'city', 'department'],
         ['po_box', 'state', 'country'],

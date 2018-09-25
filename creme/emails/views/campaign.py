@@ -22,7 +22,7 @@ import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -96,17 +96,16 @@ def listview(request):
     return generic.list_view(request, EmailCampaign, hf_pk=DEFAULT_HFILTER_CAMPAIGN)
 
 
-@login_required
-@permission_required('emails')
-def add_ml(request, campaign_id):
-    return generic.add_to_entity(
-        request, campaign_id, camp_forms.CampaignAddMLForm,
-        ugettext('New mailing lists for «%s»'),
-        entity_class=EmailCampaign,
-        submit_label=_('Link the mailing lists'),
-        template='creme_core/generics/blockform/link_popup.html',
-    )
-
+# @login_required
+# @permission_required('emails')
+# def add_ml(request, campaign_id):
+#     return generic.add_to_entity(
+#         request, campaign_id, camp_forms.CampaignAddMLForm,
+#         ugettext('New mailing lists for «%s»'),
+#         entity_class=EmailCampaign,
+#         submit_label=_('Link the mailing lists'),
+#         template='creme_core/generics/blockform/link_popup.html',
+#     )
 
 @login_required
 @permission_required('emails')
@@ -141,3 +140,14 @@ class EmailCampaignEdition(generic.edit.EntityEdition):
     model = EmailCampaign
     form_class = camp_forms.CampaignEditForm
     pk_url_kwarg = 'campaign_id'
+
+
+class MailingListsAdding(generic.add.AddingToEntity):
+    # model = MailingList
+    form_class = camp_forms.CampaignAddMLForm
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    title_format = _('New mailing lists for «{}»')
+    submit_label = _('Link the mailing lists')
+    entity_id_url_kwarg = 'campaign_id'
+    entity_classes = EmailCampaign
+

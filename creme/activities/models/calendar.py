@@ -28,21 +28,22 @@ from ..constants import COLOR_POOL, DEFAULT_CALENDAR_COLOR
 
 
 class Calendar(CremeModel):
-    name        = CharField(_(u'Name'), max_length=100)
-    is_default  = BooleanField(_(u'Is default?'), default=False)
+    name        = CharField(_('Name'), max_length=100)
+    is_default  = BooleanField(_('Is default?'), default=False)
     is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
-    is_public   = BooleanField(default=False, verbose_name=_(u'Is public?'))
-    user        = CremeUserForeignKey(verbose_name=_(u'Calendar owner'))
-    color       = ColorField(_(u'Color'))
+    is_public   = BooleanField(default=False, verbose_name=_('Is public?'))
+    user        = CremeUserForeignKey(verbose_name=_('Calendar owner'))
+    color       = ColorField(_('Color'))
 
     _enable_default_checking = True
 
-    creation_label = _(u'Create a calendar')
+    creation_label = _('Create a calendar')
+    save_label     = _('Save the calendar')
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u'Calendar')
-        verbose_name_plural = _(u'Calendars')
+        verbose_name = _('Calendar')
+        verbose_name_plural = _('Calendars')
         ordering = ['name']
 
     def __str__(self):
@@ -72,7 +73,7 @@ class Calendar(CremeModel):
 
     @staticmethod
     def _create_default_calendar(user):
-        cal = Calendar(name=ugettext(u"{user}'s calendar").format(user=user),
+        cal = Calendar(name=ugettext("{user}'s calendar").format(user=user),
                        user=user, is_default=True, is_custom=False,
                        color=Calendar.new_color(),
                       )

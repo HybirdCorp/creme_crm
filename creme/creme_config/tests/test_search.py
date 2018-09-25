@@ -100,10 +100,13 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, role=None, superuser=True))
 
         url = self._build_add_url(ct)
-        response = self.assertGET200(url)
+        context = self.assertGET200(url).context
+        self.assertEqual(_('New search configuration for «{model}»').format(model='Test Contact'),
+                         context.get('title')
+                        )
 
         with self.assertNoException():
-            fields = response.context['form'].fields['fields']
+            fields = context['form'].fields['fields']
 
         self.assertFalse(fields.initial)
 

@@ -100,7 +100,11 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
         url = reverse('commercial__create_segment_desc', args=(strategy.id,))
-        self.assertGET200(url)
+
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New market segment for «%s»') % strategy, context.get('title'))
+        self.assertEqual(_('New market segment for «{}»').format(strategy), context.get('title'))
+        self.assertEqual(MarketSegmentDescription.save_label,               context.get('submit_label'))
 
         name = 'Industry'
         product = 'Description about product'
@@ -185,8 +189,12 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertFalse(0, strategy02.segment_info.exists())
 
         url = self._build_link_segment_url(strategy02)
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New market segment for «%s»') % strategy02, context.get('title'))
+        self.assertEqual(_('New market segment for «{}»').format(strategy02), context.get('title'))
+        self.assertEqual(MarketSegmentDescription.save_label,                 context.get('submit_label'))
 
+        # ---
         product = 'Description about product'
         place = 'Description about place'
         price = 'Description about price'
@@ -294,8 +302,12 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
         url = reverse('commercial__create_asset', args=(strategy.id,))
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New commercial asset for «%s»') % strategy, context.get('title'))
+        self.assertEqual(_('New commercial asset for «{}»').format(strategy), context.get('title'))
+        self.assertEqual(CommercialAsset.save_label,                          context.get('submit_label'))
 
+        # ---
         name = 'Size'
         self.assertPOST200(url, data={'name': name})
         self.assertEqual([name], list(strategy.assets.values_list('name', flat=True)))
@@ -329,7 +341,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
         url = reverse('commercial__create_charm', args=(strategy.id,))
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New segment charm for «%s»') % strategy, context.get('title'))
+        self.assertEqual(_('New segment charm for «{}»').format(strategy), context.get('title'))
+        self.assertEqual(MarketSegmentCharm.save_label,                    context.get('submit_label'))
 
         name = 'Size'
         self.assertPOST200(url, data={'name': name})
@@ -371,7 +386,15 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         charm = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy)
 
         url = reverse('commercial__add_evaluated_orgas', args=(strategy.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New organisation(s) for «%s»') % strategy, context.get('title'))
+        self.assertEqual(_('New organisation(s) for «{}»').format(strategy), context.get('title'))
+        self.assertEqual(_('Link the organisation(s)'),                      context.get('submit_label'))
+
+        # ---
         self.assertPOST200(url, data={'organisations': self.formfield_value_multi_creator_entity(orga)})
         self.assertEqual([orga], list(strategy.evaluated_orgas.all()))
 

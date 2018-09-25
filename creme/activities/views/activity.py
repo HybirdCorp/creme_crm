@@ -291,7 +291,7 @@ class ActivityCreation(generic.add.EntityCreation):
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+        context = super().get_context_data(**kwargs)
         context['content_template'] = self.form_template_name
 
         return context

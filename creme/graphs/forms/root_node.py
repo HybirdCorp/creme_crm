@@ -35,12 +35,13 @@ class RelationTypeMultipleChoiceField(ModelMultipleChoiceField):
 
 
 class AddRootNodesForm(CremeForm):
-    entities       = MultiGenericEntityField(label=_(u'Root entities'))
+    entities       = MultiGenericEntityField(label=_('Root entities'))
     relation_types = RelationTypeMultipleChoiceField(label=_('Related types of relations'),
                                                      queryset=RelationType.objects.all(),
                                                     )
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(AddRootNodesForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.graph = entity

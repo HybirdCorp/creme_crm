@@ -70,7 +70,11 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_createview(self):
         entity = CremeEntity.objects.create(user=self.user)
         url = reverse('commercial__create_approach', args=(entity.id,))
-        self.assertGET200(url)
+
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New commercial approach for «%s»') % entity, context.get('title'))
+        self.assertEqual(_('New commercial approach for «{}»').format(entity), context.get('title'))
+        self.assertEqual(_('Save the commercial approach'),                    context.get('submit_label'))
 
         title       = 'TITLE'
         description = 'DESCRIPTION'

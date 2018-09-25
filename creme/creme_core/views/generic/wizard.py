@@ -24,6 +24,7 @@ from django.utils.decorators import method_decorator
 from creme.creme_core.auth.decorators import login_required
 
 
+# TODO: use base.PermissionsMixin (API breaking)
 class PopupWizardMixin:
     """
         Convenient mixin class for wizard popups.
@@ -46,8 +47,8 @@ class PopupWizardMixin:
         # context = super(PopupWizardMixin, self).get_context_data(form=form, **kwargs)
         context = super().get_context_data(form=form, **kwargs)
         context['title'] = getattr(form, 'step_title', self.wizard_title)
-        context['prev_label'] = getattr(form, 'step_prev_label', '')
-        context['first_label'] = getattr(form, 'step_first_label', '')
+        context['prev_label']   = getattr(form, 'step_prev_label',   '')
+        context['first_label']  = getattr(form, 'step_first_label',  '')
         context['submit_label'] = getattr(form, 'step_submit_label', '')
 
         return context

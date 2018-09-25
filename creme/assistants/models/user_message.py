@@ -74,6 +74,9 @@ class UserMessage(CremeModel):
                                            ).set_tags(viewable=False)
     creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
 
+    creation_label = _('Create a message')
+    save_label     = _('Save the message')
+
     class Meta:
         app_label = 'assistants'
         verbose_name = _('User message')

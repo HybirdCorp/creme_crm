@@ -25,7 +25,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth.decorators import login_required, superuser_required
+from creme.creme_core.auth.decorators import login_required, superuser_required, _check_superuser
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import POST_only
@@ -41,22 +41,33 @@ logger = logging.getLogger(__name__)
 @superuser_required
 def change_password(request, user_id):
     return generic.edit_model_with_popup(request, {'pk': user_id}, get_user_model(),
-                                         user_forms.UserChangePwForm, _(u'Change password for «%s»'),
+                                         user_forms.UserChangePwForm, _('Change password for «%s»'),
                                         )
 
 
-@login_required
-@superuser_required
-def add(request):
-    return generic.add_model_with_popup(request, user_forms.UserAddForm)
+# @login_required
+# @superuser_required
+# def add(request):
+#     return generic.add_model_with_popup(request, user_forms.UserAddForm)
+class UserCreation(generic.add.CremeModelCreationPopup):
+    model = get_user_model()
+    form_class = user_forms.UserAddForm
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)
 
 
-@login_required
-@superuser_required
-def add_team(request):
-    return generic.add_model_with_popup(request, user_forms.TeamCreateForm, _(u'New team'),
-                                        submit_label=_(u'Save the team'),
-                                       )
+# @login_required
+# @superuser_required
+# def add_team(request):
+#     return generic.add_model_with_popup(request, user_forms.TeamCreateForm, _('New team'),
+#                                         submit_label=_('Save the team'),
+#                                        )
+class TeamCreation(UserCreation):
+    form_class = user_forms.TeamCreateForm
+    title = _('New team')
+    submit_label = _('Save the team')
 
 
 @login_required
@@ -89,6 +100,7 @@ def edit_team(request, user_id):
                                         )
 
 
+# TODO: 'delete' icon
 @login_required
 @superuser_required
 def delete(request, user_id):
@@ -98,25 +110,25 @@ def delete(request, user_id):
     user = request.user
 
     if int(user_id) == user.id:
-        raise ConflictError(_(u"You can't delete the current user."))
+        raise ConflictError(_("You can't delete the current user."))
 
     user_to_delete = get_object_or_404(get_user_model(), pk=user_id)
 
     if user_to_delete.is_staff and not user.is_staff:
-        return HttpResponse(_(u"You can't delete a staff user."), status=400)
+        return HttpResponse(_("You can't delete a staff user."), status=400)
 
     try:
         return generic.add_model_with_popup(request, user_forms.UserAssignationForm,
-                                            _(u'Delete «{user}» and assign his entities to user').format(
+                                            _('Delete «{user}» and assign his entities to user').format(
                                                     user=user_to_delete,
                                                 ),
                                             initial={'user_to_delete': user_to_delete},
-                                            submit_label=_(u'Delete the user'),
+                                            submit_label=_('Delete the user'),
                                            )
     except Exception:
-        logger.exception('delete(): an error occured')
+        logger.exception('delete(): an error occurred')
 
-        return HttpResponse(_(u"You can't delete this user."), status=400)
+        return HttpResponse(_("You can't delete this user."), status=400)
 
 
 @login_required
@@ -126,12 +138,12 @@ def deactivate(request, user_id):
     user = request.user
 
     if int(user_id) == user.id:
-        raise ConflictError(_(u"You can't deactivate the current user."))
+        raise ConflictError(_("You can't deactivate the current user."))
 
     user_to_deactivate = get_object_or_404(get_user_model(), pk=user_id)
 
     if user_to_deactivate.is_staff and not user.is_staff:
-        return HttpResponse(_(u"You can't deactivate a staff user."), status=400)
+        return HttpResponse(_("You can't deactivate a staff user."), status=400)
 
     if user_to_deactivate.is_active:
         user_to_deactivate.is_active = False

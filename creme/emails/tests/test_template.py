@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from json import dumps as json_dump
+
     from django.urls import reverse
     from django.utils.translation import ugettext as _
+
+    from creme.creme_core.models import FakeOrganisation
+
+    from creme.documents.tests.base import _DocumentsTestCase, skipIfCustomDocument
 
     from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
 except Exception as e:
@@ -10,7 +16,8 @@ except Exception as e:
 
 
 @skipIfCustomEmailTemplate
-class TemplatesTestCase(_EmailsTestCase):
+# class TemplatesTestCase(_EmailsTestCase):
+class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
     def setUp(self):
         self.login()
 
@@ -92,3 +99,37 @@ class TemplatesTestCase(_EmailsTestCase):
 
         with self.assertNoException():
             response.context['entities']
+
+    @skipIfCustomDocument
+    def test_add_attachments01(self):
+        template = EmailTemplate.objects.create(user=self.user,
+                                                name='My template',
+                                                subject='Insert a joke *here*',
+                                                body='blablabla',
+                                               )
+
+        file_obj1 = self._build_filedata('Content #1')
+        doc1 = self._create_doc('My doc #1', file_obj1)
+
+        file_obj2 = self._build_filedata('Content #2')
+        doc2 = self._create_doc('My doc #2', file_obj2)
+
+        url = reverse('emails__add_attachments_to_template', args=(template.id,))
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New attachments for «%s»') % template, context.get('title'))
+        self.assertEqual(_('New attachments for «{}»').format(template), context.get('title'))
+        self.assertEqual(_('Save the attachments'),                      context.get('submit_label'))
+
+        response = self.client.post(url, data={'attachments': json_dump([doc1.id, doc2.id])})
+        self.assertNoFormError(response)
+        self.assertEqual({doc1, doc2}, set(template.attachments.all()))
+
+    def test_add_attachments02(self):
+        orga = FakeOrganisation.objects.create(user=self.user, name='Acme')
+        self.assertGET404(reverse('emails__add_attachments_to_template', args=(orga.id,)))
+
+    # TODO: test delete attachments

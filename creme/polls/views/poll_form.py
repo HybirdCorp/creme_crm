@@ -33,9 +33,7 @@ from creme.creme_core.views import generic
 
 from .. import get_pollform_model
 from ..constants import DEFAULT_HFILTER_PFORM
-from ..forms.poll_form import (PollFormForm, PollFormLineCreateForm, PollFormLineEditForm,
-        PollFormSectionCreateForm, PollFormSectionEditForm,
-        PollFormLineConditionsForm)
+from ..forms import poll_form as pf_forms
 from ..models import PollFormSection, PollFormLine, PollFormLineCondition
 from ..utils import StatsTree, NodeStyle  # TODO: templatetag instead ?
 
@@ -45,7 +43,7 @@ PollForm = get_pollform_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_pollform(request, form=PollFormForm,
+def abstract_add_pollform(request, form=pf_forms.PollFormForm,
                           submit_label=PollForm.save_label,
                          ):
     warnings.warn('polls.views.poll_form.abstract_add_pollform() is deprecated ; '
@@ -57,7 +55,7 @@ def abstract_add_pollform(request, form=PollFormForm,
                              )
 
 
-def abstract_edit_pollform(request, pform_id, form=PollFormForm):
+def abstract_edit_pollform(request, pform_id, form=pf_forms.PollFormForm):
     warnings.warn('polls.views.poll_form.abstract_edit_pollform() is deprecated ; '
                   'use the class-based view PollFormEdition instead.',
                   DeprecationWarning
@@ -102,21 +100,22 @@ def listview(request):
     return generic.list_view(request, PollForm, hf_pk=DEFAULT_HFILTER_PFORM)
 
 
-@login_required
-@permission_required('polls')
-def add_line(request, pform_id):
-    return generic.add_to_entity(request, pform_id, PollFormLineCreateForm,
-                                _('New question for «%s»'),
-                                entity_class=PollForm,
-                                submit_label=PollFormLine.save_label,
-                               )
-
+# @login_required
+# @permission_required('polls')
+# def add_line(request, pform_id):
+#     return generic.add_to_entity(request, pform_id,
+#                                  pf_forms.PollFormLineCreateForm,
+#                                 _('New question for «%s»'),
+#                                 entity_class=PollForm,
+#                                 submit_label=PollFormLine.save_label,
+#                                )
 
 @login_required
 @permission_required('polls')
 def edit_line(request, line_id):
     return generic.edit_related_to_entity(request, line_id, PollFormLine,
-                                          PollFormLineEditForm, _('Question for «%s»'),
+                                          pf_forms.PollFormLineEditForm,
+                                          _('Question for «%s»'),
                                          )
 
 
@@ -142,64 +141,69 @@ def disable_line(request, line_id):
     return redirect(pform)
 
 
-@login_required
-@permission_required('polls')
-def edit_line_conditions(request, line_id):
-    line = get_object_or_404(PollFormLine, pk=line_id)
+# @login_required
+# @permission_required('polls')
+# def edit_line_conditions(request, line_id):
+#     line = get_object_or_404(PollFormLine, pk=line_id)
+#
+#     if line.disabled:
+#         raise Http404('You can not add condition to a disabled line.')
+#
+#     return generic.add_to_entity(request, line.pform_id,
+#                                  pf_forms.PollFormLineConditionsForm,
+#                                  _('Condition for «%s»'),
+#                                  entity_class=PollForm,
+#                                  initial={'line': line},
+#                                  submit_label=PollFormLineCondition.save_label,
+#                                 )
 
-    if line.disabled:
-        raise Http404('You can not add condition to a disabled line.')
 
-    return generic.add_to_entity(request, line.pform_id, PollFormLineConditionsForm,
-                                 _('Condition for «%s»'),
-                                 entity_class=PollForm,
-                                 initial={'line': line},
-                                 submit_label=PollFormLineCondition.save_label,
-                                )
-
-
-@login_required
-@permission_required('polls')
-def add_section(request, pform_id):
-    return generic.add_to_entity(request, pform_id, PollFormSectionCreateForm,
-                                 _('New section for «%s»'),
-                                 entity_class=PollForm,
-                                 submit_label=PollFormSection.save_label,
-                                )
+# @login_required
+# @permission_required('polls')
+# def add_section(request, pform_id):
+#     return generic.add_to_entity(request, pform_id,
+#                                  pf_forms.PollFormSectionCreateForm,
+#                                  _('New section for «%s»'),
+#                                  entity_class=PollForm,
+#                                  submit_label=PollFormSection.save_label,
+#                                 )
 
 
 @login_required
 @permission_required('polls')
 def edit_section(request, section_id):
     return generic.edit_related_to_entity(request, section_id, PollFormSection,
-                                          PollFormSectionEditForm, _('Section for «%s»'),
+                                          pf_forms.PollFormSectionEditForm,
+                                          _('Section for «%s»'),
                                          )
 
 
-@login_required
-@permission_required('polls')
-def add_section_child(request, section_id):
-    parent_section = get_object_or_404(PollFormSection, pk=section_id)
+# @login_required
+# @permission_required('polls')
+# def add_section_child(request, section_id):
+#     parent_section = get_object_or_404(PollFormSection, pk=section_id)
+#
+#     return generic.add_to_entity(request, parent_section.pform_id,
+#                                  pf_forms.PollFormSectionCreateForm,
+#                                  _('New section for «%s»'),
+#                                  entity_class=PollForm,
+#                                  initial={'parent': parent_section},
+#                                  submit_label=PollFormSection.save_label,
+#                                 )
 
-    return generic.add_to_entity(request, parent_section.pform_id, PollFormSectionCreateForm,
-                                 _('New section for «%s»'),
-                                 entity_class=PollForm,
-                                 initial={'parent': parent_section},
-                                 submit_label=PollFormSection.save_label,
-                                )
 
-
-@login_required
-@permission_required('polls')
-def add_line_to_section(request, section_id):
-    section = get_object_or_404(PollFormSection, pk=section_id)
-
-    return generic.add_to_entity(request, section.pform_id, PollFormLineCreateForm,
-                                 _('New question for «%s»'),
-                                 entity_class=PollForm,
-                                 initial={'section': section},
-                                 submit_label=PollFormLine.save_label,
-                                )
+# @login_required
+# @permission_required('polls')
+# def add_line_to_section(request, section_id):
+#     section = get_object_or_404(PollFormSection, pk=section_id)
+#
+#     return generic.add_to_entity(request, section.pform_id,
+#                                  pf_forms.PollFormLineCreateForm,
+#                                  _('New question for «%s»'),
+#                                  entity_class=PollForm,
+#                                  initial={'section': section},
+#                                  submit_label=PollFormLine.save_label,
+#                                 )
 
 
 @login_required
@@ -233,7 +237,7 @@ def get_choices(request, line_id):
 
 class PollFormCreation(generic.add.EntityCreation):
     model = PollForm
-    form_class = PollFormForm
+    form_class = pf_forms.PollFormForm
 
 
 class PollFormDetail(generic.detailview.EntityDetail):
@@ -244,5 +248,98 @@ class PollFormDetail(generic.detailview.EntityDetail):
 
 class PollFormEdition(generic.edit.EntityEdition):
     model = PollForm
-    form_class = PollFormForm
+    form_class = pf_forms.PollFormForm
     pk_url_kwarg = 'pform_id'
+
+
+class _LineCreationBase(generic.add.AddingToEntity):
+    model = PollFormLine
+    form_class = pf_forms.PollFormLineCreateForm
+    title_format = _('New question for «{}»')
+    entity_classes = PollForm
+
+
+class _RelatedSectionMixin(generic.base.EntityRelatedMixin):
+    section_id_url_kwarg = 'section_id'
+    section_form_kwarg = 'section'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs[self.section_form_kwarg] = self.get_related_section()
+
+        return kwargs
+
+    def get_related_entity_id(self):
+        return self.get_related_section().pform_id
+
+    def get_related_section(self):
+        try:
+            section = getattr(self, 'related_section')
+        except AttributeError:
+            self.related_section = section = get_object_or_404(
+                PollFormSection,
+                pk=self.kwargs[self.section_id_url_kwarg],
+            )
+
+        return section
+
+
+class LineCreation(_LineCreationBase):
+    entity_id_url_kwarg = 'pform_id'
+
+
+class AddingLineToSection(_RelatedSectionMixin, _LineCreationBase):
+    def get_title(self):
+        return self.title_format.format(self.get_related_section())
+
+
+class _SectionCreationBase(generic.add.AddingToEntity):
+    model = PollFormSection
+    form_class = pf_forms.PollFormSectionCreateForm
+    entity_classes = PollForm
+
+
+class SectionCreation(_SectionCreationBase):
+    title_format = _('New section for «{}»')
+    entity_id_url_kwarg = 'pform_id'
+
+
+class ChildSectionCreation(_RelatedSectionMixin, _SectionCreationBase):
+    title_format = _('New sub-section for «{}»')
+    section_form_kwarg = 'parent'
+
+    def get_title(self):
+        return self.title_format.format(self.get_related_section())
+
+
+class ConditionsEdition(generic.add.AddingToEntity):
+    model = PollFormLineCondition
+    form_class = pf_forms.PollFormLineConditionsForm
+    title_format = _('Condition for «{}»')
+    # entity_id_url_kwarg = 'pform_id'
+    entity_classes = PollForm
+    line_id_url_kwarg = 'line_id'
+    line_form_kwarg = 'line'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs[self.line_form_kwarg] = self.get_related_line()
+
+        return kwargs
+
+    def get_related_entity_id(self):
+        return self.get_related_line().pform_id
+
+    def get_related_line(self):
+        try:
+            line = getattr(self, 'related_line')
+        except AttributeError:
+            self.related_line = line = get_object_or_404(
+                PollFormLine,
+                pk=self.kwargs[self.line_id_url_kwarg],
+            )
+
+            if line.disabled:
+                raise Http404('You can not add condition to a disabled line.')
+
+        return line

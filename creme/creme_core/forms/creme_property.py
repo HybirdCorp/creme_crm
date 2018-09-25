@@ -25,12 +25,13 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..models import CremePropertyType, CremeProperty
 from ..utils import entities2unicode
+
 from .base import CremeForm
 from .widgets import Label
 
 
 class _AddPropertiesForm(CremeForm):
-    types = ModelMultipleChoiceField(label=_(u'Type of property'),
+    types = ModelMultipleChoiceField(label=_('Type of property'),
                                      queryset=CremePropertyType.objects.none(),
                                     )
 
@@ -43,7 +44,8 @@ class _AddPropertiesForm(CremeForm):
 
 
 class AddPropertiesForm(_AddPropertiesForm):
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # We need this entity in super constructor when post_init_callback is called.
         # TODO: Add unit tests for this !
         self.entity = entity
@@ -51,18 +53,20 @@ class AddPropertiesForm(_AddPropertiesForm):
         super().__init__(*args, **kwargs)
 
         # TODO: move queryset to a CremePropertyType method ??
-        excluded = CremeProperty.objects.filter(creme_entity=entity).values_list('type', flat=True)
-        self.fields['types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=entity.entity_type_id) |
-                                                                         Q(subject_ctypes__isnull=True)
-                                                                        ) \
-                                                                 .exclude(pk__in=excluded)
+        excluded = CremeProperty.objects.filter(creme_entity=entity.id) \
+                                        .values_list('type', flat=True)
+        self.fields['types'].queryset = \
+            CremePropertyType.objects.filter(Q(subject_ctypes=entity.entity_type_id) |
+                                             Q(subject_ctypes__isnull=True)
+                                            ) \
+                                     .exclude(pk__in=excluded)
 
     def save(self):
         self._create_properties([self.entity], self.cleaned_data['types'])
 
 
 class AddPropertiesBulkForm(_AddPropertiesForm):
-    entities_lbl = CharField(label=_(u"Related entities"), widget=Label(), required=False)
+    entities_lbl = CharField(label=_('Related entities'), widget=Label(), required=False)
 
     def __init__(self, model, entities, forbidden_entities, *args, **kwargs):
         # super(AddPropertiesBulkForm, self).__init__(*args, **kwargs)
@@ -72,13 +76,16 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         ct = ContentType.objects.get_for_model(model)
 
         fields['types'].queryset = CremePropertyType.get_compatible_ones(ct)  # TODO: Sort?
-        fields['entities_lbl'].initial = entities2unicode(entities, self.user) if entities else ugettext(u'NONE !')
+        fields['entities_lbl'].initial = entities2unicode(entities, self.user) \
+                                         if entities else \
+                                         ugettext('NONE !')
 
         if forbidden_entities:
-            fields['bad_entities_lbl'] = CharField(label=ugettext(u"Uneditable entities"),
-                                                   widget=Label, required=False,
-                                                   initial=entities2unicode(forbidden_entities, self.user),
-                                                  )
+            fields['bad_entities_lbl'] = CharField(
+                label=ugettext('Uneditable entities'),
+                widget=Label, required=False,
+                initial=entities2unicode(forbidden_entities, self.user),
+            )
 
     def save(self):
         self._create_properties(self.entities, self.cleaned_data['types'])

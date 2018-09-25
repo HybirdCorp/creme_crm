@@ -29,30 +29,33 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
-from creme.creme_core.models import (CremeEntity, UserRole,
+from creme.creme_core.models import (UserRole,  # CremeEntity
         BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
         RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem)
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
+from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import bricks
+
+from .base import BaseConfigCreation
 from .portal import _config_portal
 
 
-def _get_configurable_ctype(ctype_id):
-    ctype = get_ct_or_404(ctype_id)
-    model = ctype.model_class()
-
-    if not issubclass(model, CremeEntity):
-        raise Http404('This model is not a CremeEntity.')
-
-    if brick_registry.is_model_invalid(model):
-        raise Http404('This model cannot have a detail-view configuration.')
-
-    return ctype
+# def _get_configurable_ctype(ctype_id):
+#     ctype = get_ct_or_404(ctype_id)
+#     model = ctype.model_class()
+#
+#     if not issubclass(model, CremeEntity):
+#         raise Http404('This model is not a CremeEntity.')
+#
+#     if brick_registry.is_model_invalid(model):
+#         raise Http404('This model cannot have a detail-view configuration.')
+#
+#     return ctype
 
 
 @login_required
@@ -60,16 +63,40 @@ def portal(request):
     return _config_portal(request, 'creme_config/bricks_portal.html')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add_detailview(request, ct_id):
-    ctype = _get_configurable_ctype(ct_id)
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add_detailview(request, ct_id):
+#     ctype = _get_configurable_ctype(ct_id)
+#
+#     return generic.add_model_with_popup(
+#         request, bricks.BrickDetailviewLocationsAddForm,
+#         title=ugettext('New block configuration for «{model}»').format(model=ctype),
+#         submit_label=_('Save the configuration'),
+#         initial={'content_type': ctype},
+#     )
+class BrickDetailviewLocationsCreation(generic.base.EntityCTypeRelatedMixin,
+                                       BaseConfigCreation,
+                                      ):
+    # model = BrickDetailviewLocation
+    form_class = bricks.BrickDetailviewLocationsAddForm
+    submit_label = _('Save the configuration')
 
-    return add_model_with_popup(request, bricks.BrickDetailviewLocationsAddForm,
-                                title=ugettext(u'New block configuration for «{model}»').format(model=ctype),
-                                submit_label=_(u'Save the configuration'),
-                                initial={'content_type': ctype},
-                               )
+    def check_related_ctype(self, ctype):
+        super().check_related_ctype(ctype)
+
+        if brick_registry.is_model_invalid(ctype.model_class()):
+            raise ConflictError('This model cannot have a detail-view configuration.')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['ctype'] = self.get_ctype()
+
+        return kwargs
+
+    def get_title(self):
+        return ugettext('New block configuration for «{model}»').format(
+            model=self.get_ctype(),
+        )
 
 
 # class PortalBricksWizard(PopupWizardMixin, SessionWizardView):
@@ -107,28 +134,31 @@ def add_detailview(request, ct_id):
 #         return kwargs
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def create_rtype_brick(request):
-    return add_model_with_popup(request, bricks.RTypeBrickAddForm,
-                                title=_(u'New type of block'),
-                                submit_label=_(u'Save the block'),
-                               )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def create_rtype_brick(request):
+#     return generic.add_model_with_popup(request, bricks.RTypeBrickAddForm,
+#                                         title=_('New type of block'),
+#                                         submit_label=_('Save the block'),
+#                                        )
+class RelationTypeBrickCreation(BaseConfigCreation):
+    model = RelationBrickItem
+    form_class = bricks.RTypeBrickAddForm
 
 
 class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
     class _ResourceStep(bricks.CustomBrickConfigItemCreateForm):
-        step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
+        step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
     class _ConfigStep(bricks.CustomBrickConfigItemEditForm):
         class Meta(bricks.CustomBrickConfigItemEditForm.Meta):
             exclude = ('name',)
 
-        step_prev_label = _(u'Previous step')
-        step_submit_label = _(u'Save the block')
+        step_prev_label = _('Previous step')
+        step_submit_label = _('Save the block')
 
     form_list = (_ResourceStep, _ConfigStep)
-    wizard_title = _(u'New custom block')
+    wizard_title = _('New custom block')
     template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
     permission = 'creme_core.can_admin'
 
@@ -139,7 +169,6 @@ class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
             conf_step.instance = resource_step.save()
             conf_step.save()
 
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     def get_form_instance(self, step):
@@ -150,53 +179,128 @@ class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
                                         )
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def edit_detailview(request, ct_id, role):
-    if role == 'default':
-        role_obj = None
-        superuser = False
-    elif role == 'superuser':
-        role_obj = None
-        superuser = True
-    else:
-        try:
-            role_id = int(role)
-        except ValueError:
-            raise Http404('Role must be "default", "superuser" or an integer')
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def edit_detailview(request, ct_id, role):
+#     if role == 'default':
+#         role_obj = None
+#         superuser = False
+#     elif role == 'superuser':
+#         role_obj = None
+#         superuser = True
+#     else:
+#         try:
+#             role_id = int(role)
+#         except ValueError:
+#             raise Http404('Role must be "default", "superuser" or an integer')
+#
+#         role_obj = get_object_or_404(UserRole, id=role_id)
+#         superuser = False
+#
+#     ct_id = int(ct_id)
+#
+#     if ct_id:
+#         ct = _get_configurable_ctype(ct_id)
+#
+#         if superuser:
+#             title = ugettext('Edit configuration of super-users for «{model}»').format(model=ct)
+#         elif role_obj:
+#             title = ugettext('Edit configuration of «{role}» for «{model}»').format(
+#                             role=role_obj,
+#                             model=ct,
+#             )
+#         else:
+#             title = ugettext('Edit default configuration for «{model}»').format(model=ct)
+#     else:  # ct_id == 0
+#         if role != 'default':
+#             raise Http404('You can only edit "default" role with default config')
+#
+#         ct = None
+#         title = _('Edit default configuration')
+#
+#     return generic.add_model_with_popup(
+#         request, bricks.BrickDetailviewLocationsEditForm,
+#         initial={'content_type': ct,
+#                  'role': role_obj, 'superuser': superuser,
+#                 },
+#         title=title,
+#         template='creme_core/generics/blockform/edit_popup.html',
+#         submit_label=_('Save the configuration'),
+#     )
+class BrickDetailviewLocationsEdition(generic.base.EntityCTypeRelatedMixin,
+                                      BaseConfigCreation,
+                                     ):
+    # model = BrickDetailviewLocation
+    form_class = bricks.BrickDetailviewLocationsEditForm
+    template_name = 'creme_core/generics/blockform/edit_popup.html'
+    submit_label = _('Save the configuration')
+    ct_id_0_accepted = True
 
-        role_obj = get_object_or_404(UserRole, id=role_id)
-        superuser = False
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.role_info = None
 
-    ct_id = int(ct_id)
+    # TODO: factorise + remove _get_configurable_ctype()
+    def check_related_ctype(self, ctype):
+        super().check_related_ctype(ctype)
 
-    if ct_id:
-        ct = _get_configurable_ctype(ct_id)
+        if brick_registry.is_model_invalid(ctype.model_class()):
+            raise ConflictError('This model cannot have a detail-view configuration.')
 
-        if superuser:
-            title = ugettext(u'Edit configuration of super-users for «{model}»').format(model=ct)
-        elif role_obj:
-            title = ugettext(u'Edit configuration of «{role}» for «{model}»').format(
-                            role=role_obj,
-                            model=ct,
-            )
+    def get_role_info(self):
+        role_info = self.role_info
+
+        if role_info is None:
+            role = self.kwargs['role']
+
+            if role == 'default':
+                role_obj = None
+                superuser = False
+            elif role == 'superuser':
+                role_obj = None
+                superuser = True
+            else:
+                try:
+                    role_id = int(role)
+                except ValueError:
+                    raise Http404('Role must be "default", "superuser" or an integer')
+
+                role_obj = get_object_or_404(UserRole, id=role_id)
+                superuser = False
+
+            if self.get_ctype() is None and role != 'default':
+                raise Http404('You can only edit "default" role with default config')
+
+            self.role_info = role_info = (role_obj, superuser)
+
+        return role_info
+
+    # TODO: factorise ?
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['ctype'] = self.get_ctype()
+        kwargs['role'], kwargs['superuser'] = self.get_role_info()
+
+        return kwargs
+
+    def get_title(self):
+        ct = self.get_ctype()
+        role, superuser = self.get_role_info()
+
+        if ct is not None:
+            if superuser:
+                title = ugettext('Edit configuration of super-users for «{model}»').format(model=ct)
+            elif role is not None:
+                title = ugettext('Edit configuration of «{role}» for «{model}»').format(
+                    role=role,
+                    model=ct,
+                )
+            else:
+                title = ugettext('Edit default configuration for «{model}»').format(model=ct)
         else:
-            title = ugettext(u'Edit default configuration for «{model}»').format(model=ct)
-    else:  # ct_id == 0
-        if role != 'default':
-            raise Http404('You can only edit "default" role with default config')
+            title = _('Edit default configuration')
 
-        ct = None
-        title = _(u'Edit default configuration')
-
-    return add_model_with_popup(request, bricks.BrickDetailviewLocationsEditForm,
-                                initial={'content_type': ct,
-                                         'role': role_obj, 'superuser': superuser,
-                                        },
-                                title=title,
-                                template='creme_core/generics/blockform/edit_popup.html',
-                                submit_label=_(u'Save the configuration'),
-                               )
+        return title
 
 
 # @login_required
@@ -255,16 +359,17 @@ def edit_home(request):
     else:
         locs_form = bricks.BrickHomeLocationsForm(user=request.user)
 
-    return inner_popup(request,
-                       'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  locs_form,
-                        'title': _(u'Edit home configuration'),
-                        'submit_label': _(u'Save the modifications'),
-                       },
-                       is_valid=locs_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(
+        request,
+        'creme_core/generics/blockform/edit_popup.html',
+        {'form':  locs_form,
+         'title': _('Edit home configuration'),
+         'submit_label': _('Save the modifications'),
+        },
+        is_valid=locs_form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
 def _edit_mypage(request, title, user=None):
@@ -276,36 +381,37 @@ def _edit_mypage(request, title, user=None):
     else:
         locs_form = bricks.BrickMypageLocationsForm(owner=user, user=request.user)
 
-    return inner_popup(request,
-                       'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  locs_form,
-                        'title': title,
-                        'submit_label': _(u'Save the modifications'),
-                       },
-                       is_valid=locs_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(
+        request,
+        'creme_core/generics/blockform/edit_popup.html',
+        {'form':  locs_form,
+         'title': title,
+         'submit_label': _('Save the modifications'),
+        },
+        is_valid=locs_form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
 @login_required
 @permission_required('creme_core.can_admin')
 def edit_default_mypage(request):
-    return _edit_mypage(request, _(u'Edit default "My page"'))
+    return _edit_mypage(request, _('Edit default "My page"'))
 
 
 @login_required
 def edit_mypage(request):
-    return _edit_mypage(request, _(u'Edit "My page"'), user=request.user)
+    return _edit_mypage(request, _('Edit "My page"'), user=request.user)
 
 
 class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
     class _ContentTypeStep(bricks.RTypeBrickItemAddCtypeForm):
-        step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
+        step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
     class _FieldsStep(bricks.RTypeBrickItemEditCtypeForm):
-        step_prev_label = _(u'Previous step')
-        step_submit_label = _(u'Save the configuration')
+        step_prev_label = _('Previous step')
+        step_submit_label = _('Save the configuration')
 
     form_list = (_ContentTypeStep, _FieldsStep)
     wizard_title = 'New customised type'  # Overridden by get_context_data()
@@ -317,13 +423,12 @@ class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
         _ct_form, fields_form = form_list
         fields_form.save()
 
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     def get_context_data(self, form, **kwargs):
         # context = super(RelationCTypeBrickWizard, self).get_context_data(form, **kwargs)
         context = super().get_context_data(form, **kwargs)
-        context['title'] = ugettext(u'New customised type for «{predicate}»').format(predicate=form.instance)
+        context['title'] = ugettext('New customised type for «{predicate}»').format(predicate=form.instance)
 
         return context
 
@@ -359,16 +464,17 @@ def edit_cells_of_rtype_brick(request, rbi_id, ct_id):
     else:
         form = bricks.RTypeBrickItemEditCtypeForm(user=request.user, instance=rbi, ctype=ctype)
 
-    return inner_popup(request,
-                       'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  form,
-                        'title': ugettext(u'Edit «{model}» configuration').format(model=ctype),
-                        'submit_label': _(u'Save the modifications'),
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(
+        request,
+        'creme_core/generics/blockform/edit_popup.html',
+        {'form':  form,
+         'title': ugettext('Edit «{model}» configuration').format(model=ctype),
+         'submit_label': _('Save the modifications'),
+        },
+        is_valid=form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
 @POST_only
@@ -391,10 +497,11 @@ def delete_cells_of_rtype_brick(request, rbi_id):
 @login_required
 @permission_required('creme_core.can_admin')
 def edit_custom_brick(request, cbci_id):
-    return edit_model_with_popup(request, {'id': cbci_id}, CustomBrickConfigItem,
-                                 bricks.CustomBrickConfigItemEditForm,
-                                 ugettext(u'Edit the block «%s»'),
-                                )
+    return generic.edit_model_with_popup(
+        request, {'id': cbci_id}, CustomBrickConfigItem,
+        bricks.CustomBrickConfigItemEditForm,
+        ugettext('Edit the block «%s»'),
+    )
 
 
 @login_required

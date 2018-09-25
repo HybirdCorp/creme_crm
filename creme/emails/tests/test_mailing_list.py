@@ -8,7 +8,8 @@ try:
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import EntityFilter, EntityFilterCondition, FieldsConfig
+    from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
+            FieldsConfig, FakeOrganisation)
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
@@ -85,8 +86,15 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertFalse(campaign.mailing_lists.exists())
 
         url = reverse('emails__add_mlists_to_campaign', args=(campaign.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('New mailing lists for «%s»') % campaign, context.get('title'))
+        self.assertEqual(_('New mailing lists for «{}»').format(campaign), context.get('title'))
+        self.assertEqual(_('Link the mailing lists'),                      context.get('submit_label'))
+
+        # ----
         def post(*mlists):
             return self.client.post(url, follow=True,
                                     data={'mailing_lists': self.formfield_value_multi_creator_entity(*mlists)},
@@ -144,8 +152,13 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertFalse(mlist.emailrecipient_set.exists())
 
         url = reverse('emails__add_recipients', args=(mlist.id,))
-        self.assertGET200(url)
 
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New recipients for «%s»') % mlist, context.get('title'))
+        self.assertEqual(_('New recipients for «{}»').format(mlist), context.get('title'))
+        self.assertEqual(EmailRecipient.multi_save_label,            context.get('submit_label'))
+
+        # --------------------
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
         self.assertPOST200(url, follow=True, data={'recipients': '\n'.join(recipients)})
         self.assertEqual(set(recipients), {r.address for r in mlist.emailrecipient_set.all()})
@@ -198,11 +211,23 @@ class MailingListsTestCase(_EmailsTestCase):
         "From CSV file (old Mac EOF)"
         self._aux_test_add_recipients_csv(end='\r')
 
+    def test_recipients05(self):
+        "Not a MailingList"
+        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        self.assertGET404(reverse('emails__add_recipients', args=(orga.id,)))
+
     @skipIfCustomContact
     def test_ml_contacts01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         url = self._build_addcontact_url(mlist)
-        self.assertGET200(url)
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New contacts for «%s»') % mlist, context.get('title'))
+        self.assertEqual(_('New contacts for «{}»').format(mlist), context.get('title'))
+        self.assertEqual(_('Link the contacts'),                   context.get('submit_label'))
 
         create = partial(Contact.objects.create, user=self.user)
         recipients = [create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
@@ -234,12 +259,24 @@ class MailingListsTestCase(_EmailsTestCase):
                            )
         self.assertGET409(self._build_addcontact_url(mlist))
 
+    def test_ml_contacts03(self):
+        "Not a MailingList"
+        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        self.assertGET404(self._build_addcontact_url(orga))
+
     @skipIfCustomContact
     def test_ml_contacts_filter01(self):
         "'All' filter"
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         url = self._build_addcontactfilter_url(mlist)
-        self.assertGET200(url)
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New contacts for «%s»') % mlist, context.get('title'))
+        self.assertEqual(_('New contacts for «{}»').format(mlist), context.get('title'))
+        self.assertEqual(_('Link the contacts'),                   context.get('submit_label'))
 
         create = partial(Contact.objects.create, user=self.user)
         create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
@@ -299,11 +336,23 @@ class MailingListsTestCase(_EmailsTestCase):
                            )
         self.assertGET409(self._build_addcontactfilter_url(mlist))
 
+    def test_ml_contacts_filter04(self):
+        "Not a MailingList"
+        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        self.assertGET404(self._build_addcontactfilter_url(orga))
+
     @skipIfCustomOrganisation
     def test_ml_orgas01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         url = self._build_addorga_url(mlist)
-        self.assertGET200(url)
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New organisations for «%s»') % mlist, context.get('title'))
+        self.assertEqual(_('New organisations for «{}»').format(mlist), context.get('title'))
+        self.assertEqual(_('Link the organisations'),                   context.get('submit_label'))
 
         create = partial(Organisation.objects.create, user=self.user)
         recipients = [create(name='NERV',  email='contact@nerv.jp'),
@@ -333,12 +382,24 @@ class MailingListsTestCase(_EmailsTestCase):
                            )
         self.assertGET409(self._build_addorga_url(mlist))
 
+    def test_ml_orgas03(self):
+        "Not a MailingList"
+        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        self.assertGET404(self._build_addorga_url(orga))
+
     @skipIfCustomOrganisation
     def test_ml_orgas_filter01(self):
         " 'All' filter"
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         url = self._build_addorgafilter_url(mlist)
-        self.assertGET200(url)
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New organisations for «%s»') % mlist, context.get('title'))
+        self.assertEqual(_('New organisations for «{}»').format(mlist), context.get('title'))
+        self.assertEqual(_('Link the organisations'),                   context.get('submit_label'))
 
         create_orga = partial(Organisation.objects.create, user=self.user)
         create_orga(name='NERV',  email='contact@nerv.jp'),
@@ -395,6 +456,11 @@ class MailingListsTestCase(_EmailsTestCase):
                            )
         self.assertGET409(self._build_addorgafilter_url(mlist))
 
+    def test_ml_orgas_filter04(self):
+        "Not a MailingList"
+        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        self.assertGET404(self._build_addorgafilter_url(orga))
+
     def test_ml_tree01(self):
         create_ml = partial(MailingList.objects.create, user=self.user)
         mlist01 = create_ml(name='ml01')
@@ -404,7 +470,15 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertFalse(mlist02.children.exists())
 
         url = reverse('emails__add_child_mlists', args=(mlist01.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New child lists for «%s»') % mlist01, context.get('title'))
+        self.assertEqual(_('New child list for «{}»').format(mlist01), context.get('title'))
+        self.assertEqual(_('Link the mailing list'),                   context.get('submit_label'))
+
+        # --------------------
         self.assertPOST200(url, data={'child': mlist02.id})
         self.assertEqual([mlist02.id], [ml.id for ml in mlist01.children.all()])
         self.assertFalse(mlist02.children.exists())
@@ -437,3 +511,8 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertFormError(post(mlist02, mlist01), 'form', 'child', parents_error)
         self.assertFormError(post(mlist03, mlist01), 'form', 'child', parents_error)
         self.assertFormError(post(mlist01, mlist01), 'form', 'child', _("A list can't be its own child"))
+
+    def test_ml_tree03(self):
+        "Not a MailingList"
+        orga = FakeOrganisation.objects.create(user=self.user, name='Dojo')
+        self.assertGET404(reverse('emails__add_child_mlists', args=(orga.id,)))

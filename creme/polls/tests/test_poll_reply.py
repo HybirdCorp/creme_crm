@@ -535,7 +535,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         create_line('What type of swallow?')
 
         url = self._build_preply_from_pform_url(pform)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New replies for «%s»') % pform, context.get('title'))
+        self.assertEqual(_('New replies for «{}»').format(pform), context.get('title'))
+        self.assertEqual(PollReply.multi_save_label,              context.get('submit_label'))
 
         name = 'Reply#1'
         self.assertNoFormError(self.client.post(url, data={'user': user.id,
@@ -623,6 +629,69 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             self.assertEqual(pform, preply.pform)
             self.assertEqual(2,     preply.lines.count())
 
+    def test_create_from_pollform07(self):
+        "Not super user"
+        user = self.login(is_superuser=False, allowed_apps=['polls'],
+                          creatable_models=[PollReply],
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        pform = PollForm.objects.create(user=user, name='Form#1')
+
+        create_line = self._get_formline_creator(pform)
+        create_line('Do you like swallows?')
+
+        self.assertGET200(self._build_preply_from_pform_url(pform))
+
+    def test_create_from_pollform08(self):
+        "Creation creds are needed"
+        user = self.login(is_superuser=False, allowed_apps=['polls'],
+                          # creatable_models=[PollReply],
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        pform = PollForm.objects.create(user=user, name='Form#1')
+
+        create_line = self._get_formline_creator(pform)
+        create_line('Do you like swallows?')
+
+        self.assertGET403(self._build_preply_from_pform_url(pform))
+
+    def test_create_from_pollform09(self):
+        "LINK creds are needed"
+        user = self.login(is_superuser=False, allowed_apps=['polls'],
+                          creatable_models=[PollReply],
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            # EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        pform = PollForm.objects.create(user=user, name='Form#1')
+
+        create_line = self._get_formline_creator(pform)
+        create_line('Do you like swallows?')
+
+        self.assertGET403(self._build_preply_from_pform_url(pform))
+
     def _aux_test_link_to(self, person):
         user = self.user
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -633,8 +702,17 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply3 = create_preply(name='Reply#3')
 
         url = self._build_linkto_url(person)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Existing replies for «%s»') % person, context.get('title'))
+        self.assertEqual(_('Existing replies for «{}»').format(person),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link to the replies'), context.get('submit_label'))
+
+        # ---
         self.assertNoFormError(self.client.post(url, follow=True,
                                                 data={'replies': self.formfield_value_multi_creator_entity(preply1, preply2)}
                                                )
@@ -656,8 +734,21 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self._aux_test_link_to(Organisation.objects.create(user=user, name='Gaimos'))
 
     @skipIfCustomContact
+    def test_link_to_creds(self):
+        "Not super-user"
+        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
+        self.assertGET200(self._build_linkto_url(leina))
+
+    @skipIfCustomContact
     def test_link_to_error01(self):
-        "Link credentials error"
+        "CHANGE credentials error"
         user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
@@ -684,14 +775,34 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         self.assertGET404(self._build_linkto_url(self._create_activity()))
 
+    @skipIfCustomContact
+    def test_link_to_error03(self):
+        "LINK credentials are needed"
+        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        SetCredentials.objects.create(
+            role=self.role,
+            # value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
+        self.assertGET403(self._build_linkto_url(leina))
+
     def _aux_test_create_from_person(self, person):
         user = self.user
 
         url = self._build_preply_from_person_url(person)
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('New replies for «%s»') % person, context.get('title'))
+        self.assertEqual(_('New replies for «{}»').format(person), context.get('title'))
+        self.assertEqual(PollReply.multi_save_label,               context.get('submit_label'))
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = context['form'].fields
 
         self.assertNotIn('number', fields)
 
@@ -732,6 +843,57 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "From an Activity --> error"
         self.login()
         self.assertGET404(self._build_preply_from_person_url(self._create_activity()))
+
+    @skipIfCustomActivity
+    def test_create_from_person04(self):
+        "Not super-user"
+        user = self.login(is_superuser=False, allowed_apps=['polls', 'persons'],
+                          creatable_models=[PollReply],
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+        orga = Organisation.objects.create(user=user, name='Gaimos')
+        self.assertGET200(self._build_preply_from_person_url(orga))
+
+    @skipIfCustomActivity
+    def test_create_from_person05(self):
+        "Creation creds are needed"
+        user = self.login(is_superuser=False, allowed_apps=['polls', 'persons'],
+                          # creatable_models=[PollReply],
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+        orga = Organisation.objects.create(user=user, name='Gaimos')
+        self.assertGET403(self._build_preply_from_person_url(orga))
+
+    @skipIfCustomActivity
+    def test_create_from_person06(self):
+        "LINK creds are needed"
+        user = self.login(is_superuser=False, allowed_apps=['polls', 'persons'],
+                          creatable_models=[PollReply],
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            # EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+        orga = Organisation.objects.create(user=user, name='Gaimos')
+        self.assertGET403(self._build_preply_from_person_url(orga))
 
     def test_editview01(self):
         user = self.login()

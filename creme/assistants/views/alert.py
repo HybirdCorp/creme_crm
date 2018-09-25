@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,23 +22,30 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required
-from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
+from creme.creme_core.views import generic
 
 from ..forms.alert import AlertForm
 from ..models import Alert
 
 
-@login_required
-def add(request, entity_id):
-    return add_to_entity(request, entity_id, AlertForm, _(u'New alert for «%s»'),
-                         submit_label=_('Save the alert'),
-                        )
+# @login_required
+# def add(request, entity_id):
+#     return generic.add_to_entity(request, entity_id, AlertForm,
+#                                  _('New alert for «%s»'),
+#                                  submit_label=_('Save the alert'),
+#                                 )
+class AlertCreation(generic.add.AddingToEntity):
+    model = Alert
+    form_class = AlertForm
+    title_format = _('New alert for «{}»')
+
 
 @login_required
 def edit(request, alert_id):
-    return edit_related_to_entity(request, alert_id, Alert, AlertForm,
-                                  _(u'Alert for «%s»'),
-                                 )
+    return generic.edit_related_to_entity(request, alert_id, Alert, AlertForm,
+                                          _('Alert for «%s»'),
+                                         )
+
 
 @login_required
 def validate(request, alert_id):

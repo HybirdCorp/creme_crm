@@ -53,10 +53,14 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertFalse(entity.properties.all())
 
         url = reverse('creme_core__add_properties', args=(entity.id,))
-        response = self.assertGET200(url)
+        context = self.assertGET200(url).context
+        self.assertEqual(_('New properties for «{}»').format(entity),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Add the properties'), context.get('submit_label'))
 
         with self.assertNoException():
-            choices = response.context['form'].fields['types'].choices
+            choices = context['form'].fields['types'].choices
 
         # Choices are sorted with 'text'
         choices = list(choices)

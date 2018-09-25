@@ -22,7 +22,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_list_or_404, get_object_or_404, render, redirect
+from django.shortcuts import get_list_or_404, get_object_or_404, redirect  # render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -32,7 +32,7 @@ from creme.creme_config.forms import creme_property_type as ptype_forms
 from ..auth.decorators import login_required, permission_required
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import QuerysetBrick, Brick
-from ..models import CremeEntity, CremePropertyType
+from ..models import CremeEntity, CremePropertyType, CremeProperty
 from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
 
 from . import generic, bricks as bricks_views
@@ -87,13 +87,17 @@ def add_properties_bulk(request, ct_id):
                               )
 
 
-@login_required
-def add_to_entity(request, entity_id):
-    return generic.add_to_entity(request, entity_id, prop_forms.AddPropertiesForm,
-                                 _('New properties for «%s»'),
-                                 submit_label=_('Add the properties'),
-                                )
-
+# @login_required
+# def add_to_entity(request, entity_id):
+#     return generic.add_to_entity(request, entity_id, prop_forms.AddPropertiesForm,
+#                                  _('New properties for «%s»'),
+#                                  submit_label=_('Add the properties'),
+#                                 )
+class PropertiesAdding(generic.add.AddingToEntity):
+    model = CremeProperty
+    form_class = prop_forms.AddPropertiesForm
+    submit_label = _('Add the properties')
+    title_format = _('New properties for «{}»')
 
 # @login_required
 # @permission_required('creme_core.can_admin')
@@ -122,9 +126,7 @@ def add_to_entity(request, entity_id):
 class PropertyTypeCreation(generic.add.CremeModelCreation):
     model = CremePropertyType
     form_class = ptype_forms.CremePropertyTypeAddForm
-
-    def check_view_permission(self):
-        self.request.user.has_perm_to_admin_or_die('creme_core')
+    permissions = 'creme_core.can_admin'
 
 
 # @login_required
@@ -161,10 +163,7 @@ class PropertyTypeEdition(generic.edit.CremeModelEdition):
     queryset = CremePropertyType.objects.filter(is_custom=True)
     form_class = ptype_forms.CremePropertyTypeEditForm
     pk_url_kwarg = 'ptype_id'
-
-    # TODO: factorise with PropertyTypeCreation
-    def check_view_permission(self):
-        self.request.user.has_perm_to_admin_or_die('creme_core')
+    permissions = 'creme_core.can_admin'
 
 
 @login_required
@@ -311,7 +310,7 @@ class PropertyTypeDetail(generic.detailview.CremeModelDetail):
 
     # TODO: Mixin for bricks rendering ?
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+        context = super().get_context_data(**kwargs)
         context['bricks'] = self.get_bricks()
         context['bricks_reload_url'] = reverse('creme_core__reload_ptype_bricks', args=(self.object.id,))
 

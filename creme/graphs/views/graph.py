@@ -32,13 +32,13 @@ from creme.creme_core.views import generic
 
 from .. import get_graph_model
 from ..constants import DEFAULT_HFILTER_GRAPH
-from ..forms.graph import GraphForm, AddRelationTypesForm
+from ..forms import graph as g_forms
 
 
 Graph = get_graph_model()
 
 
-def abstract_add_graph(request, form=GraphForm,
+def abstract_add_graph(request, form=g_forms.GraphForm,
                        submit_label=Graph.save_label,
                       ):
     warnings.warn('graphs.views.graph.abstract_dd_graph() is deprecated ; '
@@ -50,7 +50,7 @@ def abstract_add_graph(request, form=GraphForm,
                              )
 
 
-def abstract_edit_graph(request, graph_id, form=GraphForm):
+def abstract_edit_graph(request, graph_id, form=g_forms.GraphForm):
     warnings.warn('graphs.views.graph.abstract_edit_graph() is deprecated ; '
                   'use the class-based view GraphEdition instead.',
                   DeprecationWarning
@@ -111,15 +111,15 @@ def listview(request):
     return generic.list_view(request, Graph, hf_pk=DEFAULT_HFILTER_GRAPH)
 
 
-@login_required
-@permission_required('graphs')
-def add_relation_types(request, graph_id):
-    return generic.add_to_entity(
-        request, graph_id, AddRelationTypesForm,
-        _('Add relation types to «%s»'),
-        entity_class=Graph,
-        template='creme_core/generics/blockform/link_popup.html',
-    )
+# @login_required
+# @permission_required('graphs')
+# def add_relation_types(request, graph_id):
+#     return generic.add_to_entity(
+#         request, graph_id, g_forms.AddRelationTypesForm,
+#         _('Add relation types to «%s»'),
+#         entity_class=Graph,
+#         template='creme_core/generics/blockform/link_popup.html',
+#     )
 
 
 @login_required
@@ -139,7 +139,7 @@ def delete_relation_type(request, graph_id):
 
 class GraphCreation(generic.add.EntityCreation):
     model = Graph
-    form_class = GraphForm
+    form_class = g_forms.GraphForm
 
 
 class GraphDetail(generic.detailview.EntityDetail):
@@ -150,5 +150,14 @@ class GraphDetail(generic.detailview.EntityDetail):
 
 class GraphEdition(generic.edit.EntityEdition):
     model = Graph
-    form_class = GraphForm
+    form_class = g_forms.GraphForm
     pk_url_kwarg = 'graph_id'
+
+
+class RelationTypesAdding(generic.add.AddingToEntity):
+    # model = RelationType
+    form_class = g_forms.AddRelationTypesForm
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    title_format = _('Add relation types to «{}»')
+    entity_id_url_kwarg = 'graph_id'
+    entity_classes = Graph

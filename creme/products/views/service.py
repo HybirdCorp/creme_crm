@@ -20,7 +20,7 @@
 
 import warnings
 
-from django.utils.translation import ugettext_lazy as _, ugettext
+# from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -29,8 +29,9 @@ from creme.creme_core.views import generic
 from .. import get_service_model
 from ..constants import DEFAULT_HFILTER_SERVICE
 from ..forms import service as service_forms
-from ..forms.base import AddImagesForm
+# from ..forms.base import AddImagesForm
 
+from .base import ImagesAddingBase
 
 Service = get_service_model()
 
@@ -94,15 +95,15 @@ def listview(request):
     return generic.list_view(request, Service, hf_pk=DEFAULT_HFILTER_SERVICE)
 
 
-@login_required
-@permission_required('products')
-def add_images(request, service_id):
-    return generic.add_to_entity(request, service_id, AddImagesForm,
-                                 ugettext(u'New images for «%s»'),
-                                 entity_class=Service,
-                                 submit_label=_(u'Link the images'),
-                                 template='creme_core/generics/blockform/link_popup.html',
-                                )
+# @login_required
+# @permission_required('products')
+# def add_images(request, service_id):
+#     return generic.add_to_entity(request, service_id, AddImagesForm,
+#                                  ugettext('New images for «%s»'),
+#                                  entity_class=Service,
+#                                  submit_label=_('Link the images'),
+#                                  template='creme_core/generics/blockform/link_popup.html',
+#                                 )
 
 # Class-based views  ----------------------------------------------------------
 
@@ -122,3 +123,8 @@ class ServiceEdition(generic.edit.EntityEdition):
     model = Service
     form_class = service_forms.ServiceEditForm
     pk_url_kwarg = 'service_id'
+
+
+class ImagesAdding(ImagesAddingBase):
+    entity_id_url_kwarg = 'service_id'
+    entity_classes = Service

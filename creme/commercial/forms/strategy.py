@@ -48,14 +48,13 @@ class _AuxForm(CremeModelForm):
         self.instance.strategy = entity
 
 
-
 class SegmentLinkForm(_AuxForm):
     class Meta(_AuxForm.Meta):
         model = MarketSegmentDescription
 
     def __init__(self, entity, *args, **kwargs):
         # super(SegmentLinkForm, self).__init__(entity, *args, **kwargs)
-        super().__init__(entity, *args, **kwargs)
+        super().__init__(entity=entity, *args, **kwargs)
 
         segment_field = self.fields['segment']
         segment_field.queryset = MarketSegment.objects.exclude(marketsegmentdescription__strategy=entity)
@@ -73,14 +72,14 @@ class CharmForm(_AuxForm):
 
 
 class _SegmentForm(_AuxForm):
-    name = CharField(label=_(u"Name"), max_length=100)
+    name = CharField(label=_('Name'), max_length=100)
 
     error_messages = {
-        'duplicated_name':     _(u'A segment with this name already exists'),
-        'duplicated_property': _(u'A property with the name «%(name)s» already exists'),
+        'duplicated_name':     _('A segment with this name already exists'),
+        'duplicated_property': _('A property with the name «%(name)s» already exists'),
     }
 
-    blocks = FieldBlockManager(('general', _(u'General information'), ['name', 'product', 'place', 'price', 'promotion']))
+    blocks = FieldBlockManager(('general', _('General information'), ['name', 'product', 'place', 'price', 'promotion']))
 
     class Meta:
         model = MarketSegmentDescription
@@ -158,9 +157,9 @@ class SegmentCreateForm(_SegmentForm):
 
 
 class AddOrganisationForm(CremeForm):
-    organisations = MultiCreatorEntityField(label=_(u'Organisations'), model=get_organisation_model())
+    organisations = MultiCreatorEntityField(label=_('Organisations'), model=get_organisation_model())
 
-    def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(AddOrganisationForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._strategy = entity

@@ -27,7 +27,6 @@ from .. import get_emailcampaign_model, get_mailinglist_model
 
 
 EmailCampaign = get_emailcampaign_model()
-MailingList   = get_mailinglist_model()
 
 
 class CampaignCreateForm(CremeEntityForm):
@@ -42,16 +41,18 @@ class CampaignEditForm(CremeEntityForm):
 
 
 class CampaignAddMLForm(CremeForm):
-    mailing_lists = MultiCreatorEntityField(label=_(u'Lists'), required=False, model=MailingList)
+    mailing_lists = MultiCreatorEntityField(label=_('Lists'), required=False, model=get_mailinglist_model())
 
-    blocks = FieldBlockManager(('general', _(u'Mailing lists'), '*'))
+    blocks = FieldBlockManager(('general', _('Mailing lists'), '*'))
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(CampaignAddMLForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.campaign = entity
         # self.fields['mailing_lists'].q_filter = {'~id__in': list(entity.mailing_lists.values_list('id', flat=True))}
-        self.fields['mailing_lists'].q_filter = ~Q(id__in=list(entity.mailing_lists.values_list('id', flat=True)))
+        self.fields['mailing_lists'].q_filter = \
+            ~Q(id__in=list(entity.mailing_lists.values_list('id', flat=True)))
 
     def save(self):
         add_ml = self.campaign.mailing_lists.add

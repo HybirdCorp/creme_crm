@@ -53,7 +53,8 @@ class CreditNotePopupEditForm(base.CremeModelForm):
 class CreditNoteRelatedForm(base.CremeForm):
     credit_notes = MultiCreatorEntityField(label=_(u'Credit notes'), model=CreditNote)
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity, instance=None, *args, **kwargs):
         # super(CreditNoteRelatedForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.billing_document = entity

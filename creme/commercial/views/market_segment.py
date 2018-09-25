@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.urls import reverse
 from django.http import HttpResponse
@@ -39,10 +40,21 @@ logger = logging.getLogger(__name__)
 @login_required
 @permission_required('commercial')
 def add(request):
+    warnings.warn('commercial.views.market_segment.add() is deprecated ;'
+                  'use the class MarketSegmentCreation instead.',
+                  DeprecationWarning
+                 )
+
     return generic.add_model_with_popup(request, segment_forms.MarketSegmentForm,
-                                        title=_(u'New market segment'),
-                                        submit_label=_(u'Save the market segment'),
+                                        title=_('New market segment'),
+                                        submit_label=_('Save the market segment'),
                                        )
+
+
+class MarketSegmentCreation(generic.add.CremeModelCreationPopup):
+    model = MarketSegment
+    form_class = segment_forms.MarketSegmentForm
+    permissions = 'commercial'
 
 
 @login_required
@@ -61,23 +73,24 @@ def listview(request):
                  )
 
 
+# TODO: delete_popup.html ? (at least 'delete' icon)
 @login_required
 @permission_required('commercial')
 def delete(request, segment_id):
     if MarketSegment.objects.count() < 2:
-        raise ConflictError(_(u"You can't delete the last segment."))
+        raise ConflictError(_("You can't delete the last segment."))
 
     segment = get_object_or_404(MarketSegment, id=segment_id)
 
     if segment.property_type is None:
-        raise ConflictError(u"You can't delete this specific segment.")
+        raise ConflictError("You can't delete this specific segment.")
 
     try:
         return generic.add_model_with_popup(request, segment_forms.SegmentReplacementForm,
-                                            _(u'Delete and replace «{}»').format(segment),
+                                            _('Delete and replace «{}»').format(segment),
                                             initial={'segment_to_delete': segment},
-                                            submit_label=_(u'Replace'),
+                                            submit_label=_('Replace'),
                                            )
     except Exception:
         logger.exception('Error in MarketSegment deletion view')
-        return HttpResponse(_(u"You can't delete this segment."), status=400)
+        return HttpResponse(_("You can't delete this segment."), status=400)

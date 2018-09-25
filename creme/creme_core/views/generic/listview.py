@@ -348,7 +348,7 @@ def list_view(request, model, **kwargs):
 
         class EmergencyHeaderFilterCreation(HeaderFilterCreation):
             def get_context_data(self, **kwargs):
-                context = super().get_context_data()
+                context = super().get_context_data(**kwargs)
                 context['help_message'] = _('The desired list does not have any view, please create one.')
 
                 return context

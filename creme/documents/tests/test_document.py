@@ -3,7 +3,6 @@
 try:
     import filecmp
     from functools import partial
-    # from json import dumps as json_dump
     from os.path import join, exists
 
     from django.conf import settings
@@ -84,7 +83,6 @@ class DocumentTestCase(_DocumentsTestCase):
         doc = docs[0]
         self.assertEqual(title,       doc.title)
         self.assertEqual(description, doc.description)
-        # self.assertEqual(folder,      doc.folder)
         self.assertEqual(folder,      doc.linked_folder)
 
         mime_type = doc.mime_type
@@ -198,7 +196,6 @@ class DocumentTestCase(_DocumentsTestCase):
                                     data={'user':     user.pk,
                                           # 'title':    '',
                                           'filedata': file_obj,
-                                          # 'folder':   folder.id,
                                           'linked_folder':   folder.id,
                                          }
                                    )
@@ -229,16 +226,15 @@ class DocumentTestCase(_DocumentsTestCase):
         title       = title.upper()
         description = description.upper()
         # content     = content.upper() TODO: use ?
-        folder      = Folder.objects.create(title=u'Test folder', parent_folder=None,
+        folder      = Folder.objects.create(title='Test folder', parent_folder=None,
                                             category=FolderCategory.objects.all()[0],
                                             user=user,
                                            )
 
         response = self.client.post(url, follow=True,
-                                    data={'user':         user.pk,
-                                          'title':        title,
-                                          'description':  description,
-                                          # 'folder':       folder.id,
+                                    data={'user':          user.pk,
+                                          'title':         title,
+                                          'description':   description,
                                           'linked_folder': folder.id,
                                          }
                                    )
@@ -247,7 +243,6 @@ class DocumentTestCase(_DocumentsTestCase):
         doc = self.refresh(doc)
         self.assertEqual(title,       doc.title)
         self.assertEqual(description, doc.description)
-        # self.assertEqual(folder,      doc.folder)
         self.assertEqual(folder,      doc.linked_folder)
 
         self.assertRedirects(response, doc.get_absolute_url())
@@ -260,7 +255,10 @@ class DocumentTestCase(_DocumentsTestCase):
 
         entity = CremeEntity.objects.create(user=user)
         url = self._buid_addrelated_url(entity)
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('New document for «%s»') % entity, context.get('title'))
+        self.assertEqual(_('New document for «{}»').format(entity), context.get('title'))
+        self.assertEqual(Document.save_label,                       context.get('submit_label'))
 
         def post(title):
             response = self.client.post(
@@ -282,10 +280,9 @@ class DocumentTestCase(_DocumentsTestCase):
         doc1 = post('Related doc')
         self.assertRelationCount(1, entity, REL_SUB_RELATED_2_DOC, doc1)
 
-        # entity_folder = doc1.folder
         entity_folder = doc1.linked_folder
         self.assertIsNotNone(entity_folder)
-        self.assertEqual(u'{}_{}'.format(entity.id, entity), entity_folder.title)
+        self.assertEqual('{}_{}'.format(entity.id, entity), entity_folder.title)
 
         ct_folder = entity_folder.parent_folder
         self.assertIsNotNone(ct_folder)
@@ -293,7 +290,6 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(root_folder, ct_folder.parent_folder)
 
         doc2 = post('Related doc #2')
-        # entity_folder2 = doc2.folder
         entity_folder2 = doc2.linked_folder
         self.assertEqual(entity_folder, entity_folder2)
         self.assertEqual(ct_folder,     entity_folder2.parent_folder)
@@ -301,6 +297,13 @@ class DocumentTestCase(_DocumentsTestCase):
     def test_add_related_document02(self):
         "Creation credentials"
         self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'])
+
+        SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                  EntityCredentials.LINK | EntityCredentials.UNLINK,
+        )
 
         entity = CremeEntity.objects.create(user=self.user)
         self.assertGET403(self._buid_addrelated_url(entity))
@@ -345,12 +348,36 @@ class DocumentTestCase(_DocumentsTestCase):
             }
         )
         self.assertFormError(response, 'form', 'user',
-                             _(u'You are not allowed to link with the «{models}» of this user.').format(
-                                     models=_(u'Documents'),
+                             _('You are not allowed to link with the «{models}» of this user.').format(
+                                     models=_('Documents'),
                                 )
                             )
 
     def test_add_related_document04(self):
+        "Link credentials with related entity are needed"
+        user = self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
+                          creatable_models=[Document],
+                         )
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role,
+                            set_type=SetCredentials.ESET_OWN,
+                           )
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not EntityCredentials.LINK
+                 )
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK,
+                  ctype=ContentType.objects.get_for_model(Document),
+                 )
+
+        orga = FakeOrganisation.objects.create(user=user, name='NERV')
+        self.assertTrue(user.has_perm_to_view(orga))
+        self.assertFalse(user.has_perm_to_link(orga))
+
+        url = self._buid_addrelated_url(orga)
+        self.assertGET403(url)
+
+    def test_add_related_document05(self):
         "View credentials"
         user = self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
                           creatable_models=[Document],
@@ -369,7 +396,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertFalse(user.has_perm_to_view(orga))
         self.assertGET403(self._buid_addrelated_url(orga))
 
-    def test_add_related_document05(self):
+    def test_add_related_document06(self):
         "The Folder containing all the Documents related to the entity has a too long name."
         user = self.login()
 
@@ -402,10 +429,10 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = entity_folder.title
         self.assertEqual(100, len(title))
-        self.assertTrue(title.startswith(u'{}_AAAAAAA'.format(entity.id)))
-        self.assertTrue(title.endswith(u'…'))
+        self.assertTrue(title.startswith('{}_AAAAAAA'.format(entity.id)))
+        self.assertTrue(title.endswith('…'))
 
-    def test_add_related_document06(self):
+    def test_add_related_document07(self):
         "Collision with Folder titles"
         user = self.login()
         entity = CremeEntity.objects.create(user=user)
@@ -415,7 +442,7 @@ class DocumentTestCase(_DocumentsTestCase):
         # NB : collision with folders created by the view
         create_folder = partial(Folder.objects.create, user=user)
         my_ct_folder = create_folder(title=str(entity.entity_type))
-        my_entity_folder = create_folder(title=u'{}_{}'.format(entity.id, entity))
+        my_entity_folder = create_folder(title='{}_{}'.format(entity.id, entity))
 
         title = 'Related doc'
         response = self.client.post(self._buid_addrelated_url(entity), follow=True,
@@ -491,7 +518,7 @@ class DocumentTestCase(_DocumentsTestCase):
         casca = get_contact_model().objects.create(user=user, image=image,
                                                    first_name='Casca', last_name='Mylove',
                                                   )
-        self.assertHTMLEqual(u'''<a onclick="creme.dialogs.image('{}').open();">{}</a>'''.format(
+        self.assertHTMLEqual('''<a onclick="creme.dialogs.image('{}').open();">{}</a>'''.format(
                                     image.get_dl_url(),
                                     summary,
                                 ),
@@ -532,7 +559,7 @@ class DocumentTestCase(_DocumentsTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(u'''<a onclick="creme.dialogs.image('{}').open();">{}</a>'''.format(
+        self.assertEqual('''<a onclick="creme.dialogs.image('{}').open();">{}</a>'''.format(
                                 judo_face.get_dl_url(),
                                 judo_face.get_entity_summary(other_user),
                             ),
@@ -706,7 +733,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
                                       follow=True,
                                       data={'user':   user.pk,
                                             'image':  file_obj,
-                                            # 'folder': folder.id,
                                             'linked_folder': folder.id,
                                            },
                                      )

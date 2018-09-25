@@ -101,9 +101,15 @@ def organisation_listview(request):
 @permission_required('creme_core')
 def address_add(request, entity_id):
     return generic.add_to_entity(request, entity_id, fake_forms.FakeAddressForm,
-                                 _(u'Adding address to <%s>'),
+                                 'Adding address to <%s>',
                                  submit_label=_('Save the address'),
                                 )
+
+
+class FakeAddressCreation(generic.add.AddingToEntity):
+    model = fake_models.FakeAddress
+    form_class = fake_forms.FakeAddressForm
+    title_format = 'Adding address to <{}>'
 
 
 @login_required
@@ -112,7 +118,7 @@ def address_edit(request, address_id):
     return generic.edit_related_to_entity(request, address_id,
                                           fake_models.FakeAddress,
                                           fake_forms.FakeAddressForm,
-                                          _(u"Address for <%s>"),
+                                          'Address for <%s>',
                                          )
 
 

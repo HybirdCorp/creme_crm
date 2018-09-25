@@ -49,6 +49,10 @@ def abstract_add_ptask(request, project_id, form=task_forms.TaskCreateForm,
                        title=_('Create a task for «%s»'),
                        submit_label=ProjectTask.save_label,
                       ):
+    warnings.warn('projects.views.task.abstract_add_ptask() is deprecated ; '
+                  'use the class-based view ProjectTaskCreation instead.',
+                  DeprecationWarning
+                 )
     return generic.add_to_entity(request, project_id, form, title,
                                  entity_class=projects.get_project_model(),
                                  submit_label=submit_label,
@@ -84,6 +88,7 @@ def abstract_view_ptask(request, task_id,
 @login_required
 @permission_required(('projects', cperm(ProjectTask)))
 def add(request, project_id):
+    warnings.warn('projects.views.task.add() is deprecated.', DeprecationWarning)
     return abstract_add_ptask(request, project_id)
 
 
@@ -131,6 +136,18 @@ def delete_parent(request):
 
 # Class-based views  ----------------------------------------------------------
 
+class ProjectTaskCreation(generic.add.AddingToEntity):
+    model = ProjectTask
+    form_class = task_forms.TaskCreateForm
+    title_format = _('Create a task for «{}»')
+    entity_id_url_kwarg = 'project_id'
+    entity_classes = projects.get_project_model()
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        self.request.user.has_perm_to_create_or_die(ProjectTask)
+
+
 class ProjectTaskDetail(generic.detailview.EntityDetail):
     model = ProjectTask
     template_name = 'projects/view_task.html'
@@ -145,20 +162,20 @@ class ProjectTaskEdition(generic.edit.EntityEdition):
 
 # Activities -------------------------------------------------------------------
 
-def abstract_add_activity(request, task_id, form=task_forms.RelatedActivityCreateForm,
-                          title=_('New activity related to «%s»'),
-                          submit_label=Activity.save_label,
-                         ):
-    task = get_object_or_404(ProjectTask, pk=task_id)
-    user = request.user
-
-    user.has_perm_to_change_or_die(task)  # TODO: has_perm_to_link_or_die ??
-
-    return generic.add_model_with_popup(request, form,
-                                        title=title % task.allowed_str(user),
-                                        initial={'task': task},
-                                        submit_label=submit_label,
-                                       )
+# def abstract_add_activity(request, task_id, form=task_forms.RelatedActivityCreateForm,
+#                           title=_('New activity related to «%s»'),
+#                           submit_label=Activity.save_label,
+#                          ):
+#     task = get_object_or_404(ProjectTask, pk=task_id)
+#     user = request.user
+#
+#     user.has_perm_to_change_or_die(task)  # todo: has_perm_to_link_or_die ??
+#
+#     return generic.add_model_with_popup(request, form,
+#                                         title=title % task.allowed_str(user),
+#                                         initial={'task': task},
+#                                         submit_label=submit_label,
+#                                        )
 
 
 def abstract_edit_activity(request, activity_id, form=task_forms.RelatedActivityEditForm):
@@ -166,10 +183,20 @@ def abstract_edit_activity(request, activity_id, form=task_forms.RelatedActivity
     return generic.edit_model_with_popup(request, {'pk': activity_id}, Activity, form)
 
 
-@login_required
-@permission_required(('projects', cperm(Activity)))
-def add_activity(request, task_id):
-    return abstract_add_activity(request, task_id)
+# @login_required
+# @permission_required(('projects', cperm(Activity)))
+# def add_activity(request, task_id):
+#     return abstract_add_activity(request, task_id)
+
+
+# TODO: LINK perm instead of CHANGE ?
+class RelatedActivityCreation(generic.add.AddingToEntity):
+    model = Activity
+    form_class = task_forms.RelatedActivityCreateForm
+    permissions = cperm(Activity)
+    title_format = _('New activity related to «{}»')
+    entity_id_url_kwarg = 'task_id'
+    entity_classes = ProjectTask
 
 
 @login_required

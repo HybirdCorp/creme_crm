@@ -22,12 +22,13 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.creme_core.views.bricks import build_context, bricks_render_info
-from creme.creme_core.views.generic import add_to_entity
+# from creme.creme_core.views.generic import add_to_entity
+from creme.creme_core.views.generic.add import AddingToEntity
 
 from .. import get_smscampaign_model
 from ..bricks import MessagesBrick
@@ -37,14 +38,20 @@ from ..models import Sending, Message
 # from creme.sms.webservice.backend import WSException
 
 
-@login_required
-@permission_required('sms')
-def add(request,campaign_id):
-    return add_to_entity(request, campaign_id, SendingCreateForm,
-                         _(u'New sending for «%s»'),
-                         entity_class=get_smscampaign_model(),
-                         submit_label=Sending.save_label,
-                        )
+# @login_required
+# @permission_required('sms')
+# def add(request,campaign_id):
+#     return add_to_entity(request, campaign_id, SendingCreateForm,
+#                          _(u'New sending for «%s»'),
+#                          entity_class=get_smscampaign_model(),
+#                          submit_label=Sending.save_label,
+#                         )
+class SendingCreation(AddingToEntity):
+    model = Sending
+    form_class = SendingCreateForm
+    entity_id_url_kwarg = 'campaign_id'
+    entity_classes = get_smscampaign_model()
+    title_format = _('New sending for «{}»')
 
 
 # TODO: use 'creme_core__delete_related_to_entity' instead ?
@@ -59,7 +66,6 @@ def delete(request):
     sending.delete()  # TODO: try/except ??
 
     if request.is_ajax():
-        # return HttpResponse('success', content_type='text/javascript')
         return HttpResponse('success')  # TODO: no message, status is OK...
 
     return redirect(campaign)
@@ -112,7 +118,6 @@ def delete_message(request):
         return HttpResponse(e, status=500)  # TODO: WTF ?!
 
     if request.is_ajax():
-        # return HttpResponse('success', content_type='text/javascript')
         return HttpResponse('success')  # TODO: no message, status is OK...
 
     return redirect(campaign)
