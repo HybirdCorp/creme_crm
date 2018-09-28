@@ -369,14 +369,14 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertPOST200(url, data=data, follow=True)
         self.assertRelationCount(1, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id)
 
-        # Duplicated Relation  # TODO: remove when Relations cannot be duplicated
-        Relation.objects.create(subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id, user=user)
-
-        with self.assertNoException():
-            response = self.client.post(url, data=data, follow=True)
-
-        self.assertEqual(200, response.status_code)
-        self.assertRelationCount(2, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id)
+        # # Duplicated Relation
+        # Relation.objects.create(subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id, user=user)
+        #
+        # with self.assertNoException():
+        #     response = self.client.post(url, data=data, follow=True)
+        #
+        # self.assertEqual(200, response.status_code)
+        # self.assertRelationCount(2, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id)
 
     def test_become_customer01(self):
         self._become_test('persons__become_customer', constants.REL_SUB_CUSTOMER_SUPPLIER)

@@ -1248,30 +1248,49 @@ class ImportForm4CremeEntity(ImportForm):
             create_prop(type=prop_type)
 
         # Relationships -----
-        # create_relation = partial(Relation.objects.create, user=user, subject_entity=instance) \
-        #                   if not updated else \
-        #                   partial(Relation.objects.get_or_create, subject_entity=instance,
+        # # create_relation = partial(Relation.objects.create, user=user, subject_entity=instance) \
+        # #                   if not updated else \
+        # #                   partial(Relation.objects.get_or_create, subject_entity=instance,
+        # #                           defaults={'user': user},
+        # #                          )
+        # create_relation = partial(Relation.objects.get_or_create,
+        #                           subject_entity=instance,
         #                           defaults={'user': user},
         #                          )
-        create_relation = partial(Relation.objects.get_or_create,
-                                  subject_entity=instance,
-                                  defaults={'user': user},
-                                 )
-
-        for rtype, entity in cdata['fixed_relations']:
-            try:
-                create_relation(type=rtype, object_entity=entity)
-            except Relation.MultipleObjectsReturned:
-                pass
+        #
+        # for rtype, entity in cdata['fixed_relations']:
+        #     try:
+        #         create_relation(type=rtype, object_entity=entity)
+        #     except Relation.MultipleObjectsReturned:
+        #         pass
+        #
+        # for (rtype, entity), err_msg in cdata['dyn_relations'].extract_value(line, user):
+        #     if err_msg:
+        #         self.append_error(err_msg)
+        #     elif entity is not None:
+        #         try:
+        #             create_relation(type=rtype, object_entity=entity)
+        #         except Relation.MultipleObjectsReturned:
+        #             pass
+        relations = [
+            Relation(subject_entity=instance,
+                     type=rtype,
+                     object_entity=entity,
+                     user=user,
+                    ) for rtype, entity in cdata['fixed_relations']
+        ]
 
         for (rtype, entity), err_msg in cdata['dyn_relations'].extract_value(line, user):
             if err_msg:
                 self.append_error(err_msg)
             elif entity is not None:
-                try:
-                    create_relation(type=rtype, object_entity=entity)
-                except Relation.MultipleObjectsReturned:
-                    pass
+                relations.append(Relation(subject_entity=instance,
+                                          type=rtype,
+                                          object_entity=entity,
+                                          user=user,
+                                ))
+
+        Relation.objects.safe_multi_save(relations)
 
 
 def extractorfield_factory(modelfield, header_dict, choices):

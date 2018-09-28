@@ -496,6 +496,7 @@ class CremeEntity(CremeModel):
                             object_entity_id=relation.object_entity_id,
                            )
 
+    @atomic
     def clone(self):
         """Take an entity and makes it copy.
         @returns : A new entity (with a different pk) with sames values

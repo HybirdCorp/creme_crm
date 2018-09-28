@@ -72,7 +72,7 @@ def _clean_fields_values_args(data, allowed_fields):
     getters = [_clean_getters_arg(field, allowed_fields) for field in data.getlist('fields')]
 
     if not getters:
-        raise ValueError(u'No such field (data={})'.format(data))
+        raise ValueError('No such field (data={})'.format(data))
 
     sort_getter = get('sort')
     if sort_getter is not None:
@@ -189,8 +189,8 @@ def add_relations(request, subject_id, rtype_id=None):
     return inner_popup(request,
                        'creme_core/generics/blockform/link_popup.html',
                        {'form':  form,
-                        'title': _(u'Relationships for «{entity}»').format(entity=subject),
-                        'submit_label': _(u'Save the relationships'),
+                        'title': _('Relationships for «{entity}»').format(entity=subject),
+                        'submit_label': _('Save the relationships'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -241,8 +241,8 @@ def add_relations_bulk(request, model_ct_id):
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                        {'form':  form,
-                        'title': _(u'Multiple adding of relationships'),
-                        'submit_label': _(u'Save the relationships'),
+                        'title': _('Multiple adding of relationships'),
+                        'submit_label': _('Save the relationships'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -314,11 +314,11 @@ def delete_all(request):  # TODO: deprecate ?
         if user.has_perm_to_unlink(relation.object_entity):
             relation.delete()
         else:
-            errors[403].append(_(u'{entity} : <b>Permission denied</b>').format(entity=relation.object_entity))
+            errors[403].append(_('{entity} : <b>Permission denied</b>').format(entity=relation.object_entity))
 
     if not errors:
         status = 200
-        message = _(u'Operation successfully completed')
+        message = _('Operation successfully completed')
     else:
         status = min(errors)
         message = ",".join(msg for error_messages in errors.values() for msg in error_messages)
@@ -440,20 +440,21 @@ def add_relations_with_same_type(request):
                        if object_properties else \
                        lambda e: True
 
-    create_relation = Relation.objects.create
+    # create_relation = Relation.objects.create
+    create_relation = Relation.objects.safe_create
     for entity in entities:
         if not check_ctype(entity):
-            errors[409].append(_(u'Incompatible type for object entity with id={}').format(entity.id))
+            errors[409].append(_('Incompatible type for object entity with id={}').format(entity.id))
         elif not check_properties(entity):
-            errors[409].append(_(u'Missing compatible property for object entity with id={}').format(entity.id))
+            errors[409].append(_('Missing compatible property for object entity with id={}').format(entity.id))
         elif not user.has_perm_to_link(entity):
-            errors[403].append(_(u'Permission denied to entity with id={}').format(entity.id))
+            errors[403].append(_('Permission denied to entity with id={}').format(entity.id))
         else:
             create_relation(subject_entity=subject, type=rtype, object_entity=entity, user=user)
 
     if not errors:
         status = 200
-        message = _(u'Operation successfully completed')
+        message = _('Operation successfully completed')
     else:
         status = min(errors)
         message = ','.join(msg for error_messages in errors.values() for msg in error_messages)

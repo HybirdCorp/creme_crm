@@ -24,6 +24,7 @@ import logging
 from django.core.exceptions import ValidationError
 from django.db.models import (CharField, DecimalField, BooleanField, TextField,
         PositiveIntegerField, ForeignKey, PROTECT)
+from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeEntity, Relation, Vat
@@ -200,6 +201,7 @@ class Line(CremeEntity):
         """Returns the model-class of the related item (eg: Product, Service) for this class of line."""
         raise NotImplementedError
 
+    @atomic
     def save(self, *args, **kwargs):
         if not self.pk:  # Creation
             assert self._related_document, 'Line.related_document is required'

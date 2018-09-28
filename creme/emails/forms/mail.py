@@ -18,11 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 from itertools import chain
 import logging
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.db.transaction import atomic
 from django.forms.fields import EmailField, BooleanField, IntegerField, CharField
 from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -54,21 +56,21 @@ class EntityEmailForm(CremeEntityForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
     Mails are send to selected contacts/organisations.
     """
-    sender = EmailField(label=_(u'Sender'))
+    sender = EmailField(label=_('Sender'))
 
-    c_recipients = MultiCreatorEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__gt': ''})
-    o_recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__gt': ''})
+    c_recipients = MultiCreatorEntityField(label=_('Contacts'),      required=False, model=Contact,      q_filter={'email__gt': ''})
+    o_recipients = MultiCreatorEntityField(label=_('Organisations'), required=False, model=Organisation, q_filter={'email__gt': ''})
 
-    send_me = BooleanField(label=_(u'Send me a copy of this mail'), required=False)
+    send_me = BooleanField(label=_('Send me a copy of this mail'), required=False)
 
     error_messages = {
-        'no_person': _(u'Select at least a Contact or an Organisation'),
+        'no_person': _('Select at least a Contact or an Organisation'),
     }
 
     blocks = FieldBlockManager(
-            ('recipients', _(u'Who'),  ['user', 'sender', 'send_me', 'c_recipients', 'o_recipients']),
-            ('content',    _(u'What'), ['subject', 'body', 'body_html']),
-            ('extra',      _(u'With'), ['signature', 'attachments']),
+            ('recipients', _('Who'),  ['user', 'sender', 'send_me', 'c_recipients', 'o_recipients']),
+            ('content',    _('What'), ['subject', 'body', 'body_html']),
+            ('extra',      _('With'), ['signature', 'attachments']),
         )
 
     class Meta:
@@ -81,9 +83,9 @@ class EntityEmailForm(CremeEntityForm):
         self.entity = entity
 
         if isinstance(entity, (Contact, Organisation)):
-            fn, msg = ('c_recipients', _(u'Beware: the contact «{}» has no email address!')) \
+            fn, msg = ('c_recipients', _('Beware: the contact «{}» has no email address!')) \
                       if isinstance(entity, Contact) else \
-                      ('o_recipients', _(u'Beware: the organisation «{}» has no email address!'))
+                      ('o_recipients', _('Beware: the organisation «{}» has no email address!'))
             field = self.fields[fn]
 
             if entity.email:
@@ -101,8 +103,8 @@ class EntityEmailForm(CremeEntityForm):
                 self.fields[name] = CharField(
                         label=self.fields[name].label,
                         required=False, widget=Label,
-                        initial=ugettext(u'Beware: the field «Email address» is hidden ;'
-                                         u' please contact your administrator.'
+                        initial=ugettext('Beware: the field «Email address» is hidden ;'
+                                         ' please contact your administrator.'
                                         ),
                     )
 
@@ -123,7 +125,7 @@ class EntityEmailForm(CremeEntityForm):
                 bad_entities.append(entity)
 
         if bad_entities:
-            msg_format = ugettext(u'The email address for {} is invalid')
+            msg_format = ugettext('The email address for {} is invalid')
             user = self.user
 
             for entity in bad_entities:
@@ -174,17 +176,18 @@ class EntityEmailForm(CremeEntityForm):
 
             return email
 
-        if get_data('send_me'):
-            create_n_send_mail(sender)
+        with atomic():
+            if get_data('send_me'):
+                create_n_send_mail(sender)
 
-        user_contact = self.user_contact
-        create_relation = Relation.objects.create
+            user_contact = self.user_contact
+            create_relation = partial(Relation.objects.create, user=user)
 
-        for recipient in chain(cdata['c_recipients'], cdata['o_recipients']):
-            email = create_n_send_mail(recipient.email)
+            for recipient in chain(cdata['c_recipients'], cdata['o_recipients']):
+                email = create_n_send_mail(recipient.email)
 
-            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=user_contact, user=user)
-            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient,    user=user)
+                create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=user_contact)
+                create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient)
 
         if sending_error:
             entity_emails_send_type.refresh_job()
@@ -192,7 +195,7 @@ class EntityEmailForm(CremeEntityForm):
 
 class TemplateSelectionForm(CremeForm):
     step     = IntegerField(widget=HiddenInput, initial=1)
-    template = CreatorEntityField(label=pgettext_lazy('emails', u'Template'), model=EmailTemplate,
+    template = CreatorEntityField(label=pgettext_lazy('emails', 'Template'), model=EmailTemplate,
                                   credentials=EntityCredentials.VIEW,
                                  )
 

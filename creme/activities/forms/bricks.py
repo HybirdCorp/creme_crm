@@ -136,7 +136,8 @@ class ParticipantCreateForm(CremeForm):
     def save(self):
         activity = self.activity
 
-        create_relation = partial(Relation.objects.create, object_entity=activity,
+        # create_relation = partial(Relation.objects.create, object_entity=activity,
+        create_relation = partial(Relation.objects.safe_create, object_entity=activity,
                                   type_id=constants.REL_SUB_PART_2_ACTIVITY, user=activity.user,
                                  )
         me = self.user
@@ -186,7 +187,8 @@ class SubjectCreateForm(CremeForm):
         return subjects
 
     def save(self):
-        create_relation = partial(Relation.objects.create, type=self.rtype,
+        # create_relation = partial(Relation.objects.create, type=self.rtype,
+        create_relation = partial(Relation.objects.safe_create, type=self.rtype,
                                   object_entity=self.activity, user=self.user,
                                  )
 

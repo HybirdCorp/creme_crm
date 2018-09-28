@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
+# from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save  # pre_delete
 from django.dispatch import receiver
 
-from creme.creme_core.models import Relation, CremeEntity
+from creme.creme_core.models import Relation  # CremeEntity
 # from creme.creme_core.signals import pre_merge_related
 
 from creme.activities import get_activity_model
@@ -45,19 +45,34 @@ def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
         get_ct = ContentType.objects.get_for_model
 
         if object_entity.entity_type == get_ct(get_opportunity_model()):
-            relations = Relation.objects.filter(subject_entity=object_entity,
-                                                type=REL_SUB_COMPLETE_GOAL,
-                                                object_entity__entity_type=get_ct(get_act_model()),
-                                               )
+            # relations = Relation.objects.filter(subject_entity=object_entity,
+            #                                     type=REL_SUB_COMPLETE_GOAL,
+            #                                     object_entity__entity_type=get_ct(get_act_model()),
+            #                                    )
+            #
+            # create_relation = partial(Relation.objects.create,
+            #                           subject_entity=instance.subject_entity,
+            #                           type_id=REL_SUB_COMPLETE_GOAL,
+            #                           user=instance.user,
+            #                          )
+            #
+            # for relation in relations:
+            #     create_relation(object_entity=relation.object_entity)
+            activity = instance.subject_entity
+            user = instance.user
 
-            create_relation = partial(Relation.objects.create,
-                                      subject_entity=instance.subject_entity,
-                                      type_id=REL_SUB_COMPLETE_GOAL,
-                                      user=instance.user,
-                                     )
-
-            for relation in relations:
-                create_relation(object_entity=relation.object_entity)
+            Relation.objects.safe_multi_save(
+                Relation(
+                    subject_entity=activity,
+                    type_id=REL_SUB_COMPLETE_GOAL,
+                    object_entity=relation.object_entity,
+                    user=user,
+                 ) for relation in Relation.objects
+                                           .filter(subject_entity_id=object_entity.id,
+                                                   type=REL_SUB_COMPLETE_GOAL,
+                                                   object_entity__entity_type=get_ct(get_act_model()),
+                                                  )
+            )
 
 
 # @receiver(pre_delete, sender=CremeEntity)

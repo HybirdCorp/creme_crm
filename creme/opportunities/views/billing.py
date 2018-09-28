@@ -20,6 +20,7 @@
 
 from functools import partial
 
+from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now
@@ -30,23 +31,22 @@ from creme.creme_core.models import Relation, Vat
 from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.views.decorators import POST_only
 
-from creme.persons.workflow import transform_target_into_customer, transform_target_into_prospect
+from creme.persons import workflow
 
 from creme.products import get_product_model
 
-from creme.billing import (get_invoice_model, get_quote_model, get_sales_order_model,
-        get_product_line_model, get_service_line_model)
+from creme import billing
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 from .. import constants
 from .. import get_opportunity_model
 
 
-Invoice     = get_invoice_model()
-Quote       = get_quote_model()
-SalesOrder  = get_sales_order_model()
-ProductLine = get_product_line_model()
-ServiceLine = get_service_line_model()
+Invoice     = billing.get_invoice_model()
+Quote       = billing.get_quote_model()
+SalesOrder  = billing.get_sales_order_model()
+ProductLine = billing.get_product_line_model()
+ServiceLine = billing.get_service_line_model()
 Opportunity = get_opportunity_model()
 
 
@@ -74,7 +74,8 @@ def current_quote(request, opp_id, quote_id, action):
 
     if action == 'set_current':
         if not relations:
-            Relation.objects.create(**kwargs)
+            # Relation.objects.create(**kwargs)
+            Relation.objects.safe_create(**kwargs)
     else:  # action == 'unset_current':
         relations.delete()
 
@@ -89,8 +90,8 @@ _GEN_BEHAVIOURS = {
     #           Set the Relationship 'Current doc' ?,
     #           Workflow function,
     #         )
-    Quote:      (constants.REL_SUB_LINKED_QUOTE,      True,  transform_target_into_prospect),
-    Invoice:    (constants.REL_SUB_LINKED_INVOICE,    False, transform_target_into_customer),
+    Quote:      (constants.REL_SUB_LINKED_QUOTE,      True,  workflow.transform_target_into_prospect),
+    Invoice:    (constants.REL_SUB_LINKED_INVOICE,    False, workflow.transform_target_into_customer),
     SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False, None),
 }
 
@@ -98,6 +99,7 @@ _GEN_BEHAVIOURS = {
 @login_required
 @permission_required('opportunities')
 @POST_only
+@atomic
 def generate_new_doc(request, opp_id, ct_id):
     ct_doc = get_ct_or_404(ct_id)
     klass = ct_doc.model_class()

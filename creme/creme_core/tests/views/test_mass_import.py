@@ -479,40 +479,39 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, rei, employed.id, nerv)  # Not 2
 
-    # TODO: remove when Relations cannot be duplicated
-    def test_duplicated_relations02(self):
-        "The Relations is already duplicated (crash with get_or_create())"
-        user = self.login()
-
-        employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
-                                       ('persons-object_employed_by',  'employs')
-                                      )[0]
-
-        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-
-        for i_ in range(2):
-            Relation.objects.create(subject_entity=rei, type=employed, object_entity=nerv, user=user)
-
-        description = 'Pilot'
-        doc = self._build_csv_doc([(rei.first_name, rei.last_name, description, nerv.name)])
-        response = self.client.post(
-            self._build_import_url(FakeContact), follow=True,
-            data=dict(self.lv_import_data,
-                      document=doc.id,
-                      user=user.id,
-                      key_fields=['first_name', 'last_name'],
-                      description_colselect=3,
-                      fixed_relations=self.formfield_value_multi_relation_entity([employed.id, nerv]),
-                      dyn_relations=self._dyn_relations_value(employed, FakeOrganisation, 4, 'name'),
-                     ),
-        )
-
-        self._execute_job(response)
-
-        rei = self.refresh(rei)
-        self.assertEqual(description, rei.description)
-        self.assertRelationCount(2, rei, employed.id, nerv)
+    # def test_duplicated_relations02(self):
+    #     "The Relations is already duplicated (crash with get_or_create())"
+    #     user = self.login()
+    #
+    #     employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
+    #                                    ('persons-object_employed_by',  'employs')
+    #                                   )[0]
+    #
+    #     nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+    #     rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+    #
+    #     for i_ in range(2):
+    #         Relation.objects.create(subject_entity=rei, type=employed, object_entity=nerv, user=user)
+    #
+    #     description = 'Pilot'
+    #     doc = self._build_csv_doc([(rei.first_name, rei.last_name, description, nerv.name)])
+    #     response = self.client.post(
+    #         self._build_import_url(FakeContact), follow=True,
+    #         data=dict(self.lv_import_data,
+    #                   document=doc.id,
+    #                   user=user.id,
+    #                   key_fields=['first_name', 'last_name'],
+    #                   description_colselect=3,
+    #                   fixed_relations=self.formfield_value_multi_relation_entity([employed.id, nerv]),
+    #                   dyn_relations=self._dyn_relations_value(employed, FakeOrganisation, 4, 'name'),
+    #                  ),
+    #     )
+    #
+    #     self._execute_job(response)
+    #
+    #     rei = self.refresh(rei)
+    #     self.assertEqual(description, rei.description)
+    #     self.assertRelationCount(2, rei, employed.id, nerv)
 
     def test_default_value(self):
         "Use default value when CSV value is empty (+ fix unicode bug)"

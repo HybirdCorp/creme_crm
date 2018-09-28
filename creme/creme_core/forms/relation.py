@@ -33,22 +33,22 @@ from .widgets import Label  # UnorderedMultipleChoiceWidget
 
 
 class _RelationsCreateForm(CremeForm):
-    relations        = MultiRelationEntityField(label=_(u'Relationships'), required=False, autocomplete=True)
-    semifixed_rtypes = ModelMultipleChoiceField(label=_(u'Semi-fixed types of relationship'),
+    relations        = MultiRelationEntityField(label=_('Relationships'), required=False, autocomplete=True)
+    semifixed_rtypes = ModelMultipleChoiceField(label=_('Semi-fixed types of relationship'),
                                                 queryset=SemiFixedRelationType.objects.none(),
                                                 required=False,
                                                 # widget=UnorderedMultipleChoiceWidget,
                                                )
 
     error_messages = {
-        'duplicates': _(u'There are duplicates: %(duplicates)s'),
-        'link_themselves': _(u'An entity can not be linked to itself : %(entities)s'),
-        'empty': _(u'You must give one relationship at least.'),
-        'missing_property_single': _(u'«%(subject)s» must have the property «%(property)s» '
-                                     u'in order to use the relationship «%(predicate)s»'
+        'duplicates': _('There are duplicates: %(duplicates)s'),
+        'link_themselves': _('An entity can not be linked to itself : %(entities)s'),
+        'empty': _('You must give one relationship at least.'),
+        'missing_property_single': _('«%(subject)s» must have the property «%(property)s» '
+                                     'in order to use the relationship «%(predicate)s»'
                                     ),
-        'missing_property_multi': _(u'«%(subject)s» must have a property in «%(properties)s» '
-                                    u'in order to use the relationship «%(predicate)s»'
+        'missing_property_multi': _('«%(subject)s» must have a property in «%(properties)s» '
+                                    'in order to use the relationship «%(predicate)s»'
                                    ),
     }
 
@@ -104,9 +104,9 @@ class _RelationsCreateForm(CremeForm):
         if duplicates:
             raise ValidationError(self.error_messages['duplicates'],
                                   params={'duplicates': 
-                                              u', '.join(u'({}, {})'.format(rtype, e.allowed_str(user))
+                                              ', '.join('({}, {})'.format(rtype, e.allowed_str(user))
                                                             for rtype, e in duplicates
-                                                        ),
+                                                       ),
                                          },
                                   code='duplicates',
                                  )
@@ -161,7 +161,7 @@ class _RelationsCreateForm(CremeForm):
 
         if bad_objects:
             raise ValidationError(self.error_messages['link_themselves'],
-                                  params={'entities': u', '.join(bad_objects)},
+                                  params={'entities': ', '.join(bad_objects)},
                                   code='link_themselves',
                                  )
 
@@ -201,33 +201,42 @@ class _RelationsCreateForm(CremeForm):
         return cdata
 
     @staticmethod
-    def _hash_relation(subject_id, rtype_id, object_id):
+    def _hash_relation(subject_id, rtype_id, object_id):  # TODO: remove ?
         return '{}#{}#{}'.format(subject_id, rtype_id, object_id)
 
     def save(self):
         user = self.user
-        subjects = self.subjects
-        hash_relation = self._hash_relation
+        # subjects = self.subjects
+        # hash_relation = self._hash_relation
         relations_desc = self.relations_desc
-        existing_relations_query = Q()
-
-        for subject in subjects:
-            for rtype, object_entity in relations_desc:
-                existing_relations_query |= Q(type=rtype, subject_entity=subject.id, object_entity=object_entity.id)
-
-        existing_relations = frozenset(hash_relation(r.subject_entity_id, r.type_id, r.object_entity_id)
-                                            for r in Relation.objects.filter(existing_relations_query)
-                                      )
-        create_relation = Relation.objects.create
-
-        for subject in subjects:
-            for rtype, object_entity in relations_desc:
-                if not hash_relation(subject.id, rtype.id, object_entity.id) in existing_relations:
-                    create_relation(user=user,
-                                    subject_entity=subject,
-                                    type=rtype,
-                                    object_entity=object_entity,
-                                   )
+        # existing_relations_query = Q()
+        #
+        # for subject in subjects:
+        #     for rtype, object_entity in relations_desc:
+        #         existing_relations_query |= Q(type=rtype, subject_entity=subject.id, object_entity=object_entity.id)
+        #
+        # existing_relations = frozenset(hash_relation(r.subject_entity_id, r.type_id, r.object_entity_id)
+        #                                     for r in Relation.objects.filter(existing_relations_query)
+        #                               )
+        # create_relation = Relation.objects.create
+        #
+        # for subject in subjects:
+        #     for rtype, object_entity in relations_desc:
+        #         if not hash_relation(subject.id, rtype.id, object_entity.id) in existing_relations:
+        #             create_relation(user=user,
+        #                             subject_entity=subject,
+        #                             type=rtype,
+        #                             object_entity=object_entity,
+        #                            )
+        Relation.objects.safe_multi_save(
+            Relation(
+                user=user,
+                subject_entity=subject,
+                type=rtype,
+                object_entity=object_entity,
+            ) for subject in self.subjects
+                  for rtype, object_entity in relations_desc
+        )
 
 
 class RelationCreateForm(_RelationsCreateForm):
@@ -243,7 +252,7 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
     entities_lbl = CharField(label=_(u"Related entities"), widget=Label())
 
     # TODO: use Meta.fields ?? (beware to bad_entities_lbl)
-    blocks = FieldBlockManager(('general', _(u'General information'), ['entities_lbl', 'relations', 'semifixed_rtypes']),)
+    blocks = FieldBlockManager(('general', _('General information'), ['entities_lbl', 'relations', 'semifixed_rtypes']),)
 
     def __init__(self, subjects, forbidden_subjects, relations_types=None, *args, **kwargs):
         first_subject = subjects[0] if subjects else forbidden_subjects[0]
@@ -255,10 +264,10 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
 
         user = self.user
         fields = self.fields
-        fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
+        fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext('NONE !')
 
         if forbidden_subjects:
-            fields['bad_entities_lbl'] = CharField(label=ugettext(u'Unlinkable entities'),
+            fields['bad_entities_lbl'] = CharField(label=ugettext('Unlinkable entities'),
                                                    widget=Label,
                                                    initial=entities2unicode(forbidden_subjects, user),
                                                   )

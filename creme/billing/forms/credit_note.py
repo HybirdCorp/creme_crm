@@ -78,9 +78,15 @@ class CreditNoteRelatedForm(base.CremeForm):
         self.fields['credit_notes'].q_filter = q_filter
 
     def save(self):
-        create_relation = partial(Relation.objects.create, subject_entity=self.billing_document,
-                                  type_id=constants.REL_OBJ_CREDIT_NOTE_APPLIED, user=self.user,
-                                 )
+        # create_relation = partial(Relation.objects.create, subject_entity=self.billing_document,
+        #                           type_id=constants.REL_OBJ_CREDIT_NOTE_APPLIED, user=self.user,
+        #                          )
+        create_relation = partial(
+            Relation.objects.safe_create,
+            subject_entity=self.billing_document,
+            type_id=constants.REL_OBJ_CREDIT_NOTE_APPLIED,
+            user=self.user,
+        )
 
         for entity in self.cleaned_data['credit_notes']:
             create_relation(object_entity=entity)
