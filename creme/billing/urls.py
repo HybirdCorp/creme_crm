@@ -74,17 +74,21 @@ if not billing.credit_note_model_is_custom():
     from .views import credit_note
 
     urlpatterns += [
-        url(r'^credit_note[/]?$',                                                              credit_note.listview,                     name='billing__list_cnotes'),  # TODO: change to '^credit_noteS'
-        # url(r'^credit_note/add[/]?$',                                                          credit_note.add,                        name='billing__create_cnote'),
-        url(r'^credit_note/add[/]?$',                                                          credit_note.CreditNoteCreation.as_view(), name='billing__create_cnote'),
-        # url(r'^credit_note/edit/(?P<credit_note_id>\d+)[/]?$',                                 credit_note.edit,                       name='billing__edit_cnote'),
-        url(r'^credit_note/edit/(?P<cnote_id>\d+)[/]?$',                                       credit_note.CreditNoteEdition.as_view(),  name='billing__edit_cnote'),
-        # url(r'^credit_note/(?P<credit_note_id>\d+)[/]?$',                                      credit_note.detailview,                 name='billing__view_cnote'),
-        url(r'^credit_note/(?P<cnote_id>\d+)[/]?$',                                            credit_note.CreditNoteDetail.as_view(),   name='billing__view_cnote'),
-        url(r'^credit_note/editcomment/(?P<credit_note_id>\d+)[/]?$',                          credit_note.edit_comment,                 name='billing__edit_cnote_comment'),
-        # url(r'^credit_note/add_related_to/(?P<base_id>\d+)[/]?$',                              credit_note.link_to_credit_notes,         name='billing__link_to_cnotes'),
-        url(r'^credit_note/add_related_to/(?P<base_id>\d+)[/]?$',                              credit_note.CreditNotesLinking.as_view(), name='billing__link_to_cnotes'),
-        url(r'^credit_note/delete_related/(?P<credit_note_id>\d+)/from/(?P<base_id>\d+)[/]?$', credit_note.delete_related_credit_note,   name='billing__delete_related_cnote'),
+        # url(r'^credit_note[/]?$',                                     credit_note.listview,                     name='billing__list_cnotes'),
+        url(r'^credit_notes[/]?$',                                    credit_note.listview,                     name='billing__list_cnotes'),
+        # url(r'^credit_note/add[/]?$',                                 credit_note.add,                        name='billing__create_cnote'),
+        url(r'^credit_note/add[/]?$',                                 credit_note.CreditNoteCreation.as_view(), name='billing__create_cnote'),
+        # url(r'^credit_note/edit/(?P<credit_note_id>\d+)[/]?$',        credit_note.edit,                       name='billing__edit_cnote'),
+        url(r'^credit_note/edit/(?P<cnote_id>\d+)[/]?$',              credit_note.CreditNoteEdition.as_view(),  name='billing__edit_cnote'),
+        # url(r'^credit_note/(?P<credit_note_id>\d+)[/]?$',             credit_note.detailview,                 name='billing__view_cnote'),
+        url(r'^credit_note/(?P<cnote_id>\d+)[/]?$',                   credit_note.CreditNoteDetail.as_view(),   name='billing__view_cnote'),
+        url(r'^credit_note/editcomment/(?P<credit_note_id>\d+)[/]?$', credit_note.edit_comment,                 name='billing__edit_cnote_comment'),
+        # url(r'^credit_note/add_related_to/(?P<base_id>\d+)[/]?$',     credit_note.link_to_credit_notes,         name='billing__link_to_cnotes'),
+        url(r'^credit_note/add_related_to/(?P<base_id>\d+)[/]?$',     credit_note.CreditNotesLinking.as_view(), name='billing__link_to_cnotes'),
+        url(r'^credit_note/delete_related/(?P<credit_note_id>\d+)/from/(?P<base_id>\d+)[/]?$',
+            credit_note.delete_related_credit_note,
+            name='billing__delete_related_cnote',
+        ),
     ]
 
 if not billing.template_base_model_is_custom():
