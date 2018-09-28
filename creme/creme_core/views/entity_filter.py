@@ -72,7 +72,7 @@ class FilterMixin:
         return self.build_lv_url() or reverse('creme_core__home')
 
 
-class FilterCreationMixin(FilterMixin):
+class FilterCreationMixin(generic.base.EntityCTypeRelatedMixin, FilterMixin):
     ctype_form_kwarg = 'ctype'
 
     def get_form_kwargs(self):
@@ -157,7 +157,6 @@ class FilterEditionMixin(FilterMixin):
 #                       function_post_save=post_save,
 #                      )
 class EntityFilterCreation(FilterCreationMixin,
-                           generic.base.EntityCTypeRelatedMixin,
                            generic.add.CremeModelCreation,
                           ):
     model = EntityFilter
