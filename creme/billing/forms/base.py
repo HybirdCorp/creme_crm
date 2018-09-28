@@ -96,11 +96,13 @@ class BaseEditForm(CremeEntityForm):
 
         if not existing_relation:
             instance = self.instance
-            Relation.objects.create(subject_entity=instance,
-                                    type_id=type_id,
-                                    object_entity=related_entity,
-                                    user=instance.user,
-                                   )
+            # Relation.objects.create(
+            Relation.objects.safe_create(
+                subject_entity=instance,
+                type_id=type_id,
+                object_entity=related_entity,
+                user=instance.user,
+            )
 
     def save(self, *args, **kwargs):
         instance = self.instance

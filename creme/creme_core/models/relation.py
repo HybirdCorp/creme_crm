@@ -22,7 +22,8 @@ from collections import defaultdict
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField, PROTECT, CASCADE
+from django.db import models, IntegrityError
+from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.http import Http404
@@ -30,54 +31,174 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..signals import pre_merge_related
 
+from . import fields as creme_fields
 from .base import CremeModel  # CremeAbstractEntity
 from .creme_property import CremePropertyType
 from .entity import CremeEntity
-from .fields import CreationDateTimeField, CremeUserForeignKey
 
 
 logger = logging.getLogger(__name__)
 
 
+class RelationManager(models.Manager):
+    def safe_create(self, **kwargs):
+        """Create a Relation in DB by taking care of the UNIQUE constraint
+        of Relation.
+        Notice that, unlike 'create()' it always return None (to avoid a
+        query in case of IntegrityError) ; use 'safe_get_or_create()' if
+        you need the Relation instance.
+        @param kwargs: same as 'create()'.
+        """
+        try:
+            self.create(**kwargs)
+        except IntegrityError:
+            logger.exception('Avoid a duplicate: %s ?!', kwargs)
+
+    def safe_get_or_create(self, **kwargs):
+        """Kind of safe version of 'get_or_create'.
+        Safe means the UNIQUE constraint of Relation is respected, &
+        this method will never raise an IntegrityError.
+
+        Notice that the signature of this method is the same as 'create()'
+        & not the same as 'get_or_create()' : the argument "defaults" does
+        not exist. Pass directly the argument "user" ; it won't be used to
+        retrieve the Relation, only for the Relation creation (if it's needed
+        of course).
+
+        @param kwargs: same as 'create()'.
+        return: A Relation instance
+        """
+        user = kwargs.pop('user', None)
+        user_id = kwargs.pop('user_id') if user is None else user.id
+
+        for _i in range(10):
+            try:
+                relation = self.get(**kwargs)
+            except self.model.DoesNotExist:
+                try:
+                    # NB: Relation.save is already @atomic'd
+                    relation = self.create(**kwargs, user_id=user_id)
+                except IntegrityError:
+                    logger.exception('Avoid a Relation duplicate: %s ?!', kwargs)
+                    continue
+
+            break
+        else:
+            raise RuntimeError('It seems the Relation <{}> keeps being created & deleted.'.format(kwargs))
+
+        return relation
+
+    def safe_multi_save(self, relations):
+        """Save several instances of Relation by taking care of the UNIQUE
+        constraint on ('type', 'subject_entity', 'object_entity').
+
+        Notice that you should not rely on the instances which you gave ;
+        they can be saved (so get a fresh ID), or not be saved because they are
+        a duplicate (& so their ID remains 'None').
+
+        Compared to use N x 'safe_get_or_create()', this method will only
+        perform 1 query to retrieve the existing Relations.
+
+        @param relations: An iterable of Relations (not save yet)
+        @return: Number of Relations inserted in base.
+                 NB: the symmetrical instances are not counted.
+        """
+        count = 0
+
+        # Group the relations by their unique "signature" (type, subject, object)
+        relation_groups = defaultdict(list)
+
+        for relation in relations:
+            # NB: we could use a string '{type_is}#{sub_id}#{obj_id}' => what is the best ?
+            relation_groups[(relation.type_id,
+                             relation.subject_entity_id,
+                             relation.object_entity_id,
+                            )].append(relation)
+
+        if relation_groups:
+            # Remove all existing relations in the list of relation to be created.
+            existing_q = Q()
+            for relation_group in relation_groups.values():
+                relation = relation_group[0]
+                existing_q |= Q(type_id=relation.type_id,
+                                subject_entity_id=relation.subject_entity_id,
+                                object_entity_id=relation.object_entity_id,
+                               )
+
+            for rel_sig in self.filter(existing_q) \
+                               .values_list('type', 'subject_entity', 'object_entity'):
+                relation_groups.pop(rel_sig, None)
+
+            # Creation (we take the first of each group to guaranty uniqueness)
+            for relation_group in relation_groups.values():
+                try:
+                    # NB: Relation.save is already @atomic'd
+                    relation_group[0].save()
+                except IntegrityError:
+                    logger.exception('Avoid a duplicate: %s ?!', relation_group[0])
+                else:
+                    count += 1
+
+        return count
+
+
 class RelationType(CremeModel):
-    """
+    """Type of Relations.
+
+    When you want to link (see Relation) to 2 kinds of CremeEntities
+    (eg: Contact & Organisation) you define a type of relation with the
+    following information :
+      - The <predicate>, a string which describes the relation between the "subject" & the "object".
+         Eg: "employs", "is a customer of"
+      - List of ContentTypes which are allowed for the subjects & for the objects
+        (attributes <subject_ctypes> & <object_ctypes>).
+        Eg: the type "employs" accepts Organisations as subject, but not Invoice.
+      - List of CremePropertyTypes which are mandatory for the subjects & for the objects
+        (attributes <subject_properties> & <object_properties>).
+
     If *_ctypes = null --> all ContentTypes are valid.
     If *_properties = null --> all CremeProperties are valid.
     """
-    id = CharField(primary_key=True, max_length=100)  # NB: convention: 'app_name-foobar'
-                                                      # BEWARE: 'id' MUST only contain alphanumeric '-' and '_'
+    # NB: convention: 'app_name-foobar'
+    # BEWARE: 'id' MUST only contain alphanumeric '-' and '_'
+    # TODO: validator ?
+    id = models.CharField(primary_key=True, max_length=100)
 
-    subject_ctypes     = ManyToManyField(ContentType,       blank=True, related_name='relationtype_subjects_set')
-    object_ctypes      = ManyToManyField(ContentType,       blank=True, related_name='relationtype_objects_set')
-    subject_properties = ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_subjects_set')
-    object_properties  = ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_objects_set')
+    subject_ctypes     = models.ManyToManyField(ContentType,       blank=True, related_name='relationtype_subjects_set')
+    object_ctypes      = models.ManyToManyField(ContentType,       blank=True, related_name='relationtype_objects_set')
+    subject_properties = models.ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_subjects_set')
+    object_properties  = models.ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_objects_set')
 
-    is_internal = BooleanField(default=False)  # If True, the relations with this type cannot
-                                               #  be created/deleted directly by the users.
-    is_custom   = BooleanField(default=False)  # If True, the RelationType can ot be deleted (in creme_config).
-    is_copiable = BooleanField(default=True)   # If True, the relations with this type can be copied
-                                               #  (ie when cloning or converting an entity)
+    # If True, the relations with this type cannot be created/deleted directly by the users.
+    is_internal = models.BooleanField(default=False)
+
+    # If True, the RelationType can ot be deleted (in creme_config).
+    is_custom = models.BooleanField(default=False)
+
+    # If True, the relations with this type can be copied
+    #  (ie when cloning or converting an entity)
+    is_copiable = models.BooleanField(default=True)
 
     # Try to display the relationships of this type only once in the detail-views ?
     # ie: does not display them in the general relationships bricks when another bricks manage this type.
-    minimal_display = BooleanField(default=False)
+    minimal_display = models.BooleanField(default=False)
 
-    predicate      = CharField(_(u'Predicate'), max_length=100)
-    symmetric_type = ForeignKey('self', blank=True, null=True, on_delete=CASCADE)
+    predicate      = models.CharField(_('Predicate'), max_length=100)
+    symmetric_type = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE)
 
-    creation_label = _(u'Create a type of relationship')
-    save_label     = _(u'Save the type')
+    creation_label = _('Create a type of relationship')
+    save_label     = _('Save the type')
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Type of relationship')
-        verbose_name_plural = _(u'Types of relationship')
+        verbose_name = _('Type of relationship')
+        verbose_name_plural = _('Types of relationship')
         ordering = ('predicate',)
 
     def __str__(self):
         sym_type = self.symmetric_type
-        symmetric_pred = ugettext(u'No relationship') if sym_type is None else sym_type.predicate
-        return u'{} — {}'.format(self.predicate, symmetric_pred)  # NB: — == "\xE2\x80\x94" == &mdash;
+        symmetric_pred = ugettext('No relationship') if sym_type is None else sym_type.predicate
+        return '{} — {}'.format(self.predicate, symmetric_pred)  # NB: — == "\xE2\x80\x94" == &mdash;
 
     def add_subject_ctypes(self, *models):
         get_ct = ContentType.objects.get_for_model
@@ -200,22 +321,38 @@ class RelationType(CremeModel):
 
 # class Relation(CremeAbstractEntity):
 class Relation(CremeModel):
-    created = CreationDateTimeField(_(u'Creation date'), editable=False).set_tags(clonable=False)
-    user    = CremeUserForeignKey(verbose_name=_(u'Owner user'))
+    """2 instances of creme_core.models.CremeEntity can be linked by Relations.
+    The first instance is called "object", the second one "object".
+
+    A relation has a type (see RelationType).
+     Eg: a Contact & an Organisation could be linked by a RelationType with
+         <predicate="is employed by">
+
+    Each instance of Relation has a symmetrical instance, which has the
+    symmetrical RelationType.
+     Eg: considering the previous example, we got a Relation instance between
+         our Contact & an Organisation with a RelationType which could be like
+         <predicate="employs">
+    """
+    created = creme_fields.CreationDateTimeField(_('Creation date'), editable=False).set_tags(clonable=False)
+    user    = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
     # type               = ForeignKey(RelationType, blank=True, null=True, on_delete=CASCADE)
-    type               = ForeignKey(RelationType, on_delete=CASCADE)
-    symmetric_relation = ForeignKey('self', null=True, on_delete=CASCADE)  # blank=True
-    subject_entity     = ForeignKey(CremeEntity, related_name='relations', on_delete=PROTECT)
-    object_entity      = ForeignKey(CremeEntity, related_name='relations_where_is_object', on_delete=PROTECT)
+    type               = models.ForeignKey(RelationType, on_delete=models.CASCADE)
+    symmetric_relation = models.ForeignKey('self', null=True, on_delete=models.CASCADE)  # blank=True
+    subject_entity     = models.ForeignKey(CremeEntity, related_name='relations', on_delete=models.PROTECT)
+    object_entity      = models.ForeignKey(CremeEntity, related_name='relations_where_is_object', on_delete=models.PROTECT)
+
+    objects = RelationManager()
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Relationship')
-        verbose_name_plural = _(u'Relationships')
+        verbose_name = _('Relationship')
+        verbose_name_plural = _('Relationships')
+        unique_together = ('type', 'subject_entity', 'object_entity')
 
     def __str__(self):
-        return u'«{}» {} «{}»'.format(self.subject_entity, self.type, self.object_entity)
+        return '«{}» {} «{}»'.format(self.subject_entity, self.type, self.object_entity)
 
     def _build_symmetric_relation(self, update):
         """Overload me in child classes.
@@ -253,6 +390,7 @@ class Relation(CremeModel):
         if self.symmetric_relation is None:
             self.symmetric_relation = sym_relation
             # super(Relation, self).save(using=using, force_insert=False)
+            # TODO: save only field "symmetric_relation" ?
             super().save(using=using, force_insert=False)
 
     # def get_real_entity(self):
@@ -277,18 +415,18 @@ class Relation(CremeModel):
 
 
 class SemiFixedRelationType(CremeModel):
-    predicate     = CharField(_(u'Predicate'), max_length=100, unique=True)
-    relation_type = ForeignKey(RelationType, on_delete=CASCADE)
-    object_entity = ForeignKey(CremeEntity, on_delete=CASCADE)
+    predicate     = models.CharField(_('Predicate'), max_length=100, unique=True)
+    relation_type = models.ForeignKey(RelationType, on_delete=models.CASCADE)
+    object_entity = models.ForeignKey(CremeEntity, on_delete=models.CASCADE)
 
-    creation_label = _(u'Create a semi-fixed type of relationship')
-    save_label     = _(u'Save the type')
+    creation_label = _('Create a semi-fixed type of relationship')
+    save_label     = _('Save the type')
 
     class Meta:
         app_label = 'creme_core'
         unique_together = ('relation_type', 'object_entity')
-        verbose_name = _(u'Semi-fixed type of relationship')
-        verbose_name_plural = _(u'Semi-fixed types of relationship')
+        verbose_name = _('Semi-fixed type of relationship')
+        verbose_name_plural = _('Semi-fixed types of relationship')
         ordering = ('predicate',)
 
     def __str__(self):

@@ -85,7 +85,8 @@ def get_import_form_builder(header_dict, choices):
             # append_error(line, err_msg, instance)
             append_error(err_msg)
 
-            create_rel = partial(Relation.objects.create, subject_entity=instance,
+            # create_rel = partial(Relation.objects.create, subject_entity=instance,
+            create_rel = partial(Relation.objects.safe_create, subject_entity=instance,
                                  user=instance.user,
                                 )
 

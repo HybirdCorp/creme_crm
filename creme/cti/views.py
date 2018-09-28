@@ -22,6 +22,7 @@ from datetime import timedelta
 from functools import partial
 import warnings
 
+from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -175,6 +176,7 @@ def _build_related_phonecall(user, entity_id, calltype_id, title_format, pcall_c
 
 @jsonify
 @login_required
+@atomic
 def create_phonecall_as_caller(request):
     return abstract_create_phonecall_as_caller(request)
 
@@ -214,5 +216,6 @@ def add_orga(request, number):
 
 @login_required
 @permission_required(('activities', cperm(Activity)))
+@atomic
 def add_phonecall(request, entity_id):
     return abstract_add_phonecall(request, entity_id)

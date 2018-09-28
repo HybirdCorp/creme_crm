@@ -642,10 +642,12 @@ def get_massimport_form_builder(header_dict, choices):
 
             def add_participant(participant):
                 if participant.id not in participant_ids:
-                    Relation.objects.create(subject_entity=participant,
-                                            type_id=constants.REL_SUB_PART_2_ACTIVITY,
-                                            object_entity=instance, user=user,
-                                           )
+                    # Relation.objects.create(
+                    Relation.objects.safe_create(
+                        subject_entity=participant,
+                        type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                        object_entity=instance, user=user,
+                    )
                     participant_ids.add(participant.id)
 
             # We could create a cache in self (or even put a cache-per-request in Calendar.get_user_default_calendar()
@@ -688,15 +690,22 @@ def get_massimport_form_builder(header_dict, choices):
             for err_msg in err_messages:
                 self.append_error(err_msg)
 
-            create_sub_rel = partial(Relation.objects.get_or_create, object_entity=instance,
-                                     type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-                                     defaults={'user': user},
-                                    )
-
-            for subject in subjects:
-                try:
-                    create_sub_rel(subject_entity=subject)
-                except Relation.MultipleObjectsReturned:
-                    pass
+            # create_sub_rel = partial(Relation.objects.get_or_create, object_entity=instance,
+            #                          type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
+            #                          defaults={'user': user},
+            #                         )
+            #
+            # for subject in subjects:
+            #     try:
+            #         create_sub_rel(subject_entity=subject)
+            #     except Relation.MultipleObjectsReturned:
+            #         pass
+            Relation.objects.safe_multi_save(
+                Relation(subject_entity=subject,
+                         type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
+                         object_entity=instance,
+                         user=user,
+                        ) for subject in subjects
+            )
 
     return ActivityMassImportForm

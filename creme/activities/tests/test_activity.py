@@ -2009,30 +2009,29 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertRelationCount(1, dojo, constants.REL_SUB_ACTIVITY_SUBJECT, activity)
 
-    # TODO: remove when Relations cannot be duplicated
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_participants09(self):
-        "Auto-subject + duplicated Relations"
-        user = self.login()
-        activity = self._create_meeting()
-
-        akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
-        dojo = Organisation.objects.create(user=user, name='Tendo Dojo')
-
-        create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=akane, type_id=REL_SUB_EMPLOYED_BY, object_entity=dojo)
-
-        for i_ in range(2):
-            create_rel(subject_entity=dojo, type_id=constants.REL_SUB_ACTIVITY_SUBJECT, object_entity=activity)
-
-        self.assertNoFormError(
-            self.client.post(self._buid_add_participants_url(activity),
-                             data={'participants': self.formfield_value_multi_creator_entity(akane)},
-                            )
-        )
-
-        self.assertRelationCount(2, dojo, constants.REL_SUB_ACTIVITY_SUBJECT, activity)
+    # @skipIfCustomContact
+    # @skipIfCustomOrganisation
+    # def test_participants09(self):
+    #     "Auto-subject + duplicated Relations"
+    #     user = self.login()
+    #     activity = self._create_meeting()
+    #
+    #     akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
+    #     dojo = Organisation.objects.create(user=user, name='Tendo Dojo')
+    #
+    #     create_rel = partial(Relation.objects.create, user=user)
+    #     create_rel(subject_entity=akane, type_id=REL_SUB_EMPLOYED_BY, object_entity=dojo)
+    #
+    #     for i_ in range(2):
+    #         create_rel(subject_entity=dojo, type_id=constants.REL_SUB_ACTIVITY_SUBJECT, object_entity=activity)
+    #
+    #     self.assertNoFormError(
+    #         self.client.post(self._buid_add_participants_url(activity),
+    #                          data={'participants': self.formfield_value_multi_creator_entity(akane)},
+    #                         )
+    #     )
+    #
+    #     self.assertRelationCount(2, dojo, constants.REL_SUB_ACTIVITY_SUBJECT, activity)
 
     @skipIfCustomOrganisation
     def test_add_subjects01(self):

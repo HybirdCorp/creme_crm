@@ -172,7 +172,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
-                             _(u'Some entities are not linkable: {}').format(unlinkable)
+                             _('Some entities are not linkable: {}').format(unlinkable)
                             )
         self.assertEqual(0, self.subject01.relations.count())
 
@@ -189,8 +189,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
-                             _(u'There are duplicates: %(duplicates)s') % {
-                                     'duplicates': u'({}, {})'.format(self.rtype01, self.object01),
+                             _('There are duplicates: %(duplicates)s') % {
+                                     'duplicates': '({}, {})'.format(self.rtype01, self.object01),
                                  }
                             )
 
@@ -225,7 +225,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
-                             _(u'An entity can not be linked to itself : %(entities)s') % {
+                             _('An entity can not be linked to itself : %(entities)s') % {
                                     'entities': subject,
                                 }
                             )
@@ -260,8 +260,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                      )
         self.assertFormError(response, 'form', 'relations',
-                             _(u'«%(subject)s» must have a property in «%(properties)s» '
-                               u'in order to use the relationship «%(predicate)s»') % {
+                             _('«%(subject)s» must have a property in «%(properties)s» '
+                               'in order to use the relationship «%(predicate)s»') % {
                                     'subject':    subject,
                                     'properties': '{}/{}'.format(ptype03, ptype01),
                                     'predicate':  rtype03.predicate,
@@ -380,7 +380,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         response = self.assertPOST200(self._build_add_url(self.subject01))
         self.assertFormError(response, 'form', None,
-                             _(u'You must give one relationship at least.')
+                             _('You must give one relationship at least.')
                             )
 
     def test_add_relations_with_semi_fixed04(self):
@@ -405,8 +405,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', None,
-                             _(u'There are duplicates: %(duplicates)s') % {
-                                    'duplicates': u'({}, {})'.format(self.rtype01, self.object01),
+                             _('There are duplicates: %(duplicates)s') % {
+                                    'duplicates': '({}, {})'.format(self.rtype01, self.object01),
                                  }
                             )
 
@@ -464,8 +464,8 @@ class RelationViewsTestCase(ViewsTestCase):
         url = self._build_add_url(subject)
         response = self.assertPOST200(url, data={'semifixed_rtypes': [sfrt1.id]})
         self.assertFormError(response, 'form', 'semifixed_rtypes',
-                             _(u'«%(subject)s» must have the property «%(property)s» '
-                               u'in order to use the relationship «%(predicate)s»') % {
+                             _('«%(subject)s» must have the property «%(property)s» '
+                               'in order to use the relationship «%(predicate)s»') % {
                                     'subject':    subject,
                                     'property':   ptype01,
                                     'predicate':  rtype03.predicate,
@@ -511,7 +511,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
-                             _(u'This type of relationship causes a constraint error.')
+                             _('This type of relationship causes a constraint error.')
                             )
 
     def test_add_relations_narrowedtype03(self):
@@ -645,7 +645,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'relations',
-                             _(u'Some entities are not linkable: {}').format(unlinkable)
+                             _('Some entities are not linkable: {}').format(unlinkable)
                             )
 
     def test_add_relations_bulk05(self):
@@ -665,8 +665,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
-                             _(u'An entity can not be linked to itself : %(entities)s') % {
-                                    'entities': u'{}, {}'.format(subject01, subject02),
+                             _('An entity can not be linked to itself : %(entities)s') % {
+                                    'entities': '{}, {}'.format(subject01, subject02),
                                   }
                             )
 
@@ -1278,23 +1278,27 @@ class RelationViewsTestCase(ViewsTestCase):
         rtype01 = create_rt(('test-subject_love', 'is loving'), ('test-object_love', 'is loved by'))[0]
         rtype02 = create_rt(('test-subject_son',  'is son of'), ('test-object_son',  'is parent of'))[0]
 
-        create_rel = partial(Relation.objects.create, user=user, type=rtype01, 
-                             subject_entity=subject_entity01, object_entity=object_entity01
+        create_rel = partial(Relation.objects.create,
+                             user=user, type=rtype01,
+                             subject_entity=subject_entity01,
+                             object_entity=object_entity01,
                             )
 
         # Will be deleted (normally)
         relation01 = create_rel()
-        relation02 = create_rel()
+        # relation02 = create_rel()  # IntegrityError
 
         # Won't be deleted (normally)
         relation03 = create_rel(object_entity=object_entity02)
         relation04 = create_rel(subject_entity=subject_entity02)
         relation05 = create_rel(type=rtype02)
 
-        self.assertEqual(10, Relation.objects.count())
+        # self.assertEqual(10, Relation.objects.count())
+        self.assertEqual(8, Relation.objects.count())
 
         self.assertEqual(302, self._delete_similar(subject_entity01, rtype01, object_entity01).status_code)
-        self.assertEqual(0,   Relation.objects.filter(pk__in=[relation01.pk, relation02.pk]).count())
+        # self.assertEqual(0,   Relation.objects.filter(pk__in=[relation01.pk, relation02.pk]).count())
+        self.assertEqual(0,   Relation.objects.filter(pk=relation01.pk).count())
         self.assertEqual(3,   Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count())
 
     def test_delete_similar02(self):

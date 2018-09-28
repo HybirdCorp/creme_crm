@@ -62,25 +62,24 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         workflow.transform_target_into_prospect(source, target, user)
         self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
 
-    # TODO: remove when duplicated Relation is not possible (DB uniqueness)
-    def test_transform_target_into_prospect02(self):
-        "Crash with existing duplicated Relation"
-        user = self.login()
-        create_orga = partial(Organisation.objects.create, user=user)
-        source = create_orga(name='Source')
-        target = create_orga(name='Target')
-
-        for i_ in range(2):
-            Relation.objects.create(subject_entity=target,
-                                    type_id=constants.REL_SUB_PROSPECT,
-                                    object_entity=source,
-                                    user=user,
-                                   )
-
-        with self.assertNoException():
-            workflow.transform_target_into_prospect(source, target, user)
-
-        self.assertRelationCount(2, target, constants.REL_SUB_PROSPECT, source)
+    # def test_transform_target_into_prospect02(self):
+    #     "Crash with existing duplicated Relation"
+    #     user = self.login()
+    #     create_orga = partial(Organisation.objects.create, user=user)
+    #     source = create_orga(name='Source')
+    #     target = create_orga(name='Target')
+    #
+    #     for i_ in range(2):
+    #         Relation.objects.create(subject_entity=target,
+    #                                 type_id=constants.REL_SUB_PROSPECT,
+    #                                 object_entity=source,
+    #                                 user=user,
+    #                                )
+    #
+    #     with self.assertNoException():
+    #         workflow.transform_target_into_prospect(source, target, user)
+    #
+    #     self.assertRelationCount(2, target, constants.REL_SUB_PROSPECT, source)
 
     def test_transform_target_into_customer01(self):
         user = self.login()
@@ -95,22 +94,21 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         workflow.transform_target_into_prospect(source, target, user)
         self.assertRelationCount(1, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)
 
-    # TODO: remove when duplicated Relation is not possible (DB uniqueness)
-    def test_transform_target_into_customer02(self):
-        "Crash with existing duplicated Relation"
-        user = self.login()
-        create_orga = partial(Organisation.objects.create, user=user)
-        source = create_orga(name='Source')
-        target = create_orga(name='Target')
-
-        for i_ in range(2):
-            Relation.objects.create(subject_entity=target,
-                                    type_id=constants.REL_SUB_CUSTOMER_SUPPLIER,
-                                    object_entity=source,
-                                    user=user,
-                                   )
-
-        with self.assertNoException():
-            workflow.transform_target_into_customer(source, target, user)
-
-        self.assertRelationCount(2, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)
+    # def test_transform_target_into_customer02(self):
+    #     "Crash with existing duplicated Relation"
+    #     user = self.login()
+    #     create_orga = partial(Organisation.objects.create, user=user)
+    #     source = create_orga(name='Source')
+    #     target = create_orga(name='Target')
+    #
+    #     for i_ in range(2):
+    #         Relation.objects.create(subject_entity=target,
+    #                                 type_id=constants.REL_SUB_CUSTOMER_SUPPLIER,
+    #                                 object_entity=source,
+    #                                 user=user,
+    #                                )
+    #
+    #     with self.assertNoException():
+    #         workflow.transform_target_into_customer(source, target, user)
+    #
+    #     self.assertRelationCount(2, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)

@@ -179,12 +179,19 @@ class _ActivityForm(CremeEntityForm):
         # super(_ActivityForm, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
-        create_relation = partial(Relation.objects.create, object_entity=instance,
-                                  type_id=constants.REL_SUB_PART_2_ACTIVITY, user=instance.user,
-                                 )
-
-        for participant in self.participants:
-            create_relation(subject_entity=participant)
+        # create_relation = partial(Relation.objects.create, object_entity=instance,
+        #                           type_id=constants.REL_SUB_PART_2_ACTIVITY, user=instance.user,
+        #                          )
+        #
+        # for participant in self.participants:
+        #     create_relation(subject_entity=participant)
+        Relation.objects.safe_multi_save(
+            Relation(subject_entity=participant,
+                     type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                     object_entity=instance,
+                     user=instance.user,
+                    ) for participant in self.participants
+        )
 
         return instance
 
