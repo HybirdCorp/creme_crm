@@ -51,10 +51,11 @@ if not report_model_is_custom():
 if not rgraph_model_is_custom():
     urlpatterns += [
         # url(r'^graph/(?P<report_id>\d+)/add[/]?$', graph.add,        name='reports__create_graph'),
-        url(r'^graph/(?P<report_id>\d+)/add[/]?$', graph.ReportGraphCreation.as_view(), name='reports__create_graph'),
-        url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.edit,       name='reports__edit_graph'),
+        url(r'^graph/(?P<report_id>\d+)/add[/]?$', graph.GraphCreation.as_view(), name='reports__create_graph'),
+        # url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.edit,       name='reports__edit_graph'),
+        url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.GraphEdition.as_view(),  name='reports__edit_graph'),
         # url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.detailview, name='reports__view_graph'),
-        url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.ReportGraphDetail.as_view(),   name='reports__view_graph'),
+        url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.GraphDetail.as_view(),   name='reports__view_graph'),
     ]
 
 if settings.TESTS_ON:

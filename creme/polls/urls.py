@@ -14,7 +14,8 @@ urlpatterns = [
     # Form lines
     # url(r'^poll_form/(?P<pform_id>\d+)/add/line[/]?$',        poll_form.add_line,             name='polls__create_form_line'),
     url(r'^poll_form/(?P<pform_id>\d+)/add/line[/]?$',        poll_form.LineCreation.as_view(), name='polls__create_form_line'),
-    url(r'^pform_line/(?P<line_id>\d+)/edit[/]?$',            poll_form.edit_line,            name='polls__edit_form_line'),
+    # url(r'^pform_line/(?P<line_id>\d+)/edit[/]?$',            poll_form.edit_line,            name='polls__edit_form_line'),
+    url(r'^pform_line/(?P<line_id>\d+)/edit[/]?$',            poll_form.LineEdition.as_view(),  name='polls__edit_form_line'),
     url(r'^pform_line/(?P<line_id>\d+)/disable[/]?$',         poll_form.disable_line,         name='polls__disable_form_line'),
     # url(r'^pform_line/(?P<line_id>\d+)/conditions/edit[/]?$', poll_form.edit_line_conditions, name='polls__edit_form_line_conditions'),
     url(r'^pform_line/(?P<line_id>\d+)/conditions/edit[/]?$', poll_form.ConditionsEdition.as_view(), name='polls__edit_form_line_conditions'),
@@ -22,8 +23,9 @@ urlpatterns = [
 
     # Form section
     # url(r'^poll_form/(?P<pform_id>\d+)/add/section[/]?$',     poll_form.add_section,         name='polls__create_form_section'),
-    url(r'^poll_form/(?P<pform_id>\d+)/add/section[/]?$',     poll_form.SectionCreation.as_view(), name='polls__create_form_section'),
-    url(r'^pform_section/(?P<section_id>\d+)/edit[/]?$',      poll_form.edit_section,        name='polls__edit_form_section'),
+    url(r'^poll_form/(?P<pform_id>\d+)/add/section[/]?$',     poll_form.SectionCreation.as_view(),      name='polls__create_form_section'),
+    # url(r'^pform_section/(?P<section_id>\d+)/edit[/]?$',      poll_form.edit_section,        name='polls__edit_form_section'),
+    url(r'^pform_section/(?P<section_id>\d+)/edit[/]?$',      poll_form.SectionEdition.as_view(),       name='polls__edit_form_section'),
     # url(r'^pform_section/(?P<section_id>\d+)/add/child[/]?$', poll_form.add_section_child,   name='polls__create_child_form_section'),
     url(r'^pform_section/(?P<section_id>\d+)/add/child[/]?$', poll_form.ChildSectionCreation.as_view(), name='polls__create_child_form_section'),
     # url(r'^pform_section/(?P<section_id>\d+)/add/line[/]?$',  poll_form.add_line_to_section, name='polls__create_form_line_in_section'),

@@ -92,7 +92,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(_('New todo for «{}»').format(entity), context.get('title'))
         self.assertEqual(_('Save the todo'),                    context.get('submit_label'))
 
-
         with self.assertNoException():
             hours = context['form'].fields['deadline_hour'].choices
 
@@ -100,6 +99,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertIn((23, '23h'), hours)
         self.assertEqual(24, len(hours))
 
+        # ---
         title = 'Title'
         todo = self._create_todo(title, 'Description')
         self.assertEqual(1, ToDo.objects.count())
@@ -144,8 +144,15 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         todo = self._create_todo(title, description)
 
         url = todo.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response,'creme_core/generics/blockform/edit_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Todo for «%s»') % self.entity, context.get('title'))
+        self.assertEqual(_('Todo for «{}»').format(self.entity), context.get('title'))
+        self.assertEqual(_('Save the modifications'),            context.get('submit_label'))
+
+        # ---
         title       += '_edited'
         description += '_edited'
         response = self.client.post(url, data={'user':        self.user.pk,

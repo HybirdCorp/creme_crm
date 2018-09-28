@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.html import escape
+    # from django.utils.html import escape
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
@@ -212,8 +212,13 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertContains(response, escape(_('Edit address for «%s»') % orga))
+        # self.assertContains(response, escape(_('Edit address for «%s»') % orga))
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        # self.assertEqual(_('Edit address for «%s»') % orga, response.context.get('title'))
+        self.assertEqual(_('Edit address for «{}»').format(orga), response.context.get('title'))
+
+        # ---
         city = 'Groville'
         country = 'Groland'
         response = self.client.post(url, data={'name':       name,
@@ -247,8 +252,11 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url() + '?type=billing'
         response = self.assertGET200(url)
-        self.assertContains(response, escape(_('Edit billing address for «%s»') % orga))
+        # self.assertContains(response, escape(_('Edit billing address for «%s»') % orga))
+        # self.assertEqual(_('Edit billing address for «%s»') % orga, response.context.get('title'))
+        self.assertEqual(_('Edit billing address for «{}»').format(orga), response.context.get('title'))
 
+        # --
         city = 'Groville'
         response = self.client.post(url, data={'name':       name,
                                                'address':    address,
@@ -277,8 +285,11 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url() + '?type=shipping'
         response = self.assertGET200(url)
-        self.assertContains(response, escape(_('Edit shipping address for «%s»') % orga))
+        # self.assertContains(response, escape(_('Edit shipping address for «%s»') % orga))
+        # self.assertEqual(_('Edit shipping address for «%s»') % orga, response.context.get('title'))
+        self.assertEqual(_('Edit shipping address for «{}»').format(orga), response.context.get('title'))
 
+        # ---
         city = 'Groville'
         response = self.client.post(url, data={'name':       name,
                                                'address':    address,

@@ -40,9 +40,14 @@ class ActionCreation(generic.add.AddingToEntity):
     title_format = _('New action for «{}»')
 
 
-@login_required
-def edit(request, action_id):
-    return generic.edit_related_to_entity(request, action_id, Action, ActionForm, _('Action for «%s»'))
+# @login_required
+# def edit(request, action_id):
+#     return generic.edit_related_to_entity(request, action_id, Action, ActionForm, _('Action for «%s»'))
+class ActionEdition(generic.edit.RelatedToEntityEdition):
+    model = Action
+    form_class = ActionForm
+    pk_url_kwarg = 'action_id'
+    title_format = _('Action for «{}»')
 
 
 @login_required

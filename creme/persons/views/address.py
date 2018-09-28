@@ -67,6 +67,11 @@ def abstract_add_shipping_address(request, entity_id, form=address_forms.Shippin
 
 
 def abstract_edit_address(request, address_id, form=None, title=None):
+    warnings.warn('persons.views.address.abstract_edit_address() is deprecated ;'
+                  'use the class AddressEdition instead.',
+                  DeprecationWarning
+                 )
+
     if form is None or title is None:
         address_type = request.GET.get('type')
 
@@ -107,6 +112,7 @@ def add_shipping(request, entity_id):
 @login_required
 @permission_required('persons')
 def edit(request, address_id):
+    warnings.warn('persons.views.address.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_address(request, address_id)
 
 
@@ -127,3 +133,29 @@ class BillingAddressCreation(AddressCreation):
 class ShippingAddressCreation(AddressCreation):
     form_class = address_forms.ShippingAddressForm
     title_format = _('Adding shipping address to «{}»')
+
+
+class AddressEdition(generic.edit.RelatedToEntityEdition):
+    model = Address
+    form_class = address_forms.AddressForm
+    pk_url_kwarg = 'address_id'
+    permissions = 'persons'
+    title_format = _('Edit address for «{}»')
+
+    form_classes = {
+        'billing':  address_forms.BillingAddressForm,
+        'shipping': address_forms.ShippingAddressForm,
+    }
+    title_formats = {
+        'billing':  _('Edit billing address for «{}»'),
+        'shipping': _('Edit shipping address for «{}»'),
+    }
+
+    def get_address_type(self):
+        return self.request.GET.get('type')
+
+    def get_form_class(self):
+        return self.form_classes.get(self.get_address_type()) or super().get_form_class()
+
+    def get_title_format(self):
+        return self.title_formats.get(self.get_address_type()) or super().get_title_format()

@@ -719,9 +719,14 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         url = self._build_edit_url(rgraph)
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('Edit a graph for «%s»') % report, context.get('title'))
+        self.assertEqual(_('Edit a graph for «{}»').format(report), context.get('title'))
 
         with self.assertNoException():
-            aggregate_field_f = response.context['form'].fields['aggregate_field']
+            aggregate_field_f = context['form'].fields['aggregate_field']
 
         self.assertFalse(aggregate_field_f.help_text)
 

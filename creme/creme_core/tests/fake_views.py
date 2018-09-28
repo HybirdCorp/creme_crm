@@ -122,6 +122,12 @@ def address_edit(request, address_id):
                                          )
 
 
+class FakeAddressEdition(generic.edit.RelatedToEntityEdition):
+    model = fake_models.FakeAddress
+    form_class = fake_forms.FakeAddressForm
+    title_format = 'Address for <{}>'
+
+
 @login_required
 @permission_required('creme_core')
 def activity_listview(request):

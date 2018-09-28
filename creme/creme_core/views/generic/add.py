@@ -250,8 +250,8 @@ class CremeModelCreationPopup(popup.InnerPopupMixin, CremeModelCreation):
     """ Base class for creation view with a form in Creme within an Inner-Popup.
     See CremeModelCreation.
     """
-    model = models.CremeModel  # TO BE OVERRIDDEN
-    form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
+    # model = models.CremeModel  # TO BE OVERRIDDEN
+    # form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
     template_name = 'creme_core/generics/blockform/add_popup.html'
 
     def get_context_data(self, **kwargs):
@@ -314,8 +314,11 @@ class AddingToEntity(base.EntityRelatedMixin, CremeModelCreationPopup):
 
         return kwargs
 
+    def get_title_format(self):
+        return self.title_format
+
     def get_title(self):
-        title_format = self.title_format
+        title_format = self.get_title_format()
 
         return title_format.format(self.get_related_entity()
                                        .allowed_str(self.request.user)

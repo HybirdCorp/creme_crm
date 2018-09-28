@@ -532,3 +532,109 @@ class EditionTestCase(ViewsTestCase):
                                              last_name='Spiegel',
                                             )
         self.assertGET200(contact.get_edit_absolute_url())
+
+    def test_edit_related_to_entity01(self):
+        user = self.login()
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        address = FakeAddress.objects.create(
+            entity=nerv,
+            value='26 angel street',
+        )
+        url = reverse('creme_core__edit_fake_address_legacy', args=(address.id,))
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        self.assertEqual('Address for <%s>' % nerv,   context.get('title'))
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
+
+        # ---
+        city = 'Tokyo'
+        value = address.value + ' (edited)'
+        response = self.client.post(url, data={'value': value, 'city': city})
+        self.assertNoFormError(response)
+
+        address = self.refresh(address)
+        self.assertEqual(nerv.id, address.entity_id)
+        self.assertEqual(value,   address.value)
+        self.assertEqual(city,     address.city)
+
+    def test_edit_related_to_entity02(self):
+        "Edition credentials on related entity needed."
+        user = self.login(is_superuser=False)
+
+        nerv = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
+        self.assertFalse(user.has_perm_to_change(nerv))
+
+        address = FakeAddress.objects.create(
+            entity=nerv,
+            value='26 angel street',
+        )
+        url = reverse('creme_core__edit_fake_address_legacy', args=(address.id,))
+
+        response = self.assertGET403(url)
+        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+        self.assertIn(escape(_('You are not allowed to edit this entity: {}').format(
+                                _('Entity #{id} (not viewable)').format(id=nerv.id)
+                            )),
+                      response.content.decode()
+                     )
+
+        # ---
+        nerv.user = user
+        nerv.save()
+        self.assertGET200(url)
+
+    def test_related_to_entity_edition01(self):
+        user = self.login()
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        address = FakeAddress.objects.create(
+            entity=nerv,
+            value='26 angel street',
+        )
+        url = reverse('creme_core__edit_fake_address', args=(address.id,))
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        self.assertEqual('Address for <%s>' % nerv,   context.get('title'))
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
+
+        # ---
+        city = 'Tokyo'
+        value = address.value + ' (edited)'
+        response = self.client.post(url, data={'value': value, 'city': city})
+        self.assertNoFormError(response)
+
+        address = self.refresh(address)
+        self.assertEqual(nerv.id, address.entity_id)
+        self.assertEqual(value,   address.value)
+        self.assertEqual(city,     address.city)
+
+    def test_related_to_entity_edition02(self):
+        "Edition credentials on related entity needed."
+        user = self.login(is_superuser=False)
+
+        nerv = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
+        self.assertFalse(user.has_perm_to_change(nerv))
+
+        address = FakeAddress.objects.create(
+            entity=nerv,
+            value='26 angel street',
+        )
+        url = reverse('creme_core__edit_fake_address', args=(address.id,))
+
+        response = self.assertGET403(url)
+        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+        self.assertIn(escape(_('You are not allowed to edit this entity: {}').format(
+                                _('Entity #{id} (not viewable)').format(id=nerv.id)
+                            )),
+                      response.content.decode()
+                     )
+
+        # ---
+        nerv.user = user
+        nerv.save()
+        self.assertGET200(url)

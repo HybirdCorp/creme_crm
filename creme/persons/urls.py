@@ -62,5 +62,6 @@ if not persons.address_model_is_custom():
         url(r'^address/add/billing/(?P<entity_id>\d+)[/]?$',  address.BillingAddressCreation.as_view(),  name='persons__create_billing_address'),
         # url(r'^address/add/shipping/(?P<entity_id>\d+)[/]?$', address.add_shipping, name='persons__create_shipping_address'),
         url(r'^address/add/shipping/(?P<entity_id>\d+)[/]?$', address.ShippingAddressCreation.as_view(), name='persons__create_shipping_address'),
-        url(r'^address/edit/(?P<address_id>\d+)[/]?$',        address.edit,         name='persons__edit_address'),
+        # url(r'^address/edit/(?P<address_id>\d+)[/]?$',        address.edit,         name='persons__edit_address'),
+        url(r'^address/edit/(?P<address_id>\d+)[/]?$',        address.AddressEdition.as_view(),          name='persons__edit_address'),
     ]

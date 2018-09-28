@@ -13,9 +13,13 @@ urlpatterns = [
 
     url(r'^payment_information/', include([
         # url(r'^add/(?P<entity_id>\d+)[/]?$',                                          payment_information.add,         name='billing__create_payment_info'),
-        url(r'^add/(?P<orga_id>\d+)[/]?$',                                            payment_information.PaymentInformationCreation.as_view(), name='billing__create_payment_info'),
-        url(r'^edit/(?P<payment_information_id>\d+)[/]?$',                            payment_information.edit,        name='billing__edit_payment_info'),
-        url(r'^set_default/(?P<payment_information_id>\d+)/(?P<billing_id>\d+)[/]?$', payment_information.set_default, name='billing__set_default_payment_info'),
+        url(r'^add/(?P<orga_id>\d+)[/]?$',   payment_information.PaymentInformationCreation.as_view(), name='billing__create_payment_info'),
+        # url(r'^edit/(?P<payment_information_id>\d+)[/]?$',                            payment_information.edit,        name='billing__edit_payment_info'),
+        url(r'^edit/(?P<pinfo_id>\d+)[/]?$', payment_information.PaymentInformationEdition.as_view(),  name='billing__edit_payment_info'),
+        url(r'^set_default/(?P<payment_information_id>\d+)/(?P<billing_id>\d+)[/]?$',
+            payment_information.set_default,
+            name='billing__set_default_payment_info',
+        ),
     ])),
 
     url(r'^(?P<document_id>\d+)/convert[/]?$', convert.convert, name='billing__convert'),

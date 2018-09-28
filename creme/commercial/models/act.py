@@ -169,7 +169,7 @@ class ActObjective(CremeModel):
     def get_edit_absolute_url(self):
         return reverse('commercial__edit_objective', args=(self.id,))
 
-    def get_related_entity(self):  # NB: see edit_related_to_entity()
+    def get_related_entity(self):  # NB: for generic views
         return self.act
 
     def get_count(self):  # TODO: property ??

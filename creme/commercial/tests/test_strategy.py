@@ -30,8 +30,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
     def _build_link_segment_url(self, strategy):
         return reverse('commercial__link_segment', args=(strategy.id,))
 
-    def _build_edit_segmentdesc_url(self, strategy, segment_desc):
-        return reverse('commercial__edit_segment_desc', args=(strategy.id, segment_desc.id))
+    # def _build_edit_segmentdesc_url(self, strategy, segment_desc):
+    #     return reverse('commercial__edit_segment_desc', args=(strategy.id, segment_desc.id))
+    def _build_edit_segmentdesc_url(self, segment_desc):
+        return reverse('commercial__edit_segment_desc', args=(segment_desc.id,))
 
     def _set_asset_score(self, strategy, orga, asset, segment_desc, score):
         self.assertPOST200(reverse('commercial__set_asset_score', args=(strategy.id,)),
@@ -223,8 +225,12 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         name = 'Industry'
         segment_desc = self._create_segment_desc(strategy, name)
 
-        url = self._build_edit_segmentdesc_url(strategy, segment_desc)
-        self.assertGET200(url)
+        # url = self._build_edit_segmentdesc_url(strategy, segment_desc)
+        url = self._build_edit_segmentdesc_url(segment_desc)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Segment for «%s»') % strategy, response.context.get('title'))
+        self.assertEqual(_('Segment for «{}»').format(strategy), response.context.get('title'))
 
         name += ' of Cheese'
         product = 'Description about product'
@@ -259,7 +265,8 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         segment_desc = self._create_segment_desc(strategy, name, product=product)
 
         product = product.title()
-        response = self.client.post(self._build_edit_segmentdesc_url(strategy, segment_desc),
+        # response = self.client.post(self._build_edit_segmentdesc_url(strategy, segment_desc),
+        response = self.client.post(self._build_edit_segmentdesc_url(segment_desc),
                                     data={'name':    name,
                                           'product': product,
                                          }
@@ -290,7 +297,8 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertFalse(segment_desc.product)
 
         product = 'Description about product'
-        response = self.client.post(self._build_edit_segmentdesc_url(strategy, segment_desc),
+        # response = self.client.post(self._build_edit_segmentdesc_url(strategy, segment_desc),
+        response = self.client.post(self._build_edit_segmentdesc_url(segment_desc),
                                     data={'name':    segment.name,
                                           'product': product,
                                          }
@@ -317,8 +325,12 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         name = 'Size'
         asset = CommercialAsset.objects.create(name=name, strategy=strategy)
         url = asset.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Asset for «%s»') % strategy, response.context.get('title'))
+        self.assertEqual(_('Asset for «{}»').format(strategy), response.context.get('title'))
 
+        # ---
         name += '_edited'
         self.assertPOST200(url, data={'name': name})
 
@@ -356,8 +368,12 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         charm = MarketSegmentCharm.objects.create(name=name, strategy=strategy)
 
         url = charm.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Charm for «%s»') % strategy, response.context.get('title'))
+        self.assertEqual(_('Charm for «{}»').format(strategy), response.context.get('title'))
 
+        # ---
         name += '_edited'
         self.assertPOST200(url, data={'name': name})
 
