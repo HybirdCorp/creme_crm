@@ -50,13 +50,19 @@ class RootNodesAdding(generic.add.AddingToEntity):
     # submit_label = _('Add') ??
 
 
-@login_required
-@permission_required('graphs')
-def edit(request, root_id):
-    return generic.edit_related_to_entity(
-        request, root_id, RootNode, forms.EditRootNodeForm,
-        _('Edit root node for «%s»'),
-    )
+# @login_required
+# @permission_required('graphs')
+# def edit(request, root_id):
+#     return generic.edit_related_to_entity(
+#         request, root_id, RootNode, forms.EditRootNodeForm,
+#         _('Edit root node for «%s»'),
+#     )
+class RootNodeEdition(generic.edit.RelatedToEntityEdition):
+    model = RootNode
+    form_class = forms.EditRootNodeForm
+    permissions = 'graphs'
+    pk_url_kwarg = 'root_id'
+    title_format = _('Edit root node for «{}»')
 
 
 @login_required

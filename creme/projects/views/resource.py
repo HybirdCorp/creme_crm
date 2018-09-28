@@ -61,7 +61,7 @@ def add(request, task_id):
 
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                                {'form':         form,
-                                'title':        _(u'Allocation of a new resource'),
+                                'title':        _('Allocation of a new resource'),
                                 'submit_label': Resource.save_label,
                                },
                                is_valid=form.is_valid(),
@@ -70,13 +70,19 @@ def add(request, task_id):
                               )
 
 
-@login_required
-@permission_required('projects')
-def edit(request, resource_id):
-    return generic.edit_related_to_entity(request, pk=resource_id, model=Resource,
-                                          form_class=resource_forms.ResourceEditForm,
-                                          title_format=_(u'Resource for «%s»'),
-                                         )
+# @login_required
+# @permission_required('projects')
+# def edit(request, resource_id):
+#     return generic.edit_related_to_entity(request, pk=resource_id, model=Resource,
+#                                           form_class=resource_forms.ResourceEditForm,
+#                                           title_format=_('Resource for «%s»'),
+#                                          )
+class ResourceEdition(generic.edit.RelatedToEntityEdition):
+    model = Resource
+    form_class = resource_forms.ResourceEditForm
+    permissions = 'projects'
+    pk_url_kwarg = 'resource_id'
+    title_format = _('Resource for «{}»')
 
 
 @login_required
@@ -92,7 +98,7 @@ def delete(request):  # TODO: generic delete ??
                                object_entity__in=[a.id for a in resource.task.related_activities],
                               ) \
                        .exists():
-        raise ConflictError(ugettext(u'This resource cannot be deleted, because it is linked to activities.'))
+        raise ConflictError(ugettext('This resource cannot be deleted, because it is linked to activities.'))
 
     resource.delete()
 

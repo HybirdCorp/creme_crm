@@ -557,7 +557,11 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(1, objective.counter_goal)
 
         url = objective.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        # self.assertEqual(_('Objective for «%s»') % act, response.context.get('title'))
+        self.assertEqual(_('Objective for «{}»').format(act), response.context.get('title'))
 
         name = 'OBJ_NAME'
         efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)

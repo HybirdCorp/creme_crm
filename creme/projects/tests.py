@@ -919,12 +919,18 @@ class ProjectsTestCase(CremeTestCase):
         resource2 = task2.resources_set.all()[0]
         self.create_activity(resource2)
 
-        response = self.client.post(resource1.get_edit_absolute_url(),
+        url = resource1.get_edit_absolute_url()
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Resource for «%s»') % task1, response.context.get('title'))
+        self.assertEqual(_('Resource for «{}»').format(task1), response.context.get('title'))
+
+        response = self.client.post(url,
                                     follow=True,
                                     data={'user':        user.id,
                                           'contact':     worker2.id,
                                           'hourly_cost': 200,
-                                          }
+                                         }
                                     )
         self.assertNoFormError(response)
 

@@ -47,7 +47,7 @@ def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
                         submit_label=ReportGraph.save_label,
                        ):
     warnings.warn('reports.views.graph.abstract_add_rgraph() is deprecated ; '
-                  'use the class-based view ReportGraphCreation instead.',
+                  'use the class-based view GraphCreation instead.',
                   DeprecationWarning
                  )
     return generic.add_to_entity(request,
@@ -61,12 +61,16 @@ def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
 def abstract_edit_rgraph(request, graph_id, form=ReportGraphForm,
                          title=_('Edit a graph for «%s»'),
                         ):
+    warnings.warn('reports.views.graph.abstract_edit_rgraph() is deprecated ; '
+                  'use the class-based view GraphEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_related_to_entity(request, graph_id, ReportGraph, form, title)
 
 
 def abstract_view_rgraph(request, graph_id, template='reports/view_graph.html'):
     warnings.warn('reports.views.graph.abstract_view_rgraph() is deprecated ; '
-                  'use the class-based view ReportGraphDetail instead.',
+                  'use the class-based view GraphDetail instead.',
                   DeprecationWarning
                  )
     return generic.view_entity(request, graph_id, ReportGraph,
@@ -85,6 +89,7 @@ def add(request, report_id):
 @login_required
 @permission_required('reports')
 def edit(request, graph_id):
+    warnings.warn('reports.views.graph.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_rgraph(request, graph_id)
 
 
@@ -209,7 +214,7 @@ def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):
 # Class-based views  ----------------------------------------------------------
 
 
-class ReportGraphCreation(generic.add.AddingToEntity):
+class GraphCreation(generic.add.AddingToEntity):
     model = ReportGraph
     form_class = ReportGraphForm
     title_format = _('Create a graph for «{}»')
@@ -217,7 +222,7 @@ class ReportGraphCreation(generic.add.AddingToEntity):
     entity_classes = get_report_model()
 
 
-class ReportGraphDetail(generic.detailview.EntityDetail):
+class GraphDetail(generic.detailview.EntityDetail):
     model = ReportGraph
     template_name = 'reports/view_graph.html'
     pk_url_kwarg = 'graph_id'
@@ -227,3 +232,11 @@ class ReportGraphDetail(generic.detailview.EntityDetail):
         context['report_charts'] = report_chart_registry
 
         return context
+
+
+class GraphEdition(generic.edit.RelatedToEntityEdition):
+    model = ReportGraph
+    form_class = ReportGraphForm
+    permissions = 'reports'
+    pk_url_kwarg = 'graph_id'
+    title_format = _('Edit a graph for «{}»')

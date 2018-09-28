@@ -159,6 +159,30 @@ class EvaluatedOrgaAdding(_AddToStrategy):
     submit_label = _('Link the organisation(s)')
 
 
+class SegmentDescEdition(generic.edit.RelatedToEntityEdition):
+    model = MarketSegmentDescription
+    form_class = forms.SegmentEditForm
+    permissions = 'commercial'
+    pk_url_kwarg = 'segdesc_id'
+    title_format = _('Segment for «{}»')
+
+
+class AssetEdition(generic.edit.RelatedToEntityEdition):
+    model = CommercialAsset
+    form_class = forms.AssetForm
+    permissions = 'commercial'
+    pk_url_kwarg = 'asset_id'
+    title_format = _('Asset for «{}»')
+
+
+class CharmEdition(generic.edit.RelatedToEntityEdition):
+    model = MarketSegmentCharm
+    form_class = forms.CharmForm
+    permissions = 'commercial'
+    pk_url_kwarg = 'charm_id'
+    title_format = _('Charm for «{}»')
+
+
 # Other views  ----------------------------------------------------------------
 
 # @login_required
@@ -212,28 +236,28 @@ class EvaluatedOrgaAdding(_AddToStrategy):
 #                                 )
 
 
-@login_required
-@permission_required('commercial')
-def edit_segment(request, strategy_id, seginfo_id):  # TODO: remove 'strategy_id'
-    return generic.edit_related_to_entity(request, seginfo_id, MarketSegmentDescription,
-                                          forms.SegmentEditForm, ugettext('Segment for «%s»'),
-                                         )
+# @login_required
+# @permission_required('commercial')
+# def edit_segment(request, strategy_id, seginfo_id):
+#     return generic.edit_related_to_entity(request, seginfo_id, MarketSegmentDescription,
+#                                           forms.SegmentEditForm, ugettext('Segment for «%s»'),
+#                                          )
 
 
-@login_required
-@permission_required('commercial')
-def edit_asset(request, asset_id):
-    return generic.edit_related_to_entity(request, asset_id, CommercialAsset,
-                                          forms.AssetForm, ugettext('Asset for «%s»'),
-                                         )
+# @login_required
+# @permission_required('commercial')
+# def edit_asset(request, asset_id):
+#     return generic.edit_related_to_entity(request, asset_id, CommercialAsset,
+#                                           forms.AssetForm, ugettext('Asset for «%s»'),
+#                                          )
 
 
-@login_required
-@permission_required('commercial')
-def edit_charm(request, charm_id):
-    return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm,
-                                          forms.CharmForm, ugettext('Charm for «%s»'),
-                                         )
+# @login_required
+# @permission_required('commercial')
+# def edit_charm(request, charm_id):
+#     return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm,
+#                                           forms.CharmForm, ugettext('Charm for «%s»'),
+#                                          )
 
 
 @login_required

@@ -232,9 +232,9 @@ class PollFormLineEditForm(_PollFormLineForm):
         # super(PollFormLineEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
-        if self.instance.disabled:  # TODO: improve the generic view edit_related_to_entity instead....
-            from django.http import Http404
-            raise Http404('You can not edit a disabled line.')
+        # if self.instance.disabled:
+        #     from django.http import Http404
+        #     raise Http404('You can not edit a disabled line.')
 
         self.initial_choices = None
         choices = self.instance.poll_line_type.get_editable_choices()

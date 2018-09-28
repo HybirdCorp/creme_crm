@@ -110,13 +110,20 @@ def listview(request):
 #                                 submit_label=PollFormLine.save_label,
 #                                )
 
-@login_required
-@permission_required('polls')
-def edit_line(request, line_id):
-    return generic.edit_related_to_entity(request, line_id, PollFormLine,
-                                          pf_forms.PollFormLineEditForm,
-                                          _('Question for «%s»'),
-                                         )
+# @login_required
+# @permission_required('polls')
+# def edit_line(request, line_id):
+#     return generic.edit_related_to_entity(request, line_id, PollFormLine,
+#                                           pf_forms.PollFormLineEditForm,
+#                                           _('Question for «%s»'),
+#                                          )
+class LineEdition(generic.edit.RelatedToEntityEdition):
+    # model = PollFormLine
+    queryset = PollFormLine.objects.filter(disabled=False)
+    form_class = pf_forms.PollFormLineEditForm
+    permissions = 'polls'
+    pk_url_kwarg = 'line_id'
+    title_format = _('Question for «{}»')
 
 
 @login_required
@@ -169,14 +176,19 @@ def disable_line(request, line_id):
 #                                 )
 
 
-@login_required
-@permission_required('polls')
-def edit_section(request, section_id):
-    return generic.edit_related_to_entity(request, section_id, PollFormSection,
-                                          pf_forms.PollFormSectionEditForm,
-                                          _('Section for «%s»'),
-                                         )
-
+# @login_required
+# @permission_required('polls')
+# def edit_section(request, section_id):
+#     return generic.edit_related_to_entity(request, section_id, PollFormSection,
+#                                           pf_forms.PollFormSectionEditForm,
+#                                           _('Section for «%s»'),
+#                                          )
+class SectionEdition(generic.edit.RelatedToEntityEdition):
+    model = PollFormSection
+    form_class = pf_forms.PollFormSectionEditForm
+    permissions = 'polls'
+    pk_url_kwarg = 'section_id'
+    title_format = _('Section for «{}»')
 
 # @login_required
 # @permission_required('polls')

@@ -40,11 +40,16 @@ class AlertCreation(generic.add.AddingToEntity):
     title_format = _('New alert for «{}»')
 
 
-@login_required
-def edit(request, alert_id):
-    return generic.edit_related_to_entity(request, alert_id, Alert, AlertForm,
-                                          _('Alert for «%s»'),
-                                         )
+# @login_required
+# def edit(request, alert_id):
+#     return generic.edit_related_to_entity(request, alert_id, Alert, AlertForm,
+#                                           _('Alert for «%s»'),
+#                                          )
+class AlertEdition(generic.edit.RelatedToEntityEdition):
+    model = Alert
+    form_class = AlertForm
+    pk_url_kwarg = 'alert_id'
+    title_format = _('Alert for «{}»')
 
 
 @login_required

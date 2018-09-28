@@ -21,7 +21,8 @@ urlpatterns = [
 
     # Task: Resource block
     url(r'^task/(?P<task_id>\d+)/resource/add[/]?$', resource.add,    name='projects__create_resource'),
-    url(r'^resource/edit/(?P<resource_id>\d+)[/]?$', resource.edit,   name='projects__edit_resource'),
+    # url(r'^resource/edit/(?P<resource_id>\d+)[/]?$', resource.edit,   name='projects__edit_resource'),
+    url(r'^resource/edit/(?P<resource_id>\d+)[/]?$', resource.ResourceEdition.as_view(), name='projects__edit_resource'),
     url(r'^resource/delete[/]?$',                    resource.delete, name='projects__delete_resource'),
 
     # Task: related activities block

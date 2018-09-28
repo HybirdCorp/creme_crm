@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.auth.decorators import login_required
+# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views import generic
 
 from ..forms.memo import MemoForm
@@ -38,6 +38,11 @@ class MemoCreation(generic.add.AddingToEntity):
     title_format = _('New memo for «{}»')
 
 
-@login_required
-def edit(request, memo_id):
-    return generic.edit_related_to_entity(request, memo_id, Memo, MemoForm, _('Memo for «%s»'))
+# @login_required
+# def edit(request, memo_id):
+#     return generic.edit_related_to_entity(request, memo_id, Memo, MemoForm, _('Memo for «%s»'))
+class MemoEdition(generic.edit.RelatedToEntityEdition):
+    model = Memo
+    form_class = MemoForm
+    pk_url_kwarg = 'memo_id'
+    title_format = _('Memo for «{}»')

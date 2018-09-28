@@ -30,8 +30,7 @@ from django.views.generic import UpdateView
 from creme.creme_core import forms, models
 from creme.creme_core.auth.decorators import login_required
 
-from . import base
-from .popup import inner_popup
+from . import base, popup
 
 
 def edit_entity(request, object_id, model, edit_form,
@@ -83,6 +82,11 @@ def edit_related_to_entity(request, pk, model, form_class, title_format,
                       'entity' (the related CremeEntity).
     @param model: title_format A format unicode with an arg (for the related entity).
     """
+    warnings.warn('creme_core.views.generic.edit.edit_related_to_entity() is deprecated ; '
+                  'use the class-based views RelatedToEntityEdition instead.',
+                  DeprecationWarning
+                 )
+
     auxiliary = get_object_or_404(model, pk=pk)
     entity = auxiliary.get_related_entity()
     user = request.user
@@ -99,15 +103,16 @@ def edit_related_to_entity(request, pk, model, form_class, title_format,
     else:  # return page on GET request
         edit_form = form_class(entity=entity, user=user, instance=auxiliary)
 
-    return inner_popup(request, template,
-                       {'form':  edit_form,
-                        'title': title_format % entity,
-                        'submit_label': submit_label,
-                       },
-                       is_valid=edit_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return popup.inner_popup(
+        request, template,
+        {'form':  edit_form,
+         'title': title_format % entity,
+         'submit_label': submit_label,
+        },
+        is_valid=edit_form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
 def edit_model_with_popup(request, query_dict, model, form_class,
@@ -144,16 +149,19 @@ def edit_model_with_popup(request, query_dict, model, form_class,
 
     title_format = title_format or _(u'Edit «%s»')
 
-    return inner_popup(request, template,
-                       {'form':  edit_form,
-                        'title': title_format % instance,
-                        'submit_label': submit_label,
-                       },
-                       is_valid=edit_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return popup.inner_popup(
+        request, template,
+        {'form':  edit_form,
+         'title': title_format % instance,
+         'submit_label': submit_label,
+        },
+        is_valid=edit_form.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
+
+# Class-based views  -----------------------------------------------------------
 
 class CremeModelEdition(base.CancellableMixin, base.PermissionsMixin, UpdateView):
     """ Base class for edition view with a form in Creme.
@@ -240,3 +248,99 @@ class EntityEdition(CremeModelEdition):
         self.request.user.has_perm_to_change_or_die(entity)
 
         return entity
+
+
+# TODO: factorise with CremeModelCreationPopup ?
+class CremeModelEditionPopup(popup.InnerPopupMixin, CremeModelEdition):
+    """ Base class for edition view with a form in Creme within an Inner-Popup.
+    See CremeModelEdition.
+    """
+    # model = models.CremeModel  # TO BE OVERRIDDEN
+    # form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
+    template_name = 'creme_core/generics/blockform/edit_popup.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_inner_popup'] = True  # TODO: in new base popup when including ?
+        context['persisted'] = self.get_persisted()  # TODO: remove from form-templates ?
+
+        return context
+
+    def get_success_url(self):
+        return ''
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def render_to_response(self, context, **response_kwargs):
+        from django.shortcuts import render
+
+        request = self.request
+
+        return render(request=request,
+                      template_name='creme_core/generics/inner_popup.html',
+                      context=self.get_popup_context(context),
+                     )
+
+
+# TODO: factorise with AddingToEntity ?
+class RelatedToEntityEdition(CremeModelEditionPopup):
+    """ This specialisation of CremeModelEditionPopup is made for models
+    related to a CremeEntity instance.
+
+    These model have a method 'get_related_entity()'.
+
+    Attributes:
+    entity_form_kwarg: The related entity is given to the form with this name.
+                       ('entity' by default).
+                       <None> means the entity is not passed to the form.
+    """
+    entity_form_kwarg = 'entity'
+    title_format = None  # If a {}-format string is given, it's used to built
+                         # the title with the related entity as argument (see get_title())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.related_entity = None
+
+    def check_related_entity_permissions(self, entity, user):
+        """ Check the permissions of the related entity which just has been retrieved.
+
+        @param entity: Instance of model inheriting CremeEntity.
+        @param user: Instance of <auth.get_user_model()>.
+        @raise: PermissionDenied.
+        """
+        user.has_perm_to_change_or_die(entity)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        entity = self.get_related_entity()
+        if self.entity_form_kwarg:
+            kwargs[self.entity_form_kwarg] = entity
+
+        return kwargs
+
+    def get_related_entity(self):
+        entity = self.related_entity
+
+        if entity is None:
+            entity = self.object.get_related_entity()
+            self.check_related_entity_permissions(entity=entity, user=self.request.user)
+
+            self.related_entity = entity
+
+        return entity
+
+    def get_title_format(self):
+        return self.title_format
+
+    def get_title(self):
+        title_format = self.get_title_format()
+
+        return title_format.format(self.get_related_entity()
+                                       .allowed_str(self.request.user)
+                                  ) \
+               if title_format is not None else\
+               super().get_title()

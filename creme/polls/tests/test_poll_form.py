@@ -335,7 +335,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         section = PollFormSection.objects.create(pform=pform, name=name, order=1)
 
         url = section.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Section for «%s»') % pform, response.context.get('title'))
+        self.assertEqual(_('Section for «{}»').format(pform), response.context.get('title'))
 
         name = name.title()
         body = 'Once upon a time...'
@@ -1015,9 +1018,14 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = line.get_edit_absolute_url()
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('Question for «%s»') % pform, response.context.get('title'))
+        self.assertEqual(_('Question for «{}»').format(pform), response.context.get('title'))
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = context['form'].fields
 
         self.assertNotIn('old_choices', fields)
         self.assertNotIn('new_choices', fields)

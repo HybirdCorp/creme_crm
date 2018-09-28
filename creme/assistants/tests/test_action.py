@@ -96,8 +96,11 @@ class ActionTestCase(AssistantsTestCase):
         action = self._create_action('2010-12-24', title, descr, reaction)
 
         url = action.get_edit_absolute_url()
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('Action for «%s»') % self.entity, context.get('title'))
+        self.assertEqual(_('Action for «{}»').format(self.entity), context.get('title'))
 
+        # ---
         title    += '_edited'
         descr    += '_edited'
         reaction += '_edited'

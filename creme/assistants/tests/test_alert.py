@@ -92,8 +92,11 @@ class AlertTestCase(AssistantsTestCase):
         alert = self._create_alert(title, description, '2010-9-29')
 
         url = alert.get_edit_absolute_url()
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('Alert for «%s»') % self.entity, context.get('title'))
+        self.assertEqual(_('Alert for «{}»').format(self.entity), context.get('title'))
 
+        # ---
         title       += '_edited'
         description += '_edited'
         response = self.client.post(url, data={'user':         self.user.pk,

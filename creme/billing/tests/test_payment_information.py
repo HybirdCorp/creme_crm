@@ -84,7 +84,12 @@ class PaymentInformationTestCase(_BillingTestCase):
 
         # TODO: get_edit_absolute_url() ?
         url = reverse('billing__edit_payment_info', args=(pi.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Payment information for «%s»') % organisation, response.context.get('title'))
+        self.assertEqual(_('Payment information for «{}»').format(organisation),
+                         response.context.get('title')
+                        )
 
         rib_key = '00'
         name    = 'RIB of {}'.format(organisation)

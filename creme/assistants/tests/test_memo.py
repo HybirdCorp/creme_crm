@@ -66,9 +66,12 @@ class MemoTestCase(AssistantsTestCase):
         memo = self._create_memo(content, homepage)
 
         url = memo.get_edit_absolute_url()
-        self.assertGET200(url)
+        context = self.assertGET200(url).context
+        # self.assertEqual(_('Memo for «%s»') % self.entity, context.get('title'))
+        self.assertEqual(_('Memo for «{}»').format(self.entity), context.get('title'))
 
-        content += u""": 
+        # ---
+        content += """: 
 I add a long text in order to obtain a content that 
 will be truncate by str() method"""
         homepage = not homepage
@@ -83,7 +86,7 @@ will be truncate by str() method"""
         self.assertEqual(content,  memo.content)
         self.assertEqual(homepage, memo.on_homepage)
 
-        self.assertEqual(u'content: I add a long te…', str(memo))
+        self.assertEqual('content: I add a long te…', str(memo))
 
     def test_delete_related01(self):
         self._create_memo()

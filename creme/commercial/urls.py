@@ -30,7 +30,8 @@ urlpatterns = [
     url(r'^act/(?P<act_id>\d+)/add/objective[/]?$',               act.ObjectiveCreation.as_view(),            name='commercial__create_objective'),
     # url(r'^act/(?P<act_id>\d+)/add/objectives_from_pattern[/]?$', act.add_objectives_from_pattern, name='commercial__create_objective_from_pattern'),
     url(r'^act/(?P<act_id>\d+)/add/objectives_from_pattern[/]?$', act.ObjectiveCreationFromPattern.as_view(), name='commercial__create_objective_from_pattern'),
-    url(r'^objective/(?P<objective_id>\d+)/edit[/]?$',            act.edit_objective,              name='commercial__edit_objective'),
+    # url(r'^objective/(?P<objective_id>\d+)/edit[/]?$',            act.edit_objective,              name='commercial__edit_objective'),
+    url(r'^objective/(?P<objective_id>\d+)/edit[/]?$',            act.ObjectiveEdition.as_view(),             name='commercial__edit_objective'),
     url(r'^objective/(?P<objective_id>\d+)/incr[/]?$',            act.incr_objective_counter,      name='commercial__incr_objective_counter'),
     url(r'^objective/(?P<objective_id>\d+)/create_entity[/]?$',   act.create_objective_entity,     name='commercial__create_entity_from_objective'),
 
@@ -42,20 +43,23 @@ urlpatterns = [
 
     # Segments
     # url(r'^strategy/(?P<strategy_id>\d+)/add/segment[/]?$',                      strategy.add_segment,  name='commercial__create_segment_desc'),
-    url(r'^strategy/(?P<strategy_id>\d+)/add/segment[/]?$',                      strategy.SegmentDescCreation.as_view(), name='commercial__create_segment_desc'),
+    url(r'^strategy/(?P<strategy_id>\d+)/add/segment[/]?$',  strategy.SegmentDescCreation.as_view(), name='commercial__create_segment_desc'),
     # url(r'^strategy/(?P<strategy_id>\d+)/link/segment[/]?$',                     strategy.link_segment, name='commercial__link_segment'),
-    url(r'^strategy/(?P<strategy_id>\d+)/link/segment[/]?$',                     strategy.SegmentLinking.as_view(),      name='commercial__link_segment'),
-    url(r'^strategy/(?P<strategy_id>\d+)/segment/edit/(?P<seginfo_id>\d+)[/]?$', strategy.edit_segment, name='commercial__edit_segment_desc'),
+    url(r'^strategy/(?P<strategy_id>\d+)/link/segment[/]?$', strategy.SegmentLinking.as_view(),      name='commercial__link_segment'),
+    # url(r'^strategy/(?P<strategy_id>\d+)/segment/edit/(?P<seginfo_id>\d+)[/]?$', strategy.edit_segment, name='commercial__edit_segment_desc'),
+    url(r'^segment_desc/edit/(?P<segdesc_id>\d+)[/]?$',      strategy.SegmentDescEdition.as_view(),  name='commercial__edit_segment_desc'),
 
     # Assets
     # url(r'^strategy/(?P<strategy_id>\d+)/add/asset[/]?$', strategy.add_asset,  name='commercial__create_asset'),
     url(r'^strategy/(?P<strategy_id>\d+)/add/asset[/]?$', strategy.AssetCreation.as_view(), name='commercial__create_asset'),
-    url(r'^asset/edit/(?P<asset_id>\d+)[/]?$',            strategy.edit_asset, name='commercial__edit_asset'),
+    # url(r'^asset/edit/(?P<asset_id>\d+)[/]?$',            strategy.edit_asset, name='commercial__edit_asset'),
+    url(r'^asset/edit/(?P<asset_id>\d+)[/]?$',            strategy.AssetEdition.as_view(),  name='commercial__edit_asset'),
 
     # Charms
     # url(r'^strategy/(?P<strategy_id>\d+)/add/charm[/]?$', strategy.add_charm,  name='commercial__create_charm'),
-    url(r'^strategy/(?P<strategy_id>\d+)/add/charm[/]?$', strategy.CharmCreation.as_view(),  name='commercial__create_charm'),
-    url(r'^charm/edit/(?P<charm_id>\d+)[/]?$',            strategy.edit_charm, name='commercial__edit_charm'),
+    url(r'^strategy/(?P<strategy_id>\d+)/add/charm[/]?$', strategy.CharmCreation.as_view(), name='commercial__create_charm'),
+    # url(r'^charm/edit/(?P<charm_id>\d+)[/]?$',            strategy.edit_charm, name='commercial__edit_charm'),
+    url(r'^charm/edit/(?P<charm_id>\d+)[/]?$',            strategy.CharmEdition.as_view(),  name='commercial__edit_charm'),
 
     # Evaluated organisations
     # url(r'^strategy/(?P<strategy_id>\d+)/add/organisation[/]?$',                         strategy.add_evalorga,    name='commercial__add_evaluated_orgas'),

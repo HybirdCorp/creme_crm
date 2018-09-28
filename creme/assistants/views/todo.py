@@ -39,9 +39,14 @@ class ToDoCreation(generic.add.AddingToEntity):
     title_format = _('New todo for «{}»')
 
 
-@login_required
-def edit(request, todo_id):
-    return generic.edit_related_to_entity(request, todo_id, ToDo, ToDoForm, _('Todo for «%s»'))
+# @login_required
+# def edit(request, todo_id):
+#     return generic.edit_related_to_entity(request, todo_id, ToDo, ToDoForm, _('Todo for «%s»'))
+class ToDoEdition(generic.edit.RelatedToEntityEdition):
+    model = ToDo
+    form_class = ToDoForm
+    pk_url_kwarg = 'todo_id'
+    title_format = _('Todo for «{}»')
 
 
 @login_required

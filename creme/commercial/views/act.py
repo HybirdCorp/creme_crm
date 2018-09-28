@@ -377,13 +377,18 @@ def add_parent_pattern_component(request, component_id):
                                     )
 
 
-@login_required
-@permission_required('commercial')
-def edit_objective(request, objective_id):
-    return generic.edit_related_to_entity(request, objective_id, ActObjective,
-                                          forms.ObjectiveForm,
-                                          ugettext('Objective for «%s»'),
-                                         )
+# @login_required
+# @permission_required('commercial')
+# def edit_objective(request, objective_id):
+#     return generic.edit_related_to_entity(request, objective_id, ActObjective,
+#                                           forms.ObjectiveForm,
+#                                           ugettext('Objective for «%s»'),
+#                                          )
+class ObjectiveEdition(generic.edit.RelatedToEntityEdition):
+    model = ActObjective
+    form_class = forms.ObjectiveForm
+    pk_url_kwarg = 'objective_id'
+    title_format = _('Objective for «{}»')
 
 
 @login_required

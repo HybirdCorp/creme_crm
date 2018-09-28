@@ -255,7 +255,6 @@ class GraphsTestCase(CremeTestCase):
 
     def test_edit_rootnode(self):
         user = self.login()
-
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # TODO: factorise
@@ -273,7 +272,12 @@ class GraphsTestCase(CremeTestCase):
         rnode.relation_types.set([rtype01])
 
         url = rnode.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Edit root node for «%s»') % graph, response.context.get('title'))
+        self.assertEqual(_('Edit root node for «{}»').format(graph),
+                         response.context.get('title')
+                        )
 
         self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype01.id, rtype02.id]}))
         self.assertEqual({rtype01, rtype02}, set(rnode.relation_types.all()))

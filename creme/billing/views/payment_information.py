@@ -52,13 +52,19 @@ class PaymentInformationCreation(generic.add.AddingToEntity):
     title_format = _('New payment information in the organisation «{}»')
 
 
-@login_required
-@permission_required('billing')
-def edit(request, payment_information_id):
-    return generic.edit_related_to_entity(request, payment_information_id,
-                                          PaymentInformation, pi_forms.PaymentInformationEditForm,
-                                          _('Payment information for «%s»'),
-                                         )
+# @login_required
+# @permission_required('billing')
+# def edit(request, payment_information_id):
+#     return generic.edit_related_to_entity(request, payment_information_id,
+#                                           PaymentInformation, pi_forms.PaymentInformationEditForm,
+#                                           _('Payment information for «%s»'),
+#                                          )
+class PaymentInformationEdition(generic.edit.RelatedToEntityEdition):
+    model = PaymentInformation
+    form_class = pi_forms.PaymentInformationEditForm
+    permissions = 'billing'
+    pk_url_kwarg = 'pinfo_id'
+    title_format = _('Payment information for «{}»')
 
 
 @jsonify
