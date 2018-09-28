@@ -11,9 +11,12 @@ from .views import event  # portal
 urlpatterns = [
     # url(r'^$', portal.portal, name='events__portal'),
 
-    url(r'^event/(?P<event_id>\d+)/contacts[/]?$',      event.list_contacts, name='events__list_related_contacts'),
-    # url(r'^event/(?P<event_id>\d+)/link_contacts[/]?$', event.link_contacts, name='events__link_contacts'),
-    url(r'^event/(?P<event_id>\d+)/link_contacts[/]?$', event.AddContactsToEvent.as_view(), name='events__link_contacts'),
+    url(r'^event/(?P<event_id>\d+)/contacts[/]?$', event.list_contacts, name='events__list_related_contacts'),
+    url(r'^event/(?P<event_id>\d+)/link_contacts[/]?$',
+        # event.link_contacts
+        event.AddContactsToEvent.as_view(),
+        name='events__link_contacts',
+    ),
 
     url(r'^event/(?P<event_id>\d+)/contact/(?P<contact_id>\d+)/', include([
         url(r'^set_invitation_status[/]?$', event.set_invitation_status, name='events__set_invitation_status'),
@@ -35,7 +38,8 @@ if not event_model_is_custom():
 if not opportunity_model_is_custom():
     urlpatterns += [
         url(r'^event/(?P<event_id>\d+)/add_opportunity_with/(?P<contact_id>\d+)[/]?$',
-            event.add_opportunity,
+            # event.add_opportunity,
+            event.RelatedOpportunityCreation.as_view(),
             name='events__create_related_opportunity',
            ),
     ]

@@ -42,7 +42,7 @@ from creme.opportunities import get_opportunity_model
 
 from .. import get_event_model
 from .. import constants
-from ..forms.event import EventForm, AddContactsToEventForm, RelatedOpportunityCreateForm
+from ..forms import event as event_forms
 from ..models import EventType
 
 
@@ -53,7 +53,7 @@ Opportunity = get_opportunity_model()
 # Function views ---------------------------------------------------------------
 
 
-def abstract_add_event(request, form=EventForm,
+def abstract_add_event(request, form=event_forms.EventForm,
                        submit_label=Event.save_label,
                       ):
     warnings.warn('events.views.abstract_add_event() is deprecated ; '
@@ -66,7 +66,7 @@ def abstract_add_event(request, form=EventForm,
                              )
 
 
-def abstract_edit_event(request, event_id, form=EventForm):
+def abstract_edit_event(request, event_id, form=event_forms.EventForm):
     warnings.warn('events.views.abstract_edit_event() is deprecated ; '
                   'use the class-based view EventEdition instead.',
                   DeprecationWarning
@@ -265,7 +265,7 @@ def link_contacts(request, event_id):
                   'use the class-based view AddContactsToEvent instead.',
                   DeprecationWarning
                  )
-    return generic.edit_entity(request, event_id, Event, AddContactsToEventForm)
+    return generic.edit_entity(request, event_id, Event, event_forms.AddContactsToEventForm)
 
 
 def _get_status(request, valid_status):
@@ -318,30 +318,30 @@ def set_presence_status(request, event_id, contact_id):
     return HttpResponse()
 
 
-def abstract_add_related_opportunity(request, event_id, contact_id,
-                                     form=RelatedOpportunityCreateForm,
-                                    ):
-    event   = get_object_or_404(Event, pk=event_id)
-    contact = get_object_or_404(Contact, pk=contact_id)
+# def abstract_add_related_opportunity(request, event_id, contact_id,
+#                                      form=event_forms.RelatedOpportunityCreateForm,
+#                                     ):
+#     event   = get_object_or_404(Event, pk=event_id)
+#     contact = get_object_or_404(Contact, pk=contact_id)
+#
+#     request.user.has_perm_to_link_or_die(event)
+#
+#     return generic.add_entity(request, form,
+#                               extra_initial={'event': event, 'contact': contact},
+#                              )
 
-    request.user.has_perm_to_link_or_die(event)
 
-    return generic.add_entity(request, form,
-                              extra_initial={'event': event, 'contact': contact},
-                             )
-
-
-@login_required
-@permission_required(('events', 'opportunities', cperm(Opportunity)))
-def add_opportunity(request, event_id, contact_id):
-    return abstract_add_related_opportunity(request, event_id, contact_id)
+# @login_required
+# @permission_required(('events', 'opportunities', cperm(Opportunity)))
+# def add_opportunity(request, event_id, contact_id):
+#     return abstract_add_related_opportunity(request, event_id, contact_id)
 
 
 # Class-based views  -----------------------------------------------------------
 
 class EventCreation(generic.add.EntityCreation):
     model = Event
-    form_class = EventForm
+    form_class = event_forms.EventForm
 
     def get_initial(self):
         initial = super().get_initial()
@@ -358,11 +358,63 @@ class EventDetail(generic.detailview.EntityDetail):
 
 class EventEdition(generic.edit.EntityEdition):
     model = Event
-    form_class = EventForm
+    form_class = event_forms.EventForm
     pk_url_kwarg = 'event_id'
 
 
 class AddContactsToEvent(generic.edit.EntityEdition):
     model = Event
-    form_class = AddContactsToEventForm
+    form_class = event_forms.AddContactsToEventForm
+    template_name = 'creme_core/generics/blockform/link.html'
     pk_url_kwarg = 'event_id'
+    title_format = _('Link some contacts to «{}»')
+    submit_label = _('Link these contacts')
+
+    def get_title(self):
+        return self.title_format.format(self.object)
+
+    # TODO: use a "?next=" GET argument ?
+    def get_success_url(self):
+        return reverse('events__list_related_contacts', args=(self.object.id,))
+
+
+class RelatedOpportunityCreation(generic.add.EntityCreation):
+    model = Opportunity
+    form_class = event_forms.RelatedOpportunityCreateForm
+    permissions = 'events'
+    title_format = _('Create an opportunity related to «{contact}»')
+    event_id_url_kwarg = 'event_id'
+    contact_id_url_kwarg = 'contact_id'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.event = None
+        self.contact = None
+
+    def get_contact(self):
+        contact = self.contact
+        if contact is None:
+            self.contact = contact = \
+                get_object_or_404(Contact, pk=self.kwargs[self.contact_id_url_kwarg])
+            self.request.user.has_perm_to_view_or_die(contact)
+
+        return contact
+
+    def get_event(self):
+        event = self.event
+        if event is None:
+            self.event = event = \
+                get_object_or_404(Event, pk=self.kwargs[self.event_id_url_kwarg])
+            self.request.user.has_perm_to_link_or_die(event)
+
+        return event
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['event']   = self.get_event()
+        kwargs['contact'] = self.get_contact()
+
+        return kwargs
+
+    def get_title(self):
+        return self.title_format.format(contact=self.get_contact())
