@@ -280,7 +280,7 @@ def update_activity_date(request):
 #                                         title=_('Create a calendar'),
 #                                         submit_label=_('Save the calendar'),
 #                                        )
-class CalendarCreation(generic.add.CremeModelCreationPopup):
+class CalendarCreation(generic.CremeModelCreationPopup):
     model = Calendar
     form_class = calendar_forms.CalendarForm
     permissions = 'activities'
@@ -293,7 +293,7 @@ class CalendarCreation(generic.add.CremeModelCreationPopup):
 #                                          model=Calendar, form_class=calendar_forms.CalendarForm,
 #                                          can_change=lambda calendar, user: calendar.user == user,  # todo: and superuser ??
 #                                         )
-class CalendarEdition(generic.edit.CremeModelEditionPopup):
+class CalendarEdition(generic.CremeModelEditionPopup):
     model = Calendar
     form_class = calendar_forms.CalendarForm
     permissions = 'activities'
@@ -333,7 +333,7 @@ def delete_user_calendar(request):
 #                                          title_format=_('Change calendar of «%s»'),
 #                                          can_change=lambda activity, user: True,
 #                                         )
-class CalendarLinking(generic.edit.CremeModelEditionPopup):
+class CalendarLinking(generic.CremeModelEditionPopup):
     model = Activity
     form_class = calendar_forms.ActivityCalendarLinkerForm
     permissions = 'activities'

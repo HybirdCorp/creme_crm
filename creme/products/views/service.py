@@ -108,7 +108,7 @@ def listview(request):
 # Class-based views  ----------------------------------------------------------
 
 
-class ServiceCreation(generic.add.EntityCreation):
+class ServiceCreation(generic.EntityCreation):
     model = Service
     form_class = service_forms.ServiceCreateForm
 
@@ -119,7 +119,7 @@ class ServiceDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'service_id'
 
 
-class ServiceEdition(generic.edit.EntityEdition):
+class ServiceEdition(generic.EntityEdition):
     model = Service
     form_class = service_forms.ServiceEditForm
     pk_url_kwarg = 'service_id'

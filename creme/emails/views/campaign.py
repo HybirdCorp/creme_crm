@@ -125,7 +125,7 @@ def delete_ml(request, campaign_id):
 
 # Class-based views  ----------------------------------------------------------
 
-class EmailCampaignCreation(generic.add.EntityCreation):
+class EmailCampaignCreation(generic.EntityCreation):
     model = EmailCampaign
     form_class = camp_forms.CampaignCreateForm
 
@@ -136,13 +136,13 @@ class EmailCampaignDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'campaign_id'
 
 
-class EmailCampaignEdition(generic.edit.EntityEdition):
+class EmailCampaignEdition(generic.EntityEdition):
     model = EmailCampaign
     form_class = camp_forms.CampaignEditForm
     pk_url_kwarg = 'campaign_id'
 
 
-class MailingListsAdding(generic.add.AddingToEntity):
+class MailingListsAdding(generic.AddingToEntity):
     # model = MailingList
     form_class = camp_forms.CampaignAddMLForm
     template_name = 'creme_core/generics/blockform/link_popup.html'

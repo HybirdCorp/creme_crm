@@ -123,7 +123,7 @@ def list_my_leads_my_customers(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class OrganisationCreation(generic.add.EntityCreation):
+class OrganisationCreation(generic.EntityCreation):
     model = Organisation
     form_class = orga_forms.OrganisationForm
     template_name = 'persons/add_organisation_form.html'
@@ -135,7 +135,7 @@ class OrganisationDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'orga_id'
 
 
-class OrganisationEdition(generic.edit.EntityEdition):
+class OrganisationEdition(generic.EntityEdition):
     model = Organisation
     form_class = orga_forms.OrganisationForm
     template_name = 'persons/edit_organisation_form.html'

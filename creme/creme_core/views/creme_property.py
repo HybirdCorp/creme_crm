@@ -93,11 +93,12 @@ def add_properties_bulk(request, ct_id):
 #                                  _('New properties for «%s»'),
 #                                  submit_label=_('Add the properties'),
 #                                 )
-class PropertiesAdding(generic.add.AddingToEntity):
+class PropertiesAdding(generic.AddingToEntity):
     model = CremeProperty
     form_class = prop_forms.AddPropertiesForm
     submit_label = _('Add the properties')
     title_format = _('New properties for «{}»')
+
 
 # @login_required
 # @permission_required('creme_core.can_admin')
@@ -123,7 +124,7 @@ class PropertiesAdding(generic.add.AddingToEntity):
 #                    'cancel_url':   cancel_url,
 #                   }
 #                  )
-class PropertyTypeCreation(generic.add.CremeModelCreation):
+class PropertyTypeCreation(generic.CremeModelCreation):
     model = CremePropertyType
     form_class = ptype_forms.CremePropertyTypeAddForm
     permissions = 'creme_core.can_admin'
@@ -158,7 +159,7 @@ class PropertyTypeCreation(generic.add.CremeModelCreation):
 #                    'cancel_url': cancel_url,
 #                   }
 #                  )
-class PropertyTypeEdition(generic.edit.CremeModelEdition):
+class PropertyTypeEdition(generic.CremeModelEdition):
     # model = CremePropertyType
     queryset = CremePropertyType.objects.filter(is_custom=True)
     form_class = ptype_forms.CremePropertyTypeEditForm

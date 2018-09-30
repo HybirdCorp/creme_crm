@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 #                                          user_forms.UserChangePwForm,
 #                                          _('Change password for «%s»'),
 #                                         )
-class PasswordChange(generic.edit.CremeModelEditionPopup):
+class PasswordChange(generic.CremeModelEditionPopup):
     model = get_user_model()
     form_class = user_forms.UserChangePwForm
     pk_url_kwarg = 'user_id'
@@ -56,7 +56,7 @@ class PasswordChange(generic.edit.CremeModelEditionPopup):
         _check_superuser(user)
 
 
-class BaseUserCreation(generic.add.CremeModelCreationPopup):
+class BaseUserCreation(generic.CremeModelCreationPopup):
     model = get_user_model()
 
     def check_view_permissions(self, user):
@@ -93,7 +93,7 @@ def portal(request):
     return _config_portal(request, 'creme_config/user_portal.html')
 
 
-class BaseUserEdition(generic.edit.CremeModelEditionPopup):
+class BaseUserEdition(generic.CremeModelEditionPopup):
     model = get_user_model()
     pk_url_kwarg = 'user_id'
 

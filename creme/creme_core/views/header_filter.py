@@ -102,7 +102,7 @@ logger = logging.getLogger(__name__)
 #                       function_post_save=post_save,
 #                      )
 class HeaderFilterCreation(entity_filter.FilterCreationMixin,
-                           generic.add.CremeModelCreation,
+                           generic.CremeModelCreation,
                           ):
     model = HeaderFilter
     form_class = hf_forms.HeaderFilterCreateForm

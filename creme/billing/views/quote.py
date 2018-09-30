@@ -152,7 +152,7 @@ class QuoteDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'quote_id'
 
 
-class QuoteEdition(generic.edit.EntityEdition):
+class QuoteEdition(generic.EntityEdition):
     model = Quote
     form_class = quote_forms.QuoteEditForm
     pk_url_kwarg = 'quote_id'

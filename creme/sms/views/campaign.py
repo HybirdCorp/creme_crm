@@ -135,7 +135,7 @@ def delete_messaging_list(request, campaign_id):
 
 # Class-based views  ----------------------------------------------------------
 
-class SMSCampaignCreation(generic.add.EntityCreation):
+class SMSCampaignCreation(generic.EntityCreation):
     model = SMSCampaign
     form_class = camp_forms.CampaignCreateForm
 
@@ -146,13 +146,13 @@ class SMSCampaignDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'campaign_id'
 
 
-class SMSCampaignEdition(generic.edit.EntityEdition):
+class SMSCampaignEdition(generic.EntityEdition):
     model = SMSCampaign
     form_class = camp_forms.CampaignEditForm
     pk_url_kwarg = 'campaign_id'
 
 
-class MessagingListsAdding(generic.add.AddingToEntity):
+class MessagingListsAdding(generic.AddingToEntity):
     # model = MessagingList
     form_class = camp_forms.CampaignAddListForm
     template_name = 'creme_core/generics/blockform/link_popup.html'

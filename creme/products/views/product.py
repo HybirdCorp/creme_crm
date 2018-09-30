@@ -143,7 +143,7 @@ def remove_image(request, entity_id):
 
 # Class-based views  ----------------------------------------------------------
 
-class ProductCreation(generic.add.EntityCreation):
+class ProductCreation(generic.EntityCreation):
     model = Product
     form_class = product_forms.ProductCreateForm
 
@@ -154,7 +154,7 @@ class ProductDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'product_id'
 
 
-class ProductEdition(generic.edit.EntityEdition):
+class ProductEdition(generic.EntityEdition):
     model = Product
     form_class = product_forms.ProductEditForm
     pk_url_kwarg = 'product_id'

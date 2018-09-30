@@ -26,7 +26,7 @@ from creme.billing.models import Base
 from creme import persons
 
 
-class BaseCreation(generic.add.EntityCreation):
+class BaseCreation(generic.EntityCreation):
     model = Base
     # form_class = BaseCreateForm
     initial_status = 1
@@ -38,7 +38,7 @@ class BaseCreation(generic.add.EntityCreation):
         return initial
 
 
-class RelatedBaseCreation(generic.add.AddingToEntity):
+class RelatedBaseCreation(generic.AddingToEntity):
     model = Base
     # form_class = BaseCreateForm
     permissions = 'billing'  # Need creation perm too

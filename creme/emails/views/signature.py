@@ -40,7 +40,7 @@ from ..models import EmailSignature
 #                                         title=EmailSignature.creation_label,
 #                                         submit_label=EmailSignature.save_label,
 #                                        )
-class SignatureCreation(generic.add.CremeModelCreationPopup):
+class SignatureCreation(generic.CremeModelCreationPopup):
     model = EmailSignature
     form_class = SignatureForm
     permissions = 'emails'
@@ -53,7 +53,7 @@ class SignatureCreation(generic.add.CremeModelCreationPopup):
 #                                          model=EmailSignature, form_class=SignatureForm,
 #                                          can_change=EmailSignature.can_change_or_delete,
 #                                         )
-class SignatureEdition(generic.edit.CremeModelEditionPopup):
+class SignatureEdition(generic.CremeModelEditionPopup):
     model = EmailSignature
     form_class = SignatureForm
     pk_url_kwarg = 'signature_id'

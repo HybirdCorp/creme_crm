@@ -94,7 +94,7 @@ class TemplateBaseDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'template_id'
 
 
-class TemplateBaseEdition(generic.edit.EntityEdition):
+class TemplateBaseEdition(generic.EntityEdition):
     model = TemplateBase
     form_class = TemplateBaseEditForm
     pk_url_kwarg = 'template_id'

@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 #                                        )
 
 
-class SegmentCreation(generic.add.CremeModelCreationPopup):
+class SegmentCreation(generic.CremeModelCreationPopup):
     model = MarketSegment
     form_class = segment_forms.MarketSegmentForm
     permissions = 'commercial'
@@ -58,7 +58,7 @@ class SegmentCreation(generic.add.CremeModelCreationPopup):
 #     return generic.edit_model_with_popup(request, {'id': segment_id}, MarketSegment,
 #                                          segment_forms.MarketSegmentForm,
 #                                         )
-class SegmentEdition(generic.edit.CremeModelEditionPopup):
+class SegmentEdition(generic.CremeModelEditionPopup):
     model = MarketSegment
     form_class = segment_forms.MarketSegmentForm
     pk_url_kwarg = 'segment_id'

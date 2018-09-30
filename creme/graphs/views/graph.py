@@ -137,7 +137,7 @@ def delete_relation_type(request, graph_id):
 # Class-based views  ----------------------------------------------------------
 
 
-class GraphCreation(generic.add.EntityCreation):
+class GraphCreation(generic.EntityCreation):
     model = Graph
     form_class = g_forms.GraphForm
 
@@ -148,13 +148,13 @@ class GraphDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'graph_id'
 
 
-class GraphEdition(generic.edit.EntityEdition):
+class GraphEdition(generic.EntityEdition):
     model = Graph
     form_class = g_forms.GraphForm
     pk_url_kwarg = 'graph_id'
 
 
-class RelationTypesAdding(generic.add.AddingToEntity):
+class RelationTypesAdding(generic.AddingToEntity):
     # model = RelationType
     form_class = g_forms.AddRelationTypesForm
     template_name = 'creme_core/generics/blockform/link_popup.html'

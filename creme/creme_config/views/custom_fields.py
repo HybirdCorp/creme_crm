@@ -24,7 +24,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CustomField
 from creme.creme_core.utils import get_from_POST_or_404  # get_ct_or_404
-from creme.creme_core.views import generic
+from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from ..forms import custom_fields as cf_forms
 
@@ -55,7 +55,7 @@ class FirstCTypeCustomFieldCreation(base.BaseConfigCreation):
 #                             ugettext('New custom field for «{model}»').format(model=ct),
 #                             initial={'ct': ct},
 #                            )
-class CustomFieldCreation(generic.base.EntityCTypeRelatedMixin,
+class CustomFieldCreation(EntityCTypeRelatedMixin,
                           base.BaseConfigCreation,
                          ):
     model = CustomField

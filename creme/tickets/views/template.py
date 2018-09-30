@@ -77,7 +77,7 @@ class TicketTemplateDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'template_id'
 
 
-class TicketTemplateEdition(generic.edit.EntityEdition):
+class TicketTemplateEdition(generic.EntityEdition):
     model = TicketTemplate
     form_class = TicketTemplateForm
     pk_url_kwarg = 'template_id'

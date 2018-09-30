@@ -214,7 +214,7 @@ def resend_mails(request):  # TODO: unit test
 
 # Class-based views  ----------------------------------------------------------
 
-class EntityEmailCreation(generic.add.AddingToEntity):
+class EntityEmailCreation(generic.AddingToEntity):
     model = EntityEmail
     form_class = mail_forms.EntityEmailForm
     template_name = 'creme_core/generics/blockform/link_popup.html'

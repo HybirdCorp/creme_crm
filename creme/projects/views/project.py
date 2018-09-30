@@ -115,7 +115,7 @@ def close(request, project_id):
 
 # Class-based views  ----------------------------------------------------------
 
-class ProjectCreation(generic.add.EntityCreation):
+class ProjectCreation(generic.EntityCreation):
     model = Project
     form_class = project_forms.ProjectCreateForm
 
@@ -132,7 +132,7 @@ class ProjectDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'project_id'
 
 
-class ProjectEdition(generic.edit.EntityEdition):
+class ProjectEdition(generic.EntityEdition):
     model = Project
     form_class = project_forms.ProjectEditForm
     pk_url_kwarg = 'project_id'

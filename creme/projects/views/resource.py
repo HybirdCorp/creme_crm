@@ -77,7 +77,7 @@ def add(request, task_id):
 #                                           form_class=resource_forms.ResourceEditForm,
 #                                           title_format=_('Resource for «%s»'),
 #                                          )
-class ResourceEdition(generic.edit.RelatedToEntityEdition):
+class ResourceEdition(generic.RelatedToEntityEdition):
     model = Resource
     form_class = resource_forms.ResourceEditForm
     permissions = 'projects'

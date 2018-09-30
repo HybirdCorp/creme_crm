@@ -93,7 +93,7 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class MessageTemplateCreation(generic.add.EntityCreation):
+class MessageTemplateCreation(generic.EntityCreation):
     model = MessageTemplate
     form_class = tpl_forms.TemplateCreateForm
 
@@ -104,7 +104,7 @@ class MessageTemplateDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'template_id'
 
 
-class MessageTemplateEdition(generic.edit.EntityEdition):
+class MessageTemplateEdition(generic.EntityEdition):
     model = MessageTemplate
     form_class = tpl_forms.TemplateEditForm
     pk_url_kwarg = 'template_id'

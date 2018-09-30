@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from . import base
-
-from .add import add_entity, add_to_entity, add_model_with_popup
-from .edit import edit_entity, edit_related_to_entity, edit_model_with_popup
+from .add import (
+    add_entity, add_to_entity, add_model_with_popup,
+    CremeModelCreation, EntityCreation,
+    CremeModelCreationPopup, AddingToEntity,
+)
+from .edit import (
+    edit_entity, edit_related_to_entity, edit_model_with_popup,
+    CremeModelEdition, EntityEdition,
+    CremeModelEditionPopup, EntityEditionPopup,
+    RelatedToEntityEdition,
+)
 from .listview import list_view, list_view_popup
 from .portal import app_portal
 from .detailview import view_entity

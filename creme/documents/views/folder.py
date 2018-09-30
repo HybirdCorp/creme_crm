@@ -163,14 +163,14 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class FolderCreation(generic.add.EntityCreation):
+class FolderCreation(generic.EntityCreation):
     model = Folder
     form_class = f_forms.FolderForm
 
 
 # TODO: no CHANGE credentials for parent ?
 # TODO: link_popup.html ?
-class ChildFolderCreation(generic.add.AddingToEntity):
+class ChildFolderCreation(generic.AddingToEntity):
     model = Folder
     form_class = f_forms.ChildFolderForm
     permissions = ['documents', cperm(Folder)]
@@ -189,7 +189,7 @@ class FolderDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'folder_id'
 
 
-class FolderEdition(generic.edit.EntityEdition):
+class FolderEdition(generic.EntityEdition):
     model = Folder
     form_class = f_forms.FolderForm
     pk_url_kwarg = 'folder_id'

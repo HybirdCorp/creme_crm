@@ -34,7 +34,7 @@ from ..models import Alert
 #                                  _('New alert for «%s»'),
 #                                  submit_label=_('Save the alert'),
 #                                 )
-class AlertCreation(generic.add.AddingToEntity):
+class AlertCreation(generic.AddingToEntity):
     model = Alert
     form_class = AlertForm
     title_format = _('New alert for «{}»')
@@ -45,7 +45,7 @@ class AlertCreation(generic.add.AddingToEntity):
 #     return generic.edit_related_to_entity(request, alert_id, Alert, AlertForm,
 #                                           _('Alert for «%s»'),
 #                                          )
-class AlertEdition(generic.edit.RelatedToEntityEdition):
+class AlertEdition(generic.RelatedToEntityEdition):
     model = Alert
     form_class = AlertForm
     pk_url_kwarg = 'alert_id'

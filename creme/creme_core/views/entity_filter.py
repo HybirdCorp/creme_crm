@@ -37,6 +37,7 @@ from ..forms import entity_filter as efilter_forms
 from ..gui.listview import ListViewState
 from ..models import EntityFilter, RelationType  # CremeEntity
 from . import generic
+from .generic.base import EntityCTypeRelatedMixin
 # from .generic import add_entity
 # from .utils import build_cancel_path
 
@@ -72,7 +73,7 @@ class FilterMixin:
         return self.build_lv_url() or reverse('creme_core__home')
 
 
-class FilterCreationMixin(generic.base.EntityCTypeRelatedMixin, FilterMixin):
+class FilterCreationMixin(EntityCTypeRelatedMixin, FilterMixin):
     ctype_form_kwarg = 'ctype'
 
     def get_form_kwargs(self):
@@ -156,9 +157,7 @@ class FilterEditionMixin(FilterMixin):
 #                       # function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
 #                       function_post_save=post_save,
 #                      )
-class EntityFilterCreation(FilterCreationMixin,
-                           generic.add.CremeModelCreation,
-                          ):
+class EntityFilterCreation(FilterCreationMixin, generic.CremeModelCreation):
     model = EntityFilter
     form_class = efilter_forms.EntityFilterCreateForm
     template_name = 'creme_core/forms/entity-filter.html'

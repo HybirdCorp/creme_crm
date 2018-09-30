@@ -165,7 +165,7 @@ class InvoiceDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'invoice_id'
 
 
-class InvoiceEdition(generic.edit.EntityEdition):
+class InvoiceEdition(generic.EntityEdition):
     model = Invoice
     form_class = invoice_forms.InvoiceEditForm
     template_name = 'persons/edit_organisation_form.html'

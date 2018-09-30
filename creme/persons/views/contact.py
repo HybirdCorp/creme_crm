@@ -158,7 +158,7 @@ def listview(request):
 
 # Class-based views  -----------------------------------------------------------
 
-class ContactCreation(generic.add.EntityCreation):
+class ContactCreation(generic.EntityCreation):
     model = Contact
     form_class = c_forms.ContactForm
     template_name = 'persons/add_contact_form.html'
@@ -231,7 +231,7 @@ class ContactDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'contact_id'
 
 
-class ContactEdition(generic.edit.EntityEdition):
+class ContactEdition(generic.EntityEdition):
     model = Contact
     form_class = c_forms.ContactForm
     template_name = 'persons/edit_contact_form.html'

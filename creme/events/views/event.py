@@ -339,7 +339,7 @@ def set_presence_status(request, event_id, contact_id):
 
 # Class-based views  -----------------------------------------------------------
 
-class EventCreation(generic.add.EntityCreation):
+class EventCreation(generic.EntityCreation):
     model = Event
     form_class = event_forms.EventForm
 
@@ -356,13 +356,13 @@ class EventDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'event_id'
 
 
-class EventEdition(generic.edit.EntityEdition):
+class EventEdition(generic.EntityEdition):
     model = Event
     form_class = event_forms.EventForm
     pk_url_kwarg = 'event_id'
 
 
-class AddContactsToEvent(generic.edit.EntityEdition):
+class AddContactsToEvent(generic.EntityEdition):
     model = Event
     form_class = event_forms.AddContactsToEventForm
     template_name = 'creme_core/generics/blockform/link.html'
@@ -375,7 +375,7 @@ class AddContactsToEvent(generic.edit.EntityEdition):
         return reverse('events__list_related_contacts', args=(self.object.id,))
 
 
-class RelatedOpportunityCreation(generic.add.EntityCreation):
+class RelatedOpportunityCreation(generic.EntityCreation):
     model = Opportunity
     form_class = event_forms.RelatedOpportunityCreateForm
     permissions = 'events'

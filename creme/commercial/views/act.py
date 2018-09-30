@@ -200,7 +200,7 @@ def objective_pattern_detailview(request, objpattern_id):
 
 # Class-based views  ----------------------------------------------------------
 
-class ActCreation(generic.add.EntityCreation):
+class ActCreation(generic.EntityCreation):
     model = Act
     form_class = forms.ActForm
 
@@ -212,12 +212,12 @@ class ActCreation(generic.add.EntityCreation):
         return initial
 
 
-class ActObjectivePatternCreation(generic.add.EntityCreation):
+class ActObjectivePatternCreation(generic.EntityCreation):
     model = ActObjectivePattern
     form_class = forms.ObjectivePatternForm
 
 
-class RelatedOpportunityCreation(generic.add.AddingToEntity):
+class RelatedOpportunityCreation(generic.AddingToEntity):
     model = Opportunity
     form_class = OpportunityCreateForm
     permissions = ['opportunities', cperm(Opportunity)]
@@ -257,13 +257,13 @@ class ActObjectivePatternDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'objpattern_id'
 
 
-class ActEdition(generic.edit.EntityEdition):
+class ActEdition(generic.EntityEdition):
     model = Act
     form_class = forms.ActForm
     pk_url_kwarg = 'act_id'
 
 
-class ActObjectivePatternEdition(generic.edit.EntityEdition):
+class ActObjectivePatternEdition(generic.EntityEdition):
     model = ActObjectivePattern
     form_class = forms.ObjectivePatternForm
     pk_url_kwarg = 'objpattern_id'
@@ -299,7 +299,7 @@ def add_opportunity(request, act_id):
 #                                  entity_class=Act,
 #                                  submit_label=_('Save the objective'),
 #                                 )
-class _ObjectiveCreationBase(generic.add.AddingToEntity):
+class _ObjectiveCreationBase(generic.AddingToEntity):
     model = ActObjective
     # form_class = ...
     title_format = _('New objective for «{}»')
@@ -327,7 +327,7 @@ class ObjectiveCreationFromPattern(_ObjectiveCreationBase):
 #                                  entity_class=ActObjectivePattern,
 #                                  submit_label=_('Save the objective'),
 #                                 )
-class PatternComponentCreation(generic.add.AddingToEntity):
+class PatternComponentCreation(generic.AddingToEntity):
     model = ActObjectivePatternComponent
     form_class = forms.PatternComponentForm
     title_format = _('New objective for «{}»')
@@ -384,7 +384,7 @@ def add_parent_pattern_component(request, component_id):
 #                                           forms.ObjectiveForm,
 #                                           ugettext('Objective for «%s»'),
 #                                          )
-class ObjectiveEdition(generic.edit.RelatedToEntityEdition):
+class ObjectiveEdition(generic.RelatedToEntityEdition):
     model = ActObjective
     form_class = forms.ObjectiveForm
     pk_url_kwarg = 'objective_id'

@@ -461,13 +461,13 @@ def edit_line(request, preply_id, line_id):
 # TODO: use PollReply.multi_creation_label when all views are class based.
 #       then fix PollReply.creation_label
 
-class PollRepliesCreation(generic.add.EntityCreation):
+class PollRepliesCreation(generic.EntityCreation):
     model = PollReply
     form_class = preply_forms.PollRepliesCreateForm
     submit_label = PollReply.multi_save_label
 
 
-class _RelatedRepliesCreationBase(generic.add.AddingToEntity):
+class _RelatedRepliesCreationBase(generic.AddingToEntity):
     model = PollReply
     form_class = preply_forms.PollRepliesCreateForm
     permissions = ('polls', _CREATION_PERM)
@@ -500,13 +500,13 @@ class PollReplyDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'preply_id'
 
 
-class PollReplyEdition(generic.edit.EntityEdition):
+class PollReplyEdition(generic.EntityEdition):
     model = PollReply
     form_class = preply_forms.PollReplyEditForm
     pk_url_kwarg = 'preply_id'
 
 
-class LinkingRepliesToPerson(generic.add.AddingToEntity):
+class LinkingRepliesToPerson(generic.AddingToEntity):
     # model = PollReply
     template_name = 'creme_core/generics/blockform/link_popup.html'
     form_class = preply_forms.PersonAddRepliesForm
