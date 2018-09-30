@@ -50,7 +50,7 @@ def abstract_add_ptask(request, project_id, form=task_forms.TaskCreateForm,
                        submit_label=ProjectTask.save_label,
                       ):
     warnings.warn('projects.views.task.abstract_add_ptask() is deprecated ; '
-                  'use the class-based view ProjectTaskCreation instead.',
+                  'use the class-based view TaskCreation instead.',
                   DeprecationWarning
                  )
     return generic.add_to_entity(request, project_id, form, title,
@@ -61,15 +61,19 @@ def abstract_add_ptask(request, project_id, form=task_forms.TaskCreateForm,
 
 def abstract_edit_ptask(request, task_id, form=task_forms.TaskEditForm):
     warnings.warn('projects.views.task.abstract_edit_ptask() is deprecated ; '
-                  'use the class-based view ProjectTaskEdition instead.',
+                  'use the class-based view TaskEdition instead.',
                   DeprecationWarning
                  )
     return generic.edit_entity(request, task_id, ProjectTask, form)
 
 
 def abstract_edit_ptask_popup(request, task_id, form=task_forms.TaskEditForm):
+    warnings.warn('projects.views.task.abstract_edit_ptask_popup() is deprecated ; '
+                  'use the class-based view TaskEditionPopup instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_model_with_popup(request, {'pk': task_id}, ProjectTask, form)
-# TODO: ?
+# todo: ?
 #    return edit_related_to_entity(request, task_id, ProjectTask,
 #                                  TaskEditForm, _(u'Edit a task for «%s»'),
 #                                 )
@@ -79,7 +83,7 @@ def abstract_view_ptask(request, task_id,
                         template='projects/view_task.html',
                        ):
     warnings.warn('projects.views.task.abstract_view_ptask() is deprecated ; '
-                  'use the class-based view ProjectTaskDetail instead.',
+                  'use the class-based view TaskDetail instead.',
                   DeprecationWarning
                  )
     return generic.view_entity(request, task_id, ProjectTask, template=template)
@@ -109,13 +113,14 @@ def edit(request, task_id):
 @login_required
 @permission_required('projects')
 def edit_popup(request, task_id):
+    warnings.warn('projects.views.task.edit_popup() is deprecated.', DeprecationWarning)
     return abstract_edit_ptask_popup(request, task_id)
 
 
-@login_required
-@permission_required('projects')
-def add_parent(request, task_id):
-    return generic.edit_model_with_popup(request, {'pk': task_id}, ProjectTask, task_forms.TaskAddParentForm)
+# @login_required
+# @permission_required('projects')
+# def add_parent(request, task_id):
+#     return generic.edit_model_with_popup(request, {'pk': task_id}, ProjectTask, task_forms.TaskAddParentForm)
 
 
 @login_required
@@ -136,7 +141,7 @@ def delete_parent(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class ProjectTaskCreation(generic.add.AddingToEntity):
+class TaskCreation(generic.add.AddingToEntity):
     model = ProjectTask
     form_class = task_forms.TaskCreateForm
     title_format = _('Create a task for «{}»')
@@ -148,16 +153,36 @@ class ProjectTaskCreation(generic.add.AddingToEntity):
         self.request.user.has_perm_to_create_or_die(ProjectTask)
 
 
-class ProjectTaskDetail(generic.detailview.EntityDetail):
+class TaskDetail(generic.detailview.EntityDetail):
     model = ProjectTask
     template_name = 'projects/view_task.html'
     pk_url_kwarg = 'task_id'
 
 
-class ProjectTaskEdition(generic.edit.EntityEdition):
+class TaskEdition(generic.edit.EntityEdition):
     model = ProjectTask
     form_class = task_forms.TaskEditForm
     pk_url_kwarg = 'task_id'
+
+
+class TaskEditionPopup(generic.edit.EntityEditionPopup):
+    model = ProjectTask
+    form_class = task_forms.TaskEditForm
+    pk_url_kwarg = 'task_id'
+
+
+class ParentsAdding(generic.edit.EntityEditionPopup):
+    model = ProjectTask
+    form_class = task_forms.TaskAddParentForm
+    pk_url_kwarg = 'task_id'
+    title_format = _('Adding parents to «{}»')
+
+
+class ActivityEditionPopup(generic.edit.EntityEditionPopup):
+    model = Activity
+    # NB: the form checks that the Activity is related to a task
+    form_class = task_forms.RelatedActivityEditForm
+    pk_url_kwarg = 'activity_id'
 
 
 # Activities -------------------------------------------------------------------
@@ -179,7 +204,10 @@ class ProjectTaskEdition(generic.edit.EntityEdition):
 
 
 def abstract_edit_activity(request, activity_id, form=task_forms.RelatedActivityEditForm):
-    # TODO: check that its related to a task
+    warnings.warn('projects.views.task.abstract_edit_activity() is deprecated ; '
+                  'use the class-based view ActivityEditionPopup instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_model_with_popup(request, {'pk': activity_id}, Activity, form)
 
 
@@ -202,6 +230,7 @@ class RelatedActivityCreation(generic.add.AddingToEntity):
 @login_required
 @permission_required('projects')
 def edit_activity(request, activity_id):
+    warnings.warn('projects.views.task.edit_activity() is deprecated.', DeprecationWarning)
     return abstract_edit_activity(request, activity_id)
 
 

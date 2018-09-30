@@ -898,9 +898,9 @@ class ReportTestCase(BaseReportsTestCase):
         # self.assertEqual('"Katsuragi","%s","Nerv",""' % user_str,  content.next())
         # self.assertEqual('"Langley","%s","",""' % user_str,        content.next())
         # self.assertRaises(StopIteration, content.next)
-        self.assertEqual('"Ayanami","%s","","Kawaii"' % user_str,  next(content))  # Alphabetical ordering ??
-        self.assertEqual('"Katsuragi","%s","Nerv",""' % user_str,  next(content))
-        self.assertEqual('"Langley","%s","",""' % user_str,        next(content))
+        self.assertEqual('"Ayanami","{}","","Kawaii"'.format(user_str),  next(content))  # Alphabetical ordering ??
+        self.assertEqual('"Katsuragi","{}","Nerv",""'.format(user_str),  next(content))
+        self.assertEqual('"Langley","{}","",""'.format(user_str),        next(content))
         with self.assertRaises(StopIteration):
             next(content)
 
@@ -945,7 +945,7 @@ class ReportTestCase(BaseReportsTestCase):
         # content = [s for s in response.content.split('\r\n') if s]
         content = [s for s in response.content.decode().split('\r\n') if s]
         self.assertEqual(2, len(content))
-        self.assertEqual('"Baby","%s","",""' % user, content[1])
+        self.assertEqual('"Baby","{}","",""'.format(user), content[1])
 
     def test_report_csv05(self):
         "Errors: invalid GET param"
@@ -994,7 +994,7 @@ class ReportTestCase(BaseReportsTestCase):
         # content = (s for s in response.content.split('\r\n') if s)
         content = (s for s in response.content.decode().split('\r\n') if s)
         # self.assertEqual(smart_str('"%s"' % _('Last name')), content.next())
-        self.assertEqual(smart_str('"%s"' % _('Last name')), next(content))
+        self.assertEqual(smart_str('"{}"'.format(_('Last name'))), next(content))
 
         # self.assertEqual('"Ayanami"',   content.next())
         # self.assertEqual('"Katsuragi"', content.next())
@@ -1008,7 +1008,7 @@ class ReportTestCase(BaseReportsTestCase):
         hidden_fname = 'description'
         FieldsConfig.create(FakeImage,
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                            )
+                           )
 
         self._create_persons()
 
@@ -1060,28 +1060,38 @@ class ReportTestCase(BaseReportsTestCase):
         report = self._create_simple_contacts_report('Report #1')
         url = self._build_editfields_url(report)
         self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Edit columns of «%s»').format(report), response.context.get('title'))
+        self.assertEqual(_('Edit columns of «{}»').format(report), response.context.get('title'))
 
+        # ---
         old_rfield = report.columns[0]
 
-        self.assertNoFormError(self.client.post(url, data={'columns': 'regular_field-last_name,regular_field-first_name'}))
+        self.assertNoFormError(
+            self.client.post(url, data={'columns': 'regular_field-last_name,'
+                                                   'regular_field-first_name',
+                                       }
+                            )
+        )
 
         columns = self.refresh(report).columns
         self.assertEqual(2, len(columns))
 
         column = columns[0]
-        self.assertEqual('last_name',     column.name)
+        self.assertEqual('last_name',    column.name)
         self.assertEqual(_('Last name'), column.title)
-        self.assertEqual(1,               column.order)
-        self.assertEqual(RFT_FIELD,       column.type)
+        self.assertEqual(1,              column.order)
+        self.assertEqual(RFT_FIELD,      column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
         self.assertEqual(old_rfield.id, column.id)
         self.assertEqual(old_rfield,    column)
 
         column = columns[1]
-        self.assertEqual('first_name',     column.name)
+        self.assertEqual('first_name',    column.name)
         self.assertEqual(_('First name'), column.title)
-        self.assertEqual(2,                column.order)
+        self.assertEqual(2,               column.order)
 
     def test_edit_fields02(self):
         "FK, Custom field, aggregate on CustomField; additional old Field deleted"
@@ -1098,7 +1108,7 @@ class ReportTestCase(BaseReportsTestCase):
         f_name = 'last_name'
         fk_name = 'image'
         cf_id = str(cf.id)
-        aggr_id = '%s__max' % cf_id
+        aggr_id = '{}__max'.format(cf_id)
         response = self.client.post(self._build_editfields_url(report),
                                     data={'columns': 'regular_field-{rfield},'
                                                      'custom_field-{cfield},'
@@ -1378,11 +1388,12 @@ class ReportTestCase(BaseReportsTestCase):
 
         fname = 'image__categories'
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                    data={'columns': 'regular_field-{rfield1},'
+                                                     'regular_field-{rfield2}'.format(
                                                             rfield1='last_name',
                                                             rfield2=fname,
                                                         ),
-                                              }
+                                         }
                                    )
         self.assertNoFormError(response)
 
@@ -1392,6 +1403,27 @@ class ReportTestCase(BaseReportsTestCase):
         column = columns[1]
         self.assertEqual(fname, column.name)
         self.assertEqual(RFT_FIELD, column.type)
+
+    def test_edit_fields_not_super_user01(self):
+        user = self.login(is_superuser=False, allowed_apps=['reports'])
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        report = Report.objects.create(name='Contact report', user=user, ct=self.ct_contact)
+        self.assertGET200(self._build_editfields_url(report))
+
+    def test_edit_fields_not_super_user02(self):
+        "Edition permission on Report are needed."
+        user = self.login(is_superuser=False, allowed_apps=['reports'])
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,  # EntityCredentials.CHANGE
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        report = Report.objects.create(name='Contact report', user=user, ct=self.ct_contact)
+        self.assertGET403(self._build_editfields_url(report))
 
     def test_edit_fields_errors01(self):
         self.login()
@@ -1693,7 +1725,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         create_contact = partial(FakeContact.objects.create, user=user)
         for i in range(5):
-            create_contact(last_name='Mister %s' % i)
+            create_contact(last_name='Mister {}'.format(i))
 
         create_contact(last_name='Mister X', is_deleted=True)
 

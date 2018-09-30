@@ -24,7 +24,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView
 
 from creme.creme_core import forms, models
@@ -83,7 +83,7 @@ def edit_related_to_entity(request, pk, model, form_class, title_format,
     @param model: title_format A format unicode with an arg (for the related entity).
     """
     warnings.warn('creme_core.views.generic.edit.edit_related_to_entity() is deprecated ; '
-                  'use the class-based views RelatedToEntityEdition instead.',
+                  'use the class-based view RelatedToEntityEdition instead.',
                   DeprecationWarning
                  )
 
@@ -121,13 +121,18 @@ def edit_model_with_popup(request, query_dict, model, form_class,
                           submit_label=_('Save the modifications'),
                          ):
     """Get & edit an instance in a inner popup.
-    @param query_dict A dictionary which represents the query to retrieve the
-                      edited instance (eg: {'pk': 12})
-    @param model A django model class which implements the method get_related_entity().
-    @param model title_format A format unicode with an arg (for the edited instance).
-    @param can_change A function with instance and user as parameters, which
-                      returns a Boolean: False causes a 403 error.
+    @param query_dict: A dictionary which represents the query to retrieve the
+           edited instance (eg: {'pk': 12})
+    @param model: A django model class which implements the method get_related_entity().
+    @param title_format: A format unicode with an arg (for the edited instance).
+    @param can_change: A function with instance and user as parameters, which
+           returns a Boolean: False causes a 403 error.
     """
+    warnings.warn('creme_core.views.generic.edit.edit_model_with_popup() is deprecated ; '
+                  'use the class-based views CremeModelEditionPopup/EntityEditionPopup instead.',
+                  DeprecationWarning
+                 )
+
     instance = get_object_or_404(model, **query_dict)
     user = request.user
 
@@ -147,7 +152,7 @@ def edit_model_with_popup(request, query_dict, model, form_class,
     else:  # return page on GET request
         edit_form = form_class(user=user, instance=instance)
 
-    title_format = title_format or _(u'Edit «%s»')
+    title_format = title_format or _('Edit «%s»')
 
     return popup.inner_popup(
         request, template,
@@ -180,13 +185,20 @@ class CremeModelEdition(base.CancellableMixin, base.PermissionsMixin, UpdateView
     in order to serialize modifications correctly (eg: 2 form submissions
     at the same time won't causes some fields modifications of one form to
     be backed out by the 'initial' field value of the other form).
+
+    New attributes:
+    title_format: A {}-format string formatted with the edited instance as
+                  argument (see get_title()).
     """
     model = models.CremeModel
     form_class = forms.CremeModelForm
     template_name = 'creme_core/generics/blockform/edit.html'
     pk_url_kwarg = 'object_id'
-    title = None  # None means a generic title is generated (see get_title()).
+    title_format = _('Edit «{}»')
     submit_label = _('Save the modifications')
+
+    def check_instance_permissions(self, instance, user):
+        pass
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -209,20 +221,28 @@ class CremeModelEdition(base.CancellableMixin, base.PermissionsMixin, UpdateView
         return kwargs
 
     def get_object(self, queryset=None):
-        if self.request.method == 'POST':
+        request = self.request
+
+        if request.method == 'POST':
             if queryset is None:
                 queryset = self.get_queryset()
 
-            return super().get_object(queryset=queryset.select_for_update())
+            instance = super().get_object(queryset=queryset.select_for_update())
         else:
-            return super().get_object(queryset=queryset)
+            instance = super().get_object(queryset=queryset)
+
+        self.check_instance_permissions(instance, request.user)
+
+        return instance
 
     def get_submit_label(self):
         return self.submit_label
 
+    def get_title_format(self):
+        return self.title_format
+
     def get_title(self):
-        title = self.title
-        return ugettext('Edit «{}»').format(self.object) if title is None else title
+        return self.get_title_format().format(self.object)
 
     @atomic
     def post(self, *args, **kwargs):
@@ -239,15 +259,12 @@ class EntityEdition(CremeModelEdition):
     form_class = forms.CremeEntityForm
     pk_url_kwarg = 'entity_id'
 
+    def check_instance_permissions(self, instance, user):
+        user.has_perm_to_change_or_die(instance)
+
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
         user.has_perm_to_access_or_die(self.model._meta.app_label)
-
-    def get_object(self, *args, **kwargs):
-        entity = super().get_object(*args, **kwargs)
-        self.request.user.has_perm_to_change_or_die(entity)
-
-        return entity
 
 
 # TODO: factorise with CremeModelCreationPopup ?
@@ -284,6 +301,23 @@ class CremeModelEditionPopup(popup.InnerPopupMixin, CremeModelEdition):
                      )
 
 
+class EntityEditionPopup(CremeModelEditionPopup):
+    """ Base class to edit CremeEntities with a form in an Inner-Popup.
+
+    It's based on CremeModelEditionPopup & adds the credentials checking.
+    """
+    model = models.CremeEntity
+    form_class = forms.CremeEntityForm
+    pk_url_kwarg = 'entity_id'
+
+    def check_instance_permissions(self, instance, user):
+        user.has_perm_to_change_or_die(instance)
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        user.has_perm_to_access_or_die(self.model._meta.app_label)
+
+
 # TODO: factorise with AddingToEntity ?
 class RelatedToEntityEdition(CremeModelEditionPopup):
     """ This specialisation of CremeModelEditionPopup is made for models
@@ -295,10 +329,10 @@ class RelatedToEntityEdition(CremeModelEditionPopup):
     entity_form_kwarg: The related entity is given to the form with this name.
                        ('entity' by default).
                        <None> means the entity is not passed to the form.
+
+    NB: the argument of "title_format" is the related entity (see get_title()).
     """
     entity_form_kwarg = 'entity'
-    title_format = None  # If a {}-format string is given, it's used to built
-                         # the title with the related entity as argument (see get_title())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -333,14 +367,8 @@ class RelatedToEntityEdition(CremeModelEditionPopup):
 
         return entity
 
-    def get_title_format(self):
-        return self.title_format
-
     def get_title(self):
-        title_format = self.get_title_format()
-
-        return title_format.format(self.get_related_entity()
-                                       .allowed_str(self.request.user)
-                                  ) \
-               if title_format is not None else\
-               super().get_title()
+        return self.get_title_format() \
+                   .format(self.get_related_entity()
+                               .allowed_str(self.request.user)
+                          )

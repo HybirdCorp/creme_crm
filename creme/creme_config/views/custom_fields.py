@@ -28,7 +28,7 @@ from creme.creme_core.views import generic
 
 from ..forms import custom_fields as cf_forms
 
-from .base import BaseConfigCreation
+from . import base
 from .portal import _config_portal
 
 
@@ -40,7 +40,7 @@ from .portal import _config_portal
 #               _('New custom field configuration'),
 #               submit_label=_('Save the configuration'),
 #     )
-class FirstCTypeCustomFieldCreation(BaseConfigCreation):
+class FirstCTypeCustomFieldCreation(base.BaseConfigCreation):
     model = CustomField
     form_class = cf_forms.CustomFieldsCTAddForm
     title = _('New custom field configuration')
@@ -56,7 +56,7 @@ class FirstCTypeCustomFieldCreation(BaseConfigCreation):
 #                             initial={'ct': ct},
 #                            )
 class CustomFieldCreation(generic.base.EntityCTypeRelatedMixin,
-                          BaseConfigCreation,
+                          base.BaseConfigCreation,
                          ):
     model = CustomField
     form_class = cf_forms.CustomFieldsAddForm
@@ -78,12 +78,16 @@ def portal(request):
     return _config_portal(request, 'creme_config/custom_fields_portal.html')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def edit(request, field_id):
-    return generic.edit_model_with_popup(request, {'pk': field_id},
-                                         CustomField, cf_forms.CustomFieldsEditForm,
-                                        )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def edit(request, field_id):
+#     return generic.edit_model_with_popup(request, {'pk': field_id},
+#                                          CustomField, cf_forms.CustomFieldsEditForm,
+#                                         )
+class CustomFieldEdition(base.BaseConfigEdition):
+    model = CustomField
+    form_class = cf_forms.CustomFieldsEditForm
+    pk_url_kwarg = 'field_id'
 
 
 @login_required

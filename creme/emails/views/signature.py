@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
@@ -33,33 +33,35 @@ from ..forms.signature import SignatureForm
 from ..models import EmailSignature
 
 
-@login_required
-@permission_required('emails')
-def add(request):
-    warnings.warn('emails.views.signature.add() is deprecated. ; '
-                  'use the class SignatureCreation instead.',
-                  DeprecationWarning
-                 )
-
-    return generic.add_model_with_popup(request, SignatureForm,
-                                        title=EmailSignature.creation_label,
-                                        submit_label=EmailSignature.save_label,
-                                       )
-
-
+# @login_required
+# @permission_required('emails')
+# def add(request):
+#     return generic.add_model_with_popup(request, SignatureForm,
+#                                         title=EmailSignature.creation_label,
+#                                         submit_label=EmailSignature.save_label,
+#                                        )
 class SignatureCreation(generic.add.CremeModelCreationPopup):
     model = EmailSignature
     form_class = SignatureForm
     permissions = 'emails'
 
 
-@login_required
-@permission_required('emails')
-def edit(request, signature_id):
-    return generic.edit_model_with_popup(request, {'pk': signature_id},
-                                         model=EmailSignature, form_class=SignatureForm,
-                                         can_change=EmailSignature.can_change_or_delete,
-                                        )
+# @login_required
+# @permission_required('emails')
+# def edit(request, signature_id):
+#     return generic.edit_model_with_popup(request, {'pk': signature_id},
+#                                          model=EmailSignature, form_class=SignatureForm,
+#                                          can_change=EmailSignature.can_change_or_delete,
+#                                         )
+class SignatureEdition(generic.edit.CremeModelEditionPopup):
+    model = EmailSignature
+    form_class = SignatureForm
+    pk_url_kwarg = 'signature_id'
+    permissions = 'emails'
+
+    def check_instance_permissions(self, instance, user):
+        if not instance.can_change_or_delete(user):
+            raise PermissionDenied(_('You can not edit this signature (not yours)'))
 
 
 @login_required

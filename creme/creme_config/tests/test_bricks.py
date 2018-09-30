@@ -2057,11 +2057,17 @@ class BricksConfigTestCase(CremeTestCase):
         name = 'info'
         cbc_item = CustomBrickConfigItem.objects.create(id='tests-contacts1',
                                                         content_type=ct, name=name,
-                                                        )
+                                                       )
 
         url = self._build_custombrick_edit_url(cbc_item)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Edit the block «%s»') % cbc_item,
+        self.assertEqual(_('Edit the block «{}»').format(cbc_item),
+                         response.context.get('title')
+                        )
 
+        # ---
         name = name.title()
         field_lname = 'last_name'
         field_subname = 'address__city'

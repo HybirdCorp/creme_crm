@@ -62,8 +62,9 @@ urlpatterns = [
     url(r'^signature/', include([
         # url(r'^add[/]?$',                        signature.add,    name='emails__create_signature'),
         url(r'^add[/]?$',                        signature.SignatureCreation.as_view(), name='emails__create_signature'),
-        url(r'^edit/(?P<signature_id>\d+)[/]?$', signature.edit,   name='emails__edit_signature'),
-        url(r'^delete[/]?$',                     signature.delete, name='emails__delete_signature'),
+        # url(r'^edit/(?P<signature_id>\d+)[/]?$', signature.edit,   name='emails__edit_signature'),
+        url(r'^edit/(?P<signature_id>\d+)[/]?$', signature.SignatureEdition.as_view(),  name='emails__edit_signature'),
+        url(r'^delete[/]?$',                     signature.delete,                      name='emails__delete_signature'),
     ])),
 ]
 

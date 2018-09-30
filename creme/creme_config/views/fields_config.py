@@ -31,10 +31,12 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import edit_model_with_popup
+# from creme.creme_core.views.generic import edit_model_with_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
-from ..forms.fields_config import FieldsConfigAddForm, FieldsConfigEditForm
+from ..forms import fields_config as fconf_forms
+
+from .base import BaseConfigEdition
 
 
 @login_required
@@ -44,12 +46,16 @@ def portal(request):
                  )
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def edit(request, fconf_id):
-    return edit_model_with_popup(request, {'pk': fconf_id}, model=FieldsConfig,
-                                 form_class=FieldsConfigEditForm,
-                                )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def edit(request, fconf_id):
+#     return edit_model_with_popup(request, {'pk': fconf_id}, model=FieldsConfig,
+#                                  form_class=fconf_forms.FieldsConfigEditForm,
+#                                 )
+class FieldsConfigEdition(BaseConfigEdition):
+    model = FieldsConfig
+    form_class = fconf_forms.FieldsConfigEditForm
+    pk_url_kwarg = 'fconf_id'
 
 
 @login_required
@@ -60,18 +66,19 @@ def delete(request):
     return HttpResponse()
 
 
+# TODO: rename Field_S_ConfigWizard
 class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
-    class _ModelStep(FieldsConfigAddForm):
+    class _ModelStep(fconf_forms.FieldsConfigAddForm):
         step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
 
         def __init__(self, *args, **kwargs):
             # super(FieldConfigWizard._ModelStep, self).__init__(*args, **kwargs)
             super().__init__(*args, **kwargs)
             if not self.ctypes:
-                raise ConflictError(ugettext(u'All configurable types of resource are already configured.'))
+                raise ConflictError(ugettext('All configurable types of resource are already configured.'))
 
-    class _ConfigStep(FieldsConfigEditForm):
-        step_prev_label = _(u'Previous step')
+    class _ConfigStep(fconf_forms.FieldsConfigEditForm):
+        step_prev_label = _('Previous step')
         step_submit_label = FieldsConfig.save_label
 
     form_list = (_ModelStep, _ConfigStep)

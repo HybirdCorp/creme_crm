@@ -69,24 +69,11 @@ def _popup_title(model_conf):
     return title if title is not None else _('New value: {model}').format(model=model._meta.verbose_name)
 
 
-# @login_required
-# def add_model(request, app_name, model_name):
-#     model_conf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
-#
-#     return generic.add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
-#                                         template='creme_core/generics/form/add_innerpopup.html',
-#                                        )
-class GenericCreation(generic.add.CremeModelCreationPopup):
-    template_name = 'creme_core/generics/form/add_innerpopup.html'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.model_conf = None
-
+class ModelConfMixin:
     def get_model_conf(self):
-        mconf = self.model_conf
-
-        if mconf is None:
+        try:
+            mconf = getattr(self, 'model_conf')
+        except AttributeError:
             self.model_conf = mconf = \
                 _get_modelconf(app_config=_get_appconf(user=self.request.user,
                                                        app_name=self.kwargs['app_name'],
@@ -95,6 +82,17 @@ class GenericCreation(generic.add.CremeModelCreationPopup):
                               )
 
         return mconf
+
+
+# @login_required
+# def add_model(request, app_name, model_name):
+#     model_conf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
+#
+#     return generic.add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
+#                                         template='creme_core/generics/form/add_innerpopup.html',
+#                                        )
+class GenericCreation(ModelConfMixin, generic.add.CremeModelCreationPopup):
+    template_name = 'creme_core/generics/form/add_innerpopup.html'
 
     def get_form_class(self):
         return self.get_model_conf().model_form
@@ -189,16 +187,24 @@ def delete_model(request, app_name, model_name):
     return HttpResponse()
 
 
-@login_required
-def edit_model(request, app_name, model_name, object_id):
-    modelconf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
+# @login_required
+# def edit_model(request, app_name, model_name, object_id):
+#     modelconf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
+#
+#     return generic.edit_model_with_popup(request,
+#                                          {'pk': object_id},
+#                                          modelconf.model,
+#                                          modelconf.model_form,
+#                                          template='creme_core/generics/form/edit_innerpopup.html',
+#                                         )
+class GenericEdition(ModelConfMixin, generic.edit.CremeModelEditionPopup):
+    template_name = 'creme_core/generics/form/edit_innerpopup.html'
 
-    return generic.edit_model_with_popup(request,
-                                         {'pk': object_id},
-                                         modelconf.model,
-                                         modelconf.model_form,
-                                         template='creme_core/generics/form/edit_innerpopup.html',
-                                        )
+    def get_form_class(self):
+        return self.get_model_conf().model_form
+
+    def get_queryset(self):
+        return self.get_model_conf().model._default_manager.all()
 
 
 @login_required

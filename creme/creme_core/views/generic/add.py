@@ -287,10 +287,11 @@ class AddingToEntity(base.EntityRelatedMixin, CremeModelCreationPopup):
     entity_form_kwarg: The related entity is given to the form with this name.
                        ('entity' by default).
                        <None> means the entity is not passed to the form.
+    title_format: If a {}-format string is given, it's used to built
+                  the title with the related entity as argument (see get_title()).
     """
     entity_form_kwarg = 'entity'
-    title_format = None  # If a {}-format string is given, it's used to built
-                         # the title with the related entity as argument (see get_title())
+    title_format = None
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)

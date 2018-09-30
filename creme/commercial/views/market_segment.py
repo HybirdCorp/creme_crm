@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.urls import reverse
 from django.http import HttpResponse
@@ -37,32 +37,32 @@ from ..models import MarketSegment
 logger = logging.getLogger(__name__)
 
 
-@login_required
-@permission_required('commercial')
-def add(request):
-    warnings.warn('commercial.views.market_segment.add() is deprecated ;'
-                  'use the class MarketSegmentCreation instead.',
-                  DeprecationWarning
-                 )
-
-    return generic.add_model_with_popup(request, segment_forms.MarketSegmentForm,
-                                        title=_('New market segment'),
-                                        submit_label=_('Save the market segment'),
-                                       )
+# @login_required
+# @permission_required('commercial')
+# def add(request):
+#     return generic.add_model_with_popup(request, segment_forms.MarketSegmentForm,
+#                                         title=_('New market segment'),
+#                                         submit_label=_('Save the market segment'),
+#                                        )
 
 
-class MarketSegmentCreation(generic.add.CremeModelCreationPopup):
+class SegmentCreation(generic.add.CremeModelCreationPopup):
     model = MarketSegment
     form_class = segment_forms.MarketSegmentForm
     permissions = 'commercial'
 
 
-@login_required
-@permission_required('commercial')
-def edit(request, segment_id):
-    return generic.edit_model_with_popup(request, {'id': segment_id}, MarketSegment,
-                                         segment_forms.MarketSegmentForm,
-                                        )
+# @login_required
+# @permission_required('commercial')
+# def edit(request, segment_id):
+#     return generic.edit_model_with_popup(request, {'id': segment_id}, MarketSegment,
+#                                          segment_forms.MarketSegmentForm,
+#                                         )
+class SegmentEdition(generic.edit.CremeModelEditionPopup):
+    model = MarketSegment
+    form_class = segment_forms.MarketSegmentForm
+    pk_url_kwarg = 'segment_id'
+    permissions = 'commercial'
 
 
 @login_required

@@ -23,7 +23,7 @@ from copy import copy
 from datetime import datetime, timedelta
 import logging
 from json import dumps as jsondumps
-import warnings
+# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
@@ -273,33 +273,35 @@ def update_activity_date(request):
     activity.save()
 
 
-@login_required
-@permission_required('activities')
-def add_user_calendar(request):
-    warnings.warn('activities.views.calendar.add_user_calendar() is deprecated ; '
-                  'use the class UserCalendarCreation instead.',
-                  DeprecationWarning
-                 )
-
-    return generic.add_model_with_popup(request, calendar_forms.CalendarForm,
-                                        title=_('Create a calendar'),
-                                        submit_label=_('Save the calendar'),
-                                       )
-
-
-class UserCalendarCreation(generic.add.CremeModelCreationPopup):
+# @login_required
+# @permission_required('activities')
+# def add_user_calendar(request):
+#     return generic.add_model_with_popup(request, calendar_forms.CalendarForm,
+#                                         title=_('Create a calendar'),
+#                                         submit_label=_('Save the calendar'),
+#                                        )
+class CalendarCreation(generic.add.CremeModelCreationPopup):
     model = Calendar
     form_class = calendar_forms.CalendarForm
     permissions = 'activities'
 
 
-@login_required
-@permission_required('activities')
-def edit_user_calendar(request, calendar_id):
-    return generic.edit_model_with_popup(request, query_dict={'pk': calendar_id},
-                                         model=Calendar, form_class=calendar_forms.CalendarForm,
-                                         can_change=lambda calendar, user: calendar.user == user,  # TODO: and superuser ??
-                                        )
+# @login_required
+# @permission_required('activities')
+# def edit_user_calendar(request, calendar_id):
+#     return generic.edit_model_with_popup(request, query_dict={'pk': calendar_id},
+#                                          model=Calendar, form_class=calendar_forms.CalendarForm,
+#                                          can_change=lambda calendar, user: calendar.user == user,  # todo: and superuser ??
+#                                         )
+class CalendarEdition(generic.edit.CremeModelEditionPopup):
+    model = Calendar
+    form_class = calendar_forms.CalendarForm
+    permissions = 'activities'
+    pk_url_kwarg = 'calendar_id'
+
+    def check_instance_permissions(self, instance, user):
+        if instance.user != user:  # TODO: and superuser ??
+            raise PermissionDenied('You cannot edit this Calendar (it is noy yours).')
 
 
 @login_required
@@ -322,11 +324,18 @@ def delete_user_calendar(request):
     calendar.delete()
 
 
-@login_required
-@permission_required('activities')
-def link_user_calendar(request, activity_id):
-    return generic.edit_model_with_popup(request, query_dict={'pk': activity_id},
-                                         model=Activity, form_class=calendar_forms.ActivityCalendarLinkerForm,
-                                         title_format=_('Change calendar of «%s»'),
-                                         can_change=lambda activity, user: True,
-                                        )
+# @login_required
+# @permission_required('activities')
+# def link_user_calendar(request, activity_id):
+#     return generic.edit_model_with_popup(request, query_dict={'pk': activity_id},
+#                                          model=Activity,
+#                                          form_class=calendar_forms.ActivityCalendarLinkerForm,
+#                                          title_format=_('Change calendar of «%s»'),
+#                                          can_change=lambda activity, user: True,
+#                                         )
+class CalendarLinking(generic.edit.CremeModelEditionPopup):
+    model = Activity
+    form_class = calendar_forms.ActivityCalendarLinkerForm
+    permissions = 'activities'
+    pk_url_kwarg = 'activity_id'
+    title_format = _('Change calendar of «{}»')

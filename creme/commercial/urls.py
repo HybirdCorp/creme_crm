@@ -21,8 +21,9 @@ urlpatterns = [
     # Segments
     url(r'^market_segments[/]?$',                           market_segment.listview, name='commercial__list_segments'),
     # url(r'^market_segment/add[/]?$',                        market_segment.add,      name='commercial__create_segment'),
-    url(r'^market_segment/add[/]?$',                        market_segment.MarketSegmentCreation.as_view(), name='commercial__create_segment'),
-    url(r'^market_segment/edit/(?P<segment_id>\d+)[/]?$',   market_segment.edit,     name='commercial__edit_segment'),
+    url(r'^market_segment/add[/]?$',                        market_segment.SegmentCreation.as_view(), name='commercial__create_segment'),
+    # url(r'^market_segment/edit/(?P<segment_id>\d+)[/]?$',   market_segment.edit,     name='commercial__edit_segment'),
+    url(r'^market_segment/edit/(?P<segment_id>\d+)[/]?$',   market_segment.SegmentEdition.as_view(),  name='commercial__edit_segment'),
     url(r'^market_segment/delete/(?P<segment_id>\d+)[/]?$', market_segment.delete,   name='commercial__delete_segment'),
 
     # Objectives & opportunities

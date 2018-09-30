@@ -350,8 +350,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(other_user.has_perm_to_view(briareos))
 
         url = self._build_edit_url(other_user.id)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertEqual(_('Edit «{}»').format(other_user), response.context.get('title'))
 
+        # ----
         first_name = 'Deunan'
         last_name  = 'Knut'
         email      = 'd.knut@eswat.ol'
@@ -445,13 +448,45 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(other_user.is_superuser)
 
     @skipIfNotCremeUser
+    def test_edit05(self):
+        "Even a super-user cannot edit a staff user"
+        self.login()
+
+        user = User.objects.create_user(username='deunan',
+                                        first_name='Deunan',
+                                        last_name='Knut',
+                                        email='d.knut@eswat.ol',
+                                        password='uselesspw',
+                                        is_staff=True,
+                                       )
+        self.assertGET404(self._build_edit_url(user.id))
+
+    @skipIfNotCremeUser
+    def test_edit06(self):
+        "A staff-user can edit a staff user"
+        self.login(is_staff=True)
+
+        user = User.objects.create_user(username='deunan',
+                                        first_name='Deunan',
+                                        last_name='Knut',
+                                        email='d.knut@eswat.ol',
+                                        password='uselesspw',
+                                        is_staff=True,
+                                       )
+        self.assertGET200(self._build_edit_url(user.id))
+
+    @skipIfNotCremeUser
     def test_change_password01(self):
         self.login()
 
         other_user = User.objects.create(username='deunan')
         url = self._build_edit_url(other_user.id, password=True)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Change password for «%s»') % other_user, response.context.get('title'))
+        self.assertEqual(_('Change password for «{}»').format(other_user), response.context.get('title'))
 
+        # ---
         password = 'password'
         response = self.client.post(url, follow=True,
                                     data={'password_1': password,

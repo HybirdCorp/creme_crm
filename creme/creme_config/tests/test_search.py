@@ -209,9 +209,13 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = self._build_edit_url(sci)
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        self.assertEqual(_('Edit «{}»').format(sci), context.get('title'))
 
         with self.assertNoException():
-            fields = response.context['form'].fields['fields']
+            fields = context['form'].fields['fields']
 
         self.assertEqual(['last_name'], fields.initial)
 

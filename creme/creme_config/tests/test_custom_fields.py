@@ -128,8 +128,13 @@ class CustomFieldsTestCase(CremeTestCase):
         cfield = CustomField.objects.create(content_type=ct, name=name, field_type=CustomField.STR)
 
         url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        context = response.context
+        self.assertEqual(_('Edit «{}»').format(cfield), context.get('title'))
+
+        # ---
         name = name.title()
         self.assertNoFormError(self.client.post(url, data={'name': name}))
         self.assertEqual(name, self.refresh(cfield).name)

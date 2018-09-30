@@ -89,8 +89,16 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         segment = self._create_segment(name)
         ptype_count = CremePropertyType.objects.count()
         url = segment.get_edit_absolute_url()
-        self.assertGET200(url)
 
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('Edit «%s»') % segment, context.get('title'))
+        self.assertEqual(_('Edit «{}»').format(segment), context.get('title'))
+        self.assertEqual(_('Save the modifications'),    context.get('submit_label'))
+
+        # ---
         name = name.title()
         self.assertNoFormError(self.client.post(url, data={'name': name}))
 
@@ -167,6 +175,24 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         segment = self.refresh(segment)
         self.assertEqual(name, segment.name)
         self.assertEqual(ptype_count, CremePropertyType.objects.count())
+
+    def test_edit06(self):
+        "Not super-user"
+        self.login(is_superuser=False, allowed_apps=['commercial'])
+
+        segment = self._create_segment('Industry')
+        self.assertGET200(segment.get_edit_absolute_url())
+
+    def test_edit07(self):
+        "No app permission"
+        self.login(is_superuser=False)  # allowed_apps=['commercial']
+
+        ptype = CremePropertyType.objects.create(
+            pk='commercial-test_market_segment_test_edit_07',
+            text='Is an otaku',
+        )
+        segment = MarketSegment.objects.create(name='Otakus', property_type=ptype)
+        self.assertGET403(segment.get_edit_absolute_url())
 
     @skipIfCustomOrganisation
     def test_segment_delete01(self):
