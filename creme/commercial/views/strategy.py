@@ -105,7 +105,7 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class StrategyCreation(generic.add.EntityCreation):
+class StrategyCreation(generic.EntityCreation):
     model = Strategy
     form_class = forms.StrategyForm
 
@@ -116,13 +116,13 @@ class StrategyDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'strategy_id'
 
 
-class StrategyEdition(generic.edit.EntityEdition):
+class StrategyEdition(generic.EntityEdition):
     model = Strategy
     form_class = forms.StrategyForm
     pk_url_kwarg = 'strategy_id'
 
 
-class _AddToStrategy(generic.add.AddingToEntity):
+class _AddToStrategy(generic.AddingToEntity):
     entity_id_url_kwarg = 'strategy_id'
     entity_classes = Strategy
 
@@ -159,7 +159,7 @@ class EvaluatedOrgaAdding(_AddToStrategy):
     submit_label = _('Link the organisation(s)')
 
 
-class SegmentDescEdition(generic.edit.RelatedToEntityEdition):
+class SegmentDescEdition(generic.RelatedToEntityEdition):
     model = MarketSegmentDescription
     form_class = forms.SegmentEditForm
     permissions = 'commercial'
@@ -167,7 +167,7 @@ class SegmentDescEdition(generic.edit.RelatedToEntityEdition):
     title_format = _('Segment for «{}»')
 
 
-class AssetEdition(generic.edit.RelatedToEntityEdition):
+class AssetEdition(generic.RelatedToEntityEdition):
     model = CommercialAsset
     form_class = forms.AssetForm
     permissions = 'commercial'
@@ -175,7 +175,7 @@ class AssetEdition(generic.edit.RelatedToEntityEdition):
     title_format = _('Asset for «{}»')
 
 
-class CharmEdition(generic.edit.RelatedToEntityEdition):
+class CharmEdition(generic.RelatedToEntityEdition):
     model = MarketSegmentCharm
     form_class = forms.CharmForm
     permissions = 'commercial'

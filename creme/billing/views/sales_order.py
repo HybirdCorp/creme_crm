@@ -148,7 +148,7 @@ class SalesOrderDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'order_id'
 
 
-class SalesOrderEdition(generic.edit.EntityEdition):
+class SalesOrderEdition(generic.EntityEdition):
     model = SalesOrder
     form_class = order_forms.SalesOrderEditForm
     pk_url_kwarg = 'order_id'

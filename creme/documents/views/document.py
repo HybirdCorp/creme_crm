@@ -129,7 +129,7 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class DocumentCreation(generic.add.EntityCreation):
+class DocumentCreation(generic.EntityCreation):
     model = Document
     form_class = doc_forms.DocumentCreateForm
 
@@ -143,7 +143,7 @@ class DocumentCreation(generic.add.EntityCreation):
         return initial
 
 
-class RelatedDocumentCreation(generic.add.AddingToEntity):
+class RelatedDocumentCreation(generic.AddingToEntity):
     model = Document
     form_class = doc_forms.RelatedDocumentCreateForm
     permissions = ['documents', cperm(Document)]
@@ -164,7 +164,7 @@ class DocumentDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'document_id'
 
 
-class DocumentEdition(generic.edit.EntityEdition):
+class DocumentEdition(generic.EntityEdition):
     model = Document
     form_class = doc_forms.DocumentEditForm
     pk_url_kwarg = 'document_id'

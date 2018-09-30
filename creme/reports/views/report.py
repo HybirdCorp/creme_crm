@@ -177,7 +177,7 @@ def link_report(request, field_id):
 #                                          form_class=report_forms.ReportFieldsForm,
 #                                          title_format=_('Edit columns of «%s»'),
 #                                         )
-class FieldsEdition(generic.edit.EntityEditionPopup):
+class FieldsEdition(generic.EntityEditionPopup):
     model = Report
     form_class = report_forms.ReportFieldsForm
     pk_url_kwarg = 'report_id'
@@ -233,7 +233,7 @@ def set_selected(request):
 # Class-based views  ----------------------------------------------------------
 
 
-class ReportCreation(generic.add.EntityCreation):
+class ReportCreation(generic.EntityCreation):
     model = Report
     form_class = report_forms.ReportCreateForm
     template_name = 'reports/add_report.html'  # TODO: improve widgets & drop this template
@@ -245,7 +245,7 @@ class ReportDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'report_id'
 
 
-class ReportEdition(generic.edit.EntityEdition):
+class ReportEdition(generic.EntityEdition):
     model = Report
     form_class = report_forms.ReportEditForm
     pk_url_kwarg = 'report_id'

@@ -118,7 +118,7 @@ def edit(request, address_id):
 
 # Class-based views  -----------------------------------------------------------
 
-class AddressCreation(generic.add.AddingToEntity):
+class AddressCreation(generic.AddingToEntity):
     model = Address
     form_class = address_forms.AddressForm
     permissions = 'persons'
@@ -135,7 +135,7 @@ class ShippingAddressCreation(AddressCreation):
     title_format = _('Adding shipping address to «{}»')
 
 
-class AddressEdition(generic.edit.RelatedToEntityEdition):
+class AddressEdition(generic.RelatedToEntityEdition):
     model = Address
     form_class = address_forms.AddressForm
     pk_url_kwarg = 'address_id'

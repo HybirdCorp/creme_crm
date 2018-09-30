@@ -167,13 +167,13 @@ class CreditNoteDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'cnote_id'
 
 
-class CreditNoteEdition(generic.edit.EntityEdition):
+class CreditNoteEdition(generic.EntityEdition):
     model = CreditNote
     form_class = cnote_forms.CreditNoteEditForm
     pk_url_kwarg = 'cnote_id'
 
 
-class CommentEdition(generic.edit.EntityEditionPopup):
+class CommentEdition(generic.EntityEditionPopup):
     model = CreditNote
     form_class = cnote_forms.CreditNotePopupEditForm
     pk_url_kwarg = 'cnote_id'
@@ -183,7 +183,7 @@ class CommentEdition(generic.edit.EntityEditionPopup):
         super().check_view_permissions(user)
 
 
-class CreditNotesLinking(generic.add.AddingToEntity):
+class CreditNotesLinking(generic.AddingToEntity):
     model = CreditNote
     form_class = cnote_forms.CreditNoteRelatedForm
     # template_name = 'creme_core/generics/blockform/link_popup.html'  # TODO ?

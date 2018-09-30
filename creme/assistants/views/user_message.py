@@ -59,7 +59,7 @@ def add(request):
 #                                  _('New message about «%s»'),
 #                                  submit_label=_('Save the message'),
 #                                 )
-class RelatedUserMessageCreation(generic.add.AddingToEntity):
+class RelatedUserMessageCreation(generic.AddingToEntity):
     model = UserMessage
     form_class = UserMessageForm
     title_format = _('New message about «{}»')

@@ -89,7 +89,7 @@ def add_multiple_service_line(request, document_id):
 
 
 # TODO: LINK credentials with add_popup.html ??
-class _LinesCreation(generic.add.AddingToEntity):
+class _LinesCreation(generic.AddingToEntity):
     # model = Line
     # form_class = line_forms._LineMultipleAddForm
     submit_label = _('Save the lines')

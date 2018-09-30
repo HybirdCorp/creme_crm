@@ -30,6 +30,7 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import jsonify
 from creme.creme_core.views import generic
+from creme.creme_core.views.generic.base import EntityRelatedMixin
 
 from .. import get_pollform_model
 from ..constants import DEFAULT_HFILTER_PFORM
@@ -117,7 +118,7 @@ def listview(request):
 #                                           pf_forms.PollFormLineEditForm,
 #                                           _('Question for «%s»'),
 #                                          )
-class LineEdition(generic.edit.RelatedToEntityEdition):
+class LineEdition(generic.RelatedToEntityEdition):
     # model = PollFormLine
     queryset = PollFormLine.objects.filter(disabled=False)
     form_class = pf_forms.PollFormLineEditForm
@@ -183,7 +184,7 @@ def disable_line(request, line_id):
 #                                           pf_forms.PollFormSectionEditForm,
 #                                           _('Section for «%s»'),
 #                                          )
-class SectionEdition(generic.edit.RelatedToEntityEdition):
+class SectionEdition(generic.RelatedToEntityEdition):
     model = PollFormSection
     form_class = pf_forms.PollFormSectionEditForm
     permissions = 'polls'
@@ -247,7 +248,7 @@ def get_choices(request, line_id):
 # Class-based views  ----------------------------------------------------------
 
 
-class PollFormCreation(generic.add.EntityCreation):
+class PollFormCreation(generic.EntityCreation):
     model = PollForm
     form_class = pf_forms.PollFormForm
 
@@ -258,20 +259,20 @@ class PollFormDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'pform_id'
 
 
-class PollFormEdition(generic.edit.EntityEdition):
+class PollFormEdition(generic.EntityEdition):
     model = PollForm
     form_class = pf_forms.PollFormForm
     pk_url_kwarg = 'pform_id'
 
 
-class _LineCreationBase(generic.add.AddingToEntity):
+class _LineCreationBase(generic.AddingToEntity):
     model = PollFormLine
     form_class = pf_forms.PollFormLineCreateForm
     title_format = _('New question for «{}»')
     entity_classes = PollForm
 
 
-class _RelatedSectionMixin(generic.base.EntityRelatedMixin):
+class _RelatedSectionMixin(EntityRelatedMixin):
     section_id_url_kwarg = 'section_id'
     section_form_kwarg = 'section'
 
@@ -305,7 +306,7 @@ class AddingLineToSection(_RelatedSectionMixin, _LineCreationBase):
         return self.title_format.format(self.get_related_section())
 
 
-class _SectionCreationBase(generic.add.AddingToEntity):
+class _SectionCreationBase(generic.AddingToEntity):
     model = PollFormSection
     form_class = pf_forms.PollFormSectionCreateForm
     entity_classes = PollForm
@@ -324,7 +325,7 @@ class ChildSectionCreation(_RelatedSectionMixin, _SectionCreationBase):
         return self.title_format.format(self.get_related_section())
 
 
-class ConditionsEdition(generic.add.AddingToEntity):
+class ConditionsEdition(generic.AddingToEntity):
     model = PollFormLineCondition
     form_class = pf_forms.PollFormLineConditionsForm
     title_format = _('Condition for «{}»')

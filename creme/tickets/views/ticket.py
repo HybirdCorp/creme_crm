@@ -97,7 +97,7 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class TicketCreation(generic.add.EntityCreation):
+class TicketCreation(generic.EntityCreation):
     model = Ticket
     form_class = ticket_forms.TicketCreateForm
 
@@ -115,7 +115,7 @@ class TicketDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'ticket_id'
 
 
-class TicketEdition(generic.edit.EntityEdition):
+class TicketEdition(generic.EntityEdition):
     model = Ticket
     form_class = ticket_forms.TicketEditForm
     pk_url_kwarg = 'ticket_id'

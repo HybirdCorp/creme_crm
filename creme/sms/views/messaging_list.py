@@ -139,7 +139,7 @@ def delete_contact(request, mlist_id):
 # Class-based views  ----------------------------------------------------------
 
 
-class MessagingListCreation(generic.add.EntityCreation):
+class MessagingListCreation(generic.EntityCreation):
     model = MessagingList
     form_class = ml_forms.MessagingListForm
 
@@ -150,13 +150,13 @@ class MessagingListDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'mlist_id'
 
 
-class MessagingListEdition(generic.edit.EntityEdition):
+class MessagingListEdition(generic.EntityEdition):
     model = MessagingList
     form_class = ml_forms.MessagingListForm
     pk_url_kwarg = 'mlist_id'
 
 
-class ContactsAdding(generic.add.AddingToEntity):
+class ContactsAdding(generic.AddingToEntity):
     # model = Contact
     form_class = ml_forms.AddContactsForm
     template_name = 'creme_core/generics/blockform/link_popup.html'

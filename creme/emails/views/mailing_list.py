@@ -192,7 +192,7 @@ def delete_child(request, ml_id):
 
 # Class-based views  ----------------------------------------------------------
 
-class MailingListCreation(generic.add.EntityCreation):
+class MailingListCreation(generic.EntityCreation):
     model = MailingList
     form_class = ml_forms.MailingListForm
 
@@ -203,13 +203,13 @@ class MailingListDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'ml_id'
 
 
-class MailingListEdition(generic.edit.EntityEdition):
+class MailingListEdition(generic.EntityEdition):
     model = MailingList
     form_class = ml_forms.MailingListForm
     pk_url_kwarg = 'ml_id'
 
 
-class _AddingToMailingList(generic.add.AddingToEntity):
+class _AddingToMailingList(generic.AddingToEntity):
     template_name = 'creme_core/generics/blockform/link_popup.html'
     entity_id_url_kwarg = 'ml_id'
     entity_classes = MailingList

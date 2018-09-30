@@ -34,7 +34,7 @@ from ..models import Action
 #     return generic.add_to_entity(request, entity_id, ActionForm, _('New action for «%s»'),
 #                                  submit_label=_('Save the action'),
 #                                 )
-class ActionCreation(generic.add.AddingToEntity):
+class ActionCreation(generic.AddingToEntity):
     model = Action
     form_class = ActionForm
     title_format = _('New action for «{}»')
@@ -43,7 +43,7 @@ class ActionCreation(generic.add.AddingToEntity):
 # @login_required
 # def edit(request, action_id):
 #     return generic.edit_related_to_entity(request, action_id, Action, ActionForm, _('Action for «%s»'))
-class ActionEdition(generic.edit.RelatedToEntityEdition):
+class ActionEdition(generic.RelatedToEntityEdition):
     model = Action
     form_class = ActionForm
     pk_url_kwarg = 'action_id'

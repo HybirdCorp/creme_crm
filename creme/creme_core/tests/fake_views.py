@@ -35,7 +35,7 @@ def image_listview(request):
 # def contact_add(request):
 #     return generic.add_entity(request, fake_forms.FakeContactForm)
 
-class FakeContactCreation(generic.add.EntityCreation):
+class FakeContactCreation(generic.EntityCreation):
     model = fake_models.FakeContact
     form_class = fake_forms.FakeContactForm
 
@@ -47,7 +47,7 @@ class FakeContactCreation(generic.add.EntityCreation):
 #                                fake_forms.FakeContactForm,
 #                               )
 
-class FakeContactEdition(generic.edit.EntityEdition):
+class FakeContactEdition(generic.EntityEdition):
     model = fake_models.FakeContact
     form_class = fake_forms.FakeContactForm
     pk_url_kwarg = 'contact_id'
@@ -106,7 +106,7 @@ def address_add(request, entity_id):
                                 )
 
 
-class FakeAddressCreation(generic.add.AddingToEntity):
+class FakeAddressCreation(generic.AddingToEntity):
     model = fake_models.FakeAddress
     form_class = fake_forms.FakeAddressForm
     title_format = 'Adding address to <{}>'
@@ -122,7 +122,7 @@ def address_edit(request, address_id):
                                          )
 
 
-class FakeAddressEdition(generic.edit.RelatedToEntityEdition):
+class FakeAddressEdition(generic.RelatedToEntityEdition):
     model = fake_models.FakeAddress
     form_class = fake_forms.FakeAddressForm
     title_format = 'Address for <{}>'

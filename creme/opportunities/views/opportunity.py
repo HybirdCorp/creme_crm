@@ -27,6 +27,7 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.views import generic
+from creme.creme_core.views.generic.base import EntityRelatedMixin
 
 from creme import persons
 
@@ -149,7 +150,7 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class _BaseOpportunityCreation(generic.add.EntityCreation):
+class _BaseOpportunityCreation(generic.EntityCreation):
     model = Opportunity
     form_class = opp_forms.OpportunityCreateForm
 
@@ -164,9 +165,7 @@ class OpportunityCreation(_BaseOpportunityCreation):
     pass
 
 
-class RelatedOpportunityCreation(generic.base.EntityRelatedMixin,
-                                 _BaseOpportunityCreation,
-                                ):
+class RelatedOpportunityCreation(EntityRelatedMixin, _BaseOpportunityCreation):
     entity_id_url_kwarg = 'person_id'
     entity_classes = [
         persons.get_contact_model(),
@@ -187,7 +186,7 @@ class RelatedOpportunityCreation(generic.base.EntityRelatedMixin,
 
 
 # TODO: factorise ?
-class RelatedOpportunityCreationPopup(generic.add.AddingToEntity):
+class RelatedOpportunityCreationPopup(generic.AddingToEntity):
     model = Opportunity
     form_class = opp_forms.OpportunityCreateForm
     permissions = ['opportunities', cperm(Opportunity)]
@@ -219,7 +218,7 @@ class OpportunityDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'opp_id'
 
 
-class OpportunityEdition(generic.edit.EntityEdition):
+class OpportunityEdition(generic.EntityEdition):
     model = Opportunity
     form_class = opp_forms.OpportunityEditForm
     pk_url_kwarg = 'opp_id'

@@ -32,7 +32,7 @@ from ..models import Memo
 #     return generic.add_to_entity(request, entity_id, MemoForm, _('New Memo for «%s»'),
 #                                  submit_label=_('Save the memo'),
 #                                 )
-class MemoCreation(generic.add.AddingToEntity):
+class MemoCreation(generic.AddingToEntity):
     model = Memo
     form_class = MemoForm
     title_format = _('New memo for «{}»')
@@ -41,7 +41,7 @@ class MemoCreation(generic.add.AddingToEntity):
 # @login_required
 # def edit(request, memo_id):
 #     return generic.edit_related_to_entity(request, memo_id, Memo, MemoForm, _('Memo for «%s»'))
-class MemoEdition(generic.edit.RelatedToEntityEdition):
+class MemoEdition(generic.RelatedToEntityEdition):
     model = Memo
     form_class = MemoForm
     pk_url_kwarg = 'memo_id'

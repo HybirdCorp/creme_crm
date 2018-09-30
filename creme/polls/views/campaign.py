@@ -93,7 +93,7 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class PollCampaignCreation(generic.add.EntityCreation):
+class PollCampaignCreation(generic.EntityCreation):
     model = PollCampaign
     form_class = PollCampaignForm
 
@@ -104,7 +104,7 @@ class PollCampaignDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'campaign_id'
 
 
-class PollCampaignEdition(generic.edit.EntityEdition):
+class PollCampaignEdition(generic.EntityEdition):
     model = PollCampaign
     form_class = PollCampaignForm
     pk_url_kwarg = 'campaign_id'

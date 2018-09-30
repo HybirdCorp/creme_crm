@@ -141,7 +141,7 @@ def delete_parent(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class TaskCreation(generic.add.AddingToEntity):
+class TaskCreation(generic.AddingToEntity):
     model = ProjectTask
     form_class = task_forms.TaskCreateForm
     title_format = _('Create a task for «{}»')
@@ -159,26 +159,26 @@ class TaskDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'task_id'
 
 
-class TaskEdition(generic.edit.EntityEdition):
+class TaskEdition(generic.EntityEdition):
     model = ProjectTask
     form_class = task_forms.TaskEditForm
     pk_url_kwarg = 'task_id'
 
 
-class TaskEditionPopup(generic.edit.EntityEditionPopup):
+class TaskEditionPopup(generic.EntityEditionPopup):
     model = ProjectTask
     form_class = task_forms.TaskEditForm
     pk_url_kwarg = 'task_id'
 
 
-class ParentsAdding(generic.edit.EntityEditionPopup):
+class ParentsAdding(generic.EntityEditionPopup):
     model = ProjectTask
     form_class = task_forms.TaskAddParentForm
     pk_url_kwarg = 'task_id'
     title_format = _('Adding parents to «{}»')
 
 
-class ActivityEditionPopup(generic.edit.EntityEditionPopup):
+class ActivityEditionPopup(generic.EntityEditionPopup):
     model = Activity
     # NB: the form checks that the Activity is related to a task
     form_class = task_forms.RelatedActivityEditForm
@@ -218,7 +218,7 @@ def abstract_edit_activity(request, activity_id, form=task_forms.RelatedActivity
 
 
 # TODO: LINK perm instead of CHANGE ?
-class RelatedActivityCreation(generic.add.AddingToEntity):
+class RelatedActivityCreation(generic.AddingToEntity):
     model = Activity
     form_class = task_forms.RelatedActivityCreateForm
     permissions = cperm(Activity)

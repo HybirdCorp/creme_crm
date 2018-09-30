@@ -26,7 +26,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import SearchConfigItem
 from creme.creme_core.utils import get_from_POST_or_404  # get_ct_or_404
-from creme.creme_core.views import generic
+from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from ..forms import search as search_forms
 
@@ -49,7 +49,7 @@ def portal(request):
 #         title=_('New search configuration for «{model}»').format(model=ctype),
 #         initial={'content_type': ctype},
 #     )
-class SearchConfigCreation(generic.base.EntityCTypeRelatedMixin,
+class SearchConfigCreation(EntityCTypeRelatedMixin,
                            base.BaseConfigCreation,
                           ):
     model = SearchConfigItem

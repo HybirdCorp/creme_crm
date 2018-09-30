@@ -126,7 +126,7 @@ def delete_attachment(request, template_id):
 
 # Class-based views  ----------------------------------------------------------
 
-class EmailTemplateCreation(generic.add.EntityCreation):
+class EmailTemplateCreation(generic.EntityCreation):
     model = EmailTemplate
     form_class = tpl_forms.EmailTemplateForm
 
@@ -137,13 +137,13 @@ class EmailTemplateDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'template_id'
 
 
-class EmailTemplateEdition(generic.edit.EntityEdition):
+class EmailTemplateEdition(generic.EntityEdition):
     model = EmailTemplate
     form_class = tpl_forms.EmailTemplateForm
     pk_url_kwarg = 'template_id'
 
 
-class AttachmentsAdding(generic.add.AddingToEntity):
+class AttachmentsAdding(generic.AddingToEntity):
     # model = Document
     form_class = tpl_forms.EmailTemplateAddAttachment
     template_name = 'creme_core/generics/blockform/link_popup.html'

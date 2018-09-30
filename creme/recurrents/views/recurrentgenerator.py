@@ -150,7 +150,7 @@ class RecurrentGeneratorDetail(generic.detailview.EntityDetail):
     pk_url_kwarg = 'generator_id'
 
 
-class RecurrentGeneratorEdition(generic.edit.EntityEdition):
+class RecurrentGeneratorEdition(generic.EntityEdition):
     model = RecurrentGenerator
     form_class = generator_forms.RecurrentGeneratorEditForm
     pk_url_kwarg = 'generator_id'

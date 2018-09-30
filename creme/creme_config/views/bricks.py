@@ -37,6 +37,7 @@ from creme.creme_core.models import (UserRole,  # CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import bricks
@@ -74,7 +75,7 @@ def portal(request):
 #         submit_label=_('Save the configuration'),
 #         initial={'content_type': ctype},
 #     )
-class BrickDetailviewLocationsCreation(generic.base.EntityCTypeRelatedMixin,
+class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
                                        base.BaseConfigCreation,
                                       ):
     # model = BrickDetailviewLocation
@@ -227,7 +228,7 @@ class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
 #         template='creme_core/generics/blockform/edit_popup.html',
 #         submit_label=_('Save the configuration'),
 #     )
-class BrickDetailviewLocationsEdition(generic.base.EntityCTypeRelatedMixin,
+class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
                                       base.BaseConfigCreation,
                                      ):
     # model = BrickDetailviewLocation

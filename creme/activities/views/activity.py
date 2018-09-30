@@ -271,7 +271,7 @@ def listview(request, type_id=None):
 
 # Class-based views  ----------------------------------------------------------
 
-class ActivityCreation(generic.add.EntityCreation):
+class ActivityCreation(generic.EntityCreation):
     model = Activity
     form_class = act_forms.ActivityCreateForm
     template_name = 'activities/add_activity_form.html'
@@ -397,7 +397,7 @@ class ActivityPopup(ActivityDetail):
     template_name = 'activities/view_activity_popup.html'
 
 
-class ActivityEdition(generic.edit.EntityEdition):
+class ActivityEdition(generic.EntityEdition):
     model = Activity
     form_class = act_forms.ActivityEditForm
     pk_url_kwarg = 'activity_id'

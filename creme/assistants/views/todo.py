@@ -33,7 +33,7 @@ from ..models import ToDo
 #     return generic.add_to_entity(request, entity_id, ToDoForm, _('New Todo for «%s»'),
 #                                  submit_label=_('Save the todo'),
 #                                 )
-class ToDoCreation(generic.add.AddingToEntity):
+class ToDoCreation(generic.AddingToEntity):
     model = ToDo
     form_class = ToDoForm
     title_format = _('New todo for «{}»')
@@ -42,7 +42,7 @@ class ToDoCreation(generic.add.AddingToEntity):
 # @login_required
 # def edit(request, todo_id):
 #     return generic.edit_related_to_entity(request, todo_id, ToDo, ToDoForm, _('Todo for «%s»'))
-class ToDoEdition(generic.edit.RelatedToEntityEdition):
+class ToDoEdition(generic.RelatedToEntityEdition):
     model = ToDo
     form_class = ToDoForm
     pk_url_kwarg = 'todo_id'
