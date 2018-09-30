@@ -162,21 +162,26 @@ def link_report(request, field_id):
                               )
 
 
-@login_required
-@permission_required('reports')
-def edit_fields(request, report_id):
-    # return generic.add_to_entity(request, report_id, report_forms.ReportFieldsForm,
-    #                              _('Edit columns of «%s»'),
-    #                              entity_class=Report,
-    #                              submit_label=_('Save the modifications'),
-    #                              template='creme_core/generics/blockform/edit_popup.html',
-    #                             )
-    return generic.edit_model_with_popup(request,
-                                         model=Report,
-                                         query_dict={'id': report_id},
-                                         form_class=report_forms.ReportFieldsForm,
-                                         title_format=_('Edit columns of «%s»'),
-                                        )
+# @login_required
+# @permission_required('reports')
+# def edit_fields(request, report_id):
+#     # return generic.add_to_entity(request, report_id, report_forms.ReportFieldsForm,
+#     #                              _('Edit columns of «%s»'),
+#     #                              entity_class=Report,
+#     #                              submit_label=_('Save the modifications'),
+#     #                              template='creme_core/generics/blockform/edit_popup.html',
+#     #                             )
+#     return generic.edit_model_with_popup(request,
+#                                          model=Report,
+#                                          query_dict={'id': report_id},
+#                                          form_class=report_forms.ReportFieldsForm,
+#                                          title_format=_('Edit columns of «%s»'),
+#                                         )
+class FieldsEdition(generic.edit.EntityEditionPopup):
+    model = Report
+    form_class = report_forms.ReportFieldsForm
+    pk_url_kwarg = 'report_id'
+    title_format = _('Edit columns of «{}»')
 
 
 @POST_only

@@ -70,7 +70,7 @@ class ProjectsTestCase(CremeTestCase):
                              # allowed_apps=['projects'],
                              allowed_apps=allowed_apps,
                              *args, **kwargs
-                             )
+                            )
 
     def _build_add_task_url(self, project):
         return reverse('projects__create_task', args=(project.id,))
@@ -96,8 +96,8 @@ class ProjectsTestCase(CremeTestCase):
                                     data={'user':        self.user.id,
                                           'contact':     contact.id,
                                           'hourly_cost': hourly_cost,
-                                          }
-                                    )
+                                         }
+                                   )
 
         if not error:
             self.assertNoFormError(response)
@@ -106,7 +106,7 @@ class ProjectsTestCase(CremeTestCase):
 
     def create_activity(self, resource, start='2015-05-19', end='2015-06-03',
                         duration='8', atype=None, busy='', errors=False,
-                        ):
+                       ):
         response = self.client.post(self._build_add_activity_url(resource.task), follow=True,
                                     data={'resource':      resource.id,
                                           'start':         start,
@@ -115,8 +115,8 @@ class ProjectsTestCase(CremeTestCase):
                                           'type_selector': atype or self._build_type_value(),
                                           'user':          self.user.id,
                                           'busy':          busy,
-                                          }
-                                    )
+                                         }
+                                   )
 
         if not errors:
             self.assertNoFormError(response)
@@ -127,7 +127,7 @@ class ProjectsTestCase(CremeTestCase):
         self.get_relationtype_or_fail(REL_SUB_PROJECT_MANAGER,
                                       sub_models=[Contact],
                                       obj_models=[Project],
-                                      )
+                                     )
 
         status_count = TaskStatus.objects.count()
         self.assertGreaterEqual(status_count, 2)
@@ -153,8 +153,8 @@ class ProjectsTestCase(CremeTestCase):
                                           'start_date':   start_date,
                                           'end_date':     end_date,
                                           'responsibles': self.formfield_value_multi_creator_entity(manager),
-                                          }
-                                    )
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Project, name=name), manager
@@ -169,8 +169,8 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':      50,
                                           'tstatus':       status.id,
                                           'type_selector': self._build_type_value(atype, sub_type),
-                                          }
-                                    )
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(ProjectTask, linked_project=project, title=title)
@@ -209,12 +209,12 @@ class ProjectsTestCase(CremeTestCase):
         create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                         EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
                   set_type=SetCredentials.ESET_ALL
-                  )
+                 )
         create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                         EntityCredentials.DELETE | EntityCredentials.LINK |
                         EntityCredentials.UNLINK,
                   set_type=SetCredentials.ESET_OWN
-                  )
+                 )
 
         manager = Contact.objects.create(user=user, first_name='Gendo', last_name='Ikari')
         self.assertFalse(user.has_perm_to_link(manager))
@@ -226,13 +226,13 @@ class ProjectsTestCase(CremeTestCase):
                                             'start_date':   '2011-10-11',
                                             'end_date':     '2011-12-31',
                                             'responsibles': self.formfield_value_multi_creator_entity(manager),
-                                            }
-                                      )
+                                           }
+                                     )
         self.assertFormError(response, 'form', 'responsibles',
                              _('Some entities are not linkable: {}').format(
                                  _('Entity #{id} (not viewable)').format(id=manager.id)
                              )
-                             )
+                            )
 
     def test_project_createview03(self):
         "Validation error with start/end"
@@ -246,8 +246,8 @@ class ProjectsTestCase(CremeTestCase):
                                             'start_date':   '2012-2-16',
                                             'end_date':     '2012-2-15',
                                             'responsibles': self.formfield_value_multi_creator_entity(manager),
-                                            }
-                                      )
+                                           }
+                                     )
 
         create_dt = self.create_datetime
         self.assertFormError(response, 'form', None,
@@ -255,7 +255,7 @@ class ProjectsTestCase(CremeTestCase):
                                  start=date_format(create_dt(2012, 2, 16), 'DATE_FORMAT'),
                                  end=date_format(create_dt(2012, 2, 15), 'DATE_FORMAT'),
                              )
-                             )
+                            )
 
     def test_project_listview(self):
         self.login()
@@ -273,9 +273,9 @@ class ProjectsTestCase(CremeTestCase):
 
         self.assertNoFormError(self.client.post(url, data={'entities_lbl': [str(project)],
                                                            'field_value':  '2012-3-4',
-                                                           }
-                                                )
-                               )
+                                                          }
+                                               )
+                              )
         self.assertEqual(self.create_datetime(year=2012, month=3, day=4),
                          self.refresh(project).start_date
                          )
@@ -288,8 +288,8 @@ class ProjectsTestCase(CremeTestCase):
         response = self.assertPOST200(self.build_inneredit_url(project, 'start_date'),
                                       data={'entities_lbl': [str(project)],
                                             'field_value':  '2012-03-27',  # <= after end_date
-                                            }
-                                      )
+                                           }
+                                     )
 
         create_dt = self.create_datetime
         self.assertFormError(response, 'form', None,
@@ -297,10 +297,10 @@ class ProjectsTestCase(CremeTestCase):
                                  start=date_format(create_dt(2012, 3, 27), 'DATE_FORMAT'),
                                  end=date_format(create_dt(2012, 3, 25), 'DATE_FORMAT'),
                              )
-                             )
+                            )
         self.assertEqual(create_dt(year=2012, month=2, day=20),
                          self.refresh(project).start_date
-                         )
+                        )
 
     @skipIfCustomTask
     def test_task_createview01(self):
@@ -327,8 +327,8 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':      '2010-10-11 17:00',
                                           'duration': duration,
                                           'tstatus':  tstatus.id,
-                                          }
-                                    )
+                                         }
+                                   )
 
         response = post('')
         self.assertEqual(200, response.status_code)
@@ -395,17 +395,17 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':      50,
                                           'tstatus':       TaskStatus.objects.all()[0].id,
                                           'parent_tasks':  self.formfield_value_multi_creator_entity(task01),
-                                          }
-                                    )
+                                         }
+                                   )
         self.assertFormError(response, 'form', 'parent_tasks',
                              _('This entity does not exist.')
-                             )
+                            )
 
     def test_task_createview03(self):
         "Not allowed to create a task"
         self.login(is_superuser=False, allowed_apps=['persons', 'projects'],
                    creatable_models=[Project],  # ProjectTask
-                   )
+                  )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -444,8 +444,8 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':      '2012-6-17',
                                           'duration': duration,
                                           'tstatus':  tstatus.id,
-                                          }
-                                    )
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         task = self.refresh(task)
@@ -465,8 +465,10 @@ class ProjectsTestCase(CremeTestCase):
         project = self.create_project('Eva01')[0]
         task = self.create_task(project, 'Title')
         url = reverse('projects__edit_task_popup', args=(task.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        # ---
         title = 'Head'
         duration = 55
         response = self.client.post(url, follow=True,
@@ -476,8 +478,8 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':      '2012-6-17',
                                           'duration': duration,
                                           'tstatus':  TaskStatus.objects.all()[0].id,
-                                          }
-                                    )
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         task = self.refresh(task)
@@ -498,8 +500,14 @@ class ProjectsTestCase(CremeTestCase):
         task03 = self.create_task(project, 'Task')
 
         url = self._build_add_parent_task_url(task03)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Edit «%s»') % task03, response.context.get('title'))
+        self.assertEqual(_('Adding parents to «{}»').format(task03),
+                         response.context.get('title')
+                        )
 
+        # ---
         self.assertNoFormError(self.client.post(url, data={'parents': self.formfield_value_multi_creator_entity(task01, task02)}))
         self.assertEqual({task01, task02}, set(task03.parent_tasks.all()))
 
@@ -510,7 +518,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertFormError(self.client.post(url, data={'parents': self.formfield_value_multi_creator_entity(task02)}),
                              'form', 'parents',
                              _('This entity does not exist.')
-                             )
+                            )
 
     @skipIfCustomTask
     def test_task_add_parent02(self):
@@ -525,10 +533,10 @@ class ProjectsTestCase(CremeTestCase):
 
         response = self.client.post(self._build_add_parent_task_url(task02),
                                     data={'parents': self.formfield_value_multi_creator_entity(task01)},
-                                    )
+                                   )
         self.assertFormError(response, 'form', 'parents',
                              _('This entity does not exist.')
-                             )
+                            )
 
     @skipIfCustomTask
     def test_task_add_parent03(self):
@@ -543,24 +551,23 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual([task01], list(task01.get_subtasks()))
 
         build_url = self._build_add_parent_task_url
+        field_value = self.formfield_value_multi_creator_entity
         self.assertNoFormError(self.client.post(build_url(task02),
-                                                data={'parents': self.formfield_value_multi_creator_entity(task01)},
-                                                )
-                               )
+                                                data={'parents': field_value(task01)},
+                                               )
+                              )
         self.assertEqual({task01, task02}, set(task01.get_subtasks()))
 
         self.assertNoFormError(self.client.post(build_url(task03),
-                                                data={'parents': self.formfield_value_multi_creator_entity(task02)},
-                                                )
-                               )
+                                                data={'parents': field_value(task02)},
+                                               )
+                              )
         self.assertEqual({task01, task02, task03}, set(task01.get_subtasks()))
 
         response = self.client.post(build_url(task01),
-                                    data={'parents': self.formfield_value_multi_creator_entity(task03)},
-                                    )
-        self.assertFormError(response, 'form', 'parents',
-                             _('This entity does not exist.')
-                             )
+                                    data={'parents': field_value(task03)},
+                                   )
+        self.assertFormError(response, 'form', 'parents', _('This entity does not exist.'))
 
     @skipIfCustomTask
     def test_duration01(self):
@@ -669,7 +676,7 @@ class ProjectsTestCase(CremeTestCase):
                                     data={'user':        user.id,
                                           'contact':     worker.id,
                                           'hourly_cost': 200,
-                                          }
+                                         }
                                     )
         self.assertNoFormError(response)
 
@@ -682,10 +689,12 @@ class ProjectsTestCase(CremeTestCase):
         activity = activities[0]
         self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
                          list(activity.calendars.all())
-                         )
+                        )
         url = self._build_edit_activity_url(activity)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        # ---
         response = self.client.post(url, follow=True,
                                     data={'resource':   resource.id,
                                           'start':      '2010-10-11',
@@ -693,7 +702,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':   10,
                                           'user':       user.id,
                                           'type_selector': self._build_type_value(),
-                                          }
+                                         }
                                     )
         self.assertNoFormError(response)
 
@@ -738,7 +747,7 @@ class ProjectsTestCase(CremeTestCase):
 
         response = self.create_activity(resource, '2010-10-11 16:59', '2010-10-11 17:30',
                                         busy='on', errors=True,
-                                        )
+                                       )
         self.assertEqual(1, len(self.refresh(task).related_activities))
         self.assertFormError(response, 'form', None,
                              _('{participant} already participates to the activity «{activity}» between {start} and {end}.').format(
@@ -747,7 +756,7 @@ class ProjectsTestCase(CremeTestCase):
                                  start='16:59:00',
                                  end='17:00:00',
                              )
-                             )
+                            )
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -766,13 +775,14 @@ class ProjectsTestCase(CremeTestCase):
         self.create_resource(task, worker2)
         resource2 = task.resources_set.exclude(pk=resource1.id)[0]
 
-        data = {'resource':   resource1.id,
-                'start':      '2015-05-21',
-                'end':        '2015-05-22',
-                'duration':   10,
-                'user':       user.id,
-                'type_selector': self._build_type_value(),
-                }
+        data = {
+            'resource':      resource1.id,
+            'start':         '2015-05-21',
+            'end':           '2015-05-22',
+            'duration':      10,
+            'user':          user.id,
+            'type_selector': self._build_type_value(),
+        }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
         activities = task.related_activities
         self.assertEqual(1, len(activities))
@@ -780,12 +790,12 @@ class ProjectsTestCase(CremeTestCase):
         activity = activities[0]
         self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
                          list(activity.calendars.all())
-                         )
+                        )
 
         response = self.client.post(self._build_edit_activity_url(activity),
                                     follow=True,
                                     data=dict(data, resource=resource2.id),
-                                    )
+                                   )
         self.assertNoFormError(response)
 
         self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
@@ -794,7 +804,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(0, worker1, REL_SUB_PART_2_ACTIVITY, activity)
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
 
-        self.assertFalse(activity.calendars.all())  # Alrigth the project Activities can be on no Calendar
+        self.assertFalse(activity.calendars.all())  # Alright the project Activities can be on no Calendar
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -819,7 +829,7 @@ class ProjectsTestCase(CremeTestCase):
                 'duration':   10,
                 'user':       user.id,
                 'type_selector': self._build_type_value(),
-                }
+               }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
         activities = task.related_activities
         self.assertEqual(1, len(activities))
@@ -830,8 +840,8 @@ class ProjectsTestCase(CremeTestCase):
                                     data=dict(data,
                                               resource=resource2.id,
                                               keep_participating='on',
-                                              ),
-                                    )
+                                             ),
+                                   )
         self.assertNoFormError(response)
 
         self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
@@ -842,7 +852,7 @@ class ProjectsTestCase(CremeTestCase):
 
         self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
                          list(activity.calendars.all())
-                         )
+                        )
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -869,8 +879,8 @@ class ProjectsTestCase(CremeTestCase):
                                             'duration':      8,
                                             'type_selector': self._build_type_value(),
                                             'user':          user.id,
-                                            }
-                                      )
+                                           }
+                                     )
         self.assertFormError(response, 'form', 'resource',
                              _('This entity does not exist.')
                             )
@@ -931,7 +941,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'contact':     worker2.id,
                                           'hourly_cost': 200,
                                          }
-                                    )
+                                   )
         self.assertNoFormError(response)
 
         resource1 = self.refresh(resource1)
@@ -950,7 +960,7 @@ class ProjectsTestCase(CremeTestCase):
 
         self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
                          list(activity1.calendars.all())
-                         )
+                        )
 
         # activity of the other resource => no change
         activities2 = task2.related_activities
@@ -982,8 +992,8 @@ class ProjectsTestCase(CremeTestCase):
                                           'contact':     worker2.id,
                                           'hourly_cost': 200,
                                           'keep_participating': 'on',
-                                          }
-                                    )
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         resource1 = self.refresh(resource1)
@@ -1002,7 +1012,7 @@ class ProjectsTestCase(CremeTestCase):
         get_cal = Calendar.get_user_default_calendar
         self.assertEqual({get_cal(user), get_cal(self.other_user)},
                          set(activity.calendars.all())
-                         )
+                        )
 
     @skipIfCustomTask
     def test_project_close(self):
@@ -1031,7 +1041,7 @@ class ProjectsTestCase(CremeTestCase):
                                           order=0, duration=0,
                                           tstatus=status, title=title,
                                           user=self.user,
-                                          )
+                                         )
 
         if parents is not None:
             task.parent_tasks.set(parents)
@@ -1071,7 +1081,7 @@ class ProjectsTestCase(CremeTestCase):
         titles_set = self._titles_set
         self.assertEqual({'1', '1.1', '1.1.1', '1.1.1.1', 'all 1', '2', 'all 2'},
                          titles_set(cloned_project.get_tasks())
-                         )
+                        )
 
         self.assertFalse(self._tasks_pk_set(project) & self._tasks_pk_set(cloned_project))
 
@@ -1082,11 +1092,11 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(['1.1.1'], titles_list(get_task(title='1.1.1.1').get_parents()))
         self.assertEqual({'1', '1.1', '1.1.1', '1.1.1.1'},
                          titles_set(get_task(title='all 1').get_parents())
-                         )
+                        )
         self.assertFalse(get_task(title='2').get_parents())
         self.assertEqual({'1', '1.1', '1.1.1', '1.1.1.1', '2'},
                          titles_set(get_task(title='all 2').get_parents())
-                         )
+                        )
 
     @skipIfCustomTask
     def test_project_clone02(self):
@@ -1129,7 +1139,7 @@ class ProjectsTestCase(CremeTestCase):
     def _delete_project_status(self, status):
         return self.client.post(reverse('creme_config__delete_instance', args=('projects', 'projectstatus')),
                                 data={'id': status.pk}
-                                )
+                               )
 
     def test_delete_project_status01(self):
         self.login()
@@ -1153,7 +1163,7 @@ class ProjectsTestCase(CremeTestCase):
     def _delete_task_status(self, status):
         return self.client.post(reverse('creme_config__delete_instance', args=('projects', 'taskstatus')),
                                 data={'id': status.pk}
-                                )
+                               )
 
     def test_delete_task_status01(self):
         self.login()
@@ -1224,7 +1234,7 @@ class ProjectsTestCase(CremeTestCase):
         self.create_activity(resource, '2015-05-22', '2015-05-23')
         self.assertEqual({'Eva00 - head - 001', 'Eva00 - head - 002'},
                          {a.title for a in task.related_activities}
-                         )
+                        )
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -1293,7 +1303,7 @@ class ProjectsTestCase(CremeTestCase):
 
         activity = Activity.objects.create(user=user, title='My task',
                                            type_id=ACTIVITYTYPE_TASK,
-                                           )
+                                          )
         self.assertGET409(self._build_edit_activity_url(activity))
 
     @skipIfCustomActivity
@@ -1303,7 +1313,7 @@ class ProjectsTestCase(CremeTestCase):
 
         activity = Activity.objects.create(user=user, title='My task',
                                            type_id=ACTIVITYTYPE_TASK,
-                                           )
+                                          )
         url = self.DELETE_ACTIVITY_URL
         data = {'id': activity.id}
         self.assertGET404(url, data=data)

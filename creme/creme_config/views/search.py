@@ -30,7 +30,7 @@ from creme.creme_core.views import generic
 
 from ..forms import search as search_forms
 
-from .base import BaseConfigCreation
+from . import base
 from .portal import _config_portal
 
 
@@ -50,7 +50,7 @@ def portal(request):
 #         initial={'content_type': ctype},
 #     )
 class SearchConfigCreation(generic.base.EntityCTypeRelatedMixin,
-                           BaseConfigCreation,
+                           base.BaseConfigCreation,
                           ):
     model = SearchConfigItem
     form_class = search_forms.SearchAddForm
@@ -67,14 +67,18 @@ class SearchConfigCreation(generic.base.EntityCTypeRelatedMixin,
         )
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def edit(request, search_config_id):
-    return generic.edit_model_with_popup(
-        request, query_dict={'pk': search_config_id},
-        model=SearchConfigItem,
-        form_class=search_forms.SearchEditForm,
-    )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def edit(request, search_config_id):
+#     return generic.edit_model_with_popup(
+#         request, query_dict={'pk': search_config_id},
+#         model=SearchConfigItem,
+#         form_class=search_forms.SearchEditForm,
+#     )
+class SearchConfigEdition(base.BaseConfigEdition):
+    model = SearchConfigItem
+    form_class = search_forms.SearchEditForm
+    pk_url_kwarg = 'search_config_id'
 
 
 @login_required

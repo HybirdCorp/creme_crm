@@ -41,7 +41,7 @@ from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import bricks
 
-from .base import BaseConfigCreation
+from . import base
 from .portal import _config_portal
 
 
@@ -75,7 +75,7 @@ def portal(request):
 #         initial={'content_type': ctype},
 #     )
 class BrickDetailviewLocationsCreation(generic.base.EntityCTypeRelatedMixin,
-                                       BaseConfigCreation,
+                                       base.BaseConfigCreation,
                                       ):
     # model = BrickDetailviewLocation
     form_class = bricks.BrickDetailviewLocationsAddForm
@@ -141,7 +141,7 @@ class BrickDetailviewLocationsCreation(generic.base.EntityCTypeRelatedMixin,
 #                                         title=_('New type of block'),
 #                                         submit_label=_('Save the block'),
 #                                        )
-class RelationTypeBrickCreation(BaseConfigCreation):
+class RelationTypeBrickCreation(base.BaseConfigCreation):
     model = RelationBrickItem
     form_class = bricks.RTypeBrickAddForm
 
@@ -228,7 +228,7 @@ class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
 #         submit_label=_('Save the configuration'),
 #     )
 class BrickDetailviewLocationsEdition(generic.base.EntityCTypeRelatedMixin,
-                                      BaseConfigCreation,
+                                      base.BaseConfigCreation,
                                      ):
     # model = BrickDetailviewLocation
     form_class = bricks.BrickDetailviewLocationsEditForm
@@ -494,14 +494,19 @@ def delete_cells_of_rtype_brick(request, rbi_id):
     return HttpResponse()
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def edit_custom_brick(request, cbci_id):
-    return generic.edit_model_with_popup(
-        request, {'id': cbci_id}, CustomBrickConfigItem,
-        bricks.CustomBrickConfigItemEditForm,
-        ugettext('Edit the block «%s»'),
-    )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def edit_custom_brick(request, cbci_id):
+#     return generic.edit_model_with_popup(
+#         request, {'id': cbci_id}, CustomBrickConfigItem,
+#         bricks.CustomBrickConfigItemEditForm,
+#         ugettext('Edit the block «%s»'),
+#     )
+class CustomBrickEdition(base.BaseConfigEdition):
+    model = CustomBrickConfigItem
+    form_class = bricks.CustomBrickConfigItemEditForm
+    pk_url_kwarg = 'cbci_id'
+    title_format = _('Edit the block «{}»')
 
 
 @login_required

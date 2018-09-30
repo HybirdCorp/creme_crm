@@ -13,17 +13,20 @@ user_patterns = [
     url(r'^portal[/]?$',                         user.portal,          name='creme_config__users'),
     # url(r'^add[/]?$',                            user.add,             name='creme_config__create_user'),
     url(r'^add[/]?$',                            user.UserCreation.as_view(), name='creme_config__create_user'),
-    url(r'^edit/(?P<user_id>\d+)[/]?$',          user.edit,            name='creme_config__edit_user'),
+    # url(r'^edit/(?P<user_id>\d+)[/]?$',          user.edit,            name='creme_config__edit_user'),
+    url(r'^edit/(?P<user_id>\d+)[/]?$',          user.UserEdition.as_view(),  name='creme_config__edit_user'),
     url(r'^activate/(?P<user_id>\d+)[/]?$',      user.activate,        name='creme_config__activate_user'),
     url(r'^deactivate/(?P<user_id>\d+)[/]?$',    user.deactivate,      name='creme_config__deactivate_user'),
     url(r'^delete/(?P<user_id>\d+)[/]?$',        user.delete,          name='creme_config__delete_user'),
-    url(r'^edit/password/(?P<user_id>\d+)[/]?$', user.change_password, name='creme_config__change_user_password'),
+    # url(r'^edit/password/(?P<user_id>\d+)[/]?$', user.change_password, name='creme_config__change_user_password'),
+    url(r'^edit/password/(?P<user_id>\d+)[/]?$', user.PasswordChange.as_view(), name='creme_config__change_user_password'),
 ]
 
 team_patterns = [
     # url(r'^add[/]?$',                   user.add_team,  name='creme_config__create_team'),
     url(r'^add[/]?$',                   user.TeamCreation.as_view(), name='creme_config__create_team'),
-    url(r'^edit/(?P<user_id>\d+)[/]?$', user.edit_team, name='creme_config__edit_team'),
+    # url(r'^edit/(?P<user_id>\d+)[/]?$', user.edit_team, name='creme_config__edit_team'),
+    url(r'^edit/(?P<user_id>\d+)[/]?$', user.TeamEdition.as_view(),  name='creme_config__edit_team'),
 ]
 
 user_settings_patterns = [
@@ -62,21 +65,26 @@ property_type_patterns = [
 ]
 
 fields_config_patterns = [
-    url(r'^portal[/]?$',                 fields_config.portal,                      name='creme_config__fields'),
-    url(r'^wizard[/]?$',                 fields_config.FieldConfigWizard.as_view(), name='creme_config__create_fields_config'),
-    url(r'^edit/(?P<fconf_id>\d+)[/]?$', fields_config.edit,                        name='creme_config__edit_fields_config'),
-    url(r'^delete[/]?$',                 fields_config.delete,                      name='creme_config__delete_fields_config'),
+    url(r'^portal[/]?$',                 fields_config.portal,                        name='creme_config__fields'),
+    url(r'^wizard[/]?$',                 fields_config.FieldConfigWizard.as_view(),   name='creme_config__create_fields_config'),
+    # url(r'^edit/(?P<fconf_id>\d+)[/]?$', fields_config.edit,                        name='creme_config__edit_fields_config'),
+    url(r'^edit/(?P<fconf_id>\d+)[/]?$', fields_config.FieldsConfigEdition.as_view(), name='creme_config__edit_fields_config'),
+    url(r'^delete[/]?$',                 fields_config.delete,                        name='creme_config__delete_fields_config'),
 ]
 
 custom_fields_patterns = [
-    url(r'^portal[/]?$',                 custom_fields.portal,       name='creme_config__custom_fields'),
+    url(r'^portal[/]?$', custom_fields.portal, name='creme_config__custom_fields'),
     # url(r'^ct/add[/]?$',                 custom_fields.add_ct,       name='creme_config__create_first_ctype_custom_field'),
-    url(r'^ct/add[/]?$',                 custom_fields.FirstCTypeCustomFieldCreation.as_view(), name='creme_config__create_first_ctype_custom_field'),
-    url(r'^ct/delete[/]?$',              custom_fields.delete_ct,    name='creme_config__delete_ctype_custom_fields'),
+    url(r'^ct/add[/]?$',
+        custom_fields.FirstCTypeCustomFieldCreation.as_view(),
+        name='creme_config__create_first_ctype_custom_field',
+    ),
+    url(r'^ct/delete[/]?$',              custom_fields.delete_ct,                     name='creme_config__delete_ctype_custom_fields'),
     # url(r'^add/(?P<ct_id>\d+)[/]?$',     custom_fields.add,          name='creme_config__create_custom_field'),
     url(r'^add/(?P<ct_id>\d+)[/]?$',     custom_fields.CustomFieldCreation.as_view(), name='creme_config__create_custom_field'),
-    url(r'^edit/(?P<field_id>\d+)[/]?$', custom_fields.edit,         name='creme_config__edit_custom_field'),
-    url(r'^delete[/]?$',                 custom_fields.delete,       name='creme_config__delete_custom_field'),
+    # url(r'^edit/(?P<field_id>\d+)[/]?$', custom_fields.edit,         name='creme_config__edit_custom_field'),
+    url(r'^edit/(?P<field_id>\d+)[/]?$', custom_fields.CustomFieldEdition.as_view(),  name='creme_config__edit_custom_field'),
+    url(r'^delete[/]?$',                 custom_fields.delete,                        name='creme_config__delete_custom_field'),
 ]
 
 bricks_patterns = [
@@ -114,9 +122,10 @@ bricks_patterns = [
     # url(r'^instance_block/delete[/]?$', bricks.delete_instance_brick, name='creme_config__delete_instance_brick'),
     url(r'^instance/delete[/]?$', bricks.delete_instance_brick, name='creme_config__delete_instance_brick'),
 
-    url(r'^custom/wizard[/]?$',                    bricks.CustomBrickWizard.as_view(), name='creme_config__create_custom_brick'),
-    url(r'^custom/edit/(?P<cbci_id>[-_\w]+)[/]?$', bricks.edit_custom_brick,           name='creme_config__edit_custom_brick'),
-    url(r'^custom/delete[/]?$',                    bricks.delete_custom_brick,         name='creme_config__delete_custom_brick'),
+    url(r'^custom/wizard[/]?$',                    bricks.CustomBrickWizard.as_view(),  name='creme_config__create_custom_brick'),
+    # url(r'^custom/edit/(?P<cbci_id>[-_\w]+)[/]?$', bricks.edit_custom_brick,           name='creme_config__edit_custom_brick'),
+    url(r'^custom/edit/(?P<cbci_id>[-_\w]+)[/]?$', bricks.CustomBrickEdition.as_view(), name='creme_config__edit_custom_brick'),
+    url(r'^custom/delete[/]?$',                    bricks.delete_custom_brick,          name='creme_config__delete_custom_brick'),
 ]
 
 # prefered_menu_patterns = [
@@ -135,15 +144,16 @@ search_patterns = [
     url(r'^portal[/]?$',                         search.portal, name='creme_config__search'),
     # url(r'^add/(?P<ct_id>\d+)[/]?$',             search.add,    name='creme_config__create_search_config'),
     url(r'^add/(?P<ct_id>\d+)[/]?$',             search.SearchConfigCreation.as_view(), name='creme_config__create_search_config'),
-    url(r'^edit/(?P<search_config_id>\d+)[/]?$', search.edit,   name='creme_config__edit_search_config'),
-    url(r'^delete[/]?$',                         search.delete, name='creme_config__delete_search_config'),
+    # url(r'^edit/(?P<search_config_id>\d+)[/]?$', search.edit,   name='creme_config__edit_search_config'),
+    url(r'^edit/(?P<search_config_id>\d+)[/]?$', search.SearchConfigEdition.as_view(),  name='creme_config__edit_search_config'),
+    url(r'^delete[/]?$',                         search.delete,                         name='creme_config__delete_search_config'),
 ]
 
 history_patterns = [
     url(r'^portal[/]?$',  history.portal, name='creme_config__history'),
     # url(r'^add[/]?$',     history.add,    name='creme_config__create_history_configs'),
     url(r'^add[/]?$',     history.HistoryConfigCreation.as_view(), name='creme_config__create_history_configs'),
-    url(r'^delete[/]?$',  history.delete, name='creme_config__remove_history_config'),
+    url(r'^delete[/]?$',  history.delete,                          name='creme_config__remove_history_config'),
 ]
 
 setting_patterns = [
@@ -176,7 +186,8 @@ urlpatterns = [
         # url(r'^add[/]?$',                           generics_views.add_model,             name='creme_config__create_instance'),
         url(r'^add[/]?$',                           generics_views.GenericCreation.as_view(), name='creme_config__create_instance'),
         url(r'^add_widget[/]?$',                    generics_views.add_model_from_widget, name='creme_config__create_instance_from_widget'),
-        url(r'^edit/(?P<object_id>[\w-]+)[/]?$',    generics_views.edit_model,            name='creme_config__edit_instance'),
+        # url(r'^edit/(?P<object_id>[\w-]+)[/]?$',    generics_views.edit_model,            name='creme_config__edit_instance'),
+        url(r'^edit/(?P<object_id>[\w-]+)[/]?$',    generics_views.GenericEdition.as_view(),  name='creme_config__edit_instance'),
         url(r'^(?P<object_id>[\w-]+)/reorder[/]?$', generics_views.reorder,               name='creme_config__reorder_instance'),
         url(r'^delete[/]?$',                        generics_views.delete_model,          name='creme_config__delete_instance'),
         url(r'^reload[/]?$',                        generics_views.reload_model_brick,    name='creme_config__reload_model_brick'),

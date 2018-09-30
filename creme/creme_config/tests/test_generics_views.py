@@ -332,7 +332,9 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         civ = FakeCivility.objects.create(title=title, shortcut=shortcut)
 
         url = reverse('creme_config__edit_instance', args=('creme_core', 'fake_civility', civ.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/form/edit_innerpopup.html')
+        self.assertEqual(_('Edit «{}»').format(civ), response.context.get('title'))
 
         title = title.title()
         self.assertNoFormError(self.client.post(url, data={'title': title,

@@ -31,26 +31,44 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import POST_only
 
 from ..forms import user as user_forms
+
 from .portal import _config_portal
 
 
 logger = logging.getLogger(__name__)
 
 
-@login_required
-@superuser_required
-def change_password(request, user_id):
-    return generic.edit_model_with_popup(request, {'pk': user_id}, get_user_model(),
-                                         user_forms.UserChangePwForm, _('Change password for «%s»'),
-                                        )
+# @login_required
+# @superuser_required
+# def change_password(request, user_id):
+#     return generic.edit_model_with_popup(request, {'pk': user_id}, get_user_model(),
+#                                          user_forms.UserChangePwForm,
+#                                          _('Change password for «%s»'),
+#                                         )
+class PasswordChange(generic.edit.CremeModelEditionPopup):
+    model = get_user_model()
+    form_class = user_forms.UserChangePwForm
+    pk_url_kwarg = 'user_id'
+    title_format = _('Change password for «{}»')
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)
+
+
+class BaseUserCreation(generic.add.CremeModelCreationPopup):
+    model = get_user_model()
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)
 
 
 # @login_required
 # @superuser_required
 # def add(request):
 #     return generic.add_model_with_popup(request, user_forms.UserAddForm)
-class UserCreation(generic.add.CremeModelCreationPopup):
-    model = get_user_model()
+class UserCreation(BaseUserCreation):
     form_class = user_forms.UserAddForm
 
     def check_view_permissions(self, user):
@@ -64,7 +82,7 @@ class UserCreation(generic.add.CremeModelCreationPopup):
 #     return generic.add_model_with_popup(request, user_forms.TeamCreateForm, _('New team'),
 #                                         submit_label=_('Save the team'),
 #                                        )
-class TeamCreation(UserCreation):
+class TeamCreation(BaseUserCreation):
     form_class = user_forms.TeamCreateForm
     title = _('New team')
     submit_label = _('Save the team')
@@ -75,29 +93,49 @@ def portal(request):
     return _config_portal(request, 'creme_config/user_portal.html')
 
 
-@login_required
-@superuser_required
-def edit(request, user_id):
-    user_filter = {'pk':       user_id,
-                   'is_team':  False,
-                  }
+class BaseUserEdition(generic.edit.CremeModelEditionPopup):
+    model = get_user_model()
+    pk_url_kwarg = 'user_id'
 
-    if not request.user.is_staff:
-        user_filter['is_staff'] = False
-
-    return generic.edit_model_with_popup(request, user_filter, get_user_model(), user_forms.UserEditForm)
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)
 
 
-@login_required
-@superuser_required
-def edit_team(request, user_id):
-    return generic.edit_model_with_popup(request,
-                                         {'pk':       user_id,
-                                          'is_team':  True,
-                                          'is_staff': False,
-                                         },
-                                         get_user_model(), user_forms.TeamEditForm,
-                                        )
+# @login_required
+# @superuser_required
+# def edit(request, user_id):
+#     user_filter = {'pk':       user_id,
+#                    'is_team':  False,
+#                   }
+#
+#     if not request.user.is_staff:
+#         user_filter['is_staff'] = False
+#
+#     return generic.edit_model_with_popup(request, user_filter, get_user_model(), user_forms.UserEditForm)
+class UserEdition(BaseUserEdition):
+    queryset = get_user_model().objects.filter(is_team=False)
+    form_class = user_forms.UserEditForm
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        return qs if self.request.user.is_staff else qs.filter(is_staff=False)
+
+
+# @login_required
+# @superuser_required
+# def edit_team(request, user_id):
+#     return generic.edit_model_with_popup(request,
+#                                          {'pk':       user_id,
+#                                           'is_team':  True,
+#                                           'is_staff': False,
+#                                          },
+#                                          get_user_model(), user_forms.TeamEditForm,
+#                                         )
+class TeamEdition(BaseUserEdition):
+    queryset = get_user_model().objects.filter(is_team=True, is_staff=False)
+    form_class = user_forms.TeamEditForm
 
 
 # TODO: 'delete' icon
@@ -159,7 +197,7 @@ def activate(request, user_id):
     user_to_activate = get_object_or_404(get_user_model(), pk=user_id)
 
     if user_to_activate.is_staff and not request.user.is_staff:
-        return HttpResponse(_(u"You can't activate a staff user."), status=400)
+        return HttpResponse(_("You can't activate a staff user."), status=400)
 
     if not user_to_activate.is_active:
         user_to_activate.is_active = True

@@ -120,7 +120,7 @@ class FieldsConfigTestCase(CremeTestCase):
     #
     #     self.assertPOST200(self.ADD_CTYPE_URL)
 
-    def test_edit(self):
+    def test_edit01(self):
         self.login()
 
         get_field = FakeContact._meta.get_field
@@ -134,9 +134,13 @@ class FieldsConfigTestCase(CremeTestCase):
 
         url = self._build_edit_url(fconf)
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        self.assertEqual(_('Edit «{}»').format(fconf), context.get('title'))
 
         with self.assertNoException():
-            choices = response.context['form'].fields['hidden'].choices
+            choices = context['form'].fields['hidden'].choices
             choices_keys = {k for k, v in choices}
 
         self.assertIn('phone',    choices_keys)
@@ -145,6 +149,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIn('image', choices_keys)
         self.assertNotIn('image__description', choices_keys)
 
+        # ---
         response = self.client.post(url, data={'hidden': ['phone', 'birthday']})
         self.assertNoFormError(response)
 
@@ -160,6 +165,20 @@ class FieldsConfigTestCase(CremeTestCase):
             hidden_f = response.context['form'].fields['hidden']
 
         self.assertCountEqual(['phone', 'birthday'], hidden_f.initial)
+
+    def test_edit02(self):
+        "Not super-user"
+        self.login(is_superuser=False)
+
+        fconf = self._create_fconf()
+        url = self._build_edit_url(fconf)
+        self.assertGET403(url)
+
+        # ---
+        role = self.role
+        role.admin_4_apps = ['creme_core']
+        role.save()
+        self.assertGET200(url)
 
     def test_delete(self):
         self.login()

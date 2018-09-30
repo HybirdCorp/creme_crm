@@ -20,7 +20,8 @@ urlpatterns = [
     url(r'^report/field/(?P<field_id>\d+)/reorder[/]?$',     report.reorder_field, name='reports__reorder_field'),
     url(r'^report/field/(?P<field_id>\d+)/link_report[/]?$', report.link_report,   name='reports__link_report'),
     url(r'^report/field/set_selected[/]?$',                  report.set_selected,  name='reports__set_selected_field'),
-    url(r'^report/(?P<report_id>\d+)/edit_fields[/]?$',      report.edit_fields,   name='reports__edit_fields'),
+    # url(r'^report/(?P<report_id>\d+)/edit_fields[/]?$',      report.edit_fields,   name='reports__edit_fields'),
+    url(r'^report/(?P<report_id>\d+)/edit_fields[/]?$',      report.FieldsEdition.as_view(), name='reports__edit_fields'),
 
     url(r'^graph/get_available_types/(?P<ct_id>\d+)[/]?$', graph.get_available_report_graph_types, name='reports__graph_types'),
 

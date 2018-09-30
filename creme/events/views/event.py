@@ -370,9 +370,6 @@ class AddContactsToEvent(generic.edit.EntityEdition):
     title_format = _('Link some contacts to «{}»')
     submit_label = _('Link these contacts')
 
-    def get_title(self):
-        return self.title_format.format(self.object)
-
     # TODO: use a "?next=" GET argument ?
     def get_success_url(self):
         return reverse('events__list_related_contacts', args=(self.object.id,))

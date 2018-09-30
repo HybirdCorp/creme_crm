@@ -23,3 +23,7 @@ from creme.creme_core.views import generic
 
 class BaseConfigCreation(generic.add.CremeModelCreationPopup):
     permissions = 'creme_core.can_admin'
+
+
+class BaseConfigEdition(generic.edit.CremeModelEditionPopup):
+    permissions = 'creme_core.can_admin'

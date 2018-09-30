@@ -2,6 +2,7 @@
 
 try:
     from django.urls import reverse
+    from django.utils.translation import ugettext as _
 
     from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
     from ..models import EmailSignature
@@ -46,8 +47,13 @@ class SignaturesTestCase(_EmailsTestCase):
         signature = EmailSignature.objects.create(user=user, name=name, body=body)
 
         url = signature.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        self.assertEqual(_('Edit «%s»') % signature, response.context.get('title'))
+        # self.assertEqual(_('Edit «{}»').format(signature), response.context.get('title'))
+
+        # ---
         name += '_edited'
         body += '_edited'
         self.assertNoFormError(self.client.post(url, data={'name': name, 'body': body}))

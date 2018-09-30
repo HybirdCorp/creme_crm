@@ -27,7 +27,7 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import require_model_fields
+from creme.creme_core.views.decorators import require_model_fields, _check_required_model_fields
 
 from ... import billing
 
@@ -77,6 +77,10 @@ def abstract_edit_credit_note(request, credit_note_id, form=cnote_forms.CreditNo
 
 @require_model_fields(CreditNote, 'comment')
 def abstract_edit_cnote_comment(request, credit_note_id, form=cnote_forms.CreditNotePopupEditForm):
+    warnings.warn('billing.views.credit_note.abstract_edit_cnote_comment() is deprecated ; '
+                  'use the class-based view CommentEdition instead.',
+                  DeprecationWarning
+                 )
     return generic.edit_model_with_popup(request, {'pk': credit_note_id}, CreditNote, form)
 
 
@@ -114,6 +118,7 @@ def edit(request, credit_note_id):
 @login_required
 @permission_required('billing')
 def edit_comment(request, credit_note_id):
+    warnings.warn('billing.views.credit_note.edit_comment() is deprecated', DeprecationWarning)
     return abstract_edit_cnote_comment(request, credit_note_id)
 
 
@@ -166,6 +171,16 @@ class CreditNoteEdition(generic.edit.EntityEdition):
     model = CreditNote
     form_class = cnote_forms.CreditNoteEditForm
     pk_url_kwarg = 'cnote_id'
+
+
+class CommentEdition(generic.edit.EntityEditionPopup):
+    model = CreditNote
+    form_class = cnote_forms.CreditNotePopupEditForm
+    pk_url_kwarg = 'cnote_id'
+
+    def check_view_permissions(self, user):
+        _check_required_model_fields(CreditNote, 'comment')
+        super().check_view_permissions(user)
 
 
 class CreditNotesLinking(generic.add.AddingToEntity):

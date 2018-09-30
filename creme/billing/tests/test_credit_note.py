@@ -495,8 +495,11 @@ class CreditNoteTestCase(_BillingTestCase):
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
 
         url = self._build_editcomment_url(credit_note)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertEqual(_('Edit «%s»') % credit_note, response.context.get('title'))
 
+        # ---
         comment = 'Special gift'
         self.assertNoFormError(self.client.post(url, data={'comment': comment}))
         self.assertEqual(comment, self.refresh(credit_note).comment)
@@ -510,5 +513,37 @@ class CreditNoteTestCase(_BillingTestCase):
 
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
         self.assertGET409(self._build_editcomment_url(credit_note))
+
+    def test_editcomment03(self):
+        "Not super-user"
+        self.login(is_superuser=False,
+                   allowed_apps=['billing', 'persons'],
+                   creatable_models=[CreditNote],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        self.assertGET200(self._build_editcomment_url(credit_note))
+
+    def test_editcomment04(self):
+        "CHANGE permission is needed"
+        self.login(is_superuser=False,
+                   allowed_apps=['billing', 'persons'],
+                   creatable_models=[CreditNote],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW |
+                                            # EntityCredentials.CHANGE |
+                                            EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        self.assertGET403(self._build_editcomment_url(credit_note))
 
     # TODO: complete (other views)

@@ -309,8 +309,11 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.login()
         cal = Calendar.get_user_default_calendar(user)
         url = reverse('activities__edit_calendar', args=(cal.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertEqual(_('Edit «{}»').format(cal), response.context.get('title'))
 
+        # ---
         name = 'My calendar'
         color = '0000FF'
         self.assertNoFormError(self.client.post(url,
@@ -323,6 +326,24 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = self.refresh(cal)
         self.assertEqual(name,  cal.name)
         self.assertEqual(color, cal.color)
+
+    def test_edit_user_calendar02(self):
+        "Edit calendar of another user"
+        self.login()
+        cal = Calendar.get_user_default_calendar(self.other_user)
+        self.assertGET403(reverse('activities__edit_calendar', args=(cal.id,)))
+
+    def test_edit_user_calendar03(self):
+        "Not super-user"
+        user = self.login(is_superuser=False, allowed_apps=['persons', 'activities'])
+        cal = Calendar.get_user_default_calendar(user)
+        self.assertGET200(reverse('activities__edit_calendar', args=(cal.id,)))
+
+    def test_edit_user_calendar04(self):
+        "App credentials needed"
+        user = self.login(is_superuser=False, allowed_apps=['persons'])  # 'activities'
+        cal = Calendar.get_user_default_calendar(user)
+        self.assertGET403(reverse('activities__edit_calendar', args=(cal.id,)))
 
     def test_delete_calendar01(self):
         "Not custom -> error"
@@ -337,7 +358,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertPOST404(url, data={'id': 1024})
 
         response = self.assertPOST403(url, data={'id': cal.id})
-        # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual(_('You are not allowed to delete this calendar.'),
                          force_text(response.content)
@@ -410,9 +430,14 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertContains(response, escape(default_calendar.name))
 
         url = self.build_link_url(act.id)
-        self.assertGET200(url)
-        response = self.assertPOST200(url, data={'calendar': cal.id})
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertEqual(_('Change calendar of «%s»') % act,
+        self.assertEqual(_('Change calendar of «{}»').format(act),
+                         response.context.get('title')
+                        )
 
+        response = self.assertPOST200(url, data={'calendar': cal.id})
         self.assertNoFormError(response)
 
         act = self.refresh(act)
@@ -464,18 +489,27 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertNoFormError(self.assertPOST200(url, data={'calendar': cal.id}))
         self.assertEqual([cal], list(act.calendars.all()))
 
+    def test_change_activity_calendar04(self):
+        "App credentials needed"
+        user = self.login(is_superuser=False, allowed_apps=['creme_core'])
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        act = Activity.objects.create(user=self.other_user,
+                                      title='Act#1', type_id=ACTIVITYTYPE_TASK,
+                                     )
+        act.calendars.add(Calendar.get_user_default_calendar(user))
+        self.assertGET403(self.build_link_url(act.id))
+
     def test_get_users_activities01(self):
         "One user, no Activity"
         user = self.login()
 
         response = self._get_cal_activities([Calendar.get_user_default_calendar(user)])
-        # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
-
-        # with self.assertNoException():
-        #     data = jsonloads(response.content)
-        #
-        # self.assertEqual([], data)
         self.assertEqual([], response.json())
 
     @skipIfCustomActivity
