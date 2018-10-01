@@ -21,7 +21,7 @@
 import logging
 import warnings
 
-from django.db import transaction
+from django.db.transaction import atomic
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -36,11 +36,11 @@ from creme.creme_core.templatetags.creme_widgets import get_icon_by_name, get_ic
 from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
 from creme.creme_core.utils.media import get_current_theme
 from creme.creme_core.views import generic
-from creme.creme_core.views.utils import build_cancel_path
 
 from creme import persons
 
-from .. import get_pollform_model, get_pollreply_model, get_pollcampaign_model
+from creme import polls
+
 from ..constants import DEFAULT_HFILTER_PREPLY
 from ..core import MultiEnumPollLineType
 from ..forms import poll_reply as preply_forms
@@ -51,7 +51,7 @@ from ..utils import ReplySectionTree, NodeStyle
 logger = logging.getLogger(__name__)
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
-PollReply = get_pollreply_model()
+PollReply = polls.get_pollreply_model()
 _CREATION_PERM = cperm(PollReply)
 
 # Function views --------------------------------------------------------------
@@ -65,6 +65,8 @@ def abstract_add_pollreply(request, form=preply_forms.PollRepliesCreateForm,
                   'use the class-based view PollRepliesCreation instead.',
                   DeprecationWarning
                  )
+    from creme.creme_core.views.utils import build_cancel_path
+
     if request.method == 'POST':
         POST = request.POST
         reply_form = form(user=request.user, data=POST)
@@ -98,7 +100,7 @@ def abstract_add_preply_from_campaign(request, campaign_id,
                   DeprecationWarning
                  )
 
-    campaign = get_object_or_404(get_pollcampaign_model(), pk=campaign_id)
+    campaign = get_object_or_404(polls.get_pollcampaign_model(), pk=campaign_id)
     user = request.user
 
     user.has_perm_to_view_or_die(campaign)
@@ -120,7 +122,7 @@ def abstract_add_preply_from_pform(request, pform_id, form=preply_forms.PollRepl
                   DeprecationWarning
                  )
 
-    pform = get_object_or_404(get_pollform_model(), pk=pform_id)
+    pform = get_object_or_404(polls.get_pollform_model(), pk=pform_id)
     user = request.user
 
     user.has_perm_to_view_or_die(pform)
@@ -289,11 +291,12 @@ def edit_line_wizard(request, preply_id, line_id):
 
     previous_answer = None
 
+    # TODO: pass instance=preply
     if request.method == 'POST':
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
 
         if form.is_valid():
-            with transaction.atomic():
+            with atomic():
                 form.save()
 
                 # Optimize 'next_question_to_answer' & cie
@@ -349,11 +352,12 @@ def fill(request, preply_id):
 
     previous_answer = None
 
+    # TODO: pass instance=preply
     if request.method == 'POST':
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
 
         if form.is_valid():
-            with transaction.atomic():
+            with atomic():
                 form.save()
 
                 next_line = tree.next_question_to_answer
@@ -389,7 +393,7 @@ def clean(request):
 
     request.user.has_perm_to_change_or_die(preply)
 
-    with transaction.atomic():
+    with atomic():
         preply.lines.update(raw_answer=None, applicable=True)  # Avoids statistics artifacts
         update_model_instance(preply, is_complete=False)
 
@@ -409,51 +413,51 @@ def _clear_dependant_answers(tree, line_node):
         _clear_dependant_answers(tree, dep_line_node)
 
 
-# TODO: if not line's type.editable ??
-@login_required
-@permission_required('polls')
-def edit_line(request, preply_id, line_id):
-    # NB: we do not use the generic view edit_related_to_entity(), because it would
-    #     oblige us to transform PollReplyLine in a True auxiliary model
-    #     (get_related_entity() method), so the delete view could be called without
-    #     our consent.
-    preply = get_object_or_404(PollReply, pk=preply_id)
-    user = request.user
-
-    user.has_perm_to_change_or_die(preply)
-
-    tree = ReplySectionTree(preply)
-
-    try:
-        line_node = tree.find_line(int(line_id))
-    except KeyError as e:
-        raise Http404('This PollReplyLine id does not correspond to the PollReply instance') from e
-
-    if not tree.conditions_are_met(line_node):
-        raise Http404('This answered can not be edited (conditions are not met)')
-
-    if request.method == 'POST':
-        edit_form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
-
-        if edit_form.is_valid():
-            with transaction.atomic():
-                edit_form.save()
-                _clear_dependant_answers(tree, line_node)
-                update_model_instance(preply, is_complete=not bool(tree.next_question_to_answer))
-    else:  # GET
-        edit_form = preply_forms.PollReplyFillForm(line_node=line_node, user=user)
-
-    return generic.inner_popup(
-        request, 'creme_core/generics/blockform/edit_popup.html',
-        {'form':  edit_form,
-         'title': ugettext('Answer edition'),
-         # TODO: help_text (cleared answers + conditions etc...) ??
-         'submit_label': _('Save the modification'),
-        },
-        is_valid=edit_form.is_valid(),
-        reload=False,
-        delegate_reload=True,
-    )
+# # todo: if not line's type.editable ??
+# @login_required
+# @permission_required('polls')
+# def edit_line(request, preply_id, line_id):
+#     # NB: we do not use the generic view edit_related_to_entity(), because it would
+#     #     oblige us to transform PollReplyLine in a True auxiliary model
+#     #     (get_related_entity() method), so the delete view could be called without
+#     #     our consent.
+#     preply = get_object_or_404(PollReply, pk=preply_id)
+#     user = request.user
+#
+#     user.has_perm_to_change_or_die(preply)
+#
+#     tree = ReplySectionTree(preply)
+#
+#     try:
+#         line_node = tree.find_line(int(line_id))
+#     except KeyError as e:
+#         raise Http404('This PollReplyLine id does not correspond to the PollReply instance') from e
+#
+#     if not tree.conditions_are_met(line_node):
+#         raise Http404('This answered can not be edited (conditions are not met)')
+#
+#     if request.method == 'POST':
+#         edit_form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
+#
+#         if edit_form.is_valid():
+#             with atomic():
+#                 edit_form.save()
+#                 _clear_dependant_answers(tree, line_node)
+#                 update_model_instance(preply, is_complete=not bool(tree.next_question_to_answer))
+#     else:  # GET
+#         edit_form = preply_forms.PollReplyFillForm(line_node=line_node, user=user)
+#
+#     return generic.inner_popup(
+#         request, 'creme_core/generics/blockform/edit_popup.html',
+#         {'form':  edit_form,
+#          'title': ugettext('Answer edition'),
+#          # todo: help_text (cleared answers + conditions etc...) ??
+#          'submit_label': _('Save the modification'),
+#         },
+#         is_valid=edit_form.is_valid(),
+#         reload=False,
+#         delegate_reload=True,
+#     )
 
 
 # Class-based views  ----------------------------------------------------------
@@ -481,12 +485,12 @@ class _RelatedRepliesCreationBase(generic.AddingToEntity):
 
 class RepliesCreationFromCampaign(_RelatedRepliesCreationBase):
     entity_id_url_kwarg = 'campaign_id'
-    entity_classes = get_pollcampaign_model()
+    entity_classes = polls.get_pollcampaign_model()
 
 
 class RepliesCreationFromPForm(_RelatedRepliesCreationBase):
     entity_id_url_kwarg = 'pform_id'
-    entity_classes = get_pollform_model()
+    entity_classes = polls.get_pollform_model()
 
 
 class RepliesCreationFromPerson(_RelatedRepliesCreationBase):
@@ -518,3 +522,60 @@ class LinkingRepliesToPerson(generic.AddingToEntity):
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
+
+
+# Beware: if we use RelatedToEntityEdition(), & transform PollReplyLine in a True
+#         auxiliary model (ie: has a get_related_entity() method), the generic
+#         delete view could be called without our consent.
+# TODO: if not line's type.editable ??
+# TODO: help_text (cleared answers + conditions etc...) ??
+class LineEdition(generic.EntityEditionPopup):
+    model = PollReply
+    form_class = preply_forms.PollReplyFillForm
+    pk_url_kwarg = 'preply_id'
+    title_format = _('Answer edition')
+    submit_label = _('Save the modification')
+    line_id_url_kwarg = 'line_id'
+
+    def __init__(self, *args, **kwargs):
+        super(LineEdition, self).__init__(*args, **kwargs)
+        self.tree = None
+        self.line_node = None
+
+    def get_tree(self):
+        tree = self.tree
+        if tree is None:
+            self.tree = tree = ReplySectionTree(self.object)
+
+        return tree
+
+    def get_line_node(self, tree):
+        line_node = self.line_node
+
+        if line_node is None:
+            try:
+                line_node = tree.find_line(int(self.kwargs[self.line_id_url_kwarg]))
+            except KeyError as e:
+                raise Http404('This PollReplyLine id does not correspond to the PollReply instance') from e
+
+            if not tree.conditions_are_met(line_node):
+                raise Http404('This answered can not be edited (conditions are not met)')
+
+            self.line_node = line_node
+
+        return line_node
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['line_node'] = self.get_line_node(tree=self.get_tree())
+
+        return kwargs
+
+    def form_valid(self, form):
+        response = super().form_valid(form=form)
+
+        tree = self.get_tree()
+        _clear_dependant_answers(tree, self.get_line_node(tree))
+        update_model_instance(self.object, is_complete=not bool(tree.next_question_to_answer))
+
+        return response

@@ -211,10 +211,12 @@ class PersonAddRepliesForm(CremeForm):
 class PollReplyFillForm(CremeForm):
     question = CharField(label=_('Question'), required=False, initial='??', widget=Label)
 
-    def __init__(self, line_node, *args, **kwargs):
+    # def __init__(self, line_node, *args, **kwargs):
+    def __init__(self, line_node, instance=None, *args, **kwargs):
         "@param line_node Node (see ReplySectionTree) related to a PollReplyLine."
         # super(PollReplyFillForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
+        self.poll_reply = instance
         self.line_node = line_node
 
         fields = self.fields
@@ -265,6 +267,8 @@ class PollReplyFillForm(CremeForm):
         line.answer = answer
 
         line.save()
+
+        return self.poll_reply
 
 
 class InnerEditPersonForm(BulkDefaultEditForm):
