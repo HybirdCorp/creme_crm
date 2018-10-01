@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 from creme import polls
 from .views import poll_form, poll_reply  # portal
@@ -40,8 +40,11 @@ urlpatterns = [
         name='polls__link_reply_to_person',
     ),
 
-    url(r'^poll_reply/(?P<preply_id>\d+)/line/(?P<line_id>\d+)/edit[/]?$',        poll_reply.edit_line,        name='polls__edit_reply_line'),
-    url(r'^poll_reply/(?P<preply_id>\d+)/line/(?P<line_id>\d+)/edit_wizard[/]?$', poll_reply.edit_line_wizard, name='polls__edit_reply_line_wizard'),
+    url(r'^poll_reply/(?P<preply_id>\d+)/line/(?P<line_id>\d+)/', include([
+        # url(r'^edit[/]?$',        poll_reply.edit_line,        name='polls__edit_reply_line'),
+        url(r'^edit[/]?$',        poll_reply.LineEdition.as_view(), name='polls__edit_reply_line'),
+        url(r'^edit_wizard[/]?$', poll_reply.edit_line_wizard,      name='polls__edit_reply_line_wizard'),
+    ]))
 ]
 
 if not polls.pollcampaign_model_is_custom():

@@ -1683,9 +1683,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertTrue(self.refresh(preply).is_complete)
 
         response = self.assertGET200(self._build_edit_answer_url(preply, rline))
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        self.assertEqual(_('Answer edition'),        context.get('title'))
+        self.assertEqual(_('Save the modification'), context.get('submit_label'))
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = context['form'].fields
 
         self.assertIn('question', fields)
         self.assertEqual('1 - {}'.format(question), fields['question'].initial)
@@ -1698,8 +1703,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self._edit_answer(preply, rline, answer=42, is_complete=True)
 
     def test_edit_answer02(self):
-        self.login()
         "Edit answer: one INT answer not answered (so reply becomes fully filled)"
+        self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
         fline = self._get_formline_creator(pform)('How many swallows are there?',
                                                   qtype=PollLineType.INT,
@@ -1844,6 +1849,56 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         rline = self.refresh(rline)
         self.assertFalse(rline.applicable)
         self.assertIsNone(rline.raw_answer)
+
+    def test_edit_answer_not_superuser01(self):
+        self.login(is_superuser=False, allowed_apps=['polls'],
+                   creatable_models=[PollReply],
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        question = 'How many swallows are there?'
+        fline = self._get_formline_creator(pform)(question, qtype=PollLineType.INT)
+
+        preply = self._build_preply_from_pform(pform, 'Reply#1')
+        rline = self.get_object_or_fail(PollReplyLine, pform_line=fline)
+
+        old_answer = 56
+        self._fill(preply, old_answer)
+        self.assertTrue(self.refresh(preply).is_complete)
+
+        self.assertGET200(self._build_edit_answer_url(preply, rline))
+
+    def test_edit_answer_not_superuser02(self):
+        "Edition permission on PollReply is needed"
+        user = self.login(is_superuser=False, allowed_apps=['polls'],
+                          creatable_models=[PollReply],
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            # EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        question = 'How many swallows are there?'
+        fline = self._get_formline_creator(pform)(question, qtype=PollLineType.INT)
+
+        preply = self._build_preply_from_pform(pform, 'Reply#1')
+        rline = self.get_object_or_fail(PollReplyLine, pform_line=fline)
+
+        PollReply.objects.filter(id=preply.id).update(is_complete=True)
+        self.assertGET403(self._build_edit_answer_url(preply, rline))
 
     def test_edit_wizard01(self):
         "Edition wizard: without conditions."
