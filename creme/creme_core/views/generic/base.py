@@ -21,8 +21,11 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
+from django.views.generic import TemplateView
 
+from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_ct_or_404
@@ -180,3 +183,14 @@ class EntityCTypeRelatedMixin(ContentTypeRelatedMixin):
         model = ctype.model_class()
         if not issubclass(model, CremeEntity):
             raise ConflictError('This model is not a entity model: {}'.format(model))
+
+
+class CheckedTemplateView(PermissionsMixin, TemplateView):
+    """Creme version of the django's TemplateView ; it checked that the
+    user is logged & has some permission.
+    """
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.check_view_permissions(user=self.request.user)
+
+        return super().dispatch(request, *args, **kwargs)

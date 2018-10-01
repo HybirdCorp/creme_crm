@@ -33,8 +33,8 @@ from ..models import MarketSegment
 # TODO: save/check unicity only if name has changed
 class MarketSegmentForm(CremeModelForm):
     error_messages = {
-        'duplicated_name':     _(u'A segment with this name already exists'),
-        'duplicated_property': _(u'A property with the name «%(name)s» already exists'),
+        'duplicated_name':     _('A segment with this name already exists'),
+        'duplicated_property': _('A property with the name «%(name)s» already exists'),
     }
 
     class Meta:
@@ -92,16 +92,19 @@ class MarketSegmentForm(CremeModelForm):
 
 
 class SegmentReplacementForm(CremeForm):
-    to_segment = ModelChoiceField(label=_(u'Choose a segment to replace by'),
+    to_segment = ModelChoiceField(label=_('Choose a segment to replace by'),
                                   empty_label=None,
                                   queryset=MarketSegment.objects.none(),
                                  )
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, instance, *args, **kwargs):
         # super(SegmentReplacementForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.segment_2_delete = segment = self.initial['segment_to_delete']
-        self.fields['to_segment'].queryset = MarketSegment.objects.exclude(pk=segment.id)
+        # self.segment_2_delete = segment = self.initial['segment_to_delete']
+        # self.fields['to_segment'].queryset = MarketSegment.objects.exclude(pk=segment.id)
+        self.segment_2_delete = instance
+        self.fields['to_segment'].queryset = MarketSegment.objects.exclude(pk=instance.id)
 
     def save(self, *args, **kwargs):
         segment_2_delete = self.segment_2_delete
