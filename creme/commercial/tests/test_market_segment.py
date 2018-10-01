@@ -76,11 +76,20 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.login(is_superuser=False)
         self.assertGET403(self.ADD_SEGMENT_URL)
 
-    def test_listview(self):
-        self.login()
+    def test_listview01(self):
+        self.login(is_superuser=False, allowed_apps=['commercial'])
 
         response = self.assertGET200(reverse('commercial__list_segments'))
         self.assertTemplateUsed(response, 'commercial/list_segments.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
+
+    def test_listview02(self):
+        "App permission needed."
+        self.login(is_superuser=False, allowed_apps=['persons'])
+
+        self.assertGET403(reverse('commercial__list_segments'))
 
     def test_edit01(self):
         self.login()
@@ -195,7 +204,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertGET403(segment.get_edit_absolute_url())
 
     @skipIfCustomOrganisation
-    def test_segment_delete01(self):
+    def test_delete01(self):
         user = self.login()
 
         strategy = Strategy.objects.create(user=user, name='Producers')
@@ -213,7 +222,10 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         segment2 = self._create_segment('Industry')
 
         url = self._build_delete_url(segment1)
-        context = self.assertGET200(url).context
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete_popup.html')
+
+        context = response.context
         self.assertEqual(_('Delete and replace «{}»').format(segment1), context.get('title'))
         self.assertEqual(_('Replace'),                                  context.get('submit_label'))
 
@@ -232,7 +244,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertIn(prop.type,    ptypes)
         self.assertNotIn(old_ptype, ptypes)
 
-    def test_segment_delete02(self):
+    def test_delete02(self):
         "Cannot delete if there is only one segment"
         self.login()
 
@@ -240,7 +252,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         self.assertGET409(self._build_delete_url(segment))
 
-    def test_segment_delete03(self):
+    def test_delete03(self):
         "Cannot replace a segment by itself"
         self.login()
 
@@ -255,7 +267,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
                             )
 
     @skipIfCustomOrganisation
-    def test_segment_delete05(self):
+    def test_delete05(self):
         "Avoid CremeProperty duplicates"
         user = self.login()
 
@@ -289,17 +301,18 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertEqual(expected, ptypes(orga2))
         self.assertEqual(expected, ptypes(orga3))
 
-    def test_segment_delete06(self):
+    def test_delete06(self):
         "Cannot delete the segment with property_type=NULL"
         self.login()
 
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
         self._create_segment('Industry')  # We add this segment to not try to delete the last one.
 
-        self.assertGET409(self._build_delete_url(segment))
+        # self.assertGET409(self._build_delete_url(segment))
+        self.assertGET404(self._build_delete_url(segment))
 
     @skipIfCustomOrganisation
-    def test_segment_delete07(self):
+    def test_delete07(self):
         "We replace with the segment with property_type=NULL"
         user = self.login()
 

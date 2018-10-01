@@ -21,12 +21,13 @@
 import logging
 # import warnings
 
+from django.db import DatabaseError
 from django.urls import reverse
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _
+# from django.shortcuts import render, get_object_or_404
+from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views import generic
 
@@ -65,32 +66,66 @@ class SegmentEdition(generic.CremeModelEditionPopup):
     permissions = 'commercial'
 
 
-@login_required
-@permission_required('commercial')
-def listview(request):
-    return render(request, 'commercial/list_segments.html',
-                  context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
-                 )
+# @login_required
+# @permission_required('commercial')
+# def listview(request):
+#     return render(request, 'commercial/list_segments.html',
+#                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
+#                  )
+class Segments(generic.CheckedTemplateView):
+    template_name = 'commercial/list_segments.html'
+    permissions = 'commercial'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['bricks_reload_url'] = reverse('creme_core__reload_bricks')
+
+        return context
 
 
-# TODO: delete_popup.html ? (at least 'delete' icon)
-@login_required
-@permission_required('commercial')
-def delete(request, segment_id):
-    if MarketSegment.objects.count() < 2:
-        raise ConflictError(_("You can't delete the last segment."))
+# @login_required
+# @permission_required('commercial')
+# def delete(request, segment_id):
+#     if MarketSegment.objects.count() < 2:
+#         raise ConflictError(ugettext("You can't delete the last segment."))
+#
+#     segment = get_object_or_404(MarketSegment, id=segment_id)
+#
+#     if segment.property_type is None:
+#         raise ConflictError("You can't delete this specific segment.")
+#
+#     try:
+#         return generic.add_model_with_popup(request, segment_forms.SegmentReplacementForm,
+#                                             ugettext('Delete and replace «{}»').format(segment),
+#                                             initial={'segment_to_delete': segment},
+#                                             submit_label=_('Replace'),
+#                                            )
+#     except Exception:
+#         logger.exception('Error in MarketSegment deletion view')
+#         return HttpResponse(_("You can't delete this segment."), status=400)
+class SegmentDeletion(generic.CremeModelEditionPopup):
+    # model = MarketSegment
+    queryset = MarketSegment.objects.exclude(property_type=None)
+    form_class = segment_forms.SegmentReplacementForm
+    template_name = 'creme_core/generics/blockform/delete_popup.html'
+    pk_url_kwarg = 'segment_id'
+    permissions = 'commercial'
+    title_format = _('Delete and replace «{}»')
+    submit_label = _('Replace')
 
-    segment = get_object_or_404(MarketSegment, id=segment_id)
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
 
-    if segment.property_type is None:
-        raise ConflictError("You can't delete this specific segment.")
+        if MarketSegment.objects.count() < 2:
+            raise ConflictError(ugettext("You can't delete the last segment."))
 
-    try:
-        return generic.add_model_with_popup(request, segment_forms.SegmentReplacementForm,
-                                            _('Delete and replace «{}»').format(segment),
-                                            initial={'segment_to_delete': segment},
-                                            submit_label=_('Replace'),
-                                           )
-    except Exception:
-        logger.exception('Error in MarketSegment deletion view')
-        return HttpResponse(_("You can't delete this segment."), status=400)
+    def post(self, *args, **kwargs):
+        try:
+            return super().post(*args, **kwargs)
+        except DatabaseError as e:
+            logger.exception('Error in MarketSegment deletion view')
+
+            return HttpResponse(
+                ugettext('You cannot delete this segment [original error: {}].').format(e),
+                status=400,
+            )
