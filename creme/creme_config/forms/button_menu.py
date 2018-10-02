@@ -36,9 +36,9 @@ _PREFIX = 'creme_config-userbmi'
 
 class ButtonMenuAddForm(CremeForm):
     ctype = EntityCTypeChoiceField(
-                        label=_(u'Related resource'),
-                        help_text=_(u'The buttons related to this type of resource '
-                                    u'will be chosen by editing the configuration'
+                        label=_('Related resource'),
+                        help_text=_('The buttons related to this type of resource '
+                                    'will be chosen by editing the configuration'
                                    ),
                        )
 
@@ -59,11 +59,11 @@ class ButtonMenuAddForm(CremeForm):
 
 
 class ButtonMenuEditForm(CremeForm):
-    button_ids = MultipleChoiceField(label=_(u'Buttons to display'), required=False,
+    button_ids = MultipleChoiceField(label=_('Buttons to display'), required=False,
                                      choices=(), widget=OrderedMultipleChoiceWidget,
                                     )
 
-    def __init__(self, button_menu_items, ct_id, *args, **kwargs):
+    def __init__(self, button_menu_items, ct_id, instance=None, *args, **kwargs):
         # super(ButtonMenuEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 

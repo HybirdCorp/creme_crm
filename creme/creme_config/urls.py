@@ -141,10 +141,11 @@ bricks_patterns = [
 # ] if settings.OLD_MENU else []
 
 button_menu_patterns = [
-    url(r'^portal[/]?$',              button_menu.portal,                     name='creme_config__buttons'),
-    url(r'^wizard[/]?$',              button_menu.ButtonMenuWizard.as_view(), name='creme_config__add_buttons_to_ctype'),
-    url(r'^edit/(?P<ct_id>\d+)[/]?$', button_menu.edit,                       name='creme_config__edit_ctype_buttons'),
-    url(r'^delete[/]?$',              button_menu.delete,                     name='creme_config__delete_ctype_buttons'),
+    url(r'^portal[/]?$',              button_menu.portal,                      name='creme_config__buttons'),
+    url(r'^wizard[/]?$',              button_menu.ButtonMenuWizard.as_view(),  name='creme_config__add_buttons_to_ctype'),
+    # url(r'^edit/(?P<ct_id>\d+)[/]?$', button_menu.edit,                       name='creme_config__edit_ctype_buttons'),
+    url(r'^edit/(?P<ct_id>\d+)[/]?$', button_menu.ButtonMenuEdition.as_view(), name='creme_config__edit_ctype_buttons'),
+    url(r'^delete[/]?$',              button_menu.delete,                      name='creme_config__delete_ctype_buttons'),
 ]
 
 search_patterns = [

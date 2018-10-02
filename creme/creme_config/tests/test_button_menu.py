@@ -3,13 +3,13 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
+    from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import ButtonMenuItem
+    from creme.creme_core.models import ButtonMenuItem, FakeContact, FakeOrganisation
     from creme.creme_core.gui.button_menu import Button, button_registry
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
 except Exception as e:
-    print('Error in <{}>: {}' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class ButtonMenuConfigTestCase(CremeTestCase):
@@ -69,7 +69,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
     def test_wizard(self):
         class TestButton(Button):
             id_          = Button.generate_id('creme_config', 'test_wizard')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
 
         # button = TestButton()
         # button_registry.register(button)
@@ -84,10 +84,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         self.assertIn(ct, ctypes)
 
-        response = self.assertPOST200(url,
-                                      {'button_menu_wizard-current_step': '0',
-                                       '0-ctype': ct.id,
-                                      }
+        step_key = 'button_menu_wizard-current_step'
+        response = self.assertPOST200(url, data={step_key: '0',
+                                                 '0-ctype': ct.id,
+                                                },
                                      )
 
         with self.assertNoException():
@@ -97,12 +97,13 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         button_index = self._find_field_index(button_ids, TestButton.id_)
 
         response = self.client.post(url,
-                                    {'button_menu_wizard-current_step': '1',
-                                     '1-button_ids_check_{}'.format(button_index): 'on',
-                                     # '1-button_ids_value_%s' % button_index: button.id_,
-                                     '1-button_ids_value_{}'.format(button_index): TestButton.id_,
-                                     '1-button_ids_order_{}'.format(button_index): 1,
-                                    }
+                                    data={
+                                        step_key: '1',
+                                        '1-button_ids_check_{}'.format(button_index): 'on',
+                                        # '1-button_ids_value_%s' % button_index: button.id_,
+                                        '1-button_ids_value_{}'.format(button_index): TestButton.id_,
+                                        '1-button_ids_order_{}'.format(button_index): 1,
+                                    },
                                    )
         self.assertNoFormError(response)
         # self.assertEqual([(button.id_, 1000)],
@@ -111,13 +112,15 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                         )
 
     def test_edit01(self):
+        "Edit empty configuration => error"
         ct = self.contact_ct
         self.assertGET404(reverse('creme_config__edit_ctype_buttons', args=(ct.id,)))
 
     def test_edit02(self):
+        "Edit the default configuration"
         class TestButton(Button):
             id_          = Button.generate_id('creme_config', 'test_edit02')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
 
 
         # button = TestButton()
@@ -126,9 +129,14 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         url = reverse('creme_config__edit_ctype_buttons', args=(0,))
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        self.assertEqual(_('Edit default configuration'), context.get('title'))
+        self.assertEqual(_('Save the modifications'),     context.get('submit_label'))
 
         with self.assertNoException():
-            button_ids = response.context['form'].fields['button_ids']
+            button_ids = context['form'].fields['button_ids']
 
         # button_index = self._find_field_index(button_ids, button.id_)
         button_index = self._find_field_index(button_ids, TestButton.id_)
@@ -151,12 +159,12 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         class TestButton01(Button):
             id_          = Button.generate_id('creme_config', 'test_edit03_1')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
 
 
         class TestButton02(Button):
             id_          = Button.generate_id('creme_config', 'test_edit03_2')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
 
             def get_ctypes(self):
                 return [FakeContact, FakeOrganisation]
@@ -164,7 +172,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         class TestButton03(Button):
             id_          = Button.generate_id('creme_config', 'test_edit03_3')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
 
             def get_ctypes(self):
                 return [FakeOrganisation]  # No Contact
@@ -181,10 +189,13 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         ButtonMenuItem.objects.create(content_type=ct, order=1)
 
         url = reverse('creme_config__edit_ctype_buttons', args=(ct.id,))
-        response = self.assertGET200(url)
+        context = self.assertGET200(url).context
+        self.assertEqual(_('Edit configuration for «{model}»').format(model=ct),
+                         context.get('title')
+                        )
 
         with self.assertNoException():
-            button_ids = response.context['form'].fields['button_ids']
+            button_ids = context['form'].fields['button_ids']
 
         # button01_index = self._find_field_index(button_ids, button01.id_)
         # button02_index = self._find_field_index(button_ids, button02.id_)
