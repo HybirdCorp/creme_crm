@@ -34,9 +34,10 @@ urlpatterns = [
         url(r'^validate/(?P<action_id>\d+)[/]?$', action.validate,                 name='assistants__validate_action'),
     ])),
     url(r'^message/', include([
-        url(r'^add[/]?$',                    user_message.add,           name='assistants__create_message'),
+        # url(r'^add[/]?$',                    user_message.add,           name='assistants__create_message'),
+        url(r'^add[/]?$',                    user_message.UserMessageCreation.as_view(),        name='assistants__create_message'),
         # url(r'^add/(?P<entity_id>\d+)[/]?$', user_message.add_to_entity, name='assistants__create_related_message'),
         url(r'^add/(?P<entity_id>\d+)[/]?$', user_message.RelatedUserMessageCreation.as_view(), name='assistants__create_related_message'),
-        url(r'^delete[/]?$',                 user_message.delete,        name='assistants__delete_message'),
+        url(r'^delete[/]?$',                 user_message.delete,                               name='assistants__delete_message'),
     ])),
 ]
