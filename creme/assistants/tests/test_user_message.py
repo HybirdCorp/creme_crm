@@ -67,10 +67,13 @@ class UserMessageTestCase(AssistantsTestCase):
         queue.clear()
 
         entity = self.entity
-        context = self.assertGET200(self._build_add_url(entity)).context
+        response = self.assertGET200(self._build_add_url(entity))
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
         # self.assertEqual(_('New message about «%s»') % entity, context.get('title'))
         self.assertEqual(_('New message about «{}»').format(entity), context.get('title'))
-        self.assertEqual(_('Save the message'),                   context.get('submit_label'))
+        self.assertEqual(_('Save the message'),                      context.get('submit_label'))
 
         title    = 'TITLE'
         body     = 'BODY'
@@ -147,7 +150,12 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_create03(self):
         "Without related entity"
-        self.assertGET200(self._build_add_url())
+        response = self.assertGET200(self._build_add_url())
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
+        self.assertEqual(_('New message'),      context.get('title'))
+        self.assertEqual(_('Save the message'), context.get('submit_label'))
 
         priority = UserMessagePriority.objects.create(title='Important')
         user01 = User.objects.create_user('User01', email='user01@foobar.com',

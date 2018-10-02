@@ -29,9 +29,9 @@ from ..models import UserMessage
 
 class UserMessageForm(CremeModelForm):
     users = ModelMultipleChoiceField(queryset=get_user_model().objects.filter(is_staff=False),
-                                     label=_(u'Recipients'),
-                                     help_text=_(u'Each time a team is selected, a message is sent to each teammate '
-                                                 u'(do not worry, there can not be any duplicate).'
+                                     label=_('Recipients'),
+                                     help_text=_('Each time a team is selected, a message is sent to each teammate '
+                                                 '(do not worry, there can not be any duplicate).'
                                                 ),
                                     )
 
@@ -39,7 +39,8 @@ class UserMessageForm(CremeModelForm):
         model = UserMessage
         fields = ('title', 'body', 'priority')
 
-    def __init__(self, entity, *args, **kwargs):
+    # def __init__(self, entity, *args, **kwargs):
+    def __init__(self, entity=None, *args, **kwargs):
         # super(UserMessageForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.entity = entity
