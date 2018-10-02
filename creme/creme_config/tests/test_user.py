@@ -1070,9 +1070,16 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         url = self._build_edit_user_svalue_url(sk)
         self.assertGET404(url)
 
+        # ---
         self._register_key(sk)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        context = response.context
+        self.assertEqual(_('Edit «{}»').format(sk.description), context.get('title'))
+        # self.assertEqual(_('Save the modifications'), context.get('submit_label'))  TODO
+
+        # ---
         response = self.client.post(url, data={'value': 'on'})
         self.assertNoFormError(response)
 
@@ -1087,7 +1094,8 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
                            )
 
         self._register_key(sk)
-        self.assertGET404(self._build_edit_user_svalue_url(sk))
+        # self.assertGET404(self._build_edit_user_svalue_url(sk))
+        self.assertGET409(self._build_edit_user_svalue_url(sk))
 
     def test_edit_user_setting_value03(self):
         "Not blank + STRING"

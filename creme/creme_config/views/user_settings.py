@@ -19,15 +19,16 @@
 ################################################################################
 
 from django.http import Http404
-from django.utils.translation import ugettext as _
+# from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.core.setting_key import user_setting_key_registry
 from creme.creme_core.utils import jsonify
-from creme.creme_core.views.generic import inner_popup
+from creme.creme_core.views.generic import CremeModelEditionPopup  # inner_popup
 
+from ..forms import user_settings as settings_forms
 from ..forms.setting import UserSettingForm
-from ..forms.user_settings import UserThemeForm, UserTimeZoneForm
 # from ..registry import config_registry
 
 from .portal import _config_portal
@@ -43,8 +44,8 @@ def view(request):
 
     return _config_portal(
             request, 'creme_config/user_settings.html',
-            theme_form=UserThemeForm(user=user, instance=user).as_span(),
-            tz_form=UserTimeZoneForm(user=user, instance=user).as_span(),
+            theme_form=settings_forms.UserThemeForm(user=user, instance=user).as_span(),
+            tz_form=settings_forms.UserTimeZoneForm(user=user, instance=user).as_span(),
             apps_usersettings_bricks=list(config_registry.user_bricks),
     )
 
@@ -68,37 +69,63 @@ def _set_usersetting(request, form_cls):
 
 
 def set_theme(request):
-    return _set_usersetting(request, UserThemeForm)
+    return _set_usersetting(request, settings_forms.UserThemeForm)
 
 
 def set_timezone(request):
-    return _set_usersetting(request, UserTimeZoneForm)
+    return _set_usersetting(request, settings_forms.UserTimeZoneForm)
 
 
-@login_required
-def edit_setting_value(request, skey_id):
-    try:
-        skey = user_setting_key_registry[skey_id]
-    except KeyError as e:
-        raise Http404('This key is invalid') from e
+# @login_required
+# def edit_setting_value(request, skey_id):
+#     try:
+#         skey = user_setting_key_registry[skey_id]
+#     except KeyError as e:
+#         raise Http404('This key is invalid') from e
+#
+#     if skey.hidden:
+#         raise Http404('You can not edit a UserSettingValue which is hidden.')
+#
+#     if request.method == 'POST':
+#         form = UserSettingForm(skey=skey, user=request.user, data=request.POST)
+#
+#         if form.is_valid():
+#             form.save()
+#     else:
+#         form = UserSettingForm(skey=skey, user=request.user)
+#
+#     return inner_popup(request,
+#                        'creme_core/generics/blockform/edit_popup.html',
+#                        {'form':  form,
+#                         'title': _('Edit «{}»').format(skey.description),
+#                        },
+#                        is_valid=form.is_valid(),
+#                        reload=False,
+#                        delegate_reload=True,
+#                       )
+class UserSettingValueEdition(CremeModelEditionPopup):
+    # model = User
+    form_class = UserSettingForm
+    key_id_url_kwarg = 'skey_id'
 
-    if skey.hidden:
-        raise Http404('You can not edit a UserSettingValue which is hidden.')
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        del kwargs['instance']
 
-    if request.method == 'POST':
-        form = UserSettingForm(skey=skey, user=request.user, data=request.POST)
+        kwargs['skey'] = self.object
 
-        if form.is_valid():
-            form.save()
-    else:
-        form = UserSettingForm(skey=skey, user=request.user)
+        return kwargs
 
-    return inner_popup(request,
-                       'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  form,
-                        'title': _(u'Edit «{}»').format(skey.description),
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    def get_object(self, *args, **kwargs):
+        try:
+            skey = user_setting_key_registry[self.kwargs[self.key_id_url_kwarg]]
+        except KeyError as e:
+            raise Http404('This key is invalid') from e
+
+        if skey.hidden:
+            raise ConflictError('You can not edit a UserSettingValue which is hidden.')
+
+        return skey
+
+    def get_title(self):
+        return self.title_format.format(self.get_object().description)
