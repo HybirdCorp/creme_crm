@@ -51,21 +51,30 @@ role_patterns = [
 ]
 
 relation_type_patterns = [
-    url(r'^portal[/]?$',                            relation_type.portal,            name='creme_config__rtypes'),
+    url(r'^portal[/]?$',                    relation_type.portal,                         name='creme_config__rtypes'),
     # url(r'^add[/]?$',                               relation_type.add,               name='creme_config__create_rtype'),
-    url(r'^add[/]?$',                               relation_type.RelationTypeCreation.as_view(), name='creme_config__create_rtype'),
-    url(r'^edit/(?P<relation_type_id>[\w-]+)[/]?$', relation_type.edit,              name='creme_config__edit_rtype'),
-    url(r'^delete[/]?$',                            relation_type.delete,            name='creme_config__delete_rtype'),
-    url(r'^semi_fixed/add[/]?$',                    relation_type.SemiFixedRelationTypeCreation.as_view(), name='creme_config__create_semifixed_rtype'),
-    url(r'^semi_fixed/delete[/]?$',                 relation_type.delete_semi_fixed, name='creme_config__delete_semifixed_rtype'),
+    url(r'^add[/]?$',                       relation_type.RelationTypeCreation.as_view(), name='creme_config__create_rtype'),
+    # url(r'^edit/(?P<relation_type_id>[\w-]+)[/]?$', relation_type.edit,              name='creme_config__edit_rtype'),
+    url(r'^edit/(?P<rtype_id>[\w-]+)[/]?$', relation_type.RelationTypeEdition.as_view(),  name='creme_config__edit_rtype'),
+    url(r'^delete[/]?$',                    relation_type.delete,                         name='creme_config__delete_rtype'),
+
+    url(r'^semi_fixed/add[/]?$',
+        relation_type.SemiFixedRelationTypeCreation.as_view(),
+        name='creme_config__create_semifixed_rtype'
+    ),
+    url(r'^semi_fixed/delete[/]?$',
+        relation_type.delete_semi_fixed,
+        name='creme_config__delete_semifixed_rtype'
+    ),
 ]
 
 property_type_patterns = [
-    url(r'^portal[/]?$',                            creme_property_type.portal, name='creme_config__ptypes'),
+    url(r'^portal[/]?$',                    creme_property_type.portal,                         name='creme_config__ptypes'),
     # url(r'^add[/]?$',                               creme_property_type.add,    name='creme_config__create_ptype'),
-    url(r'^add[/]?$',                               creme_property_type.PropertyTypeCreation.as_view(), name='creme_config__create_ptype'),
-    url(r'^edit/(?P<property_type_id>[\w-]+)[/]?$', creme_property_type.edit,   name='creme_config__edit_ptype'),
-    url(r'^delete[/]?$',                            creme_property_type.delete, name='creme_config__delete_ptype'),
+    url(r'^add[/]?$',                       creme_property_type.PropertyTypeCreation.as_view(), name='creme_config__create_ptype'),
+    # url(r'^edit/(?P<property_type_id>[\w-]+)[/]?$', creme_property_type.edit,   name='creme_config__edit_ptype'),
+    url(r'^edit/(?P<ptype_id>[\w-]+)[/]?$', creme_property_type.PropertyTypeEdition.as_view(),  name='creme_config__edit_ptype'),
+    url(r'^delete[/]?$',                    creme_property_type.delete,                         name='creme_config__delete_ptype'),
 ]
 
 fields_config_patterns = [

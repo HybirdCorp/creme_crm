@@ -20,16 +20,16 @@
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremePropertyType
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views import generic
+# from creme.creme_core.views import generic
 
 from ..forms import creme_property_type as ptype_forms
 
-from .base import BaseConfigCreation
+from . import base
 from .portal import _config_portal
 
 
@@ -46,39 +46,45 @@ def portal(request):
 #         _('New custom type of property'),
 #         submit_label=CremePropertyType.save_label,
 #     )
-class PropertyTypeCreation(BaseConfigCreation):
+class PropertyTypeCreation(base.BaseConfigCreation):
     model = CremePropertyType
     form_class = ptype_forms.CremePropertyTypeAddForm
     title = _('New custom type of property')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def edit(request, property_type_id):
-    property_type = get_object_or_404(CremePropertyType, pk=property_type_id)
-
-    if not property_type.is_custom:
-        raise Http404("Can't edit a standard PropertyType")
-
-    if request.method == 'POST':
-        property_type_form = ptype_forms.CremePropertyTypeEditForm(property_type, user=request.user, data=request.POST)
-
-        if property_type_form.is_valid():
-            property_type_form.save()
-    else:
-        property_type_form = ptype_forms.CremePropertyTypeEditForm(property_type, user=request.user)
-
-    return generic.inner_popup(
-        request,
-        'creme_core/generics/blockform/edit_popup.html',
-        {'form':  property_type_form,
-         'title': _('Edit the type «{property}»').format(property=property_type),
-         'submit_label': _('Save the modifications'),
-        },
-        is_valid=property_type_form.is_valid(),
-        reload=False,
-        delegate_reload=True,
-    )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def edit(request, property_type_id):
+#     property_type = get_object_or_404(CremePropertyType, pk=property_type_id)
+#
+#     if not property_type.is_custom:
+#         raise Http404("Can't edit a standard PropertyType")
+#
+#     if request.method == 'POST':
+#         property_type_form = ptype_forms.CremePropertyTypeEditForm(property_type, user=request.user, data=request.POST)
+#
+#         if property_type_form.is_valid():
+#             property_type_form.save()
+#     else:
+#         property_type_form = ptype_forms.CremePropertyTypeEditForm(property_type, user=request.user)
+#
+#     return generic.inner_popup(
+#         request,
+#         'creme_core/generics/blockform/edit_popup.html',
+#         {'form':  property_type_form,
+#          'title': _('Edit the type «{property}»').format(property=property_type),
+#          'submit_label': _('Save the modifications'),
+#         },
+#         is_valid=property_type_form.is_valid(),
+#         reload=False,
+#         delegate_reload=True,
+#     )
+class PropertyTypeEdition(base.BaseConfigEdition):
+    # model = CremePropertyType
+    queryset = CremePropertyType.objects.filter(is_custom=True)
+    form_class = ptype_forms.CremePropertyTypeEditForm
+    pk_url_kwarg = 'ptype_id'
+    title_format = pgettext_lazy('creme_config-property', 'Edit the type «{}»')
 
 
 # TODO: use the view in creme_core instead

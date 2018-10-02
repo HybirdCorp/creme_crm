@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.models import CremePropertyType, CremeProperty
     from creme.creme_core.tests.base import CremeTestCase
@@ -86,6 +86,7 @@ class PropertyTypeTestCase(CremeTestCase):
         self.assertGET403(self.ADD_URL)
 
     def test_edit01(self):
+        "Edit a not custom type +> error"
         self.login()
 
         get_ct = ContentType.objects.get_for_model
@@ -94,16 +95,26 @@ class PropertyTypeTestCase(CremeTestCase):
         self.assertGET404(self._build_edit_url(pt))
 
     def test_edit02(self):
+        "Edit a custom type"
         self.login()
 
         get_ct = ContentType.objects.get_for_model
         pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(FakeContact)], is_custom=True)
-        uri = self._build_edit_url(pt)
-        self.assertGET200(uri)
+        url = self._build_edit_url(pt)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Edit the type «{property}»').format(property=pt),
+        self.assertEqual(pgettext('creme_config-property', 'Edit the type «{}»').format(pt),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
+
+        # ---
         ct_orga = get_ct(FakeOrganisation)
         text   = 'is very beautiful'
-        response = self.client.post(uri, data={'text':           text,
+        response = self.client.post(url, data={'text':           text,
                                                'subject_ctypes': [ct_orga.id],
                                               }
                                    )
