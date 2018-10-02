@@ -104,13 +104,16 @@ bricks_patterns = [
     # url(r'^portal/edit/(?P<app_name>\w+)[/]?$', bricks.edit_portal,                  name='creme_config__edit_portal_bricks'),
     # url(r'^portal/delete[/]?$',                 bricks.delete_portal,                name='creme_config__delete_portal_bricks'),
 
-    url(r'^home/edit[/]?$',   bricks.edit_home,   name='creme_config__edit_home_bricks'),
-    url(r'^home/delete[/]?$', bricks.delete_home, name='creme_config__delete_home_brick'),
+    # url(r'^home/edit[/]?$',   bricks.edit_home,   name='creme_config__edit_home_bricks'),
+    url(r'^home/edit[/]?$',   bricks.HomeEdition.as_view(), name='creme_config__edit_home_bricks'),
+    url(r'^home/delete[/]?$', bricks.delete_home,           name='creme_config__delete_home_brick'),
 
-    url(r'^mypage/edit/default[/]?$',   bricks.edit_default_mypage,   name='creme_config__edit_default_mypage_bricks'),
-    url(r'^mypage/edit[/]?$',           bricks.edit_mypage,           name='creme_config__edit_mypage_bricks'),
-    url(r'^mypage/default/delete[/]?$', bricks.delete_default_mypage, name='creme_config__delete_default_mypage_bricks'),
-    url(r'^mypage/delete[/]?$',         bricks.delete_mypage,         name='creme_config__delete_mypage_bricks'),
+    # url(r'^mypage/edit/default[/]?$',   bricks.edit_default_mypage,   name='creme_config__edit_default_mypage_bricks'),
+    url(r'^mypage/edit/default[/]?$',   bricks.DefaultMyPageEdition.as_view(), name='creme_config__edit_default_mypage_bricks'),
+    # url(r'^mypage/edit[/]?$',           bricks.edit_mypage,           name='creme_config__edit_mypage_bricks'),
+    url(r'^mypage/edit[/]?$',           bricks.MyPageEdition.as_view(),        name='creme_config__edit_mypage_bricks'),
+    url(r'^mypage/default/delete[/]?$', bricks.delete_default_mypage,          name='creme_config__delete_default_mypage_bricks'),
+    url(r'^mypage/delete[/]?$',         bricks.delete_mypage,                  name='creme_config__delete_mypage_bricks'),
 
     # url(r'^relation_block/add[/]?$',                                       bricks.create_rtype_brick,                 name='creme_config__create_rtype_brick'),
     # url(r'^relation_block/(?P<rbi_id>\d+)/wizard[/]?$',                    bricks.RelationCTypeBrickWizard.as_view(), name='creme_config__add_cells_to_rtype_brick'),
@@ -119,7 +122,7 @@ bricks_patterns = [
     # url(r'^relation_block/delete[/]?$',                                    bricks.delete_rtype_brick,                 name='creme_config__delete_rtype_brick'),
     url(r'^rtype/add[/]?$',                                       bricks.RelationTypeBrickCreation.as_view(), name='creme_config__create_rtype_brick'),
     url(r'^rtype/(?P<rbi_id>\d+)/wizard[/]?$',                    bricks.RelationCTypeBrickWizard.as_view(),  name='creme_config__add_cells_to_rtype_brick'),
-    url(r'^rtype/(?P<rbi_id>\d+)/edit_ctype/(?P<ct_id>\d+)[/]?$', bricks.edit_cells_of_rtype_brick,           name='creme_config__edit_cells_of_rtype_brick'),
+    url(r'^rtype/(?P<rbi_id>\d+)/edit_ctype/(?P<ct_id>\d+)[/]?$', bricks.RelationCTypeBrickEdition.as_view(), name='creme_config__edit_cells_of_rtype_brick'),
     url(r'^rtype/(?P<rbi_id>\d+)/delete_ctype[/]?$',              bricks.delete_cells_of_rtype_brick,         name='creme_config__delete_cells_of_rtype_brick'),
     url(r'^rtype/delete[/]?$',                                    bricks.delete_rtype_brick,                  name='creme_config__delete_rtype_brick'),
 
