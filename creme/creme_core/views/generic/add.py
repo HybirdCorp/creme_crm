@@ -286,6 +286,19 @@ class CremeModelCreationPopup(popup.InnerPopupMixin, CremeModelCreation):
                      )
 
 
+class EntityCreationPopup(CremeModelCreationPopup):
+    model = models.CremeEntity
+    form_class = forms.CremeEntityForm
+
+    # TODO: factorise
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+
+        model = self.model
+        user.has_perm_to_access_or_die(model._meta.app_label)
+        user.has_perm_to_create_or_die(model)
+
+
 class AddingToEntity(base.EntityRelatedMixin, CremeModelCreationPopup):
     """ This specialisation of CremeModelCreationPopup creates some model
     instances related to a CremeEntity.
