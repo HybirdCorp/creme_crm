@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from urllib import response
 
 try:
     from copy import deepcopy
@@ -1313,9 +1314,14 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = reverse('creme_config__edit_home_bricks')
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        self.assertEqual(_('Edit home configuration'), context.get('title'))
+        self.assertEqual(_('Save the modifications'),  context.get('submit_label'))
 
         with self.assertNoException():
-            bricks_field = response.context['form'].fields['bricks']
+            bricks_field = context['form'].fields['bricks']
 
         self._find_field_index(bricks_field, CompleteBrick1.id_)
         self._find_field_index(bricks_field, HomeOnlyBrick1.id_)
@@ -1379,10 +1385,15 @@ class BricksConfigTestCase(CremeTestCase):
         self.login()
         url = reverse('creme_config__edit_default_mypage_bricks')
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        self.assertEqual(_('Edit default "My page"'), context.get('title'))
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         with self.assertNoException():
             # bricks_field = response.context['form'].fields['blocks']
-            bricks_field = response.context['form'].fields['bricks']
+            bricks_field = context['form'].fields['bricks']
 
         choices = bricks_field.choices
         self.assertGreaterEqual(len(choices), 2)
@@ -1420,10 +1431,15 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
 
-    def test_edit_mypage(self):
+    def test_edit_mypage01(self):
         user = self.login()
         url = reverse('creme_config__edit_mypage_bricks')
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        self.assertEqual(_('Edit "My page"'),         context.get('title'))
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         with self.assertNoException():
             # blocks_field = response.context['form'].fields['blocks']
@@ -1457,6 +1473,11 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(2, len(b_locs))
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
+
+    def test_edit_mypage02(self):
+        "Not super-user"
+        self.login(is_superuser=False)
+        self.assertGET200(reverse('creme_config__edit_mypage_bricks'))
 
     def test_delete_default_mypage01(self):
         self.login()
@@ -1752,8 +1773,16 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertGET404(self._build_rbrick_editctype_url(rb_item, FakeOrganisation))
 
         url = self._build_rbrick_editctype_url(rb_item, FakeContact)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        context = response.context
+        self.assertEqual(_('Edit «{model}» configuration').format(model=ct),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
+
+        # ---
         # funcfield = FakeContact.function_fields.get('get_pretty_properties')
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
         field_fname = 'first_name'

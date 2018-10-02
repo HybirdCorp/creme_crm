@@ -187,13 +187,18 @@ class CremeModelEdition(base.CancellableMixin, base.PermissionsMixin, UpdateView
     be backed out by the 'initial' field value of the other form).
 
     New attributes:
+    title: A string used as form's title. <None> (default value) means that the
+           attribute "title_format" will be used to build the title (see get_title()).
     title_format: A {}-format string formatted with the edited instance as
                   argument (see get_title()).
+    submit_label: A string used as label for the submission button of the form
+                 (see get_submit_label()).
     """
     model = models.CremeModel
     form_class = forms.CremeModelForm
     template_name = 'creme_core/generics/blockform/edit.html'
     pk_url_kwarg = 'object_id'
+    title = None
     title_format = _('Edit «{}»')
     submit_label = _('Save the modifications')
 
@@ -242,7 +247,9 @@ class CremeModelEdition(base.CancellableMixin, base.PermissionsMixin, UpdateView
         return self.title_format
 
     def get_title(self):
-        return self.get_title_format().format(self.object)
+        title = self.title
+
+        return self.get_title_format().format(self.object) if title is None else title
 
     @atomic
     def post(self, *args, **kwargs):

@@ -189,12 +189,19 @@ class CremeModelCreation(base.CancellableMixin, base.PermissionsMixin, CreateVie
       - Cancel button.
 
     Notice that POST requests are managed within a SQL transaction.
+
+    New attributes:
+    title: A string used as form's title. <None> (default value) means that
+           <model.creation_label> is used (see get_title()).
+    submit_label: A string used as label for the submission button of the form.
+                  <None> (default value) means that <model.save_label> is used
+                 (see get_submit_label()).
     """
     model = models.CremeModel  # TO BE OVERRIDDEN
     form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
     template_name = 'creme_core/generics/blockform/add.html'
-    title = None  # None means model.creation_label is used (see get_title()).
-    submit_label = None  # None means model.save_label is used (see get_submit_label()).
+    title = None
+    submit_label = None
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):

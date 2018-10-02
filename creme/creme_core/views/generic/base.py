@@ -63,7 +63,8 @@ class PermissionsMixin:
         """
         permissions = self.permissions
 
-        if permissions is not None:
+        # if permissions is not None:
+        if permissions:
             # TODO: has_perm[s]_or_die() with better error message ?
             allowed = user.has_perm(permissions) \
                       if isinstance(permissions, str) else \

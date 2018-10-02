@@ -339,7 +339,8 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
 class BrickHomeLocationsForm(_BrickLocationsForm):
     bricks = BrickLocationsField(label=_('Blocks to display on the home'))
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, instance=None, *args, **kwargs):
         # super(BrickHomeLocationsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         # self.locations = locations = BlockPortalLocation.objects.filter(app_name='creme_core')
@@ -360,7 +361,8 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
     # blocks = BrickLocationsField(label=_(u'Blocks to display on the "My Page" of the users'))
     bricks = BrickLocationsField(label=_('Blocks to display on the «My Page» of the users'))
 
-    def __init__(self, owner, *args, **kwargs):
+    # def __init__(self, owner, *args, **kwargs):
+    def __init__(self, owner=None, instance=None, *args, **kwargs):
         # super(BrickMypageLocationsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.owner = owner
