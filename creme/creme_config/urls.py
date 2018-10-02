@@ -10,14 +10,15 @@ from .views import (bricks, button_menu, creme_property_type, custom_fields,
 
 
 user_patterns = [
-    url(r'^portal[/]?$',                         user.portal,          name='creme_config__users'),
+    url(r'^portal[/]?$',                         user.portal,                   name='creme_config__users'),
     # url(r'^add[/]?$',                            user.add,             name='creme_config__create_user'),
-    url(r'^add[/]?$',                            user.UserCreation.as_view(), name='creme_config__create_user'),
+    url(r'^add[/]?$',                            user.UserCreation.as_view(),   name='creme_config__create_user'),
     # url(r'^edit/(?P<user_id>\d+)[/]?$',          user.edit,            name='creme_config__edit_user'),
-    url(r'^edit/(?P<user_id>\d+)[/]?$',          user.UserEdition.as_view(),  name='creme_config__edit_user'),
-    url(r'^activate/(?P<user_id>\d+)[/]?$',      user.activate,        name='creme_config__activate_user'),
-    url(r'^deactivate/(?P<user_id>\d+)[/]?$',    user.deactivate,      name='creme_config__deactivate_user'),
-    url(r'^delete/(?P<user_id>\d+)[/]?$',        user.delete,          name='creme_config__delete_user'),
+    url(r'^edit/(?P<user_id>\d+)[/]?$',          user.UserEdition.as_view(),    name='creme_config__edit_user'),
+    url(r'^activate/(?P<user_id>\d+)[/]?$',      user.activate,                 name='creme_config__activate_user'),
+    url(r'^deactivate/(?P<user_id>\d+)[/]?$',    user.deactivate,               name='creme_config__deactivate_user'),
+    # url(r'^delete/(?P<user_id>\d+)[/]?$',        user.delete,          name='creme_config__delete_user'),
+    url(r'^delete/(?P<user_id>\d+)[/]?$',        user.UserDeletion.as_view(),   name='creme_config__delete_user'),
     # url(r'^edit/password/(?P<user_id>\d+)[/]?$', user.change_password, name='creme_config__change_user_password'),
     url(r'^edit/password/(?P<user_id>\d+)[/]?$', user.PasswordChange.as_view(), name='creme_config__change_user_password'),
 ]

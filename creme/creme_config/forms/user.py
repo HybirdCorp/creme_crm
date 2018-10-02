@@ -29,7 +29,7 @@ from django.utils.html import format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
-from creme.creme_core.models import UserRole, Mutex
+from creme.creme_core.models import UserRole  # Mutex
 from creme.creme_core.models.fields import CremeUserForeignKey
 
 
@@ -43,8 +43,8 @@ def _password_validators_help_text_html(password_validators=None):
     if not help_texts:
         return ''
 
-    return format_html(u'<ul>{}</ul>',
-                       format_html_join(u'', u'<li>{}</li>', ((text,) for text in help_texts))
+    return format_html('<ul>{}</ul>',
+                       format_html_join('', '<li>{}</li>', ((text,) for text in help_texts))
                       )
 
 
@@ -53,20 +53,20 @@ def _password_validators_help_text_html(password_validators=None):
 class UserAddForm(CremeModelForm):
     # Copied from django.contrib.auth.forms.UserCreationForm
     error_messages = {
-        'password_mismatch': _(u"The two password fields didn't match."),
+        'password_mismatch': _("The two password fields didn't match."),
     }
 
-    password_1 = CharField(label=_(u'Password'), strip=False, widget=PasswordInput,
+    password_1 = CharField(label=_('Password'), strip=False, widget=PasswordInput,
                            # help_text=password_validation.password_validators_help_text_html(),
                            help_text=lazy(_password_validators_help_text_html, str),
                           )
     # password_1   = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
-    password_2 = CharField(label=_(u'Confirm password'),
+    password_2 = CharField(label=_('Confirm password'),
                            widget=PasswordInput, strip=False,
-                           help_text=_(u'Enter the same password as before, for verification.'),
+                           help_text=_('Enter the same password as before, for verification.'),
                           )
     # password_2   = CharField(label=_(u'Confirm password'), min_length=6, widget=PasswordInput())
-    role         = ModelChoiceField(label=_(u'Role'), required=False,
+    role         = ModelChoiceField(label=_('Role'), required=False,
                                     queryset=UserRole.objects.all(),
                                    )
 
@@ -79,7 +79,7 @@ class UserAddForm(CremeModelForm):
         super().__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
-        self.fields['role'].empty_label = u'*{}*'.format(ugettext(u'Superuser'))
+        self.fields['role'].empty_label = '*{}*'.format(ugettext('Superuser'))
 
     # Copied from django.contrib.auth.forms.UserCreationForm
     def clean_password_2(self):
@@ -119,7 +119,7 @@ class UserAddForm(CremeModelForm):
 
 # TODO: factorise with UserAddForm
 class UserEditForm(CremeModelForm):
-    role = ModelChoiceField(label=_(u'Role'), queryset=UserRole.objects.all(), required=False)
+    role = ModelChoiceField(label=_('Role'), queryset=UserRole.objects.all(), required=False)
 
     class Meta:
         model = CremeUser
@@ -130,7 +130,7 @@ class UserEditForm(CremeModelForm):
         super().__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
-        self.fields['role'].empty_label = u'*{}*'.format(ugettext(u'Superuser'))
+        self.fields['role'].empty_label = '*{}*'.format(ugettext('Superuser'))
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -147,19 +147,19 @@ class UserEditForm(CremeModelForm):
 class UserChangePwForm(CremeForm):
     error_messages = {
         # 'password_mismatch': _(u'Passwords are different'),
-        'password_mismatch': _(u"The two password fields didn't match."),
+        'password_mismatch': _("The two password fields didn't match."),
     }
 
     # password_1 = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
     # password_2 = CharField(label=_(u'Confirm password'), min_length=6, widget=PasswordInput())
-    password_1 = CharField(label=_(u'Password'),
+    password_1 = CharField(label=_('Password'),
                            widget=PasswordInput, strip=False,
                            # help_text=password_validation.password_validators_help_text_html(),
                            help_text=lazy(_password_validators_help_text_html, str),
                           )
-    password_2 = CharField(label=_(u'Password (again)'),
+    password_2 = CharField(label=_('Password (again)'),
                            widget=PasswordInput, strip=False,
-                           help_text=_(u'Enter the same password as before, for verification.'),
+                           help_text=_('Enter the same password as before, for verification.'),
                           )
 
     def __init__(self, *args, **kwargs):
@@ -172,7 +172,9 @@ class UserChangePwForm(CremeForm):
         pw2  = data['password_2']
 
         if data['password_1'] != pw2:
-            raise ValidationError(self.error_messages['password_mismatch'], code='password_mismatch')
+            raise ValidationError(self.error_messages['password_mismatch'],
+                                  code='password_mismatch',
+                                 )
 
         password_validation.validate_password(pw2, self.user2edit)
 
@@ -186,7 +188,7 @@ class UserChangePwForm(CremeForm):
 
 class TeamCreateForm(CremeModelForm):
     teammates = ModelMultipleChoiceField(queryset=CremeUser.objects.filter(is_team=False, is_staff=False),
-                                         label=_(u'Teammates'), required=False,
+                                         label=_('Teammates'), required=False,
                                         )
 
     class Meta:
@@ -218,32 +220,41 @@ class TeamEditForm(TeamCreateForm):
 
 
 class UserAssignationForm(CremeForm):
-    to_user = ModelChoiceField(label=_(u'Choose a user to transfer to'),
+    to_user = ModelChoiceField(label=_('Choose a user to transfer to'),
                                queryset=CremeUser.objects.none(),
                               )
 
-    def __init__(self, user, *args, **kwargs):
+    # def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, instance, *args, **kwargs):
+        """Forms which assigns the fields with type CremeUserForeignKey
+        referencing a given user A to another user B, then deletes A.
+
+        @param user: User who is logged & makes the deletion.
+        @param instance: Instance of contrib.auth.get_user_model() to delete.
+        """
         # super(UserAssignationForm, self).__init__(user, *args, **kwargs)
         super().__init__(user, *args, **kwargs)
-        self.user_to_delete = user_to_delete= self.initial['user_to_delete']
+        # self.user_to_delete = user_to_delete= self.initial['user_to_delete']
+        self.user_to_delete = instance
 
-        users = CremeUser.objects.exclude(pk=user_to_delete.pk).exclude(is_staff=True)
+        # users = CremeUser.objects.exclude(pk=user_to_delete.pk).exclude(is_staff=True)
+        users = CremeUser.objects.exclude(pk=instance.pk).exclude(is_staff=True)
         choices = defaultdict(list)
         for user in users:
             choices[user.is_team].append((user.id, str(user)))
 
         to_user = self.fields['to_user']
         to_user.queryset = users
-        to_user.choices =  [(ugettext(u'Users'), choices[False]),
-                            (ugettext(u'Teams'), choices[True]),
-                           ]
+        to_user.choices = [(ugettext('Users'), choices[False]),
+                           (ugettext('Teams'), choices[True]),
+                          ]
 
     def save(self, *args, **kwargs):
-        mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
+        # mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
         CremeUserForeignKey._TRANSFER_TO_USER = self.cleaned_data['to_user']
 
         try:
             self.user_to_delete.delete()
         finally:
             CremeUserForeignKey._TRANSFER_TO_USER = None
-            mutex.release()
+            # mutex.release()
