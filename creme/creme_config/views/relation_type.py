@@ -20,16 +20,16 @@
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy  # ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import RelationType, SemiFixedRelationType
-from creme.creme_core.views.generic import inner_popup  # add_model_with_popup
+# from creme.creme_core.views.generic import inner_popup, add_model_with_popup
 from creme.creme_core.utils import get_from_POST_or_404
 
 from ..forms import relation_type as rtype_forms
 
-from .base import BaseConfigCreation
+from . import base
 from .portal import _config_portal
 
 
@@ -45,7 +45,7 @@ def portal(request):
 #                                 _('New custom type'),
 #                                 submit_label=RelationType.save_label,
 #                                )
-class RelationTypeCreation(BaseConfigCreation):
+class RelationTypeCreation(base.BaseConfigCreation):
     model = RelationType
     form_class = rtype_forms.RelationTypeCreateForm
     title = _('New custom type')
@@ -55,38 +55,44 @@ class RelationTypeCreation(BaseConfigCreation):
 # @permission_required('creme_core.can_admin')
 # def add_semi_fixed(request):
 #     return add_model_with_popup(request, rtype_forms.SemiFixedRelationTypeCreateForm)
-class SemiFixedRelationTypeCreation(BaseConfigCreation):
+class SemiFixedRelationTypeCreation(base.BaseConfigCreation):
     model = SemiFixedRelationType
     form_class = rtype_forms.SemiFixedRelationTypeCreateForm
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def edit(request, relation_type_id):
-    relation_type = get_object_or_404(RelationType, pk=relation_type_id)
-
-    # TODO: in a generic method (can_edit or die() ?) and use edit_model_with_popup() ?
-    if not relation_type.is_custom:
-        raise Http404("Can't edit a standard RelationType")
-
-    if request.method == 'POST':
-        form = rtype_forms.RelationTypeEditForm(relation_type, user=request.user, data=request.POST)
-
-        if form.is_valid():
-            form.save()
-    else:
-        form = rtype_forms.RelationTypeEditForm(instance=relation_type, user=request.user)
-
-    return inner_popup(request,
-                       'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  form,
-                        'title': ugettext('Edit the type «{predicate}»').format(predicate=relation_type), # TODO: lazy interpolation
-                        'submit_label': _('Save the modifications'),
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def edit(request, relation_type_id):
+#     relation_type = get_object_or_404(RelationType, pk=relation_type_id)
+#
+#     # todo: in a generic method (can_edit or die() ?) and use edit_model_with_popup() ?
+#     if not relation_type.is_custom:
+#         raise Http404("Can't edit a standard RelationType")
+#
+#     if request.method == 'POST':
+#         form = rtype_forms.RelationTypeEditForm(relation_type, user=request.user, data=request.POST)
+#
+#         if form.is_valid():
+#             form.save()
+#     else:
+#         form = rtype_forms.RelationTypeEditForm(instance=relation_type, user=request.user)
+#
+#     return inner_popup(request,
+#                        'creme_core/generics/blockform/edit_popup.html',
+#                        {'form':  form,
+#                         'title': ugettext('Edit the type «{predicate}»').format(predicate=relation_type), # TODO: lazy interpolation
+#                         'submit_label': _('Save the modifications'),
+#                        },
+#                        is_valid=form.is_valid(),
+#                        reload=False,
+#                        delegate_reload=True,
+#                       )
+class RelationTypeEdition(base.BaseConfigEdition):
+    # model = RelationType
+    queryset = RelationType.objects.filter(is_custom=True)
+    form_class = rtype_forms.RelationTypeEditForm
+    pk_url_kwarg = 'rtype_id'
+    title_format = pgettext_lazy('creme_config-relationship', 'Edit the type «{}»')
 
 
 @login_required

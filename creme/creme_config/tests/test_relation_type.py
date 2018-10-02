@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.models import (RelationType, CremePropertyType,
             SemiFixedRelationType, FakeContact, FakeOrganisation)
@@ -141,6 +141,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertTrue(sym_type.minimal_display)
 
     def test_edit01(self):
+        "Edit a not custom type => error"
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
                                  ('test-objfoo', 'object_predicate'),
                                  is_custom=False
@@ -148,13 +149,23 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertGET404(self._build_edit_url(rt))
 
     def test_edit02(self):
+        "Edit a custom type"
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
                                  ('test-objfoo', 'object_predicate'),
                                  is_custom=True
                                 )[0]
         url = self._build_edit_url(rt)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Edit the type «{predicate}»').format(predicate=rt),
+        self.assertEqual(pgettext('creme_config-relationship', 'Edit the type «{}»').format(rt),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
+
+        # ---
         subject_pred = 'loves'
         object_pred  = 'is loved by'
         response = self.client.post(url, data={'subject_predicate': subject_pred,
@@ -231,12 +242,12 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                             'semi_relation': self.formfield_value_relation_entity(
                                                                     self.loves.id, itsuki,
                                                                 ),
-                                            }
+                                           }
                                      )
         self.assertFormError(response, 'form', 'predicate',
-                             _(u'%(model_name)s with this %(field_label)s already exists.') % {
-                                    'model_name': _(u'Semi-fixed type of relationship'),
-                                    'field_label': _(u'Predicate'),
+                             _('%(model_name)s with this %(field_label)s already exists.') % {
+                                    'model_name': _('Semi-fixed type of relationship'),
+                                    'field_label': _('Predicate'),
                                 }
                             )
 
@@ -251,16 +262,16 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         url = self.ADD_URL
         predicate += ' (other)'
         response = self.assertPOST200(url, data={'predicate': predicate})
-        self.assertFormError(response, 'form', 'semi_relation', [_(u'This field is required.')])
+        self.assertFormError(response, 'form', 'semi_relation', [_('This field is required.')])
 
-        response = self.assertPOST200(url, data={'predicate':     predicate,
-                                                 'semi_relation': self.formfield_value_relation_entity(
-                                                                        self.loves.id, self.iori,
-                                                                    ),
-                                              }
-                                     )
+        response = self.assertPOST200(
+            url,
+            data={'predicate':     predicate,
+                  'semi_relation': self.formfield_value_relation_entity(self.loves.id, self.iori),
+                 },
+        )
         self.assertFormError(response, 'form', None,
-                             _(u'A semi-fixed type of relationship with this type and this object already exists.')
+                             _('A semi-fixed type of relationship with this type and this object already exists.')
                             )
 
     def test_delete(self):
