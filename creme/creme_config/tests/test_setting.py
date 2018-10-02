@@ -19,7 +19,7 @@ class SettingTestCase(CremeTestCase):
     def test_edit_string(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_string', description=u'Page title',
+        sk = SettingKey(id='persons-test_edit_string', description='Page title',
                         app_label='persons', type=SettingKey.STRING, hidden=False,
                        )
         setting_key_registry.register(sk)
@@ -31,8 +31,14 @@ class SettingTestCase(CremeTestCase):
         sv.save()
 
         url = self._build_edit_url(sv)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        context = response.context
+        self.assertEqual(_('Edit «{}»').format(sk.description), context.get('title'))
+        self.assertEqual(_('Save the modifications'),           context.get('submit_label'))
+
+        # ---
         title = title.upper()
         self.assertNoFormError(self.client.post(url, data={'value': title}))
         self.assertEqual(title, self.refresh(sv).value)
@@ -92,14 +98,14 @@ class SettingTestCase(CremeTestCase):
 
         response = self.assertPOST200(url, data={'value': 24})
         self.assertFormError(response, 'form', 'value',
-                             _(u'Ensure this value is less than or equal to %(limit_value)s.') % {
+                             _('Ensure this value is less than or equal to %(limit_value)s.') % {
                                     'limit_value': 23,
                                 }
                             )
 
         response = self.assertPOST200(url, data={'value': -1})
         self.assertFormError(response, 'form', 'value',
-                             _(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
+                             _('Ensure this value is greater than or equal to %(limit_value)s.') % {
                                     'limit_value': 0,
                                 }
                             )
@@ -112,7 +118,7 @@ class SettingTestCase(CremeTestCase):
                        )
         setting_key_registry.register(sk)
 
-        email = u'd.knut@eswat.ol'
+        email = 'd.knut@eswat.ol'
         # sv = SettingValue.objects.create(key=sk, value=email)
         sv = SettingValue(key=sk)
         sv.value = email
@@ -122,10 +128,10 @@ class SettingTestCase(CremeTestCase):
 
         response = self.assertPOST200(url, data={'value': 42})
         self.assertFormError(response, 'form', 'value',
-                             _(u'Enter a valid email address.')
+                             _('Enter a valid email address.')
                             )
 
-        email = u'd.knut.knut@eswat.ol'
+        email = 'd.knut.knut@eswat.ol'
         self.assertNoFormError(self.client.post(url, data={'value': email}))
         self.assertEqual(email, self.refresh(sv).value)
 
@@ -133,7 +139,7 @@ class SettingTestCase(CremeTestCase):
         "Hidden => not editable (value=True)"
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_hidden01', description=u'Display logo ?',
+        sk = SettingKey(id='persons-test_edit_hidden01', description='Display logo ?',
                         app_label='persons', type=SettingKey.BOOL, hidden=True,
                        )
         setting_key_registry.register(sk)
@@ -142,13 +148,14 @@ class SettingTestCase(CremeTestCase):
         sv = SettingValue(key=sk)
         sv.value = True
         sv.save()
-        self.assertGET404(self._build_edit_url(sv))
+        # self.assertGET404(self._build_edit_url(sv))
+        self.assertGET409(self._build_edit_url(sv))
 
     def test_edit_hidden02(self):
         "Hidden => not editable (value=False)"
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_hidden02', description=u'Display logo ?',
+        sk = SettingKey(id='persons-test_edit_hidden02', description='Display logo ?',
                         app_label='persons', type=SettingKey.BOOL, hidden=True,
                        )
         setting_key_registry.register(sk)
@@ -157,12 +164,13 @@ class SettingTestCase(CremeTestCase):
         sv = SettingValue(key=sk)
         sv.value = False
         sv.save()
-        self.assertGET404(self._build_edit_url(sv))
+        # self.assertGET404(self._build_edit_url(sv))
+        self.assertGET409(self._build_edit_url(sv))
 
     def test_edit_blank01(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_blank01', description=u'API key',
+        sk = SettingKey(id='persons-test_edit_blank01', description='API key',
                         app_label='persons', type=SettingKey.STRING,
                         blank=True,
                        )
@@ -182,7 +190,7 @@ class SettingTestCase(CremeTestCase):
     def test_edit_blank02(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_blank02', description=u'API key',
+        sk = SettingKey(id='persons-test_edit_blank02', description='API key',
                         app_label='persons', type=SettingKey.INT,
                         blank=True,
                        )
@@ -205,3 +213,30 @@ class SettingTestCase(CremeTestCase):
         sv = self.refresh(sv)
         self.assertEqual('', sv.value_str)
         self.assertIsNone(sv.value)
+
+    def test_edit_app_perm01(self):
+        self.login(is_superuser=False, admin_4_apps=['creme_core'])
+
+        sk = SettingKey(id='creme_core-test_edit_app_perm01', description='Page title',
+                        app_label='creme_core', type=SettingKey.STRING, hidden=False,
+                       )
+        setting_key_registry.register(sk)
+
+        sv = SettingValue(key=sk)
+        sv.value = 'May the source be with you'
+        sv.save()
+        self.assertGET200(self._build_edit_url(sv))
+
+    def test_edit_app_perm02(self):
+        "No app perm => error"
+        self.login(is_superuser=False)
+
+        sk = SettingKey(id='creme_core-test_edit_app_perm02', description='Page title',
+                        app_label='creme_core', type=SettingKey.STRING, hidden=False,
+                       )
+        setting_key_registry.register(sk)
+
+        sv = SettingValue(key=sk)
+        sv.value = 'May the source be with you'
+        sv.save()
+        self.assertGET403(self._build_edit_url(sv))
