@@ -816,8 +816,17 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
 
         url = self._build_delete_url(root)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Delete «{user}» and assign his entities to user').format(user=root),
+        self.assertEqual(_('Delete «{}» and assign his entities to user').format(root),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Delete the user'), context.get('submit_label'))
+
+        # ---
         self.assertPOST200(url, {'to_user': user.id})
         self.assertEqual(1, User.objects.filter(is_superuser=True).count())
         self.assertDoesNotExist(root)
@@ -861,12 +870,14 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotCremeUser
     def test_user_cannot_delete_staff_user(self):
         "Delete view can not delete the staff user"
-        self.login()
+        user = self.login()
         hybird = User.objects.create(username='hybird', is_staff=True)
 
         url = self._build_delete_url(hybird)
-        self.assertGET(400, url)
-        self.assertPOST(400, url, {'to_user': hybird.id})
+        # self.assertGET(400, url)
+        # self.assertPOST(400, url, {'to_user': hybird.id})
+        self.assertGET(404, url)
+        self.assertPOST(404, url, {'to_user': user.id})
 
     @skipIfNotCremeUser
     def test_user_cannot_delete_during_transfert(self):
@@ -878,7 +889,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(superusers))
         self.assertIn(user, superusers)
 
-        Mutex.get_n_lock('creme_config-forms-user-transfer_user')
+        # Mutex.get_n_lock('creme_config-forms-user-transfer_user')
+        Mutex.get_n_lock('creme_config-user_transfer')
 
         url = self._build_delete_url(root)
         self.assertGET200(url)

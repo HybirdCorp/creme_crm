@@ -21,12 +21,14 @@
 import logging
 
 from django.contrib.auth import get_user_model
+from django.db import DatabaseError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, superuser_required, _check_superuser
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.models import lock
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import POST_only
 
@@ -71,10 +73,6 @@ class BaseUserCreation(generic.CremeModelCreationPopup):
 class UserCreation(BaseUserCreation):
     form_class = user_forms.UserAddForm
 
-    def check_view_permissions(self, user):
-        super().check_view_permissions(user=user)
-        _check_superuser(user)
-
 
 # @login_required
 # @superuser_required
@@ -101,6 +99,11 @@ class BaseUserEdition(generic.CremeModelEditionPopup):
         super().check_view_permissions(user=user)
         _check_superuser(user)
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        return qs if self.request.user.is_staff else qs.filter(is_staff=False)
+
 
 # @login_required
 # @superuser_required
@@ -116,11 +119,6 @@ class BaseUserEdition(generic.CremeModelEditionPopup):
 class UserEdition(BaseUserEdition):
     queryset = get_user_model().objects.filter(is_team=False)
     form_class = user_forms.UserEditForm
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        return qs if self.request.user.is_staff else qs.filter(is_staff=False)
 
 
 # @login_required
@@ -138,35 +136,65 @@ class TeamEdition(BaseUserEdition):
     form_class = user_forms.TeamEditForm
 
 
-# TODO: 'delete' icon
-@login_required
-@superuser_required
-def delete(request, user_id):
-    """Delete a User (who can be a Team). Objects linked to this User are
-    linked to a new User.
+# @login_required
+# @superuser_required
+# def delete(request, user_id):
+#     """Delete a User (who can be a Team). Objects linked to this User are
+#     linked to a new User.
+#     """
+#     user = request.user
+#
+#     if int(user_id) == user.id:
+#         raise ConflictError(ugettext("You can't delete the current user."))
+#
+#     user_to_delete = get_object_or_404(get_user_model(), pk=user_id)
+#
+#     if user_to_delete.is_staff and not user.is_staff:
+#         return HttpResponse(ugettext("You can't delete a staff user."), status=400)
+#
+#     try:
+#         return generic.add_model_with_popup(request, user_forms.UserAssignationForm,
+#                                             _('Delete «{user}» and assign his entities to user').format(
+#                                                     user=user_to_delete,
+#                                                 ),
+#                                             initial={'user_to_delete': user_to_delete},
+#                                             submit_label=_('Delete the user'),
+#                                            )
+#     except Exception:
+#         logger.exception('delete(): an error occurred')
+#
+#         return HttpResponse(_("You can't delete this user."), status=400)
+class UserDeletion(BaseUserEdition):
+    """View to delete a User (who can be a Team).
+
+    Objects linked to this User are linked to another User
+   (see forms.user.UserAssignationForm).
     """
-    user = request.user
+    form_class = user_forms.UserAssignationForm
+    template_name = 'creme_core/generics/blockform/delete_popup.html'
+    title_format = _('Delete «{}» and assign his entities to user')
+    submit_label = _('Delete the user')
 
-    if int(user_id) == user.id:
-        raise ConflictError(_("You can't delete the current user."))
+    lock_name = 'creme_config-user_transfer'
 
-    user_to_delete = get_object_or_404(get_user_model(), pk=user_id)
+    def get_object(self, *args, **kwargs):
+        if int(self.kwargs[self.pk_url_kwarg]) == self.request.user.id:
+            raise ConflictError(ugettext("You can't delete the current user."))
 
-    if user_to_delete.is_staff and not user.is_staff:
-        return HttpResponse(_("You can't delete a staff user."), status=400)
+        return super(UserDeletion, self).get_object(*args, **kwargs)
 
-    try:
-        return generic.add_model_with_popup(request, user_forms.UserAssignationForm,
-                                            _('Delete «{user}» and assign his entities to user').format(
-                                                    user=user_to_delete,
-                                                ),
-                                            initial={'user_to_delete': user_to_delete},
-                                            submit_label=_('Delete the user'),
-                                           )
-    except Exception:
-        logger.exception('delete(): an error occurred')
+    def post(self, *args, **kwargs):
+        try:
+            # We create the lock out-of the super-post() transaction
+            with lock.MutexAutoLock(self.lock_name):
+                return super().post(*args, **kwargs)
+        except (DatabaseError, lock.MutexLockedException) as e:
+            logger.exception('UserDeletion: an error occurred')
 
-        return HttpResponse(_("You can't delete this user."), status=400)
+            return HttpResponse(
+                _('You cannot delete this user. [original error: {}]').format(e),
+                status=400,
+            )
 
 
 @login_required
@@ -176,12 +204,12 @@ def deactivate(request, user_id):
     user = request.user
 
     if int(user_id) == user.id:
-        raise ConflictError(_("You can't deactivate the current user."))
+        raise ConflictError(ugettext("You can't deactivate the current user."))
 
     user_to_deactivate = get_object_or_404(get_user_model(), pk=user_id)
 
     if user_to_deactivate.is_staff and not user.is_staff:
-        return HttpResponse(_("You can't deactivate a staff user."), status=400)
+        return HttpResponse(ugettext("You can't deactivate a staff user."), status=400)
 
     if user_to_deactivate.is_active:
         user_to_deactivate.is_active = False
@@ -197,7 +225,7 @@ def activate(request, user_id):
     user_to_activate = get_object_or_404(get_user_model(), pk=user_id)
 
     if user_to_activate.is_staff and not request.user.is_staff:
-        return HttpResponse(_("You can't activate a staff user."), status=400)
+        return HttpResponse(ugettext("You can't activate a staff user."), status=400)
 
     if not user_to_activate.is_active:
         user_to_activate.is_active = True
