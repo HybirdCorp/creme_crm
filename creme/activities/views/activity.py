@@ -145,9 +145,14 @@ def abstract_add_related_activity(request, entity_id, form=act_forms.RelatedActi
 
 def abstract_add_activity_popup(request, form=act_forms.CalendarActivityCreateForm,
                                 template='activities/add_popup_activity_form.html',
-                                title=_('New activity'),
+                                title=_('New activity'),  # TODO: Activity.creation_label
                                 submit_label=Activity.save_label,
                                ):
+    warnings.warn('activities.views.activity.abstract_add_activity_popup() is deprecated ; '
+                  'use the class-based view ActivityCreationPopup instead.',
+                  DeprecationWarning
+                 )
+
     if request.method == 'POST':
         form_instance = form(user=request.user, data=request.POST,
                              files=request.FILES or None,
@@ -230,6 +235,7 @@ def add_related(request, entity_id):
 @login_required
 @permission_required(('activities', _CREATION_PERM_STR))
 def add_popup(request):
+    warnings.warn('activities.views.activity.add_popup() is deprecated', DeprecationWarning)
     return abstract_add_activity_popup(request)
 
 
@@ -317,6 +323,29 @@ class ActivityCreation(generic.EntityCreation):
 
     def get_title(self):
         return Activity.get_creation_title(self.type_id)
+
+
+class ActivityCreationPopup(generic.EntityCreationPopup):
+    model = Activity
+    form_class = act_forms.CalendarActivityCreateForm
+    template_name = 'activities/add_popup_activity_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        request = self.request
+
+        if request.method == 'GET':
+            get = partial(get_from_GET_or_404, GET=request.GET, cast=int)
+            today = datetime.today()
+            kwargs['start'] = datetime(
+                  year=get(key='year',   default=today.year),
+                 month=get(key='month',  default=today.month),
+                   day=get(key='day',    default=today.day),
+                  hour=get(key='hour',   default=today.hour),
+                minute=get(key='minute', default=today.minute),
+            )
+
+        return kwargs
 
 
 class UnavailabilityCreation(ActivityCreation):

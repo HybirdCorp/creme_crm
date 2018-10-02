@@ -4,7 +4,8 @@ from .base import CheckedTemplateView
 from .add import (
     add_entity, add_to_entity, add_model_with_popup,
     CremeModelCreation, EntityCreation,
-    CremeModelCreationPopup, AddingToEntity,
+    CremeModelCreationPopup, EntityCreationPopup,
+    AddingToEntity,
 )
 from .edit import (
     edit_entity, edit_related_to_entity, edit_model_with_popup,

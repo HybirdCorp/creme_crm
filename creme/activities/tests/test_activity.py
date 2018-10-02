@@ -2269,9 +2269,15 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         url = self.ADD_POPUP_URL
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'activities/add_popup_activity_form.html')
+
+        context = response.context
+        # self.assertEqual(_('New activity'),   context.get('title'))
+        self.assertEqual(Activity.creation_label, context.get('title'))
+        self.assertEqual(Activity.save_label,     context.get('submit_label'))
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = context['form'].fields
             start_f = fields['start']
             end_f = fields['end']
 
@@ -2417,6 +2423,16 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertIsNone(end_f.initial)
         self.assertEqual(time(hour=23, minute=16), start_time_f.initial)
         self.assertIsNone(end_time_f.initial)
+
+    def test_createview_popup5(self):
+        "Not super-user"
+        self.login(is_superuser=False, creatable_models=[Activity])
+        self.assertGET200(self.ADD_POPUP_URL)
+
+    def test_createview_popup6(self):
+        "Creation perm is needed"
+        self.login(is_superuser=False)  #creatable_models=[Activity]
+        self.assertGET403(self.ADD_POPUP_URL)
 
     # def test_dl_ical_legacy(self):
     #     user = self.login()
