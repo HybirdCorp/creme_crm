@@ -20,7 +20,7 @@
 
 # import warnings
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
@@ -29,10 +29,13 @@ from formtools.wizard.views import SessionWizardView
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import inner_popup
+# from creme.creme_core.views.generic import inner_popup
+from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
-from ..forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
+from ..forms import button_menu as button_forms
+
+from .base import BaseConfigEdition
 from .portal import _config_portal
 
 
@@ -42,15 +45,15 @@ def portal(request):
 
 
 class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
-    class _ResourceStep(ButtonMenuAddForm):
-        step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
+    class _ResourceStep(button_forms.ButtonMenuAddForm):
+        step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
-    class _ConfigStep(ButtonMenuEditForm):
-        step_prev_label = _(u'Previous step')
-        step_submit_label = _(u'Save the configuration')
+    class _ConfigStep(button_forms.ButtonMenuEditForm):
+        step_prev_label = _('Previous step')
+        step_submit_label = _('Save the configuration')
 
     form_list = (_ResourceStep, _ConfigStep)
-    wizard_title = _(u'New buttons configuration')
+    wizard_title = _('New buttons configuration')
     template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
     permission = 'creme_core.can_admin'
 
@@ -59,7 +62,6 @@ class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
         _resource_form, config_form = form_list
         config_form.save()
 
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     def get_form_kwargs(self, step):
@@ -74,38 +76,79 @@ class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
         return kwargs
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def edit(request, ct_id):
-    ct_id = int(ct_id) or None
-    bmi = ButtonMenuItem.objects.filter(content_type=ct_id).order_by('order')
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def edit(request, ct_id):
+#     ct_id = int(ct_id) or None
+#     bmi = ButtonMenuItem.objects.filter(content_type=ct_id).order_by('order')
+#
+#     if not bmi:
+#         raise Http404  # Meh
+#
+#     if request.method == 'POST':
+#         buttons_form = button_forms.ButtonMenuEditForm(bmi, ct_id, user=request.user, data=request.POST)
+#
+#         if buttons_form.is_valid():
+#             buttons_form.save()
+#     else:
+#         buttons_form = button_forms.ButtonMenuEditForm(bmi, ct_id, user=request.user)
+#
+#     # todo: lazy interpolation ??
+#     title = ugettext('Edit configuration for «{model}»').format(model=ContentType.objects.get_for_id(ct_id)) \
+#             if ct_id else \
+#             _('Edit default configuration')
+#
+#     return inner_popup(request,
+#                        'creme_core/generics/blockform/edit_popup.html',
+#                        {'form':  buttons_form,
+#                         'title': title,
+#                         'submit_label': _('Save the modifications'),
+#                        },
+#                        is_valid=buttons_form.is_valid(),
+#                        reload=False,
+#                        delegate_reload=True,
+#                       )
+class ButtonMenuEdition(EntityCTypeRelatedMixin, BaseConfigEdition):
+    model = ButtonMenuItem
+    # pk_url_kwarg = ''
+    form_class = button_forms.ButtonMenuEditForm
+    ct_id_0_accepted = True
 
-    if not bmi:
-        raise Http404  # Meh
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.items = None
 
-    if request.method == 'POST':
-        buttons_form = ButtonMenuEditForm(bmi, ct_id, user=request.user, data=request.POST)
+    def get_items(self):
+        items = self.items
 
-        if buttons_form.is_valid():
-            buttons_form.save()
-    else:
-        buttons_form = ButtonMenuEditForm(bmi, ct_id, user=request.user)
+        if items is None:
+            items = ButtonMenuItem.objects.filter(content_type=self.get_ctype()) \
+                                          .order_by('order')
 
-    # TODO: lazy interpolation ??
-    title = ugettext(u'Edit configuration for «{model}»').format(model=ContentType.objects.get_for_id(ct_id)) \
-            if ct_id else \
-            _(u'Edit default configuration')
+            if not items:
+                raise Http404('This configuration odes not exist.')
 
-    return inner_popup(request,
-                       'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  buttons_form,
-                        'title': title,
-                        'submit_label': _(u'Save the modifications'),
-                       },
-                       is_valid=buttons_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+            self.items = items
+
+        return items
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        ctype = self.get_ctype()
+        kwargs['ct_id'] = None if ctype is None else ctype.id
+        kwargs['button_menu_items'] = self.get_items()
+
+        return kwargs
+
+    def get_object(self, *args, **kwargs):
+        return None
+
+    def get_title(self):
+        ctype = self.get_ctype()
+
+        return ugettext('Edit configuration for «{model}»').format(model=ctype) \
+               if ctype else \
+               ugettext('Edit default configuration')
 
 
 @login_required
