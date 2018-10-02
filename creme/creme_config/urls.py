@@ -38,13 +38,16 @@ user_settings_patterns = [
 ]
 
 role_patterns = [
-    url(r'^portal[/]?$',                            user_role.portal,                           name='creme_config__roles'),
-    url(r'^wizard[/]?$',                            user_role.UserRoleCreationWizard.as_view(), name='creme_config__create_role'),
-    url(r'^wizard/(?P<role_id>\d+)[/]?$',           user_role.UserRoleEditionWizard.as_view(),  name='creme_config__edit_role'),
-    url(r'^delete/(?P<role_id>\d+)[/]?$',           user_role.delete,                           name='creme_config__delete_role'),
-    url(r'^add_credentials/(?P<role_id>\d+)[/]?$',  user_role.add_credentials,                  name='creme_config__add_credentials_to_role'),
-    url(r'^edit_credentials/(?P<cred_id>\d+)[/]?$', user_role.edit_credentials,                 name='creme_config__edit_role_credentials'),
-    url(r'^delete_credentials[/]?$',                user_role.delete_credentials,               name='creme_config__remove_role_credentials'),
+    url(r'^portal[/]?$',                            user_role.portal,                       name='creme_config__roles'),
+    url(r'^wizard[/]?$',                            user_role.RoleCreationWizard.as_view(), name='creme_config__create_role'),
+    url(r'^wizard/(?P<role_id>\d+)[/]?$',           user_role.RoleEditionWizard.as_view(),  name='creme_config__edit_role'),
+    # url(r'^delete/(?P<role_id>\d+)[/]?$',           user_role.delete,                           name='creme_config__delete_role'),
+    url(r'^delete/(?P<role_id>\d+)[/]?$',           user_role.RoleDeletion.as_view(),       name='creme_config__delete_role'),
+    # url(r'^add_credentials/(?P<role_id>\d+)[/]?$',  user_role.add_credentials,                  name='creme_config__add_credentials_to_role'),
+    url(r'^add_credentials/(?P<role_id>\d+)[/]?$',  user_role.CredentialsAdding.as_view(),  name='creme_config__add_credentials_to_role'),
+    # url(r'^edit_credentials/(?P<cred_id>\d+)[/]?$', user_role.edit_credentials,                 name='creme_config__edit_role_credentials'),
+    url(r'^edit_credentials/(?P<cred_id>\d+)[/]?$', user_role.CredentialsEdition.as_view(), name='creme_config__edit_role_credentials'),
+    url(r'^delete_credentials[/]?$',                user_role.delete_credentials,           name='creme_config__remove_role_credentials'),
 ]
 
 relation_type_patterns = [

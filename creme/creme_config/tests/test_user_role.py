@@ -128,8 +128,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(apps[1], app_labels)
         self.assertIn('activities', app_labels)
 
+        # step_key = 'user_role_creation_wizard-current_step'
+        step_key = 'role_creation_wizard-current_step'
         response = self.client.post(url,
-                                    {'user_role_creation_wizard-current_step': '0',
+                                    {step_key: '0',
                                      '0-name': name,
                                      '0-allowed_apps': apps,
                                     }
@@ -145,7 +147,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNotIn('activities', adm_app_labels)
 
         response = self.client.post(url,
-                                    {'user_role_creation_wizard-current_step': '1',
+                                    {step_key: '1',
                                      '1-admin_4_apps': adm_apps,
                                     }
                                    )
@@ -166,7 +168,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNotIn(get_ct(Activity), creatable_ctypes)  # App not allowed
 
         response = self.client.post(url,
-                                    {'user_role_creation_wizard-current_step': '2',
+                                    {step_key: '2',
                                      '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
                                     }
                                    )
@@ -183,7 +185,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNotIn(get_ct(Activity), exp_ctypes)  # App not allowed
 
         response = self.client.post(url,
-                                    {'user_role_creation_wizard-current_step': '3',
+                                    {step_key: '3',
                                      '3-exportable_ctypes': [ct_contact.id],
                                     }
                                    )
@@ -201,7 +203,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         set_type = SetCredentials.ESET_ALL
         response = self.client.post(url,
-                                    {'user_role_creation_wizard-current_step': '4',
+                                    {step_key: '4',
                                      '4-can_change': True,
 
                                      '4-set_type': set_type,
@@ -244,8 +246,17 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(0, role.credentials.count())
 
         url = self._build_add_creds_url(role)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Add credentials to «{role}»').format(role=role),
+        self.assertEqual(_('Add credentials to «{}»').format(role),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Add the credentials'), context.get('submit_label'))
+
+        # ---
         set_type = SetCredentials.ESET_ALL
         response = self.client.post(url, data={'can_view':   True,
                                                'can_change': False,
@@ -314,6 +325,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(ct_contact.id,           creds.ctype_id)
 
     def test_add_credentials03(self):
+        "Not super-user => error"
         self.login_not_as_superuser()
 
         role = UserRole(name='CEO')
@@ -333,7 +345,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                           )
 
     @skipIfNotInstalled('creme.persons')
-    def test_edit_credentials(self):
+    def test_edit_credentials01(self):
         self.login()
 
         role = UserRole(name='CEO')
@@ -347,9 +359,17 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = reverse('creme_config__edit_role_credentials', args=(creds.id,))
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('Edit credentials for «{role}»').format(role=role),
+        self.assertEqual(_('Edit credentials for «{}»').format(role),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         with self.assertNoException():
-            cred_ctypes = set(response.context['form'].fields['ctype'].ctypes)
+            cred_ctypes = set(context['form'].fields['ctype'].ctypes)
 
         get_ct = ContentType.objects.get_for_model
         ct_contact = get_ct(Contact)
@@ -358,6 +378,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(get_ct(Organisation), cred_ctypes)
         self.assertNotIn(get_ct(Activity), cred_ctypes)  # App not allowed
 
+        # ---
         response = self.client.post(url,
                                     data={'can_view':   True,
                                           'can_change': True,
@@ -374,6 +395,16 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE, creds.value)
         self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
         self.assertEqual(ct_contact .id,          creds.ctype_id)
+
+    def test_edit_credentials02(self):
+        "Not super-user => error"
+        self.login_not_as_superuser()
+        role = UserRole.objects.create(name='CEO')
+        creds = SetCredentials.objects.create(role=role,
+                                              set_type=SetCredentials.ESET_ALL,
+                                              value=EntityCredentials.VIEW,
+                                             )
+        self.assertGET403(reverse('creme_config__edit_role_credentials', args=(creds.id,)))
 
     def test_delete_credentials01(self):
         self.login()
@@ -493,8 +524,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(apps[1], app_labels)
         self.assertIn('activities', app_labels)
 
+        # step_key = 'user_role_edition_wizard-current_step'
+        step_key = 'role_edition_wizard-current_step'
         response = self.client.post(url,
-                                    {'user_role_edition_wizard-current_step': '0',
+                                    {step_key: '0',
                                      '0-name': name,
                                      '0-allowed_apps': apps,
                                     }
@@ -510,7 +543,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNotIn('activities', adm_app_labels)
 
         response = self.client.post(url,
-                                    {'user_role_edition_wizard-current_step': '1',
+                                    {step_key: '1',
                                      '1-admin_4_apps': adm_apps,
                                     }
                                    )
@@ -531,7 +564,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNotIn(get_ct(Activity), creatable_ctypes)  # App not allowed
 
         response = self.client.post(url,
-                                    {'user_role_edition_wizard-current_step': '2',
+                                    {step_key: '2',
                                      '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
                                     }
                                    )
@@ -548,7 +581,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNotIn(get_ct(Activity), exp_ctypes)  # App not allowed
 
         response = self.client.post(url,
-                                    {'user_role_edition_wizard-current_step': '3',
+                                    {step_key: '3',
                                      '3-exportable_ctypes': [ct_contact.id],
                                     }
                                    )
@@ -585,6 +618,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role = UserRole.objects.create(name='CEO')
         url = self._build_del_role_url(role)
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete_popup.html')
+
         context = response.context
         self.assertEqual(_('Delete role «{}»').format(role), context.get('title'))
         self.assertEqual(_('Delete the role'),               context.get('submit_label'))

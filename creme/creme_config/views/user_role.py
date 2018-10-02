@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 # import warnings
 
+from django.db import DatabaseError
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -29,15 +31,17 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth.decorators import login_required, superuser_required, _check_superuser
-from creme.creme_core.models import UserRole, SetCredentials
+from creme.creme_core.models import UserRole, SetCredentials, lock
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
-from ..forms.user_role import AddCredentialsForm, EditCredentialsForm, UserRoleDeleteForm
-from ..forms import user_role as user_role_forms
+from ..forms import user_role as role_forms
 from .portal import _config_portal
+
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -45,16 +49,17 @@ def portal(request):
     return _config_portal(request, 'creme_config/user_role_portal.html')
 
 
-class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
-    class _CredentialsStep(user_role_forms.UserRoleCredentialsStep):
+# class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
+class RoleCreationWizard(PopupWizardMixin, SessionWizardView):
+    class _CredentialsStep(role_forms.UserRoleCredentialsStep):
         step_submit_label = UserRole.save_label
 
-    form_list = (user_role_forms.UserRoleAppsStep,
-                 user_role_forms.UserRoleAdminAppsStep,
-                 user_role_forms.UserRoleCreatableCTypesStep,
-                 user_role_forms.UserRoleExportableCTypesStep,
+    form_list = (role_forms.UserRoleAppsStep,
+                 role_forms.UserRoleAdminAppsStep,
+                 role_forms.UserRoleCreatableCTypesStep,
+                 role_forms.UserRoleExportableCTypesStep,
                  _CredentialsStep,
-                )
+                 )
     template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
     wizard_title = UserRole.creation_label
     # permission = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
@@ -101,20 +106,22 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
             kwargs['allowed_app_names'] = self.get_cleaned_data_for_step('0')['allowed_apps']
 
         if step == '4':
-            kwargs['role'] = self.role
+            # kwargs['role'] = self.role
+            kwargs['instance'] = self.role
 
         return kwargs
 
 
-class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
-    class _ExportableCTypesStep(user_role_forms.UserRoleExportableCTypesStep):
+# class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
+class RoleEditionWizard(PopupWizardMixin, SessionWizardView):
+    class _ExportableCTypesStep(role_forms.UserRoleExportableCTypesStep):
         step_submit_label = _('Save the modifications')
 
-    form_list = (user_role_forms.UserRoleAppsStep,
-                 user_role_forms.UserRoleAdminAppsStep,
-                 user_role_forms.UserRoleCreatableCTypesStep,
+    form_list = (role_forms.UserRoleAppsStep,
+                 role_forms.UserRoleAdminAppsStep,
+                 role_forms.UserRoleCreatableCTypesStep,
                  _ExportableCTypesStep,
-                )
+                 )
 
     template_name = 'creme_core/generics/blockform/edit_wizard_popup.html'
     wizard_title = 'Edit role'  # Overloaded in dispatch()
@@ -160,55 +167,80 @@ class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
         return kwargs
 
 
-@login_required
-@superuser_required
-def add_credentials(request, role_id):
-    role = get_object_or_404(UserRole, pk=role_id)
+# @login_required
+# @superuser_required
+# def add_credentials(request, role_id):
+#     role = get_object_or_404(UserRole, pk=role_id)
+#
+#     if request.method == 'POST':
+#         add_form = role_forms.AddCredentialsForm(role, user=request.user, data=request.POST)
+#
+#         if add_form.is_valid():
+#             add_form.save()
+#     else:
+#         add_form = role_forms.AddCredentialsForm(role, user=request.user)
+#
+#     return generic.inner_popup(
+#         request, 'creme_core/generics/blockform/edit_popup.html',
+#         {'form':  add_form,
+#          'title': _('Add credentials to «{role}»').format(role=role),
+#          'submit_label': _('Add the credentials'),
+#         },
+#         is_valid=add_form.is_valid(),
+#         reload=False,
+#         delegate_reload=True,
+#     )
+class BaseRoleEdition(generic.CremeModelEditionPopup):
+    model = UserRole
+    pk_url_kwarg = 'role_id'
 
-    if request.method == 'POST':
-        add_form = AddCredentialsForm(role, user=request.user, data=request.POST)
-
-        if add_form.is_valid():
-            add_form.save()
-    else:
-        add_form = AddCredentialsForm(role, user=request.user)
-
-    return generic.inner_popup(
-        request, 'creme_core/generics/blockform/edit_popup.html',
-        {'form':  add_form,
-         'title': _('Add credentials to «{role}»').format(role=role),
-         'submit_label': _('Add the credentials'),
-        },
-        is_valid=add_form.is_valid(),
-        reload=False,
-        delegate_reload=True,
-    )
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)
 
 
-# TODO: edit_model_with_popup  => improve title creation
-@login_required
-@superuser_required
-def edit_credentials(request, cred_id):
-    creds = get_object_or_404(SetCredentials, pk=cred_id)
+class CredentialsAdding(BaseRoleEdition):
+    form_class = role_forms.AddCredentialsForm
+    title_format = _('Add credentials to «{}»')
+    submit_label = _('Add the credentials')
 
-    if request.method == 'POST':
-        edit_form = EditCredentialsForm(instance=creds, user=request.user, data=request.POST)
 
-        if edit_form.is_valid():
-            edit_form.save()
-    else:
-        edit_form = EditCredentialsForm(instance=creds, user=request.user)
+# @login_required
+# @superuser_required
+# def edit_credentials(request, cred_id):
+#     creds = get_object_or_404(SetCredentials, pk=cred_id)
+#
+#     if request.method == 'POST':
+#         edit_form = role_forms.EditCredentialsForm(instance=creds, user=request.user, data=request.POST)
+#
+#         if edit_form.is_valid():
+#             edit_form.save()
+#     else:
+#         edit_form = role_forms.EditCredentialsForm(instance=creds, user=request.user)
+#
+#     return generic.inner_popup(
+#         request, 'creme_core/generics/blockform/edit_popup.html',
+#         {'form':  edit_form,
+#          'title': _('Edit credentials for «{role}»').format(role=creds.role),
+#          'submit_label': _('Save the modifications'),
+#         },
+#         is_valid=edit_form.is_valid(),
+#         reload=False,
+#         delegate_reload=True,
+#     )
+class CredentialsEdition(generic.CremeModelEditionPopup):
+    model = SetCredentials
+    form_class = role_forms.EditCredentialsForm
+    pk_url_kwarg = 'cred_id'
+    title_format = _('Edit credentials for «{}»')
 
-    return generic.inner_popup(
-        request, 'creme_core/generics/blockform/edit_popup.html',
-        {'form':  edit_form,
-         'title': _('Edit credentials for «{role}»').format(role=creds.role),
-         'submit_label': _('Save the modifications'),
-        },
-        is_valid=edit_form.is_valid(),
-        reload=False,
-        delegate_reload=True,
-    )
+    # TODO: factorise
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)
+
+    def get_title(self):
+        return self.title_format.format(self.object.role)
 
 
 @login_required
@@ -219,15 +251,34 @@ def delete_credentials(request):
     return HttpResponse()
 
 
-# TODO: 'delete' icon
-@login_required
-@superuser_required
-def delete(request, role_id):
-    role = get_object_or_404(UserRole, pk=role_id)
+# @login_required
+# @superuser_required
+# def delete(request, role_id):
+#     role = get_object_or_404(UserRole, pk=role_id)
+#
+#     return generic.add_model_with_popup(
+#         request, role_forms.UserRoleDeleteForm,
+#         _('Delete role «{}»').format(role),
+#         initial={'role_to_delete': role},
+#         submit_label=_('Delete the role'),  # todo: deletion_label ?
+#     )
+class RoleDeletion(BaseRoleEdition):
+    form_class = role_forms.UserRoleDeleteForm
+    template_name = 'creme_core/generics/blockform/delete_popup.html'
+    title_format = _('Delete role «{}»')
+    submit_label = _('Delete the role')  # TODO: deletion_label ?
 
-    return generic.add_model_with_popup(
-        request, UserRoleDeleteForm,
-        _('Delete role «{}»').format(role),
-        initial={'role_to_delete': role},
-        submit_label=_('Delete the role'),  # TODO: deletion_label ?
-    )
+    lock_name = 'creme_config-role_transfer'
+
+    def post(self, *args, **kwargs):
+        try:
+            # We create the lock out-of the super-post() transaction
+            with lock.MutexAutoLock(self.lock_name):
+                return super().post(*args, **kwargs)
+        except (DatabaseError, lock.MutexLockedException) as e:
+            logger.exception('RoleDeletion: an error occurred')
+
+            return HttpResponse(
+                _('You cannot delete this role. [original error: {}]').format(e),
+                status=400,
+            )

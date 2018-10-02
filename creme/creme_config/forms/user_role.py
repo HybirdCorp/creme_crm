@@ -29,7 +29,7 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import (CremeForm, CremeModelForm, FieldBlockManager,
         EntityCTypeChoiceField, MultiEntityCTypeChoiceField)
 from creme.creme_core.forms.widgets import Label, DynamicSelect, CremeRadioSelect
-from creme.creme_core.models import CremeUser, UserRole, SetCredentials, Mutex
+from creme.creme_core.models import CremeUser, UserRole, SetCredentials  # Mutex
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.unicode_collation import collator
 
@@ -48,24 +48,24 @@ def EmptyMultipleChoiceField(required=False, *args, **kwargs):
 
 
 class EditCredentialsForm(CremeModelForm):
-    can_view   = BooleanField(label=_(u'Can view'),   required=False)
-    can_change = BooleanField(label=_(u'Can change'), required=False)
-    can_delete = BooleanField(label=_(u'Can delete'), required=False)
-    can_link   = BooleanField(label=_(u'Can link'),   required=False,
-                              help_text=_(u'You must have the permission to link on 2 entities'
-                                          u' to create a relationship between them.'
+    can_view   = BooleanField(label=_('Can view'),   required=False)
+    can_change = BooleanField(label=_('Can change'), required=False)
+    can_delete = BooleanField(label=_('Can delete'), required=False)
+    can_link   = BooleanField(label=_('Can link'),   required=False,
+                              help_text=_('You must have the permission to link on 2 entities'
+                                          ' to create a relationship between them.'
                                          ),
                              )
-    can_unlink = BooleanField(label=_(u'Can unlink'), required=False,
-                              help_text=_(u'You must have the permission to unlink on 2 entities'
-                                          u' to delete a relationship between them.'
+    can_unlink = BooleanField(label=_('Can unlink'), required=False,
+                              help_text=_('You must have the permission to unlink on 2 entities'
+                                          ' to delete a relationship between them.'
                                          ),
                              )
-    set_type   = ChoiceField(label=_(u'Type of entities set'),
+    set_type   = ChoiceField(label=_('Type of entities set'),
                              choices=SetCredentials.ESETS_MAP.items(),
                              widget=CremeRadioSelect,
                             )
-    ctype      = EntityCTypeChoiceField(label=_(u'Apply to a specific type'),
+    ctype      = EntityCTypeChoiceField(label=_('Apply to a specific type'),
                                         widget=DynamicSelect(attrs={'autocomplete': True}),
                                         required=False,
                                         empty_label=pgettext('content_type', 'None'),
@@ -104,8 +104,10 @@ class EditCredentialsForm(CremeModelForm):
 
 
 class AddCredentialsForm(EditCredentialsForm):
-    def __init__(self, role, *args, **kwargs):
-        self.role = role
+    # def __init__(self, role, *args, **kwargs):
+    def __init__(self, instance, *args, **kwargs):
+        # self.role = role
+        self.role = instance
         # super(AddCredentialsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.fields['set_type'].initial = SetCredentials.ESET_ALL
@@ -121,15 +123,19 @@ class AddCredentialsForm(EditCredentialsForm):
 
 
 class UserRoleDeleteForm(CremeForm):
-    def __init__(self, user, *args, **kwargs):
+    # def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, instance, *args, **kwargs):
         # super(UserRoleDeleteForm, self).__init__(user, *args, **kwargs)
         super().__init__(user, *args, **kwargs)
-        self.role_to_delete = role_2_del = self.initial['role_to_delete']
-        self.using_users = users = CremeUser.objects.filter(role=role_2_del)
+        # self.role_to_delete = role_2_del = self.initial['role_to_delete']
+        self.role_to_delete = instance
+        # self.using_users = users = CremeUser.objects.filter(role=role_2_del)
+        self.using_users = users = CremeUser.objects.filter(role=instance)
 
         if users:
             self.fields['to_role'] = ModelChoiceField(label=ugettext('Choose a role to transfer to'),
-                                                      queryset=UserRole.objects.exclude(id=role_2_del.id),
+                                                      # queryset=UserRole.objects.exclude(id=role_2_del.id),
+                                                      queryset=UserRole.objects.exclude(id=instance.id),
                                                      )
         else:
             self.fields['info'] = CharField(label=ugettext('Information'), required=False, widget=Label,
@@ -140,15 +146,19 @@ class UserRoleDeleteForm(CremeForm):
 
     def save(self, *args, **kwargs):
         to_role = self.cleaned_data.get('to_role')
-        mutex = Mutex.get_n_lock('creme_config-forms-role-transfer_role')
+        # mutex = Mutex.get_n_lock('creme_config-forms-role-transfer_role')
+        #
+        # try:
+        #     if to_role is not None:
+        #         self.using_users.update(role=to_role)
+        #
+        #     self.role_to_delete.delete()
+        # finally:
+        #     mutex.release()
+        if to_role is not None:
+            self.using_users.update(role=to_role)
 
-        try:
-            if to_role is not None:
-                self.using_users.update(role=to_role)
-
-            self.role_to_delete.delete()
-        finally:
-            mutex.release()
+        self.role_to_delete.delete()
 
 
 # Wizard steps -----------------------------------------------------------------
@@ -176,7 +186,7 @@ class _UserRoleWizardFormStep(CremeModelForm):
 
 
 class UserRoleAppsStep(_UserRoleWizardFormStep):
-    allowed_apps = MultipleChoiceField(label=_(u'Allowed applications'), choices=())
+    allowed_apps = MultipleChoiceField(label=_('Allowed applications'), choices=())
 
     class Meta(_UserRoleWizardFormStep.Meta):
         fields = ('name', 'allowed_apps',)
@@ -197,10 +207,10 @@ class UserRoleAppsStep(_UserRoleWizardFormStep):
 
 
 class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
-    admin_4_apps = EmptyMultipleChoiceField(label=_(u'Administrated applications'),
-                                            help_text=_(u'These applications can be configured. '
-                                                        u'For example, the concerned users can create new choices '
-                                                        u'available in forms (eg: position for contacts).'
+    admin_4_apps = EmptyMultipleChoiceField(label=_('Administrated applications'),
+                                            help_text=_('These applications can be configured. '
+                                                        'For example, the concerned users can create new choices '
+                                                        'available in forms (eg: position for contacts).'
                                                        )
                                            )
 
@@ -225,7 +235,7 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
 
 
 class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
-    creatable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Creatable resources'), required=False)
+    creatable_ctypes = MultiEntityCTypeChoiceField(label=_('Creatable resources'), required=False)
 
     class Meta(_UserRoleWizardFormStep.Meta):
         fields = ('creatable_ctypes',)
@@ -241,9 +251,9 @@ class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
 
 
 class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
-    exportable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Exportable resources'), required=False,
-                                                    help_text=_(u'This types of entities can be downloaded as CSV/XLS '
-                                                                u'files (in the corresponding list-views).'
+    exportable_ctypes = MultiEntityCTypeChoiceField(label=_('Exportable resources'), required=False,
+                                                    help_text=_('This types of entities can be downloaded as CSV/XLS '
+                                                                'files (in the corresponding list-views).'
                                                                )
                                                    )
 
@@ -261,15 +271,15 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
 
 
 class UserRoleCredentialsStep(AddCredentialsForm):
-    blocks = FieldBlockManager(('general', _(u'First credentials'), '*'))
+    blocks = FieldBlockManager(('general', _('First credentials'), '*'))
 
     def __init__(self, allowed_app_names, *args, **kwargs):
         self.allowed_app_names = allowed_app_names
         # super(UserRoleCredentialsStep, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.fields['can_view'] = CharField(label=_(u'Can view'),
+        self.fields['can_view'] = CharField(label=_('Can view'),
                                             required=False, widget=Label,
-                                            initial=_(u'Yes'),
+                                            initial=_('Yes'),
                                            )
 
     def _get_allowed_apps(self):
