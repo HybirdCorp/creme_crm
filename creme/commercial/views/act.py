@@ -23,7 +23,7 @@ import warnings
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -233,7 +233,7 @@ class RelatedOpportunityCreation(generic.AddingToEntity):
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
 
-    @atomic
+    # @atomic
     def form_valid(self, form):
         response = super().form_valid(form=form)
         Relation.objects.create(subject_entity=form.instance,
@@ -336,45 +336,91 @@ class PatternComponentCreation(generic.AddingToEntity):
     entity_classes = ActObjectivePattern
 
 
-@login_required
-@permission_required('commercial')
-def _add_subpattern_component(request, component_id, form_class, title):
-    related_comp = get_object_or_404(ActObjectivePatternComponent, pk=component_id)
-    user = request.user
+# @login_required
+# @permission_required('commercial')
+# def _add_subpattern_component(request, component_id, form_class, title):
+#     related_comp = get_object_or_404(ActObjectivePatternComponent, pk=component_id)
+#     user = request.user
+#
+#     user.has_perm_to_change_or_die(related_comp.pattern)
+#
+#     if request.method == 'POST':
+#         form = form_class(related_comp, user=user, data=request.POST)
+#
+#         if form.is_valid():
+#             form.save()
+#     else:
+#         form = form_class(related_comp, user=user)
+#
+#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+#                                {'form':  form,
+#                                 'title': title % related_comp,
+#                                 'submit_label': _('Save the objective'),
+#                                },
+#                                is_valid=form.is_valid(),
+#                                reload=False,
+#                                delegate_reload=True,
+#                               )
+class SubPatternComponentCreation(generic.AddingToEntity):
+    model = ActObjectivePatternComponent
+    # form_class = ....
+    # title_format = _('New sub objective for «{}»')
+    submit_label = _('Save the objective')  # TODO: ActObjectivePatternComponent.save_label ?
+    # entity_id_url_kwarg = ''
+    entity_classes = ActObjectivePattern
+    entity_form_kwarg = None
 
-    user.has_perm_to_change_or_die(related_comp.pattern)
+    component_id_url_kwarg = 'component_id'
+    # component_form_kwarg = ...
 
-    if request.method == 'POST':
-        form = form_class(related_comp, user=user, data=request.POST)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.related_component = None
 
-        if form.is_valid():
-            form.save()
-    else:
-        form = form_class(related_comp, user=user)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs[self.component_form_kwarg] = self.get_related_component()
 
-    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                               {'form':  form,
-                                'title': title % related_comp,
-                                'submit_label': _('Save the objective'),
-                               },
-                               is_valid=form.is_valid(),
-                               reload=False,
-                               delegate_reload=True,
-                              )
+        return kwargs
+
+    def get_related_entity_id(self):
+        return self.get_related_component().pattern_id
+
+    def get_related_component(self):
+        comp = self.related_component
+
+        if comp is None:
+            self.related_component = comp = get_object_or_404(
+                ActObjectivePatternComponent,
+                id=self.kwargs[self.component_id_url_kwarg],
+            )
+
+        return comp
+
+    def get_title(self):
+        return self.title_format.format(self.get_related_component())
 
 
-def add_child_pattern_component(request, component_id):
-    return _add_subpattern_component(request, component_id,
-                                     forms.PatternChildComponentForm,
-                                     ugettext('New child objective for «%s»'),
-                                    )
+# def add_child_pattern_component(request, component_id):
+#     return _add_subpattern_component(request, component_id,
+#                                      forms.PatternChildComponentForm,
+#                                      ugettext('New child objective for «%s»'),
+#                                     )
+class ChildPatternComponentCreation(SubPatternComponentCreation):
+    form_class = forms.PatternChildComponentForm
+    title_format = _('New child objective for «{}»')
+    component_form_kwarg = 'parent'
 
 
-def add_parent_pattern_component(request, component_id):
-    return _add_subpattern_component(request, component_id,
-                                     forms.PatternParentComponentForm,
-                                     ugettext('New parent objective for «%s»'),
-                                    )
+# def add_parent_pattern_component(request, component_id):
+#     return _add_subpattern_component(request, component_id,
+#                                      forms.PatternParentComponentForm,
+#                                      ugettext('New parent objective for «%s»'),
+#                                     )
+class ParentPatternComponentCreation(SubPatternComponentCreation):
+    form_class = forms.PatternParentComponentForm
+    title_format = _('New parent objective for «{}»')
+    component_form_kwarg = 'child'
 
 
 # @login_required
@@ -406,48 +452,127 @@ def incr_objective_counter(request, objective_id):
     return HttpResponse()
 
 
-@login_required
-@permission_required('commercial')
-def create_objective_entity(request, objective_id):
-    objective = get_object_or_404(ActObjective, pk=objective_id)
-    user = request.user
-    user.has_perm_to_link_or_die(objective.act)
+# @login_required
+# @permission_required('commercial')
+# def create_objective_entity(request, objective_id):
+#     objective = get_object_or_404(ActObjective, pk=objective_id)
+#     user = request.user
+#     user.has_perm_to_link_or_die(objective.act)
+#
+#     ctype = objective.ctype
+#     if ctype is None:
+#         raise ConflictError('This objective is not a relationship counter.')
+#
+#     if objective.filter_id is not None:
+#         raise ConflictError('This objective has a filter, so you cannot build a related entity.')
+#
+#     model = ctype.model_class()
+#     user.has_perm_to_create_or_die(model)
+#     user.has_perm_to_link_or_die(model)
+#
+#     form_class = quickforms_registry.get_form(model)
+#     if form_class is None:
+#         raise ConflictError('This type of resource has no quick form.')
+#
+#     if request.method == 'POST':
+#         form = form_class(user=user, data=request.POST)
+#
+#         if form.is_valid():
+#             with atomic():
+#                 entity = form.save()
+#                 Relation.objects.create(subject_entity=entity,
+#                                         type_id=constants.REL_SUB_COMPLETE_GOAL,
+#                                         object_entity=objective.act,
+#                                         user=user,
+#                                        )
+#     else:  # return page on GET request
+#         form = form_class(user=user)
+#
+#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+#                                {'form':  form,
+#                                 'title': model.creation_label,
+#                                 'submit_label': model.save_label,
+#                                },
+#                                is_valid=form.is_valid(),
+#                                reload=False,
+#                                delegate_reload=True,
+#                               )
+class RelatedEntityCreation(generic.AddingToEntity):
+    # model = ...
+    # form_class = ....
+    # title = ...
+    # submit_label = ...
+    # entity_id_url_kwarg = ''
+    entity_classes = Act
+    entity_form_kwarg = None
 
-    ctype = objective.ctype
-    if ctype is None:
-        raise ConflictError('This objective is not a relationship counter.')
+    objective_id_url_kwarg = 'objective_id'
+    forms_registry = quickforms_registry
 
-    if objective.filter_id is not None:
-        raise ConflictError('This objective has a filter, so you cannot build a related entity.')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.related_objective = None
+        self.created_model = None
 
-    model = ctype.model_class()
-    user.has_perm_to_create_or_die(model)
-    user.has_perm_to_link_or_die(model)
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_link_or_die(entity)
 
-    form_class = quickforms_registry.get_form(model)
-    if form_class is None:
-        raise ConflictError('This type of resource has no quick form.')
+    def get_created_model(self):
+        model = self.created_model
 
-    if request.method == 'POST':
-        form = form_class(user=user, data=request.POST)
+        if model is None:
+            objective = self.get_related_objective()
+            ctype = objective.ctype
 
-        if form.is_valid():
-            with atomic():
-                entity = form.save()
-                Relation.objects.create(subject_entity=entity,
-                                        type_id=constants.REL_SUB_COMPLETE_GOAL,
-                                        object_entity=objective.act,
-                                        user=user,
-                                       )
-    else:  # return page on GET request
-        form = form_class(user=user)
+            if ctype is None:
+                raise ConflictError('This objective is not a relationship counter.')
 
-    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                               {'form':  form,
-                                'title': model.creation_label,
-                                'submit_label': model.save_label,
-                               },
-                               is_valid=form.is_valid(),
-                               reload=False,
-                               delegate_reload=True,
-                              )
+            if objective.filter_id is not None:
+                raise ConflictError('This objective has a filter, so you cannot build a related entity.')
+
+            model = ctype.model_class()
+            user = self.request.user
+            user.has_perm_to_create_or_die(model)
+            user.has_perm_to_link_or_die(model)
+
+            self.created_model = model
+
+        return model
+
+    def get_form_class(self):
+        form_class = self.forms_registry.get_form(self.get_created_model())
+
+        if form_class is None:
+            raise ConflictError('This type of resource has no quick form.')
+
+        return form_class
+
+    def form_valid(self, form):
+        response = super().form_valid(form=form)
+        Relation.objects.create(subject_entity=form.instance,
+                                type_id=constants.REL_SUB_COMPLETE_GOAL,
+                                object_entity=self.related_entity,
+                                user=self.request.user,
+                               )
+
+        return response
+
+    def get_related_entity_id(self):
+        return self.get_related_objective().act_id
+
+    def get_related_objective(self):
+        objective = self.related_objective
+
+        if objective is None:
+            self.related_objective = objective = get_object_or_404(
+                ActObjective,
+                id=self.kwargs[self.objective_id_url_kwarg],
+            )
+
+        return objective
+
+    def get_title(self):
+        return self.get_created_model().creation_label
+
+    def get_submit_label(self):
+        return self.get_created_model().save_label

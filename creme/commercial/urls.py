@@ -35,14 +35,17 @@ urlpatterns = [
     url(r'^act/(?P<act_id>\d+)/add/objectives_from_pattern[/]?$', act.ObjectiveCreationFromPattern.as_view(), name='commercial__create_objective_from_pattern'),
     # url(r'^objective/(?P<objective_id>\d+)/edit[/]?$',            act.edit_objective,              name='commercial__edit_objective'),
     url(r'^objective/(?P<objective_id>\d+)/edit[/]?$',            act.ObjectiveEdition.as_view(),             name='commercial__edit_objective'),
-    url(r'^objective/(?P<objective_id>\d+)/incr[/]?$',            act.incr_objective_counter,      name='commercial__incr_objective_counter'),
-    url(r'^objective/(?P<objective_id>\d+)/create_entity[/]?$',   act.create_objective_entity,     name='commercial__create_entity_from_objective'),
+    url(r'^objective/(?P<objective_id>\d+)/incr[/]?$',            act.incr_objective_counter,                 name='commercial__incr_objective_counter'),
+    # url(r'^objective/(?P<objective_id>\d+)/create_entity[/]?$',   act.create_objective_entity,     name='commercial__create_entity_from_objective'),
+    url(r'^objective/(?P<objective_id>\d+)/create_entity[/]?$',   act.RelatedEntityCreation.as_view(),        name='commercial__create_entity_from_objective'),
 
     # Pattern component
     # url(r'^objective_pattern/(?P<objpattern_id>\d+)/add_component[/]?$',      act.add_pattern_component,        name='commercial__create_component'),
-    url(r'^objective_pattern/(?P<objpattern_id>\d+)/add_component[/]?$',      act.PatternComponentCreation.as_view(), name='commercial__create_component'),
-    url(r'^objective_pattern/component/(?P<component_id>\d+)/add_child[/]*',  act.add_child_pattern_component,  name='commercial__create_child_component'),
-    url(r'^objective_pattern/component/(?P<component_id>\d+)/add_parent[/]*', act.add_parent_pattern_component, name='commercial__create_parent_component'),
+    url(r'^objective_pattern/(?P<objpattern_id>\d+)/add_component[/]?$',      act.PatternComponentCreation.as_view(),       name='commercial__create_component'),
+    # url(r'^objective_pattern/component/(?P<component_id>\d+)/add_child[/]$',  act.add_child_pattern_component,  name='commercial__create_child_component'),
+    url(r'^objective_pattern/component/(?P<component_id>\d+)/add_child[/]$',  act.ChildPatternComponentCreation.as_view(),  name='commercial__create_child_component'),
+    # url(r'^objective_pattern/component/(?P<component_id>\d+)/add_parent[/]$', act.add_parent_pattern_component, name='commercial__create_parent_component'),
+    url(r'^objective_pattern/component/(?P<component_id>\d+)/add_parent[/]$', act.ParentPatternComponentCreation.as_view(), name='commercial__create_parent_component'),
 
     # Segments
     # url(r'^strategy/(?P<strategy_id>\d+)/add/segment[/]?$',                      strategy.add_segment,  name='commercial__create_segment_desc'),
