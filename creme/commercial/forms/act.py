@@ -152,6 +152,7 @@ class PatternComponentForm(_PatternComponentForm):
 
 
 class PatternChildComponentForm(_PatternComponentForm):
+    # def __init__(self, parent, *args, **kwargs):
     def __init__(self, parent, *args, **kwargs):
         # super(PatternChildComponentForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)

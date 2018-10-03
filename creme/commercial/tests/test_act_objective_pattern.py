@@ -173,12 +173,20 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         "Parent component"
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities',
-                                                             pattern=pattern, success_rate=50
+                                                             pattern=pattern,
+                                                             success_rate=50,
                                                             )
 
         url = reverse('commercial__create_child_component', args=(comp01.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('New child objective for «%s»') % comp01, context.get('title'))
+        self.assertEqual(_('New child objective for «{}»').format(comp01), context.get('title'))
+        self.assertEqual(_('Save the objective'),                          context.get('submit_label'))
+
+        # ---
         name = 'Spread Vcards'
         self.assertNoFormError(self.client.post(url, data={'name':            name,
                                                            'success_rate':    20,
@@ -218,8 +226,15 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                                             )
 
         url = self._build_parent_url(comp01)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('New parent objective for «%s»') % comp01, context.get('title'))
+        self.assertEqual(_('New parent objective for «{}»').format(comp01), context.get('title'))
+        self.assertEqual(_('Save the objective'),                           context.get('submit_label'))
+
+        # ---
         name = 'Signed opportunities'
         success_rate = 50
         self.assertNoFormError(self.client.post(url, data={'name':           name,

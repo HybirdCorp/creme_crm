@@ -662,8 +662,15 @@ class ActTestCase(CommercialBaseTestCase):
                                                )
 
         url = self._build_create_related_entity_url(objective)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('New parent objective for «%s»') % comp01, context.get('title'))
+        self.assertEqual(Organisation.creation_label, context.get('title'))
+        self.assertEqual(Organisation.save_label,     context.get('submit_label'))
+
+        # ---
         name = 'Nerv'
         response = self.assertPOST200(url,
                                       data={'user': user.id,
@@ -711,6 +718,83 @@ class ActTestCase(CommercialBaseTestCase):
                                                 filter=efilter,
                                                )
         self.assertGET409(self._build_create_related_entity_url(objective))
+
+    def test_objective_create_entity_not_superuser01(self):
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'commercial'],
+                   creatable_models=[Organisation],
+                  )
+        create_sc =  partial(
+            SetCredentials.objects.create,
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,  # | EntityCredentials.CHANGE
+            set_type=SetCredentials.ESET_ALL,
+        )
+        get_ct = ContentType.objects.get_for_model
+        create_sc(ctype=get_ct(Act))
+        create_sc(ctype=get_ct(Organisation))
+
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
+                                                ctype=ContentType.objects.get_for_model(Organisation),
+                                               )
+        self.assertGET200(self._build_create_related_entity_url(objective))
+
+    def test_objective_create_entity_not_superuser02(self):
+        "Creation permission is needed"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'commercial'],
+                   # creatable_models=[Organisation],
+                  )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
+                                                ctype=ContentType.objects.get_for_model(Organisation),
+                                               )
+        self.assertGET403(self._build_create_related_entity_url(objective))
+
+    def test_objective_create_entity_not_superuser03(self):
+        "<LINK related Act> permission needed"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'commercial'],
+                   creatable_models=[Organisation],
+                  )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+            ctype=ContentType.objects.get_for_model(Organisation),
+        )
+
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
+                                                ctype=ContentType.objects.get_for_model(Organisation),
+                                               )
+        self.assertGET403(self._build_create_related_entity_url(objective))
+
+    def test_objective_create_entity_not_superuser04(self):
+        "<LINK created entity> permission needed"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'commercial'],
+                   creatable_models=[Organisation],
+                  )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+            ctype=ContentType.objects.get_for_model(Act),
+        )
+
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
+                                                ctype=ContentType.objects.get_for_model(Organisation),
+                                               )
+        self.assertGET403(self._build_create_related_entity_url(objective))
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
