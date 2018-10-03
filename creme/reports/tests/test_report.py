@@ -13,7 +13,7 @@ try:
     from django.utils.formats import date_format
     from django.utils.html import escape
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import ugettext as _, ungettext, pgettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import REL_SUB_HAS
@@ -734,8 +734,18 @@ class ReportTestCase(BaseReportsTestCase):
 
         report = self._create_report('My report')
         url = reverse('reports__export_report_filter', args=(report.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'reports/frags/report_export_filter.html')
 
+        context = response.context
+        # self.assertEqual(_('Export «{report}»').format(report=report),
+        self.assertEqual(pgettext('reports-report', 'Export «{}»').format(report),
+                         context.get('title')
+                        )
+        # self.assertEqual(_('Export'), context.get('submit_label'))
+        self.assertEqual(pgettext('reports-report', 'Export'), context.get('submit_label'))
+
+        # ---
         date_field = 'birthday'
         response = self.assertPOST200(url,
                                       data={'doc_type': 'csv',
@@ -760,6 +770,27 @@ class ReportTestCase(BaseReportsTestCase):
                             ),
                          callback_url
                         )
+
+    def test_export_filter_not_superuser01(self):
+        user = self.login(is_superuser=False, allowed_apps=['reports'])
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        report = Report.objects.create(name='Report', user=user, ct=self.ct_orga)
+        self.assertGET200(reverse('reports__export_report_filter', args=(report.id,)))
+
+    def test_export_filter_not_superuser02(self):
+        "VIEW permission"
+        user = self.login(is_superuser=False, allowed_apps=['reports'])
+        # SetCredentials.objects.create(role=self.role,
+        #                               value=EntityCredentials.VIEW,
+        #                               set_type=SetCredentials.ESET_ALL,
+        #                              )
+
+        report = Report.objects.create(name='Report', user=user, ct=self.ct_orga)
+        self.assertGET403(reverse('reports__export_report_filter', args=(report.id,)))
 
     def test_export_filter_form_missing_doctype(self):
         self.login()
@@ -816,7 +847,7 @@ class ReportTestCase(BaseReportsTestCase):
                                 }
                             )
 
-    def test_export_filter_form03(self):
+    def test_export_filter_form_no_datefield(self):
         self.login()
 
         report = self._create_report('My report')
@@ -1495,7 +1526,16 @@ class ReportTestCase(BaseReportsTestCase):
 
         img_report = self._build_image_report()
         url = self._build_linkreport_url(fk_img_field)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+
+        context = response.context
+        self.assertEqual(_('Link of the column «{}»').format(fk_img_field),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link'), context.get('submit_label'))
+
+        # ---
         self.assertNoFormError(self.client.post(url, data={'report': img_report.id}))
 
         fk_img_field = self.refresh(fk_img_field)
@@ -1513,6 +1553,35 @@ class ReportTestCase(BaseReportsTestCase):
         fk_img_field = self.refresh(fk_img_field)
         self.assertIsNone(fk_img_field.sub_report)
         self.assertFalse(fk_img_field.selected)
+
+    def test_link_report_not_superuser01(self):
+        user = self.login(is_superuser=False, allowed_apps=['reports'])
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        report = Report.objects.create(user=user, name='Report', ct=self.ct_contact)
+
+        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
+        create_field(name='last_name', order=1)
+        fk_img_field = create_field(name='image__name', order=2)
+        self.assertGET200(self._build_linkreport_url(fk_img_field))
+
+    def test_link_report_not_superuser02(self):
+        "LINK permission"
+        user = self.login(is_superuser=False, allowed_apps=['reports'])
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,  # EntityCredentials.LINK
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        report = Report.objects.create(user=user, name='Report', ct=self.ct_contact)
+
+        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
+        create_field(name='last_name', order=1)
+        fk_img_field = create_field(name='image__name', order=2)
+        self.assertGET403(self._build_linkreport_url(fk_img_field))
 
     def test_link_report_relation01(self):
         "RelationType has got constraints on CT"

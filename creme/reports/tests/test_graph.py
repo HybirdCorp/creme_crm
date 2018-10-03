@@ -2191,7 +2191,17 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertFalse(InstanceBrickConfigItem.objects.filter(entity=rgraph.id).exists())
 
         url = self._build_add_brick_url(rgraph)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
+        # self.assertEqual(_('Create an instance block for «{graph}»').format(graph=rgraph),
+        self.assertEqual(_('Create an instance block for «{}»').format(rgraph),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the block'), context.get('submit_label'))
+
+        # ---
         self.assertNoFormError(self.client.post(url))
 
         items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
@@ -2371,6 +2381,23 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual([str(year)], x)
         # self.assertEqual([[2, reverse('reports__list_fake_documents') + '?q_filter={"created__year": %s}' % year]], y)
         self.assertEqual([[2, reverse('reports__list_fake_documents') + '?q_filter={}'.format(self._serialize_qfilter(created__year=year))]], y)
+
+    def test_add_graph_instance_brick_not_superuser01(self):
+        self.login(is_superuser=False,
+                   allowed_apps=['reports'],
+                   admin_4_apps=['reports'],
+                  )
+        rgraph = self._create_invoice_report_n_graph()
+        self.assertGET200(self._build_add_brick_url(rgraph))
+
+    def test_add_graph_instance_brick_not_superuser02(self):
+        "Admin permission needed"
+        self.login(is_superuser=False,
+                   allowed_apps=['reports'],
+                   # admin_4_apps=['reports'],
+                  )
+        rgraph = self._create_invoice_report_n_graph()
+        self.assertGET403(self._build_add_brick_url(rgraph))
 
     def test_add_graph_instance_brick02_error01(self):
         "Volatile column (RFT_FIELD): invalid field"

@@ -18,38 +18,50 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic.popup import inner_popup
+# from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.models import InstanceBrickConfigItem
+# from creme.creme_core.views.generic.popup import inner_popup
+from creme.creme_core.views.generic import AddingToEntity
 
 from .. import get_rgraph_model
 from ..forms.bricks import GraphInstanceBrickForm
 
 
-# TODO: use add_to_entity() generic view => Post
+# todo: use add_to_entity() generic view => Post
 #       => Problem: it doesn't fit to the needs (credential admin instead of change/link)
+# @login_required
+# @permission_required(('reports', 'reports.can_admin'))
+# def add_graph_instance_brick(request, graph_id):
+#     graph = get_object_or_404(get_rgraph_model(), pk=graph_id)
+#
+#     if request.method == 'POST':
+#         graph_form = GraphInstanceBrickForm(graph=graph, user=request.user, data=request.POST)
+#
+#         if graph_form.is_valid():
+#             graph_form.save()
+#     else:
+#         graph_form = GraphInstanceBrickForm(graph=graph, user=request.user)
+#
+#     return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+#                        {'form':   graph_form,
+#                         'title': _('Create an instance block for «{graph}»').format(graph=graph),
+#                         'submit_label': _('Save the block'),
+#                        },
+#                        is_valid=graph_form.is_valid(),
+#                        reload=False,
+#                        delegate_reload=True,
+#                       )
+class GraphInstanceBrickCreation(AddingToEntity):
+    model = InstanceBrickConfigItem
+    form_class = GraphInstanceBrickForm
+    permissions = 'reports.can_admin'
+    title_format = _('Create an instance block for «{}»')
+    entity_classes = get_rgraph_model()
+    entity_id_url_kwarg = 'graph_id'
+    entity_form_kwarg = 'graph'
 
-@login_required
-@permission_required(('reports', 'reports.can_admin'))
-def add_graph_instance_brick(request, graph_id):
-    graph = get_object_or_404(get_rgraph_model(), pk=graph_id)
-
-    if request.method == 'POST':
-        graph_form = GraphInstanceBrickForm(graph=graph, user=request.user, data=request.POST)
-
-        if graph_form.is_valid():
-            graph_form.save()
-    else:
-        graph_form = GraphInstanceBrickForm(graph=graph, user=request.user)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                       {'form':   graph_form,
-                        'title': _(u'Create an instance block for «{graph}»').format(graph=graph),
-                        'submit_label': _(u'Save the block'),
-                       },
-                       is_valid=graph_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    def check_related_entity_permissions(self, entity, user):
+        pass  # NB: only admin credentials are needed

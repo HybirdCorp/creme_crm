@@ -10,16 +10,18 @@ from .views import export, report, graph, bricks  # portal
 urlpatterns = [
     # url(r'^$', portal.portal, name='reports__portal'),
 
-    url(r'^export/preview/(?P<report_id>\d+)[/]?$', export.preview, name='reports__export_report_preview'),
-    url(r'^export/filter/(?P<report_id>\d+)[/]?$',  export.filter,  name='reports__export_report_filter'),
-    url(r'^export/(?P<report_id>\d+)[/]?$',         export.export,  name='reports__export_report'),
+    url(r'^export/preview/(?P<report_id>\d+)[/]?$', export.preview,                   name='reports__export_report_preview'),
+    # url(r'^export/filter/(?P<report_id>\d+)[/]?$',  export.filter,  name='reports__export_report_filter'),
+    url(r'^export/filter/(?P<report_id>\d+)[/]?$',  export.ExportFilterURL.as_view(), name='reports__export_report_filter'),
+    url(r'^export/(?P<report_id>\d+)[/]?$',         export.export,                    name='reports__export_report'),
 
     # Fields brick
     # TODO: put field_id even on POST urls (instead of POST arg) ?
-    url(r'^report/field/unlink_report[/]?$',                 report.unlink_report, name='reports__unlink_report'),
-    url(r'^report/field/(?P<field_id>\d+)/reorder[/]?$',     report.reorder_field, name='reports__reorder_field'),
-    url(r'^report/field/(?P<field_id>\d+)/link_report[/]?$', report.link_report,   name='reports__link_report'),
-    url(r'^report/field/set_selected[/]?$',                  report.set_selected,  name='reports__set_selected_field'),
+    url(r'^report/field/unlink_report[/]?$',                 report.unlink_report,           name='reports__unlink_report'),
+    url(r'^report/field/(?P<field_id>\d+)/reorder[/]?$',     report.reorder_field,           name='reports__reorder_field'),
+    # url(r'^report/field/(?P<field_id>\d+)/link_report[/]?$', report.link_report,   name='reports__link_report'),
+    url(r'^report/field/(?P<field_id>\d+)/link_report[/]?$', report.ReportLinking.as_view(), name='reports__link_report'),
+    url(r'^report/field/set_selected[/]?$',                  report.set_selected,            name='reports__set_selected_field'),
     # url(r'^report/(?P<report_id>\d+)/edit_fields[/]?$',      report.edit_fields,   name='reports__edit_fields'),
     url(r'^report/(?P<report_id>\d+)/edit_fields[/]?$',      report.FieldsEdition.as_view(), name='reports__edit_fields'),
 
@@ -35,7 +37,11 @@ urlpatterns = [
        ),
 
     # url(r'^graph/(?P<graph_id>\d+)/block/add[/]?$', bricks.add_graph_instance_brick, name='reports__create_instance_brick'),
-    url(r'^graph/(?P<graph_id>\d+)/brick/add[/]?$', bricks.add_graph_instance_brick, name='reports__create_instance_brick'),
+    url(r'^graph/(?P<graph_id>\d+)/brick/add[/]?$',
+        # bricks.add_graph_instance_brick,
+        bricks.GraphInstanceBrickCreation.as_view(),
+        name='reports__create_instance_brick',
+    ),
 ]
 
 if not report_model_is_custom():
