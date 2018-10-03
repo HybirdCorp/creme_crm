@@ -35,15 +35,16 @@ InstanceBrickConfigItemError = get_rgraph_model().InstanceBrickConfigItemError
 
 
 class GraphInstanceBrickForm(CremeForm):
-    volatile_column = ChoiceField(label=_(u'Volatile column'), choices=(), required=False,
+    volatile_column = ChoiceField(label=_('Volatile column'), choices=(), required=False,
                                   widget=DynamicSelect(attrs={'autocomplete': True}),
-                                  help_text=_(u'When the graph is displayed on the detailview of an entity, '
-                                              u'only the entities linked to this entity by the following link '
-                                              u'are used to compute the graph.'
+                                  help_text=_('When the graph is displayed on the detailview of an entity, '
+                                              'only the entities linked to this entity by the following link '
+                                              'are used to compute the graph.'
                                              ),
                                  )
 
-    def __init__(self, graph, *args, **kwargs):
+    # def __init__(self, graph, *args, **kwargs):
+    def __init__(self, graph, instance=None, *args, **kwargs):
         # super(GraphInstanceBrickForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.graph = graph
@@ -71,15 +72,15 @@ class GraphInstanceBrickForm(CremeForm):
             self._rtypes[rtype.id] = rtype
 
         if fk_choices:
-            choices.append((_(u'Fields'), fk_choices))
+            choices.append((_('Fields'), fk_choices))
 
         if rtype_choices:
-            choices.append((_(u'Relationships'), rtype_choices))
+            choices.append((_('Relationships'), rtype_choices))
 
         if not choices:
-            choices.append(('', _(u'No available choice')))
+            choices.append(('', _('No available choice')))
         else:
-            choices.insert(0, ('', pgettext_lazy('reports-volatile_choice', u'None')))
+            choices.insert(0, ('', pgettext_lazy('reports-volatile_choice', 'None')))
 
         return choices
 

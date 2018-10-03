@@ -146,27 +146,31 @@ class ReportEditForm(CremeEntityForm):
         super().__init__(*args, **kwargs)
         fields = self.fields
         filter_f = fields['filter']
-        filter_f.empty_label = ugettext('All')
+        filter_f.empty_label = _('All')  # TODO: context
         filter_f.queryset = filter_f.queryset.filter(entity_type=self.instance.ct)
 
         efilter = self.instance.filter
 
         if efilter and not efilter.can_view(self.user)[0]:
-            fields['filter_label'] = CharField(label=fields['filter'].label,
-                                               required=False, widget=Label,
-                                               initial=_('The filter cannot be changed because it is private.'),
-                                              )
+            fields['filter_label'] = CharField(
+                label=fields['filter'].label,
+                required=False, widget=Label,
+                initial=_('The filter cannot be changed because it is private.'),
+            )
             del fields['filter']
 
 
 class LinkFieldToReportForm(CremeForm):
     report = CreatorEntityField(label=_('Sub-report linked to the column'), model=Report)
 
-    def __init__(self, field, ctypes, *args, **kwargs):
+    # def __init__(self, field, ctypes, *args, **kwargs):
+    def __init__(self, instance, ctypes, *args, **kwargs):
         # super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.rfield = field
-        report = field.report
+        # self.rfield = field
+        self.instance = instance
+        # report = field.report
+        report = instance.report
         # q_filter = {'~id__in': [r.id for r in chain(report.get_ascendants_reports(), [report])]}
         q_filter = ~Q(id__in=[r.id for r in chain(report.get_ascendants_reports(), [report])])
 
@@ -177,13 +181,16 @@ class LinkFieldToReportForm(CremeForm):
         self.fields['report'].q_filter = q_filter
 
     def save(self):
-        rfield = self.rfield
+        # rfield = self.rfield
+        rfield = self.instance
         rfield.sub_report = self.cleaned_data['report']
 
         # We could have a race condition here (so have several Field with selected=True)
         # but it is managed by the 'Report.columns' property
         rfield.selected = not rfield.report.fields.filter(sub_report__isnull=False).exists()
         rfield.save()
+
+        return rfield
 
 
 class ReportHandsWidget(EntityCellsWidget):
@@ -349,6 +356,7 @@ class ReportExportPreviewFilterForm(CremeForm):
                          ),
     }
 
+    # TODO: rename "report" to "instance" to be consistent ?
     def __init__(self, report, *args, **kwargs):
         # super(ReportExportPreviewFilterForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
@@ -421,7 +429,12 @@ class ReportExportPreviewFilterForm(CremeForm):
 
 
 class ReportExportFilterForm(ReportExportPreviewFilterForm):
-    def __init__(self, report, *args, **kwargs):
+    # def __init__(self, report, *args, **kwargs):
+    def __init__(self, instance, *args, **kwargs):
         # super(ReportExportFilterForm, self).__init__(report, *args, **kwargs)
-        super().__init__(report, *args, **kwargs)
+        super().__init__(instance, *args, **kwargs)
         self.fields['doc_type'].required = True
+
+    # TODO ?
+    # def save(self):
+    #     return self.instance

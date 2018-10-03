@@ -390,6 +390,9 @@ class InstanceBrickConfigItem(CremeModel):
     data     = TextField(blank=True, null=True)
     verbose  = CharField(_('Verbose'), max_length=200, blank=True, null=True)  # TODO: remove
 
+    creation_label = _('Create a block')
+    save_label     = _('Save the block')
+
     _brick = None
 
     class Meta:

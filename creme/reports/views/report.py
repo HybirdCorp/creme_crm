@@ -124,42 +124,73 @@ def unlink_report(request):
     return HttpResponse()
 
 
-@login_required
-@permission_required('reports')
-def link_report(request, field_id):
-    rfield = get_object_or_404(Field, pk=field_id)
-    user = request.user
+# @login_required
+# @permission_required('reports')
+# def link_report(request, field_id):
+#     rfield = get_object_or_404(Field, pk=field_id)
+#     user = request.user
+#
+#     user.has_perm_to_link_or_die(rfield.report)
+#
+#     hand = rfield.hand
+#
+#     if hand is None:
+#         raise ConflictError('This field is invalid')  # todo: force brick to reload
+#
+#     ctypes = rfield.hand.get_linkable_ctypes()
+#
+#     if ctypes is None:
+#         raise ConflictError('This field is not linkable')
+#
+#     if request.method == 'POST':
+#         link_form = report_forms.LinkFieldToReportForm(rfield, ctypes, user=user, data=request.POST)
+#
+#         if link_form.is_valid():
+#             link_form.save()
+#     else:
+#         link_form = report_forms.LinkFieldToReportForm(rfield, ctypes, user=user)
+#
+#     return generic.inner_popup(request,
+#                                'creme_core/generics/blockform/link_popup.html',
+#                                {'form': link_form,
+#                                 'title': ugettext('Link of the column «{}»').format(rfield),
+#                                 'submit_label': _('Link'),
+#                                },
+#                                is_valid=link_form.is_valid(),
+#                                reload=False,
+#                                delegate_reload=True,
+#                               )
+# NB: cannot use RelatedToEntityEdition because Field hss no get_related_entity() method
+class ReportLinking(generic.CremeModelEditionPopup):
+    model = Field
+    pk_url_kwarg = 'field_id'
+    form_class = report_forms.LinkFieldToReportForm
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    permissions = 'reports'
+    title_format = _('Link of the column «{}»')
+    submit_label = _('Link')
 
-    user.has_perm_to_link_or_die(rfield.report)
+    def check_instance_permissions(self, instance, user):
+        user.has_perm_to_link_or_die(instance.report)
 
-    hand = rfield.hand
+    def get_linkable_ctypes(self):
+        rfield = self.object
 
-    if hand is None:
-        raise ConflictError('This field is invalid')  # TODO: force brick to reload
+        hand = rfield.hand
+        if hand is None:
+            raise ConflictError('This field is invalid')  # TODO: force brick to reload
 
-    ctypes = rfield.hand.get_linkable_ctypes()
+        ctypes = rfield.hand.get_linkable_ctypes()
+        if ctypes is None:
+            raise ConflictError('This field is not linkable')
 
-    if ctypes is None:
-        raise ConflictError('This field is not linkable')
+        return ctypes
 
-    if request.method == 'POST':
-        link_form = report_forms.LinkFieldToReportForm(rfield, ctypes, user=user, data=request.POST)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['ctypes'] = self.get_linkable_ctypes()
 
-        if link_form.is_valid():
-            link_form.save()
-    else:
-        link_form = report_forms.LinkFieldToReportForm(rfield, ctypes, user=user)
-
-    return generic.inner_popup(request,
-                               'creme_core/generics/blockform/link_popup.html',
-                               {'form': link_form,
-                                'title': ugettext('Link of the column «{}»').format(rfield),
-                                'submit_label': _('Link'),
-                               },
-                               is_valid=link_form.is_valid(),
-                               reload=False,
-                               delegate_reload=True,
-                              )
+        return kwargs
 
 
 # @login_required
