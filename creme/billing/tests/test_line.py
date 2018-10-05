@@ -467,6 +467,11 @@ class LineTestCase(_BillingTestCase):
     def _build_dict_cat_subcat(self, cat, subcat):
         return {'sub_category': json_dump({'category': cat.id, 'subcategory': subcat.id})}
 
+    def test_convert_on_the_fly_line_to_real_item_error(self):
+        "Entity is not a line"
+        user = self.login()
+        self.assertGET404(self._build_add2catalog_url(user.linked_contact))
+
     @skipIfCustomProductLine
     def test_convert_on_the_fly_line_to_real_item01(self):
         "Convert on the fly product"
@@ -480,10 +485,17 @@ class LineTestCase(_BillingTestCase):
                                                   unit_price=unit_price, unit='',
                                                  )
         cat, subcat = self.create_cat_n_subcat()
-        self.assertGET200(self._build_add2catalog_url(product_line))
-        response = self.client.post(self._build_add2catalog_url(product_line),
-                                      data=self._build_dict_cat_subcat(cat, subcat))
 
+        url = self._build_add2catalog_url(product_line)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+
+        context = response.context
+        self.assertEqual(_('Add this on the fly item to your catalog'), context.get('title'))
+        self.assertEqual(_('Add to the catalog'),                       context.get('submit_label'))
+
+        # ---
+        response = self.client.post(url, data=self._build_dict_cat_subcat(cat, subcat))
         self.assertNoFormError(response)
         self.assertTrue(Product.objects.exists())
 
@@ -577,7 +589,7 @@ class LineTestCase(_BillingTestCase):
                                       data=self._build_dict_cat_subcat(cat, subcat))
 
         self.assertFormError(response, 'form', None,
-                             _(u'You are not allowed to add this item to the catalog because it is not on the fly')
+                             _('You are not allowed to add this item to the catalog because it is not on the fly')
                             )
         self.assertEqual(1, Product.objects.count())
 
@@ -597,7 +609,7 @@ class LineTestCase(_BillingTestCase):
                                       data=self._build_dict_cat_subcat(cat, subcat))
 
         self.assertFormError(response, 'form', None,
-                             _(u'You are not allowed to add this item to the catalog because it is not on the fly')
+                             _('You are not allowed to add this item to the catalog because it is not on the fly')
                             )
         self.assertEqual(1, Service.objects.count())
 
@@ -608,7 +620,7 @@ class LineTestCase(_BillingTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item=u'on the fly service',
+                                                  on_the_fly_item='on the fly service',
                                                   unit_price=Decimal('50.0')
                                                  )
 
@@ -622,7 +634,7 @@ class LineTestCase(_BillingTestCase):
                                     data={service_line.entity_type_id: json_dump({
                                                         'service_line_formset-TOTAL_FORMS':       1,
                                                         'service_line_formset-INITIAL_FORMS':     1,
-                                                        'service_line_formset-MAX_NUM_FORMS':     u'',
+                                                        'service_line_formset-MAX_NUM_FORMS':     '',
                                                         'service_line_formset-0-cremeentity_ptr': service_line.id,
                                                         'service_line_formset-0-user':            user.id,
                                                         'service_line_formset-0-on_the_fly_item': name,
@@ -654,7 +666,7 @@ class LineTestCase(_BillingTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         product_line = ProductLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item=u'on the fly service',
+                                                  on_the_fly_item='on the fly service',
                                                   unit_price=Decimal('50.0'),
                                                  )
         name = 'new on the fly product'
@@ -665,7 +677,7 @@ class LineTestCase(_BillingTestCase):
                                     data={product_line.entity_type_id: json_dump({
                                                         'product_line_formset-TOTAL_FORMS':       2,
                                                         'product_line_formset-INITIAL_FORMS':     1,
-                                                        'product_line_formset-MAX_NUM_FORMS':     u'',
+                                                        'product_line_formset-MAX_NUM_FORMS':     '',
                                                         'product_line_formset-0-DELETE':          True,
                                                         'product_line_formset-0-cremeentity_ptr': product_line.id,
                                                         'product_line_formset-0-user':            user.id,
@@ -713,7 +725,7 @@ class LineTestCase(_BillingTestCase):
 
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
         service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item=u'on the fly service',
+                                                  on_the_fly_item='on the fly service',
                                                   unit_price=Decimal('50.0')
                                                  )
 
@@ -721,7 +733,7 @@ class LineTestCase(_BillingTestCase):
                            data={service_line.entity_type_id: json_dump({
                                                 'service_line_formset-TOTAL_FORMS':       1,
                                                 'service_line_formset-INITIAL_FORMS':     1,
-                                                'service_line_formset-MAX_NUM_FORMS':     u'',
+                                                'service_line_formset-MAX_NUM_FORMS':     '',
                                                 'service_line_formset-0-cremeentity_ptr': service_line.id,
                                                 'service_line_formset-0-user':            user.id,
                                                 'service_line_formset-0-on_the_fly_item': 'on the fly service updated',
@@ -742,7 +754,7 @@ class LineTestCase(_BillingTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item=u'on the fly service',
+                                                  on_the_fly_item='on the fly service',
                                                   unit_price=Decimal('50.0')
                                                  )
 
@@ -751,7 +763,7 @@ class LineTestCase(_BillingTestCase):
                                     data={service_line.entity_type_id: json_dump({
                                                         'service_line_formset-TOTAL_FORMS':       1,
                                                         'service_line_formset-INITIAL_FORMS':     1,
-                                                        'service_line_formset-MAX_NUM_FORMS':     u'',
+                                                        'service_line_formset-MAX_NUM_FORMS':     '',
                                                         'service_line_formset-0-cremeentity_ptr': service_line.id,
                                                         'service_line_formset-0-user':            user.id,
                                                         'service_line_formset-0-on_the_fly_item': 'on the fly service updated',
@@ -778,7 +790,7 @@ class LineTestCase(_BillingTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item=u'on the fly service',
+                                                  on_the_fly_item='on the fly service',
                                                   unit_price=Decimal('50.0')
                                                  )
 
@@ -786,7 +798,7 @@ class LineTestCase(_BillingTestCase):
                                     data={service_line.entity_type_id: json_dump({
                                                 'service_line_formset-TOTAL_FORMS':       1,
                                                 'service_line_formset-INITIAL_FORMS':     1,
-                                                'service_line_formset-MAX_NUM_FORMS':     u'',
+                                                'service_line_formset-MAX_NUM_FORMS':     '',
                                                 'service_line_formset-0-cremeentity_ptr': service_line.id,
                                                 'service_line_formset-0-user':            user.id,
                                                 'service_line_formset-0-on_the_fly_item': 'on the fly service updated',
@@ -829,7 +841,7 @@ class LineTestCase(_BillingTestCase):
                                     data={line.entity_type_id: json_dump({
                                                 'service_line_formset-TOTAL_FORMS':       1,
                                                 'service_line_formset-INITIAL_FORMS':     1,
-                                                'service_line_formset-MAX_NUM_FORMS':     u'',
+                                                'service_line_formset-MAX_NUM_FORMS':     '',
                                                 'service_line_formset-0-cremeentity_ptr': line.id,
                                                 'service_line_formset-0-user':            user.id,
                                                 # 'service_line_formset-0-on_the_fly_item': '',  # <==

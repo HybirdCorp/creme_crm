@@ -35,6 +35,7 @@ from creme.creme_core.views import generic, decorators
 from ... import billing
 
 from .. import constants
+from ..registry import lines_registry
 from ..forms import line as line_forms
 
 
@@ -130,38 +131,68 @@ def listview_service_line(request):
     return generic.list_view(request, ServiceLine, show_actions=False)
 
 
-@login_required
-@permission_required('billing')
-def add_to_catalog(request, line_id):
-    line = get_object_or_404(CremeEntity, pk=line_id).get_real_entity()
+# @login_required
+# @permission_required('billing')
+# def add_to_catalog(request, line_id):
+#     line = get_object_or_404(CremeEntity, pk=line_id).get_real_entity()
+#
+#     try:
+#         related_item_class = line.related_item_class()
+#     except AttributeError as e:
+#         raise Http404('This entity is not a billing line') from e  # todo: ConflictError ??
+#
+#     user = request.user
+#     user.has_perm_to_create_or_die(related_item_class)
+#
+#     if request.method == 'POST':
+#         form = line_forms.AddToCatalogForm(user=user, line=line, related_item_class=related_item_class,
+#                                            data=request.POST,
+#                                           )
+#
+#         if form.is_valid():
+#             form.save()
+#     else:
+#         form = line_forms.AddToCatalogForm(user=user, line=line, related_item_class=related_item_class)
+#
+#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+#                                {'form': form,
+#                                 'title': _('Add this on the fly item to your catalog'),
+#                                 'submit_label': _('Add to the catalog'),
+#                                },
+#                                is_valid=form.is_valid(),
+#                                reload=False,
+#                                delegate_reload=True,
+#                               )
+class AddingToCatalog(generic.AddingToEntity):
+    # model = ...
+    form_class = line_forms.AddToCatalogForm
+    permissions = 'billing'
+    title = _('Add this on the fly item to your catalog')
+    submit_label = _('Add to the catalog')
+    entity_id_url_kwarg = 'line_id'
+    entity_form_kwarg = 'line'
+    lines_registry = lines_registry
 
-    try:
-        related_item_class = line.related_item_class()
-    except AttributeError as e:
-        raise Http404('This entity is not a billing line') from e  # TODO: ConflictError ??
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_view_or_die(entity)  # TODO: test
 
-    user = request.user
-    user.has_perm_to_create_or_die(related_item_class)
+    def get_form_kwargs(self):
+        kwargs = super(AddingToCatalog, self).get_form_kwargs()
+        del kwargs['instance']
+        kwargs['related_item_class'] = self.get_item_class()
 
-    if request.method == 'POST':
-        form = line_forms.AddToCatalogForm(user=user, line=line, related_item_class=related_item_class,
-                                           data=request.POST,
-                                          )
+        return kwargs
 
-        if form.is_valid():
-            form.save()
-    else:
-        form = line_forms.AddToCatalogForm(user=user, line=line, related_item_class=related_item_class)
+    def get_item_class(self):
+        line = self.get_related_entity()
 
-    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                               {'form': form,
-                                'title': _('Add this on the fly item to your catalog'),
-                                'submit_label': _('Add to the catalog'),
-                               },
-                               is_valid=form.is_valid(),
-                               reload=False,
-                               delegate_reload=True,
-                              )
+        if not any(isinstance(line, c) for c in self.lines_registry):
+            raise Http404('This entity is not a billing line')  # TODO: ConflictError ??
+
+        cls = line.related_item_class()
+        self.request.user.has_perm_to_create_or_die(cls)
+
+        return cls
 
 
 LINE_FORMSET_PREFIX = {
