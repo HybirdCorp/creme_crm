@@ -24,8 +24,9 @@ urlpatterns = [
 
     url(r'^(?P<document_id>\d+)/convert[/]?$', convert.convert, name='billing__convert'),
 
-    url(r'^line/(?P<line_id>\d+)/add_to_catalog[/]*',  line.add_to_catalog,   name='billing__add_to_catalog'),
-    url(r'^(?P<document_id>\d+)/multi_save_lines[/]*', line.multi_save_lines, name='billing__multi_save_lines'),
+    # url(r'^line/(?P<line_id>\d+)/add_to_catalog[/]*',  line.add_to_catalog,   name='billing__add_to_catalog'),
+    url(r'^line/(?P<line_id>\d+)/add_to_catalog[/]*',  line.AddingToCatalog.as_view(), name='billing__add_to_catalog'),
+    url(r'^(?P<document_id>\d+)/multi_save_lines[/]*', line.multi_save_lines,          name='billing__multi_save_lines'),
 ]
 
 if not billing.invoice_model_is_custom():
