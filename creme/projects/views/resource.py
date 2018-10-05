@@ -34,41 +34,55 @@ from ..forms import resource as resource_forms
 from ..models import Resource
 
 
-# TODO: improve add_to_entity (see: "if not task.is_alive() etc...") ???
-@login_required
-@permission_required('projects')
-# @permission_required('projects.add_resource') #resource not registered as CremeEntity
-def add(request, task_id):
-    # return utils._add_generic(request, resource_forms.ResourceCreateForm, task_id, _(u'Allocation of a new resource'))
-    task = get_object_or_404(get_task_model(), pk=task_id)
-    user = request.user
+# @login_required
+# @permission_required('projects')
+# # @permission_required('projects.add_resource') #resource not registered as CremeEntity
+# def add(request, task_id):
+#     # return utils._add_generic(request, resource_forms.ResourceCreateForm, task_id, _(u'Allocation of a new resource'))
+#     task = get_object_or_404(get_task_model(), pk=task_id)
+#     user = request.user
+#
+#     user.has_perm_to_change_or_die(task)
+#
+#     if not task.is_alive():
+#         raise ConflictError(ugettext(u"You can't add a resources or a working "
+#                                      u"period to a task which has status «{}»"
+#                                     ).format(task.tstatus.name)
+#                            )
+#
+#     if request.method == 'POST':
+#         form = resource_forms.ResourceCreateForm(task, user=user, data=request.POST)
+#
+#         if form.is_valid():
+#             form.save()
+#     else:
+#         form = resource_forms.ResourceCreateForm(task, user=user)
+#
+#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+#                                {'form':         form,
+#                                 'title':        _('Allocation of a new resource'),
+#                                 'submit_label': Resource.save_label,
+#                                },
+#                                is_valid=form.is_valid(),
+#                                reload=False,
+#                                delegate_reload=True,
+#                               )
+class ResourceCreation(generic.AddingToEntity):  # NB: Resource not registered as CremeEntity
+    model = Resource
+    form_class = resource_forms.ResourceCreateForm
+    title = _('Allocation of a new resource')
+    entity_classes = get_task_model()
+    entity_id_url_kwarg = 'task_id'
+    entity_form_kwarg = 'task'
 
-    user.has_perm_to_change_or_die(task)
+    def check_related_entity_permissions(self, entity, user):
+        super().check_related_entity_permissions(entity=entity, user=user)
 
-    if not task.is_alive():
-        raise ConflictError(ugettext(u"You can't add a resources or a working "
-                                     u"period to a task which has status «{}»"
-                                    ).format(task.tstatus.name)
-                           )
-
-    if request.method == 'POST':
-        form = resource_forms.ResourceCreateForm(task, user=user, data=request.POST)
-
-        if form.is_valid():
-            form.save()
-    else:
-        form = resource_forms.ResourceCreateForm(task, user=user)
-
-    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                               {'form':         form,
-                                'title':        _('Allocation of a new resource'),
-                                'submit_label': Resource.save_label,
-                               },
-                               is_valid=form.is_valid(),
-                               reload=False,
-                               delegate_reload=True,
-                              )
-
+        if not entity.is_alive():
+            raise ConflictError(ugettext("You can't add a resource or a working "
+                                         "period to a task which has status «{}»"
+                                        ).format(entity.tstatus.name)
+                               )
 
 # @login_required
 # @permission_required('projects')

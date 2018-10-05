@@ -611,8 +611,13 @@ class ProjectsTestCase(CremeTestCase):
         task    = self.create_task(project, 'legs')
         self.assertFalse(task.resources_set.all())
 
-        self.assertGET200(self._build_add_resource_url(task))
+        response = self.assertGET200(self._build_add_resource_url(task))
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
 
+        context = response.context
+        self.assertEqual(_('Allocation of a new resource'), context.get('title'))
+        self.assertEqual(Resource.save_label,               context.get('submit_label'))
+        # ---
         worker = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
         self.create_resource(task, worker, hourly_cost=100)
 
@@ -907,6 +912,55 @@ class ProjectsTestCase(CremeTestCase):
 
         self.role.creatable_ctypes.add(ContentType.objects.get_for_model(Activity))
         self.assertGET200(url)
+
+    @skipIfCustomTask
+    def test_create_resource01(self):
+        "Not super-user"
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+            set_type=SetCredentials.ESET_ALL,
+            # ctype=ContentType.objects.get_for_model(ProjectTask),
+            ctype=ContentType.objects.get_for_model(Project),
+        )
+
+        project = Project.objects.create(
+            user=user,
+            name='Eva02',
+            status=ProjectStatus.objects.first(),
+        )
+        task = ProjectTask.objects.create(
+            user=user,
+            linked_project=project,
+            title='legs',
+            tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+        )
+        self.assertTrue(user.has_perm_to_change(task))
+        self.assertGET200(self._build_add_resource_url(task))
+
+    @skipIfCustomTask
+    def test_create_resource02(self):
+        "Edition permission needed"
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,  # | EntityCredentials.CHANGE,
+            set_type=SetCredentials.ESET_ALL,
+            ctype=ContentType.objects.get_for_model(Project),
+        )
+
+        project = Project.objects.create(
+            user=user,
+            name='Eva02',
+            status=ProjectStatus.objects.first(),
+        )
+        task = ProjectTask.objects.create(
+            user=user,
+            linked_project=project,
+            tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+        )
+        self.assertGET403(self._build_add_resource_url(task))
 
     @skipIfCustomActivity
     @skipIfCustomTask
