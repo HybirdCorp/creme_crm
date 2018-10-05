@@ -33,29 +33,29 @@ from .taskstatus import TaskStatus
 
 
 class AbstractProjectTask(CremeEntity):
-    title        = CharField(_(u'Title'), max_length=100)
+    title        = CharField(_('Title'), max_length=100)
     linked_project = ForeignKey(Project, on_delete=CASCADE,  # TODO: settings.PROJECTS_PROJECT_MODEL ?
-                                verbose_name=_(u'Project'), related_name='tasks_set', editable=False,
+                                verbose_name=_('Project'), related_name='tasks_set', editable=False,
                                )
-    order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False)  # TODO: null = False ?
+    order        = PositiveIntegerField(_('Order'), blank=True, null=True, editable=False)  # TODO: null = False ?
     parent_tasks = ManyToManyField('self', symmetrical=False,
                                    related_name='children_set', editable=False,  # TODO: rename children ?
                                   )
-    start        = DateTimeField(_(u'Start'), blank=True, null=True)
-    end          = DateTimeField(_(u'End'), blank=True, null=True)
-    duration     = PositiveIntegerField(_(u'Duration (in hours)'), blank=True, null=True)  # TODO: null=False (required in form) (idem with start/end)
-    description  = TextField(_(u'Description'), blank=True)
-    tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
+    start        = DateTimeField(_('Start'), blank=True, null=True)
+    end          = DateTimeField(_('End'), blank=True, null=True)
+    duration     = PositiveIntegerField(_('Duration (in hours)'), blank=True, null=True)  # TODO: null=False (required in form) (idem with start/end)
+    description  = TextField(_('Description'), blank=True)
+    tstatus      = ForeignKey(TaskStatus, verbose_name=_('Task situation'), on_delete=PROTECT)
 
-    creation_label = _(u'Create a task')
-    save_label     = _(u'Save the task')
+    creation_label = _('Create a task')
+    save_label     = _('Save the task')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'projects'
-        verbose_name = _(u'Task of project')
-        verbose_name_plural = _(u'Tasks of project')
+        verbose_name = _('Task of project')
+        verbose_name_plural = _('Tasks of project')
         ordering = ('-start',)
 
     effective_duration = None
@@ -92,6 +92,7 @@ class AbstractProjectTask(CremeEntity):
     def get_parents(self):
         if self.parents is None:
             self.parents = self.parent_tasks.all()
+
         return self.parents
 
     def get_subtasks(self):  # TODO: store result in a cache ?
@@ -110,22 +111,22 @@ class AbstractProjectTask(CremeEntity):
     def get_resources(self):
         if self.resources is None:
             self.resources = self.resources_set.select_related('linked_contact')
+
         return self.resources
 
     @property
     def related_activities(self):
-        activities = [r.object_entity.get_real_entity()
-                            for r in self.get_relations(REL_OBJ_LINKED_2_PTASK,
-                                                        real_obj_entities=True,
-                                                       )
-                     ]
+        activities = [
+            r.object_entity.get_real_entity()
+                for r in self.get_relations(REL_OBJ_LINKED_2_PTASK, real_obj_entities=True)
+        ]
         resource_per_contactid = {r.linked_contact_id: r for r in self.get_resources()}
         contact_ids = dict(
-                Relation.objects.filter(type=REL_SUB_PART_AS_RESOURCE,
-                                        object_entity__in=[a.id for a in activities],
-                                       )
-                                .values_list('object_entity_id', 'subject_entity_id')
-            )
+            Relation.objects.filter(type=REL_SUB_PART_AS_RESOURCE,
+                                    object_entity__in=[a.id for a in activities],
+                                   )
+                            .values_list('object_entity_id', 'subject_entity_id')
+        )
 
         for activity in activities:
             activity.projects_resource = resource_per_contactid[contact_ids[activity.id]]
@@ -139,7 +140,10 @@ class AbstractProjectTask(CremeEntity):
 
     def get_effective_duration(self, format='h'):
         if self.effective_duration is None:
-            self.effective_duration = sum(activity.duration or 0 for activity in self.related_activities)
+            self.effective_duration = sum(
+                activity.duration or 0
+                    for activity in self.related_activities
+            )
 
         if format == '%':
             duration = self.duration
@@ -177,16 +181,18 @@ class AbstractProjectTask(CremeEntity):
             new_task.save()
             # new_task = task.clone(project) TODO
 
-            context[task.id] = {'new_pk':     new_task.id, 
-                                'o_children': project_task_filter(parent_tasks=task.id)
-                                                                 .values_list('pk', flat=True),
-                               }
+            context[task.id] = {
+                'new_pk':     new_task.id,
+                'o_children': project_task_filter(parent_tasks=task.id)
+                                                 .values_list('pk', flat=True),
+            }
 
-        new_links = {values['new_pk']: [context[old_child_id]['new_pk']
-                                            for old_child_id in values['o_children']
-                                       ]
-                        for values in context.values()
-                    }
+        new_links = {
+            values['new_pk']: [context[old_child_id]['new_pk']
+                                   for old_child_id in values['o_children']
+                              ]
+                for values in context.values()
+        }
 
         for task in project_task_filter(pk__in=new_links.keys()):
             for sub_task in project_task_filter(pk__in=new_links[task.id]):
