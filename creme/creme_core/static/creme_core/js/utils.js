@@ -210,7 +210,11 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload
     return div_id;
 };
 
+//TODO : This code is never reached in vanilla modules (new form dialog are used everywhere)
+//Keep it for compatiblity with client modules.
 creme.utils.handleDialogSubmit = function(dialog) {
+    console.warn('creme.utils.handleDialogSubmit() is deprecated.');
+
     var div_id = dialog.attr('id');
     var $form = $('[name=inner_body]', dialog).find('form');
     var post_url = $('[name=inner_header_from_url]', dialog).val();
@@ -219,48 +223,48 @@ creme.utils.handleDialogSubmit = function(dialog) {
     if (data.length > 0) data += "&";
     data += "whoami=" + div_id;
 
-    $.ajax({
-          type: $form.attr('method'),
-          url: post_url,
-          data: data,
-          beforeSend: function(request) {
-              creme.utils.loading('loading', false, {});
-          },
-          success: function(data, status) {
-              var is_closing = data.startsWith('<div class="in-popup" closing="true"');
+     $.ajax({
+           type: $form.attr('method'),
+           url: post_url,
+           data: data,
+           beforeSend: function(request) {
+               creme.utils.loading('loading', false, {});
+           },
+           success: function(data, status) {
+               var is_closing = data.startsWith('<div class="in-popup" closing="true"');
 
-              if (!is_closing) {
-                  data += '<input type="hidden" name="whoami" value="' + div_id + '"/>';
+               if (!is_closing) {
+                   data += '<input type="hidden" name="whoami" value="' + div_id + '"/>';
 
-                  creme.widget.shutdown(dialog);
-                  $('[name=inner_body]', '#' + div_id).html(data);
-                  creme.widget.ready(dialog);
+                   creme.widget.shutdown(dialog);
+                   $('[name=inner_body]', '#' + div_id).html(data);
+                   creme.widget.ready(dialog);
 
-                  creme.utils.scrollTo($('.errorlist:first', '.non_field_errors'));
-              } else {
-                  var content = $(data);
-                  var redirect_url = content.attr('redirect');
-                  var force_reload = content.is('[force-reload]');
-                  var delegate_reload = content.is('[delegate-reload]');
+                   creme.utils.scrollTo($('.errorlist:first', '.non_field_errors'));
+               } else {
+                   var content = $(data);
+                   var redirect_url = content.attr('redirect');
+                   var force_reload = content.is('[force-reload]');
+                   var delegate_reload = content.is('[delegate-reload]');
 
-                  if (redirect_url) {
-                      creme.utils.closeDialog(dialog, force_reload, undefined, callback_url);
-                  } else if (!delegate_reload) {
-                      creme.utils.closeDialog(dialog, force_reload);
-                  } else {
-                      dialog.dialog('close');
-                  }
-              }
-          },
-          error: function(request, status, error) {
-            creme.utils.showErrorNReload();
-          },
-          complete: function(XMLHttpRequest, textStatus) {
-              creme.utils.loading('loading', true, {});
-          }
-    });
+                   if (redirect_url) {
+                       creme.utils.closeDialog(dialog, force_reload, undefined, redirect_url);
+                   } else if (!delegate_reload) {
+                       creme.utils.closeDialog(dialog, force_reload);
+                   } else {
+                       dialog.dialog('close');
+                   }
+               }
+           },
+           error: function(request, status, error) {
+             creme.utils.showErrorNReload();
+           },
+           complete: function(XMLHttpRequest, textStatus) {
+               creme.utils.loading('loading', true, {});
+           }
+     });
 
-    return false;
+     return false;
 };
 
 creme.utils.scrollTo = function(element) {
