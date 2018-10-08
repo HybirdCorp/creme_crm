@@ -200,7 +200,7 @@ creme.reports.exportReport = function(title, filterform_url, export_preview_url,
     // Emulate it for this case.
     // TODO : filterform should be used as select and redirection url build in js.
     creme.dialogs.form(filterform_url, {'title': title || ''})
-                 .on('frame-update', function(event, frame) {
+                 .on('frame-activated', function(event, frame) {
                       new creme.reports.PreviewController(export_preview_url, export_url).bind(frame.delegate());
                   })
                  .onFormSuccess(function(event, data, statusText, dataType) {
