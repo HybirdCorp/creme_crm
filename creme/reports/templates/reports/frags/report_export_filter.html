@@ -1,4 +1,5 @@
 {% load i18n creme_core_tags %}
 <form class="report-preview-header" action="" method="POST">{% csrf_token %}
-{% include 'reports/frags/report_preview_format.html' %}
+    {% include 'reports/frags/report_preview_format.html' %}
+    <input type="submit" value="{{submit_label|default:_('Save')}}" class="ui-creme-dialog-action"/>
 </form>
