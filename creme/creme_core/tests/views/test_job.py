@@ -111,6 +111,12 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertEqual(self.LIST_URL, cxt_url)
 
+        # Invalid URL
+        response = self.assertGET200(job.get_absolute_url(),
+                                     data={'list_url': 'http://insecure.com'}
+                                    )
+        self.assertEqual(self.MINE_URL, response.context.get('list_url'))
+
     def test_detailview03(self):
         "Credentials"
         self.login(is_superuser=False)
