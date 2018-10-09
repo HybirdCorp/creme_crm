@@ -373,9 +373,11 @@ creme.lv_widget.listViewAction = function(url, options, data) {
            }, data);
 };
 
-creme.lv_widget.ListViewActionBuilders = creme.component.Component.sub({
+
+creme.lv_widget.ListViewActionBuilders = creme.action.ActionBuilderRegistry.sub({
     _init_: function(list) {
         this._list = list;
+        this._super_(creme.action.ActionBuilderRegistry, '_init_');
     },
 
     _defaultDialogOptions: function(url, title) {
@@ -392,7 +394,7 @@ creme.lv_widget.ListViewActionBuilders = creme.component.Component.sub({
         };
     },
 
-    _action_update: function(url, options, data, e) {
+    _build_update: function(url, options, data, e) {
         var list = this._list;
         var action;
         options = $.extend({action: 'post'}, options || {});
@@ -408,13 +410,13 @@ creme.lv_widget.ListViewActionBuilders = creme.component.Component.sub({
         });
     },
 
-    _action_delete: function(url, options, data, e) {
-        return this._action_update(url, $.extend({}, options, {
+    _build_delete: function(url, options, data, e) {
+        return this._build_update(url, $.extend({}, options, {
             confirm: gettext('Are you sure ?')
         }), data, e);
     },
 
-    _action_form: function(url, options, data, e) {
+    _build_form: function(url, options, data, e) {
         var list = this._list;
 
         options = $.extend(this._defaultDialogOptions(url), options || {});
@@ -426,23 +428,46 @@ creme.lv_widget.ListViewActionBuilders = creme.component.Component.sub({
         });
     },
 
-    _action_edit_selection: function(url, options, data, e) {
+    _build_clone: function(url, options, data, e) {
+        options = $.extend({
+            action: 'post',
+            confirm: gettext('Do you really want to clone this entity?')
+        }, options || {});
+
+        var action = creme.utils.confirmAjaxQuery(url, options, data);
+        action.onDone(function(event, data, xhr) {
+            creme.utils.goTo(data);
+        })
+
+        return action;
+    },
+
+    _build_edit_selection: function(url, options, data, e) {
         return new creme.lv_widget.EditSelectedAction(this._list, {url: url});
     },
 
-    _action_delete_selection: function(url, options, data, e) {
+    _build_delete_selection: function(url, options, data, e) {
         return new creme.lv_widget.DeleteSelectedAction(this._list, {url: url});
     },
 
-    _action_addto_selection: function(url, options, data, e) {
+    _build_addto_selection: function(url, options, data, e) {
         return new creme.lv_widget.AddToSelectedAction(this._list, {url: url});
     },
 
-    _action_merge_selection: function(url, options, data, e) {
+    _build_merge_selection: function(url, options, data, e) {
         return new creme.lv_widget.MergeSelectedAction(this._list, {url: url});
+    },
+
+    _build_redirect: function(url, options, data) {
+        var context = {
+            location: window.location.href.replace(/.*?:\/\/[^\/]*/g, '') // remove 'http://host.com'
+        };
+
+        return new creme.component.Action(function() {
+            creme.utils.goTo(creme.utils.templatize(url, context).render());
+        });
     }
 });
-
 
 creme.lv_widget.ListViewHeader = creme.component.Component.sub({
     _init_: function(options) {

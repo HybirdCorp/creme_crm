@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2015-2017  Hybird
+ Copyright (C) 2015-2018  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ creme.action.ActionLink = creme.component.Component.sub({
 
         this._running = false;
         this._events = new creme.component.EventHandler();
+        this._registry = new creme.action.ActionBuilderRegistry();
     },
 
     on: function(event, listener, decorator) {
@@ -51,7 +52,21 @@ creme.action.ActionLink = creme.component.Component.sub({
     },
 
     builders: function(builders) {
-        return Object.property(this, '_builders', builders);
+        if (builders instanceof creme.action.ActionBuilderRegistry) {
+            this._registry = builders;
+        } else if (Object.isFunc(builders)) {
+            this._registry = new creme.action.ActionBuilderRegistry({
+                fallback: builders
+            });
+        } else if (builders instanceof Object) {
+            this._registry = new creme.action.ActionBuilderRegistry({
+                builders: builders
+            });
+        } else {
+            throw Error('action builder "%s" is not valid'.format(builders));
+        }
+
+        return this;
     },
 
     trigger: function(event) {
@@ -84,12 +99,7 @@ creme.action.ActionLink = creme.component.Component.sub({
     },
 
     _optActionBuilder: function(button, actiontype) {
-        try {
-            var builders = this.builders() || {};
-            return Object.isFunc(builders) ? builders(actiontype) : builders['_action_' + actiontype].bind(builders);
-        } catch (e) {
-            console.warn(e);
-        }
+        return this._registry.get(actiontype, this.options().strict);
     },
 
     _optActionData: function(button) {
@@ -114,7 +124,7 @@ creme.action.ActionLink = creme.component.Component.sub({
 
         var url = button.attr('href') || button.attr('data-action-url');
         var enabled = button.is(':not(.is-disabled)');
-        var actiontype = (button.attr('data-action') || '').replace(/\-/g, '_').toLowerCase();
+        var actiontype = button.attr('data-action') || '';
         var isRunning = this.isRunning.bind(this);
         var trigger = this.trigger.bind(this);
         var setRunning = function(state) {
@@ -126,15 +136,6 @@ creme.action.ActionLink = creme.component.Component.sub({
         var actiondata = this._optActionData(button);
         var builder = this._optActionBuilder(button, actiontype);
         var isvalid = Object.isFunc(builder);
-
-        // TODO : see for a more straight forward method for handling of missing actions in both strict/not strict modes.
-        if (!isvalid) {
-            if (this._options.strict) {
-                throw Error('no such action "' + actiontype + '"');
-            } else {
-                console.warn(button, 'no such action "' + actiontype + '" with', actiondata);
-            }
-        }
 
         if (isvalid && enabled) {
             var handler = this._debounce(function(e) {
@@ -176,9 +177,7 @@ creme.action.ActionLink = creme.component.Component.sub({
             button.addClass('is-disabled');
             button.click(function(e) {
                 e.preventDefault();
-                trigger('action-link-start');
-                setRunning(false);
-                trigger('action-link-cancel', []);
+                e.stopPropagation();
                 return false;
             });
         }

@@ -1,3 +1,32 @@
+(function($) {
+"use strict";
+
+var MockActionBuilderRegistry = creme.action.ActionBuilderRegistry.sub({
+    _init_: function(context, options) {
+        this._super_(creme.action.ActionBuilderRegistry, '_init_', options);
+        this.context = context;
+    },
+
+    _build_a: function(options) {
+        return this.context.mockActionA;
+    },
+    _build_b: function(options) {
+        return this.context.mockActionB;
+    },
+    _build_do_it: function(options) {
+        return this.context.mockActionDoIt;
+    },
+    _build_raises: function(options) {
+        return this.context.mockActionRaises;
+    },
+    _build_slow: function(options) {
+        return this.context.mockActionSlow;
+    },
+    _build_none: function(options) {
+        return null;
+    }
+});
+
 QUnit.module("creme.actionlink.js", new QUnitMixin(QUnitEventMixin, {
     beforeEach: function() {
         this.resetMockActionCalls();
@@ -29,23 +58,23 @@ QUnit.module("creme.actionlink.js", new QUnitMixin(QUnitEventMixin, {
             actionCalls.push('slow');
         });
 
-        this.mockActionBuilder = {
-            _action_a: function(options) {
+        this.mockActionBuilderDict = {
+            a: function(options) {
                 return self.mockActionA;
             },
-            _action_b: function(options) {
+            b: function(options) {
                 return self.mockActionB;
             },
-            _action_do_it: function(options) {
+            'do-it': function(options) {
                 return self.mockActionDoIt;
             },
-            _action_raises: function(options) {
+            raises: function(options) {
                 return self.mockActionRaises;
             },
-            _action_slow: function(options) {
+            slow: function(options) {
                 return self.mockActionSlow;
             },
-            _action_none: function(options) {
+            none: function(options) {
                 return null;
             }
         };
@@ -91,15 +120,27 @@ QUnit.test('creme.action.ActionLink (bind, no builder)', function(assert) {
 
     link.click();
     deepEqual([], this.mockActionCalls());
-    deepEqual([['action-link-start']], this.mockListenerCalls('start'));
-    deepEqual([['action-link-cancel', []]], this.mockListenerCalls('complete'));
+    deepEqual({}, this.mockListenerCalls());
+});
+
+QUnit.test('creme.action.ActionLink (bind, invalid builder)', function(assert) {
+    var action = new creme.action.ActionLink({debounce: 0});
+    var link = $('<a data-action="a"></a>');
+
+    this.assertRaises(function() {
+        action.builders('not a builder');
+    }, Error, 'Error: action builder "not a builder" is not valid');
+
+    this.assertRaises(function() {
+        action.builders(15877);
+    }, Error, 'Error: action builder "15877" is not valid');
 });
 
 QUnit.test('creme.action.ActionLink (bind, empty action)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<a/>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .on('action-link-cancel', this.mockListener('cancel'))
@@ -111,23 +152,21 @@ QUnit.test('creme.action.ActionLink (bind, empty action)', function(assert) {
 
     link.click();
     deepEqual([], this.mockActionCalls());
-    deepEqual([['action-link-start']], this.mockListenerCalls('start'));
-    deepEqual([['action-link-cancel', []]], this.mockListenerCalls('cancel'));
-    deepEqual([['action-link-cancel', []]], this.mockListenerCalls('complete'));
+    deepEqual({}, this.mockListenerCalls());
 });
 
 QUnit.test('creme.action.ActionLink (bind, href)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<a href="/actions/" data-action="a"/>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'));
 
-    equal(true, action.isBound());
-    equal(false, link.is('.is-disabled'));
-    equal(false, action.isDisabled());
+    equal(true, action.isBound(), 'is bound');
+    equal(false, link.is('.is-disabled'), 'is not disabled');
+    equal(false, action.isDisabled(), 'is not disabled');
 
     link.click();
     deepEqual(['a'], this.mockActionCalls());
@@ -135,11 +174,60 @@ QUnit.test('creme.action.ActionLink (bind, href)', function(assert) {
     deepEqual([['action-link-done', [], this.mockActionA]], this.mockListenerCalls('complete'));
 });
 
+QUnit.test('creme.action.ActionLink (bind, registry fallback)', function(assert) {
+    var action = new creme.action.ActionLink({debounce: 0});
+    var registry = new MockActionBuilderRegistry(this);
+    var link = $('<a href="/actions/" data-action="a"/>');
+
+    action.builders(registry);
+    action.bind(link)
+          .on('action-link-start', this.mockListener('start'))
+          .onComplete(this.mockListener('complete'));
+
+    equal(true, action.isBound(), 'is bound');
+    equal(false, link.is('.is-disabled'), 'is not disabled');
+    equal(false, action.isDisabled(), 'is not disabled');
+
+    link.click();
+    deepEqual(['a'], this.mockActionCalls());
+    deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
+    deepEqual([['action-link-done', [], this.mockActionA]], this.mockListenerCalls('complete'));
+});
+
+QUnit.test('creme.action.ActionLink (bind, registry custom)', function(assert) {
+    var actionCalls = this._mockActionCalls;
+    var action = new creme.action.ActionLink({debounce: 0});
+    var registry = new MockActionBuilderRegistry(this);
+    var link = $('<a href="/actions/" data-action="custom-a"/>');
+    var customActionA = new creme.component.Action(function(options) {
+        actionCalls.push('custom-a');
+        this.done();
+    });
+
+    registry.register('custom-a', function(options) {
+        return customActionA;
+    });
+
+    action.builders(registry);
+    action.bind(link)
+          .on('action-link-start', this.mockListener('start'))
+          .onComplete(this.mockListener('complete'));
+
+    equal(true, action.isBound(), 'is bound');
+    equal(false, link.is('.is-disabled'), 'is not disabled');
+    equal(false, action.isDisabled(), 'is not disabled');
+
+    link.click();
+    deepEqual(['custom-a'], this.mockActionCalls());
+    deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
+    deepEqual([['action-link-done', [], customActionA]], this.mockListenerCalls('complete'));
+});
+
 QUnit.test('creme.action.ActionLink (bind, data-action-url)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<span data-action-url="/actions/" data-action="b"/>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'));
@@ -158,7 +246,7 @@ QUnit.test('creme.action.ActionLink (bind, actiontype with -)', function(assert)
     var action = new creme.action.ActionLink();
     var link = $('<a href="/actions/" data-action="do-it"/>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'));
@@ -177,7 +265,7 @@ QUnit.test('creme.action.ActionLink (bind, unknown actiontype)', function(assert
     var action = new creme.action.ActionLink();
     var link = $('<a data-action="unknown"/>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link);
 
     equal(true, action.isBound());
@@ -189,11 +277,11 @@ QUnit.test('creme.action.ActionLink (bind, unknown actiontype, strict)', functio
     var action = new creme.action.ActionLink({strict: true});
     var link = $('<a data-action="unknown"/>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
 
     this.assertRaises(function() {
         action.bind(link);
-    }, Error, 'Error: no such action "unknown"');
+    }, Error, 'Error: no such action builder "unknown"');
 
     equal(false, action.isBound());
     equal(false, link.is('.is-disabled'));
@@ -228,7 +316,7 @@ QUnit.test('creme.action.ActionLink (bind, action raises)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<a data-action="raises"/>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'))
@@ -247,7 +335,7 @@ QUnit.test('creme.action.ActionLink (bind, action none)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<a data-action="none"/>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'))
@@ -266,7 +354,7 @@ QUnit.test('creme.action.ActionLink (already bound)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<a href="a"/>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link);
 
     this.assertRaises(function() {
@@ -278,7 +366,7 @@ QUnit.test('creme.action.ActionLink (bind, data)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<span data-action-url="/actions/" data-action="b"><script datatype="text/json">{"data": 23}</script></span>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'));
@@ -297,7 +385,7 @@ QUnit.test('creme.action.ActionLink (bind, invalid data)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<span data-action-url="/actions/" data-action="b"><script datatype="text/json">{"data": 23}}}</script></span>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'));
@@ -316,7 +404,7 @@ QUnit.test('creme.action.ActionLink (ignore click while running)', function(asse
     var action = new creme.action.ActionLink();
     var link = $('<span data-action-url="/actions/" data-action="slow"></span>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'));
@@ -359,7 +447,7 @@ QUnit.test('creme.action.ActionLink (debounce click, 200ms delay)', function(ass
     var action = new creme.action.ActionLink({debounce: 200});
     var link = $('<span data-action-url="/actions/" data-action="b"></span>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'));
@@ -405,7 +493,7 @@ QUnit.test('creme.action.ActionLink (debounce click, 150ms delay from attrs)', f
     var action = new creme.action.ActionLink();
     var link = $('<span data-action-url="/actions/" data-action="b" data-debounce="150"></span>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'));
@@ -451,7 +539,7 @@ QUnit.test('creme.action.ActionLink (not debounce click)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<span data-action-url="/actions/" data-action="b"></span>');
 
-    action.builders(this.mockActionBuilder);
+    action.builders(this.mockActionBuilderDict);
     action.bind(link)
           .on('action-link-start', this.mockListener('start'))
           .onComplete(this.mockListener('complete'));
@@ -487,3 +575,5 @@ QUnit.test('creme.action.ActionLink (not debounce click)', function(assert) {
         ['action-link-done', [], this.mockActionB]
     ], this.mockListenerCalls('complete'));
 });
+
+}(jQuery));
