@@ -42,7 +42,7 @@ class ViewsTestCase(CremeTestCase):
                                             EntityCredentials.DELETE |
                                             EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
+                                      set_type=SetCredentials.ESET_OWN,
                                      )
 
         return user

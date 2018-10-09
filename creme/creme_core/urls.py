@@ -17,16 +17,21 @@ entity_patterns = [
     url(r'^trash[/]?$',                         entity.trash,                    name='creme_core__trash'),
     url(r'^trash/empty[/]?$',                   entity.empty_trash,              name='creme_core__empty_trash'),
 
-    # TODO: add a view 'creme_core__entities_as_json' (with same features as 'creme_core__entity_as_json', then remove this one
+    # TODO: add a view 'creme_core__entities_as_json'
+    #       (with same features as 'creme_core__entity_as_json', then remove this one)
     # TODO: IDs as GET arguments
-    url(r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)[/]?$',                            entity.get_creme_entities_repr,  name='creme_core__entities_summaries'),
-    url(r'^get_sanitized_html/(?P<entity_id>\d+)/(?P<field_name>[\w-]+)[/]?$',       entity.get_sanitized_html_field, name='creme_core__sanitized_html_field'),
-    url(r'^search_n_view[/]?$',                                                      entity.search_and_view,          name='creme_core__search_n_view_entities'),
-    url(r'^get_info_fields/(?P<ct_id>\d+)/json[/]?$',                                entity.get_info_fields,          name='creme_core__entity_info_fields'),
+    url(r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)[/]?$',                      entity.get_creme_entities_repr,  name='creme_core__entities_summaries'),
+    url(r'^get_sanitized_html/(?P<entity_id>\d+)/(?P<field_name>[\w-]+)[/]?$', entity.get_sanitized_html_field, name='creme_core__sanitized_html_field'),
+    url(r'^search_n_view[/]?$',                                                entity.search_and_view,          name='creme_core__search_n_view_entities'),
+    url(r'^get_info_fields/(?P<ct_id>\d+)/json[/]?$',                          entity.get_info_fields,          name='creme_core__entity_info_fields'),
 
-    url(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.inner_edit_field,  name='creme_core__inner_edition'),
-    url(r'^update/bulk/(?P<ct_id>\d+)[/]?$',                                         entity.bulk_update_field, name='creme_core__bulk_update'),
-    url(r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',            entity.bulk_update_field, name='creme_core__bulk_update'),
+    # url(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.inner_edit_field,  name='creme_core__inner_edition'),
+    url(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.InnerEdition.as_view(), name='creme_core__inner_edition'),
+
+    # url(r'^update/bulk/(?P<ct_id>\d+)[/]?$',                                         entity.bulk_update_field, name='creme_core__bulk_update'),
+    # url(r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',            entity.bulk_update_field, name='creme_core__bulk_update'),
+    url(r'^update/bulk/(?P<ct_id>\d+)[/]?$',                              entity.BulkUpdate.as_view(), name='creme_core__bulk_update'),
+    url(r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.BulkUpdate.as_view(), name='creme_core__bulk_update'),
 
     url(r'^clone[/]*', entity.clone, name='creme_core__clone_entity'),
 
