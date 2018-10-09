@@ -24,7 +24,8 @@ creme.action = creme.action || {};
 creme.action.ActionLink = creme.component.Component.sub({
     _init_: function(options) {
         this._options = $.extend({
-            strict: false
+            strict: false,
+            debounce: 0
         }, options || {});
 
         this._running = false;
@@ -74,7 +75,15 @@ creme.action.ActionLink = creme.component.Component.sub({
         return this._options;
     },
 
-    _getActionBuilder: function(button, actiontype) {
+    _debounce: function(handler, delay) {
+        if (delay > 0) {
+            return creme.utils.debounce(handler, delay);
+        } else {
+            return handler;
+        }
+    },
+
+    _optActionBuilder: function(button, actiontype) {
         try {
             var builders = this.builders() || {};
             return Object.isFunc(builders) ? builders(actiontype) : builders['_action_' + actiontype].bind(builders);
@@ -83,13 +92,19 @@ creme.action.ActionLink = creme.component.Component.sub({
         }
     },
 
-    _getActionData: function(data) {
+    _optActionData: function(button) {
         try {
+            var data = $('script:first', button).text();
             return Object.isEmpty(data) ? {} : JSON.parse(data);
         } catch (e) {
             console.warn(e);
             return {};
         }
+    },
+
+    _optDebounceDelay: function(button) {
+        var delay = parseInt(button.attr('data-debounce') || '');
+        return isNaN(delay) ? this._options.debounce : delay;
     },
 
     bind: function(button) {
@@ -107,8 +122,9 @@ creme.action.ActionLink = creme.component.Component.sub({
                              button.toggleClass('is-loading', state);
                          }.bind(this);
 
-        var actiondata = this._getActionData($('script:first', button).text());
-        var builder = this._getActionBuilder(button, actiontype);
+        var debounceDelay = this._optDebounceDelay(button);
+        var actiondata = this._optActionData(button);
+        var builder = this._optActionBuilder(button, actiontype);
         var isvalid = Object.isFunc(builder);
 
         // TODO : see for a more straight forward method for handling of missing actions in both strict/not strict modes.
@@ -121,20 +137,17 @@ creme.action.ActionLink = creme.component.Component.sub({
         }
 
         if (isvalid && enabled) {
-            var handler = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
+            var handler = this._debounce(function(e) {
                 if (!isRunning()) {
                     var action = builder(url, actiondata.options, actiondata.data, e);
 
                     if (Object.isNone(action) === false) {
                         trigger('action-link-start', url, actiondata.options || {}, actiondata.data || {}, e);
                         setRunning(true);
-                        action.onComplete(function() {
+                        action.one('done fail cancel error', function() {
                                    setRunning(false);
                                })
-                              .on({
+                              .one({
                                   error: function(e, key, data, listener) {
                                       trigger('action-link-error', Array.copy(arguments).slice(1), this);
                                   },
@@ -151,9 +164,14 @@ creme.action.ActionLink = creme.component.Component.sub({
                               .start();
                     }
                 }
-            };
+            }, debounceDelay);
 
-            button.click(handler);
+            // the handler is deferred, not the event. This prevents default behaviour of links.
+            button.click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                handler(e);
+            });
         } else {
             button.addClass('is-disabled');
             button.click(function(e) {
