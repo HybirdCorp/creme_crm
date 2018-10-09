@@ -157,18 +157,18 @@ creme.component.Action = creme.component.Component.sub({
     after: function(source) {
         var self = this;
 
-        source.onDone(function(event, data) {
-            self.start(data);
+        source.onDone(function() {
+            self.start.apply(self, [source].concat(Array.copy(arguments).slice(1)));
         });
 
-        source.onFail(function(event, data) {
+        source.onFail(function(event) {
             self._status = _ActionStatus.FAIL;
-            self._events.trigger('fail', data, self);
+            self._events.trigger('fail', [source].concat(Array.copy(arguments).slice(1)), self);
         });
 
-        source.onCancel(function(event, data) {
+        source.onCancel(function(event) {
             self._status = _ActionStatus.CANCEL;
-            self._events.trigger('cancel', data, self);
+            self._events.trigger('cancel', [source].concat(Array.copy(arguments).slice(1)), self);
         });
 
         return this;
@@ -203,39 +203,4 @@ creme.component.TimeoutAction = creme.component.Action.sub({
     }
 });
 
-/*
- * TODO : Never used, maybe refactor it with a better implementation for ActionLink builders in new blocks.
- *
-creme.component.ActionRegistry = creme.component.Component.sub({
-    _init_: function() {
-        this._actions = {};
-    },
-
-    register: function(key, action) {
-        if (this._actions[key] !== undefined) {
-            throw new Error('action "%s" is already registered'.format(key));
-        }
-
-        if (!(Object.isFunc(action.is) && action.is(creme.component.Action))) {
-            throw new Error('"%s" is not an creme.component.Action'.format(action));
-        }
-
-        this._actions[key] = action;
-    },
-
-    unregister: function(key) {
-        if (this._actions[key] === undefined) {
-            throw new Error('action "%s" is not registered'.format(key));
-        }
-
-        delete this._actions[key];
-    },
-
-    get: function(key) {
-        return this._actions[key];
-    }
-});
-
-creme.component.actions = new creme.component.ActionRegistry();
-*/
- }(jQuery));
+}(jQuery));

@@ -614,8 +614,7 @@ QUnit.test('creme.bricks.Brick.action (link, unknown)', function(assert) {
     actionlink.on(this.brickActionLinkListeners);
     a.click();
 
-    deepEqual([['action-link-cancel', []]],
-            this.mockListenerCalls('action-link-cancel').map(function(d) { return d.splice(0, 2); }));
+    deepEqual({}, this.mockListenerCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (link, loading state)', function(assert) {
