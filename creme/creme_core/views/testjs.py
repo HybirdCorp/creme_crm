@@ -22,7 +22,7 @@ from datetime import date
 import logging
 from os import listdir
 from os.path import join
-from random import randint
+from random import choice as random_choice, randint
 from re import compile as re_compile
 from time import sleep
 
@@ -56,15 +56,14 @@ logger = logging.getLogger(__name__)
 
 TEST_TEMPLATE_PATH = join(settings.CREME_ROOT, 'creme_core', 'templates', 'creme_core', 'tests')
 TEST_TEMPLATE_BRICK_PATH = join(TEST_TEMPLATE_PATH, 'bricks')
-TEST_IMAGE_URLS = ('icecream/images/add_32.png',
-                   'common/images/404_200.png',
-                   'icecream/images/creme_256.png',
-                   'common/images/creme_logo.png',
-                   'chantilly/images/action_48.png',
-                   'icecream/images/action_not_in_time_48.png',
-                   'icecream/images/wait.gif',
+TEST_IMAGE_URLS = (('add', 'icecream/images/add_32.png'),
+                   ('not_found', 'common/images/404_200.png'),
+                   ('creme', 'common/images/creme_logo.png'),
+                   ('action', 'chantilly/images/action_48.png'),
+                   ('action_not_in_time', 'icecream/images/action_not_in_time_48.png'),
+                   ('wait', 'icecream/images/wait.gif'),
                   )
-
+TEST_IMAGES_SIZES = (16, 22, 32, 48, 64)
 
 class MockImage:
     def __init__(self, url, width, height=None):
@@ -89,13 +88,11 @@ class MockManyToMany:
 
 
 class Dummy:
-    def __init__(self, id, user):
+    def __init__(self, name, user, image_url):
         self.user = user
-        self.name = u'Dummy ({})'.format(id)
-        self.image = MockImage(media_url(TEST_IMAGE_URLS[randint(0, len(TEST_IMAGE_URLS) - 1)]), randint(16, 64)).html(self)
-        # self.url = mark_safe(print_urlfield(self, media_url('images/add_16.png'), self.user, None))
-        # self.url = mark_safe(print_url_html(self, media_url('images/add_16.png'), self.user, None))
-        self.url = mark_safe(print_url_html(self, media_url('icecream/images/add_16.png'), self.user, None))
+        self.name = name
+        self.image = MockImage(image_url, random_choice(TEST_IMAGES_SIZES)).html(self)
+        self.url = mark_safe(print_url_html(self, image_url, self.user, None))
         self.datetime = mark_safe(print_datetime(self, now(), user, None))
         self.date = mark_safe(print_date(self, date.today(), user, None))
         self.duration = mark_safe(print_duration(self, '{}:{}:{}'.format(randint(0, 23), randint(0, 59), randint(0, 59)), user, None))
@@ -112,7 +109,7 @@ class Dummy:
 # class DummyListBlock(PaginatedBrick):
 class DummyListBrick(PaginatedBrick):
     id_           = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
-    verbose_name  = u'Dummies'
+    verbose_name  = 'Dummies'
     dependencies  = ()
     permission    = 'creme_config.can_admin'
     template_name = join(TEST_TEMPLATE_BRICK_PATH, 'dummy-list.html')
@@ -126,7 +123,15 @@ class DummyListBrick(PaginatedBrick):
         item_count_str = str(request.GET.get('count') or reloading_info.get('count', ''))
         item_count = int(item_count_str) if item_count_str.isdigit() else 20
 
-        data = [Dummy(id + 1, user) for id in range(item_count)]
+        images = TEST_IMAGE_URLS
+        image_count = len(images)
+        image_ids = list(range(0, image_count - 1))
+
+        data = []
+
+        for item_id in range(item_count):
+            image_name, image_url = images[random_choice(image_ids)]
+            data.append(Dummy('Dummy ({}) - {}'.format(item_id + 1, image_name), user, media_url(image_url)))
 
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
@@ -173,7 +178,6 @@ def js_testview_context(request, viewname):
 
     return {
         'THEME_LIST':      [(theme_id, str(theme_vname)) for theme_id, theme_vname in settings.THEMES],
-        # 'THEME_NAME':      get('theme', get_current_theme()),
         'THEME_NAME':      get('theme') or request.user.theme_info[0],
         'TEST_VIEW_LIST':  test_views,
         'TEST_VIEW':       viewname,

@@ -228,14 +228,12 @@
                 scrollbackOnClose: $('#popup input.popup-scrollbackonclose').is(':checked')
             });
 
-            dialog.onOpen(function() {
-                $('.block-refresh', this.content()).click(function() {
+            dialog.on('frame-activated', function() {
+                var content = this.content();
+
+                $('.block-refresh', content).click(function() {
                     options = creme.tests.context;
-                    window.location = options.view +
-                                      '?theme=' + options.theme +
-                                      '&screen=' + options.screen.join('x') +
-                                      '&refresh=1' +
-                                      '&min=' + $('#test-blocklist-min').val();
+                    dialog.fill(MOCK_BLOCK_LIST);
                 });
             })
 
@@ -299,7 +297,7 @@
         });
 
         $('#popup button.popup-image').click(function() {
-            var url = '{% creme_media_url logo_url %}';
+            var url = '{% media_url "common/images/creme_logo.png" %}';
             var dialog = creme.dialogs.image(url, {
                 title: url,
                 closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
