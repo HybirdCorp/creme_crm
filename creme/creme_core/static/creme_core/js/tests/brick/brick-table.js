@@ -1,59 +1,7 @@
+(function($) {
 
 QUnit.module("creme.bricks.table", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitBrickMixin, {
-    createBrickTableHtml: function(options) {
-        options = $.extend({
-            id: 'brick-for-test',
-            title: 'Test it',
-            columns: [],
-            rows: [],
-            deps: ['dep1']
-        }, options || {});
-
-        var renderRow = function(row) {
-            return Array.isArray(row) ? '<tr>' + row.join('') + '</tr>' : row;
-        };
-
-        var quoteHtml = function(d) {
-            return '&quot;' + d + '&quot;';
-        }
-
-        return (
-            '<div class="brick ui-creme-widget" widget="brick" id="${id}" data-brick-deps="[${deps}]">'
-                 + '<div class="brick-header">'
-                     + '<div class="brick-title">${title}</div>'
-                     + '<div class="brick-selection-indicator">'
-                         + '<span class="brick-selection-title" data-title-format="%d entry on %d" data-plural-format="%d entries on %d"></span>'
-                     + '</div>'
-                 + '</div>'
-                 + '<div class="brick-content">'
-                     + '<table class="brick-table-content">'
-                         + '<thead><tr>${columns}</tr></thead>'
-                         + '<tbody>${rows}</tbody>'
-                     + '</table>'
-                 + '</div>'
-             + '</div>').template({
-                  id: options.id,
-                  title: options.title,
-                  deps: options.deps.map(quoteHtml).join(','),
-                  columns: options.columns.join(''),
-                  rows: options.rows.map(renderRow).join('')
-               });
-    },
-
-    createBrickTable: function(options) {
-        var html = this.createBrickTableHtml(options);
-
-        var element = $(html).appendTo($('body'));
-        var widget = creme.widget.create(element);
-        var brick = widget.brick();
-
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
-
-        return widget;
-    },
-
-    selectionItemInfo: function(d) {
+    _brickTableItemInfo: function(d) {
         return {
             selected: d.selected,
             ui: d.ui.get()
@@ -90,7 +38,7 @@ QUnit.test('creme.bricks.Brick.table (empty)', function(assert) {
             '<th data-table-primary-column>Id</th>',
             '<th data-type="date">Created on</th>',
             '<th>Name</th>'
-        ],
+        ]
     });
 
     var brick = widget.brick();
@@ -113,7 +61,7 @@ QUnit.test('creme.bricks.Brick.table (toggle selection)', function(assert) {
         rows: [
             '<tr><td data-selectable-selector-column>1</td><td data-type="date">2017-05-08</td><td>A</td></tr>',
             '<tr><td data-selectable-selector-column>2</td><td data-type="date">2017-05-07</td><td>B</td></tr>',
-            '<tr><td data-selectable-selector-column>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>',
+            '<tr><td data-selectable-selector-column>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>'
         ]
     });
 
@@ -127,8 +75,8 @@ QUnit.test('creme.bricks.Brick.table (toggle selection)', function(assert) {
     deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: false, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selectables().map(this.selectionItemInfo));
+        {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selectables().map(this._brickTableItemInfo));
 
     deepEqual([], selections.selected());
 
@@ -140,12 +88,12 @@ QUnit.test('creme.bricks.Brick.table (toggle selection)', function(assert) {
     deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: false, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selectables().map(this.selectionItemInfo));
+        {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selectables().map(this._brickTableItemInfo));
 
     deepEqual([
-        {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
-    ], selections.selected().map(this.selectionItemInfo));
+        {selected: true, ui: $('tr[data-row-index="1"]', element).get()}
+    ], selections.selected().map(this._brickTableItemInfo));
 
     $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).click();
 
@@ -155,10 +103,10 @@ QUnit.test('creme.bricks.Brick.table (toggle selection)', function(assert) {
     deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: false, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selectables().map(this.selectionItemInfo));
+        {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([], selections.selected().map(this.selectionItemInfo));
+    deepEqual([], selections.selected().map(this._brickTableItemInfo));
 });
 
 QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
@@ -172,7 +120,7 @@ QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
         rows: [
             '<tr><td><input type="checkbox" /></td><td data-selectable-selector-column>1</td><td data-type="date">2017-05-08</td><td>A</td></tr>',
             '<tr><td><input type="checkbox" /></td><td data-selectable-selector-column>2</td><td data-type="date">2017-05-07</td><td>B</td></tr>',
-            '<tr><td><input type="checkbox" /></td><td data-selectable-selector-column>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>',
+            '<tr><td><input type="checkbox" /></td><td data-selectable-selector-column>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>'
         ]
     });
 
@@ -187,8 +135,8 @@ QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
     deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: false, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selectables().map(this.selectionItemInfo));
+        {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selectables().map(this._brickTableItemInfo));
 
     deepEqual([], selections.selected());
 
@@ -202,14 +150,14 @@ QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
     deepEqual([
         {selected: true, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: true, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selectables().map(this.selectionItemInfo));
+        {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selectables().map(this._brickTableItemInfo));
 
     deepEqual([
         {selected: true, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: true, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selected().map(this.selectionItemInfo));
+        {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selected().map(this._brickTableItemInfo));
 
     $('.row-selector-all', element).click();
 
@@ -221,10 +169,10 @@ QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
     deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: false, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selectables().map(this.selectionItemInfo));
+        {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([], selections.selected().map(this.selectionItemInfo));
+    deepEqual([], selections.selected().map(this._brickTableItemInfo));
 
     $('.row-selector-all', element).prop('checked', true).trigger('change');
     equal('3 entries on 3', element.find('.brick-selection-title').text());
@@ -232,14 +180,14 @@ QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
     deepEqual([
         {selected: true, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: true, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selectables().map(this.selectionItemInfo));
+        {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selectables().map(this._brickTableItemInfo));
 
     deepEqual([
         {selected: true, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: true, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selected().map(this.selectionItemInfo));
+        {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selected().map(this._brickTableItemInfo));
 });
 
 QUnit.test('creme.bricks.Brick.table (toggle selection, loading)', function(assert) {
@@ -253,7 +201,7 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, loading)', function(asse
         rows: [
             '<tr><td data-selectable-selector-column>1</td><td data-type="date">2017-05-08</td><td>A</td></tr>',
             '<tr><td data-selectable-selector-column>2</td><td data-type="date">2017-05-07</td><td>B</td></tr>',
-            '<tr><td data-selectable-selector-column>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>',
+            '<tr><td data-selectable-selector-column>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>'
         ]
     });
 
@@ -267,8 +215,8 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, loading)', function(asse
     deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: false, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selectables().map(this.selectionItemInfo));
+        {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selectables().map(this._brickTableItemInfo));
 
     deepEqual([], selections.selected());
 
@@ -298,7 +246,7 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, controller)', function(a
         rows: [
             '<tr><td data-selectable-selector-column>1</td><td data-type="date">2017-05-08</td><td>A</td></tr>',
             '<tr><td data-selectable-selector-column>2</td><td data-type="date">2017-05-07</td><td>B</td></tr>',
-            '<tr><td data-selectable-selector-column>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>',
+            '<tr><td data-selectable-selector-column>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>'
         ]
     });
 
@@ -314,10 +262,10 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, controller)', function(a
     deepEqual([
         {selected: false, ui: $('tr[data-row-index="0"]', element).get()},
         {selected: false, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: false, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selectables().map(this.selectionItemInfo));
+        {selected: false, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selectables().map(this._brickTableItemInfo));
 
-    deepEqual([], selections.selected().map(this.selectionItemInfo));
+    deepEqual([], selections.selected().map(this._brickTableItemInfo));
 
     selections.toggle(1, true);
     selections.toggle(2, true);
@@ -329,8 +277,8 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, controller)', function(a
     equal('2 entries on 3', element.find('.brick-selection-title').text());
     deepEqual([
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
-        {selected: true, ui: $('tr[data-row-index="2"]', element).get()},
-    ], selections.selected().map(this.selectionItemInfo));
+        {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
+    ], selections.selected().map(this._brickTableItemInfo));
 
     selections.toggleAll(false);
 
@@ -352,7 +300,7 @@ QUnit.test('creme.bricks.Brick.table (not sortable)', function(assert) {
         rows: [
             '<tr><td>1</td><td data-type="date">2017-05-08</td><td>A</td></tr>',
             '<tr><td>2</td><td data-type="date">2017-05-07</td><td>B</td></tr>',
-            '<tr><td>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>',
+            '<tr><td>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>'
         ]
     });
 
@@ -376,7 +324,7 @@ QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
         rows: [
             '<tr><td>1</td><td data-type="date">2017-05-08</td><td>A</td></tr>',
             '<tr><td>2</td><td data-type="date">2017-05-07</td><td>B</td></tr>',
-            '<tr><td>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>',
+            '<tr><td>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>'
         ]
     };
 
@@ -418,7 +366,7 @@ QUnit.test('creme.bricks.Brick.table (toggle sort, loading)', function(assert) {
         rows: [
             '<tr><td>1</td><td data-type="date">2017-05-08</td><td>A</td></tr>',
             '<tr><td>2</td><td data-type="date">2017-05-07</td><td>B</td></tr>',
-            '<tr><td>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>',
+            '<tr><td>3</td><td data-type="date">2017-05-06</td><td>C</td></tr>'
         ]
     };
 
@@ -441,3 +389,5 @@ QUnit.test('creme.bricks.Brick.table (toggle sort, loading)', function(assert) {
 
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
+
+}(jQuery));

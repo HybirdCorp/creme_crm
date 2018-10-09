@@ -673,6 +673,7 @@ CREME_CORE_JS = ['main.js',
                     'creme_core/js/menu.js',
                     'creme_core/js/search.js',
                     'creme_core/js/bricks.js',
+                    'creme_core/js/bricks-action.js',
 
                     'creme_core/js/list_view.core.js',
                     'creme_core/js/lv_widget.js',
@@ -738,12 +739,14 @@ TEST_CREME_CORE_JS = ['testcore.js',
                         'creme_core/js/tests/ajax/cacheajax.js',
                         'creme_core/js/tests/ajax/query.js',
                         'creme_core/js/tests/ajax/localize.js',
+                        'creme_core/js/tests/ajax/utils.js',
 
                         'creme_core/js/tests/model/collection.js',
                         'creme_core/js/tests/model/renderer.js',
                         'creme_core/js/tests/model/query.js',
                         'creme_core/js/tests/model/controller.js',
 
+                        'creme_core/js/tests/dialog/qunit-dialog-mixin.js',
                         'creme_core/js/tests/dialog/dialog.js',
                         'creme_core/js/tests/dialog/popover.js',
                         'creme_core/js/tests/dialog/glasspane.js',
@@ -783,10 +786,16 @@ TEST_CREME_CORE_JS = ['testcore.js',
                         'creme_core/js/tests/brick/brick-menu.js',
                         'creme_core/js/tests/brick/brick-table.js',
                         'creme_core/js/tests/brick/dependencies.js',
+
+                        'creme_core/js/tests/views/detailview-actions.js',
+                        'creme_core/js/tests/views/utils.js',
                     ]
 
 TEST_CREME_OPT_JS = [
 #   ('creme.my_app',       'my_app/js/tests/my_app.js'),
+    ('creme.billing',   'billing/js/tests/billing-actions.js'),
+    ('creme.crudity',   'crudity/js/tests/crudity-actions.js'),
+    ('creme.emails',    'emails/js/tests/emails-actions.js'),
 ]
 
 # Optional js/css bundles for extending projects.

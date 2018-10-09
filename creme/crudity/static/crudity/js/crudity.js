@@ -25,42 +25,34 @@
 
 creme.crudity = {};
 
-(function() {
-    /* TODO: factorise with 'emails.js' */
-    var emptySelectionAction = function(message) {
-        return new creme.component.Action(function() {
-            var self = this;
-            creme.dialogs.warning(message)
-                         .onClose(function() {self.fail();})
-                         .open();
-        });
-    };
+var waitingSyncActions = {
+    'crudity-validate': function(url, options, data, e) {
+        var values = this._selectedRowValues().filter(Object.isNotEmpty);
 
-    var waitingSyncActions = {
-        _action_crudity_validate: function(url, options, data, e) {
-            var values = $(data.selector).getValues();
+        if (values.length === 0) {
+            return this._warningAction(gettext('Nothing is selected.'));
+        }
 
-            if (values.length === 0) {
-                return emptySelectionAction(gettext('Nothing is selected.'));
-            }
+        return this._build_update(url, {messageOnSuccess: gettext('Process done')}, {ids: values}, e);
+    },
 
-            return this._action_update(url, {messageOnSuccess: gettext('Process done')}, {ids: values}, e);
-        },
+    'crudity-validate-row': function(url, options, data, e) {
+        return this._build_update(url, {messageOnSuccess: gettext('Process done')}, {ids: [data.id]}, e);
+    },
 
-        _action_crudity_delete: function(url, options, data, e) {
-            var values = $(data.selector).getValues();
+    'crudity-delete': function(url, options, data, e) {
+        var values = this._selectedRowValues().filter(Object.isNotEmpty);
 
-            if (values.length === 0) {
-                return emptySelectionAction(gettext('Nothing is selected.'));
-            }
+        if (values.length === 0) {
+            return this._warningAction(gettext('Nothing is selected.'));
+        }
 
-            return this._action_update(url, {messageOnSuccess: gettext('Process done')}, {ids: values}, e);
-        },
-    };
+        return this._build_update(url, {messageOnSuccess: gettext('Process done')}, {ids: values}, e);
+    }
+};
 
-    $(document).on('brick-before-bind', '.brick.crudity-actions-brick', function(e, brick) {
-        $.extend(brick, waitingSyncActions);
-    });
-}());
+$(document).on('brick-setup-actions', '.brick.crudity-actions-brick', function(e, brick, actions) {
+    actions.registerAll(waitingSyncActions);
+});
 
 }(jQuery));

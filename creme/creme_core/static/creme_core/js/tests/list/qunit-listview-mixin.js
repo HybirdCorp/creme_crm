@@ -1,3 +1,5 @@
+/* eslint operator-linebreak: ["error", "before"] */
+
 (function($) {
     "use strict";
 
@@ -82,9 +84,20 @@
                 fail: this.mockListener('action-fail'),
                 done: this.mockListener('action-done')
             };
+
+            this._mockNextInnerPopupUUID = 1000;
+            this.__innerPopupUUID = creme.utils.innerPopupUUID;
+
+            creme.utils.innerPopupUUID = function() {
+                var next = String(self._mockNextInnerPopupUUID);
+                self._mockNextInnerPopupUUID += 1;
+                return next;
+            };
         },
 
         afterEach: function(env) {
+            creme.utils.innerPopupUUID = this.__innerPopupUUID;
+
             $('.ui-dialog-content').dialog('destroy');
             creme.widget.shutdown($('body'));
 
@@ -130,30 +143,30 @@
             };
 
             return (
-                '<form class="ui-creme-widget widget-auto ui-creme-listview ${widgetclasses}" widget="ui-creme-listview" ${multiple} ${reloadurl}>' +
-                     '<div class="list-header-container sticky-container sticky-container-standalone"></div>' +
-                     '<table id="${id}" class="list_view listview listview-selection-multiple ${tableclasses}" data-total-count="${rowcount}">' +
-                         '<thead>' +
-                             '<tr><th>${formdata}</th></tr>' +
-                             '<tr class="columns_top">' +
-                                 '<th class="choices"><input name="select_all" value="all" type="checkbox" title="Select All"/></th>' +
-                                 '<th class="actions">' +
-                                     '<ul class="header-actions-list">' +
-                                         '<li class="header-actions-trigger" title="Actions on the selected entities">' +
-                                             '<span>Actions</span>' +
-                                             '<div class="listview-actions-container">${headeractions}</div>' +
-                                          '</li>' +
-                                     '</ul>' +
-                                 '</th>' +
-                                 '${columns}' +
-                             '</tr>' +
-                             '<tr id="list_thead_search" class="columns_bottom">' +
-                                 '${searches}' +
-                             '</tr>' +
-                         '</thead>' +
-                         '<tbody>${rows}</tbody>' +
-                     '</table>' +
-                 '</form>').template({
+                '<form class="ui-creme-widget widget-auto ui-creme-listview ${widgetclasses}" widget="ui-creme-listview" ${multiple} ${reloadurl}>'
+                   + '<div class="list-header-container sticky-container sticky-container-standalone"></div>'
+                   + '<table id="${id}" class="list_view listview listview-selection-multiple ${tableclasses}" data-total-count="${rowcount}">'
+                       + '<thead>'
+                           + '<tr><th>${formdata}</th></tr>'
+                           + '<tr class="columns_top">'
+                               + '<th class="choices"><input name="select_all" value="all" type="checkbox" title="Select All"/></th>'
+                               + '<th class="actions">'
+                                  + '<ul class="header-actions-list">'
+                                       + '<li class="header-actions-trigger" title="Actions on the selected entities">'
+                                           + '<span>Actions</span>'
+                                           + '<div class="listview-actions-container">${headeractions}</div>'
+                                       + '</li>'
+                                  + '</ul>'
+                               + '</th>'
+                               + '${columns}'
+                           + '</tr>'
+                           + '<tr id="list_thead_search" class="columns_bottom">'
+                               + '${searches}'
+                           + '</tr>'
+                       + '</thead>'
+                       + '<tbody>${rows}</tbody>'
+                   + '</table>'
+               + '</form>').template({
                    id: options.id,
                    multiple: options.multiple ? 'multiple' : '',
                    reloadurl: options.reloadurl ? 'reload-url="' + options.reloadurl + '"' : '',
@@ -211,7 +224,7 @@
             }, options || {});
         },
 
-        setUpDefaultListView: function(options) {
+        createDefaultListView: function(options) {
             var list_options = $.extend(this.defaultListViewHtmlOptions(), options || {});
 
             var html = this.createListViewHtml(list_options);
@@ -221,58 +234,32 @@
             return list;
         },
 
-        assertClosedDialog: function() {
-            equal(0, $('.ui-dialog').length, 'is dialog not opened');
-        },
-
-        assertOpenedDialog: function() {
-            equal(1, $('.ui-dialog').length, 'is dialog opened');
-        },
-
-        assertOpenedAlertDialog: function(message, header) {
-            equal(1, $('.ui-dialog .ui-creme-dialog-warn').length, 'is alert dialog opened');
-
-            if (message !== undefined) {
-                equal(message, $('.ui-dialog .ui-creme-dialog-warn .message').text());
-            }
-
-            if (header !== undefined) {
-                equal(header,  $('.ui-dialog .ui-creme-dialog-warn .header').text());
-            }
-        },
-
-        closeDialog: function() {
-            equal(1, $('.ui-dialog').length, 'single form dialog allowed');
-            $('.ui-dialog-content').dialog('close');
-        },
-
-        submitFormDialog: function(data) {
-            equal(1, $('.ui-dialog').length, 'single form dialog allowed');
-            equal(1, $('.ui-dialog button[name="send"]').length, 'single form submit button allowed');
-
-            for (var key in data) {
-                $('.ui-dialog form [name="' + key + '"]').val(data[key]);
-            }
-
-            var formHtml = $('.ui-dialog form').html();
-            $('.ui-dialog button[name="send"]').click();
-
-            return formHtml;
-        },
-
-        acceptConfirmDialog: function() {
-            equal(1, $('.ui-dialog').length, 'single confirm dialog allowed');
-            equal(1, $('.ui-dialog button[name="ok"]').length, 'single confirm ok button allowed');
-
-            $('.ui-dialog button[name="ok"]').click();
-        },
-
         resetListviewReloadContent: function() {
             this._listviewReloadContent = {};
         },
 
         setListviewReloadContent: function(id, content) {
             this._listviewReloadContent[id] = content;
+        },
+
+        setListviewSelection: function(list, ids) {
+            $(list).find('#selected_rows').val(ids.join(','));
+        },
+
+        assertOpenedListViewDialog: function() {
+            var dialog = $('.ui-dialog [widget="ui-creme-listview"]');
+            equal(1, dialog.length, 'is listview dialog opened');
+            return dialog;
+        },
+
+        submitListViewSelectionDialog: function() {
+            var button = this.findDialogButtonsByLabel(gettext("Validate the selection"));
+            equal(1, button.length, 'is validation button exists');
+            button.click();
+        },
+
+        mockNextInnerPopupUUID: function() {
+            return String(this._mockNextInnerPopupUUID);
         }
     };
 }(jQuery));

@@ -56,13 +56,13 @@ creme.billing.checkDiscount = function(element) {
     var unit_price     = parseFloat($('input[name*=unit_price]', parent_tr).val());
     var quantity       = parseInt($('input[name*=quantity]', parent_tr).val());
 
-    if (!creme.billing.checkPercent(element) && discount_unit == 1) {
+    if (!creme.billing.checkPercent(element) && discount_unit === 1) {
         return false;
     }
-    if (total_discount && discount_unit == 2 && discount_value > unit_price * quantity) {
+    if (total_discount && discount_unit === 2 && discount_value > unit_price * quantity) {
         return false;
     }
-    if (!total_discount && discount_unit == 2 && discount_value > unit_price) {
+    if (!total_discount && discount_unit === 2 && discount_value > unit_price) {
         return false;
     }
 
@@ -100,7 +100,7 @@ creme.billing.forms = function(element) {
 creme.billing.modifiedBLineForms = function() {
     return $('.bline-form').filter(function() {
         return Boolean(($('> :not(.hidden-form) .bline-input-modified, .bline-deletion-mark', $(this)).first().length));
-    })
+    });
 };
 
 creme.billing.formsHaveErrors = function() {
@@ -117,8 +117,6 @@ creme.billing.serializeInput = function(input, for_initial) {
     if (key !== undefined && value !== undefined) {
         return {key: key, value: value};
     }
-
-    return;
 };
 
 creme.billing.validateInput = function(input) {
@@ -237,7 +235,7 @@ creme.billing.restoreValue = function(input) {
 creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
     creme.dialogs.confirm(gettext('Do you really want to restore initial values of this line ?'))
                  .onOk(function() {
-                      $('input,select,textarea', $('.restorable_' + line_id)).each(function(){
+                      $('input,select,textarea', $('.restorable_' + line_id)).each(function() {
                           creme.billing.restoreValue($(this));
                       });
 
@@ -254,7 +252,7 @@ creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
                  .open();
 };
 
-//TODO: it would be cool to share this code with Python (the same computing is done on Python side) (pyjamas ??)
+// TODO: it would be cool to share this code with Python (the same computing is done on Python side) (pyjamas ??)
 creme.billing.initBoundedFields = function (element, currency, global_discount) {
     var discounted = $('[name="discounted"]', element);
     var inclusive_of_tax = $('[name="inclusive_of_tax"]', element);
@@ -315,7 +313,7 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
 
 creme.billing.checkModifiedOnUnload = function() {
     if (creme.billing.modifiedBLineForms().first().length) {
-        return gettext("You modified your lines.")
+        return gettext("You modified your lines.");
     }
 };
 
@@ -376,12 +374,12 @@ creme.billing.updateBrickTotals = function(currency) {
 };
 
 creme.billing.EXPORT_FORMATS = [
-   //{value:'odt', label: gettext("Document open-office (ODT)")},
+   // {value:'odt', label: gettext("Document open-office (ODT)")},
    {value: 'pdf', label: gettext("Pdf file (PDF)")}
 ];
 
 creme.billing.exportAs = function(url, formats) {
-    var formats = formats || creme.billing.EXPORT_FORMATS;
+    formats = formats || creme.billing.EXPORT_FORMATS;
 
     if (formats.length === 1) {
         window.location.href = url.format(formats[0].value);
@@ -399,61 +397,58 @@ creme.billing.generateInvoiceNumber = function(url) {
                       .start();
 };
 
+var billingLinesActions = {
+    'billing-line-addonfly': function(url, options, data, e) {
+        return new creme.component.Action(function() {
+            var count = data.count ? parseInt(data.count) : 0;
+            creme.billing.showEmptyForm($(e.currentTarget), data.ctype_id, data.prefix, count);
+            this.done();
+        });
+    },
 
-(function() {
-    var billingLinesActions = {
-        _action_billing_line_addonfly: function(url, options, data, e) {
-            return new creme.component.Action(function() {
-                var count = data.count ? parseInt(data.count) : 0;
-                creme.billing.showEmptyForm($(e.currentTarget), data.ctype_id, data.prefix, count);
-                this.done();
-            });
-        },
+    'billing-line-saveall': function(url, options, data, e) {
+        var brick = this._brick;
 
-        _action_billing_line_saveall: function(url, options, data, e) {
-            var brick = this;
+        return new creme.component.Action(function() {
+            if (creme.billing.formsHaveErrors()) {
+                creme.dialogs.alert('<p>' + gettext('There are some errors in your lines.') + '</p>').open();
+            } else {
+                var forms_data = {};
 
-            return new creme.component.Action(function() {
-                if (creme.billing.formsHaveErrors()) {
-                    creme.dialogs.alert('<p>' + gettext('There are some errors in your lines.') + '</p>').open();
-                } else {
-                    var forms_data = {};
-
-                    creme.billing.modifiedBLineForms().each(function() {
-                        var container = $(this);
-                        forms_data[container.attr('ct_id')] = $.toJSON(creme.billing.serializeForm(container));
-                    });
-
-                    if (forms_data.length === 0) {
-                        console.log('Forms not modified !');
-                        return this.cancel();
-                    }
-
-                    creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, warnOnFailTitle: gettext('Errors report')}, forms_data)
-                               .onDone(function() {brick.refresh();})
-                               .onFail(this.fail.bind(this))
-                               .start();
-                }
-            });
-        },
-
-        _action_billing_line_clearonfly: function(url, action, data, e) {
-            var brick = this;
-
-            return new creme.component.Action(function() {
-                creme.billing.hideEmptyForm(data.ctype_id, data.prefix, data.count);
-                $('[data-action="billing-line-addonfly"]', brick._element).removeClass('forbidden');
-                this.done();
-            });
-        }
-    };
-
-    $(document).on('brick-before-bind', '.brick.billing-lines-brick', function(e, brick) {
-                    $.extend(brick, billingLinesActions);
-                })
-               .on('brick-ready', function(e, brick, options) {
-                    creme.billing.initLinesBrick(brick);
+                creme.billing.modifiedBLineForms().each(function() {
+                    var container = $(this);
+                    forms_data[container.attr('ct_id')] = $.toJSON(creme.billing.serializeForm(container));
                 });
-}());
+
+                if (forms_data.length === 0) {
+                    console.log('Forms not modified !');
+                    return this.cancel();
+                }
+
+                creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, warnOnFailTitle: gettext('Errors report')}, forms_data)
+                           .onDone(function() { brick.refresh(); })
+                           .onFail(this.fail.bind(this))
+                           .start();
+            }
+        });
+    },
+
+    'billing-line-clearonfly': function(url, action, data, e) {
+        var brick = this._brick;
+
+        return new creme.component.Action(function() {
+            creme.billing.hideEmptyForm(data.ctype_id, data.prefix, data.count);
+            $('[data-action="billing-line-addonfly"]', brick._element).removeClass('forbidden');
+            this.done();
+        });
+    }
+};
+
+$(document).on('brick-setup-actions', '.brick.billing-lines-brick', function(e, brick, actions) {
+                actions.registerAll(billingLinesActions);
+            })
+           .on('brick-ready', function(e, brick, options) {
+                creme.billing.initLinesBrick(brick);
+            });
 
 }(jQuery));

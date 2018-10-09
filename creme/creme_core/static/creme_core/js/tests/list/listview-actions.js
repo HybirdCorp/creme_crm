@@ -1,4 +1,4 @@
-QUnit.module("creme.listview.actions", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitListViewMixin));
+QUnit.module("creme.listview.actions", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitDialogMixin, QUnitListViewMixin));
 
 QUnit.test('creme.listview.DeleteSelectedAction (no selection)', function(assert) {
     var list = this.createListView();
@@ -27,7 +27,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (no selection)', function(assert
 });
 
 QUnit.test('creme.listview.DeleteSelectedAction (not confirmed)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.DeleteSelectedAction(list, {
         url: 'mock/entity/delete'
     }).on(this.listviewActionListeners);
@@ -55,7 +55,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (not confirmed)', function(asser
 });
 
 QUnit.test('creme.listview.DeleteSelectedAction (error)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.DeleteSelectedAction(list, {
         url: 'mock/entity/delete/fail'
     }).on(this.listviewActionListeners);
@@ -103,7 +103,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (error)', function(assert) {
 });
 
 QUnit.test('creme.listview.DeleteSelectedAction (not allowed)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.DeleteSelectedAction(list, {
         url: 'mock/entity/delete/nothing'
     }).on(this.listviewActionListeners);
@@ -152,7 +152,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (not allowed)', function(assert)
 });
 
 QUnit.test('creme.listview.DeleteSelectedAction (partially allowed)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.DeleteSelectedAction(list, {
         url: 'mock/entity/delete/firstonly'
     }).on(this.listviewActionListeners);
@@ -197,7 +197,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (partially allowed)', function(a
 });
 
 QUnit.test('creme.listview.DeleteSelectedAction (ok)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.DeleteSelectedAction(list, {
         url: 'mock/entity/delete'
     }).on(this.listviewActionListeners);
@@ -251,7 +251,7 @@ QUnit.test('creme.listview.AddToSelectedAction (no selection)', function(assert)
 });
 
 QUnit.test('creme.listview.AddToSelectedAction (cancel)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.AddToSelectedAction(list, {
         url: 'mock/entity/addto'
     }).on(this.listviewActionListeners);
@@ -283,7 +283,7 @@ QUnit.test('creme.listview.AddToSelectedAction (cancel)', function(assert) {
 });
 
 QUnit.test('creme.listview.AddToSelectedAction (submit fail + cancel)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.AddToSelectedAction(list, {
         url: 'mock/entity/addto'
     }).on(this.listviewActionListeners);
@@ -316,7 +316,7 @@ QUnit.test('creme.listview.AddToSelectedAction (submit fail + cancel)', function
 });
 
 QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.AddToSelectedAction(list, {
         url: 'mock/entity/addto'
     }).on(this.listviewActionListeners);
@@ -381,7 +381,7 @@ QUnit.test('creme.listview.EditSelectedAction (no selection)', function(assert) 
 });
 
 QUnit.test('creme.listview.EditSelectedAction (cancel)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.EditSelectedAction(list, {
         url: 'mock/entity/edit'
     }).on(this.listviewActionListeners);
@@ -409,7 +409,7 @@ QUnit.test('creme.listview.EditSelectedAction (cancel)', function(assert) {
 });
 
 QUnit.test('creme.listview.AddToSelectedAction (submit => form error => close)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.EditSelectedAction(list, {
         url: 'mock/entity/edit'
     }).on(this.listviewActionListeners);
@@ -440,7 +440,7 @@ QUnit.test('creme.listview.AddToSelectedAction (submit => form error => close)',
 });
 
 QUnit.test('creme.listview.AddToSelectedAction (submit => partially fail => close)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.EditSelectedAction(list, {
         url: 'mock/entity/edit'
     }).on(this.listviewActionListeners);
@@ -489,7 +489,7 @@ QUnit.test('creme.listview.AddToSelectedAction (submit => partially fail => clos
 });
 
 QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.EditSelectedAction(list, {
         url: 'mock/entity/edit'
     }).on(this.listviewActionListeners);
@@ -594,7 +594,7 @@ QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(as
 });
 
 QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
-    var list = this.setUpDefaultListView();
+    var list = this.createDefaultListView();
     var action = new creme.lv_widget.MergeSelectedAction(list, {
         url: 'mock/entity/merge'
     }).on(this.listviewActionListeners);

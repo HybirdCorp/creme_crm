@@ -67,35 +67,6 @@ creme.bricks.dialogActionButtons = function(dialog) {
     }
 };
 
-creme.bricks.DialogAction = creme.dialog.DialogAction.sub({
-    _init_: function(options, listeners) {
-        this._super_(creme.dialog.DialogAction, '_init_', options, listeners);
-    },
-
-    _buildPopup: function(options) {
-        var popup = this._super_(creme.dialog.DialogAction, '_buildPopup', options);
-
-        return popup.on('frame-activated', function() {
-            creme.bricks.dialogActionButtons(this);
-            creme.bricks.dialogCenterPosition(this);
-        });
-    }
-});
-
-creme.bricks.FormDialogAction = creme.dialog.FormDialogAction.sub({
-    _init_: function(options, listeners) {
-        this._super_(creme.dialog.FormDialogAction, '_init_', options, listeners);
-    },
-
-    _buildPopup: function(options) {
-        var popup = this._super_(creme.dialog.FormDialogAction, '_buildPopup', options);
-
-        return popup.on('frame-update', function() {
-            creme.bricks.dialogCenterPosition(this);
-        });
-    }
-});
-
 creme.bricks.BrickMenu = creme.component.Component.sub({
     _init_: function(brick, options) {
         this._options = $.extend({
@@ -167,28 +138,6 @@ creme.bricks.BrickMenu = creme.component.Component.sub({
     open: function(anchor) {
         if (!this.isDisabled() && !this._brick.isLoading()) {
             this._dialog.open(anchor);
-        }
-    }
-});
-
-creme.bricks.BrickActionLink = creme.action.ActionLink.sub({
-    _init_: function(brick, options) {
-        this._super_(creme.action.ActionLink, '_init_', options);
-        this._brick = brick;
-        this.builders(this._brickActionBuilder.bind(this));
-    },
-
-    _brickActionBuilder: function(actiontype) {
-        var brick = this._brick;
-        var builder = brick._getActionBuilder(actiontype);
-
-        if (Object.isFunc(builder)) {
-            return function(url, options, data, e) {
-                if (!brick.isLoading()) {
-                    brick.closeMenu();
-                    return builder(url, options || {}, data || {}, e);
-                }
-            };
         }
     }
 });
@@ -551,6 +500,7 @@ creme.bricks.Brick = creme.component.Component.sub({
         this._state = {};
         this._dependencies = new creme.bricks.Dependencies();
         this._actionLinks = [];
+        this._actionBuilders = new creme.bricks.BrickActionBuilders(this);
 
         if (options.deferredStateSaveDelay > 0) {
             this._deferredStateSave = creme.utils.debounce(this.saveState.bind(this),
@@ -620,6 +570,8 @@ creme.bricks.Brick = creme.component.Component.sub({
 
     _bindActionLinks: function(element) {
         var self = this;
+
+        this.trigger('setup-actions', [this._actionBuilders]);
 
         var links = this._actionLinks = $('[data-action]', element).map(function() {
             return self._initializeActionButton($(this));
@@ -796,12 +748,7 @@ creme.bricks.Brick = creme.component.Component.sub({
     },
 
     _getActionBuilder: function(actiontype) {
-        actiontype = actiontype.replace(/\-/g, '_').toLowerCase();
-        var builder = this['_action_' + actiontype];
-
-        if (Object.isFunc(builder)) {
-            return builder.bind(this);
-        }
+        return this._actionBuilders.get(actiontype);
     },
 
     _buildAction: function(actiontype, url, options, data, event) {
@@ -841,109 +788,6 @@ creme.bricks.Brick = creme.component.Component.sub({
         return action;
     },
 
-    _toggleStateAction: function(key, event, active_label, inactive_label) {
-        var toggle = this.toggleState.bind(this, key);
-        return new creme.component.Action(function() {
-            var state = toggle().state()[key];
-
-            if (!Object.isNone(event)) {
-                var link = $(event.target).parents('[data-action]:first');
-                link.find('.brick-action-title').text(state ? inactive_label : active_label);
-            }
-
-            this.done();
-        });
-    },
-
-    _action_collapse: function(url, options, data, event) {
-        return this._toggleStateAction('collapsed', event, data.inlabel, data.outlabel);
-    },
-
-    _action_reduce_content: function(url, options, data, event) {
-        return this._toggleStateAction('reduced', event, data.inlabel, data.outlabel);
-    },
-
-    _action_form: function(url, options, data) {
-        options = $.extend(this._defaultDialogOptions(url), options || {});
-        return new creme.bricks.FormDialogAction(options);
-    },
-
-    _action_form_refresh: function(url, options, data) {
-        var self = this;
-        return this._action_form(url, options, data).onDone(function() { self.refresh(); });
-    },
-
-    _action_add: function(url, options, data) {
-/*
-        var self = this;
-        return this._action_form(url, options, data).onDone(function() {self.refresh();});
-*/
-        return this._action_form_refresh(url, options, data);
-    },
-
-    _action_edit: function(url, options, data) {
-/*
-        var self = this;
-        return this._action_form(url, options, data).onDone(function() {self.refresh();});
-*/
-        return this._action_form_refresh(url, options, data);
-    },
-
-    _action_link: function(url, options, data) {
-/*
-        var self = this;
-        return this._action_form(url, options, data).onDone(function() {self.refresh();});
-*/
-        return this._action_form_refresh(url, options, data);
-    },
-
-    /* TODO: factorise with _action_update() */
-    _action_delete: function(url, options, data) {
-        var self = this;
-        options = $.extend({action: 'post'}, options || {});
-
-        var action = creme.utils.confirmAjaxQuery(url, options, data)
-                                .onDone(function() { self.refresh(); });
-
-        return action;
-    },
-
-    _action_update: function(url, options, data) {
-        var self = this;
-        var action;
-        options = $.extend({action: 'post', reloadBrick: true}, options || {});
-
-        if (options.confirm) {
-            action = creme.utils.confirmAjaxQuery(url, options, data);
-        } else {
-            action = creme.utils.ajaxQuery(url, options, data);
-        }
-
-        return action.onDone(function() { self.refresh(); });
-    },
-
-    /* TODO: factorise with _action_update() */
-    _action_update_redirect: function(url, options, data) {
-        options = $.extend({action: 'post'}, options || {});
-        var action;
-
-        if (options.confirm) {
-            action = creme.utils.confirmAjaxQuery(url, options, data);
-        } else {
-            action = creme.utils.ajaxQuery(url, options, data);
-        }
-
-        return action.onDone(function(event, data, xhr) {
-            creme.utils.goTo(data);
-        });
-    },
-
-    _action_add_relationships: function(url, options, data) {
-        // NOTE: the options parameter here is never used/filled at the moment, options are actually passed as __name=value
-        //       and available in the data parameter. The only other option in creme.relations.addRelationTo being __mutiple.
-        return creme.relations.addRelationTo(data.subject_id, data.rtype_id, data.ctype_id, {multiple: data.multiple});
-    },
-
     _defaultDialogOptions: function(url, title) {
         var width = $(window).innerWidth();
 
@@ -956,26 +800,6 @@ creme.bricks.Brick = creme.component.Component.sub({
             title: title,
             validator: 'innerpopup'
         };
-    },
-
-    _action_view: function(url, options, data) {
-        options = $.extend(this._defaultDialogOptions(url, data.title), options || {});
-
-        return new creme.bricks.DialogAction(options);
-    },
-
-    _action_refresh: function(uri_extra_params) {
-        return new creme.bricks.BricksReloader(uri_extra_params).sourceBrick(this).action();
-    },
-
-    _action_redirect: function(url, options, data) {
-        var context = {
-            location: window.location.href.replace(/.*?:\/\/[^\/]*/g, '') // remove 'http://host.com'
-        };
-
-        return new creme.component.Action(function() {
-            creme.utils.goTo(creme.utils.templatize(url, context).render());
-        });
     },
 
     dependencies: function() {
@@ -1034,14 +858,18 @@ creme.bricks.Brick = creme.component.Component.sub({
 
     refresh: function(uri_extra_params, listeners) {
         if (this.isBound()) {
-            return this._action_refresh(uri_extra_params).on(listeners || {}).start();
+            var reloader = new creme.bricks.BricksReloader(uri_extra_params);
+            var action = reloader.sourceBrick(this)
+                                 .action();
+
+            action.on(listeners || {}).start();
         }
 
         return this;
     },
 
     redirect: function(url, option, data) {
-        this._action_redirect(url, option, data).start();
+        this._buildAction('redirect', url, option, data).start();
         return this;
     }
 });

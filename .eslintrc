@@ -34,14 +34,22 @@
     "creme": true,
 
     /* QUNIT TESTS */
-    /*
     "$": true,
     "QUnit": true,
     "equal": true,
     "deepEqual": true,
     "ok": true,
-    "fail": true
-    */
+    "fail": true,
+    "stop": true,
+    "start": true,
+
+    /* QUNIT MIXINS */
+    "QUnitMixin": true,
+    "QUnitEventMixin": true,
+    "QUnitAjaxMixin": true,
+    "QUnitBrickMixin": true,
+    "QUnitDialogMixin": true,
+    "QUnitListViewMixin": true
   },
 
   "rules": {

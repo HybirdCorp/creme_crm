@@ -95,6 +95,10 @@
         return true;
     });
 
+    appendStatic('isNotEmpty', function(obj) {
+        return !Object.isEmpty(obj);
+    });
+
     appendStatic('isType', function(obj, type) {
         return (typeof obj === type);
     });

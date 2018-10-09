@@ -1,4 +1,4 @@
-QUnit.module("creme.lv_widget.ListViewHeader", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitListViewMixin));
+QUnit.module("creme.lv_widget.ListViewHeader", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitDialogMixin, QUnitListViewMixin));
 
 QUnit.test('creme.lv_widget.ListViewHeader.bind', function(assert) {
     var list = $(this.createListViewHtml()).appendTo(this.anchor);
@@ -79,7 +79,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (enter first row)', function(assert) 
 
     header.bind(table);
 
-    lines = $(list).find('tr.selectable:first-child');
+    var lines = $(list).find('tr.selectable:first-child');
 
     equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
     equal(false, table.is('.first-row-hovered'));
@@ -110,7 +110,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (enter first row, standalone)', funct
 
     header.bind(table);
 
-    lines = $(list).find('tr.selectable:first-child');
+    var lines = $(list).find('tr.selectable:first-child');
 
     equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
     equal(false, table.is('.first-row-hovered'));
@@ -138,7 +138,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (leave first row)', function(assert) 
 
     header.bind(table);
 
-    lines = $(list).find('tr.selectable:first-child');
+    var lines = $(list).find('tr.selectable:first-child');
 
     $(lines[0]).trigger($.Event("mouseenter"));
 
@@ -161,7 +161,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (leave first row, standalone)', funct
 
     header.bind(table);
 
-    lines = $(list).find('tr.selectable:first-child');
+    var lines = $(list).find('tr.selectable:first-child');
 
     $(lines[0]).trigger($.Event("mouseenter"));
 
@@ -181,7 +181,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (selection change)', function(assert)
 
     header.bind(table);
 
-    lines = $(list).find('tr.selectable:first-child');
+    var lines = $(list).find('tr.selectable:first-child');
 
     equal(false, $('.listview.floatThead-table').is('.first-row-hovered'));
     equal(false, table.is('.first-row-selected'));
@@ -217,7 +217,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (selection change, standalone)', func
 
     header.bind(table);
 
-    lines = $(list).find('tr.selectable:first-child');
+    var lines = $(list).find('tr.selectable:first-child');
 
     equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
     equal(false, table.is('.first-row-selected'));

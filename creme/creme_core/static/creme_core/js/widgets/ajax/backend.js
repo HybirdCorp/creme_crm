@@ -110,27 +110,66 @@ creme.ajax.AjaxResponse = function(status, data, xhr) {
 
 // Code from https://docs.djangoproject.com/en/1.7/ref/contrib/csrf/#ajax
 creme.ajax.cookieAttr = function(name) {
-    var cookieValue = null;
+    if (Object.isEmpty(name) || Object.isEmpty(document.cookie)) {
+        return null;
+    }
 
-    if (Object.isEmpty(document.cookie) === false) {
-        var cookies = document.cookie.split(';');
+    var cookies = document.cookie.split(';');
 
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
+    for (var i = 0; i < cookies.length; i++) {
+        var item = cookies[i].trim().split('=');
 
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+        if (item.length > 1 && item[0] === name) {
+            return decodeURIComponent(item[1]);
         }
     }
 
-    return cookieValue;
+    return null;
 };
 
 creme.ajax.cookieCSRF = function() {
     return creme.ajax.cookieAttr('csrftoken');
+};
+
+creme.ajax.parseUrl = function(url) {
+    var parser = document.createElement('a');
+
+    parser.href = url;
+
+    var search = parser.search.replace(/^\?/, '');
+    var searchData = {};
+
+    if (search) {
+        var query = search.split('&');
+
+        query.forEach(function(e) {
+            var item = e.split('=');
+            var key = decodeURIComponent(item[0]);
+            var value = decodeURIComponent(item[1]);
+            var entry = searchData[key];
+
+            if (entry === undefined) {
+                entry = value;
+            } else if (Array.isArray(entry)) {
+                entry.push(value);
+            } else {
+                entry = [entry, value];
+            }
+
+            searchData[key] = entry;
+        });
+    }
+
+    return {
+        protocol: parser.protocol,
+        host: parser.host,
+        hostname: parser.hostname,
+        port: parser.port,
+        pathname: parser.pathname,
+        search: parser.search,
+        searchData: searchData,
+        hash: parser.hash
+    };
 };
 
 creme.ajax.serializeFormAsDict = function(form, extraData) {

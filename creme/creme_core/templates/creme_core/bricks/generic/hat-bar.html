@@ -44,7 +44,7 @@
                     {% with delete_url=object.get_delete_absolute_url %}
                     {% if delete_url %}
                     <div class='bar-action'>
-                        {% brick_bar_button action='detailview-delete' label=_('Delete') url=delete_url icon='delete' confirm=_('Do you really want to sent this entity to the trash?') enabled=delete_perm %}
+                        {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete') url=delete_url icon='delete' confirm=_('Do you really want to sent this entity to the trash?') enabled=delete_perm %}
                     </div>
                     {% endif %}
                     {% endwith %}
@@ -54,7 +54,7 @@
                     {% with clone_url=object.get_clone_absolute_url %}
                     {% if clone_url %}{% has_perm_to create object as create_perm %}
                     <div class='bar-action'>
-                        {% brick_bar_button action='detailview-clone' label=_('Clone') url=clone_url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=create_perm %}
+                        {% brick_bar_button action='creme_core-detailview-clone' label=_('Clone') url=clone_url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=create_perm %}
                     </div>
                     {% endif %}
                     {% endwith %}
@@ -64,7 +64,7 @@
                     {% if object.entity_type|ctype_can_be_merged %}
                     {% url 'creme_core__select_entity_for_merge' as select_other_url %}{% url 'creme_core__merge_entities' as merge_url %}
                     <div class='bar-action'>
-                        {% brick_bar_button action='detailview-merge' label=_('Merge') url=merge_url icon='merge' __id=object.id __selection_url=select_other_url enabled=edit_perm %}
+                        {% brick_bar_button action='creme_core-detailview-merge' label=_('Merge') url=merge_url icon='merge' __id=object.id __selection_url=select_other_url enabled=edit_perm %}
                     </div>
                     {% endif %}
                 {% endblock %}
@@ -72,13 +72,13 @@
         {% else %}
             {% url 'creme_core__restore_entity' object.id as restore_url %}
             <div class='bar-action'>
-                {% brick_bar_button action='detailview-restore' label=_('Restore') url=restore_url icon='restore' confirm=_('Do you really want to restore this entity?') enabled=delete_perm %}
+                {% brick_bar_button action='creme_core-detailview-restore' label=_('Restore') url=restore_url icon='restore' confirm=_('Do you really want to restore this entity?') enabled=delete_perm %}
             </div>
 
             {% with delete_url=object.get_delete_absolute_url %}
             {% if delete_url %}
             <div class='bar-action'>
-                {% brick_bar_button action='detailview-delete' label=_('Delete permanently') url=delete_url icon='delete' confirm=_('Do you really want to sent this entity to the trash?') enabled=delete_perm %}
+                {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete permanently') url=delete_url icon='delete' confirm=_('Do you really want to sent this entity to the trash?') enabled=delete_perm %}
             </div>
             {% endif %}
             {% endwith %}

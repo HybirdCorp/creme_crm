@@ -28,43 +28,44 @@
 // Code from Django doc: http://docs.djangoproject.com/en/1.2/ref/contrib/csrf/#csrf-ajax
 // jQuery 1.9x compatibility : call ajaxSend from document
 $(document).ajaxSend(function(event, xhr, settings) {
-    function getCookie(name) {
-        var cookieValue = null;
+//    function getCookie(name) {
+//        var cookieValue = null;
+//
+//        if (Object.isEmpty(document.cookie) === false) {
+//            var cookies = document.cookie.split(';');
+//
+//            for (var i = 0; i < cookies.length; i++) {
+//                var cookie = jQuery.trim(cookies[i]);
+//
+//                // Does this cookie string begin with the name we want?
+//                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+//                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+//                    break;
+//                }
+//            }
+//        }
+//
+//        return cookieValue;
+//        /*
+//        var cookieValue = null;
+//        if (document.cookie && document.cookie != '') {
+//            var cookies = document.cookie.split(';');
+//            for (var i = 0; i < cookies.length; i++) {
+//                var cookie = jQuery.trim(cookies[i]);
+//                // Does this cookie string begin with the name we want?
+//                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+//                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+//                    break;
+//                }
+//            }
+//        }
+//        return cookieValue;
+//        */
+//    }
 
-        if (Object.isEmpty(document.cookie) === false) {
-            var cookies = document.cookie.split(';');
-
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-
-        return cookieValue;
-        /*
-        var cookieValue = null;
-        if (document.cookie && document.cookie != '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-        */
-    }
     if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
         // Only send the token to relative URLs i.e. locally.
-        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        xhr.setRequestHeader("X-CSRFToken", creme.ajax.cookieCSRF());
     }
 });
 
