@@ -253,8 +253,12 @@ class SendingsTestCase(_EmailsTestCase):
         mail = mails[0]
         self.assertEqual(0, mail.reads)
         self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
-        self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
+        response = self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
+        # self.assertTemplateUsed(response, 'emails/view_email.html')
+        self.assertTemplateUsed(response, 'emails/lw-email-popup.html')
+        self.assertEqual(_('Details of the mail'), response.context.get('title'))
 
+        # ---
         response = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
         self.assertEqual(b'', response.content)
 
@@ -514,6 +518,53 @@ class SendingsTestCase(_EmailsTestCase):
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         self.assertGET404(self._build_add_url(nerv))
+
+    def test_view_lw_email01(self):
+        "Not super-user"
+        user = self.login(is_superuser=False,
+                          allowed_apps=('emails',),
+                          creatable_models=(EmailSending, EmailCampaign),
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        camp = EmailCampaign.objects.create(user=user, name='Camp#1')
+        sending = EmailSending.objects.create(sender='vicious@reddragons.mrs',
+                                              campaign=camp,
+                                              sending_date=now(),
+                                             )
+
+        lw_mail = LightWeightEmail(sending=sending)
+        lw_mail.genid_n_save()
+
+        response = self.assertGET200(reverse('emails__view_lw_mail', args=(lw_mail.id,)))
+        self.assertEqual(_('Details of the mail'), response.context.get('title'))
+
+    def test_view_lw_email02(self):
+        "Cannot view the campaign => error"
+        user = self.login(is_superuser=False,
+                          allowed_apps=('emails',),
+                          creatable_models=(EmailSending, EmailCampaign),
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        camp = EmailCampaign.objects.create(user=self.other_user, name='Camp#1')
+        self.assertFalse(user.has_perm_to_view(camp))
+
+        sending = EmailSending.objects.create(sender='vicious@reddragons.mrs',
+                                              campaign=camp,
+                                              sending_date=now(),
+                                             )
+
+        lw_mail = LightWeightEmail(sending=sending)
+        lw_mail.genid_n_save()
+
+        self.assertGET403(reverse('emails__view_lw_mail', args=(lw_mail.id,)))
 
     def test_inneredit(self):
         user = self.login()
