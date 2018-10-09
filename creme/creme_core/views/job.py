@@ -21,6 +21,7 @@
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils.http import is_safe_url
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required, superuser_required
@@ -62,13 +63,20 @@ def detailview(request, job_id):
 
     job.check_owner_or_die(request.user)
 
+    list_url = request.GET.get('list_url')
+    list_url_is_safe = list_url and is_safe_url(
+        url=list_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    )
+
     return render(request, 'creme_core/job/detail.html',
                   {'job': job,
                    'results_bricks': jtype.results_bricks,
                    'bricks_reload_url': reverse('creme_core__reload_job_bricks', args=(job.id,)),
                    # 'back_url': request.META.get('HTTP_REFERER'),
                    # 'back_url': '/', #TODO: improve (page before form, not form itself)
-                   'list_url': request.GET.get('list_url') or reverse('creme_core__my_jobs'),
+                   'list_url': list_url if list_url_is_safe else reverse('creme_core__my_jobs'),
                   }
                  )
 
