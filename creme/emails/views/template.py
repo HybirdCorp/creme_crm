@@ -131,7 +131,7 @@ class EmailTemplateCreation(generic.EntityCreation):
     form_class = tpl_forms.EmailTemplateForm
 
 
-class EmailTemplateDetail(generic.detailview.EntityDetail):
+class EmailTemplateDetail(generic.EntityDetail):
     model = EmailTemplate
     template_name = 'emails/view_template.html'
     pk_url_kwarg = 'template_id'

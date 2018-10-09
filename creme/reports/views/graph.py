@@ -222,7 +222,7 @@ class GraphCreation(generic.AddingToEntity):
     entity_classes = get_report_model()
 
 
-class GraphDetail(generic.detailview.EntityDetail):
+class GraphDetail(generic.EntityDetail):
     model = ReportGraph
     template_name = 'reports/view_graph.html'
     pk_url_kwarg = 'graph_id'

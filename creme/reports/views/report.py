@@ -270,7 +270,7 @@ class ReportCreation(generic.EntityCreation):
     template_name = 'reports/add_report.html'  # TODO: improve widgets & drop this template
 
 
-class ReportDetail(generic.detailview.EntityDetail):
+class ReportDetail(generic.EntityDetail):
     model = Report
     template_name = 'reports/view_report.html'
     pk_url_kwarg = 'report_id'

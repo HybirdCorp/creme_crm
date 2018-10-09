@@ -159,7 +159,7 @@ class RelatedInvoiceCreation(base.RelatedBaseCreation):
     initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
 
 
-class InvoiceDetail(generic.detailview.EntityDetail):
+class InvoiceDetail(generic.EntityDetail):
     model = Invoice
     template_name = 'billing/view_invoice.html'
     pk_url_kwarg = 'invoice_id'

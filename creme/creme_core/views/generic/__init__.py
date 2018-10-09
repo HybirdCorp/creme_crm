@@ -7,6 +7,10 @@ from .add import (
     CremeModelCreationPopup, EntityCreationPopup,
     AddingToEntity,
 )
+from .detailview import (
+    view_entity,
+    CremeModelDetail, EntityDetail,
+)
 from .edit import (
     edit_entity, edit_related_to_entity, edit_model_with_popup,
     CremeModelEdition, EntityEdition,
@@ -15,5 +19,4 @@ from .edit import (
 )
 from .listview import list_view, list_view_popup
 from .portal import app_portal
-from .detailview import view_entity
 from .popup import inner_popup

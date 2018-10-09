@@ -88,7 +88,7 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class TemplateBaseDetail(generic.detailview.EntityDetail):
+class TemplateBaseDetail(generic.EntityDetail):
     model = TemplateBase
     template_name = 'billing/view_template.html'
     pk_url_kwarg = 'template_id'

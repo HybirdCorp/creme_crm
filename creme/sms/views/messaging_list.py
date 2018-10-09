@@ -144,7 +144,7 @@ class MessagingListCreation(generic.EntityCreation):
     form_class = ml_forms.MessagingListForm
 
 
-class MessagingListDetail(generic.detailview.EntityDetail):
+class MessagingListDetail(generic.EntityDetail):
     model = MessagingList
     template_name = 'sms/view_messaginglist.html'
     pk_url_kwarg = 'mlist_id'

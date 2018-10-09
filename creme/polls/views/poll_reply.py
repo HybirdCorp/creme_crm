@@ -498,7 +498,7 @@ class RepliesCreationFromPerson(_RelatedRepliesCreationBase):
     entity_classes = [Contact, Organisation]
 
 
-class PollReplyDetail(generic.detailview.EntityDetail):
+class PollReplyDetail(generic.EntityDetail):
     model = PollReply
     template_name = 'polls/view_pollreply.html'
     pk_url_kwarg = 'preply_id'

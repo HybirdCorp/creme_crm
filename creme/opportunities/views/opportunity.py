@@ -212,7 +212,7 @@ class RelatedOpportunityCreationPopup(generic.AddingToEntity):
         return initial
 
 
-class OpportunityDetail(generic.detailview.EntityDetail):
+class OpportunityDetail(generic.EntityDetail):
     model = Opportunity
     template_name = 'opportunities/view_opportunity.html'
     pk_url_kwarg = 'opp_id'

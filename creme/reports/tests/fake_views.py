@@ -10,7 +10,7 @@ from ..tests import fake_models
 # @permission_required('reports')
 # def folder_detailview(request, folder_id):
 #     return generic.view_entity(request, folder_id, fake_models.FakeReportsFolder)
-class FakeReportsFolderDetail(generic.detailview.EntityDetail):
+class FakeReportsFolderDetail(generic.EntityDetail):
     model = fake_models.FakeReportsFolder
     pk_url_kwarg = 'folder_id'
 

@@ -183,7 +183,7 @@ class ChildFolderCreation(generic.AddingToEntity):
         user.has_perm_to_link_or_die(Folder, owner=None)
 
 
-class FolderDetail(generic.detailview.EntityDetail):
+class FolderDetail(generic.EntityDetail):
     model = Folder
     template_name = 'documents/view_folder.html'
     pk_url_kwarg = 'folder_id'

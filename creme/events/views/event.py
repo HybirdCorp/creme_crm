@@ -350,7 +350,7 @@ class EventCreation(generic.EntityCreation):
         return initial
 
 
-class EventDetail(generic.detailview.EntityDetail):
+class EventDetail(generic.EntityDetail):
     model = Event
     template_name = 'events/view_event.html'
     pk_url_kwarg = 'event_id'

@@ -158,7 +158,7 @@ class RelatedDocumentCreation(generic.AddingToEntity):
         user.has_perm_to_link_or_die(Document, owner=None)
 
 
-class DocumentDetail(generic.detailview.EntityDetail):
+class DocumentDetail(generic.EntityDetail):
     model = Document
     template_name = 'documents/view_document.html'
     pk_url_kwarg = 'document_id'

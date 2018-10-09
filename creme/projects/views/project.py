@@ -126,7 +126,7 @@ class ProjectCreation(generic.EntityCreation):
         return initial
 
 
-class ProjectDetail(generic.detailview.EntityDetail):
+class ProjectDetail(generic.EntityDetail):
     model = Project
     template_name = 'projects/view_project.html'
     pk_url_kwarg = 'project_id'

@@ -109,7 +109,7 @@ class TicketCreation(generic.EntityCreation):
         return initial
 
 
-class TicketDetail(generic.detailview.EntityDetail):
+class TicketDetail(generic.EntityDetail):
     model = Ticket
     template_name = 'tickets/view_ticket.html'
     pk_url_kwarg = 'ticket_id'

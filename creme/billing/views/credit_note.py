@@ -161,7 +161,7 @@ class CreditNoteCreation(base.BaseCreation):
     form_class = cnote_forms.CreditNoteCreateForm
 
 
-class CreditNoteDetail(generic.detailview.EntityDetail):
+class CreditNoteDetail(generic.EntityDetail):
     model = CreditNote
     template_name = 'billing/view_credit_note.html'
     pk_url_kwarg = 'cnote_id'

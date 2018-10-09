@@ -146,7 +146,7 @@ class RelatedQuoteCreation(base.RelatedBaseCreation):
     title_format = _('Create a quote for «{}»')
 
 
-class QuoteDetail(generic.detailview.EntityDetail):
+class QuoteDetail(generic.EntityDetail):
     model = Quote
     template_name = 'billing/view_quote.html'
     pk_url_kwarg = 'quote_id'

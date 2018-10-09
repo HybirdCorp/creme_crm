@@ -226,7 +226,7 @@ class EntityEmailCreation(generic.AddingToEntity):
         user.has_perm_to_link_or_die(entity)
 
 
-class EntityEmailDetail(generic.detailview.EntityDetail):
+class EntityEmailDetail(generic.EntityDetail):
     model = EntityEmail
     template_name = 'emails/view_entity_mail.html'
     pk_url_kwarg = 'mail_id'

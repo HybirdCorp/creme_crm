@@ -245,13 +245,13 @@ class RelatedOpportunityCreation(generic.AddingToEntity):
         return response
 
 
-class ActDetail(generic.detailview.EntityDetail):
+class ActDetail(generic.EntityDetail):
     model = Act
     template_name = 'commercial/view_act.html'
     pk_url_kwarg = 'act_id'
 
 
-class ActObjectivePatternDetail(generic.detailview.EntityDetail):
+class ActObjectivePatternDetail(generic.EntityDetail):
     model = ActObjectivePattern
     template_name = 'commercial/view_pattern.html'
     pk_url_kwarg = 'objpattern_id'

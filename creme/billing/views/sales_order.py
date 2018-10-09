@@ -142,7 +142,7 @@ class RelatedSalesOrderCreation(base.RelatedBaseCreation):
     title_format = _('Create a salesorder for «{}»')
 
 
-class SalesOrderDetail(generic.detailview.EntityDetail):
+class SalesOrderDetail(generic.EntityDetail):
     model = SalesOrder
     template_name = 'billing/view_sales_order.html'
     pk_url_kwarg = 'order_id'
