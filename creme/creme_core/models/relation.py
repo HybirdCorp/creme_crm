@@ -316,7 +316,8 @@ class RelationType(CremeModel):
 
     def is_not_internal_or_die(self):
         if self.is_internal:
-            raise Http404(ugettext(u"You can't add/delete the relationships with this type (internal type)"))
+            # TODO: 409 ?
+            raise Http404(ugettext("You can't add/delete the relationships with this type (internal type)"))
 
 
 # class Relation(CremeAbstractEntity):

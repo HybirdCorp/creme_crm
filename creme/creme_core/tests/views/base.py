@@ -57,7 +57,7 @@ class ViewsTestCase(CremeTestCase):
                 value |= cred
 
         SetCredentials.objects.create(role=self.user.role, value=value,
-                                      set_type=SetCredentials.ESET_ALL
+                                      set_type=SetCredentials.ESET_ALL,
                                      )
 
 

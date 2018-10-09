@@ -32,8 +32,8 @@ class RelationViewsTestCase(ViewsTestCase):
         'No sort'
         self.login()
 
-        rtype = RelationType.create(('test-subject__JSP01_3', u'is a customer of', [FakeContact]),
-                                    ('test-object__JSP01_4',  u'is a supplier of', [FakeContact, FakeOrganisation]),
+        rtype = RelationType.create(('test-subject__JSP01_3', 'is a customer of', [FakeContact]),
+                                    ('test-object__JSP01_4',  'is a supplier of', [FakeContact, FakeOrganisation]),
                                    )[0]
 
         response = self.assertGET200(self._build_get_ctypes_url(rtype.id),
@@ -136,8 +136,15 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertFalse(subject.relations.all())
 
         url = self._build_add_url(subject)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
 
+        context = response.context
+        # self.assertEqual(_('Relationships for «{entity}»').format(entity=subject), context.get('title'))
+        self.assertEqual(_('Relationships for «{}»').format(subject), context.get('title'))
+        self.assertEqual(_('Save the relationships'),                 context.get('submit_label'))
+
+        # ---
         response = self.client.post(url, data={'relations': self.formfield_value_multi_relation_entity(
                                                                 (self.rtype01.id, self.object01),
                                                                 (self.rtype02.id, self.object02),
@@ -149,9 +156,15 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(subject, self.rtype01, self.object01)
         self.assertEntiTyHasRelation(subject, self.rtype02, self.object02)
 
-    def test_add_relations02(self):
+    def test_add_relations_not_superuser01(self):
+        user = self.login(is_superuser=False)
+        subject = CremeEntity.objects.create(user=user)
+        self.assertGET200(self._build_add_url(subject))
+
+    def test_add_relations_not_superuser02(self):
         "Credentials problems"
         self.login(is_superuser=False)
+        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
         subject = CremeEntity.objects.create(user=self.other_user)
         self.assertGET403(self._build_add_url(subject))
 
@@ -545,6 +558,16 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(2, subject.relations.count())
         self.assertEntiTyHasRelation(subject, allowed_rtype, self.object01)
         self.assertEntiTyHasRelation(subject, allowed_rtype, self.object02)
+
+    def test_add_relations_narrowedtype04(self):
+        "Internal type => error"
+        user = self.login()
+        subject = FakeContact.objects.create(user=user, first_name='Laharl', last_name='Overlord')
+        rtype = RelationType.create(('test-subject_foobar1', 'is loving'),
+                                    ('test-object_foobar1',  'is loved by'),
+                                    is_internal=True,
+                                   )[0]
+        self.assertGET404(self._build_narrowed_add_url(subject, rtype))
 
     def _build_bulk_add_url(self, ct_id, *subjects, **kwargs):
         url = reverse('creme_core__create_relations_bulk', args=(ct_id,))

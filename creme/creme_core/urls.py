@@ -42,9 +42,12 @@ entity_patterns = [
 ]
 
 relation_patterns = [
-    url(r'^add/(?P<subject_id>\d+)[/]?$',                      relation.add_relations,                name='creme_core__create_relations'),
-    url(r'^add/(?P<subject_id>\d+)/(?P<rtype_id>[\w-]+)[/]?$', relation.add_relations,                name='creme_core__create_relations'),
-    url(r'^add_from_predicate/save[/]?$',                      relation.add_relations_with_same_type, name='creme_core__save_relations'),
+    # url(r'^add/(?P<subject_id>\d+)[/]?$',                      relation.add_relations,  name='creme_core__create_relations'),
+    # url(r'^add/(?P<subject_id>\d+)/(?P<rtype_id>[\w-]+)[/]?$', relation.add_relations,  name='creme_core__create_relations'),
+    url(r'^add/(?P<subject_id>\d+)[/]?$',                      relation.RelationsAdding.as_view(), name='creme_core__create_relations'),
+    url(r'^add/(?P<subject_id>\d+)/(?P<rtype_id>[\w-]+)[/]?$', relation.RelationsAdding.as_view(), name='creme_core__create_relations'),
+
+    url(r'^add_from_predicate/save[/]?$', relation.add_relations_with_same_type, name='creme_core__save_relations'),
 
     url(r'^add_to_entities/(?P<model_ct_id>\d+)[/]?$', relation.add_relations_bulk, name='creme_core__create_relations_bulk'),
 
