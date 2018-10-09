@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import dumps as json_dump  #loads as json_load
+    from json import dumps as json_dump
 
-    # from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.db.models import Max
     from django.test.utils import override_settings
@@ -13,7 +12,6 @@ try:
     from django.utils.timezone import localtime, now
     from django.utils.translation import ugettext as _, ungettext
 
-    # from ..base import skipIfNotInstalled
     from ..fake_models import FakeOrganisation
 
     from .base import ViewsTestCase, BrickTestCaseMixin
@@ -24,9 +22,6 @@ try:
     from creme.creme_core.creme_jobs.base import JobType
     from creme.creme_core.models import Job, EntityJobResult
     from creme.creme_core.utils.dates import dt_to_ISO8601
-
-    # if apps.is_installed('creme.crudity'):
-    #     from creme.crudity.creme_jobs import crudity_synchronize_type
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -92,6 +87,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             context = response.context
             cxt_job = context['job']
             cxt_url = context['list_url']
+            context['results_bricks']
+            context['bricks_reload_url']
 
         self.assertEqual(job, cxt_job)
         self.assertEqual(self.MINE_URL, cxt_url)
@@ -168,7 +165,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertGET409(job.get_edit_absolute_url())
 
-    # @skipIfNotInstalled('creme.crudity')
     def test_editview03(self):
         "Periodic: edit periodicity + specific data"
         queue = JobManagerQueue.get_main_queue()
@@ -178,14 +174,12 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
         self.assertEqual([], queue.refreshed_jobs)
 
-        # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
         job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
         self.assertEqual(JobType.PERIODIC, job.type.periodic)
         self.assertIsNone(job.user)
 
         old_reference_run = job.reference_run
 
-        # pdict = {'type': 'minutes', 'value': 30}
         pdict = {'type': 'days', 'value': 1}
         self.assertEqual(pdict, job.periodicity.as_dict())
         self.assertEqual(pdict, job.real_periodicity.as_dict())
@@ -196,15 +190,20 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual({'delay': {'type': 'days', 'value': 1}}, jdata)
 
         url = job.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
 
+        context = response.context
+        self.assertEqual(_('Edit the job «{}»').format(job.type), context.get('title'))
+        self.assertEqual(_('Save the modifications'),             context.get('submit_label'))
+
+        # ---
         response = self.client.post(url, data={'reference_run': date_format(localtime(job.reference_run),
                                                                             'DATETIME_FORMAT',
                                                                            ),
                                                'periodicity_0': 'minutes',
                                                'periodicity_1': '180',
 
-                                               # 'user': user.id,
                                                'delay_0': 'weeks',
                                                'delay_1': '2',
                                               },
@@ -232,14 +231,11 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
-        # user = \
         self.login()
         self.assertEqual([], queue.refreshed_jobs)
 
-        # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
         job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
 
-        # pdict = {'type': 'minutes', 'value': 30}
         pdict = {'type': 'days', 'value': 1}
         self.assertEqual(pdict, job.periodicity.as_dict())
 
@@ -248,7 +244,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                           'periodicity_0': pdict['type'],
                                           'periodicity_1': str(pdict['value']),
 
-                                          # 'user': user.id,
                                           'delay_0': 'days',
                                           'delay_1': 2,
                                          },
@@ -264,20 +259,16 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertTrue(queue.refreshed_jobs)
 
-    # @skipIfNotInstalled('creme.crudity')
     def test_editview05(self):
         "No change of periodicity/reference_run"
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
-        # user = \
         self.login()
 
-        # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
         job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
         old_reference_run = job.reference_run
 
-        # pdict = {'type': 'minutes', 'value': 30}
         pdict = {'type': 'days', 'value': 1}
         self.assertEqual(pdict, job.periodicity.as_dict())
 
@@ -288,7 +279,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                           'periodicity_0': pdict['type'],
                                           'periodicity_1': str(pdict['value']),
 
-                                          # 'user': user.id,
                                           'delay_0': 'weeks',
                                           'delay_1': 1,
                                          },
@@ -302,12 +292,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertEqual([], queue.refreshed_jobs)
 
-    # @skipIfNotInstalled('creme.crudity')
     def test_editview06(self):
         "Periodic: credentials errors"
         self.login(is_superuser=False)
 
-        # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
         job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
         self.assertGET403(job.get_edit_absolute_url())
 
@@ -326,13 +314,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Not super-user: forbidden"
         # "Credentials"
         self.login(is_superuser=False)
-        # self._create_batchprocess_job()
-        # response = self.assertGET200(self.LIST_URL)
-        # self._assertCount(response, unicode(batch_process_type.verbose_name), 1)
-        #
-        # self._create_batchprocess_job(user=self.other_user)
-        # response = self.assertGET200(self.LIST_URL)
-        # self._assertCount(response, unicode(batch_process_type.verbose_name), 1)  # Only job1
         self.assertGET403(self.LIST_URL)
 
     @override_settings(MAX_JOBS_PER_USER=1)
@@ -347,7 +328,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(self.LIST_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-all.html')
 
-        msg = _(u'You must wait that your job is finished in order to create a new one.')
+        msg = _('You must wait that your job is finished in order to create a new one.')
         self.assertNotContains(response, msg)
 
         self._create_batchprocess_job(status=Job.STATUS_WAIT)
@@ -366,7 +347,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(self.LIST_URL)
         self.assertContains(response,
-                            _(u'You must wait that one of your jobs is finished in order to create a new one.')
+                            _('You must wait that one of your jobs is finished in order to create a new one.')
                            )
 
     def test_jobs_all05(self):
@@ -410,7 +391,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(self.MINE_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-mine.html')
 
-        msg = _(u'You must wait that your job is finished in order to create a new one.')
+        msg = _('You must wait that your job is finished in order to create a new one.')
         self.assertNotContains(response, msg)
 
         self._create_batchprocess_job(status=Job.STATUS_WAIT)
@@ -429,7 +410,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(self.MINE_URL)
         self.assertContains(response,
-                            _(u'You must wait that one of your jobs is finished in order to create a new one.')
+                            _('You must wait that one of your jobs is finished in order to create a new one.')
                            )
 
     def test_my_jobs05(self):
@@ -451,7 +432,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertPOST200(del_url, follow=True)
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(jresult)
-        # self.assertRedirects(response, self.LIST_URL)
         self.assertRedirects(response, self.MINE_URL)
 
     def test_clear02(self):
@@ -560,14 +540,13 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         job = self._create_batchprocess_job()
         response = self.assertGET200(url, data={'id': [job.id]})
-        # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual({str(job.id): {
                             'status': Job.STATUS_WAIT,
                             'ack_errors': 0,
                             'progress': {
-                                'label': ungettext(u'{count} entity has been processed.',
-                                                   u'{count} entities have been processed.',
+                                'label': ungettext('{count} entity has been processed.',
+                                                   '{count} entities have been processed.',
                                                    0
                                                   ).format(count=0),
                                 'percentage': None
@@ -583,8 +562,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                             'status': Job.STATUS_OK,
                             'ack_errors': 0,
                             'progress': {
-                                'label': ungettext(u'{count} entity has been processed.',
-                                                   u'{count} entities have been processed.',
+                                'label': ungettext('{count} entity has been processed.',
+                                                   '{count} entities have been processed.',
                                                    0
                                                   ).format(count=0),
                                 'percentage': None,
@@ -618,8 +597,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         content = response.json()
         self.assertEqual(3, len(content))
 
-        label = ungettext(u'{count} entity has been processed.',
-                          u'{count} entities have been processed.',
+        label = ungettext('{count} entity has been processed.',
+                          '{count} entities have been processed.',
                           0).format(count=0)
         self.assertEqual({'status': Job.STATUS_WAIT,
                           'ack_errors': 0,
@@ -664,8 +643,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                             'status': Job.STATUS_WAIT,
                             'ack_errors': 1,
                             'progress': {
-                                'label': ungettext(u'{count} entity has been processed.',
-                                                   u'{count} entities have been processed.',
+                                'label': ungettext('{count} entity has been processed.',
+                                                   '{count} entities have been processed.',
                                                    0
                                                   ).format(count=0),
                                 'percentage': None,
@@ -680,8 +659,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                      data={'brick_id': brick_id},
                                     )
 
-        # with self.assertNoException():
-        #     result = json_load(response.content)
         result = response.json()
 
         self.assertIsInstance(result, list)
