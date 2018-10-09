@@ -122,13 +122,15 @@ enumerable_patterns = [
 ]
 
 job_patterns = [
-    url(r'^all[/]?$',             job.list_all,   name='creme_core__jobs'),
-    url(r'^mine[/]?$',            job.list_mine,  name='creme_core__my_jobs'),
-    url(r'^info[/]?$',            job.get_info,   name='creme_core__jobs_info'),
-    url(r'^(?P<job_id>\d+)[/]?$', job.detailview, name='creme_core__job'),
+    url(r'^all[/]?$',             job.list_all,            name='creme_core__jobs'),
+    url(r'^mine[/]?$',            job.list_mine,           name='creme_core__my_jobs'),
+    url(r'^info[/]?$',            job.get_info,            name='creme_core__jobs_info'),
+    # url(r'^(?P<job_id>\d+)[/]?$', job.detailview, name='creme_core__job'),
+    url(r'^(?P<job_id>\d+)[/]?$', job.JobDetail.as_view(), name='creme_core__job'),
 
     url(r'^(?P<job_id>\d+)/', include([
-        url(r'^edit[/]?$',    job.edit,                       name='creme_core__edit_job'),
+        # url(r'^edit[/]?$',    job.edit,                       name='creme_core__edit_job'),
+        url(r'^edit[/]?$',    job.JobEdition.as_view(),       name='creme_core__edit_job'),
         url(r'^delete[/]?$',  job.delete,                     name='creme_core__delete_job'),
         url(r'^enable[/]?$',  job.enable,                     name='creme_core__enable_job'),
         url(r'^disable[/]?$', job.enable, {'enabled': False}, name='creme_core__disable_job'),

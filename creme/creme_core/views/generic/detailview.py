@@ -130,11 +130,20 @@ class CremeModelDetail(PermissionsMixin, DetailView):
     template_name = 'creme_core/detailview.html'
     pk_url_kwarg = 'object_id'
 
+    def check_instance_permissions(self, instance, user):
+        pass
+
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.check_view_permissions(user=self.request.user)
 
         return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        instance = super().get_object(queryset=queryset)
+        self.check_instance_permissions(instance=instance, user=self.request.user)
+
+        return instance
 
 
 class EntityDetail(CremeModelDetail):
@@ -150,6 +159,9 @@ class EntityDetail(CremeModelDetail):
     template_name = 'creme_core/generics/view_entity.html'
     pk_url_kwarg = 'entity_id'
 
+    def check_instance_permissions(self, instance, user):
+        user.has_perm_to_view_or_die(instance)
+
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
         user.has_perm_to_access_or_die(self.model._meta.app_label)
@@ -163,14 +175,11 @@ class EntityDetail(CremeModelDetail):
 
         return context
 
-    def get_object(self, queryset=None):
-        entity = super().get_object(queryset=queryset)
-
+    def get_object(self, *args, **kwargs):
+        entity = super().get_object(*args, **kwargs)
         request = self.request
-        user = request.user
-        user.has_perm_to_view_or_die(entity)
 
         LastViewedItem(request, entity)
-        imprint_manager.create_imprint(entity=entity, user=user)
+        imprint_manager.create_imprint(entity=entity, user=request.user)
 
         return entity

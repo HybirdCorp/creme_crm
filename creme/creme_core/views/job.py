@@ -22,9 +22,9 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.http import is_safe_url
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
-from ..auth.decorators import login_required, superuser_required
+from ..auth.decorators import login_required, superuser_required, _check_superuser
 from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
 from ..core.job import JobManagerQueue
@@ -33,7 +33,9 @@ from ..utils import jsonify
 
 from . import bricks as bricks_views
 from .decorators import POST_only
-from .generic import inner_popup
+# from .generic import inner_popup
+
+from . import generic
 
 
 @login_required
@@ -53,62 +55,118 @@ def list_mine(request):
                  )
 
 
-@login_required
-def detailview(request, job_id):
-    job = get_object_or_404(Job, id=job_id)
+# @login_required
+# def detailview(request, job_id):
+#     job = get_object_or_404(Job, id=job_id)
+#
+#     jtype = job.type
+#     if jtype is None:
+#         raise Http404(ugettext('Unknown job type ({}). Please contact your administrator.').format(job_id))
+#
+#     job.check_owner_or_die(request.user)
+#
+#     list_url = request.GET.get('list_url')
+#     list_url_is_safe = list_url and is_safe_url(
+#         url=list_url,
+#         allowed_hosts={request.get_host()},
+#         require_https=request.is_secure(),
+#     )
+#
+#     return render(request, 'creme_core/job/detail.html',
+#                   {'job': job,
+#                    'results_bricks': jtype.results_bricks,
+#                    'bricks_reload_url': reverse('creme_core__reload_job_bricks', args=(job.id,)),
+#                    # 'back_url': request.META.get('HTTP_REFERER'),
+#                    # 'back_url': '/', #todo: improve (page before form, not form itself)
+#                    'list_url': list_url if list_url_is_safe else reverse('creme_core__my_jobs'),
+#                   }
+#                  )
+class JobDetail(generic.CremeModelDetail):
+    model = Job
+    template_name = 'creme_core/job/detail.html'
+    pk_url_kwarg = 'job_id'
 
-    jtype = job.type
-    if jtype is None:
-        raise Http404(_(u'Unknown job type ({}). Please contact your administrator.').format(job_id))
+    def check_instance_permissions(self, instance, user):
+        jtype = instance.type
 
-    job.check_owner_or_die(request.user)
+        if jtype is None:
+            raise Http404(ugettext('Unknown job type ({}). Please contact your administrator.')
+                           .format(instance.id)
+                         )
 
-    list_url = request.GET.get('list_url')
-    list_url_is_safe = list_url and is_safe_url(
-        url=list_url,
-        allowed_hosts={request.get_host()},
-        require_https=request.is_secure(),
-    )
+        instance.check_owner_or_die(user)
 
-    return render(request, 'creme_core/job/detail.html',
-                  {'job': job,
-                   'results_bricks': jtype.results_bricks,
-                   'bricks_reload_url': reverse('creme_core__reload_job_bricks', args=(job.id,)),
-                   # 'back_url': request.META.get('HTTP_REFERER'),
-                   # 'back_url': '/', #TODO: improve (page before form, not form itself)
-                   'list_url': list_url if list_url_is_safe else reverse('creme_core__my_jobs'),
-                  }
-                 )
+    def get_list_url(self):
+        request = self.request
+        list_url = request.GET.get('list_url')
+        list_url_is_safe = list_url and is_safe_url(
+            url=list_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        )
+
+        return list_url if list_url_is_safe else reverse('creme_core__my_jobs')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        job = self.object
+        context['results_bricks'] = job.type.results_bricks
+        context['bricks_reload_url'] = reverse('creme_core__reload_job_bricks', args=(job.id,))
+        context['list_url'] = self.get_list_url()
+
+        return context
 
 
-@login_required
-@superuser_required
-def edit(request, job_id):
-    job = get_object_or_404(Job, id=job_id)
+# @login_required
+# @superuser_required
+# def edit(request, job_id):
+#     job = get_object_or_404(Job, id=job_id)
+#
+#     if job.user_id is not None:
+#         raise ConflictError('A non-system job cannot be edited')
+#
+#     config_form = job.get_config_form_class()
+#     if config_form is None:
+#         raise ConflictError('This job cannot be edited')
+#
+#     if request.method == 'POST':
+#         edit_form = config_form(user=request.user, data=request.POST, instance=job)
+#
+#         if edit_form.is_valid():
+#             edit_form.save()
+#     else:  # GET request
+#         edit_form = config_form(user=request.user, instance=job)
+#
+#     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
+#                        {'form':  edit_form,
+#                         'title': ugettext('Edit the job «{}»').format(job.type),
+#                        },
+#                        is_valid=edit_form.is_valid(),
+#                        reload=False,
+#                        delegate_reload=True,
+#                       )
+class JobEdition(generic.CremeModelEditionPopup):
+    model = Job
+    # form_class = ...
+    pk_url_kwarg = 'job_id'
+    title_format = _('Edit the job «{}»')
 
-    if job.user_id is not None:
-        raise ConflictError('A non-system job cannot be edited')
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
 
-    config_form = job.get_config_form_class()
-    if config_form is None:
-        raise ConflictError('This job cannot be edited')
+        if instance.user_id is not None:
+            raise ConflictError('A non-system job cannot be edited')
 
-    if request.method == 'POST':
-        edit_form = config_form(user=request.user, data=request.POST, instance=job)
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)
 
-        if edit_form.is_valid():
-            edit_form.save()
-    else:  # GET request
-        edit_form = config_form(user=request.user, instance=job)
+    def get_form_class(self):
+        config_form = self.object.get_config_form_class()
+        if config_form is None:
+            raise ConflictError('This job cannot be edited')
 
-    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  edit_form,
-                        'title': _(u'Edit the job «{}»').format(job.type),
-                       },
-                       is_valid=edit_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+        return config_form
 
 
 @login_required
@@ -144,7 +202,6 @@ def delete(request, job_id):
     url = request.POST.get('back_url') or reverse('creme_core__my_jobs')
 
     if request.is_ajax():
-        # return HttpResponse(content=url, content_type='text/javascript')
         return HttpResponse(content=url)
 
     return HttpResponseRedirect(url)
