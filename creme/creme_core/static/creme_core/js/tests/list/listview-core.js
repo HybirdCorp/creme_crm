@@ -1,4 +1,4 @@
-QUnit.module("creme.listview.core", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitListViewMixin));
+QUnit.module("creme.listview.core", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitDialogMixin, QUnitListViewMixin));
 
 QUnit.test('creme.listview.core', function(assert) {
     var element = $(this.createListViewHtml()).appendTo(this.anchor);

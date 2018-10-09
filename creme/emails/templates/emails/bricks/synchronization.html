@@ -11,9 +11,9 @@
 
 {% block brick_header_actions %}
 {% url 'creme_core__create_relations_bulk' objects_ctype.id rtypes as link_url %}{% url 'emails__crudity_validated' as validate_url %}{% url 'emails__crudity_spam' as spam_url %}
-    {% brick_header_action id='emailsync-link'   url=link_url     __selector='.row-selector:checked' __rtypes=rtypes type='link' label=_('Link to') %}
-    {% brick_header_action id='emailsync-action' url=validate_url __selector='.row-selector:checked'                 type='add'  label=_('Mark as treated') icon='ok' %}
-    {% brick_header_action id='emailsync-action' url=spam_url     __selector='.row-selector:checked'                 icon='spam' label=_('Mark as spam') %}
+    {% brick_header_action id='emailsync-link'   url=link_url     __rtypes=rtypes type='link' label=_('Link to') %}
+    {% brick_header_action id='emailsync-action' url=validate_url type='add'  label=_('Mark as treated') icon='ok' %}
+    {% brick_header_action id='emailsync-action' url=spam_url     icon='spam' label=_('Mark as spam') %}
     {{block.super}}
 {% endblock %}
 

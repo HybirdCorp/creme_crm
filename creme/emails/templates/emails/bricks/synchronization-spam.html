@@ -11,7 +11,7 @@
 
 {% block brick_header_actions %}
 {% url 'emails__crudity_waiting' as waiting_url %}
-    {% brick_header_action id='emailsync-action' url=waiting_url __selector='.row-selector:checked' type='add' label=_('Mark the selection as «to be treated»') icon='email' %}
+    {% brick_header_action id='emailsync-action' url=waiting_url type='add' label=_('Mark the selection as «to be treated»') icon='email' %}
     {{block.super}}
 {% endblock %}
 

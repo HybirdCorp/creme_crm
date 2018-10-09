@@ -1,3 +1,5 @@
+/* globals setTimeout */
+(function($) {
 
 QUnit.module("creme.bricks", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitBrickMixin));
 
@@ -124,10 +126,12 @@ QUnit.test('creme.bricks.Brick.bind (events)', function(assert) {
     var element = $('<div id="brick_01"></div>');
 
     brick.on('before-bind', this.mockListener('before-bind'))
-         .on('bind', this.mockListener('bind'));
+         .on('bind', this.mockListener('bind'))
+         .on('setup-actions', this.mockListener('setup-actions'));
 
     element.on('brick-before-bind', this.mockListener('brick-before-bind'))
-           .on('brick-bind', this.mockListener('brick-bind'));
+           .on('brick-bind', this.mockListener('brick-bind'))
+           .on('brick-setup-actions', this.mockListener('brick-setup-actions'));
 
     deepEqual([], this.mockListenerCalls('before-bind'));
     deepEqual([], this.mockListenerCalls('bind'));
@@ -139,9 +143,11 @@ QUnit.test('creme.bricks.Brick.bind (events)', function(assert) {
 
     deepEqual([['before-bind', element]], this.mockListenerCalls('before-bind'));
     deepEqual([['bind', element]], this.mockListenerCalls('bind'));
+    deepEqual([['setup-actions', brick._actionBuilders]], this.mockListenerCalls('setup-actions'));
 
     deepEqual([['brick-before-bind', [brick, element]]], this.mockListenerJQueryCalls('brick-before-bind'));
     deepEqual([['brick-bind', [brick, element]]], this.mockListenerJQueryCalls('brick-bind'));
+    deepEqual([['brick-setup-actions', [brick, brick._actionBuilders]]], this.mockListenerJQueryCalls('brick-setup-actions'));
 });
 
 QUnit.test('creme.bricks.Brick.unbind', function(assert) {
@@ -228,57 +234,57 @@ QUnit.test('creme.bricks.Brick.trigger', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.isLoading', function(assert) {
-    var brick = creme.bricks.Brick;
+    var Brick = creme.bricks.Brick;
 
-    equal(false, new brick().readOnly());
-    equal(false, new brick().bind($('<div></div>')).isLoading());
-    equal(true, new brick().bind($('<div class="is-loading"></div>')).isLoading());
+    equal(false, new Brick().readOnly());
+    equal(false, new Brick().bind($('<div></div>')).isLoading());
+    equal(true, new Brick().bind($('<div class="is-loading"></div>')).isLoading());
 });
 
 QUnit.test('creme.bricks.Brick.readOnly', function(assert) {
-    var brick = creme.bricks.Brick;
+    var Brick = creme.bricks.Brick;
 
-    equal(false, new brick().readOnly());
-    equal(false, new brick().bind($('<div></div>')).readOnly());
-    equal(false, new brick().bind($('<div data-brick-readonly></div>')).readOnly());
-    equal(false, new brick().bind($('<div data-brick-readonly="boo"></div>')).readOnly());
-    equal(false, new brick().bind($('<div data-brick-readonly="false"></div>')).readOnly());
-    equal(true, new brick().bind($('<div data-brick-readonly="true"></div>')).readOnly());
+    equal(false, new Brick().readOnly());
+    equal(false, new Brick().bind($('<div></div>')).readOnly());
+    equal(false, new Brick().bind($('<div data-brick-readonly></div>')).readOnly());
+    equal(false, new Brick().bind($('<div data-brick-readonly="boo"></div>')).readOnly());
+    equal(false, new Brick().bind($('<div data-brick-readonly="false"></div>')).readOnly());
+    equal(true, new Brick().bind($('<div data-brick-readonly="true"></div>')).readOnly());
 });
 
 QUnit.test('creme.bricks.Brick.dependencies', function(assert) {
-    var brick = creme.bricks.Brick;
+    var Brick = creme.bricks.Brick;
 
-    deepEqual([], new brick().dependencies().keys());
-    deepEqual([], new brick().bind($('<div></div>')).dependencies().keys());
-    deepEqual([], new brick().bind($('<div data-brick-deps></div>')).dependencies().keys());
-    deepEqual([], new brick().bind($('<div data-brick-deps="not json"></div>')).dependencies().keys());
+    deepEqual([], new Brick().dependencies().keys());
+    deepEqual([], new Brick().bind($('<div></div>')).dependencies().keys());
+    deepEqual([], new Brick().bind($('<div data-brick-deps></div>')).dependencies().keys());
+    deepEqual([], new Brick().bind($('<div data-brick-deps="not json"></div>')).dependencies().keys());
     deepEqual(['a', 'b', 'c'],
-              new brick().bind($('<div data-brick-deps="[&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]"></div>'))
+              new Brick().bind($('<div data-brick-deps="[&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]"></div>'))
                          .dependencies().keys());
 });
 
 QUnit.test('creme.bricks.Brick.reloadingInfo', function(assert) {
-    var brick = creme.bricks.Brick;
+    var Brick = creme.bricks.Brick;
 
-    deepEqual({}, new brick().reloadingInfo());
-    deepEqual({}, new brick().bind($('<div></div>')).reloadingInfo());
-    deepEqual({}, new brick().bind($('<div data-brick-reloading-info></div>')).reloadingInfo());
-    deepEqual({}, new brick().bind($('<div data-brick-reloading-info="not json"></div>')).reloadingInfo());
-    deepEqual({a: 12}, new brick().bind($('<div data-brick-reloading-info="{&quot;a&quot;:12}"></div>')).reloadingInfo());
+    deepEqual({}, new Brick().reloadingInfo());
+    deepEqual({}, new Brick().bind($('<div></div>')).reloadingInfo());
+    deepEqual({}, new Brick().bind($('<div data-brick-reloading-info></div>')).reloadingInfo());
+    deepEqual({}, new Brick().bind($('<div data-brick-reloading-info="not json"></div>')).reloadingInfo());
+    deepEqual({a: 12}, new Brick().bind($('<div data-brick-reloading-info="{&quot;a&quot;:12}"></div>')).reloadingInfo());
 });
 
 QUnit.test('creme.bricks.Brick.title', function(assert) {
-    var brick = creme.bricks.Brick;
+    var Brick = creme.bricks.Brick;
 
-    equal(undefined, new brick().title());
-    equal(undefined, new brick().bind($('<div>' +
+    equal(undefined, new Brick().title());
+    equal(undefined, new Brick().bind($('<div>' +
             '<div class="brick-header">' +
                 '<div class="brick-title">This is a title</div>' +
             '</div>' +
         '</div>')).title());
 
-    equal('This is a alt title', new brick().bind($('<div>' +
+    equal('This is a alt title', new Brick().bind($('<div>' +
             '<div class="brick-header">' +
                 '<div class="brick-title" title="This is a alt title">This is a title</div>' +
             '</div>' +
@@ -871,3 +877,4 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
+}(jQuery));

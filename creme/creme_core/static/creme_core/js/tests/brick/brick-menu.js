@@ -1,3 +1,6 @@
+/* eslint operator-linebreak: ["error", "before"] */
+
+(function($) {
 
 QUnit.module("creme.bricks.menu", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitBrickMixin));
 
@@ -139,3 +142,5 @@ QUnit.test('creme.bricks.Brick.menu (toggle click)', function(assert) {
     element.find('.brick-header-menu').click();
     equal(false, brick.menu().isOpened());
 });
+
+}(jQuery));

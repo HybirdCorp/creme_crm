@@ -1,6 +1,27 @@
+(function($) {
 
-QUnit.module("creme.bricks.actions", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitBrickMixin, {
+QUnit.module("creme.bricks.actions", new QUnitMixin(QUnitEventMixin,
+                                                    QUnitAjaxMixin,
+                                                    QUnitBrickMixin,
+                                                    QUnitDialogMixin,
+                                                    QUnitListViewMixin, {
     beforeEach: function() {
+        var backend = this.backend;
+        var selectionListHtml = this.createListViewHtml(this.defaultListViewHtmlOptions({
+            id: 'selection-list'
+        }));
+
+        this.setListviewReloadContent('selection-list', selectionListHtml);
+
+        this.setMockBackendGET({
+            'mock/relation/selector': backend.response(200, selectionListHtml)
+        });
+
+        this.setMockBackendPOST({
+            'mock/relation/add': backend.response(200, ''),
+            'mock/relation/add/fail': backend.response(400, 'Unable to add relation')
+        });
+
         this.brickActionListeners = {
             start: this.mockListener('action-start'),
             cancel: this.mockListener('action-cancel'),
@@ -14,60 +35,9 @@ QUnit.module("creme.bricks.actions", new QUnitMixin(QUnitEventMixin, QUnitAjaxMi
             'action-link-fail': this.mockListener('action-link-fail'),
             'action-link-done': this.mockListener('action-link-done')
         };
-    },
 
-    createBrickWidget: function(id, content, title) {
-        var html = (
-            '<div class="brick ui-creme-widget" widget="brick" id="${id}" data-brick-deps="[&quot;dep1&quot;]">'
-                 + '<div class="brick-header">'
-                     + '<div class="brick-title">${title}</div>'
-                 + '</div>'
-                 + '<div>${content}</div>'
-             + '</div>').template({
-                 id: id,
-                 content: content || '',
-                 title: title || ''
-             });
-
-        var element = $(html).appendTo($('body'));
-        var widget = creme.widget.create(element);
-        var brick = widget.brick();
-
-        equal(true, brick.isBound());
-        equal(false, brick.isLoading());
-
-        return widget;
-    },
-
-    assertClosedDialog: function() {
-        equal(0, $('.ui-dialog').length, 'is dialog not opened');
-    },
-
-    assertOpenedDialog: function() {
-        equal(1, $('.ui-dialog').length, 'is dialog opened');
-    },
-
-    assertOpenedAlertDialog: function() {
-        equal(1, $('.ui-dialog .ui-creme-dialog-warn').length, 'is alert dialog opened');
-    },
-
-    closeDialog: function() {
-        equal(1, $('.ui-dialog').length, 'single form dialog allowed');
-        $('.ui-dialog-content').dialog('close');
-    },
-
-    submitFormDialog: function() {
-        equal(1, $('.ui-dialog').length, 'single form dialog allowed');
-        equal(1, $('.ui-dialog button[name="send"]').length, 'single form submit button allowed');
-
-        $('.ui-dialog button[name="send"]').click();
-    },
-
-    acceptConfirmDialog: function() {
-        equal(1, $('.ui-dialog').length, 'single confirm dialog allowed');
-        equal(1, $('.ui-dialog button[name="ok"]').length, 'single confirm ok button allowed');
-
-        $('.ui-dialog button[name="ok"]').click();
+        $('body').attr('data-save-relations-url', 'mock/relation/add');
+        $('body').attr('data-select-relations-objects-url', 'mock/relation/selector');
     }
 }));
 
@@ -504,6 +474,32 @@ QUnit.test('creme.bricks.Brick.action (update-redirect, with confirmation, confi
     deepEqual(['mock/next'], this.mockRedirectCalls());
 });
 
+QUnit.test('creme.bricks.Brick.action (redirect)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+
+    this.assertClosedDialog();
+
+    brick.action('redirect', 'mock/redirect').on(this.brickActionListeners).start();
+    equal(false, brick.isLoading());
+    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    deepEqual(['mock/redirect'], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.bricks.Brick.action (redirect template)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+    var location = window.location.href.replace(/.*?:\/\/[^\/]*/g, '');
+
+    this.assertClosedDialog();
+
+    brick.action('redirect', 'mock/redirect/${id}?source=${location}', {}, {
+        id: 157
+    }).on(this.brickActionListeners).start();
+
+    equal(false, brick.isLoading());
+    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    deepEqual(['mock/redirect/157?source=' + location], this.mockRedirectCalls());
+});
+
 QUnit.test('creme.bricks.Brick.action (view)', function(assert) {
     var brick = this.createBrickWidget('brick-for-test').brick();
 
@@ -536,6 +532,258 @@ QUnit.test('creme.bricks.Brick.action (view, failed)', function(assert) {
 
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([], this.mockBackendUrlCalls('mock/view/fail'));
+});
+
+QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+
+    brick.action('add-relationships', '', {}, {
+        subject_id: '74',
+        rtype_id: 'rtypes.1',
+        ctype_id: '5',
+        addto_url: 'mock/relation/add',
+        selector_url: 'mock/relation/selector'
+    }).on(this.brickActionListeners).start();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+    ], this.mockBackendUrlCalls('mock/relation/selector'));
+
+    var list = this.assertOpenedListViewDialog().data('list_view');
+
+    deepEqual([], list.getSelectedEntitiesAsArray());
+
+    this.submitListViewSelectionDialog(list);
+
+    this.assertOpenedAlertDialog(gettext('Please select at least one entity.'));
+    this.assertOpenedListViewDialog();
+
+    deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.closeTopDialog();
+    this.assertOpenedListViewDialog();
+
+    deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    this.closeDialog();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+    ], this.mockBackendUrlCalls());
+
+    deepEqual({
+        'action-start': [['start']],
+        'action-cancel': [['cancel']]
+    }, this.mockListenerCalls());
+});
+
+QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selection)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+    brick.action('add-relationships', 'mock/relation/add', {}, {
+        subject_id: '74',
+        rtype_id: 'rtypes.1',
+        ctype_id: '5',
+        selector_url: 'mock/relation/selector'
+    }).on(this.brickActionListeners).start();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+    ], this.mockBackendUrlCalls('mock/relation/selector'));
+
+    var list = this.assertOpenedListViewDialog().data('list_view');
+
+    this.setListviewSelection(list, ['2', '3']);
+    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+
+    this.submitListViewSelectionDialog(list);
+
+    this.assertOpenedAlertDialog(gettext('Please select only one entity.'));
+    this.assertOpenedListViewDialog();
+
+    this.closeTopDialog();
+    this.assertOpenedListViewDialog();
+
+    this.closeDialog();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+    ], this.mockBackendUrlCalls());
+
+    deepEqual([], this.mockRedirectCalls());
+
+    deepEqual({
+        'action-start': [['start']],
+        'action-cancel': [['cancel']]
+    }, this.mockListenerCalls());
+});
+
+QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+    brick.action('add-relationships', 'mock/relation/add', {}, {
+        subject_id: '74',
+        rtype_id: 'rtypes.1',
+        ctype_id: '5',
+        selector_url: 'mock/relation/selector'
+    }).on(this.brickActionListeners).start();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+    ], this.mockBackendUrlCalls('mock/relation/selector'));
+
+    var list = this.assertOpenedListViewDialog().data('list_view');
+
+    this.setListviewSelection(list, ['2']);
+    deepEqual(['2'], list.getSelectedEntitiesAsArray());
+
+    this.submitListViewSelectionDialog(list);
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
+    ], this.mockBackendUrlCalls());
+
+    deepEqual([], this.mockRedirectCalls());
+
+    deepEqual({
+        'action-start': [['start']],
+        'action-done': [['done']]
+    }, this.mockListenerCalls());
+});
+
+QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+    brick.action('add-relationships', 'mock/relation/add/fail', {}, {
+        subject_id: '74',
+        rtype_id: 'rtypes.1',
+        ctype_id: '5',
+        selector_url: 'mock/relation/selector'
+    }).on(this.brickActionListeners).start();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+    ], this.mockBackendUrlCalls('mock/relation/selector'));
+
+    var list = this.assertOpenedListViewDialog().data('list_view');
+
+    this.setListviewSelection(list, ['2']);
+    deepEqual(['2'], list.getSelectedEntitiesAsArray());
+
+    this.submitListViewSelectionDialog(list);
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
+    ], this.mockBackendUrlCalls());
+
+    deepEqual([], this.mockRedirectCalls());
+
+    deepEqual(['fail'],
+             this.mockListenerCalls('action-fail').map(function(d) { return d[0]; }));
+});
+
+QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', function(assert) {
+    var current_url = window.location.href;
+    var brick = this.createBrickWidget('brick-for-test').brick();
+    brick.action('add-relationships', 'mock/relation/add', {}, {
+        subject_id: '74',
+        rtype_id: 'rtypes.1',
+        ctype_id: '5',
+        selector_url: 'mock/relation/selector',
+        reloadOnSuccess: true
+    }).on(this.brickActionListeners).start();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+    ], this.mockBackendUrlCalls('mock/relation/selector'));
+
+    var list = this.assertOpenedListViewDialog().data('list_view');
+
+    this.setListviewSelection(list, ['2']);
+    deepEqual(['2'], list.getSelectedEntitiesAsArray());
+
+    this.submitListViewSelectionDialog(list);
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
+    ], this.mockBackendUrlCalls());
+
+    deepEqual([current_url], this.mockRedirectCalls());
+
+    deepEqual({
+        'action-start': [['start']],
+        'action-done': [['done']]
+    }, this.mockListenerCalls());
+});
+
+
+QUnit.test('creme.bricks.Brick.action (add relationships, single, reload, fail)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+    brick.action('add-relationships', 'mock/relation/add/fail', {}, {
+        subject_id: '74',
+        rtype_id: 'rtypes.1',
+        ctype_id: '5',
+        selector_url: 'mock/relation/selector',
+        reloadOnSuccess: true
+    }).on(this.brickActionListeners).start();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+    ], this.mockBackendUrlCalls('mock/relation/selector'));
+
+    var list = this.assertOpenedListViewDialog().data('list_view');
+
+    this.setListviewSelection(list, ['2']);
+    deepEqual(['2'], list.getSelectedEntitiesAsArray());
+
+    this.submitListViewSelectionDialog(list);
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
+    ], this.mockBackendUrlCalls());
+
+    deepEqual([], this.mockRedirectCalls());
+    deepEqual(['fail'], this.mockListenerCalls('action-fail').map(function(d) { return d[0]; }));
+});
+
+QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+    brick.action('add-relationships', 'mock/relation/add', {}, {
+        subject_id: '74',
+        rtype_id: 'rtypes.1',
+        ctype_id: '5',
+        selector_url: 'mock/relation/selector',
+        multiple: true
+    }).on(this.brickActionListeners).start();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+    ], this.mockBackendUrlCalls('mock/relation/selector'));
+
+    var list = this.assertOpenedListViewDialog().data('list_view');
+
+    this.setListviewSelection(list, ['2', '3']);
+
+    equal(2, list.countEntities());
+    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+
+    this.submitListViewSelectionDialog(list);
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
+    ], this.mockBackendUrlCalls());
+
+    deepEqual({
+        'action-start': [['start']],
+        'action-done': [['done']]
+    }, this.mockListenerCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (unknown)', function(assert) {
@@ -606,7 +854,7 @@ QUnit.test('creme.bricks.Brick.action (link, unknown)', function(assert) {
     equal(true, brick.isBound());
     equal(false, element.is('.is-collapsed'));
     equal(1, brick._actionLinks.length);
-    
+
     var actionlink = brick._actionLinks[0];
     equal(true, actionlink.isBound());
     equal(true, actionlink.isDisabled());
@@ -677,3 +925,5 @@ QUnit.test('creme.bricks.Brick.action (link, async)', function(assert) {
     deepEqual([['action-link-cancel', []]],
               this.mockListenerCalls('action-link-complete').map(function(d) { return d.slice(0, 2); }));
 });
+
+}(jQuery));

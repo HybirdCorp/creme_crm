@@ -339,11 +339,7 @@ creme.lv_widget.listViewAction = function(url, options, data) {
     options = options || {};
 
     var selector = function(dialog) {
-        var values = $('.ui-creme-listview tr.selected input[name="entity_id"]', dialog).map(function(index, item) {
-                         return $(item).val();
-                     });
-
-        return values.get() || [];
+        return creme.lv_widget.selectedLines($('.ui-creme-listview', dialog)) || [];
     };
 
     var validator = function(data) {
@@ -362,13 +358,8 @@ creme.lv_widget.listViewAction = function(url, options, data) {
 
     return creme.utils.innerPopupFormAction(url, {
                submit_label: gettext("Validate the selection"),
-               submit: function(dialog) {
-                   var data = selector(dialog);
-                   return validator(data) ? data : null;
-               },
-               validator: function(data) {
-                   return data !== null;
-               },
+               submit: selector,
+               validator: validator,
                closeOnEscape: options.closeOnEscape
            }, data);
 };
@@ -437,7 +428,7 @@ creme.lv_widget.ListViewActionBuilders = creme.action.ActionBuilderRegistry.sub(
         var action = creme.utils.confirmAjaxQuery(url, options, data);
         action.onDone(function(event, data, xhr) {
             creme.utils.goTo(data);
-        })
+        });
 
         return action;
     },

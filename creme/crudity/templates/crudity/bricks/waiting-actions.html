@@ -23,8 +23,8 @@
     {% for action in extra_header_actions %}{{action}}{% endfor %}
 
     {% url 'crudity__validate_actions' as validated_url %}{%  url 'crudity__delete_actions' as delete_url %}
-    {% brick_header_action id='crudity-validate' url=validated_url __selector='.row-selector:checked' type='add'    label=_('Validate') icon='ok' %}
-    {% brick_header_action id='crudity-delete'   url=delete_url    __selector='.row-selector:checked' type='delete' label=_('Delete')   icon='cancel' %}
+    {% brick_header_action id='crudity-validate' url=validated_url type='add'    label=_('Validate') icon='ok' %}
+    {% brick_header_action id='crudity-delete'   url=delete_url    type='delete' label=_('Delete')   icon='cancel' %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -68,7 +68,7 @@
         </td>
         <td>{{backend.verbose_method}}</td>
         <td {% brick_table_data_status action %}>{% templatize '.row-selector[value={{waiting_action.id}}]' as selector %}
-            {% brick_table_action id='crudity-validate' url=validate_url __selector=selector label=_('Validate') icon='ok' %}
+            {% brick_table_action id='crudity-validate-row' url=validate_url __id=waiting_action.pk label=_('Validate') icon='ok' %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_url __ids=waiting_action.pk %}

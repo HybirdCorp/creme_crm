@@ -23,13 +23,15 @@ creme.ajax = creme.ajax || {};
 
 creme.ajax.MockAjaxBackend = function(options) {
     this.options = $.extend({
-        delay: 500
+        delay: 500,
+        enableUriSearch: false
     }, options || {});
 
     this.GET =  {};
     this.POST = {};
 
     this.counts = {GET: 0, POST: 0, SUBMIT: 0};
+    this.parser = document.createElement('a');
 };
 
 creme.ajax.MockAjaxBackend.prototype = new creme.ajax.Backend();
@@ -52,6 +54,22 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
 
                 return;
             }
+        }
+
+        if (options.enableUriSearch) {
+            var urlInfo = creme.ajax.parseUrl(url);
+
+            if (urlInfo.search) {
+                if (method === 'GET') {
+                    data = $.extend({}, urlInfo.searchData, data || {});
+                } else {
+                    data = $.extend({
+                        'URI-SEARCH': urlInfo.searchData
+                    }, data || {});
+                }
+            }
+
+            url = urlInfo.pathname.replace(/^\//, '');
         }
 
         var response = method_urls[url];
@@ -94,11 +112,10 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
 
     submit: function(form, on_success, on_error, options) {
         options = options || {};
-        var action = options.action || form.attr('action');
+        var url = options.action || form.attr('action');
         var data = creme.ajax.serializeFormAsDict(form, options.data);
-
         this.counts.SUBMIT += 1;
-        return this.send(action, data, 'POST', on_success, on_error, options);
+        return this.send(url, data, 'POST', on_success, on_error, options);
     },
 
     response: function(status, data, header) {

@@ -24,7 +24,7 @@
     "use strict";
 
     var detailViewActions = {
-        _action_detailview_merge: function(url, options, data) {
+        'creme_core-detailview-merge': function(url, options, data) {
             var action = creme.lv_widget.listViewAction(data.selection_url + '?' + $.param({id1: data.id}), {multiple: false});
 
             action.onDone(function(event, selections) {
@@ -34,21 +34,21 @@
             return action;
         },
 
-        _action_detailview_clone: function(url, options, data) {
-            return this._action_update_redirect(url, options, data);
+        'creme_core-detailview-clone': function(url, options, data) {
+            return this._build_update_redirect(url, options, data);
         },
 
-        _action_detailview_delete: function(url, options, data) {
-            return this._action_update_redirect(url, options, data);
+        'creme_core-detailview-delete': function(url, options, data) {
+            return this._build_update_redirect(url, options, data);
         },
 
-        _action_detailview_restore: function(url, options, data) {
-            return this._action_update_redirect(url, options, data);
+        'creme_core-detailview-restore': function(url, options, data) {
+            return this._build_update_redirect(url, options, data);
         }
     };
 
 //    $(document).on('brick-before-bind', '.brick.brick-hat-card', function(e, brick, options) {
-    $(document).on('brick-before-bind', '.brick.brick-hat', function(e, brick) {
-        $.extend(brick, detailViewActions);
+    $(document).on('brick-setup-actions', '.brick.brick-hat', function(e, brick, actions) {
+        actions.registerAll(detailViewActions);
     });
 }(jQuery));

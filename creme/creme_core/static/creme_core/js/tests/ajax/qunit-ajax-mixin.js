@@ -26,10 +26,10 @@
 
             this.backend = this.buildMockBackend();
 
-            //console.info('[qunit-ajax-mixin] setup backend', this.backend.options);
+            // console.info('[qunit-ajax-mixin] setup backend', this.backend.options);
             creme.ajax.defaultBackend(this.backend);
 
-            //console.info('[qunit-ajax-mixin] setup cache backend');
+            // console.info('[qunit-ajax-mixin] setup cache backend');
             creme.ajax.defaultCacheBackend(this.backend);
         },
 
@@ -38,10 +38,10 @@
             creme.history.push = this.__historyPush;
             creme.history.replace = this.__historyReplace;
 
-            //console.info('[qunit-ajax-mixin] teardown backend');
+            // console.info('[qunit-ajax-mixin] teardown backend');
             creme.ajax.defaultBackend(new creme.ajax.Backend());
 
-            //console.info('[qunit-ajax-mixin] teardown cache backend');
+            // console.info('[qunit-ajax-mixin] teardown cache backend');
             creme.ajax.defaultCacheBackend(new creme.ajax.CacheBackend(creme.ajax.defaultBackend(), {
                 condition: new creme.ajax.CacheBackendTimeout(120 * 1000)
             }));
@@ -94,9 +94,15 @@
         },
 
         mockBackendUrlCalls: function(url) {
-            return this._backendCalls.filter(function(e) {
-                return e[0] === url;
-            }).map(function(e) {
+            var calls = this._backendCalls;
+
+            if (url) {
+                calls = calls.filter(function(e) {
+                    return e[0] === url;
+                });
+            }
+
+            return calls.map(function(e) {
                 var method = e[1], data = e[2];
                 data = (data instanceof jQuery) ? data.html() : data;
                 return [method, data];
