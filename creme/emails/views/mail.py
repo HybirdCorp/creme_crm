@@ -57,23 +57,23 @@ def get_lightweight_mail_body(request, mail_id):
                        )
 
 
-@login_required
-@permission_required('emails')
-def view_lightweight_mail(request, mail_id):
-    email = get_object_or_404(LightWeightEmail, pk=mail_id)
-
-    # TODO: disable the link in the template if view is not allowed
-    request.user.has_perm_to_view_or_die(email.sending.campaign)
-
-    template = 'emails/view_email.html'  # TODO: rename (lw-mail-popup.html ?)
-    ctx_dict = {'mail': email, 'title': _('Details of the mail')}
-
-    if request.is_ajax():
-        return generic.inner_popup(request, template, ctx_dict,
-                                   is_valid=False, reload=False,
-                                  )
-
-    return render(request, template, ctx_dict)
+# @login_required
+# @permission_required('emails')
+# def view_lightweight_mail(request, mail_id):
+#     email = get_object_or_404(LightWeightEmail, pk=mail_id)
+#
+#     # todo: disable the link in the template if view is not allowed
+#     request.user.has_perm_to_view_or_die(email.sending.campaign)
+#
+#     template = 'emails/view_email.html'
+#     ctx_dict = {'mail': email, 'title': _('Details of the mail')}
+#
+#     if request.is_ajax():
+#         return generic.inner_popup(request, template, ctx_dict,
+#                                    is_valid=False, reload=False,
+#                                   )
+#
+#     return render(request, template, ctx_dict)
 
 
 def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html'):
@@ -234,3 +234,12 @@ class EntityEmailDetail(generic.EntityDetail):
 
 class EntityEmailPopup(EntityEmailDetail):
     template_name = 'emails/view_entity_mail_popup.html'
+
+
+# TODO: disable the link in the template if view is not allowed
+class LightWeightEmailPopup(generic.RelatedToEntityDetail):
+    model = LightWeightEmail
+    template_name = 'emails/lw-email-popup.html'
+    pk_url_kwarg = 'mail_id'
+    permissions = 'emails'
+    title = _('Details of the mail')

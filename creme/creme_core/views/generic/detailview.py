@@ -35,6 +35,7 @@ from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import CremeModel, CremeEntity, BrickDetailviewLocation
 
 from .base import PermissionsMixin
+from.popup import InnerPopupMixin
 
 
 logger = logging.getLogger(__name__)
@@ -183,3 +184,40 @@ class EntityDetail(CremeModelDetail):
         imprint_manager.create_imprint(entity=entity, user=request.user)
 
         return entity
+
+
+class CremeModelDetailPopup(InnerPopupMixin, CremeModelDetail):
+    """ Base class for inner-popup displaying the detailed information
+    of an instance.
+
+    New attributes:
+    title: A string used as popup's title. <None> (default value) means that the
+           attribute "title_format" will be used to build the title (see get_title()).
+    title_format: A {}-format string formatted with the edited instance as
+                  argument (see get_title()).
+    """
+    # template_name = 'creme_core/detail-popup.html' TODO ??
+    title = None
+    title_format = '{}'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.get_title()
+
+        return context
+
+    def get_title_format(self):
+        return self.title_format
+
+    def get_title(self):
+        title = self.title
+
+        return self.get_title_format().format(self.object) if title is None else title
+
+
+class RelatedToEntityDetail(CremeModelDetailPopup):
+    """ This specialisation of CremeModelDetailPopup is made for models
+    related to a CremeEntity instance.
+    """
+    def check_instance_permissions(self, instance, user):
+        user.has_perm_to_view_or_die(instance.get_related_entity())
