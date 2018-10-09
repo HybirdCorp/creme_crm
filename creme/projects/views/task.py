@@ -153,7 +153,7 @@ class TaskCreation(generic.AddingToEntity):
         self.request.user.has_perm_to_create_or_die(ProjectTask)
 
 
-class TaskDetail(generic.detailview.EntityDetail):
+class TaskDetail(generic.EntityDetail):
     model = ProjectTask
     template_name = 'projects/view_task.html'
     pk_url_kwarg = 'task_id'

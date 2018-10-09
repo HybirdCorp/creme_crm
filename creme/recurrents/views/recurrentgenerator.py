@@ -144,7 +144,7 @@ def listview(request):
     return generic.list_view(request, RecurrentGenerator, hf_pk=DEFAULT_HFILTER_RGENERATOR)
 
 
-class RecurrentGeneratorDetail(generic.detailview.EntityDetail):
+class RecurrentGeneratorDetail(generic.EntityDetail):
     model = RecurrentGenerator
     template_name = 'recurrents/view_generator.html'
     pk_url_kwarg = 'generator_id'

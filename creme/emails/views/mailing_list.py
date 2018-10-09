@@ -197,7 +197,7 @@ class MailingListCreation(generic.EntityCreation):
     form_class = ml_forms.MailingListForm
 
 
-class MailingListDetail(generic.detailview.EntityDetail):
+class MailingListDetail(generic.EntityDetail):
     model = MailingList
     template_name = 'emails/view_mailing_list.html'
     pk_url_kwarg = 'ml_id'

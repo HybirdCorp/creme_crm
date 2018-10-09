@@ -110,7 +110,7 @@ class StrategyCreation(generic.EntityCreation):
     form_class = forms.StrategyForm
 
 
-class StrategyDetail(generic.detailview.EntityDetail):
+class StrategyDetail(generic.EntityDetail):
     model = Strategy
     template_name = 'commercial/view_strategy.html'
     pk_url_kwarg = 'strategy_id'

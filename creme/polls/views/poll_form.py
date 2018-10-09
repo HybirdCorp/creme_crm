@@ -253,7 +253,7 @@ class PollFormCreation(generic.EntityCreation):
     form_class = pf_forms.PollFormForm
 
 
-class PollFormDetail(generic.detailview.EntityDetail):
+class PollFormDetail(generic.EntityDetail):
     model = PollForm
     template_name = 'polls/view_pollform.html'
     pk_url_kwarg = 'pform_id'

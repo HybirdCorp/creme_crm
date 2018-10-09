@@ -98,7 +98,7 @@ class PollCampaignCreation(generic.EntityCreation):
     form_class = PollCampaignForm
 
 
-class PollCampaignDetail(generic.detailview.EntityDetail):
+class PollCampaignDetail(generic.EntityDetail):
     model = PollCampaign
     template_name = 'polls/view_campaign.html'
     pk_url_kwarg = 'campaign_id'

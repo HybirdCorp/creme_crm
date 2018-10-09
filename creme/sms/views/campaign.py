@@ -140,7 +140,7 @@ class SMSCampaignCreation(generic.EntityCreation):
     form_class = camp_forms.CampaignCreateForm
 
 
-class SMSCampaignDetail(generic.detailview.EntityDetail):
+class SMSCampaignDetail(generic.EntityDetail):
     model = SMSCampaign
     template_name = 'sms/view_campaign.html'
     pk_url_kwarg = 'campaign_id'

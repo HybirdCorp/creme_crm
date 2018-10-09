@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 10-09-2018 pour la version 2.0 de Creme
+:Version: 08-10-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -411,7 +411,7 @@ ramener les ``import`` au début, avec les autres directives ``import`` bien sû
 
     from ..forms.beaver import BeaverForm
 
-    class BeaverCreation(generic.add.EntityCreation):
+    class BeaverCreation(generic.EntityCreation):
         model = Beaver
         form_class = BeaverForm
 
@@ -457,7 +457,7 @@ La vue détaillée
 
 Ajoutons cette classe de vue (dans ``views/beaver.py`` donc, si vous suivez) : ::
 
-    class BeaverDetail(generic.detailview.EntityDetail):
+    class BeaverDetail(generic.EntityDetail):
         model = Beaver
         pk_url_kwarg = 'beaver_id'
 
@@ -496,7 +496,7 @@ modifiés globalement (avec le gros stylo dans les vues détaillées).
 
 Ajoutons cette vue dans ``views/beaver.py`` : ::
 
-    class BeaverEdition(generic.edit.EntityEdition):
+    class BeaverEdition(generic.EntityEdition):
         model = Beaver
         form_class = BeaverForm
         pk_url_kwarg = 'beaver_id'
@@ -1250,7 +1250,7 @@ Créez le fichier ``creme/beavers/bricks.py`` : ::
         # Si on définit cette méthode, on indique que ce bloc est capable de s'afficher
         # sur les vue détaillée (c'est une autre méthode pour l'accueil:  home_display()).
         def detailview_display(self, context):
-            # L'entité courante est injectée dans le contexte par la vue generic.detailview.EntityDetail
+            # L'entité courante est injectée dans le contexte par la vue generic.EntityDetail
             # et par la vue de rechargement bricks.reload_detailview().
             beaver = context['object']
 
@@ -1370,17 +1370,6 @@ Nous commençons par faire la vue de création de ``Ticket``. Puisque le bouton 
 présent sur la vue détaillée des castors, et que lorsque l'on créera un ticket
 depuis la fiche d'un castor malade, ce ticket fera référence automatiquement à ce
 castor, nous passons l'identifiant du castor dans l'URL, pour que la vue puisse le retrouver.
-Dans ``beavers/urls.py`` : ::
-
-    [...]
-
-    from .views import beaver, ticket  # <- UPDATE
-
-    [...]
-
-        url(r'^ticket/add/(?P<beaver_id>\d+)[/]?$', ticket.add, name='beavers__create_ticket'),  # <- NEW
-
-    [...]
 
 Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
 
@@ -1389,25 +1378,42 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
     from django.shortcuts import get_object_or_404
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.auth.decorators import login_required, permission_required
-    from creme.creme_core.views.generic import add_entity
+    from creme.creme_core.views.generic import EntityCreation
 
     from creme.tickets.forms.ticket import TicketCreateForm
 
     from ..models import Beaver
 
 
-    @login_required
-    @permission_required('tickets')
-    @permission_required('tickets.add_ticket')
-    def add(request, beaver_id):
-        beaver = get_object_or_404(Beaver, pk=beaver_id)
+    class VeterinaryTicketCreation(EntityCreation):
+        model = Beaver
+        form_class = TicketCreateForm
 
-        return add_entity(request, TicketCreateForm,
-                          extra_initial={'title':       _('Need a veterinary'),
-                                         'description': _('{} is sick.').format(beaver),
-                                        },
-                         )
+        def get_initial(self):
+            initial = super().get_initial()
+            initial['title'] = _('Need a veterinary')
+
+            beaver = get_object_or_404(Beaver, id=self.kwargs['beaver_id'])
+            self.request.user.has_perm_to_view_or_die(beaver)  # On utilise le nom du ticket juste après
+            initial['description'] = _('{} is sick.').format(self.get_linked_beaver())
+
+            return initial
+
+
+Dans ``beavers/urls.py`` : ::
+
+    [...]
+
+    from .views import beaver, ticket  # <- UPDATE
+
+    [...]
+
+        url(r'^ticket/add/(?P<beaver_id>\d+)[/]?$',
+            ticket.VeterinaryTicketCreation.as_view(),
+            name='beavers__create_ticket',
+           ),  # <- NEW
+
+    [...]
 
 
 Créons le ficher ``beavers/buttons.py`` (ce nom n'est pas une obligation, mais

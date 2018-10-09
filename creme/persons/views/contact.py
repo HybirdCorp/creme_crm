@@ -225,7 +225,7 @@ class RelatedContactCreation(ContactCreation):
         return self.linked_orga.get_absolute_url()
 
 
-class ContactDetail(generic.detailview.EntityDetail):
+class ContactDetail(generic.EntityDetail):
     model = Contact
     template_name = 'persons/view_contact.html'
     pk_url_kwarg = 'contact_id'

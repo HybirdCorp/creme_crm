@@ -71,7 +71,7 @@ def listview(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class TicketTemplateDetail(generic.detailview.EntityDetail):
+class TicketTemplateDetail(generic.EntityDetail):
     model = TicketTemplate
     template_name = 'tickets/view_template.html'
     pk_url_kwarg = 'template_id'

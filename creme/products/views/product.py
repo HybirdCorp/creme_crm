@@ -148,7 +148,7 @@ class ProductCreation(generic.EntityCreation):
     form_class = product_forms.ProductCreateForm
 
 
-class ProductDetail(generic.detailview.EntityDetail):
+class ProductDetail(generic.EntityDetail):
     model = Product
     template_name = 'products/view_product.html'
     pk_url_kwarg = 'product_id'

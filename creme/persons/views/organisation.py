@@ -129,7 +129,7 @@ class OrganisationCreation(generic.EntityCreation):
     template_name = 'persons/add_organisation_form.html'
 
 
-class OrganisationDetail(generic.detailview.EntityDetail):
+class OrganisationDetail(generic.EntityDetail):
     model = Organisation
     template_name = 'persons/view_organisation.html'
     pk_url_kwarg = 'orga_id'

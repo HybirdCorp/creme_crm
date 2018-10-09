@@ -142,7 +142,7 @@ class GraphCreation(generic.EntityCreation):
     form_class = g_forms.GraphForm
 
 
-class GraphDetail(generic.detailview.EntityDetail):
+class GraphDetail(generic.EntityDetail):
     model = Graph
     template_name = 'graphs/view_graph.html'
     pk_url_kwarg = 'graph_id'

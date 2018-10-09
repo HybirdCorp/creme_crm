@@ -130,7 +130,7 @@ class EmailCampaignCreation(generic.EntityCreation):
     form_class = camp_forms.CampaignCreateForm
 
 
-class EmailCampaignDetail(generic.detailview.EntityDetail):
+class EmailCampaignDetail(generic.EntityDetail):
     model = EmailCampaign
     template_name = 'emails/view_campaign.html'
     pk_url_kwarg = 'campaign_id'

@@ -113,7 +113,7 @@ class ServiceCreation(generic.EntityCreation):
     form_class = service_forms.ServiceCreateForm
 
 
-class ServiceDetail(generic.detailview.EntityDetail):
+class ServiceDetail(generic.EntityDetail):
     model = Service
     template_name = 'products/view_service.html'
     pk_url_kwarg = 'service_id'

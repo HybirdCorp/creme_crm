@@ -18,7 +18,7 @@ def document_listview(request):
 # @permission_required('creme_core')
 # def image_detailview(request, image_id):
 #     return generic.view_entity(request, image_id, fake_models.FakeImage)
-class FakeImageDetail(generic.detailview.EntityDetail):
+class FakeImageDetail(generic.EntityDetail):
     model = fake_models.FakeImage
     pk_url_kwarg = 'image_id'
 
@@ -58,7 +58,7 @@ class FakeContactEdition(generic.EntityEdition):
 # def contact_detailview(request, contact_id):
 #     return generic.view_entity(request, contact_id, fake_models.FakeContact)
 
-class FakeContactDetail(generic.detailview.EntityDetail):
+class FakeContactDetail(generic.EntityDetail):
     model = fake_models.FakeContact
     # template_name = 'creme_core/tests/view-fake-contact.html'  TODO ?
     pk_url_kwarg = 'contact_id'
@@ -144,7 +144,7 @@ def campaign_listview(request):
 # @permission_required('creme_core')
 # def invoice_detailview(request, invoice_id):
 #     return generic.view_entity(request, invoice_id, fake_models.FakeInvoice)
-class FakeInvoiceDetail(generic.detailview.EntityDetail):
+class FakeInvoiceDetail(generic.EntityDetail):
     model = fake_models.FakeInvoice
     pk_url_kwarg = 'invoice_id'
 

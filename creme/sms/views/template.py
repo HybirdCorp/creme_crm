@@ -98,7 +98,7 @@ class MessageTemplateCreation(generic.EntityCreation):
     form_class = tpl_forms.TemplateCreateForm
 
 
-class MessageTemplateDetail(generic.detailview.EntityDetail):
+class MessageTemplateDetail(generic.EntityDetail):
     model = MessageTemplate
     template_name = 'sms/view_template.html'
     pk_url_kwarg = 'template_id'

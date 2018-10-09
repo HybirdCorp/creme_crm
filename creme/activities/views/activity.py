@@ -416,7 +416,7 @@ class RelatedActivityCreation(ActivityCreation):
         return type_id
 
 
-class ActivityDetail(generic.detailview.EntityDetail):
+class ActivityDetail(generic.EntityDetail):
     model = Activity
     template_name = 'activities/view_activity.html'
     pk_url_kwarg = 'activity_id'
