@@ -240,7 +240,7 @@ class _RelationsCreateForm(CremeForm):
 
 
 class RelationCreateForm(_RelationsCreateForm):
-    def __init__(self, subject, relations_types=None, *args, **kwargs):
+    def __init__(self, subject, relations_types=None, instance=None, *args, **kwargs):
         # super(RelationCreateForm, self).__init__([subject], subject.entity_type,
         super().__init__([subject], subject.entity_type,
                          relations_types=relations_types,
@@ -249,7 +249,7 @@ class RelationCreateForm(_RelationsCreateForm):
 
 
 class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
-    entities_lbl = CharField(label=_(u"Related entities"), widget=Label())
+    entities_lbl = CharField(label=_('Related entities'), widget=Label())
 
     # TODO: use Meta.fields ?? (beware to bad_entities_lbl)
     blocks = FieldBlockManager(('general', _('General information'), ['entities_lbl', 'relations', 'semifixed_rtypes']),)
@@ -267,7 +267,8 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
         fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext('NONE !')
 
         if forbidden_subjects:
-            fields['bad_entities_lbl'] = CharField(label=ugettext('Unlinkable entities'),
-                                                   widget=Label,
-                                                   initial=entities2unicode(forbidden_subjects, user),
-                                                  )
+            fields['bad_entities_lbl'] = CharField(
+                label=ugettext('Unlinkable entities'),
+                widget=Label,
+                initial=entities2unicode(forbidden_subjects, user),
+            )

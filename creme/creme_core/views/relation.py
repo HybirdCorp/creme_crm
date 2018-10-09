@@ -26,7 +26,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, get_list_or_404, redirect
-from django.utils.translation import ugettext as _, ungettext
+from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from .. import utils
 from ..auth.decorators import login_required
@@ -34,7 +34,7 @@ from ..core.exceptions import ConflictError
 from ..forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
 from ..models import Relation, RelationType, CremeEntity
 
-from .generic import inner_popup, listview
+from .generic import inner_popup, listview, AddingToEntity
 
 
 def _fields_values(instances, getters, range, sort_getter=None, user=None):
@@ -149,53 +149,92 @@ def json_rtype_ctypes(request, rtype_id):
     return _fields_values(content_types, getters, range, sort)
 
 
-@login_required
-def add_relations(request, subject_id, rtype_id=None):
-    """
-        NB: In case of rtype_id=None is internal relation type is verified in RelationCreateForm clean
-    """
-    subject = get_object_or_404(CremeEntity, pk=subject_id)
+# @login_required
+# def add_relations(request, subject_id, rtype_id=None):
+#     """
+#         NB: In case of rtype_id=None is internal relation type is verified in RelationCreateForm clean
+#     """
+#     subject = get_object_or_404(CremeEntity, pk=subject_id)
+#
+#     user = request.user
+#     user.has_perm_to_link_or_die(subject)
+#
+#     relations_types = None
+#
+#     if rtype_id:
+#         get_object_or_404(RelationType, pk=rtype_id).is_not_internal_or_die()
+#         relations_types = [rtype_id]
+#
+#     if request.method == 'POST':
+#         form = RelationCreateForm(subject=subject, user=user,
+#                                   relations_types=relations_types,
+#                                   data=request.POST,
+#                                  )
+#
+#         if form.is_valid():
+#             form.save()
+#     else:  # GET
+#         if rtype_id is None:
+#             excluded_rtype_ids = request.GET.getlist('exclude')
+#             if excluded_rtype_ids:
+#                 # Theses type are excluded to provide a better GUI, but they cannot cause business conflict
+#                 # (internal rtypes are always excluded), so it's not a problem to only excluded them only in GET part.
+#                 relations_types = RelationType.get_compatible_ones(subject.entity_type) \
+#                                               .exclude(id__in=excluded_rtype_ids)
+#
+#         form = RelationCreateForm(subject=subject, user=user,
+#                                   relations_types=relations_types,
+#                                  )
+#
+#     return inner_popup(request,
+#                        'creme_core/generics/blockform/link_popup.html',
+#                        {'form':  form,
+#                         'title': ugettext('Relationships for «{entity}»').format(entity=subject),
+#                         'submit_label': _('Save the relationships'),
+#                        },
+#                        is_valid=form.is_valid(),
+#                        reload=False,
+#                        delegate_reload=True,
+#                       )
+class RelationsAdding(AddingToEntity):
+    model = Relation
+    form_class = RelationCreateForm
+    template_name = 'creme_core/generics/blockform/link_popup.html'
+    title_format = _('Relationships for «{}»')
+    submit_label = _('Save the relationships')
+    entity_id_url_kwarg = 'subject_id'
+    entity_form_kwarg = 'subject'
+    rtype_id_url_kwarg = 'rtype_id'
 
-    user = request.user
-    user.has_perm_to_link_or_die(subject)
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_link_or_die(entity)
 
-    relations_types = None
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['relations_types'] = self.get_relation_types()
 
-    if rtype_id:
-        get_object_or_404(RelationType, pk=rtype_id).is_not_internal_or_die()
-        relations_types = [rtype_id]
+        return kwargs
 
-    if request.method == 'POST':
-        form = RelationCreateForm(subject=subject, user=user,
-                                  relations_types=relations_types,
-                                  data=request.POST,
-                                 )
+    def get_relation_types(self):
+        rtypes = None
+        rtype_id = self.kwargs.get(self.rtype_id_url_kwarg)
 
-        if form.is_valid():
-            form.save()
-    else:  # GET
-        if rtype_id is None:
+        if rtype_id:
+            get_object_or_404(RelationType, pk=rtype_id).is_not_internal_or_die()
+            rtypes = [rtype_id]
+
+        request = self.request
+
+        if request.method == 'GET' and rtype_id is None:
             excluded_rtype_ids = request.GET.getlist('exclude')
+
             if excluded_rtype_ids:
                 # Theses type are excluded to provide a better GUI, but they cannot cause business conflict
                 # (internal rtypes are always excluded), so it's not a problem to only excluded them only in GET part.
-                relations_types = RelationType.get_compatible_ones(subject.entity_type) \
-                                              .exclude(id__in=excluded_rtype_ids)
+                rtypes = RelationType.get_compatible_ones(self.get_related_entity().entity_type) \
+                                    .exclude(id__in=excluded_rtype_ids)
 
-        form = RelationCreateForm(subject=subject, user=user,
-                                  relations_types=relations_types,
-                                 )
-
-    return inner_popup(request,
-                       'creme_core/generics/blockform/link_popup.html',
-                       {'form':  form,
-                        'title': _('Relationships for «{entity}»').format(entity=subject),
-                        'submit_label': _('Save the relationships'),
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+        return rtypes
 
 
 # TODO: Factorise with add_properties_bulk and bulk_update?
@@ -314,16 +353,17 @@ def delete_all(request):  # TODO: deprecate ?
         if user.has_perm_to_unlink(relation.object_entity):
             relation.delete()
         else:
-            errors[403].append(_('{entity} : <b>Permission denied</b>').format(entity=relation.object_entity))
+            errors[403].append(ugettext('{entity} : <b>Permission denied</b>')
+                                       .format(entity=relation.object_entity)
+                              )
 
     if not errors:
         status = 200
-        message = _('Operation successfully completed')
+        message = ugettext('Operation successfully completed')
     else:
         status = min(errors)
-        message = ",".join(msg for error_messages in errors.values() for msg in error_messages)
+        message = ','.join(msg for error_messages in errors.values() for msg in error_messages)
 
-    # return HttpResponse(message, content_type='text/javascript', status=status)
     return HttpResponse(message, status=status)
 
 
@@ -444,17 +484,17 @@ def add_relations_with_same_type(request):
     create_relation = Relation.objects.safe_create
     for entity in entities:
         if not check_ctype(entity):
-            errors[409].append(_('Incompatible type for object entity with id={}').format(entity.id))
+            errors[409].append(ugettext('Incompatible type for object entity with id={}').format(entity.id))
         elif not check_properties(entity):
-            errors[409].append(_('Missing compatible property for object entity with id={}').format(entity.id))
+            errors[409].append(ugettext('Missing compatible property for object entity with id={}').format(entity.id))
         elif not user.has_perm_to_link(entity):
-            errors[403].append(_('Permission denied to entity with id={}').format(entity.id))
+            errors[403].append(ugettext('Permission denied to entity with id={}').format(entity.id))
         else:
             create_relation(subject_entity=subject, type=rtype, object_entity=entity, user=user)
 
     if not errors:
         status = 200
-        message = _('Operation successfully completed')
+        message = ugettext('Operation successfully completed')
     else:
         status = min(errors)
         message = ','.join(msg for error_messages in errors.values() for msg in error_messages)
