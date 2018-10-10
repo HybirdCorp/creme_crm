@@ -33,59 +33,98 @@ from ..auth.decorators import login_required, permission_required
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import QuerysetBrick, Brick
 from ..models import CremeEntity, CremePropertyType, CremeProperty
-from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
+from ..utils import creme_entity_content_types, get_from_POST_or_404, jsonify  # get_ct_or_404
 
 from . import generic, bricks as bricks_views
+from .generic.base import EntityCTypeRelatedMixin
 # from .utils import build_cancel_path
 
 # TODO: Factorise with views in creme_config
 
 
 # TODO: Factorise with add_relations_bulk and bulk_update?
-@login_required
-def add_properties_bulk(request, ct_id):
-    user = request.user
-    model = get_ct_or_404(ct_id).model_class()
-    entities = get_list_or_404(model,
-                               pk__in=request.POST.getlist('ids')
-                                      if request.method == 'POST' else
-                                      request.GET.getlist('ids'),
-                              )
+# @login_required
+# def add_properties_bulk(request, ct_id):
+#     user = request.user
+#     model = get_ct_or_404(ct_id).model_class()
+#     entities = get_list_or_404(model,
+#                                pk__in=request.POST.getlist('ids')
+#                                       if request.method == 'POST' else
+#                                       request.GET.getlist('ids'),
+#                               )
+#
+#     CremeEntity.populate_real_entities(entities)
+#
+#     filtered = {True: [], False: []}
+#     has_perm = user.has_perm_to_change
+#     for entity in entities:
+#         filtered[has_perm(entity)].append(entity)
+#
+#     if request.method == 'POST':
+#         form = prop_forms.AddPropertiesBulkForm(
+#                     model=model, user=user,
+#                     entities=filtered[True],
+#                     forbidden_entities=filtered[False],
+#                     data=request.POST,
+#         )
+#
+#         if form.is_valid():
+#             form.save()
+#     else:
+#         form = prop_forms.AddPropertiesBulkForm(
+#                     model=model, user=user,
+#                     entities=filtered[True],
+#                     forbidden_entities=filtered[False],
+#         )
+#
+#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+#                                {'form':  form,
+#                                 'title': _('Multiple adding of properties'),
+#                                 'submit_label': _('Add the properties'),
+#                                },
+#                                is_valid=form.is_valid(),
+#                                reload=False,
+#                                delegate_reload=True,
+#                               )
+class PropertiesBulkAdding(EntityCTypeRelatedMixin, generic.CremeModelCreationPopup):
+    model = CremeProperty
+    form_class = prop_forms.AddPropertiesBulkForm
+    title = _('Multiple adding of properties')
+    submit_label = _('Add the properties')
 
-    CremeEntity.populate_real_entities(entities)
+    def filter_entities(self, entities):
+        filtered = {True: [], False: []}
+        has_perm = self.request.user.has_perm_to_change
 
-    filtered = {True: [], False: []}
-    has_perm = user.has_perm_to_change
-    for entity in entities:
-        filtered[has_perm(entity)].append(entity)
+        for entity in entities:
+            filtered[has_perm(entity)].append(entity)
 
-    if request.method == 'POST':
-        form = prop_forms.AddPropertiesBulkForm(
-                    model=model, user=user,
-                    entities=filtered[True],
-                    forbidden_entities=filtered[False],
-                    data=request.POST,
-        )
+        return filtered
 
-        if form.is_valid():
-            form.save()
-    else:
-        form = prop_forms.AddPropertiesBulkForm(
-                    model=model, user=user,
-                    entities=filtered[True],
-                    forbidden_entities=filtered[False],
-        )
+    def get_entities(self, model):
+        request = self.request
+        entities = get_list_or_404(model,
+                                   pk__in=request.POST.getlist('ids')
+                                   if request.method == 'POST' else
+                                   request.GET.getlist('ids'),
+                                  )
 
-    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                               {'form':  form,
-                                'title': _('Multiple adding of properties'),
-                                'submit_label': _('Add the properties'),
-                               },
-                               is_valid=form.is_valid(),
-                               reload=False,
-                               delegate_reload=True,
-                              )
+        CremeEntity.populate_real_entities(entities)
 
+        return entities
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        del kwargs['instance']
+
+        model = self.get_ctype().model_class()
+        kwargs['model'] = model
+
+        filtered = self.filter_entities(self.get_entities(model=model))
+        kwargs['entities'] = filtered[True]
+        kwargs['forbidden_entities'] = filtered[False]
+
+        return kwargs
 
 # @login_required
 # def add_to_entity(request, entity_id):
@@ -96,8 +135,8 @@ def add_properties_bulk(request, ct_id):
 class PropertiesAdding(generic.AddingToEntity):
     model = CremeProperty
     form_class = prop_forms.AddPropertiesForm
-    submit_label = _('Add the properties')
     title_format = _('New properties for «{}»')
+    submit_label = _('Add the properties')
 
 
 # @login_required
