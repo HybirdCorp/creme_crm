@@ -9,7 +9,7 @@ try:
 
     from .base import CremeTestCase
 
-    from ..fake_models import FakeContact, FakeOrganisation, FakeCivility
+    from ..fake_models import FakeContact, FakeOrganisation, FakeCivility, FakeInvoice
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -33,8 +33,11 @@ class QuickFormTestCase(CremeTestCase):
                  'form-{}-user'.format(id):         self.user.id,
                })
 
-    def _build_quickform_url(self, model, count=1):
+    def _build_quickforms_url(self, model, count=1):
         return reverse('creme_core__quick_forms', args=(ContentType.objects.get_for_model(model).pk, count))
+
+    def _build_quickform_url(self, model):
+        return reverse('creme_core__quick_form', args=(ContentType.objects.get_for_model(model).pk,))
 
     def test_add_unknown_ctype(self):
         self.login()
@@ -52,26 +55,26 @@ class QuickFormTestCase(CremeTestCase):
 
     def test_add_unregistered_ctype(self):
         self.login()
-        self.assertGET404(self._build_quickform_url(FakeCivility))
+        self.assertGET404(self._build_quickforms_url(FakeCivility))
 
         data = self.quickform_data(1)
         self.quickform_data_append_contact(data, 0, last_name='Kirika')
 
-        self.assertPOST404(self._build_quickform_url(FakeCivility), data)
+        self.assertPOST404(self._build_quickforms_url(FakeCivility), data)
 
     def test_add_forbidden(self):
         self.login(is_superuser=False,
                    creatable_models=[FakeOrganisation],
                   )
 
-        self.assertGET403(self._build_quickform_url(FakeContact))
-        self.assertGET200(self._build_quickform_url(FakeOrganisation))
+        self.assertGET403(self._build_quickforms_url(FakeContact))
+        self.assertGET200(self._build_quickforms_url(FakeOrganisation))
 
         data = self.quickform_data(1)
         self.quickform_data_append_contact(data, 0, last_name='Kirika')
 
-        self.assertPOST403(self._build_quickform_url(FakeContact), data)
-        self.assertPOST200(self._build_quickform_url(FakeOrganisation), data)
+        self.assertPOST403(self._build_quickforms_url(FakeContact), data)
+        self.assertPOST200(self._build_quickforms_url(FakeOrganisation), data)
 
     def test_add_empty_form(self):
         self.login()
@@ -80,9 +83,9 @@ class QuickFormTestCase(CremeTestCase):
         data = self.quickform_data(1)
         self.quickform_data_append_contact(data, 0)
 
-        response = self.assertPOST200(self._build_quickform_url(FakeContact), data)
+        response = self.assertPOST200(self._build_quickforms_url(FakeContact), data)
         self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
-        self.assertFormsetError(response, 'formset', 0, 'last_name', _(u'This field is required.'))
+        self.assertFormsetError(response, 'formset', 0, 'last_name', _('This field is required.'))
 
         self.assertEqual(count, FakeContact.objects.count())
 
@@ -95,8 +98,8 @@ class QuickFormTestCase(CremeTestCase):
         self.quickform_data_append_contact(data, 1)
         self.quickform_data_append_contact(data, 2)
 
-        response = self.assertPOST200(self._build_quickform_url(FakeContact, 3), data)
-        msg = _(u'This field is required.')
+        response = self.assertPOST200(self._build_quickforms_url(FakeContact, 3), data)
+        msg = _('This field is required.')
         self.assertFormsetError(response, 'formset', 0, 'last_name', msg)
         self.assertFormsetError(response, 'formset', 1, 'last_name', msg)
         self.assertFormsetError(response, 'formset', 2, 'last_name', msg)
@@ -110,11 +113,11 @@ class QuickFormTestCase(CremeTestCase):
         data = self.quickform_data(1)
         self.quickform_data_append_contact(data, 0, email='invalid')
 
-        response = self.assertPOST200(self._build_quickform_url(FakeContact), data)
-        self.assertFormError(response, 'form', 'last_name', _(u'This field is required.'))
-        self.assertFormError(response, 'form', 'email',     _(u'Enter a valid email address.'))
+        response = self.assertPOST200(self._build_quickforms_url(FakeContact), data)
+        self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
+        self.assertFormError(response, 'form', 'email',     _('Enter a valid email address.'))
 
-        self.assertFormsetError(response, 'formset', 0, 'last_name', _(u'This field is required.'))
+        self.assertFormsetError(response, 'formset', 0, 'last_name', _('This field is required.'))
         self.assertEqual(count, FakeContact.objects.count())
 
     def test_add_multiple_invalid_form(self):
@@ -126,14 +129,14 @@ class QuickFormTestCase(CremeTestCase):
         self.quickform_data_append_contact(data, 1, email='invalid')
         self.quickform_data_append_contact(data, 2, last_name='Mireille', email='invalid')
 
-        response = self.assertPOST200(self._build_quickform_url(FakeContact, 3), data)
+        response = self.assertPOST200(self._build_quickforms_url(FakeContact, 3), data)
         self.assertNoFormsetError(response, 'formset', 0)
 
-        self.assertFormsetError(response, 'formset', 1, 'last_name', _(u'This field is required.'))
-        self.assertFormsetError(response, 'formset', 1, 'email',     _(u'Enter a valid email address.'))
+        self.assertFormsetError(response, 'formset', 1, 'last_name', _('This field is required.'))
+        self.assertFormsetError(response, 'formset', 1, 'email',     _('Enter a valid email address.'))
 
         self.assertNoFormsetError(response, 'formset', 2, 'last_name')
-        self.assertFormsetError(response, 'formset', 2, 'email', _(u'Enter a valid email address.'))
+        self.assertFormsetError(response, 'formset', 2, 'email', _('Enter a valid email address.'))
 
         self.assertEqual(count, FakeContact.objects.count())
 
@@ -146,7 +149,7 @@ class QuickFormTestCase(CremeTestCase):
         email = 'admin@hello.com'
         self.quickform_data_append_contact(data, 0, last_name=last_name, email=email)
 
-        self.assertPOST200(self._build_quickform_url(FakeContact), data)
+        self.assertPOST200(self._build_quickforms_url(FakeContact), data)
         self.assertEqual(count + 1, FakeContact.objects.count())
         self.get_object_or_fail(FakeContact, last_name=last_name, email=email)
 
@@ -166,22 +169,25 @@ class QuickFormTestCase(CremeTestCase):
         for i, kwargs in enumerate(contacts):
             self.quickform_data_append_contact(data, i, **kwargs)
 
-        self.assertPOST200(self._build_quickform_url(FakeContact, length), data)
+        self.assertPOST200(self._build_quickforms_url(FakeContact, length), data)
         self.assertEqual(count + length, FakeContact.objects.count())
 
         for kwargs in contacts:
             self.get_object_or_fail(FakeContact, **kwargs)
 
-    def test_add_from_widget(self):
+    def test_quickform01(self):
         user = self.login()
         count = FakeContact.objects.count()
-        ct_id = ContentType.objects.get_for_model(FakeContact).id
 
-        # self.assertGET200(reverse('creme_core__quick_form', args=(ct_id, 1)))
+        url = self._build_quickform_url(FakeContact)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
 
-        url = reverse('creme_core__quick_form', args=(ct_id,))
-        self.assertGET200(url)
+        context = response.context
+        self.assertEqual(FakeContact.creation_label, context.get('title'))
+        self.assertEqual(FakeContact.save_label,     context.get('submit_label'))
 
+        # ---
         last_name = 'Kirika'
         email = 'admin@hello.com'
         response = self.assertPOST200(url,
@@ -198,6 +204,21 @@ class QuickFormTestCase(CremeTestCase):
                          },
                          response.json()
                         )
+
+    def test_quickform02(self):
+        "Not super-user."
+        self.login(is_superuser=False, creatable_models=[FakeOrganisation])
+        self.assertGET200(self._build_quickform_url(FakeOrganisation))
+
+    def test_quickform03(self):
+        "Creation permission needed."
+        self.login(is_superuser=False, creatable_models=[FakeContact])
+        self.assertGET403(self._build_quickform_url(FakeOrganisation))
+
+    def test_quickform04(self):
+        "Model without form."
+        self.login()
+        self.assertGET404(self._build_quickform_url(FakeInvoice))
 
     # TODO : test_quickform_with_custom_sync_data
     # TODO : test_add_multiple_from_widget(self)

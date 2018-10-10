@@ -169,7 +169,8 @@ creme_core_patterns = [
 
     url(r'^quickforms/', include([
         url(r'^(?P<ct_id>\d+)/(?P<count>\d)[/]?$',   quick_forms.add,             name='creme_core__quick_forms'),
-        url(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.add_from_widget, name='creme_core__quick_form'),
+        # url(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.add_from_widget, name='creme_core__quick_form'),
+        url(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.QuickCreation.as_view(), name='creme_core__quick_form'),  # TODO: change the URL
     ])),
 ]
 

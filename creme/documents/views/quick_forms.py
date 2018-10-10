@@ -18,27 +18,32 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
+import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required
-from creme.creme_core.views.generic import inner_popup
+from creme.creme_core.views import generic
 from creme.creme_core.views.utils import json_update_from_widget_response
 
 from .. import get_document_model
-from ..forms.quick import CSVDocumentWidgetQuickForm, ImageQuickForm
+from ..forms import quick as q_forms
 
 
 Document = get_document_model()
 
 
-def abstract_add_doc_from_widget(request, form=CSVDocumentWidgetQuickForm,
+def abstract_add_doc_from_widget(request, form=q_forms.CSVDocumentWidgetQuickForm,
                                  template='creme_core/generics/form/add_innerpopup.html',
-                                 submit_label=_(u'Save the document'),
+                                 submit_label=Document.save_label,
                                  title=Document.creation_label,
                                 ):
+    warnings.warn('documents.views.document.abstract_add_doc_from_widget() is deprecated ; '
+                  'use the class-based view BaseQuickDocumentCreation instead.',
+                  DeprecationWarning
+                 )
+
     user = request.user
     if not user.has_perm_to_create(Document):
         raise PermissionDenied('You are not allowed to create a document')
@@ -56,26 +61,50 @@ def abstract_add_doc_from_widget(request, form=CSVDocumentWidgetQuickForm,
     else:
         form_instance = form(user=user)
 
-    return inner_popup(request, template,
-                       {'form':         form_instance,
-                        'title':        title,
-                        'submit_label': submit_label,
-                       },
-                       is_valid=form_instance.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(
+        request, template,
+        {'form':         form_instance,
+         'title':        title,
+         'submit_label': submit_label,
+        },
+        is_valid=form_instance.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
 @login_required
 def add_csv_from_widget(request):
+    warnings.warn('documents.views.document.add_csv_from_widget() is deprecated.', DeprecationWarning)
     return abstract_add_doc_from_widget(request)
 
 
 @login_required
 def add_image(request):
+    warnings.warn('documents.views.document.add_image() is deprecated.', DeprecationWarning)
     return abstract_add_doc_from_widget(request,
-                                        form=ImageQuickForm,
-                                        submit_label=_(u'Save the image'),
-                                        title=_(u'Create an image'),
+                                        form=q_forms.ImageQuickForm,
+                                        submit_label=_('Save the image'),
+                                        title=_('Create an image'),
                                        )
+
+
+class BaseQuickDocumentCreation(generic.EntityCreationPopup):
+    model = Document
+    # form_class = ...
+    template_name = 'creme_core/generics/form/add_innerpopup.html'
+
+    def form_valid(self, form):
+        # super().form_valid(form=form)
+        super(generic.CremeModelCreation, self).form_valid(form=form)  # HACK: to avoid double rendering
+        return json_update_from_widget_response(form.instance)
+
+
+class QuickDocumentCreation(BaseQuickDocumentCreation):
+    form_class = q_forms.CSVDocumentWidgetQuickForm
+
+
+class QuickImageCreation(BaseQuickDocumentCreation):
+    form_class = q_forms.ImageQuickForm
+    title = _('Create an image')
+    submit_label = _('Save the image')
