@@ -4,13 +4,15 @@ try:
     from functools import partial
     from json import dumps as json_dump
 
+    from django.utils.translation import ugettext as _, pgettext
+
     from creme.creme_config.registry import config_registry
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.forms.base import FieldTestCase
 
-    from ..models import Category, SubCategory
     from ..forms.fields import CategoryField
+    from ..models import Category, SubCategory
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -208,9 +210,21 @@ class CreateCategoryTestCase(CremeTestCase):
         count = SubCategory.objects.count()
 
         url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
 
-        response = self.client.post(url, data={'name': 'sub12', 'description': 'sub12', 'category': cat1.id})
+        context = response.context
+        self.assertEqual(pgettext('products-sub_category', 'Create a sub-category'),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save'), context.get('submit_label'))
+
+        # ---
+        response = self.client.post(url, data={'name': 'sub12',
+                                               'description': 'sub12',
+                                               'category': cat1.id,
+                                              },
+                                   )
         self.assertNoFormError(response)
         self.assertEqual(count + 1, SubCategory.objects.count())
 
@@ -243,7 +257,11 @@ class CreateCategoryTestCase(CremeTestCase):
         url, _allowed = config_registry.get_model_creation_info(Category, user)
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'name': 'cat1', 'description': 'cat1', 'category': 'unknown'})
+        response = self.client.post(url, data={'name': 'cat1',
+                                               'description': 'cat1',
+                                               'category': 'unknown',
+                                              },
+                                   )
         self.assertNoFormError(response)
         cat1 = self.get_object_or_fail(Category, name='cat1')
 

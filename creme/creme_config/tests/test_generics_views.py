@@ -292,9 +292,17 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_add01_from_widget(self):
         count = FakeCivility.objects.count()
 
-        url = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_civility'))
-        self.assertGET200(url)
+        url = reverse('creme_config__create_instance_from_widget',
+                      args=('creme_core', 'fake_civility')
+                     )
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
 
+        context = response.context
+        self.assertEqual(_('Create'), context.get('title'))
+        self.assertEqual(_('Save'), context.get('submit_label'))
+
+        # ---
         title = 'Generalissime'
         shortcut = 'G.'
         response = self.client.post(url, data={'title': title, 'shortcut': shortcut})
@@ -308,9 +316,15 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_add02_from_widget(self):
         count = FakeSector.objects.count()
 
-        url = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'))
-        self.assertGET200(url)
+        url = reverse('creme_config__create_instance_from_widget',
+                      args=('creme_core', 'fake_sector')
+                     )
+        context = self.assertGET200(url).context
 
+        self.assertEqual(_('Create a sector'), context.get('title'))
+        self.assertEqual(_('Save the sector'), context.get('submit_label'))
+
+        # ---
         title = 'Music'
         response = self.client.post(url, data={'title': title})
         self.assertNoFormError(response)

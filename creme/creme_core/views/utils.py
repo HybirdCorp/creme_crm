@@ -18,11 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from json import dumps as json_dump
-
 from django.db.models.base import Model
-from django.http.response import JsonResponse  # HttpResponse
-# from django.utils.http import PROTOCOL_TO_PORT
+from django.http.response import JsonResponse
 # from django.utils.six.moves.urllib.parse import urlparse
 from urllib.parse import urlparse
 
@@ -50,19 +47,17 @@ def build_cancel_path(request):
 # TODO: Find a better name
 def json_update_from_widget_response(instance):
     """
-    This function is designed for javascript selectors (listview or combobox) with creation forms and
-    needs to be updated the on fly.
+    This function is designed for JavaScript selectors (list-view or combobox)
+    with creation forms and needs to be updated the on fly.
 
-    Returns a dict that represents the changes to apply in a javascript widgets that supports collection "patch".
-    {"value": id, "added": [[id, label]]} is returned (the js will add the choice and select it).
+    Returns a dict that represents the changes to apply in a javascript widget
+    which supports collection "patch" :
+       {"value": id, "added": [[id, label]]} is returned (the JS will add the choice and select it).
     """
-    if isinstance(instance, Model):
-        data = {
-            'value': instance.id,
-            'added': [(instance.id, str(instance))]
-        }
-    else:
-        data = instance
-
-    # return HttpResponse(json_dump(data), content_type='application/json')
-    return JsonResponse(data)
+    return JsonResponse(
+        data={'value': instance.id,
+              'added': [(instance.id, str(instance))],
+             }
+             if isinstance(instance, Model) else
+             instance
+    )

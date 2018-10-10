@@ -172,7 +172,7 @@ class ViewableItem(Item):
     #     return '<Item: id=%s>' % self.id
 
     def __str__(self):
-        return u'<{name}: id="{id}" priority={priority} label="{label}">'.format(
+        return '<{name}: id="{id}" priority={priority} label="{label}">'.format(
                         name=self.__class__.__name__,
                         id=self.id,
                         priority=self._priority,
@@ -183,7 +183,7 @@ class ViewableItem(Item):
         img = self.render_icon(context)
         label = self.render_label(context)
 
-        return format_html(u'<span>{}{}</span>', img, label)
+        return format_html('<span>{}{}</span>', img, label)
 
     def render_icon(self, context):
         icon = self.icon
@@ -230,7 +230,7 @@ class ItemList:
 
         for item in items:
             if item._priority is not None:
-                raise ValueError(u'This item already belongs to a container: {}'.format(item))  # TODO: better exception ?
+                raise ValueError('This item already belongs to a container: {}'.format(item))  # TODO: better exception ?
 
             if item.id in ids:
                 raise ValueError('Duplicated id "{}"'.format(item.id))
@@ -389,7 +389,7 @@ class ItemSeparator(Item):
         return '--'
 
     def render(self, context, level=0):
-        return format_html(u'<hr class="ui-creme-navigation-separator ui-creme-navigation-separator-id_{}"/>', self.id)
+        return format_html('<hr class="ui-creme-navigation-separator ui-creme-navigation-separator-id_{}"/>', self.id)
 
 
 class ContainerItem(ViewableItem, ItemList):
@@ -406,14 +406,14 @@ class ContainerItem(ViewableItem, ItemList):
 
         for item in self:
             if isinstance(item, ItemGroup):
-                res += u'      --Group(id="{}", priority={})\n'.format(item.id, item._priority)
+                res += '      --Group(id="{}", priority={})\n'.format(item.id, item._priority)
 
                 for sub_item in item:
-                    res += u'        {}\n'.format(sub_item)
+                    res += '        {}\n'.format(sub_item)
 
                 res += '      --'
             else:
-                res += u'      {}'.format(item)
+                res += '      {}'.format(item)
 
             res += '\n'
 
@@ -452,12 +452,12 @@ class ContainerItem(ViewableItem, ItemList):
         level += 1
 
         return format_html(
-            u'{icon}{label}<ul>{li_tags}</ul>',
+            '{icon}{label}<ul>{li_tags}</ul>',
             icon=self.render_icon(context),
             label=self.render_label(context),
             # TODO: attr 'no_wrapping' instead of isinstance() ??
-            li_tags=mark_safe(u''.join(item.render(context, level) if isinstance(item, ItemSeparator) else
-                                       format_html(u'<li class="ui-creme-navigation-item-level{level} ui-creme-navigation-item-id_{id}">{item}</li>',
+            li_tags=mark_safe(''.join(item.render(context, level) if isinstance(item, ItemSeparator) else
+                                       format_html('<li class="ui-creme-navigation-item-level{level} ui-creme-navigation-item-id_{id}">{item}</li>',
                                                   level=level,
                                                   id=item.id,
                                                   item=item.render(context, level),
@@ -474,7 +474,7 @@ class LabelItem(ViewableItem):
         self.css_class = css_classes
 
     def render(self, context, level=0):
-        return format_html(u'<span class="{}">{}</span>', self.css_class, self.render_label(context))
+        return format_html('<span class="{}">{}</span>', self.css_class, self.render_label(context))
 
 
 class GroupLabelItem(LabelItem):
@@ -569,9 +569,9 @@ class URLItem(ViewableItem):
         label = self.render_label(context)
 
         if not self._has_perm(context):
-            return format_html(u'<span class="ui-creme-navigation-text-entry forbidden">{}{}</span>', img, label)
+            return format_html('<span class="ui-creme-navigation-text-entry forbidden">{}{}</span>', img, label)
 
-        return format_html(u'<a href="{url}">{img}{label}</a>', url=self.url, img=img, label=label)
+        return format_html('<a href="{url}">{img}{label}</a>', url=self.url, img=img, label=label)
 
 
 # class OnClickItem(Item):
@@ -601,13 +601,13 @@ class TrashItem(URLItem):
         count = CremeEntity.objects.filter(is_deleted=True).count()
 
         return format_html(
-            u'<a href="{url}">'
-                u'{label} <span class="ui-creme-navigation-punctuation">(</span>'
-                u'{count}<span class="ui-creme-navigation-punctuation">)</span>'
-            u'</a>',
+            '<a href="{url}">'
+                '{label} <span class="ui-creme-navigation-punctuation">(</span>'
+                '{count}<span class="ui-creme-navigation-punctuation">)</span>'
+            '</a>',
                 url=self.url,
-                label=_(u'Trash'),
-                count=ungettext(u'{count} entity', u'{count} entities', count).format(count=count),
+                label=_('Trash'),
+                count=ungettext('{count} entity', '{count} entities', count).format(count=count),
         )
 
 
@@ -621,14 +621,15 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
             self.model = model
 
         def render(self, context, level=0):
-            return format_html(u'<a href="#" data-href="{url}" class="quickform-menu-link">{label}</a>',
-                               url=reverse('creme_core__quick_forms', args=(self.ct_id, 1)),
+            return format_html('<a href="#" data-href="{url}" class="quickform-menu-link">{label}</a>',
+                               # url=reverse('creme_core__quick_forms', args=(self.ct_id, 1)),
+                               url=reverse('creme_core__quick_form', args=(self.ct_id,)),
                                label=self.label,
                               ) \
                    if context['user'].has_perm_to_create(self.model) else \
-                   format_html(u'<span class="ui-creme-navigation-text-entry forbidden">{}</span>', self.label)
+                   format_html('<span class="ui-creme-navigation-text-entry forbidden">{}</span>', self.label)
 
-    def __init__(self, id, registry, label=ugettext_lazy(u'Quick creation')):
+    def __init__(self, id, registry, label=ugettext_lazy('Quick creation')):
         """@param registry: QuickFormsRegistry instance (indeed, we only need a iter_models() method)."""
         # super(QuickCreationItemGroup, self).__init__(id=id, label=label)
         super().__init__(id=id, label=label)
@@ -652,7 +653,7 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
 
                 yield self._QuickCreationItem(id='{}-{}'.format(g_id, ct_id), ct_id=ct_id, model=model, label=vname)
         else:
-            yield LabelItem(id='{}-empty'.format(g_id), label=_(u'No type available'))
+            yield LabelItem(id='{}-empty'.format(g_id), label=_('No type available'))
 
 
 class CreationFormsItem(ViewableItem):
@@ -689,7 +690,7 @@ class CreationFormsItem(ViewableItem):
                     raise TypeError('Link: missing parameter {}'.format(e)) from e
 
         def __str__(self):
-            return u'<Link: id="{}" label="{}" priority={}>'.format(
+            return '<Link: id="{}" label="{}" priority={}>'.format(
                             self.id, self.label, self._priority,
                     )
 
@@ -713,7 +714,7 @@ class CreationFormsItem(ViewableItem):
             return url
 
         def render(self, context, level=0):  # Useless (only to_dict() is used, render is done by JavaScript).
-            return format_html(u'<a href="{}">{}</a>', self.url, self.label)
+            return format_html('<a href="{}">{}</a>', self.url, self.label)
 
         def to_dict(self, user):
             d = {'label': str(self.label)}
@@ -733,7 +734,7 @@ class CreationFormsItem(ViewableItem):
             return iter(self._links)
 
         def __str__(self):
-            return u'<LinkGroup: id="{id}" label="{label}" priority={priority}>'.format(
+            return '<LinkGroup: id="{id}" label="{label}" priority={priority}>'.format(
                             id=self.id, label=self.label, priority=self._priority
                     )
 
@@ -822,8 +823,8 @@ class CreationFormsItem(ViewableItem):
 
     def render(self, context, level=0):
         return format_html(
-            u'<a href="" class="anyform-menu-link" title="{title}" data-grouped-links="{links}">{icon}{label}</a>',
-            title=_(u'Create an entity of any type'),
+            '<a href="" class="anyform-menu-link" title="{title}" data-grouped-links="{links}">{icon}{label}</a>',
+            title=_('Create an entity of any type'),
             links=json_dump(self.as_grid(context['user'])),
             icon=self.render_icon(context),
             label=self.render_label(context),
@@ -840,13 +841,13 @@ class CreationFormsItem(ViewableItem):
     @property
     def verbose_str(self):
         """Returns a detailed description of groups/links ; useful to get priorities/IDs."""
-        res = u'{}\n'.format(self)
+        res = '{}\n'.format(self)
 
         for group in self._groups:
-            res += u'  {}\n'.format(group)
+            res += '  {}\n'.format(group)
 
             for link in group:
-                res += u'     {}\n'.format(link)
+                res += '     {}\n'.format(link)
 
         return res
 
@@ -858,15 +859,15 @@ class LastViewedEntitiesItem(ViewableItem):
         lv_items = LastViewedItem.get_all(context['request'])
 
         if lv_items:
-            li_tags = format_html_join(u'', u'<li><a href="{}">{}</a></li>',
+            li_tags = format_html_join('', '<li><a href="{}">{}</a></li>',
                                        ((lvi.url, lvi.name) for lvi in lv_items)
                                       )
         else:
-            li_tags = format_html(u'<li><span class="ui-creme-navigation-text-entry">{}</span></li>',
-                                  _(u'No recently visited entity')
+            li_tags = format_html('<li><span class="ui-creme-navigation-text-entry">{}</span></li>',
+                                  _('No recently visited entity')
                                  )
 
-        return format_html(u'{icon}{label}<ul>{li_tags}</ul>',
+        return format_html('{icon}{label}<ul>{li_tags}</ul>',
                            icon=self.render_icon(context),
                            label=self.render_label(context),
                            li_tags=li_tags,
@@ -900,7 +901,7 @@ class Menu(ItemList):
                 res += '---\nGroup(id="{}", priority={})\n'.format(item.id, item._priority)
 
                 for sub_item in item:
-                    res += u'   {}\n'.format(sub_item)
+                    res += '   {}\n'.format(sub_item)
 
                 res += '---'
             else:
@@ -912,10 +913,10 @@ class Menu(ItemList):
 
     def render(self, context, level=0):
         return format_html(
-            u'<ul class="ui-creme-navigation">{}</ul>',
+            '<ul class="ui-creme-navigation">{}</ul>',
             format_html_join(
-                    u'',
-                    u'<li class="ui-creme-navigation-item-level{} ui-creme-navigation-item-id_{}">{}</li>',
+                    '',
+                    '<li class="ui-creme-navigation-item-level{} ui-creme-navigation-item-id_{}">{}</li>',
                     ((level, item.id, item.render(context, level)) for item in self)
             ),
         )

@@ -599,7 +599,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
                            }
                           )
 
-    def test_add(self):
+    def test_create_legacy(self):
         user = self.login()
 
         self.assertFalse(Document.objects.exists())
@@ -608,7 +608,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         url = reverse('creme_core__quick_forms', args=(ContentType.objects.get_for_model(Document).id, 1))
         self.assertGET200(url)
 
-        content = 'Yes I am the content (DocumentQuickFormTestCase.test_add)'
+        content = 'Yes I am the content (DocumentQuickFormTestCase.test_create_legacy)'
         # file_obj, file_name = self._build_filedata(content)
         file_obj = self._build_filedata(content)
         folder = Folder.objects.all()[0]
@@ -633,28 +633,70 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertEqual([content], filedata.readlines())
         filedata.close()
 
+    def test_create(self):
+        user = self.login()
+
+        self.assertFalse(Document.objects.exists())
+        self.assertTrue(Folder.objects.exists())
+
+        url = reverse('creme_core__quick_form', args=(ContentType.objects.get_for_model(Document).id,))
+        self.assertGET200(url)
+
+        content = 'Yes I am the content (DocumentQuickFormTestCase.test_create)'
+        file_obj = self._build_filedata(content)
+        folder = Folder.objects.all()[0]
+
+        self.assertNoFormError(self.client.post(
+            url, follow=True,
+            data={
+                'user':          user.id,
+                'filedata':      file_obj,
+                'linked_folder': folder.id,
+            }
+
+        ))
+
+        docs = Document.objects.all()
+        self.assertEqual(1, len(docs))
+
+        doc = docs[0]
+        self.assertEqual('upload/documents/' + file_obj.base_name, doc.filedata.name)
+        self.assertEqual('', doc.description)
+        self.assertEqual(folder, doc.linked_folder)
+
+        filedata = doc.filedata
+        filedata.open('r')
+        self.assertEqual([content], filedata.readlines())
+        filedata.close()
+
 
 @skipIfCustomDocument
 @skipIfCustomFolder
 # class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
 class DocumentQuickWidgetTestCase(_DocumentsTestCase):
     # def test_add_from_widget(self):
-    def test_add_csv_doc(self):
+    def test_add_csv_doc01(self):
         user = self.login()
 
         self.assertFalse(Document.objects.exists())
         self.assertTrue(Folder.objects.exists())
 
         url = reverse('documents__create_document_from_widget')
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
 
+        context = response.context
+        self.assertEqual(_('Create a document'), context.get('title'))
+        self.assertEqual(_('Save the document'), context.get('submit_label'))
+
+        # ---
         content = 'Content (DocumentQuickWidgetTestCase.test_add_csv_doc)'
         # file_obj, file_name = self._build_filedata(content)
         file_obj= self._build_filedata(content)
         response = self.client.post(url, follow=True,
                                     data={'user':     user.pk,
                                           'filedata': file_obj,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -680,13 +722,35 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertEqual([content], filedata.readlines())
         filedata.close()
 
+    def test_add_csv_doc02(self):
+        "Not super-user"
+        self.login(is_superuser=False,
+                   allowed_apps=['documents'],
+                   creatable_models=[Document],
+                  )
+        self.assertGET200(reverse('documents__create_document_from_widget'))
+
+    def test_add_csv_doc03(self):
+        "Creation permission needed."
+        self.login(is_superuser=False,
+                   allowed_apps=['documents'],
+                   # creatable_models=[Document],
+                  )
+        self.assertGET403(reverse('documents__create_document_from_widget'))
+
     @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
     def test_add_image_doc01(self):
         user = self.login()
 
         url = reverse('documents__create_image_popup')
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
 
+        context = response.context
+        self.assertEqual(_('Create an image'), context.get('title'))
+        self.assertEqual(_('Save the image'),  context.get('submit_label'))
+
+        # ---
         path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png')
         self.assertTrue(exists(path))
 
@@ -696,7 +760,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
                                         data={'user':   user.pk,
                                               'image':  image_file,
                                               'linked_folder': folder.id,
-                                             }
+                                             },
                                        )
         self.assertNoFormError(response)
 

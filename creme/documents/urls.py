@@ -17,7 +17,7 @@ if not documents.folder_model_is_custom():
     from .views import folder
 
     urlpatterns += [
-        url(r'^folders[/]?$',                             folder.listview,   name='documents__list_folders'),
+        url(r'^folders[/]?$',                             folder.listview,                      name='documents__list_folders'),
         # url(r'^folder/add[/]?$',                          folder.add,        name='documents__create_folder'),
         url(r'^folder/add[/]?$',                          folder.FolderCreation.as_view(),      name='documents__create_folder'),
         # url(r'^folder/(?P<folder_id>\d+)/add/child[/]?$', folder.add_child,  name='documents__create_child_folder'),
@@ -32,7 +32,7 @@ if not documents.document_model_is_custom():
     from .views import document, quick_forms
 
     urlpatterns += [
-        url(r'^documents[/]?$',                              document.listview,    name='documents__list_documents'),
+        url(r'^documents[/]?$',                              document.listview,                          name='documents__list_documents'),
         # url(r'^document/add[/]?$',                           document.add,         name='documents__create_document'),
         url(r'^document/add[/]?$',                           document.DocumentCreation.as_view(),        name='documents__create_document'),
         # url(r'^document/add_related/(?P<entity_id>\d+)[/]?', document.add_related, name='documents__create_related_document'),
@@ -44,9 +44,13 @@ if not documents.document_model_is_custom():
 
         # url(r'^quickforms/from_widget/document/csv/add/(?P<count>\d)*[/]?$',
         url(r'^quickforms/from_widget/document/csv/add[/]?$',
-            quick_forms.add_csv_from_widget, name='documents__create_document_from_widget',
-           ),
+            # quick_forms.add_csv_from_widget,
+            quick_forms.QuickDocumentCreation.as_view(),
+            name='documents__create_document_from_widget',
+            ),
         url(r'^quickforms/image[/]?$',
-            quick_forms.add_image, name='documents__create_image_popup',
+            # quick_forms.add_image,
+            quick_forms.QuickImageCreation.as_view(),
+            name='documents__create_image_popup',
            ),
     ]

@@ -200,7 +200,7 @@ class EntityFilterCreation(FilterCreationMixin, generic.CremeModelCreation):
 #                    'submit_label': _('Save the modified filter'),
 #                   }
 #                  )
-class EntityFilterEdition(FilterEditionMixin, generic.edit.CremeModelEdition):
+class EntityFilterEdition(FilterEditionMixin, generic.CremeModelEdition):
     model = EntityFilter
     form_class = efilter_forms.EntityFilterEditForm
     template_name = 'creme_core/forms/entity-filter.html'

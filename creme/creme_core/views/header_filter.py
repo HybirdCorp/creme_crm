@@ -149,7 +149,7 @@ class HeaderFilterCreation(entity_filter.FilterCreationMixin,
 #                   }
 #                  )
 class HeaderFilterEdition(entity_filter.FilterEditionMixin,
-                          generic.edit.CremeModelEdition
+                          generic.CremeModelEdition,
                          ):
     model = HeaderFilter
     form_class = hf_forms.HeaderFilterEditForm

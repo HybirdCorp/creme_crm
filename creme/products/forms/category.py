@@ -38,6 +38,6 @@ class SubCategoryForm(CremeModelForm):
                 {
                     'category': (str(category.id), str(category)),
                     'subcategory': (str(instance.id), str(instance)),
-                }
+                },
             ],
         }

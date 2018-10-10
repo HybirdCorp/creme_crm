@@ -18,40 +18,42 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, ForeignKey, CASCADE
+from django.db import models
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 
 
 class Category(CremeModel):
-    name        = CharField(_(u'Name of the category'), max_length=100)
-    description = CharField(_(u'Description'), max_length=100)
+    name        = models.CharField(_('Name of the category'), max_length=100)
+    description = models.CharField(_('Description'), max_length=100)
 
-    creation_label = pgettext_lazy('products-category', u'Create a category')
+    creation_label = pgettext_lazy('products-category', 'Create a category')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'products'
-        verbose_name = pgettext_lazy('products-category', u'Category')
-        verbose_name_plural = pgettext_lazy('products-category', u'Categories')
+        verbose_name = pgettext_lazy('products-category', 'Category')
+        verbose_name_plural = pgettext_lazy('products-category', 'Categories')
         ordering = ('name',)
 
 
 class SubCategory(CremeModel):
-    name        = CharField(_(u'Name of the sub-category'), max_length=100)
-    description = CharField(_(u'Description'), max_length=100)
-    category    = ForeignKey(Category, verbose_name=_(u'Parent category'), on_delete=CASCADE).set_tags(viewable=False)
+    name        = models.CharField(_('Name of the sub-category'), max_length=100)
+    description = models.CharField(_('Description'), max_length=100)
+    category    = models.ForeignKey(Category, verbose_name=_('Parent category'),
+                                    on_delete=models.CASCADE,
+                                   ).set_tags(viewable=False)
 
-    creation_label = pgettext_lazy('products-sub_category', u'Create a sub-category')
+    creation_label = pgettext_lazy('products-sub_category', 'Create a sub-category')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'products'
-        verbose_name = pgettext_lazy('products-sub_category', u'Sub-category')
-        verbose_name_plural = pgettext_lazy('products-sub_category', u'Sub-categories')
+        verbose_name = pgettext_lazy('products-sub_category', 'Sub-category')
+        verbose_name_plural = pgettext_lazy('products-sub_category', 'Sub-categories')
         ordering = ('name',)

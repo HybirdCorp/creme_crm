@@ -19,28 +19,33 @@
 ################################################################################
 
 # from json import dumps as json_dump
-# import warnings
+import warnings
 
 from django.core.exceptions import PermissionDenied
-from django.forms.formsets import formset_factory
 from django.http import Http404
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
 from ..gui.quick_forms import quickforms_registry
 from ..utils import get_ct_or_404
 
-from .generic import inner_popup
+from . import generic
+from .generic.base import EntityCTypeRelatedMixin
 from .utils import json_update_from_widget_response
 
 
-# TODO: it seems there is a problem with formsets : if the 'user' field is empty
-#       it does not raise a Validation exception, but it causes a SQL integrity
-#       error ; we are saved by the 'empty_label=None' of user field, but it is
-#       not really perfect...
-
 @login_required
 def add(request, ct_id, count):
+    warnings.warn('creme_core.views.quick_forms.add() is deprecated.', DeprecationWarning)
+
+    # NB: it seems there is a problem with formsets : if the 'user' field is empty
+    #     it does not raise a Validation exception, but it causes a SQL integrity
+    #     error ; we are saved by the 'empty_label=None' of user field, but it is
+    #     not really perfect...
+
+    from django.forms.formsets import formset_factory
+
     if count == '0':
         raise Http404('Count must be between 1 & 9')
 
@@ -78,47 +83,72 @@ def add(request, ct_id, count):
     else:
         qformset = qformset_class()
 
-    return inner_popup(request, 'creme_core/generics/blockformset/add_popup.html',
-                       {'formset': qformset,
-                        'title':   _(u'Quick creation of «{model}»').format(model=model_name),
-                       },
-                       is_valid=qformset.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(
+        request, 'creme_core/generics/blockformset/add_popup.html',
+        {'formset': qformset,
+         'title':   _('Quick creation of «{model}»').format(model=model_name),
+        },
+        is_valid=qformset.is_valid(),
+        reload=False,
+        delegate_reload=True,
+    )
 
 
-@login_required
-def add_from_widget(request, ct_id):
-    model = get_ct_or_404(ct_id).model_class()
-    model_name = model._meta.verbose_name
-    user = request.user
+# @login_required
+# def add_from_widget(request, ct_id):
+#     model = get_ct_or_404(ct_id).model_class()
+#     model_name = model._meta.verbose_name
+#     user = request.user
+#
+#     if not user.has_perm_to_create(model):
+#         # todo: manage/display error on JS side (for now it just does nothing)
+#         raise PermissionDenied('You are not allowed to create entity with type "{}"'.format(model_name))
+#
+#     form_class = quickforms_registry.get_form(model)
+#
+#     if form_class is None:
+#         raise Http404('No form registered for model: {}'.format(model))
+#
+#     if request.method == 'POST':
+#         form = form_class(user=user, data=request.POST, files=request.FILES or None, initial=None)
+#
+#         if form.is_valid():
+#             form.save()
+#
+#             return json_update_from_widget_response(form.instance)
+#     else:
+#         form = form_class(user=user, initial=None)
+#
+#     return generic.inner_popup(
+#         request, 'creme_core/generics/form/add_innerpopup.html',
+#         {'form':         form,
+#          'title':        model.creation_label,
+#          'submit_label': model.save_label,
+#         },
+#         is_valid=form.is_valid(),
+#         reload=False,
+#         delegate_reload=True,
+#     )
+# TODO: manage/display error (like PermissionDenied) on JS side (for now it just does nothing)
+class QuickCreation(EntityCTypeRelatedMixin, generic.EntityCreationPopup):
+    # model = ...
+    # form_class = ...
+    template_name = 'creme_core/generics/form/add_innerpopup.html'
 
-    if not user.has_perm_to_create(model):
-        # TODO: manage/display error on JS side (for now it just does nothing)
-        raise PermissionDenied(u'You are not allowed to create entity with type "{}"'.format(model_name))
+    def get_form_class(self):
+        model = self.model
+        form_class = quickforms_registry.get_form(model)
 
-    form_class = quickforms_registry.get_form(model)
+        if form_class is None:
+            raise Http404('No form registered for model: {}'.format(model))
 
-    if form_class is None:
-        raise Http404('No form registered for model: {}'.format(model))
+        return form_class
 
-    if request.method == 'POST':
-        form = form_class(user=user, data=request.POST, files=request.FILES or None, initial=None)
+    def form_valid(self, form):
+        # super().form_valid(form=form)
+        super(generic.CremeModelCreation, self).form_valid(form=form)  # HACK: to avoid double rendering
+        return json_update_from_widget_response(form.instance)
 
-        if form.is_valid():
-            form.save()
-
-            return json_update_from_widget_response(form.instance)
-    else:
-        form = form_class(user=user, initial=None)
-
-    return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
-                       {'form':   form,
-                        'title':  model.creation_label,
-                        'submit_label': model.save_label,
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    @cached_property
+    def model(self):
+        return self.get_ctype().model_class()
