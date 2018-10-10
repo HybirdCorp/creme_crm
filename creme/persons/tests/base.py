@@ -38,9 +38,11 @@ def skipIfCustomOrganisation(test_func):
 
 
 class _BaseTestCase(_DocumentsTestCase):
-    def login(self, is_superuser=True, **kwargs):
+    # def login(self, is_superuser=True, **kwargs):
+    def login(self, is_superuser=True, allowed_apps=('persons',), **kwargs):
         # return super(_BaseTestCase, self).login(is_superuser, allowed_apps=['persons'], **kwargs)
-        return super().login(is_superuser, allowed_apps=['persons'], **kwargs)
+        # return super().login(is_superuser, allowed_apps=['persons'], **kwargs)
+        return super().login(is_superuser=is_superuser, allowed_apps=allowed_apps, **kwargs)
 
     def assertAddressOnlyContentEqual(self, address1, address2):
         self.assertNotEqual(address1.id, address2.id)

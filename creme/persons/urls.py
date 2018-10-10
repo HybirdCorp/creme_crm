@@ -17,7 +17,11 @@ become_patterns = [
 urlpatterns = [
     # url(r'^$', portal.portal, name='persons__portal'),
 
-    url(r'^organisation/managed[/]?$',     organisation.set_managed,   name='persons__orga_set_managed'),
+    url(r'^organisation/managed[/]?$',
+        # organisation.set_managed,
+        organisation.ManagedOrganisationsAdding.as_view(),
+        name='persons__orga_set_managed',
+    ),
     url(r'^organisation/not_managed[/]?$', organisation.unset_managed, name='persons__orga_unset_managed'),
 
     url(r'^(?P<entity_id>\d+)/become_', include(become_patterns)),

@@ -1183,7 +1183,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         self._assertNoResultError(self._get_job_results(job))
 
-    def test_set_orga_as_managed(self):
+    def test_set_orga_as_managed01(self):
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -1192,8 +1192,15 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga3 = create_orga(name='RedTail')
 
         url = reverse('persons__orga_set_managed')
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
 
+        context = response.context
+        self.assertEqual(_('Add some managed organisations'), context.get('title'))
+        self.assertEqual(_('Save the modifications'),         context.get('submit_label'))
+
+        # ---
         response = self.client.post(url, data={'organisations': self.formfield_value_multi_creator_entity(orga1, orga2)})
         self.assertNoFormError(response)
 
@@ -1204,6 +1211,22 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         # Managed Organisations are excluded
         response = self.assertPOST200(url, data={'organisations': '[{}]'.format(orga1.id)})
         self.assertFormError(response, 'form', 'organisations', _('This entity does not exist.'))
+
+    def test_set_orga_as_managed02(self):
+        "Not super-user."
+        self.login(is_superuser=False,
+                   allowed_apps=['creme_core', 'persons'],
+                   admin_4_apps=['creme_core'],
+                  )
+        self.assertGET200(reverse('persons__orga_set_managed'))
+
+    def test_set_orga_as_managed03(self):
+        "Admin permission needed."
+        self.login(is_superuser=False,
+                   allowed_apps=['creme_core', 'persons'],
+                   # admin_4_apps=['creme_core'],
+                  )
+        self.assertGET403(reverse('persons__orga_set_managed'))
 
     def test_set_orga_as_not_managed(self):
         self.login()

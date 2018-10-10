@@ -110,15 +110,16 @@ def listview(request):
 @permission_required('persons')
 def list_my_leads_my_customers(request):
     # TODO: use a constant for 'persons-hf_leadcustomer' ??
-    return generic.list_view(request, Organisation, hf_pk='persons-hf_leadcustomer',
-                             extra_dict={'list_title': ugettext(u'List of my suspects / prospects / customers')},
-                             extra_q=Q(relations__type__in=(constants.REL_SUB_CUSTOMER_SUPPLIER,
-                                                            constants.REL_SUB_PROSPECT,
-                                                            constants.REL_SUB_SUSPECT,
-                                                           ),
-                                       relations__object_entity__in=[o.id for o in Organisation.get_all_managed_by_creme()],
+    return generic.list_view(
+        request, Organisation, hf_pk='persons-hf_leadcustomer',
+        extra_dict={'list_title': ugettext('List of my suspects / prospects / customers')},
+        extra_q=Q(relations__type__in=(constants.REL_SUB_CUSTOMER_SUPPLIER,
+                                       constants.REL_SUB_PROSPECT,
+                                       constants.REL_SUB_SUSPECT,
                                       ),
-                            )
+                  relations__object_entity__in=[o.id for o in Organisation.get_all_managed_by_creme()],
+                 ),
+    )
 
 
 # Class-based views  ----------------------------------------------------------
@@ -144,27 +145,38 @@ class OrganisationEdition(generic.EntityEdition):
 
 # Other views  ----------------------------------------------------------------
 
-@login_required
-@permission_required('creme_core.can_admin')
-def set_managed(request):
-    if request.method == 'POST':
-        form = orga_forms.ManagedOrganisationsForm(user=request.user, data=request.POST)
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def set_managed(request):
+#     if request.method == 'POST':
+#         form = orga_forms.ManagedOrganisationsForm(user=request.user, data=request.POST)
+#
+#         if form.is_valid():
+#             form.save()
+#     else:
+#         form = orga_forms.ManagedOrganisationsForm(user=request.user)
+#
+#     return generic.inner_popup(request,
+#                                'creme_core/generics/blockform/edit_popup.html',
+#                                {'form':         form,
+#                                 'title':        _('Add some managed organisations'),
+#                                 'submit_label': _('Save the modifications'),
+#                                },
+#                                is_valid=form.is_valid(),
+#                                reload=False,
+#                                delegate_reload=True,
+#                               )
+class ManagedOrganisationsAdding(generic.CremeModelCreationPopup):
+    form_class = orga_forms.ManagedOrganisationsForm
+    permissions = 'creme_core.can_admin'
+    title = _('Add some managed organisations')
+    submit_label = _('Save the modifications')
 
-        if form.is_valid():
-            form.save()
-    else:
-        form = orga_forms.ManagedOrganisationsForm(user=request.user)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        del kwargs['instance']
 
-    return generic.inner_popup(request,
-                               'creme_core/generics/blockform/edit_popup.html',
-                               {'form':         form,
-                                'title':        _(u'Add some managed organisations'),
-                                'submit_label': _(u'Save the modifications'),
-                               },
-                               is_valid=form.is_valid(),
-                               reload=False,
-                               delegate_reload=True,
-                              )
+        return kwargs
 
 
 @decorators.POST_only
@@ -183,6 +195,6 @@ def unset_managed(request):
                 orga.is_managed = False
                 orga.save()
             else:
-                raise ConflictError(ugettext(u'You must have at least one managed organisation.'))
+                raise ConflictError(ugettext('You must have at least one managed organisation.'))
 
     return HttpResponse()
