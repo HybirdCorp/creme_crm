@@ -31,10 +31,11 @@ from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 from .. import utils
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
-from ..forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
+from ..forms import relation as rel_forms
 from ..models import Relation, RelationType, CremeEntity
 
-from .generic import inner_popup, listview, AddingToEntity
+from . import generic
+from .generic.base import EntityCTypeRelatedMixin
 
 
 def _fields_values(instances, getters, range, sort_getter=None, user=None):
@@ -166,7 +167,7 @@ def json_rtype_ctypes(request, rtype_id):
 #         relations_types = [rtype_id]
 #
 #     if request.method == 'POST':
-#         form = RelationCreateForm(subject=subject, user=user,
+#         form = rel_forms.RelationCreateForm(subject=subject, user=user,
 #                                   relations_types=relations_types,
 #                                   data=request.POST,
 #                                  )
@@ -182,11 +183,11 @@ def json_rtype_ctypes(request, rtype_id):
 #                 relations_types = RelationType.get_compatible_ones(subject.entity_type) \
 #                                               .exclude(id__in=excluded_rtype_ids)
 #
-#         form = RelationCreateForm(subject=subject, user=user,
+#         form = rel_forms.RelationCreateForm(subject=subject, user=user,
 #                                   relations_types=relations_types,
 #                                  )
 #
-#     return inner_popup(request,
+#     return generic.inner_popup(request,
 #                        'creme_core/generics/blockform/link_popup.html',
 #                        {'form':  form,
 #                         'title': ugettext('Relationships for «{entity}»').format(entity=subject),
@@ -196,9 +197,9 @@ def json_rtype_ctypes(request, rtype_id):
 #                        reload=False,
 #                        delegate_reload=True,
 #                       )
-class RelationsAdding(AddingToEntity):
+class RelationsAdding(generic.AddingToEntity):
     model = Relation
-    form_class = RelationCreateForm
+    form_class = rel_forms.RelationCreateForm
     template_name = 'creme_core/generics/blockform/link_popup.html'
     title_format = _('Relationships for «{}»')
     submit_label = _('Save the relationships')
@@ -232,61 +233,104 @@ class RelationsAdding(AddingToEntity):
                 # Theses type are excluded to provide a better GUI, but they cannot cause business conflict
                 # (internal rtypes are always excluded), so it's not a problem to only excluded them only in GET part.
                 rtypes = RelationType.get_compatible_ones(self.get_related_entity().entity_type) \
-                                    .exclude(id__in=excluded_rtype_ids)
+                                     .exclude(id__in=excluded_rtype_ids)
 
         return rtypes
 
 
 # TODO: Factorise with add_properties_bulk and bulk_update?
-@login_required
-def add_relations_bulk(request, model_ct_id):
-    rtype_ids = None
+# @login_required
+# def add_relations_bulk(request, model_ct_id):
+#     rtype_ids = None
+#
+#     if request.method == 'GET':
+#         rtype_ids = request.GET.getlist('rtype') or None
+#
+#     user = request.user
+#     model = utils.get_ct_or_404(model_ct_id).model_class()
+#
+#     # todo: rename 'ids' -> 'entity/id' ?
+#     entities = get_list_or_404(model,
+#                                pk__in=request.POST.getlist('ids') if request.method == 'POST' else
+#                                       request.GET.getlist('ids'),
+#                               )
+#
+#     CremeEntity.populate_real_entities(entities)
+#
+#     filtered = {True: [], False: []}
+#     has_perm_to_link = user.has_perm_to_link
+#     for entity in entities:
+#         filtered[has_perm_to_link(entity)].append(entity)
+#
+#     if request.method == 'POST':
+#         form = rel_forms.MultiEntitiesRelationCreateForm(subjects=filtered[True],
+#                                                forbidden_subjects=filtered[False],
+#                                                user=user,
+#                                                data=request.POST,
+#                                                relations_types=rtype_ids,
+#                                               )
+#
+#         if form.is_valid():
+#             form.save()
+#     else:
+#         form = rel_forms.MultiEntitiesRelationCreateForm(subjects=filtered[True],
+#                                                forbidden_subjects=filtered[False],
+#                                                user=user,
+#                                                relations_types=rtype_ids,
+#                                               )
+#
+#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+#                        {'form':  form,
+#                         'title': _('Multiple adding of relationships'),
+#                         'submit_label': _('Save the relationships'),
+#                        },
+#                        is_valid=form.is_valid(),
+#                        reload=False,
+#                        delegate_reload=True,
+#                       )
+# TODO: link_popup
+class RelationsBulkAdding(EntityCTypeRelatedMixin, generic.CremeModelCreationPopup):
+    model = Relation
+    form_class = rel_forms.MultiEntitiesRelationCreateForm
+    title = _('Multiple adding of relationships')
+    submit_label = _('Save the relationships')
 
-    if request.method == 'GET':
-        rtype_ids = request.GET.getlist('rtype') or None
+    def filter_entities(self, entities):
+        filtered = {True: [], False: []}
+        has_perm = self.request.user.has_perm_to_link
 
-    user = request.user
-    model = utils.get_ct_or_404(model_ct_id).model_class()
+        for entity in entities:
+            filtered[has_perm(entity)].append(entity)
 
-    # TODO: rename 'ids' -> 'entity/id' ?
-    entities = get_list_or_404(model,
-                               pk__in=request.POST.getlist('ids') if request.method == 'POST' else
-                                      request.GET.getlist('ids'),
-                              )
+        return filtered
 
-    CremeEntity.populate_real_entities(entities)
+    def get_entities(self, model):
+        request = self.request
+        # TODO: rename 'ids' -> 'entity/id' ?
+        entities = get_list_or_404(model,
+                                   pk__in=request.POST.getlist('ids')
+                                   if request.method == 'POST' else
+                                   request.GET.getlist('ids'),
+                                  )
 
-    filtered = {True: [], False: []}
-    has_perm_to_link = user.has_perm_to_link
-    for entity in entities:
-        filtered[has_perm_to_link(entity)].append(entity)
+        CremeEntity.populate_real_entities(entities)
 
-    if request.method == 'POST':
-        form = MultiEntitiesRelationCreateForm(subjects=filtered[True],
-                                               forbidden_subjects=filtered[False],
-                                               user=user,
-                                               data=request.POST,
-                                               relations_types=rtype_ids,
-                                              )
+        return entities
 
-        if form.is_valid():
-            form.save()
-    else:
-        form = MultiEntitiesRelationCreateForm(subjects=filtered[True],
-                                               forbidden_subjects=filtered[False],
-                                               user=user,
-                                               relations_types=rtype_ids,
-                                              )
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        del kwargs['instance']
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                       {'form':  form,
-                        'title': _('Multiple adding of relationships'),
-                        'submit_label': _('Save the relationships'),
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+        filtered = self.filter_entities(self.get_entities(model=self.get_ctype().model_class()))
+        kwargs['subjects'] = filtered[True]
+        kwargs['forbidden_subjects'] = filtered[False]
+
+        request = self.request
+        kwargs['relations_types'] = request.GET.getlist('rtype') \
+                                    if request.method == 'GET' else \
+                                    None
+
+        return kwargs
 
 
 @login_required
@@ -383,7 +427,7 @@ def select_relations_objects(request):
     subject_id    = get('subject_id', int)
     rtype_id      = get('rtype_id')
     objects_ct_id = get('objects_ct_id', int)
-    mode          = get('selection', cast=listview.str_to_mode, default='single')
+    mode          = get('selection', cast=generic.listview.str_to_mode, default='single')
 
     objects_ct = utils.get_ct_or_404(objects_ct_id)
 
@@ -407,11 +451,11 @@ def select_relations_objects(request):
     if prop_types:
         extra_q &= Q(properties__type__in=prop_types)
 
-    return listview.list_view_popup(request,
-                                    model=objects_ct.model_class(),
-                                    mode=mode,
-                                    extra_q=extra_q,
-                                   )
+    return generic.list_view_popup(request,
+                                   model=objects_ct.model_class(),
+                                   mode=mode,
+                                   extra_q=extra_q,
+                                  )
 
 
 # TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?

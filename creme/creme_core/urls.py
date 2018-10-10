@@ -49,7 +49,12 @@ relation_patterns = [
 
     url(r'^add_from_predicate/save[/]?$', relation.add_relations_with_same_type, name='creme_core__save_relations'),
 
-    url(r'^add_to_entities/(?P<model_ct_id>\d+)[/]?$', relation.add_relations_bulk, name='creme_core__create_relations_bulk'),
+    # url(r'^add_to_entities/(?P<model_ct_id>\d+)[/]?$',
+    url(r'^add_to_entities/(?P<ct_id>\d+)[/]?$',
+        # relation.add_relations_bulk,
+        relation.RelationsBulkAdding.as_view(),
+        name='creme_core__create_relations_bulk'
+    ),
 
     url(r'^objects2link[/]?$', relation.select_relations_objects, name='creme_core__select_entities_to_link'),
 
@@ -63,10 +68,15 @@ relation_patterns = [
 ]
 
 property_patterns = [
-    url(r'^add_to_entities/(?P<ct_id>\d+)[/]?$', creme_property.add_properties_bulk, name='creme_core__add_properties_bulk'),
+    url(r'^add_to_entities/(?P<ct_id>\d+)[/]?$',
+        # creme_property.add_properties_bulk,
+        creme_property.PropertiesBulkAdding.as_view(),
+        name='creme_core__add_properties_bulk',
+    ),
+
     # url(r'^add/(?P<entity_id>\d+)[/]?$',         creme_property.add_to_entity,       name='creme_core__add_properties'),
-    url(r'^add/(?P<entity_id>\d+)[/]?$',         creme_property.PropertiesAdding.as_view(), name='creme_core__add_properties'),
-    url(r'^delete_from_type[/]?$',               creme_property.delete_from_type,           name='creme_core__remove_property'),
+    url(r'^add/(?P<entity_id>\d+)[/]?$', creme_property.PropertiesAdding.as_view(), name='creme_core__add_properties'),
+    url(r'^delete_from_type[/]?$',       creme_property.delete_from_type,           name='creme_core__remove_property'),
 
     # Property type
     # url(r'^type/add[/]?$',                                creme_property.add_type,        name='creme_core__create_ptype'),
@@ -75,8 +85,8 @@ property_patterns = [
     url(r'^type/(?P<ptype_id>[\w-]+)[/]?$',               creme_property.PropertyTypeDetail.as_view(),   name='creme_core__ptype'),
     # url(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.edit_type,       name='creme_core__edit_ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.PropertyTypeEdition.as_view(),  name='creme_core__edit_ptype'),
-    url(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.delete_type,     name='creme_core__delete_ptype'),
-    url(r'^type/(?P<ptype_id>[\w-]+)/reload_bricks[/]?$', creme_property.reload_bricks,   name='creme_core__reload_ptype_bricks'),
+    url(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.delete_type,                    name='creme_core__delete_ptype'),
+    url(r'^type/(?P<ptype_id>[\w-]+)/reload_bricks[/]?$', creme_property.reload_bricks,                  name='creme_core__reload_ptype_bricks'),
 ]
 
 bricks_patterns = [

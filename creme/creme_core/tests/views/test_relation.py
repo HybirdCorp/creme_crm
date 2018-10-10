@@ -587,8 +587,14 @@ class RelationViewsTestCase(ViewsTestCase):
                                 object_entity=self.object02
                                )
         ct_id = self.ct_id
-        self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True))
+        response = self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True))
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
 
+        context = response.context
+        self.assertEqual(_('Multiple adding of relationships'), context.get('title'))
+        self.assertEqual(_('Save the relationships'),           context.get('submit_label'))
+
+        # ---
         response = self.client.post(self._build_bulk_add_url(ct_id),
                                     data={'entities_lbl': 'wtf',
                                           'relations':    self.formfield_value_multi_relation_entity(
