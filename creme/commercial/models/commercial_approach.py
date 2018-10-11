@@ -32,7 +32,7 @@ from creme.creme_core.models import fields as creme_fields
 
 class CommercialApproach(creme_models.CremeModel):
     title          = models.CharField(_('Title'), max_length=200)
-    ok_or_in_futur = models.BooleanField(_('Done?'), editable=False, default=False)  # TODO: Future ?
+    # ok_or_in_futur = models.BooleanField(_('Done?'), editable=False, default=False)
     description    = models.TextField(_('Description'), blank=True)
     creation_date  = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
 
@@ -62,8 +62,9 @@ class CommercialApproach(creme_models.CremeModel):
 
     @staticmethod
     def get_approaches(entity_pk=None):
-        queryset = CommercialApproach.objects.filter(ok_or_in_futur=False) \
-                                             .select_related('related_activity')
+        # queryset = CommercialApproach.objects.filter(ok_or_in_futur=False) \
+        #                                      .select_related('related_activity')
+        queryset = CommercialApproach.objects.select_related('related_activity')
 
         return queryset.filter(entity_id=entity_pk) if entity_pk else \
                queryset.exclude(entity__is_deleted=True)
@@ -71,5 +72,6 @@ class CommercialApproach(creme_models.CremeModel):
     @staticmethod
     def get_approaches_for_ctypes(ct_ids):
         warnings.warn('CommercialApproach.get_approaches_for_ctypes() is deprecated.', DeprecationWarning)
-        return CommercialApproach.objects.filter(entity_content_type__in=ct_ids, ok_or_in_futur=False) \
+        # return CommercialApproach.objects.filter(entity_content_type__in=ct_ids, ok_or_in_futur=False) \
+        return CommercialApproach.objects.filter(entity_content_type__in=ct_ids) \
                                  .select_related('related_activity')
