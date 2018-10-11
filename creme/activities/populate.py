@@ -55,53 +55,53 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_rtype = RelationType.create
-        create_rtype((constants.REL_SUB_LINKED_2_ACTIVITY, _(u'related to the activity')),
-                     (constants.REL_OBJ_LINKED_2_ACTIVITY, _(u'(activity) related to'),    [Activity]),
+        create_rtype((constants.REL_SUB_LINKED_2_ACTIVITY, _('related to the activity')),
+                     (constants.REL_OBJ_LINKED_2_ACTIVITY, _('(activity) related to'),    [Activity]),
                      minimal_display=(True, False),
                     )
         rt_obj_activity_subject = \
-            create_rtype((constants.REL_SUB_ACTIVITY_SUBJECT, _(u'is subject of the activity'), [Contact, Organisation]),
-                         (constants.REL_OBJ_ACTIVITY_SUBJECT, _(u'(activity) is to subject'),   [Activity]),
+            create_rtype((constants.REL_SUB_ACTIVITY_SUBJECT, _('is subject of the activity'), [Contact, Organisation]),
+                         (constants.REL_OBJ_ACTIVITY_SUBJECT, _('(activity) is to subject'),   [Activity]),
                          minimal_display=(True, False),
                         )[1]
         rt_obj_part_2_activity = \
-            create_rtype((constants.REL_SUB_PART_2_ACTIVITY, _(u'participates to the activity'),  [Contact]),
-                         (constants.REL_OBJ_PART_2_ACTIVITY, _(u'(activity) has as participant'), [Activity]),
+            create_rtype((constants.REL_SUB_PART_2_ACTIVITY, _('participates to the activity'),  [Contact]),
+                         (constants.REL_OBJ_PART_2_ACTIVITY, _('(activity) has as participant'), [Activity]),
                          is_internal=True,
                          minimal_display=(True, False),
                         )[1]
 
         # ---------------------------
-        create_if_needed(Status, {'pk': constants.STATUS_PLANNED},     name=pgettext('activities-status', u'Planned'),     description=pgettext('activities-status', u'Planned'),     is_custom=False)
-        create_if_needed(Status, {'pk': constants.STATUS_IN_PROGRESS}, name=pgettext('activities-status', u'In progress'), description=pgettext('activities-status', u'In progress'), is_custom=False)
-        create_if_needed(Status, {'pk': constants.STATUS_DONE},        name=pgettext('activities-status', u'Done'),        description=pgettext('activities-status', u'Done'),        is_custom=False)
-        create_if_needed(Status, {'pk': constants.STATUS_DELAYED},     name=pgettext('activities-status', u'Delayed'),     description=pgettext('activities-status', u'Delayed'),     is_custom=False)
-        create_if_needed(Status, {'pk': constants.STATUS_CANCELLED},   name=pgettext('activities-status', u'Cancelled'),   description=pgettext('activities-status', u'Cancelled'),   is_custom=False)
+        create_if_needed(Status, {'pk': constants.STATUS_PLANNED},     name=pgettext('activities-status', 'Planned'),     description=pgettext('activities-status', 'Planned'),     is_custom=False)
+        create_if_needed(Status, {'pk': constants.STATUS_IN_PROGRESS}, name=pgettext('activities-status', 'In progress'), description=pgettext('activities-status', 'In progress'), is_custom=False)
+        create_if_needed(Status, {'pk': constants.STATUS_DONE},        name=pgettext('activities-status', 'Done'),        description=pgettext('activities-status', 'Done'),        is_custom=False)
+        create_if_needed(Status, {'pk': constants.STATUS_DELAYED},     name=pgettext('activities-status', 'Delayed'),     description=pgettext('activities-status', 'Delayed'),     is_custom=False)
+        create_if_needed(Status, {'pk': constants.STATUS_CANCELLED},   name=pgettext('activities-status', 'Cancelled'),   description=pgettext('activities-status', 'Cancelled'),   is_custom=False)
 
         # ---------------------------
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_TASK},      name=_(u'Task'),           default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_TASK},      name=_('Task'),           default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
         meeting_type = \
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_MEETING},   name=_(u'Meeting'),        default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_MEETING},   name=_('Meeting'),        default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
         phone_call_type = \
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_PHONECALL}, name=_(u'Phone call'),     default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_GATHERING}, name=_(u'Gathering'),      default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_SHOW},      name=_(u'Show'),           default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_DEMO},      name=_(u'Demonstration'),  default_day_duration=0, default_hour_duration="01:00:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_INDISPO},   name=_(u'Unavailability'), default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_PHONECALL}, name=_('Phone call'),     default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_GATHERING}, name=_('Gathering'),      default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_SHOW},      name=_('Show'),           default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_DEMO},      name=_('Demonstration'),  default_day_duration=0, default_hour_duration="01:00:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_INDISPO},   name=_('Unavailability'), default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
 
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_MEETING},       name=_(u'Meeting'),                            type=meeting_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION}, name=_(u'Qualification'),                      type=meeting_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_REVIVAL},       name=_(u'Revival'),                            type=meeting_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_NETWORK},       name=_(u'Network'),                            type=meeting_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_OTHER},         name=pgettext('activities-meeting', u'Other'), type=meeting_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_MEETING},       name=_('Meeting'),                            type=meeting_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION}, name=_('Qualification'),                      type=meeting_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_REVIVAL},       name=_('Revival'),                            type=meeting_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_NETWORK},       name=_('Network'),                            type=meeting_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_OTHER},         name=pgettext('activities-meeting', 'Other'), type=meeting_type, is_custom=False)
 
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING},   name=_(u'Incoming'),          type=phone_call_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING},   name=_(u'Outgoing'),          type=phone_call_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE}, name=_(u'Conference'),        type=phone_call_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_FAILED},     name=_(u'Outgoing - Failed'), type=phone_call_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING},   name=_('Incoming'),          type=phone_call_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING},   name=_('Outgoing'),          type=phone_call_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE}, name=_('Conference'),        type=phone_call_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_FAILED},     name=_('Outgoing - Failed'), type=phone_call_type, is_custom=False)
 
         # ---------------------------
-        HeaderFilter.create(pk=constants.DEFAULT_HFILTER_ACTIVITY, name=_(u'Activity view'), model=Activity,
+        HeaderFilter.create(pk=constants.DEFAULT_HFILTER_ACTIVITY, name=_('Activity view'), model=Activity,
                             cells_desc=[(EntityCellRegularField, {'name': 'start'}),
                                         (EntityCellRegularField, {'name': 'title'}),
                                         (EntityCellRegularField, {'name': 'type'}),
@@ -115,9 +115,9 @@ class Populator(BasePopulator):
         # ---------------------------
         create_efilter = EntityFilter.create
 
-        for pk, name, atype_id in ((constants.EFILTER_MEETINGS,   _(u'Meetings'),    constants.ACTIVITYTYPE_MEETING),
-                                   (constants.EFILTER_PHONECALLS, _(u'Phone calls'), constants.ACTIVITYTYPE_PHONECALL),
-                                   (constants.EFILTER_TASKS,      _(u'Tasks'),       constants.ACTIVITYTYPE_TASK),
+        for pk, name, atype_id in ((constants.EFILTER_MEETINGS,   _('Meetings'),    constants.ACTIVITYTYPE_MEETING),
+                                   (constants.EFILTER_PHONECALLS, _('Phone calls'), constants.ACTIVITYTYPE_PHONECALL),
+                                   (constants.EFILTER_TASKS,      _('Tasks'),       constants.ACTIVITYTYPE_TASK),
                                   ):
             create_efilter(pk, name=name, model=Activity, is_custom=False, user='admin',
                            conditions=[EntityFilterCondition.build_4_field(model=Activity,
@@ -128,7 +128,7 @@ class Populator(BasePopulator):
                                       ],
                           )
 
-        create_efilter(constants.EFILTER_PARTICIPATE, name=_(u'In which I participate'),
+        create_efilter(constants.EFILTER_PARTICIPATE, name=_('In which I participate'),
                        model=Activity, is_custom=False, user='admin',
                        conditions=[EntityFilterCondition.build_4_relation_subfilter(
                                          rtype=rt_obj_part_2_activity,
@@ -203,4 +203,4 @@ class Populator(BasePopulator):
             create_button('activities-add_activity_button',  model=None, button=buttons.AddRelatedActivityButton, order=10)
             create_button('activities-add_meeting_button',   model=None, button=buttons.AddMeetingButton,         order=11)
             create_button('activities-add_phonecall_button', model=None, button=buttons.AddPhoneCallButton,       order=12)
-            create_button('activities-add_task_button',      model=None, button=buttons.AddTaskButton,            order=13)
+            # create_button('activities-add_task_button',      model=None, button=buttons.AddTaskButton,            order=13)
