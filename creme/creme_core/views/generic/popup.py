@@ -20,6 +20,7 @@
 
 from itertools import chain
 from json import dumps as json_dump
+import warnings
 
 from django.http import HttpResponse
 from django.template.loader import render_to_string
@@ -28,6 +29,11 @@ from django.utils.safestring import mark_safe
 
 def inner_popup(request, template, template_dict, is_valid=True, html=None,
                 callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
+    warnings.warn('creme_core.views.generic.popup.inner_popup() is deprecated ; '
+                  'use a class-based view & InnerPopupMixin instead.',
+                  DeprecationWarning
+                 )
+
     template_dict['is_inner_popup'] = True
 
     GET = request.GET

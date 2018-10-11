@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
 from json import loads as json_load, dumps as json_dump
 
 import logging
@@ -27,8 +28,9 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db.models.query_utils import Q
-# from django.http import Http404
+from django.http import HttpResponse  # Http404
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -41,7 +43,7 @@ from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.utils.queries import get_q_from_dict, QSerializer
 
-from .popup import inner_popup
+# from .popup import inner_popup
 
 
 logger = logging.getLogger(__name__)
@@ -375,29 +377,85 @@ def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, lv_state_id=None
     request.user.has_perm_to_access_or_die(model._meta.app_label)
 
     # TODO: only use GET on GET request etc...
-    request_get = request.GET.get
-    kwargs['show_actions'] = bool(int(request_get('sa', False)))
+
+    # request_get = request.GET.get
+    # kwargs['show_actions'] = bool(int(request_get('sa', False)))
+    # extra_dict = {
+    #     'whoami':        request_get('whoami'),
+    #     'is_popup_view': True,
+    # }
+    #
+    # extra_dict.update(kwargs.pop('extra_dict', None) or {})
+    #
+    # extra_q = kwargs.pop('extra_q', None)
+    #
+    # try:
+    #     template_name, template_dict = list_view_content(request, model=model, extra_dict=extra_dict,
+    #                                                      template='creme_core/frags/list_view.html',
+    #                                                      extra_q=extra_q,
+    #                                                      mode=mode,
+    #                                                      lv_state_id=lv_state_id,
+    #                                                      **kwargs
+    #                                                     )
+    # except NoHeaderFilterAvailable:
+    #     return inner_popup(request, '', {}, is_valid=False,
+    #                        html=_('The desired list does not have any view, please create one.')
+    #                       )
+    #
+    # return inner_popup(request, template_name, template_dict, is_valid=False)
+
+    # NB: we have duplicated the code of popup.inner_popup() in order to deprecate it without having
+    #     some annoying deprecation messages. This function will probably be removed in Creme 2.1
+    #     because of the big rework of the list-view code (class-based views, ...)
+
+    GET = request.GET
+    POST = request.POST
+    kwargs['show_actions'] = bool(int(GET.get('sa', False)))
+    whoami = POST.get('whoami') or GET.get('whoami')
     extra_dict = {
-        'whoami':        request_get('whoami'),
+        'whoami':        whoami,
         'is_popup_view': True,
     }
+    tpl_persist = {persist_key: POST.getlist(persist_key) + GET.getlist(persist_key)
+                        for persist_key in chain(POST.getlist('persist'),
+                                                 GET.getlist('persist'),
+                                                )
+                  }
 
     extra_dict.update(kwargs.pop('extra_dict', None) or {})
 
     extra_q = kwargs.pop('extra_q', None)
 
     try:
-        template_name, template_dict = list_view_content(request, model=model, extra_dict=extra_dict,
-                                                         template='creme_core/frags/list_view.html',  # TODO: rename list-view-popup.html
-                                                         extra_q=extra_q,
-                                                         mode=mode,
-                                                         lv_state_id=lv_state_id,
-                                                         **kwargs
-                                                        )
+        template_name, template_dict = list_view_content(
+            request, model=model, extra_dict=extra_dict,
+            # TODO: rename list-view-popup.html
+            template='creme_core/frags/list_view.html',
+            extra_q=extra_q,
+            mode=mode,
+            lv_state_id=lv_state_id,
+            **kwargs
+        )
     except NoHeaderFilterAvailable:
         # TODO: true HeaderFilter creation in inner popup
-        return inner_popup(request, '', {}, is_valid=False,
-                           html=_('The desired list does not have any view, please create one.')
-                          )
+        html = _('The desired list does not have any view, please create one.')
+    else:
+        template_dict['persisted'] = tpl_persist
+        template_dict['is_inner_popup'] = True
+        html = render_to_string(template_name, template_dict, request=request)
 
-    return inner_popup(request, template_name, template_dict, is_valid=False)
+    return HttpResponse(
+        render_to_string('creme_core/generics/inner_popup.html',
+                         {'html':            html,
+                          'from_url':        request.path,
+                          'is_valid':        False,
+                          'whoami':          whoami,
+                          'callback_url':    '',
+                          'reload':          json_dump(True),
+                          'persisted':       tpl_persist,
+                          'delegate_reload': False,
+                         },
+                         request=request,
+                        ),
+        content_type='text/html',
+    )
