@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-05 14:43+0200\n"
+"POT-Creation-Date: 2018-10-10 20:25+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "Projects"
 msgstr "Projets"
 
-#: apps.py:77
+#: apps.py:78
 msgid "Tools"
 msgstr "Outils"
 
@@ -99,25 +99,25 @@ msgstr "Date de fin"
 msgid "Project leaders"
 msgstr "Responsable(s) du projet"
 
-#: forms/resource.py:37
+#: forms/resource.py:38
 msgid "Contact to be assigned to this task"
 msgstr "Contact à affecter à cette tâche"
 
-#: forms/resource.py:67 forms/task.py:157
+#: forms/resource.py:74 forms/task.py:167
 msgid ""
 "If the contact changes, the old one keeps participating to the activities."
 msgstr ""
 "Si le contact change, l'ancien contact continue de participer aux activités."
 
-#: forms/task.py:75 forms/task.py:99 templates/projects/bricks/tasks.html:21
+#: forms/task.py:78 forms/task.py:104 templates/projects/bricks/tasks.html:21
 msgid "Parent tasks"
 msgstr "Tâche(s) parente(s)"
 
-#: forms/task.py:122
+#: forms/task.py:131
 msgid "Allocated resource"
 msgstr "Ressource affectée"
 
-#: forms/task.py:123 templates/projects/bricks/activities.html:18
+#: forms/task.py:132 templates/projects/bricks/activities.html:18
 msgid "Type"
 msgstr "Type"
 
@@ -163,7 +163,7 @@ msgstr "Enregistrer le projet"
 msgid "Project"
 msgstr "Projet"
 
-#: models/project.py:97
+#: models/project.py:99
 #, python-brace-format
 msgid "Start ({start}) must be before end ({end})."
 msgstr "La date de début ({start}) doit être avant la date de fin ({end})."
@@ -600,48 +600,54 @@ msgstr "interdit"
 msgid "Back to the project"
 msgstr "Retour au projet"
 
-#: views/resource.py:49
-msgid ""
-"You can't add a resources or a working period to a task which has status «{}»"
-msgstr ""
-"Vous ne pouvez pas ajouter de ressources ou de périodes travaillées à une "
-"tâche en statut «{}»"
-
-#: views/resource.py:64
+#: views/resource.py:73
 msgid "Allocation of a new resource"
 msgstr "Affectation d'une nouvelle ressource"
 
-#: views/resource.py:78
-#, python-format
-msgid "Resource for «%s»"
-msgstr "Ressource pour «%s»"
+#: views/resource.py:82
+msgid ""
+"You can't add a resource or a working period to a task which has status «{}»"
+msgstr ""
+"Vous ne pouvez pas ajouter de ressource ou de période travaillée à une "
+"tâche en statut «{}»"
 
-#: views/resource.py:95
+#: views/resource.py:99
+msgid "Resource for «{}»"
+msgstr "Ressource pour «{}»"
+
+#: views/resource.py:115
 msgid "This resource cannot be deleted, because it is linked to activities."
 msgstr ""
 "Cette ressource ne peut pas être supprimée, car elle est liée à des "
 "activités."
 
-#: views/task.py:48
+#: views/task.py:49
 #, python-format
 msgid "Create a task for «%s»"
 msgstr "Créer une tâche à «%s»"
 
-#: views/task.py:124
-#, python-format
-msgid "New activity related to «%s»"
-msgstr "Nouvelle activité liée à «%s»"
+#: views/task.py:147
+msgid "Create a task for «{}»"
+msgstr "Créer une tâche à «{}»"
 
-#: views/task.py:177
+#: views/task.py:178
+msgid "Adding parents to «{}»"
+msgstr "Ajouter des tâches parentes à «{}»"
+
+#: views/task.py:225
+msgid "New activity related to «{}»"
+msgstr "Nouvelle activité liée à «{}»"
+
+#: views/task.py:258
 msgid "Can not be deleted because of its dependencies."
 msgstr "Ne peut pas être supprimé à cause des ses dépendances."
 
-#: views/task.py:180
+#: views/task.py:261
 msgid "The deletion caused an unexpected error [{}]."
 msgstr "La suppression a provoqué une erreur inattendue [{}]."
 
 # Already in creme_core
-#: views/task.py:182
+#: views/task.py:263
 msgid "Operation successfully completed"
 msgstr ""
 
@@ -660,12 +666,6 @@ msgstr ""
 #~ msgid "Number of projects"
 #~ msgstr "Nombre de projet(s)"
 
-#~ msgid "%s Related activity"
-#~ msgstr "%s Activité liée"
-
-#~ msgid "%s Related activities"
-#~ msgstr "%s Activités liées"
-
 #~ msgid "Activities"
 #~ msgstr "Activités"
 
@@ -674,12 +674,6 @@ msgstr ""
 
 #~ msgid "And"
 #~ msgstr "Et"
-
-#~ msgid "%s Parent Task"
-#~ msgstr "%s Tâche parente"
-
-#~ msgid "%s Parent Tasks"
-#~ msgstr "%s Tâches parentes"
 
 #~ msgid "Tasks"
 #~ msgstr "Tâches"
@@ -690,24 +684,12 @@ msgstr ""
 #~ msgid "Information"
 #~ msgstr "Informations"
 
-#~ msgid "%s Resource assigned to this Task"
-#~ msgstr "%s Ressource affectée à la Tâche"
-
-#~ msgid "%s Resources assigned to this Task"
-#~ msgstr "%s Ressources affectées à la Tâche"
-
 #~ msgid "Resource"
 #~ msgstr "Ressource"
 
 #~ msgid "You can't add a resource because this task is %(status)s"
 #~ msgstr ""
 #~ "Vous ne pouvez pas ajouter de ressources car cette tâche est %(status)s"
-
-#~ msgid "%s Related Task"
-#~ msgstr "%s Tâche associée au projet"
-
-#~ msgid "%s Related Tasks"
-#~ msgstr "%s Tâches associées au projet"
 
 #~ msgid "Edition of a resource"
 #~ msgstr "Modification d'une ressource"
@@ -734,12 +716,6 @@ msgstr ""
 
 #~ msgid "Add a resource from an existing contact"
 #~ msgstr "Ajouter une ressource à partir d'un contact existant"
-
-#~ msgid "%s Working period"
-#~ msgstr "%s Période travaillée"
-
-#~ msgid "%s Working periods"
-#~ msgstr "%s Périodes travaillées"
 
 #~ msgid "Periods"
 #~ msgstr "Périodes"
@@ -785,16 +761,6 @@ msgstr ""
 
 #~ msgid "A task can't be its own parent"
 #~ msgstr "Une tâche ne peut pas être parente d'elle même"
-
-#~ msgid ""
-#~ "Parent tasks have to be in the same project. «%s» doesn't belong to the "
-#~ "same project."
-#~ msgstr ""
-#~ "Les tâches parents doivent être dans le même projet. «%s» n'appartient "
-#~ "pas au même projet."
-
-#~ msgid "«%s» is an indirect child of this task."
-#~ msgstr "«%s» est un enfant indirect de cette tâche"
 
 #~ msgid "Parent task(s)"
 #~ msgstr "Tâche(s) parente(s)"

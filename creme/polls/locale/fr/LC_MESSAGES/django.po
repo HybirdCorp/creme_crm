@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Polls 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-05 12:32+0200\n"
+"POT-Creation-Date: 2018-10-10 20:13+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,11 +16,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: apps.py:28 apps.py:90
+#: apps.py:28 apps.py:91
 msgid "Polls"
 msgstr "Sondages"
 
-#: apps.py:95
+#: apps.py:96
 msgid "Tools"
 msgstr "Outils"
 
@@ -47,7 +47,7 @@ msgstr[1] "{count} Sections"
 msgid "{questions} and {sections}"
 msgstr "{questions} et {sections}"
 
-#: bricks.py:69 models/poll_form.py:214
+#: bricks.py:69 models/poll_form.py:215
 msgid "Questions"
 msgstr "Questions"
 
@@ -67,135 +67,135 @@ msgstr "Réponses de formulaires reliées"
 msgid "Integer"
 msgstr "Nombre entier"
 
-#: core.py:163
+#: core.py:164
 msgid "The upper bound must be greater than the lower bound."
 msgstr "La borne supérieure doit être plus grande que la borne inférieure."
 
-#: core.py:177
+#: core.py:178
 #, python-brace-format
 msgid "Integer lesser than {max_value}"
 msgstr "Nombre entier plus petit que {max_value}"
 
-#: core.py:180
+#: core.py:181
 #, python-brace-format
 msgid "Integer greater than {min_value}"
 msgstr "Nombre entier plus grand que {min_value}"
 
-#: core.py:182
+#: core.py:183
 #, python-brace-format
 msgid "Integer between {min_value} and {max_value}"
 msgstr "Nombre entier entre  {min_value} et {max_value}"
 
-#: core.py:196
+#: core.py:197
 msgid "Boolean (Yes/No)"
 msgstr "Booléen (Oui/Non)"
 
-#: core.py:197
-msgid "Yes"
-msgstr "Oui"
-
-#: core.py:198
+#: core.py:202
 msgid "No"
 msgstr "Non"
 
-#: core.py:219
+#: core.py:203
+msgid "Yes"
+msgstr "Oui"
+
+#: core.py:224
 msgid "String"
 msgstr "Chaîne de caractères"
 
-#: core.py:229
+#: core.py:234
 msgid "Text area"
 msgstr "Zone de texte"
 
-#: core.py:239
+#: core.py:244
 msgid "Date"
 msgstr "Date"
 
-#: core.py:255
+#: core.py:260
 msgid "Hour"
 msgstr "Heure"
 
-#: core.py:262
+#: core.py:267
 msgid "Choice list"
 msgstr "Liste de choix"
 
-#: core.py:263
+#: core.py:268
 msgid "Choice list ({})"
 msgstr "Liste de choix ({})"
 
-#: core.py:264
+#: core.py:269
 #, python-brace-format
 msgid "Choice list ({choices}) (deleted: {del_choices})"
 msgstr "Liste de choix ({choices}) (supprimé: {del_choices})"
 
-#: core.py:271
+#: core.py:277
 msgid "Give 2 choices at least."
 msgstr "Donnez au moins 2 choix."
 
-#: core.py:323
+#: core.py:329
 msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 
-#: core.py:324
+#: core.py:330
 msgid "Multiple choice list ({})"
 msgstr "Liste de choix multiples ({})"
 
-#: core.py:325
+#: core.py:331
 #, python-brace-format
 msgid "Multiple choice list ({choices}) (deleted: {del_choices})"
 msgstr "Liste de choix multiples ({choices}) (supprimé(s) : {del_choices})"
 
-#: core.py:351
+#: core.py:357
 msgid "Choice list with free choice"
 msgstr "Liste de choix avec choix libre"
 
-#: core.py:352
+#: core.py:358
 msgid "Choice list with free choice ({})"
 msgstr "Liste de choix avec choix libre ({})"
 
-#: core.py:353
+#: core.py:359
 #, python-brace-format
 msgid "Choice list with free choice ({choices}) (deleted: {del_choices})"
 msgstr ""
 "Liste de choix avec choix libre ({choices}) (supprimé(s) : {del_choices})"
 
-#: core.py:369 core.py:380 core.py:406
+#: core.py:377 core.py:388 core.py:414
 msgid "Other"
 msgstr "Autre"
 
-#: core.py:412 forms/poll_reply.py:205
+#: core.py:420 forms/poll_reply.py:234
 msgid "Comment"
 msgstr "Remarques"
 
-#: forms/fields.py:55
+#: forms/fields.py:57
 msgid "This source is invalid."
 msgstr "Cette source est invalide."
 
-#: forms/fields.py:56
+#: forms/fields.py:58
 msgid "This choice is invalid."
 msgstr "Ce choix est invalide."
 
-#: forms/poll_form.py:97 models/poll_form.py:39 models/poll_form.py:200
+#: forms/poll_form.py:105 models/poll_form.py:39 models/poll_form.py:201
 #: models/poll_reply.py:46
 msgid "Type"
 msgstr "Type"
 
-#: forms/poll_form.py:100
+#: forms/poll_form.py:108
 msgid "Lower bound"
 msgstr "Borne inférieure"
 
-#: forms/poll_form.py:101 forms/poll_form.py:104
+#: forms/poll_form.py:109 forms/poll_form.py:112
 msgid "For integer type only."
 msgstr "Pour les nombres entiers uniquement."
 
-#: forms/poll_form.py:103
+#: forms/poll_form.py:111
 msgid "Upper bound"
 msgstr "Borne supérieure"
 
-#: forms/poll_form.py:106
+#: forms/poll_form.py:114
 msgid "Available choices"
 msgstr "Choix disponibles"
 
-#: forms/poll_form.py:107
+#: forms/poll_form.py:115
 msgid ""
 "Give the possible choices (one per line) if you choose the type \"Choice list"
 "\"."
@@ -203,28 +203,28 @@ msgstr ""
 "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
 "\"Liste de choix\"."
 
-#: forms/poll_form.py:147
+#: forms/poll_form.py:159
 msgid "Start of section"
 msgstr "Début de section"
 
-#: forms/poll_form.py:148
+#: forms/poll_form.py:160
 #, python-brace-format
 msgid "Before: «{question}» (#{number})"
 msgstr "Avant : «{question}» (n°{number})"
 
-#: forms/poll_form.py:153
+#: forms/poll_form.py:165
 msgid "End of section"
 msgstr "Fin de section"
 
-#: forms/poll_form.py:155
+#: forms/poll_form.py:167
 msgid "Order"
 msgstr "Ordre"
 
-#: forms/poll_form.py:211
+#: forms/poll_form.py:225
 msgid "Choices can not be empty."
 msgstr "Les choix ne peuvent pas être vides."
 
-#: forms/poll_form.py:212
+#: forms/poll_form.py:226
 #, python-format
 msgid ""
 "You can not delete the choice \"%(choice)s\" because it is used in a "
@@ -233,63 +233,63 @@ msgstr ""
 "vous ne pouvez pas supprimer le choix \"%(choice)s\" car il est utilisé dans "
 "une condition par la question \"%(question)s\"."
 
-#: forms/poll_form.py:230
+#: forms/poll_form.py:246
 msgid "Existing choices"
 msgstr "Choix existants"
 
-#: forms/poll_form.py:231
+#: forms/poll_form.py:247
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/poll_form.py:234
+#: forms/poll_form.py:250
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/poll_form.py:235
+#: forms/poll_form.py:251
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/poll_form.py:308 models/poll_form.py:204 models/poll_reply.py:118
+#: forms/poll_form.py:326 models/poll_form.py:205 models/poll_reply.py:118
 msgid "Use OR or AND between conditions"
 msgstr "Utiliser OU ou ET entre les conditions"
 
-#: forms/poll_form.py:309 models/poll_form.py:264
+#: forms/poll_form.py:327 models/poll_form.py:266
 msgid "AND"
 msgstr "ET"
 
-#: forms/poll_form.py:309 models/poll_form.py:264
+#: forms/poll_form.py:327 models/poll_form.py:266
 msgid "OR"
 msgstr "OU"
 
-#: forms/poll_form.py:313 templates/polls/bricks/pform-lines.html:70
+#: forms/poll_form.py:331 templates/polls/bricks/pform-lines.html:70
 msgid "Conditions"
 msgstr "Conditions"
 
 # Already in creme_core
-#: forms/poll_reply.py:46
+#: forms/poll_reply.py:47
 msgid "User"
 msgstr ""
 
-#: forms/poll_reply.py:49 models/campaign.py:32 models/poll_form.py:38
+#: forms/poll_reply.py:50 models/campaign.py:32 models/poll_form.py:38
 #: models/poll_form.py:152 models/poll_reply.py:35 models/poll_reply.py:93
 #: models/poll_type.py:28
 msgid "Name"
 msgstr "Nom"
 
-#: forms/poll_reply.py:50 models/poll_reply.py:39
+#: forms/poll_reply.py:51 models/poll_reply.py:39
 msgctxt "polls"
 msgid "Related campaign"
 msgstr "Campagne associée"
 
-#: forms/poll_reply.py:53
+#: forms/poll_reply.py:54
 msgid "Number of replies"
 msgstr "Nombre de réponses"
 
-#: forms/poll_reply.py:54
+#: forms/poll_reply.py:55
 msgid "Persons who filled"
 msgstr "Personnes qui ont rempli"
 
-#: forms/poll_reply.py:56
+#: forms/poll_reply.py:57
 msgid ""
 "Each reply will be linked to a person (and \"Number of replies\" will be "
 "ignored)"
@@ -297,32 +297,32 @@ msgstr ""
 "Chaque réponse sera liée à une personne (et \"Nombre de réponses\" sera "
 "ignoré)"
 
-#: forms/poll_reply.py:60 models/poll_reply.py:36
+#: forms/poll_reply.py:61 models/poll_reply.py:36
 msgid "Related form"
 msgstr "Formulaire lié"
 
-#: forms/poll_reply.py:108
+#: forms/poll_reply.py:127
 msgid "The form must contain one line at least."
 msgstr "Le formulaire doit contenir au moins une ligne."
 
-#: forms/poll_reply.py:147 forms/poll_reply.py:245 models/poll_reply.py:42
+#: forms/poll_reply.py:169 forms/poll_reply.py:278 models/poll_reply.py:42
 msgid "Person who filled"
 msgstr "Personne qui a rempli"
 
-#: forms/poll_reply.py:167 templates/polls/bricks/preplies.html:7
+#: forms/poll_reply.py:191 templates/polls/bricks/preplies.html:7
 msgid "Replies"
 msgstr "Réponses"
 
-#: forms/poll_reply.py:186 models/poll_form.py:206 models/poll_form.py:213
-#: models/poll_reply.py:120 views/poll_reply.py:241
+#: forms/poll_reply.py:212 models/poll_form.py:207 models/poll_form.py:214
+#: models/poll_reply.py:120 views/poll_reply.py:260
 msgid "Question"
 msgstr "Question"
 
-#: forms/poll_reply.py:200
+#: forms/poll_reply.py:229
 msgid "Not applicable"
 msgstr "Sans objet"
 
-#: forms/poll_reply.py:220
+#: forms/poll_reply.py:250
 msgid "The answer is required."
 msgstr "La réponse est obligatoire."
 
@@ -406,23 +406,23 @@ msgstr "Sections"
 msgid "There is at least one question in this section."
 msgstr "Il y a au moins une question dans cette section."
 
-#: models/poll_form.py:208
+#: models/poll_form.py:209
 msgid "Create a question"
 msgstr "Créer une question"
 
-#: models/poll_form.py:209
+#: models/poll_form.py:210
 msgid "Save the question"
 msgstr "Enregistrer la question"
 
-#: models/poll_form.py:233 models/poll_form.py:246
+#: models/poll_form.py:234 models/poll_form.py:248
 msgid "There is at least one other question which depends on this question."
 msgstr "Il y a au moins une autre question qui dépend de celle-ci."
 
-#: models/poll_form.py:243
+#: models/poll_form.py:245
 msgid "This question is already disabled."
 msgstr "Cette question est déjà désactivée."
 
-#: models/poll_form.py:297
+#: models/poll_form.py:299
 msgid "Save the condition"
 msgstr "Enregistrer la condition"
 
@@ -452,7 +452,7 @@ msgstr "Réponse à un formulaire"
 msgid "Applicable"
 msgstr "Applicable"
 
-#: models/poll_reply.py:121 models/poll_reply.py:154 views/poll_reply.py:244
+#: models/poll_reply.py:121 models/poll_reply.py:154 views/poll_reply.py:263
 msgid "Answer"
 msgstr "Réponse"
 
@@ -602,7 +602,7 @@ msgstr "Réponses"
 msgid "Clean"
 msgstr "Effacer"
 
-#: templates/polls/bricks/preply-lines.html:45 views/poll_reply.py:210
+#: templates/polls/bricks/preply-lines.html:45 views/poll_reply.py:246
 msgctxt "polls"
 msgid "N/A"
 msgstr "Sans objet"
@@ -629,73 +629,70 @@ msgstr "La réponse à la question n°{number} est «{answer}»."
 msgid "[An error occurred]"
 msgstr "[Une erreur s'est produite]"
 
-#: views/poll_form.py:91 views/poll_form.py:181
-#, python-format
-msgid "New question for «%s»"
-msgstr "Nouvelle question pour «%s»"
+#: views/poll_form.py:127
+msgid "Question for «{}»"
+msgstr "Question pour «{}»"
 
-#: views/poll_form.py:101
-#, python-format
-msgid "Question for «%s»"
-msgstr "Question pour «%s»"
+#: views/poll_form.py:192
+msgid "Section for «{}»"
+msgstr "Section pour «{}»"
 
-#: views/poll_form.py:137
-#, python-format
-msgid "Condition for «%s»"
-msgstr "Condition pour «%s»"
+#: views/poll_form.py:271
+msgid "New question for «{}»"
+msgstr "Nouvelle question pour «{}»"
 
-#: views/poll_form.py:148 views/poll_form.py:168
-#, python-format
-msgid "New section for «%s»"
-msgstr "Nouvelle section pour «%s»"
+#: views/poll_form.py:316
+msgid "New section for «{}»"
+msgstr "Nouvelle section pour «{}»"
 
-#: views/poll_form.py:158
-#, python-format
-msgid "Section for «%s»"
-msgstr "Section pour «%s»"
+#: views/poll_form.py:321
+msgid "New sub-section for «{}»"
+msgstr "Nouvelle sous-section pour «{}»"
 
-#: views/poll_reply.py:87 views/poll_reply.py:105 views/poll_reply.py:123
+#: views/poll_form.py:331
+msgid "Condition for «{}»"
+msgstr "Condition pour «{}»"
+
+#: views/poll_reply.py:95 views/poll_reply.py:117 views/poll_reply.py:140
 #, python-format
 msgid "New replies for «%s»"
 msgstr "Nouvelles réponses pour «%s»"
 
-#: views/poll_reply.py:201
-#, python-format
-msgid "Existing replies for «%s»"
-msgstr "Réponses existantes pour «%s»"
-
-#: views/poll_reply.py:202
-msgid "Link to the replies"
-msgstr "Lier aux réponses"
-
-#: views/poll_reply.py:240
+#: views/poll_reply.py:259
 msgid "Reminder of the previous answered question :"
 msgstr "Rappel de la Question/Réponse précédente :"
 
-#: views/poll_reply.py:247
+#: views/poll_reply.py:266
 msgid "Edit"
 msgstr ""
 
-#: views/poll_reply.py:306 views/poll_reply.py:360
+#: views/poll_reply.py:326 views/poll_reply.py:381
 msgid "Answers of the form : {}"
 msgstr "Réponses à un formulaire : {}"
 
-#: views/poll_reply.py:323
+#: views/poll_reply.py:343
 msgid "All questions have been answered."
 msgstr "Les questions ont déjà toute une réponse."
 
-#: views/poll_reply.py:432
+#: views/poll_reply.py:478
+msgid "New replies for «{}»"
+msgstr "Nouvelles réponses pour «{}»"
+
+#: views/poll_reply.py:517
+msgid "Existing replies for «{}»"
+msgstr "Réponses existantes pour «{}»"
+
+#: views/poll_reply.py:519
+msgid "Link to the replies"
+msgstr "Lier aux réponses"
+
+#: views/poll_reply.py:536
 msgid "Answer edition"
 msgstr "Modification de réponse"
 
-#: views/poll_reply.py:434
+#: views/poll_reply.py:537
 msgid "Save the modification"
 msgstr "Enregistrer la modification"
-
-#~ msgid "%s Section"
-#~ msgid_plural "%s Sections"
-#~ msgstr[0] "%s Section"
-#~ msgstr[1] "%s Sections"
 
 #~ msgid "Portal of polls"
 #~ msgstr "Portail des sondages"
@@ -717,12 +714,6 @@ msgstr "Enregistrer la modification"
 
 #~ msgid "Number of forms"
 #~ msgstr "Nombre de formulaires"
-
-#~ msgid "%s Filled form reply"
-#~ msgstr "%s Réponse à un formulaire remplie "
-
-#~ msgid "%s Filled form replies"
-#~ msgstr "%s Réponses à un formulaire remplies"
 
 #~ msgid "Link to existing replies"
 #~ msgstr "Lier à des réponses existantes"
@@ -750,12 +741,6 @@ msgstr "Enregistrer la modification"
 
 #~ msgid "No question or section"
 #~ msgstr "Pas de question ou de section"
-
-#~ msgid "%s Reply"
-#~ msgstr "%s Réponses"
-
-#~ msgid "%s Replies"
-#~ msgstr "%s Réponses"
 
 #~ msgid "Already filled"
 #~ msgstr "Déjà rempli"

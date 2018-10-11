@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme SMS 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-05 14:58+0200\n"
+"POT-Creation-Date: 2018-10-10 20:36+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -493,33 +493,29 @@ msgstr "Supprimer cet envoi"
 msgid "No sending for the moment"
 msgstr "Aucun envoi pour le moment"
 
-#: views/campaign.py:99
-#, python-format
-msgid "New messaging lists for «%s»"
-msgstr "Nouvelles listes de diffusion pour «%s»"
+#: views/campaign.py:159
+msgid "New messaging lists for «{}»"
+msgstr "Nouvelles listes de diffusion pour «{}»"
 
-#: views/campaign.py:101
+#: views/campaign.py:160
 msgid "Link the messaging lists"
 msgstr "Lier les listes de diffusion"
 
-#: views/messaging_list.py:86 views/messaging_list.py:97
-#, python-format
-msgid "New contacts for «%s»"
-msgstr "Nouveaux contacts pour «%s»"
+#: views/messaging_list.py:165
+msgid "New contacts for «{}»"
+msgstr "Nouveaux contacts pour «{}»"
 
-#: views/messaging_list.py:88 views/messaging_list.py:99
+#: views/messaging_list.py:166
 msgid "Link the contacts"
 msgstr "Lier les contacts"
 
-#: views/recipient.py:35 views/recipient.py:45
-#, python-format
-msgid "New recipients for «%s»"
-msgstr "Nouveaux destinataires pour «%s»"
+#: views/recipient.py:45
+msgid "New recipients for «{}»"
+msgstr "Nouveaux destinataires pour «{}»"
 
-#: views/sending.py:44
-#, python-format
-msgid "New sending for «%s»"
-msgstr "Nouvel envoi pour «%s»"
+#: views/sending.py:54
+msgid "New sending for «{}»"
+msgstr "Nouvel envoi pour «{}»"
 
 #~ msgid "Portal of SMS"
 #~ msgstr "Portail des SMS"
@@ -548,20 +544,8 @@ msgstr "Nouvel envoi pour «%s»"
 #~ msgid "Number of sendings"
 #~ msgstr "Nombre d'envoi(s)"
 
-#~ msgid "%s Contact recipient"
-#~ msgstr "%s Contact destinataire"
-
-#~ msgid "%s Contacts recipients"
-#~ msgstr "%s Contacts destinataires"
-
 #~ msgid "Unlink"
 #~ msgstr "Délier"
-
-#~ msgid "%s Message"
-#~ msgstr "%s Message"
-
-#~ msgid "%s Messages"
-#~ msgstr "%s Messages"
 
 #~ msgid "Send"
 #~ msgstr "Envoyer"
@@ -572,29 +556,11 @@ msgstr "Nouvel envoi pour «%s»"
 #~ msgid "Delete"
 #~ msgstr "Supprimer"
 
-#~ msgid "%s Related messaging list"
-#~ msgstr "%s Liste de diffusion associée"
-
-#~ msgid "%s Related messaging lists"
-#~ msgstr "%s Listes de diffusion associées"
-
 #~ msgid "Messaging list"
 #~ msgstr "Liste de diffusion"
 
 #~ msgid "Name of the list"
 #~ msgstr "Nom de la liste"
-
-#~ msgid "%s Unlinked recipient"
-#~ msgstr "%s Destinataire manuel"
-
-#~ msgid "%s Unlinked recipients"
-#~ msgstr "%s Destinataires manuels"
-
-#~ msgid "%s Sending"
-#~ msgstr "%s Envoi"
-
-#~ msgid "%s Sendings"
-#~ msgstr "%s Envois"
 
 #~ msgid "Add a messaging list"
 #~ msgstr "Ajouter une liste de diffusion"
