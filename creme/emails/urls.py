@@ -93,10 +93,11 @@ if not emails.emailtemplate_model_is_custom():
 
 if not emails.entityemail_model_is_custom():
     urlpatterns += [
-        url(r'^mails[/]?$',                                     mail.listview,                    name='emails__list_emails'),
+        url(r'^mails[/]?$',                                     mail.listview,                      name='emails__list_emails'),
         # url(r'^mail/add/(?P<entity_id>\d+)[/]?$',               mail.create_n_send,               name='emails__create_email'),
         url(r'^mail/add/(?P<entity_id>\d+)[/]?$',               mail.EntityEmailCreation.as_view(), name='emails__create_email'),
-        url(r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$', mail.create_from_template_n_send, name='emails__create_email_from_template'),
+        # url(r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$', mail.create_from_template_n_send, name='emails__create_email_from_template'),
+        url(r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$', mail.EntityEmailWizard.as_view(),   name='emails__create_email_from_template'),
         # url(r'^mail/(?P<mail_id>\d+)[/]?$',                     mail.detailview,                  name='emails__view_email'),
         url(r'^mail/(?P<mail_id>\d+)[/]?$',                     mail.EntityEmailDetail.as_view(),   name='emails__view_email'),
         # url(r'^mail/(?P<mail_id>\d+)/popup[/]?$',               mail.popupview,                   name='emails__view_email_popup'),

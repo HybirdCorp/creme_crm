@@ -521,31 +521,61 @@ class EntityEmailTestCase(_EmailsTestCase):
         body_format      = 'Hi {} {}, nice to meet you !'.format
         body_html_format = 'Hi <strong>{} {}</strong>, nice to meet you !'.format
 
-        subject   = 'I am da subject'
-        signature = EmailSignature.objects.create(user=user, name="Re-l's signature", body='I love you... not')
-        template = EmailTemplate.objects.create(user=user, name='My template',
-                                                subject=subject,
-                                                body=body_format('{{first_name}}', '{{last_name}}'),
-                                                body_html=body_html_format('{{first_name}}', '{{last_name}}'),
-                                                signature=signature,
-                                               )
+        subject = 'I am da subject'
+        signature = EmailSignature.objects.create(
+            user=user, name="Re-l's signature", body='I love you... not',
+        )
+        template = EmailTemplate.objects.create(
+            user=user, name='My template', subject=subject,
+            body=body_format('{{first_name}}', '{{last_name}}'),
+            body_html=body_html_format('{{first_name}}', '{{last_name}}'),
+            signature=signature,
+        )
 
         recipient = 'vincent.law@city.mosk'
         first_name = 'Vincent'
         last_name = 'Law'
-        contact = Contact.objects.create(user=user, first_name=first_name, last_name=last_name, email=recipient)
+        contact = Contact.objects.create(
+            user=user, first_name=first_name, last_name=last_name, email=recipient,
+        )
 
         url = self._build_send_from_template_url(contact)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_wizard_popup.html')
 
-        response = self.client.post(url, data={'step':     1,
-                                               'template': template.id,
-                                              }
+        context = response.context
+        title = _('Sending an email to «{}»').format(contact)
+        self.assertEqual(
+            # _('Sending an email to «{entity}» (step {step}/2)').format(entity=contact, step=1),
+            title,
+            context.get('title')
+        )
+        # self.assertEqual(_('Next step'), context.get('submit_label'))
+        self.assertEqual(_('Select this template'), context.get('submit_label'))
+
+        # ---
+        step_key = 'entity_email_wizard-current_step'
+        response = self.client.post(url,
+                                    # data={'step':     1,
+                                    #       'template': template.id,
+                                    #      },
+                                    data={step_key: '0',
+                                          '0-template': template.id,
+                                         },
                                    )
         self.assertNoFormError(response)
 
+        context = response.context
+        self.assertEqual(
+            # _('Sending an email to «{entity}» (step {step}/2)').format(entity=contact, step=2),
+            title,
+            context.get('title')
+        )
+        self.assertEqual(_('Send the email'), context.get('submit_label'))
+
         with self.assertNoException():
-            form = response.context['form']
+            form = context['form']
             fields = form.fields
             fields['subject']
             fields['body']
@@ -553,7 +583,7 @@ class EntityEmailTestCase(_EmailsTestCase):
             fields['signature']
             fields['attachments']
 
-        self.assertEqual(2, fields['step'].initial)
+        # self.assertEqual(2, fields['step'].initial)
 
         ini_get = form.initial.get
         self.assertEqual(subject, ini_get('subject'))
@@ -562,18 +592,79 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(signature.id, ini_get('signature'))
         # self.assertEqual(attachments,  ini_get('attachments')) #TODO
 
-        response = self.client.post(url, data={'step':         2,
-                                               'user':         user.id,
-                                               'sender':       user.linked_contact.email,
-                                               'c_recipients': self.formfield_value_multi_creator_entity(contact),
-                                               'subject':      subject,
-                                               'body':         ini_get('body'),
-                                               'body_html':    ini_get('body_html'),
-                                               'signature':    signature.id,
-                                              }
+        response = self.client.post(url,
+                                    # data={'step':         2,
+                                    #       'user':         user.id,
+                                    #       'sender':       user.linked_contact.email,
+                                    #       'c_recipients': self.formfield_value_multi_creator_entity(contact),
+                                    #       'subject':      subject,
+                                    #       'body':         ini_get('body'),
+                                    #       'body_html':    ini_get('body_html'),
+                                    #       'signature':    signature.id,
+                                    # },
+                                    data={step_key: '1',
+                                          '1-step': 2,
+                                          '1-user': user.id,
+                                          '1-sender': user.linked_contact.email,
+                                          '1-c_recipients': self.formfield_value_multi_creator_entity(contact),
+                                          '1-subject': subject,
+                                          '1-body': ini_get('body'),
+                                          '1-body_html': ini_get('body_html'),
+                                          '1-signature': signature.id,
+                                          },
                                    )
         self.assertNoFormError(response)
-        self.get_object_or_fail(EntityEmail, recipient=recipient)
+        email = self.get_object_or_fail(EntityEmail, recipient=recipient)
+        self.assertEqual(user.linked_contact.email, email.sender)
+        self.assertEqual(ini_get('body'),           email.body)
+
+    @skipIfCustomContact
+    def test_create_from_template02(self):
+        "Not super-user"
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        contact = Contact.objects.create(
+            user=user, first_name='Vincent', last_name='Law',
+            email='vincent.law@city.mosk',
+        )
+        self.assertGET200(self._build_send_from_template_url(contact))
+
+    @skipIfCustomContact
+    def test_create_from_template03(self):
+        "Creation permission needed"
+        user = self.login(is_superuser=False, creatable_models=[])
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        contact = Contact.objects.create(
+            user=user, first_name='Vincent', last_name='Law',
+            email='vincent.law@city.mosk',
+        )
+        self.assertGET403(self._build_send_from_template_url(contact))
+
+    @skipIfCustomContact
+    def test_create_from_template04(self):
+        "LINK permission needed"
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW,   # EntityCredentials.LINK
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        contact = Contact.objects.create(
+            user=user, first_name='Vincent', last_name='Law',
+            email='vincent.law@city.mosk',
+        )
+        self.assertGET403(self._build_send_from_template_url(contact))
 
     def test_listview01(self):
         self.login()

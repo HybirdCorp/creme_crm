@@ -22,8 +22,7 @@ import logging
 
 from django.conf import settings
 from django.db import IntegrityError
-from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField,
-        CharField, TextField, DateTimeField, ForeignKey, ManyToManyField, CASCADE)
+from django.db import models
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -31,8 +30,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.models.fields import UnsafeHTMLField
 
-from .. import constants
-from ..utils import generate_id, EMailSender
+from .. import constants, utils
+
 from .signature import EmailSignature
 
 
@@ -41,20 +40,20 @@ ID_LENGTH = 32
 
 
 class _Email(CremeModel):
-    reads          = PositiveIntegerField(_(u'Number of reads'), null=True,
-                                          default=0, editable=False,
-                                         )
-    status         = PositiveSmallIntegerField(_(u'Status'), editable=False,
-                                               default=constants.MAIL_STATUS_NOTSENT,
-                                               choices=constants.MAIL_STATUS.items(),
-                                              )
+    reads          = models.PositiveIntegerField(_('Number of reads'), null=True,
+                                                 default=0, editable=False,
+                                               )
+    status         = models.PositiveSmallIntegerField(_('Status'), editable=False,
+                                                      default=constants.MAIL_STATUS_NOTSENT,
+                                                      choices=constants.MAIL_STATUS.items(),
+                                                     )
 
-    sender         = CharField(_(u'Sender'), max_length=100)
-    recipient      = CharField(_(u'Recipient'), max_length=100)
-    subject        = CharField(_(u'Subject'), max_length=100, blank=True)
-    body           = TextField(_(u'Body'))
-    sending_date   = DateTimeField(_(u'Sending date'), null=True, editable=False)
-    reception_date = DateTimeField(_(u'Reception date'), null=True, editable=False)
+    sender         = models.CharField(_('Sender'), max_length=100)
+    recipient      = models.CharField(_('Recipient'), max_length=100)
+    subject        = models.CharField(_('Subject'), max_length=100, blank=True)
+    body           = models.TextField(_('Body'))
+    sending_date   = models.DateTimeField(_('Sending date'), null=True, editable=False)
+    reception_date = models.DateTimeField(_('Reception date'), null=True, editable=False)
 
     class Meta:
         abstract = True
@@ -62,7 +61,7 @@ class _Email(CremeModel):
         app_label = 'emails'
 
     def __str__(self):
-        return u'Mail<from: {}> <to: {}> <sent: {}> <id: {}>'.format(
+        return 'Mail<from: {}> <to: {}> <sent: {}> <id: {}>'.format(
                     self.sender, self.recipient, self.sending_date, self.id,
                 )
 
@@ -76,29 +75,33 @@ class _Email(CremeModel):
 
 
 class AbstractEntityEmail(_Email, CremeEntity):
-    identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH,
-                            editable=False,
-                            default=generate_id,  # TODO: lambda for this
-                           )
-    body_html   = UnsafeHTMLField(_(u'Body (HTML)'))
-    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True, on_delete=CASCADE) ##merge with body ????
-    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'), blank=True)
+    identifier  = models.CharField(_('Email ID'), unique=True, max_length=ID_LENGTH,
+                                   editable=False,
+                                   default=utils.generate_id,  # TODO: lambda for this
+                                  )
+    body_html   = UnsafeHTMLField(_('Body (HTML)'))
+    signature   = models.ForeignKey(EmailSignature, verbose_name=_('Signature'),
+                                    blank=True, null=True, on_delete=models.CASCADE,
+                                   )  # TODO: merge with body ????
+    attachments = models.ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL,
+                                         verbose_name=_('Attachments'), blank=True,
+                                        )
 
-    creation_label = _(u'Create an email')
-    save_label     = _(u'Save the email')
-    sending_label  = _(u'Send the email')
+    creation_label = _('Create an email')
+    save_label     = _('Save the email')
+    sending_label  = _('Send the email')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'emails'
-        verbose_name = _(u'Email')
-        verbose_name_plural = _(u'Emails')
+        verbose_name = _('Email')
+        verbose_name_plural = _('Emails')
         ordering = ('-sending_date',)
 
     def genid_n_save(self):
         while True:  # TODO: range(10000) to avoid infinite loop ??
-            self.identifier = generate_id()
+            self.identifier = utils.generate_id()
 
             try:
                 with atomic():
@@ -110,7 +113,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
                 return
 
     def __str__(self):
-        return ugettext(u'EMail <from: {sender}> <to: {to}> <status: {status}>').format(
+        return ugettext('EMail <from: {sender}> <to: {to}> <status: {status}>').format(
                                 sender=self.sender,
                                 to=self.recipient,
                                 status=self.get_status_display(),
@@ -129,7 +132,9 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
     # TODO: in a manager ?
     @classmethod
-    def create_n_send_mail(cls, sender, recipient, subject, user, body, body_html=u'', signature=None, attachments=None):
+    def create_n_send_mail(cls, sender, recipient, subject, user, body,
+                           body_html='', signature=None, attachments=None,
+                          ):
         email = cls(sender=sender,
                     recipient=recipient,
                     subject=subject,
@@ -169,7 +174,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
                                   )
 
         if sender.send(self):
-            logger.debug("Mail sent to %s", self.recipient)
+            logger.debug('Mail sent to %s', self.recipient)
 
 
 class EntityEmail(AbstractEntityEmail):
@@ -177,7 +182,7 @@ class EntityEmail(AbstractEntityEmail):
         swappable = 'EMAILS_EMAIL_MODEL'
 
 
-class EntityEmailSender(EMailSender):
+class EntityEmailSender(utils.EMailSender):
     def get_subject(self, mail):
         return mail.subject
 

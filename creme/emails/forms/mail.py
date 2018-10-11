@@ -21,6 +21,7 @@
 from functools import partial
 from itertools import chain
 import logging
+import warnings
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -37,19 +38,18 @@ from creme.creme_core.models import Relation, FieldsConfig
 
 from creme.documents import get_document_model
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons, emails
 
-from .. import get_entityemail_model, get_emailtemplate_model
 from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, MAIL_STATUS_SENDINGERROR
 from ..creme_jobs import entity_emails_send_type
 
 
 logger = logging.getLogger(__name__)
 Document      = get_document_model()
-Contact       = get_contact_model()
-Organisation  = get_organisation_model()
-EntityEmail   = get_entityemail_model()
-EmailTemplate = get_emailtemplate_model()
+Contact       = persons.get_contact_model()
+Organisation  = persons.get_organisation_model()
+EntityEmail   = emails.get_entityemail_model()
+EmailTemplate = emails.get_emailtemplate_model()
 
 
 class EntityEmailForm(CremeEntityForm):
@@ -199,6 +199,30 @@ class TemplateSelectionForm(CremeForm):
                                   credentials=EntityCredentials.VIEW,
                                  )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        warnings.warn('emails.forms.mail.TemplateSelectionForm is deprecated.',
+                      DeprecationWarning
+                     )
+
+
+class TemplateSelectionFormStep(CremeForm):
+    template = CreatorEntityField(label=pgettext_lazy('emails', 'Template'),
+                                  model=EmailTemplate,
+                                  credentials=EntityCredentials.VIEW,
+                                 )
+
+    step_submit_label = _('Select this template')
+
+    def save(self):
+        pass
+
 
 class EntityEmailFromTemplateForm(EntityEmailForm):
     step = IntegerField(widget=HiddenInput, initial=2)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        warnings.warn('emails.forms.mail.EntityEmailFromTemplateForm is deprecated.',
+                      DeprecationWarning
+                     )

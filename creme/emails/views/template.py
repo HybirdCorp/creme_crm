@@ -148,6 +148,6 @@ class AttachmentsAdding(generic.AddingToEntity):
     form_class = tpl_forms.EmailTemplateAddAttachment
     template_name = 'creme_core/generics/blockform/link_popup.html'
     title_format = _('New attachments for «{}»')
-    submit_label = _('Save the attachments')
+    submit_label = _('Add the attachments')
     entity_id_url_kwarg = 'template_id'
     entity_classes = EmailTemplate
