@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Graphs 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 12:27+0200\n"
+"POT-Creation-Date: 2018-10-10 20:07+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgctxt "graphs"
 msgid "Graphs"
 msgstr "Graphes"
 
-#: apps.py:70 apps.py:74
+#: apps.py:71 apps.py:75
 msgid "Analysis"
 msgstr "Analyse"
 
@@ -40,7 +40,7 @@ msgstr "Types des relations périphériques"
 msgid "Root entities"
 msgstr "Fiches racines"
 
-#: forms/root_node.py:39 forms/root_node.py:63
+#: forms/root_node.py:39 forms/root_node.py:65
 msgid "Related types of relations"
 msgstr "Types de relation associés"
 
@@ -161,24 +161,21 @@ msgctxt "graphs"
 msgid "List of Graphs"
 msgstr "Liste des Graphes"
 
-#: views/graph.py:76
+#: views/graph.py:90
 msgid "This graph is too big!"
 msgstr "Ce graphe est trop gros !"
 
-#: views/graph.py:102
-#, python-format
-msgid "Add relation types to «%s»"
-msgstr "Ajouter des types de relation à «%s»"
+#: views/graph.py:161
+msgid "Add relation types to «{}»"
+msgstr "Ajouter des types de relation à «{}»"
 
-#: views/root_node.py:38
-#, python-format
-msgid "Add root nodes to «%s»"
-msgstr "Ajouter des nœuds racines à «%s»"
+#: views/root_node.py:47
+msgid "Add root nodes to «{}»"
+msgstr "Ajouter des nœuds racines à «{}»"
 
-#: views/root_node.py:48
-#, python-format
-msgid "Edit root node for «%s»"
-msgstr "Modifier le nœud racine pour «%s»"
+#: views/root_node.py:65
+msgid "Edit root node for «{}»"
+msgstr "Modifier le nœud racine pour «{}»"
 
 #~ msgid "Portal of graphs"
 #~ msgstr "Portail des graphes"
@@ -189,12 +186,6 @@ msgstr "Modifier le nœud racine pour «%s»"
 #~ msgid "Number of graphs"
 #~ msgstr "Nombre de graphe(s)"
 
-#~ msgid "%s Peripheral type of relation"
-#~ msgstr "%s Type de relation périphérique"
-
-#~ msgid "%s Peripheral types of relation"
-#~ msgstr "%s Types de relations périphériques"
-
 #~ msgid "Peripheral relation types"
 #~ msgstr "Types de relation périphériques"
 
@@ -203,12 +194,6 @@ msgstr "Modifier le nœud racine pour «%s»"
 
 #~ msgid "Unlink"
 #~ msgstr "Délier"
-
-#~ msgid "%s Root node"
-#~ msgstr "%s Nœud racine"
-
-#~ msgid "%s Root nodes"
-#~ msgstr "%s Nœuds racines"
 
 #~ msgid "Add root nodes from existing entities"
 #~ msgstr "Ajouter des nœuds racines depuis des fiches existantes"

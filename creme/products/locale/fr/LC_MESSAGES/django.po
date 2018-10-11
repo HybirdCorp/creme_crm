@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Products 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-05 13:07+0200\n"
+"POT-Creation-Date: 2018-10-10 20:18+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: apps.py:91 apps.py:96
+#: apps.py:92 apps.py:97
 msgid "Management"
 msgstr "Gestion"
 
@@ -27,37 +27,37 @@ msgstr "Gestion"
 msgid "Images of product/service"
 msgstr "Images du produit/service"
 
-#: forms/base.py:31 forms/fields.py:69 forms/product.py:46 models/product.py:47
+#: forms/base.py:32 forms/fields.py:70 forms/product.py:46 models/product.py:47
 #: models/service.py:41
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/base.py:58 models/product.py:50 models/service.py:48
+#: forms/base.py:61 models/product.py:50 models/service.py:48
 #: templates/products/bricks/images.html:7
 msgid "Images"
 msgstr "Images"
 
-#: forms/fields.py:58
+#: forms/fields.py:59
 msgid "Create"
 msgstr ""
 
-#: forms/fields.py:58
+#: forms/fields.py:59
 msgid "Can't create"
 msgstr ""
 
-#: forms/fields.py:66 models/product.py:46 models/service.py:40
+#: forms/fields.py:67 models/product.py:46 models/service.py:40
 msgid "Category"
 msgstr "Catégorie"
 
-#: forms/fields.py:81
+#: forms/fields.py:83
 msgid "This category doesn't exist."
 msgstr "Cette catégorie n'existe pas."
 
-#: forms/fields.py:82
+#: forms/fields.py:84
 msgid "This category causes constraint error."
 msgstr "Cette catégorie cause une erreur de contrainte."
 
-#: forms/fields.py:83
+#: forms/fields.py:85
 msgid "This sub-category causes constraint error."
 msgstr "Cette sous-catégorie cause une erreur de contrainte."
 
@@ -73,21 +73,20 @@ msgstr "La sous-catégorie «{}» n'existe pas."
 #, python-brace-format
 msgid "The category «{cat}» and the sub-category «{sub_cat}» are not matching."
 msgstr ""
-"La catégorie «{cat}» et la ssous-catégorie «{sub_cat}» ne correspondent "
-"pas."
+"La catégorie «{cat}» et la ssous-catégorie «{sub_cat}» ne correspondent pas."
 
-#: forms/mass_import.py:198
+#: forms/mass_import.py:200
 msgid "Select a valid sub-category."
 msgstr "Sélectionnez une sous-catégorie valide."
 
-#: forms/mass_import.py:199
+#: forms/mass_import.py:201
 msgid ""
 "Select a column for the sub-category if you select a column for the category."
 msgstr ""
 "Sélectionnez une colonne pour la sous-catégorie si sous sélectionnez une "
 "colonne pour la catégorie."
 
-#: forms/mass_import.py:265
+#: forms/mass_import.py:268
 msgid "Categories"
 msgstr "Catégories"
 
@@ -124,18 +123,18 @@ msgstr "Nom de la sous-catégorie"
 msgid "Parent category"
 msgstr "Catégorie parente"
 
-#: models/other_models.py:48
+#: models/other_models.py:50
 msgctxt "products-sub_category"
 msgid "Create a sub-category"
 msgstr "Créer une sous-catégorie"
 
-#: models/other_models.py:55
+#: models/other_models.py:57
 #: templates/products/forms/widgets/mass-import/categories-extractor.html:19
 msgctxt "products-sub_category"
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: models/other_models.py:56
+#: models/other_models.py:58
 msgctxt "products-sub_category"
 msgid "Sub-categories"
 msgstr "Sous-catégories"
@@ -392,12 +391,11 @@ msgctxt "products-sub_category"
 msgid "Default sub-category"
 msgstr "Sous-catégorie par défaut"
 
-#: views/product.py:98 views/service.py:82
-#, python-format
-msgid "New images for «%s»"
-msgstr "Nouvelles images pour «%s»"
+#: views/base.py:33
+msgid "New images for «{}»"
+msgstr "Nouvelles images pour «{}»"
 
-#: views/product.py:100 views/service.py:84
+#: views/base.py:34
 msgid "Link the images"
 msgstr "Lier les images"
 

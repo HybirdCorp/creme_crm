@@ -43,7 +43,7 @@ class _POFileInfo:
         self.pofile = pofile
 
     def __str__(self):
-        return u'{} ({})'.format(self.app_label, self.file_path)
+        return '{} ({})'.format(self.app_label, self.file_path)
 
 
 class Command(BaseCommand):
@@ -118,9 +118,9 @@ class Command(BaseCommand):
                 self.stdout.write('No empty message.')
         else:
             for msgid, entries_info in untranslated_entries.items():
-                self.stdout.write(u'\nmsgid="{msgid}"\n{entries}\n--------\n'.format(
+                self.stdout.write('\nmsgid="{msgid}"\n{entries}\n--------\n'.format(
                                         msgid=msgid,
-                                        entries='\n'.join(u' - {}'.format(entry_info) for entry_info in entries_info),
+                                        entries='\n'.join(' - {}'.format(entry_info) for entry_info in entries_info),
                                     )
                                  )
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-05 11:27+0200\n"
+"POT-Creation-Date: 2018-10-10 19:14+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,23 +19,23 @@ msgstr ""
 msgid "Documents"
 msgstr "Documents"
 
-#: apps.py:140
+#: apps.py:141
 msgid "Tools"
 msgstr "Outils"
 
-#: bricks.py:43
+#: bricks.py:45
 msgid "Information on the document"
 msgstr "Informations sur le document"
 
-#: bricks.py:58
+#: bricks.py:61
 msgid "Folder documents"
 msgstr "Documents du classeur"
 
-#: bricks.py:78
+#: bricks.py:82
 msgid "Child Folders"
 msgstr "Classeurs enfants"
 
-#: bricks.py:96 templates/documents/bricks/linked-docs.html:7
+#: bricks.py:100 templates/documents/bricks/linked-docs.html:7
 msgid "Linked documents"
 msgstr "Documents liés"
 
@@ -47,21 +47,21 @@ msgstr "Documents crées à partir des fiches"
 msgid "Documents received by email"
 msgstr "Documents reçus par e-mail"
 
-#: forms/folder.py:37
+#: forms/folder.py:38
 msgid "The parent's category will be copied if you do not select one."
 msgstr "La catégorie du parent sera copiée si vous n'en choisissez aucune."
 
-#: forms/folder.py:50 forms/folder.py:102
+#: forms/folder.py:52 forms/folder.py:111
 #, python-format
 msgid "This folder is one of the child folders of «%(folder)s»"
 msgstr "Ce classeur est un des classeurs enfant de «%(folder)s»"
 
-#: forms/folder.py:95
+#: forms/folder.py:104
 #, python-format
 msgid "«%(folder)s» cannot be its own parent"
 msgstr "«%(folder)s» ne peut pas être son propre parent"
 
-#: forms/quick.py:104
+#: forms/quick.py:107
 msgid "Image file"
 msgstr "Fichier image"
 
@@ -94,7 +94,7 @@ msgstr "Catégories"
 msgid "Create a document"
 msgstr "Créer un document"
 
-#: models/document.py:52 views/quick_forms.py:39
+#: models/document.py:52
 msgid "Save the document"
 msgstr "Enregistrer le document"
 
@@ -134,7 +134,7 @@ msgstr "Ce classeur est un classeur système."
 msgid "Copy"
 msgstr "Copie"
 
-#: models/folder.py:107
+#: models/folder.py:108
 msgid "Explore"
 msgstr "Explorer"
 
@@ -305,25 +305,23 @@ msgstr ""
 "Classeur contenant tous les documents CSV utilisés lors des imports de "
 "données"
 
-#: views/document.py:53
-#, python-format
-msgid "New document for «%s»"
-msgstr "Ajout de document à «%s»"
+#: views/document.py:150
+msgid "New document for «{}»"
+msgstr "Ajout de document à «{}»"
 
-#: views/folder.py:50
-#, python-format
-msgid "New child folder for «%s»"
-msgstr "Nouveau classeur enfant pour «%s»"
-
-#: views/folder.py:96
+#: views/folder.py:111
 msgid "List sub-folders of «{}»"
 msgstr "Liste des sous-dossiers de «{}»"
 
-#: views/quick_forms.py:79
+#: views/folder.py:177
+msgid "New child folder for «{}»"
+msgstr "Nouveau classeur enfant pour «{}»"
+
+#: views/quick_forms.py:87 views/quick_forms.py:110
 msgid "Save the image"
 msgstr "Enregistrer l'image"
 
-#: views/quick_forms.py:80
+#: views/quick_forms.py:88 views/quick_forms.py:109
 msgid "Create an image"
 msgstr "Créer une image"
 

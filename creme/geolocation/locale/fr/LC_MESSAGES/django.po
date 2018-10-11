@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Geolocation 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-05 12:01+0200\n"
+"POT-Creation-Date: 2018-10-10 20:06+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,11 +24,11 @@ msgstr "Géolocalisation"
 msgid "Addresses on Google Maps ®"
 msgstr "Adresses sur Google Maps ®"
 
-#: bricks.py:98
+#: bricks.py:99
 msgid "Filtered addresses on Google Maps ®"
 msgstr "Adresses filtrées sur Google Maps ®"
 
-#: bricks.py:114
+#: bricks.py:115
 msgid "Neighbours on Google Maps ®"
 msgstr "Voisins sur Google Maps ®"
 
@@ -48,11 +48,11 @@ msgstr "Localisation incomplète"
 msgid "Address"
 msgstr "Adresse"
 
-#: models.py:54 models.py:172
+#: models.py:54 models.py:173
 msgid "Latitude"
 msgstr "Latitude"
 
-#: models.py:55 models.py:173
+#: models.py:55 models.py:174
 msgid "Longitude"
 msgstr "Longitude"
 
@@ -84,31 +84,31 @@ msgctxt "geolocation-address"
 msgid "Addresses"
 msgstr "Adresses"
 
-#: models.py:168
+#: models.py:169
 msgid "Name of the town"
 msgstr "Nom de la ville"
 
-#: models.py:169
+#: models.py:170
 msgid "Slugified name of the town"
 msgstr "Nom normalisé de la ville"
 
-#: models.py:170
+#: models.py:171
 msgid "Zip code"
 msgstr "Code postal"
 
-#: models.py:171
+#: models.py:172
 msgid "Country"
 msgstr "Pays"
 
-#: models.py:175
+#: models.py:176
 msgid "Create a town"
 msgstr "Créer une ville"
 
-#: models.py:179
+#: models.py:180
 msgid "Town"
 msgstr "Ville"
 
-#: models.py:180
+#: models.py:181
 msgid "Towns"
 msgstr "Villes"
 
@@ -129,11 +129,11 @@ msgstr "Carte"
 msgid "No address defined for now"
 msgstr "Aucune adresse enregistrée pour le moment"
 
-#: templates/geolocation/bricks/google/detail-map.html:47
+#: templates/geolocation/bricks/google/detail-map.html:40
 msgid "Retrieve location"
 msgstr "Localiser"
 
-#: templates/geolocation/bricks/google/detail-map.html:63
+#: templates/geolocation/bricks/google/detail-map.html:53
 #: templates/geolocation/bricks/google/filtered-map.html:42
 #: templates/geolocation/bricks/google/neighbours-map.html:62
 msgid ""
@@ -190,11 +190,11 @@ msgid_plural "{distance:.1f} Km"
 msgstr[0] "{distance:.1f} Km"
 msgstr[1] "{distance:.1f} Km"
 
-#: utils.py:78
+#: utils.py:79
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: utils.py:81
+#: utils.py:82
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
