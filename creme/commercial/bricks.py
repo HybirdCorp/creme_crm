@@ -51,7 +51,7 @@ class ApproachesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('commercial', 'approaches')
     dependencies  = (CommercialApproach,)
     order_by      = 'title'
-    verbose_name  = _(u'Commercial approaches')
+    verbose_name  = _('Commercial approaches')
     template_name = 'commercial/bricks/approaches.html'
 
     # TODO: factorise with assistants blocks (CremeEntity method ??)
@@ -88,7 +88,7 @@ class ApproachesBrick(QuerysetBrick):
                                                    .values_list('id',flat=True)
 
             approaches = CommercialApproach.objects.filter(
-                ok_or_in_futur=False,
+                # ok_or_in_futur=False,
                 entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),
             )
         else:
@@ -122,7 +122,7 @@ class SegmentsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('commercial', 'segments')
     dependencies  = (MarketSegment,)
     order_by      = 'name'
-    verbose_name  = u'Market segments'
+    verbose_name  = 'Market segments'
     template_name = 'commercial/bricks/segments.html'
     configurable  = False
     permission    = 'commercial'  # NB: used by the view creme_core.views.blocks.reload_basic
@@ -136,7 +136,7 @@ class SegmentsBrick(QuerysetBrick):
 class SegmentDescriptionsBrick(PaginatedBrick):
     id_           = QuerysetBrick.generate_id('commercial', 'segment_info')
     dependencies  = (MarketSegment,)  # MarketSegmentDescription ??
-    verbose_name  = _(u'Market segment descriptions')
+    verbose_name  = _('Market segment descriptions')
     template_name = 'commercial/bricks/segments-info.html'
     target_ctypes = (Strategy,)
 
@@ -152,7 +152,7 @@ class AssetsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('commercial', 'assets')
     dependencies  = (CommercialAsset,)
     order_by      = 'name'
-    verbose_name  = _(u'Commercial assets')
+    verbose_name  = _('Commercial assets')
     template_name = 'commercial/bricks/assets.html'
     target_ctypes = (Strategy,)
 
@@ -167,7 +167,7 @@ class CharmsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('commercial', 'charms')
     dependencies  = (MarketSegmentCharm,)
     order_by      = 'name'
-    verbose_name  = _(u'Segment charms')
+    verbose_name  = _('Segment charms')
     template_name = 'commercial/bricks/charms.html'
     target_ctypes = (Strategy,)
 
@@ -182,7 +182,7 @@ class EvaluatedOrgasBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('commercial', 'evaluated_orgas')
     dependencies  = (MarketSegmentCharm,)
     order_by      = 'name'
-    verbose_name  = _(u'Evaluated organisations')
+    verbose_name  = _('Evaluated organisations')
     template_name = 'commercial/bricks/evaluated-organisations.html'
     target_ctypes = (Strategy,)
 
@@ -197,7 +197,7 @@ class EvaluatedOrgasBrick(QuerysetBrick):
 class AssetsMatrixBrick(Brick):
     id_           = Brick.generate_id('commercial', 'assets_matrix')
     # dependencies  = (CommercialAsset,) #useless (custom reload view....)
-    verbose_name  = u'Assets / segments matrix'
+    verbose_name  = 'Assets / segments matrix'
     template_name = 'commercial/bricks/assets-matrix.html'
     configurable  = False
 
@@ -217,7 +217,7 @@ class AssetsMatrixBrick(Brick):
 class CharmsMatrixBrick(Brick):
     id_           = Brick.generate_id('commercial', 'charms_matrix')
     # dependencies  = (MarketSegmentCharm,) #useless (custom reload view....)
-    verbose_name  = u'Charms / segments matrix'
+    verbose_name  = 'Charms / segments matrix'
     template_name = 'commercial/bricks/charms-matrix.html'
     configurable  = False
 
@@ -237,7 +237,7 @@ class CharmsMatrixBrick(Brick):
 class AssetsCharmsMatrixBrick(Brick):
     id_           = Brick.generate_id('commercial', 'assets_charms_matrix')
     # dependencies  = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
-    verbose_name  = u'Assets / Charms segments matrix'
+    verbose_name  = 'Assets / Charms segments matrix'
     template_name = 'commercial/bricks/assets-charms-matrix.html'
     configurable  = False
 
@@ -258,7 +258,7 @@ class ActObjectivesBrick(QuerysetBrick):
     dependencies  = (ActObjective, Relation)
     relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
     order_by      = 'name'
-    verbose_name  = _(u'Objectives of a Commercial Action')
+    verbose_name  = _('Objectives of a Commercial Action')
     template_name = 'commercial/bricks/objectives.html'
     target_ctypes = (Act,)
 
@@ -277,7 +277,7 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
     id_           = PaginatedBrick.generate_id('commercial', 'opportunities')
     dependencies  = (Relation, Opportunity)
     relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
-    verbose_name  = _(u'Opportunities related to a Commercial Action')
+    verbose_name  = _('Opportunities related to a Commercial Action')
     template_name = 'commercial/bricks/opportunities.html'
     target_ctypes = (Act,)
 
@@ -293,7 +293,7 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
 class PatternComponentsBrick(Brick):
     id_           = Brick.generate_id('commercial', 'pattern_components')
     dependencies  = (ActObjectivePatternComponent,)
-    verbose_name  = _(u'Components of an Objective Pattern')
+    verbose_name  = _('Components of an Objective Pattern')
     template_name = 'commercial/bricks/components.html'
     target_ctypes = (ActObjectivePattern,)
 
