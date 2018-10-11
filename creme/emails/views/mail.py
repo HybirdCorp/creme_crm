@@ -20,10 +20,13 @@
 
 import warnings
 
+from django.db.transaction import atomic
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404  # render
 from django.template import Template, Context
 from django.utils.translation import ugettext_lazy as _, ugettext
+
+from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -31,6 +34,8 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import jsonify, get_from_POST_or_404
 from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic
+from creme.creme_core.views.generic.base import EntityRelatedMixin
+from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from .. import get_entityemail_model, constants
 from ..forms import mail as mail_forms
@@ -109,12 +114,16 @@ def abstract_create_n_send(request, entity_id, form=mail_forms.EntityEmailForm,
                                 )
 
 
-# TODO: use a wizard. It seems hackish to work with inner popup & django.contrib.formtools.wizard.FormWizard
 def abstract_create_from_template_n_send(request, entity_id,
                                          selection_form=mail_forms.TemplateSelectionForm,
                                          email_form=mail_forms.EntityEmailFromTemplateForm,
                                          template='creme_core/generics/blockform/add_popup.html',
                                         ):
+    warnings.warn('emails.views.mail.abstract_create_from_template_n_send() is deprecated ; '
+                  'use the class-based view EntityEmailWizard instead.',
+                  DeprecationWarning
+                 )
+
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     user = request.user
 
@@ -197,6 +206,9 @@ def create_n_send(request, entity_id):
 @login_required
 @permission_required(('emails', cperm(EntityEmail)))
 def create_from_template_n_send(request, entity_id):
+    warnings.warn('emails.views.mail.create_from_template_n_send() is deprecated.',
+                  DeprecationWarning
+                 )
     return abstract_create_from_template_n_send(request, entity_id)
 
 
@@ -224,6 +236,67 @@ class EntityEmailCreation(generic.AddingToEntity):
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
+
+
+class EntityEmailWizard(EntityRelatedMixin, PopupWizardMixin, SessionWizardView):
+    class _EmailCreationFormStep(mail_forms.EntityEmailForm):
+        step_submit_label = _('Send the email')
+
+    form_list = [
+        mail_forms.TemplateSelectionFormStep,
+        _EmailCreationFormStep,
+    ]
+    template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
+    permission = cperm(EntityEmail)
+    # permissions = ['emails', cperm(EntityEmail)]  TODO
+
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_view_or_die(entity)
+        user.has_perm_to_link_or_die(entity)
+
+    def done(self, form_list, **kwargs):
+        with atomic():
+            for form in form_list:
+                form.save()
+
+        return HttpResponse()
+
+    # TODO: add a method get_title() in base view ?
+    def get_context_data(self, form, **kwargs):
+        context = super().get_context_data(form=form, **kwargs)
+        context['title'] = ugettext('Sending an email to «{}»').format(
+                                self.get_related_entity(),
+        )
+
+        return context
+
+    def get_form_initial(self, step):
+        initial = super().get_form_initial(step=step)
+
+        if step == '1':
+            email_template = self.get_cleaned_data_for_step('0')['template']
+            ctx = {
+                var_name: getattr(self.get_related_entity(), var_name, '')
+                    for var_name in TEMPLATES_VARS
+            }
+            initial['subject'] = email_template.subject
+            initial['body'] = Template(email_template.body).render(Context(ctx))
+            initial['body_html'] = Template(email_template.body_html).render(Context(ctx))
+            initial['signature'] = email_template.signature_id
+            initial['attachments'] = list(email_template.attachments
+                                                        .values_list('id', flat=True)
+                                         )  # TODO: test
+
+        return initial
+
+    def get_form_kwargs(self, step):
+        kwargs = super().get_form_kwargs(step)
+        entity = self.get_related_entity()
+
+        if step == '1':
+            kwargs['entity'] = entity
+
+        return kwargs
 
 
 class EntityEmailDetail(generic.EntityDetail):

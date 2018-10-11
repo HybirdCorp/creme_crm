@@ -122,7 +122,7 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         context = response.context
         # self.assertEqual(_('New attachments for «%s»') % template, context.get('title'))
         self.assertEqual(_('New attachments for «{}»').format(template), context.get('title'))
-        self.assertEqual(_('Save the attachments'),                      context.get('submit_label'))
+        self.assertEqual(_('Add the attachments'),                       context.get('submit_label'))
 
         response = self.client.post(url, data={'attachments': json_dump([doc1.id, doc2.id])})
         self.assertNoFormError(response)

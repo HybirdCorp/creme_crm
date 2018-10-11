@@ -54,12 +54,13 @@ class RoleCreationWizard(PopupWizardMixin, SessionWizardView):
     class _CredentialsStep(role_forms.UserRoleCredentialsStep):
         step_submit_label = UserRole.save_label
 
-    form_list = (role_forms.UserRoleAppsStep,
-                 role_forms.UserRoleAdminAppsStep,
-                 role_forms.UserRoleCreatableCTypesStep,
-                 role_forms.UserRoleExportableCTypesStep,
-                 _CredentialsStep,
-                 )
+    form_list = (
+        role_forms.UserRoleAppsStep,
+        role_forms.UserRoleAdminAppsStep,
+        role_forms.UserRoleCreatableCTypesStep,
+        role_forms.UserRoleExportableCTypesStep,
+        _CredentialsStep,
+    )
     template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
     wizard_title = UserRole.creation_label
     # permission = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
