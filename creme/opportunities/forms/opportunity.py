@@ -18,7 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ModelChoiceField
+import warnings
+
+from django.forms import ModelChoiceField, Form
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, GenericEntityField
@@ -35,6 +37,7 @@ Organisation = persons.get_organisation_model()
 Contact = persons.get_contact_model()
 
 
+# Deprecated forms -------------------------------------------------------------
 class OpportunityEditForm(CremeEntityForm):
     target = GenericEntityField(label=_('Target organisation / contact'),
                                 models=[Organisation, Contact],
@@ -44,6 +47,11 @@ class OpportunityEditForm(CremeEntityForm):
         model = Opportunity
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('opportunities.forms.opportunity.OpportunityEditForm is deprecated ; '
+                      'use OpportunityEditionForm instead.',
+                      DeprecationWarning
+                     )
+
         # super(OpportunityEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
@@ -62,6 +70,14 @@ class OpportunityCreateForm(OpportunityEditForm):
                                empty_label=None,
                               )
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('opportunities.forms.opportunity.OpportunityCreateForm is deprecated ; '
+                      'use OpportunityCreationForm instead.',
+                      DeprecationWarning
+                     )
+
+        super().__init__(*args, **kwargs)
+
     def clean_emitter(self):
         self.instance.emitter = emitter = validate_linkable_entity(self.cleaned_data['emitter'], self.user)
 
@@ -76,21 +92,47 @@ class OpportunityCreateForm(OpportunityEditForm):
         return instance
 
 
-# TODO: factorise (Mixin ?)
-class TargetedOpportunityCreateForm(CremeEntityForm):
+# New forms --------------------------------------------------------------------
+class OpportunityForm(CremeEntityForm):
+    class Meta(CremeEntityForm.Meta):
+        model = Opportunity
+
+
+class TargetMixin(Form):
+    target = GenericEntityField(label=_('Target organisation / contact'),
+                                models=[Organisation, Contact],
+                               )
+
+    def clean_target(self):
+        self.instance.target = target = self.cleaned_data['target']
+
+        return target
+
+
+class EmitterMixin(Form):
     emitter = ModelChoiceField(label=_('Concerned organisation'),
                                queryset=Organisation.get_all_managed_by_creme(),
                                empty_label=None,
                               )
 
-    class Meta(CremeEntityForm.Meta):
-        model = Opportunity
+    def clean_emitter(self):
+        self.instance.emitter = emitter = \
+            validate_linkable_entity(self.cleaned_data['emitter'], self.user)
 
+        return emitter
+
+
+class OpportunityEditionForm(TargetMixin, OpportunityForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['target'].initial = self.instance.target
+
+
+class OpportunityCreationForm(TargetMixin, EmitterMixin, OpportunityForm):
+    pass
+
+
+class TargetedOpportunityCreationForm(EmitterMixin, OpportunityForm):
     def __init__(self, target, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance.target = target
-
-    def clean_emitter(self):
-        self.instance.emitter = emitter = validate_linkable_entity(self.cleaned_data['emitter'], self.user)
-
-        return emitter

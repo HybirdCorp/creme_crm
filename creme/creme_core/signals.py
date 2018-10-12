@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2012-2016 Hybird
+# Copyright (c) 2012-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@
 from django.dispatch import Signal
 
 
-form_post_save = Signal(providing_args=['instance', 'created'])
+form_post_save = Signal(providing_args=['instance', 'created'])  # DEPRECATED
 
 pre_merge_related = Signal(providing_args=['other_entity'])
 pre_replace_related = Signal(providing_args=['old_instance', 'new_instance'])

@@ -152,7 +152,7 @@ def listview(request):
 
 class _BaseOpportunityCreation(generic.EntityCreation):
     model = Opportunity
-    form_class = opp_forms.OpportunityCreateForm
+    form_class = opp_forms.OpportunityCreationForm
 
     def get_initial(self):
         initial = super().get_initial()
@@ -188,7 +188,7 @@ class RelatedOpportunityCreation(EntityRelatedMixin, _BaseOpportunityCreation):
 # TODO: factorise ?
 class RelatedOpportunityCreationPopup(generic.AddingToEntity):
     model = Opportunity
-    form_class = opp_forms.TargetedOpportunityCreateForm
+    form_class = opp_forms.TargetedOpportunityCreationForm
     permissions = ['opportunities', cperm(Opportunity)]
     title_format = _('New opportunity targeting «{}»')
     entity_id_url_kwarg = 'person_id'
@@ -219,5 +219,5 @@ class OpportunityDetail(generic.EntityDetail):
 
 class OpportunityEdition(generic.EntityEdition):
     model = Opportunity
-    form_class = opp_forms.OpportunityEditForm
+    form_class = opp_forms.OpportunityEditionForm
     pk_url_kwarg = 'opp_id'
