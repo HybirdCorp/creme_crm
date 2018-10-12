@@ -21,21 +21,35 @@
 from django.db.models import Count
 from django.utils.translation import ugettext as _
 
-from .constants import REL_OBJ_CUSTOMER_SUPPLIER
+from . import constants
 
 
-class CustomersStatistics:
+class _RelationsStatistics:
+    relation_type_id = 'persons-override_me'
+
     def __init__(self, orga_model):
         self.orga_model = orga_model
 
     def __call__(self):
         data = self.orga_model.get_all_managed_by_creme() \
-                              .filter(relations__type=REL_OBJ_CUSTOMER_SUPPLIER) \
-                              .annotate(customers_count=Count('relations')) \
-                              .values('name', 'customers_count')
+                              .filter(relations__type=self.relation_type_id) \
+                              .annotate(related_count=Count('relations')) \
+                              .values('name', 'related_count')
 
         if data:
-            msg = _(u'For {name}: {customers_count}')
+            msg = _('For {name}: {related_count}')
             return [msg.format(**ctxt) for ctxt in data]
 
         return []
+
+
+class CustomersStatistics(_RelationsStatistics):
+    relation_type_id = constants.REL_OBJ_CUSTOMER_SUPPLIER
+
+
+class ProspectsStatistics(_RelationsStatistics):
+    relation_type_id = constants.REL_OBJ_PROSPECT
+
+
+class SuspectsStatistics(_RelationsStatistics):
+    relation_type_id = constants.REL_OBJ_SUSPECT

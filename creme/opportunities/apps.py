@@ -144,7 +144,7 @@ class OpportunitiesConfig(CremeAppConfig):
             func=lambda: [won_opportunities(),
                           pgettext('opportunities-stats', '{count} in all').format(count=Opportunity.objects.count()),
                          ],
-            perm='opportunities', priority=10,
+            perm='opportunities', priority=15,
         )
 
     def register_billing(self):
