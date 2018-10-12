@@ -253,7 +253,7 @@ class ActionButtonList(widgets.Widget):
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-actionbuttonlist'
 
-        # value = self.from_python(value) if self.from_python is not None else value  TODO ?
+        value = self.from_python(value) if self.from_python is not None else value
 
         # context = super(ActionButtonList, self).get_context(name=name, value=value, attrs=attrs)
         context = super().get_context(name=name, value=value, attrs=attrs)
