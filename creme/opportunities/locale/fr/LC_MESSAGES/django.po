@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 20:09+0200\n"
+"POT-Creation-Date: 2018-10-12 16:56+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -30,8 +30,8 @@ msgstr "Commercial"
 msgctxt "opportunities-stats"
 msgid "{count} won"
 msgid_plural "{count} won"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} gagnée"
+msgstr[1] "{count} gagnées"
 
 #: apps.py:145
 #, python-brace-format
@@ -87,17 +87,16 @@ msgstr "Bons de commande liés à l'opportunité"
 msgid "Invoices linked to the opportunity"
 msgstr "Factures liées à l'opportunité"
 
-#: buttons.py:31 templates/opportunities/bricks/opportunities.html:19
-#: templates/opportunities/buttons/linked-opp.html:5
+#: buttons.py:31 templates/opportunities/buttons/linked-opp.html:5
 #: templates/opportunities/buttons/linked-opp.html:10
 msgid "Create a linked opportunity"
-msgstr "Créer une opportunité reliée"
+msgstr "Créer une opportunité liée"
 
 #: forms/mass_import.py:35 templates/opportunities/bricks/target.html:10
 msgid "Target"
 msgstr "Cible"
 
-#: forms/mass_import.py:37 forms/opportunity.py:60
+#: forms/mass_import.py:37 forms/opportunity.py:60 forms/opportunity.py:81
 msgid "Concerned organisation"
 msgstr "Société concernée"
 
@@ -222,6 +221,7 @@ msgid "Date of the first action"
 msgstr "Date de la première action"
 
 #: models/opportunity.py:127
+#: templates/opportunities/bricks/opportunities.html:19
 msgid "Create an opportunity"
 msgstr "Créer une opportunité"
 
@@ -750,12 +750,8 @@ msgid "New opportunity related to «%s»"
 msgstr "Nouvelle opportunité liée à «%s»"
 
 #: views/opportunity.py:193
-msgid "New opportunity related to «{}»"
-msgstr "Nouvelle opportunité liée à «{}»"
-
-#~ msgctxt "opportunities-stats"
-#~ msgid "%s in all"
-#~ msgstr "%s en tout"
+msgid "New opportunity targeting «{}»"
+msgstr "Nouvelle opportunité ciblant «{}»"
 
 #~ msgid "Portal of opportunities"
 #~ msgstr "Portail des opportunités"
