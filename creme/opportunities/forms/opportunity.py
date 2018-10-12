@@ -36,7 +36,7 @@ Contact = persons.get_contact_model()
 
 
 class OpportunityEditForm(CremeEntityForm):
-    target = GenericEntityField(label=_(u'Target organisation / contact'),
+    target = GenericEntityField(label=_('Target organisation / contact'),
                                 models=[Organisation, Contact],
                                )
 
@@ -57,7 +57,7 @@ class OpportunityEditForm(CremeEntityForm):
 
 
 class OpportunityCreateForm(OpportunityEditForm):
-    emitter = ModelChoiceField(label=_(u'Concerned organisation'),
+    emitter = ModelChoiceField(label=_('Concerned organisation'),
                                queryset=Organisation.get_all_managed_by_creme(),
                                empty_label=None,
                               )
@@ -74,3 +74,23 @@ class OpportunityCreateForm(OpportunityEditForm):
         form_post_save.send(sender=Opportunity, instance=instance, created=True)
 
         return instance
+
+
+# TODO: factorise (Mixin ?)
+class TargetedOpportunityCreateForm(CremeEntityForm):
+    emitter = ModelChoiceField(label=_('Concerned organisation'),
+                               queryset=Organisation.get_all_managed_by_creme(),
+                               empty_label=None,
+                              )
+
+    class Meta(CremeEntityForm.Meta):
+        model = Opportunity
+
+    def __init__(self, target, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance.target = target
+
+    def clean_emitter(self):
+        self.instance.emitter = emitter = validate_linkable_entity(self.cleaned_data['emitter'], self.user)
+
+        return emitter

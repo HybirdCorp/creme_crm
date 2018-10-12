@@ -416,6 +416,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_add_to_orga02(self):
+        "Popup version"
         user = self.login()
 
         target, emitter = self._create_target_n_emitter()
@@ -425,12 +426,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('New opportunity related to «%s»') % target, context.get('title'))
-        self.assertEqual(_('New opportunity related to «{}»').format(target), context.get('title'))
+        self.assertEqual(_('New opportunity targeting «{}»').format(target), context.get('title'))
         self.assertEqual(Opportunity.save_label,                              context.get('submit_label'))
 
         get_initial = context['form'].initial.get
         self.assertIsInstance(get_initial('sales_phase'), SalesPhase)
-        self.assertEqual(target, get_initial('target'))
+        # self.assertEqual(target, get_initial('target'))
+
         # ---
         salesphase = SalesPhase.objects.all()[0]
         name = 'Opportunity linked to {}'.format(target)
@@ -438,7 +440,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self.formfield_value_generic_entity(target),
+                                               # 'target':       self.formfield_value_generic_entity(target),
                                                'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }

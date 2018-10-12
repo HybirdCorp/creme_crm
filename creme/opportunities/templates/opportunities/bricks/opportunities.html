@@ -16,7 +16,7 @@
 {% block brick_header_actions %}
 {% has_perm_to link object as link_perm %}{% has_perm_to create objects_ctype as creation_perm %}
 {% url 'opportunities__create_related_opportunity_popup' object.id as creation_url %}
-    {% brick_header_action id='add' url=creation_url label=_('Create a linked opportunity') enabled=creation_perm|and_op:link_perm %}
+    {% brick_header_action id='add' url=creation_url label=_('Create an opportunity') enabled=creation_perm|and_op:link_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

@@ -188,11 +188,11 @@ class RelatedOpportunityCreation(EntityRelatedMixin, _BaseOpportunityCreation):
 # TODO: factorise ?
 class RelatedOpportunityCreationPopup(generic.AddingToEntity):
     model = Opportunity
-    form_class = opp_forms.OpportunityCreateForm
+    form_class = opp_forms.TargetedOpportunityCreateForm
     permissions = ['opportunities', cperm(Opportunity)]
-    title_format = _('New opportunity related to «{}»')
+    title_format = _('New opportunity targeting «{}»')
     entity_id_url_kwarg = 'person_id'
-    entity_form_kwarg = None
+    entity_form_kwarg = 'target'
     entity_classes = [
         persons.get_contact_model(),
         persons.get_organisation_model(),
@@ -207,7 +207,6 @@ class RelatedOpportunityCreationPopup(generic.AddingToEntity):
     def get_initial(self):
         initial = super().get_initial()
         initial['sales_phase'] = SalesPhase.objects.first()
-        initial['target'] = self.get_related_entity()
 
         return initial
 
