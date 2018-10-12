@@ -25,12 +25,11 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.apps import CremeAppConfig
 
 from . import constants
-from .statistics import CustomersStatistics
 
 
 class PersonsConfig(CremeAppConfig):
     name = 'creme.persons'
-    verbose_name = _(u'Accounts and Contacts')
+    verbose_name = _('Accounts and Contacts')
     dependencies = ['creme.creme_core']
 
     def all_apps_ready(self):
@@ -135,12 +134,12 @@ class PersonsConfig(CremeAppConfig):
         creme_menu.get('creme', 'user').add(UserContactURLItem('persons-user_contact'), priority=2)
         creme_menu.get('features') \
                   .get_or_create(creme_menu.ContainerItem, 'persons-directory', priority=20,
-                                 defaults={'label': _(u'Directory')},
+                                 defaults={'label': _('Directory')},
                                 ) \
                   .add(URLItem.list_view('persons-organisations', model=Organisation), priority=10) \
                   .add(URLItem.list_view('persons-contacts',      model=Contact),      priority=20) \
                   .add(URLItem('persons-lead_customers', url=reverse('persons__leads_customers'),
-                               label=_(u'My customers / prospects / suspects'), perm='persons',
+                               label=_('My customers / prospects / suspects'), perm='persons',
                               ),
                        priority=30,
                       )
@@ -148,7 +147,7 @@ class PersonsConfig(CremeAppConfig):
                   .add(URLItem.creation_view('persons-create_organisation', model=Organisation), priority=10) \
                   .add(URLItem.creation_view('persons-create_contact',      model=Contact),      priority=20)
         creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('persons-directory', _(u'Directory'), priority=10) \
+                  .get_or_create_group('persons-directory', _('Directory'), priority=10) \
                   .add_link('create_contact',      Contact,      priority=3) \
                   .add_link('create_organisation', Organisation, priority=5)
 
@@ -179,19 +178,31 @@ class PersonsConfig(CremeAppConfig):
                                    .register_relationtype(constants.REL_OBJ_EMPLOYED_BY)
 
     def register_statistics(self, statistics_registry):
+        from . import statistics
+
         Contact = self.Contact
         Organisation = self.Organisation
-        statistics_registry.register(id='persons-contacts', label=Contact._meta.verbose_name_plural,
+        statistics_registry.register(id='persons-contacts',
+                                     label=Contact._meta.verbose_name_plural,
                                      func=lambda: [Contact.objects.count()],
                                      perm='persons', priority=3,
                                     ) \
-                           .register(id='persons-organisations', label=Organisation._meta.verbose_name_plural,
+                           .register(id='persons-organisations',
+                                     label=Organisation._meta.verbose_name_plural,
                                      func=lambda: [Organisation.objects.count()],
                                      perm='persons', priority=5,
                                     ) \
-                           .register(id='persons-customers', label=_(u'Customers'),
-                                     func=CustomersStatistics(Organisation),
+                           .register(id='persons-customers', label=_('Customers'),
+                                     func=statistics.CustomersStatistics(Organisation),
                                      perm='persons', priority=7,
+                                    ) \
+                           .register(id='persons-prospects', label=_('Prospects'),
+                                     func=statistics.ProspectsStatistics(Organisation),
+                                     perm='persons', priority=9,
+                                    ) \
+                           .register(id='persons-suspects', label=_('Suspects'),
+                                     func=statistics.SuspectsStatistics(Organisation),
+                                     perm='persons', priority=11,
                                     )
 
     def hook_user(self):
@@ -216,20 +227,20 @@ class PersonsConfig(CremeAppConfig):
             fields = form.fields
             get_ct = ContentType.objects.get_for_model
             fields['organisation'] = ModelChoiceField(
-                                        label=_(u'User organisation'),
-                                        queryset=self.Organisation.get_all_managed_by_creme(),
-                                        empty_label=None,
-                                     )
+                label=_('User organisation'),
+                queryset=self.Organisation.get_all_managed_by_creme(),
+                empty_label=None,
+            )
             fields['relation'] = ModelChoiceField(
-                                    label=_(u'Position in the organisation'),
-                                    queryset=RelationType.objects.filter(subject_ctypes=get_ct(self.Contact),
-                                                                         object_ctypes=get_ct(self.Organisation),
-                                                                         is_internal=False,
-                                                                        ),
-                                    empty_label=None,
-                                    widget=DynamicSelect(attrs={'autocomplete': True}),
-                                    initial=constants.REL_SUB_EMPLOYED_BY,
-                                 )
+                label=_('Position in the organisation'),
+                queryset=RelationType.objects.filter(subject_ctypes=get_ct(self.Contact),
+                                                     object_ctypes=get_ct(self.Organisation),
+                                                     is_internal=False,
+                                                    ),
+                empty_label=None,
+                widget=DynamicSelect(attrs={'autocomplete': True}),
+                initial=constants.REL_SUB_EMPLOYED_BY,
+            )
 
             def set_required(name):
                 field = fields[name]

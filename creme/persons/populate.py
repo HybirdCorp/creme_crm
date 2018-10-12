@@ -49,32 +49,32 @@ class Populator(BasePopulator):
         Organisation = get_organisation_model()
 
         rt_map = {}
-        for rt_info in [((constants.REL_SUB_EMPLOYED_BY,       _(u'is an employee of'),          [Contact]),
-                         (constants.REL_OBJ_EMPLOYED_BY,       _(u'employs'),                    [Organisation]),
+        for rt_info in [((constants.REL_SUB_EMPLOYED_BY,       _('is an employee of'),          [Contact]),
+                         (constants.REL_OBJ_EMPLOYED_BY,       _('employs'),                    [Organisation]),
                         ),
-                        ((constants.REL_SUB_CUSTOMER_SUPPLIER, _(u'is a customer of'),           [Contact, Organisation]),
-                         (constants.REL_OBJ_CUSTOMER_SUPPLIER, _(u'is a supplier of'),           [Contact, Organisation]),
+                        ((constants.REL_SUB_CUSTOMER_SUPPLIER, _('is a customer of'),           [Contact, Organisation]),
+                         (constants.REL_OBJ_CUSTOMER_SUPPLIER, _('is a supplier of'),           [Contact, Organisation]),
                         ),
-                        ((constants.REL_SUB_MANAGES,           _(u'manages'),                    [Contact]),
-                         (constants.REL_OBJ_MANAGES,           _(u'managed by'),                 [Organisation]),
+                        ((constants.REL_SUB_MANAGES,           _('manages'),                    [Contact]),
+                         (constants.REL_OBJ_MANAGES,           _('managed by'),                 [Organisation]),
                         ),
-                        ((constants.REL_SUB_PROSPECT,          _(u'is a prospect of'),           [Contact, Organisation]),
-                         (constants.REL_OBJ_PROSPECT,          _(u'has as prospect'),            [Contact, Organisation]),
+                        ((constants.REL_SUB_PROSPECT,          _('is a prospect of'),           [Contact, Organisation]),
+                         (constants.REL_OBJ_PROSPECT,          _('has as prospect'),            [Contact, Organisation]),
                         ),
-                        ((constants.REL_SUB_SUSPECT,           _(u'is a suspect of'),            [Contact, Organisation]),
-                         (constants.REL_OBJ_SUSPECT,           _(u'has as suspect'),             [Contact, Organisation]),
+                        ((constants.REL_SUB_SUSPECT,           _('is a suspect of'),            [Contact, Organisation]),
+                         (constants.REL_OBJ_SUSPECT,           _('has as suspect'),             [Contact, Organisation]),
                         ),
-                        ((constants.REL_SUB_PARTNER,           _(u'is a partner of'),            [Contact, Organisation]),
-                         (constants.REL_OBJ_PARTNER,           _(u'has as partner'),             [Contact, Organisation]),
+                        ((constants.REL_SUB_PARTNER,           _('is a partner of'),            [Contact, Organisation]),
+                         (constants.REL_OBJ_PARTNER,           _('has as partner'),             [Contact, Organisation]),
                         ),
-                        ((constants.REL_SUB_INACTIVE,          _(u'is an inactive customer of'), [Contact, Organisation]),
-                         (constants.REL_OBJ_INACTIVE,          _(u'has as inactive customer'),   [Contact, Organisation]),
+                        ((constants.REL_SUB_INACTIVE,          _('is an inactive customer of'), [Contact, Organisation]),
+                         (constants.REL_OBJ_INACTIVE,          _('has as inactive customer'),   [Contact, Organisation]),
                         ),
-                        ((constants.REL_SUB_SUBSIDIARY,        _(u'has as subsidiary'),          [Organisation]),
-                         (constants.REL_OBJ_SUBSIDIARY,        _(u'is a subsidiary of'),         [Organisation]),
+                        ((constants.REL_SUB_SUBSIDIARY,        _('has as subsidiary'),          [Organisation]),
+                         (constants.REL_OBJ_SUBSIDIARY,        _('is a subsidiary of'),         [Organisation]),
                         ),
-                        ((constants.REL_SUB_COMPETITOR,        _(u'is a competitor of'),         [Contact, Organisation]),
-                         (constants.REL_OBJ_COMPETITOR,        _(u'has as competitor'),          [Contact, Organisation]),
+                        ((constants.REL_SUB_COMPETITOR,        _('is a competitor of'),         [Contact, Organisation]),
+                         (constants.REL_OBJ_COMPETITOR,        _('has as competitor'),          [Contact, Organisation]),
                         ),
                        ]:
             rt, sym_rt = core_models.RelationType.create(*rt_info)
@@ -82,7 +82,7 @@ class Populator(BasePopulator):
             rt_map[sym_rt.id] = sym_rt
 
         # ---------------------------
-        EntityFilter.create(constants.FILTER_MANAGED_ORGA, name=_(u'Managed by creme'),
+        EntityFilter.create(constants.FILTER_MANAGED_ORGA, name=_('Managed by creme'),
                             model=Organisation, user='admin',
                             conditions=[EntityFilterCondition.build_4_field(
                                               model=Organisation,
@@ -92,7 +92,7 @@ class Populator(BasePopulator):
                                           ),
                                        ],
                            )
-        EntityFilter.create(constants.FILTER_CONTACT_ME, name=_(u'Me'),
+        EntityFilter.create(constants.FILTER_CONTACT_ME, name=_('Me'),
                             model=Contact, user='admin',
                             conditions=[EntityFilterCondition.build_4_field(
                                               model=Contact,
@@ -106,7 +106,7 @@ class Populator(BasePopulator):
         # ---------------------------
         create_hf = core_models.HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_CONTACT, model=Contact,
-                  name=_(u'Contact view'),
+                  name=_('Contact view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                               (EntityCellRegularField, {'name': 'first_name'}),
                               (EntityCellRegularField, {'name': 'phone'}),
@@ -116,7 +116,7 @@ class Populator(BasePopulator):
                              ],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_ORGA, model=Organisation,
-                  name=_(u'Organisation view'),
+                  name=_('Organisation view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'phone'}),
                               (EntityCellRegularField, {'name': 'user'}),
@@ -124,7 +124,7 @@ class Populator(BasePopulator):
                              ],
                  )
         create_hf(pk='persons-hf_leadcustomer', model=Organisation,
-                  name=_(u'Prospect/Suspect view'),
+                  name=_('Prospect/Suspect view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'sector'}),
                               (EntityCellRegularField, {'name': 'phone'}),
@@ -143,37 +143,37 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            create_if_needed(Civility, {'pk': 1}, title=_(u'Madam'),  shortcut=_(u'Mrs.'))
-            create_if_needed(Civility, {'pk': 2}, title=_(u'Miss'),   shortcut=_(u'Ms.'))
-            create_if_needed(Civility, {'pk': 3}, title=_(u'Mister'), shortcut=_(u'Mr.'))
-            create_if_needed(Civility, {'pk': 4}, title=_(u'N/A'),    shortcut=u'')
+            create_if_needed(Civility, {'pk': 1}, title=_('Madam'),  shortcut=_('Mrs.'))
+            create_if_needed(Civility, {'pk': 2}, title=_('Miss'),   shortcut=_('Ms.'))
+            create_if_needed(Civility, {'pk': 3}, title=_('Mister'), shortcut=_('Mr.'))
+            create_if_needed(Civility, {'pk': 4}, title=_('N/A'),    shortcut='')
 
             # ---------------------------
             # TODO: add relation to admin ????
             if not Organisation.objects.exists():
                 Organisation.objects.create(user=get_user_model().objects.get_admin(),
-                                            name=_(u'ReplaceByYourSociety'), is_managed=True,
+                                            name=_('ReplaceByYourSociety'), is_managed=True,
                                             uuid=constants.UUID_FIRST_ORGA,
                                            )
 
             # ---------------------------
-            create_if_needed(Position, {'pk': 1}, title=_(u'CEO'))
-            create_if_needed(Position, {'pk': 2}, title=_(u'Secretary'))
-            create_if_needed(Position, {'pk': 3}, title=_(u'Technician'))
+            create_if_needed(Position, {'pk': 1}, title=_('CEO'))
+            create_if_needed(Position, {'pk': 2}, title=_('Secretary'))
+            create_if_needed(Position, {'pk': 3}, title=_('Technician'))
 
             # ---------------------------
-            create_if_needed(Sector, {'pk': 1}, title=_(u'Food Industry'))
-            create_if_needed(Sector, {'pk': 2}, title=_(u'Industry'))
-            create_if_needed(Sector, {'pk': 3}, title=_(u'Software'))
-            create_if_needed(Sector, {'pk': 4}, title=_(u'Telecom'))
-            create_if_needed(Sector, {'pk': 5}, title=_(u'Restoration'))
+            create_if_needed(Sector, {'pk': 1}, title=_('Food Industry'))
+            create_if_needed(Sector, {'pk': 2}, title=_('Industry'))
+            create_if_needed(Sector, {'pk': 3}, title=_('Software'))
+            create_if_needed(Sector, {'pk': 4}, title=_('Telecom'))
+            create_if_needed(Sector, {'pk': 5}, title=_('Restoration'))
 
             # ---------------------------
             # TODO: depend on the country no ??
-            create_if_needed(LegalForm, {'pk': 1}, title=u'SARL')
-            create_if_needed(LegalForm, {'pk': 2}, title=u'Association loi 1901')
-            create_if_needed(LegalForm, {'pk': 3}, title=u'SA')
-            create_if_needed(LegalForm, {'pk': 4}, title=u'SAS')
+            create_if_needed(LegalForm, {'pk': 1}, title='SARL')
+            create_if_needed(LegalForm, {'pk': 2}, title='Association loi 1901')
+            create_if_needed(LegalForm, {'pk': 3}, title='SA')
+            create_if_needed(LegalForm, {'pk': 4}, title='SAS')
 
             # ---------------------------
             create_if_needed(StaffSize, {'pk': 1}, size='1 - 5',     order=1)
@@ -207,7 +207,7 @@ class Populator(BasePopulator):
 
             # cbci_orga_1 =
             create_cbci(id='persons-organisation_main_info',
-                        name=_(u'Organisation information'),
+                        name=_('Organisation information'),
                         content_type=get_ct(Organisation),
                         cells=[
                            build_cell(Organisation, 'name'),
@@ -235,7 +235,7 @@ class Populator(BasePopulator):
                        )
             # cbci_orga_2 =
             create_cbci(id='persons-organisation_details',
-                        name=_(u'Organisation details'),
+                        name=_('Organisation details'),
                         content_type=get_ct(Organisation),
                         cells=[
                           build_cell(Organisation, 'phone'),
@@ -245,7 +245,7 @@ class Populator(BasePopulator):
                         ],
                        )
             cbci_orga_extra = create_cbci(id='persons-organisation_complementary',
-                                          name=_(u'Organisation complementary information'),
+                                          name=_('Organisation complementary information'),
                                           content_type=get_ct(Organisation),
                                           cells=[
                                               build_cell(Organisation, 'staff_size'),
@@ -288,7 +288,7 @@ class Populator(BasePopulator):
             create_bdl(brick_id=core_bricks.HistoryBrick.id_,         order=30,  zone=RIGHT, model=Organisation)
 
             create_cbci(id='persons-contact_main_info',
-                        name=_(u'Contact information'),
+                        name=_('Contact information'),
                         content_type=get_ct(Contact),
                         cells=[
                            build_cell(Contact, 'civility'),
@@ -309,7 +309,7 @@ class Populator(BasePopulator):
                         ],
                        )
             create_cbci(id='persons-contact_details',
-                        name=_(u'Contact details'),
+                        name=_('Contact details'),
                         content_type=get_ct(Contact),
                         cells=[
                            build_cell(Contact, 'phone'),
@@ -321,7 +321,7 @@ class Populator(BasePopulator):
                         ],
                        )
             cbci_contact_extra = create_cbci(id='persons-contact_complementary',
-                                             name=_(u'Contact complementary information'),
+                                             name=_('Contact complementary information'),
                                              content_type=get_ct(Contact),
                                              cells=[
                                                  build_cell(Contact, 'sector'),
