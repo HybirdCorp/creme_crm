@@ -46,14 +46,9 @@ def abstract_add_document(request, form=doc_forms.DocumentCreateForm,
                   DeprecationWarning
                  )
 
-    folder = get_folder_model().objects.first()
-
     return generic.add_entity(
         request, form,
-        # TODO: uncomment when CreatorEntityField can be initialized with instance..
-        # # extra_initial={'folder': Folder.objects.first()},
-        # extra_initial={'folder': folder.id if folder else None},
-        extra_initial={'linked_folder': folder.id if folder else None},
+        extra_initial={'linked_folder': get_folder_model().objects.first()},
         extra_template_dict={'submit_label': submit_label},
     )
 
@@ -135,10 +130,7 @@ class DocumentCreation(generic.EntityCreation):
 
     def get_initial(self):
         initial = super().get_initial()
-        # TODO: would be cool to initialize with an instance like:
-        #       initial['linked_folder'] = get_folder_model().objects.first()
-        folder = get_folder_model().objects.first()
-        initial['linked_folder'] = folder.id if folder else None
+        initial['linked_folder'] = get_folder_model().objects.first()
 
         return initial
 

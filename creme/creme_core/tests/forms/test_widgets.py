@@ -958,7 +958,8 @@ class EntityCreatorWidgetTestCase(FieldTestCase):
 </ul>'''
         self.assertHTMLEqual(html, widget.render('field', ''))
 
-    def test_render(self):
+    def test_render01(self):
+        "Empty"
         ct_id = ContentType.objects.get_for_model(FakeContact).id
         creation_url = reverse('creme_core__quick_form', args=(ct_id,))
         widget = EntityCreatorWidget(FakeContact, creation_url=creation_url, creation_allowed=False)
@@ -994,3 +995,45 @@ class EntityCreatorWidgetTestCase(FieldTestCase):
         )
         self.assertHTMLEqual(html, widget.render('field', ''))
 
+    def test_render02(self):
+        "Initialized"
+        # ct_id = ContentType.objects.get_for_model(FakeContact).id
+        user = self.login()
+        contact = FakeContact.objects.create(last_name='Doe', first_name='John', user=user)
+        ct_id = contact.entity_type_id
+
+        creation_url = reverse('creme_core__quick_form', args=(ct_id,))
+        widget = EntityCreatorWidget(FakeContact, creation_url=creation_url, creation_allowed=False)
+        widget.from_python = lambda value: value.id
+
+        html = '''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
+    <li class="delegate">
+        <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
+              labelURL="{select_label_url}" label="{select_label}"
+              popupURL="{select_url}" popupSelection="single">
+            <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
+            <button type="button">{select_label}</button>
+        </span>
+    </li>
+    <li>
+        <button class="ui-creme-actionbutton" action="reset" name="reset" title="{reset_title}" type="button" value="">
+            {reset_label}
+        </button>
+    </li>
+    <li>
+        <button class="ui-creme-actionbutton" name="create" title="{create_title}" type="button" disabled popupUrl="{create_url}">
+            {create_label}
+        </button>
+    </li>
+</ul>'''.format(
+            select_label=_('Select…'),
+            select_label_url=EntitySelector(content_type=ct_id).text_url,
+            select_url=EntitySelector(content_type=ct_id).url,
+            reset_title=_('Clear'),
+            reset_label=_('Clear'),
+            create_title=_("Can't create"),
+            create_label=FakeContact.creation_label,
+            create_url=creation_url,
+            value=contact.id,
+        )
+        self.assertHTMLEqual(html, widget.render('field', value=contact))
