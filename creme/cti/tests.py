@@ -146,6 +146,12 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
         self.assertTemplateUsed(response, 'cti/respond_to_a_call.html')
 
+        get = response.context.get
+        self.assertEqual(phone, get('number'))
+        self.assertEqual(reverse('cti__reload_callers_brick', args=(phone,)),
+                         get('bricks_reload_url')
+                        )
+
         brick_id = CallersBrick.id_
         brick_node = self.get_brick_node(self.get_html_tree(response.content), brick_id)
         self.assertInstanceLink(brick_node, contact)

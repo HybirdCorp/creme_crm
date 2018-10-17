@@ -24,7 +24,7 @@ import warnings
 
 from django.db.transaction import atomic
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect  # render
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.timezone import now
@@ -35,7 +35,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity, RelationType, Relation
 from creme.creme_core.utils import jsonify, get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.views.bricks import build_context, bricks_render_info
-from creme.creme_core.views.generic import add_entity
+from creme.creme_core.views import generic
 
 from creme import persons
 # from creme.persons.forms.contact import ContactForm
@@ -91,9 +91,9 @@ def abstract_add_contact(request, number,
                   'use the class-based view CTIContactCreation instead.',
                   DeprecationWarning
                  )
-    return add_entity(request, form, template=template,
-                      extra_initial={'phone': number},
-                     )
+    return generic.add_entity(request, form, template=template,
+                              extra_initial={'phone': number},
+                             )
 
 
 class CTIPersonMixin:
@@ -118,9 +118,9 @@ def abstract_add_organisation(request, number,
                   'use the class-based view CTIOrganisationCreation instead.',
                   DeprecationWarning
                  )
-    return add_entity(request, form, template=template,
-                      extra_initial={'phone': number},
-                     )
+    return generic.add_entity(request, form, template=template,
+                              extra_initial={'phone': number},
+                             )
 
 
 class CTIOrganisationCreation(CTIPersonMixin, persons.views.organisation.OrganisationCreation):
@@ -181,15 +181,38 @@ def create_phonecall_as_caller(request):
     return abstract_create_phonecall_as_caller(request)
 
 
-@login_required
-def respond_to_a_call(request):
-    number = get_from_GET_or_404(request.GET, 'number')
+# @login_required
+# def respond_to_a_call(request):
+#     number = get_from_GET_or_404(request.GET, 'number')
+#
+#     return render(request, 'cti/respond_to_a_call.html',
+#                   {'number':            number,
+#                    'bricks_reload_url': reverse('cti__reload_callers_brick', args=(number,)),
+#                   }
+#                  )
+class AnswerToACall(generic.BricksView):
+    template_name = 'cti/respond_to_a_call.html'
 
-    return render(request, 'cti/respond_to_a_call.html',
-                  {'number':            number,
-                   'bricks_reload_url': reverse('cti__reload_callers_brick', args=(number,)),
-                  }
-                 )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.number = None
+
+    def get_bricks_reload_url(self):
+        return reverse('cti__reload_callers_brick', args=(self.get_number(),))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['number'] = self.get_number()
+
+        return context
+
+    def get_number(self):
+        number = self.number
+
+        if number is None:
+            self.number = number = get_from_GET_or_404(self.request.GET, 'number')
+
+        return number
 
 
 @login_required
