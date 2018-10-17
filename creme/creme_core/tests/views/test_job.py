@@ -307,6 +307,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(self.LIST_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-all.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
 
         self._assertCount(response, str(batch_process_type.verbose_name), job_count)
 
@@ -365,6 +368,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(self.MINE_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-mine.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
 
         self._assertCount(response, str(batch_process_type.verbose_name), job_count)
 

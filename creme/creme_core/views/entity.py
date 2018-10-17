@@ -163,7 +163,7 @@ def search_and_view(request):
         raise Http404('Void "value" arg')
 
     user = request.user
-    has_perm = user.has_perm
+    check_app = user.has_perm_to_access_or_die
     models = []
 
     for model_id in model_ids:
@@ -172,8 +172,7 @@ def search_and_view(request):
         except (ContentType.DoesNotExist, TypeError) as e:
             raise Http404('This model does not exist: {}'.format(model_id)) from e
 
-        if not has_perm(ct.app_label):
-            raise PermissionDenied(ugettext('You are not allowed to access to this app'))
+        check_app(ct.app_label)
 
         model = ct.model_class()
 
