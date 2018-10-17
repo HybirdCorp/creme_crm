@@ -171,7 +171,8 @@ creme_core_patterns = [
     url(r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)[/]?$', batch_process.get_ops,       name='creme_core__batch_process_ops'),
 
     # Search
-    url(r'^search[/]?$',           search.search,       name='creme_core__search'),
+    # url(r'^search[/]?$',           search.search,       name='creme_core__search'),
+    url(r'^search[/]?$', search.Search.as_view(), name='creme_core__search'),
     url(r'^search/', include([
         url(r'^light[/]?$',        search.light_search, name='creme_core__light_search'),
         url(r'^reload_brick[/]?$', search.reload_brick, name='creme_core__reload_search_brick'),

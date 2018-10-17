@@ -20,6 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -158,13 +159,21 @@ class ContentTypeRelatedMixin:
     def check_related_ctype(self, ctype):
         pass
 
+    def get_ctype_id(self):
+        return self.kwargs[self.ctype_id_url_kwarg]
+
     def get_ctype(self):
         try:
             ctype = getattr(self, 'related_ctype')
         except AttributeError:
-            ct_id = self.kwargs[self.ctype_id_url_kwarg]
+            ct_id_str = self.get_ctype_id()
 
-            if self.ct_id_0_accepted and not int(ct_id):
+            try:
+                ct_id = int(ct_id_str)
+            except ValueError:
+                raise Http404('ContentType ID must be an integer.')
+
+            if self.ct_id_0_accepted and not ct_id:
                 ctype = None
             else:
                 ctype = get_ct_or_404(ct_id)

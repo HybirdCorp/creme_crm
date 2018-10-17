@@ -85,17 +85,28 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
         self._setup_contacts()
 
-        response = self._search('john', self.contact_ct_id)
+        term = 'john'
+        response = self._search(term, self.contact_ct_id)
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, 'creme_core/search_results.html')
 
+        ctxt = response.context
+        self.assertEqual(self.contact_ct_id, ctxt.get('selected_ct_id'))
+        self.assertEqual(term,               ctxt.get('research'))
+
         with self.assertNoException():
-            ctxt = response.context
             models = ctxt['models']
             # bricks = ctxt['blocks']
             bricks = ctxt['bricks']
+            reload_url = ctxt['bricks_reload_url']
 
         self.assertEqual(['Test Contact'], models)
+        self.assertEqual('{}?search={}'.format(
+                            reverse('creme_core__reload_search_brick'),
+                            term,
+                         ),
+                         reload_url
+                        )
 
         self.assertIsInstance(bricks, list)
         self.assertEqual(1, len(bricks))
@@ -142,8 +153,8 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
         vnames = {str(vname) for vname in context['models']}
-        self.assertIn(_(u'Contact'), vnames)
-        self.assertIn(_(u'Organisation'), vnames)
+        self.assertIn(_('Contact'), vnames)
+        self.assertIn(_('Organisation'), vnames)
 
     # @override_settings(OLD_MENU=False)
     def test_search04(self):
@@ -152,7 +163,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self._setup_contacts()
         self._setup_orgas()
 
-        self.assertEqual(_(u'Please enter at least {count} characters').format(count=3),
+        self.assertEqual(_('Please enter at least {count} characters').format(count=3),
                          self._search('ox').context['error_message']
                         )
         self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
@@ -278,10 +289,10 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, alan.get_absolute_url())
         self.assertNotContains(response, andrew.get_absolute_url())
 
-        self.assertContains(response, _(u'First name'))
-        self.assertContains(response, _(u'Last name'))
-        self.assertNotContains(response, _(u'Description'))
-        self.assertNotContains(response, _(u'Sector'))
+        self.assertContains(response, _('First name'))
+        self.assertContains(response, _('Last name'))
+        self.assertNotContains(response, _('Description'))
+        self.assertNotContains(response, _('Sector'))
 
     def test_search11(self):
         "With FieldsConfig: all fields are hidden"
@@ -302,7 +313,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, self.andrew.get_absolute_url())
 
         self.assertContains(response,
-                            _(u'It seems that all fields are hidden. Ask your administrator to fix the configuration.')
+                            _('It seems that all fields are hidden. Ask your administrator to fix the configuration.')
                            )
 
     def test_search12(self):
@@ -310,7 +321,18 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         response = self._search('john', ContentType.objects.get_for_model(ContentType).id)
-        self.assertEqual(404, response.status_code)
+        # self.assertEqual(404, response.status_code)
+        self.assertEqual(409, response.status_code)
+
+    def test_search13(self):
+        "Empty page"
+        self.login()
+        # self._setup_contacts()
+
+        # term = 'john'
+        response = self._search(research='', ct_id='')
+        self.assertEqual(200, response.status_code)
+        self.assertTemplateUsed(response, 'creme_core/search_results.html')
 
     def test_reload_brick(self):
         self.login()
@@ -437,7 +459,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
              #           'limit': 5,
              #           'ctype': None,
              #          },
-             'error': _(u'Empty search…'),
+             'error': _('Empty search…'),
             },
             response.json()
         )
@@ -449,7 +471,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
              #           'limit': 5,
              #           'ctype': None,
              #          },
-             'error': _(u'Please enter at least {count} characters').format(count=3),
+             'error': _('Please enter at least {count} characters').format(count=3),
             },
             response.json()
         )
