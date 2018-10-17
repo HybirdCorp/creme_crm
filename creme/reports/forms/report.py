@@ -27,7 +27,7 @@ from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.forms.fields import ChoiceField, CharField
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.backends import export_backend_registry
 from creme.creme_core.core.entity_cell import (EntityCell, EntityCellRegularField,
