@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 from time import time
 from urllib.parse import urlencode
 # import warnings
@@ -25,20 +26,21 @@ from urllib.parse import urlencode
 # from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-from django.shortcuts import render
-from django.urls import reverse
+# from django.shortcuts import render
+# from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from .. import utils
 from ..auth.decorators import login_required
-from ..core.search import Searcher
 from ..core.entity_cell import EntityCellRegularField
+from ..core.search import Searcher
 from ..gui.bricks import QuerysetBrick
 from ..models import CremeEntity, EntityCredentials
 from ..registry import creme_registry
 from ..utils.unicode_collation import collator
 
 from .bricks import bricks_render_info
+from .generic import base
 
 
 MIN_RESEARCH_LENGTH = 3
@@ -90,7 +92,7 @@ class FoundEntitiesBrick(QuerysetBrick):
         results = searcher.search(model, research)
 
         if results is None:
-            # HACK: ensures that the block is displayed (with a strange title anyway...)
+            # HACK: ensures that the brick is displayed (with a strange title anyway...)
             qs = model.objects.all()[:1]
         else:
             qs = EntityCredentials.filter(self.user, results)
@@ -103,46 +105,133 @@ class FoundEntitiesBrick(QuerysetBrick):
         ))
 
 
-@login_required
-def search(request):
-    GET_get = request.GET.get
-    research = GET_get('research', '')
-    ct_id    = GET_get('ct_id', '')
+# @login_required
+# def search(request):
+#     GET_get = request.GET.get
+#     research = GET_get('research', '')
+#     ct_id    = GET_get('ct_id', '')
+#
+#     t_ctx  = {'bricks_reload_url': reverse('creme_core__reload_search_brick') + '?' + urlencode({'search': research})}
+#     models = []
+#     bricks = []
+#
+#     # if not research:
+#     #     if settings.OLD_MENU:
+#     #         t_ctx['error_message'] = _(u'Empty search…')
+#     # elif len(research) < MIN_RESEARCH_LENGTH:
+#     if len(research) < MIN_RESEARCH_LENGTH:
+#         t_ctx['error_message'] = _(u'Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
+#     else:
+#         if not ct_id:
+#             models.extend(creme_registry.iter_entity_models())
+#             models.sort(key=lambda m: m._meta.verbose_name)
+#         else:
+#             model = utils.get_ct_or_404(ct_id).model_class()
+#
+#             if not issubclass(model, CremeEntity):
+#                 raise Http404('The model must be a CremeEntity')
+#
+#             models.append(model)
+#
+#         user = request.user
+#         searcher = Searcher(models, user)
+#
+#         models = list(searcher.models)  # Remove disabled models
+#         bricks.extend(FoundEntitiesBrick(searcher, model, research, user) for model in models)
+#
+#     t_ctx['research'] = research
+#     t_ctx['models'] = [m._meta.verbose_name for m in models]
+#     t_ctx['bricks'] = bricks
+#     t_ctx['selected_ct_id'] = int(ct_id) if ct_id.isdigit() else None
+#
+#     return render(request, 'creme_core/search_results.html', t_ctx)
+class Search(base.EntityCTypeRelatedMixin, base.BricksView):
+    template_name = 'creme_core/search_results.html'
+    ct_id_0_accepted = True
+    bricks_reload_url_name = 'creme_core__reload_search_brick'
+    brick_class = FoundEntitiesBrick
+    searcher_class = Searcher
 
-    t_ctx  = {'bricks_reload_url': reverse('creme_core__reload_search_brick') + '?' + urlencode({'search': research})}
-    models = []
-    bricks = []
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.searcher = None
+        self.search_error = None
+        self.search_terms = None
 
-    # if not research:
-    #     if settings.OLD_MENU:
-    #         t_ctx['error_message'] = _(u'Empty search…')
-    # elif len(research) < MIN_RESEARCH_LENGTH:
-    if len(research) < MIN_RESEARCH_LENGTH:
-        t_ctx['error_message'] = _(u'Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
-    else:
-        if not ct_id:
-            models.extend(creme_registry.iter_entity_models())
+    def get_bricks(self):
+        bricks = super().get_bricks()
+
+        if not self.get_search_error():
+            searcher = self.get_searcher()
+            ResultBrick = partial(self.brick_class,
+                                  searcher=searcher,
+                                  research=self.get_search_terms(),
+                                  user=searcher.user,
+                                 )
+
+            bricks.extend(ResultBrick(model=model) for model in searcher.models)
+
+        return bricks
+
+    def get_bricks_reload_url(self):
+        return '{}?{}'.format(
+            super().get_bricks_reload_url(),
+            urlencode({'search': self.get_search_terms()}),
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['research'] = self.get_search_terms()
+        context['error_message'] = self.get_search_error()
+        context['models'] = [m._meta.verbose_name for m in self.get_searcher().models]
+
+        ctype = self.get_ctype()
+        context['selected_ct_id'] = ctype.id if ctype else None
+
+        return context
+
+    def get_ctype_id(self):
+        return self.request.GET.get('ct_id') or 0
+
+    def get_raw_models(self):
+        ctype = self.get_ctype()
+
+        if ctype is None:
+            models = list(creme_registry.iter_entity_models())
             models.sort(key=lambda m: m._meta.verbose_name)
         else:
-            model = utils.get_ct_or_404(ct_id).model_class()
+            models = [ctype.model_class()]
 
-            if not issubclass(model, CremeEntity):
-                raise Http404('The model must be a CremeEntity')
+        return models
 
-            models.append(model)
+    def get_search_error(self):
+        error = self.search_error
 
-        user = request.user
-        searcher = Searcher(models, user)
+        if error is None:
+            self.search_error = error = (
+                _('Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
+                if len(self.get_search_terms()) < MIN_RESEARCH_LENGTH else
+                ''
+            )
 
-        models = list(searcher.models)  # Remove disabled models
-        bricks.extend(FoundEntitiesBrick(searcher, model, research, user) for model in models)
+        return error
 
-    t_ctx['research'] = research
-    t_ctx['models'] = [m._meta.verbose_name for m in models]
-    t_ctx['bricks'] = bricks
-    t_ctx['selected_ct_id'] = int(ct_id) if ct_id.isdigit() else None
+    def get_search_terms(self):
+        terms = self.search_terms
 
-    return render(request, 'creme_core/search_results.html', t_ctx)
+        if terms is None:
+            self.search_terms = terms = self.request.GET.get('research', '')
+
+        return terms
+
+    def get_searcher(self):
+        searcher = self.searcher
+
+        if searcher is None:
+            self.searcher = searcher = \
+                self.searcher_class(models=self.get_raw_models(), user=self.request.user)
+
+        return searcher
 
 
 @login_required
@@ -158,7 +247,7 @@ def reload_brick(request):
     search = GET.get('search', '')
 
     if len(search) < MIN_RESEARCH_LENGTH:
-        raise Http404(u'Please enter at least {count} characters'.format(count=MIN_RESEARCH_LENGTH))
+        raise Http404('Please enter at least {count} characters'.format(count=MIN_RESEARCH_LENGTH))
 
     user = request.user
     model = ctype.model_class()
@@ -184,9 +273,9 @@ def light_search(request):
            }
 
     if not sought:
-        data['error'] = _(u'Empty search…')
+        data['error'] = _('Empty search…')
     elif len(sought) < MIN_RESEARCH_LENGTH:
-        data['error'] = _(u'Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
+        data['error'] = _('Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
     else:
         models = []
         results = []
@@ -198,7 +287,7 @@ def light_search(request):
         #     model = get_ct_or_404(ct_id).model_class()
         #
         #     if not issubclass(model, CremeEntity):
-        #         data['error'] = _(u'The model must be a CremeEntity')
+        #         data['error'] = _('The model must be a CremeEntity')
         #     else:
         #         models.append(model)
 
