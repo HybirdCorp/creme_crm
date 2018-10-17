@@ -21,14 +21,14 @@
 # import warnings
 
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect  # render
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.creme_core.views.bricks import build_context, bricks_render_info
 # from creme.creme_core.views.generic import add_to_entity
-from creme.creme_core.views.generic.add import AddingToEntity
+from creme.creme_core.views import generic
 
 from .. import get_smscampaign_model
 from ..bricks import MessagesBrick
@@ -46,7 +46,7 @@ from ..models import Sending, Message
 #                          entity_class=get_smscampaign_model(),
 #                          submit_label=Sending.save_label,
 #                         )
-class SendingCreation(AddingToEntity):
+class SendingCreation(generic.AddingToEntity):
     model = Sending
     form_class = SendingCreateForm
     entity_id_url_kwarg = 'campaign_id'
@@ -93,13 +93,22 @@ def send_messages(request, id):
     return HttpResponse()
 
 
-@login_required
-@permission_required('sms')
-def detailview(request, id):
-    sending = get_object_or_404(Sending, id=id)
-    request.user.has_perm_to_view_or_die(sending.campaign)
+# @login_required
+# @permission_required('sms')
+# def detailview(request, id):
+#     sending = get_object_or_404(Sending, id=id)
+#     request.user.has_perm_to_view_or_die(sending.campaign)
+#
+#     return render(request, 'sms/popup_sending.html', {'object': sending})
+# TODO: RelatedToEntityDetail when Sending is/if an auxiliary
+class Messages(generic.CremeModelDetailPopup):
+    model = Sending
+    template_name = 'sms/popup_sending.html'
+    pk_url_kwarg = 'id'
+    permissions = 'sms'
 
-    return render(request, 'sms/popup_sending.html', {'object': sending})
+    def check_instance_permissions(self, instance, user):
+        user.has_perm_to_view_or_die(instance.campaign)
 
 
 # TODO: improve Message.delete() instead ?
