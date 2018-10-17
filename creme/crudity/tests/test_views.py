@@ -325,8 +325,13 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('crudity__history'))
         self.assertTemplateUsed(response, 'crudity/history.html')
 
+        context = response.context
+        self.assertEqual(reverse('crudity__reload_history_bricks'),
+                         context.get('bricks_reload_url')
+                        )
+
         with self.assertNoException():
-            bricks = list(response.context['bricks'])
+            bricks = list(context['bricks'])
 
         self.assertTrue(bricks)
         models = set()
@@ -341,7 +346,9 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
     def test_history_reload01(self):
         ct = ContentType.objects.get_for_model(FakeContact)
         brick_id = 'block_crudity-{}'.format(ct.id)
-        response = self.assertGET200(reverse('crudity__reload_history_bricks'), data={'brick_id': brick_id})
+        response = self.assertGET200(reverse('crudity__reload_history_bricks'),
+                                     data={'brick_id': brick_id},
+                                    )
 
         reload_data = response.json()
 
@@ -382,6 +389,11 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('crudity__actions'))
         self.assertTemplateUsed(response, 'emails/bricks/synchronization.html')
         self.assertTemplateUsed(response, 'emails/bricks/synchronization-spam.html')
+
+        get = response.context.get
+        self.assertEqual(reverse('crudity__reload_actions_bricks'), get('bricks_reload_url'))
+        self.assertIsInstance(get('bricks'), list)  # TODO: improve
+
         self.assertFalse(FakePOP3.instances)
 
     def test_actions_portal02(self):

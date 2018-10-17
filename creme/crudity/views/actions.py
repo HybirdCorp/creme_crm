@@ -23,14 +23,15 @@
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_list_or_404
-from django.urls import reverse
+from django.shortcuts import get_list_or_404  # render
+# from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import jsonify
 from creme.creme_core.views.bricks import bricks_render_info, get_brick_ids_or_404
 from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.generic import BricksView
 
 from .. import registry
 from ..models import WaitingAction
@@ -49,14 +50,21 @@ def _build_portal_bricks():
     ]
 
 
-@login_required
-@permission_required('crudity')
-def portal(request):
-    return render(request, template_name='crudity/waiting-actions.html',
-                  context={'bricks': _build_portal_bricks(),
-                           'bricks_reload_url': reverse('crudity__reload_actions_bricks'),
-                          },
-                 )
+# @login_required
+# @permission_required('crudity')
+# def portal(request):
+#     return render(request, template_name='crudity/waiting-actions.html',
+#                   context={'bricks': _build_portal_bricks(),
+#                            'bricks_reload_url': reverse('crudity__reload_actions_bricks'),
+#                           },
+#                  )
+class Portal(BricksView):
+    template_name = 'crudity/waiting-actions.html'
+    permissions = 'crudity'
+    bricks_reload_url_name = 'crudity__reload_actions_bricks'
+
+    def get_bricks(self):
+        return _build_portal_bricks()
 
 
 @login_required
