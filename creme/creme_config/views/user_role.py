@@ -38,15 +38,17 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import user_role as role_forms
-from .portal import _config_portal
+# from .portal import _config_portal
 
 
 logger = logging.getLogger(__name__)
 
 
-@login_required
-def portal(request):
-    return _config_portal(request, 'creme_config/user_role_portal.html')
+# @login_required
+# def portal(request):
+#     return _config_portal(request, 'creme_config/user_role_portal.html')
+class Portal(generic.BricksView):
+    template_name = 'creme_config/user_role_portal.html'
 
 
 # class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):

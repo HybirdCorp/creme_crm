@@ -18,31 +18,48 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import render
-from django.urls import reverse
+# from django.shortcuts import render
+# from django.urls import reverse
 
-from creme.creme_core.auth import decorators
+# from creme.creme_core.auth import decorators
 from creme.creme_core.utils.unicode_collation import collator
+from creme.creme_core.views.generic import BricksView
 
 # from ..registry import config_registry
 
 
-def _config_portal(request, template_name, **context):
-    return render(request, template_name,
-                  context=dict(context, bricks_reload_url=reverse('creme_core__reload_bricks')),
-                 )
+# def _config_portal(request, template_name, **context):
+#     return render(request, template_name,
+#                   context=dict(context, bricks_reload_url=reverse('creme_core__reload_bricks')),
+#                  )
 
 
-@decorators.login_required
-@decorators.permission_required('creme_config')
-def portal(request):
-    from ..registry import config_registry
+# @decorators.login_required
+# @decorators.permission_required('creme_config')
+# def portal(request):
+#     from ..registry import config_registry
+#
+#     sort_key = collator.sort_key
+#
+#     return _config_portal(request, 'creme_config/portal.html',
+#                           app_configs=sorted(config_registry.apps(),
+#                                              key=lambda app: sort_key(app.verbose_name)
+#                                             ),
+#                           app_bricks=list(config_registry.portal_bricks),
+#                          )
+class Portal(BricksView):
+    template_name = 'creme_config/portal.html'
+    permissions = 'creme_config'
 
-    sort_key = collator.sort_key
+    def get_context_data(self, **kwargs):
+        from ..registry import config_registry
 
-    return _config_portal(request, 'creme_config/portal.html',
-                          app_configs=sorted(config_registry.apps(),
-                                             key=lambda app: sort_key(app.verbose_name)
-                                            ),
-                          app_bricks=list(config_registry.portal_bricks),
-                         )
+        context = super().get_context_data(**kwargs)
+        context['app_bricks'] = list(config_registry.portal_bricks)
+
+        sort_key = collator.sort_key
+        context['app_configs'] = sorted(config_registry.apps(),
+                                        key=(lambda app: sort_key(app.verbose_name)),
+                                       )
+
+        return context

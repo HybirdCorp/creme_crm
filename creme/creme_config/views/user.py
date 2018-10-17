@@ -34,7 +34,7 @@ from creme.creme_core.views.decorators import POST_only
 
 from ..forms import user as user_forms
 
-from .portal import _config_portal
+# from .portal import _config_portal
 
 
 logger = logging.getLogger(__name__)
@@ -86,9 +86,11 @@ class TeamCreation(BaseUserCreation):
     submit_label = _('Save the team')
 
 
-@login_required
-def portal(request):
-    return _config_portal(request, 'creme_config/user_portal.html')
+# @login_required
+# def portal(request):
+#     return _config_portal(request, 'creme_config/user_portal.html')
+class Portal(generic.BricksView):
+    template_name = 'creme_config/user_portal.html'
 
 
 class BaseUserEdition(generic.CremeModelEditionPopup):

@@ -58,6 +58,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def _aux_test_portal(self):
         response = self.assertGET200(reverse('creme_config__users'))
+        self.assertTemplateUsed(response, 'creme_config/user_portal.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
+
         doc = self.get_html_tree(response.content)
         self.get_brick_node(doc, UsersBrick.id_)
         self.get_brick_node(doc, TeamsBrick.id_)
@@ -967,6 +972,21 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_user_settings(self):
         response = self.assertGET200(reverse('creme_config__user_settings'))
+        self.assertTemplateUsed(response, 'creme_config/user_settings.html')
+
+        get = response.context.get
+        self.assertEqual(reverse('creme_core__reload_bricks'), get('bricks_reload_url'))
+
+        theme_form = get('theme_form')
+        self.assertIsInstance(theme_form, str)
+        self.assertIn('<span><label for="id_theme">', theme_form)
+
+        tz_form = get('tz_form')
+        self.assertIsInstance(tz_form, str)
+        self.assertIn('<span><label for="id_time_zone">', tz_form)
+
+        self.assertIsInstance(get('apps_usersettings_bricks'), list)  # TODO: improve
+
         doc = self.get_html_tree(response.content)
 
         # if settings.OLD_MENU:

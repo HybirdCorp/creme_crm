@@ -26,17 +26,20 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import SearchConfigItem
 from creme.creme_core.utils import get_from_POST_or_404  # get_ct_or_404
+from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from ..forms import search as search_forms
 
 from . import base
-from .portal import _config_portal
+# from .portal import _config_portal
 
 
-@login_required
-def portal(request):
-    return _config_portal(request, 'creme_config/search_portal.html')
+# @login_required
+# def portal(request):
+#     return _config_portal(request, 'creme_config/search_portal.html')
+class Portal(BricksView):
+    template_name = 'creme_config/search_portal.html'
 
 
 # @login_required

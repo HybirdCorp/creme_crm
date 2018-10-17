@@ -290,6 +290,10 @@ class BricksConfigTestCase(CremeTestCase):
     def test_portal(self):
         self.login()
         response = self.assertGET200(reverse('creme_config__bricks'))
+        self.assertTemplateUsed(response, 'creme_config/bricks_portal.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
 
         fmt = 'id="{}"'.format
         self.assertContains(response, fmt(bricks.BrickDetailviewLocationsBrick.id_))

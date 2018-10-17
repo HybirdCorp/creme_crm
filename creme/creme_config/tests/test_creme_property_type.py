@@ -31,6 +31,9 @@ class PropertyTypeTestCase(CremeTestCase):
 
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_config/property_type_portal.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
 
         self.assertContains(response, str(ptype1))
         self.assertContains(response, str(ptype2))

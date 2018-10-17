@@ -10,7 +10,8 @@ from .views import (bricks, button_menu, creme_property_type, custom_fields,
 
 
 user_patterns = [
-    url(r'^portal[/]?$',                         user.portal,                   name='creme_config__users'),
+    # url(r'^portal[/]?$',                         user.portal,                   name='creme_config__users'),
+    url(r'^portal[/]?$',                         user.Portal.as_view(),         name='creme_config__users'),
     # url(r'^add[/]?$',                            user.add,             name='creme_config__create_user'),
     url(r'^add[/]?$',                            user.UserCreation.as_view(),   name='creme_config__create_user'),
     # url(r'^edit/(?P<user_id>\d+)[/]?$',          user.edit,            name='creme_config__edit_user'),
@@ -31,9 +32,10 @@ team_patterns = [
 ]
 
 user_settings_patterns = [
-    url(r'^portal[/]?$',       user_settings.view,         name='creme_config__user_settings'),
-    url(r'^set_theme[/]?$',    user_settings.set_theme,    name='creme_config__set_user_theme'),
-    url(r'^set_timezone[/]?$', user_settings.set_timezone, name='creme_config__set_user_timezone'),
+    # url(r'^portal[/]?$',       user_settings.view,         name='creme_config__user_settings'),
+    url(r'^portal[/]?$',       user_settings.UserSettings.as_view(), name='creme_config__user_settings'),
+    url(r'^set_theme[/]?$',    user_settings.set_theme,              name='creme_config__set_user_theme'),
+    url(r'^set_timezone[/]?$', user_settings.set_timezone,           name='creme_config__set_user_timezone'),
     url(r'^edit_value/(?P<skey_id>[\w-]+)[/]?$',
         # user_settings.edit_setting_value,
         user_settings.UserSettingValueEdition.as_view(),
@@ -42,7 +44,8 @@ user_settings_patterns = [
 ]
 
 role_patterns = [
-    url(r'^portal[/]?$',                            user_role.portal,                       name='creme_config__roles'),
+    # url(r'^portal[/]?$',                            user_role.portal,                       name='creme_config__roles'),
+    url(r'^portal[/]?$',                            user_role.Portal.as_view(),             name='creme_config__roles'),
     url(r'^wizard[/]?$',                            user_role.RoleCreationWizard.as_view(), name='creme_config__create_role'),
     url(r'^wizard/(?P<role_id>\d+)[/]?$',           user_role.RoleEditionWizard.as_view(),  name='creme_config__edit_role'),
     # url(r'^delete/(?P<role_id>\d+)[/]?$',           user_role.delete,                           name='creme_config__delete_role'),
@@ -55,7 +58,8 @@ role_patterns = [
 ]
 
 relation_type_patterns = [
-    url(r'^portal[/]?$',                    relation_type.portal,                         name='creme_config__rtypes'),
+    # url(r'^portal[/]?$',                            relation_type.portal,            name='creme_config__rtypes'),
+    url(r'^portal[/]?$',                    relation_type.Portal.as_view(),               name='creme_config__rtypes'),
     # url(r'^add[/]?$',                               relation_type.add,               name='creme_config__create_rtype'),
     url(r'^add[/]?$',                       relation_type.RelationTypeCreation.as_view(), name='creme_config__create_rtype'),
     # url(r'^edit/(?P<relation_type_id>[\w-]+)[/]?$', relation_type.edit,              name='creme_config__edit_rtype'),
@@ -73,7 +77,8 @@ relation_type_patterns = [
 ]
 
 property_type_patterns = [
-    url(r'^portal[/]?$',                    creme_property_type.portal,                         name='creme_config__ptypes'),
+    # url(r'^portal[/]?$',                    creme_property_type.portal,                         name='creme_config__ptypes'),
+    url(r'^portal[/]?$',                    creme_property_type.Portal.as_view(),               name='creme_config__ptypes'),
     # url(r'^add[/]?$',                               creme_property_type.add,    name='creme_config__create_ptype'),
     url(r'^add[/]?$',                       creme_property_type.PropertyTypeCreation.as_view(), name='creme_config__create_ptype'),
     # url(r'^edit/(?P<property_type_id>[\w-]+)[/]?$', creme_property_type.edit,   name='creme_config__edit_ptype'),
@@ -90,7 +95,8 @@ fields_config_patterns = [
 ]
 
 custom_fields_patterns = [
-    url(r'^portal[/]?$', custom_fields.portal, name='creme_config__custom_fields'),
+    # url(r'^portal[/]?$', custom_fields.portal, name='creme_config__custom_fields'),
+    url(r'^portal[/]?$', custom_fields.Portal.as_view(), name='creme_config__custom_fields'),
     # url(r'^ct/add[/]?$',                 custom_fields.add_ct,       name='creme_config__create_first_ctype_custom_field'),
     url(r'^ct/add[/]?$',
         custom_fields.FirstCTypeCustomFieldCreation.as_view(),
@@ -105,7 +111,8 @@ custom_fields_patterns = [
 ]
 
 bricks_patterns = [
-    url(r'^portal[/]?$', bricks.portal, name='creme_config__bricks'),
+    # url(r'^portal[/]?$', bricks.portal, name='creme_config__bricks'),
+    url(r'^portal[/]?$', bricks.Portal.as_view(), name='creme_config__bricks'),
 
     # url(r'^detailview/add/(?P<ct_id>\d+)[/]?$',                bricks.add_detailview,    name='creme_config__create_detailviews_bricks'),
     url(r'^detailview/add/(?P<ct_id>\d+)[/]?$',                bricks.BrickDetailviewLocationsCreation.as_view(), name='creme_config__create_detailviews_bricks'),
@@ -154,7 +161,8 @@ bricks_patterns = [
 # ] if settings.OLD_MENU else []
 
 button_menu_patterns = [
-    url(r'^portal[/]?$',              button_menu.portal,                      name='creme_config__buttons'),
+    # url(r'^portal[/]?$',              button_menu.portal,                      name='creme_config__buttons'),
+    url(r'^portal[/]?$',              button_menu.Portal.as_view(),            name='creme_config__buttons'),
     url(r'^wizard[/]?$',              button_menu.ButtonMenuWizard.as_view(),  name='creme_config__add_buttons_to_ctype'),
     # url(r'^edit/(?P<ct_id>\d+)[/]?$', button_menu.edit,                       name='creme_config__edit_ctype_buttons'),
     url(r'^edit/(?P<ct_id>\d+)[/]?$', button_menu.ButtonMenuEdition.as_view(), name='creme_config__edit_ctype_buttons'),
@@ -162,7 +170,8 @@ button_menu_patterns = [
 ]
 
 search_patterns = [
-    url(r'^portal[/]?$',                         search.portal, name='creme_config__search'),
+    # url(r'^portal[/]?$',                         search.portal, name='creme_config__search'),
+    url(r'^portal[/]?$',                         search.Portal.as_view(),               name='creme_config__search'),
     # url(r'^add/(?P<ct_id>\d+)[/]?$',             search.add,    name='creme_config__create_search_config'),
     url(r'^add/(?P<ct_id>\d+)[/]?$',             search.SearchConfigCreation.as_view(), name='creme_config__create_search_config'),
     # url(r'^edit/(?P<search_config_id>\d+)[/]?$', search.edit,   name='creme_config__edit_search_config'),
@@ -171,7 +180,8 @@ search_patterns = [
 ]
 
 history_patterns = [
-    url(r'^portal[/]?$',  history.portal, name='creme_config__history'),
+    # url(r'^portal[/]?$',  history.portal, name='creme_config__history'),
+    url(r'^portal[/]?$',  history.Portal.as_view(),                name='creme_config__history'),
     # url(r'^add[/]?$',     history.add,    name='creme_config__create_history_configs'),
     url(r'^add[/]?$',     history.HistoryConfigCreation.as_view(), name='creme_config__create_history_configs'),
     url(r'^delete[/]?$',  history.delete,                          name='creme_config__remove_history_config'),
@@ -183,7 +193,8 @@ setting_patterns = [
 ]
 
 urlpatterns = [
-    url(r'^$',              portal.portal, name='creme_config__portal'),
+    # url(r'^$',              portal.portal, name='creme_config__portal'),
+    url(r'^$',              portal.Portal.as_view(), name='creme_config__portal'),
     url(r'^user/',          include(user_patterns)),
     url(r'^team/',          include(team_patterns)),
     url(r'^my_settings/',   include(user_settings_patterns)),

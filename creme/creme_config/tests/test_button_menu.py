@@ -38,7 +38,11 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertGET200(reverse('creme_config__buttons'))
+        response = self.assertGET200(reverse('creme_config__buttons'))
+        self.assertTemplateUsed(response, 'creme_config/button_menu_portal.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
 
     # def test_add_detailview(self):
     #     ct = self.contact_ct

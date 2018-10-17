@@ -17,7 +17,11 @@ class HistoryConfigTestCase(CremeTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertGET200(reverse('creme_config__history'))
+        response = self.assertGET200(reverse('creme_config__history'))
+        self.assertTemplateUsed(response, 'creme_config/history_portal.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
 
     def test_add01(self):
         self.assertFalse(HistoryConfigItem.objects.exists())

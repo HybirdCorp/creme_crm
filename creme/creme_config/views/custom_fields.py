@@ -24,12 +24,13 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CustomField
 from creme.creme_core.utils import get_from_POST_or_404  # get_ct_or_404
+from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from ..forms import custom_fields as cf_forms
 
 from . import base
-from .portal import _config_portal
+# from .portal import _config_portal
 
 
 # @login_required
@@ -73,9 +74,11 @@ class CustomFieldCreation(EntityCTypeRelatedMixin,
         )
 
 
-@login_required
-def portal(request):
-    return _config_portal(request, 'creme_config/custom_fields_portal.html')
+# @login_required
+# def portal(request):
+#     return _config_portal(request, 'creme_config/custom_fields_portal.html')
+class Portal(BricksView):
+    template_name = 'creme_config/custom_fields_portal.html'
 
 
 # @login_required

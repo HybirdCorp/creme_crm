@@ -70,6 +70,9 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(self.PORTAL_URL)
         self.assertTemplateUsed(response, 'creme_config/search_portal.html')
         self.assertTemplateUsed(response, 'creme_config/bricks/search-config.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
 
         brick_node = self.get_brick_node(self.get_html_tree(response.content), SearchConfigBrick.id_)
         title_node = brick_node.find(".//div[@class='search-config-group-title']")
