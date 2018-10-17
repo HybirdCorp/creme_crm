@@ -21,7 +21,7 @@
 import warnings
 
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect  # render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -277,6 +277,7 @@ def delete_evalorga(request, strategy_id):
     return redirect(strategy)
 
 
+# TODO: used once => inline
 def _get_strategy_n_orga(request, strategy_id, orga_id):
     strategy = get_object_or_404(Strategy, pk=strategy_id)
     has_perm = request.user.has_perm_to_view_or_die
@@ -288,30 +289,83 @@ def _get_strategy_n_orga(request, strategy_id, orga_id):
     return strategy, orga
 
 
-@login_required
-@permission_required('commercial')
-def _orga_view(request, strategy_id, orga_id, template):
-    strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
+# @login_required
+# @permission_required('commercial')
+# def _orga_view(request, strategy_id, orga_id, template):
+#     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
+#
+#     if not strategy.evaluated_orgas.filter(pk=orga_id).exists():
+#         raise Http404(ugettext('This organisation «{orga}» is not (no more ?) evaluated by the strategy «{strategy}»').format(
+#                             orga=orga, strategy=strategy)
+#                      )
+#
+#     return render(request, template,
+#                   context={'orga': orga,
+#                            'strategy': strategy,
+#                            'bricks_reload_url': reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
+#                           },
+#                  )
+class BaseEvaluatedOrganisationView(generic.BricksView):
+    permissions = 'commercial'
+    bricks_reload_url_name = 'commercial__reload_matrix_brick'
+    orga_id_url_kwarg = 'orga_id'
+    strategy_id_url_kwarg = 'strategy_id'
 
-    if not strategy.evaluated_orgas.filter(pk=orga_id).exists():
-        raise Http404(ugettext('This organisation «{orga}» is not (no more ?) evaluated by the strategy «{strategy}»').format(
-                            orga=orga, strategy=strategy)
-                     )
+    def get_bricks_reload_url(self):
+        return reverse('commercial__reload_matrix_brick',
+                       args=(self.get_strategy().id, self.get_organisation().id)
+                      )
 
-    return render(request, template,
-                  context={'orga': orga,
-                           'strategy': strategy,
-                           'bricks_reload_url': reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-                          },
-                 )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['strategy'] = self.get_strategy()
+        context['orga'] = self.get_organisation()
+
+        return context
+
+    def get_organisation(self):
+        try:
+            orga = getattr(self, 'organisation')
+        except AttributeError:
+            orga_id = self.kwargs[self.orga_id_url_kwarg]
+            strategy = self.get_strategy()
+
+            try:
+                self.organisation = orga = strategy.evaluated_orgas.get(id=orga_id)
+            except get_organisation_model().DoesNotExist:
+                raise Http404(ugettext(
+                    'This organisation «{orga}» is not (no more ?) evaluated by '
+                    'the strategy «{strategy}»').format(
+                    orga=orga_id, strategy=strategy,
+                ))
+
+            self.request.user.has_perm_to_view_or_die(orga)
+
+        return orga
+
+    def get_strategy(self):
+        try:
+            strategy = getattr(self, 'strategy')
+        except AttributeError:
+            self.strategy = strategy = \
+                get_object_or_404(Strategy,
+                                  pk=self.kwargs[self.strategy_id_url_kwarg],
+                                 )
+            self.request.user.has_perm_to_view_or_die(strategy)
+
+        return strategy
 
 
-def orga_evaluation(request, strategy_id, orga_id):
-    return _orga_view(request, strategy_id, orga_id, 'commercial/orga_evaluation.html')
+# def orga_evaluation(request, strategy_id, orga_id):
+#     return _orga_view(request, strategy_id, orga_id, 'commercial/orga_evaluation.html')
+class OrgaEvaluation(BaseEvaluatedOrganisationView):
+    template_name = 'commercial/orga_evaluation.html'
 
 
-def orga_synthesis(request, strategy_id, orga_id):
-    return _orga_view(request, strategy_id, orga_id, 'commercial/orga_synthesis.html')
+# def orga_synthesis(request, strategy_id, orga_id):
+#     return _orga_view(request, strategy_id, orga_id, 'commercial/orga_synthesis.html')
+class OrgaSynthesis(BaseEvaluatedOrganisationView):
+    template_name = 'commercial/orga_synthesis.html'
 
 
 @login_required

@@ -55,7 +55,7 @@ logger = logging.getLogger(__name__)
 #             else:
 #                 msg = smart_unicode(exception)
 #
-#             if request.is_ajax():  # TODO: use protected_objects ??
+#             if request.is_ajax():  # todo: use protected_objects ??
 #                 # return HttpResponse(msg, content_type='text/javascript', status=403)
 #                 return HttpResponse(msg, status=403)
 #
