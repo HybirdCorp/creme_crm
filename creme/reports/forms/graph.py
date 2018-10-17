@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.db.models import FieldDoesNotExist, DateTimeField, DateField, ForeignKey
+from django.db.models.fields.related import RelatedField
 from django.forms.fields import ChoiceField, BooleanField
 from django.forms.utils import ValidationError  # ErrorList
 from django.forms.widgets import Select, CheckboxInput
@@ -28,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.forms.base import CremeEntityForm
 from creme.creme_core.forms.fields import AjaxChoiceField
 from creme.creme_core.forms.widgets import DependentSelect
-from creme.creme_core.models import RelationType, CustomField, FieldsConfig
+from creme.creme_core.models import CremeEntity, RelationType, CustomField, FieldsConfig
 from creme.creme_core.models.fields import MoneyField
 from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
@@ -109,6 +110,11 @@ class ReportGraphForm(CremeEntityForm):
 
         # Abscissa -------------------------------------------------------------
         def absc_field_excluder(field, deep):
+            # TODO: set the ForeignKeys to entities as not enumerable automatically ?
+            if isinstance(field, RelatedField) and \
+               issubclass(field.remote_field.model, CremeEntity):
+                return True
+
             return get_fconf(field.model).is_field_hidden(field) and \
                    field.name != instance.abscissa
 

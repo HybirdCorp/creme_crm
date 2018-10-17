@@ -22,14 +22,18 @@ from datetime import timedelta, datetime
 # from json import dumps as json_encode
 import logging
 
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.models import Min, Max, Count, FieldDoesNotExist, Q, ForeignKey
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import (CremeEntity, RelationType, Relation,
         CustomField, CustomFieldEnumValue)
+from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.meta import FieldInfo
 from creme.creme_core.utils.queries import QSerializer
+from creme.creme_core.utils.unicode_collation import collator
 
 from ..constants import *
 from ..report_aggregation_registry import field_aggregation_registry
@@ -504,8 +508,19 @@ class RGHForeignKey(_RGHRegularField):
         entities_filter = entities.filter
         y_value_func = self._y_calculator
 
-        # related_instances = list(entities.model._meta.get_field(abscissa).rel.to.objects.all())
-        related_instances = list(entities.model._meta.get_field(abscissa).remote_field.model.objects.all())
+        # # related_instances = list(entities.model._meta.get_field(abscissa).rel.to.objects.all())
+        # related_instances = list(entities.model._meta.get_field(abscissa).remote_field.model.objects.all())
+        related_model = entities.model._meta.get_field(abscissa).remote_field.model
+
+        if issubclass(related_model, get_user_model()):
+            related_instances = list(related_model.objects.exclude(is_staff=True))
+        elif issubclass(related_model, ContentType):
+            related_instances = list(creme_entity_content_types())
+            sort_key = collator.sort_key
+            related_instances.sort(key=lambda k: sort_key(str(k)))
+        else:
+            related_instances = list(related_model.objects.all())
+
         if order == 'DESC':
             related_instances.reverse()
 
@@ -532,7 +547,7 @@ class RGHRelation(ReportGraphHand):
 
     def _fetch(self, entities, order):
         # TODO: Optimize ! (populate real entities)
-        # TODO: sort alpbabetically (with header_filter_search_field ?
+        # TODO: sort alphabetically (with header_filter_search_field ?
         #       Queryset is not paginated so we can sort the "list") ?
         # TODO: make listview url for this case
         build_url = self._listview_url_builder()
