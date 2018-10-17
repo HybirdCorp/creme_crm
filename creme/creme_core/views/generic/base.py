@@ -21,12 +21,14 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_ct_or_404
 
@@ -195,3 +197,37 @@ class CheckedTemplateView(PermissionsMixin, TemplateView):
         self.check_view_permissions(user=self.request.user)
 
         return super().dispatch(request, *args, **kwargs)
+
+
+class BricksMixin:
+    """Mixin for views which use Bricks for they display.
+
+    Attributes:
+    brick_registry: Instance of _BrickRegistry, used to retrieve the instances
+                    of Bricks from their ID (see get_brick_ids() & get_bricks()).
+    bricks_reload_url_name: Name of the URL used to relaod the bricks
+                            (see get_bricks_reload_url()).
+    """
+    brick_registry = brick_registry
+    bricks_reload_url_name = 'creme_core__reload_bricks'
+
+    def get_brick_ids(self):
+        return ()
+
+    def get_bricks(self):
+        return list(self.brick_registry.get_bricks(
+            [id_ for id_ in self.get_brick_ids() if id_]
+        ))
+
+    def get_bricks_reload_url(self):
+        return reverse(self.bricks_reload_url_name)
+
+
+class BricksView(BricksMixin, CheckedTemplateView):
+    """Base view which uses Bricks for its display."""
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['bricks_reload_url'] = self.get_bricks_reload_url()
+        context['bricks'] = self.get_bricks()
+
+        return context

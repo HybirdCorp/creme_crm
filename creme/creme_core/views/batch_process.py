@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -38,8 +37,7 @@ def batch_process(request, ct_id):
     ct = get_ct_or_404(ct_id)
     user = request.user
 
-    if not user.has_perm(ct.app_label):  # TODO: factorise
-        raise PermissionDenied(_(u"You are not allowed to access to this app"))
+    user.has_perm_to_access_or_die(ct.app_label)
 
     if Job.not_finished_jobs(user).count() >= settings.MAX_JOBS_PER_USER:
         return HttpResponseRedirect(reverse('creme_core__my_jobs'))
@@ -64,7 +62,7 @@ def batch_process(request, ct_id):
     return render(request,
                   'creme_core/forms/batch-process.html',
                   {'form':          bp_form,
-                   'submit_label':  _(u'Run'),
+                   'submit_label':  _('Run'),
                    'cancel_url':    cancel_url,
                   }
                  )
@@ -75,8 +73,7 @@ def batch_process(request, ct_id):
 def get_ops(request, ct_id, field):
     ct = get_ct_or_404(ct_id)
 
-    if not request.user.has_perm(ct.app_label):
-        raise PermissionDenied(_(u'You are not allowed to access to this app'))
+    request.user.has_perm_to_access_or_die(ct.app_label)
 
     field_class = ct.model_class()._meta.get_field(field).__class__
 

@@ -22,7 +22,7 @@ import logging
 # import warnings
 
 from django.db import DatabaseError
-from django.urls import reverse
+# from django.urls import reverse
 from django.http import HttpResponse
 # from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -72,15 +72,10 @@ class SegmentEdition(generic.CremeModelEditionPopup):
 #     return render(request, 'commercial/list_segments.html',
 #                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
 #                  )
-class Segments(generic.CheckedTemplateView):
+class Segments(generic.BricksView):
     template_name = 'commercial/list_segments.html'
     permissions = 'commercial'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['bricks_reload_url'] = reverse('creme_core__reload_bricks')
-
-        return context
+    bricks_reload_url_name = 'creme_core__reload_bricks'
 
 
 # @login_required
