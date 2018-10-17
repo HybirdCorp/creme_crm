@@ -493,7 +493,12 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeModelEditionPopup):
     def get_entities(self):
         if self.request.method == 'POST':
             entity_ids = self.get_entity_ids()
-            entities = self.get_queryset().select_for_update().filter(pk__in=entity_ids)
+            # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and nullable ids will fail with postgresql (both 9.6 & 10.x).
+            # TODO: This bug may be fixed in django>=2.0 (see https://code.djangoproject.com/ticket/28010)
+            # entities = self.get_queryset().select_for_update().filter(pk__in=entity_ids)
+            qs = self.get_queryset()
+            entities = qs.filter(pk__in=entity_ids)
+
             filtered = EntityCredentials.filter(self.request.user,
                                                 queryset=entities,
                                                 perm=EntityCredentials.CHANGE,
@@ -502,7 +507,10 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeModelEditionPopup):
             if not filtered:
                 raise PermissionDenied(_('You are not allowed to edit these entities'))
 
-            return filtered
+            # NB (#60): Move 'SELECT FOR UPDATE' here for now. It could cause performance issues
+            # with a large amount of selected entities, but this never happens with common use cases.
+            # return filtered
+            return qs.select_for_update().filter(pk__in=filtered)
         else:
             return ()
 
