@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-11 16:46+0200\n"
+"POT-Creation-Date: 2018-10-16 12:25+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1391,7 +1391,7 @@ msgstr "Vous n'êtes pas autorisé à modifier cette fiche: {}"
 msgid "You are not allowed to create: {}"
 msgstr "Vous n'avez pas la permission de créer : {}"
 
-#: models/auth.py:765 views/entity.py:714
+#: models/auth.py:765 views/entity.py:716
 msgid "You are not allowed to delete this entity: {}"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: {}"
 
@@ -1657,9 +1657,8 @@ msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
 #: models/entity_filter.py:170 models/header_filter.py:122
-#: views/batch_process.py:42 views/batch_process.py:79 views/entity.py:176
 msgid "You are not allowed to access to this app"
-msgstr "Vous n'êtes autorisé à accéder à cette application: %s"
+msgstr "Vous n'êtes autorisé à accéder à cette application"
 
 #: models/entity_filter.py:179
 msgid "You are not allowed to view/edit/delete this filter"
@@ -2278,7 +2277,7 @@ msgstr "Voulez-vous vraiment cloner cette fiche ?"
 #: templates/creme_core/bricks/generic/hat-bar.html:67
 #: templates/creme_core/forms/merge.html:4
 #: templates/creme_core/forms/merge.html:14
-#: templates/creme_core/frags/list_view_content.html:137 views/entity.py:598
+#: templates/creme_core/frags/list_view_content.html:137 views/entity.py:600
 msgid "Merge"
 msgstr "Fusionner"
 
@@ -2927,7 +2926,7 @@ msgstr "Tout sélectionner"
 msgid "Actions on the selected entities"
 msgstr "Actions sur les fiches sélectionnées"
 
-#: templates/creme_core/frags/list_view_content.html:116 views/entity.py:384
+#: templates/creme_core/frags/list_view_content.html:116 views/entity.py:386
 msgid "Multiple update"
 msgstr "Modification multiple"
 
@@ -3314,7 +3313,7 @@ msgstr "N'est pas vide"
 msgid "(truncated cell)"
 msgstr "(cellule tronquée)"
 
-#: views/batch_process.py:67
+#: views/batch_process.py:65
 msgid "Run"
 msgstr "Exécuter"
 
@@ -3344,36 +3343,36 @@ msgstr "{field} [CRÉATION]"
 msgid "This model does not use the generic clone view."
 msgstr "Ce modèle n'utilise pas la vue de clonage générique."
 
-#: views/entity.py:198
+#: views/entity.py:200
 msgid "This field is hidden."
 msgstr "Ce champ est caché."
 
-#: views/entity.py:208
+#: views/entity.py:210
 msgid "No entity corresponding to your search was found."
 msgstr "Aucun élément correspondant à votre recherche n'a été trouvé"
 
-#: views/entity.py:258
+#: views/entity.py:260
 msgid "You are not allowed to edit this entity"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche"
 
-#: views/entity.py:402
+#: views/entity.py:404
 #, python-brace-format
 msgid "{count} «{model}» has been selected."
 msgstr "{count} «{model}» a été sélectionné(e)"
 
-#: views/entity.py:404
+#: views/entity.py:406
 #, python-brace-format
 msgid "{count} «{model}» have been selected."
 msgstr "{count} «{model}» ont été sélectionné(e)s."
 
-#: views/entity.py:446
+#: views/entity.py:448
 #, python-brace-format
 msgid "{success} «{model}» has been successfully modified."
 msgid_plural "{success} «{model}» have been successfully modified."
 msgstr[0] "{success} «{model}» a été modifié(e) avec succès."
 msgstr[1] "{success} «{model}» ont été modifié(e)s avec succès."
 
-#: views/entity.py:452
+#: views/entity.py:454
 #, python-brace-format
 msgid "{success} of {initial} «{model}» has been successfully modified."
 msgid_plural ""
@@ -3381,30 +3380,30 @@ msgid_plural ""
 msgstr[0] "{success} «{model}» sur {initial} a été modifié(e) avec succès."
 msgstr[1] "{success} «{model}» sur {initial} ont été modifié(e)s avec succès."
 
-#: views/entity.py:458
+#: views/entity.py:460
 #, python-brace-format
 msgid "{forbidden} was not editable."
 msgid_plural "{forbidden} were not editable."
 msgstr[0] "{forbidden} n'est pas modifiable."
 msgstr[1] "{forbidden} ne sont pas modifiables."
 
-#: views/entity.py:464
+#: views/entity.py:466
 #, python-brace-format
 msgid "{invalid} has returned an error."
 msgid_plural "{invalid} have returned an error."
 msgstr[0] "{invalid} a retourné une erreur."
 msgstr[1] "{invalid} ont retourné une erreur."
 
-#: views/entity.py:503
+#: views/entity.py:505
 msgid "You are not allowed to edit these entities"
 msgstr "Vous n'êtes pas autorisé à modifier ces fiches"
 
-#: views/entity.py:587
+#: views/entity.py:589
 #, python-brace-format
 msgid "Merge «{entity1}» with «{entity2}»"
 msgstr "Fusionner «{entity1}» avec «{entity2}»"
 
-#: views/entity.py:591
+#: views/entity.py:593
 msgid ""
 "You are going to merge two entities into a new one.\n"
 "Choose which information you want the old entities give to the new entity.\n"
@@ -3418,50 +3417,50 @@ msgstr ""
 "des vieilles fiches seront automatiquement disponibles dans la nouvelle "
 "fiche fusionnée."
 
-#: views/entity.py:644 views/entity.py:740
+#: views/entity.py:646 views/entity.py:742
 #, python-brace-format
 msgid "«{entity}» can not be deleted because of its dependencies."
 msgstr "«{entity}» ne peut être supprimé à cause de ses dépendances."
 
-#: views/entity.py:650 views/entity.py:748
+#: views/entity.py:652 views/entity.py:750
 #, python-brace-format
 msgid "«{entity}» deletion caused an unexpected error [{error}]."
 msgstr ""
 "La suppression de «{entity}» a provoqué une erreur inattendue [{error}]."
 
-#: views/entity.py:664 views/entity.py:789 views/relation.py:406
+#: views/entity.py:666 views/entity.py:791 views/relation.py:406
 #: views/relation.py:541
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
-#: views/entity.py:671
+#: views/entity.py:673
 msgid "The following entities cannot be deleted"
 msgstr "Les entités suivantes ne peuvent être effacées"
 
-#: views/entity.py:686
+#: views/entity.py:688
 msgid "This model does not use the generic deletion view."
 msgstr "Ce modèle n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:704
+#: views/entity.py:706
 #, python-brace-format
 msgid "«{entity}» does not use the generic deletion view."
 msgstr "«{entity}» n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:717 views/entity.py:722 views/relation.py:400
+#: views/entity.py:719 views/entity.py:724 views/relation.py:400
 #, python-brace-format
 msgid "{entity} : <b>Permission denied</b>"
 msgstr "{entity} : <b>Permission refusée</b>"
 
-#: views/entity.py:734
+#: views/entity.py:736
 #, python-brace-format
 msgid "«{entity}» can not be deleted."
 msgstr "«{entity}» ne peut être supprimé."
 
-#: views/entity.py:764
+#: views/entity.py:766
 msgid "No selected entities"
 msgstr "Aucune fiche séléctionnée"
 
-#: views/entity.py:774 views/relation.py:504
+#: views/entity.py:776 views/relation.py:504
 #, python-brace-format
 msgid "{count} entity doesn't exist or has been removed."
 msgid_plural "{count} entities don't exist or have been removed."
@@ -3492,7 +3491,7 @@ msgstr "Fichier invalide"
 msgid "New"
 msgstr "Nouveau"
 
-#: views/generic/base.py:74
+#: views/generic/base.py:77
 msgid "You are not allowed to access this view."
 msgstr "Vous n'êtes autorisé à accéder à cette page."
 
@@ -3526,11 +3525,11 @@ msgstr "Enregistrer la vue modifiée"
 msgid "View successfully deleted"
 msgstr "Vue supprimée avec succès"
 
-#: views/job.py:93
+#: views/job.py:101
 msgid "Unknown job type ({}). Please contact your administrator."
 msgstr "Type de job inconnu({}). Veuillez contacter votre administrateur."
 
-#: views/job.py:152
+#: views/job.py:160
 msgid "Edit the job «{}»"
 msgstr "Modifier le job «{}»"
 
@@ -3580,12 +3579,12 @@ msgstr "Il manque une propriété compatible pour la fiche objet avec l'id={}"
 msgid "Permission denied to entity with id={}"
 msgstr "Permission refusée pour la fiche avec l'id={}"
 
-#: views/search.py:121 views/search.py:189
+#: views/search.py:212 views/search.py:278
 #, python-brace-format
 msgid "Please enter at least {count} characters"
 msgstr "Veuillez entrer au moins {count} caractères"
 
-#: views/search.py:187
+#: views/search.py:276
 msgid "Empty search…"
 msgstr "Recherche vide…"
 
@@ -3777,9 +3776,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "Blocks states"
 #~ msgstr "Etats de blocs"
-
-#~ msgid "You are not allowed to access to this app %s"
-#~ msgstr "Vous n'êtes autorisé à accéder à cette application %s"
 
 #~ msgid "Content type is not registered in config"
 #~ msgstr "Le type de resource n'est enregsitrée dans la configuration"

@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404  # render
 from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -38,21 +38,29 @@ from .decorators import POST_only
 from . import generic
 
 
-@login_required
-@superuser_required
-def list_all(request):
-    return render(request, 'creme_core/job/list-all.html',
-                  context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
-                  # {'back_url': request.META.get('HTTP_REFERER')} #problem when we come from a deleted job
-                 )
+# @login_required
+# @superuser_required
+# def list_all(request):
+#     return render(request, 'creme_core/job/list-all.html',
+#                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
+#                   # {'back_url': request.META.get('HTTP_REFERER')} #problem when we come from a deleted job
+#                  )
+class Jobs(generic.BricksView):
+    template_name = 'creme_core/job/list-all.html'
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)
 
 
-@login_required
-def list_mine(request):
-    return render(request, 'creme_core/job/list-mine.html',
-                  context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
-                  # {'back_url': request.META.get('HTTP_REFERER')} #problem when we come from a deleted job
-                 )
+# @login_required
+# def list_mine(request):
+#     return render(request, 'creme_core/job/list-mine.html',
+#                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
+#                   # {'back_url': request.META.get('HTTP_REFERER')} #problem when we come from a deleted job
+#                  )
+class MyJobs(generic.BricksView):
+    template_name = 'creme_core/job/list-mine.html'
 
 
 # @login_required
