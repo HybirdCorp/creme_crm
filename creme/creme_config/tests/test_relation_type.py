@@ -23,7 +23,11 @@ class RelationTypeTestCase(CremeTestCase):
         return reverse('creme_config__edit_rtype', args=(rtype.id,))
 
     def test_portal(self):
-        self.assertGET200(reverse('creme_config__rtypes'))
+        response = self.assertGET200(reverse('creme_config__rtypes'))
+        self.assertTemplateUsed(response, 'creme_config/relation_type_portal.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
 
     def test_create01(self):
         url = self.ADD_URL

@@ -25,29 +25,44 @@ from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.core.setting_key import user_setting_key_registry
 from creme.creme_core.utils import jsonify
-from creme.creme_core.views.generic import CremeModelEditionPopup  # inner_popup
+from creme.creme_core.views import generic
+# from creme.creme_core.views.generic import inner_popup
 
 from ..forms import user_settings as settings_forms
 from ..forms.setting import UserSettingForm
 # from ..registry import config_registry
 
-from .portal import _config_portal
+# from .portal import _config_portal
 
 # NB: no special permissions needed (user can only view/change its own settings)
 
 
-@login_required
-def view(request):
-    from ..registry import config_registry
+# @login_required
+# def view(request):
+#     from ..registry import config_registry
+#
+#     user = request.user
+#
+#     return _config_portal(
+#             request, 'creme_config/user_settings.html',
+#             theme_form=settings_forms.UserThemeForm(user=user, instance=user).as_span(),
+#             tz_form=settings_forms.UserTimeZoneForm(user=user, instance=user).as_span(),
+#             apps_usersettings_bricks=list(config_registry.user_bricks),
+#     )
+class UserSettings(generic.BricksView):
+    template_name = 'creme_config/user_settings.html'
 
-    user = request.user
+    def get_context_data(self, **kwargs):
+        from ..registry import config_registry
 
-    return _config_portal(
-            request, 'creme_config/user_settings.html',
-            theme_form=settings_forms.UserThemeForm(user=user, instance=user).as_span(),
-            tz_form=settings_forms.UserTimeZoneForm(user=user, instance=user).as_span(),
-            apps_usersettings_bricks=list(config_registry.user_bricks),
-    )
+        user = self.request.user
+
+        context = super().get_context_data(**kwargs)
+        context['theme_form'] = settings_forms.UserThemeForm(user=user, instance=user).as_span()
+        context['tz_form'] = settings_forms.UserTimeZoneForm(user=user, instance=user).as_span()
+        context['apps_usersettings_bricks'] = list(config_registry.user_bricks)
+
+        return context
 
 
 @login_required
@@ -103,7 +118,7 @@ def set_timezone(request):
 #                        reload=False,
 #                        delegate_reload=True,
 #                       )
-class UserSettingValueEdition(CremeModelEditionPopup):
+class UserSettingValueEdition(generic.CremeModelEditionPopup):
     # model = User
     form_class = UserSettingForm
     key_id_url_kwarg = 'skey_id'

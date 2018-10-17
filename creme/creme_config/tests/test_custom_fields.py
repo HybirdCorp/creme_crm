@@ -19,7 +19,11 @@ class CustomFieldsTestCase(CremeTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertGET200(reverse('creme_config__custom_fields'))
+        response = self.assertGET200(reverse('creme_config__custom_fields'))
+        self.assertTemplateUsed(response, 'creme_config/custom_fields_portal.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
 
     def test_add_ct(self):
         self.assertFalse(CustomField.objects.all())

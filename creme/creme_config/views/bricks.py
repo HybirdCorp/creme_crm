@@ -37,13 +37,14 @@ from creme.creme_core.models import (UserRole,  # CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 # from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import bricks as bricks_forms
 
 from . import base
-from .portal import _config_portal
+# from .portal import _config_portal
 
 
 # def _get_configurable_ctype(ctype_id):
@@ -59,9 +60,11 @@ from .portal import _config_portal
 #     return ctype
 
 
-@login_required
-def portal(request):
-    return _config_portal(request, 'creme_config/bricks_portal.html')
+# @login_required
+# def portal(request):
+#     return _config_portal(request, 'creme_config/bricks_portal.html')
+class Portal(BricksView):
+    template_name = 'creme_config/bricks_portal.html'
 
 
 # @login_required

@@ -26,11 +26,12 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import HistoryConfigItem
 from creme.creme_core.utils import get_from_POST_or_404
 # from creme.creme_core.views.generic import add_model_with_popup
+from creme.creme_core.views.generic import BricksView
 
 from ..forms.history import HistoryConfigForm
 
 from .base import BaseConfigCreation
-from .portal import _config_portal
+# from .portal import _config_portal
 
 
 # @login_required
@@ -44,9 +45,11 @@ class HistoryConfigCreation(BaseConfigCreation):
     submit_label = _('Save the configuration')
 
 
-@login_required
-def portal(request):
-    return _config_portal(request, 'creme_config/history_portal.html')
+# @login_required
+# def portal(request):
+#     return _config_portal(request, 'creme_config/history_portal.html')
+class Portal(BricksView):
+    template_name = 'creme_config/history_portal.html'
 
 
 @login_required

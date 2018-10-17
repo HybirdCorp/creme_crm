@@ -26,16 +26,19 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremePropertyType
 from creme.creme_core.utils import get_from_POST_or_404
 # from creme.creme_core.views import generic
+from creme.creme_core.views.generic import BricksView
 
 from ..forms import creme_property_type as ptype_forms
 
 from . import base
-from .portal import _config_portal
+# from .portal import _config_portal
 
 
-@login_required
-def portal(request):
-    return _config_portal(request, 'creme_config/property_type_portal.html')
+# @login_required
+# def portal(request):
+#     return _config_portal(request, 'creme_config/property_type_portal.html')
+class Portal(BricksView):
+    template_name = 'creme_config/property_type_portal.html'
 
 
 # @login_required

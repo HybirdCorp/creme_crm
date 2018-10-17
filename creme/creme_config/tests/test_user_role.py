@@ -43,6 +43,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def _aux_test_portal(self):
         response = self.assertGET200(reverse('creme_config__roles'))
+        self.assertTemplateUsed(response, 'creme_config/user_role_portal.html')
+        self.assertEqual(reverse('creme_core__reload_bricks'),
+                         response.context.get('bricks_reload_url')
+                        )
         self.get_brick_node(self.get_html_tree(response.content), UserRolesBrick.id_)
 
     def test_portal01(self):
