@@ -22,32 +22,46 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-from django.shortcuts import render
-from django.urls import reverse
+# from django.shortcuts import render
+# from django.urls import reverse
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_ct_or_404, jsonify
 from creme.creme_core.views.bricks import bricks_render_info, get_brick_ids_or_404
+from creme.creme_core.views.generic import BricksView
 
 from .. import registry
 from ..bricks import CrudityHistoryBrick
 
 
-@login_required
-@permission_required('crudity')
-def history(request):
-    get_ct = ContentType.objects.get_for_model
-    bricks = [CrudityHistoryBrick(get_ct(backend.model))
-                  for backend in registry.crudity_registry.get_backends()
-                      if backend.model
-             ]
+# @login_required
+# @permission_required('crudity')
+# def history(request):
+#     get_ct = ContentType.objects.get_for_model
+#     bricks = [CrudityHistoryBrick(get_ct(backend.model))
+#                   for backend in registry.crudity_registry.get_backends()
+#                       if backend.model
+#              ]
+#
+#     return render(request, 'crudity/history.html',
+#                   {
+#                    'bricks':            bricks,
+#                    'bricks_reload_url': reverse('crudity__reload_history_bricks'),
+#                   }
+#                  )
+class History(BricksView):
+    template_name = 'crudity/history.html'
+    permissions = 'crudity'
+    bricks_reload_url_name = 'crudity__reload_history_bricks'
 
-    return render(request, 'crudity/history.html',
-                  {
-                   'bricks':            bricks,
-                   'bricks_reload_url': reverse('crudity__reload_history_bricks'),
-                  }
-                 )
+    def get_bricks(self):
+        get_ct = ContentType.objects.get_for_model
+
+        return [
+            CrudityHistoryBrick(get_ct(backend.model))
+                for backend in registry.crudity_registry.get_backends()
+                    if backend.model
+        ]
 
 
 @login_required
