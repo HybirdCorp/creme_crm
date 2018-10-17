@@ -9,7 +9,8 @@ from .views import poll_form, poll_reply  # portal
 urlpatterns = [
     # url(r'^$', portal.portal, name='polls__portal'),
 
-    url(r'^poll_form/stats/(?P<pform_id>\d+)[/]?$', poll_form.stats, name='polls__form_stats'),
+    # url(r'^poll_form/stats/(?P<pform_id>\d+)[/]?$', poll_form.stats, name='polls__form_stats'),
+    url(r'^poll_form/stats/(?P<pform_id>\d+)[/]?$', poll_form.Statistics.as_view(), name='polls__form_stats'),
 
     # Form lines
     # url(r'^poll_form/(?P<pform_id>\d+)/add/line[/]?$',        poll_form.add_line,             name='polls__create_form_line'),

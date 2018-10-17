@@ -1406,7 +1406,14 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_statsview01(self):
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
-        self.assertGET200(self._build_stats_url(pform))
+        response = self.assertGET200(self._build_stats_url(pform))
+        self.assertTemplateUsed(response, 'polls/stats.html')
+
+        from ..utils import StatsTree, NodeStyle
+
+        get = response.context.get
+        self.assertIsInstance(get('nodes'), StatsTree)
+        self.assertIsInstance(get('style'), NodeStyle)
 
     def test_statsview02(self):
         user = self.login()

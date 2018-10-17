@@ -23,7 +23,7 @@ import warnings
 from django.core.exceptions import PermissionDenied
 from django.db.models import ProtectedError
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect  # render
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -219,16 +219,27 @@ class SectionEdition(generic.RelatedToEntityEdition):
 #                                 )
 
 
-@login_required
-@permission_required('polls')
-def stats(request, pform_id):
-    pform = get_object_or_404(PollForm, pk=pform_id)
+# @login_required
+# @permission_required('polls')
+# def stats(request, pform_id):
+#     pform = get_object_or_404(PollForm, pk=pform_id)
+#
+#     return render(request, 'polls/stats.html',
+#                   {'nodes': StatsTree(pform),
+#                    'style': NodeStyle(),
+#                   }
+#                  )
+class Statistics(generic.EntityDetail):
+    model = PollForm
+    pk_url_kwarg = 'pform_id'
+    template_name = 'polls/stats.html'
 
-    return render(request, 'polls/stats.html',
-                  {'nodes': StatsTree(pform),
-                   'style': NodeStyle(),
-                  }
-                 )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['nodes'] = StatsTree(self.object)
+        context['style'] = NodeStyle()
+
+        return context
 
 
 @login_required
