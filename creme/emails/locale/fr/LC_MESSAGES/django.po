@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-11 15:22+0200\n"
+"POT-Creation-Date: 2018-10-16 19:25+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1132,12 +1132,7 @@ msgstr "Nouvelles listes de diffusion pour «{}»"
 msgid "Link the mailing lists"
 msgstr "Lier les listes de diffusion"
 
-#: views/crudity.py:70
-#, python-format
-msgid "You are not allowed to edit this entity: %s"
-msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
-
-#: views/crudity.py:82
+#: views/crudity.py:118
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 

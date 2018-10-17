@@ -263,7 +263,10 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(b'', response.content)
 
         # Popup detail view -----------------------------------------------------
-        response = self.assertPOST200(reverse('emails__view_sending', args=(sending.id,)))
+        response = self.assertGET200(reverse('emails__view_sending', args=(sending.id,)))
+        self.assertTemplateUsed(response, 'emails/popup_sending.html')
+        self.assertEqual(sending, response.context.get('object'))
+
         self.assertContains(response, contacts[0].email)
         self.assertContains(response, orgas[0].email)
 
