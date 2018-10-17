@@ -99,6 +99,20 @@ class EmailsCrudityTestCase(_EmailsTestCase):
                          [refresh(e).status for e in emails]
                         )
 
+    def test_synchronisation(self):
+        response = self.assertGET200(reverse('emails__crudity_sync'))
+        self.assertTemplateUsed(response, 'emails/synchronize.html')
+
+        get = response.context.get
+        self.assertEqual(reverse('crudity__reload_actions_bricks'),
+                         get('bricks_reload_url')
+                        )
+
+        bricks = get('bricks')
+        self.assertIsInstance(bricks, list)
+        self.assertTrue(bricks)
+        # TODO: complete
+
     def test_create01(self):
         "Shared sandbox"
         user = self.user

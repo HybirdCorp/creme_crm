@@ -20,13 +20,13 @@
 
 # import warnings
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404  # render
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.bricks import build_context, bricks_render_info
 # from creme.creme_core.views.generic import add_to_entity
-from creme.creme_core.views.generic.add import AddingToEntity
+from creme.creme_core.views import generic
 from creme.creme_core.utils import jsonify
 
 from .. import get_emailcampaign_model
@@ -43,7 +43,7 @@ from ..models import EmailSending
 #                          entity_class=get_emailcampaign_model(),
 #                          submit_label=EmailSending.save_label,
 #                         )
-class SendingCreation(AddingToEntity):
+class SendingCreation(generic.AddingToEntity):
     model = EmailSending
     form_class = SendingCreateForm
     entity_id_url_kwarg = 'campaign_id'
@@ -51,6 +51,7 @@ class SendingCreation(AddingToEntity):
     title_format = _('New sending for «{}»')
 
 
+# TODO: used once => inline
 def _get_sending(request, sending_id):
     sending  = get_object_or_404(EmailSending, pk=sending_id)
     campaign = sending.campaign
@@ -60,12 +61,17 @@ def _get_sending(request, sending_id):
     return sending
 
 
-@login_required
-@permission_required('emails')
-def detailview(request, sending_id):
-    return render(request, 'emails/popup_sending.html',
-                  context={'object': _get_sending(request, sending_id)},
-                 )
+# @login_required
+# @permission_required('emails')
+# def detailview(request, sending_id):
+#     return render(request, 'emails/popup_sending.html',
+#                   context={'object': _get_sending(request, sending_id)},
+#                  )
+class LightWeightEmails(generic.RelatedToEntityDetail):
+    model = EmailSending
+    template_name = 'emails/popup_sending.html'
+    pk_url_kwarg = 'sending_id'
+    permissions = 'emails'
 
 
 # Useful method because EmailSending is not a CremeEntity (should be ?)
