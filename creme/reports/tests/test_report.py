@@ -34,6 +34,7 @@ try:
 
     from ..constants import (RFT_FIELD, RFT_CUSTOM, RFT_RELATION, RFT_FUNCTION,
             RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
+    from ..forms.report import ReportExportPreviewFilterForm
     from ..models import Field
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -589,6 +590,21 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'reports/preview_report.html')
+
+        context = response.context
+        self.assertEqual(report, context.get('object'))
+        self.assertEqual(25,     context.get('limit_to'))
+        self.assertFalse(context.get('empty_message'))
+        self.assertIsInstance(context.get('form'), ReportExportPreviewFilterForm)
+
+        columns = context.get('flat_columns')
+        self.assertIsInstance(columns, list)
+        self.assertEqual(4, len(columns))
+        self.assertIsInstance(columns[0], Field)
+        self.assertEqual(['last_name', 'user', 'creme_core-subject_has', 'get_pretty_properties'],
+                         [f.name for f in columns]
+                        )
+
         self.assertContains(response, chiyo.last_name)
         self.assertContains(response, osaka.last_name)
 
@@ -669,9 +685,9 @@ class ReportTestCase(BaseReportsTestCase):
                                            'date_field':    'birthday',
                                           }
                                     )
-        self.assertContains(response,
-                            _('No «{model}» matches your date filter').format(model='Test Contact')
-                           )
+        msg = _('No «{model}» matches your date filter').format(model='Test Contact')
+        self.assertEqual(msg, response.context.get('empty_message'))
+        self.assertContains(response, msg)
 
     # def test_report_change_field_order01(self):
     #     self.login()

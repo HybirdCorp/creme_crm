@@ -10,7 +10,8 @@ from .views import export, report, graph, bricks  # portal
 urlpatterns = [
     # url(r'^$', portal.portal, name='reports__portal'),
 
-    url(r'^export/preview/(?P<report_id>\d+)[/]?$', export.preview,                   name='reports__export_report_preview'),
+    # url(r'^export/preview/(?P<report_id>\d+)[/]?$', export.preview,                   name='reports__export_report_preview'),
+    url(r'^export/preview/(?P<report_id>\d+)[/]?$', export.Preview.as_view(),         name='reports__export_report_preview'),
     # url(r'^export/filter/(?P<report_id>\d+)[/]?$',  export.filter,  name='reports__export_report_filter'),
     url(r'^export/filter/(?P<report_id>\d+)[/]?$',  export.ExportFilterURL.as_view(), name='reports__export_report_filter'),
     url(r'^export/(?P<report_id>\d+)[/]?$',         export.export,                    name='reports__export_report'),

@@ -21,7 +21,7 @@
 import logging
 
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404  # render
 from django.urls import reverse
 from django.utils.encoding import smart_str
 # from django.utils.safestring import mark_safe
@@ -29,8 +29,8 @@ from django.utils.translation import ugettext as _, pgettext_lazy
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.views.generic import EntityEditionPopup  # inner_popup
-# from creme.creme_core.views.generic import EntityEdition
+from creme.creme_core.views import generic
+# from creme.creme_core.views.generic import inner_popup
 
 from .. import get_report_model
 from ..forms import report as report_forms
@@ -42,50 +42,100 @@ Report = get_report_model()
 _PREVIEW_LIMIT_COUNT = 25
 
 
-@login_required
-@permission_required('reports')
-def preview(request, report_id):
-    user = request.user
-    report = get_object_or_404(Report, pk=report_id)
+# @login_required
+# @permission_required('reports')
+# def preview(request, report_id):
+#     user = request.user
+#     report = get_object_or_404(Report, pk=report_id)
+#
+#     user.has_perm_to_view_or_die(report)
+#
+#     filter_form = report_forms.ReportExportPreviewFilterForm(report=report, user=user, data=request.GET)
+#     lines = []
+#     empty_message = ''
+#
+#     if filter_form.is_valid():
+#         lines = report.fetch_all_lines(limit_to=_PREVIEW_LIMIT_COUNT,
+#                                        extra_q=filter_form.get_q(),
+#                                        user=user,
+#                                       )
+#
+#         if not lines:
+#             ct = report.ct
+#
+#             if not EntityCredentials.filter(user, ct.model_class().objects.all()).exists():
+#                 empty_message = _('You can see no «{model}»').format(model=ct)
+#             elif report.filter and not report.fetch_all_lines(limit_to=1, user=user):
+#                 empty_message = _('No «{model}» matches the filter «{filter}»').format(
+#                                         model=ct,
+#                                         filter=report.filter,
+#                                     )
+#             else:
+#                 empty_message = _('No «{model}» matches your date filter').format(model=ct)
+#     else:
+#         empty_message = _('Fix your date filter')
+#
+#     return render(request, 'reports/preview_report.html',
+#                   {'lines':    lines,
+#                    'object':   report,
+#                    'limit_to': _PREVIEW_LIMIT_COUNT,
+#                    'form':     filter_form,
+#                    # NB: useful for "colspan" (remove if header is not a <thead> anymore
+#                    'flat_columns': list(report.get_children_fields_flat()),
+#                    'empty_message': empty_message,
+#                   },
+#                  )
+class Preview(generic.EntityDetail):
+    model = Report
+    template_name = 'reports/preview_report.html'
+    pk_url_kwarg = 'report_id'
+    filter_form_class = report_forms.ReportExportPreviewFilterForm
 
-    user.has_perm_to_view_or_die(report)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        request = self.request
+        report = self.object
+        user = request.user
+        form = self.filter_form_class(report=report, user=user, data=request.GET)
+        lines = self.get_lines(form)
 
-    filter_form = report_forms.ReportExportPreviewFilterForm(report=report, user=user, data=request.GET)
-    lines = []
-    empty_message = ''
+        context['lines'] = lines
+        context['form'] = form
+        context['limit_to'] = _PREVIEW_LIMIT_COUNT
+        context['flat_columns'] = list(report.get_children_fields_flat())
+        context['empty_message'] = self.get_empty_message(form, lines)
 
-    if filter_form.is_valid():
-        lines = report.fetch_all_lines(limit_to=_PREVIEW_LIMIT_COUNT,
-                                       extra_q=filter_form.get_q(),
-                                       user=user,
-                                      )
+        return context
 
-        if not lines:
-            ct = report.ct
-
-            if not EntityCredentials.filter(user, ct.model_class().objects.all()).exists():
-                empty_message = _('You can see no «{model}»').format(model=ct)
-            elif report.filter and not report.fetch_all_lines(limit_to=1, user=user):
-                empty_message = _('No «{model}» matches the filter «{filter}»').format(
-                                        model=ct,
-                                        filter=report.filter,
-                                    )
+    def get_empty_message(self, form, lines):
+        if form.is_valid():
+            if lines:
+                empty_message = ''
             else:
-                empty_message = _('No «{model}» matches your date filter').format(model=ct)
-    else:
-        empty_message = _('Fix your date filter')
+                report = self.object
+                user = self.request.user
+                ct = report.ct
 
-    return render(request, "reports/preview_report.html",
-                  {'lines':    lines,
-                   'object':   report,
-                   'limit_to': _PREVIEW_LIMIT_COUNT,
-                   'form':     filter_form,
-                   # NB: useful for "colspan" (remove if header is not a <thead> anymore
-                   'flat_columns': list(report.get_children_fields_flat()),
-                   'empty_message': empty_message,
-                  },
-                 )
+                if not EntityCredentials.filter(user, ct.model_class().objects.all()).exists():
+                    empty_message = _('You can see no «{model}»').format(model=ct)
+                elif report.filter and not report.fetch_all_lines(limit_to=1, user=user):
+                    empty_message = _('No «{model}» matches the filter «{filter}»').format(
+                        model=ct,
+                        filter=report.filter,
+                    )
+                else:
+                    empty_message = _('No «{model}» matches your date filter').format(model=ct)
+        else:
+            empty_message = _('Fix your date filter')
 
+        return empty_message
+
+    def get_lines(self, form):
+        return self.object.fetch_all_lines(limit_to=_PREVIEW_LIMIT_COUNT,
+                                           extra_q=form.get_q(),
+                                           user=self.request.user,
+                                          ) \
+               if form.is_valid() else []
 
 # @login_required
 # @permission_required('reports')
@@ -117,7 +167,7 @@ def preview(request, report_id):
 #                        delegate_reload=False,
 #                        callback_url=mark_safe(callback_url),
 #                       )
-class ExportFilterURL(EntityEditionPopup):
+class ExportFilterURL(generic.EntityEditionPopup):
     model = Report
     form_class = report_forms.ReportExportFilterForm
     template_name = 'reports/frags/report_export_filter.html'
