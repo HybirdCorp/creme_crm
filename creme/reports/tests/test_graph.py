@@ -192,6 +192,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertIn('sector',  choices_set)
         self.assertNotIn('name', choices_set)  # String can not be used to group
         self.assertNotIn('address', choices_set)  # Not enumerable
+        self.assertNotIn('image',   choices_set)  # FK to entity
 
         rel_choices = abscissa_choices[1]
         self.assertEqual(_('Relationships'), rel_choices[0])
@@ -1117,6 +1118,59 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(_('the custom field does not exist any more.'),
                          rgraph.hand.ordinate_error
                         )
+
+    def test_fetch_with_fk_06(self):
+        "Related model is User => staff users are excluded."
+        user = self.login(is_staff=True)
+        other_user = self.other_user
+
+        last_name = 'Stark'
+        create_contact = partial(FakeContact.objects.create, user=other_user, last_name=last_name)
+        create_contact(first_name='Sansa')
+        create_contact(first_name='Bran')
+        create_contact(first_name='Arya', user=user)
+
+        efilter = EntityFilter.create('test-filter', 'Starks', FakeContact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeContact,
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name', values=[last_name]
+                                                                   )
+                               ])
+
+        report = self._create_simple_contacts_report(efilter=efilter)
+        rgraph = ReportGraph.objects.create(user=user, linked_report=report,
+                                            name='Contacts count by User',
+                                            abscissa='user', type=RGT_FK,
+                                            ordinate='', is_count=True,
+                                           )
+
+        with self.assertNoException():
+            x_asc, y_asc = rgraph.fetch(user)
+
+        self.assertIn(str(other_user), x_asc)
+        self.assertNotIn(str(user), x_asc)  # <===
+
+    def test_fetch_with_fk_07(self):
+        "Related model is ContentType => only entities types."
+        user = self.login()
+
+        get_ct = ContentType.objects.get_for_model
+        report = Report.objects.create(user=self.user, name='Report on Reports',
+                                       ct=get_ct(Report),
+                                      )
+        # Field.objects.create(report=report, name='name', type=RFT_FIELD, order=1)
+
+        rgraph = ReportGraph.objects.create(user=user, linked_report=report,
+                                            name='Report count by CTypes',
+                                            abscissa='ct', type=RGT_FK,
+                                            ordinate='', is_count=True,
+                                           )
+
+        with self.assertNoException():
+            x_asc, y_asc = rgraph.fetch(user)
+
+        self.assertIn(str(get_ct(FakeOrganisation)), x_asc)
+        self.assertNotIn(str(get_ct(FakePosition)), x_asc)  # <===
 
     def test_fetch_with_date_range01(self):
         "Count"
