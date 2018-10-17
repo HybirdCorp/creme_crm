@@ -186,8 +186,10 @@ creme_core_patterns = [
 
 
 urlpatterns = [
-    url(r'^$',            index.home,    name='creme_core__home'),
-    url(r'^my_page[/]?$', index.my_page, name='creme_core__my_page'),
+    # url(r'^$',            index.home,    name='creme_core__home'),
+    url(r'^$',            index.Home.as_view(),   name='creme_core__home'),
+    # url(r'^my_page[/]?$', index.my_page, name='creme_core__my_page'),
+    url(r'^my_page[/]?$', index.MyPage.as_view(), name='creme_core__my_page'),
 
     # TODO: To be replaced
     url(r'^download_file/(?P<location>.*)$', file_handling.download_file, name='creme_core__dl_file'),

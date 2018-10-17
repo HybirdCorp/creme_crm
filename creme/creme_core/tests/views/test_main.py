@@ -7,11 +7,13 @@ try:
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
-    from ..fake_models import FakeContact, FakeImage, FakeOrganisation
-    from creme.creme_core.models import Language, Currency
+    from creme.creme_core.bricks import StatisticsBrick, HistoryBrick
+    from creme.creme_core.gui.bricks import Brick
+    from creme.creme_core.models import (Language, Currency,
+            FakeContact, FakeImage, FakeOrganisation)
     # from creme.creme_core.utils import is_testenvironment
-
     from creme.creme_core.views.testjs import js_testview_or_404
+
     from .base import ViewsTestCase
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -30,15 +32,40 @@ class MiscViewsTestCase(ViewsTestCase):
         super().tearDown()
         settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
 
-    def test_home(self):  # TODO: improve test
+    def test_home(self):
         self.login()
-        response = self.assertGET200('/')
+        # response = self.assertGET200('/')
+        response = self.assertGET200(reverse('creme_core__home'))
         self.assertTemplateUsed(response, 'creme_core/home.html')
+
+        context = response.context
+        self.assertEqual(reverse('creme_core__reload_home_bricks'),
+                         context.get('bricks_reload_url')
+                        )
+
+        bricks = context.get('bricks')
+        self.assertIsInstance(bricks, list)
+        self.assertGreaterEqual(len(bricks), 2)
+        self.assertIsInstance(bricks[0], Brick)
+
+        brick_ids = [b.id_ for b in bricks]
+        i1 = self.assertIndex(StatisticsBrick.id_, brick_ids)
+        i2 = self.assertIndex(HistoryBrick.id_,    brick_ids)
+        self.assertLess(i1, i2)
 
     def test_my_page(self):
         self.login()
         response = self.assertGET200('/my_page')
         self.assertTemplateUsed(response, 'creme_core/my_page.html')
+
+        context = response.context
+        self.assertEqual(reverse('creme_core__reload_home_bricks'),
+                         context.get('bricks_reload_url')
+                        )
+
+        bricks = context.get('bricks')
+        self.assertIsInstance(bricks, list)
+        self.assertIn(HistoryBrick, {b.__class__ for b in bricks})
 
     def test_about(self):
         self.login()

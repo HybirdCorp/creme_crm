@@ -41,7 +41,7 @@ from.popup import InnerPopupMixin
 logger = logging.getLogger(__name__)
 
 
-def detailview_bricks(user, entity):
+def detailview_bricks(user, entity, registry=brick_registry):
     is_superuser = user.is_superuser
     role = user.role
 
@@ -65,16 +65,18 @@ def detailview_bricks(user, entity):
 
         if brick_id:  # Populate scripts can leave void brick ids
             if BrickDetailviewLocation.id_is_4_model(brick_id):
-                brick_id = brick_registry.get_brick_4_object(entity).id_
+                # brick_id = brick_registry.get_brick_4_object(entity).id_
+                brick_id = registry.get_brick_4_object(entity).id_
 
             loc_map[loc.zone].append(brick_id)
 
     # We call the method block_registry.get_bricks() once to regroup additional queries
     bricks = {}
     model = entity.__class__
-    for brick in brick_registry.get_bricks(list(chain.from_iterable(brick_ids for brick_ids in loc_map.values())),
-                                           entity=entity,
-                                          ):
+    # for brick in brick_registry.get_bricks(list(chain.from_iterable(brick_ids for brick_ids in loc_map.values())),
+    for brick in registry.get_bricks(list(chain.from_iterable(brick_ids for brick_ids in loc_map.values())),
+                                     entity=entity,
+                                    ):
         target_ctypes = brick.target_ctypes
         if target_ctypes and not model in target_ctypes:
             logger.warning('This brick cannot be displayed on this content type (you have a config problem): %s', brick.id_)
@@ -83,7 +85,8 @@ def detailview_bricks(user, entity):
 
     hat_bricks = loc_map[BrickDetailviewLocation.HAT]
     if not hat_bricks:
-        hat_brick = brick_registry.get_generic_hat_brick(model)
+        # hat_brick = brick_registry.get_generic_hat_brick(model)
+        hat_brick = registry.get_generic_hat_brick(model)
 
         hat_bricks.append(hat_brick.id_)
         bricks[hat_brick.id_] = hat_brick
@@ -159,6 +162,8 @@ class EntityDetail(CremeModelDetail):
     model = CremeEntity
     template_name = 'creme_core/generics/view_entity.html'
     pk_url_kwarg = 'entity_id'
+    brick_registry = brick_registry
+    bricks_reload_url_name = 'creme_core__reload_detailview_bricks'
 
     def check_instance_permissions(self, instance, user):
         user.has_perm_to_view_or_die(instance)
@@ -167,12 +172,16 @@ class EntityDetail(CremeModelDetail):
         super().check_view_permissions(user=user)
         user.has_perm_to_access_or_die(self.model._meta.app_label)
 
+    def get_bricks(self):
+        return detailview_bricks(self.request.user, self.object, registry=self.brick_registry)
+
+    def get_bricks_reload_url(self):
+        return reverse(self.bricks_reload_url_name, args=(self.object.id,))
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        entity = self.object
-
-        context['bricks'] = detailview_bricks(self.request.user, entity)
-        context['bricks_reload_url'] = reverse('creme_core__reload_detailview_bricks', args=(entity.id,))
+        context['bricks'] = self.get_bricks()
+        context['bricks_reload_url'] = self.get_bricks_reload_url()
 
         return context
 

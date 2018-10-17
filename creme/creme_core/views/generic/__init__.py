@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .base import CheckedTemplateView
+from .base import CheckedTemplateView, BricksView
 from .add import (
     add_entity, add_to_entity, add_model_with_popup,
     CremeModelCreation, EntityCreation,
