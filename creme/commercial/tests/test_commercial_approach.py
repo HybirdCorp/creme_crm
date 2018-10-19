@@ -29,7 +29,7 @@ try:
     from creme.activities.tests.base import skipIfCustomActivity
 
     from creme.opportunities.models import SalesPhase
-    from creme.opportunities.tests import skipIfCustomOpportunity
+    from creme.opportunities.tests.base import skipIfCustomOpportunity
 
     from ..bricks import ApproachesBrick
     from ..constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
