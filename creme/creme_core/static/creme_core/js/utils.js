@@ -387,38 +387,57 @@ creme.utils.confirmPOSTQuery = function(url, options, data) {
 };
 
 creme.utils.confirmAjaxQuery = function(url, options, data) {
+    options = $.extend({confirm: true}, options || {});
+    return creme.utils.ajaxQuery(url, options, data);
+};
+
+creme.utils.ajaxQuery = function(url, options, data) {
     options = $.extend({
         action: 'get',
         warnOnFail: true
     }, options || {});
 
-    var message = options.confirm || gettext("Are you sure ?");
-
     var action = new creme.component.Action(function() {
         var self = this;
         var query = creme.ajax.query(url, options, data);
+
+        var _fail = function(error, status) {
+            self.fail(error, status);
+
+            if (options.reloadOnFail) {
+                creme.utils.reload();
+            }
+        };
+
+        var _success = function(result) {
+            self.done(result);
+
+            if (options.reloadOnSuccess) {
+                creme.utils.reload();
+            }
+        };
 
         query.onFail(function(event, error, status) {
                   if (options.warnOnFail) {
                       var message = Object.isString(error) ? error : (error.message || gettext("Error"));
                       creme.dialogs.error(message, {title: options.warnOnFailTitle}, status)
                                    .onClose(function() {
-                                        self.fail(error, status);
+                                        _fail(error, status);
                                     })
                                    .open();
                   } else {
-                      self.fail(error, status);
+                      _fail(error, status);
                   }
               })
              .onDone(function(event, result) {
                   if (options.messageOnSuccess) {
                       creme.dialogs.html('<p>%s</p>'.format(options.messageOnSuccess))
                                    .onClose(function() {
-                                        self.done(result);
+                                        _success(result);
                                     })
                                    .open();
                   } else {
-                      self.done(result);
+                      _success(result);
                   }
               });
 
@@ -431,72 +450,19 @@ creme.utils.confirmAjaxQuery = function(url, options, data) {
                   });
         }
 
-        creme.dialogs.confirm('<h4>%s</h4>'.format(message))
-                     .onOk(function() { query.start(); })
-                     .onClose(function() { self.cancel(); })
-                     .open({width: 250, height: 150});
+        if (options.confirm) {
+            var confirmMessage = Object.isString(options.confirm) ? options.confirm : gettext("Are you sure ?");
+
+            creme.dialogs.confirm('<h4>%s</h4>'.format(confirmMessage))
+                         .onOk(function() { query.start(); })
+                         .onClose(function() { self.cancel(); })
+                         .open({width: 250, height: 150});
+        } else {
+            query.start();
+        }
     }, options);
 
-    if (options.reloadOnSuccess) {
-        action.onDone(function(event, data) {
-            creme.utils.reload();
-        });
-    }
-
     return action;
-};
-
-creme.utils.ajaxQuery = function(url, options, data) {
-    options = $.extend({
-        action: 'get',
-        warnOnFail: true
-    }, options || {});
-
-    var query = creme.ajax.query(url, options, data);
-
-    if (options.warnOnFail) {
-        query.onFail(function(event, error, status) {
-                  var message = Object.isString(error) ? error : (error.message || gettext("Error"));
-                  creme.dialogs.error(message, {title: options.warnOnFailTitle}, status)
-                               .onClose(function() {
-                                   if (options.reloadOnFail) {
-                                       creme.utils.reload();
-                                   }
-                                })
-                               .open();
-              });
-    } else if (options.reloadOnFail) {
-        query.onFail(function(event, data) {
-            creme.utils.reload();
-        });
-    }
-
-    if (options.messageOnSuccess) {
-        query.onDone(function(event, data) {
-                  creme.dialogs.html('<p>%s</p>'.format(options.messageOnSuccess))
-                               .onClose(function() {
-                                    if (options.reloadOnSuccess) {
-                                        creme.utils.reload();
-                                    }
-                                })
-                               .open();
-              });
-    } else if (options.reloadOnSuccess) {
-        query.onDone(function(event, data) {
-            creme.utils.reload();
-        });
-    }
-
-    if (options.waitingOverlay) {
-        query.onStart(function() {
-            creme.utils.showPageLoadOverlay();
-        });
-        query.onComplete(function() {
-            creme.utils.hidePageLoadOverlay();
-        });
-    }
-
-    return query;
 };
 
 creme.utils.innerPopupFormAction = function(url, options, data) {

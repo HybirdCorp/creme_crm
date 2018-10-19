@@ -331,15 +331,15 @@ QUnit.test('creme.bricks.Brick.action (update, failed)', function(assert) {
 
     this.assertClosedDialog();
 
-    brick.action('update', 'mock/brick/update/fail').on(this.brickActionListeners).start();
+    brick.action('update', 'mock/error').on(this.brickActionListeners).start();
     equal(false, brick.isLoading());
 
     // warning dialog
-    this.assertOpenedAlertDialog();
+    this.assertOpenedAlertDialog(gettext('HTTP - Error 500'));
     this.closeDialog();
 
-    deepEqual([['fail', '']], this.mockListenerCalls('action-fail').map(function(d) { return d.slice(0, 2); }));
-    deepEqual([], this.mockBackendUrlCalls('mock/brick/update/fail'));
+    deepEqual([['fail', 'HTTP - Error 500']], this.mockListenerCalls('action-fail').map(function(d) { return d.slice(0, 2); }));
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
@@ -349,8 +349,9 @@ QUnit.test('creme.bricks.Brick.action (update, with confirmation, not confirmed)
     this.assertClosedDialog();
 
     brick.action('update', 'mock/brick/update', {confirm: true}).on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
-    this.assertOpenedDialog();
+
+    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+
     deepEqual([], this.mockListenerCalls('action-cancel'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
@@ -369,8 +370,9 @@ QUnit.test('creme.bricks.Brick.action (update, with confirmation, confirmed)', f
     this.assertClosedDialog();
 
     brick.action('update', 'mock/brick/update', {confirm: true}).on(this.brickActionListeners).start();
-    equal(false, brick.isLoading());
-    this.assertOpenedDialog();
+
+    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+
     deepEqual([], this.mockListenerCalls('action-cancel'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
@@ -382,6 +384,101 @@ QUnit.test('creme.bricks.Brick.action (update, with confirmation, confirmed)', f
     deepEqual([
         ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.bricks.Brick.action (update, with custom confirmation, confirmed)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+
+    this.assertClosedDialog();
+
+    brick.action('update', 'mock/brick/update', {confirm: 'Are you really sure ?'}).on(this.brickActionListeners).start();
+
+    this.assertOpenedConfirmDialog('Are you really sure ?');
+
+    deepEqual([], this.mockListenerCalls('action-cancel'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/update'));
+
+    this.acceptConfirmDialog();
+
+    deepEqual([['done', '']], this.mockListenerCalls('action-done'));
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.bricks.Brick.action (update, with message on success)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+
+    this.assertClosedDialog();
+
+    brick.action('update', 'mock/brick/update', {messageOnSuccess: 'Action done !'}).on(this.brickActionListeners).start();
+
+    equal(false, brick.isLoading());
+
+    this.assertOpenedDialog('Action done !');
+
+    deepEqual([], this.mockListenerCalls('action-done'));
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    this.closeDialog();
+
+    deepEqual([['done', '']], this.mockListenerCalls('action-done'));
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.bricks.Brick.action (update, message + reload on success)', function(assert) {
+    var current_url = window.location.href;
+    var brick = this.createBrickWidget('brick-for-test').brick();
+
+    this.assertClosedDialog();
+
+    brick.action('update', 'mock/brick/update', {
+        messageOnSuccess: 'Action done !',
+        reloadOnSuccess: true
+    }).on(this.brickActionListeners).start();
+
+    equal(false, brick.isLoading());
+
+    this.assertOpenedDialog('Action done !');
+
+    deepEqual([], this.mockListenerCalls('action-done'));
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    deepEqual([], this.mockRedirectCalls());
+
+    this.closeDialog();
+
+    deepEqual([['done', '']], this.mockListenerCalls('action-done'));
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
+    deepEqual([current_url], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.bricks.Brick.action (update, message + reload on fail)', function(assert) {
+    var current_url = window.location.href;
+    var brick = this.createBrickWidget('brick-for-test').brick();
+
+    this.assertClosedDialog();
+
+    brick.action('update', 'mock/error', {
+        reloadOnFail: true
+    }).on(this.brickActionListeners).start();
+
+    this.assertOpenedAlertDialog();
+
+    deepEqual([], this.mockListenerCalls('action-fail'));
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
+    deepEqual([], this.mockRedirectCalls());
+
+    this.closeDialog();
+
+    deepEqual([['fail', 'HTTP - Error 500']], this.mockListenerCalls('action-fail').map(function(d) { return d.slice(0, 2); }));
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
+    deepEqual([current_url], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect)', function(assert) {
