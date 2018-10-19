@@ -19,13 +19,14 @@
 ################################################################################
 
 from django.db.models import Count
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from . import constants
 
 
 class _RelationsStatistics:
     relation_type_id = 'persons-override_me'
+    message_format = _('For {name}: {related_count}')
 
     def __init__(self, orga_model):
         self.orga_model = orga_model
@@ -37,7 +38,7 @@ class _RelationsStatistics:
                               .values('name', 'related_count')
 
         if data:
-            msg = _('For {name}: {related_count}')
+            msg = str(self.message_format)
             return [msg.format(**ctxt) for ctxt in data]
 
         return []
