@@ -2,12 +2,12 @@
 # Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -i tests.py
+# > django-admin.py makemessages -l fr -i "tests/*"
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-12 16:56+0200\n"
+"POT-Creation-Date: 2018-10-18 17:28+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,20 +24,6 @@ msgstr "Opportunités"
 #: apps.py:105 apps.py:112 templates/opportunities/view_opportunity.html:7
 msgid "Commercial"
 msgstr "Commercial"
-
-#: apps.py:140
-#, python-brace-format
-msgctxt "opportunities-stats"
-msgid "{count} won"
-msgid_plural "{count} won"
-msgstr[0] "{count} gagnée"
-msgstr[1] "{count} gagnées"
-
-#: apps.py:145
-#, python-brace-format
-msgctxt "opportunities-stats"
-msgid "{count} in all"
-msgstr "{count} en tout"
 
 #: bricks.py:49
 msgid "Card header block"
@@ -96,11 +82,11 @@ msgstr "Créer une opportunité liée"
 msgid "Target"
 msgstr "Cible"
 
-#: forms/mass_import.py:37 forms/opportunity.py:60 forms/opportunity.py:81
+#: forms/mass_import.py:37 forms/opportunity.py:68 forms/opportunity.py:113
 msgid "Concerned organisation"
 msgstr "Société concernée"
 
-#: forms/opportunity.py:39
+#: forms/opportunity.py:42 forms/opportunity.py:102
 msgid "Target organisation / contact"
 msgstr "Société / contact cible"
 
@@ -403,6 +389,37 @@ msgid ""
 msgstr ""
 "Utiliser le devis courant lié à une opportunité pour avoir une estimation du "
 "chiffre d'affaire de celle-ci ?"
+
+#: statistics.py:32
+msgid "Opportunities (current year)"
+msgstr "Opportunités (année courante)"
+
+#: statistics.py:34
+msgid ""
+"The field «Actual closing date» is hidden ; these statistics are not "
+"available."
+msgstr ""
+"Le champ «Date de signature réelle» est caché ; ces statistiques ne sont pas "
+"disponibles."
+
+#: statistics.py:37
+#, python-brace-format
+msgid "For {organisation}: {won_stats} / {lost_stats}"
+msgstr "Pour {organisation} : {won_stats} / {lost_stats}"
+
+#: statistics.py:68
+#, python-brace-format
+msgid "{count} won opportunity"
+msgid_plural "{count} won opportunities"
+msgstr[0] "{count} opportunité gagnée"
+msgstr[1] "{count} opportunités gagnées"
+
+#: statistics.py:72
+#, python-brace-format
+msgid "{count} lost opportunity"
+msgid_plural "{count} lost opportunities"
+msgstr[0] "{count} opportunité perdue"
+msgstr[1] "{count} opportunités perdus"
 
 #: templates/opportunities/bricks/contacts.html:7
 #, python-brace-format
@@ -752,6 +769,16 @@ msgstr "Nouvelle opportunité liée à «%s»"
 #: views/opportunity.py:193
 msgid "New opportunity targeting «{}»"
 msgstr "Nouvelle opportunité ciblant «{}»"
+
+#~ msgctxt "opportunities-stats"
+#~ msgid "{count} won"
+#~ msgid_plural "{count} won"
+#~ msgstr[0] "{count} gagnée"
+#~ msgstr[1] "{count} gagnées"
+
+#~ msgctxt "opportunities-stats"
+#~ msgid "{count} in all"
+#~ msgstr "{count} en tout"
 
 #~ msgid "Portal of opportunities"
 #~ msgstr "Portail des opportunités"

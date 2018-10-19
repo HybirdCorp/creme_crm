@@ -20,7 +20,7 @@
 
 import logging
 
-from django.utils.translation import ugettext_lazy as _, pgettext, npgettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
 
@@ -133,43 +133,42 @@ class OpportunitiesConfig(CremeAppConfig):
                               .register_relationtype(REL_SUB_TARGETS)
 
     def register_statistics(self, statistics_registry):
-        Opportunity = self.Opportunity
+        from creme.persons import get_organisation_model
 
-        def won_opportunities():
-            count = Opportunity.objects.filter(sales_phase__won=True).count()
-            return npgettext('opportunities-stats', '{count} won', '{count} won', count).format(count=count)
+        from .statistics import CurrentYearStatistics
 
         statistics_registry.register(
-            id='opportunities', label=Opportunity._meta.verbose_name_plural,
-            func=lambda: [won_opportunities(),
-                          pgettext('opportunities-stats', '{count} in all').format(count=Opportunity.objects.count()),
-                         ],
+            id='opportunities',
+            label=CurrentYearStatistics.label,
+            func=CurrentYearStatistics(opp_model=self.Opportunity,
+                                       orga_model=get_organisation_model()
+                                      ),
             perm='opportunities', priority=15,
         )
 
     def register_billing(self):
         from creme.creme_core.models import RelationType
 
-        from creme.billing import get_invoice_model, get_quote_model, get_sales_order_model
+        from creme import billing
         from creme.billing.registry import relationtype_converter
 
-        from .constants import REL_SUB_LINKED_SALESORDER, REL_SUB_LINKED_INVOICE, REL_SUB_LINKED_QUOTE
+        from . import constants
 
         get_rtype = RelationType.objects.get
 
         try:
-            linked_salesorder = get_rtype(id=REL_SUB_LINKED_SALESORDER)
-            linked_invoice    = get_rtype(id=REL_SUB_LINKED_INVOICE)
-            linked_quote      = get_rtype(id=REL_SUB_LINKED_QUOTE)
+            linked_salesorder = get_rtype(id=constants.REL_SUB_LINKED_SALESORDER)
+            linked_invoice    = get_rtype(id=constants.REL_SUB_LINKED_INVOICE)
+            linked_quote      = get_rtype(id=constants.REL_SUB_LINKED_QUOTE)
         except Exception as e:
             logger.info('A problem occurred: %s\n'
                         'It can happen during unit tests or during the "populate" phase. '
                         'Otherwise, has the database correctly been populated?', e
                        )
         else:
-            Invoice    = get_invoice_model()
-            Quote      = get_quote_model()
-            SalesOrder = get_sales_order_model()
+            Invoice    = billing.get_invoice_model()
+            Quote      = billing.get_quote_model()
+            SalesOrder = billing.get_sales_order_model()
 
             register_rtype = relationtype_converter.register
             register_rtype(Quote,      linked_quote,      SalesOrder, linked_salesorder)
