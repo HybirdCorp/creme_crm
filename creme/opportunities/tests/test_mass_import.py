@@ -1,0 +1,434 @@
+# -*- coding: utf-8 -*-
+
+try:
+    from django.contrib.contenttypes.models import ContentType
+    from django.db.models import Max
+    from django.test.utils import override_settings
+    from django.utils.translation import ugettext as _, ungettext
+
+    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
+
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+    from creme.creme_core.models import SetCredentials
+
+    from creme.documents import get_document_model
+
+    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
+
+    from creme.opportunities.models import SalesPhase
+
+    from .base import (OpportunitiesBaseTestCase, skipIfCustomOpportunity,
+            Opportunity, Organisation, Contact)
+except Exception as e:
+    print('Error in <{}>: {}'.format(__name__, e))
+
+
+@skipIfCustomOpportunity
+class MassImportTestCase(OpportunitiesBaseTestCase, CSVImportBaseTestCaseMixin):
+    lvimport_data = {
+        'step': 1,
+        # 'document': doc.id,
+        # has_header
+
+        # 'user':    user.id,
+        # 'emitter': emitter1.id,
+
+        # 'name_colselect':            1,
+        # 'estimated_sales_colselect': 3,
+        # 'made_sales_colselect':      4,
+
+        # 'sales_phase_colselect': 2,
+        # 'sales_phase_create':    True,
+        # 'sales_phase_defval':    sp5.pk,
+
+        # 'target_persons_organisation_colselect': 5,
+        # 'target_persons_organisation_create':    True,
+        # 'target_persons_contact_colselect':      6,
+        # 'target_persons_contact_create':         True,
+
+        'currency_colselect': 0,
+        'currency_defval':    DEFAULT_CURRENCY_PK,
+
+        'reference_colselect':              0,
+        'chance_to_win_colselect':          0,
+        'expected_closing_date_colselect':  0,
+        'closing_date_colselect':           0,
+        'origin_colselect':                 0,
+        'description_colselect':            0,
+        'first_action_date_colselect':      0,
+
+        # 'property_types',
+        # 'fixed_relations',
+        # 'dyn_relations',
+    }
+
+    @skipIfCustomContact
+    def test_csv_import01(self):
+        user = self.login()
+
+        count = Opportunity.objects.count()
+
+        # Opportunity #1
+        emitter1 = Organisation.objects.filter(is_managed=True)[0]
+        target1  = Organisation.objects.create(user=user, name='Acme')
+        sp1 = SalesPhase.objects.create(name='Testphase - test_csv_import01')
+
+        max_order = SalesPhase.objects.aggregate(max_order=Max('order'))['max_order']
+
+        # Opportunity #2
+        target2_name = 'Black label society'
+        sp2_name = 'IAmNotSupposedToAlreadyExist'
+        self.assertFalse(SalesPhase.objects.filter(name=sp2_name))
+
+        # Opportunity #3
+        target3 = Contact.objects.create(user=user, first_name='Mike', last_name='Danton')
+
+        # Opportunity #4
+        target4_last_name = 'Renegade'
+
+        # Opportunity #5
+        sp5 = SalesPhase.objects.all()[1]
+
+        lines = [('Opp01', sp1.name, '1000', '2000', target1.name, ''),
+                 ('Opp02', sp2_name, '100',  '200',  target2_name, ''),
+                 ('Opp03', sp1.name, '100',  '200',  '',           target3.last_name),
+                 ('Opp04', sp1.name, '100',  '200',  '',           target4_last_name),
+                 ('Opp05', '',       '100',  '200',  target1.name, ''),
+                 # TODO emitter by name
+                ]
+
+        doc = self._build_csv_doc(lines)
+        url = self._build_import_url(Opportunity)
+        self.assertGET200(url)
+        self.assertNoFormError(self.client.post(url, data={'step':     0,
+                                                           'document': doc.id,
+                                                           # has_header
+                                                          }
+                                               )
+                              )
+
+        response = self.client.post(url, follow=True,
+                                    data=dict(self.lvimport_data,
+                                              document=doc.id,
+                                              user=user.id,
+                                              emitter=emitter1.id,
+
+                                              name_colselect=1,
+                                              estimated_sales_colselect=3,
+                                              made_sales_colselect=4,
+
+                                              sales_phase_colselect=2,
+                                              sales_phase_subfield='name',
+                                              sales_phase_create=True,
+                                              sales_phase_defval=sp5.pk,
+
+                                              target_persons_organisation_colselect=5,
+                                              target_persons_organisation_create=True,
+                                              target_persons_contact_colselect=6,
+                                              target_persons_contact_create=True,
+                                             )
+                                   )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self._assertNoResultError(self._get_job_results(job))
+
+        self.assertEqual(count + len(lines), Opportunity.objects.count())
+
+        opp1 = self.get_object_or_fail(Opportunity, name='Opp01')
+        self.assertEqual(user, opp1.user)
+        self.assertEqual(1000, opp1.estimated_sales)
+        self.assertEqual(2000, opp1.made_sales)
+        self.assertEqual(1,    SalesPhase.objects.filter(name=sp1.name).count())
+        self.assertEqual(sp1,  opp1.sales_phase)
+        self.assertFalse(opp1.reference)
+        self.assertIsNone(opp1.origin)
+        self.assertEqual(emitter1, opp1.emitter)
+        self.assertEqual(target1,  opp1.target)
+
+        sp2 = self.get_object_or_fail(SalesPhase, name=sp2_name)
+        self.assertEqual(max_order + 1, sp2.order)
+
+        opp2 = self.get_object_or_fail(Opportunity, name='Opp02')
+        self.assertEqual(user, opp2.user)
+        self.assertEqual(100,  opp2.estimated_sales)
+        self.assertEqual(200,  opp2.made_sales)
+        self.assertEqual(sp2,  opp2.sales_phase)
+        self.assertEqual(self.get_object_or_fail(Organisation, name=target2_name),
+                         opp2.target
+                        )
+
+        opp3 = self.get_object_or_fail(Opportunity, name='Opp03')
+        self.assertEqual(target3, opp3.target)
+
+        opp4 = self.get_object_or_fail(Opportunity, name='Opp04')
+        self.assertEqual(self.get_object_or_fail(Contact, last_name=target4_last_name),
+                         opp4.target
+                        )
+
+        opp5 = self.get_object_or_fail(Opportunity, name='Opp05')
+        self.assertEqual(sp5, opp5.sales_phase)
+
+    def test_csv_import02(self):
+        "SalesPhase creation forbidden by the user"
+        user = self.login()
+
+        count = Opportunity.objects.count()
+
+        emitter = Organisation.objects.filter(is_managed=True)[0]
+        target1 = Organisation.objects.create(user=user, name='Acme')
+
+        sp1_name = 'IAmNotSupposedToAlreadyExist'
+        self.assertFalse(SalesPhase.objects.filter(name=sp1_name))
+
+        lines = [('Opp01', sp1_name, '1000', '2000', target1.name, '')]
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Opportunity),
+                                    follow=True,
+                                    data=dict(self.lvimport_data,
+                                              document=doc.id,
+                                              user=user.id,
+                                              emitter=emitter.id,
+
+                                              name_colselect=1,
+                                              estimated_sales_colselect=3,
+                                              made_sales_colselect=4,
+
+                                              sales_phase_colselect=2,
+                                              sales_phase_subfield='name',
+                                              sales_phase_create='',  # <=======
+                                              # sales_phase_defval=[...],  # <=======
+
+                                              target_persons_organisation_colselect=5,
+                                              target_persons_organisation_create=True,
+                                              target_persons_contact_colselect=6,
+                                              target_persons_contact_create=True,
+                                             )
+                                     )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+
+        self.assertEqual(count, Opportunity.objects.count())
+        self.assertFalse(SalesPhase.objects.filter(name=sp1_name).count())
+
+        results = self._get_job_results(job)
+        self.assertEqual(1, len(results))
+
+        result = results[0]
+        self.assertIsNone(result.entity)
+        # 2 errors: retrieving of SalesPhase failed, creation of Opportunity failed
+        self.assertEqual(2, len(result.messages))
+
+        vname = _('Opportunity')
+        self.assertEqual([_('No «{model}» has been created.').format(model=vname),
+                          _('No «{model}» has been updated.').format(model=vname),
+                          ungettext('{count} line in the file.',
+                                    '{count} lines in the file.',
+                                    1
+                                   ).format(count=1),
+                         ],
+                         job.stats
+                        )
+
+    def test_csv_import03(self):
+        "SalesPhase is required"
+        user = self.login()
+
+        emitter = Organisation.objects.filter(is_managed=True)[0]
+        target  = Organisation.objects.create(user=user, name='Acme')
+
+        lines = [('Opp01', '1000', '2000', target.name)]
+        doc = self._build_csv_doc(lines)
+        response = self.assertPOST200(self._build_import_url(Opportunity),
+                                      data=dict(self.lvimport_data,
+                                                document=doc.id,
+                                                user=user.id,
+                                                emitter=emitter.id,
+
+                                                name_colselect=1,
+                                                estimated_sales_colselect=2,
+                                                made_sales_colselect=3,
+
+                                                sales_phase_colselect=0,  # <=======
+                                                sales_phase_subfield='name',
+                                                sales_phase_create='',
+                                                # sales_phase_defval=[...],
+
+                                                target_persons_organisation_colselect=4,
+                                                target_persons_organisation_create='',
+                                                target_persons_contact_colselect=0,
+                                                target_persons_contact_create='',
+                                               )
+                                     )
+        self.assertFormError(response, 'form', 'sales_phase',
+                             _('This field is required.')
+                            )
+
+    def test_csv_import04(self):
+        "Creation of Organisation/Contact is not wanted"
+        user = self.login()
+
+        count = Opportunity.objects.count()
+        emitter = Organisation.objects.filter(is_managed=True)[0]
+
+        orga_name = 'NERV'
+        contact_name = 'Ikari'
+        lines = [('Opp01', 'SP name', '1000', '2000', orga_name, ''),
+                 ('Opp02', 'SP name', '1000', '2000', '',        contact_name),
+                ]
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Opportunity),
+                                    follow=True,
+                                    data=dict(self.lvimport_data,
+                                              document=doc.id,
+                                              user=user.id,
+                                              emitter=emitter.id,
+
+                                              name_colselect=1,
+                                              estimated_sales_colselect=3,
+                                              made_sales_colselect=4,
+
+                                              sales_phase_colselect=2,
+                                              sales_phase_subfield='name',
+                                              sales_phase_create=True,
+
+                                              target_persons_organisation_colselect=5,
+                                              target_persons_organisation_create='',  # <===
+                                              target_persons_contact_colselect=6,
+                                              target_persons_contact_create='',  # <===
+                                             )
+                                   )
+        self.assertNoFormError(response)
+
+        self._execute_job(response)
+
+        self.assertEqual(count, Opportunity.objects.count())
+        self.assertFalse(Organisation.objects.filter(name=orga_name))
+        self.assertFalse(Contact.objects.filter(last_name=contact_name))
+
+        # TODO
+        # errors = list(form.import_errors)
+        # self.assertEqual(4, len(errors)) #4 errors: retrieving of Organisation/Contact failed, creation of Opportunities failed
+        # self.assertIn(_('Organisation'), errors[0].message)
+        # self.assertIn(_('Contact'),      errors[2].message)
+
+        # self.assertEqual(0, form.imported_objects_count)
+
+    @override_settings(MAX_JOBS_PER_USER=2)
+    def test_csv_import05(self):
+        "Creation credentials for Organisation & SalesPhase are forbidden."
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'documents', 'opportunities'],
+                   creatable_models=[Opportunity, get_document_model()],  # Not Organisation
+                  )
+        role = self.role
+        SetCredentials.objects.create(role=role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+        # TODO: factorise
+        emitter = Organisation.objects.filter(is_managed=True)[0]
+        doc = self._build_csv_doc([('Opp01', '1000', '2000', 'Acme', 'New phase')])
+        url = self._build_import_url(Opportunity)
+        data = dict(self.lvimport_data,
+                    document=doc.id,
+                    user=self.user.id,
+                    emitter=emitter.id,
+
+                    name_colselect=1,
+                    estimated_sales_colselect=2,
+                    made_sales_colselect=3,
+
+                    sales_phase_colselect=5,
+                    sales_phase_subfield='name',
+                    sales_phase_create=True,
+
+                    target_persons_organisation_colselect=4,
+                    # target_persons_organisation_create=True,
+                    target_persons_contact_colselect=0,
+                    target_persons_contact_create='',
+                   )
+
+        response = self.client.post(url, data=dict(data, target_persons_organisation_create=True))
+        self.assertFormError(response, 'form', 'target',
+                             _('You are not allowed to create: %(model)s') % {
+                                    'model': _('Organisation'),
+                                }
+                            )
+        self.assertFormError(response, 'form', 'sales_phase',
+                             'You can not create instances'
+                            )
+
+        role.admin_4_apps = ['opportunities']
+        role.save()
+        response = self.client.post(url, follow=True, data=data)
+        self.assertNoFormError(response)
+
+        role.creatable_ctypes.add(ContentType.objects.get_for_model(Organisation))
+        response = self.client.post(url, follow=True,
+                                    data=dict(data, target_persons_organisation_create=True),
+                                   )
+        self.assertNoFormError(response)
+
+    @skipIfCustomOrganisation
+    def test_csv_import06(self):
+        "Update"
+        user = self.login()
+
+        opp1, target1, emitter = self._create_opportunity_n_organisations()
+        target2 = Organisation.objects.create(user=user, name='Acme')
+
+        count = Opportunity.objects.count()
+
+        phase1 = SalesPhase.objects.create(name='Testphase - test_csv_import06 #1')
+        phase2 = SalesPhase.objects.create(name='Testphase - test_csv_import06 #2')
+
+        opp1.sales_phase = phase1
+        opp1.save()
+
+        doc = self._build_csv_doc([(opp1.name, '1000', '2000', target2.name, phase1.name),  # Should be updated
+                                   (opp1.name, '1000', '2000', target2.name, phase2.name),  # Phase is different => not updated
+                                  ]
+                                 )
+        response = self.client.post(self._build_import_url(Opportunity),
+                                    follow=True,
+                                    data=dict(self.lvimport_data,
+                                              document=doc.id,
+                                              user=user.id,
+                                              emitter=emitter.id,
+
+                                              key_fields=['name', 'sales_phase'],
+
+                                              name_colselect=1,
+                                              estimated_sales_colselect=2,
+                                              made_sales_colselect=3,
+
+                                              sales_phase_colselect=5,
+                                              sales_phase_subfield='name',
+
+                                              target_persons_organisation_colselect=4,
+                                              target_persons_organisation_create=True,
+                                              target_persons_contact_colselect=0,
+                                              target_persons_contact_create='',
+                                             )
+                                     )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self.assertEqual(count + 1, Opportunity.objects.count())
+
+        with self.assertNoException():
+            opp2 = Opportunity.objects.exclude(id=opp1.id).get(name=opp1.name)
+
+        self.assertEqual(target2, opp2.target)
+
+        self._assertNoResultError(self._get_job_results(job))
+
+        opp1 = self.refresh(opp1)
+        self.assertEqual(target2, opp1.target)

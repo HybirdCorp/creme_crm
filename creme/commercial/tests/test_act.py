@@ -17,7 +17,7 @@ try:
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.opportunities.models import SalesPhase
-    from creme.opportunities.tests import skipIfCustomOpportunity
+    from creme.opportunities.tests.base import skipIfCustomOpportunity
 
     from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT, ACTIVITYTYPE_MEETING
     from creme.activities.tests.base import skipIfCustomActivity

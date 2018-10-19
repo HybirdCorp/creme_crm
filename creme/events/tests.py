@@ -22,7 +22,7 @@ try:
 
     from creme.opportunities import get_opportunity_model
     from creme.opportunities.models import SalesPhase
-    from creme.opportunities.tests import skipIfCustomOpportunity
+    from creme.opportunities.tests.base import skipIfCustomOpportunity
 
     from . import event_model_is_custom, get_event_model, constants
     from .models import EventType
