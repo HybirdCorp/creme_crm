@@ -24,6 +24,18 @@
             return dialogs;
         },
 
+        assertOpenedConfirmDialog: function(message) {
+            var dialogs = $('.ui-dialog');
+
+            equal(1, dialogs.length, 'is dialog opened');
+
+            if (message !== undefined) {
+                equal(message, $('.ui-dialog h4').text(), 'confirm dialog message');
+            }
+
+            return dialogs;
+        },
+
         assertOpenedAlertDialog: function(message, header) {
             var dialogs = $('.ui-dialog .ui-creme-dialog-warn');
 
