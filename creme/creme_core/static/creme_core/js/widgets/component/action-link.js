@@ -123,9 +123,9 @@ creme.action.ActionLink = creme.component.Component.sub({
         }
 
         var url = button.attr('href') || button.attr('data-action-url');
-        var enabled = button.is(':not(.is-disabled)');
         var actiontype = button.attr('data-action') || '';
         var isRunning = this.isRunning.bind(this);
+        var isDisabled = this.isDisabled.bind(this);
         var trigger = this.trigger.bind(this);
         var setRunning = function(state) {
                              this._running = state;
@@ -137,7 +137,7 @@ creme.action.ActionLink = creme.component.Component.sub({
         var builder = this._optActionBuilder(button, actiontype);
         var isvalid = Object.isFunc(builder);
 
-        if (isvalid && enabled) {
+        if (isvalid) {
             var handler = this._debounce(function(e) {
                 if (!isRunning()) {
                     var action = builder(url, actiondata.options, actiondata.data, e);
@@ -145,13 +145,10 @@ creme.action.ActionLink = creme.component.Component.sub({
                     if (Object.isNone(action) === false) {
                         trigger('action-link-start', url, actiondata.options || {}, actiondata.data || {}, e);
                         setRunning(true);
-                        action.one('done fail cancel error', function() {
+                        action.one('done fail cancel', function() {
                                    setRunning(false);
                                })
                               .one({
-                                  error: function(e, key, data, listener) {
-                                      trigger('action-link-error', Array.copy(arguments).slice(1), this);
-                                  },
                                   done: function() {
                                       trigger('action-link-done', Array.copy(arguments).slice(1), this);
                                   },
@@ -171,7 +168,10 @@ creme.action.ActionLink = creme.component.Component.sub({
             button.click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                handler(e);
+
+                if (!isDisabled()) {
+                    handler(e);
+                }
             });
         } else {
             button.addClass('is-disabled');
