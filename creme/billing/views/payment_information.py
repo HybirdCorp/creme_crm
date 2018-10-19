@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -71,20 +72,38 @@ class PaymentInformationEdition(generic.RelatedToEntityEdition):
 @login_required
 @permission_required('billing')
 @decorators.POST_only
+@atomic
 def set_default(request, payment_information_id, billing_id):
     pi = get_object_or_404(PaymentInformation, pk=payment_information_id)
-    billing_doc = get_object_or_404(CremeEntity, pk=billing_id).get_real_entity()
+    # billing_doc = get_object_or_404(CremeEntity, pk=billing_id).get_real_entity()
+
+    try:
+        entity = CremeEntity.objects.select_for_update().get(id=billing_id)
+    except CremeEntity.DoesNotExist as e:
+        raise Http404(str(e))
+
     user = request.user
 
-    if not isinstance(billing_doc, (billing.get_invoice_model(), billing.get_quote_model(),
-                                    billing.get_sales_order_model(), billing.get_credit_note_model(),
-                                    billing.get_template_base_model(),
-                                   )
-                     ):
+    real_model = entity.entity_type.model_class()
+
+    # if not isinstance(billing_doc, (billing.get_invoice_model(), billing.get_quote_model(),
+    #                                 billing.get_sales_order_model(), billing.get_credit_note_model(),
+    #                                 billing.get_template_base_model(),
+    #                                )
+    #                  ):
+    if real_model not in {billing.get_invoice_model(),
+                          billing.get_quote_model(),
+                          billing.get_sales_order_model(),
+                          billing.get_credit_note_model(),
+                          billing.get_template_base_model(),
+                         }:
         raise Http404('This entity is not a billing document')
 
-    if FieldsConfig.get_4_model(billing_doc.__class__).is_fieldname_hidden('payment_info'):
+    # if FieldsConfig.get_4_model(billing_doc.__class__).is_fieldname_hidden('payment_info'):
+    if FieldsConfig.get_4_model(real_model).is_fieldname_hidden('payment_info'):
         raise ConflictError('The field "payment_info" is hidden.')
+
+    billing_doc = entity.get_real_entity()
 
     organisation = pi.get_related_entity()
     user.has_perm_to_view_or_die(organisation)
