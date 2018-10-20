@@ -27,6 +27,8 @@ from json import dumps as jsondumps
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.db.transaction import atomic
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.timezone import now, make_naive, get_current_timezone
@@ -233,6 +235,7 @@ def get_users_activities(request):
 @permission_required('activities')
 @jsonify
 @decorators.POST_only
+@atomic
 def update_activity_date(request):
     POST = request.POST
 
@@ -243,7 +246,12 @@ def update_activity_date(request):
 
     is_all_day = is_all_day.lower() in {'1', 'true'} if is_all_day else False
 
-    activity = Activity.objects.get(pk=act_id)
+    # activity = Activity.objects.get(pk=act_id)
+    try:
+        activity = Activity.objects.select_for_update().get(pk=act_id)
+    except Activity.DoesNotExist as e:
+        raise Http404(str(e)) from e
+
     request.user.has_perm_to_change_or_die(activity)
 
     # This view is used when drag and dropping event comming from calendar
@@ -307,6 +315,7 @@ class CalendarEdition(generic.CremeModelEditionPopup):
 @login_required
 @permission_required('activities')
 @jsonify
+@decorators.POST_only
 def delete_user_calendar(request):
     # TODO: Adding the possibility to transfer activities
     calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
