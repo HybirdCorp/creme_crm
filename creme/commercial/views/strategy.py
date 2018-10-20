@@ -20,6 +20,7 @@
 
 import warnings
 
+from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect  # render
 from django.urls import reverse
@@ -30,6 +31,7 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404, jsonify
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import POST_only
 
 from creme.persons import get_organisation_model
 
@@ -368,10 +370,17 @@ class OrgaSynthesis(BaseEvaluatedOrganisationView):
     template_name = 'commercial/orga_synthesis.html'
 
 
+@POST_only
 @login_required
 @permission_required('commercial')
+@atomic
 def _set_score(request, strategy_id, method_name):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
+    # strategy = get_object_or_404(Strategy, pk=strategy_id)
+    try:
+        strategy = Strategy.objects.select_for_update().get(pk=strategy_id)
+    except Strategy.DoesNotExist as e:
+        raise Http404(str(e)) from e
+
     request.user.has_perm_to_change_or_die(strategy)
 
     POST = request.POST
@@ -396,10 +405,17 @@ def set_charm_score(request, strategy_id):
     return _set_score(request, strategy_id, 'set_charm_score')
 
 
+@POST_only
 @login_required
 @permission_required('commercial')
+@atomic
 def set_segment_category(request, strategy_id):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
+    # strategy = get_object_or_404(Strategy, pk=strategy_id)
+    try:
+        strategy = Strategy.objects.select_for_update().get(pk=strategy_id)
+    except Strategy.DoesNotExist as e:
+        raise Http404(str(e)) from e
+
     request.user.has_perm_to_change_or_die(strategy)
 
     POST = request.POST
