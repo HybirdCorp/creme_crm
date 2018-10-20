@@ -31,7 +31,7 @@ from creme.creme_core.utils import find_first
 from creme.persons import get_organisation_model
 from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
 
-from creme.opportunities.forms.opportunity import OpportunityCreateForm
+from creme.opportunities.forms.opportunity import OpportunityCreationForm  #OpportunityCreateForm
 
 from .. import get_event_model
 from .. import constants
@@ -135,14 +135,15 @@ class AddContactsToEventForm(CremeForm):
         return event
 
 
-class RelatedOpportunityCreateForm(OpportunityCreateForm):
+# class RelatedOpportunityCreateForm(OpportunityCreateForm):
+class RelatedOpportunityCreateForm(OpportunityCreationForm):
     # def __init__(self, *args, **kwargs):
     def __init__(self, event, contact, *args, **kwargs):
         # super(RelatedOpportunityCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         # initial = self.initial
-        fields  = self.fields
+        fields = self.fields
 
         # self.event = event = initial['event']
         self.event = event
