@@ -22,7 +22,8 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.db import DatabaseError
-from django.http import HttpResponse
+from django.db.transaction import atomic
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -202,13 +203,19 @@ class UserDeletion(BaseUserEdition):
 @login_required
 @superuser_required
 @POST_only
+@atomic
 def deactivate(request, user_id):
     user = request.user
 
     if int(user_id) == user.id:
         raise ConflictError(ugettext("You can't deactivate the current user."))
 
-    user_to_deactivate = get_object_or_404(get_user_model(), pk=user_id)
+    # user_to_deactivate = get_object_or_404(get_user_model(), pk=user_id)
+    User = get_user_model()
+    try:
+        user_to_deactivate = User.objects.select_for_update().get(pk=user_id)
+    except User.DoesNotExist as e:
+        raise Http404(str(e)) from e
 
     if user_to_deactivate.is_staff and not user.is_staff:
         return HttpResponse(ugettext("You can't deactivate a staff user."), status=400)
@@ -223,8 +230,14 @@ def deactivate(request, user_id):
 @login_required
 @superuser_required
 @POST_only
+@atomic
 def activate(request, user_id):
-    user_to_activate = get_object_or_404(get_user_model(), pk=user_id)
+    # user_to_activate = get_object_or_404(get_user_model(), pk=user_id)
+    User = get_user_model()
+    try:
+        user_to_activate = User.objects.select_for_update().get(pk=user_id)
+    except User.DoesNotExist as e:
+        raise Http404(str(e)) from e
 
     if user_to_activate.is_staff and not request.user.is_staff:
         return HttpResponse(ugettext("You can't activate a staff user."), status=400)

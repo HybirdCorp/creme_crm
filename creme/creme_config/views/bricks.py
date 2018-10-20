@@ -533,9 +533,15 @@ class RelationCTypeBrickEdition(EntityCTypeRelatedMixin, base.BaseConfigEdition)
 @POST_only
 @login_required
 @permission_required('creme_core.can_admin')
+@atomic
 def delete_cells_of_rtype_brick(request, rbi_id):
     ctype = get_ct_or_404(get_from_POST_or_404(request.POST, 'id'))
-    rbi = get_object_or_404(RelationBrickItem, id=rbi_id)
+    # rbi = get_object_or_404(RelationBrickItem, id=rbi_id)
+
+    try:
+        rbi = RelationBrickItem.objects.select_for_update().get(pk=rbi_id)
+    except RelationBrickItem.DoesNotExist as e:
+        raise Http404(str(e)) from e
 
     try:
         rbi.delete_cells(ctype)
