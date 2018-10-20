@@ -21,7 +21,7 @@
 import warnings
 
 from django.db.transaction import atomic
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _  # ugettext
 
@@ -440,14 +440,21 @@ class ObjectiveEdition(generic.RelatedToEntityEdition):
 @login_required
 @permission_required('commercial')
 def incr_objective_counter(request, objective_id):
-    objective = get_object_or_404(ActObjective, pk=objective_id)
-    request.user.has_perm_to_change_or_die(objective.act)
+    incr = get_from_POST_or_404(request.POST, 'diff', int)
 
-    if objective.ctype:
-        raise ConflictError('This objective is a relationship counter.')
+    with atomic():
+        try:
+            objective = ActObjective.objects.select_for_update().get(pk=objective_id)
+        except ActObjective.DoesNotExist as e:
+            raise Http404(str(e)) from e
 
-    objective.counter += get_from_POST_or_404(request.POST, 'diff', int)
-    objective.save()
+        request.user.has_perm_to_change_or_die(objective.act)
+
+        if objective.ctype:
+            raise ConflictError('This objective is a relationship counter.')
+
+        objective.counter += incr
+        objective.save()
 
     return HttpResponse()
 
