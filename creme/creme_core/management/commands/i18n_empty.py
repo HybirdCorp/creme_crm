@@ -46,6 +46,18 @@ class _POFileInfo:
         return '{} ({})'.format(self.app_label, self.file_path)
 
 
+class _EntryInfo:
+    __slots__ = ('app_label', 'file_path', 'linenum')
+
+    def __init__(self, app_label, file_path, linenum):
+        self.app_label = app_label
+        self.file_path = file_path
+        self.linenum = linenum
+
+    def __str__(self):
+        return '{} ({} l.{})'.format(self.app_label, self.file_path, self.linenum)
+
+
 class Command(BaseCommand):
     help = "Find msgstr which are empty in all .po files of your project. " \
            "It's useful to keep a msgid translated only once in your project." \
@@ -107,22 +119,29 @@ class Command(BaseCommand):
 
         for app_pofinfo in self._iter_pofiles(language, polib, file_name):
             for entry in app_pofinfo.pofile.untranslated_entries():
-                untranslated_entries[entry.msgid].append(app_pofinfo)
+                untranslated_entries[(entry.msgctxt, entry.msgid)].append(
+                    _EntryInfo(app_label=app_pofinfo.app_label,
+                               file_path=app_pofinfo.file_path,
+                               linenum=entry.linenum,
+                              )
+                )
 
         for app_pofinfo in self._iter_pofiles(language, polib, file_name):
             for entry in app_pofinfo.pofile.translated_entries():
-                untranslated_entries.pop(entry.msgid, None)
+                untranslated_entries.pop((entry.msgctxt, entry.msgid), None)
 
         if not untranslated_entries:
             if verbosity >= 2:
                 self.stdout.write('No empty message.')
         else:
-            for msgid, entries_info in untranslated_entries.items():
-                self.stdout.write('\nmsgid="{msgid}"\n{entries}\n--------\n'.format(
-                                        msgid=msgid,
-                                        entries='\n'.join(' - {}'.format(entry_info) for entry_info in entries_info),
-                                    )
-                                 )
+            for (msgctxt, msgid), entries_info in untranslated_entries.items():
+                self.stdout.write(
+                    '{ctxt}\nmsgid "{msgid}"\n{entries}\n--------\n'.format(
+                        ctxt='\nmsgctxt "{}"'.format(msgctxt) if msgctxt is not None else '',
+                        msgid=msgid,
+                        entries='\n'.join(' - {}'.format(entry_info) for entry_info in entries_info),
+                    )
+                )
 
             if verbosity >= 1:
                 self.stdout.write('\nNumber of problems: {}'.format(len(untranslated_entries)))
