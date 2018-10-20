@@ -37,7 +37,7 @@ InstanceBrickConfigItemError = get_rgraph_model().InstanceBrickConfigItemError
 class GraphInstanceBrickForm(CremeForm):
     volatile_column = ChoiceField(label=_('Volatile column'), choices=(), required=False,
                                   widget=DynamicSelect(attrs={'autocomplete': True}),
-                                  help_text=_('When the graph is displayed on the detailview of an entity, '
+                                  help_text=_('When the graph is displayed on the detail-view of an entity, '
                                               'only the entities linked to this entity by the following link '
                                               'are used to compute the graph.'
                                              ),

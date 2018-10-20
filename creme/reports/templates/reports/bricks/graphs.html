@@ -111,8 +111,17 @@
                     <span class="graph-relation-entity">{{volatile_column}}</span>
                 </div>
                 {% endif %}
+                <div class="graph-action">
+                {% with bricks_count=graph.instance_bricks_count %}{% blocktrans count count=bricks_count asvar popup_label %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                    {% if bricks_count %}{% url 'reports__instance_bricks_info' graph.id as view_bricks_url %}
+                        {% brick_table_action id='view' url=view_bricks_url label=popup_label display='both' __title=graph %}
+                    {% else  %}
+                        <span class="empty">{% trans "(No block currently)" %}</span>
+                    {% endif  %}
+                {% endwith %}
+                </div>
                 <div class="graph-action">{% url 'reports__create_instance_brick' graph.id as create_brick_url %}
-                    {% brick_action id='add' url=create_brick_url label=_('Create a block with this graph') display='both' enabled=admin_perm %}
+                    {% brick_table_action id='add' url=create_brick_url label=_('Create a block with this graph') display='both' enabled=admin_perm %}
                 </div>
             </div>
             <div>

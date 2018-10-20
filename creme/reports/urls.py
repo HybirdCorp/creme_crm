@@ -43,6 +43,10 @@ urlpatterns = [
         bricks.GraphInstanceBrickCreation.as_view(),
         name='reports__create_instance_brick',
     ),
+    url(r'^graph/(?P<graph_id>\d+)/bricks[/]?$',
+        bricks.GraphInstanceBricks.as_view(),
+        name='reports__instance_bricks_info',
+    ),
 ]
 
 if not report_model_is_custom():

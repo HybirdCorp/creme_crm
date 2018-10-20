@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 18:51+0200\n"
+"POT-Creation-Date: 2018-10-19 00:22+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -543,6 +543,7 @@ msgstr "Fuseau horaire : {}"
 #: templates/creme_config/bricks/base/bricklocations-mypage.html:11
 #: templates/creme_config/bricks/bricklocations-home.html:17
 #: templates/creme_config/bricks/custombricks-configs.html:17
+#: templates/creme_config/bricks/instancebricks-configs.html:11
 #: templates/creme_config/bricks/teams.html:24
 msgid "Name"
 msgstr "Nom"
@@ -680,7 +681,7 @@ msgstr "Supprimer la configuration"
 msgid "Configured types of resource"
 msgstr "Types de ressource configurés"
 
-#: templates/creme_config/bricks/button-menu.html:12 views/button_menu.py:56
+#: templates/creme_config/bricks/button-menu.html:12 views/button_menu.py:59
 msgid "New buttons configuration"
 msgstr "Nouvelle configuration de boutons"
 
@@ -736,7 +737,7 @@ msgid "No type requires configuration"
 msgstr "Aucun type ne nécessite de configuration"
 
 #: templates/creme_config/bricks/custom-fields.html:12
-#: views/custom_fields.py:46
+#: views/custom_fields.py:47
 msgid "New custom field configuration"
 msgstr "Nouvelle configuration de champ personnalisé"
 
@@ -771,7 +772,7 @@ msgid "Custom blocks"
 msgstr "Blocs personnalisés"
 
 #: templates/creme_config/bricks/custombricks-configs.html:12
-#: views/bricks.py:162
+#: views/bricks.py:165
 msgid "New custom block"
 msgstr "Nouveau bloc personnalisé"
 
@@ -786,7 +787,7 @@ msgid "Edit this type of block"
 msgstr "Modifier ce type de bloc"
 
 #: templates/creme_config/bricks/custombricks-configs.html:36
-#: templates/creme_config/bricks/instancebricks-configs.html:28
+#: templates/creme_config/bricks/instancebricks-configs.html:29
 #: templates/creme_config/bricks/relationbricks-configs.html:29
 msgid "Delete this type of block"
 msgstr "Supprimer ce type de bloc"
@@ -853,15 +854,11 @@ msgstr "{count} Blocs d'instance créés"
 msgid "Instances' blocks"
 msgstr "Bloc d'instance"
 
-#: templates/creme_config/bricks/instancebricks-configs.html:11
-msgid "Related entity"
-msgstr "Fiche concernée"
-
 #: templates/creme_config/bricks/instancebricks-configs.html:12
 msgid "Errors"
 msgstr "Erreurs"
 
-#: templates/creme_config/bricks/instancebricks-configs.html:35
+#: templates/creme_config/bricks/instancebricks-configs.html:36
 msgid "No type of instance block created for the moment"
 msgstr "Aucun bloc d'instance créé pour le moment"
 
@@ -885,7 +882,7 @@ msgid "Types of property"
 msgstr "Types de propriété"
 
 #: templates/creme_config/bricks/property-types.html:18
-#: views/creme_property_type.py:52
+#: views/creme_property_type.py:55
 msgid "New custom type of property"
 msgstr "Nouveau type de propriété personnalisé"
 
@@ -939,7 +936,7 @@ msgid "{count} Standard types of relation"
 msgstr "{count} Types de relation standard"
 
 #: templates/creme_config/bricks/relation-types.html:17
-#: views/relation_type.py:51
+#: views/relation_type.py:54
 msgid "New custom type"
 msgstr "Nouveau type personnalisé"
 
@@ -1452,88 +1449,88 @@ msgstr "Accueil"
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
-#: views/bricks.py:83 views/bricks.py:237 views/bricks.py:442
-#: views/button_menu.py:53 views/history.py:44
+#: views/bricks.py:86 views/bricks.py:240 views/bricks.py:445
+#: views/button_menu.py:56 views/history.py:45
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
-#: views/bricks.py:98
+#: views/bricks.py:101
 #, python-brace-format
 msgid "New block configuration for «{model}»"
 msgstr "Nouvelle configuration de bloc pour «{model}»"
 
-#: views/bricks.py:152 views/bricks.py:438 views/button_menu.py:49
+#: views/bricks.py:155 views/bricks.py:441 views/button_menu.py:52
 #: views/fields_config.py:72
 msgctxt "creme_config-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
 # Already in creme_core
-#: views/bricks.py:158 views/bricks.py:441 views/button_menu.py:52
+#: views/bricks.py:161 views/bricks.py:444 views/button_menu.py:55
 #: views/fields_config.py:81
 msgid "Previous step"
 msgstr ""
 
-#: views/bricks.py:159
+#: views/bricks.py:162
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: views/bricks.py:293
+#: views/bricks.py:296
 #, python-brace-format
 msgid "Edit configuration of super-users for «{model}»"
 msgstr "Modifier la configuration des super-utilisateurs pour «{model}»"
 
-#: views/bricks.py:295
+#: views/bricks.py:298
 #, python-brace-format
 msgid "Edit configuration of «{role}» for «{model}»"
 msgstr "Modifier la configuration de «{role}» pour «{model}»"
 
-#: views/bricks.py:300
+#: views/bricks.py:303
 #, python-brace-format
 msgid "Edit default configuration for «{model}»"
 msgstr "Modifier la configuration par défaut pour «{model}»"
 
-#: views/bricks.py:302 views/button_menu.py:151
+#: views/bricks.py:305 views/button_menu.py:154
 msgid "Edit default configuration"
 msgstr "Modifier la configuration par défaut"
 
-#: views/bricks.py:378 views/bricks.py:559
+#: views/bricks.py:381 views/bricks.py:562
 msgid "Edit the block «{}»"
 msgstr "Modifier le bloc «{}»"
 
-#: views/bricks.py:379
+#: views/bricks.py:382
 msgid "Edit home configuration"
 msgstr "Modifier la configuration de l'accueil"
 
-#: views/bricks.py:419
+#: views/bricks.py:422
 msgid "Edit default \"My page\""
 msgstr "Modifier le \"Ma page\" par défaut"
 
-#: views/bricks.py:427
+#: views/bricks.py:430
 msgid "Edit \"My page\""
 msgstr "Modifier \"Ma page\""
 
-#: views/bricks.py:459
+#: views/bricks.py:462
 #, python-brace-format
 msgid "New customised type for «{predicate}»"
 msgstr "Nouveau type personnalisé pour «{predicate}»"
 
-#: views/bricks.py:512
+#: views/bricks.py:515
 #, python-brace-format
 msgid "Edit «{model}» configuration"
 msgstr "Modifier la configuration de «{model}»"
 
-#: views/button_menu.py:149
+#: views/button_menu.py:152
 #, python-brace-format
 msgid "Edit configuration for «{model}»"
 msgstr "Modifier la configuration pour «{model}»"
 
-#: views/creme_property_type.py:87
+#: views/creme_property_type.py:90
 msgctxt "creme_config-property"
 msgid "Edit the type «{}»"
 msgstr "Modifier le type «{}»"
 
-#: views/custom_fields.py:71
+#: views/custom_fields.py:72
 #, python-brace-format
 msgid "New custom field for «{model}»"
 msgstr "Nouveau champ personnalisé pour «{model}»"
@@ -1551,16 +1548,16 @@ msgstr ""
 msgid "{} can not be deleted because of its dependencies."
 msgstr "{} ne peut pas être effacé à cause de ses dépendances."
 
-#: views/history.py:43
+#: views/history.py:44
 msgid "New relation types"
 msgstr "Nouveaux types de relation"
 
-#: views/relation_type.py:95
+#: views/relation_type.py:98
 msgctxt "creme_config-relationship"
 msgid "Edit the type «{}»"
 msgstr "Modifier le type «{}»"
 
-#: views/search.py:65
+#: views/search.py:68
 #, python-brace-format
 msgid "New search configuration for «{model}»"
 msgstr "Nouvelle configuration de recherche pour «{model}»"
@@ -1573,66 +1570,69 @@ msgstr "Changer le mot de passe pour «{}»"
 msgid "Save the team"
 msgstr "Enregistrer l'équipe"
 
-#: views/user.py:175
+#: views/user.py:177
 msgid "Delete «{}» and assign his entities to user"
 msgstr "Supprimer «{}» et réassigner ses fiches"
 
-#: views/user.py:176
+#: views/user.py:178
 msgid "Delete the user"
 msgstr "Supprimer l'utilisateur"
 
-#: views/user.py:182
+#: views/user.py:184
 msgid "You can't delete the current user."
 msgstr "Vous ne pouvez pas supprimer l'utilisateur courant."
 
-#: views/user.py:195
+#: views/user.py:197
 msgid "You cannot delete this user. [original error: {}]"
 msgstr "Vous ne pouvez pas supprimer cet utilisateur. [erreur d'origine : {}]"
 
-#: views/user.py:207
+#: views/user.py:209
 msgid "You can't deactivate the current user."
 msgstr "Vous ne pouvez pas désactiver l'utilisateur courant."
 
-#: views/user.py:212
+#: views/user.py:214
 msgid "You can't deactivate a staff user."
 msgstr "Vous ne pouvez pas désactiver un super administrateur."
 
-#: views/user.py:228
+#: views/user.py:230
 msgid "You can't activate a staff user."
 msgstr "Vous ne pouvez pas activer un super administrateur."
 
 # Already in creme_core
-#: views/user_role.py:118
+#: views/user_role.py:121
 msgid "Save the modifications"
 msgstr ""
 
-#: views/user_role.py:135
+#: views/user_role.py:138
 msgid "Edit «{}»"
 msgstr "Modifier «{}»"
 
-#: views/user_role.py:204
+#: views/user_role.py:207
 msgid "Add credentials to «{}»"
 msgstr "Ajouter des droits à «{}»"
 
-#: views/user_role.py:205
+#: views/user_role.py:208
 msgid "Add the credentials"
 msgstr "Ajouter les droits"
 
-#: views/user_role.py:235
+#: views/user_role.py:238
 msgid "Edit credentials for «{}»"
 msgstr "Modifier les droits de «{}»"
 
-#: views/user_role.py:268
+#: views/user_role.py:271
 msgid "Delete role «{}»"
 msgstr "Supprimer le rôle «{}»"
 
-#: views/user_role.py:269
+#: views/user_role.py:272
 msgid "Delete the role"
 msgstr "Supprimer le rôle"
 
-#: views/user_role.py:282
+#: views/user_role.py:285
 msgid "You cannot delete this role. [original error: {}]"
 msgstr "Vous ne pouvez pas supprimer ce rôle. [erreur d'origine : {}]"
+
+#~ msgid "Related entity"
+#~ msgstr "Fiche concernée"
 
 #~ msgid "Edit the type «{predicate}»"
 #~ msgstr "Modifier le type «{predicate}»"

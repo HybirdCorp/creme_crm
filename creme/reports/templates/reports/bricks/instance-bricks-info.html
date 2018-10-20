@@ -1,0 +1,26 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} reports-instance-bricks-info-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Block') plural=_('{count} Blocks') empty=_('Blocks') icon='graph' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Volatile column') status='primary' %}
+    {% brick_table_column title=_('Error') %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for ibci in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{ibci.fetcher.verbose_volatile_column}}</td>
+        <td>{{ibci.fetcher.error|default:'—'}}</td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No brick for this graph' %}
+{% endblock %}

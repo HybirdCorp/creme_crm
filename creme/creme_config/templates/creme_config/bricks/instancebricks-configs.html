@@ -8,20 +8,21 @@
 {% endblock %}
 
 {% block brick_table_columns %}
-    {% brick_table_column title=_('Related entity') status='primary nowrap' class='instancebrick-config-entity' %}
-    {% brick_table_column title=_('Errors')                                 class='instancebrick-config-errors' %}
-    {% brick_table_column title=_('Action')         status='action' %}
+    {% brick_table_column title=_('Name')   status='primary nowrap' class='instancebrick-config-name' %}
+    {% brick_table_column title=_('Errors')                         class='instancebrick-config-errors' %}
+    {% brick_table_column title=_('Action') status='action' %}
 {% endblock %}
 
 {% block brick_table_rows %}
 {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_instance_brick' as delete_url %}
     {% for brick_type in page.object_list %}
     <tr>
-        <td {% brick_table_data_status primary %} class="instancebrick-config-entity"><a href="{{brick_type.entity.get_absolute_url}}">{{brick_type}}</a></td>
+        <td {% brick_table_data_status primary %} class="instancebrick-config-name"><a href="{{brick_type.entity.get_absolute_url}}">{{brick_type}}</a></td>
         <td class="instancebrick-config-errors">
             {% for error in brick_type.errors %}
                 {% if not forloop.first %}, {% endif %}
                 <span>{{error}}</span>
+            {% empty %}—
             {% endfor %}
         </td>
         <td {% brick_table_data_status action %}>

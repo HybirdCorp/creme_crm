@@ -2148,7 +2148,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual('instanceblock_reports-graph|{}-'.format(rgraph.id), ibci.brick_id)
         self.assertEqual('', ibci.data)
 
-        volatile = pgettext('reports-volatile_choice', 'None')
+        # volatile = pgettext('reports-volatile_choice', 'None')
+        volatile = _('No volatile column')
         self.assertEqual('{} - {}'.format(rgraph.name, volatile),
                          ReportGraphBrick(ibci).verbose_name
                         )
@@ -2169,7 +2170,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual('instanceblock_reports-graph|{}-'.format(rgraph.id), ibci.brick_id)
         self.assertEqual('', ibci.data)
 
-        volatile = pgettext('reports-volatile_choice', 'None')
+        # volatile = pgettext('reports-volatile_choice', 'None')
+        volatile = _('No volatile column')
         self.assertEqual('{} - {}'.format(rgraph.name, volatile),
                          ReportGraphBrick(ibci).verbose_name
                         )
@@ -2203,7 +2205,11 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertIsNone(create_ibci(volatile_field='user'))  # Not FK to CremeEntity
         self.assertIsNone(create_ibci(volatile_field='folder__title'))  # Depth > 1
 
-        self.assertEqual('{} - {}' .format(rgraph.name, _('Folder')),
+        # self.assertEqual('{} - {}' .format(rgraph.name, _('Folder')),
+        self.assertEqual('{} - {}' .format(
+                            rgraph.name,
+                            _('{field} (Field)').format(field=_('Folder')),
+                         ),
                          ReportGraphBrick(ibci).verbose_name
                         )
 
@@ -2229,13 +2235,16 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                          ibci.brick_id
                         )
         self.assertEqual('{}|{}'.format(rtype.id, RFT_RELATION), ibci.data)
-        self.assertEqual('{} - {}'.format(rgraph.name, rtype),
+        fmt = _('{rtype} (Relationship)').format
+        # self.assertEqual('{} - {}'.format(rgraph.name, rtype),
+        self.assertEqual('{} - {}'.format(rgraph.name, fmt(rtype=rtype)),
                          ReportGraphBrick(ibci).verbose_name
                         )
 
         rtype.predicate = 'likes'
         rtype.save()
-        self.assertEqual('{} - {}'.format(rgraph.name, rtype),
+        # self.assertEqual('{} - {}'.format(rgraph.name, rtype),
+        self.assertEqual('{} - {}'.format(rgraph.name, fmt(rtype=rtype)),
                          ReportGraphBrick(ibci).verbose_name
                         )
 
@@ -2266,7 +2275,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual('', item.data)
         self.assertIsNone(item.errors)
 
-        title = '{} - {}'.format(rgraph.name, pgettext('reports-volatile_choice', 'None'))
+        # title = '{} - {}'.format(rgraph.name, pgettext('reports-volatile_choice', 'None'))
+        title = '{} - {}'.format(rgraph.name, _('No volatile column'))
         self.assertEqual(title, ReportGraphBrick(item).verbose_name)
 
         brick = item.brick
@@ -2277,10 +2287,15 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         # ---------------------------------------------------------------------
         response = self.assertPOST200(url)
         self.assertFormError(response, 'form', None,
-                             _('The instance block for "{graph}" with these parameters already exists!').format(
+                             _('The instance block for «{graph}» with these parameters already exists!').format(
                                      graph=rgraph.name,
                                 )
                             )
+        # ---------------------------------------------------------------------
+        response = self.assertGET200(reverse('reports__instance_bricks_info', args=(rgraph.id,)))
+        self.assertTemplateUsed(response, 'reports/instance-bricks.html')
+        self.assertEqual(rgraph, response.context.get('object'))
+
         # ---------------------------------------------------------------------
         # Display on home
         BrickHomeLocation.objects.all().delete()
@@ -2390,7 +2405,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                         )
         self.assertEqual('{}|{}'.format(fk_name, RFT_FIELD), item.data)
 
-        title = '{} - {}'.format(rgraph.name, _('Folder'))
+        # title = '{} - {}'.format(rgraph.name, _('Folder'))
+        title = '{} - {}'.format(rgraph.name, _('{field} (Field)').format(field=_('Folder')))
         self.assertEqual(title, ReportGraphBrick(item).verbose_name)
         self.assertEqual(title, str(item))
 
@@ -2561,7 +2577,11 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                          item.brick_id
                         )
         self.assertEqual('{}|{}'.format(rtype.id, RFT_RELATION), item.data)
-        self.assertEqual('{} - {}'.format(rgraph.name, rtype),
+        # self.assertEqual('{} - {}'.format(rgraph.name, rtype),
+        self.assertEqual('{} - {}'.format(
+                            rgraph.name,
+                            _('{rtype} (Relationship)').format(rtype=rtype),
+                         ),
                          ReportGraphBrick(item).verbose_name
                         )
 
