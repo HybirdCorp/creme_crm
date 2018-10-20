@@ -459,7 +459,7 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 
 /* InstanceBricksConfig brick */
 
-.creme_config-instances-bricks-brick .instancebrick-config-entity {
+.creme_config-instances-bricks-brick .instancebrick-config-name {
     width: 20%;
     white-space: nowrap;
 }

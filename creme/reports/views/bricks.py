@@ -24,7 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import InstanceBrickConfigItem
 # from creme.creme_core.views.generic.popup import inner_popup
-from creme.creme_core.views.generic import AddingToEntity
+from creme.creme_core.views import generic
 
 from .. import get_rgraph_model
 from ..forms.bricks import GraphInstanceBrickForm
@@ -54,7 +54,7 @@ from ..forms.bricks import GraphInstanceBrickForm
 #                        reload=False,
 #                        delegate_reload=True,
 #                       )
-class GraphInstanceBrickCreation(AddingToEntity):
+class GraphInstanceBrickCreation(generic.AddingToEntity):
     model = InstanceBrickConfigItem
     form_class = GraphInstanceBrickForm
     permissions = 'reports.can_admin'
@@ -65,3 +65,19 @@ class GraphInstanceBrickCreation(AddingToEntity):
 
     def check_related_entity_permissions(self, entity, user):
         pass  # NB: only admin credentials are needed
+
+    # TODO: method get_help_message() in base class ?
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_message'] = \
+            _('When you create a block, it becomes available in the blocks configuration. '
+              'It can be displayed on Home, on «My Page» & on the detail-views of entities.'
+             )
+
+        return context
+
+
+class GraphInstanceBricks(generic.RelatedToEntityDetail):
+    model = get_rgraph_model()
+    template_name = 'reports/instance-bricks.html'
+    pk_url_kwarg = 'graph_id'

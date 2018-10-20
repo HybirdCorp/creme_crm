@@ -1,0 +1,5 @@
+{% load creme_bricks %}
+<div data-bricks-reload-url="{% url 'creme_core__reload_detailview_bricks' object.id %}">
+{% brick_import app='reports' name='instance_bricks_info' as info_brick %}
+{% brick_display info_brick %}
+</div>

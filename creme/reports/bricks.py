@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import Counter
 # import warnings
 
 from django.utils.translation import ugettext_lazy as _
@@ -41,13 +42,12 @@ class ReportBarHatBrick(SimpleBrick):
 class ReportFieldsBrick(Brick):
     id_           = Brick.generate_id('reports', 'fields')
     dependencies  = (Field,)
-    verbose_name  = _(u'Columns of the report')
+    verbose_name  = _('Columns of the report')
     template_name = 'reports/bricks/fields.html'
     target_ctypes = (Report,)
 
     def detailview_display(self, context):
-        report = context['object']
-        columns = report.columns
+        columns = context['object'].columns
 
         return self._render(self.get_template_context(
                     context,
@@ -59,20 +59,49 @@ class ReportFieldsBrick(Brick):
 class ReportGraphsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('reports', 'graphs')
     dependencies  = (ReportGraph,)
-    verbose_name  = _(u"Report's graphs")
+    verbose_name  = _("Report's graphs")
     template_name = 'reports/bricks/graphs.html'
     order_by      = 'name'
     target_ctypes = (Report,)
 
     def detailview_display(self, context):
-        report = context['object']
+        btc = self.get_template_context(
+            context,
+            ReportGraph.objects.filter(linked_report=context['object']),
+            report_charts=report_chart_registry,
+        )
+        graphs = btc['page'].object_list
+        counter = Counter(
+            InstanceBrickConfigItem.objects
+                                   .filter(entity__in=[g.id for g in graphs])
+                                   .values_list('entity', flat=True)
+        )
 
-        return self._render(self.get_template_context(
-                    context,
-                    # ReportGraph.objects.filter(report=report),
-                    ReportGraph.objects.filter(linked_report=report),
-                    report_charts=report_chart_registry,
-        ))
+        for graph in graphs:
+            graph.instance_bricks_count = counter[graph.id]
+
+        return self._render(btc)
+
+
+class InstanceBricksInfoBrick(QuerysetBrick):
+    id_           = QuerysetBrick.generate_id('reports', 'instance_bricks_info')
+    dependencies  = (InstanceBrickConfigItem,)
+    verbose_name  = 'Instance bricks information'
+    template_name = 'reports/bricks/instance-bricks-info.html'
+    # order_by      = 'verbose'
+    configurable  = False
+
+    def detailview_display(self, context):
+        btc = self.get_template_context(
+            context,
+            InstanceBrickConfigItem.objects.filter(entity=context['object'].id),
+        )
+        get_fetcher = ReportGraph.get_fetcher_from_instance_brick
+
+        for ibci in btc['page'].object_list:
+            ibci.fetcher = get_fetcher(ibci)
+
+        return self._render(btc)
 
 
 class ReportGraphBrick(Brick):
@@ -111,7 +140,6 @@ class ReportGraphBrick(Brick):
         ))
 
     def detailview_display(self, context):
-        # x, y = self.fetcher.fetch_4_entity(context['object'])
         x, y = self.fetcher.fetch_4_entity(entity=context['object'],
                                            user=context['user'],
                                           )
@@ -125,7 +153,6 @@ class ReportGraphBrick(Brick):
     #     return self.home_display(context)
 
     def home_display(self, context):
-        # x, y = self.fetcher.fetch()
         x, y = self.fetcher.fetch(user=context['user'])
 
         return self._auxiliary_display(context=context, x=x, y=y)

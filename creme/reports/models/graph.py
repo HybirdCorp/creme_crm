@@ -36,17 +36,17 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractReportGraph(CremeEntity):
-    name     = CharField(pgettext_lazy('reports-graphs', u'Name of the graph'), max_length=100)
+    name     = CharField(pgettext_lazy('reports-graphs', 'Name of the graph'), max_length=100)
     linked_report = ForeignKey(settings.REPORTS_REPORT_MODEL, editable=False, on_delete=CASCADE)
-    abscissa = CharField(_(u'X axis'), max_length=100, editable=False)
-    ordinate = CharField(_(u'Y axis'), max_length=100, editable=False)
-    type     = PositiveIntegerField(_(u'Grouping'), editable=False, choices=GROUP_TYPES.items())
-    days     = PositiveIntegerField(_(u'Days'), blank=True, null=True)
-    is_count = BooleanField(_(u'Make a count instead of aggregate?'), default=False)  # TODO: 'count' function instead ?
-    chart    = CharField(_(u'Chart type'), max_length=100, null=True)
+    abscissa = CharField(_('X axis'), max_length=100, editable=False)
+    ordinate = CharField(_('Y axis'), max_length=100, editable=False)
+    type     = PositiveIntegerField(_('Grouping'), editable=False, choices=GROUP_TYPES.items())
+    days     = PositiveIntegerField(_('Days'), blank=True, null=True)
+    is_count = BooleanField(_('Make a count instead of aggregate?'), default=False)  # TODO: 'count' function instead ?
+    chart    = CharField(_('Chart type'), max_length=100, null=True)
 
-    creation_label = _(u"Create a report's graph")
-    save_label     = pgettext_lazy('reports-graphs', u'Save the graph')
+    creation_label = _("Create a report's graph")
+    save_label     = pgettext_lazy('reports-graphs', 'Save the graph')
 
     _hand = None
 
@@ -54,8 +54,8 @@ class AbstractReportGraph(CremeEntity):
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'reports'
-        verbose_name = _(u"Report's graph")
-        verbose_name_plural = _(u"Reports' graphs")
+        verbose_name = _("Report's graph")
+        verbose_name_plural = _("Reports' graphs")
         ordering = ['name']
 
     def __str__(self):
@@ -101,8 +101,7 @@ class AbstractReportGraph(CremeEntity):
         @param instance_brick_config: An instance of InstanceBrickConfigItem.
         @return A GraphFetcher instance.
         """
-        from ..core.graph import (GraphFetcher, RegularFieldLinkedGraphFetcher,
-                    RelationLinkedGraphFetcher)
+        from ..core import graph as core_graph
 
         # data = instance_block_config.data
         data = instance_brick_config.data
@@ -114,20 +113,20 @@ class AbstractReportGraph(CremeEntity):
                 rfield_type = int(rfield_type)
             except ValueError as e:
                 logger.warning('Instance block: invalid link type "%s" in block "%s" [%s].',
-                            # data, instance_block_config, e,
-                            data, instance_brick_config, e,
-                           )
+                               # data, instance_block_config, e,
+                               data, instance_brick_config, e,
+                              )
 
         # graph = instance_block_config.entity.get_real_entity()
         graph = instance_brick_config.entity.get_real_entity()
 
         # TODO: use a map/registry of GraphFetcher classes
         if rfield_type == RFT_FIELD:
-            fetcher = RegularFieldLinkedGraphFetcher(volatile_column, graph)
+            fetcher = core_graph.RegularFieldLinkedGraphFetcher(volatile_column, graph)
         elif rfield_type == RFT_RELATION:
-            fetcher = RelationLinkedGraphFetcher(volatile_column, graph)
+            fetcher = core_graph.RelationLinkedGraphFetcher(volatile_column, graph)
         else:
-            fetcher = GraphFetcher(graph)
+            fetcher = core_graph.GraphFetcher(graph)
 
         return fetcher
 
@@ -191,7 +190,7 @@ class AbstractReportGraph(CremeEntity):
 
         if InstanceBrickConfigItem.objects.filter(brick_id=brick_id).exists():
             raise self.InstanceBrickConfigItemError(
-                        ugettext(u'The instance block for "{graph}" with these parameters already exists!').format(graph=self)
+                        ugettext('The instance block for «{graph}» with these parameters already exists!').format(graph=self)
                     )
 
         ibci = InstanceBrickConfigItem(entity=self, brick_id=brick_id, data=key)

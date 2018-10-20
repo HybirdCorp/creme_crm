@@ -47,6 +47,7 @@ class ReportsConfig(CremeAppConfig):
 
         brick_registry.register(bricks.ReportFieldsBrick,
                                 bricks.ReportGraphsBrick,
+                                bricks.InstanceBricksInfoBrick,
                                )
         brick_registry.register_4_instance(bricks.ReportGraphBrick)
         brick_registry.register_hat(self.Report, main_brick_cls=bricks.ReportBarHatBrick)
