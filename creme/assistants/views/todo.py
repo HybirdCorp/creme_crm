@@ -18,11 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import get_object_or_404, redirect
+from django.db.transaction import atomic
+from django.http import Http404
+from django.shortcuts import redirect  # get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import POST_only
 
 from ..forms.todo import ToDoForm
 from ..models import ToDo
@@ -50,8 +53,15 @@ class ToDoEdition(generic.RelatedToEntityEdition):
 
 
 @login_required
+@POST_only
+@atomic
 def validate(request, todo_id):
-    todo = get_object_or_404(ToDo, pk=todo_id)
+    # todo = get_object_or_404(ToDo, pk=todo_id)
+    try:
+        todo = ToDo.objects.select_for_update().get(pk=todo_id)
+    except ToDo.DoesNotExist as e:
+        raise Http404(str(e)) from e
+
     entity = todo.creme_entity
 
     request.user.has_perm_to_change_or_die(entity)
