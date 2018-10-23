@@ -12,6 +12,10 @@
             equal(title, $('.ui-dialog .ui-dialog-title').text(), 'dialog title');
         },
 
+        assertDialogTitleHtml: function(html) {
+            this.equalHtml(html, $('.ui-dialog .ui-dialog-title'), 'dialog title html');
+        },
+
         assertOpenedDialog: function(message) {
             var dialogs = $('.ui-dialog');
 

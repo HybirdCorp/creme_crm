@@ -748,6 +748,7 @@ TEST_CREME_CORE_JS = ['testcore.js',
 
                         'creme_core/js/tests/dialog/qunit-dialog-mixin.js',
                         'creme_core/js/tests/dialog/dialog.js',
+                        'creme_core/js/tests/dialog/dialog-form.js',
                         'creme_core/js/tests/dialog/popover.js',
                         'creme_core/js/tests/dialog/glasspane.js',
 

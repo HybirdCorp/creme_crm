@@ -48,6 +48,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             scroll:     'frame',
             within:     $('.ui-dialog-within-container'),
             fitFrame:   true,
+            useFrameTitleBar: true,
             useFrameActions: true,
             closeOnEscape: false,
             scrollbackOnClose: false
@@ -95,6 +96,15 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         if (this.options.useFrameActions) {
             this.replaceButtons(this._orderedFrameActionButtons(this.options));
+        }
+
+        if (this.options.useFrameTitleBar) {
+            var dialogHeader = this._dialog.parents('.ui-dialog:first').find('.ui-dialog-titlebar .ui-dialog-title');
+            var header = $('.ui-creme-dialog-titlebar:first');
+
+            if (header.size() > 0) {
+                header.appendTo(dialogHeader.empty());
+            };
         }
 
         this.frame().activateContent();
@@ -343,7 +353,13 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         body.css('width', 'auto');
 
-        // console.log('preferred:', [preferredWidth, preferredHeight], 'computed', [width, height], 'real', this.size());
+        /*
+        console.log('previous:', [previousWidth, previousHeight],
+                    'preferred:', [preferredWidth, preferredHeight],
+                    'computed:', [width, height],
+                    'container:', [container.outerWidth(), container.outerHeight()],
+                    'real:', this.size());
+        */
     },
 
     center: function(constraint) {
@@ -362,7 +378,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     cssPosition: function() {
-        if (this.isOpened) {
+        if (this.isOpened()) {
             return this._dialogContainer().position();
         }
     },
@@ -480,6 +496,15 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this;
     },
 
+    title: function(title) {
+        if (title === undefined) {
+            return this._dialog.dialog('option', 'title');
+        }
+
+        this._dialog.dialog('option', 'title', title);
+        return this;
+    },
+
     onClose: function(closed) {
         this._events.bind('close', closed);
         return this;
@@ -577,6 +602,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     }
 });
 
+// TODO : Remove this hack later after finding a better way to do this in the bulk edit field selector.
 creme.dialog.redirect = function(url, from) {
     if (from === undefined) {
         creme.utils.redirect(url);
@@ -625,7 +651,7 @@ creme.dialogs = creme.dialogs || {};
 
 creme.dialogs = $.extend(creme.dialogs, {
     image: function(source, options) {
-        if (Object.isType(source, 'string')) {
+        if (Object.isString(source)) {
             var dialog = this.html('', options);
             var image = document.createElement("img");
 
@@ -770,7 +796,7 @@ creme.dialogs = $.extend(creme.dialogs, {
     }
 });
 
-/* 
+/*
  * Since jqueryui 1.10 some events are not allowed to get outside the popup.
  * So the custom Chosen widget will not work correctly (needs focus event on search field).
  */

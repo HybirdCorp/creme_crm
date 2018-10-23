@@ -46,6 +46,10 @@
                         equal(message, '' + error);
                         return true;
                    });
+        },
+
+        equalHtml: function(expected, element, message) {
+            QUnit.assert.equal($('<div>').append(expected).html(), element.html(), message);
         }
     };
 }(jQuery));
