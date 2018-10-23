@@ -792,6 +792,76 @@ span.ui-creme-datepicker-trigger {
     display: none;
 }
 
+.ui-dialog-content .ui-creme-dialog-header {
+    display: none;
+}
+
+.ui-dialog-titlebar .ui-dialog-title {
+    display: inline-flex;
+    color: #555;
+    text-transform: uppercase;
+}
+
+.ui-dialog-titlebar .ui-creme-dialog-header-icon {
+    height: 16px;
+    margin-right: 5px;
+}
+
+/* Dialog Hat-Bars */
+
+.ui-dialog-content .hat-bar-container .hat-bar .bar-title h1 {
+    font-size: 15px;
+}
+
+.ui-dialog-content .hat-bar-container .hat-bar .bar-icon img {
+    height: 20px;
+    width: 20px;
+    position: relative;
+    top: 2px;
+}
+
+.ui-dialog-content .table_detail_view thead,
+.ui-dialog-content form .table_detail_view .th_info {
+    font-size: 13px;
+}
+
+.ui-dialog-content div.hat-bar {
+    height: 30px;
+}
+
+.ui-dialog-content .hat-bar .bar-title h1 {
+    margin-top: 3px;
+}
+
+.ui-dialog-title .hat-bar-container {
+    padding: 0;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-title h1 {
+    font-size: 15px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-icon {
+    padding-right: 11px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-icon img {
+    height: 20px;
+    width: 20px;
+    position: relative;
+    top: 4px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar {
+    height: 24px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-title h1 {
+    margin-top: 3px;
+}
+
+/*----------------------------------*/
+
 /* Left-side menu overrides - until its removal */
 /* TODO: remove with old menu */
 

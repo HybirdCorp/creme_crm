@@ -653,6 +653,38 @@ span.ui-creme-datepicker-trigger {
     pointer-events: none;
 }
 
+/* Dialog Hat-Bars */
+
+.ui-dialog-title .hat-bar-container {
+    padding: 0;
+    background: none;
+    margin: 0;
+    border: 0;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-title h1 {
+    font-size: 15px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-icon {
+    padding-right: 11px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-icon img {
+    height: 20px;
+    width: 20px;
+    position: relative;
+    top: 4px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar {
+    height: 24px;
+}
+
+.ui-dialog-title .hat-bar-container .hat-bar .bar-title h1 {
+    margin-top: 3px;
+}
+
 /*----------------------------------*/
 select[readonly] {
     color: gray;

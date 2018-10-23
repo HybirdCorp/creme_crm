@@ -497,34 +497,6 @@ button {
 }
 */
 
-/* Dialogs */
-
-.ui-dialog-content .hat-bar-container .hat-bar .bar-title h1 {
-    font-size: 15px;
-}
-
-.ui-dialog-content .hat-bar-container .hat-bar .bar-icon img {
-    height: 20px;
-    width: 20px;
-    position: relative;
-    top: 2px;
-}
-
-.ui-dialog-content .table_detail_view thead,
-.ui-dialog-content form .table_detail_view .th_info {
-    font-size: 13px;
-}
-
-.ui-dialog-content div.hat-bar {
-    height: 30px;
-}
-
-.ui-dialog-content .hat-bar .bar-title h1 {
-    margin-top: 3px;
-}
-
-/* Dialogs - [end] */
-
 span.enumerator-item {
     font-weight: 800;
 }

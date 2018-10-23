@@ -45,6 +45,7 @@
 
     /* QUNIT MIXINS */
     "QUnitMixin": true,
+    "QUnitBaseMixin": true,
     "QUnitEventMixin": true,
     "QUnitAjaxMixin": true,
     "QUnitBrickMixin": true,
