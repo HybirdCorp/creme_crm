@@ -53,9 +53,6 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
 
             resetbutton.click(self._onRefreshLocation.bind(self));
             checkbox.change(self._onToggleLocation.bind(self));
-
-            // initialize map with current checkbox state.
-            self._toggleLocation(checkbox.val(), checkbox.is(':checked'));
         });
 
         controller.loadAPI({
@@ -78,7 +75,17 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
     _onCanvasStatus: function(event, status) {
         if (status) {
             this._addresses.forEach(this._geocodeAddress.bind(this));
+            this._initCanvasMarkers();
         }
+    },
+
+    _initCanvasMarkers: function() {
+        var _toggleLocation = this._toggleLocation.bind(this);
+
+        // initialize map with current checkbox state.
+        this.addressItems().find('input[type="checkbox"]').each(function() {
+            _toggleLocation($(this).val(), $(this).is(':checked'));
+        });
     },
 
     _onSaveLocation: function(event, address, marker, status) {
