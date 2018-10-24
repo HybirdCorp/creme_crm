@@ -271,8 +271,14 @@ def _format_previous_answered_question(preply_id, line, style):
 
 @login_required
 @permission_required('polls')
+@atomic
 def edit_line_wizard(request, preply_id, line_id):
-    preply = get_object_or_404(PollReply, pk=preply_id)
+    # preply = get_object_or_404(PollReply, pk=preply_id)
+    try:
+        preply = PollReply.objects.select_for_update().get(pk=preply_id)
+    except PollReply.DoesNotExist as e:
+        raise Http404(str(e))
+
     user = request.user
 
     user.has_perm_to_change_or_die(preply)
@@ -296,22 +302,22 @@ def edit_line_wizard(request, preply_id, line_id):
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
 
         if form.is_valid():
-            with atomic():
-                form.save()
+            # with atomic():
+            form.save()
 
-                # Optimize 'next_question_to_answer' & cie
-                PollReplyLine.populate_conditions([node for node in tree if not node.is_section])
+            # Optimize 'next_question_to_answer' & cie
+            PollReplyLine.populate_conditions([node for node in tree if not node.is_section])
 
-                _clear_dependant_answers(tree, line_node)
+            _clear_dependant_answers(tree, line_node)
 
-                if not tree.next_question_to_answer:
-                    is_complete = True
-                    url = preply.get_absolute_url()
-                else:
-                    is_complete = False
-                    url = reverse('polls__fill_reply', args=(preply_id,))
+            if not tree.next_question_to_answer:
+                is_complete = True
+                url = preply.get_absolute_url()
+            else:
+                is_complete = False
+                url = reverse('polls__fill_reply', args=(preply_id,))
 
-                update_model_instance(preply, is_complete=is_complete)
+            update_model_instance(preply, is_complete=is_complete)
 
             return HttpResponseRedirect(url)
     else:
@@ -333,8 +339,14 @@ def edit_line_wizard(request, preply_id, line_id):
 
 @login_required
 @permission_required('polls')
+@atomic
 def fill(request, preply_id):
-    preply = get_object_or_404(PollReply, pk=preply_id)
+    # preply = get_object_or_404(PollReply, pk=preply_id)
+    try:
+        preply = PollReply.objects.select_for_update().get(pk=preply_id)
+    except PollReply.DoesNotExist as e:
+        raise Http404(str(e))
+
     user = request.user
 
     user.has_perm_to_change_or_die(preply)
@@ -357,16 +369,16 @@ def fill(request, preply_id):
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
 
         if form.is_valid():
-            with atomic():
-                form.save()
+            # with atomic():
+            form.save()
 
-                next_line = tree.next_question_to_answer
+            next_line = tree.next_question_to_answer
 
-                if not next_line:
-                    preply.is_complete = True
-                    preply.save()
+            if not next_line:
+                preply.is_complete = True
+                preply.save()
 
-                    return redirect(preply)
+                return redirect(preply)
 
             previous_answer = _format_previous_answered_question(preply_id, line_node, NodeStyle())
             form = preply_forms.PollReplyFillForm(line_node=next_line, user=user)
