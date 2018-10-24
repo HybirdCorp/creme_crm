@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, BooleanField
+from django.db import models
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
@@ -32,27 +32,27 @@ DUPLICATED_PK = 4
 WONTFIX_PK    = 5
 
 BASE_STATUS = (
-    (OPEN_PK,        pgettext_lazy('tickets-status', u'Open')),
-    (CLOSED_PK,      pgettext_lazy('tickets-status', u'Closed')),
-    (INVALID_PK,     pgettext_lazy('tickets-status', u'Invalid')),
-    (DUPLICATED_PK,  pgettext_lazy('tickets-status', u'Duplicated')),
-    (WONTFIX_PK,     _(u"Won't fix")),
+    (OPEN_PK,        pgettext_lazy('tickets-status', 'Open')),
+    (CLOSED_PK,      pgettext_lazy('tickets-status', 'Closed')),
+    (INVALID_PK,     pgettext_lazy('tickets-status', 'Invalid')),
+    (DUPLICATED_PK,  pgettext_lazy('tickets-status', 'Duplicated')),
+    (WONTFIX_PK,     _("Won't fix")),
 )
 
 
 class Status(CremeModel):
     "Status of a ticket: open, closed, invalid..."
-    name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
-    is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
-    order     = BasicAutoField(_(u'Order'))  # Used by creme_config
+    name      = models.CharField(_('Name'), max_length=100, blank=False, null=False, unique=True)
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    order     = BasicAutoField(_('Order'))  # Used by creme_config
 
-    creation_label = pgettext_lazy('tickets-status', u'Create a status')
+    creation_label = pgettext_lazy('tickets-status', 'Create a status')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'tickets'
-        verbose_name = _(u'Ticket status')
-        verbose_name_plural = _(u'Ticket statuses')
+        verbose_name = _('Ticket status')
+        verbose_name_plural = _('Ticket statuses')
         ordering = ('order',)
