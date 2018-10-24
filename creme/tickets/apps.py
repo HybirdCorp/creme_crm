@@ -85,3 +85,13 @@ class TicketsConfig(CremeAppConfig):
     def register_smart_columns(self, smart_columns_registry):
         smart_columns_registry.register_model(self.Ticket).register_field('title') \
                                                           .register_field('status')
+
+    def register_statistics(self, statistics_registry):
+        from .models.status import CLOSED_PK
+
+        statistics_registry.register(
+            id='tickets-not_closed',
+            label=_('Tickets not closed'),
+            func=lambda: [self.Ticket.objects.exclude(status_id=CLOSED_PK).count()],
+            perm='tickets', priority=50,
+        )

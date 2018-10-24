@@ -47,8 +47,8 @@ class Populator(BasePopulator):
         Ticket = get_ticket_model()
         TicketTemplate = get_tickettemplate_model()
 
-        RelationType.create((constants.REL_SUB_LINKED_2_TICKET, _(u'is linked to the ticket')),
-                            (constants.REL_OBJ_LINKED_2_TICKET, _(u'(ticket) linked to the entity'), [Ticket]))
+        RelationType.create((constants.REL_SUB_LINKED_2_TICKET, _('is linked to the ticket')),
+                            (constants.REL_OBJ_LINKED_2_TICKET, _('(ticket) linked to the entity'), [Ticket]))
 
         if apps.is_installed('creme.activities'):
             logger.info('Activities app is installed => a Ticket can be the subject of an Activity')
@@ -65,7 +65,7 @@ class Populator(BasePopulator):
         create_hf = HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_TICKET,
                   model=Ticket,
-                  name=_(u'Ticket view'),
+                  name=_('Ticket view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'number'}),
                               (EntityCellRegularField, {'name': 'title'}),
                               (EntityCellRegularField, {'name': 'status'}),
@@ -76,7 +76,7 @@ class Populator(BasePopulator):
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_TTEMPLATE,
                   model=TicketTemplate,
-                  name=_(u'Ticket template view'),
+                  name=_('Ticket template view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'title'}),
                               (EntityCellRegularField, {'name': 'status'}),
                               (EntityCellRegularField, {'name': 'priority'}),
@@ -93,10 +93,10 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            for i, name in enumerate([_(u'Low'), _(u'Normal'), _(u'High'), _(u'Urgent'), _(u'Blocking')], start=1):
+            for i, name in enumerate([_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')], start=1):
                 create_if_needed(Priority, {'pk': i}, name=name, order=i)
 
-            for i, name in enumerate([_(u'Minor'), _(u'Major'), _(u'Feature'), _(u'Critical'), _(u'Enhancement'), _(u'Error')], start=1):
+            for i, name in enumerate([_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error')], start=1):
                 create_if_needed(Criticity, {'pk': i}, name=name, order=i)
 
             # ---------------------------

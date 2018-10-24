@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Tickets 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 20:38+0200\n"
+"POT-Creation-Date: 2018-10-22 10:34+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -21,6 +21,10 @@ msgstr "Tickets"
 #: apps.py:82
 msgid "Tools"
 msgstr "Outils"
+
+#: apps.py:94
+msgid "Tickets not closed"
+msgstr "Tickets non fermés"
 
 #: bricks.py:31
 msgid "Information on the ticket"
@@ -239,9 +243,6 @@ msgstr "interdit"
 
 #~ msgid "All tickets"
 #~ msgstr "Lister les tickets"
-
-#~ msgid "Ticket portal"
-#~ msgstr "Portail Ticket"
 
 #~ msgid "List of tickets"
 #~ msgstr "Liste des tickets"
