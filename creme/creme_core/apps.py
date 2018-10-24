@@ -30,7 +30,6 @@ from django.utils.translation import ugettext_lazy as _
 from .checks import Tags, check_uninstalled_apps  # NB: it registers other checks too
 from .registry import creme_registry
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -39,6 +38,7 @@ logger = logging.getLogger(__name__)
 AppConfig.creme_app = False
 AppConfig.extended_app = None  # If you extend an app by swapping its models. Eg: 'persons'
 AppConfig._extending_app_configs = None
+
 
 def __get_extending_app_configs(self):
     ext_app_configs = self._extending_app_configs
@@ -160,7 +160,7 @@ class CremeAppConfig(AppConfig):
                 logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
 
             from .core import enumerable, function_field, imprint, reminder, sandbox, setting_key
-            from .gui import (bricks, bulk_update, button_menu, fields_config, field_printers, icons,
+            from .gui import (actions, bricks, bulk_update, button_menu, fields_config, field_printers, icons,
                       listview, mass_import, menu, merge, quick_forms, statistics)
 
             self.register_entity_models(creme_registry)
@@ -192,6 +192,7 @@ class CremeAppConfig(AppConfig):
             self.register_statistics(statistics.statistics_registry)
             self.register_user_setting_keys(setting_key.user_setting_key_registry)
             self.register_smart_columns(listview.smart_columns_registry)
+            self.register_actions(actions.actions_registry)
 
     def register_entity_models(self, creme_registry):
         pass
@@ -251,6 +252,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_user_setting_keys(self, user_setting_key_registry):
+        pass
+
+    def register_actions(self, actions_registry):
         pass
 
 
@@ -391,6 +395,22 @@ class CremeCoreConfig(CremeAppConfig):
             setting_keys.block_showempty_key,
             setting_keys.currency_symbol_key,
         )
+
+    def register_actions(self, actions_registry):
+        from creme.creme_core.gui import actions
+
+        actions_registry.register_instance_actions(actions.EditActionEntry,
+                                                   actions.CloneActionEntry,
+                                                   actions.DeleteActionEntry,
+                                                   actions.ViewActionEntry,
+                                                  )
+
+        actions_registry.register_bulk_actions(actions.BulkEditActionEntry,
+                                               actions.BulkDeleteActionEntry,
+                                               actions.BulkAddPropertyActionEntry,
+                                               actions.BulkAddRelationActionEntry,
+                                               actions.MergeActionEntry,
+                                              )
 
     # TODO: better API + move some code to creme_config ??
     @staticmethod

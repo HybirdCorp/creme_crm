@@ -30,7 +30,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.core.entity_cell import EntityCellRelation, EntityCellVolatile
+from creme.creme_core.core.entity_cell import EntityCellRelation, EntityCellVolatile, EntityCellActions
+from creme.creme_core.gui.actions import EntityActionEntry, ViewActionEntry
 from creme.creme_core.models import RelationType
 from creme.creme_core.models.entity import EntityAction
 from creme.creme_core.utils import get_from_POST_or_404
@@ -124,25 +125,60 @@ PRES_STATUS_MAP = {
         constants.PRES_STATUS_NOT_COME:  pgettext_lazy('events-presence_status', 'Not come'),
     }
 
+# NB : Replaced by creme_core.gui.actions.ActionEntry
+# def build_get_actions(event, entity):
+#     """Build bound method to overload 'get_actions()' method of CremeEntities"""
+#     def _get_actions(user):
+#         return {'default': EntityAction(entity.get_absolute_url(), ugettext(u'See'),
+#                                         user.has_perm_to_view(entity),
+#                                         icon='view',
+#                                        ),
+#                 'others':  [EntityAction(reverse('events__create_related_opportunity',
+#                                                  args=(event.id, entity.id),
+#                                                 ),
+#                                          ugettext('Create an opportunity'),
+#                                          user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event),
+#                                          icon='opportunity',
+#                                         ),
+#                            ]
+#                }
+#
+#     return _get_actions
 
-def build_get_actions(event, entity):
-    """Build bound method to overload 'get_actions()' method of CremeEntities"""
-    def _get_actions(user):
-        return {'default': EntityAction(entity.get_absolute_url(), ugettext(u'See'),
-                                        user.has_perm_to_view(entity),
-                                        icon='view',
-                                       ),
-                'others':  [EntityAction(reverse('events__create_related_opportunity',
-                                                 args=(event.id, entity.id),
-                                                ),
-                                         ugettext('Create an opportunity'),
-                                         user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event),
-                                         icon='opportunity',
-                                        ),
-                           ]
-               }
 
-    return _get_actions
+class AddRelatedOpportunityActionEntry(EntityActionEntry):
+    action_id = 'events-create_related_opport'
+    action = 'redirect'
+
+    model = Contact
+    label = _('Create an opportunity')
+    icon = 'opportunity'
+
+    @property
+    def url(self):
+        return reverse('events__create_related_opportunity',
+                       args=(self.context['event'].id, self.instance.id),
+                      )
+
+    @property
+    def is_enabled(self):
+        user = self.user
+        event = self.context['event']
+        return user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event)
+
+
+class OpportunityCellActions(EntityCellActions):
+    def __init__(self, model, event, user):
+        super(OpportunityCellActions, self).__init__(model, user)
+        self.event = event
+
+    def _create_instance_actions(self, user, model, instance):
+        actions = [AddRelatedOpportunityActionEntry]
+
+        if ViewActionEntry.is_registered_for_instance(model):
+            actions.append(ViewActionEntry)
+
+        return [a(user, model, instance, event=self.event) for a in actions]
 
 
 class ListViewPostProcessor:
@@ -169,8 +205,8 @@ class ListViewPostProcessor:
         cells.append(EntityCellVolatile(model=Contact, value='invitation_management', title=_(u'Invitation'), render_func=self.invitation_render))
         cells.append(EntityCellVolatile(model=Contact, value='presence_management',   title=_(u'Presence'),   render_func=self.presence_render))
 
-        for entity in context['entities'].object_list:
-            entity.get_actions = build_get_actions(self.event, entity)
+        if context['show_actions']:
+            cells[0] = OpportunityCellActions(Contact, self.event, self.user)
 
     def has_relation(self, entity, rtype_id):
         id_ = self.event.id

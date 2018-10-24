@@ -85,4 +85,68 @@ $(document).on('brick-setup-actions', '.brick.emails-email-brick', function(e, b
     actions.registerAll(emailActions);
 });
 
+
+creme.emails.ResendEMailsAction = creme.component.Action.sub({
+    _init_: function(list, options) {
+        this._super_(creme.component.Action, '_init_', this._run, options);
+        this._list = list;
+    },
+
+    _onResendFail: function(event, error, data) {
+        var self = this;
+        var list = this._list;
+
+        var message = Object.isType(error, 'string') ? error : (error.message || gettext("Error"));
+        var header = creme.ajax.localizedErrorMessage(data);
+
+        creme.dialogs.warning(message, {header: header})
+                     .onClose(function() {
+                          list.reload();
+                          self.fail();
+                      })
+                     .open();
+    },
+
+    _run: function(options) {
+        options = $.extend({}, this.options(), options || {});
+
+        var self = this;
+        var list = this._list;
+        var selection = creme.lv_widget.selectedLines(list);
+
+        if (Array.isArray(options.selection)) {
+            selection = selection.concat(options.selection);
+        }
+
+        if (selection.length < 1) {
+            creme.dialogs.warning(gettext("Please select at least one e-mail."))
+                         .onClose(function() {
+                             self.cancel();
+                          })
+                         .open();
+        } else {
+            var query = creme.utils.confirmPOSTQuery(options.url, {warnOnFail: false, dataType: 'json'}, {ids: selection.join(',')});
+            query.onFail(this._onResendFail.bind(this))
+                 .onCancel(function(event, data) {
+                     self.cancel();
+                  })
+                 .onDone(function(event, data) {
+                     list.reload();
+                     self.done();
+                  })
+                 .start();
+        }
+    }
+});
+
+$(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actions) {
+    actions.register('email-resend-selection', function(url, options, data, e) {
+        return new creme.emails.ResendEMailsAction(this._list, {url: url});
+    });
+
+    actions.register('email-resend', function(url, options, data, e) {
+        return new creme.emails.ResendEMailsAction(this._list, {url: url, selection: options.selection});
+    });
+});
+
 }(jQuery));

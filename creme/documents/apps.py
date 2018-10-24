@@ -151,3 +151,10 @@ class DocumentsConfig(CremeAppConfig):
         from .forms.quick import DocumentQuickForm
 
         quickforms_registry.register(self.Document, DocumentQuickForm)
+
+    def register_actions(self, actions_registry):
+        from creme.documents import actions
+
+        actions_registry.register_instance_actions(actions.ExploreFolderActionEntry,
+                                                   actions.DownloadActionEntry,
+                                                  )

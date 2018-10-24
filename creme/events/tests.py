@@ -26,6 +26,7 @@ try:
 
     from . import event_model_is_custom, get_event_model, constants
     from .models import EventType
+    from .views.event import AddRelatedOpportunityActionEntry
 
     skip_event_tests = event_model_is_custom()
     Event = get_event_model()
@@ -184,6 +185,18 @@ class EventsTestCase(CremeTestCase):
 
         self.assertEqual(2, events_page.paginator.count)
         self.assertEqual({event1, event2}, set(events_page.object_list))
+
+    def test_listview_add_related_opport_action(self):
+        user = self.login()
+        event = self._create_event('Eclipse')
+        casca = Contact.objects.create(first_name='Casca', last_name='Miura', user=user)
+
+        action = AddRelatedOpportunityActionEntry(user, Contact, casca, event=event)
+        self.assertEqual('redirect', action.action)
+        self.assertEqual({'event': event}, action.context)
+        self.assertEqual(reverse('events__create_related_opportunity', args=(event.id, casca.id)), action.url)
+        self.assertTrue(action.is_visible)
+        self.assertTrue(action.is_enabled)
 
     def test_stats01(self):
         self.login()

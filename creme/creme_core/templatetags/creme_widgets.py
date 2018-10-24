@@ -28,6 +28,7 @@ from django.utils.translation import ugettext as _
 
 from ..gui.icons import icon_registry, get_icon_size_px, get_icon_by_name
 from ..utils.media import get_current_theme_from_context
+
 from . import KWARG_RE
 
 
@@ -220,14 +221,14 @@ class IconRendererNode(TemplateNode):
 # WIDGET ICON [END] ------------------------------------------------------------
 
 
-@register.inclusion_tag('creme_core/templatetags/widgets/entity_actions.html', takes_context=True)
-def get_entity_actions(context, entity):
-    user = context['user']
-
-    context['id'] = entity.id  # TODO: new context VS object.id
-    context['actions'] = entity.get_actions(user)
-
-    return context
+# @register.inclusion_tag('creme_core/templatetags/widgets/entity_actions.html', takes_context=True)
+# def get_entity_actions(context, entity):
+#     user = context['user']
+#
+#     context['id'] = entity.id  # TODO: new context VS object.id
+#     context['actions'] = entity.get_actions(user)
+#
+#     return context
 
 
 @register.simple_tag

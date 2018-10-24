@@ -32,6 +32,7 @@ from ..models.fields import DatePeriodField
 from ..utils.collections import ClassKeyedMap
 from ..utils.db import populate_related
 from ..utils.meta import FieldInfo
+from ..utils.unicode_collation import collator
 
 from .function_field import FunctionFieldDecimal, FunctionFieldResultsList, function_field_registry
 
@@ -194,12 +195,40 @@ class EntityCellActions(EntityCell):
     type_id = 'actions'
 
     # def __init__(self):
-    def __init__(self, model):
+    def __init__(self, model, user):
         # super(EntityCellActions, self).__init__(model=model,
         #                                         value='entity_actions',
         #                                         title=_(u'Actions'),
         #                                        )
-        super().__init__(model=model, value='entity_actions', title=_(u'Actions'))
+        super().__init__(model=model, value='entity_actions', title=_('Actions'))
+        self.user = user
+
+    def _sort_actions(self, actions):
+        collator_key = collator.sort_key
+        sort_key = lambda a: (not a.is_default, collator_key(a.label))
+        return sorted(actions, key=sort_key)
+
+    def _create_bulk_actions(self, user, model):
+        from ..gui.actions import actions_registry
+        return (a(user, model) for a in actions_registry.bulk_actions(model))
+
+    def _create_instance_actions(self, user, model, instance):
+        from ..gui.actions import actions_registry
+        return (a(user, model, instance) for a in actions_registry.instance_actions(model))
+
+    def bulk_actions(self):
+        actions = self._create_bulk_actions(self.user, self.model)
+        return [a for a in self._sort_actions(actions) if a.is_visible]
+
+    def instance_actions(self, instance):
+        actions = self._create_instance_actions(self.user, self.model, instance)
+        sorted_actions = [a for a in self._sort_actions(actions) if a.is_visible]
+        count = len(sorted_actions)
+
+        return {
+            'default': sorted_actions[0] if count > 0 else None,
+            'others': sorted_actions[1:] if count > 1 else []
+        }
 
     # def render_html(self, entity, user): TODO
 

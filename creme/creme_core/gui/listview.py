@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 from functools import partial
+
 import logging
 
 from django.db.models import Q, DateField, ForeignKey, ManyToManyField
@@ -178,13 +179,13 @@ class ListViewState:
 
     def _date_or_None(self, value, index):
         try:
-            str = value[index]
+            date_str = value[index]
         except IndexError:
             pass
         else:
             if str:
                 try:
-                    return dt_from_str(str).date()
+                    return dt_from_str(date_str).date()
                 except AttributeError:
                     logger.warning('ListViewState: invalid date: %s', str)
 

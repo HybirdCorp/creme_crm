@@ -106,6 +106,7 @@
                 {% if cell.is_hidden %}
                     <th style="display:none;"></th>
                 {% elif cell.type_id == 'actions' %}
+                    {% comment %}
                     <th class="actions">
                         <ul class="header-actions-list">
                             <li class="header-actions-trigger" title="{% trans 'Actions on the selected entities' %}">
@@ -142,6 +143,8 @@
                             </li>
                         </ul>
                     </th>
+                    {% endcomment %}
+                    <th class="actions">{% listview_header_actions cell %}</th>
                 {% else %}{# NB: TMP - this header currently adds the css class cell.listview_css_class until semantic information is provided in the template context #}
                     {# TODO: should this header also add the cell.header_listview_css_class ? #}
                     <th class="{% if cell.key == list_view_state.sort_field %}sorted {% if list_view_state.sort_order == '-' %} reverse{% endif %}{% endif %} column{% if cell.key in research_cellkeys %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv {{cell.listview_css_class}}"
@@ -168,7 +171,7 @@
                 </td>
                 {% for cell in cells %}
                     {% if cell.type_id == 'actions' and show_actions %}
-                        <td {# title="actions" #} class="list_view_actions actions">{% get_entity_actions entity %}</td>
+                        <td {# title="actions" #} class="list_view_actions actions">{% listview_entity_actions cell entity %}</td>
                     {% else %}
                         <td class="lv-cell lv-cell-content {% if cell.key == list_view_state.sort_field %}sorted{% endif %} column cl_lv {{cell.listview_css_class}}" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
                             {% cell_render cell=cell instance=entity user=user as cell_content %}

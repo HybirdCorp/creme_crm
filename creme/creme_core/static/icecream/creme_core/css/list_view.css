@@ -691,6 +691,11 @@
     position: relative;
 }
 
+.listview-action a.is-disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
 .listview .default-row-action a {
     display: inline-block;
     flex: 1;
