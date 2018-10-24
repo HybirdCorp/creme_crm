@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.urls.base import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme import documents
 from creme.creme_core.gui import actions
@@ -48,7 +48,7 @@ class ExploreFolderActionEntry(actions.ActionEntry):
 
     @property
     def help_text(self):
-        return _('List sub-folders of «{}»').format(self.instance)
+        return ugettext('List sub-folders of «{}»').format(self.instance)
 
 
 class DownloadActionEntry(actions.ActionEntry):
