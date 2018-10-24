@@ -21,9 +21,11 @@
 from json import loads as jsonloads
 import warnings
 
+from django.contrib.contenttypes.models import ContentType
+from django.db.transaction import atomic
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -32,9 +34,10 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.views import generic, decorators
 
-from ... import billing
+from creme import billing
 
 from .. import constants
+from ..core import BILLING_MODELS
 from ..registry import lines_registry
 from ..forms import line as line_forms
 
@@ -94,14 +97,7 @@ class _LinesCreation(generic.AddingToEntity):
     # model = Line
     # form_class = line_forms._LineMultipleAddForm
     submit_label = _('Save the lines')
-    # TODO: factorise (see populate.py)
-    entity_classes = [
-        billing.get_credit_note_model(),
-        billing.get_invoice_model(),
-        billing.get_quote_model(),
-        billing.get_sales_order_model(),
-        billing.get_template_base_model(),
-    ]
+    entity_classes = BILLING_MODELS
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
@@ -204,11 +200,18 @@ LINE_FORMSET_PREFIX = {
 @decorators.POST_only
 @login_required
 @permission_required('billing')
+@atomic
 def multi_save_lines(request, document_id):
-    document = get_object_or_404(CremeEntity, pk=document_id).get_real_entity()
+    # b_entity = get_object_or_404(CremeEntity, pk=document_id).get_real_entity()
+    get_for_ct = ContentType.objects.get_for_model
+    b_entity = get_object_or_404(
+        CremeEntity.objects.select_for_update(),
+        pk=document_id,
+        entity_type__in=[get_for_ct(c) for c in BILLING_MODELS],
+    ).get_real_entity()
 
     user = request.user
-    user.has_perm_to_change_or_die(document)
+    user.has_perm_to_change_or_die(b_entity)
 
     formset_to_save = []
     errors = []
@@ -216,8 +219,7 @@ def multi_save_lines(request, document_id):
     class _LineForm(line_forms.LineEditForm):
         def __init__(self, *args, **kwargs):
             self.empty_permitted = False
-            # super(_LineForm, self).__init__(user=user, related_document=document, *args, **kwargs)
-            super().__init__(user=user, related_document=document, *args, **kwargs)
+            super().__init__(user=user, related_document=b_entity, *args, **kwargs)
 
     # Only modified formsets land here
     for line_ct_id, data in request.POST.items():
@@ -227,7 +229,7 @@ def multi_save_lines(request, document_id):
         if prefix is None:
             raise ConflictError('Invalid model (not a line ?!)')
 
-        qs = line_model.objects.filter(relations__object_entity=document.id,
+        qs = line_model.objects.filter(relations__object_entity=b_entity.id,
                                        relations__type=constants.REL_OBJ_HAS_LINE,
                                       )
 

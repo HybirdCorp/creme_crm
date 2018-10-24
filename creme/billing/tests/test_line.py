@@ -10,7 +10,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, SetCredentials, Vat
+    from creme.creme_core.models import Relation, SetCredentials, Vat, FakeOrganisation
 
     from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
@@ -30,8 +30,6 @@ except Exception as e:
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class LineTestCase(_BillingTestCase):
-    # clean_files_in_teardown = False
-
     DEL_VAT_URL = reverse('creme_config__delete_instance', args=('creme_core', 'vat_value'))
 
     def _build_msave_url(self, bdocument):
@@ -673,32 +671,33 @@ class LineTestCase(_BillingTestCase):
         unit_price = '69.0'
         quantity = '2'
         unit = 'month'
-        response = self.client.post(self._build_msave_url(invoice),
-                                    data={product_line.entity_type_id: json_dump({
-                                                        'product_line_formset-TOTAL_FORMS':       2,
-                                                        'product_line_formset-INITIAL_FORMS':     1,
-                                                        'product_line_formset-MAX_NUM_FORMS':     '',
-                                                        'product_line_formset-0-DELETE':          True,
-                                                        'product_line_formset-0-cremeentity_ptr': product_line.id,
-                                                        'product_line_formset-0-user':            user.id,
-                                                        'product_line_formset-0-on_the_fly_item': "whatever",
-                                                        'product_line_formset-0-unit_price':      "whatever",
-                                                        'product_line_formset-0-quantity':        "whatever",
-                                                        'product_line_formset-0-discount':        "whatever",
-                                                        'product_line_formset-0-discount_unit':   "whatever",
-                                                        'product_line_formset-0-vat_value':       "whatever",
-                                                        'product_line_formset-0-unit':            "whatever",
-                                                        'product_line_formset-1-user':            self.user.id,
-                                                        'product_line_formset-1-on_the_fly_item': name,
-                                                        'product_line_formset-1-unit_price':      unit_price,
-                                                        'product_line_formset-1-quantity':        quantity,
-                                                        'product_line_formset-1-discount':        "50.00",
-                                                        'product_line_formset-1-discount_unit':   "1",
-                                                        'product_line_formset-1-vat_value':       Vat.objects.all()[0].id,
-                                                        'product_line_formset-1-unit':            unit,
-                                                    })
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_msave_url(invoice),
+            data={product_line.entity_type_id: json_dump({
+                                'product_line_formset-TOTAL_FORMS':       2,
+                                'product_line_formset-INITIAL_FORMS':     1,
+                                'product_line_formset-MAX_NUM_FORMS':     '',
+                                'product_line_formset-0-DELETE':          True,
+                                'product_line_formset-0-cremeentity_ptr': product_line.id,
+                                'product_line_formset-0-user':            user.id,
+                                'product_line_formset-0-on_the_fly_item': 'whatever',
+                                'product_line_formset-0-unit_price':      'whatever',
+                                'product_line_formset-0-quantity':        'whatever',
+                                'product_line_formset-0-discount':        'whatever',
+                                'product_line_formset-0-discount_unit':   'whatever',
+                                'product_line_formset-0-vat_value':       'whatever',
+                                'product_line_formset-0-unit':            'whatever',
+                                'product_line_formset-1-user':            user.id,
+                                'product_line_formset-1-on_the_fly_item': name,
+                                'product_line_formset-1-unit_price':      unit_price,
+                                'product_line_formset-1-quantity':        quantity,
+                                'product_line_formset-1-discount':        '50.00',
+                                'product_line_formset-1-discount_unit':   '1',
+                                'product_line_formset-1-vat_value':       Vat.objects.all()[0].id,
+                                'product_line_formset-1-unit':            unit,
+                            })
+                 }
+        )
         self.assertNoFormError(response)
         product_lines = ProductLine.objects.all()
         self.assertEqual(1, len(product_lines))
@@ -860,15 +859,39 @@ class LineTestCase(_BillingTestCase):
         self.assertIsNone(line.on_the_fly_item)
         self.assertEqual(Decimal('51'), line.unit_price)
 
+    def test_multi_save_lines07(self):
+        "Bad related model"
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Foxhound')
+        ct_id = ContentType.objects.get_for_model(ProductLine).id
+        self.assertPOST404(
+            self._build_msave_url(orga),
+            data={ct_id: json_dump({
+                         'product_line_formset-TOTAL_FORMS':       1,
+                         'product_line_formset-INITIAL_FORMS':     0,
+                         'product_line_formset-MAX_NUM_FORMS':     '',
+                         'product_line_formset-0-user':            user.id,
+                         'product_line_formset-0-on_the_fly_item': 'New on the fly product',
+                         'product_line_formset-0-unit_price':      '69.0',
+                         'product_line_formset-0-quantity':        '2',
+                         'product_line_formset-0-discount':        '50.00',
+                         'product_line_formset-0-discount_unit':   '1',
+                         'product_line_formset-0-vat_value':       Vat.objects.first().id,
+                         'product_line_formset-0-unit':            'month',
+                     }),
+              },
+        )
+
     @skipIfCustomProductLine
     def test_global_discount_change(self):
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
 
-        ProductLine.objects.create(user=user, unit_price=Decimal("10"),
+        ProductLine.objects.create(user=user, unit_price=Decimal('10'),
                                    vat_value=Vat.get_default_vat(),
-                                   related_document=invoice, on_the_fly_item='Flyyyyy',
+                                   related_document=invoice,
+                                   on_the_fly_item='Flyyyyy',
                                   )
 
         discount_zero = Decimal('0.0')
@@ -921,7 +944,7 @@ class LineTestCase(_BillingTestCase):
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
-        pline = ProductLine.objects.create(user=user, unit_price=Decimal("10"),
+        pline = ProductLine.objects.create(user=user, unit_price=Decimal('10'),
                                            vat_value=Vat.get_default_vat(),
                                            related_document=invoice,
                                            on_the_fly_item='Flyyyyy',
