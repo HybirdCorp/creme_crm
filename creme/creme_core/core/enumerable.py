@@ -36,8 +36,8 @@ class Enumerator:
         """Return the list of choices (see below) available for the given user.
         Abstract method.
 
-        Each choice must be a dictionary, wit the keys:
-            value: Value of the choice (wich will be POSTed). Mandatory.
+        Each choice must be a dictionary, with the keys:
+            value: Value of the choice (which will be POSTed). Mandatory.
             label: Label of the choice, displayed to the user. Mandatory.
             help:  Small additional description for the label. Optional.
             group: Group of the choice (think <optgroup> in HTML). Optional.

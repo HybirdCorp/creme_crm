@@ -51,7 +51,7 @@ class _FieldBlock:
         self.field_names = list(field_names) if field_names != '*' else field_names
 
     def __str__(self):  # For debugging
-        return u'<_FieldBlock: {} {}>'.format(self.name, self.field_names)
+        return '<_FieldBlock: {} {}>'.format(self.name, self.field_names)
 
 
 class FieldBlocksGroup:
@@ -272,6 +272,7 @@ class CremeModelWithUserForm(CremeModelForm):
         # super(CremeModelWithUserForm, self).__init__(user=user, *args, **kwargs)
         super().__init__(user=user, *args, **kwargs)
         user_f = self.fields['user']
+        # TODO: remove this ? (CremeUserForeignKey already exclude staff users)
         user_f.queryset = get_user_model().objects.filter(is_staff=False)
         user_f.initial = user.id
 
@@ -293,7 +294,7 @@ class CremeEntityForm(CremeModelWithUserForm):
         for field_name, form_field in self.fields.items():
             try:
                 model_field = self.instance._meta.get_field(field_name)
-                help_text = form_field.help_text if form_field.help_text not in (None, u'') else model_field.help_text
+                help_text = form_field.help_text if form_field.help_text not in (None, '') else model_field.help_text
                 form_field.widget.help_text = help_text
             except FieldDoesNotExist:
                 form_field.widget.help_text = form_field.help_text

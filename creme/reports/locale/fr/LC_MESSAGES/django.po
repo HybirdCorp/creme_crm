@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-19 11:40+0200\n"
+"POT-Creation-Date: 2018-10-22 12:49+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -31,27 +31,27 @@ msgstr "Colonnes du rapport"
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
-#: constants.py:35 core/graph.py:331 core/graph.py:648
+#: constants.py:35 core/graph.py:335 core/graph.py:686
 msgid "By days"
 msgstr "Par jours"
 
-#: constants.py:36 core/graph.py:350 core/graph.py:662
+#: constants.py:36 core/graph.py:356 core/graph.py:702
 msgid "By months"
 msgstr "Par mois"
 
-#: constants.py:37 core/graph.py:367 core/graph.py:675
+#: constants.py:37 core/graph.py:375 core/graph.py:717
 msgid "By years"
 msgstr "Par années"
 
-#: constants.py:38 core/graph.py:408 core/graph.py:685
+#: constants.py:38 core/graph.py:418 core/graph.py:730
 msgid "By X days"
 msgstr "Par X jours"
 
-#: constants.py:39 core/graph.py:503
+#: constants.py:39 core/graph.py:514
 msgid "By values"
 msgstr "Par valeurs"
 
-#: constants.py:40 core/graph.py:534
+#: constants.py:40 core/graph.py:571
 msgid "By values (of related entities)"
 msgstr "Par valeurs (des fiches liées)"
 
@@ -71,52 +71,56 @@ msgstr "Par années (champ personnalisé)"
 msgid "By X days (custom field)"
 msgstr "Par X jours (champ personnalisé)"
 
-#: constants.py:45 core/graph.py:773
+#: constants.py:45 core/graph.py:819
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
 
-#: core/graph.py:128 core/graph.py:585
+#: core/graph.py:129 core/graph.py:623
 msgid "the custom field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
-#: core/graph.py:134 core/graph.py:272
+#: core/graph.py:135 core/graph.py:276
 msgid "the field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
-#: core/graph.py:151
+#: core/graph.py:152
 msgid "Count"
 msgstr "Comptage"
 
-#: core/graph.py:276
+#: core/graph.py:280
 msgid "this field should be hidden."
 msgstr "ce champ devrait être caché"
 
-#: core/graph.py:544
+#: core/graph.py:525
+msgid "this field cannot be used as abscissa."
+msgstr "ce champ ne peut pas être utilisé comme abscisse."
+
+#: core/graph.py:581
 msgid "the relationship type does not exist any more."
 msgstr "le type de relation n'existe plus."
 
-#: core/graph.py:802
+#: core/graph.py:849
 msgid "No volatile column"
 msgstr "Pas de colonne volatile"
 
-#: core/graph.py:835
+#: core/graph.py:882
 msgid "The field is invalid."
 msgstr "Le champ est invalide."
 
-#: core/graph.py:839
+#: core/graph.py:886
 #, python-brace-format
 msgid "{field} (Field)"
 msgstr "{field} (Champ)"
 
-#: core/graph.py:846
+#: core/graph.py:893
 msgid "The field is invalid (not a foreign key)."
 msgstr "Le champ est invalide (pas une clé étrangère)."
 
-#: core/graph.py:879
+#: core/graph.py:926
 msgid "The relationship type is invalid."
 msgstr "Le type de relation est invalide."
 
-#: core/graph.py:883
+#: core/graph.py:930
 #, python-brace-format
 msgid "{rtype} (Relationship)"
 msgstr "{rtype} (Relation)"
@@ -372,7 +376,7 @@ msgstr "Graphique de rapport"
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/graph.py:193
+#: models/graph.py:194
 #, python-brace-format
 msgid "The instance block for «{graph}» with these parameters already exists!"
 msgstr "Le bloc d'instance pour «{graph}» avec ces paramètres existe déjà !"

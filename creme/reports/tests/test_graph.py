@@ -1120,7 +1120,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                         )
 
     def test_fetch_with_fk_06(self):
-        "Related model is User => staff users are excluded."
+        "Abscissa field on Users has a limit_choices_to which excludes staff users."
         user = self.login(is_staff=True)
         other_user = self.other_user
 
@@ -1151,7 +1151,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertNotIn(str(user), x_asc)  # <===
 
     def test_fetch_with_fk_07(self):
-        "Related model is ContentType => only entities types."
+        "Abscissa field on ContentType enumerates only entities types."
         user = self.login()
 
         get_ct = ContentType.objects.get_for_model
@@ -1172,18 +1172,39 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertIn(str(get_ct(FakeOrganisation)), x_asc)
         self.assertNotIn(str(get_ct(FakePosition)), x_asc)  # <===
 
+    def test_fetch_with_fk_08(self):
+        "Invalid field (not enumerable)"
+        user = self.login()
+        report = self._create_simple_contacts_report()
+        rgraph = ReportGraph.objects.create(user=user, linked_report=report,
+                                            name='Contact count per address',
+                                            abscissa='address', type=RGT_FK,
+                                            ordinate='', is_count=True,
+                                           )
+
+        x_asc, y_asc = rgraph.fetch(user)
+        self.assertEqual([], x_asc)
+        self.assertEqual([], y_asc)
+
+        hand = rgraph.hand
+        self.assertEqual(_('Billing address'), hand.verbose_abscissa)
+        self.assertEqual(_('this field cannot be used as abscissa.'),
+                         hand.abscissa_error
+                        )
+
     def test_fetch_with_date_range01(self):
         "Count"
         user = self.login()
         report = self._create_simple_organisations_report()
 
         def create_graph(days):
-            return ReportGraph.objects.create(user=user, linked_report=report,
-                                              name='Number of organisation created / {} day(s)'.format(days),
-                                              abscissa='creation_date',
-                                              type=RGT_RANGE, days=days,
-                                              is_count=True,
-                                             )
+            return ReportGraph.objects.create(
+                user=user, linked_report=report,
+                name='Number of organisation created / {} day(s)'.format(days),
+                abscissa='creation_date',
+                type=RGT_RANGE, days=days,
+                is_count=True,
+            )
 
         rgraph = create_graph(15)
         create_orga = partial(FakeOrganisation.objects.create, user=user)
