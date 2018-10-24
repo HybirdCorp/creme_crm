@@ -66,7 +66,7 @@ class RelationManager(models.Manager):
         of course).
 
         @param kwargs: same as 'create()'.
-        return: A Relation instance
+        return: A Relation instance.
         """
         user = kwargs.pop('user', None)
         user_id = kwargs.pop('user_id') if user is None else user.id

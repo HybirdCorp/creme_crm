@@ -18,29 +18,32 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField, DateTimeField, DecimalField, ForeignKey, Count, PROTECT
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel, RelationType, Relation
 
-from ..constants import *
+from .. import constants
 
 
-_STATS_TYPES = (REL_OBJ_IS_INVITED_TO, REL_OBJ_ACCEPTED_INVITATION,
-                REL_OBJ_REFUSED_INVITATION, REL_OBJ_CAME_EVENT
-               )
+_STATS_TYPES = (
+    constants.REL_OBJ_IS_INVITED_TO,
+    constants.REL_OBJ_ACCEPTED_INVITATION,
+    constants.REL_OBJ_REFUSED_INVITATION,
+    constants.REL_OBJ_CAME_EVENT,
+)
 
 
 class EventType(CremeModel):
-    name = CharField(_(u'Name'), max_length=50)
+    name = models.CharField(_('Name'), max_length=50)
 
-    creation_label = pgettext_lazy('events-event_type', u'Create a type')
+    creation_label = pgettext_lazy('events-event_type', 'Create a type')
 
     class Meta:
         app_label = 'events'
-        verbose_name = _(u'Type of event')
-        verbose_name_plural = _(u'Types of event')
+        verbose_name = _('Type of event')
+        verbose_name_plural = _('Types of event')
         ordering = ('name',)
 
     def __str__(self):
@@ -48,40 +51,45 @@ class EventType(CremeModel):
 
 
 class AbstractEvent(CremeEntity):
-    name        = CharField(_(u'Name'), max_length=100)
-    type        = ForeignKey(EventType, verbose_name=_(u'Type'), on_delete=PROTECT)
-    description = TextField(_(u'Description'), blank=True).set_tags(optional=True)
-    place       = CharField(pgettext_lazy('events', u'Place'), max_length=100,
-                            blank=True,
-                           ).set_tags(optional=True)
-    start_date  = DateTimeField(_(u'Start date'))
-    end_date    = DateTimeField(_(u'End date'), blank=True, null=True).set_tags(optional=True)
-    budget      = DecimalField(_(u'Budget (€)'), max_digits=10, decimal_places=2,
-                               blank=True, null=True,
-                              ).set_tags(optional=True)
-    final_cost  = DecimalField(_(u'Final cost (€)'), max_digits=10, decimal_places=2,
-                               blank=True, null=True,
-                              ).set_tags(optional=True)
+    name        = models.CharField(_('Name'), max_length=100)
+    type        = models.ForeignKey(EventType, verbose_name=_('Type'), on_delete=models.PROTECT)
+    description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
+    place       = models.CharField(pgettext_lazy('events', 'Place'), max_length=100,
+                                   blank=True,
+                                  ).set_tags(optional=True)
+    start_date  = models.DateTimeField(_('Start date'))
+    end_date    = models.DateTimeField(_('End date'), blank=True, null=True).set_tags(optional=True)
+    budget      = models.DecimalField(_('Budget (€)'), max_digits=10, decimal_places=2,
+                                      blank=True, null=True,
+                                     ).set_tags(optional=True)
+    final_cost  = models.DecimalField(_('Final cost (€)'), max_digits=10, decimal_places=2,
+                                      blank=True, null=True,
+                                     ).set_tags(optional=True)
 
-    creation_label = pgettext_lazy('events', u'Create an event')
-    save_label     = pgettext_lazy('events', u'Save the event')
+    creation_label = pgettext_lazy('events', 'Create an event')
+    save_label     = pgettext_lazy('events', 'Save the event')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'events'
-        verbose_name = pgettext_lazy('events', u'Event')
-        verbose_name_plural = pgettext_lazy('events', u'Events')
+        verbose_name = pgettext_lazy('events', 'Event')
+        verbose_name_plural = pgettext_lazy('events', 'Events')
         ordering = ('name',)
 
     def __str__(self):
         return self.name
 
     def _pre_delete(self):
-        for relation in Relation.objects.filter(type__in=[REL_OBJ_IS_INVITED_TO, REL_OBJ_ACCEPTED_INVITATION,
-                                                          REL_OBJ_REFUSED_INVITATION, REL_OBJ_CAME_EVENT,
-                                                          REL_OBJ_NOT_CAME_EVENT, REL_OBJ_GEN_BY_EVENT],
-                                                subject_entity=self):
+        for relation in Relation.objects.filter(
+                type__in=[constants.REL_OBJ_IS_INVITED_TO,
+                          constants.REL_OBJ_ACCEPTED_INVITATION,
+                          constants.REL_OBJ_REFUSED_INVITATION,
+                          constants.REL_OBJ_CAME_EVENT,
+                          constants.REL_OBJ_NOT_CAME_EVENT,
+                          constants.REL_OBJ_GEN_BY_EVENT,
+                         ],
+                subject_entity=self):
             relation._delete_without_transaction()
 
     def get_absolute_url(self):
@@ -102,90 +110,110 @@ class AbstractEvent(CremeEntity):
         types_count = dict(RelationType.objects.filter(id__in=_STATS_TYPES,
                                                        relation__subject_entity=self.id,
                                                       )
-                                               .annotate(relations_count=Count('relation'))
+                                               .annotate(relations_count=models.Count('relation'))
                                                .values_list('id', 'relations_count')
                           )
         get_count = types_count.get
 
         return {
-            'invitations_count': get_count(REL_OBJ_IS_INVITED_TO, 0),
-            'accepted_count':    get_count(REL_OBJ_ACCEPTED_INVITATION, 0),
-            'refused_count':     get_count(REL_OBJ_REFUSED_INVITATION, 0),
-            'visitors_count':    get_count(REL_OBJ_CAME_EVENT, 0),
+            'invitations_count': get_count(constants.REL_OBJ_IS_INVITED_TO, 0),
+            'accepted_count':    get_count(constants.REL_OBJ_ACCEPTED_INVITATION, 0),
+            'refused_count':     get_count(constants.REL_OBJ_REFUSED_INVITATION, 0),
+            'visitors_count':    get_count(constants.REL_OBJ_CAME_EVENT, 0),
         }
 
     def set_invitation_status(self, contact, status, user):
         relations = Relation.objects
 
-        if status == INV_STATUS_NOT_INVITED:
-            relations.filter(subject_entity=contact.id, object_entity=self.id,
-                             type__in=(REL_SUB_IS_INVITED_TO,
-                                       REL_SUB_ACCEPTED_INVITATION,
-                                       REL_SUB_REFUSED_INVITATION,
-                                      ),
-                            ).delete()
+        if status == constants.INV_STATUS_NOT_INVITED:
+            relations.filter(
+                subject_entity=contact.id,
+                object_entity=self.id,
+                type__in=(
+                    constants.REL_SUB_IS_INVITED_TO,
+                    constants.REL_SUB_ACCEPTED_INVITATION,
+                    constants.REL_SUB_REFUSED_INVITATION,
+                ),
+            ).delete()
         else:
-            relations.get_or_create(subject_entity=contact,
-                                    type=RelationType.objects.get(pk=REL_SUB_IS_INVITED_TO),
-                                    object_entity=self,
-                                    user=user,
-                                   )
+            relations.safe_get_or_create(
+                subject_entity=contact,
+                type=RelationType.objects.get(pk=constants.REL_SUB_IS_INVITED_TO),
+                object_entity=self,
+                user=user,
+            )
 
-            if status == INV_STATUS_ACCEPTED:
-                relations.create(subject_entity=contact,
-                                 type_id=REL_SUB_ACCEPTED_INVITATION,
-                                 object_entity=self,
-                                 user=user,
-                                )
-                relations.filter(subject_entity=contact.id,
-                                 object_entity=self.id,
-                                 type=REL_SUB_REFUSED_INVITATION,
-                                ).delete()
-            elif status == INV_STATUS_REFUSED:
-                relations.create(subject_entity=contact,
-                                 type_id=REL_SUB_REFUSED_INVITATION,
-                                 object_entity=self,
-                                 user=user,
-                                )
-                relations.filter(subject_entity=contact.id,
-                                 type=REL_SUB_ACCEPTED_INVITATION,
-                                 object_entity=self.id,
-                                ).delete()
+            if status == constants.INV_STATUS_ACCEPTED:
+                relations.safe_get_or_create(
+                    subject_entity=contact,
+                    type_id=constants.REL_SUB_ACCEPTED_INVITATION,
+                    object_entity=self,
+                    user=user,
+                )
+                relations.filter(
+                    subject_entity=contact.id,
+                    object_entity=self.id,
+                    type=constants.REL_SUB_REFUSED_INVITATION,
+                ).delete()
+            elif status == constants.INV_STATUS_REFUSED:
+                relations.safe_get_or_create(
+                    subject_entity=contact,
+                    type_id=constants.REL_SUB_REFUSED_INVITATION,
+                    object_entity=self,
+                    user=user,
+                )
+                relations.filter(
+                    subject_entity=contact.id,
+                    type=constants.REL_SUB_ACCEPTED_INVITATION,
+                    object_entity=self.id,
+                ).delete()
             else:
-                assert status == INV_STATUS_NO_ANSWER
-                relations.filter(subject_entity=contact.id,
-                                 type__in=[REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION],
-                                 object_entity=self.id,
-                                ).delete()
+                assert status == constants.INV_STATUS_NO_ANSWER
+                relations.filter(
+                    subject_entity=contact.id,
+                    type__in=(
+                        constants.REL_SUB_ACCEPTED_INVITATION,
+                        constants.REL_SUB_REFUSED_INVITATION,
+                    ),
+                    object_entity=self.id,
+                ).delete()
 
     def set_presence_status(self, contact, status, user):
         relations = Relation.objects
 
-        if status == PRES_STATUS_NOT_COME:
-            relations.filter(subject_entity=contact.id,
-                             type=REL_SUB_CAME_EVENT,
-                             object_entity=self.id,
-                            ).delete()
-            relations.create(subject_entity=contact,
-                             type_id=REL_SUB_NOT_CAME_EVENT,
-                             object_entity=self,
-                             user=user,
-                            )
-        elif status == PRES_STATUS_COME:
-            relations.filter(subject_entity=contact.id,
-                             type=REL_SUB_NOT_CAME_EVENT,
-                             object_entity=self.id,
-                            ).delete()
-            relations.create(subject_entity=contact,
-                             type_id=REL_SUB_CAME_EVENT,
-                             object_entity=self,
-                             user=user,
-                            )
+        if status == constants.PRES_STATUS_NOT_COME:
+            relations.filter(
+                subject_entity=contact.id,
+                type=constants.REL_SUB_CAME_EVENT,
+                object_entity=self.id,
+            ).delete()
+            relations.safe_get_or_create(
+                subject_entity=contact,
+                type_id=constants.REL_SUB_NOT_CAME_EVENT,
+                object_entity=self,
+                user=user,
+            )
+        elif status == constants.PRES_STATUS_COME:
+            relations.filter(
+                subject_entity=contact.id,
+                type=constants.REL_SUB_NOT_CAME_EVENT,
+                object_entity=self.id,
+            ).delete()
+            relations.safe_get_or_create(
+                subject_entity=contact,
+                type_id=constants.REL_SUB_CAME_EVENT,
+                object_entity=self,
+                user=user,
+            )
         else:  # PRES_STATUS_DONT_KNOW
-            relations.filter(subject_entity=contact.id,
-                             type__in=(REL_SUB_CAME_EVENT, REL_SUB_NOT_CAME_EVENT),
-                             object_entity=self.id,
-                            ).delete()
+            relations.filter(
+                subject_entity=contact.id,
+                type__in=(
+                    constants.REL_SUB_CAME_EVENT,
+                    constants.REL_SUB_NOT_CAME_EVENT,
+                ),
+                object_entity=self.id,
+            ).delete()
 
 
 class Event(AbstractEvent):
