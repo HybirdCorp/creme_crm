@@ -22,18 +22,19 @@ from datetime import timedelta, datetime
 # from json import dumps as json_encode
 import logging
 
-from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.auth import get_user_model
+# from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.models import Min, Max, Count, FieldDoesNotExist, Q, ForeignKey
 from django.utils.translation import ugettext_lazy as _, ugettext  # pgettext_lazy
 
+from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.models import (CremeEntity, RelationType, Relation,
         CustomField, CustomFieldEnumValue)
-from creme.creme_core.utils import creme_entity_content_types
+# from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.meta import FieldInfo
 from creme.creme_core.utils.queries import QSerializer
-from creme.creme_core.utils.unicode_collation import collator
+# from creme.creme_core.utils.unicode_collation import collator
 
 from ..constants import *
 from ..report_aggregation_registry import field_aggregation_registry
@@ -207,10 +208,12 @@ class ReportGraphHand:
         # return ListViewURLBuilder(self._graph.model, self._graph.report.filter)
         return ListViewURLBuilder(self._graph.model, self._graph.linked_report.filter)
 
-    def _fetch(self, entities, order):
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
         yield from ()
 
-    def fetch(self, entities, order):
+    # def fetch(self, entities, order):
+    def fetch(self, entities, order, user):
         """Returns the X & Y values.
         @param entities: Queryset of CremeEntities.
         @param order: 'ASC' or 'DESC'.
@@ -224,7 +227,8 @@ class ReportGraphHand:
             x_append = x_values.append
             y_append = y_values.append
 
-            for x, y in self._fetch(entities, order):
+            # for x, y in self._fetch(entities, order):
+            for x, y in self._fetch(entities, order, user):
                 x_append(x)
                 y_append(y)
 
@@ -328,51 +332,57 @@ class _RGHRegularField(ReportGraphHand):
 
 @RGRAPH_HANDS_MAP(RGT_DAY)
 class RGHDay(_RGHRegularField):
-    verbose_name = _(u"By days")
+    verbose_name = _('By days')
 
-    def _fetch(self, entities, order):
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
         abscissa = self._graph.abscissa
         year_key  = '{}__year'.format(abscissa)
         month_key = '{}__month'.format(abscissa)
         day_key   = '{}__day'.format(abscissa)
 
-        return self._get_dates_values(entities, abscissa, 'day',
-                                      qdict_builder=lambda date: {year_key:  date.year,
-                                                                  month_key: date.month,
-                                                                  day_key:   date.day,
-                                                                 },
-                                      date_format='%d/%m/%Y', order=order,
-                                     )
+        return self._get_dates_values(
+            entities, abscissa, 'day',
+            qdict_builder=lambda date: {year_key:  date.year,
+                                        month_key: date.month,
+                                        day_key:   date.day,
+                                       },
+            date_format='%d/%m/%Y', order=order,
+        )
 
 
 @RGRAPH_HANDS_MAP(RGT_MONTH)
 class RGHMonth(_RGHRegularField):
     verbose_name = _('By months')
 
-    def _fetch(self, entities, order):
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
         abscissa = self._graph.abscissa
         year_key  = '{}__year'.format(abscissa)
         month_key = '{}__month'.format(abscissa)
 
-        return self._get_dates_values(entities, abscissa, 'month',
-                                      qdict_builder=lambda date: {year_key:  date.year,
-                                                                  month_key: date.month,
-                                                                 },
-                                      date_format='%m/%Y', order=order,
-                                     )
+        return self._get_dates_values(
+            entities, abscissa, 'month',
+            qdict_builder=lambda date: {year_key:  date.year,
+                                        month_key: date.month,
+                                       },
+            date_format='%m/%Y', order=order,
+        )
 
 
 @RGRAPH_HANDS_MAP(RGT_YEAR)
 class RGHYear(_RGHRegularField):
     verbose_name = _('By years')
 
-    def _fetch(self, entities, order):
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
         abscissa = self._graph.abscissa
 
-        return self._get_dates_values(entities, abscissa, 'year',
-                                      qdict_builder=lambda date: {'{}__year'.format(abscissa): date.year},
-                                      date_format='%Y', order=order,
-                                     )
+        return self._get_dates_values(
+            entities, abscissa, 'year',
+            qdict_builder=lambda date: {'{}__year'.format(abscissa): date.year},
+            date_format='%Y', order=order,
+        )
 
 
 # TODO: move to creme_core ??
@@ -419,7 +429,8 @@ class RGHRange(_RGHRegularField):
                           )
             self._fetch_method = self._fetch_fallback
 
-    def _fetch(self, entities, order):
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
         return self._fetch_method(entities, order)
 
     def _fetch_with_group_by(self, entities, order):
@@ -502,31 +513,57 @@ class RGHRange(_RGHRegularField):
 class RGHForeignKey(_RGHRegularField):
     verbose_name = _('By values')
 
-    def _fetch(self, entities, order):
+    def __init__(self, graph):
+        super().__init__(graph=graph)
+        enumerator = None
+        field = self._field
+
+        if field is not None:
+            try:
+                enumerator = enumerable_registry.enumerator_by_field(field)
+            except ValueError:
+                self.abscissa_error = _('this field cannot be used as abscissa.')
+
+        self._abscissa_enumerator = enumerator
+
+    # def _fetch(self, entities, order):
+    #     abscissa = self._graph.abscissa
+    #     build_url = self._listview_url_builder()
+    #     entities_filter = entities.filter
+    #     y_value_func = self._y_calculator
+    #
+    #     # # related_instances = list(entities.model._meta.get_field(abscissa).rel.to.objects.all())
+    #     # related_instances = list(entities.model._meta.get_field(abscissa).remote_field.model.objects.all())
+    #     related_model = entities.model._meta.get_field(abscissa).remote_field.model
+    #
+    #     if issubclass(related_model, get_user_model()):
+    #         related_instances = list(related_model.objects.exclude(is_staff=True))
+    #     elif issubclass(related_model, ContentType):
+    #         related_instances = list(creme_entity_content_types())
+    #         sort_key = collator.sort_key
+    #         related_instances.sort(key=lambda k: sort_key(str(k)))
+    #     else:
+    #         related_instances = list(related_model.objects.all())
+    #
+    #     if order == 'DESC':
+    #         related_instances.reverse()
+    #
+    #     for instance in related_instances:
+    #         kwargs = {abscissa: instance.id}
+    #         yield str(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
+    def _fetch(self, entities, order, user):
         abscissa = self._graph.abscissa
         build_url = self._listview_url_builder()
         entities_filter = entities.filter
         y_value_func = self._y_calculator
-
-        # # related_instances = list(entities.model._meta.get_field(abscissa).rel.to.objects.all())
-        # related_instances = list(entities.model._meta.get_field(abscissa).remote_field.model.objects.all())
-        related_model = entities.model._meta.get_field(abscissa).remote_field.model
-
-        if issubclass(related_model, get_user_model()):
-            related_instances = list(related_model.objects.exclude(is_staff=True))
-        elif issubclass(related_model, ContentType):
-            related_instances = list(creme_entity_content_types())
-            sort_key = collator.sort_key
-            related_instances.sort(key=lambda k: sort_key(str(k)))
-        else:
-            related_instances = list(related_model.objects.all())
+        choices = self._abscissa_enumerator.choices(user=user)
 
         if order == 'DESC':
-            related_instances.reverse()
+            choices.reverse()
 
-        for instance in related_instances:
-            kwargs = {abscissa: instance.id}
-            yield str(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
+        for choice in choices:
+            kwargs = {abscissa: choice['value']}
+            yield choice['label'], [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
 
 
 @RGRAPH_HANDS_MAP(RGT_RELATION)
@@ -545,7 +582,8 @@ class RGHRelation(ReportGraphHand):
 
         self._rtype = rtype
 
-    def _fetch(self, entities, order):
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
         # TODO: Optimize ! (populate real entities)
         # TODO: sort alphabetically (with header_filter_search_field ?
         #       Queryset is not paginated so we can sort the "list") ?
@@ -647,38 +685,45 @@ class _RGHCustomField(ReportGraphHand):
 class RGHCustomDay(_RGHCustomField):
     verbose_name = _('By days')
 
-    def _fetch(self, entities, order):
-        return self._get_custom_dates_values(entities, self._graph.abscissa, 'day',
-                                             qdict_builder=lambda date: {'customfielddatetime__value__year':  date.year,
-                                                                         'customfielddatetime__value__month': date.month,
-                                                                         'customfielddatetime__value__day':   date.day,
-                                                                        },
-                                             date_format="%d/%m/%Y", order=order,
-                                            )
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
+        return self._get_custom_dates_values(
+            entities, self._graph.abscissa, 'day',
+            qdict_builder=lambda date: {'customfielddatetime__value__year':  date.year,
+                                        'customfielddatetime__value__month': date.month,
+                                        'customfielddatetime__value__day':   date.day,
+                                       },
+            date_format="%d/%m/%Y", order=order,
+        )
 
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_MONTH)
 class RGHCustomMonth(_RGHCustomField):
     verbose_name = _('By months')
 
-    def _fetch(self, entities, order):
-        return self._get_custom_dates_values(entities, self._graph.abscissa, 'month',
-                                             qdict_builder=lambda date: {'customfielddatetime__value__year':  date.year,
-                                                                         'customfielddatetime__value__month': date.month,
-                                                                        },
-                                             date_format='%m/%Y', order=order,
-                                            )
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
+        return self._get_custom_dates_values(
+            entities, self._graph.abscissa, 'month',
+            qdict_builder=lambda date: {'customfielddatetime__value__year':  date.year,
+                                        'customfielddatetime__value__month': date.month,
+                                       },
+            date_format='%m/%Y', order=order,
+        )
 
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_YEAR)
 class RGHCustomYear(_RGHCustomField):
     verbose_name = _('By years')
 
-    def _fetch(self, entities, order):
-        return self._get_custom_dates_values(entities, self._graph.abscissa, 'year',
-                                             qdict_builder=lambda date: {'customfielddatetime__value__year': date.year},
-                                             date_format='%Y', order=order,
-                                            )
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
+        return self._get_custom_dates_values(
+            entities, self._graph.abscissa, 'year',
+            qdict_builder=lambda date: {'customfielddatetime__value__year': date.year},
+            date_format='%Y', order=order,
+        )
+
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_RANGE)
 class RGHCustomRange(_RGHCustomField):
@@ -696,7 +741,8 @@ class RGHCustomRange(_RGHCustomField):
                           )
             self._fetch_method = self._fetch_fallback
 
-    def _fetch(self, entities, order):
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
         return self._fetch_method(entities, order)
 
     # TODO: This is almost identical to RGHRange and most of it could be factored together
@@ -772,7 +818,8 @@ class RGHCustomRange(_RGHCustomField):
 class RGHCustomFK(_RGHCustomField):
     verbose_name = _('By values (of custom choices)')
 
-    def _fetch(self, entities, order):
+    # def _fetch(self, entities, order):
+    def _fetch(self, entities, order, user):
         entities_filter = entities.filter
         y_value_func = self._y_calculator
         build_url = self._listview_url_builder()

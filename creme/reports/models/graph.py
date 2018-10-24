@@ -84,7 +84,8 @@ class AbstractReportGraph(CremeEntity):
         if extra_q is not None:
             entities = entities.filter(extra_q)
 
-        return self.hand.fetch(entities, order)
+        # return self.hand.fetch(entities, order)
+        return self.hand.fetch(entities=entities, order=order, user=user)
 
     @classmethod
     def get_fetcher_from_instance_block(cls, instance_block_config):
