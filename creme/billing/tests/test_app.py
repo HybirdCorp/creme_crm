@@ -32,12 +32,12 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         billing_classes = [Invoice, Quote, SalesOrder,
                            CreditNote, TemplateBase,
                           ]
-        lines_clases = [ProductLine, ServiceLine]
+        lines_classes = [ProductLine, ServiceLine]
 
         self.get_relationtype_or_fail(constants.REL_SUB_BILL_ISSUED,       billing_classes, [Organisation])
         self.get_relationtype_or_fail(constants.REL_SUB_BILL_RECEIVED,     billing_classes, [Organisation, Contact])
-        self.get_relationtype_or_fail(constants.REL_SUB_HAS_LINE,          billing_classes, lines_clases)
-        self.get_relationtype_or_fail(constants.REL_SUB_LINE_RELATED_ITEM, lines_clases,    [Product, Service])
+        self.get_relationtype_or_fail(constants.REL_SUB_HAS_LINE,          billing_classes, lines_classes)
+        self.get_relationtype_or_fail(constants.REL_SUB_LINE_RELATED_ITEM, lines_classes,   [Product, Service])
 
         self.assertEqual(1, SalesOrderStatus.objects.filter(pk=1).count())
         self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())

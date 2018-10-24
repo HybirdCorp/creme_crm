@@ -27,19 +27,19 @@ from django.utils.translation import ugettext as _, pgettext
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import (EntityCellRegularField,
         EntityCellRelation, EntityCellFunctionField)
-from creme.creme_core.models import (RelationType, SettingValue, SearchConfigItem,
-                                     ButtonMenuItem, HeaderFilter, EntityFilter, EntityFilterCondition,
-                                     BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem)
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import (RelationType, SettingValue, SearchConfigItem,
+        ButtonMenuItem, HeaderFilter, EntityFilter, EntityFilterCondition,
+        BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem)
 from creme.creme_core.utils import create_if_needed
 
-from creme import persons, products
+from creme import persons, products, billing
 
-from creme import billing
 from . import bricks, buttons, constants, setting_keys
+from .core import BILLING_MODELS
 from .models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
         SettlementTerms, AdditionalInformation, PaymentTerms)
-
+from .registry import lines_registry
 
 logger = logging.getLogger(__name__)
 
@@ -65,30 +65,30 @@ class Populator(BasePopulator):
         Service = products.get_service_model()
 
         # ---------------------------
-        billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
-        line_entities = [ProductLine, ServiceLine]
-        RelationType.create((constants.REL_SUB_BILL_ISSUED, _(u'issued by'),  billing_entities),
-                            (constants.REL_OBJ_BILL_ISSUED, _(u'has issued'), [Organisation]),
+        # line_entities = [ProductLine, ServiceLine]
+        line_entities = list(lines_registry)
+        RelationType.create((constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
+                            (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [Organisation]),
                             is_internal=True,
                             minimal_display=(False, True),
                            )
         rt_sub_bill_received = \
-        RelationType.create((constants.REL_SUB_BILL_RECEIVED, _(u'received by'),  billing_entities),
-                            (constants.REL_OBJ_BILL_RECEIVED, _(u'has received'), [Organisation, Contact]),
+        RelationType.create((constants.REL_SUB_BILL_RECEIVED, _('received by'),  BILLING_MODELS),
+                            (constants.REL_OBJ_BILL_RECEIVED, _('has received'), [Organisation, Contact]),
                             is_internal=True,
                             minimal_display=(False, True),
                            )[0]
-        RelationType.create((constants.REL_SUB_HAS_LINE, _(u'had the line'),   billing_entities),
-                            (constants.REL_OBJ_HAS_LINE, _(u'is the line of'), line_entities),
+        RelationType.create((constants.REL_SUB_HAS_LINE, _('had the line'),   BILLING_MODELS),
+                            (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_entities),
                             is_internal=True,
                             minimal_display=(True, True),
                            )
-        RelationType.create((constants.REL_SUB_LINE_RELATED_ITEM, _(u'has the related item'),   line_entities),
-                            (constants.REL_OBJ_LINE_RELATED_ITEM, _(u'is the related item of'), [Product, Service]),
+        RelationType.create((constants.REL_SUB_LINE_RELATED_ITEM, _('has the related item'),   line_entities),
+                            (constants.REL_OBJ_LINE_RELATED_ITEM, _('is the related item of'), [Product, Service]),
                             is_internal=True,
                            )
-        RelationType.create((constants.REL_SUB_CREDIT_NOTE_APPLIED, _(u'is used in the billing document'), [CreditNote]),
-                            (constants.REL_OBJ_CREDIT_NOTE_APPLIED, _(u'used the credit note'),            [Quote, SalesOrder, Invoice]),
+        RelationType.create((constants.REL_SUB_CREDIT_NOTE_APPLIED, _('is used in the billing document'), [CreditNote]),
+                            (constants.REL_OBJ_CREDIT_NOTE_APPLIED, _('used the credit note'),            [Quote, SalesOrder, Invoice]),
                             is_internal=True,
                             minimal_display=(True, True),
                            )
@@ -102,43 +102,43 @@ class Populator(BasePopulator):
                                 .add_subject_ctypes(Invoice, Quote, SalesOrder)
 
         # ---------------------------
-        create_if_needed(PaymentTerms, {'pk': 1}, name=_(u'Deposit'),
+        create_if_needed(PaymentTerms, {'pk': 1}, name=_('Deposit'),
                          description=_(r'20% deposit will be required'),
                          is_custom=False,
                         )
 
         # ---------------------------
         # NB: pk=1 + is_custom=False --> default status (used when a quote is converted in invoice for example)
-        create_if_needed(SalesOrderStatus, {'pk': 1}, name=pgettext('billing-salesorder', u'Issued'), order=1, is_custom=False) # Default status
+        create_if_needed(SalesOrderStatus, {'pk': 1}, name=pgettext('billing-salesorder', 'Issued'), order=1, is_custom=False) # Default status
         if not already_populated:
-            create_if_needed(SalesOrderStatus, {'pk': 2}, name=pgettext('billing-salesorder', u'Accepted'), order=3)
-            create_if_needed(SalesOrderStatus, {'pk': 3}, name=pgettext('billing-salesorder', u'Rejected'), order=4)
-            create_if_needed(SalesOrderStatus, {'pk': 4}, name=pgettext('billing-salesorder', u'Created'),  order=2)
+            create_if_needed(SalesOrderStatus, {'pk': 2}, name=pgettext('billing-salesorder', 'Accepted'), order=3)
+            create_if_needed(SalesOrderStatus, {'pk': 3}, name=pgettext('billing-salesorder', 'Rejected'), order=4)
+            create_if_needed(SalesOrderStatus, {'pk': 4}, name=pgettext('billing-salesorder', 'Created'),  order=2)
 
         # ---------------------------
         def create_invoice_status(pk, name, order, **kwargs):
             create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
 
-        create_invoice_status(1, pgettext('billing-invoice', u'Draft'),      order=1, is_custom=False) # Default status
-        create_invoice_status(2, pgettext('billing-invoice', u'To be sent'), order=2, is_custom=False)
+        create_invoice_status(1, pgettext('billing-invoice', 'Draft'),      order=1, is_custom=False)  # Default status
+        create_invoice_status(2, pgettext('billing-invoice', 'To be sent'), order=2, is_custom=False)
         if not already_populated:
-            create_invoice_status(3, pgettext('billing-invoice', u'Sent'),            order=3, pending_payment=True)
-            create_invoice_status(4, pgettext('billing-invoice', u'Resulted'),        order=5)
-            create_invoice_status(5, pgettext('billing-invoice', u'Partly resulted'), order=4, pending_payment=True)
-            create_invoice_status(6, _(u'Collection'),                                order=7)
-            create_invoice_status(7, _(u'Resulted collection'),                       order=6)
-            create_invoice_status(8, pgettext('billing-invoice', u'Canceled'),        order=8)
+            create_invoice_status(3, pgettext('billing-invoice', 'Sent'),            order=3, pending_payment=True)
+            create_invoice_status(4, pgettext('billing-invoice', 'Resulted'),        order=5)
+            create_invoice_status(5, pgettext('billing-invoice', 'Partly resulted'), order=4, pending_payment=True)
+            create_invoice_status(6, _('Collection'),                                order=7)
+            create_invoice_status(7, _('Resulted collection'),                       order=6)
+            create_invoice_status(8, pgettext('billing-invoice', 'Canceled'),        order=8)
 
         # ---------------------------
-        create_if_needed(CreditNoteStatus, {'pk': 1}, name=pgettext('billing-creditnote', u'Draft'), order=1, is_custom=False)
+        create_if_needed(CreditNoteStatus, {'pk': 1}, name=pgettext('billing-creditnote', 'Draft'), order=1, is_custom=False)
         if not already_populated:
-            create_if_needed(CreditNoteStatus, {'pk': 2}, name=pgettext('billing-creditnote', u'Issued'),      order=2)
-            create_if_needed(CreditNoteStatus, {'pk': 3}, name=pgettext('billing-creditnote', u'Consumed'),    order=3)
-            create_if_needed(CreditNoteStatus, {'pk': 4}, name=pgettext('billing-creditnote', u'Out of date'), order=4)
+            create_if_needed(CreditNoteStatus, {'pk': 2}, name=pgettext('billing-creditnote', 'Issued'),      order=2)
+            create_if_needed(CreditNoteStatus, {'pk': 3}, name=pgettext('billing-creditnote', 'Consumed'),    order=3)
+            create_if_needed(CreditNoteStatus, {'pk': 4}, name=pgettext('billing-creditnote', 'Out of date'), order=4)
 
         # ---------------------------
         EntityFilter.create(
-                'billing-invoices_unpaid', name=_(u'Invoices unpaid'),
+                'billing-invoices_unpaid', name=_('Invoices unpaid'),
                 model=Invoice, user='admin',
                 conditions=[EntityFilterCondition.build_4_field(
                                     model=Invoice,
@@ -148,7 +148,7 @@ class Populator(BasePopulator):
                            ],
             )
         EntityFilter.create(
-                'billing-invoices_unpaid_late', name=_(u'Invoices unpaid and late'),
+                'billing-invoices_unpaid_late', name=_('Invoices unpaid and late'),
                 model=Invoice, user='admin',
                 conditions=[EntityFilterCondition.build_4_field(
                                     model=Invoice,
@@ -162,7 +162,7 @@ class Populator(BasePopulator):
                            ],
             )
         current_year_invoice_filter = EntityFilter.create(
-                'billing-current_year_invoices', name=_(u'Current year invoices'),
+                'billing-current_year_invoices', name=_('Current year invoices'),
                 model=Invoice, user='admin',
                 conditions=[EntityFilterCondition.build_4_date(
                                     model=Invoice,
@@ -172,7 +172,7 @@ class Populator(BasePopulator):
             )
         current_year_unpaid_invoice_filter = EntityFilter.create(
                 'billing-current_year_unpaid_invoices',
-                name=_(u'Current year and unpaid invoices'),
+                name=_('Current year and unpaid invoices'),
                 model=Invoice, user='admin',
                 conditions=[EntityFilterCondition.build_4_date(
                                     model=Invoice,
@@ -199,11 +199,11 @@ class Populator(BasePopulator):
                                            ],
                                )
 
-        create_hf(constants.DEFAULT_HFILTER_INVOICE,  _(u'Invoice view'),     Invoice)
-        create_hf(constants.DEFAULT_HFILTER_QUOTE,    _(u'Quote view'),       Quote)
-        create_hf(constants.DEFAULT_HFILTER_ORDER,    _(u'Sales order view'), SalesOrder)
-        create_hf(constants.DEFAULT_HFILTER_CNOTE,    _(u'Credit note view'), CreditNote)
-        create_hf(constants.DEFAULT_HFILTER_TEMPLATE, _(u'Template view'),    TemplateBase, status=False)
+        create_hf(constants.DEFAULT_HFILTER_INVOICE,  _('Invoice view'),     Invoice)
+        create_hf(constants.DEFAULT_HFILTER_QUOTE,    _('Quote view'),       Quote)
+        create_hf(constants.DEFAULT_HFILTER_ORDER,    _('Sales order view'), SalesOrder)
+        create_hf(constants.DEFAULT_HFILTER_CNOTE,    _('Credit note view'), CreditNote)
+        create_hf(constants.DEFAULT_HFILTER_TEMPLATE, _('Template view'),    TemplateBase, status=False)
 
         def create_hf_lines(hf_pk, name, model):
             build_cell = EntityCellRegularField.build
@@ -214,8 +214,8 @@ class Populator(BasePopulator):
                                            ]
                                )
 
-        create_hf_lines('billing-hg_product_lines', _(u'Product lines view'), ProductLine)
-        create_hf_lines('billing-hg_service_lines', _(u'Service lines view'), ServiceLine)
+        create_hf_lines('billing-hg_product_lines', _('Product lines view'), ProductLine)
+        create_hf_lines('billing-hg_service_lines', _('Service lines view'), ServiceLine)
 
         # ---------------------------
         for model in (Invoice, CreditNote, Quote, SalesOrder):
@@ -229,21 +229,21 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', u'Pending'),  order=2)  # Default status
-            create_if_needed(QuoteStatus, {'pk': 2}, name=pgettext('billing-quote', u'Accepted'), order=3, won=True)
-            create_if_needed(QuoteStatus, {'pk': 3}, name=pgettext('billing-quote', u'Rejected'), order=4)
-            create_if_needed(QuoteStatus, {'pk': 4}, name=pgettext('billing-quote', u'Created'),  order=1)
+            create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', 'Pending'),  order=2)  # Default status
+            create_if_needed(QuoteStatus, {'pk': 2}, name=pgettext('billing-quote', 'Accepted'), order=3, won=True)
+            create_if_needed(QuoteStatus, {'pk': 3}, name=pgettext('billing-quote', 'Rejected'), order=4)
+            create_if_needed(QuoteStatus, {'pk': 4}, name=pgettext('billing-quote', 'Created'),  order=1)
 
             # ---------------------------
-            create_if_needed(SettlementTerms, {'pk': 1}, name=_(u'30 days'))
-            create_if_needed(SettlementTerms, {'pk': 2}, name=_(u'Cash'))
-            create_if_needed(SettlementTerms, {'pk': 3}, name=_(u'45 days'))
-            create_if_needed(SettlementTerms, {'pk': 4}, name=_(u'60 days'))
-            create_if_needed(SettlementTerms, {'pk': 5}, name=_(u'30 days, end month the 10'))
+            create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))
+            create_if_needed(SettlementTerms, {'pk': 2}, name=_('Cash'))
+            create_if_needed(SettlementTerms, {'pk': 3}, name=_('45 days'))
+            create_if_needed(SettlementTerms, {'pk': 4}, name=_('60 days'))
+            create_if_needed(SettlementTerms, {'pk': 5}, name=_('30 days, end month the 10'))
 
             # ---------------------------
-            create_if_needed(AdditionalInformation, {'pk': 1}, name=_(u'Trainer accreditation'),
-                             description=_(u'being certified trainer courses could be supported by your OPCA')
+            create_if_needed(AdditionalInformation, {'pk': 1}, name=_('Trainer accreditation'),
+                             description=_('being certified trainer courses could be supported by your OPCA')
                             )
 
             # ---------------------------
@@ -282,7 +282,7 @@ class Populator(BasePopulator):
                 ]
 
             cbci_invoice = create_cbci(id='billing-invoice_info',
-                                       name=_(u'Invoice information'),
+                                       name=_('Invoice information'),
                                        content_type=get_ct(Invoice),
                                        cells=build_cells(Invoice,
                                                          build_cell(Invoice, 'status'),
@@ -290,12 +290,12 @@ class Populator(BasePopulator):
                                                         ),
                                       )
             cbci_c_note   = create_cbci(id='billing-creditnote_info',
-                                        name=_(u'Credit note information'),
+                                        name=_('Credit note information'),
                                         content_type=get_ct(CreditNote),
                                         cells=build_cells(CreditNote, build_cell(CreditNote, 'status')),
                                        )
             cbci_quote   = create_cbci(id='billing-quote_info',
-                                       name=_(u'Quote information'),
+                                       name=_('Quote information'),
                                        content_type=get_ct(Quote),
                                        cells=build_cells(Quote,
                                                          build_cell(Quote, 'status'),
@@ -303,12 +303,12 @@ class Populator(BasePopulator):
                                                         ),
                                       )
             cbci_s_order = create_cbci(id='billing-salesorder_info',
-                                       name=_(u'Salesorder information'),
+                                       name=_('Salesorder information'),
                                        content_type=get_ct(SalesOrder),
                                        cells=build_cells(SalesOrder, build_cell(SalesOrder, 'status')),
                                       )
             cbci_tbase   = create_cbci(id='billing-templatebase_info',
-                                       name=pgettext('billing', u'Template information'),
+                                       name=pgettext('billing', 'Template information'),
                                        content_type=get_ct(TemplateBase),
                                        cells=build_cells(TemplateBase,
                                                          EntityCellFunctionField.build(TemplateBase, 'get_verbose_status'),
@@ -403,18 +403,18 @@ class Populator(BasePopulator):
         create_graph = partial(ReportGraph.objects.create, user=admin)
 
         # Create current year invoices report ----------------------------------
-        invoices_report1 = create_report(name=_(u'All invoices of the current year'),
+        invoices_report1 = create_report(name=_('All invoices of the current year'),
                                          filter=current_year_invoice_filter,
                                         )
         create_report_columns(invoices_report1)
 
-        rgraph1 = create_graph(name=_(u'Sum of current year invoices total without taxes / month'),
+        rgraph1 = create_graph(name=_('Sum of current year invoices total without taxes / month'),
                                # report=invoices_report1,
                                linked_report=invoices_report1,
                                abscissa='issuing_date', ordinate='total_no_vat__sum',
                                type=RGT_MONTH, is_count=False,
                               )
-        create_graph(name=_(u'Sum of current year invoices total without taxes / invoices status'),
+        create_graph(name=_('Sum of current year invoices total without taxes / invoices status'),
                      # report=invoices_report1,
                      linked_report=invoices_report1,
                      abscissa='status', ordinate='total_no_vat__sum',
@@ -427,12 +427,12 @@ class Populator(BasePopulator):
         BrickHomeLocation.objects.create(brick_id=ibci.brick_id, order=11)
 
         # Create current year and unpaid invoices report -----------------------
-        invoices_report2 = create_report(name=_(u'Invoices unpaid of the current year'),
+        invoices_report2 = create_report(name=_('Invoices unpaid of the current year'),
                                          filter=current_year_unpaid_invoice_filter,
                                         )
         create_report_columns(invoices_report2)
 
-        rgraph = create_graph(name=_(u'Sum of current year and unpaid invoices total without taxes / month'),
+        rgraph = create_graph(name=_('Sum of current year and unpaid invoices total without taxes / month'),
                               # report=invoices_report2,
                               linked_report=invoices_report2,
                               abscissa='issuing_date', ordinate='total_no_vat__sum',
