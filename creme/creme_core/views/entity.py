@@ -26,6 +26,7 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
+from django.db.transaction import atomic
 from django.forms.models import modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render, redirect
@@ -860,7 +861,6 @@ def delete_related_to_entity(request, ct_id):
         raise PermissionDenied(e.args[0]) from e
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(entity)
@@ -869,10 +869,15 @@ def delete_related_to_entity(request, ct_id):
 @login_required
 @superuser_required
 @POST_only
+@atomic
 def restrict_to_superusers(request):
     POST = request.POST
     set_sandbox = get_from_POST_or_404(POST, 'set', cast=bool_from_str_extended, default='1')
-    entity = get_object_or_404(CremeEntity, id=get_from_POST_or_404(POST, 'id', cast=int))
+    # entity = get_object_or_404(CremeEntity, id=get_from_POST_or_404(POST, 'id', cast=int))
+    entity = get_object_or_404(
+        CremeEntity.objects.select_for_update(),
+        id=get_from_POST_or_404(POST, 'id', cast=int),
+    )
 
     if set_sandbox:
         if entity.sandbox_id:
