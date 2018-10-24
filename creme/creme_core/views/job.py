@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.transaction import atomic
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404  # render
 from django.urls import reverse
@@ -180,8 +181,10 @@ class JobEdition(generic.CremeModelEditionPopup):
 @login_required
 @superuser_required
 @POST_only
+@atomic
 def enable(request, job_id, enabled=True):
-    job = get_object_or_404(Job, id=job_id)
+    # job = get_object_or_404(Job, id=job_id)
+    job = get_object_or_404(Job.objects.select_for_update(), id=job_id)
 
     if job.user_id is not None:
         raise ConflictError('A non-system job cannot be disabled')
