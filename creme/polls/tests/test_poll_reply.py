@@ -1206,11 +1206,17 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self._build_fill_url(preply)
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit.html')
+
+        context = response.context
+        self.assertEqual(_('Answers of the form : {}').format(preply), context.get('title'))
+        self.assertEqual(preply.get_absolute_url(),                    context.get('cancel_url'))
+        self.assertIsNone(context.get('help_message'))
 
         with self.assertNoException():
-            question_f = response.context['form'].fields['question']
+            question_f = context['form'].fields['question']
 
-        self.assertEqual('1 - {}'.format(fline.question),  question_f.initial)
+        self.assertEqual('1 - {}'.format(fline.question), question_f.initial)
 
         answer = 'The 2 legs are equal, almost the right one.'
         self.assertNoFormError(self.client.post(url, follow=True, data={'answer': answer}))
