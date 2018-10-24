@@ -294,3 +294,18 @@ def listview_td_action_for_cell(cell, instance, user):
         'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
         'edit_perm': _bulk_has_perm(instance, user),
     }
+
+
+@register.inclusion_tag('creme_core/templatetags/listview/entity-actions.html')
+def listview_entity_actions(cell, entity):
+    return {
+        'id': entity.id,
+        'actions': cell.instance_actions(entity)
+    }
+
+
+@register.inclusion_tag('creme_core/templatetags/listview/header-actions.html')
+def listview_header_actions(cell):
+    return {
+        'actions': cell.bulk_actions()
+    }

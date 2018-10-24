@@ -26,7 +26,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.models.entity import EntityAction
 from creme.creme_core.utils import truncate_str
 
 from .. import constants
@@ -100,17 +99,17 @@ class AbstractFolder(CremeEntity):
         while Folder.objects.filter(title=self.title).exists():
             self._pre_save_clone(source)
 
-    def get_actions(self, user):
-        # actions = super(AbstractFolder, self).get_actions(user)
-        actions = super().get_actions(user)
-
-        actions['others'].append(EntityAction('{}?parent_id={}'.format(self.get_lv_absolute_url(), self.id),
-                                              ugettext(u'Explore'),
-                                              user.has_perm_to_view(self),
-                                              icon='view',
-                                             ),
-                                )  # TODO: Ajaxify this
-        return actions
+# NB : Replaced by creme_core.gui.actions.actions_registry mechanism
+#     def get_actions(self, user):
+#         actions = super().get_actions(user)
+#
+#         actions['others'].append(EntityAction('{}?parent_id={}'.format(self.get_lv_absolute_url(), self.id),
+#                                               ugettext(u'Explore'),
+#                                               user.has_perm_to_view(self),
+#                                               icon='view',
+#                                              ),
+#                                 )  # TODO: Ajaxify this
+#         return actions
 
     def already_in_children(self, other_folder_id):
         children = self.children.all()

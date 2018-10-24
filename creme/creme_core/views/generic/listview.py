@@ -260,7 +260,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     cells = hf.cells
 
     if show_actions:
-        cells.insert(0, EntityCellActions(model=model))
+        cells.insert(0, EntityCellActions(model=model, user=user))
 
     if arguments.get('search', '') == 'clear':
         current_lvs.clear_research()

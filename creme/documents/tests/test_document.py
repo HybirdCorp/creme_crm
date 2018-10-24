@@ -13,11 +13,14 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import field_printers_registry
+    from creme.creme_core.gui import actions as core_actions
     from creme.creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
     from creme.creme_core.tests.fake_models import FakeOrganisation
 
     from creme.persons.tests.base import skipIfCustomContact
     from creme.persons import get_contact_model
+
+    from creme.documents import actions
 
     from .base import (_DocumentsTestCase, skipIfCustomDocument,
             skipIfCustomFolder, Folder, Document)
@@ -486,6 +489,30 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertIn(doc1, docs)
         self.assertIn(doc2, docs)
 
+    def test_listview_document_actions(self):
+        user = self.login()
+        doc1 = self._create_doc('Test doc #1')
+        sort_key = lambda a: a.action_id
+
+        self.assertEqual(sorted([core_actions.ViewActionEntry,
+                                 core_actions.CloneActionEntry,
+                                 core_actions.EditActionEntry,
+                                 core_actions.DeleteActionEntry,
+                                 actions.DownloadActionEntry,
+                                ],
+                                key=sort_key
+                         ),
+                         sorted(core_actions.actions_registry.instance_actions(Document),
+                                key=sort_key
+                               )
+                        )
+
+        download_action = actions.DownloadActionEntry(user, instance=doc1)
+        self.assertEqual('redirect', download_action.action)
+        self.assertEqual(reverse('creme_core__dl_file', args=(doc1.filedata,)), download_action.url)
+        self.assertTrue(download_action.is_enabled)
+        self.assertTrue(download_action.is_visible)
+
     def test_delete_category(self):
         "Set to null"
         user = self.login()
@@ -805,4 +832,3 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
                                'The file you uploaded was either not an image or a corrupted image.'
                               )
                             )
-

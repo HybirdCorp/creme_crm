@@ -47,6 +47,9 @@ _SEARCH_FIELD_MAX_LENGTH = 200
 
 class EntityAction:
     def __init__(self, url, text, is_allowed, attrs=None, icon=None, verbose=None):
+        warnings.warn('EntityAction is deprecated ; use ActionEntry and actions_registry mechanism instead.',
+                      DeprecationWarning
+                     )
         self.url = url
         self.text = text
         self.verbose = verbose or text
@@ -337,36 +340,37 @@ class CremeEntity(CremeModel):
 
         return '<a target="_blank" href="{}">{}</a>'.format(self.get_absolute_url(), escape(str(self)))
 
-    def get_actions(self, user):  # TODO: improve icon/css class management....
-        actions = []
-
-        edit_url = self.get_edit_absolute_url()
-        if edit_url:
-            actions.append(EntityAction(edit_url,
-                                        text=ugettext('Edit'),
-                                        is_allowed=user.has_perm_to_change(self),
-                                        icon='edit',
-                                       )
-                           )
-
-        delete_url = self.get_delete_absolute_url()
-        if delete_url:
-            actions.append(EntityAction(delete_url,
-                                        text=ugettext('Delete'),
-                                        is_allowed=user.has_perm_to_delete(self),
-                                        icon='delete',
-                                        attrs={'data-action': 'delete'},
-                                       )
-                          )
-
-        return {'default': EntityAction(self.get_absolute_url(),
-                                        text=ugettext('See'),
-                                        is_allowed=True,
-                                        icon='view',
-                                        verbose=ugettext('Go to the entity {entity}').format(entity=self),
-                                       ),
-                'others':  actions,
-               }
+# NB : Replaced by creme_core.gui.actions.actions_registry mechanism
+#     def get_actions(self, user):  # TODO: improve icon/css class management....
+#         actions = []
+#
+#         edit_url = self.get_edit_absolute_url()
+#         if edit_url:
+#             actions.append(EntityAction(edit_url,
+#                                         text=ugettext('Edit'),
+#                                         is_allowed=user.has_perm_to_change(self),
+#                                         icon='edit',
+#                                        )
+#                            )
+#
+#         delete_url = self.get_delete_absolute_url()
+#         if delete_url:
+#             actions.append(EntityAction(delete_url,
+#                                         text=ugettext('Delete'),
+#                                         is_allowed=user.has_perm_to_delete(self),
+#                                         icon='delete',
+#                                         attrs={'data-action': 'delete'},
+#                                        )
+#                           )
+#
+#         return {'default': EntityAction(self.get_absolute_url(),
+#                                         text=ugettext('See'),
+#                                         is_allowed=True,
+#                                         icon='view',
+#                                         verbose=ugettext('Go to the entity {entity}').format(entity=self),
+#                                        ),
+#                 'others':  actions,
+#                }
 
     def get_custom_fields_n_values(self):
         # TODO: in a staticmethod of CustomField ??

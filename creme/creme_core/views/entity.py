@@ -149,6 +149,9 @@ def clone(request):
 
     new_entity = entity.clone()
 
+    if request.is_ajax():
+        return HttpResponse(new_entity.get_absolute_url())
+
     return redirect(new_entity)
 
 

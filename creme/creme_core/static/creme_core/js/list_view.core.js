@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2017  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -30,16 +30,57 @@
                 direction: 'bottom-right'
             }, options || {});
 
+            var self = this;
             var content = link.find('.listview-actions-container');
 
-            this._dialog = new creme.dialog.Popover(options).fill(content);
-            this._dialog.addClass(options.classes || '');
+            this._listview = options.listview;
 
-            var toggle = this.toggle.bind(this);
+            this._dialog = new creme.dialog.Popover(options).fill(content);
+            this._dialog.addClass(options.classes || '')
+                        .on('opened', function() {
+                            self._updateState();
+                        });
 
             link.on('click', function(e) {
                 e.stopPropagation();
-                toggle(options.anchor || e.target);
+                self.toggle(options.anchor || e.target);
+            });
+        },
+
+        // TODO : This method enable action links based on a validation check,
+        // we should improve api to use this feature in other cases (like hatbar buttons)
+        _updateState: function() {
+            var count = (this._listview.getSelectedEntitiesAsArray() || []).length;
+
+            this._dialog.content().find('a[data-row-min], a[data-row-max]').each(function() {
+                var min = parseInt($(this).attr('data-row-min'))
+                var max = parseInt($(this).attr('data-row-max'))
+                var message = '';
+
+                if (!isNaN(min) && min === max && count != min) {
+                    message = ngettext('Select %d row',
+                                       'Select %d rows',
+                                       min).format(min);
+                } else if (!isNaN(min) && count < min) {
+                    message = ngettext('Select at least %d row',
+                                       'Select at least %d rows',
+                                       min).format(min);
+                } else if (!isNaN(max) && count > max) {
+                    message = ngettext('Select no more than %d row',
+                                       'Select no more than %d rows',
+                                       max).format(max);
+                }
+
+                var disabled = message.length > 0;
+                var help = $(this).attr('data-helptext') || '';
+                var title = help;
+
+                if (disabled) {
+                    title = help ? '%s − %s'.format(help, message) : message;
+                }
+
+                $(this).toggleClass('is-disabled', disabled);
+                $(this).attr('title', title);
             });
         },
 
@@ -120,6 +161,7 @@
                 me.is_loading = false;
 
                 this._actionBuilders = new creme.lv_widget.ListViewActionBuilders(this);
+                self.trigger('listview-setup-actions', [this._actionBuilders]);
 
                 /* **************** Getters & Setters **************** */
                 this.getActionBuilders = function() {
@@ -272,14 +314,16 @@
 
                     self.find('.row-actions-trigger').map(function() {
                         return new ListViewActionMenu($(this), {
-                            classes: 'row-actions-popover listview-actions-popover'
+                            classes: 'row-actions-popover listview-actions-popover',
+                            listview: me
                         });
                     });
 
                     self.find('.header-actions-trigger').map(function() {
                         return new ListViewActionMenu($(this), {
                             classes: 'header-actions-popover listview-actions-popover',
-                            anchor: $(this).find('span')
+                            anchor: $(this).find('span'),
+                            listview: me
                         });
                     });
                 };

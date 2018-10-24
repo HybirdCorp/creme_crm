@@ -509,6 +509,11 @@
     position: relative;
 }
 
+.listview-action a.is-disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
 .listview .default-row-action .listview-action-icon {
     top: 3px;
     margin-left: 5px;
