@@ -347,12 +347,12 @@ class PropertyTypeDetail(generic.detailview.CremeModelDetail):
     model = CremePropertyType
     template_name = 'creme_core/view_property_type.html'
     pk_url_kwarg = 'ptype_id'
+    bricks_reload_url_name = 'creme_core__reload_ptype_bricks'
 
-    # TODO: Mixin for bricks rendering ?
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['bricks'] = self.get_bricks()
-        context['bricks_reload_url'] = reverse('creme_core__reload_ptype_bricks', args=(self.object.id,))
+        context['bricks_reload_url'] = self.get_bricks_reload_url()
 
         return context
 
@@ -369,6 +369,9 @@ class PropertyTypeDetail(generic.detailview.CremeModelDetail):
             bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))
 
         return bricks
+
+    def get_bricks_reload_url(self):
+        return reverse(self.bricks_reload_url_name, args=(self.object.id,))
 
 
 @login_required

@@ -710,7 +710,8 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         url = reverse('documents__create_document_from_widget')
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
 
         context = response.context
         self.assertEqual(_('Create a document'), context.get('title'))
@@ -771,7 +772,8 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         url = reverse('documents__create_image_popup')
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
 
         context = response.context
         self.assertEqual(_('Create an image'), context.get('title'))

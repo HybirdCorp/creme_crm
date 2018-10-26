@@ -159,7 +159,7 @@ class MessagingListEdition(generic.EntityEdition):
 class ContactsAdding(generic.AddingToEntity):
     # model = Contact
     form_class = ml_forms.AddContactsForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     entity_id_url_kwarg = 'mlist_id'
     entity_classes = MessagingList
     title_format = _('New contacts for «{}»')

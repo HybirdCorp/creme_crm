@@ -142,6 +142,10 @@ creme.utils.innerPopupUUID = function() {
     return d.getTime().toString() + Math.ceil(Math.random() * 1000000);
 };
 
+// BEWARE: DO NOT USE THIS, BECAUSE IT WILL PROBABLY BE REMOVED IN CREME 2.1
+//    (we do not deprecate it because it is still used by list-view,
+//     & we do not want to pollute terminal with annoying messages)
+// NB: only used by creme.utils.innerPopupFormAction()
 creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload) {
     reload = reload || false;
 
@@ -224,7 +228,7 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload
 };
 
 // TODO : This code is never reached in vanilla modules (new form dialog are used everywhere)
-// Keep it for compatiblity with client modules.
+// Keep it for compatibility with client modules.
 creme.utils.handleDialogSubmit = function(dialog) {
     console.warn('creme.utils.handleDialogSubmit() is deprecated.');
 
@@ -311,6 +315,10 @@ creme.utils.closeDialog = function(dial, reload, beforeReloadCb, redirect_url) {
     }
 };
 
+// BEWARE: DO NOT USE THIS, BECAUSE IT WILL PROBABLY BE REMOVED IN CREME 2.1
+//    (we do not deprecate it because it is still used by list-view,
+//     & we do not want to pollute terminal with annoying messages)
+// NB: only used in creme.utils.closeDialog()
 creme.utils.reloadDialog = function(dial) {
     if (dial === window) {
         creme.utils.reload();
@@ -465,6 +473,9 @@ creme.utils.ajaxQuery = function(url, options, data) {
     return action;
 };
 
+// BEWARE: DO NOT USE THIS, BECAUSE IT WILL PROBABLY BE REMOVED IN CREME 2.1
+//    (we do not deprecate it because it is still used by list-view,
+//     & we do not want to pollute terminal with annoying messages)
 creme.utils.innerPopupFormAction = function(url, options, data) {
     options = $.extend({
         submit_label: gettext("Save"),

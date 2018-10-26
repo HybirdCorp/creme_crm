@@ -169,7 +169,7 @@ class FolderCreation(generic.EntityCreation):
 
 
 # TODO: no CHANGE credentials for parent ?
-# TODO: link_popup.html ?
+# TODO: link-popup.html ?
 class ChildFolderCreation(generic.AddingToEntity):
     model = Folder
     form_class = f_forms.ChildFolderForm

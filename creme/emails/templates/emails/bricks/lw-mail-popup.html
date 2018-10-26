@@ -1,7 +1,7 @@
 {% extends 'creme_core/bricks/base/tiles.html' %}
 {% load i18n creme_bricks creme_cells %}{# creme_core_tags #}
 
-{% block brick_extra_class %}{{block.super}} brick-detailview-popup{% endblock %}
+{% block brick_extra_class %}{{block.super}} brick-detailview-popup emails-lw-email-brick{% endblock %}
 
 {% block brick_header %}
     {% with campaign=object.sending.campaign %}
@@ -32,7 +32,6 @@
 
     {% if sending.body_html %}
     <div class="brick-tile brick-tile-multiline-value" data-type="html" data-key="regular_field-body_html">
-{#        <span class="brick-tile-name">{% get_field_verbose_name sending 'body_html' %}</span> #}
         <span class="brick-tile-name">{% cell_4_regularfield instance=sending field='body_html' %}</span>
         <span class="brick-tile-value">
             <iframe src="{% url 'emails__lw_mail_body' object.id %}" frameborder="0" width="100%" {#height="100%"#} {#style="min-height:350px"#}></iframe>

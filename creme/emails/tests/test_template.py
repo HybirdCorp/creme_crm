@@ -117,7 +117,8 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         url = reverse('emails__add_attachments_to_template', args=(template.id,))
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('New attachments for «%s»') % template, context.get('title'))

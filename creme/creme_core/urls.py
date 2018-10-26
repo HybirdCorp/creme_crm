@@ -229,10 +229,10 @@ if settings.TESTS_ON:
         url(r'^tests/organisation/edit/(?P<orga_id>\d+)[/]?$', fake_views.organisation_edit,       name='creme_core__edit_fake_organisation'),
         url(r'^tests/organisation/(?P<orga_id>\d+)[/]?$',      fake_views.organisation_detailview, name='creme_core__view_fake_organisation'),
 
-        url(r'^tests/address/legacy_add/(?P<entity_id>\d+)[/]?$', fake_views.address_add,                   name='creme_core__create_fake_address_legacy'),
-        url(r'^tests/address/add/(?P<entity_id>\d+)[/]?$',        fake_views.FakeAddressCreation.as_view(), name='creme_core__create_fake_address'),
-        url(r'^tests/address/edit/(?P<address_id>\d+)[/]?$',      fake_views.address_edit,                  name='creme_core__edit_fake_address_legacy'),
-        url(r'^tests/address/edit/(?P<address_id>\d+)[/]?$',      fake_views.FakeAddressEdition.as_view(),  name='creme_core__edit_fake_address'),
+        url(r'^tests/address/legacy_add/(?P<entity_id>\d+)[/]?$',   fake_views.address_add,                   name='creme_core__create_fake_address_legacy'),
+        url(r'^tests/address/add/(?P<entity_id>\d+)[/]?$',          fake_views.FakeAddressCreation.as_view(), name='creme_core__create_fake_address'),
+        url(r'^tests/address/legacy_edit/(?P<address_id>\d+)[/]?$', fake_views.address_edit,                  name='creme_core__edit_fake_address_legacy'),
+        url(r'^tests/address/edit/(?P<address_id>\d+)[/]?$',        fake_views.FakeAddressEdition.as_view(),  name='creme_core__edit_fake_address'),
 
         url(r'^tests/activities[/]?$', fake_views.activity_listview, name='creme_core__list_fake_activities'),
 

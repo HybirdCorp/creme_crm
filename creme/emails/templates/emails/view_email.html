@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} brick-detailview-popup{% endblock %}
 
 {% block brick_header %}
-    {% log 'The template file "creme/emails/templates/emails/view_email.html" is deprecated ; use "lw-email-popup.html" instead.' level='WARN' %}
+    {% log 'The template file "creme/emails/templates/emails/view_email.html" is deprecated.' level='WARN' %}
 
     {% with campaign=mail.sending.campaign %}
 {#    {% brick_action id='redirect' url=campaign.get_absolute_url label=_('Full detailview') class='brick-dialog-action' display='text' %} #}

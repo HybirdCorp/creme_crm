@@ -40,7 +40,7 @@
         <td class="email-status">{{mail.get_status_display}}</td>
         <td class="email-sending-date" data-type="date">{% print_field object=mail field='sending_date' %}</td>
         <td {% brick_table_data_status action %}>{% url 'emails__view_email_popup' mail.id as email_view_url %}
-            {% brick_table_action id='view' url=email_view_url label=_('Details') __title=_('Email') %}
+            {% brick_table_action id='view' url=email_view_url label=_('Details') %}{# __title=_('Email') #}
         </td>
         <td {% brick_table_data_status action %}>
             {% if not mail.sent %}{% url 'emails__resend_emails' as resend_url %}

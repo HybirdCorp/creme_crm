@@ -100,7 +100,8 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         url = segment.get_edit_absolute_url()
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         # self.assertEqual(_('Edit «%s»') % segment, context.get('title'))
@@ -223,7 +224,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         url = self._build_delete_url(segment1)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete-popup.html')
 
         context = response.context
         self.assertEqual(_('Delete and replace «{}»').format(segment1), context.get('title'))

@@ -243,7 +243,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = reverse('creme_config__create_instance', args=('creme_core', 'fake_civility'))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
 
         context = response.context
         self.assertEqual(_('Create'), context.get('title'))
@@ -296,7 +297,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                       args=('creme_core', 'fake_civility')
                      )
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
 
         context = response.context
         self.assertEqual(_('Create'), context.get('title'))
@@ -347,7 +349,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = reverse('creme_config__edit_instance', args=('creme_core', 'fake_civility', civ.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/form/edit_innerpopup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/form/edit_innerpopup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/form/edit-popup.html')
         self.assertEqual(_('Edit «{}»').format(civ), response.context.get('title'))
 
         title = title.title()

@@ -180,7 +180,8 @@ class ServiceTestCase(_ProductsTestCase):
 
         url = reverse('products__add_images_to_service', args=(service.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('New images for «%s»') % service, context.get('title'))

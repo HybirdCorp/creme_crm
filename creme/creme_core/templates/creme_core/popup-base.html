@@ -1,0 +1,5 @@
+{% load creme_core_tags %}
+{% url_join bricks_reload_url base_url=request.path as bricks_reload_uri %}
+<div class="inner-popup-content {% block ipopup_extra_class %}{% endblock %}"{% if bricks_reload_uri %} data-bricks-reload-url="{{bricks_reload_uri}}"{% endif %}>
+    {% block content %}{% endblock %}
+</div>

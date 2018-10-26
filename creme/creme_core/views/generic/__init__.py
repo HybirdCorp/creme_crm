@@ -10,7 +10,8 @@ from .add import (
 from .detailview import (
     view_entity,
     CremeModelDetail, EntityDetail,
-    CremeModelDetailPopup, RelatedToEntityDetail,
+    CremeModelDetailPopup, EntityDetailPopup,
+    RelatedToEntityDetail,
 )
 from .edit import (
     edit_entity, edit_related_to_entity, edit_model_with_popup,

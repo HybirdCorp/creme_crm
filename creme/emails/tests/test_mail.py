@@ -119,7 +119,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'emails/view_entity_mail.html')
 
         response = self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
-        self.assertTemplateUsed(response, 'emails/view_entity_mail_popup.html')
+        # self.assertTemplateUsed(response, 'emails/view_entity_mail_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/detail-popup.html')
 
         messages = mail.outbox
         self.assertEqual(1, len(messages))

@@ -137,7 +137,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
         url = self._build_add_url(subject)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('Relationships for «{entity}»').format(entity=subject), context.get('title'))
@@ -588,7 +589,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                )
         ct_id = self.ct_id
         response = self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True))
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         self.assertEqual(_('Multiple adding of relationships'), context.get('title'))

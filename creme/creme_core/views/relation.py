@@ -200,7 +200,7 @@ def json_rtype_ctypes(request, rtype_id):
 class RelationsAdding(generic.AddingToEntity):
     model = Relation
     form_class = rel_forms.RelationCreateForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     title_format = _('Relationships for «{}»')
     submit_label = _('Save the relationships')
     entity_id_url_kwarg = 'subject_id'

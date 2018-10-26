@@ -157,7 +157,7 @@ class GraphEdition(generic.EntityEdition):
 class RelationTypesAdding(generic.AddingToEntity):
     # model = RelationType
     form_class = g_forms.AddRelationTypesForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     title_format = _('Add relation types to «{}»')
     entity_id_url_kwarg = 'graph_id'
     entity_classes = Graph

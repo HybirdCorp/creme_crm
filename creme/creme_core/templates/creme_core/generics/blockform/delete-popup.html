@@ -1,0 +1,7 @@
+{% extends 'creme_core/forms/popup-base.html' %}
+
+{% block content %}
+<div>
+    {% include "creme_core/generics/blockform/base.html" with is_inner_popup=True icon_name='delete' icon_label=_('Delete') %}
+</div>
+{% endblock %}

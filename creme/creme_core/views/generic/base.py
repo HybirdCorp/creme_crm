@@ -229,7 +229,8 @@ class BricksMixin:
         ))
 
     def get_bricks_reload_url(self):
-        return reverse(self.bricks_reload_url_name)
+        name = self.bricks_reload_url_name
+        return reverse(name) if name else ''
 
 
 class BricksView(BricksMixin, CheckedTemplateView):

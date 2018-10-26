@@ -46,7 +46,7 @@ class _RelatedEntitesBrick(QuerysetBrick):
 class MessagingListsBlock(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('sms', 'messaging_lists')
     dependencies  = (MessagingList,)
-    verbose_name  = _(u'Messaging lists')
+    verbose_name  = _('Messaging lists')
     template_name = 'sms/bricks/messaging-lists.html'
     target_ctypes = (SMSCampaign,)
     order_by      = 'name'
@@ -58,7 +58,7 @@ class MessagingListsBlock(_RelatedEntitesBrick):
 class RecipientsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('sms', 'recipients')
     dependencies  = (Recipient,)
-    verbose_name  = _(u'Unlinked recipients')
+    verbose_name  = _('Unlinked recipients')
     template_name = 'sms/bricks/recipients.html'
     target_ctypes = (MessagingList,)
 
@@ -74,7 +74,7 @@ class RecipientsBrick(QuerysetBrick):
 class ContactsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('sms', 'contacts')
     dependencies  = (get_contact_model(),)
-    verbose_name  = _(u'Contacts recipients')
+    verbose_name  = _('Contacts recipients')
     template_name = 'sms/bricks/contacts.html'
     target_ctypes = (MessagingList,)
 
@@ -86,7 +86,7 @@ class MessagesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('sms', 'messages')
     dependencies  = (Message,)
     page_size     = 12
-    verbose_name  = _(u'Sent messages')
+    verbose_name  = _('Sent messages')
     template_name = 'sms/bricks/messages.html'
 
     def detailview_display(self, context):
@@ -98,7 +98,7 @@ class SendingsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('sms', 'sendings')
     dependencies  = (Sending,)
     order_by      = '-date'
-    verbose_name  = _(u'Sendings')
+    verbose_name  = _('Sendings')
     template_name = 'sms/bricks/sendings.html'
     target_ctypes = (SMSCampaign,)
 

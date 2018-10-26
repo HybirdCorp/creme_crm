@@ -32,7 +32,8 @@ class SettingTestCase(CremeTestCase):
 
         url = self._build_edit_url(sv)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Edit «{}»').format(sk.description), context.get('title'))

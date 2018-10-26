@@ -103,12 +103,18 @@ def send_messages(request, id):
 # TODO: RelatedToEntityDetail when Sending is/if an auxiliary
 class Messages(generic.CremeModelDetailPopup):
     model = Sending
-    template_name = 'sms/popup_sending.html'
+    # template_name = 'sms/popup_sending.html'
     pk_url_kwarg = 'id'
     permissions = 'sms'
+    bricks_reload_url_name = 'sms__reload_messages_brick'
 
     def check_instance_permissions(self, instance, user):
         user.has_perm_to_view_or_die(instance.campaign)
+
+    def get_brick_ids(self):
+        return (
+            MessagesBrick.id_,
+        )
 
 
 # TODO: improve Message.delete() instead ?
@@ -140,6 +146,8 @@ def reload_messages_brick(request, id):
     sending = get_object_or_404(Sending, id=id)
     request.user.has_perm_to_view_or_die(sending.campaign)
 
-    return bricks_render_info(request, bricks=[MessagesBrick()],
-                              context=build_context(request, object=sending),
-                             )
+    return bricks_render_info(
+        request,
+        bricks=[MessagesBrick()],  # TODO: retrieve by 'id_' to allow complete overriding
+        context=build_context(request, object=sending),
+    )

@@ -211,7 +211,8 @@ class CreateCategoryTestCase(CremeTestCase):
 
         url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
 
         context = response.context
         self.assertEqual(pgettext('products-sub_category', 'Create a sub-category'),

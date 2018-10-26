@@ -239,7 +239,8 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         # url = self._build_edit_segmentdesc_url(strategy, segment_desc)
         url = self._build_edit_segmentdesc_url(segment_desc)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Segment for «%s»') % strategy, response.context.get('title'))
         self.assertEqual(_('Segment for «{}»').format(strategy), response.context.get('title'))
 
@@ -341,7 +342,8 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         asset = CommercialAsset.objects.create(name=name, strategy=strategy)
         url = asset.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Asset for «%s»') % strategy, response.context.get('title'))
         self.assertEqual(_('Asset for «{}»').format(strategy), response.context.get('title'))
 
@@ -387,7 +389,8 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = charm.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Charm for «%s»') % strategy, response.context.get('title'))
         self.assertEqual(_('Charm for «{}»').format(strategy), response.context.get('title'))
 
@@ -423,7 +426,8 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = reverse('commercial__add_evaluated_orgas', args=(strategy.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('New organisation(s) for «%s»') % strategy, context.get('title'))

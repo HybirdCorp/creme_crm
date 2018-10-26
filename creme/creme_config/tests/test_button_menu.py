@@ -133,7 +133,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         url = reverse('creme_config__edit_ctype_buttons', args=(0,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Edit default configuration'), context.get('title'))

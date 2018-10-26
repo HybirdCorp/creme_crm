@@ -165,7 +165,7 @@ class ReportLinking(generic.CremeModelEditionPopup):
     model = Field
     pk_url_kwarg = 'field_id'
     form_class = report_forms.LinkFieldToReportForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     permissions = 'reports'
     title_format = _('Link of the column «{}»')
     submit_label = _('Link')

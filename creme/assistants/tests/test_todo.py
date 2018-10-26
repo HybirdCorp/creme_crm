@@ -145,7 +145,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         url = todo.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response,'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response,'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response,'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         # self.assertEqual(_('Todo for «%s»') % self.entity, context.get('title'))

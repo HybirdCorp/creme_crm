@@ -21,7 +21,7 @@
         <td>{{mail.sending.subject}}</td>
         <td>{% print_field object=mail field='status' %}</td>
         <td {% brick_table_data_status action %}>{% url 'emails__view_lw_mail' mail.pk as view_url %}
-            {% brick_table_action id='view' url=view_url label=_('Details') __title=_('Email') %}
+            {% brick_table_action id='view' url=view_url label=_('Details') %}{# __title=_('Email') #}
         </td>
     </tr>
     {% endfor %}

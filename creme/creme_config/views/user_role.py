@@ -267,7 +267,7 @@ def delete_credentials(request):
 #     )
 class RoleDeletion(BaseRoleEdition):
     form_class = role_forms.UserRoleDeleteForm
-    template_name = 'creme_core/generics/blockform/delete_popup.html'
+    template_name = 'creme_core/generics/blockform/delete-popup.html'
     title_format = _('Delete role «{}»')
     submit_label = _('Delete the role')  # TODO: deletion_label ?
 

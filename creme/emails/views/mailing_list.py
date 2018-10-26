@@ -210,7 +210,7 @@ class MailingListEdition(generic.EntityEdition):
 
 
 class _AddingToMailingList(generic.AddingToEntity):
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     entity_id_url_kwarg = 'ml_id'
     entity_classes = MailingList
 

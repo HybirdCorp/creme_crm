@@ -181,7 +181,8 @@ class QuickFormTestCase(CremeTestCase):
 
         url = self._build_quickform_url(FakeContact)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
 
         context = response.context
         self.assertEqual(FakeContact.creation_label, context.get('title'))

@@ -102,7 +102,7 @@ class SegmentDeletion(generic.CremeModelEditionPopup):
     # model = MarketSegment
     queryset = MarketSegment.objects.exclude(property_type=None)
     form_class = segment_forms.SegmentReplacementForm
-    template_name = 'creme_core/generics/blockform/delete_popup.html'
+    template_name = 'creme_core/generics/blockform/delete-popup.html'
     pk_url_kwarg = 'segment_id'
     permissions = 'commercial'
     title_format = _('Delete and replace «{}»')

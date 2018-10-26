@@ -87,7 +87,8 @@ class MailingListsTestCase(_EmailsTestCase):
 
         url = reverse('emails__add_mlists_to_campaign', args=(campaign.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('New mailing lists for «%s»') % campaign, context.get('title'))
@@ -222,7 +223,8 @@ class MailingListsTestCase(_EmailsTestCase):
         url = self._build_addcontact_url(mlist)
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('New contacts for «%s»') % mlist, context.get('title'))
@@ -271,7 +273,8 @@ class MailingListsTestCase(_EmailsTestCase):
         url = self._build_addcontactfilter_url(mlist)
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('New contacts for «%s»') % mlist, context.get('title'))
@@ -347,7 +350,8 @@ class MailingListsTestCase(_EmailsTestCase):
         url = self._build_addorga_url(mlist)
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('New organisations for «%s»') % mlist, context.get('title'))
@@ -394,7 +398,8 @@ class MailingListsTestCase(_EmailsTestCase):
         url = self._build_addorgafilter_url(mlist)
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('New organisations for «%s»') % mlist, context.get('title'))
@@ -471,7 +476,8 @@ class MailingListsTestCase(_EmailsTestCase):
 
         url = reverse('emails__add_child_mlists', args=(mlist01.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('New child lists for «%s»') % mlist01, context.get('title'))

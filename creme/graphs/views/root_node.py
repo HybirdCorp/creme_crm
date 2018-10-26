@@ -43,7 +43,7 @@ from ..models import RootNode
 class RootNodesAdding(generic.AddingToEntity):
     # model = CremeEntity
     form_class = forms.AddRootNodesForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     title_format = _('Add root nodes to «{}»')
     entity_id_url_kwarg = 'graph_id'
     entity_classes = get_graph_model()

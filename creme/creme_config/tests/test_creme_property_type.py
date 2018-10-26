@@ -105,7 +105,8 @@ class PropertyTypeTestCase(CremeTestCase):
         pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(FakeContact)], is_custom=True)
         url = self._build_edit_url(pt)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         # self.assertEqual(_('Edit the type «{property}»').format(property=pt),

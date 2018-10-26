@@ -276,7 +276,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = reverse('polls__create_child_form_section', args=(section_2.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('New section for «%s»') % pform, context.get('title'))
@@ -336,7 +337,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = section.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Section for «%s»') % pform, response.context.get('title'))
         self.assertEqual(_('Section for «{}»').format(pform), response.context.get('title'))
 
@@ -837,7 +839,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self.build_addline2section_url(section)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('New question for «%s»') % pform, context.get('title'))
@@ -1018,7 +1021,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = line.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         # self.assertEqual(_('Question for «%s»') % pform, response.context.get('title'))
@@ -1659,7 +1663,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self.build_editlineconditions_url(line3)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('Condition for «%s»') % self.pform, context.get('title'))
@@ -1667,13 +1672,15 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(PollFormLineCondition.save_label,           context.get('submit_label'))
 
         # ---
-        response = self.client.post(url, data={'use_or':     1,
-                                               'conditions': json_dump([
-                                                                self.conds_formfield_entry(source=line1.id, choice=2),
-                                                                self.conds_formfield_entry(source=line2.id, choice=1),
-                                                            ]),
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={'use_or':     1,
+                  'conditions': json_dump([
+                                   self.conds_formfield_entry(source=line1.id, choice=2),
+                                   self.conds_formfield_entry(source=line2.id, choice=1),
+                               ]),
+                 },
+        )
         self.assertNoFormError(response)
 
         line3 = self.refresh(line3)

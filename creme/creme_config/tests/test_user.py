@@ -356,7 +356,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = self._build_edit_url(other_user.id)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(_('Edit «{}»').format(other_user), response.context.get('title'))
 
         # ----
@@ -487,7 +488,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         other_user = User.objects.create(username='deunan')
         url = self._build_edit_url(other_user.id, password=True)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Change password for «%s»') % other_user, response.context.get('title'))
         self.assertEqual(_('Change password for «{}»').format(other_user), response.context.get('title'))
 
@@ -822,7 +824,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = self._build_delete_url(root)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete-popup.html')
 
         context = response.context
         # self.assertEqual(_('Delete «{user}» and assign his entities to user').format(user=root),
@@ -1093,7 +1095,8 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         # ---
         self._register_key(sk)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Edit «{}»').format(sk.description), context.get('title'))

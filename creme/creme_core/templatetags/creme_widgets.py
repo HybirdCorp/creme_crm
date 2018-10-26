@@ -196,7 +196,7 @@ def do_render_icon(parser, token):
     bits = token.split_contents()
 
     if len(bits) != 3:
-        raise TemplateSyntaxError("'%s' takes 2 arguments (icon & class)" % bits[0])
+        raise TemplateSyntaxError("'{}' takes 2 arguments (icon & class)".format(bits[0]))
 
     def compile_arg(token, prefix):
         if token.startswith(prefix):
@@ -225,7 +225,7 @@ class IconRendererNode(TemplateNode):
 # def get_entity_actions(context, entity):
 #     user = context['user']
 #
-#     context['id'] = entity.id  # TODO: new context VS object.id
+#     context['id'] = entity.id  # todo: new context VS object.id
 #     context['actions'] = entity.get_actions(user)
 #
 #     return context
@@ -240,7 +240,7 @@ def widget_hyperlink(instance):
            because the permissions are not checked.
     """
     try:
-        return format_html(u'<a href="{}">{}</a>', instance.get_absolute_url(), instance)
+        return format_html('<a href="{}">{}</a>', instance.get_absolute_url(), instance)
     except AttributeError:
         return escape(instance)
 
@@ -250,9 +250,9 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False):
     "{% widget_entity_hyperlink my_entity user %}"
     if user.has_perm_to_view(entity):
         return format_html(
-            u'<a href="{url}"{deleted}>{label}</a>',
+            '<a href="{url}"{deleted}>{label}</a>',
             url=entity.get_absolute_url(),
-            deleted=mark_safe(u' class="is_deleted"') if entity.is_deleted and not ignore_deleted else u'',
+            deleted=mark_safe(' class="is_deleted"') if entity.is_deleted and not ignore_deleted else '',
             label=entity,
         )
 
@@ -299,9 +299,9 @@ def enum_comma_and(item, counter, is_first, is_last):
         return item
 
     if is_last:
-        return u'&emsp14;{}&emsp14;{}'.format(_(u'and'), item)
+        return '&emsp14;{}&emsp14;{}'.format(_('and'), item)
 
-    return u',&emsp14;{}'.format(item)
+    return ',&emsp14;{}'.format(item)
 
 
 class JoinNode(TemplateNode):

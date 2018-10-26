@@ -42,7 +42,7 @@
         <td>{{sending.messages.count}}</td>
         <td>{{sending.formatstatus}}</td>
         <td {# {% brick_table_data_status action %} #}>{% url 'sms__view_sending' sending.id as view_url %}
-            {% brick_table_action id='view' url=view_url label=_('Details') __title=sending %}
+            {% brick_table_action id='view' url=view_url label=_('Details') %}{# __title=sending #}
         </td>
         <td {% brick_table_data_status action %}>
 {% comment %} FIX

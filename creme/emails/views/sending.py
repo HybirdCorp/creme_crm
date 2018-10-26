@@ -24,10 +24,10 @@ from django.shortcuts import get_object_or_404  # render
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.utils import jsonify
+from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import build_context, bricks_render_info
 # from creme.creme_core.views.generic import add_to_entity
-from creme.creme_core.views import generic
-from creme.creme_core.utils import jsonify
 
 from .. import get_emailcampaign_model
 from ..bricks import MailsBrick
@@ -69,9 +69,14 @@ def _get_sending(request, sending_id):
 #                  )
 class LightWeightEmails(generic.RelatedToEntityDetail):
     model = EmailSending
-    template_name = 'emails/popup_sending.html'
     pk_url_kwarg = 'sending_id'
     permissions = 'emails'
+    bricks_reload_url_name = 'emails__reload_lw_mails_brick'
+
+    def get_brick_ids(self):
+        return (
+            MailsBrick.id_,
+        )
 
 
 # Useful method because EmailSending is not a CremeEntity (should be ?)
@@ -79,6 +84,8 @@ class LightWeightEmails(generic.RelatedToEntityDetail):
 @permission_required('emails')
 @jsonify
 def reload_mails_brick(request, sending_id):
-    return bricks_render_info(request, bricks=[MailsBrick()],
-                              context=build_context(request, object=_get_sending(request, sending_id)),
-                             )
+    return bricks_render_info(
+        request,
+        bricks=[MailsBrick()],  # TODO: retrieve by 'id_' to allow complete overriding
+        context=build_context(request, object=_get_sending(request, sending_id)),
+    )

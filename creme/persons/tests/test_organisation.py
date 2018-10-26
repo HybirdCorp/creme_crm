@@ -1194,7 +1194,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         url = reverse('persons__orga_set_managed')
         response = self.assertGET200(url)
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         self.assertEqual(_('Add some managed organisations'), context.get('title'))

@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} reports-instance-bricks-info-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Block') plural=_('{count} Blocks') empty=_('Blocks') icon='graph' %}
+    {% brick_header_title title=_('{count} Block') plural=_('{count} Blocks') empty=_('Blocks') %}{# icon='graph' #}
 {% endblock %}
 
 {% block brick_table_columns %}

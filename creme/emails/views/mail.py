@@ -37,7 +37,7 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
-from .. import get_entityemail_model, constants
+from .. import get_entityemail_model, bricks, constants
 from ..forms import mail as mail_forms
 from ..forms.template import TEMPLATES_VARS
 from ..models import LightWeightEmail
@@ -229,7 +229,7 @@ def resend_mails(request):  # TODO: unit test
 class EntityEmailCreation(generic.AddingToEntity):
     model = EntityEmail
     form_class = mail_forms.EntityEmailForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     permissions = ['emails', cperm(EntityEmail)]
     title_format = _('Sending an email to «{}»')
     submit_label = EntityEmail.sending_label
@@ -305,14 +305,25 @@ class EntityEmailDetail(generic.EntityDetail):
     pk_url_kwarg = 'mail_id'
 
 
-class EntityEmailPopup(EntityEmailDetail):
-    template_name = 'emails/view_entity_mail_popup.html'
+class EntityEmailPopup(generic.EntityDetailPopup):
+    model = EntityEmail
+    pk_url_kwarg = 'mail_id'
+    title = _('Details of the email')
+
+    def get_brick_ids(self):
+        return (
+            bricks.MailPopupBrick.id_,
+        )
 
 
 # TODO: disable the link in the template if view is not allowed
 class LightWeightEmailPopup(generic.RelatedToEntityDetail):
     model = LightWeightEmail
-    template_name = 'emails/lw-email-popup.html'
     pk_url_kwarg = 'mail_id'
     permissions = 'emails'
-    title = _('Details of the mail')
+    title = _('Details of the email')
+
+    def get_brick_ids(self):
+        return (
+            bricks.LwMailPopupBrick.id_,
+        )

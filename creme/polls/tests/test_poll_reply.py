@@ -536,7 +536,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self._build_preply_from_pform_url(pform)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('New replies for «%s»') % pform, context.get('title'))
@@ -703,7 +704,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self._build_linkto_url(person)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('Existing replies for «%s»') % person, context.get('title'))
@@ -794,7 +796,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self._build_preply_from_person_url(person)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('New replies for «%s»') % person, context.get('title'))
@@ -1689,7 +1692,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertTrue(self.refresh(preply).is_complete)
 
         response = self.assertGET200(self._build_edit_answer_url(preply, rline))
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Answer edition'),        context.get('title'))

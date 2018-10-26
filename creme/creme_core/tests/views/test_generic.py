@@ -318,7 +318,8 @@ class CreationTestCase(ViewsTestCase):
         url = reverse('creme_core__create_fake_address', args=(nerv.id,))
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         self.assertEqual('Adding address to <{}>'.format(nerv), context.get('title'))
@@ -596,11 +597,12 @@ class EditionTestCase(ViewsTestCase):
         url = reverse('creme_core__edit_fake_address', args=(address.id,))
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual('Address for <%s>' % nerv,   context.get('title'))
-        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
+        self.assertEqual('Address for <{}>'.format(nerv), context.get('title'))
+        self.assertEqual(_('Save the modifications'),     context.get('submit_label'))
 
         # ---
         city = 'Tokyo'

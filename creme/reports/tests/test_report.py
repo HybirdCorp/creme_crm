@@ -751,7 +751,8 @@ class ReportTestCase(BaseReportsTestCase):
         report = self._create_report('My report')
         url = reverse('reports__export_report_filter', args=(report.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'reports/frags/report_export_filter.html')
+        # self.assertTemplateUsed(response, 'reports/frags/report_export_filter.html')
+        self.assertTemplateUsed(response, 'reports/forms/report-export-filter.html')
 
         context = response.context
         # self.assertEqual(_('Export «{report}»').format(report=report),
@@ -773,8 +774,8 @@ class ReportTestCase(BaseReportsTestCase):
                                      )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            callback_url = response.context['callback_url']
+        # with self.assertNoException():
+        #     callback_url = response.context['callback_url']
 
         self.assertEqual('{url}?doc_type=csv'
                          '&date_field={date}'
@@ -784,7 +785,8 @@ class ReportTestCase(BaseReportsTestCase):
                                 url=reverse('reports__export_report', args=(report.id,)),
                                 date=date_field,
                             ),
-                         callback_url
+                         # callback_url
+                         response.content.decode()
                         )
 
     def test_export_filter_not_superuser01(self):
@@ -879,14 +881,15 @@ class ReportTestCase(BaseReportsTestCase):
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            callback_url = response.context['callback_url']
+        # with self.assertNoException():
+        #     callback_url = response.context['callback_url']
 
         self.assertEqual('{url}?doc_type={type}&date_field='.format(
                                 url=reverse('reports__export_report', args=(report.id,)),
                                 type=doc_type,
                             ),
-                         callback_url
+                         # callback_url
+                         response.content.decode()
                         )
 
     def test_report_csv01(self):
@@ -1108,7 +1111,8 @@ class ReportTestCase(BaseReportsTestCase):
         url = self._build_editfields_url(report)
         self.assertGET200(url)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Edit columns of «%s»').format(report), response.context.get('title'))
         self.assertEqual(_('Edit columns of «{}»').format(report), response.context.get('title'))
 
@@ -1543,7 +1547,8 @@ class ReportTestCase(BaseReportsTestCase):
         img_report = self._build_image_report()
         url = self._build_linkreport_url(fk_img_field)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         self.assertEqual(_('Link of the column «{}»').format(fk_img_field),

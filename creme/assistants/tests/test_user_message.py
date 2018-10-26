@@ -68,7 +68,8 @@ class UserMessageTestCase(AssistantsTestCase):
 
         entity = self.entity
         response = self.assertGET200(self._build_add_url(entity))
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('New message about «%s»') % entity, context.get('title'))
@@ -151,7 +152,8 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_create03(self):
         "Without related entity"
         response = self.assertGET200(self._build_add_url())
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         self.assertEqual(_('New message'),      context.get('title'))

@@ -558,7 +558,8 @@ class ActTestCase(CommercialBaseTestCase):
 
         url = objective.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         # self.assertEqual(_('Objective for «%s»') % act, response.context.get('title'))
         self.assertEqual(_('Objective for «{}»').format(act), response.context.get('title'))
@@ -663,7 +664,8 @@ class ActTestCase(CommercialBaseTestCase):
 
         url = self._build_create_related_entity_url(objective)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('New parent objective for «%s»') % comp01, context.get('title'))
