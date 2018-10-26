@@ -28,7 +28,7 @@ from ..forms.base import AddImagesForm
 class ImagesAddingBase(AddingToEntity):
     # model = Document
     form_class = AddImagesForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     permissions = 'products'
     title_format = _('New images for «{}»')
     submit_label = _('Link the images')

@@ -315,12 +315,13 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         target, emitter = self._create_target_n_emitter()
         url = self._build_addrelated_url(target, popup=True)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('New opportunity related to «%s»') % target, context.get('title'))
         self.assertEqual(_('New opportunity targeting «{}»').format(target), context.get('title'))
-        self.assertEqual(Opportunity.save_label,                              context.get('submit_label'))
+        self.assertEqual(Opportunity.save_label,                             context.get('submit_label'))
 
         get_initial = context['form'].initial.get
         self.assertIsInstance(get_initial('sales_phase'), SalesPhase)

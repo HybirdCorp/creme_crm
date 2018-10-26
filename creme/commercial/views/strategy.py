@@ -156,7 +156,7 @@ class CharmCreation(_AddToStrategy):
 class EvaluatedOrgaAdding(_AddToStrategy):
     # model = Organisation
     form_class = forms.AddOrganisationForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     title_format = _('New organisation(s) for «{}»')
     submit_label = _('Link the organisation(s)')
 

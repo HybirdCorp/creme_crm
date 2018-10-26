@@ -213,7 +213,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         url = address.get_edit_absolute_url()
         response = self.assertGET200(url)
         # self.assertContains(response, escape(_('Edit address for «%s»') % orga))
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         # self.assertEqual(_('Edit address for «%s»') % orga, response.context.get('title'))
         self.assertEqual(_('Edit address for «{}»').format(orga), response.context.get('title'))

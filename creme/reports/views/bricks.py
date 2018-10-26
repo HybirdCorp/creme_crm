@@ -27,6 +27,7 @@ from creme.creme_core.models import InstanceBrickConfigItem
 from creme.creme_core.views import generic
 
 from .. import get_rgraph_model
+from ..bricks import InstanceBricksInfoBrick
 from ..forms.bricks import GraphInstanceBrickForm
 
 
@@ -79,5 +80,10 @@ class GraphInstanceBrickCreation(generic.AddingToEntity):
 
 class GraphInstanceBricks(generic.RelatedToEntityDetail):
     model = get_rgraph_model()
-    template_name = 'reports/instance-bricks.html'
     pk_url_kwarg = 'graph_id'
+    bricks_reload_url_name = 'creme_core__reload_detailview_bricks'
+
+    def get_brick_ids(self):
+        return (
+            InstanceBricksInfoBrick.id_,
+        )

@@ -29,7 +29,7 @@
         <td>{{sending.get_state_display}}</td>
         <td>{{sending.get_mails.count}}{% if sending.get_unsent_mails_count %} / <span class="errorlist">{{sending.get_unsent_mails_count}} {% trans 'not sent' %}{% endif %}</span></td>
         <td {% brick_table_data_status action %}>{% url 'emails__view_sending' sending.id as view_url %}
-            {% brick_table_action id='view' url=view_url label=_('Details') __title=sending %}
+            {% brick_table_action id='view' url=view_url label=_('Details') %}{# __title=sending #}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_sending_url __id=sending.pk label=_('Delete this sending') enabled=edit_perm %}

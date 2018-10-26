@@ -466,7 +466,8 @@ class ProjectsTestCase(CremeTestCase):
         task = self.create_task(project, 'Title')
         url = reverse('projects__edit_task_popup', args=(task.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         # ---
         title = 'Head'
@@ -501,7 +502,8 @@ class ProjectsTestCase(CremeTestCase):
 
         url = self._build_add_parent_task_url(task03)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Edit «%s»') % task03, response.context.get('title'))
         self.assertEqual(_('Adding parents to «{}»').format(task03),
                          response.context.get('title')
@@ -612,7 +614,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertFalse(task.resources_set.all())
 
         response = self.assertGET200(self._build_add_resource_url(task))
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         self.assertEqual(_('Allocation of a new resource'), context.get('title'))
@@ -697,7 +700,8 @@ class ProjectsTestCase(CremeTestCase):
                         )
         url = self._build_edit_activity_url(activity)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         # ---
         response = self.client.post(url, follow=True,
@@ -985,7 +989,8 @@ class ProjectsTestCase(CremeTestCase):
 
         url = resource1.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Resource for «%s»') % task1, response.context.get('title'))
         self.assertEqual(_('Resource for «{}»').format(task1), response.context.get('title'))
 

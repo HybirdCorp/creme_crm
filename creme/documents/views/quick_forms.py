@@ -92,7 +92,7 @@ def add_image(request):
 class BaseQuickDocumentCreation(generic.EntityCreationPopup):
     model = Document
     # form_class = ...
-    template_name = 'creme_core/generics/form/add_innerpopup.html'
+    template_name = 'creme_core/generics/form/add-popup.html'
 
     def form_valid(self, form):
         # super().form_valid(form=form)

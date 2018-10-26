@@ -34,8 +34,8 @@ from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import CremeModel, CremeEntity, BrickDetailviewLocation
 
-from .base import PermissionsMixin
-from.popup import InnerPopupMixin
+from . import base
+# from.popup import InnerPopupMixin
 
 
 logger = logging.getLogger(__name__)
@@ -126,16 +126,28 @@ def view_entity(request, object_id, model,
     return render(request, template, template_dict)
 
 
-class CremeModelDetail(PermissionsMixin, DetailView):
+class CremeModelDetail(base.PermissionsMixin, base.BricksMixin, DetailView):
     """ Base class for detail view in Creme.
     You'll have to override at least the attribute 'model.
     """
     model = CremeModel
     template_name = 'creme_core/detailview.html'
     pk_url_kwarg = 'object_id'
+    bricks_reload_url_name = ''
 
     def check_instance_permissions(self, instance, user):
         pass
+
+    def get_bricks_reload_url(self):
+        name = self.bricks_reload_url_name
+        return reverse(name, args=(self.object.id,)) if name else ''
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['bricks'] = self.get_bricks()
+        context['bricks_reload_url'] = self.get_bricks_reload_url()
+
+        return context
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -162,7 +174,6 @@ class EntityDetail(CremeModelDetail):
     model = CremeEntity
     template_name = 'creme_core/generics/view_entity.html'
     pk_url_kwarg = 'entity_id'
-    brick_registry = brick_registry
     bricks_reload_url_name = 'creme_core__reload_detailview_bricks'
 
     def check_instance_permissions(self, instance, user):
@@ -175,16 +186,6 @@ class EntityDetail(CremeModelDetail):
     def get_bricks(self):
         return detailview_bricks(self.request.user, self.object, registry=self.brick_registry)
 
-    def get_bricks_reload_url(self):
-        return reverse(self.bricks_reload_url_name, args=(self.object.id,))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['bricks'] = self.get_bricks()
-        context['bricks_reload_url'] = self.get_bricks_reload_url()
-
-        return context
-
     def get_object(self, *args, **kwargs):
         entity = super().get_object(*args, **kwargs)
         request = self.request
@@ -195,7 +196,7 @@ class EntityDetail(CremeModelDetail):
         return entity
 
 
-class CremeModelDetailPopup(InnerPopupMixin, CremeModelDetail):
+class CremeModelDetailPopup(CremeModelDetail):
     """ Base class for inner-popup displaying the detailed information
     of an instance.
 
@@ -205,9 +206,10 @@ class CremeModelDetailPopup(InnerPopupMixin, CremeModelDetail):
     title_format: A {}-format string formatted with the edited instance as
                   argument (see get_title()).
     """
-    # template_name = 'creme_core/detail-popup.html' TODO ??
+    template_name = 'creme_core/generics/detail-popup.html'
     title = None
     title_format = '{}'
+    bricks_reload_url_name = ''
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -222,6 +224,17 @@ class CremeModelDetailPopup(InnerPopupMixin, CremeModelDetail):
         title = self.title
 
         return self.get_title_format().format(self.object) if title is None else title
+
+
+class EntityDetailPopup(CremeModelDetailPopup):
+    bricks_reload_url_name = 'creme_core__reload_detailview_bricks'
+
+    def check_instance_permissions(self, instance, user):
+        user.has_perm_to_view_or_die(instance)
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        user.has_perm_to_access_or_die(self.model._meta.app_label)
 
 
 class RelatedToEntityDetail(CremeModelDetailPopup):

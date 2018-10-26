@@ -30,6 +30,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db.models.query_utils import Q
 from django.http import HttpResponse  # Http404
 from django.shortcuts import render
+from django.template import Template, Context
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
@@ -363,6 +364,26 @@ def list_view(request, model, **kwargs):
     return render(request, template_name, template_dict)
 
 
+# NB: will be removed in Creme 2.1 (so do not use it...)
+__inner_popup = Template(
+"""<div class="in-popup" force-reload>
+    <div id="inner_header" style="display: none;">
+        <input name="inner_header_from_url" value="{{from_url}}" type="hidden"/>
+    </div>
+    <div name="inner_body">
+        <input type="hidden" name="whoami" value="{{whoami}}"/>
+        {% for persist_key, persist_values in persisted.items %}
+            {% for persist_value in persist_values %}
+                <input type="hidden" name="{{persist_key}}" value="{{persist_value}}"/>
+                <input type="hidden" name="persist" value="{{persist_key}}"/>
+            {% endfor %}
+        {% endfor %}
+        {{html}}
+    </div>
+</div>
+""")
+
+
 # TODO: add a no-selection mode ??
 def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, lv_state_id=None, **kwargs):
     """ Displays a list-view selector in an inner popup.
@@ -416,11 +437,12 @@ def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, lv_state_id=None
         'whoami':        whoami,
         'is_popup_view': True,
     }
-    tpl_persist = {persist_key: POST.getlist(persist_key) + GET.getlist(persist_key)
-                        for persist_key in chain(POST.getlist('persist'),
-                                                 GET.getlist('persist'),
-                                                )
-                  }
+    tpl_persist = {
+        persist_key: POST.getlist(persist_key) + GET.getlist(persist_key)
+            for persist_key in chain(POST.getlist('persist'),
+                                     GET.getlist('persist'),
+                                    )
+    }
 
     extra_dict.update(kwargs.pop('extra_dict', None) or {})
 
@@ -445,17 +467,11 @@ def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, lv_state_id=None
         html = render_to_string(template_name, template_dict, request=request)
 
     return HttpResponse(
-        render_to_string('creme_core/generics/inner_popup.html',
-                         {'html':            html,
-                          'from_url':        request.path,
-                          'is_valid':        False,
-                          'whoami':          whoami,
-                          'callback_url':    '',
-                          'reload':          json_dump(True),
-                          'persisted':       tpl_persist,
-                          'delegate_reload': False,
-                         },
-                         request=request,
-                        ),
+        __inner_popup.render(Context({
+            'html':      html,
+            'from_url':  request.path,
+            'whoami':    whoami,
+            'persisted': tpl_persist,
+        })),
         content_type='text/html',
     )

@@ -124,6 +124,7 @@ def address_edit(request, address_id):
 
 class FakeAddressEdition(generic.RelatedToEntityEdition):
     model = fake_models.FakeAddress
+    pk_url_kwarg = 'address_id'
     form_class = fake_forms.FakeAddressForm
     title_format = 'Address for <{}>'
 

@@ -137,6 +137,7 @@ class Preview(generic.EntityDetail):
                                           ) \
                if form.is_valid() else []
 
+
 # @login_required
 # @permission_required('reports')
 # def filter(request, report_id):
@@ -170,7 +171,7 @@ class Preview(generic.EntityDetail):
 class ExportFilterURL(generic.EntityEditionPopup):
     model = Report
     form_class = report_forms.ReportExportFilterForm
-    template_name = 'reports/frags/report_export_filter.html'
+    template_name = 'reports/forms/report-export-filter.html'
     pk_url_kwarg = 'report_id'
     title_format = pgettext_lazy('reports-report', 'Export «{}»')
     submit_label = pgettext_lazy('reports-report', 'Export')
@@ -189,7 +190,7 @@ class ExportFilterURL(generic.EntityEditionPopup):
         )
         return super().form_valid(form=form)
 
-    def get_next_url(self):
+    def get_success_url(self):
         return self.export_url
 
 

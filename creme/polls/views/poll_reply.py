@@ -524,7 +524,7 @@ class PollReplyEdition(generic.EntityEdition):
 
 class LinkingRepliesToPerson(generic.AddingToEntity):
     # model = PollReply
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     form_class = preply_forms.PersonAddRepliesForm
     title_format =  _('Existing replies for «{}»')
     permissions = 'polls'

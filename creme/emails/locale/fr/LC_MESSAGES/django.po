@@ -8,12 +8,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-16 19:25+0200\n"
+"POT-Creation-Date: 2018-10-26 14:15+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: actions.py:36
+msgid "Re-send email"
+msgstr "Ré-envoyer l'e-mail"
+
+#: actions.py:51
+msgid "Re-send email(s)"
+msgstr "Ré-envoyer les e-mails"
 
 #: apps.py:28 models/mail.py:99 templates/emails/bricks/lw-mails-history.html:7
 #: templates/emails/bricks/lw-mails.html:7
@@ -23,11 +31,11 @@ msgstr ""
 msgid "Emails"
 msgstr "E-mails"
 
-#: apps.py:133 apps.py:143
+#: apps.py:138 apps.py:148
 msgid "Marketing"
 msgstr "Marketing"
 
-#: apps.py:150
+#: apps.py:155
 msgid "Synchronization of incoming emails"
 msgstr "Synchronisation des e-mails externes"
 
@@ -76,7 +84,7 @@ msgstr "Envois"
 msgid "Emails history"
 msgstr "Historique des e-mails"
 
-#: bricks.py:259
+#: bricks.py:271
 msgid "Campaigns emails history"
 msgstr "Historique des e-mails des campagnes"
 
@@ -384,8 +392,7 @@ msgstr "Enregister l'e-mail"
 msgid "Send the email"
 msgstr "Envoyer l'e-mail"
 
-#: models/mail.py:98 templates/emails/bricks/lw-mails-history.html:24
-#: templates/emails/bricks/mails-history.html:43
+#: models/mail.py:98
 msgid "Email"
 msgstr "E-mail"
 
@@ -782,14 +789,20 @@ msgid "No contact recipient for the moment"
 msgstr "Aucun contact destinataire pour le moment"
 
 #: templates/emails/bricks/html-body.html:19
-#: templates/emails/bricks/mail-popup.html:35
+#: templates/emails/bricks/mail-popup.html:34
 msgid "View external images"
 msgstr "Voir les images externes"
 
 #: templates/emails/bricks/html-body.html:19
-#: templates/emails/bricks/mail-popup.html:35
+#: templates/emails/bricks/mail-popup.html:34
 msgid "Hide external images"
 msgstr "Cacher les images externes"
+
+#: templates/emails/bricks/lw-mail-popup.html:10
+#: templates/emails/view_email.html:12
+#, python-format
+msgid "Full detailview of the campaign «%(campaign)s»"
+msgstr "Vue détaillée complète de la campagne «%(campaign)s»"
 
 #: templates/emails/bricks/lw-mails-history.html:7
 #, python-brace-format
@@ -1095,11 +1108,6 @@ msgstr "Marquer comme spam"
 msgid "forbidden"
 msgstr "interdit"
 
-#: templates/emails/lw-email-popup.html:10 templates/emails/view_email.html:12
-#, python-format
-msgid "Full detailview of the campaign «%(campaign)s»"
-msgstr "Vue détaillée complète de la campagne «%(campaign)s»"
-
 #: templates/emails/portal.html:5
 msgid "Emails & Campaigns portal"
 msgstr "Portail E-mails & Campagnes"
@@ -1154,8 +1162,8 @@ msgstr "Envoi d'un e-mail à «{entity}» (étape {step}/2)"
 msgid "Sending an email to «{}»"
 msgstr "Envoi d'un e-mail à «{}»"
 
-#: views/mail.py:318
-msgid "Details of the mail"
+#: views/mail.py:311 views/mail.py:324
+msgid "Details of the email"
 msgstr "Détails de l'e-mail"
 
 #: views/mailing_list.py:222

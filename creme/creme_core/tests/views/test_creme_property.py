@@ -279,7 +279,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             self.assertEqual(0, entity.properties.count())
 
         response = self.assertGET200(self._build_bulk_url(self.centity_ct, *entities, GET=True))
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         self.assertEqual(_('Multiple adding of properties'), context.get('title'))

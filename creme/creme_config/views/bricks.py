@@ -236,7 +236,7 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
                                      ):
     # model = BrickDetailviewLocation
     form_class = bricks_forms.BrickDetailviewLocationsEditForm
-    template_name = 'creme_core/generics/blockform/edit_popup.html'
+    template_name = 'creme_core/generics/blockform/edit-popup.html'
     submit_label = _('Save the configuration')
     ct_id_0_accepted = True
 

@@ -47,7 +47,7 @@ Activity = get_activity_model()
 class ParticipantsAdding(AddingToEntity):
     # model = Contact
     form_class = bricks_forms.ParticipantCreateForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     title_format = _('Adding participants to activity «{}»')
     submit_label = _('Add the participants')
     entity_id_url_kwarg = 'activity_id'
@@ -88,7 +88,7 @@ def delete_participant(request):
 class SubjectsAdding(AddingToEntity):
     # model = Contact
     form_class = bricks_forms.SubjectCreateForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     title_format = _('Adding subjects to activity «{}»')
     submit_label = _('Add the subjects')
     entity_id_url_kwarg = 'activity_id'

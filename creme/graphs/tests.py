@@ -105,7 +105,8 @@ class GraphsTestCase(CremeTestCase):
 
         url = reverse('graphs__add_rtypes', args=(graph.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('Add relation types to «%s»') % graph, context.get('title'))
@@ -220,7 +221,8 @@ class GraphsTestCase(CremeTestCase):
         url = reverse('graphs__add_roots', args=(graph.id,))
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('Add root nodes to «%s»') % graph, context.get('title'))
@@ -273,7 +275,8 @@ class GraphsTestCase(CremeTestCase):
 
         url = rnode.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Edit root node for «%s»') % graph, response.context.get('title'))
         self.assertEqual(_('Edit root node for «{}»').format(graph),
                          response.context.get('title')

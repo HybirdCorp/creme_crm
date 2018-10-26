@@ -51,23 +51,25 @@ class EmailsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.EmailHTMLBodyBrick,
-                                bricks.TemplateHTMLBodyBrick,
-                                bricks.MailingListsBrick,
-                                bricks.EmailRecipientsBrick,
-                                bricks.ContactsBrick,
-                                bricks.OrganisationsBrick,
-                                bricks.ChildListsBrick,
-                                bricks.ParentListsBrick,
-                                bricks.AttachmentsBrick,
-                                bricks.SendingsBrick,
-                                bricks.MailsBrick,
-                                bricks.MailsHistoryBrick,
-                                bricks.MailPopupBrick,
-                                bricks.LwMailsHistoryBrick,
-                                # bricks.SignaturesBrick,
-                                bricks.MySignaturesBrick,
-                               )
+        brick_registry.register(
+            bricks.EmailHTMLBodyBrick,
+            bricks.TemplateHTMLBodyBrick,
+            bricks.MailingListsBrick,
+            bricks.EmailRecipientsBrick,
+            bricks.ContactsBrick,
+            bricks.OrganisationsBrick,
+            bricks.ChildListsBrick,
+            bricks.ParentListsBrick,
+            bricks.AttachmentsBrick,
+            bricks.SendingsBrick,
+            bricks.MailsBrick,
+            bricks.MailsHistoryBrick,
+            bricks.MailPopupBrick,
+            bricks.LwMailPopupBrick,
+            bricks.LwMailsHistoryBrick,
+            # bricks.SignaturesBrick,
+            bricks.MySignaturesBrick,
+        )
         brick_registry.register_hat(self.EntityEmail, main_brick_cls=bricks.EntityEmailBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
@@ -97,11 +99,14 @@ class EmailsConfig(CremeAppConfig):
         reg_fields('emails', persons.get_organisation_model(), 'email')
 
     def register_icons(self, icon_registry):
+        from . import models
+
         reg_icon = icon_registry.register
-        reg_icon(self.EntityEmail,   'images/email_%(size)s.png')
-        reg_icon(self.MailingList,   'images/email_%(size)s.png')
-        reg_icon(self.EmailCampaign, 'images/email_%(size)s.png')
-        reg_icon(self.EmailTemplate, 'images/email_%(size)s.png')
+        reg_icon(self.EntityEmail,        'images/email_%(size)s.png')
+        reg_icon(models.LightWeightEmail, 'images/email_%(size)s.png')
+        reg_icon(self.MailingList,        'images/email_%(size)s.png')
+        reg_icon(self.EmailCampaign,      'images/email_%(size)s.png')
+        reg_icon(self.EmailTemplate,      'images/email_%(size)s.png')
 
     def register_menu(self, creme_menu):
         from django.apps import apps

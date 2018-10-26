@@ -310,7 +310,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = Calendar.get_user_default_calendar(user)
         url = reverse('activities__edit_calendar', args=(cal.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(_('Edit «{}»').format(cal), response.context.get('title'))
 
         # ---
@@ -431,7 +432,8 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         url = self.build_link_url(act.id)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Change calendar of «%s»') % act,
         self.assertEqual(_('Change calendar of «{}»').format(act),
                          response.context.get('title')

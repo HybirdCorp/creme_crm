@@ -1806,7 +1806,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         url = self._buid_add_participants_url(activity)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('Adding participants to activity «%s»') % activity, context.get('title'))
@@ -2042,7 +2043,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         url = self._buid_add_subjects_url(activity)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('Adding subjects to activity «%s»') % activity, context.get('title'))
@@ -2269,7 +2271,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         url = self.ADD_POPUP_URL
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'activities/add_popup_activity_form.html')
+        # self.assertTemplateUsed(response, 'activities/add_popup_activity_form.html')
+        self.assertTemplateUsed(response, 'activities/forms/add-activity-popup.html')
 
         context = response.context
         # self.assertEqual(_('New activity'),   context.get('title'))

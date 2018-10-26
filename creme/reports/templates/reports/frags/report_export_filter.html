@@ -1,4 +1,7 @@
 {% load i18n creme_core_tags %}
+
+{% log 'The template file "creme/reports/templates/reports/frags/report_export_filter.html" is deprecated ; use "creme/reports/templates/reports/forms/report-export-filter.html" instead.' level='WARN' %}
+
 <form class="report-preview-header" action="" method="POST">{% csrf_token %}
     {% include 'reports/frags/report_preview_format.html' %}
     <input type="submit" value="{{submit_label|default:_('Save')}}" class="ui-creme-dialog-action"/>

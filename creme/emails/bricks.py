@@ -49,7 +49,7 @@ class EntityEmailBarHatBrick(SimpleBrick):
 
 
 class _HTMLBodyBrick(SimpleBrick):
-    verbose_name  = _(u'HTML body')
+    verbose_name  = _('HTML body')
     template_name = 'emails/bricks/html-body.html'
 
 
@@ -87,7 +87,7 @@ class _RelatedEntitesBrick(QuerysetBrick):
 class MailingListsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'mailing_lists')
     dependencies  = (MailingList,)
-    verbose_name  = _(u'Mailing lists')
+    verbose_name  = _('Mailing lists')
     template_name = 'emails/bricks/mailing-lists.html'
     target_ctypes = (EmailCampaign,)
     order_by      = 'name'
@@ -99,7 +99,7 @@ class MailingListsBrick(_RelatedEntitesBrick):
 class EmailRecipientsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('emails', 'recipients')
     dependencies  = (EmailRecipient,)
-    verbose_name  = _(u'Unlinked recipients')
+    verbose_name  = _('Unlinked recipients')
     template_name = 'emails/bricks/recipients.html'
     target_ctypes = (MailingList,)
 
@@ -115,7 +115,7 @@ class EmailRecipientsBrick(QuerysetBrick):
 class ContactsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'contacts')
     dependencies  = (Contact,)
-    verbose_name  = _(u'Contacts recipients')
+    verbose_name  = _('Contacts recipients')
     template_name = 'emails/bricks/contacts.html'
     target_ctypes = (MailingList,)
 
@@ -131,7 +131,7 @@ class ContactsBrick(_RelatedEntitesBrick):
 class OrganisationsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'organisations')
     dependencies  = (Organisation,)
-    verbose_name  = _(u'Organisations recipients')
+    verbose_name  = _('Organisations recipients')
     template_name = 'emails/bricks/organisations.html'
     target_ctypes = (MailingList,)
 
@@ -146,7 +146,7 @@ class OrganisationsBrick(_RelatedEntitesBrick):
 class ChildListsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'child_lists')
     dependencies  = (MailingList,)
-    verbose_name  = _(u'Child mailing lists')
+    verbose_name  = _('Child mailing lists')
     template_name = 'emails/bricks/child-lists.html'
     target_ctypes = (MailingList,)
     order_by      = 'name'
@@ -158,7 +158,7 @@ class ChildListsBrick(_RelatedEntitesBrick):
 class ParentListsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'parent_lists')
     dependencies  = (MailingList,)
-    verbose_name  = _(u'Parent mailing lists')
+    verbose_name  = _('Parent mailing lists')
     template_name = 'emails/bricks/parent-lists.html'
     target_ctypes = (MailingList,)
     order_by      = 'name'
@@ -170,7 +170,7 @@ class ParentListsBrick(_RelatedEntitesBrick):
 class AttachmentsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'attachments')
     dependencies  = (Document,)
-    verbose_name  = _(u'Attachments')
+    verbose_name  = _('Attachments')
     template_name = 'emails/bricks/attachments.html'
     target_ctypes = (EmailTemplate,)
     order_by      = 'title'
@@ -183,7 +183,7 @@ class SendingsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('emails', 'sendings')
     dependencies  = (EmailSending,)
     order_by      = '-sending_date'
-    verbose_name  = _(u'Sendings')
+    verbose_name  = _('Sendings')
     template_name = 'emails/bricks/sendings.html'
     target_ctypes = (EmailCampaign,)
 
@@ -201,7 +201,7 @@ class MailsBrick(QuerysetBrick):
     dependencies  = (LightWeightEmail,)
     order_by      = 'id'
     page_size     = 12
-    verbose_name  = u'Emails of a sending'
+    verbose_name  = 'Emails of a sending'
     template_name = 'emails/bricks/lw-mails.html'
     configurable  = False
 
@@ -218,37 +218,49 @@ class MailsHistoryBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('emails', 'mails_history')
     dependencies  = (EntityEmail, Relation)
     order_by      = '-sending_date'
-    verbose_name  = _(u'Emails history')
+    verbose_name  = _('Emails history')
     template_name = 'emails/bricks/mails-history.html'
-    relation_type_deps = (constants.REL_OBJ_MAIL_SENDED,
-                          constants.REL_OBJ_MAIL_RECEIVED,
-                          constants.REL_OBJ_RELATED_TO,
-                         )
+    relation_type_deps = (
+        constants.REL_OBJ_MAIL_SENDED,
+        constants.REL_OBJ_MAIL_RECEIVED,
+        constants.REL_OBJ_RELATED_TO,
+    )
 
-    _RTYPE_IDS = [constants.REL_SUB_MAIL_SENDED,
-                  constants.REL_SUB_MAIL_RECEIVED,
-                  constants.REL_SUB_RELATED_TO,
-                 ]
+    _RTYPE_IDS = [
+        constants.REL_SUB_MAIL_SENDED,
+        constants.REL_SUB_MAIL_RECEIVED,
+        constants.REL_SUB_RELATED_TO,
+    ]
 
     def detailview_display(self, context):
         pk = context['object'].pk
-        entityemail_ids = Relation.objects.filter(type__pk__in=self._RTYPE_IDS, object_entity=pk) \
+        entityemail_ids = Relation.objects.filter(type__pk__in=self._RTYPE_IDS,
+                                                  object_entity=pk,
+                                                 ) \
                                           .values_list('subject_entity', flat=True) \
                                           .distinct()
 
         return self._render(self.get_template_context(
-                    context,
-                    EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_ids),
-                    rtype_ids=self.relation_type_deps,
-                    creation_perm=context['user'].has_perm_to_create(EntityEmail),
+            context,
+            EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_ids),
+            rtype_ids=self.relation_type_deps,
+            creation_perm=context['user'].has_perm_to_create(EntityEmail),
         ))
 
 
 class MailPopupBrick(SimpleBrick):
     id_           = QuerysetBrick.generate_id('emails', 'mail_popup')
     dependencies  = (EntityEmail,)
-    verbose_name  = u'Detail popup of Email'
+    verbose_name  = 'Detail popup of Email'
     template_name = 'emails/bricks/mail-popup.html'
+    configurable  = False
+
+
+class LwMailPopupBrick(SimpleBrick):
+    id_           = QuerysetBrick.generate_id('emails', 'lw_mail_popup')
+    dependencies  = (LightWeightEmail,)
+    verbose_name  = 'Detail popup of LightWeight Email'
+    template_name = 'emails/bricks/lw-mail-popup.html'
     configurable  = False
 
 
@@ -256,14 +268,16 @@ class LwMailsHistoryBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('emails', 'lw_mails_history')
     dependencies  = (LightWeightEmail,)
     order_by      = '-sending_date'
-    verbose_name  = _(u'Campaigns emails history')
+    verbose_name  = _('Campaigns emails history')
     template_name = 'emails/bricks/lw-mails-history.html'
 
     def detailview_display(self, context):
         pk = context['object'].pk
         return self._render(self.get_template_context(
-                    context,
-                    LightWeightEmail.objects.filter(recipient_entity=pk).select_related('sending'),
+            context,
+            LightWeightEmail.objects
+                            .filter(recipient_entity=pk)
+                            .select_related('sending'),
         ))
 
 
@@ -304,9 +318,9 @@ class MySignaturesBrick(QuerysetBrick):
         user = context['user']
 
         return self._render(self.get_template_context(
-                    context,
-                    EmailSignature.objects.filter(user=user),
-                    has_app_perm=user.has_perm('emails'),
+            context,
+            EmailSignature.objects.filter(user=user),
+            has_app_perm=user.has_perm('emails'),
        ))
 
 
@@ -327,7 +341,7 @@ if apps.is_installed('creme.crudity'):
 
     class WaitingSynchronizationMailsBrick(_SynchronizationMailsBrick):
         id_           = _SynchronizationMailsBrick.generate_id('emails', 'waiting_synchronisation')
-        verbose_name  = u'Incoming Emails to sync'
+        verbose_name  = 'Incoming Emails to sync'
         template_name = 'emails/bricks/synchronization.html'
 
         def detailview_display(self, context):
@@ -353,7 +367,7 @@ if apps.is_installed('creme.crudity'):
     # TODO: is_deleted ?? (idem)
     class SpamSynchronizationMailsBrick(_SynchronizationMailsBrick):
         id_           = _SynchronizationMailsBrick.generate_id('emails', 'synchronised_as_spam')
-        verbose_name  = u'Spam emails'
+        verbose_name  = 'Spam emails'
         template_name = 'emails/bricks/synchronization-spam.html'
 
         def detailview_display(self, context):

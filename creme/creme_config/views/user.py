@@ -174,7 +174,7 @@ class UserDeletion(BaseUserEdition):
    (see forms.user.UserAssignationForm).
     """
     form_class = user_forms.UserAssignationForm
-    template_name = 'creme_core/generics/blockform/delete_popup.html'
+    template_name = 'creme_core/generics/blockform/delete-popup.html'
     title_format = _('Delete «{}» and assign his entities to user')
     submit_label = _('Delete the user')
 

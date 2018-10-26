@@ -133,7 +133,8 @@ class CustomFieldsTestCase(CremeTestCase):
 
         url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Edit «{}»').format(cfield), context.get('title'))

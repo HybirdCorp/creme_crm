@@ -531,7 +531,8 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = self._build_editdetail_url(ct, role, superuser)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(expected_title,              context.get('title'))
@@ -1318,7 +1319,8 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = reverse('creme_config__edit_home_bricks')
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Edit home configuration'), context.get('title'))
@@ -1389,7 +1391,8 @@ class BricksConfigTestCase(CremeTestCase):
         self.login()
         url = reverse('creme_config__edit_default_mypage_bricks')
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Edit default "My page"'), context.get('title'))
@@ -1439,7 +1442,8 @@ class BricksConfigTestCase(CremeTestCase):
         user = self.login()
         url = reverse('creme_config__edit_mypage_bricks')
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Edit "My page"'),         context.get('title'))
@@ -1778,7 +1782,8 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = self._build_rbrick_editctype_url(rb_item, FakeContact)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Edit «{model}» configuration').format(model=ct),
@@ -2094,7 +2099,8 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = self._build_custombrick_edit_url(cbc_item)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Edit the block «%s»') % cbc_item,
         self.assertEqual(_('Edit the block «{}»').format(cbc_item),
                          response.context.get('title')

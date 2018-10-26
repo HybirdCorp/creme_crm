@@ -21,6 +21,7 @@
 import warnings
 
 from django.db.transaction import atomic
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
@@ -253,37 +254,21 @@ class EntityCreation(CremeModelCreation):
         user.has_perm_to_create_or_die(model)
 
 
-class CremeModelCreationPopup(popup.InnerPopupMixin, CremeModelCreation):
+class CremeModelCreationPopup(CremeModelCreation):
     """ Base class for creation view with a form in Creme within an Inner-Popup.
     See CremeModelCreation.
     """
     # model = models.CremeModel  # TO BE OVERRIDDEN
     # form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
-    template_name = 'creme_core/generics/blockform/add_popup.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['is_inner_popup'] = True  # TODO: in new base popup when including ?
-        context['persisted'] = self.get_persisted()  # TODO: remove from form-templates ?
-
-        return context
+    # template_name = 'creme_core/generics/blockform/add_popup.html'  # DO NOT USE OLD TEMPLATES !!!
+    template_name = 'creme_core/generics/blockform/add-popup.html'
 
     def get_success_url(self):
         return ''
 
     def form_valid(self, form):
-        super().form_valid(form)
-        return self.render_to_response(self.get_context_data(form=form))
-
-    def render_to_response(self, context, **response_kwargs):
-        from django.shortcuts import render
-
-        request = self.request
-
-        return render(request=request,
-                      template_name='creme_core/generics/inner_popup.html',
-                      context=self.get_popup_context(context),
-                     )
+        self.object = form.save()
+        return HttpResponse(self.get_success_url())
 
 
 class EntityCreationPopup(CremeModelCreationPopup):

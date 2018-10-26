@@ -1389,7 +1389,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         build_url = self._build_update_url
         url = build_url('first_name')
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Multiple update'),        context.get('title'))
@@ -2012,7 +2013,8 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         url = self.build_inneredit_url(mario, 'first_name')
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         # self.assertEqual(_('Edit «{object}»').format(object=mario), context.get('title'))

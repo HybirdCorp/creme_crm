@@ -145,7 +145,7 @@ class EmailCampaignEdition(generic.EntityEdition):
 class MailingListsAdding(generic.AddingToEntity):
     # model = MailingList
     form_class = camp_forms.CampaignAddMLForm
-    template_name = 'creme_core/generics/blockform/link_popup.html'
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     title_format = _('New mailing lists for «{}»')
     submit_label = _('Link the mailing lists')
     entity_id_url_kwarg = 'campaign_id'

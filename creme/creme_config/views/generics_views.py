@@ -92,7 +92,7 @@ class ModelConfMixin:
 #                                         template='creme_core/generics/form/add_innerpopup.html',
 #                                        )
 class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
-    template_name = 'creme_core/generics/form/add_innerpopup.html'
+    template_name = 'creme_core/generics/form/add-popup.html'
 
     def get_form_class(self):
         return self.get_model_conf().model_form
@@ -208,7 +208,7 @@ def delete_model(request, app_name, model_name):
 #                                          template='creme_core/generics/form/edit_innerpopup.html',
 #                                         )
 class GenericEdition(ModelConfMixin, generic.CremeModelEditionPopup):
-    template_name = 'creme_core/generics/form/edit_innerpopup.html'
+    template_name = 'creme_core/generics/form/edit-popup.html'
 
     def get_form_class(self):
         return self.get_model_conf().model_form

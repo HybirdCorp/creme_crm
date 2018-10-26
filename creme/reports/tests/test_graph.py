@@ -720,7 +720,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         url = self._build_edit_url(rgraph)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         # self.assertEqual(_('Edit a graph for «%s»') % report, context.get('title'))
@@ -2276,7 +2277,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         url = self._build_add_brick_url(rgraph)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('Create an instance block for «{graph}»').format(graph=rgraph),
@@ -2314,7 +2316,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                             )
         # ---------------------------------------------------------------------
         response = self.assertGET200(reverse('reports__instance_bricks_info', args=(rgraph.id,)))
-        self.assertTemplateUsed(response, 'reports/instance-bricks.html')
+        # self.assertTemplateUsed(response, 'reports/instance-bricks.html')
+        self.assertTemplateUsed(response, 'reports/bricks/instance-bricks-info.html')
         self.assertEqual(rgraph, response.context.get('object'))
 
         # ---------------------------------------------------------------------

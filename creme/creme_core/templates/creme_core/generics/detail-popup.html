@@ -1,0 +1,25 @@
+{% extends 'creme_core/popup-base.html' %}
+{% load creme_bricks creme_widgets %}
+
+{% block ipopup_extra_class %}inner-popup-detail{% endblock %}
+
+{% block content %}
+    {% block title_bar %}
+        <div class="hat-bar-container ui-creme-dialog-titlebar">
+            <div class="hat-bar">
+                <div class="bar-icon">
+                {% block title_bar_icon %}{% widget_icon instance=object size='brick-hat-bar' as instance_icon %}
+                    {% if instance_icon.url %}{% widget_render_icon instance_icon class='inner-popup-icon' %}{% endif %}
+                {% endblock %}
+                </div>
+                <div class="bar-title"><h1>{% block title %}{{title}}{% endblock %}</h1></div>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block main_content %}
+        {% brick_declare bricks %}
+        {% brick_display bricks %}
+        {% brick_end %}
+    {% endblock %}
+{% endblock %}

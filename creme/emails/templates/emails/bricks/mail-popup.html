@@ -28,7 +28,6 @@
 
     {% if object.body_html %}
     <div class="brick-tile brick-tile-multiline-value" data-type="html" data-key="regular_field-body_html">
-{#        <span class="brick-tile-name">{% get_field_verbose_name object 'body_html' %}</span> #}
         <span class="brick-tile-name">{% cell_4_regularfield instance=object field='body_html' %}</span>
         {% if '<img ' in object.body_html %}
         <span class="emails-popup-brick-tile-body-html-action">
@@ -47,16 +46,3 @@
     {% cell_4_regularfield instance=object field='modified' as modified_cell %}{% brick_tile_for_cell modified_cell object user %}
     {% cell_4_regularfield instance=object field='user'     as user_cell     %}{% brick_tile_for_cell user_cell     object user %}
 {% endblock %}
-
-{% comment %}
-{% block brick_script %}
-<style>
-.brick-dialog-action {
-    height: 0px;
-    padding: 0px;
-    margin: 0px;
-    /* display: none; */
-}
-</style>
-{% endblock %}
-{% endcomment %}

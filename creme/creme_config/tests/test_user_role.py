@@ -251,7 +251,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = self._build_add_creds_url(role)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         # self.assertEqual(_('Add credentials to «{role}»').format(role=role),
@@ -363,7 +364,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = reverse('creme_config__edit_role_credentials', args=(creds.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         # self.assertEqual(_('Edit credentials for «{role}»').format(role=role),
@@ -622,7 +624,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role = UserRole.objects.create(name='CEO')
         url = self._build_del_role_url(role)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete-popup.html')
 
         context = response.context
         self.assertEqual(_('Delete role «{}»').format(role), context.get('title'))

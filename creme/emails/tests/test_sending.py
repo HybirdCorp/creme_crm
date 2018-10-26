@@ -255,8 +255,9 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
         response = self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
         # self.assertTemplateUsed(response, 'emails/view_email.html')
-        self.assertTemplateUsed(response, 'emails/lw-email-popup.html')
-        self.assertEqual(_('Details of the mail'), response.context.get('title'))
+        # self.assertTemplateUsed(response, 'emails/lw-mail-popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/detail-popup.html')
+        self.assertEqual(_('Details of the email'), response.context.get('title'))
 
         # ---
         response = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
@@ -264,7 +265,8 @@ class SendingsTestCase(_EmailsTestCase):
 
         # Popup detail view -----------------------------------------------------
         response = self.assertGET200(reverse('emails__view_sending', args=(sending.id,)))
-        self.assertTemplateUsed(response, 'emails/popup_sending.html')
+        # self.assertTemplateUsed(response, 'emails/popup_sending.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/detail-popup.html')
         self.assertEqual(sending, response.context.get('object'))
 
         self.assertContains(response, contacts[0].email)
@@ -543,7 +545,7 @@ class SendingsTestCase(_EmailsTestCase):
         lw_mail.genid_n_save()
 
         response = self.assertGET200(reverse('emails__view_lw_mail', args=(lw_mail.id,)))
-        self.assertEqual(_('Details of the mail'), response.context.get('title'))
+        self.assertEqual(_('Details of the email'), response.context.get('title'))
 
     def test_view_lw_email02(self):
         "Cannot view the campaign => error"

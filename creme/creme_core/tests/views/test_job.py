@@ -191,23 +191,27 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         url = job.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
         self.assertEqual(_('Edit the job «{}»').format(job.type), context.get('title'))
         self.assertEqual(_('Save the modifications'),             context.get('submit_label'))
 
         # ---
-        response = self.client.post(url, data={'reference_run': date_format(localtime(job.reference_run),
-                                                                            'DATETIME_FORMAT',
-                                                                           ),
-                                               'periodicity_0': 'minutes',
-                                               'periodicity_1': '180',
+        response = self.client.post(
+            url,
+            data={
+                'reference_run': date_format(localtime(job.reference_run),
+                                             'DATETIME_FORMAT',
+                                            ),
+                'periodicity_0': 'minutes',
+                'periodicity_1': '180',
 
-                                               'delay_0': 'weeks',
-                                               'delay_1': '2',
-                                              },
-                                   )
+                'delay_0': 'weeks',
+                'delay_1': '2',
+            },
+        )
         self.assertNoFormError(response)
 
         job = self.refresh(job)

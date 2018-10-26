@@ -1,5 +1,7 @@
 {% load i18n creme_core_tags creme_widgets creme_bricks %}
 
+{% log 'The template file "creme/activities/templates/activities/view_activity_popup.html" is deprecated ; use "activity-popup.html" instead.' level='WARN' %}
+
 {% url 'creme_core__reload_detailview_bricks' object.id as bricks_reload_url %}{% url_join bricks_reload_url base_url=request.path as bricks_reload_uri %}
 <div class="activities-activity-popup-content" data-bricks-reload-url="{{bricks_reload_uri}}">
     <div class="hat-bar-container">

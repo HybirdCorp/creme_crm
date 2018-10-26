@@ -328,7 +328,7 @@ class ActivityCreation(generic.EntityCreation):
 class ActivityCreationPopup(generic.EntityCreationPopup):
     model = Activity
     form_class = act_forms.CalendarActivityCreateForm
-    template_name = 'activities/add_popup_activity_form.html'
+    template_name = 'activities/forms/add-activity-popup.html'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -422,8 +422,10 @@ class ActivityDetail(generic.EntityDetail):
     pk_url_kwarg = 'activity_id'
 
 
-class ActivityPopup(ActivityDetail):
-    template_name = 'activities/view_activity_popup.html'
+class ActivityPopup(generic.EntityDetailPopup):
+    model = Activity
+    template_name = 'activities/activity-popup.html'
+    pk_url_kwarg = 'activity_id'
 
 
 class ActivityEdition(generic.EntityEdition):

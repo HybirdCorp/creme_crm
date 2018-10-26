@@ -179,7 +179,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         url = reverse('commercial__create_child_component', args=(comp01.id,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('New child objective for «%s»') % comp01, context.get('title'))
@@ -227,7 +227,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         url = self._build_parent_url(comp01)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
         # self.assertEqual(_('New parent objective for «%s»') % comp01, context.get('title'))
@@ -237,12 +238,13 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         # ---
         name = 'Signed opportunities'
         success_rate = 50
-        self.assertNoFormError(self.client.post(url, data={'name':           name,
-                                                          'success_rate':    success_rate,
-                                                          'entity_counting': self.formfield_value_filtered_entity_type(),
-                                                          }
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={'name':            name,
+                  'success_rate':    success_rate,
+                  'entity_counting': self.formfield_value_filtered_entity_type(),
+                 }
+        ))
 
         pattern = self.refresh(pattern)
         components = pattern.components.order_by('id')

@@ -1,0 +1,8 @@
+{% extends 'creme_core/forms/popup-base.html' %}
+
+{% block content %}
+    <form class="report-preview-header" method="POST">{% csrf_token %}
+        {% include 'reports/frags/report_preview_format.html' %}
+        <input type="submit" value="{{submit_label}}" class="ui-creme-dialog-action" />
+    </form>
+{% endblock %}

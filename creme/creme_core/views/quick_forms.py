@@ -133,7 +133,7 @@ def add(request, ct_id, count):
 class QuickCreation(EntityCTypeRelatedMixin, generic.EntityCreationPopup):
     # model = ...
     # form_class = ...
-    template_name = 'creme_core/generics/form/add_innerpopup.html'
+    template_name = 'creme_core/generics/form/add-popup.html'
 
     def get_form_class(self):
         model = self.model
