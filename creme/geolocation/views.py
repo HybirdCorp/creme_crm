@@ -22,6 +22,7 @@ from functools import partial
 from itertools import chain
 # import warnings
 
+from django.db.transaction import atomic
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -40,10 +41,15 @@ from .utils import address_as_dict, addresses_from_persons, get_radius
 @login_required
 @permission_required('persons')
 @POST_only
+@atomic
 def set_address_info(request):
     get = partial(get_from_POST_or_404, request.POST)
-    address_id = get('id', int)
-    address = get_object_or_404(get_address_model(), id=address_id)
+    # address_id = get('id', int)
+    # address = get_object_or_404(get_address_model(), id=address_id)
+    address = get_object_or_404(
+        get_address_model().objects.select_for_update(),
+        id=get('id', cast=int),
+    )
 
     request.user.has_perm_to_change_or_die(address.owner)
 
@@ -105,13 +111,16 @@ def get_neighbours(request):
         model = entity_filter.entity_type.model_class()
 
         # filter owners of neighbours
-        owner_ids = neighbours.values_list('address__object_id', flat=True)
-        owner_ids = entity_filter.filter(model.objects.filter(is_deleted=False, pk__in=owner_ids))\
-                                 .values_list('pk', flat=True)
-
-        neighbours = neighbours.filter(address__content_type=ContentType.objects.get_for_model(model),
-                                       address__object_id__in=owner_ids,
-                                      )
+        owner_ids = entity_filter.filter(
+            model.objects.filter(
+                is_deleted=False,
+                pk__in=neighbours.values_list('address__object_id', flat=True),
+            )
+        ).values_list('pk', flat=True)
+        neighbours = neighbours.filter(
+            address__content_type=ContentType.objects.get_for_model(model),
+            address__object_id__in=owner_ids,
+        )
 
     # Filter credentials
     has_perm = request.user.has_perm_to_view
