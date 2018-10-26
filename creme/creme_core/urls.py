@@ -118,7 +118,7 @@ headerfilter_patterns = [
     url(r'^add/(?P<ct_id>\d+)[/]?$',          header_filter.HeaderFilterCreation.as_view(), name='creme_core__create_hfilter'),
     # url(r'^edit/(?P<header_filter_id>[\w-]+)[/]?$', header_filter.edit,          name='creme_core__edit_hfilter'),
     url(r'^edit/(?P<hfilter_id>[\w-]+)[/]?$', header_filter.HeaderFilterEdition.as_view(),  name='creme_core__edit_hfilter'),
-    url(r'^delete[/]*',                       header_filter.delete,                         name='creme_core__delete_hfilter'),
+    url(r'^delete[/]?$',                      header_filter.delete,                         name='creme_core__delete_hfilter'),
     url(r'^get_for_ctype[/]?$',               header_filter.get_for_ctype,                  name='creme_core__hfilters'),
 ]
 
