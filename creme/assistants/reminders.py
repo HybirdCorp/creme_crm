@@ -114,7 +114,8 @@ class ReminderTodo(AssistantReminder):
                            .first()
 
         if todo is not None:
-            wakeup = localtime(todo.deadline) - self._get_delta()
+            # wakeup = localtime(todo.deadline) - self._get_delta()
+            wakeup = localtime(todo.deadline - self._get_delta())
             min_hour = self._get_min_hour()
 
             if wakeup.hour < min_hour:
