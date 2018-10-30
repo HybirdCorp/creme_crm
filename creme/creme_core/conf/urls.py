@@ -25,7 +25,7 @@
 
 
 class Swappable:
-    """Wrapper for django.conf.urls.url(...) which indicates this path can be
+    r"""Wrapper for django.conf.urls.url(...) which indicates this path can be
      swapped on some reason (see _PatternSwapManager).
 
      A swapped URL is an URL which is not given to the Django's resolver & must
@@ -34,7 +34,7 @@ class Swappable:
      model is the vanilla one.
 
      Eg: we want to wrap
-        url(r'^my_stuff/(?P<id>\d+)/edit[/]?$', my_app.views.my_suff.StuffEdition.as_view(), name='my_app__create_my_stuff')
+        url(r'^my_stuff/(?P<id>\d+)/edit[/]?$', my_app.views.my_stuff.StuffEdition.as_view(), name='my_app__create_my_stuff')
 
      It could give (notice the integer argument which corresponds to our URL):
         Swappable(url(...), check_args=(1,)
@@ -62,7 +62,7 @@ class Swappable:
 
 
 class _PatternSwapManager:
-    """Manager for Swappable URLs in a project.
+    r"""Manager for Swappable URLs in a project.
 
     You can register some Swappable URLs into it, then iterate on the URLs,
     or only the swapped one.
