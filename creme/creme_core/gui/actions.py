@@ -24,8 +24,9 @@ from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.models.entity import CremeEntity
-from creme.creme_core.templatetags.creme_ctype import ctype_can_be_merged
 from creme.creme_core.utils.collections import InheritedDataChain
+
+from .merge import merge_form_registry
 
 
 class ActionEntry:
@@ -205,8 +206,8 @@ class BulkDeleteActionEntry(BulkEntityActionEntry):
     action = 'delete-selection'
     action_url_name = 'creme_core__delete_entities'
 
-    label=_('Multiple deletion')
-    icon='delete'
+    label = _('Multiple deletion')
+    icon = 'delete'
 
 
 class BulkAddPropertyActionEntry(BulkEntityActionEntry):
@@ -215,8 +216,8 @@ class BulkAddPropertyActionEntry(BulkEntityActionEntry):
     action = 'addto-selection'
     action_url_name = 'creme_core__add_properties_bulk'
 
-    label=_('Multiple property adding')
-    icon='property'
+    label = _('Multiple property adding')
+    icon = 'property'
 
     @property
     def url(self):
@@ -229,8 +230,8 @@ class BulkAddRelationActionEntry(BulkEntityActionEntry):
     action = 'addto-selection'
     action_url_name = 'creme_core__create_relations_bulk'
 
-    label=_('Multiple relationship adding')
-    icon='relations'
+    label = _('Multiple relationship adding')
+    icon = 'relations'
 
     @property
     def url(self):
@@ -243,19 +244,24 @@ class MergeActionEntry(BulkEntityActionEntry):
     action = 'merge-selection'
     action_url_name = 'creme_core__merge_entities'
 
-    label=_('Merge 2 entities')
-    icon='merge'
+    label = _('Merge 2 entities')
+    icon = 'merge'
 
     bulk_max_count = 2
     bulk_min_count = 2
 
+    merge_form_registry = merge_form_registry
+
+    def _model_can_be_merged(self):
+        return self.merge_form_registry.get(self.model) is not None
+
     @property
     def is_enabled(self):
-        return ctype_can_be_merged(self.ctype)
+        return self._model_can_be_merged()
 
     @property
     def is_visible(self):
-        return ctype_can_be_merged(self.ctype)
+        return self._model_can_be_merged()
 
 
 class ActionRegistrationError(Exception):

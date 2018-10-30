@@ -39,8 +39,8 @@ from ..gui.bulk_update import bulk_update_registry
 from ..gui.pager import PagerContext
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
-from ..views.bricks import render_detailview_brick, render_home_brick  # render_portal_brick
-from ..views.entity import _bulk_has_perm
+# from ..views.bricks import render_detailview_brick, render_home_brick  # render_portal_brick
+# from ..views.entity import _bulk_has_perm
 
 from .creme_widgets import get_icon_size_px, get_icon_by_name
 
@@ -646,6 +646,7 @@ def brick_tile_for_cell(cell, instance, user):
     #     edit_url = reverse('creme_core__inner_edition',
     #                        args=(instance.entity_type_id, instance.id, 'customfield-%s' % cell.value),
     #                       )
+    from creme.creme_core.views.entity import _bulk_has_perm
 
     try:
         content = cell.render_html(instance, user)
@@ -800,6 +801,8 @@ def brick_display(context, *bricks, **kwargs):
        - 'detail'  => detailview_display() (default value)
        - 'home'    => home_display()
     """
+    from creme.creme_core.views.bricks import render_detailview_brick, render_home_brick
+
     context_dict = context.flatten()
     render_type = kwargs.get('render', 'detail')
 
