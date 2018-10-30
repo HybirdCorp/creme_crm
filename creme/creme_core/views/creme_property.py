@@ -343,7 +343,7 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
 #                    'bricks_reload_url': reverse('creme_core__reload_ptype_bricks', args=(ptype_id,)),
 #                   }
 #                  )
-class PropertyTypeDetail(generic.detailview.CremeModelDetail):
+class PropertyTypeDetail(generic.CremeModelDetail):
     model = CremePropertyType
     template_name = 'creme_core/view_property_type.html'
     pk_url_kwarg = 'ptype_id'

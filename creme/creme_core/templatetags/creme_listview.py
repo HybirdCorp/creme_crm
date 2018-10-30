@@ -39,7 +39,6 @@ from ..gui.pager import PagerContext
 from ..models import CustomField
 # from ..models.fields import EntityCTypeForeignKey
 # from ..utils import creme_entity_content_types, build_ct_choices
-from ..views.entity import _bulk_has_perm
 
 
 logger = logging.getLogger(__name__)
@@ -290,6 +289,8 @@ def get_column_colspan(cell, is_readonly):
 
 @register.inclusion_tag('creme_core/templatetags/listview/td-action.html')
 def listview_td_action_for_cell(cell, instance, user):
+    from creme.creme_core.views.entity import _bulk_has_perm
+
     return {
         'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
         'edit_perm': _bulk_has_perm(instance, user),
