@@ -3,6 +3,8 @@
 from django.conf.urls import url
 from django.contrib.auth import REDIRECT_FIELD_NAME, views as auth_views
 
+from creme.creme_core.conf.urls import Swappable, swap_manager
+
 from creme import persons, activities
 
 from . import views, forms
@@ -45,20 +47,38 @@ urlpatterns = [
     url(r'^logout[/]?$', auth_views.logout_then_login, name='mobile__logout'),
 ]
 
-if not persons.contact_model_is_custom():
-    urlpatterns += [
-        url(r'^contact/add[/]?$', views.create_contact, name='mobile__create_contact'),
-    ]
+# if not persons.contact_model_is_custom():
+#     urlpatterns += [
+#         url(r'^contact/add[/]?$', views.create_contact, name='mobile__create_contact'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    persons.contact_model_is_custom,
+    Swappable(url(r'^contact/add[/]?$', views.create_contact, name='mobile__create_contact')),
+    app_name='mobile',
+).kept_patterns()
 
-if not persons.organisation_model_is_custom():
-    urlpatterns += [
-        url(r'^organisation/add[/]?$', views.create_organisation, name='mobile__create_organisation'),
-    ]
+# if not persons.organisation_model_is_custom():
+#     urlpatterns += [
+#         url(r'^organisation/add[/]?$', views.create_organisation, name='mobile__create_organisation'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    persons.organisation_model_is_custom,
+    Swappable(url(r'^organisation/add[/]?$', views.create_organisation, name='mobile__create_organisation')),
+    app_name='mobile',
+).kept_patterns()
 
-if not activities.activity_model_is_custom():
-    urlpatterns += [
-        url(r'^phone_call/lasted_5_minutes[/]?$', views.phonecall_workflow_lasted_5_minutes, name='mobile__pcall_wf_lasted_5_minutes'),
-        url(r'^phone_call/just_done[/]?$',        views.phonecall_workflow_just_done,        name='mobile__pcall_wf_just_done'),
-        url(r'^phone_call/failed[/]?$',           views.phonecall_workflow_failed,           name='mobile__pcall_wf_failed'),
-        url(r'^phone_call/postponed[/]?$',        views.phonecall_workflow_postponed,        name='mobile__pcall_wf_postponed'),
-    ]
+# if not activities.activity_model_is_custom():
+#     urlpatterns += [
+#         url(r'^phone_call/lasted_5_minutes[/]?$', views.phonecall_workflow_lasted_5_minutes, name='mobile__pcall_wf_lasted_5_minutes'),
+#         url(r'^phone_call/just_done[/]?$',        views.phonecall_workflow_just_done,        name='mobile__pcall_wf_just_done'),
+#         url(r'^phone_call/failed[/]?$',           views.phonecall_workflow_failed,           name='mobile__pcall_wf_failed'),
+#         url(r'^phone_call/postponed[/]?$',        views.phonecall_workflow_postponed,        name='mobile__pcall_wf_postponed'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    activities.activity_model_is_custom,
+    Swappable(url(r'^phone_call/lasted_5_minutes[/]?$', views.phonecall_workflow_lasted_5_minutes, name='mobile__pcall_wf_lasted_5_minutes')),
+    Swappable(url(r'^phone_call/just_done[/]?$',        views.phonecall_workflow_just_done,        name='mobile__pcall_wf_just_done')),
+    Swappable(url(r'^phone_call/failed[/]?$',           views.phonecall_workflow_failed,           name='mobile__pcall_wf_failed')),
+    Swappable(url(r'^phone_call/postponed[/]?$',        views.phonecall_workflow_postponed,        name='mobile__pcall_wf_postponed')),
+    app_name='mobile',
+).kept_patterns()

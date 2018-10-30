@@ -2,6 +2,8 @@
 
 from django.conf.urls import url, include
 
+from creme.creme_core.conf.urls import Swappable, swap_manager
+
 from . import activity_model_is_custom, constants
 from .views import activity, bricks, calendar  # portal
 
@@ -38,26 +40,35 @@ urlpatterns = [
     url(r'^calendar/', include(calendar_patterns)),
 ]
 
-if not activity_model_is_custom():
-    urlpatterns += [
-        url(r'^activities[/]?$',  activity.listview,                                                name='activities__list_activities'),
-        url(r'^phone_calls[/]?$', activity.listview, {'type_id': constants.ACTIVITYTYPE_PHONECALL}, name='activities__list_phone_calls'),
-        url(r'^meetings[/]?$',    activity.listview, {'type_id': constants.ACTIVITYTYPE_MEETING},   name='activities__list_meetings'),
+# if not activity_model_is_custom():
+#     urlpatterns += [
+#         url(r'^activities[/]?$',  activity.listview,                                                name='activities__list_activities'),
+#         url(r'^phone_calls[/]?$', activity.listview, {'type_id': constants.ACTIVITYTYPE_PHONECALL}, name='activities__list_phone_calls'),
+#         url(r'^meetings[/]?$',    activity.listview, {'type_id': constants.ACTIVITYTYPE_MEETING},   name='activities__list_meetings'),
+#
+#         url(r'^activity/add[/]?$',                            activity.add,                 name='activities__create_activity'),
+#         url(r'^activity/add/(?P<act_type>\w+)[/]?$',          activity.add,                 name='activities__create_activity'),
+#         url(r'^activity/add_indispo[/]?$',                    activity.add_indisponibility, name='activities__create_indispo'),
+#         url(r'^activity/add_popup[/]?$',                      activity.add_popup,           name='activities__create_activity_popup'),
+#         url(r'^activity/add_related/(?P<entity_id>\d+)[/]?$', activity.add_related,         name='activities__create_related_activity'),
+#         url(r'^activity/edit/(?P<activity_id>\d+)[/]?$',      activity.edit,                name='activities__edit_activity'),
+#         url(r'^activity/(?P<activity_id>\d+)[/]?$',           activity.detailview,          name='activities__view_activity'),
+#         url(r'^activity/(?P<activity_id>\d+)/popup[/]?$',     activity.popupview,           name='activities__view_activity_popup'),
+#     ]
 
-        # url(r'^activity/add[/]?$',                            activity.add,                 name='activities__create_activity'),
-        # url(r'^activity/add/(?P<act_type>\w+)[/]?$',          activity.add,                 name='activities__create_activity'),
-        url(r'^activity/add[/]?$',                            activity.ActivityCreation.as_view(),        name='activities__create_activity'),
-        url(r'^activity/add/(?P<act_type>\w+)[/]?$',          activity.ActivityCreation.as_view(),        name='activities__create_activity'),
-        # url(r'^activity/add_indispo[/]?$',                    activity.add_indisponibility, name='activities__create_indispo'),
-        url(r'^activity/add_indispo[/]?$',                    activity.UnavailabilityCreation.as_view(),  name='activities__create_indispo'),
-        # url(r'^activity/add_popup[/]?$',                      activity.add_popup,           name='activities__create_activity_popup'),
-        url(r'^activity/add_popup[/]?$',                      activity.ActivityCreationPopup.as_view(),   name='activities__create_activity_popup'),
-        # url(r'^activity/add_related/(?P<entity_id>\d+)[/]?$', activity.add_related,         name='activities__create_related_activity'),
-        url(r'^activity/add_related/(?P<entity_id>\d+)[/]?$', activity.RelatedActivityCreation.as_view(), name='activities__create_related_activity'),
-        # url(r'^activity/edit/(?P<activity_id>\d+)[/]?$',      activity.edit,                name='activities__edit_activity'),
-        url(r'^activity/edit/(?P<activity_id>\d+)[/]?$',      activity.ActivityEdition.as_view(),         name='activities__edit_activity'),
-        # url(r'^activity/(?P<activity_id>\d+)[/]?$',           activity.detailview,          name='activities__view_activity'),
-        url(r'^activity/(?P<activity_id>\d+)[/]?$',           activity.ActivityDetail.as_view(),          name='activities__view_activity'),
-        # url(r'^activity/(?P<activity_id>\d+)/popup[/]?$',     activity.popupview,           name='activities__view_activity_popup'),
-        url(r'^activity/(?P<activity_id>\d+)/popup[/]?$',     activity.ActivityPopup.as_view(),           name='activities__view_activity_popup'),
-    ]
+urlpatterns += swap_manager.add_group(
+    activity_model_is_custom,
+    Swappable(url(r'^activities[/]?$',  activity.listview,                                                name='activities__list_activities')),
+    Swappable(url(r'^phone_calls[/]?$', activity.listview, {'type_id': constants.ACTIVITYTYPE_PHONECALL}, name='activities__list_phone_calls')),
+    Swappable(url(r'^meetings[/]?$',    activity.listview, {'type_id': constants.ACTIVITYTYPE_MEETING},   name='activities__list_meetings')),
+
+    Swappable(url(r'^activity/add[/]?$',                            activity.ActivityCreation.as_view(),        name='activities__create_activity')),
+    Swappable(url(r'^activity/add/(?P<act_type>\w+)[/]?$',          activity.ActivityCreation.as_view(),        name='activities__create_activity'),         check_args=('idxxx',)),
+    Swappable(url(r'^activity/add_indispo[/]?$',                    activity.UnavailabilityCreation.as_view(),  name='activities__create_indispo')),
+    Swappable(url(r'^activity/add_popup[/]?$',                      activity.ActivityCreationPopup.as_view(),   name='activities__create_activity_popup')),
+    Swappable(url(r'^activity/add_related/(?P<entity_id>\d+)[/]?$', activity.RelatedActivityCreation.as_view(), name='activities__create_related_activity'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^activity/edit/(?P<activity_id>\d+)[/]?$',      activity.ActivityEdition.as_view(),         name='activities__edit_activity'),           check_args=Swappable.INT_ID),
+    Swappable(url(r'^activity/(?P<activity_id>\d+)[/]?$',           activity.ActivityDetail.as_view(),          name='activities__view_activity'),           check_args=Swappable.INT_ID),
+    Swappable(url(r'^activity/(?P<activity_id>\d+)/popup[/]?$',     activity.ActivityPopup.as_view(),           name='activities__view_activity_popup'),     check_args=Swappable.INT_ID),
+    app_name='activities',
+).kept_patterns()

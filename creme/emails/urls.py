@@ -3,6 +3,8 @@
 from django.apps import apps
 from django.conf.urls import url, include
 
+from creme.creme_core.conf.urls import Swappable, swap_manager
+
 from creme import emails
 from .views import campaign, sending, recipient, mailing_list, template, mail, signature  # portal
 
@@ -70,52 +72,71 @@ urlpatterns = [
     ])),
 ]
 
-if not emails.emailcampaign_model_is_custom():
-    urlpatterns += [
-        url(r'^campaigns[/]?$',                          campaign.listview,   name='emails__list_campaigns'),
-        # url(r'^campaign/add[/]?$',                       campaign.add,        name='emails__create_campaign'),
-        url(r'^campaign/add[/]?$',                       campaign.EmailCampaignCreation.as_view(), name='emails__create_campaign'),
-        # url(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.edit,       name='emails__edit_campaign'),
-        url(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.EmailCampaignEdition.as_view(), name='emails__edit_campaign'),
-        # url(r'^campaign/(?P<campaign_id>\d+)[/]?$',      campaign.detailview, name='emails__view_campaign'),
-        url(r'^campaign/(?P<campaign_id>\d+)[/]?$',      campaign.EmailCampaignDetail.as_view(), name='emails__view_campaign'),
-    ]
+# if not emails.emailcampaign_model_is_custom():
+#     urlpatterns += [
+#         url(r'^campaigns[/]?$',                          campaign.listview,   name='emails__list_campaigns'),
+#         url(r'^campaign/add[/]?$',                       campaign.add,        name='emails__create_campaign'),
+#         url(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.edit,       name='emails__edit_campaign'),
+#         url(r'^campaign/(?P<campaign_id>\d+)[/]?$',      campaign.detailview, name='emails__view_campaign'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    emails.emailcampaign_model_is_custom,
+    Swappable(url(r'^campaigns[/]?$',                          campaign.listview,                        name='emails__list_campaigns')),
+    Swappable(url(r'^campaign/add[/]?$',                       campaign.EmailCampaignCreation.as_view(), name='emails__create_campaign')),
+    Swappable(url(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.EmailCampaignEdition.as_view(),  name='emails__edit_campaign'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^campaign/(?P<campaign_id>\d+)[/]?$',      campaign.EmailCampaignDetail.as_view(),   name='emails__view_campaign'), check_args=Swappable.INT_ID),
+    app_name='emails',
+).kept_patterns()
 
-if not emails.emailtemplate_model_is_custom():
-    urlpatterns += [
-        url(r'^templates[/]?$',                          template.listview,   name='emails__list_templates'),
-        # url(r'^template/add[/]?$',                       template.add,        name='emails__create_template'),
-        url(r'^template/add[/]?$',                       template.EmailTemplateCreation.as_view(), name='emails__create_template'),
-        # url(r'^template/edit/(?P<template_id>\d+)[/]?$', template.edit,       name='emails__edit_template'),
-        url(r'^template/edit/(?P<template_id>\d+)[/]?$', template.EmailTemplateEdition.as_view(), name='emails__edit_template'),
-        # url(r'^template/(?P<template_id>\d+)[/]?$',      template.detailview, name='emails__view_template'),
-        url(r'^template/(?P<template_id>\d+)[/]?$',      template.EmailTemplateDetail.as_view(), name='emails__view_template'),
-    ]
+# if not emails.emailtemplate_model_is_custom():
+#     urlpatterns += [
+#         url(r'^templates[/]?$',                          template.listview,   name='emails__list_templates'),
+#         url(r'^template/add[/]?$',                       template.add,        name='emails__create_template'),
+#         url(r'^template/edit/(?P<template_id>\d+)[/]?$', template.edit,       name='emails__edit_template'),
+#         url(r'^template/(?P<template_id>\d+)[/]?$',      template.detailview, name='emails__view_template'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    emails.emailtemplate_model_is_custom,
+    Swappable(url(r'^templates[/]?$',                          template.listview,                        name='emails__list_templates')),
+    Swappable(url(r'^template/add[/]?$',                       template.EmailTemplateCreation.as_view(), name='emails__create_template')),
+    Swappable(url(r'^template/edit/(?P<template_id>\d+)[/]?$', template.EmailTemplateEdition.as_view(),  name='emails__edit_template'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^template/(?P<template_id>\d+)[/]?$',      template.EmailTemplateDetail.as_view(),   name='emails__view_template'), check_args=Swappable.INT_ID),
+    app_name='emails',
+).kept_patterns()
 
-if not emails.entityemail_model_is_custom():
-    urlpatterns += [
-        url(r'^mails[/]?$',                                     mail.listview,                      name='emails__list_emails'),
-        # url(r'^mail/add/(?P<entity_id>\d+)[/]?$',               mail.create_n_send,               name='emails__create_email'),
-        url(r'^mail/add/(?P<entity_id>\d+)[/]?$',               mail.EntityEmailCreation.as_view(), name='emails__create_email'),
-        # url(r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$', mail.create_from_template_n_send, name='emails__create_email_from_template'),
-        url(r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$', mail.EntityEmailWizard.as_view(),   name='emails__create_email_from_template'),
-        # url(r'^mail/(?P<mail_id>\d+)[/]?$',                     mail.detailview,                  name='emails__view_email'),
-        url(r'^mail/(?P<mail_id>\d+)[/]?$',                     mail.EntityEmailDetail.as_view(),   name='emails__view_email'),
-        # url(r'^mail/(?P<mail_id>\d+)/popup[/]?$',               mail.popupview,                   name='emails__view_email_popup'),
-        url(r'^mail/(?P<mail_id>\d+)/popup[/]?$',               mail.EntityEmailPopup.as_view(),    name='emails__view_email_popup'),
-    ]
+# if not emails.entityemail_model_is_custom():
+#     urlpatterns += [
+#         url(r'^mails[/]?$',                                     mail.listview,                    name='emails__list_emails'),
+#         url(r'^mail/add/(?P<entity_id>\d+)[/]?$',               mail.create_n_send,               name='emails__create_email'),
+#         url(r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$', mail.create_from_template_n_send, name='emails__create_email_from_template'),
+#         url(r'^mail/(?P<mail_id>\d+)[/]?$',                     mail.detailview,                  name='emails__view_email'),
+#         url(r'^mail/(?P<mail_id>\d+)/popup[/]?$',               mail.popupview,                   name='emails__view_email_popup'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    emails.entityemail_model_is_custom,
+    Swappable(url(r'^mails[/]?$',                                     mail.listview,                      name='emails__list_emails')),
+    Swappable(url(r'^mail/add/(?P<entity_id>\d+)[/]?$',               mail.EntityEmailCreation.as_view(), name='emails__create_email'),               check_args=Swappable.INT_ID),
+    Swappable(url(r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$', mail.EntityEmailWizard.as_view(),   name='emails__create_email_from_template'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^mail/(?P<mail_id>\d+)[/]?$',                     mail.EntityEmailDetail.as_view(),   name='emails__view_email'),                 check_args=Swappable.INT_ID),
+    Swappable(url(r'^mail/(?P<mail_id>\d+)/popup[/]?$',               mail.EntityEmailPopup.as_view(),    name='emails__view_email_popup'),           check_args=Swappable.INT_ID),
+    app_name='emails',
+).kept_patterns()
 
-if not emails.mailinglist_model_is_custom():
-    urlpatterns += [
-        url(r'^mailing_lists[/]?$',                    mailing_list.listview,   name='emails__list_mlists'),
-        # url(r'^mailing_list/add[/]?$',                 mailing_list.add,        name='emails__create_mlist'),
-        url(r'^mailing_list/add[/]?$',                 mailing_list.MailingListCreation.as_view(), name='emails__create_mlist'),
-        # url(r'^mailing_list/edit/(?P<ml_id>\d+)[/]?$', mailing_list.edit,       name='emails__edit_mlist'),
-        url(r'^mailing_list/edit/(?P<ml_id>\d+)[/]?$', mailing_list.MailingListEdition.as_view(), name='emails__edit_mlist'),
-        # url(r'^mailing_list/(?P<ml_id>\d+)[/]?$',      mailing_list.detailview, name='emails__view_mlist'),
-        url(r'^mailing_list/(?P<ml_id>\d+)[/]?$',      mailing_list.MailingListDetail.as_view(), name='emails__view_mlist'),
-    ]
-
+# if not emails.mailinglist_model_is_custom():
+#     urlpatterns += [
+#         url(r'^mailing_lists[/]?$',                    mailing_list.listview,   name='emails__list_mlists'),
+#         url(r'^mailing_list/add[/]?$',                 mailing_list.add,        name='emails__create_mlist'),
+#         url(r'^mailing_list/edit/(?P<ml_id>\d+)[/]?$', mailing_list.edit,       name='emails__edit_mlist'),
+#         url(r'^mailing_list/(?P<ml_id>\d+)[/]?$',      mailing_list.detailview, name='emails__view_mlist'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    emails.mailinglist_model_is_custom,
+    Swappable(url(r'^mailing_lists[/]?$',                    mailing_list.listview,                      name='emails__list_mlists')),
+    Swappable(url(r'^mailing_list/add[/]?$',                 mailing_list.MailingListCreation.as_view(), name='emails__create_mlist')),
+    Swappable(url(r'^mailing_list/edit/(?P<ml_id>\d+)[/]?$', mailing_list.MailingListEdition.as_view(),  name='emails__edit_mlist'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^mailing_list/(?P<ml_id>\d+)[/]?$',      mailing_list.MailingListDetail.as_view(),   name='emails__view_mlist'), check_args=Swappable.INT_ID),
+    app_name='emails',
+).kept_patterns()
 
 if apps.is_installed('creme.crudity'):
     from .views import crudity

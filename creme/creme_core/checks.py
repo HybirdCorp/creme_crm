@@ -72,13 +72,15 @@ def check_uninstalled_apps(**kwargs):
             try:
                 apps.get_app_config(app_label)
             except LookupError:
-                warnings.append(Warning('The app seems not been correctly uninstalled.',
-                                        hint="""If it's a Creme app, uninstall it with the command "creme_uninstall" """
-                                             """(you must enable this app in your settings before).""",
-                                        obj=app_label,
-                                        id='creme.E003',
-                                       )
-                               )
+                warnings.append(
+                    Warning(
+                        'The app seems not been correctly uninstalled.',
+                        hint="""If it's a Creme app, uninstall it with the command "creme_uninstall" """
+                             """(you must enable this app in your settings before).""",
+                        obj=app_label,
+                        id='creme.E003',
+                    )
+                )
 
     return warnings
 
@@ -96,12 +98,15 @@ def check_entity_ordering(**kwargs):
         ordering = model._meta.ordering
 
         if not ordering or (len(ordering) == 1 and 'id' in ordering[0]):
-            errors.append(Error('"{}" should have a Meta.ordering different from "id" like all CremeEntities'.format(model),
-                                hint='Change the "ordering" attribute in the Meta class of your model.',
-                                obj='creme.creme_core',
-                                id='creme.E005',
-                               )
-                         )
+            errors.append(
+                Error(
+                    '"{}" should have a Meta.ordering different from "id" '
+                    'like all CremeEntities'.format(model),
+                    hint='Change the "ordering" attribute in the Meta class of your model.',
+                    obj='creme.creme_core',
+                    id='creme.E005',
+               )
+            )
 
     return errors
 
@@ -117,5 +122,38 @@ def check_real_entity_foreign_keys(**kwargs):
         for field in vars(model).values():
             if isinstance(field, RealEntityForeignKey):
                 errors.extend(field.check())
+
+    return errors
+
+
+@register(CoreTags.urls)
+def check_swapped_urls(**kwargs):
+    from django.urls import reverse, NoReverseMatch
+
+    from creme.creme_core.conf.urls import swap_manager
+
+    errors = []
+
+    for group in swap_manager:
+        for swapped in group.swapped():
+            name = swapped.pattern.name
+
+            try:
+                reverse(viewname=name, args=swapped.check_args)
+            except NoReverseMatch:
+                errors.append(
+                    Error(
+                        'The URL "{url}" (args={args}) has been swapped from the app '
+                        '"{app}" but never defined.'.format(
+                            url=name,
+                            args=swapped.verbose_args,
+                            app=group.app_name,
+                        ),
+                        hint='Define this URL in the file "urls.py" of the module '
+                             'which defines the concrete model.',
+                        obj='creme.creme_core',
+                        id='creme.E008',
+                    )
+                )
 
     return errors

@@ -3,6 +3,8 @@
 from django.conf import settings
 from django.conf.urls import url
 
+from creme.creme_core.conf.urls import Swappable, swap_manager
+
 from . import report_model_is_custom, rgraph_model_is_custom
 from .views import export, report, graph, bricks  # portal
 
@@ -49,26 +51,35 @@ urlpatterns = [
     ),
 ]
 
-if not report_model_is_custom():
-    urlpatterns += [
-        url(r'^reports[/]?$',                        report.listview,   name='reports__list_reports'),
-        # url(r'^report/add[/]?$',                     report.add,        name='reports__create_report'),
-        url(r'^report/add[/]?$',                     report.ReportCreation.as_view(), name='reports__create_report'),
-        # url(r'^report/edit/(?P<report_id>\d+)[/]?$', report.edit,       name='reports__edit_report'),
-        url(r'^report/edit/(?P<report_id>\d+)[/]?$', report.ReportEdition.as_view(), name='reports__edit_report'),
-        # url(r'^report/(?P<report_id>\d+)[/]?$',      report.detailview, name='reports__view_report'),
-        url(r'^report/(?P<report_id>\d+)[/]?$',      report.ReportDetail.as_view(), name='reports__view_report'),
-    ]
+# if not report_model_is_custom():
+#     urlpatterns += [
+#         url(r'^reports[/]?$',                        report.listview,   name='reports__list_reports'),
+#         url(r'^report/add[/]?$',                     report.add,        name='reports__create_report'),
+#         url(r'^report/edit/(?P<report_id>\d+)[/]?$', report.edit,       name='reports__edit_report'),
+#         url(r'^report/(?P<report_id>\d+)[/]?$',      report.detailview, name='reports__view_report'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    report_model_is_custom,
+    Swappable(url(r'^reports[/]?$',                        report.listview,                 name='reports__list_reports')),
+    Swappable(url(r'^report/add[/]?$',                     report.ReportCreation.as_view(), name='reports__create_report')),
+    Swappable(url(r'^report/edit/(?P<report_id>\d+)[/]?$', report.ReportEdition.as_view(),  name='reports__edit_report'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^report/(?P<report_id>\d+)[/]?$',      report.ReportDetail.as_view(),   name='reports__view_report'), check_args=Swappable.INT_ID),
+    app_name='reports',
+).kept_patterns()
 
-if not rgraph_model_is_custom():
-    urlpatterns += [
-        # url(r'^graph/(?P<report_id>\d+)/add[/]?$', graph.add,        name='reports__create_graph'),
-        url(r'^graph/(?P<report_id>\d+)/add[/]?$', graph.GraphCreation.as_view(), name='reports__create_graph'),
-        # url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.edit,       name='reports__edit_graph'),
-        url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.GraphEdition.as_view(),  name='reports__edit_graph'),
-        # url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.detailview, name='reports__view_graph'),
-        url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.GraphDetail.as_view(),   name='reports__view_graph'),
-    ]
+# if not rgraph_model_is_custom():
+#     urlpatterns += [
+#         url(r'^graph/(?P<report_id>\d+)/add[/]?$', graph.add,        name='reports__create_graph'),
+#         url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.edit,       name='reports__edit_graph'),
+#         url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.detailview, name='reports__view_graph'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    rgraph_model_is_custom,
+    Swappable(url(r'^graph/(?P<report_id>\d+)/add[/]?$', graph.GraphCreation.as_view(), name='reports__create_graph'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.GraphEdition.as_view(),  name='reports__edit_graph'),   check_args=Swappable.INT_ID),
+    Swappable(url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.GraphDetail.as_view(),   name='reports__view_graph'),   check_args=Swappable.INT_ID),
+    app_name='reports',
+).kept_patterns()
 
 if settings.TESTS_ON:
     from .tests import fake_views
@@ -76,7 +87,7 @@ if settings.TESTS_ON:
     urlpatterns += [
         # url(r'^tests/folder/(?P<folder_id>\d+)[/]?$', fake_views.folder_detailview, name='reports__view_fake_folder'),
         url(r'^tests/folder/(?P<folder_id>\d+)[/]?$', fake_views.FakeReportsFolderDetail.as_view(),
-            name='reports__view_fake_folder'
+            name='reports__view_fake_folder',
            ),
 
         url(r'^tests/documents[/]?$', fake_views.document_listview, name='reports__list_fake_documents'),

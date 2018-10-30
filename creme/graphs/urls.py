@@ -2,6 +2,8 @@
 
 from django.conf.urls import url
 
+from creme.creme_core.conf.urls import Swappable, swap_manager
+
 from . import graph_model_is_custom
 from .views import graph, root_node  # portal
 
@@ -22,13 +24,18 @@ urlpatterns = [
     url(r'^root/delete[/]?$',                       root_node.delete,                    name='graphs__remove_root'),
 ]
 
-if not graph_model_is_custom():
-    urlpatterns += [
-        url(r'^graphs[/]?$',                       graph.listview,   name='graphs__list_graphs'),
-        # url(r'^graph/add[/]?$',                    graph.add,        name='graphs__create_graph'),
-        url(r'^graph/add[/]?$',                    graph.GraphCreation.as_view(), name='graphs__create_graph'),
-        # url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.edit,       name='graphs__edit_graph'),
-        url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.GraphEdition.as_view(), name='graphs__edit_graph'),
-        # url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.detailview, name='graphs__view_graph'),
-        url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.GraphDetail.as_view(), name='graphs__view_graph'),
-    ]
+# if not graph_model_is_custom():
+#     urlpatterns += [
+#         url(r'^graphs[/]?$',                       graph.listview,   name='graphs__list_graphs'),
+#         url(r'^graph/add[/]?$',                    graph.add,        name='graphs__create_graph'),
+#         url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.edit,       name='graphs__edit_graph'),
+#         url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.detailview, name='graphs__view_graph'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    graph_model_is_custom,
+    Swappable(url(r'^graphs[/]?$',                       graph.listview,                name='graphs__list_graphs')),
+    Swappable(url(r'^graph/add[/]?$',                    graph.GraphCreation.as_view(), name='graphs__create_graph')),
+    Swappable(url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.GraphEdition.as_view(),  name='graphs__edit_graph'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.GraphDetail.as_view(),   name='graphs__view_graph'), check_args=Swappable.INT_ID),
+    app_name='graphs',
+).kept_patterns()
