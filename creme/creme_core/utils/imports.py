@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 
 
 def import_apps_sub_modules(module_name):
-    """Iterate on on installed apps & for each one get a sub-module (if it exists).
+    """Iterate on installed apps & for each one get a sub-module (if it exists).
 
     @param module_name: string.
     @return: a list of modules.

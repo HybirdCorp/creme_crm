@@ -2,12 +2,15 @@
 
 from django.conf.urls import url
 
+from creme.creme_core.conf.urls import Swappable, swap_manager
+
 from creme.persons import contact_model_is_custom
 
 from creme.opportunities import opportunity_model_is_custom
 
 from . import act_model_is_custom, pattern_model_is_custom, strategy_model_is_custom
-from .views import commercial_approach, market_segment, act, strategy  # portal
+from .views import commercial_approach, market_segment, act, salesman, strategy  # portal
+
 
 urlpatterns = [
     # url(r'^$', portal.portal, name='commercial__portal'),
@@ -86,54 +89,79 @@ urlpatterns = [
 ]
 
 
-if not contact_model_is_custom():
-    from .views import salesman
+# if not contact_model_is_custom():
+#     urlpatterns += [
+#         url(r'^salesmen[/]?$',     salesman.listview, name='commercial__list_salesmen'),
+#         url(r'^salesman/add[/]?$', salesman.add,      name='commercial__create_salesman'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    contact_model_is_custom,
+    Swappable(url(r'^salesmen[/]?$',     salesman.listview,                   name='commercial__list_salesmen')),
+    Swappable(url(r'^salesman/add[/]?$', salesman.SalesManCreation.as_view(), name='commercial__create_salesman')),
+    app_name='commercial',
+).kept_patterns()
 
-    urlpatterns += [
-        url(r'^salesmen[/]?$',     salesman.listview, name='commercial__list_salesmen'),
-        # url(r'^salesman/add[/]?$', salesman.add,      name='commercial__create_salesman'),
-        url(r'^salesman/add[/]?$', salesman.SalesManCreation.as_view(), name='commercial__create_salesman'),
-    ]
+# if not act_model_is_custom():
+#     urlpatterns += [
+#         url(r'^acts[/]?$',                     act.listview,   name='commercial__list_acts'),
+#         url(r'^act/add[/]?$',                  act.add,        name='commercial__create_act'),
+#         url(r'^act/edit/(?P<act_id>\d+)[/]?$', act.edit,       name='commercial__edit_act'),
+#         url(r'^act/(?P<act_id>\d+)[/]?$',      act.detailview, name='commercial__view_act'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    act_model_is_custom,
+    Swappable(url(r'^acts[/]?$',                     act.listview,              name='commercial__list_acts')),
+    Swappable(url(r'^act/add[/]?$',                  act.ActCreation.as_view(), name='commercial__create_act')),
+    Swappable(url(r'^act/edit/(?P<act_id>\d+)[/]?$', act.ActEdition.as_view(),  name='commercial__edit_act'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^act/(?P<act_id>\d+)[/]?$',      act.ActDetail.as_view(),   name='commercial__view_act'), check_args=Swappable.INT_ID),
+    app_name='commercial',
+).kept_patterns()
 
-if not act_model_is_custom():
-    urlpatterns += [
-        url(r'^acts[/]?$',                     act.listview,   name='commercial__list_acts'),
-        # url(r'^act/add[/]?$',                  act.add,        name='commercial__create_act'),
-        url(r'^act/add[/]?$',                  act.ActCreation.as_view(), name='commercial__create_act'),
-        # url(r'^act/edit/(?P<act_id>\d+)[/]?$', act.edit,       name='commercial__edit_act'),
-        url(r'^act/edit/(?P<act_id>\d+)[/]?$', act.ActEdition.as_view(), name='commercial__edit_act'),
-        # url(r'^act/(?P<act_id>\d+)[/]?$',      act.detailview, name='commercial__view_act'),
-        url(r'^act/(?P<act_id>\d+)[/]?$',      act.ActDetail.as_view(), name='commercial__view_act'),
-    ]
 
-if not opportunity_model_is_custom():
-    urlpatterns += [
-        # url(r'^act/(?P<act_id>\d+)/add/opportunity[/]?$', act.add_opportunity, name='commercial__create_opportunity'),
-        url(r'^act/(?P<act_id>\d+)/add/opportunity[/]?$',
-            act.RelatedOpportunityCreation.as_view(),
-            name='commercial__create_opportunity',
-           ),
-    ]
+# if not opportunity_model_is_custom():
+#     urlpatterns += [
+#         url(r'^act/(?P<act_id>\d+)/add/opportunity[/]?$', act.add_opportunity, name='commercial__create_opportunity'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    opportunity_model_is_custom,
+    Swappable(url(r'^act/(?P<act_id>\d+)/add/opportunity[/]?$',
+                  act.RelatedOpportunityCreation.as_view(),
+                  name='commercial__create_opportunity',
+                 ),
+              check_args=Swappable.INT_ID,
+             ),
+    app_name='commercial',
+).kept_patterns()
 
-if not pattern_model_is_custom():
-    urlpatterns += [
-        # TODO: a separated file for pattern ???
-        url(r'^objective_patterns[/]?$',                            act.listview_objective_pattern,   name='commercial__list_patterns'),
-        # url(r'^objective_pattern/add[/]?$',                         act.add_objective_pattern,        name='commercial__create_pattern'),
-        url(r'^objective_pattern/add[/]?$',                         act.ActObjectivePatternCreation.as_view(), name='commercial__create_pattern'),
-        # url(r'^objective_pattern/edit/(?P<objpattern_id>\d+)[/]?$', act.edit_objective_pattern,       name='commercial__edit_pattern'),
-        url(r'^objective_pattern/edit/(?P<objpattern_id>\d+)[/]?$', act.ActObjectivePatternEdition.as_view(), name='commercial__edit_pattern'),
-        # url(r'^objective_pattern/(?P<objpattern_id>\d+)[/]?$',      act.objective_pattern_detailview, name='commercial__view_pattern'),
-        url(r'^objective_pattern/(?P<objpattern_id>\d+)[/]?$',      act.ActObjectivePatternDetail.as_view(), name='commercial__view_pattern'),
-    ]
+# TODO: a separated file for pattern ???
+# if not pattern_model_is_custom():
+#     urlpatterns += [
+#         url(r'^objective_patterns[/]?$',                            act.listview_objective_pattern,   name='commercial__list_patterns'),
+#         url(r'^objective_pattern/add[/]?$',                         act.add_objective_pattern,        name='commercial__create_pattern'),
+#         url(r'^objective_pattern/edit/(?P<objpattern_id>\d+)[/]?$', act.edit_objective_pattern,       name='commercial__edit_pattern'),
+#         url(r'^objective_pattern/(?P<objpattern_id>\d+)[/]?$',      act.objective_pattern_detailview, name='commercial__view_pattern'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    pattern_model_is_custom,
+    Swappable(url(r'^objective_patterns[/]?$',                            act.listview_objective_pattern,            name='commercial__list_patterns')),
+    Swappable(url(r'^objective_pattern/add[/]?$',                         act.ActObjectivePatternCreation.as_view(), name='commercial__create_pattern')),
+    Swappable(url(r'^objective_pattern/edit/(?P<objpattern_id>\d+)[/]?$', act.ActObjectivePatternEdition.as_view(),  name='commercial__edit_pattern'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^objective_pattern/(?P<objpattern_id>\d+)[/]?$',      act.ActObjectivePatternDetail.as_view(),   name='commercial__view_pattern'), check_args=Swappable.INT_ID),
+    app_name='commercial',
+).kept_patterns()
 
-if not strategy_model_is_custom():
-    urlpatterns += [
-        url(r'^strategies[/]?$',                         strategy.listview,   name='commercial__list_strategies'),
-        # url(r'^strategy/add[/]?$',                       strategy.add,        name='commercial__create_strategy'),
-        url(r'^strategy/add[/]?$',                       strategy.StrategyCreation.as_view(), name='commercial__create_strategy'),
-        # url(r'^strategy/edit/(?P<strategy_id>\d+)[/]?$', strategy.edit,       name='commercial__edit_strategy'),
-        url(r'^strategy/edit/(?P<strategy_id>\d+)[/]?$', strategy.StrategyEdition.as_view(), name='commercial__edit_strategy'),
-        # url(r'^strategy/(?P<strategy_id>\d+)[/]?$',      strategy.detailview, name='commercial__view_strategy'),
-        url(r'^strategy/(?P<strategy_id>\d+)[/]?$',      strategy.StrategyDetail.as_view(), name='commercial__view_strategy'),
-    ]
+# if not strategy_model_is_custom():
+#     urlpatterns += [
+#         url(r'^strategies[/]?$',                         strategy.listview,   name='commercial__list_strategies'),
+#         url(r'^strategy/add[/]?$',                       strategy.add,        name='commercial__create_strategy'),
+#         url(r'^strategy/edit/(?P<strategy_id>\d+)[/]?$', strategy.edit,       name='commercial__edit_strategy'),
+#         url(r'^strategy/(?P<strategy_id>\d+)[/]?$',      strategy.detailview, name='commercial__view_strategy'),
+#     ]
+urlpatterns += swap_manager.add_group(
+    strategy_model_is_custom,
+    Swappable(url(r'^strategies[/]?$',                         strategy.listview,                   name='commercial__list_strategies')),
+    Swappable(url(r'^strategy/add[/]?$',                       strategy.StrategyCreation.as_view(), name='commercial__create_strategy')),
+    Swappable(url(r'^strategy/edit/(?P<strategy_id>\d+)[/]?$', strategy.StrategyEdition.as_view(),  name='commercial__edit_strategy'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^strategy/(?P<strategy_id>\d+)[/]?$',      strategy.StrategyDetail.as_view(),   name='commercial__view_strategy'), check_args=Swappable.INT_ID),
+    app_name='commercial',
+).kept_patterns()

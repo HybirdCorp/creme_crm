@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 08-10-2018 pour la version 2.0 de Creme
+:Version: 30-10-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -688,7 +688,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2018-07-27 18:24+0100\n"
+    "POT-Creation-Date: 2018-10-30 18:24+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -740,7 +740,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2018-07-27 18:24+0100\n"
+    "POT-Creation-Date: 2018-10-30 18:24+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2026,22 +2026,26 @@ Cela indique la classe à utiliser concrètement à la place de ``tickets.Ticket
 Vous pouvez à présent générer le répertoire de migrations comme nous l'avons
 déjà vu.
 
-Si on jette un œil au fichier ``tickets/urls.py``, on voit qu'un certain nombre
-d'URLs ne sont définies que lorsque le modèle n'est pas personnalisé : ::
+Si on jette un œil au fichier ``tickets/urls.py``, on voit que la façon de
+définir les URLs est par endroit un peu différente de ce dont on a l'habitude.
+Par exemple : ::
 
     [...]
 
-    if not ticket_model_is_custom():
-        from .views import ticket
-
-        urlpatterns += [
-            url(r'^tickets[/]?$',                        ticket.listview,   name='tickets__list_tickets'),
-            url(r'^ticket/add[/]?$',                     ticket.add,        name='tickets__create_ticket'),
-            url(r'^ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.edit,       name='tickets__edit_ticket'),
-            url(r'^ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(), name='tickets__view_ticket'),
-        ]
+    urlpatterns += swap_manager.add_group(
+        tickets.ticket_model_is_custom,
+        Swappable(url(r'^tickets[/]?$',                        ticket.listview,                 name='tickets__list_tickets')),
+        Swappable(url(r'^ticket/add[/]?$',                     ticket.TicketCreation.as_view(), name='tickets__create_ticket')),
+        Swappable(url(r'^ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.TicketEdition.as_view(),  name='tickets__edit_ticket'), check_args=Swappable.INT_ID),
+        Swappable(url(r'^ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(),   name='tickets__view_ticket'), check_args=Swappable.INT_ID),
+        app_name='tickets',
+    ).kept_patterns()
 
     [...]
+
+Ces URLs (en effet, on voit que ``url()`` est appelé, même si le code est
+enveloppé dans d'autres appels) ne sont définies que lorsque le modèle ``Ticket``
+n'est pas personnalisé.
 
 Ces vues ne peuvent évidemment pas respecter vos règles métier ; par exemple la
 vue de création peut planter si vous avez ajouté dans ``my_tickets.Ticket`` un champ à
@@ -2061,14 +2065,16 @@ pouvons définir ``my_tickets/urls.py`` tel que : ::
 
 
     urlpatterns += [
-        url(r'^my_tickets[/]?$',                        ticket.listview,   name='tickets__list_tickets'),
-        url(r'^my_ticket/add[/]?$',                     ticket.add,        name='tickets__create_ticket'),
-        url(r'^my_ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.edit,       name='tickets__edit_ticket'),
-        url(r'^my_ticket/(?P<ticket_id>\d+)[/]?$',      ticket.detailview, name='tickets__view_ticket'),
+        url(r'^my_tickets[/]?$',                        ticket.listview,                 name='tickets__list_tickets'),
+        url(r'^my_ticket/add[/]?$',                     ticket.TicketCreation.as_view(), name='tickets__create_ticket'),
+        url(r'^my_ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.TicketEdition.as_view(),  name='tickets__edit_ticket'),
+        url(r'^my_ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(),   name='tickets__view_ticket'),
     ]
 
 **Note** : l'important est de définir des URLs avec le même *name* (utilisé par
-``reverse()``), ainsi que les mêmes arguments ("ticket_id" ici).
+``reverse()``), ainsi que les mêmes arguments ("ticket_id" ici). Pour vous
+éviter de faire des erreurs, Creme vérifie au lancement que toutes les URLs
+*swappées* ont bien été définies ailleurs.
 
 Dans des cas plus complexes, vous voudrez sûrement utiliser vos propres formulaire
 ou template. Il en vous reste plus qu'à définir vos propres vues quand c'est
@@ -2081,17 +2087,13 @@ voulez définir la vue de création de ``my_tickets.Ticket`` avec votre propre f
 
     # -*- coding: utf-8 -*-
 
-    from creme.creme_core.auth.decorators import login_required, permission_required
-
-    from creme.tickets.views.ticket import abstract_add_ticket
+    from creme.tickets.views.ticket import TicketCreation
 
     from creme.my_tickets.forms import MyTicketForm  # <= à écrire aussi !
 
 
-    @login_required
-    @permission_required(('my_tickets', 'my_tickets.add_ticket'))
-    def add(request):
-        return abstract_add_ticket(request, form=MyTicketForm)
+    class TicketCreation(TicketCreation):
+        form_class = MyTicketForm
 
 
 **Un peu plus loin** : vous avez peut-être remarqué que dans ``settings.py`` se
@@ -2185,7 +2187,7 @@ Par exemple, vous voulez modifier la vue de création d'un mémo. Dans
 
     urlpatterns = [
         url(r'^memo/', include([
-            url(r'^add/(?P<entity_id>\d+)[/]?$', memo.add,  name='assistants__create_memo'),
+            url(r'^add/(?P<entity_id>\d+)[/]?$', memo.MemoCreation.as_view(),  name='assistants__create_memo'),
             [...]
         ])),
 
@@ -2197,7 +2199,7 @@ Dans votre app (qui doit être avant ``creme.assistants.py`` dans
 ``settings.INSTALLED_CREME_APPS``, vous déclarez donc l'URL suivante : ::
 
     urlpatterns = [
-        url(r'^my_memo/add/(?P<entity_id>\d+)[/]?$', views.add_my_memo, name='assistants__create_memo'),
+        url(r'^my_memo/add/(?P<entity_id>\d+)[/]?$', views.MyMemoCreation.as_view(), name='assistants__create_memo'),
 
         [...]
     ]
@@ -2238,7 +2240,7 @@ Puis dans ``my_assistants/urls.py`` : ::
     urlpatterns = [
         # Notez que l'URL doit être la même que l'original.
         # Dans notre cas, plus de 'my_memo/', remplacé par un 'memo/' comme dans "assistants"
-        url(r'^memo/add/(?P<entity_id>\d+)[/]?$', views.add_my_memo, name='assistants__create_memo'),
+        url(r'^memo/add/(?P<entity_id>\d+)[/]?$', views.MyMemoCreation.as_view(), name='assistants__create_memo'),
     ]
 
 
