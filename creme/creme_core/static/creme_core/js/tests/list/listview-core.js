@@ -1,3 +1,5 @@
+(function($) {
+
 QUnit.module("creme.listview.core", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitDialogMixin, QUnitListViewMixin));
 
 QUnit.test('creme.listview.core', function(assert) {
@@ -298,3 +300,5 @@ QUnit.test('creme.listview.core (toggle sort)', function(assert) {
     var column_name = table.find('')
 });
 */
+
+}(jQuery));

@@ -141,6 +141,10 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         });
     },
 
+    responseJSON: function(status, data, header) {
+        return this.response(status, Object.isString(data) ? data : $.toJSON(data), {'content-type': 'text/json'});
+    },
+
     resetMockCounts: function() {
         this.counts = {GET: 0, POST: 0, SUBMIT: 0};
     }

@@ -1,3 +1,5 @@
+(function($) {
+
 QUnit.module("creme.listview.actions", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitDialogMixin, QUnitListViewMixin));
 
 QUnit.test('creme.listview.DeleteSelectedAction (no selection)', function(assert) {
@@ -612,3 +614,5 @@ QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
 
     deepEqual(['mock/entity/merge?id1=2&id2=3'], this.mockRedirectCalls());
 });
+
+}(jQuery));

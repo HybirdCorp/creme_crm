@@ -41,22 +41,22 @@
                 'mock/entity/delete/nothing': function(url, data, options) {
                     var ids = (data.ids || '').split(',');
 
-                    return backend.response(400, $.toJSON({
+                    return backend.responseJSON(400, {
                         count: ids.length,
                         errors: ids.map(function(id) {
                             return id + ' cannot be deleted';
                         })
-                    }));
+                    });
                 },
                 'mock/entity/delete/firstonly': function(url, data, options) {
                     var ids = (data.ids || '').split(',');
 
-                    return backend.response(400, $.toJSON({
+                    return backend.responseJSON(400, {
                         count: ids.length,
                         errors: ids.slice(1).map(function(id) {
                             return id + ' cannot be deleted';
                         })
-                    }));
+                    });
                 },
                 'mock/entity/edit': function(url, data, options) {
                     var value = data.edit[0];

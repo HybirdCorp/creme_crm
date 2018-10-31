@@ -28,7 +28,112 @@ var __WRAPPED_JSON_RESPONSE_PATTERNS = [
     '^[\s]*<pre[^>]*>(.*)</pre>[\s]*$'
 ];
 
+var __json = new creme.utils.JSON();
+
+
 creme.dialog = creme.dialog || {};
+
+creme.dialog.FrameContentData = creme.component.Component.sub({
+    _init_: function(content, dataType) {
+        var cleaned = {};
+
+        if (Object.isNone(content)) {
+            cleaned = {content: '', type: 'text/plain'};
+        } else if (creme.dialog.FrameContentData.prototype.isPrototypeOf(content)) {  /* frame content data */
+            cleaned = {
+                content: content.content,
+                type: content.type,
+                data: content._cleanedData
+            };
+        } else if (Object.isString(content)) {    /* text data with content-type */
+            switch (dataType) {
+                case 'text/plain':
+                    cleaned = {content: String(content), type: dataType}; break;
+                case 'html':
+                case 'text/html':
+                    cleaned = this._cleanHTML(content, dataType); break;
+                case 'text/json':
+                case 'text/javascript':
+                case 'application/json':
+                case 'application/javascript':
+                    try {
+                        cleaned = this._cleanJSON(content, dataType);
+                    } catch (e) {
+                        cleaned = {content: content, type: 'text/plain'};
+                    }
+
+                    break;
+                default:
+                    try {
+                        cleaned = this._cleanJSON(content);
+                    } catch (e) {
+                        cleaned = this._cleanHTML(content);
+                    }
+
+                    console.warn('[frame] unrecognized content-type "%s"... guessed as "%s"'.format(dataType, cleaned.type));
+            }
+        } else if (Object.getPrototypeOf(content).jquery) {  /* jQuery object */
+            cleaned = {content: content, type: 'object/jquery'};
+        } else if (Object.isType(content, 'object')) {
+            cleaned = {content: content, type: 'object'};
+        } else {
+            cleaned = {content: Object.isNone(content) ? '' : String(content), data: content, type: 'text/plain'};
+        }
+
+        this.content = cleaned.content;
+        this.type = cleaned.type;
+        this._cleanedData = cleaned.data;
+    },
+
+    _cleanJSON: function(content, dataType) {
+        try {
+            return {content: content, data: __json.decode(content), type: 'text/json'};
+        } catch (e) {
+            if (dataType) {
+                console.warn('[frame] received invalid JSON data with content-type "%s"'.format(dataType), e);
+            }
+
+            throw e;
+        }
+    },
+
+    _cleanHTML: function(content, dataType) {
+        for (var i in __WRAPPED_JSON_RESPONSE_PATTERNS) {
+            var pattern = new RegExp(__WRAPPED_JSON_RESPONSE_PATTERNS[i], 'i');
+
+            var matches = content.match(pattern);
+            var jsonData = (matches !== null && matches.length === 2) ? matches[1] : undefined;
+
+            if (jsonData) {
+                try {
+                    return this._cleanJSON(jsonData);
+                } catch (e) {
+                    break;
+                }
+            }
+        }
+
+        try {
+            // upgrade to Jquery 1.9x : html content without starting '<' is no longer supported.
+            //                          use $.trim() for trailing space or returns.
+            return {content: content, data: $(content.trim()), type: 'text/html'};
+        } catch (e) {
+            if (dataType) {
+                console.warn('[frame] received invalid HTML with content-type "%s": '.format(dataType), e);
+            }
+
+            return {content: content, type: 'text/plain'};
+        }
+    },
+
+    data: function() {
+        return this._cleanedData || this.content;
+    },
+
+    isHTMLOrElement: function() {
+        return creme.utils.isHTMLDataType(this.type) || (this.type === 'object/jquery');
+    }
+});
 
 creme.dialog.Frame = creme.component.Component.sub({
     _init_: function(options) {
@@ -42,7 +147,6 @@ creme.dialog.Frame = creme.component.Component.sub({
 
         this._backend = options.backend || creme.ajax.defaultBackend();
         this._events = new creme.component.EventHandler();
-        this._json = new creme.utils.JSON();
         this._autoActivate = options.autoActivate;
     },
 
@@ -75,37 +179,8 @@ creme.dialog.Frame = creme.component.Component.sub({
         return this.on('submit-fail', listener);
     },
 
-    _cleanJSONResponse: function(response, dataType) {
-        for (var i in __WRAPPED_JSON_RESPONSE_PATTERNS) {
-            var pattern = new RegExp(__WRAPPED_JSON_RESPONSE_PATTERNS[i], 'i');
-
-            var json_matches = response.match(pattern);
-            var json_data = (json_matches !== null && json_matches.length === 2) ? json_matches[1] : undefined;
-
-            if (json_data && this._json.isJSON(json_data)) {
-                return {content: json_data, type: 'text/json'};
-            }
-        }
-
-        if (this._json.isJSON(response)) {
-            return {content: response, type: 'text/json'};
-        }
-
-        return {content: response, type: dataType};
-    },
-
-    _cleanResponse: function(response, statusText, dataType) {
-        if (Object.isString(response) && !Object.isEmpty(response)) {
-            return this._cleanJSONResponse(response, dataType || 'text/html');
-        } else if (Object.isType(response, 'object')) {
-            if (creme.utils.isHTMLDataType(response.type)) {
-                return response;
-            } else {
-                return {content: response, type: Object.getPrototypeOf(response).jquery ? 'object/jquery' : 'object'};
-            }
-        }
-
-        return {content: response, type: 'text/html'};
+    _cleanResponse: function(response, dataType) {
+        return new creme.dialog.FrameContentData(response, dataType);
     },
 
     deactivateContent: function() {
@@ -127,13 +202,12 @@ creme.dialog.Frame = creme.component.Component.sub({
     },
 
     fill: function(data, action) {
-        data = this._cleanResponse(data);
+        data = this._cleanResponse(data, 'text/html');
 
         var delegate = this._delegate;
         var overlay = this._overlay;
-        var dataType = data.type;
 
-        if (!creme.utils.isHTMLDataType(dataType) && dataType !== 'object/jquery') {
+        if (!data.isHTMLOrElement()) {
             return this;
         }
 
@@ -146,15 +220,7 @@ creme.dialog.Frame = creme.component.Component.sub({
             delegate.empty();
             overlay.bind(delegate);
 
-            var content;
-
-            if (Object.isString(data.content)) {
-                // upgrade to Jquery 1.9x : html content without starting '<' is no longer supported.
-                //                          use $.trim() for trailing space or returns.
-                content = $(data.content.trim());
-            } else {
-                content = $(data.content);
-            }
+            var content = data.data();
 
             if (content.length > 0) {
                 delegate.append(content);
@@ -255,8 +321,14 @@ creme.dialog.Frame = creme.component.Component.sub({
         this._backend.submit(form,
                              function(response, statusText, xhr) {
                                  var dataType = xhr.getResponseHeader('Content-Type').split(';')[0];
-                                 var cleaned = self._cleanResponse(response, statusText, dataType);
-                                 self.fill(cleaned, 'submit');
+                                 var cleaned = self._cleanResponse(response, dataType);
+
+                                 if (cleaned.isHTMLOrElement()) {
+                                     self.fill(cleaned, 'submit');
+                                 }
+
+                                 // TODO : send only the whole cleaned response which already contains parsed objects
+                                 // for text/html & text/json content-types.
                                  events.trigger('submit-done', [cleaned.content, statusText, cleaned.type], this);
                              },
                              function(response, error) {

@@ -1,23 +1,26 @@
+/* globals setTimeout */
 (function($) {
 
 function mock_frame_create(url, noauto) {
     var select = $('<div widget="ui-creme-frame" class="ui-creme-frame ui-creme-widget"/>');
 
-    if (url !== undefined)
+    if (url !== undefined) {
         select.attr('url', url);
+    }
 
-    if (!noauto)
+    if (!noauto) {
         select.addClass('widget-auto');
+    }
 
     return select;
 }
 
 var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
 var MOCK_FRAME_CONTENT_LIST = '<div class="mock-content"><ul><li>Item 1</li><li>Item 2</li></ul></div>';
-var MOCK_FRAME_CONTENT_FORM = '<form action="mock/submit"><input type="text" id="firstname"/><input type="text" id="lastname"/></form>'
-var MOCK_FRAME_CONTENT_FORM_NOACTION = '<form action=""><input type="text" id="firstname"/><input type="text" id="lastname"/></form>'
-var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + $.toJSON({value:1, added:[1, 'John Doe']}) + '</json>';
-var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = $.toJSON({value:1, added:[1, 'John Doe']});
+var MOCK_FRAME_CONTENT_FORM = '<form action="mock/submit"><input type="text" id="firstname"/><input type="text" id="lastname"/></form>';
+var MOCK_FRAME_CONTENT_FORM_NOACTION = '<form action=""><input type="text" id="firstname"/><input type="text" id="lastname"/></form>';
+var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + $.toJSON({value: 1, added: [1, 'John Doe']}) + '</json>';
+var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = $.toJSON({value: 1, added: [1, 'John Doe']});
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
 
 QUnit.module("creme.widget.frame.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, {
@@ -96,8 +99,7 @@ QUnit.test('creme.widget.Frame.create (url)', function(assert) {
     equal(1, $('h1', element).length);
 });
 
-QUnit.test('creme.widget.Frame.create (404)', function()
-{
+QUnit.test('creme.widget.Frame.create (404)', function() {
     var element = mock_frame_create('mock/unknown');
 
     creme.widget.create(element, {backend: this.backend});
@@ -530,19 +532,19 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
 
     element.creme().widget().submit($('form', element), listeners);
     deepEqual(this.mockListenerCalls('success'), [
-        ['submit-done', $.toJSON({value:1, added:[1, 'John Doe']}), 'ok', 'text/json']
+        ['submit-done', $.toJSON({value: 1, added: [1, 'John Doe']}), 'ok', 'text/json']
     ], 'form json');
 
     // {...} response
     this.resetMockListenerCalls();
     this.setMockBackendPOST({
-        'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG)
+        'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG, {'content-type': 'text/json'})
     });
 
     element.creme().widget().reload('mock/submit');
     element.creme().widget().submit($('form', element), listeners);
     deepEqual(this.mockListenerCalls('success'), [
-        ['submit-done', $.toJSON({value:1, added:[1, 'John Doe']}), 'ok', 'text/json']
+        ['submit-done', $.toJSON({value: 1, added: [1, 'John Doe']}), 'ok', 'text/json']
     ], 'form json no tag');
 
     // {invalid json} response
@@ -551,7 +553,6 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
         'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID)
     });
 
-    response = [];
     element.creme().widget().reload('mock/submit');
     element.creme().widget().submit($('form', element), listeners);
     deepEqual(this.mockListenerCalls('success'), [

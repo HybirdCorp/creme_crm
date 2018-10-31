@@ -50,6 +50,10 @@
 
         equalHtml: function(expected, element, message) {
             QUnit.assert.equal($('<div>').append(expected).html(), element.html(), message);
+        },
+
+        equalOuterHtml: function(expected, element, message) {
+            QUnit.assert.equal($('<div>').append(expected).html(), $('<div>').append(element.clone()).html(), message);
         }
     };
 }(jQuery));
