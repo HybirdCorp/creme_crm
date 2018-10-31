@@ -134,6 +134,29 @@ QUnit.test('creme.bricks.Brick.action (form, submit)', function(assert) {
     equal(false, brick.isLoading());
     deepEqual([['done', '', 'text/html']], this.mockListenerCalls('action-done'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    deepEqual([], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.bricks.Brick.action (form, submit, redirect)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+
+    equal(true, brick.isBound());
+    equal(false, brick.isLoading());
+    this.assertClosedDialog();
+
+    brick.action('form', 'mock/form/redirect').on(this.brickActionListeners).start();
+
+    equal(false, brick.isLoading());
+    this.assertOpenedDialog();
+    deepEqual([], this.mockListenerCalls('action-done'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    this.submitFormDialog();
+
+    equal(false, brick.isLoading());
+    deepEqual([['done', 'mock/redirect', 'text/json']], this.mockListenerCalls('action-done'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+    deepEqual(['mock/redirect'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (form-refresh, canceled)', function(assert) {
