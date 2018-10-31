@@ -146,7 +146,11 @@ creme.lv_widget.AddToSelectedAction = creme.component.Action.sub({
                           })
                          .open();
         } else {
-            var dialog = creme.dialogs.form(options.url, {}, {ids: selection, persist: 'ids'});
+            var dialog = creme.dialogs.form(options.url, {
+                                                submitData: {ids: selection}
+                                            }, {
+                                                ids: selection
+                                            });
 
             dialog.onFormSuccess(function(event, data) {
                        list.reload();

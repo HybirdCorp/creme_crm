@@ -269,7 +269,7 @@ QUnit.test('creme.listview.AddToSelectedAction (cancel)', function(assert) {
 
     deepEqual([], this.mockListenerCalls('action-cancel'));
     deepEqual([
-        ['GET', {ids: ['2', '3'], persist: 'ids'}]
+        ['GET', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
@@ -277,7 +277,7 @@ QUnit.test('creme.listview.AddToSelectedAction (cancel)', function(assert) {
 
     deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
     deepEqual([
-        ['GET', {ids: ['2', '3'], persist: 'ids'}]
+        ['GET', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
@@ -299,13 +299,13 @@ QUnit.test('creme.listview.AddToSelectedAction (submit fail + cancel)', function
 
     this.assertOpenedDialog();
     deepEqual([
-        ['GET', {ids: ['2', '3'], persist: 'ids'}]
+        ['GET', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.assertOpenedDialog();
     deepEqual([
-        ['GET', {ids: ['2', '3'], persist: 'ids'}]
+        ['GET', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
@@ -333,7 +333,7 @@ QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
     this.assertOpenedDialog();
 
     deepEqual([
-        ['GET', {ids: ['2', '3'], persist: 'ids'}]
+        ['GET', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
@@ -344,8 +344,8 @@ QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
     this.assertClosedDialog();
 
     deepEqual([
-        ['GET', {ids: ['2', '3'], persist: 'ids'}],
-        ['POST', {addto: ["ok"]}]
+        ['GET', {ids: ['2', '3']}],
+        ['POST', {addto: ["ok"], ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/entity/addto'));
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([
@@ -408,7 +408,7 @@ QUnit.test('creme.listview.EditSelectedAction (cancel)', function(assert) {
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
-QUnit.test('creme.listview.AddToSelectedAction (submit => form error => close)', function(assert) {
+QUnit.test('creme.listview.EditSelectedAction (submit => form error => close)', function(assert) {
     var list = this.createDefaultListView();
     var action = new creme.lv_widget.EditSelectedAction(list, {
         url: 'mock/entity/edit'
@@ -439,7 +439,7 @@ QUnit.test('creme.listview.AddToSelectedAction (submit => form error => close)',
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
-QUnit.test('creme.listview.AddToSelectedAction (submit => partially fail => close)', function(assert) {
+QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close)', function(assert) {
     var list = this.createDefaultListView();
     var action = new creme.lv_widget.EditSelectedAction(list, {
         url: 'mock/entity/edit'
