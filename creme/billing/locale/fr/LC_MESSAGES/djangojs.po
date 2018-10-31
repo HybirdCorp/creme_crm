@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'BILLING' APP (JavaScript)
-# Copyright (C) 2017 Hybird
+# Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
@@ -7,38 +7,42 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Billing(JS) 1.7\n"
+"Project-Id-Version: Creme Billing(JS) 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 14:38+0200\n"
+"POT-Creation-Date: 2018-10-31 11:12+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/billing/js/billing.js:264
-msgid "Do you really want to restore initial values of this line ?"
-msgstr "Voulez vous vraiment réinitialiser les valeurs de cette ligne ?"
+#: static/billing/js/billing-actions.js:45
+msgid "Select the export format of your billing document"
+msgstr "Sélectionnez le format d'export de votre document comptable"
 
-#: static/billing/js/billing.js:350
-msgid "You modified your lines."
-msgstr "Vous avez modifié vos lignes."
+#: static/billing/js/billing-actions.js:59
+msgid "No such export format for billing documents."
+msgstr "Le document comptable n'a aucun format d'export."
 
-#: static/billing/js/billing.js:419 static/billing/js/billing.js:555
-msgid "There are some errors in your lines."
-msgstr "Il y a des erreurs dans vos lignes."
-
-#: static/billing/js/billing.js:456 static/billing/js/billing.js:569
-msgid "Errors report"
-msgstr "Rapport d'erreurs"
-
-#: static/billing/js/billing.js:490
+#: static/billing/js/billing-actions.js:70
 msgid "Pdf file (PDF)"
 msgstr "Fichier Pdf (PDF)"
 
-#: static/billing/js/billing.js:501
-msgid "Select the export format of your billing document"
-msgstr "Sélectionnez le format d'export de votre document comptable"
+#: static/billing/js/billing-actions.js:101
+msgid "There are some errors in your lines."
+msgstr "Il y a des erreurs dans vos lignes."
+
+#: static/billing/js/billing-actions.js:115
+msgid "Errors report"
+msgstr "Rapport d'erreurs"
+
+#: static/billing/js/billing.js:236
+msgid "Do you really want to restore initial values of this line ?"
+msgstr "Voulez vous vraiment réinitialiser les valeurs de cette ligne ?"
+
+#: static/billing/js/billing.js:316
+msgid "You modified your lines."
+msgstr "Vous avez modifié vos lignes."
 
 #~ msgid ""
 #~ "Do you really want to save all the modifications done on the lines of "

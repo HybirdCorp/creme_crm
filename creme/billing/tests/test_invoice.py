@@ -10,13 +10,16 @@ try:
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.base import CremeTransactionTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.gui import actions as core_actions
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
             SetCredentials, Currency, Vat)
+    from creme.creme_core.tests.base import CremeTransactionTestCase
 
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
+
+    from creme.billing import actions
 
     from ..constants import (REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED,
             REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED, AMOUNT_PK, PERCENT_PK)  # REL_SUB_HAS_LINE
@@ -279,6 +282,37 @@ class InvoiceTestCase(_BillingTestCase):
 
         self.assertEqual(2, invoices_page.paginator.count)
         self.assertEqual({invoice1, invoice2}, set(invoices_page.paginator.object_list))
+
+    def test_listview_actions(self):
+        sort_key = lambda a: a.action_id
+
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
+
+        invoice1 = self.create_invoice('invoice 01', source, target)
+
+        self.assertEqual(sorted([core_actions.ViewActionEntry,
+                                 core_actions.CloneActionEntry,
+                                 core_actions.EditActionEntry,
+                                 core_actions.DeleteActionEntry,
+                                 actions.ExportInvoiceActionEntry,
+                                ],
+                                key=sort_key
+                         ),
+                         sorted(core_actions.actions_registry.instance_actions(Invoice),
+                                key=sort_key
+                               )
+                        )
+
+        export_action = actions.ExportInvoiceActionEntry(user, instance=invoice1)
+        self.assertEqual('billing-export_invoice', export_action.action_id)
+        self.assertEqual('redirect', export_action.action)
+        self.assertEqual(reverse('billing__export', args=(invoice1.id,)), export_action.url)
+        self.assertTrue(export_action.is_enabled)
+        self.assertTrue(export_action.is_visible)
 
     def test_editview01(self):
         user = self.login()
