@@ -696,6 +696,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.activities',    'activities/js/activities.js'),
 
     ('creme.billing',       'billing/js/billing.js'),
+    ('creme.billing',       'billing/js/billing-actions.js'),
 
     ('creme.opportunities', 'opportunities/js/opportunities.js'),
 
@@ -795,7 +796,9 @@ TEST_CREME_CORE_JS = ['testcore.js',
 
 TEST_CREME_OPT_JS = [
 #   ('creme.my_app',       'my_app/js/tests/my_app.js'),
+    ('creme.billing',   'billing/js/tests/billing.js'),
     ('creme.billing',   'billing/js/tests/billing-actions.js'),
+    ('creme.billing',   'billing/js/tests/billing-listview.js'),
     ('creme.crudity',   'crudity/js/tests/crudity-actions.js'),
     ('creme.emails',    'emails/js/tests/emails-actions.js'),
     ('creme.emails',    'emails/js/tests/emails-listview.js'),

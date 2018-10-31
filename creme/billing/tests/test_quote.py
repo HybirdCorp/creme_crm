@@ -9,10 +9,13 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth import EntityCredentials
+    from creme.creme_core.gui import actions as core_actions
     from creme.creme_core.models import SetCredentials, Currency
 
     from creme.persons.constants import REL_SUB_PROSPECT
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
+
+    from creme.billing import actions
 
     from ..models import QuoteStatus
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
@@ -331,6 +334,37 @@ class QuoteTestCase(_BillingTestCase):
 
         self.assertEqual(2, quotes_page.paginator.count)
         self.assertEqual({quote1, quote2}, set(quotes_page.paginator.object_list))
+
+    def test_listview_actions(self):
+        sort_key = lambda a: a.action_id
+
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
+
+        quote1 = self.create_quote('Quote1', source, target)
+
+        self.assertEqual(sorted([core_actions.ViewActionEntry,
+                                 core_actions.CloneActionEntry,
+                                 core_actions.EditActionEntry,
+                                 core_actions.DeleteActionEntry,
+                                 actions.ExportQuoteActionEntry,
+                                ],
+                                key=sort_key
+                         ),
+                         sorted(core_actions.actions_registry.instance_actions(Quote),
+                                key=sort_key
+                               )
+                        )
+
+        export_action = actions.ExportQuoteActionEntry(user, instance=quote1)
+        self.assertEqual('billing-export_quote', export_action.action_id)
+        self.assertEqual('redirect', export_action.action)
+        self.assertEqual(reverse('billing__export', args=(quote1.id,)), export_action.url)
+        self.assertTrue(export_action.is_enabled)
+        self.assertTrue(export_action.is_visible)
 
     def test_delete_status01(self):
         self.login()

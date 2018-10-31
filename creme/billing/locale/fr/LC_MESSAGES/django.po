@@ -7,12 +7,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 18:42+0200\n"
+"POT-Creation-Date: 2018-10-31 11:12+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: actions.py:35
+msgid "Download"
+msgstr "Télécharger"
+
+#: actions.py:37 templates/billing/bricks/billing-hat-bar.html:8
+msgid "Download as PDF"
+msgstr "Télécharger en tant que PDF"
 
 #: apps.py:28
 msgid "Billing"
@@ -1042,10 +1050,6 @@ msgstr "Réinitialiser"
 msgid "Flag for delete"
 msgstr "Marquer pour suppression"
 
-#: templates/billing/bricks/billing-hat-bar.html:8
-msgid "Download as PDF"
-msgstr "Télécharger en tant que PDF"
-
 #: templates/billing/bricks/billing-payment-information.html:7
 #: templates/billing/bricks/orga-payment-information.html:7
 #, python-brace-format
@@ -1291,41 +1295,41 @@ msgstr "Créer une facture pour «%s»"
 msgid "Create an invoice for «{}»"
 msgstr "Créer une facture pour «{}»"
 
-#: views/line.py:48
+#: views/line.py:51
 #, python-format
 msgid "Add one or more product to «%s»"
 msgstr "Ajouter un ou plusieurs produits à «%s»"
 
-#: views/line.py:49 views/line.py:63 views/line.py:96
+#: views/line.py:52 views/line.py:66 views/line.py:99
 msgid "Save the lines"
 msgstr "Enregistrer les lignes"
 
-#: views/line.py:62
+#: views/line.py:65
 #, python-format
 msgid "Add one or more service to «%s»"
 msgstr "Ajouter un ou plusieurs services à «%s»"
 
-#: views/line.py:113
+#: views/line.py:109
 msgid "Add one or more product to «{}»"
 msgstr "Ajouter un ou plusieurs produits à «{}»"
 
-#: views/line.py:119
+#: views/line.py:115
 msgid "Add one or more service to «{}»"
 msgstr "Ajouter un ou plusieurs services à «{}»"
 
-#: views/line.py:170
+#: views/line.py:166
 msgid "Add this on the fly item to your catalog"
 msgstr "Ajouter cette ligne à la volée à vôtre catalogue"
 
-#: views/line.py:171
+#: views/line.py:167
 msgid "Add to the catalog"
 msgstr "Ajouter au catalogue"
 
-#: views/payment_information.py:52
+#: views/payment_information.py:53
 msgid "New payment information in the organisation «{}»"
 msgstr "Nouvelle information de paiement pour la société «{}»"
 
-#: views/payment_information.py:67
+#: views/payment_information.py:68
 msgid "Payment information for «{}»"
 msgstr "Information de paiement pour «{}»"
 

@@ -235,3 +235,9 @@ class BillingConfig(CremeAppConfig):
                                      func=lambda: [SalesOrder.objects.count()],
                                      perm='billing', priority=24,
                                     )
+
+    def register_actions(self, actions_registry):
+        from creme.billing import actions
+
+        actions_registry.register_instance_actions(actions.ExportInvoiceActionEntry,
+                                                   actions.ExportQuoteActionEntry)
