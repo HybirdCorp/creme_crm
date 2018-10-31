@@ -6,7 +6,7 @@
     var MOCK_BRICK_CONTENT = '<div class="brick ui-creme-widget" widget="brick" id="${id}"></div>';
 
     var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
-    var MOCK_FRAME_CONTENT_FORM = '<form action="mock/form">'
+    var MOCK_FRAME_CONTENT_FORM = '<form action="${action}">'
                                     + '<input type="text" id="firstname"></input>'
                                     + '<input type="text" id="lastname"></input>'
                                     + '<input type="submit" class="ui-creme-dialog-action"></input>'
@@ -39,7 +39,9 @@
                     return backend.response(200, brickContents);
                 },
                 'mock/view': backend.response(200, MOCK_FRAME_CONTENT),
-                'mock/form': backend.response(200, MOCK_FRAME_CONTENT_FORM),
+                'mock/form': backend.response(200, MOCK_FRAME_CONTENT_FORM.template({action: 'mock/form'})),
+                'mock/form/redirect': backend.response(200,
+                                                       MOCK_FRAME_CONTENT_FORM.template({action: 'mock/form/redirect'})),
                 'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
                 'mock/error': backend.response(500, 'HTTP - Error 500')
             });
@@ -58,6 +60,7 @@
                 },
                 'mock/brick/delete': backend.response(200),
                 'mock/form': backend.response(200),
+                'mock/form/redirect': backend.response(200, 'mock/redirect', {'Content-Type': 'text/json'}),
                 'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
                 'mock/error': backend.response(500, 'HTTP - Error 500')
             });

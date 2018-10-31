@@ -123,11 +123,21 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
             'content-type': 'text/html'
         }, header || {});
 
+        var normalizedHeader = {};
+
+        for (var key in header) {
+            normalizedHeader[key.toLowerCase()] = header[key];
+        }
+
+        var getResponseHeader = function(name) {
+            return normalizedHeader[name.toLowerCase()];
+        };
+
         return new creme.ajax.XHR({
             responseText: data,
             status: status,
             statusText: status !== 200 ? creme.ajax.LOCALIZED_ERROR_MESSAGES[status] : 'ok',
-            getResponseHeader: function(name) { return header[name.toLowerCase()]; }
+            getResponseHeader: getResponseHeader
         });
     },
 
