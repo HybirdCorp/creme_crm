@@ -154,7 +154,7 @@ QUnit.test('creme.bricks.Brick.action (form, submit, redirect)', function(assert
     this.submitFormDialog();
 
     equal(false, brick.isLoading());
-    deepEqual([['done', 'mock/redirect', 'text/json']], this.mockListenerCalls('action-done'));
+    deepEqual([['done', 'mock/redirect', 'text/plain']], this.mockListenerCalls('action-done'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
     deepEqual(['mock/redirect'], this.mockRedirectCalls());
 });

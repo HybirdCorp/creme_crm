@@ -1,3 +1,5 @@
+(function($) {
+
 QUnit.module("creme.list.pager", new QUnitMixin(QUnitEventMixin, {
     beforeEach: function() {
         this.anchor = $('<div></div>').appendTo($('body'));
@@ -238,3 +240,5 @@ QUnit.test('creme.list.Pager (choose, keyup escape)', function() {
     equal(false, link.is('.active'));
     deepEqual([], this.mockListenerCalls('refresh'));
 });
+
+}(jQuery));

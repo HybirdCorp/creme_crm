@@ -85,7 +85,7 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
                 if (responseType === 'pre') {
                     return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_PRE);
                 } else if (responseType === 'notag') {
-                    return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG);
+                    return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG, {'content-type': 'text/json'});
                 } else if (responseType === 'invalid') {
                     return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID);
                 } else if (responseType === 'empty') {
@@ -655,10 +655,8 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
 });
 
 QUnit.test('creme.dialog.FormDialog (multiple submit duplicates input/buttons click)', function(assert) {
-    /*
-     * Check if 'button' and its duplicate 'button-1' with the same value 'A' will
-     * send the same POST data : {button: ['A']}
-     */
+    // Check if 'button' and its duplicate 'button-1' with the same value 'A' will
+    // send the same POST data : {button: ['A']}
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit/multi/duplicates', backend: this.backend});
 
     dialog.open();

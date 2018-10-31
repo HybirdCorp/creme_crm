@@ -1,3 +1,5 @@
+(function($) {
+
 QUnit.module("creme.lv_widget.ListViewHeader", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitDialogMixin, QUnitListViewMixin));
 
 QUnit.test('creme.lv_widget.ListViewHeader.bind', function(assert) {
@@ -242,3 +244,5 @@ QUnit.test('creme.lv_widget.ListViewHeader (selection change, standalone)', func
     equal(false, $('.listview.floatThead-table').is('.first-row-selected'));
     equal(false, table.is('.first-row-selected'));
 });
+
+}(jQuery));
