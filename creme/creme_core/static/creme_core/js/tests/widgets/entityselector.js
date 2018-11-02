@@ -166,7 +166,7 @@ QUnit.test('creme.widget.EntitySelector.multiple', function(assert) {
     equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().delegate._popupURL.parameters().selection);
     equal(element.creme().widget().isMultiple(), false);
 
-    element.creme().widget().multiple(true);
+    element.creme().widget().isMultiple(true);
 
     equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().delegate._popupURL.parameters().selection);
     equal(element.creme().widget().isMultiple(), true);
@@ -204,7 +204,7 @@ QUnit.test('creme.widget.EntitySelector.reload (template url, multiple)', functi
 
     equal("mock/popup/single", element.creme().widget().popupURL());
 
-    element.creme().widget().multiple(true);
+    element.creme().widget().isMultiple(true);
     equal("mock/popup/multiple", element.creme().widget().popupURL());
 
     element.creme().widget().reload({selection:2});
