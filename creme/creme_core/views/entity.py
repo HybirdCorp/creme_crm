@@ -641,6 +641,7 @@ def empty_trash(request):
                                   key='id', per_page=1024,
                                  )
 
+        # TODO: select_for_update() ?
         for entities_page in paginator.pages():
             entities = entities_page.object_list
 
@@ -675,23 +676,24 @@ def empty_trash(request):
         message = ugettext('Operation successfully completed')
     else:
         status = 409
-        # message = _(u'The following entities cannot be deleted') + \
-        #           u'<ul>%s</ul>' % u'\n'.join(u'<li>%s</li>' % msg for msg in errors)
         message = format_html(
             '{}<ul>{}</ul>',
             ugettext('The following entities cannot be deleted'),
             format_html_join('', '<li>{}</li>', ((msg,) for msg in errors)),
         )
 
-    # return HttpResponse(message, content_type='text/javascript', status=status)
     return HttpResponse(message, status=status)
 
 
 @login_required
 @POST_only
+@atomic
 def restore_entity(request, entity_id):
-    entity = get_object_or_404(CremeEntity.objects.filter(is_deleted=True), pk=entity_id) \
-                                                  .get_real_entity()
+    # entity = get_object_or_404(CremeEntity.objects.filter(is_deleted=True), pk=entity_id) \
+    #                                               .get_real_entity()
+    entity = get_object_or_404(CremeEntity.objects.select_for_update(),
+                               pk=entity_id, is_deleted=True,
+                              ).get_real_entity()
 
     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
         raise Http404(ugettext('This model does not use the generic deletion view.'))
@@ -703,7 +705,6 @@ def restore_entity(request, entity_id):
     entity.restore()
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(entity)
@@ -764,6 +765,7 @@ def _delete_entity(user, entity):
 
 
 @login_required
+@atomic
 def delete_entities(request):
     "Delete several CremeEntities, with a Ajax call (POST method)."
     try:
@@ -777,7 +779,8 @@ def delete_entities(request):
     logger.debug('delete_entities() -> ids: %s ', entity_ids)
 
     user     = request.user
-    entities = list(CremeEntity.objects.filter(pk__in=entity_ids))
+    # entities = list(CremeEntity.objects.filter(pk__in=entity_ids))
+    entities = list(CremeEntity.objects.select_for_update().filter(pk__in=entity_ids))
     errors   = defaultdict(list)
 
     len_diff = len(entity_ids) - len(entities)
@@ -811,15 +814,18 @@ def delete_entities(request):
 
 
 @login_required
-# TODO: @redirect_if_not_ajax
 @POST_only
+@atomic
 def delete_entity(request, entity_id):
-    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+    # entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+    entity = get_object_or_404(CremeEntity.objects.select_for_update(),
+                               pk=entity_id,
+                              ).get_real_entity()
     error = _delete_entity(request.user, entity)
 
     if error:
-        # code, msg = error #TODO: Python3 => code, msg, *args = error
-        code, msg, args = error if len(error) == 3 else error + ({},)
+        # code, msg, args = error if len(error) == 3 else error + ({},)
+        code, msg, *args = error
 
         if code == 404: raise Http404(msg)
         # TODO: 400 => ConflictError ??
@@ -827,17 +833,13 @@ def delete_entity(request, entity_id):
         raise PermissionDenied(msg, args)
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
-    if hasattr(entity, 'get_lv_absolute_url'):
-        url = entity.get_lv_absolute_url()
-    elif hasattr(entity, 'get_related_entity'):
-        url = entity.get_related_entity().get_absolute_url()
-    else:
-        url = '/'
-
-    return HttpResponseRedirect(url)
+    return HttpResponseRedirect(
+        entity.get_lv_absolute_url()                   if hasattr(entity, 'get_lv_absolute_url') else
+        entity.get_related_entity().get_absolute_url() if hasattr(entity, 'get_related_entity') else
+        reverse('creme_core__home')
+    )
 
 
 @login_required
