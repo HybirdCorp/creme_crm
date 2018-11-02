@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 18:31+0200\n"
+"POT-Creation-Date: 2018-10-31 16:04+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -50,26 +50,6 @@ msgstr "Tâche"
 #: apps.py:146 populate.py:90
 msgid "Unavailability"
 msgstr "Indisponibilité"
-
-#: apps.py:169
-#, python-brace-format
-msgid "{count} meeting"
-msgid_plural "{count} meetings"
-msgstr[0] "{count} rendez-vous"
-msgstr[1] "{count} rendez-vous"
-
-#: apps.py:173
-#, python-brace-format
-msgid "{count} phone call"
-msgid_plural "{count} phone calls"
-msgstr[0] "{count} appel téléphonique"
-msgstr[1] "{count} appels téléphoniques"
-
-#: apps.py:177
-#, python-brace-format
-msgctxt "activities-stats"
-msgid "{count} in all"
-msgstr "{count} en tout"
 
 #: bricks.py:53 forms/activity.py:280 forms/activity.py:508 forms/bricks.py:51
 #: forms/mass_import.py:571 templates/activities/bricks/participants.html:7
@@ -648,6 +628,37 @@ msgstr ""
 "informés avec des messages utilisateurs (l'application «Assistants» est "
 "nécessaire)."
 
+#: statistics.py:31
+msgid "Activities (since one year)"
+msgstr "Activités (depuis un an)"
+
+#: statistics.py:35
+msgid "No meeting since one year"
+msgstr "Pas de rendez-vous depuis un an"
+
+#: statistics.py:36
+#, python-format
+msgid "%(count)s meeting per month"
+msgid_plural "%(count)s meetings per month"
+msgstr[0] "%(count)s rendez-vous par mois"
+msgstr[1] "%(count)s rendez-vous par mois"
+
+#: statistics.py:42
+msgid "No phone call since one year"
+msgstr "Pas d'appel téléphonique depuis un an"
+
+#: statistics.py:43
+#, python-format
+msgid "%(count)s phone call per month"
+msgid_plural "%(count)s phone calls per month"
+msgstr[0] "%(count)s appel téléphonique par mois"
+msgstr[1] "%(count)s appels téléphoniques par mois"
+
+#: templates/activities/activity-popup.html:9
+#: templates/activities/view_activity_popup.html:20
+msgid "Full detailview"
+msgstr "Fiche complète"
+
 #: templates/activities/bricks/base/activities.html:13
 msgid "Link to an activity"
 msgstr "Lier à une activité"
@@ -897,10 +908,6 @@ msgstr "Télécharger au format iCalendar"
 msgid "Go to the calendar"
 msgstr "Aller au calendrier"
 
-#: templates/activities/view_activity_popup.html:18
-msgid "Full detailview"
-msgstr "Fiche complète"
-
 #: utils.py:79
 #, python-brace-format
 msgid ""
@@ -934,13 +941,17 @@ msgstr "Ajouter les sujets"
 msgid "One entity does not exist any more."
 msgstr "Une fiche n'existe plus."
 
-#: views/calendar.py:317
+#: views/calendar.py:326
 msgid "You are not allowed to delete this calendar."
 msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
 
-#: views/calendar.py:341
+#: views/calendar.py:350
 msgid "Change calendar of «{}»"
 msgstr "Changer le calendrier de «{}»"
+
+#~ msgctxt "activities-stats"
+#~ msgid "{count} in all"
+#~ msgstr "{count} en tout"
 
 #~ msgid "%s meeting"
 #~ msgid_plural "%s meetings"
@@ -968,9 +979,6 @@ msgstr "Changer le calendrier de «{}»"
 
 #~ msgid "Activities portal"
 #~ msgstr "Portail Activités"
-
-#~ msgid "Activities count"
-#~ msgstr "Nombre d'activité(s)"
 
 #~ msgid "Meetings count"
 #~ msgstr "Nombre de rendez-vous"
