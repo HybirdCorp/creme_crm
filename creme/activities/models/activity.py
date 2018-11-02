@@ -41,51 +41,51 @@ from .other_models import ActivityType, ActivitySubType, Status
 
 class AbstractActivity(CremeEntity):
     """Activity : task, meeting, phone call, unavailability ..."""
-    title         = CharField(_(u'Title'), max_length=100)
-    start         = DateTimeField(_(u'Start'), blank=True, null=True)
-    end           = DateTimeField(_(u'End'), blank=True, null=True)
-    description   = TextField(_(u'Description'), blank=True).set_tags(optional=True)
-    minutes       = TextField(_(u'Minutes'), blank=True)
-    place         = CharField(_(u'Activity place'), max_length=500, blank=True)\
+    title         = CharField(_('Title'), max_length=100)
+    start         = DateTimeField(_('Start'), blank=True, null=True)
+    end           = DateTimeField(_('End'), blank=True, null=True)
+    description   = TextField(_('Description'), blank=True).set_tags(optional=True)
+    minutes       = TextField(_('Minutes'), blank=True)
+    place         = CharField(_('Activity place'), max_length=500, blank=True)\
                              .set_tags(optional=True)
-    duration      = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
-    type          = ForeignKey(ActivityType, verbose_name=_(u'Activity type'),
+    duration      = PositiveIntegerField(_('Duration (in hour)'), blank=True, null=True)
+    type          = ForeignKey(ActivityType, verbose_name=_('Activity type'),
                                on_delete=PROTECT,
                               )
-    sub_type      = ForeignKey(ActivitySubType, verbose_name=_(u'Activity sub-type'),
+    sub_type      = ForeignKey(ActivitySubType, verbose_name=_('Activity sub-type'),
                                blank=True, null=True, on_delete=SET_NULL,
                               )
-    status        = ForeignKey(Status, verbose_name=_(u'Status'),
+    status        = ForeignKey(Status, verbose_name=_('Status'),
                                blank=True, null=True, on_delete=SET_NULL,
                               )
-    calendars     = ManyToManyField(Calendar, verbose_name=_(u'Calendars'),
+    calendars     = ManyToManyField(Calendar, verbose_name=_('Calendars'),
                                     blank=True, editable=False,
                                    )
-    is_all_day    = BooleanField(_(u'All day?'), blank=True, default=False)
-    busy          = BooleanField(_(u'Busy?'), default=False)
+    is_all_day    = BooleanField(_('All day?'), blank=True, default=False)
+    busy          = BooleanField(_('Busy?'), default=False)
     # TODO: use choices ; to be improved with choices: list-view search/field printers/history
-    floating_type = PositiveIntegerField(_(u'Floating type'), default=NARROW,
+    floating_type = PositiveIntegerField(_('Floating type'), default=NARROW,
                                          editable=False,
                                         ).set_tags(viewable=False)
 
-    creation_label = _(u'Create an activity')
-    save_label = _(u'Save the activity')
+    creation_label = _('Create an activity')
+    save_label = _('Save the activity')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'activities'
-        verbose_name = _(u'Activity')
-        verbose_name_plural = _(u'Activities')
+        verbose_name = _('Activity')
+        verbose_name_plural = _('Activities')
         ordering = ('-start',)
 
     def as_ical_event(self):
-        """Return a normalized iCalendar event string
+        r"""Return a normalized iCalendar event string
             /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
             Example : BEGIN:VEVENT\nUID:http://cremecrm.com
         """
         from ..utils import get_ical_date
-        return u"""BEGIN:VEVENT
+        return """BEGIN:VEVENT
 UID:http://cremecrm.com
 DTSTAMP:{dtstamp}
 SUMMARY:{summary}
@@ -152,9 +152,12 @@ END:VEVENT
                                  ) \
                           .distinct()
 
-    # TODO: test
     @classmethod
-    def _get_linked_for_ctypes_aux(cls, ct_ids):  # TODO: deprecate ?
+    def _get_linked_for_ctypes_aux(cls, ct_ids):
+        warnings.warn('AbstractActivity._get_linked_for_ctypes_aux() is deprecated.',
+                      DeprecationWarning
+                     )
+
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
         return cls.objects.filter(is_deleted=False,
                                   relations__object_entity__entity_type__in=ct_ids,
@@ -181,7 +184,10 @@ END:VEVENT
         return cls._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
     @classmethod
-    def get_future_linked_for_ctypes(cls, ct_ids, today):  # TODO: deprecate ?
+    def get_future_linked_for_ctypes(cls, ct_ids, today):
+        warnings.warn('AbstractActivity.get_future_linked_for_ctypes() is deprecated.',
+                      DeprecationWarning
+                     )
         return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
 
     @classmethod
@@ -193,7 +199,10 @@ END:VEVENT
         return cls._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
 
     @classmethod
-    def get_past_linked_for_ctypes(cls, ct_ids, today):  # TODO: deprecate ?
+    def get_past_linked_for_ctypes(cls, ct_ids, today):
+        warnings.warn('AbstractActivity.get_past_linked_for_ctypes() is deprecated.',
+                      DeprecationWarning
+                     )
         return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
 
     @classmethod
