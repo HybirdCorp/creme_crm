@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _, pgettext, ungettext
+from django.utils.translation import ugettext_lazy as _  # pgettext, ungettext
 
 from creme.creme_core.apps import CremeAppConfig
 
@@ -27,7 +27,7 @@ from . import constants
 
 class ActivitiesConfig(CremeAppConfig):
     name = 'creme.activities'
-    verbose_name = _(u'Activities')
+    verbose_name = _('Activities')
     dependencies = ['creme.persons']  # 'creme.assistants' is optional
 
     def all_apps_ready(self):
@@ -113,11 +113,11 @@ class ActivitiesConfig(CremeAppConfig):
         URLItem = creme_menu.URLItem
         creme_menu.get('features') \
                   .get_or_create(creme_menu.ContainerItem, 'activities-main', priority=10,
-                                 defaults={'label': _(u'Activities')},
+                                 defaults={'label': _('Activities')},
                                 ) \
                   .add(URLItem('activities-calendar',
                                url=reverse('activities__calendar'),
-                               label=_(u'Calendar'), perm='activities',
+                               label=_('Calendar'), perm='activities',
                               ),
                        priority=10
                       ) \
@@ -126,24 +126,24 @@ class ActivitiesConfig(CremeAppConfig):
                        ) \
                   .add(URLItem('activities-phone_calls',
                                url=reverse('activities__list_phone_calls'),
-                               label=_(u'Phone calls'), perm='activities',
+                               label=_('Phone calls'), perm='activities',
                               ),
                        priority=30
                       ) \
                   .add(URLItem('activities-meetings',
                                url=reverse('activities__list_meetings'),
-                               label=_(u'Meetings'), perm='activities',
+                               label=_('Meetings'), perm='activities',
                               ),
                        priority=40
                       )
 
         creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('activities-main', _(u'Activities'), priority=5) \
-                  .add_link('activities-create_phonecall',      label=_(u'Phone call'),     url=reverse('activities__create_activity', args=('phonecall',)), perm=creation_perm, priority=5) \
-                  .add_link('activities-create_meeting',        label=_(u'Meeting'),        url=reverse('activities__create_activity', args=('meeting',)),   perm=creation_perm, priority=10) \
-                  .add_link('activities-create_activity',       label=_(u'Activity'),       url=reverse('activities__create_activity'),                      perm=creation_perm, priority=15) \
-                  .add_link('activities-create_task',           label=_(u'Task'),           url=reverse('activities__create_activity', args=('task',)),      perm=creation_perm, priority=20) \
-                  .add_link('activities-create_unavailability', label=_(u'Unavailability'), url=reverse('activities__create_indispo'),                       perm=creation_perm, priority=25)
+                  .get_or_create_group('activities-main', _('Activities'), priority=5) \
+                  .add_link('activities-create_phonecall',      label=_('Phone call'),     url=reverse('activities__create_activity', args=('phonecall',)), perm=creation_perm, priority=5) \
+                  .add_link('activities-create_meeting',        label=_('Meeting'),        url=reverse('activities__create_activity', args=('meeting',)),   perm=creation_perm, priority=10) \
+                  .add_link('activities-create_activity',       label=_('Activity'),       url=reverse('activities__create_activity'),                      perm=creation_perm, priority=15) \
+                  .add_link('activities-create_task',           label=_('Task'),           url=reverse('activities__create_activity', args=('task',)),      perm=creation_perm, priority=20) \
+                  .add_link('activities-create_unavailability', label=_('Unavailability'), url=reverse('activities__create_indispo'),                       perm=creation_perm, priority=25)
 
     def register_smart_columns(self, smart_columns_registry):
         smart_columns_registry.register_model(self.Activity) \
@@ -161,22 +161,30 @@ class ActivitiesConfig(CremeAppConfig):
                                      )
 
     def register_statistics(self, statistics_registry):
-        Activity = self.Activity
-        act_filter = Activity.objects.filter
-
-        def meetings_count():
-            count = act_filter(type=constants.ACTIVITYTYPE_MEETING).count()
-            return ungettext(u'{count} meeting', u'{count} meetings', count).format(count=count)
-
-        def phone_calls_count():
-            count = act_filter(type=constants.ACTIVITYTYPE_PHONECALL).count()
-            return ungettext(u'{count} phone call', u'{count} phone calls', count).format(count=count)
+        # Activity = self.Activity
+        # act_filter = Activity.objects.filter
+        #
+        # def meetings_count():
+        #     count = act_filter(type=constants.ACTIVITYTYPE_MEETING).count()
+        #     return ungettext(u'{count} meeting', u'{count} meetings', count).format(count=count)
+        #
+        # def phone_calls_count():
+        #     count = act_filter(type=constants.ACTIVITYTYPE_PHONECALL).count()
+        #     return ungettext(u'{count} phone call', u'{count} phone calls', count).format(count=count)
+        #
+        # statistics_registry.register(
+        #     id='activities', label=Activity._meta.verbose_name_plural,
+        #     func=lambda: [pgettext('activities-stats', u'{count} in all').format(count=Activity.objects.count()),
+        #                   meetings_count(),
+        #                   phone_calls_count(),
+        #                  ],
+        #     perm='activities', priority=30,
+        # )
+        from .statistics import AveragePerMonthStatistics
 
         statistics_registry.register(
-            id='activities', label=Activity._meta.verbose_name_plural,
-            func=lambda: [pgettext('activities-stats', u'{count} in all').format(count=Activity.objects.count()),
-                          meetings_count(),
-                          phone_calls_count(),
-                         ],
+            id='activities',
+            label=AveragePerMonthStatistics.label,
+            func=AveragePerMonthStatistics(self.Activity),
             perm='activities', priority=30,
         )

@@ -28,7 +28,7 @@ from creme.creme_core.models import FieldsConfig
 from .constants import REL_OBJ_EMIT_ORGA
 
 
-class CurrentYearStatistics():
+class CurrentYearStatistics:
     label = _('Opportunities (current year)')
     relation_type_id = REL_OBJ_EMIT_ORGA
     invalid_message = _('The field «Actual closing date» is hidden ; '
