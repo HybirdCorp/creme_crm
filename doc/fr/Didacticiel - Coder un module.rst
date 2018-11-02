@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 31-10-2018 pour la version 2.0 de Creme
+:Version: 02-11-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -69,15 +69,35 @@ Avant tout assurez vous d'avoir une instance de Creme fonctionnelle :
  - Configuration de votre SGBDR.
  - Configuration de votre serveur Web (le serveur de développement livré avec
    Django est un bon choix ici).
- - Configuration du fichier ``local_settings.py``. Pensez par exemple à ne pas
-   utiliser le système de cache des templates quand vous développez, afin de ne
-   pas avoir à relancer le serveur à chaque modification de template : ::
+
+
+Configuration du fichier ``local_settings.py``
+**********************************************
+
+Il ne vaut mieux pas utiliser le système de cache des templates quand vous
+développez, afin de ne pas avoir à relancer le serveur à chaque modification
+de template : ::
 
     from .settings import TEMPLATES
     TEMPLATES[0]['OPTIONS']['loaders'] = (
         'django.template.loaders.app_directories.Loader',
         'django.template.loaders.filesystem.Loader',
     )
+
+Activer les *warnings* vous permettra par exemple de voir que vous utilisez
+du code obsolète (*deprecated*), ce qui vous sera utile lors vous mettrez à
+jour la version sous-jacente de Creme (ledit code obsolète étant en général
+supprimé dans la version suivante -- notez que le message vas souvent
+indiquer quelle fonction/classe utiloiser à la place). La configuration
+suivante permet d'afficher les *warnings*, mais chacun une seule fois
+(ce qui évite de polluer votre terminal d'informations redondantes) : ::
+
+    import warnings
+    warnings.simplefilter('once')
+
+
+Divers
+******
 
 Nous vous conseillons d'utiliser l'app `django extensions <https://github.com/django-extensions/django-extensions>`_
 qui apporte des commandes supplémentaires intéressantes (``runserver_plus``,
