@@ -95,7 +95,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         listeners = listeners || {};
 
         var self = this;
-        var multiple = this.isMultiple();
+        var multiple = this.isMultiple(element);
         var url = this.popupURL(element);
 
         creme.lv_widget.listViewAction(url, {
@@ -151,13 +151,11 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
                           {dataType: 'json', sync: sync});
     },
 
-    // TODO: remove 'element' ?
-    isMultiple: function(element) {
-        return this._popupURL.parameters().selection === creme.widget.EntitySelectorMode.MULTIPLE;
-    },
+    isMultiple: function(element, value) {
+        if (value === undefined) {
+            return this._popupURL.parameters().selection === creme.widget.EntitySelectorMode.MULTIPLE;
+        }
 
-    // TODO: useful ?
-    multiple: function(element, value) {
         value = value ? creme.widget.EntitySelectorMode.MULTIPLE : creme.widget.EntitySelectorMode.SINGLE;
         this._popupURL.update({selection: value});
     },
