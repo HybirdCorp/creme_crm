@@ -138,6 +138,16 @@ class CremeModelDetail(base.PermissionsMixin, base.BricksMixin, DetailView):
     def check_instance_permissions(self, instance, user):
         pass
 
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+
+        if not user.is_authenticated:
+            return self.handle_not_logged()
+
+        self.check_view_permissions(user=user)
+
+        return super().dispatch(request, *args, **kwargs)
+
     def get_bricks_reload_url(self):
         name = self.bricks_reload_url_name
         return reverse(name, args=(self.object.id,)) if name else ''
@@ -148,12 +158,6 @@ class CremeModelDetail(base.PermissionsMixin, base.BricksMixin, DetailView):
         context['bricks_reload_url'] = self.get_bricks_reload_url()
 
         return context
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        self.check_view_permissions(user=self.request.user)
-
-        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         instance = super().get_object(queryset=queryset)

@@ -18,16 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from urllib.parse import urlencode
+
+from django.conf import settings
+from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 
-from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.models import CremeEntity
@@ -47,6 +49,9 @@ class CancellableMixin:
                build_cancel_path(request)
 
 
+# NB: we do not use 'django.contrib.auth.mixins.AccessMixin' because its API would
+#     be confusing with ours (eg: handle_no_permission() & get_permission_denied_message()
+#     are only about logging-in, while we have check_view_permissions()...)
 class PermissionsMixin:
     """Mixin that helps checking the global permission of a view.
     The needed permissions are stored in the attribute <permissions>, an could be:
@@ -56,6 +61,8 @@ class PermissionsMixin:
           permissions = ['my_app1', 'my_app2.can_admin']
       - <None> (default value) means no permission is checked.
     """
+    login_url_name = None
+    login_redirect_arg_name = REDIRECT_FIELD_NAME
     permissions = None
 
     def check_view_permissions(self, user):
@@ -75,6 +82,23 @@ class PermissionsMixin:
 
             if not allowed:
                 raise PermissionDenied(_('You are not allowed to access this view.'))
+
+    def handle_not_logged(self):
+        return HttpResponseRedirect(self.get_login_uri())
+
+    def get_login_uri(self):
+        """Get the URI where to redirect anonymous users."""
+        login_url_name = self.login_url_name or settings.LOGIN_URL
+        if not login_url_name:
+            raise ImproperlyConfigured('Define settings.LOGIN_URL')
+
+        url = reverse(login_url_name)
+        redirect_arg_name = self.login_redirect_arg_name
+
+        return '{}?{}'.format(
+                    url,
+                    urlencode({redirect_arg_name: self.request.get_full_path()}, safe='/'),
+                ) if redirect_arg_name else url
 
 
 class EntityRelatedMixin:
@@ -201,9 +225,13 @@ class CheckedTemplateView(PermissionsMixin, TemplateView):
     """Creme version of the django's TemplateView ; it checked that the
     user is logged & has some permission.
     """
-    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.check_view_permissions(user=self.request.user)
+        user = request.user
+
+        if not user.is_authenticated:
+            return self.handle_not_logged()
+
+        self.check_view_permissions(user=user)
 
         return super().dispatch(request, *args, **kwargs)
 

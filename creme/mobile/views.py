@@ -22,6 +22,7 @@ from copy import copy
 from datetime import datetime, time, timedelta
 from functools import partial, wraps
 import logging
+import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
@@ -29,6 +30,7 @@ from django.db.transaction import atomic
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
 from django.utils.timezone import now, localtime
 from django.utils.translation import ugettext as _
@@ -83,15 +85,15 @@ def lw_exceptions(view):
         except PermissionDenied as e:
             status = 403
             error = e
-            msg = _(u'You do not have access to this page, please contact your administrator.')
+            msg = _('You do not have access to this page, please contact your administrator.')
         except Http404 as e:
             status = 404
             error = e
-            msg = _(u'The page you have requested is not found.')
+            msg = _('The page you have requested is not found.')
         except ConflictError as e:
             status = 409
             error = e
-            msg = _(u'You can not perform this action because of business constraints.')
+            msg = _('You can not perform this action because of business constraints.')
 
         return render(request, 'mobile/error.html',
                       {'status':    status,
@@ -192,25 +194,31 @@ def persons_portal(request):
     user = request.user
     cred_filter = partial(EntityCredentials.filter, user)
 
-    return render(request, 'mobile/directory.html',
-                  {'favorite_contacts': cred_filter(Contact.objects.filter(is_deleted=False,
+    return render(
+        request, 'mobile/directory.html',
+        {'favorite_contacts': cred_filter(Contact.objects.filter(is_deleted=False,
+                                                                 mobile_favorite__user=user,
+                                                                )
+                                         ),
+         'contact_model': Contact,
+
+         'favorite_organisations': cred_filter(Organisation.objects.filter(is_deleted=False,
                                                                            mobile_favorite__user=user,
                                                                           )
-                                                   ),
-                   'contact_model': Contact,
-
-                   'favorite_organisations': cred_filter(Organisation.objects.filter(is_deleted=False,
-                                                                                     mobile_favorite__user=user,
-                                                                                    )
-                                                        ),
-                   'orga_model': Organisation,
-                  }
-                 )
+                                              ),
+         'orga_model': Organisation,
+        }
+    )
 
 
 def abstract_create_contact(request, form=mobile_forms.MobileContactCreateForm,
                             template='mobile/add_contact.html',
                            ):
+    warnings.warn('mobile.views.abstract_create_contact() is deprecated ; '
+                  'use the class-based view MobileContactCreation instead.',
+                  DeprecationWarning
+                 )
+
     last_name = request.GET.get('last_name')
 
     return add_entity(request, form,
@@ -220,16 +228,49 @@ def abstract_create_contact(request, form=mobile_forms.MobileContactCreateForm,
                      )
 
 
+class MobileBase:
+    login_url_name = 'mobile__login'
+
+
+class MobilePersonBase(MobileBase):
+    field_to_init = 'name'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        field_name = self.field_to_init
+        field_value = self.request.GET.get(field_name)
+        if field_value:
+            initial[field_name] = field_value.title()
+
+        return initial
+
+    def get_success_url(self):
+        return reverse('mobile__directory')
+
+
 @lw_exceptions
 @mobile_login_required
 @permission_required(cperm(Contact))
 def create_contact(request):
+    warnings.warn('mobile.views.create_contact() is deprecated.', DeprecationWarning)
     return abstract_create_contact(request)
 
 
+@method_decorator(lw_exceptions, name='dispatch')
+class MobileContactCreation(MobilePersonBase, persons.views.contact.ContactCreation):
+    form_class = mobile_forms.MobileContactCreateForm
+    template_name = 'mobile/add_contact.html'
+    field_to_init = 'last_name'
+
+
 def abstract_create_organisation(request, form=mobile_forms.MobileOrganisationCreateForm,
-                                 template='mobile/add_orga.html'
+                                 template='mobile/add_orga.html',
                                 ):
+    warnings.warn('mobile.views.abstract_create_organisation() is deprecated ; '
+                  'use the class-based view MobileOrganisationCreation instead.',
+                  DeprecationWarning
+                 )
+
     name = request.GET.get('name')
 
     return add_entity(request, form,
@@ -243,7 +284,14 @@ def abstract_create_organisation(request, form=mobile_forms.MobileOrganisationCr
 @mobile_login_required
 @permission_required(cperm(Organisation))
 def create_organisation(request):
+    warnings.warn('mobile.views.create_organisation() is deprecated.', DeprecationWarning)
     return abstract_create_organisation(request)
+
+
+@method_decorator(lw_exceptions, name='dispatch')
+class MobileOrganisationCreation(MobilePersonBase, persons.views.organisation.OrganisationCreation):
+    form_class = mobile_forms.MobileOrganisationCreateForm
+    template_name = 'mobile/add_orga.html'
 
 
 @lw_exceptions
@@ -514,7 +562,7 @@ def _improve_minutes(pcall, minutes):
     if minutes:
         old_minutes = pcall.minutes
         pcall.minutes = minutes if not old_minutes else \
-                        u'{}\n{}'.format(old_minutes, minutes)
+                        '{}\n{}'.format(old_minutes, minutes)
 
 
 @mobile_login_required

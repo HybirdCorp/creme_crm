@@ -53,7 +53,11 @@ urlpatterns = [
 #     ]
 urlpatterns += swap_manager.add_group(
     persons.contact_model_is_custom,
-    Swappable(url(r'^contact/add[/]?$', views.create_contact, name='mobile__create_contact')),
+    Swappable(url(r'^contact/add[/]?$',
+                  views.MobileContactCreation.as_view(),
+                  name='mobile__create_contact',
+                 )
+             ),
     app_name='mobile',
 ).kept_patterns()
 
@@ -63,7 +67,11 @@ urlpatterns += swap_manager.add_group(
 #     ]
 urlpatterns += swap_manager.add_group(
     persons.organisation_model_is_custom,
-    Swappable(url(r'^organisation/add[/]?$', views.create_organisation, name='mobile__create_organisation')),
+    Swappable(url(r'^organisation/add[/]?$',
+                  views.MobileOrganisationCreation.as_view(),
+                  name='mobile__create_organisation',
+                 )
+             ),
     app_name='mobile',
 ).kept_patterns()
 

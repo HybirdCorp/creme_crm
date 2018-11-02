@@ -23,12 +23,10 @@ import warnings
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView
 
 from creme.creme_core import forms, models
-from creme.creme_core.auth.decorators import login_required
 
 from . import base, popup
 
@@ -176,8 +174,11 @@ def add_model_with_popup(request, form_class, title=None, initial=None,
 
 # Class-based views  -----------------------------------------------------------
 
-# TODO: add a system to be redirected from an argument "?next=" ?
-class CremeModelCreation(base.CancellableMixin, base.PermissionsMixin, CreateView):
+# TODO: add a system to be redirected after the creation (from an argument "?next=") ?
+class CremeModelCreation(base.CancellableMixin,
+                         base.PermissionsMixin,
+                         CreateView,
+                        ):
     """ Base class for creation view with a form in Creme.
     You'll have to override at least the attributes 'model' & 'form_class'
     because the default ones are just abstract place-holders.
@@ -204,9 +205,13 @@ class CremeModelCreation(base.CancellableMixin, base.PermissionsMixin, CreateVie
     title = None
     submit_label = None
 
-    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.check_view_permissions(user=self.request.user)
+        user = request.user
+
+        if not user.is_authenticated:
+            return self.handle_not_logged()
+
+        self.check_view_permissions(user=user)
 
         return super().dispatch(request, *args, **kwargs)
 
