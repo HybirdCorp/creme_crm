@@ -206,6 +206,7 @@ urlpatterns = [
 
 if settings.TESTS_ON:
     from .tests import fake_views
+    from .views.generic.placeholder import ErrorView
 
     urlpatterns += [
         url(r'^tests/documents[/]?$', fake_views.document_listview, name='creme_core__list_fake_documents'),
@@ -243,4 +244,9 @@ if settings.TESTS_ON:
         url(r'^tests/invoice/(?P<invoice_id>\d+)[/]?$', fake_views.FakeInvoiceDetail.as_view(), name='creme_core__view_fake_invoice'),
 
         url(r'^tests/invoice_lines[/]?$', fake_views.invoice_lines_listview, name='creme_core__list_fake_invoicelines'),
+
+        url(r'^tests/whatever/(?P<useless>\d+)[/]?$',
+            ErrorView.as_view(message='Custom error message'),
+            name='creme_core__fake_removed_view',
+           ),
     ]

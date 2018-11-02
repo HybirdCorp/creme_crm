@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 30-10-2018 pour la version 2.0 de Creme
+:Version: 31-10-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -2175,10 +2175,11 @@ un cas différent :
 - la vue en question n'est pas à re-définir en *swappant* un quelconque modèle.
 
 Dans la mesure où les URLs sont nommées dans les différents ``urls.py``, si votre
-app est avant (comprendre: dans ``settings.INSTALLED_CREME_APPS``) l'app qui contient l'URL que
-vous voulez masquer par votre propre vue, il suffit de déclarer une URL avec le même
-nom (elle devra aussi prendre les mêmes arguments). Dans la mesure où le code de Creme
-récupère partout les URLs par leur nom, votre URL sera donc donc utilisée.
+app est avant (comprendre: dans ``settings.INSTALLED_CREME_APPS``) l'app qui
+contient l'URL que vous voulez re-router vers votre propre vue, il suffit de
+déclarer une URL avec le même nom (elle devra aussi prendre les mêmes arguments).
+Dans la mesure où le code de Creme récupère partout les URLs par leur nom,
+votre URL sera donc donc utilisée.
 
 Par exemple, vous voulez modifier la vue de création d'un mémo. Dans
 ``creme/assistants/urls.py``, on trouve le code suivant : ::
@@ -2247,6 +2248,35 @@ Puis dans ``my_assistants/urls.py`` : ::
 Cette méthode reste fragile, puisque si l'URL masquée vient à changer lors d'une version (majeure)
 ultérieure de Creme, votre vue ne la masquera plus sans que cela ne déclenche d'erreur (les 2 URLs
 cohabiteront). Il faudra donc l'utiliser avec parcimonie et faire attention lors des mises à jour.
+
+
+**Cas spécifique: suppression d'une focntionnalité** : dans certains cas vous
+voudrez qu'une vue définie de base par Creme soit désactivée.
+Par exemple, vous voulez que les Mémos soient uniquement créées par un Job
+qui les importent depuis un ERP. Pour faire ça correctement il faut que les
+vues de création de Mémos ne puissent plus être accédées.
+
+Vous devriez en plus du masqauge d'URL enlever les éventuels entrées de menu
+et autres boutons qui envoient vers ces vues de création, afin de ne pas polluer
+l'interface utilisateur avec des choses inutiles ; mais c'est étudié dans
+d'autres parties de ce document.
+
+Creme vous fournit une vue générique qui va renvoyer à l'utilisateur une page
+d'erreur : ::
+
+    from django.conf.urls import url
+
+    from creme.creme_core.views.generic.placeholder import ErrorView
+
+    urlpatterns = [
+        # Notez que l'URL doit être la même que l'original.
+        # Dans notre cas, plus de 'my_memo/', remplacé par un 'memo/' comme dans "assistants"
+        url(r'^memo/add/(?P<entity_id>\d+)[/]?$',
+            ErrorView.as_view(message='Memo are only created by ERP.'),
+            name='assistants__create_memo',
+           ),
+    ]
+
 
 
 Plus loin avec les modèles: les Tags

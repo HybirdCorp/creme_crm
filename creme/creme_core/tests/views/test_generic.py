@@ -18,6 +18,19 @@ except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
+class MiscTestCase(ViewsTestCase):
+    def test_placeholder_view01(self):
+        self.login()
+        response = self.client.get(reverse('creme_core__fake_removed_view', args=(1,)))
+        self.assertContains(response, 'Custom error message', status_code=409)
+
+    def test_placeholder_view02(self):
+        "Not logged"
+        url = reverse('creme_core__fake_removed_view', args=(1,))
+        response = self.assertGET(302, url)
+        self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
+
+
 class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
     # TODO: factorise with tests.gui.test_misc.GuiTestCase
     class FakeRequest:
