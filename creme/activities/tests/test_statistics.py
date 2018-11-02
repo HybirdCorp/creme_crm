@@ -43,7 +43,7 @@ class StatisticsTestCase(CremeTestCase):
 
         # Should not be counted (too old)
         for i in range(1, 4):
-            create_activity(title='Task', start=now_value - relativedelta(year=1, months=1))
+            create_activity(title='Task', start=now_value - relativedelta(years=1, months=1))
 
         self.assertEqual(
             [ungettext('%(count)s meeting per month', '%(count)s meetings per month', 1) % {
