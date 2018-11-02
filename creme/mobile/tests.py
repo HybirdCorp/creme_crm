@@ -48,18 +48,13 @@ class MobileTestCase(CremeTestCase):
     ACTIVITIES_PORTAL_URL = reverse('mobile__activities')
     PCALL_PANEL_URL       = reverse('mobile__pcall_panel')
 
-    @classmethod
-    def setUpClass(cls):
-        # super(MobileTestCase, cls).setUpClass()
-        super().setUpClass()
+    CREATE_CONTACT_URL = reverse('mobile__create_contact')
+    CREATE_ORGA_URL = reverse('mobile__create_organisation')
 
-        cls.CREATE_CONTACT_URL = reverse('mobile__create_contact')
-        cls.CREATE_ORGA_URL    = reverse('mobile__create_organisation')
-
-        cls.WF_FAILED_URL     = reverse('mobile__pcall_wf_failed')
-        cls.WF_POSTPONED_URL  = reverse('mobile__pcall_wf_postponed')
-        cls.WF_LASTED5MIN_URL = reverse('mobile__pcall_wf_lasted_5_minutes')
-        cls.WF_JUSTDONE_URL   = reverse('mobile__pcall_wf_just_done')
+    WF_FAILED_URL     = reverse('mobile__pcall_wf_failed')
+    WF_POSTPONED_URL  = reverse('mobile__pcall_wf_postponed')
+    WF_LASTED5MIN_URL = reverse('mobile__pcall_wf_lasted_5_minutes')
+    WF_JUSTDONE_URL   = reverse('mobile__pcall_wf_just_done')
 
     def login(self, is_superuser=True, is_staff=False, allowed_apps=('activities', 'persons'), *args, **kwargs):
         # return super(MobileTestCase, self).login(is_superuser=is_superuser,
@@ -151,13 +146,10 @@ class MobileTestCase(CremeTestCase):
             return self._get_created_pcalls(existing_pcall_ids).get()
 
     def test_login(self):
-        # url = '/mobile/login/'
         url = reverse('mobile__login')
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'mobile/login.html')
-
-        with self.assertNoException():
-          response.context['REDIRECT_FIELD_NAME']
+        self.assertEqual('next', response.context.get('REDIRECT_FIELD_NAME'))
 
         username = 'gally'
         password = 'passwd'
@@ -270,7 +262,8 @@ class MobileTestCase(CremeTestCase):
         user = self.login()
 
         url = self.CREATE_CONTACT_URL
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'mobile/add_contact.html')
 
         kof = Organisation.objects.create(user=user, name='KOF')
         first_name = 'May'
@@ -285,7 +278,7 @@ class MobileTestCase(CremeTestCase):
 
         may = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, may, REL_SUB_EMPLOYED_BY, kof)
-        self.assertFalse(self.user.mobile_favorite.all())
+        self.assertFalse(user.mobile_favorite.all())
 
         self.assertRedirects(response, self.PERSONS_PORTAL_URL)
 
@@ -329,12 +322,19 @@ class MobileTestCase(CremeTestCase):
 
         self.assertEqual([may], list(f.entity.get_real_entity() for f in self.user.mobile_favorite.all()))
 
+    def test_create_contact03(self):
+        "Not logged"
+        url = self.CREATE_CONTACT_URL
+        response = self.assertGET(302, url)
+        self.assertRedirects(response, '{}?next={}'.format(reverse('mobile__login'), url))
+
     @skipIfCustomOrganisation
     def test_create_orga01(self):
         self.login()
 
         url = self.CREATE_ORGA_URL
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'mobile/add_orga.html')
 
         name = 'KOF'
         phone = '111111'
@@ -370,6 +370,12 @@ class MobileTestCase(CremeTestCase):
 
         ff = self.get_object_or_fail(Organisation, name=name)
         self.assertEqual([ff], [f.entity.get_real_entity() for f in self.user.mobile_favorite.all()])
+
+    def test_create_orga03(self):
+        "Not logged"
+        url = self.CREATE_ORGA_URL
+        response = self.assertGET(302, url)
+        self.assertRedirects(response, '{}?next={}'.format(reverse('mobile__login'), url))
 
     def test_search_persons01(self):
         self.login()

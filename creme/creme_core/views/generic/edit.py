@@ -24,12 +24,10 @@ from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView
 
 from creme.creme_core import forms, models
-from creme.creme_core.auth.decorators import login_required
 
 from . import base, popup
 
@@ -206,9 +204,13 @@ class CremeModelEdition(base.CancellableMixin, base.PermissionsMixin, UpdateView
     def check_instance_permissions(self, instance, user):
         pass
 
-    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.check_view_permissions(user=self.request.user)
+        user = request.user
+
+        if not user.is_authenticated:
+            return self.handle_not_logged()
+
+        self.check_view_permissions(user=user)
 
         return super().dispatch(request, *args, **kwargs)
 

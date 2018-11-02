@@ -358,7 +358,7 @@ def url_join(*args, **params):
 
     if not base:
         return ''
-    # TODO: base = unicode(base) ?
+    # TODO: base = str(base) ?
 
     if not params:
         uri = base
