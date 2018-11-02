@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-12 00:51+0200\n"
+"POT-Creation-Date: 2018-10-31 16:16+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -686,7 +686,7 @@ msgstr "Informations sur le contact"
 msgid "Contact complementary information"
 msgstr "Informations complémentaires sur le contact"
 
-#: statistics.py:40
+#: statistics.py:29
 #, python-brace-format
 msgid "For {name}: {related_count}"
 msgstr "Pour {name} : {related_count}"
