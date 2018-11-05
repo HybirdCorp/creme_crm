@@ -88,3 +88,8 @@ class ReportsConfig(CremeAppConfig):
         creme_menu.get('creation', 'any_forms') \
                   .get_or_create_group('analysis', _(u'Analysis'), priority=500) \
                   .add_link('reports-create_report', Report, priority=20)
+
+    def register_actions(self, actions_registry):
+        from creme.reports import actions
+
+        actions_registry.register_instance_actions(actions.ExportReportActionEntry)

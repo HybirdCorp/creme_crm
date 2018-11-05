@@ -1,0 +1,166 @@
+(function($) {
+var MOCK_FILTERFORM_DATERANGE = '<ul class="ui-creme-widget widget-auto ui-creme-daterange" widget="ui-creme-daterange">' +
+                                    '<li class="daterange-field">' +
+                                        '<select name="date_filter_0" data-daterange-type="" id="id_date_filter_0">' +
+                                            '<option value="" selected="">Custom</option>' +
+                                            '<option value="previous_year">Previous year</option>' +
+                                            '<option value="next_year">Next year</option>' +
+                                        '</select>' +
+                                    '</li>' +
+                                    '<li class="daterange-field>' +
+                                        '<input type="text" name="date_filter_1" data-daterange-field="start" id="id_date_filter_1" class="ui-creme-input ui-creme-widget widget-auto ui-creme-datepicker" widget="ui-creme-datepicker" format="dd-mm-yy" />' +
+                                        '<input type="text" name="date_filter_2" data-daterange-field="end" id="id_date_filter_2" class="ui-creme-input ui-creme-widget widget-auto ui-creme-datepicker" widget="ui-creme-datepicker" format="dd-mm-yy" />' +
+                                    '</li>' +
+                                '</ul>';
+
+var MOCK_FILTERFORM_CONTENT = '<form class="report-preview-header">' +
+                                   '<select name="doc_type" id="id_doc_type">' +
+                                       '<option value="csv"></option>' +
+                                       '<option value="scsv"></option>' +
+                                       '<option value="xls"></option>' +
+                                   '</select>' +
+                                   '<select name="date_field" id="id_date_field">' +
+                                       '<option value="">None</option>' +
+                                       '<option value="created">Creation date</option>' +
+                                       '<option value="modified">Last change date</option>' +
+                                   '</select>' +
+                                   '<div class="date-filter">' +
+                                       MOCK_FILTERFORM_DATERANGE +
+                                   '</div>' +
+                                   '<input type="submit" value="Export" class="ui-creme-dialog-action"></input>' +
+                              '</form>';
+
+QUnit.module("creme.reports.listview.actions", new QUnitMixin(QUnitEventMixin,
+                                                              QUnitAjaxMixin,
+                                                              QUnitListViewMixin,
+                                                              QUnitDialogMixin, {
+    beforeEach: function() {
+        var backend = this.backend;
+        backend.options.enableUriSearch = true;
+
+        this.setMockBackendGET({
+            'mock/reports/filterform': backend.response(200, MOCK_FILTERFORM_CONTENT),
+            'mock/reports/filterform/fail': backend.response(400, 'HTTP 400 - Invalid arguments'),
+            'mock/reports/preview': backend.response(200, '')
+        });
+
+        this.setMockBackendPOST({
+            'mock/reports/filterform': function(url, data, options) {
+                var redirectUrl = 'mock/reports/download?' + $.param(data);
+                return backend.response(200, redirectUrl, {'content-type': 'text/plain'});
+            },
+            'mock/reports/filterform/invalid': backend.response(200, MOCK_FILTERFORM_CONTENT),
+            'mock/reports/filterform/fail': backend.response(400, 'HTTP 400 - Invalid arguments')
+        });
+    }
+}));
+
+QUnit.test('creme.reports.ExportReportAction (cancel)', function(assert) {
+    var action = new creme.reports.ExportReportAction({
+        title: 'Export «Report #1»',
+        filterUrl: 'mock/reports/filterform'
+    }).on(this.listviewActionListeners);
+
+    action.start();
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/reports/filterform'));
+
+    var dialog = this.assertOpenedDialog();
+
+    equal(2, dialog.find('.ui-dialog-buttonset button').length);
+    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
+    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
+
+    dialog.find('[name="doc_type"]').val('csv');
+    dialog.find('[name="date_field"]').val('');
+
+    this.closeDialog();
+
+    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/reports/filterform'));
+
+    deepEqual([], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.reports.ExportReportAction (csv, none)', function(assert) {
+    var action = new creme.reports.ExportReportAction({
+        title: 'Export «Report #1»',
+        filterUrl: 'mock/reports/filterform'
+    }).on(this.listviewActionListeners);
+
+    action.start();
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/reports/filterform'));
+
+    var dialog = this.assertOpenedDialog();
+
+    equal(2, dialog.find('.ui-dialog-buttonset button').length);
+    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
+    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
+
+    dialog.find('[name="doc_type"]').val('csv');
+    dialog.find('[name="date_field"]').val('');
+
+    this.findDialogButtonsByLabel(gettext('Export')).click();
+
+    this.assertClosedDialog();
+
+    var download_url = 'mock/reports/download?' + $.param({doc_type: 'csv', date_field: '', date_filter_0: '', date_filter_2: ''});
+
+    deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {doc_type: ['csv'], date_field: [''], date_filter_0: [''], date_filter_2: ['']}]
+    ], this.mockBackendUrlCalls('mock/reports/filterform'));
+
+    deepEqual([download_url],
+              this.mockRedirectCalls());
+});
+
+QUnit.test('creme.reports.ExportReportAction (xls, created, previous_year)', function(assert) {
+    var action = new creme.reports.ExportReportAction({
+        title: 'Export «Report #1»',
+        filterUrl: 'mock/reports/filterform'
+    }).on(this.listviewActionListeners);
+
+    action.start();
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/reports/filterform'));
+
+    var dialog = this.assertOpenedDialog();
+
+    equal(2, dialog.find('.ui-dialog-buttonset button').length);
+    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
+    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
+
+    dialog.find('[name="doc_type"]').val('xls');
+    dialog.find('[name="date_field"]').val('created').change();
+    dialog.find('[name="date_filter_0"]').val('previous_year').change();
+
+    this.findDialogButtonsByLabel(gettext('Export')).click();
+
+    this.assertClosedDialog();
+
+    var download_url = 'mock/reports/download?' + $.param({doc_type: 'xls', date_field: 'created', date_filter_0: 'previous_year', date_filter_2: ''});
+
+    deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {doc_type: ['xls'], date_field: ['created'], date_filter_0: ['previous_year'], date_filter_2: ['']}]
+    ], this.mockBackendUrlCalls('mock/reports/filterform'));
+
+    deepEqual([download_url],
+              this.mockRedirectCalls());
+});
+}(jQuery));

@@ -20,6 +20,7 @@ try:
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.core.function_field import function_field_registry
+    from creme.creme_core.gui import actions as core_actions
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
             EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger,
             CremePropertyType, CremeProperty, HeaderFilter, FieldsConfig)
@@ -28,6 +29,8 @@ try:
     from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeLegalForm, FakePosition,
             FakeImage, FakeImageCategory, FakeEmailCampaign, FakeMailingList, FakeInvoice,
             FakeFolderCategory, FakeFolder as FakeCoreFolder, FakeDocument as FakeCoreDocument)
+
+    from creme.reports import actions
 
     from .base import BaseReportsTestCase, skipIfCustomReport, Report
     from .fake_models import FakeReportsFolder, FakeReportsDocument, Guild
@@ -527,6 +530,34 @@ class ReportTestCase(BaseReportsTestCase):
 
         for report in reports:
             self.assertIn(report, reports_page.object_list)
+
+    def test_listview_actions(self):
+        sort_key = lambda a: a.action_id
+
+        user = self.login()
+
+        report = self._create_report('Report#1');
+
+        self.assertEqual(sorted([core_actions.ViewActionEntry,
+                                 core_actions.CloneActionEntry,
+                                 core_actions.EditActionEntry,
+                                 core_actions.DeleteActionEntry,
+                                 actions.ExportReportActionEntry,
+                                ],
+                                key=sort_key
+                         ),
+                         sorted(core_actions.actions_registry.instance_actions(Report),
+                                key=sort_key
+                               )
+                        )
+
+        export_action = actions.ExportReportActionEntry(user, instance=report)
+        self.assertEqual('reports-export', export_action.action_id)
+        self.assertEqual('reports-export', export_action.action)
+        self.assertEqual(reverse('reports__export_report_filter', args=(report.id,)), export_action.url)
+        self.assertEqual(_('Export «{}»').format(report), export_action.help_text)
+        self.assertTrue(export_action.is_enabled)
+        self.assertTrue(export_action.is_visible)
 
     def test_clone(self):
         user = self.login()

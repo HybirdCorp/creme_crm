@@ -7,7 +7,11 @@
     {{block.super}}
     <script type='text/javascript'>
         $(document).ready(function() {
-            var controller = new creme.reports.PreviewController('{% url 'reports__export_report_preview' object.id %}', '{% url 'reports__export_report' object.id %}');
+            var controller = new creme.reports.PreviewController({
+                                                   previewUrl: '{% url 'reports__export_report_preview' object.id %}',
+                                                   downloadUrl: '{% url 'reports__export_report' object.id %}'
+                                               });
+
             controller.bind($('.report-preview'));
         });
     </script>
