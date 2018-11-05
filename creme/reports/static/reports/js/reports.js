@@ -23,11 +23,14 @@
 (function($) {
 "use strict";
 
-if (!creme.reports) creme.reports = {};
-
+creme.reports = creme.reports || {};
 
 creme.reports.load = function(options, hfilters_url, efilters_url) {
-    if (!options || options == undefined) return;
+    options = options || {};
+
+    if (Object.isEmpty(options)) {
+        return;
+    }
 
     var ct_id = $(options.ct).val();
     var $hf = $(options.hf);
@@ -37,9 +40,11 @@ creme.reports.load = function(options, hfilters_url, efilters_url) {
     this.loadEntityFilters(efilters_url, ct_id, $filter);
 };
 
-//TODO: Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
-creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
-    if ($target_select.size() != 1) return;
+// TODO: Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
+var __loadFilters = function(url, ct_id, $target_select, parameters) {
+    if ($target_select.size() !== 1) {
+        return;
+    }
 
     var params = $.extend({
         'err_label':     gettext("None available"),
@@ -48,19 +53,18 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
         'error_option':  null
     }, parameters);
 
-    var $def_option = $('<option value="">' + params.err_label + '</option>');
+    var default_option = $('<option value="">' + params.err_label + '</option>');
 
-    var success_cb = function(data, textStatus, req) {
+    var success_cb = function(data) {
         $target_select.empty();
 
-        //TODO: factorise 'data.length == 0'
-        if (data.length == 0 && !params.empty_option) {
-            $target_select.append($def_option);
-        }
-        if (data.length == 0 && params.empty_option) {
-            $target_select.append(params.empty_option);
-        }
-        if (data.length > 0 && params.always_option) {
+        if (Object.isEmpty(data)) {
+            if (params.empty_option) {
+                $target_select.append(params.empty_option);
+            } else {
+                $target_select.append(default_option);
+            }
+        } else if (params.always_option) {
             $target_select.append(params.always_option);
         }
 
@@ -70,93 +74,39 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
         }
     };
 
-    var error_cb = function(req, textStatus, err) {
+    var error_cb = function(data, err) {
         // WTF: 'error_option' not used ?!
-        if (!params.error_option) {
-            $target_select.empty().append($def_option);
-        } else {
+        if (params.error_option) {
             $target_select.empty().append(params.empty_option);
+        } else {
+            $target_select.empty().append(default_option);
         }
     };
 
-    creme.ajax.json.get(url, {}, success_cb, error_cb, false, this.loading_options);
+    creme.ajax.query(url)
+              .onDone(success_cb)
+              .onFail(error_cb)
+              .get();
 };
 
 creme.reports.loadHeaderFilters = function(url, ct_id, $target_select) {
-    var url = url + '?' + $.param({ct_id: ct_id});
+    url = url + '?' + $.param({ct_id: ct_id});
     var params = {
         'always_option': $('<option value="">' + gettext("No selected view") + '</option>')
     };
-    creme.reports.__loadFilters(url, ct_id, $target_select, params);
+    __loadFilters(url, ct_id, $target_select, params);
 };
 
 creme.reports.loadEntityFilters = function(url, ct_id, $target_select) {
-    var url = url + '?' + $.param({ct_id: ct_id});
+    url = url + '?' + $.param({ct_id: ct_id});
     var $all_opt = $('<option value="">' + gettext("All") + '</option>');
     var params = {
-        'empty_option' : $all_opt,
+        'empty_option': $all_opt,
         'always_option': $all_opt,
-        'error_option' : $all_opt
+        'error_option': $all_opt
     };
-    creme.reports.__loadFilters(url, ct_id, $target_select, params);
+    __loadFilters(url, ct_id, $target_select, params);
 };
-
-
-creme.reports.AJAX_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(), {
-                                                             condition: new creme.ajax.CacheBackendTimeout(120 * 1000),
-                                                             dataType: 'json'
-                                                         });
-
-//creme.reports.doAjaxAction = function(url, options, data) {
-//    console.warn('creme.reports.doAjaxAction() is deprecated ; use bricks & actions instead.');
-//
-//    var options = options || {};
-//    var query = creme.reports.AJAX_BACKEND.query();
-//    var reload_cb = options.blockReloadUrl ? function() {creme.blocks.reload(options.blockReloadUrl);} : function() {};
-//
-//    query.url(url)
-//         .onDone(reload_cb)
-//         .onFail(function(event, req) {
-//             creme.dialogs.warning(req.responseText || gettext("Error"))
-//                          .onClose(reload_cb)
-//                          .open();
-//          })
-//         .post(data);
-//
-//    return query;
-//};
-
-//creme.reports.unlink_report = function(url, field_id, block_url) {
-//    console.warn('creme.reports.unlink_report() is deprecated ; use the new bricks action system instead.');
-//
-//    creme.reports.doAjaxAction(url, {
-//                                   blockReloadUrl: block_url
-//                               }, {
-//                                   'field_id': field_id
-//                               });
-//}
-
-//creme.reports.changeOrder = function(url, field_id, direction, block_url) {
-//    console.warn('creme.reports.changeOrder() is deprecated ; use the new bricks ordering system instead.');
-//
-//    return creme.reports.doAjaxAction(url, {
-//                                          blockReloadUrl: block_url
-//                                      }, {
-//                                          'field_id': field_id,
-//                                          'direction': direction
-//                                      });
-//};
-
-//creme.reports.setSelected = function(url, checkbox, field_id, block_url) {
-//    console.warn('creme.reports.setSelected() is deprecated.');
-//
-//    return creme.reports.doAjaxAction(url, {
-//                                          blockReloadUrl: block_url
-//                                      }, {
-//                                          'field_id': field_id,
-//                                          'checked': $(checkbox).is(':checked') ? 1 : 0
-//                                      });
-//};
 
 creme.reports.toggleDisableOthers = function(me, others) {
     var is_checked = me.checked; // More generic with all node types ?
@@ -173,7 +123,7 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
     var clean_float = function(value) {
         var res = parseFloat(value);
         return isNaN(res) ? 0.0 : res;
-    }
+    };
 
     for (var index = 0; index < Math.min(ticks.length, values.length); ++index) {
         var tick = ticks[index];
@@ -194,7 +144,8 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
     return jqplotData.length ? [jqplotData] : [];
 });
 
-
+/* 
+ * Moved to reports-actions.js
 creme.reports.exportReport = function(title, filterform_url, export_preview_url, export_url) {
     // The export view uses the 'callback_url' feature of inner_popup (maybe only used here).
     // Emulate it for this case.
@@ -207,32 +158,26 @@ creme.reports.exportReport = function(title, filterform_url, export_preview_url,
                       creme.utils.goTo($(data).attr('redirect'));
                   })
                  .open({width: 1024});
-};
-
-//creme.reports.openGraphEdition = function(edition_url, graph_id, reload_uri) {
-//    console.warn('creme.reports.openGraphEdition() is deprecated ; use bricks & actions instead.');
-//
-//    creme.blocks.form(edition_url, {blockReloadUrl: reload_uri})
-//                .onFormSuccess(function() {
-//                     $('#graph-%s .ui-creme-plotselector'.format(graph_id)).creme().widget().resetBackend();
-//                 }).open();
-//};
+});
+*/
 
 creme.reports.PreviewController = creme.component.Component.sub({
-    _init_: function(preview_url, export_url) {
-        this._redirectUrl = preview_url + '?%s';
-        this._downloadUrl = export_url + '?%s';
+    _init_: function(options) {
+        options = options || {};
+
+        this._redirectUrl = options.previewUrl || '';
+        this._downloadUrl = options.downloadUrl || '';
 
         this._listeners = {
-            update:   $.proxy(this._updateHeader, this),
-            redirect: $.proxy(this.redirect, this),
-            download: $.proxy(this.download, this)
+            update:   this._updateHeader.bind(this),
+            redirect: this.redirect.bind(this),
+            download: this.download.bind(this)
         };
     },
 
     bind: function(element) {
         if (this._header !== undefined) {
-            throw 'creme.reports.PreviewController is already bound.';
+            throw new Error('creme.reports.PreviewController is already bound.');
         }
 
         var listeners = this._listeners;
@@ -262,7 +207,6 @@ creme.reports.PreviewController = creme.component.Component.sub({
 
     _updateHeader: function() {
         var header = this._header;
-
         var has_datefield = !Object.isEmpty($('[name="date_field"]', header).val());
 
         $('.date-filter', header).toggle(has_datefield);
@@ -273,11 +217,11 @@ creme.reports.PreviewController = creme.component.Component.sub({
     },
 
     redirect: function() {
-        creme.utils.goTo(this._redirectUrl.format($('form', this._header).serialize()));
+        creme.utils.goTo(this._redirectUrl + '?' + $('form', this._header).serialize());
     },
 
     download: function() {
-        creme.utils.goTo(this._downloadUrl.format($('form', this._header).serialize()));
+        creme.utils.goTo(this._downloadUrl + '?' + $('form', this._header).serialize());
     }
 });
 
@@ -290,6 +234,7 @@ creme.reports.toggleDaysField = function(operator, types) {
 };
 
 creme.reports.ChartController = creme.component.Component.sub({
+    // _init_: function(preview_url, export_url) {
     _init_: function(properties) {
         this._properties = properties || {};
     },
@@ -310,9 +255,11 @@ creme.reports.ChartController = creme.component.Component.sub({
         };
 
         var popoverContent = function(popover, choices, selected) {
-            var choices = Object.entries(choices).filter(function(e) { return e[0] !== selected; });
+            choices = Object.entries(choices).filter(function(e) {
+                return e[0] !== selected;
+            });
 
-            var choices = choices.map(function(choice) {
+            choices = choices.map(function(choice) {
                 var value = choice[0], label = choice[1];
 
                 return $('<a class="popover-list-item" title="%s" alt="%s">%s</a>'.format(label, label, label)).click(function(e) {
@@ -322,7 +269,7 @@ creme.reports.ChartController = creme.component.Component.sub({
             });
 
             return choices;
-        }
+        };
 
         var chartPopover = new creme.dialog.Popover()
                                            .on('closed', function(event, value) {

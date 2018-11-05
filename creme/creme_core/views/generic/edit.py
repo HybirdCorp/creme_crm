@@ -292,7 +292,7 @@ class CremeModelEditionPopup(CremeModelEdition):
 
     def form_valid(self, form):
         self.object = form.save()
-        return HttpResponse(self.get_success_url())
+        return HttpResponse(self.get_success_url(), content_type='text/plain')
 
 
 class EntityEditionPopup(CremeModelEditionPopup):

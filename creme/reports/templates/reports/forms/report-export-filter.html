@@ -1,6 +1,13 @@
 {% extends 'creme_core/forms/popup-base.html' %}
+{% load i18n creme_core_tags creme_widgets %}
 
 {% block content %}
+    <div class="hat-bar-container ui-creme-dialog-titlebar">
+        <div class="hat-bar">
+            <div class="bar-icon">{% widget_icon name='document_csv' size='brick-hat-bar' label=title %}</div>
+            <div class="bar-title"><h1>{{title}}</h1></div>
+        </div>
+    </div>
     <form class="report-preview-header" method="POST">{% csrf_token %}
         {% include 'reports/frags/report_preview_format.html' %}
         <input type="submit" value="{{submit_label}}" class="ui-creme-dialog-action" />

@@ -703,6 +703,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.commercial',    'commercial/js/commercial.js'),
 
     ('creme.reports',       'reports/js/reports.js'),
+    ('creme.reports',       'reports/js/reports-actions.js'),
 
     ('creme.crudity',       'crudity/js/crudity.js'),
 
@@ -802,6 +803,8 @@ TEST_CREME_OPT_JS = [
     ('creme.crudity',   'crudity/js/tests/crudity-actions.js'),
     ('creme.emails',    'emails/js/tests/emails-actions.js'),
     ('creme.emails',    'emails/js/tests/emails-listview.js'),
+    ('creme.reports',   'reports/js/tests/reports-listview.js'),
+    ('creme.reports',   'reports/js/tests/reports-chart.js'),
 ]
 
 # Optional js/css bundles for extending projects.
