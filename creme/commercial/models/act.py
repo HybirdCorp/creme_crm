@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import (CharField, TextField, PositiveIntegerField,
@@ -27,7 +29,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, EntityFilter
 from creme.creme_core.models.fields import CTypeForeignKey
-
 from creme.opportunities import get_opportunity_model
 
 from ..constants import REL_SUB_COMPLETE_GOAL
@@ -247,8 +248,7 @@ class AbstractActObjectivePattern(CremeEntity):
         root_components = self._components_cache
 
         if root_components is None:
-            # components = {comp.id: comp for comp in self.components.all()}
-            components = self.components.in_bulk()
+            components = OrderedDict((c.id, c) for c in self.components.order_by('id'))
             root_components = []
 
             for comp in components.values():

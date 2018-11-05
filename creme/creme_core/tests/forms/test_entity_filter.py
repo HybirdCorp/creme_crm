@@ -1643,9 +1643,10 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
                                        )
 
     def test_unknown_entity(self):
+        ct = ContentType.objects.get_for_model(FakeContact)
         clean = RelationsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(RelationsConditionsField, 'invalidentity', clean,
-                                        json_dump([{'rtype': self.rtype01.id, 'has': True, 'ctype': 1, 'entity': 2121545}])
+                                        json_dump([{'rtype': self.rtype01.id, 'has': True, 'ctype': ct.id, 'entity': 2121545}])
                                        )
 
     def test_ok01(self):
