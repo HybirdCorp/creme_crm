@@ -34,7 +34,7 @@ from ..core.enumerable import enumerable_registry, Enumerator
 from ..core.paginator import FlowPaginator
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.listview import NULL_FK
-from ..gui.merge import merge_form_registry
+# from ..gui.merge import merge_form_registry
 from ..gui.pager import PagerContext
 from ..models import CustomField
 # from ..models.fields import EntityCTypeForeignKey
@@ -255,7 +255,7 @@ def get_listview_columns_header(context):
         cell.widget_ctx = widget_ctx
 
     context['NULL_FK'] = NULL_FK
-    context['can_merge_entities'] = merge_form_registry.get(context['model']) is not None  # DEPRECATED
+    # context['can_merge_entities'] = merge_form_registry.get(context['model']) is not None
 
     return context
 
