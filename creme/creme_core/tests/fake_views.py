@@ -160,3 +160,9 @@ def invoice_listview(request):
 @permission_required('creme_core')
 def invoice_lines_listview(request):
     return generic.list_view(request, fake_models.FakeInvoiceLine, show_actions=False)
+
+
+@login_required
+@permission_required('creme_core')
+def mailing_lists_listview(request):
+    return generic.list_view(request, fake_models.FakeMailingList)

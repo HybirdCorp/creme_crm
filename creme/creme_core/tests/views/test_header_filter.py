@@ -10,13 +10,13 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
-    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeProduct
     from creme.creme_core.tests.views.base import ViewsTestCase
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import (HeaderFilter, FieldsConfig,
-            RelationType, CustomField, EntityFilter, EntityFilterCondition)
+            RelationType, CustomField, EntityFilter, EntityFilterCondition,
+            FakeContact, FakeOrganisation, FakeProduct, FakeMailingList)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -30,15 +30,15 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         super().setUpClass()
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
-        cls._hf_backup = list(HeaderFilter.objects.all())
-        HeaderFilter.objects.all().delete()
+        # cls._hf_backup = list(HeaderFilter.objects.all())
+        # HeaderFilter.objects.all().delete()
 
-    @classmethod
-    def tearDownClass(cls):
-        # super(HeaderFilterViewsTestCase, cls).tearDownClass()
-        super().tearDownClass()
-        HeaderFilter.objects.all().delete()
-        HeaderFilter.objects.bulk_create(cls._hf_backup)
+    # @classmethod
+    # def tearDownClass(cls):
+    #     # super(HeaderFilterViewsTestCase, cls).tearDownClass()
+    #     super().tearDownClass()
+    #     HeaderFilter.objects.all().delete()
+    #     HeaderFilter.objects.bulk_create(cls._hf_backup)
 
     def assertCellsEqual(self, cells1, cells2):
         self.assertEqual(len(cells1), len(cells2))
@@ -53,22 +53,19 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     # def _build_edit_url(self, hf):
     #     return reverse('creme_core__edit_hfilter', args=(hf.id,))
 
-    # def _build_get4ctype_url(self, ctype, use_GET=False):
-    #     return reverse('creme_core__hfilters', args=(ctype.id,)) if not use_GET else \
-    #            reverse('creme_core__hfilters') + '?ct_id=%s' % ctype.id
     def _build_get4ctype_url(self, ctype):
-        return reverse('creme_core__hfilters') + '?ct_id=%s' % ctype.id
+        return '{}?ct_id={}'.format(reverse('creme_core__hfilters'), ctype.id)
 
     def test_create01(self):
         self.login()
 
-        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        ct = ContentType.objects.get_for_model(FakeMailingList)
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ct))
 
         url = self._build_add_url(ct)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/forms/header-filter.html')
-        self.assertIn(_('Create a view of list for «%(ctype)s»') % {'ctype': 'Test Organisation'},
+        self.assertIn(_('Create a view of list for «%(ctype)s»') % {'ctype': 'Test Mailing list'},
                       response.content.decode(),
                      )
 
@@ -97,8 +94,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('created__range', cell.filter_string)
         self.assertIs(cell.is_hidden, False)
 
-        # self.assertRedirects(response, '{}?hfilter={}'.format(FakeOrganisation.get_lv_absolute_url(), hfilter.pk))
-        lv_url = FakeOrganisation.get_lv_absolute_url()
+        lv_url = FakeMailingList.get_lv_absolute_url()
         self.assertRedirects(response, lv_url)
 
         # --
@@ -208,7 +204,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertIsInstance(cell, EntityCellCustomField)
         self.assertEqual(str(customfield.id), cell.value)
 
-        # self.assertRedirects(response, '{}?hfilter={}'.format(FakeContact.get_lv_absolute_url(), hfilter.pk))
         self.assertRedirects(response, lv_url)
 
         # --
@@ -627,39 +622,31 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_hfilters_for_ctype01(self):
         self.login()
 
-        response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
-        # self.assertEqual([], load_json(response.content))
+        # response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
+        response = self.assertGET200(self._build_get4ctype_url(ContentType.objects.get_for_model(FakeMailingList)))
         self.assertEqual([], response.json())
-
-        # response = self.assertGET200(self._build_get4ctype_url(self.contact_ct, use_GET=True))
-        # self.assertEqual([], load_json(response.content))
 
     def test_hfilters_for_ctype02(self):
         user = self.login()
 
         create_hf = HeaderFilter.create
-        name01 = 'Contact view01'
-        name02 = 'Contact view02'
-        name03 = 'Contact view03'
-        pk_fmt = 'tests-hf_contact%s'
-        hf01 = create_hf(pk=pk_fmt % 1, name=name01,      model=FakeContact,      is_custom=False)
-        hf02 = create_hf(pk=pk_fmt % 2, name=name02,      model=FakeContact,      is_custom=True)
+        name01 = 'ML view01'
+        name02 = 'ML view02'
+        name03 = 'ML view03'
+        pk_fmt = 'tests-hf_ml{}'.format
+        hf01 = create_hf(pk=pk_fmt(1),  name=name01,      model=FakeMailingList,  is_custom=False)
+        hf02 = create_hf(pk=pk_fmt(2),  name=name02,      model=FakeMailingList,  is_custom=True)
         create_hf(pk='tests-hf_orga01', name='Orga view', model=FakeOrganisation, is_custom=True)
-        hf03 = create_hf(pk=pk_fmt % 3, name=name03,      model=FakeContact,      is_custom=True, is_private=True, user=user)
-        create_hf(pk=pk_fmt % 4,        name='Private',   model=FakeContact,      is_custom=True, is_private=True, user=self.other_user)
+        hf03 = create_hf(pk=pk_fmt(3),  name=name03,      model=FakeMailingList,  is_custom=True, is_private=True, user=user)
+        create_hf(pk=pk_fmt(4),         name='Private',   model=FakeMailingList,  is_custom=True, is_private=True, user=self.other_user)
 
         expected = [[hf01.id, name01], [hf02.id, name02], [hf03.id, name03]]
-        response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
-        # self.assertEqual(expected, load_json(response.content))
-        self.assertEqual(expected, response.json())
-
-        # response = self.assertGET200(self._build_get4ctype_url(self.contact_ct, use_GET=True))
-        response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
-        # self.assertEqual(expected, load_json(response.content))
+        # response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
+        ct = ContentType.objects.get_for_model(FakeMailingList)
+        response = self.assertGET200(self._build_get4ctype_url(ct))
         self.assertEqual(expected, response.json())
 
     def test_hfilters_for_ctype03(self):
         "No app credentials"
         self.login(is_superuser=False, allowed_apps=['documents'])
-        # self.assertGET403(self._build_get4ctype_url(self.contact_ct, use_GET=True))
         self.assertGET403(self._build_get4ctype_url(self.contact_ct))
