@@ -27,13 +27,11 @@ from creme.persons import get_contact_model
 
 class GenerateVcfButton(Button):
     id_           = Button.generate_id('vcfs', 'generate_vcf')
-    verbose_name  = _(u'Generate a VCF')
-    # template_name = 'vcfs/templatetags/button_generate_vcf.html'
+    verbose_name  = _('Generate a VCF')
     template_name = 'vcfs/buttons/generate.html'
 
     def get_ctypes(self):
         return (get_contact_model(),)
 
 
-# DEPRECATED
-generate_vcf_button = GenerateVcfButton()
+# generate_vcf_button = GenerateVcfButton()
