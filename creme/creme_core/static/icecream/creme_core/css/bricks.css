@@ -34,7 +34,7 @@
     margin-top: 15px;
 }
 
-/* TODO: some blocks have script tags defined before them, making sibling selection impossible. Eg. Geoolocation map block.
+/* TODO: some blocks have script tags defined before them, making sibling selection impossible. Eg. Geolocation map brick.
 Those templates need to be cleaned up */
 .brick + table.table_detail_view,
 .brick + script + table.table_detail_view {
