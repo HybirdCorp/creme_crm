@@ -28,7 +28,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 class DocumentsConfig(CremeAppConfig):
     name = 'creme.documents'
-    verbose_name = _(u'Documents')
+    verbose_name = _('Documents')
     dependencies = ['creme.creme_core']
 
     def all_apps_ready(self):
@@ -41,6 +41,14 @@ class DocumentsConfig(CremeAppConfig):
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Document, self.Folder)
+
+    def register_actions(self, actions_registry):
+        from . import actions
+
+        actions_registry.register_instance_actions(
+            actions.ExploreFolderActionEntry,
+            actions.DownloadActionEntry,
+        )
 
     def register_bricks(self, brick_registry):
         from . import bricks
@@ -75,9 +83,9 @@ class DocumentsConfig(CremeAppConfig):
                 #         fval.get_entity_summary(user)
                 #     )
                 return format_html(
-                    u'''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
+                    '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
                     url=fval.get_dl_url(),
-                    attrs=mark_safe(u' class="is_deleted"' if fval.is_deleted else u''),
+                    attrs=mark_safe(' class="is_deleted"' if fval.is_deleted else ''),
                     content=fval.get_entity_summary(user),
                 )
 
@@ -96,9 +104,9 @@ class DocumentsConfig(CremeAppConfig):
                 #             instance.get_entity_summary(user),
                 #         )
                 return format_html(
-                    u'''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
+                    '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
                     url=instance.get_dl_url(),
-                    attrs=mark_safe(u' class="is_deleted"' if instance.is_deleted else u''),
+                    attrs=mark_safe(' class="is_deleted"' if instance.is_deleted else ''),
                     content=instance.get_entity_summary(user),
                 )
 
@@ -138,7 +146,7 @@ class DocumentsConfig(CremeAppConfig):
                   .add(LvURLItem('documents-documents', model=Document), priority=10) \
                   .add(LvURLItem('documents-folders',   model=Folder),   priority=20)
         creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('tools', _(u'Tools'), priority=100) \
+                  .get_or_create_group('tools', _('Tools'), priority=100) \
                   .add_link('documents-create_document', Document, priority=10) \
                   .add_link('documents-create_folder',   Folder,   priority=20)
 
@@ -151,10 +159,3 @@ class DocumentsConfig(CremeAppConfig):
         from .forms.quick import DocumentQuickForm
 
         quickforms_registry.register(self.Document, DocumentQuickForm)
-
-    def register_actions(self, actions_registry):
-        from creme.documents import actions
-
-        actions_registry.register_instance_actions(actions.ExploreFolderActionEntry,
-                                                   actions.DownloadActionEntry,
-                                                  )

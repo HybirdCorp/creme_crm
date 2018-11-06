@@ -9,20 +9,15 @@ try:
     from creme.creme_core.models import (Relation, RelationType, SetCredentials,
             ButtonMenuItem, FieldsConfig)
 
-    from creme.persons import get_address_model, get_contact_model, get_organisation_model
     from creme.persons.models import Civility
     from creme.persons.constants import REL_OBJ_EMPLOYED_BY
-    from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
-            skipIfCustomOrganisation)
 
     from creme.vcfs.buttons import GenerateVcfButton
+
+    from .base import (Address, Contact, Organisation,
+        skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
-
-
-Address = get_address_model()
-Contact = get_contact_model()
-Organisation = get_organisation_model()
 
 
 @skipIfCustomContact
@@ -49,15 +44,16 @@ class VcfExportTestCase(CremeTestCase):
         return Contact.objects.create(**fields)
 
     def create_address(self, contact, prefix):
-        return Address.objects.create(address='{}_address'.format(prefix),
-                                      city='{}_city'.format(prefix),
-                                      po_box='{}_po_box'.format(prefix),
-                                      country='{}_country'.format(prefix),
-                                      zipcode='{}_zipcode'.format(prefix),
-                                      department='{}_department'.format(prefix),
-                                      content_type_id=ContentType.objects.get_for_model(Contact).id,
-                                      object_id=contact.id,
-                                     )
+        return Address.objects.create(
+            address='{}_address'.format(prefix),
+            city='{}_city'.format(prefix),
+            po_box='{}_po_box'.format(prefix),
+            country='{}_country'.format(prefix),
+            zipcode='{}_zipcode'.format(prefix),
+            department='{}_department'.format(prefix),
+            content_type_id=ContentType.objects.get_for_model(Contact).id,
+            object_id=contact.id,
+        )
 
     def test_button(self):
         self.login()
