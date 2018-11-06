@@ -1,5 +1,6 @@
-(function($) {
+/* globals setTimeout */
 
+(function($) {
 QUnit.module("creme.component.action.js", new QUnitMixin(QUnitEventMixin, {
     mockBindActionListeners: function(action) {
         var done = this.mockListener('done_cb'),
@@ -23,8 +24,13 @@ QUnit.test('creme.component.Action (options)', function(assert) {
     var action = new creme.component.Action();
     deepEqual({}, action.options());
 
-    deepEqual(action, action.options({a:1, b:12}));
-    deepEqual({a:1, b:12}, action.options());
+    deepEqual(action, action.options({a: 1, b: 12}));
+    deepEqual({a: 1, b: 12}, action.options());
+
+    equal(false, action.isRunning());
+    equal(true, action.isStatusDone());
+    equal(false, action.isStatusFail());
+    equal(false, action.isStatusCancel());
 });
 
 QUnit.test('creme.component.Action (start)', function(assert) {
@@ -40,10 +46,14 @@ QUnit.test('creme.component.Action (start)', function(assert) {
     equal('done', action.status());
     equal(false, action.isRunning());
 
-    action.start({a:12});
+    equal(true, action.isStatusDone());
+    equal(false, action.isStatusFail());
+    equal(false, action.isStatusCancel());
+
+    action.start({a: 12});
 
     deepEqual({
-        'run_cb': [[{a:12}]]
+        'run_cb': [[{a: 12}]]
     }, this.mockListenerCalls());
 
     equal('run', action.status());
@@ -55,14 +65,18 @@ QUnit.test('creme.component.Action (start, extra args)', function(assert) {
     var run = this.mockListener('run_cb');
 
     action.action(run)
-          .start({a:12}, 145, 'a');
+          .start({a: 12}, 145, 'a');
 
     deepEqual({
-        'run_cb': [[{a:12}, 145, 'a']]
+        'run_cb': [[{a: 12}, 145, 'a']]
     }, this.mockListenerCalls());
 
     equal('run', action.status());
     equal(true, action.isRunning());
+
+    equal(false, action.isStatusDone());
+    equal(false, action.isStatusFail());
+    equal(false, action.isStatusCancel());
 });
 
 QUnit.test('creme.component.Action (start, default)', function(assert) {
@@ -81,14 +95,22 @@ QUnit.test('creme.component.Action (start, default)', function(assert) {
     equal('done', action.status());
     equal(false, action.isRunning());
 
-    action.start({a:12});
+    equal(true, action.isStatusDone());
+    equal(false, action.isStatusFail());
+    equal(false, action.isStatusCancel());
+
+    action.start({a: 12});
 
     deepEqual({
-        'done_cb': [['done', {a:12}]]
+        'done_cb': [['done', {a: 12}]]
     }, this.mockListenerCalls());
 
     equal('done', action.status());
     equal(false, action.isRunning());
+
+    equal(true, action.isStatusDone());
+    equal(false, action.isStatusFail());
+    equal(false, action.isStatusCancel());
 });
 
 QUnit.test('creme.component.Action (start, constant)', function(assert) {
@@ -108,7 +130,11 @@ QUnit.test('creme.component.Action (start, constant)', function(assert) {
     equal('done', action.status());
     equal(false, action.isRunning());
 
-    action.start({a:12});
+    equal(true, action.isStatusDone());
+    equal(false, action.isStatusFail());
+    equal(false, action.isStatusCancel());
+
+    action.start({a: 12});
 
     deepEqual({
         'done_cb': [['done', 'constant']]
@@ -116,6 +142,10 @@ QUnit.test('creme.component.Action (start, constant)', function(assert) {
 
     equal('done', action.status());
     equal(false, action.isRunning());
+
+    equal(true, action.isStatusDone());
+    equal(false, action.isStatusFail());
+    equal(false, action.isStatusCancel());
 });
 
 QUnit.test('creme.component.Action (start, already running)', function(assert) {
@@ -131,19 +161,19 @@ QUnit.test('creme.component.Action (start, already running)', function(assert) {
     equal('done', action.status());
     equal(false, action.isRunning());
 
-    action.start({a:12});
+    action.start({a: 12});
 
     deepEqual({
-        'run_cb': [[{a:12}]]
+        'run_cb': [[{a: 12}]]
     }, this.mockListenerCalls());
 
     equal('run', action.status());
     equal(true, action.isRunning());
 
-    action.start({b:15.8});
+    action.start({b: 15.8});
 
     deepEqual({
-        'run_cb': [[{a:12}]]
+        'run_cb': [[{a: 12}]]
     }, this.mockListenerCalls());
 
     equal('run', action.status());
@@ -156,10 +186,10 @@ QUnit.test('creme.component.Action (done)', function(assert) {
     deepEqual({}, this.mockListenerCalls());
     equal(false, action.isRunning());
 
-    action.start({a:12});
+    action.start({a: 12});
 
     deepEqual({
-        'run_cb': [[{a:12}]]
+        'run_cb': [[{a: 12}]]
     }, this.mockListenerCalls());
 
     equal(true, action.isRunning());
@@ -167,7 +197,7 @@ QUnit.test('creme.component.Action (done)', function(assert) {
     action.done();
 
     deepEqual({
-        'run_cb': [[{a:12}]],
+        'run_cb': [[{a: 12}]],
         'done_cb': [['done']]
     }, this.mockListenerCalls());
 
@@ -180,19 +210,19 @@ QUnit.test('creme.component.Action (done, parameter)', function(assert) {
     deepEqual({}, this.mockListenerCalls());
     equal(false, action.isRunning());
 
-    action.start({a:12});
+    action.start({a: 12});
 
     deepEqual({
-        'run_cb': [[{a:12}]]
+        'run_cb': [[{a: 12}]]
     }, this.mockListenerCalls());
 
     equal(true, action.isRunning());
 
-    action.done({b:153});
+    action.done({b: 153});
 
     deepEqual({
-        'run_cb': [[{a:12}]],
-        'done_cb': [['done', {b:153}]]
+        'run_cb': [[{a: 12}]],
+        'done_cb': [['done', {b: 153}]]
     }, this.mockListenerCalls());
 
     equal(false, action.isRunning());
@@ -242,6 +272,10 @@ QUnit.test('creme.component.Action (fail, not running)', function(assert) {
 
     deepEqual({}, this.mockListenerCalls());
     equal(false, action.isRunning());
+
+    equal(true, action.isStatusDone());
+    equal(false, action.isStatusFail());
+    equal(false, action.isStatusCancel());
 });
 
 QUnit.test('creme.component.Action (fail, run exception)', function(assert) {
@@ -259,6 +293,10 @@ QUnit.test('creme.component.Action (fail, run exception)', function(assert) {
 
     equal('fail', action.status());
     equal(false, action.isRunning());
+
+    equal(false, action.isStatusDone());
+    equal(true, action.isStatusFail());
+    equal(false, action.isStatusCancel());
 });
 
 QUnit.test('creme.component.Action (fail from action)', function(assert) {
@@ -313,6 +351,10 @@ QUnit.test('creme.component.Action (cancel from action)', function(assert) {
 
     equal('cancel', action.status());
     equal(false, action.isRunning());
+
+    equal(false, action.isStatusDone());
+    equal(false, action.isStatusFail());
+    equal(true, action.isStatusCancel());
 });
 
 QUnit.test('creme.component.Action (onStart)', function(assert) {
@@ -326,7 +368,7 @@ QUnit.test('creme.component.Action (onStart)', function(assert) {
 
     deepEqual({
         'start_cb': [['start', 'start test', 4]],
-        'done_cb': [['done', 'ok']],
+        'done_cb': [['done', 'ok']]
     }, this.mockListenerCalls());
 });
 
@@ -386,7 +428,7 @@ QUnit.test('creme.component.Action (after)', function(assert) {
 
     first.action(12).start();
     deepEqual({
-        'done_cb': [['done', 12], ['done', first, 12 * 10]] 
+        'done_cb': [['done', 12], ['done', first, 12 * 10]]
     }, this.mockListenerCalls());
 
     equal(12 * 10, second.result);
@@ -593,13 +635,12 @@ QUnit.test('creme.component.TimeoutAction (200ms delay)', function(assert) {
     setTimeout(function() {
         equal(false, timeout.isRunning());
         equal(false, action.isRunning());
-        
+
         deepEqual({
-            'done_cb': [['done', {delay: 200}], ['done', timeout, {delay:200}]]
+            'done_cb': [['done', {delay: 200}], ['done', timeout, {delay: 200}]]
         }, mockListenerCalls());
 
         start();
     }, 300);
 });
-
 }(jQuery));

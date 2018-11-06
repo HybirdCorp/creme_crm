@@ -19,14 +19,14 @@
 (function($) {
 "use strict";
 
-creme.component.ActionStatus = {
+var _ActionStatus = {
     DONE: 'done',
     RUNNING: 'run',
     FAIL: 'fail',
     CANCEL: 'cancel'
 };
 
-var _ActionStatus = creme.component.ActionStatus;
+creme.component.ActionStatus = $.extend({}, _ActionStatus);
 
 // TODO: 'creme.component' =>  'creme.action' (already defined in action-link.js)
 creme.component.Action = creme.component.Component.sub({
@@ -140,6 +140,18 @@ creme.component.Action = creme.component.Component.sub({
 
     isRunning: function() {
         return this._status === _ActionStatus.RUNNING;
+    },
+
+    isStatusDone: function() {
+        return this._status === _ActionStatus.DONE;
+    },
+
+    isStatusFail: function() {
+        return this._status === _ActionStatus.FAIL;
+    },
+
+    isStatusCancel: function() {
+        return this._status === _ActionStatus.CANCEL;
     },
 
     status: function() {
