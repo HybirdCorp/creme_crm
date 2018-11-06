@@ -30,9 +30,8 @@ class VCFsConfig(CremeAppConfig):
     credentials = CremeAppConfig.CRED_NONE
 
     def register_buttons(self, button_registry):
-        # from .buttons import generate_vcf_button
-        # button_registry.register(generate_vcf_button)
         from . import buttons
+
         button_registry.register(buttons.GenerateVcfButton)
 
     def register_menu(self, creme_menu):
