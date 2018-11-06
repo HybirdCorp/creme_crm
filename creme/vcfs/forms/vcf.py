@@ -21,7 +21,6 @@
 import base64
 from itertools import chain
 import logging
-# import os
 from os import path
 # from urllib import urlretrieve
 # from urllib2 import urlopen
@@ -31,6 +30,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.db.transaction import atomic
 from django.forms import (IntegerField,FileField, ModelChoiceField, CharField,
         EmailField, URLField, BooleanField, HiddenInput)
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -42,12 +42,11 @@ from creme.creme_core.models import RelationType, Relation, FieldsConfig
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-# from creme.media_managers.models import Image
-from creme.documents import get_document_model, get_folder_model
+from creme import documents, persons
+
 from creme.documents.constants import UUID_FOLDER_IMAGES
 from creme.documents.utils import get_image_format
 
-from creme.persons import get_contact_model, get_organisation_model, get_address_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 from creme.persons.models import Civility, Position
 
@@ -56,12 +55,12 @@ from ..vcf_lib import readOne as read_vcf
 
 logger = logging.getLogger(__name__)
 
-Document = get_document_model()
-Folder = get_folder_model()
+Document = documents.get_document_model()
+Folder = documents.get_folder_model()
 
-Contact = get_contact_model()
-Organisation = get_organisation_model()
-Address = get_address_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+Address = persons.get_address_model()
 
 URL_START = ('http://', 'https://', 'www.')
 IMG_UPLOAD_PATH = Document._meta.get_field('filedata').upload_to
@@ -72,10 +71,10 @@ WORK_ADDR_PREFIX = 'workaddr_'
 
 class VcfForm(CremeForm):
     vcf_step = IntegerField(widget=HiddenInput)
-    vcf_file = FileField(label=_(u'VCF file'), max_length=500)
+    vcf_file = FileField(label=_('VCF file'), max_length=500)
 
     error_messages = {
-        'invalid_file': _(u'VCF file is invalid [%(error)s]'),
+        'invalid_file': _('VCF file is invalid [%(error)s]'),
     }
 
     def clean_vcf_file(self):
@@ -131,12 +130,12 @@ class VcfImportForm(CremeModelWithUserForm):
                                )
 
     # TODO: Composite field
-    update_work_name     = BooleanField(label=_('Update name'),     required=False, initial=False, help_text=_(u'Update organisation selected name'))
-    update_work_phone    = BooleanField(label=_('Update phone'),    required=False, initial=False, help_text=_(u'Update organisation selected phone'))
-    update_work_fax      = BooleanField(label=_('Update fax'),      required=False, initial=False, help_text=_(u'Update organisation selected fax'))
-    update_work_email    = BooleanField(label=_('Update email'),    required=False, initial=False, help_text=_(u'Update organisation selected email'))
-    update_work_url_site = BooleanField(label=_('Update web site'), required=False, initial=False, help_text=_(u'Update organisation selected web site'))
-    update_work_address  = BooleanField(label=_('Update address'),  required=False, initial=False, help_text=_(u'Update organisation selected address'))
+    update_work_name     = BooleanField(label=_('Update name'),     required=False, initial=False, help_text=_('Update organisation selected name'))
+    update_work_phone    = BooleanField(label=_('Update phone'),    required=False, initial=False, help_text=_('Update organisation selected phone'))
+    update_work_fax      = BooleanField(label=_('Update fax'),      required=False, initial=False, help_text=_('Update organisation selected fax'))
+    update_work_email    = BooleanField(label=_('Update email'),    required=False, initial=False, help_text=_('Update organisation selected email'))
+    update_work_url_site = BooleanField(label=_('Update web site'), required=False, initial=False, help_text=_('Update organisation selected web site'))
+    update_work_address  = BooleanField(label=_('Update address'),  required=False, initial=False, help_text=_('Update organisation selected address'))
 
     # Organisation name & details
     work_name     = CharField(label=_('Name'),           required=False)
@@ -154,10 +153,10 @@ class VcfImportForm(CremeModelWithUserForm):
     workaddr_region  = CharField(label=_('Region'),   required=False)
 
     error_messages = {
-        'required4orga': _(u'Required, if you want to create organisation'),
-        'no_orga_creation': _(u'Create organisation not checked'),
-        'orga_not_selected': _(u'Organisation not selected'),
-        'required2update': _(u'Required, if you want to update organisation'),
+        'required4orga': _('Required, if you want to create organisation'),
+        'no_orga_creation': _('Create organisation not checked'),
+        'orga_not_selected': _('Organisation not selected'),
+        'required2update': _('Required, if you want to update organisation'),
     }
 
     # Names of the fields corresponding to the Contact's details.
@@ -197,22 +196,22 @@ class VcfImportForm(CremeModelWithUserForm):
                       ]
 
     blocks = CremeEntityForm.blocks.new(
-        ('details', _(u'Details'), contact_details),
-        ('contact_address', _(u'Billing address'),
+        ('details', _('Details'), contact_details),
+        ('contact_address', _('Billing address'),
          [HOME_ADDR_PREFIX + n[0] for n in address_mapping]
         ),
-        ('organisation', _(u'Organisation'),
+        ('organisation', _('Organisation'),
          ['create_or_attach_orga', 'organisation', 'relation']
          + list(chain.from_iterable(('update_work_' + fn, 'work_' + fn) for fn in orga_fields)
         )
         ),
-        ('organisation_address', _(u'Organisation billing address'),
+        ('organisation_address', _('Organisation billing address'),
          ['update_work_address'] + [WORK_ADDR_PREFIX + n[0] for n in address_mapping]
         ),
     )
 
-    type_help_text  = _(u'Read in VCF File without type : ')
-    other_help_text = _(u'Read in VCF File : ')
+    type_help_text  = _('Read in VCF File without type : ')
+    other_help_text = _('Read in VCF File : ')
 
     def __init__(self, vcf_data=None, *args, **kwargs):
         # super(VcfImportForm, self).__init__(*args, **kwargs)
@@ -467,7 +466,7 @@ class VcfImportForm(CremeModelWithUserForm):
         image_encoded = cleaned_data['image_encoded']
 
         if image_encoded:
-            img_name = secure_filename(u'{}_{}_{}'.format(contact.last_name, contact.first_name, contact.id))
+            img_name = secure_filename('{}_{}_{}'.format(contact.last_name, contact.first_name, contact.id))
             img_path = None
 
             if image_encoded.startswith(URL_START):
@@ -499,10 +498,10 @@ class VcfImportForm(CremeModelWithUserForm):
             if img_path:
                 return Document.objects.create(
                     user=cleaned_data['user'],
-                    title=ugettext(u'Image of {contact}').format(contact=contact),
+                    title=ugettext('Image of {contact}').format(contact=contact),
                     filedata=img_path,
                     linked_folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
-                    description=ugettext(u'Imported by VCFs'),
+                    description=ugettext('Imported by VCFs'),
                 )
 
     def _create_orga(self, contact):
@@ -517,6 +516,9 @@ class VcfImportForm(CremeModelWithUserForm):
             addr_prefix  = WORK_ADDR_PREFIX
 
             if organisation:
+                # TODO: select_for_update() option in CreatorEntityField ?
+                organisation = Organisation.objects.select_for_update().get(id=organisation.id)
+
                 for fname in self.orga_fields:
                     if get_data('update_work_' + fname):
                          setattr(organisation, fname, get_data('work_' + fname))
@@ -565,6 +567,7 @@ class VcfImportForm(CremeModelWithUserForm):
                                     object_entity=organisation,
                                    )
 
+    @atomic
     def save(self, *args, **kwargs):
         cleaned_data = self.cleaned_data
         save_contact = False
