@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 DEFAULT_DECIMAL = Decimal()
 
 ROUND_POLICY = ROUND_HALF_UP
-CURRENCY = "Euro"  # TODO: in settings.py ??
+CURRENCY = 'Euro'  # DEPRECATED
 
 REL_SUB_BILL_ISSUED = 'billing-subject_bill_issued'
 REL_OBJ_BILL_ISSUED = 'billing-object_bill_issued'
@@ -41,8 +41,8 @@ DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA = 'billing-display_payment_info_only_creme_
 PERCENT_PK = 1
 AMOUNT_PK  = 2
 
-DISCOUNT_UNIT = {PERCENT_PK: _(u"Percent"),
-                 AMOUNT_PK:  _(u"Amount"),
+DISCOUNT_UNIT = {PERCENT_PK: _('Percent'),
+                 AMOUNT_PK:  _('Amount'),
                 }
 
 # NEW
