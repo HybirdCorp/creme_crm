@@ -14,7 +14,9 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.models import SetCredentials, SettingValue, Job, FakeOrganisation
+    from creme.creme_core.models import (HistoryLine, SetCredentials,
+            SettingValue, Job, FakeOrganisation)
+    from creme.creme_core.models.history import TYPE_AUX_CREATION
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
@@ -214,7 +216,9 @@ class SendingsTestCase(_EmailsTestCase):
 
         subject = 'SUBJECT'
         body    = 'BODYYYYYYYYYYY'
-        template = EmailTemplate.objects.create(user=user, name='name', subject=subject, body=body)
+        template = EmailTemplate.objects.create(user=user, name='My template', subject=subject, body=body)
+
+        old_hlines_count = HistoryLine.objects.count()
 
         url = self._build_add_url(camp)
         self.assertGET200(url)
@@ -250,6 +254,21 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual('', sending.mails_set.get(recipient_entity=contacts[0].id).body)
         self.assertEqual('', sending.mails_set.get(recipient_entity=orgas[0].id).body)
 
+        # ---
+        self.assertEqual(old_hlines_count + 1, HistoryLine.objects.count())
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(camp.id,          hline.entity.id)
+        self.assertEqual(TYPE_AUX_CREATION,    hline.type)
+        self.assertEqual([_('Add <{type}>: “{value}”').format(
+                                type=EmailSending._meta.verbose_name,
+                                value=sending,
+                            )
+                         ],
+                         hline.get_verbose_modifications(user=user),
+                        )
+
+        # ---
         mail = mails[0]
         self.assertEqual(0, mail.reads)
         self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
