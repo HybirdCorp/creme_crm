@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import SearchConfigItem, UserRole
@@ -11,25 +12,31 @@ except Exception as e:
 
 
 class SearchConfigTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        # super(SearchConfigTestCase, cls).setUpClass()
-        super().setUpClass()
-        cls._sci_backup = list(SearchConfigItem.objects.all())
-        SearchConfigItem.objects.all().delete()
+    # @classmethod
+    # def setUpClass(cls):
+    #     # super(SearchConfigTestCase, cls).setUpClass()
+    #     super().setUpClass()
+    #     cls._sci_backup = list(SearchConfigItem.objects.all())
+    #     SearchConfigItem.objects.all().delete()
 
-    @classmethod
-    def tearDownClass(cls):
-        # super(SearchConfigTestCase, cls).tearDownClass()
-        super().tearDownClass()
-        SearchConfigItem.objects.all().delete()
-        SearchConfigItem.objects.bulk_create(cls._sci_backup)
+    # @classmethod
+    # def tearDownClass(cls):
+    #     # super(SearchConfigTestCase, cls).tearDownClass()
+    #     super().tearDownClass()
+    #     SearchConfigItem.objects.all().delete()
+    #     SearchConfigItem.objects.bulk_create(cls._sci_backup)
 
     def test_create_if_needed01(self):
-        self.assertEqual(0, SearchConfigItem.objects.count())
+        # self.assertEqual(0, SearchConfigItem.objects.count())
+        count = SearchConfigItem.objects.count()
+        ct = ContentType.objects.get_for_model(FakeContact)
+        self.assertFalse(SearchConfigItem.objects.filter(content_type=ct))
 
         SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
-        sc_items = SearchConfigItem.objects.all()
+        # sc_items = SearchConfigItem.objects.all()
+        self.assertEqual(count + 1, SearchConfigItem.objects.count())
+
+        sc_items = SearchConfigItem.objects.filter(content_type=ct)
         self.assertEqual(1, len(sc_items))
 
         sc_item = sc_items[0]
@@ -45,36 +52,37 @@ class SearchConfigTestCase(CremeTestCase):
 
         fn_field = sfields[0]
         self.assertEqual('first_name',     fn_field.name)
-        self.assertEqual(_(u'First name'), fn_field.verbose_name)
-        self.assertEqual(_(u'First name'), str(fn_field))
+        self.assertEqual(_('First name'), fn_field.verbose_name)
+        self.assertEqual(_('First name'), str(fn_field))
 
         ln_field = sfields[1]
         self.assertEqual('last_name',     ln_field.name)
-        self.assertEqual(_(u'Last name'), ln_field.verbose_name)
-        self.assertEqual(_(u'Last name'), str(ln_field))
+        self.assertEqual(_('Last name'), ln_field.verbose_name)
+        self.assertEqual(_('Last name'), str(ln_field))
 
-        self.assertEqual(_(u'Default search configuration for «{model}»').format(model='Test Contact'),
+        self.assertEqual(_('Default search configuration for «{model}»').format(model='Test Contact'),
                          str(sc_item)
                         )
 
         SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
-        self.assertEqual(1, SearchConfigItem.objects.count())
+        self.assertEqual(count + 1, SearchConfigItem.objects.count())
 
     def test_create_if_needed02(self):
         "With a role"
         self.login()
+        count = SearchConfigItem.objects.count()
 
         role = self.role
         sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, ['name'], role=role)
         self.assertIsInstance(sc_item, SearchConfigItem)
 
-        self.assertEqual(1, SearchConfigItem.objects.count())
+        self.assertEqual(count + 1, SearchConfigItem.objects.count())
 
         self.assertEqual(FakeOrganisation, sc_item.content_type.model_class())
-        self.assertEqual(role,         sc_item.role)
+        self.assertEqual(role, sc_item.role)
         self.assertFalse(sc_item.superuser)
 
-        self.assertEqual(_(u'Search configuration of «{role}» for «{model}»').format(
+        self.assertEqual(_('Search configuration of «{role}» for «{model}»').format(
                                 role=role,
                                 model='Test Organisation',
                             ),
@@ -91,7 +99,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertIsNone(sc_item.role)
         self.assertTrue(sc_item.superuser)
 
-        self.assertEqual(_(u'Search configuration of super-users for «{model}»').format(model='Test Organisation'),
+        self.assertEqual(_('Search configuration of super-users for «{model}»').format(model='Test Organisation'),
                          str(sc_item)
                         )
 

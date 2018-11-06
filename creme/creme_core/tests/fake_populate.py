@@ -78,3 +78,4 @@ def populate():
                           (EntityCellRegularField, {'name': 'quantity'}),
                          ],
              )
+    # NB: do not create for HeaderFilter for FakeMailingList (see views.test_header_filter)

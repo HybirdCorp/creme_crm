@@ -475,9 +475,9 @@ else:
 #        def get_edit_absolute_url(self):
 #            return "/emails/mailing_list/edit/%s" % self.id
 
-#        @staticmethod
-#        def get_lv_absolute_url():
-#            return "/emails/mailing_lists"
+        @staticmethod
+        def get_lv_absolute_url():
+            return reverse('creme_core__list_fake_mlists')
 
 
     class FakeEmailCampaign(CremeEntity):
@@ -596,6 +596,8 @@ else:
 
         # def get_absolute_url(self):
         #     return '/tests/product/%s' % self.id
+
+        # NB: no get_lv_absolute_url(()  (see views.test_header_filter)
 
 
     class FakeReport(CremeEntity):
