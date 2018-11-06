@@ -13,25 +13,16 @@ try:
     from creme.creme_core.models import FieldsConfig
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.documents import get_document_model
-
-    from creme.persons import get_address_model, get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
-    from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
-            skipIfCustomOrganisation)
 
     from ..forms import vcf as vcf_forms
     from ..vcf_lib import readOne as read_vcf
     from ..vcf_lib.base import ContentLine
+
+    from .base import (Document, Address, Contact, Organisation,
+        skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
-
-
-# TODO: factorise ?
-Document = get_document_model()
-Address = get_address_model()
-Contact = get_contact_model()
-Organisation = get_organisation_model()
 
 
 class VcfImportTestCase(CremeTestCase):
@@ -83,7 +74,7 @@ class VcfImportTestCase(CremeTestCase):
     def test_parsing_vcf00(self):
         self.login()
 
-        content  = 'BEGIN:VCARD\nFN:Prénom Nom\nEND:VCARD'
+        content = 'BEGIN:VCARD\nFN:Prénom Nom\nEND:VCARD'
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -98,7 +89,7 @@ class VcfImportTestCase(CremeTestCase):
     def test_parsing_vcf01(self):  # TODO: use BDAY
         self.login()
 
-        first_name = u'Yûna'
+        first_name = 'Yûna'
         last_name = 'Akashi'
         civility = 'Sempai'
         position = 'Directeur adjoint'
@@ -113,7 +104,7 @@ class VcfImportTestCase(CremeTestCase):
         region = 'Kanto'
         code = '42'
         country = 'Japan'
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 N:{last_name};{first_name};;{civility};
 TITLE:{position}
 BDAY;value=date:02-10
@@ -148,7 +139,7 @@ END:VCARD""".format(last_name=last_name,
         vobj = read_vcf(content)
         n_value = vobj.n.value
         self.assertEqual(civility, n_value.prefix)
-        self.assertEqual(_(u'Read in VCF File : ') + civility,
+        self.assertEqual(_('Read in VCF File : ') + civility,
                          fields['civility'].help_text
                         )
 
@@ -170,7 +161,7 @@ END:VCARD""".format(last_name=last_name,
 
         self.assertEqual(position, vobj.title.value)
         self.assertEqual(fields['position'].help_text,
-                         _(u'Read in VCF File : ') + position
+                         _('Read in VCF File : ') + position
                         )
 
         self.assertEqual(email, vobj.email.value)
@@ -211,7 +202,7 @@ END:VCARD""".format(last_name=last_name,
         region = 'Tokyo region'
         code = '8888'
         country = 'Zipangu'
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 FN:Evangéline McDowell
 ORG:{name}
 ADR;TYPE=WORK:{box};;{street};{city};{region};{code};{country}
@@ -278,7 +269,7 @@ END:VCARD""".format(name=name,
         region = 'Kansai'
         code = '434354'
         country = 'Japan'
-        content = u"""begin:vcard
+        content = """begin:vcard
 fn:Misora Kasoga
 adr:{box};;{street};{city};{region};{code};{country}
 tel:00 00 00 00 00
@@ -301,7 +292,7 @@ end:vcard""".format(box=box,
         vobj = read_vcf(content)
         # self.assertEqual('<VERSION{}2.1>', str(vobj.version))
 
-        help_prefix = _(u'Read in VCF File without type : ')
+        help_prefix = _('Read in VCF File without type : ')
         adr_value = vobj.adr.value
 
         self.assertEqual(box,     adr_value.box)
@@ -325,7 +316,7 @@ end:vcard""".format(box=box,
 
         name = 'Negima'
         orga = Organisation.objects.create(user=user, name=name)
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 N:Konoe Konoka
 ORG:{name}
 ADR;TYPE=WORK:56;;Second street;Kyoto;Kyoto region;7777;Japan
@@ -344,7 +335,7 @@ END:VCARD""".format(name=name)
         "Multi line, escape chars"
         self.login()
 
-        first_name = u'Fûka'
+        first_name = 'Fûka'
         last_name = 'Naritaki'
         content = r"""BEGIN:VCARD
 VERSION:3.0
@@ -388,7 +379,7 @@ END:VCARD""".format(first_name=first_name,
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
 
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 VERSION:3.0
 FN:Ako IZUMI
 TEL;TYPE=HOME:00 00 00 00 00
@@ -441,7 +432,7 @@ END:VCARD"""
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
 
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 FN:Yue AYASE
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
@@ -462,7 +453,7 @@ END:VCARD"""
                                           'create_or_attach_orga': True,
                                          }
                                     )
-        validation_text = _(u'Required, if you want to create organisation')
+        validation_text = _('Required, if you want to create organisation')
         self.assertFormError(response, 'form', 'work_name', validation_text)
         self.assertFormError(response, 'form', 'relation',  validation_text)
         self.assertEqual(contact_count, Contact.objects.count())
@@ -591,7 +582,7 @@ END:VCARD"""
                                           )
         orga_count = Organisation.objects.count()
 
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 FN:Haruna Saotome
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
@@ -655,7 +646,7 @@ END:VCARD""".format(orga.name)
 
         contact_count = Contact.objects.count()
         address_count = Address.objects.count()
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 FN:Chisame Hasegawa
 ADR;TYPE=HOME:78;;Geek avenue;New-York;;6969;USA
 TEL;TYPE=HOME:00 00 00 00 00
@@ -714,7 +705,7 @@ END:VCARD"""
         contact_count = Contact.objects.count()
         address_count = Address.objects.count()
         orga_count    = Organisation.objects.count()
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 FN:Nodoka Myiazaki
 ADR;TYPE=HOME:55;;Moe street;Mahora;Kanto;123;Japan
 ADR;TYPE=WORK:26;;Eva house;Eva city;Eva region;666;Eva land
@@ -851,7 +842,7 @@ END:VCARD""".format(name=name,
                 'update_work_address':  True,
                }
         response = self._post_step1(errors=True, data=data)
-        validation_text = _(u'Create organisation not checked')
+        validation_text = _('Create organisation not checked')
         self.assertFormError(response, 'form', 'update_work_name',     validation_text)
         self.assertFormError(response, 'form', 'update_work_phone',    validation_text)
         self.assertFormError(response, 'form', 'update_work_email',    validation_text)
@@ -914,7 +905,7 @@ END:VCARD"""
                                           'update_work_address':  True,
                                          }
                                     )
-        validation_text = _(u'Organisation not selected')
+        validation_text = _('Organisation not selected')
         self.assertFormError(response, 'form', 'update_work_name',     validation_text)
         self.assertFormError(response, 'form', 'update_work_phone',    validation_text)
         self.assertFormError(response, 'form', 'update_work_email',    validation_text)
@@ -933,7 +924,7 @@ END:VCARD"""
         Organisation.objects.create(user=self.user, name=name, phone='00 00 00 00 00',
                                     email='corp@corp.com', url_site='www.corp.com',
                                    )
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 FN:Akira Ookôchi
 ORG:{name}
 END:VCARD""".format(name=name)
@@ -955,7 +946,7 @@ END:VCARD""".format(name=name)
                                           'update_work_address':  True,
                                          }
                                     )
-        validation_text = _(u'Required, if you want to update organisation')
+        validation_text = _('Required, if you want to update organisation')
         self.assertFormError(response, 'form', 'work_phone',    validation_text)
         self.assertFormError(response, 'form', 'work_email',    validation_text)
         self.assertFormError(response, 'form', 'work_fax',      validation_text)
@@ -985,7 +976,7 @@ END:VCARD""".format(name=name)
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
 
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 FN:Chachamaru KARAKURI
 ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
 TEL;TYPE=WORK:11 11 11 11 11
@@ -1274,7 +1265,7 @@ PHOTO;TYPE=JPEG:""" \
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertTrue(contact.image)
-        self.assertEqual(_(u'Image of {contact}').format(contact=contact), contact.image.title)
+        self.assertEqual(_('Image of {contact}').format(contact=contact), contact.image.title)
         # contact.image.filedata.delete()
 
     @skipIfCustomContact
@@ -1313,7 +1304,7 @@ END:VCARD""".format(path=path)
 
         image = images[0]
         self.assertEqual(image, contact.image)
-        self.assertEqual(_(u'Image of {contact}').format(contact=contact), image.title)
+        self.assertEqual(_('Image of {contact}').format(contact=contact), image.title)
 
     @skipIfCustomContact
     def test_add_contact_vcf16(self):
@@ -1323,7 +1314,7 @@ END:VCARD""".format(path=path)
         # image_count   = Image.objects.count()
         image_count   = Document.objects.count()
 
-        content = u"""BEGIN:VCARD
+        content = """BEGIN:VCARD
 FN:Kaede NAGASE
 PHOTO;VALUE=URL:http://wwwwwwwww.wwwwwwwww.wwwwwwww/wwwwwww.jpg
 END:VCARD"""

@@ -25,9 +25,16 @@ from creme.creme_core.apps import CremeAppConfig
 
 class VCFsConfig(CremeAppConfig):
     name = 'creme.vcfs'
-    verbose_name = _(u'Vcfs')
+    verbose_name = _('Vcfs')
     dependencies = ['creme.persons']
     credentials = CremeAppConfig.CRED_NONE
+
+    def register_actions(self, actions_registry):
+        from . import actions
+
+        actions_registry.register_instance_actions(
+            actions.GenerateVcfActionEntry,
+        )
 
     def register_buttons(self, button_registry):
         from . import buttons
@@ -51,7 +58,7 @@ class VCFsConfig(CremeAppConfig):
         # else:
         creme_menu.get('features', 'persons-directory') \
                   .add(creme_menu.URLItem('vcfs-import', url=reverse('vcfs__import'),
-                                          label=_(u'Import from a VCF file'),
+                                          label=_('Import from a VCF file'),
                                           perm=build_creation_perm(get_contact_model()),
                                          ),
                        priority=200,
