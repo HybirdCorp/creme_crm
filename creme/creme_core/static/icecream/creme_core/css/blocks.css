@@ -88,9 +88,11 @@
     padding-right: 5px;
 }
 
+/*
 .table_detail_view.with-header tr:not(.header) td {
     padding-right: 5px;
 }
+*/
 
 
 /**/
@@ -124,6 +126,7 @@
 }
 
 /* blocks with sortable header fields use the striping styles, differentiate them from the content */
+/*
 .table_detail_view.with-header .header > .block_header_line_light,
 .table_detail_view.with-header .header > .block_header_line_dark {
     background-color: #fafafa;
@@ -133,6 +136,7 @@
 .table_detail_view.with-header .header > .block_header_line_dark {
     border-bottom: 1px solid #ededed;
 }
+*/
 
 /* empty states - disable striping on empty blocks, regardless of what the template says */
 .table_detail_view .content.empty .block_line_light,
