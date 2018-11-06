@@ -22,14 +22,15 @@ import logging
 from functools import partial
 
 from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _, pgettext
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
-from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
-        BrickDetailviewLocation, BrickHomeLocation, ButtonMenuItem,
-        HeaderFilter, EntityFilterCondition, EntityFilter)
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
+        BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem, ButtonMenuItem,
+        HeaderFilter, EntityFilterCondition, EntityFilter)
 
 from creme import persons, products
 
@@ -143,7 +144,8 @@ class Populator(BasePopulator):
                                         (EntityCellRegularField, {'name': 'sales_phase'}),
                                         (EntityCellRegularField, {'name': 'estimated_sales'}),
                                         (EntityCellRegularField, {'name': 'made_sales'}),
-                                        (EntityCellRegularField, {'name': 'expected_closing_date'}),
+                                        # (EntityCellRegularField, {'name': 'expected_closing_date'}),
+                                        (EntityCellRegularField, {'name': 'closing_date'}),
                                        ],
                            )
 
@@ -184,7 +186,25 @@ class Populator(BasePopulator):
             LEFT = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
+            build_cell = EntityCellRegularField.build
+            cbci = CustomBrickConfigItem.objects.create(
+                id='opportunities-complementary',
+                name=_('Opportunity complementary information'),
+                content_type=ContentType.objects.get_for_model(Opportunity),  # TODO: @model
+                cells=[
+                    build_cell(Opportunity, 'reference'),
+                    build_cell(Opportunity, 'currency'),
+                    build_cell(Opportunity, 'chance_to_win'),
+                    build_cell(Opportunity, 'expected_closing_date'),
+                    build_cell(Opportunity, 'closing_date'),
+                    build_cell(Opportunity, 'origin'),
+                    build_cell(Opportunity, 'first_action_date'),
+                    build_cell(Opportunity, 'description'),
+                ],
+            )
+
             create_bdl(brick_id=bricks.OpportunityCardHatBrick.id_, order=1, zone=BrickDetailviewLocation.HAT, model=Opportunity)
+            create_bdl(brick_id=cbci.generate_id(),                 order=5,   zone=LEFT,  model=Opportunity)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,  order=40,  zone=LEFT,  model=Opportunity)
             create_bdl(brick_id=bricks.BusinessManagersBrick.id_,   order=60,  zone=LEFT,  model=Opportunity)
             create_bdl(brick_id=bricks.LinkedContactsBrick.id_,     order=62,  zone=LEFT,  model=Opportunity)
