@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _  # ugettext
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import CremeModelForm, CreatorEntityField
 from creme.creme_core.forms.widgets import CalendarWidget
-from creme.creme_core.models import SettingValue
+from creme.creme_core.models import HistoryLine, SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
@@ -164,6 +164,8 @@ class SendingCreateForm(CremeModelForm):
         varlist = list(self._get_variables(template.body))
         varlist.extend(self._get_variables(template.body_html))
 
+        disable_history = HistoryLine.disable
+
         for address, recipient_entity in instance.campaign.all_recipients():
             mail = LightWeightEmail(sending=instance,
                                     sender=instance.sender,
@@ -185,6 +187,7 @@ class SendingCreateForm(CremeModelForm):
                     # mail.body = dumps(context)
                     mail.body = json_dump(context, separators=(',', ':'))
 
+            disable_history(mail)
             mail.genid_n_save()
 
         return instance
