@@ -84,6 +84,12 @@ creme.relations.AddRelationToAction = creme.component.Action.sub({
             objects_ct_id: options.ctype_id
         };
 
+        if (Object.isEmpty(options.addto_url) || Object.isEmpty(options.selector_url)) {
+            console.log('missing urls in options of AddRelationTo action', options);
+            this.fail();
+            return;
+        }
+
         var selector = creme.lv_widget.listViewAction(selectorUrl, selectorOptions, selectorData);
         selector.onDone(function(event, data) {
                      self._updateQuery(data, options).post({
@@ -106,7 +112,7 @@ creme.relations.AddRelationToAction = creme.component.Action.sub({
 
 creme.relations.addRelationTo = function(subject_id, rtype_id, ctype_id, options) {
     console.warn('creme.relations.addRelationTo is deprecated. Use AddRelationToAction or <a data-action="add-relationships" ...> in bricks');
-    return creme.relations.AddRelationToAction($.extend({
+    return new creme.relations.AddRelationToAction($.extend({
         subject_id: subject_id,
         rtype_id: rtype_id,
         ctype_id: ctype_id

@@ -17,15 +17,21 @@ QUnit.module("creme.detailview.brick.actions", new QUnitMixin(QUnitEventMixin,
 
         this.setMockBackendGET({
             'mock/merge/selection': backend.response(200, selectionListHtml),
-            'mock/merge/selection/fail': backend.response(400, '')
+            'mock/merge/selection/fail': backend.response(400, ''),
+            'mock/relation/selector': backend.response(200, selectionListHtml)
         });
 
         this.setMockBackendPOST({
             'mock/merge': backend.response(200, ''),
             'mock/clone': backend.response(200, 'mock/clone-redir'),
             'mock/delete': backend.response(200, 'mock/trash'),
-            'mock/restore': backend.response(200, 'mock/restore-redir')
+            'mock/restore': backend.response(200, 'mock/restore-redir'),
+            'mock/relation/add': backend.response(200, ''),
+            'mock/relation/add/fail': backend.response(400, 'Unable to add relation')
         });
+
+        $('body').attr('data-save-relations-url', 'mock/relation/add');
+        $('body').attr('data-select-relations-objects-url', 'mock/relation/selector');
     },
 
     createHatBarBrick: function(options) {
@@ -214,6 +220,53 @@ QUnit.test('creme.detailview.brick.detailview-restore', function(assert) {
 
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/restore'));
     deepEqual(['mock/restore-redir'], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.relations.addRelationTo (multiple)', function(assert) {
+    creme.relations.addRelationTo('74', 'rtypes.1', '5', {
+        multiple: true
+    });
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+    ], this.mockBackendUrlCalls('mock/relation/selector'));
+
+    var list = this.assertOpenedListViewDialog().data('list_view');
+
+    this.setListviewSelection(list, ['2', '3']);
+
+    equal(2, list.countEntities());
+    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+
+    this.submitListViewSelectionDialog(list);
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
+    ], this.mockBackendUrlCalls());
+});
+
+QUnit.test('creme.relations.addRelationTo (no select url)', function(assert) {
+    $('body').removeAttr('data-select-relations-objects-url');
+
+    var action = creme.relations.addRelationTo('74', 'rtypes.1', '5');
+
+    equal(true, action.isStatusFail());
+    this.assertClosedDialog();
+
+    deepEqual([], this.mockBackendUrlCalls('mock/relation/selector'));
+});
+
+QUnit.test('creme.relations.addRelationTo (no addto url)', function(assert) {
+    $('body').removeAttr('data-save-relations-url');
+
+    var action = creme.relations.addRelationTo('74', 'rtypes.1', '5');
+
+    equal(true, action.isStatusFail());
+    this.assertClosedDialog();
+
+    deepEqual([], this.mockBackendUrlCalls('mock/relation/selector'));
 });
 
 }(jQuery));
