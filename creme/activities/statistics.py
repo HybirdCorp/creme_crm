@@ -29,19 +29,18 @@ from . import constants
 
 class AveragePerMonthStatistics:
     label = _('Activities (since one year)')
-    # NB: ungettext_lazy() does not manage {}-format
     items = [
         {'type_id': constants.ACTIVITYTYPE_MEETING,
          'empty': _('No meeting since one year'),
-         'messages': ungettext_lazy('%(count)s meeting per month',
-                                    '%(count)s meetings per month',
+         'messages': ungettext_lazy('{count} meeting per month',
+                                    '{count} meetings per month',
                                    ),
          'months': 12,
         },
         {'type_id': constants.ACTIVITYTYPE_PHONECALL,
          'empty': _('No phone call since one year'),
-         'messages': ungettext_lazy('%(count)s phone call per month',
-                                    '%(count)s phone calls per month',
+         'messages': ungettext_lazy('{count} phone call per month',
+                                    '{count} phone calls per month',
                                    ),
          'months': 12,
         },
@@ -62,9 +61,9 @@ class AveragePerMonthStatistics:
 
         if count:
             average = count / months
-            stat = (item['messages'] % average) % {
-                'count': number_format(average, decimal_pos=1, use_l10n=True),
-            }
+            stat = (item['messages'] % average).format(
+                count=number_format(average, decimal_pos=1, use_l10n=True),
+            )
         else:
             stat = item['empty']
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-31 16:04+0100\n"
+"POT-Creation-Date: 2018-11-08 00:36+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -632,27 +632,27 @@ msgstr ""
 msgid "Activities (since one year)"
 msgstr "Activités (depuis un an)"
 
-#: statistics.py:35
+#: statistics.py:34
 msgid "No meeting since one year"
 msgstr "Pas de rendez-vous depuis un an"
 
-#: statistics.py:36
-#, python-format
-msgid "%(count)s meeting per month"
-msgid_plural "%(count)s meetings per month"
-msgstr[0] "%(count)s rendez-vous par mois"
-msgstr[1] "%(count)s rendez-vous par mois"
+#: statistics.py:35
+#, python-brace-format
+msgid "{count} meeting per month"
+msgid_plural "{count} meetings per month"
+msgstr[0] "{count} rendez-vous par mois"
+msgstr[1] "{count} rendez-vous par mois"
 
-#: statistics.py:42
+#: statistics.py:41
 msgid "No phone call since one year"
 msgstr "Pas d'appel téléphonique depuis un an"
 
-#: statistics.py:43
-#, python-format
-msgid "%(count)s phone call per month"
-msgid_plural "%(count)s phone calls per month"
-msgstr[0] "%(count)s appel téléphonique par mois"
-msgstr[1] "%(count)s appels téléphoniques par mois"
+#: statistics.py:42
+#, python-brace-format
+msgid "{count} phone call per month"
+msgid_plural "{count} phone calls per month"
+msgstr[0] "{count} appel téléphonique par mois"
+msgstr[1] "{count} appels téléphoniques par mois"
 
 #: templates/activities/activity-popup.html:9
 #: templates/activities/view_activity_popup.html:20
