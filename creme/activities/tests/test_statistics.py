@@ -46,9 +46,9 @@ class StatisticsTestCase(CremeTestCase):
             create_activity(title='Task', start=now_value - relativedelta(years=1, months=1))
 
         self.assertEqual(
-            [ungettext('%(count)s meeting per month', '%(count)s meetings per month', 1) % {
-                    'count': number_format(1, decimal_pos=1, use_l10n=True),
-                },
+            [ungettext('{count} meeting per month', '{count} meetings per month', 1).format(
+                    count=number_format(1, decimal_pos=1, use_l10n=True),
+                ),
              _('No phone call since one year'),
             ],
             AveragePerMonthStatistics(Activity)()
@@ -80,9 +80,9 @@ class StatisticsTestCase(CremeTestCase):
                            )
 
         self.assertEqual(
-            [ungettext('%(count)s meeting per month', '%(count)s meetings per month', 1.5) % {
-                    'count': number_format(1.5, decimal_pos=1, use_l10n=True),
-                },
+            [ungettext('{count} meeting per month', '{count} meetings per month', 1.5).format(
+                    count=number_format(1.5, decimal_pos=1, use_l10n=True),
+                ),
              _('No phone call since one year'),
             ],
             AveragePerMonthStatistics(Activity)()
@@ -107,9 +107,9 @@ class StatisticsTestCase(CremeTestCase):
 
         self.assertEqual(
             [_('No meeting since one year'),
-             ungettext('%(count)s phone call per month', '%(count)s phone calls per month', 0.5) % {
-                    'count': number_format(0.5, decimal_pos=1, use_l10n=True),
-                },
+             ungettext('{count} phone call per month', '{count} phone calls per month', 0.5).format(
+                    count=number_format(0.5, decimal_pos=1, use_l10n=True),
+                ),
             ],
             AveragePerMonthStatistics(Activity)()
         )
