@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.urls.base import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import pgettext, pgettext_lazy
 
 from creme import reports
 from creme.creme_core.gui.actions import UIAction
@@ -33,12 +33,12 @@ class ExportReportAction(UIAction):
     type = 'reports-export'
 
     model = Report
-    label = _('Export')
+    label = pgettext_lazy('reports-report', 'Export')
     icon = 'document_csv'
 
     @property
     def help_text(self):
-        return _("Export «{}»").format(self.instance)
+        return pgettext('reports-report', 'Export «{}»').format(self.instance)
 
     @property
     def url(self):
