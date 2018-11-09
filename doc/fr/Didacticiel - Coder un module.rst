@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 02-11-2018 pour la version 2.0 de Creme
+:Version: 08-11-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -72,7 +72,7 @@ Avant tout assurez vous d'avoir une instance de Creme fonctionnelle :
 
 
 Configuration du fichier ``local_settings.py``
-**********************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Il ne vaut mieux pas utiliser le système de cache des templates quand vous
 développez, afin de ne pas avoir à relancer le serveur à chaque modification
@@ -96,8 +96,8 @@ suivante permet d'afficher les *warnings*, mais chacun une seule fois
     warnings.simplefilter('once')
 
 
-Divers
-******
+Outils suppémentaires
+~~~~~~~~~~~~~~~~~~~~~
 
 Nous vous conseillons d'utiliser l'app `django extensions <https://github.com/django-extensions/django-extensions>`_
 qui apporte des commandes supplémentaires intéressantes (``runserver_plus``,
@@ -1633,6 +1633,91 @@ telle que : ::
 aisé d'enrichir un modèle venu d'une autre app. Et comme les champs fonctions
 sont hérités, si vous en ajoutez un à ``CremeEntity``, il sera disponible dans
 tous les types d'entités.
+
+
+Actions dans la vue de liste
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Dans les vues de liste des fiches, il y a une colonne permettant de déclencher
+des actions (ex: cloner une fiche). Sur chaque ligne, on trouve un menu pour
+effectuer des actions relatifs à la fiche correspond à cette ligne ; et dans
+l'entête de la liste se trouve un menu avec les actions opérant sur plusieurs
+fiche en même temps.
+
+Il est possible de créer ses propres actions ; elles pourront être disponibles
+pour toutes les fiches (en les associant au modèle ``CremeEntity``) ou bien
+à un type de fiche spécifique comme les castors.
+
+Dans cet exemple, nous imaginons avoir une vue qui génère un code barre (sous
+la forme d'une image qu'on télécharge) correspondant à un castor ; on va alors
+pouvoir faire une action permettant de télécharger ce code barre depuis le menu
+action d'un castor dans la vue de liste.
+
+Créons un fichier ``actions.py`` dans notre app : ::
+
+    from django.urls.base import reverse
+    from django.utils.translation import ugettext_lazy as _
+
+    from creme.creme_core.gui.actions import UIAction
+
+    from creme.beavers.models import Beaver
+
+
+    class GenerateBarCodeAction(UIAction):
+        id = UIAction.generate_id('beavers', 'barcode')
+        model = Beaver
+
+        type = 'redirect'
+        url_name = 'beavers__barcode'
+
+        label = _('Generate a bar code')
+        icon = 'download'
+
+        @property
+        def url(self):
+            return reverse(self.url_name, args=(self.instance.id,))
+
+        @property
+        def is_enabled(self):
+            return self.user.has_perm_to_view(self.instance)
+
+
+Quelques explications :
+
+- ``id`` : doit être unique (parmi les actions), et comme d'habitude va servir
+  lors de l'enregistrement de l'action pour la retrouver plus tard par le système.
+- ``model`` : modèle pour lequel l'action est disponible. Ici nous avons mis notre
+  modèle specifique, car cela n'a pas de sens pour les autres types de fiches.
+- ``type`` : va déterminer le comportement de l'action dans l'interface ; créer
+  de nouveaux type nécessite d'écrire du JavaScript (ce qui sort du périmètre de
+  cet exemple simple). Ici, le type "download" est fourni de base est permet de rediriger
+  vers une URL (il est donc souvent utilisé).
+- ``icon`` :  nom de l'icone à utiliser à coté du ``label`` dans l'interface ;
+  attention c'est bien Creme qui génère le nom du fichier final du genre
+  "download_22.png".
+- ``is_enabled()`` : dans le as ou on retourne ``False``, l'entrée est désactivée.
+
+**Notes** : la vue avec le nom "beavers__barcode" resterait à écrire évidemment,
+mais ce n'est pas l'objet de cet exemple.
+
+Reste à déclarer notre action dans notre ``apps.py`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_actions(self, actions_registry):  # <- NEW
+            from . import actions
+
+            actions_registry.register_instance_actions(
+                actions.GenerateBarCodeAction,
+            )
+
+
+**Un peu plus loin** : pour faire une action qui s'éxcute sur plusieurs fiches,
+une classe d'action doit dériver de ``creme.creme_core.gui.actions.UIAction``
+et s'enregistre avec ``actions_registry.register_bulk_actions``.
 
 
 Modifier les apps existantes

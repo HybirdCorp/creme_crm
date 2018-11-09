@@ -54,6 +54,14 @@ class BillingConfig(CremeAppConfig):
                                               self.ServiceLine, self.ProductLine,
                                              )
 
+    def register_actions(self, actions_registry):
+        from . import actions
+
+        actions_registry.register_instance_actions(
+            actions.ExportInvoiceAction,
+            actions.ExportQuoteAction,
+        )
+
     def register_billing_algorithm(self):
         from .algos import SimpleAlgo
         from .models import SimpleBillingAlgo
@@ -235,9 +243,3 @@ class BillingConfig(CremeAppConfig):
                                      func=lambda: [SalesOrder.objects.count()],
                                      perm='billing', priority=24,
                                     )
-
-    def register_actions(self, actions_registry):
-        from creme.billing import actions
-
-        actions_registry.register_instance_actions(actions.ExportInvoiceActionEntry,
-                                                   actions.ExportQuoteActionEntry)

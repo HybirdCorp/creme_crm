@@ -37,6 +37,7 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellActions
 from creme.creme_core.core.paginator import FlowPaginator, LastPage
+from creme.creme_core.gui.actions import actions_registry
 from creme.creme_core.gui.listview import ListViewState, NoHeaderFilterAvailable
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity_filter import EntityFilterList
@@ -261,7 +262,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     cells = hf.cells
 
     if show_actions:
-        cells.insert(0, EntityCellActions(model=model, user=user))
+        # cells.insert(0, EntityCellActions(model=model))
+        cells.insert(0, EntityCellActions(model=model, user=user, actions_registry=actions_registry))
 
     if arguments.get('search', '') == 'clear':
         current_lvs.clear_research()

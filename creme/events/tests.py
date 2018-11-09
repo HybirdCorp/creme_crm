@@ -16,7 +16,7 @@ try:
     from creme.creme_core.models import (RelationType, Relation,
             SetCredentials, FieldsConfig)
 
-    from creme.persons import get_contact_model, get_organisation_model
+    from creme import persons
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
@@ -26,7 +26,7 @@ try:
 
     from . import event_model_is_custom, get_event_model, constants
     from .models import EventType
-    from .views.event import AddRelatedOpportunityActionEntry
+    from .views.event import AddRelatedOpportunityAction
 
     skip_event_tests = event_model_is_custom()
     Event = get_event_model()
@@ -34,8 +34,8 @@ except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
-Contact = get_contact_model()
-Organisation = get_organisation_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 Opportunity = get_opportunity_model()
 
@@ -191,10 +191,12 @@ class EventsTestCase(CremeTestCase):
         event = self._create_event('Eclipse')
         casca = Contact.objects.create(first_name='Casca', last_name='Miura', user=user)
 
-        action = AddRelatedOpportunityActionEntry(user, Contact, casca, event=event)
-        self.assertEqual('redirect', action.action)
-        self.assertEqual({'event': event}, action.context)
-        self.assertEqual(reverse('events__create_related_opportunity', args=(event.id, casca.id)), action.url)
+        action = AddRelatedOpportunityAction(user=user, model=Contact, instance=casca, event=event)
+        self.assertEqual('redirect', action.type)
+        self.assertEqual(event, action.event)
+        self.assertEqual(reverse('events__create_related_opportunity', args=(event.id, casca.id)),
+                         action.url
+                        )
         self.assertTrue(action.is_visible)
         self.assertTrue(action.is_enabled)
 

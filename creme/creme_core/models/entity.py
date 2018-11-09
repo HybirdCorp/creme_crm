@@ -47,7 +47,7 @@ _SEARCH_FIELD_MAX_LENGTH = 200
 
 class EntityAction:
     def __init__(self, url, text, is_allowed, attrs=None, icon=None, verbose=None):
-        warnings.warn('EntityAction is deprecated ; use ActionEntry and actions_registry mechanism instead.',
+        warnings.warn('EntityAction is deprecated ; use UIAction and actions_registry mechanism instead.',
                       DeprecationWarning
                      )
         self.url = url

@@ -194,43 +194,59 @@ class EntityCell:
 class EntityCellActions(EntityCell):
     type_id = 'actions'
 
-    # def __init__(self):
-    def __init__(self, model, user):
+    # def __init__(self, model):
+    def __init__(self, model, user, actions_registry):
+        """Constructor.
+
+        @param model: see <EntityCell.model>.
+        @param user: User who displays this page (used to compute credentials).
+               Instance of 'django.contrib.auth.get_auth_model()'.
+        @param actions_registry: Instance of 'creme.creme_core.gui.actions.ActionsRegistry'.
+               Used to get the actions related to the model.
+        """
         # super(EntityCellActions, self).__init__(model=model,
         #                                         value='entity_actions',
         #                                         title=_(u'Actions'),
         #                                        )
         super().__init__(model=model, value='entity_actions', title=_('Actions'))
         self.user = user
+        self.registry = actions_registry
 
     def _sort_actions(self, actions):
         collator_key = collator.sort_key
-        sort_key = lambda a: (not a.is_default, collator_key(a.label))
-        return sorted(actions, key=sort_key)
+        actions.sort(key=lambda a: (not a.is_default, collator_key(a.label)))
 
-    def _create_bulk_actions(self, user, model):
-        from ..gui.actions import actions_registry
-        return (a(user, model) for a in actions_registry.bulk_actions(model))
-
-    def _create_instance_actions(self, user, model, instance):
-        from ..gui.actions import actions_registry
-        return (a(user, model, instance) for a in actions_registry.instance_actions(model))
+        return actions
 
     def bulk_actions(self):
-        actions = self._create_bulk_actions(self.user, self.model)
-        return [a for a in self._sort_actions(actions) if a.is_visible]
+        """Get a sorted list of the visible <gui.actions.BulkAction> instances
+        corresponding to the registered bulk actions (see 'registry' attribute).
+        """
+        # TODO: filter by is_visible in actions_registry.bulk_actions() ??
+        return self._sort_actions([
+            action for action in self.registry.bulk_actions(user=self.user,
+                                                            model=self.model,
+                                                           )
+                if action.is_visible
+        ])
 
     def instance_actions(self, instance):
-        actions = self._create_instance_actions(self.user, self.model, instance)
-        sorted_actions = [a for a in self._sort_actions(actions) if a.is_visible]
-        count = len(sorted_actions)
+        """Get a sorted list of the visible <gui.actions.UIAction> instances
+        corresponding to the registered instance actions (see 'registry' attribute).
+        """
+        # TODO: filter by is_visible in actions_registry.instance_actions() ??
+        return self._sort_actions([
+            action for action in self.registry.instance_actions(user=self.user,
+                                                                instance=instance,
+                                                               )
+                if action.is_visible
+        ])
 
-        return {
-            'default': sorted_actions[0] if count > 0 else None,
-            'others': sorted_actions[1:] if count > 1 else []
-        }
+    def render_html(self, entity, user):
+        return ''
 
-    # def render_html(self, entity, user): TODO
+    def render_csv(self, entity, user):
+        return ''
 
 
 @CELLS_MAP
@@ -464,7 +480,6 @@ class EntityCellFunctionField(EntityCell):
 class EntityCellRelation(EntityCell):
     type_id = 'relation'
 
-    # def __init__(self, rtype, is_hidden=False):
     def __init__(self, model, rtype, is_hidden=False):
         self._rtype = rtype
         # super(EntityCellRelation, self).__init__(model=model,

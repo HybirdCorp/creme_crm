@@ -165,6 +165,7 @@ class CremeAppConfig(AppConfig):
 
             self.register_entity_models(creme_registry)
 
+            self.register_actions(actions.actions_registry)
             self.register_bricks(bricks.brick_registry)
             self.register_bulk_update(bulk_update.bulk_update_registry)
             self.register_buttons(button_menu.button_registry)
@@ -192,9 +193,11 @@ class CremeAppConfig(AppConfig):
             self.register_statistics(statistics.statistics_registry)
             self.register_user_setting_keys(setting_key.user_setting_key_registry)
             self.register_smart_columns(listview.smart_columns_registry)
-            self.register_actions(actions.actions_registry)
 
     def register_entity_models(self, creme_registry):
+        pass
+
+    def register_actions(self, actions_registry):
         pass
 
     def register_bricks(self, brick_registry):
@@ -252,9 +255,6 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_user_setting_keys(self, user_setting_key_registry):
-        pass
-
-    def register_actions(self, actions_registry):
         pass
 
 
@@ -339,6 +339,23 @@ class CremeCoreConfig(CremeAppConfig):
                       ) \
                   .add(LastViewedEntitiesItem('recent_entities', label=_('Recent entities')), priority=40)
 
+    def register_actions(self, actions_registry):
+        from . import actions
+
+        actions_registry.register_instance_actions(
+            actions.EditAction,
+            actions.CloneAction,
+            actions.DeleteAction,
+            actions.ViewAction,
+        )
+        actions_registry.register_bulk_actions(
+            actions.BulkEditAction,
+            actions.BulkDeleteAction,
+            actions.BulkAddPropertyAction,
+            actions.BulkAddRelationAction,
+            actions.MergeAction,
+       )
+
     def register_bricks(self, brick_registry):
         from . import bricks
 
@@ -395,22 +412,6 @@ class CremeCoreConfig(CremeAppConfig):
             setting_keys.block_showempty_key,
             setting_keys.currency_symbol_key,
         )
-
-    def register_actions(self, actions_registry):
-        from creme.creme_core.gui import actions
-
-        actions_registry.register_instance_actions(actions.EditActionEntry,
-                                                   actions.CloneActionEntry,
-                                                   actions.DeleteActionEntry,
-                                                   actions.ViewActionEntry,
-                                                  )
-
-        actions_registry.register_bulk_actions(actions.BulkEditActionEntry,
-                                               actions.BulkDeleteActionEntry,
-                                               actions.BulkAddPropertyActionEntry,
-                                               actions.BulkAddRelationActionEntry,
-                                               actions.MergeActionEntry,
-                                              )
 
     # TODO: better API + move some code to creme_config ??
     @staticmethod

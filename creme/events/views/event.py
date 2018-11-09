@@ -26,14 +26,15 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy  # ugettext
 
+from creme.creme_core.actions import ViewAction
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.core.entity_cell import EntityCellRelation, EntityCellVolatile, EntityCellActions
-from creme.creme_core.gui.actions import EntityActionEntry, ViewActionEntry
+from creme.creme_core.core.entity_cell import EntityCellRelation, EntityCellVolatile
+from creme.creme_core.gui.actions import ActionsRegistry, EntityAction
 from creme.creme_core.models import RelationType
-from creme.creme_core.models.entity import EntityAction
+# from creme.creme_core.models.entity import EntityAction
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
@@ -41,8 +42,7 @@ from creme.persons import get_contact_model
 
 from creme.opportunities import get_opportunity_model
 
-from .. import get_event_model
-from .. import constants
+from .. import constants, get_event_model
 from ..forms import event as event_forms
 from ..models import EventType
 
@@ -125,7 +125,7 @@ PRES_STATUS_MAP = {
         constants.PRES_STATUS_NOT_COME:  pgettext_lazy('events-presence_status', 'Not come'),
     }
 
-# NB : Replaced by creme_core.gui.actions.ActionEntry
+# NB : Replaced by creme_core.gui.actions.UIAction
 # def build_get_actions(event, entity):
 #     """Build bound method to overload 'get_actions()' method of CremeEntities"""
 #     def _get_actions(user):
@@ -146,39 +146,42 @@ PRES_STATUS_MAP = {
 #     return _get_actions
 
 
-class AddRelatedOpportunityActionEntry(EntityActionEntry):
-    action_id = 'events-create_related_opport'
-    action = 'redirect'
+class RelatedContactsActionsRegistry(ActionsRegistry):
+    def __init__(self, event, *args, **kwargs):
+        super(RelatedContactsActionsRegistry, self).__init__(*args, **kwargs)
+        self.event = event
 
+    def _instance_actions_kwargs(self, *args, **kwargs):
+        kwargs = super()._instance_actions_kwargs(*args, **kwargs)
+        kwargs['event'] = self.event
+
+        return kwargs
+
+
+class AddRelatedOpportunityAction(EntityAction):
+    id = EntityAction.generate_id('events', 'create_related_opportunity')
     model = Contact
+
+    type = 'redirect'
+    url_name = 'events__create_related_opportunity'
+
     label = _('Create an opportunity')
     icon = 'opportunity'
 
+    def __init__(self, event, **kwargs):
+        super().__init__(**kwargs)
+        self.event = event
+
     @property
     def url(self):
-        return reverse('events__create_related_opportunity',
-                       args=(self.context['event'].id, self.instance.id),
-                      )
+        return reverse(self.url_name, args=(self.event.id, self.instance.id))
 
     @property
     def is_enabled(self):
         user = self.user
-        event = self.context['event']
-        return user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event)
 
-
-class OpportunityCellActions(EntityCellActions):
-    def __init__(self, model, event, user):
-        super(OpportunityCellActions, self).__init__(model, user)
-        self.event = event
-
-    def _create_instance_actions(self, user, model, instance):
-        actions = [AddRelatedOpportunityActionEntry]
-
-        if ViewActionEntry.is_registered_for_instance(model):
-            actions.append(ViewActionEntry)
-
-        return [a(user, model, instance, event=self.event) for a in actions]
+        return user.has_perm_to_create(Opportunity) and \
+               user.has_perm_to_link(self.event)
 
 
 class ListViewPostProcessor:
@@ -202,11 +205,25 @@ class ListViewPostProcessor:
         #     (TODO: problem: retrieve other related events too)
         cells.extend(EntityCellRelation(model=Contact, rtype=rtype, is_hidden=True) for rtype in rtypes)
 
-        cells.append(EntityCellVolatile(model=Contact, value='invitation_management', title=_(u'Invitation'), render_func=self.invitation_render))
-        cells.append(EntityCellVolatile(model=Contact, value='presence_management',   title=_(u'Presence'),   render_func=self.presence_render))
+        cells.append(EntityCellVolatile(model=Contact, value='invitation_management', title=_('Invitation'), render_func=self.invitation_render))
+        cells.append(EntityCellVolatile(model=Contact, value='presence_management',   title=_('Presence'),   render_func=self.presence_render))
 
+        # TODO: in the future listview CBV a method that returns the instance of class registry
+        #       (None would have the same meaning than context['show_actions']==False)
         if context['show_actions']:
-            cells[0] = OpportunityCellActions(Contact, self.event, self.user)
+            actions_cell = cells[0]
+            view_action_class = next(
+                (c for c in actions_cell.registry.instance_action_classes(model=Contact)
+                    if (issubclass(c, ViewAction))
+                ),
+                None
+            )
+
+            actions_cell.registry = action_registry = RelatedContactsActionsRegistry(event=self.event)
+            action_registry.register_instance_actions(AddRelatedOpportunityAction)
+
+            if view_action_class is not None:
+                action_registry.register_instance_actions(view_action_class)
 
     def has_relation(self, entity, rtype_id):
         id_ = self.event.id

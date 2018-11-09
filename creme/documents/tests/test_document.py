@@ -12,18 +12,18 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.gui import actions
     from creme.creme_core.gui.field_printers import field_printers_registry
-    from creme.creme_core.gui import actions as core_actions
     from creme.creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
     from creme.creme_core.tests.fake_models import FakeOrganisation
 
     from creme.persons.tests.base import skipIfCustomContact
     from creme.persons import get_contact_model
 
-    from creme.documents import actions
-
     from .base import (_DocumentsTestCase, skipIfCustomDocument,
             skipIfCustomFolder, Folder, Document)
+
+    from ..actions import DownloadAction
     from ..constants import REL_SUB_RELATED_2_DOC, UUID_FOLDER_RELATED2ENTITIES
     from ..models import FolderCategory, DocumentCategory
     from ..utils import get_csv_folder_or_create
@@ -489,27 +489,23 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertIn(doc1, docs)
         self.assertIn(doc2, docs)
 
-    def test_listview_document_actions(self):
+    def test_listview_actions(self):
         user = self.login()
         doc1 = self._create_doc('Test doc #1')
-        sort_key = lambda a: a.action_id
 
-        self.assertEqual(sorted([core_actions.ViewActionEntry,
-                                 core_actions.CloneActionEntry,
-                                 core_actions.EditActionEntry,
-                                 core_actions.DeleteActionEntry,
-                                 actions.DownloadActionEntry,
-                                ],
-                                key=sort_key
-                         ),
-                         sorted(core_actions.actions_registry.instance_actions(Document),
-                                key=sort_key
-                               )
+        dl_actions = [
+            action
+                for action in actions.actions_registry
+                                     .instance_actions(user=user, instance=doc1)
+                    if isinstance(action, DownloadAction)
+        ]
+        self.assertEqual(1, len(dl_actions))
+
+        download_action = dl_actions[0]
+        self.assertEqual('redirect', download_action.type)
+        self.assertEqual(reverse('creme_core__dl_file', args=(doc1.filedata,)),
+                         download_action.url
                         )
-
-        download_action = actions.DownloadActionEntry(user, instance=doc1)
-        self.assertEqual('redirect', download_action.action)
-        self.assertEqual(reverse('creme_core__dl_file', args=(doc1.filedata,)), download_action.url)
         self.assertTrue(download_action.is_enabled)
         self.assertTrue(download_action.is_visible)
 

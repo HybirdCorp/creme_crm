@@ -22,20 +22,22 @@ from django.urls.base import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme import persons
-from creme.creme_core.gui.actions import ActionEntry
+from creme.creme_core.gui.actions import UIAction
 
 
-class GenerateVcfActionEntry(ActionEntry):
-    action_id = 'vfs-export'
-    action = 'redirect'
-
+class GenerateVcfAction(UIAction):
+    id = UIAction.generate_id('vcfs', 'export')
     model = persons.get_contact_model()
+
+    type = 'redirect'
+    url_name = 'vcfs__export'
+
     label = _('Generate a VCF')
     icon = 'download'
 
     @property
     def url(self):
-        return reverse('vcfs__export', args=(self.instance.id,))
+        return reverse(self.url_name, args=(self.instance.id,))
 
     @property
     def is_enabled(self):

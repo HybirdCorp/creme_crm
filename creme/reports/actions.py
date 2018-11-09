@@ -22,15 +22,15 @@ from django.urls.base import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme import reports
-from creme.creme_core.gui import actions
+from creme.creme_core.gui.actions import UIAction
 
 
 Report = reports.get_report_model()
 
 
-class ExportReportActionEntry(actions.ActionEntry):
-    action_id = 'reports-export'
-    action = 'reports-export'
+class ExportReportAction(UIAction):
+    id = UIAction.generate_id('reports', 'export')
+    type = 'reports-export'
 
     model = Report
     label = _('Export')

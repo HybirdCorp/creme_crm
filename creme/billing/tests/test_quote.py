@@ -9,16 +9,16 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth import EntityCredentials
-    from creme.creme_core.gui import actions as core_actions
+    from creme.creme_core.gui import actions
     from creme.creme_core.models import SetCredentials, Currency
 
     from creme.persons.constants import REL_SUB_PROSPECT
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from creme.billing import actions
-
-    from ..models import QuoteStatus
+    from ..actions import ExportQuoteAction
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+    from ..models import QuoteStatus
+
     from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomServiceLine,
            Organisation, Address, Quote, Invoice, SalesOrder, ServiceLine)
 except Exception as e:
@@ -336,33 +336,20 @@ class QuoteTestCase(_BillingTestCase):
         self.assertEqual({quote1, quote2}, set(quotes_page.paginator.object_list))
 
     def test_listview_actions(self):
-        sort_key = lambda a: a.action_id
-
         user = self.login()
+        quote = self.create_quote_n_orgas('Quote #1')[0]
 
-        create_orga = partial(Organisation.objects.create, user=user)
-        source = create_orga(name='Source Orga')
-        target = create_orga(name='Target Orga')
+        export_actions = [
+            action for action in actions.actions_registry
+                                        .instance_actions(user=user, instance=quote)
+                if isinstance(action, ExportQuoteAction)
+        ]
+        self.assertEqual(1, len(export_actions))
 
-        quote1 = self.create_quote('Quote1', source, target)
-
-        self.assertEqual(sorted([core_actions.ViewActionEntry,
-                                 core_actions.CloneActionEntry,
-                                 core_actions.EditActionEntry,
-                                 core_actions.DeleteActionEntry,
-                                 actions.ExportQuoteActionEntry,
-                                ],
-                                key=sort_key
-                         ),
-                         sorted(core_actions.actions_registry.instance_actions(Quote),
-                                key=sort_key
-                               )
-                        )
-
-        export_action = actions.ExportQuoteActionEntry(user, instance=quote1)
-        self.assertEqual('billing-export_quote', export_action.action_id)
-        self.assertEqual('redirect', export_action.action)
-        self.assertEqual(reverse('billing__export', args=(quote1.id,)), export_action.url)
+        export_action = export_actions[0]
+        self.assertEqual('billing-export_quote', export_action.id)
+        self.assertEqual('redirect', export_action.type)
+        self.assertEqual(reverse('billing__export', args=(quote.id,)), export_action.url)
         self.assertTrue(export_action.is_enabled)
         self.assertTrue(export_action.is_visible)
 

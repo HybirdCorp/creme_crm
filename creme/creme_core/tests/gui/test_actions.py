@@ -5,36 +5,24 @@ try:
     from django.urls.base import reverse
     from django.utils.translation import gettext_lazy as _, gettext
     
+    from creme.creme_core import actions
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui import actions
+    from creme.creme_core.gui.actions import (UIAction, BulkAction,
+        ActionRegistrationError, ActionsChain, ActionsRegistry)
+    from creme.creme_core.gui.merge import merge_form_registry
     from creme.creme_core.models import CremeUser, CremeEntity
     from creme.creme_core.models.auth import SetCredentials, UserRole
-    from creme.creme_core.templatetags.creme_ctype import ctype_can_be_merged
-    
+
     from ..base import CremeTestCase
-    from ..fake_models import (FakeContact, FakeOrganisation)
+    from ..fake_models import FakeContact, FakeOrganisation
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
-class MockBulkAction(actions.ActionEntry):
-    action_id = 'mock_action-bulk'
+class MockAction(UIAction):
+    id = UIAction.generate_id('creme_core', 'mock_action')
 
-    action = 'test-bulk'
-    model = CremeEntity
-    label = 'Test bulk action'
-    icon = 'test-bulk'
-
-    def _get_options(self):
-        return {
-            'user_name': self.user.username
-        }
-
-
-class MockAction(actions.ActionEntry):
-    action_id = 'mock_action'
-
-    action = 'test'
+    type = 'test'
     model = CremeEntity
     label = 'Test action'
     icon = 'test'
@@ -42,12 +30,26 @@ class MockAction(actions.ActionEntry):
     def _get_options(self):
         return {
             'user_name': self.user.username,
-            'instance_id': self.instance.id
+            'instance_id': self.instance.id,
         }
 
     def _get_data(self):
         return {
-            'id': self.instance.id
+            'id': self.instance.id,
+        }
+
+
+class MockBulkAction(BulkAction):
+    id = UIAction.generate_id('creme_core', 'mock_action_bulk')
+
+    type = 'test-bulk'
+    model = CremeEntity
+    label = 'Test bulk action'
+    icon = 'test-bulk'
+
+    def _get_options(self):
+        return {
+            'user_name': self.user.username,
         }
 
 
@@ -68,7 +70,6 @@ class MockOrganisationBulkAction(MockBulkAction):
 
 
 class ActionsTestCase(CremeTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(ActionsTestCase, cls).setUpClass()
@@ -78,50 +79,50 @@ class ActionsTestCase(CremeTestCase):
                             )
 
     def setUp(self):
-        self.registry = actions._ActionsRegistry()
+        super(ActionsTestCase, self).setUp()
+        self.registry = ActionsRegistry()
 
-    def assertSortedActions(self, expected, actions):
-        _key = lambda a: a.action_id or ''
+    def assertSortedActions(self, expected_classes, actions):
+        key = lambda a: a.id or ''
 
-        self.assertEqual(sorted(expected, key=_key),
-                         sorted(actions, key=_key))
+        self.assertEqual(
+            sorted(expected_classes, key=key),
+            sorted((a.__class__ for a in actions), key=key)
+        )
 
     def test_action_data(self):
-        self.assertEqual(None, actions.ActionEntry(self.user, model=CremeEntity).action_data)
-
-        self.assertEqual({
-                'options': {
-                    'user_name': self.user.username
-                },
-                'data': {}
-            }, MockBulkAction(self.user, model=CremeEntity).action_data)
+        self.assertEqual(None, UIAction(self.user, model=CremeEntity).action_data)
 
         self.assertEqual({
                 'options': {
                     'user_name': self.user.username,
-                    'instance_id': self.user.id
+                },
+                'data': {},
+            },
+            MockBulkAction(self.user, model=CremeEntity).action_data
+        )
+
+        self.assertEqual({
+                'options': {
+                    'user_name': self.user.username,
+                    'instance_id': self.user.id,
                 },
                 'data': {
                     'id': self.user.id
                 }
-            }, MockAction(self.user, model=CremeEntity, instance=self.user).action_data)
-
-    def test_action_context(self):
-        self.assertEqual({}, actions.ActionEntry(self.user, model=CremeEntity).context)
-        self.assertEqual({
-            'custom': 12
-        }, actions.ActionEntry(self.user, model=CremeEntity, instance=self.user, custom=12).context)
+            },
+            MockAction(self.user, model=CremeEntity, instance=self.user).action_data
+        )
 
     def test_action_model(self):
-        self.assertEqual(FakeContact, actions.ActionEntry(self.user, model=FakeContact).model)
-        self.assertEqual(FakeOrganisation, actions.ActionEntry(self.user, instance=FakeOrganisation()).model)
+        self.assertEqual(FakeContact, UIAction(self.user, model=FakeContact).model)
+        self.assertEqual(FakeOrganisation, UIAction(self.user, instance=FakeOrganisation()).model)
 
-        with self.assertRaises(AssertionError) as e:
-            actions.ActionEntry(self.user)
+        with self.assertRaises(AssertionError):
+            UIAction(self.user)
 
     def test_action_is_visible(self):
-        other_user = CremeUser(username='other',
-                               first_name='other', last_name='other')
+        other_user = CremeUser(username='other', first_name='other', last_name='other')
 
         class OnlyForYuiAction(MockAction):
             @property
@@ -134,292 +135,623 @@ class ActionsTestCase(CremeTestCase):
         self.assertTrue(OnlyForYuiAction(self.user).is_visible)
         self.assertFalse(OnlyForYuiAction(other_user).is_visible)
 
-    def test_action_is_registered_for_bulk(self):
-        self.assertEqual([], self.registry.bulk_actions(FakeContact))
-        self.assertEqual(None, self.registry.bulk_action(FakeContact, MockBulkAction.action_id))
+    def test_actions_chain(self):
+        achain = ActionsChain()
+        self.assertEqual([], achain.actions(model=FakeContact))
 
-        self.assertFalse(MockBulkAction.is_registered_for_bulk(CremeEntity, registry=self.registry))
-        self.assertFalse(MockBulkAction.is_registered_for_bulk(FakeContact, registry=self.registry))
+        class OrgaAction(MockOrganisationAction):
+            id = 'test-contact_action'
 
-        self.registry.register_bulk_actions(MockBulkAction)
+        class ContactAction(MockContactAction):
+            id = 'test-orga_action'
 
-        self.assertEqual([MockBulkAction], self.registry.bulk_actions(CremeEntity))
-        self.assertEqual([MockBulkAction], self.registry.bulk_actions(FakeContact))
+        achain.register_actions(MockAction, ContactAction, OrgaAction)
+        self.assertEqual([MockAction], achain.actions(CremeEntity))
+        self.assertCountEqual([MockAction, ContactAction],
+                              achain.actions(FakeContact)
+                             )
+        self.assertCountEqual([MockAction, OrgaAction],
+                              achain.actions(FakeOrganisation)
+                             )
 
-        self.assertTrue(MockBulkAction.is_registered_for_bulk(CremeEntity, registry=self.registry))
-        self.assertTrue(MockBulkAction.is_registered_for_bulk(FakeContact, registry=self.registry))
+    def test_actions_chain_error(self):
+        achain = ActionsChain(base_class=MockBulkAction)
 
-    def test_action_is_registered_for_instance(self):
-        self.assertEqual([], self.registry.instance_actions(FakeContact))
-        self.assertEqual(None, self.registry.instance_action(FakeContact, MockAction.action_id))
+        with self.assertRaises(ActionRegistrationError) as ctxt:
+            achain.register_actions(MockAction)
 
-        self.assertFalse(MockAction.is_registered_for_instance(CremeEntity, registry=self.registry))
-        self.assertFalse(MockAction.is_registered_for_instance(FakeContact, registry=self.registry))
+        self.assertEqual('{} is not a <MockBulkAction>'.format(MockAction),
+                         str(ctxt.exception)
+                        )
 
-        self.registry.register_instance_actions(MockAction)
+    def test_actions_chain_void(self):
+        achain = ActionsChain()
+        self.assertEqual([], achain.actions(model=FakeContact))
 
-        self.assertEqual([MockAction], self.registry.instance_actions(CremeEntity))
-        self.assertEqual([MockAction], self.registry.instance_actions(FakeContact))
+        class MockA(MockAction):
+            id = 'test-a'
 
-        self.assertTrue(MockAction.is_registered_for_instance(CremeEntity, registry=self.registry))
-        self.assertTrue(MockAction.is_registered_for_instance(FakeContact, registry=self.registry))
+        class MockB(MockContactAction):
+            id = 'test-b'
+
+        class MockC(MockAction):
+            id = 'test-c'
+
+        achain.register_actions(MockA, MockB, MockC)
+        achain.void_actions(FakeOrganisation, MockC)
+
+        self.assertCountEqual([MockA, MockC],        achain.actions(CremeEntity))
+        self.assertCountEqual([MockA, MockB, MockC], achain.actions(FakeContact))
+        self.assertCountEqual([MockA],               achain.actions(FakeOrganisation))
+
+    def test_action_is_registered_for_bulk01(self):
+        "Empty"
+        user = self.user
+        registry = self.registry
+
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
+
+        # TODO ?
+        # self.assertIsNone(registry.bulk_action(FakeContact, MockBulkAction.id))
+        # self.assertFalse(MockBulkAction.is_registered_for_bulk(CremeEntity, registry=registry))
+        # self.assertFalse(MockBulkAction.is_registered_for_bulk(FakeContact, registry=registry))
+
+    def test_action_is_registered_for_bulk02(self):
+        "One action registered"
+        user = self.user
+        registry = self.registry
+
+        registry.register_bulk_actions(MockBulkAction)
+
+        # Entity ---
+        entity_actions = list(registry.bulk_actions(user, CremeEntity))
+        self.assertEqual(1, len(entity_actions))
+
+        entity_action = entity_actions[0]
+        self.assertIsInstance(entity_action, MockBulkAction)
+        self.assertEqual(user,        entity_action.user)
+        self.assertEqual(CremeEntity, entity_action.model)
+
+        # Contact ---
+        contact_actions = list(registry.bulk_actions(user, FakeContact))
+        self.assertEqual(1, len(contact_actions))
+
+        contact_action = contact_actions[0]
+        self.assertIsInstance(contact_action, MockBulkAction)
+        self.assertEqual(user,        contact_action.user)
+        self.assertEqual(FakeContact, contact_action.model)
+
+        # TODO ?
+        # self.assertTrue(MockBulkAction.is_registered_for_bulk(CremeEntity, registry=registry))
+        # self.assertTrue(MockBulkAction.is_registered_for_bulk(FakeContact, registry=registry))
+
+    def test_action_is_registered_for_instance01(self):
+        "Empty"
+        user = self.user
+        registry = self.registry
+        instance = FakeContact(user=user, first_name='Yui', last_name='Kawa')
+
+        self.assertFalse(list(registry.instance_actions(user=user, instance=instance)))
+
+        self.assertEqual([], registry.instance_action_classes(model=CremeEntity))
+        self.assertEqual([], registry.instance_action_classes(model=FakeContact))
+
+        # TODO ?
+        # self.assertEqual(None, registry.instance_action(FakeContact, MockAction.id))
+        # self.assertFalse(MockAction.is_registered_for_instance(CremeEntity, registry=registry))
+        # self.assertFalse(MockAction.is_registered_for_instance(FakeContact, registry=registry))
+
+    def test_action_is_registered_for_instance02(self):
+        "One action registered"
+        user = self.user
+        registry = self.registry
+        entity = CremeEntity(user=user)
+        contact = FakeContact(user=user, first_name='Yui', last_name='Kawa')
+
+        registry.register_instance_actions(MockAction)
+
+        # Entity ---
+        entity_actions = list(registry.instance_actions(user=user, instance=entity))
+        self.assertEqual(1, len(entity_actions))
+
+        entity_action = entity_actions[0]
+        self.assertIsInstance(entity_action, MockAction)
+        self.assertEqual(user,        entity_action.user)
+        self.assertEqual(CremeEntity, entity_action.model)
+        self.assertEqual(entity,      entity_action.instance)
+
+        self.assertEqual([MockAction], registry.instance_action_classes(model=CremeEntity))
+
+        # Contact ---
+        contact_actions = list(registry.instance_actions(user=user, instance=contact))
+        self.assertEqual(1, len(contact_actions))
+
+        contact_action = contact_actions[0]
+        self.assertIsInstance(contact_action, MockAction)
+        self.assertEqual(user,        contact_action.user)
+        self.assertEqual(FakeContact, contact_action.model)
+        self.assertEqual(contact,     contact_action.instance)
+
+        self.assertEqual([MockAction], registry.instance_action_classes(model=FakeContact))
 
     def test_register_invalid_type(self):
         invalid_action = FakeContact
 
-        with self.assertRaises(actions.ActionRegistrationError) as e:
+        with self.assertRaises(ActionRegistrationError) as ctxt:
             self.registry.register_instance_actions(invalid_action)
 
-        self.assertEqual(str(e.exception), "{} is not an ActionEntry".format(invalid_action))
+        self.assertEqual('{} is not a <UIAction>'.format(invalid_action),
+                         str(ctxt.exception)
+                        )
 
-    def test_register_missing_model(self):
-        class MissingModelAction(actions.ActionEntry):
-            action_id = 'tests_missingmodel'
+        # --
+        with self.assertRaises(ActionRegistrationError) as ctxt:
+            self.registry.register_bulk_actions(MockAction)  # not bulk !
 
-        with self.assertRaises(actions.ActionRegistrationError) as e:
+        self.assertEqual('{} is not a <BulkAction>'.format(MockAction),
+                         str(ctxt.exception)
+                        )
+
+    def test_register_missing_model01(self):
+        "Instance action"
+        class MissingModelAction(UIAction):
+            id = 'tests_missingmodel'
+
+        with self.assertRaises(ActionRegistrationError) as ctxt:
             self.registry.register_instance_actions(MissingModelAction)
 
-        self.assertEqual(str(e.exception), "Invalid action {}. 'model' attribute must be defined".format(MissingModelAction))
+        self.assertEqual(
+            str(ctxt.exception),
+            "Invalid action {}: 'model' attribute must be defined".format(MissingModelAction)
+        )
 
-        with self.assertRaises(actions.ActionRegistrationError) as e:
+    def test_register_missing_model02(self):
+        "Bulk action"
+        class MissingModelAction(BulkAction):
+            id = 'tests_missingmodel'
+
+        with self.assertRaises(ActionRegistrationError) as ctxt:
             self.registry.register_bulk_actions(MissingModelAction)
 
-        self.assertEqual(str(e.exception), "Invalid action {}. 'model' attribute must be defined".format(MissingModelAction))
+        self.assertEqual(
+            str(ctxt.exception),
+            "Invalid action {}: 'model' attribute must be defined".format(MissingModelAction)
+        )
 
-    def test_register_missing_id(self):
-        class MissingIdAction(actions.ActionEntry):
+    def test_register_missing_id01(self):
+        "Instance action"
+        class MissingIdAction(UIAction):
             model = CremeEntity
 
-        with self.assertRaises(actions.ActionRegistrationError) as e:
+        with self.assertRaises(ActionRegistrationError) as ctxt:
             self.registry.register_instance_actions(MissingIdAction)
 
-        self.assertEqual(str(e.exception), "Invalid action {}. 'action_id' attribute must be defined".format(MissingIdAction))
+        self.assertEqual(
+            str(ctxt.exception),
+            "Invalid action {}: 'id' attribute must be defined".format(MissingIdAction)
+        )
 
-        with self.assertRaises(actions.ActionRegistrationError) as e:
+    def test_register_missing_id02(self):
+        "Bulk action"
+        class MissingIdAction(BulkAction):
+            model = CremeEntity
+
+        with self.assertRaises(ActionRegistrationError) as ctxt:
             self.registry.register_bulk_actions(MissingIdAction)
 
-        self.assertEqual(str(e.exception), "Invalid action {}. 'action_id' attribute must be defined".format(MissingIdAction))
+        self.assertEqual(
+            str(ctxt.exception),
+            "Invalid action {}: 'id' attribute must be defined".format(MissingIdAction)
+        )
 
-    def test_register_invalid_model(self):
-        class InvalidModelAction(actions.ActionEntry):
-            action_id = 'tests_invalidmodel'
-            model = actions.ActionEntry
+    def test_register_invalid_model01(self):
+        "Instance action"
+        class InvalidModelAction(UIAction):
+            id = 'tests_invalidmodel'
+            model = UIAction
 
-        with self.assertRaises(actions.ActionRegistrationError) as e:
+        with self.assertRaises(ActionRegistrationError) as ctxt:
             self.registry.register_instance_actions(InvalidModelAction)
 
-        self.assertEqual(str(e.exception), "Invalid action {}. {} is not a Django Model".format(InvalidModelAction, actions.ActionEntry))
+        self.assertEqual(
+            str(ctxt.exception),
+            "Invalid action {}: {} is not a Django Model".format(InvalidModelAction, UIAction)
+        )
 
-        with self.assertRaises(actions.ActionRegistrationError) as e:
+    def test_register_invalid_model02(self):
+        "Bulk action"
+        class InvalidModelAction(BulkAction):
+            id = 'tests_invalidmodel'
+            model = UIAction
+
+        with self.assertRaises(ActionRegistrationError) as ctxt:
             self.registry.register_bulk_actions(InvalidModelAction)
 
-        self.assertEqual(str(e.exception), "Invalid action {}. {} is not a Django Model".format(InvalidModelAction, actions.ActionEntry))
+        self.assertEqual(
+            str(ctxt.exception),
+            "Invalid action {}: {} is not a Django Model".format(InvalidModelAction, UIAction)
+        )
 
     def test_override_duplicate(self):
-        self.registry.register_instance_actions(MockAction)
-        self.registry.register_instance_actions(MockContactAction)
+        user = self.user
+        registry = self.registry
 
-        self.assertEqual([MockAction], self.registry.instance_actions(CremeEntity))
-        self.assertEqual([MockContactAction], self.registry.instance_actions(FakeContact))
+        registry.register_instance_actions(MockAction)
+        registry.register_instance_actions(MockContactAction)
 
-        # same action, no pb
-        self.registry.register_instance_actions(MockContactAction)
+        entity = CremeEntity(user=user)
+        contact = FakeContact(user=user)
 
-        self.assertEqual([MockAction], self.registry.instance_actions(CremeEntity))
-        self.assertEqual([MockContactAction], self.registry.instance_actions(FakeContact))
+        self.assertSortedActions([MockAction],        registry.instance_actions(user=user, instance=entity))
+        self.assertSortedActions([MockContactAction], registry.instance_actions(user=user, instance=contact))
 
+        # Same action, no problem
+        registry.register_instance_actions(MockContactAction)
+
+        self.assertSortedActions([MockAction],        registry.instance_actions(user=user, instance=entity))
+        self.assertSortedActions([MockContactAction], registry.instance_actions(user=user, instance=contact))
+
+        # Other action, raise error ---
         class MockA(MockContactAction):
             pass
 
-        # other action, raise
-        with self.assertRaises(actions.ActionRegistrationError) as e:
-            self.registry.register_instance_actions(MockA)
+        with self.assertRaises(ActionRegistrationError) as ctxt:
+            registry.register_instance_actions(MockA)
 
-        self.assertEqual(str(e.exception),
-                         "Duplicate action '{}' for model {}".format(MockA.action_id, MockContactAction.model))
+        self.assertEqual(
+            str(ctxt.exception),
+            "Duplicated action '{}' for model {}".format(MockA.id, MockContactAction.model)
+        )
 
     def test_register(self):
-        self.assertEqual([], self.registry.instance_actions(FakeContact))
-        self.assertEqual([], self.registry.instance_actions(FakeOrganisation))
-        self.assertEqual([], self.registry.bulk_actions(FakeContact))
-        self.assertEqual([], self.registry.bulk_actions(FakeOrganisation))
+        user = self.user
+        registry = self.registry
 
-        self.registry.register_instance_actions(MockContactAction)
+        contact = FakeContact(user=user)
+        orga = FakeOrganisation(user=user)
 
-        self.assertEqual([MockContactAction], self.registry.instance_actions(FakeContact))
-        self.assertEqual([], self.registry.instance_actions(FakeOrganisation))
-        self.assertEqual([], self.registry.bulk_actions(FakeContact))
-        self.assertEqual([], self.registry.bulk_actions(FakeOrganisation))
+        self.assertFalse(list(registry.instance_actions(user=user, instance=contact)))
+        self.assertFalse(list(registry.instance_actions(user=user, instance=orga)))
 
-        self.registry.register_bulk_actions(MockContactBulkAction)
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
 
-        self.assertEqual([MockContactAction], self.registry.instance_actions(FakeContact))
-        self.assertEqual([], self.registry.instance_actions(FakeOrganisation))
-        self.assertEqual([MockContactBulkAction], self.registry.bulk_actions(FakeContact))
-        self.assertEqual([], self.registry.bulk_actions(FakeOrganisation))
+        # ---
+        registry.register_instance_actions(MockContactAction)
+
+        self.assertSortedActions(
+            [MockContactAction],
+            list(registry.instance_actions(user=user, instance=contact))
+        )
+        self.assertFalse(list(registry.instance_actions(user=user, instance=orga)))
+
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
+
+        # ---
+        registry.register_bulk_actions(MockContactBulkAction)
+
+        self.assertSortedActions(
+            [MockContactAction],
+            registry.instance_actions(user=user, instance=contact)
+        )
+        self.assertFalse(list(registry.instance_actions(user=user, instance=orga)))
+
+        self.assertSortedActions(
+            [MockContactBulkAction],
+            registry.bulk_actions(user=user, model=FakeContact)
+        )
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
 
     def test_register_entity(self):
-        self.assertEqual([], self.registry.instance_actions(FakeContact))
-        self.assertEqual([], self.registry.instance_actions(FakeOrganisation))
-        self.assertEqual([], self.registry.bulk_actions(FakeContact))
-        self.assertEqual([], self.registry.bulk_actions(FakeOrganisation))
+        user = self.user
+        registry = self.registry
 
-        self.registry.register_instance_actions(MockAction)
+        contact = FakeContact(user=user)
+        orga = FakeOrganisation(user=user)
 
-        self.assertEqual([MockAction], self.registry.instance_actions(FakeContact))
-        self.assertEqual([MockAction], self.registry.instance_actions(FakeOrganisation))
-        self.assertEqual([], self.registry.bulk_actions(FakeContact))
-        self.assertEqual([], self.registry.bulk_actions(FakeOrganisation))
+        self.assertFalse(list(registry.instance_actions(user=user, instance=contact)))
+        self.assertFalse(list(registry.instance_actions(user=user, instance=orga)))
 
-        self.registry.register_bulk_actions(MockBulkAction)
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
 
-        self.assertEqual([MockAction], self.registry.instance_actions(FakeContact))
-        self.assertEqual([MockAction], self.registry.instance_actions(FakeOrganisation))
-        self.assertEqual([MockBulkAction], self.registry.bulk_actions(FakeContact))
-        self.assertEqual([MockBulkAction], self.registry.bulk_actions(FakeOrganisation))
+        # ---
+        registry.register_instance_actions(MockAction)
 
-    def test_override(self):
-        self.assertEqual([], self.registry.instance_actions(CremeEntity))
-        self.assertEqual([], self.registry.instance_actions(FakeContact))
-        self.assertEqual([], self.registry.instance_actions(FakeOrganisation))
-        self.assertEqual([], self.registry.bulk_actions(CremeEntity))
-        self.assertEqual([], self.registry.bulk_actions(FakeContact))
-        self.assertEqual([], self.registry.bulk_actions(FakeOrganisation))
+        self.assertSortedActions(
+            [MockAction],
+            registry.instance_actions(user=user, instance=contact)
+        )
+        self.assertSortedActions(
+            [MockAction],
+            registry.instance_actions(user=user, instance=orga)
+        )
 
-        self.registry.register_instance_actions(MockAction)
-        self.registry.register_instance_actions(MockContactAction)
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
 
-        self.assertEqual([MockAction], self.registry.instance_actions(CremeEntity))
-        self.assertEqual([MockContactAction], self.registry.instance_actions(FakeContact))
-        self.assertEqual([MockAction], self.registry.instance_actions(FakeOrganisation))
-        self.assertEqual([], self.registry.bulk_actions(CremeEntity))
-        self.assertEqual([], self.registry.bulk_actions(FakeContact))
-        self.assertEqual([], self.registry.bulk_actions(FakeOrganisation))
+        # ---
+        registry.register_bulk_actions(MockBulkAction)
 
-        self.registry.register_bulk_actions(MockAction)
-        self.registry.register_bulk_actions(MockContactAction)
+        self.assertSortedActions(
+            [MockAction],
+            registry.instance_actions(user=user, instance=contact)
+        )
+        self.assertSortedActions(
+            [MockAction],
+            registry.instance_actions(user=user, instance=orga)
+        )
 
-        self.assertEqual([MockAction], self.registry.instance_actions(CremeEntity))
-        self.assertEqual([MockContactAction], self.registry.instance_actions(FakeContact))
-        self.assertEqual([MockAction], self.registry.instance_actions(FakeOrganisation))
-        self.assertEqual([MockAction], self.registry.bulk_actions(CremeEntity))
-        self.assertEqual([MockContactAction], self.registry.bulk_actions(FakeContact))
-        self.assertEqual([MockAction], self.registry.bulk_actions(FakeOrganisation))
+        self.assertSortedActions(
+            [MockBulkAction],
+            registry.bulk_actions(user=user, model=FakeContact)
+        )
+        self.assertSortedActions(
+            [MockBulkAction],
+            registry.bulk_actions(user=user, model=FakeOrganisation)
+        )
 
-    def test_actions(self):
+    def test_override01(self):
+        "Empty"
+        user = self.user
+        registry = self.registry
+
+        self.assertFalse(list(registry.instance_actions(user=user, instance=CremeEntity(user=user))))
+        self.assertFalse(list(registry.instance_actions(user=user, instance=FakeContact(user=user))))
+        self.assertFalse(list(registry.instance_actions(user=user, instance=FakeOrganisation(user=user))))
+
+        self.assertFalse(list(registry.bulk_actions(user=user, model=CremeEntity)))
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
+
+    def test_override02(self):
+        "Instance action"
+        user = self.user
+        registry = self.registry
+
+        registry.register_instance_actions(MockAction)
+        registry.register_instance_actions(MockContactAction)
+
+        self.assertSortedActions(
+            [MockAction],
+            registry.instance_actions(user=user, instance=CremeEntity(user=user))
+        )
+        self.assertSortedActions(
+            [MockContactAction],
+            registry.instance_actions(user=user, instance=FakeContact(user=user))
+        )
+        self.assertSortedActions(
+            [MockAction],
+            registry.instance_actions(user=user, instance=FakeOrganisation(user=user))
+        )
+
+        self.assertFalse(list(registry.bulk_actions(user=user, model=CremeEntity)))
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeContact)))
+        self.assertFalse(list(registry.bulk_actions(user=user, model=FakeOrganisation)))
+
+    def test_override03(self):
+        "Bulk action"
+        user = self.user
+        registry = self.registry
+
+        registry.register_bulk_actions(MockBulkAction)
+        registry.register_bulk_actions(MockContactBulkAction)
+
+        self.assertFalse(list(registry.instance_actions(user=user, instance=CremeEntity(user=user))))
+        self.assertFalse(list(registry.instance_actions(user=user, instance=FakeContact(user=user))))
+        self.assertFalse(list(registry.instance_actions(user=user, instance=FakeOrganisation(user=user))))
+
+        self.assertSortedActions(
+            [MockBulkAction],
+            registry.bulk_actions(user=user, model=CremeEntity)
+        )
+        self.assertSortedActions(
+            [MockContactBulkAction],
+            registry.bulk_actions(user=user, model=FakeContact)
+        )
+        self.assertSortedActions(
+            [MockBulkAction],
+            registry.bulk_actions(user=user, model=FakeOrganisation)
+        )
+
+    def test_actions01(self):
+        "Instance actions"
+        user = self.user
+        registry = self.registry
+
         class MockA(MockOrganisationAction):
-            action_id = 'test-a'
+            id = 'test-a'
 
         class MockB(MockContactAction):
-            action_id = 'test-b'
+            id = 'test-b'
 
         class MockC(MockOrganisationAction):
-            action_id = 'test-c'
+            id = 'test-c'
 
-        class MockD(MockContactAction):
-            action_id = 'test-d'
+        registry.register_instance_actions(MockA, MockB, MockC)
 
-        self.registry.register_instance_actions(MockA, MockB, MockC)
-        self.registry.register_bulk_actions(MockB, MockC, MockD)
+        self.assertSortedActions(
+            [MockB],
+            registry.instance_actions(user=user, instance=FakeContact(user=user, last_name='Kawa'))
+        )
+        self.assertSortedActions(
+            [MockA, MockC],
+            registry.instance_actions(user=user, instance=FakeOrganisation(user=user, name='Kimengumi'))
+        )
+        self.assertCountEqual([MockA, MockC], registry.instance_action_classes(model=FakeOrganisation))
 
-        self.assertSortedActions([MockB], self.registry.instance_actions(FakeContact))
-        self.assertSortedActions([MockA, MockC], self.registry.instance_actions(FakeOrganisation))
+    def test_actions02(self):
+        "Bulk actions"
+        user = self.user
+        registry = self.registry
 
-        self.assertSortedActions([], self.registry.bulk_actions(CremeEntity))
-        self.assertSortedActions([MockB, MockD], self.registry.bulk_actions(FakeContact))
-        self.assertSortedActions([MockC], self.registry.bulk_actions(FakeOrganisation))
+        class MockA(MockContactBulkAction):
+            id = 'test-aaa'
 
-    def test_actions_override(self):
+        class MockB(MockOrganisationBulkAction):
+            id = 'test-bbb'
+
+        class MockC(MockContactBulkAction):
+            id = 'test-ccc'
+
+        registry.register_bulk_actions(MockA, MockB, MockC)
+
+        self.assertCountEqual([],             registry.bulk_action_classes(CremeEntity))
+        self.assertCountEqual([MockA, MockC], registry.bulk_action_classes(FakeContact))
+        self.assertCountEqual([MockB],        registry.bulk_action_classes(FakeOrganisation))
+
+        self.assertSortedActions([],             registry.bulk_actions(user=user, model=CremeEntity))
+        self.assertSortedActions([MockA, MockC], registry.bulk_actions(user=user, model=FakeContact))
+        self.assertSortedActions([MockB],        registry.bulk_actions(user=user, model=FakeOrganisation))
+
+    def test_actions_override01(self):
+        "Instance actions"
+        user = self.user
+        registry = self.registry
+
         class MockA(MockAction):
-            action_id = 'test-a'
+            id = 'test-a'
 
         class MockB(MockContactAction):
-            action_id = 'test-b'
+            id = 'test-b'
 
         class MockC(MockOrganisationAction):
-            action_id = 'test-c'
+            id = 'test-c'
 
         class MockAOverride(MockOrganisationAction):
-            action_id = 'test-a'
+            id = 'test-a'
 
-        class MockD(MockContactAction):
-            action_id = 'test-d'
+        registry.register_instance_actions(MockA, MockB, MockC)
+        registry.register_instance_actions(MockAOverride)
 
-        self.registry.register_instance_actions(MockA, MockB, MockC)
-        self.registry.register_instance_actions(MockAOverride)
+        entity  = CremeEntity(user=user)
+        contact = FakeContact(user=user, last_name='Kawa')
+        orga    = FakeOrganisation(user=user, name='Kimengumi')
 
-        self.registry.register_bulk_actions(MockA, MockD)
-        self.registry.register_bulk_actions(MockAOverride)
+        self.assertSortedActions([MockA],                registry.instance_actions(user=user, instance=entity))
+        self.assertSortedActions([MockA, MockB],         registry.instance_actions(user=user, instance=contact))
+        self.assertSortedActions([MockAOverride, MockC], registry.instance_actions(user=user, instance=orga))
 
-        self.assertSortedActions([MockA], self.registry.instance_actions(CremeEntity))
-        self.assertSortedActions([MockA, MockB], self.registry.instance_actions(FakeContact))
-        self.assertSortedActions([MockAOverride, MockC],  self.registry.instance_actions(FakeOrganisation))
+        # TODO ?
+        # self.assertEqual(MockA,         registry.instance_action(CremeEntity, 'test-a'))
+        # self.assertEqual(MockA,         registry.instance_action(FakeContact, 'test-a'))
+        # self.assertEqual(MockAOverride, registry.instance_action(FakeOrganisation, 'test-a'))
 
-        self.assertEqual(MockA, self.registry.instance_action(CremeEntity, 'test-a'))
-        self.assertEqual(MockA, self.registry.instance_action(FakeContact, 'test-a'))
-        self.assertEqual(MockAOverride, self.registry.instance_action(FakeOrganisation, 'test-a'))
+    def test_actions_override02(self):
+        "Bulk actions"
+        user = self.user
+        registry = self.registry
 
-        self.assertSortedActions([MockA], self.registry.bulk_actions(CremeEntity))
-        self.assertSortedActions([MockA, MockD], self.registry.bulk_actions(FakeContact))
-        self.assertSortedActions([MockAOverride], self.registry.bulk_actions(FakeOrganisation))
+        class MockA(MockBulkAction):
+            id = 'test-a'
 
-        self.assertEqual(MockA, self.registry.bulk_action(CremeEntity, 'test-a'))
-        self.assertEqual(MockA, self.registry.bulk_action(FakeContact, 'test-a'))
-        self.assertEqual(MockAOverride, self.registry.bulk_action(FakeOrganisation, 'test-a'))
+        class MockAOverride(MockOrganisationBulkAction):
+            id = 'test-a'
 
-    def test_actions_void(self):
+        class MockB(MockContactBulkAction):
+            id = 'test-b'
+
+        registry.register_instance_actions(MockAOverride)
+
+        registry.register_bulk_actions(MockA, MockB)
+        registry.register_bulk_actions(MockAOverride)
+
+        self.assertSortedActions([MockA],         registry.bulk_actions(user=user, model=CremeEntity))
+        self.assertSortedActions([MockA, MockB],  registry.bulk_actions(user=user, model=FakeContact))
+        self.assertSortedActions([MockAOverride], registry.bulk_actions(user=user, model=FakeOrganisation))
+
+        # TODO ?
+        # self.assertEqual(MockA,         registry.bulk_action(CremeEntity, 'test-a'))
+        # self.assertEqual(MockA,         registry.bulk_action(FakeContact, 'test-a'))
+        # self.assertEqual(MockAOverride, registry.bulk_action(FakeOrganisation, 'test-a'))
+
+    def test_actions_void01(self):
+        "Instance actions"
+        user = self.user
+        registry = self.registry
+
         class MockA(MockAction):
-            action_id = 'test-a'
+            id = 'test-a'
 
         class MockB(MockContactAction):
-            action_id = 'test-b'
+            id = 'test-b'
 
         class MockC(MockAction):
-            action_id = 'test-c'
+            id = 'test-c'
 
-        self.registry.register_instance_actions(MockA, MockB, MockC)
-        self.registry.void_instance_actions(FakeOrganisation, 'test-c')
+        registry.register_instance_actions(MockA, MockB, MockC)
+        registry.void_instance_actions(FakeOrganisation, MockC)
 
-        self.registry.register_bulk_actions(MockA, MockB, MockC)
-        self.registry.void_bulk_actions(FakeOrganisation, 'test-a')
+        entity  = CremeEntity(user=user)
+        contact = FakeContact(user=user, last_name='Kawa')
+        orga    = FakeOrganisation(user=user, name='Kimengumi')
 
-        self.assertSortedActions([MockA, MockC], self.registry.instance_actions(CremeEntity))
-        self.assertSortedActions([MockA, MockB, MockC], self.registry.instance_actions(FakeContact))
-        self.assertSortedActions([MockA], self.registry.instance_actions(FakeOrganisation))
+        self.assertSortedActions([MockA, MockC],        registry.instance_actions(user=user, instance=entity))
+        self.assertSortedActions([MockA, MockB, MockC], registry.instance_actions(user=user, instance=contact))
+        self.assertSortedActions([MockA],               registry.instance_actions(user=user, instance=orga))
 
-        self.assertEqual(MockC, self.registry.instance_action(CremeEntity, 'test-c'))
-        self.assertEqual(MockC, self.registry.instance_action(FakeContact, 'test-c'))
-        self.assertEqual(None, self.registry.instance_action(FakeOrganisation, 'test-c'))
+        # TODO ?
+        # self.assertEqual(MockC, registry.instance_action(CremeEntity, 'test-c'))
+        # self.assertEqual(MockC, registry.instance_action(FakeContact, 'test-c'))
+        # self.assertEqual(None,  registry.instance_action(FakeOrganisation, 'test-c'))
 
-        self.assertSortedActions([MockA, MockC], self.registry.bulk_actions(CremeEntity))
-        self.assertSortedActions([MockA, MockB, MockC], self.registry.bulk_actions(FakeContact))
-        self.assertSortedActions([MockC], self.registry.bulk_actions(FakeOrganisation))
+    def test_actions_void02(self):
+        "Bulk actions"
+        user = self.user
+        registry = self.registry
 
-        self.assertEqual(MockA, self.registry.bulk_action(CremeEntity, 'test-a'))
-        self.assertEqual(MockA, self.registry.bulk_action(FakeContact, 'test-a'))
-        self.assertEqual(None, self.registry.bulk_action(FakeOrganisation, 'test-a'))
+        class MockA(MockBulkAction):
+            id = 'test-a'
 
-    def test_actions_duplicate_void(self):
+        class MockB(MockContactBulkAction):
+            id = 'test-b'
+
+        class MockC(MockBulkAction):
+            id = 'test-c'
+
+        registry.void_instance_actions(FakeOrganisation, MockC)
+
+        registry.register_bulk_actions(MockA, MockB, MockC)
+        registry.void_bulk_actions(FakeOrganisation, MockA)
+
+        self.assertSortedActions([MockA, MockC],        registry.bulk_actions(user=user, model=CremeEntity))
+        self.assertSortedActions([MockA, MockB, MockC], registry.bulk_actions(user=user, model=FakeContact))
+        self.assertSortedActions([MockC],               registry.bulk_actions(user=user, model=FakeOrganisation))
+
+        # TODO ?
+        # self.assertEqual(MockA, registry.bulk_action(CremeEntity, 'test-a'))
+        # self.assertEqual(MockA, registry.bulk_action(FakeContact, 'test-a'))
+        # self.assertEqual(None,  registry.bulk_action(FakeOrganisation, 'test-a'))
+
+    def test_actions_duplicate_void01(self):
+        "Instance action"
         self.registry.register_instance_actions(MockContactAction)
-        self.registry.register_bulk_actions(MockContactAction)
 
-        with self.assertRaises(actions.ActionRegistrationError) as e:
-            self.registry.void_instance_actions(FakeContact, 'mock_action')
+        with self.assertRaises(ActionRegistrationError) as ctxt:
+            self.registry.void_instance_actions(FakeContact, MockContactAction)
 
-        self.assertEqual(str(e.exception),
-                         "Unable to void action 'mock_action'. An action is already defined for model {}".format(FakeContact)
-                        )
+        self.assertEqual(
+            str(ctxt.exception),
+            "Unable to void action 'creme_core-mock_action'. "
+            "An action is already defined for model {}".format(FakeContact)
+        )
 
-        with self.assertRaises(actions.ActionRegistrationError) as e:
-            self.registry.void_bulk_actions(FakeContact, 'mock_action')
+    def test_actions_duplicate_void02(self):
+        "Bulk action"
+        self.registry.register_bulk_actions(MockContactBulkAction)
 
-        self.assertEqual(str(e.exception),
-                         "Unable to void action 'mock_action'. An action is already defined for model {}".format(FakeContact)
-                        )
+        with self.assertRaises(ActionRegistrationError) as ctxt:
+            self.registry.void_bulk_actions(FakeContact, MockContactBulkAction)
+
+        self.assertEqual(
+            str(ctxt.exception),
+            "Unable to void action 'creme_core-mock_action_bulk'. "
+            "An action is already defined for model {}".format(FakeContact)
+        )
 
 
 class BuiltinActionsTestCase(CremeTestCase):
-
     @classmethod
     def _create_role(cls, name, allowed_apps=(), admin_4_apps=(), set_creds=(), creates=(), users=()):
         get_ct = ContentType.objects.get_for_model
@@ -455,10 +787,9 @@ class BuiltinActionsTestCase(CremeTestCase):
         cls.user = CremeUser(username='yui', email='kawa.yui@kimengumi.jp',
                              first_name='Yui', last_name='Kawa',
                             )
-
         cls.other_user = CremeUser(username='johndoe', email='john.doe@unknown.org',
-                             first_name='John', last_name='Doe',
-                            )
+                                   first_name='John', last_name='Doe',
+                                  )
 
         cls.role = cls._create_role(
             'Action view only', ['creme_core'],
@@ -466,27 +797,28 @@ class BuiltinActionsTestCase(CremeTestCase):
             set_creds=[
                 (EntityCredentials._ALL_CREDS, SetCredentials.ESET_OWN),
             ],
-            creates=[FakeContact]
+            creates=[FakeContact],
         )
 
         cls.contact = FakeContact.objects.create(last_name='A', user=cls.user)
         cls.contact_other = FakeContact.objects.create(last_name='B', user=cls.other_user)
 
-    def assertAction(self, entry, model, action_id, action, url, **kwargs):
-        self.assertEqual(entry.model, model)
-        self.assertEqual(entry.action_id, action_id)
-        self.assertEqual(entry.action, action)
-        self.assertEqual(entry.url, url)
+    def assertAction(self, action, model, action_id, action_type, url, **kwargs):
+        self.assertEqual(action.model, model)
+        self.assertEqual(action.id, action_id)
+        self.assertEqual(action.type, action_type)
+        self.assertEqual(action.url, url)
 
         for key, expected in kwargs.items():
-            value = getattr(entry, key)
+            value = getattr(action, key)
             self.assertEqual(value, expected, 'action.{}'.format(key))
 
     def test_edit_action(self):
-        self.assertAction(actions.EditActionEntry(self.user, FakeContact, instance=self.contact),
+        self.assertAction(
+            actions.EditAction(self.user, FakeContact, instance=self.contact),
             model=FakeContact,
             action_id='creme_core-edit',
-            action='redirect',
+            action_type='redirect',
             url=self.contact.get_edit_absolute_url(),
             is_enabled=True,
             is_visible=True,
@@ -494,11 +826,11 @@ class BuiltinActionsTestCase(CremeTestCase):
             label=_('Edit'),
             icon='edit',
         )
-
-        self.assertAction(actions.EditActionEntry(self.user, FakeContact, instance=self.contact_other),
+        self.assertAction(
+            actions.EditAction(self.user, FakeContact, instance=self.contact_other),
             model=FakeContact,
             action_id='creme_core-edit',
-            action='redirect',
+            action_type='redirect',
             url=self.contact_other.get_edit_absolute_url(),
             is_enabled=False,
             is_visible=True,
@@ -508,10 +840,11 @@ class BuiltinActionsTestCase(CremeTestCase):
         )
 
     def test_delete_action(self):
-        self.assertAction(actions.DeleteActionEntry(self.user, FakeContact, instance=self.contact),
+        self.assertAction(
+            actions.DeleteAction(self.user, FakeContact, instance=self.contact),
             model=FakeContact,
             action_id='creme_core-delete',
-            action='delete',
+            action_type='delete',
             url=self.contact.get_delete_absolute_url(),
             is_enabled=True,
             is_visible=True,
@@ -519,11 +852,11 @@ class BuiltinActionsTestCase(CremeTestCase):
             label=_('Delete'),
             icon='delete',
         )
-
-        self.assertAction(actions.DeleteActionEntry(self.user, instance=self.contact_other),
+        self.assertAction(
+            actions.DeleteAction(self.user, instance=self.contact_other),
             model=FakeContact,
             action_id='creme_core-delete',
-            action='delete',
+            action_type='delete',
             url=self.contact_other.get_delete_absolute_url(),
             is_enabled=False,
             is_visible=True,
@@ -533,40 +866,42 @@ class BuiltinActionsTestCase(CremeTestCase):
         )
 
     def test_view_action(self):
-        self.assertAction(actions.ViewActionEntry(self.user, instance=self.contact),
+        self.assertAction(
+            actions.ViewAction(self.user, instance=self.contact),
             model=FakeContact,
             action_id='creme_core-view',
-            action='redirect',
+            action_type='redirect',
             url=self.contact.get_absolute_url(),
             is_enabled=True,
             is_visible=True,
             is_default=True,
             label=_('See'),
             icon='view',
-            help_text=gettext('Go to the entity {entity}').format(entity=self.contact)
+            help_text=gettext('Go to the entity {entity}').format(entity=self.contact),
         )
-
-        self.assertAction(actions.ViewActionEntry(self.user, instance=self.contact_other),
+        self.assertAction(
+            actions.ViewAction(self.user, instance=self.contact_other),
             model=FakeContact,
             action_id='creme_core-view',
-            action='redirect',
+            action_type='redirect',
             url=self.contact_other.get_absolute_url(),
             is_enabled=False,    # other users can view entity
             is_visible=True,
             is_default=True,
             label=_('See'),
             icon='view',
-            help_text=gettext('Go to the entity {entity}').format(entity=self.contact_other)
+            help_text=gettext('Go to the entity {entity}').format(entity=self.contact_other),
         )
 
     def test_clone_action(self):
         self.assertTrue(self.user.has_perm_to_create(self.contact))
         self.assertTrue(self.user.has_perm_to_view(self.contact))
 
-        self.assertAction(actions.CloneActionEntry(self.user, instance=self.contact),
+        self.assertAction(
+            actions.CloneAction(self.user, instance=self.contact),
             model=FakeContact,
             action_id='creme_core-clone',
-            action='clone',
+            action_type='clone',
             url=self.contact.get_clone_absolute_url(),
             is_enabled=True,
             is_visible=True,
@@ -575,19 +910,18 @@ class BuiltinActionsTestCase(CremeTestCase):
             icon='clone',
             action_data={
                 'options': {},
-                'data': {
-                    'id': self.contact.id
-                }
-            }
+                'data': {'id': self.contact.id},
+            },
         )
 
         self.assertTrue(self.user.has_perm_to_create(self.contact_other))
         self.assertFalse(self.user.has_perm_to_view(self.contact_other))
 
-        self.assertAction(actions.CloneActionEntry(self.user, instance=self.contact_other),
+        self.assertAction(
+            actions.CloneAction(self.user, instance=self.contact_other),
             model=FakeContact,
             action_id='creme_core-clone',
-            action='clone',
+            action_type='clone',
             url=self.contact_other.get_clone_absolute_url(),
             is_enabled=False,
             is_visible=True,
@@ -596,138 +930,147 @@ class BuiltinActionsTestCase(CremeTestCase):
             icon='clone',
             action_data={
                 'options': {},
-                'data': {
-                    'id': self.contact_other.id
-                }
-            }
+                'data': {'id': self.contact_other.id},
+            },
         )
 
     def test_bulk_edit_action(self):
-        self.assertAction(actions.BulkEditActionEntry(self.user),
+        get_ct = ContentType.objects.get_for_model
+
+        self.assertAction(
+            actions.BulkEditAction(self.user),
             model=CremeEntity,
             action_id='creme_core-bulk_edit',
-            action='edit-selection',
-            url=reverse('creme_core__bulk_update', args=(ContentType.objects.get_for_model(CremeEntity).id,)),
+            action_type='edit-selection',
+            url=reverse('creme_core__bulk_update', args=(get_ct(CremeEntity).id,)),
             is_enabled=True,
             is_visible=True,
             is_default=False,
             label=_('Multiple update'),
-            icon='edit'
+            icon='edit',
         )
-
-        self.assertAction(actions.BulkEditActionEntry(self.user, model=FakeContact),
+        self.assertAction(
+            actions.BulkEditAction(self.user, model=FakeContact),
             model=FakeContact,
             action_id='creme_core-bulk_edit',
-            action='edit-selection',
-            url=reverse('creme_core__bulk_update', args=(ContentType.objects.get_for_model(FakeContact).id,)),
+            action_type='edit-selection',
+            url=reverse('creme_core__bulk_update', args=(get_ct(FakeContact).id,)),
             is_enabled=True,
             is_visible=True,
             is_default=False,
             label=_('Multiple update'),
-            icon='edit'
+            icon='edit',
         )
 
     def test_bulk_delete_action(self):
-        self.assertAction(actions.BulkDeleteActionEntry(self.user),
+        self.assertAction(
+            actions.BulkDeleteAction(self.user),
             model=CremeEntity,
             action_id='creme_core-bulk_delete',
-            action='delete-selection',
+            action_type='delete-selection',
             url=reverse('creme_core__delete_entities'),
             is_enabled=True,
             is_visible=True,
             is_default=False,
             label=_('Multiple deletion'),
-            icon='delete'
+            icon='delete',
         )
-
-        self.assertAction(actions.BulkDeleteActionEntry(self.user, model=FakeContact),
+        self.assertAction(
+            actions.BulkDeleteAction(self.user, model=FakeContact),
             model=FakeContact,
             action_id='creme_core-bulk_delete',
-            action='delete-selection',
+            action_type='delete-selection',
             url=reverse('creme_core__delete_entities'),
             is_enabled=True,
             is_visible=True,
             is_default=False,
             label=_('Multiple deletion'),
-            icon='delete'
+            icon='delete',
         )
 
     def test_bulk_add_property_action(self):
-        self.assertAction(actions.BulkAddPropertyActionEntry(self.user),
+        get_ct = ContentType.objects.get_for_model
+        self.assertAction(
+            actions.BulkAddPropertyAction(self.user),
             model=CremeEntity,
             action_id='creme_core-bulk_add_property',
-            action='addto-selection',
-            url=reverse('creme_core__add_properties_bulk', args=(ContentType.objects.get_for_model(CremeEntity).id,)),
+            action_type='addto-selection',
+            url=reverse('creme_core__add_properties_bulk', args=(get_ct(CremeEntity).id,)),
             is_enabled=True,
             is_visible=True,
             is_default=False,
             label=_('Multiple property adding'),
-            icon='property'
+            icon='property',
         )
-
-        self.assertAction(actions.BulkAddPropertyActionEntry(self.user, model=FakeContact),
+        self.assertAction(
+            actions.BulkAddPropertyAction(self.user, model=FakeContact),
             model=FakeContact,
             action_id='creme_core-bulk_add_property',
-            action='addto-selection',
-            url=reverse('creme_core__add_properties_bulk', args=(ContentType.objects.get_for_model(FakeContact).id,)),
+            action_type='addto-selection',
+            url=reverse('creme_core__add_properties_bulk', args=(get_ct(FakeContact).id,)),
             is_enabled=True,
             is_visible=True,
             is_default=False,
             label=_('Multiple property adding'),
-            icon='property'
+            icon='property',
         )
 
     def test_bulk_add_relation_action(self):
-        self.assertAction(actions.BulkAddRelationActionEntry(self.user),
+        get_ct = ContentType.objects.get_for_model
+        self.assertAction(
+            actions.BulkAddRelationAction(self.user),
             model=CremeEntity,
             action_id='creme_core-bulk_add_relation',
-            action='addto-selection',
-            url=reverse('creme_core__create_relations_bulk', args=(ContentType.objects.get_for_model(CremeEntity).id,)),
+            action_type='addto-selection',
+            url=reverse('creme_core__create_relations_bulk', args=(get_ct(CremeEntity).id,)),
             is_enabled=True,
             is_visible=True,
             is_default=False,
             label=_('Multiple relationship adding'),
-            icon='relations'
+            icon='relations',
         )
-
-        self.assertAction(actions.BulkAddRelationActionEntry(self.user, model=FakeContact),
+        self.assertAction(
+            actions.BulkAddRelationAction(self.user, model=FakeContact),
             model=FakeContact,
             action_id='creme_core-bulk_add_relation',
-            action='addto-selection',
-            url=reverse('creme_core__create_relations_bulk', args=(ContentType.objects.get_for_model(FakeContact).id,)),
+            action_type='addto-selection',
+            url=reverse('creme_core__create_relations_bulk', args=(get_ct(FakeContact).id,)),
             is_enabled=True,
             is_visible=True,
             is_default=False,
             label=_('Multiple relationship adding'),
-            icon='relations'
+            icon='relations',
         )
 
     def test_merge_action(self):
-        self.assertFalse(ctype_can_be_merged(ContentType.objects.get_for_model(CremeEntity)))
-        self.assertTrue(ctype_can_be_merged(ContentType.objects.get_for_model(FakeContact)))
+        get_ct = ContentType.objects.get_for_model
 
-        self.assertAction(actions.MergeActionEntry(self.user),
+        self.assertIsNone(merge_form_registry.get(CremeEntity))
+        self.assertIsNotNone(merge_form_registry.get(FakeContact))
+
+        self.assertAction(
+            actions.MergeAction(self.user),
             model=CremeEntity,
-            ctype=ContentType.objects.get_for_model(CremeEntity),
+            ctype=get_ct(CremeEntity),
             action_id='creme_core-merge',
-            action='merge-selection',
+            action_type='merge-selection',
             url=reverse('creme_core__merge_entities'),
             is_enabled=False,
             is_visible=False,
             is_default=False,
             label=_('Merge 2 entities'),
-            icon='merge'
+            icon='merge',
         )
-
-        self.assertAction(actions.MergeActionEntry(self.user, model=FakeContact),
+        self.assertAction(
+            actions.MergeAction(self.user, model=FakeContact),
             model=FakeContact,
-            ctype=ContentType.objects.get_for_model(FakeContact),
+            ctype=get_ct(FakeContact),
             action_id='creme_core-merge',
-            action='merge-selection',
+            action_type='merge-selection',
             url=reverse('creme_core__merge_entities'),
             is_enabled=True,
             is_visible=True,
             is_default=False,
             label=_('Merge 2 entities'),
-            icon='merge'
+            icon='merge',
         )

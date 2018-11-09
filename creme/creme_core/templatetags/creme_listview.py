@@ -299,14 +299,20 @@ def listview_td_action_for_cell(cell, instance, user):
 
 @register.inclusion_tag('creme_core/templatetags/listview/entity-actions.html')
 def listview_entity_actions(cell, entity):
+    actions = cell.instance_actions(entity)
+    count = len(actions)
+
     return {
         'id': entity.id,
-        'actions': cell.instance_actions(entity)
+        'actions': {
+            'default': actions[0] if count > 0 else None,
+            'others': actions[1:] if count > 1 else [],
+        },
     }
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/header-actions.html')
 def listview_header_actions(cell):
     return {
-        'actions': cell.bulk_actions()
+        'actions': cell.bulk_actions(),
     }
