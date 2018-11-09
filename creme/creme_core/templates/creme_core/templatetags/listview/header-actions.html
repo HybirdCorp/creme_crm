@@ -1,4 +1,5 @@
 {% load i18n creme_core_tags creme_widgets %}
+{% if actions %}
 <ul class="header-actions-list">
     <li class="header-actions-trigger" title="{% trans 'Actions on the selected entities' %}">
         <span>{% trans 'Actions' %}</span>
@@ -19,3 +20,4 @@
         </div>
     </li>
 </ul>
+{% endif %}
