@@ -548,7 +548,9 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(reverse('reports__export_report_filter', args=(report.id,)),
                          export_action.url
                         )
-        self.assertEqual(_('Export «{}»').format(report), export_action.help_text)
+        self.assertEqual(pgettext('reports-report', 'Export «{}»').format(report),
+                         export_action.help_text
+                        )
         self.assertTrue(export_action.is_enabled)
         self.assertTrue(export_action.is_visible)
 
