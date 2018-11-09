@@ -22,18 +22,19 @@ from django.urls.base import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme import documents
-from creme.creme_core.gui import actions
+from creme.creme_core.gui.actions import UIAction
 
 
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
 
 
-class ExploreFolderActionEntry(actions.ActionEntry):
-    action_id = 'documents-explore'
-    action = 'redirect'
-
+class ExploreFolderAction(UIAction):
+    id = UIAction.generate_id('documents', 'explore')
     model = Folder
+
+    type = 'redirect'
+
     label = _('Explore')
     icon = 'view'
 
@@ -51,11 +52,12 @@ class ExploreFolderActionEntry(actions.ActionEntry):
         return ugettext('List sub-folders of «{}»').format(self.instance)
 
 
-class DownloadActionEntry(actions.ActionEntry):
-    action_id = 'documents-download'
-    action = 'redirect'
-
+class DownloadAction(UIAction):
+    id = UIAction.generate_id('documents', 'download')
     model = Document
+
+    type = 'redirect'
+
     label = _('Download')
     icon = 'download'
 

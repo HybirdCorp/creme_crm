@@ -8,13 +8,14 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui import actions as core_actions
+    from creme.creme_core.gui import actions
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.models import SetCredentials, FakeOrganisation
 
     from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder, Folder
 
-    from creme.documents import constants, actions
+    from creme.documents import constants
+    from creme.documents.actions import ExploreFolderAction
     from creme.documents.models import FolderCategory
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -434,30 +435,28 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertNotIn(folder1,   folders)
         self.assertIn(grand_parent, folders)
 
-    def test_listview_folder_actions(self):
+    def test_listview_actions(self):
         user = self.login()
-        folder1 = Folder.objects.create(user=user, title='Folder #1')
-        sort_key = lambda a: a.action_id
+        folder = Folder.objects.create(user=user, title='My folder')
 
-        self.assertEqual(sorted([core_actions.ViewActionEntry,
-                                 core_actions.CloneActionEntry,
-                                 core_actions.EditActionEntry,
-                                 core_actions.DeleteActionEntry,
-                                 actions.ExploreFolderActionEntry,
-                                ],
-                                key=sort_key
-                               ),
-                         sorted(core_actions.actions_registry.instance_actions(Folder),
-                                key=sort_key
-                               )
+        explore_actions = [
+            action
+                for action in actions.actions_registry
+                                     .instance_actions(user=user, instance=folder)
+                    if isinstance(action, ExploreFolderAction)
+        ]
+        self.assertEqual(1, len(explore_actions))
+
+        explore_action = explore_actions[0]
+        self.assertEqual('redirect', explore_action.type)
+        self.assertEqual('{}?parent_id={}'.format(folder.get_lv_absolute_url(), folder.id),
+                         explore_action.url
                         )
-
-        explore_folder1 = actions.ExploreFolderActionEntry(user, instance=folder1)
-        self.assertEqual('redirect', explore_folder1.action)
-        self.assertEqual(folder1.get_lv_absolute_url() + '?parent_id={}'.format(folder1.id), explore_folder1.url)
-        self.assertTrue(explore_folder1.is_enabled)
-        self.assertTrue(explore_folder1.is_visible)
-        self.assertEqual(_('List sub-folders of «{}»').format(folder1), explore_folder1.help_text)
+        self.assertTrue(explore_action.is_enabled)
+        self.assertTrue(explore_action.is_visible)
+        self.assertEqual(_('List sub-folders of «{}»').format(folder),
+                         explore_action.help_text
+                        )
 
     def test_folder_clone01(self):
         user = self.login()

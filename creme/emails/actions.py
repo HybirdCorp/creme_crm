@@ -27,12 +27,12 @@ from creme.creme_core.gui import actions
 EntityEmail = emails.get_entityemail_model()
 
 
-class EntityEmailResendAction(actions.ActionEntry):
-    action_id = 'emails-resend'
+class EntityEmailResendAction(actions.UIAction):
+    id = actions.UIAction.generate_id('emails', 'resend')
 
     model = EntityEmail
-    action = 'email-resend'
-    action_url_name = 'emails__resend_emails'
+    type = 'email-resend'
+    url_name = 'emails__resend_emails'
     label = _('Re-send email')
     icon = 'email'
 
@@ -42,11 +42,11 @@ class EntityEmailResendAction(actions.ActionEntry):
         }
 
 
-class BulkEntityEmailResendAction(actions.BulkEntityActionEntry):
-    action_id = 'emails-bulk_resend'
+class BulkEntityEmailResendAction(actions.BulkEntityAction):
+    id = actions.BulkEntityAction.generate_id('emails', 'bulk_resend')
 
     model = EntityEmail
-    action = 'email-resend-selection'
-    action_url_name = 'emails__resend_emails'
+    type = 'email-resend-selection'
+    url_name = 'emails__resend_emails'
     label = _('Re-send email(s)')
     icon = 'email'

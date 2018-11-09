@@ -6,10 +6,10 @@
             {% for action in actions %}
             <div class="listview-action">
                 <a href="{{action.url}}" {% if action.help_text %}title="{{action.help_text}}"{% endif %} class="{% if not action.is_enabled %}is-disabled{% endif %}"
-                   data-action="{{action.action}}"
-                   {% if action.help_text %} data-helptext="{{action.help_text}}"{% endif %}
-                   {% if action.bulk_min_count %} data-row-min="{{action.bulk_min_count}}"{% endif %}
-                   {% if action.bulk_max_count %} data-row-max="{{action.bulk_max_count}}"{% endif %}>
+                   data-action="{{action.type}}"
+                   {% if action.help_text %}data-helptext="{{action.help_text}}"{% endif %}
+                   {% if action.bulk_min_count %}data-row-min="{{action.bulk_min_count}}"{% endif %}
+                   {% if action.bulk_max_count %}data-row-max="{{action.bulk_max_count}}"{% endif %}>
                     {% widget_icon name=action.icon label=action.label size='listview-menu' class='listview-action-icon' %}
                     {{action.label}}
                     {% if action.action_data %}<script type="application/json" class="listview-action-data">{{action.action_data|jsonify|safe}}</script>{% endif %}

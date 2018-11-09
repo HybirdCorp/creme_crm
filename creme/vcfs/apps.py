@@ -33,7 +33,7 @@ class VCFsConfig(CremeAppConfig):
         from . import actions
 
         actions_registry.register_instance_actions(
-            actions.GenerateVcfActionEntry,
+            actions.GenerateVcfAction,
         )
 
     def register_buttons(self, button_registry):

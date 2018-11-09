@@ -15,7 +15,7 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.gui import actions as core_actions
+    from creme.creme_core.gui import actions
     from creme.creme_core.models import Relation, SetCredentials, FieldsConfig, Job
     from creme.creme_core.forms.widgets import Label
 
@@ -23,10 +23,10 @@ try:
 
     from creme.documents.models import FolderCategory
 
-    from creme.emails import actions
-
     from .base import (_EmailsTestCase, skipIfCustomEntityEmail, skipIfCustomEmailTemplate,
             Contact, Organisation, Document, Folder, EntityEmail, EmailTemplate)
+
+    from ..actions import EntityEmailResendAction, BulkEntityEmailResendAction
     from ..constants import (MAIL_STATUS_NOTSENT, MAIL_STATUS_SENT,
             MAIL_STATUS_SENDINGERROR, REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
     from ..creme_jobs import entity_emails_send_type
@@ -683,61 +683,40 @@ class EntityEmailTestCase(_EmailsTestCase):
 
     def test_listview_instance_actions(self):
         user = self.login()
-        emails = self._create_emails()
-        sort_key = lambda a: a.action_id
+        email = self._create_email()
 
-        self.assertEqual(sorted([core_actions.ViewActionEntry,
-                                 core_actions.CloneActionEntry,
-                                 core_actions.EditActionEntry,
-                                 core_actions.DeleteActionEntry,
-                                 actions.EntityEmailResendAction,
-                                ],
-                                key=sort_key
-                               ),
-                         sorted(core_actions.actions_registry.instance_actions(EntityEmail),
-                                key=sort_key
-                               )
-                        )
+        resend_actions = [
+            action for action in actions.actions_registry.instance_actions(user=user, instance=email)
+                if isinstance(action, EntityEmailResendAction)
+        ]
+        self.assertEqual(1, len(resend_actions))
 
-        email1 = emails[0]
-        resend_email1 = actions.EntityEmailResendAction(user, instance=email1)
-        self.assertEqual('email-resend', resend_email1.action)
-        self.assertEqual(reverse('emails__resend_emails'), resend_email1.url)
+        resend_action = resend_actions[0]
+        self.assertEqual('email-resend', resend_action.type)
+        self.assertEqual(reverse('emails__resend_emails'), resend_action.url)
         self.assertEqual({
-            'data': {},
-            'options': {
-                'selection': [email1.id]
-            }
-        }, resend_email1.action_data)
-        self.assertTrue(resend_email1.is_enabled)
-        self.assertTrue(resend_email1.is_visible)
+                'data': {},
+                'options': {'selection': [email.id]},
+            },
+            resend_action.action_data
+        )
+        self.assertTrue(resend_action.is_enabled)
+        self.assertTrue(resend_action.is_visible)
 
     def test_listview_bulk_actions(self):
         user = self.login()
-        emails = self._create_emails()
-        sort_key = lambda a: a.action_id
+        resend_actions = [
+            action for action in actions.actions_registry.bulk_actions(user=user, model=EntityEmail)
+                if isinstance(action, BulkEntityEmailResendAction)
+        ]
+        self.assertEqual(1, len(resend_actions))
 
-        self.assertEqual(sorted([core_actions.BulkAddPropertyActionEntry,
-                                 core_actions.BulkAddRelationActionEntry,
-                                 core_actions.BulkDeleteActionEntry,
-                                 core_actions.BulkEditActionEntry,
-                                 core_actions.MergeActionEntry,
-                                 actions.BulkEntityEmailResendAction,
-                                ],
-                                key=sort_key
-                               ),
-                         sorted(core_actions.actions_registry.bulk_actions(EntityEmail),
-                                key=sort_key
-                               )
-                        )
-
-        email1 = emails[0]
-        resend_email1 = actions.BulkEntityEmailResendAction(user, instance=email1)
-        self.assertEqual('email-resend-selection', resend_email1.action)
-        self.assertEqual(reverse('emails__resend_emails'), resend_email1.url)
-        self.assertEqual(None, resend_email1.action_data)
-        self.assertTrue(resend_email1.is_enabled)
-        self.assertTrue(resend_email1.is_visible)
+        resend_action = resend_actions[0]
+        self.assertEqual('email-resend-selection', resend_action.type)
+        self.assertEqual(reverse('emails__resend_emails'), resend_action.url)
+        self.assertIsNone(resend_action.action_data)
+        self.assertTrue(resend_action.is_enabled)
+        self.assertTrue(resend_action.is_visible)
 
     def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html=''):
         user = self.user

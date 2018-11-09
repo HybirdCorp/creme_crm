@@ -22,15 +22,15 @@ from django.urls.base import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme import billing
-from creme.creme_core.gui import actions
+from creme.creme_core.gui.actions import UIAction
 
 
 Invoice = billing.get_invoice_model()
 Quote   = billing.get_quote_model()
 
 
-class ExportActionEntry(actions.ActionEntry):
-    action = 'redirect'
+class ExportAction(UIAction):
+    type = 'redirect'
 
     label = _('Download')
     icon = 'download'
@@ -45,12 +45,11 @@ class ExportActionEntry(actions.ActionEntry):
         return self.user.has_perm_to_view(self.instance)
 
 
-class ExportInvoiceActionEntry(ExportActionEntry):
-    action_id = 'billing-export_invoice'
+class ExportInvoiceAction(ExportAction):
+    id = ExportAction.generate_id('billing', 'export_invoice')
     model = Invoice
 
 
-class ExportQuoteActionEntry(ExportActionEntry):
-    action_id = 'billing-export_quote'
+class ExportQuoteAction(ExportAction):
+    id = ExportAction.generate_id('billing', 'export_quote')
     model = Quote
-

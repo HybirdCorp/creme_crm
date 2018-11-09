@@ -92,4 +92,4 @@ class ReportsConfig(CremeAppConfig):
     def register_actions(self, actions_registry):
         from creme.reports import actions
 
-        actions_registry.register_instance_actions(actions.ExportReportActionEntry)
+        actions_registry.register_instance_actions(actions.ExportReportAction)
