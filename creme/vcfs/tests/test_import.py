@@ -7,7 +7,7 @@ try:
     from django.conf import settings
     from django.urls import reverse
     from django.test.utils import override_settings
-    from django.utils.encoding import smart_str
+    # from django.utils.encoding import smart_str
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import FieldsConfig

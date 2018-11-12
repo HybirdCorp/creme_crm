@@ -2,7 +2,7 @@
 
 try:
     from datetime import date, timedelta
-    from itertools import chain
+    # from itertools import chain
     from functools import partial
 
     from django.conf import settings
@@ -11,7 +11,7 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.entity_cell import EntityCellFunctionField
-    from creme.creme_core.core.function_field import FunctionField, function_field_registry
+    from creme.creme_core.core.function_field import function_field_registry  # FunctionField
     from creme.creme_core.models import FieldsConfig, SetCredentials
 
     from creme.persons.tests.base import skipIfCustomOrganisation

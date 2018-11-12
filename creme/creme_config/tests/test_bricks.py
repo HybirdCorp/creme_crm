@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from urllib import response
 
 try:
     from copy import deepcopy

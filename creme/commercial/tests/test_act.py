@@ -647,7 +647,7 @@ class ActTestCase(CommercialBaseTestCase):
 
     def test_incr_objective_counter02(self):
         "Relationships counter -> error"
-        user = self.login()
+        self.login()
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
                                                 ctype=ContentType.objects.get_for_model(Organisation),
@@ -686,14 +686,14 @@ class ActTestCase(CommercialBaseTestCase):
 
     def test_objective_create_entity02(self):
         "Not a relationships counter objective"
-        user = self.login()
+        self.login()
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         self.assertGET409(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity03(self):
         "No quick for this entity type"
-        user = self.login()
+        self.login()
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='Act counter', counter_goal=2,
                                                 ctype=ContentType.objects.get_for_model(Act),
@@ -955,7 +955,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual([opp02], self.refresh(act).get_related_opportunities())
 
     def test_delete_type(self):
-        user = self.login()
+        self.login()
         act = self.create_act()
         atype = act.act_type
 

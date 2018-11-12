@@ -6,8 +6,6 @@ try:
     from creme.creme_core.gui.actions import actions_registry
     from creme.creme_core.tests.base import CremeTestCase
 
-    from .base import Contact
-
     from creme.vcfs.actions import GenerateVcfAction
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))

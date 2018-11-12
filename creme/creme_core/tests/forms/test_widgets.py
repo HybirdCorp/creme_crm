@@ -2,7 +2,7 @@
 
 try:
     import difflib
-    from json import dumps as json_dump, loads as json_load
+    from json import loads as json_load
     from unittest.util import safe_repr
 
     from django.contrib.contenttypes.models import ContentType

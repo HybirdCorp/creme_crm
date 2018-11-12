@@ -24,7 +24,7 @@ try:
     from ..backends.models import CrudityBackend
     from ..builders.infopath import InfopathFormBuilder, InfopathFormField
     from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend,
-            FakeFetcher, FakeInput, Contact, Document)
+            Contact, Document)  # FakeFetcher  FakeInput
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

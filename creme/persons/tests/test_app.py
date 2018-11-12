@@ -6,7 +6,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
 
-    from creme.creme_core.models import HeaderFilter, EntityFilter, Relation
+    from creme.creme_core.models import HeaderFilter, EntityFilter  # Relation
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 

@@ -29,7 +29,7 @@ from tempfile import mkdtemp
 # from unicodedata import normalize
 
 from django.conf import settings
-from django.core.files.base import File
+# from django.core.files.base import File
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist, EmailField
 from django.http import HttpResponse

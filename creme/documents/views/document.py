@@ -20,12 +20,12 @@
 
 import warnings
 
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import CremeEntity
+# from creme.creme_core.models import CremeEntity
 from creme.creme_core.views import generic
 
 from .. import get_folder_model, get_document_model

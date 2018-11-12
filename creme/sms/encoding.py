@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-LF='\x0a'
-#CR='\x0d'
-#FF='\x0c'
-#EC='\x1b'
-#PA='\x80'
-EURO='\x84'
+LF = '\x0a'
+# CR = '\x0d'
+# FF = '\x0c'
+# EC = '\x1b'
+# PA = '\x80'
+EURO = '\x84'
 
-#SMS_ENCODING_GSM_03_38 = ''.join(
+# SMS_ENCODING_GSM_03_38 = ''.join(
 #    (
 #     #0     1      2      3      4      5      6      7      8      9      A      B      C      D      E      F
 #     '\x00','?',   '?',   '?',   '?',   '?',   '?',   '?',   '?',   ' ',   LF,    '?',   FF,    CR,    '?',   '?',    #0
@@ -60,13 +60,15 @@ SMS_EXTENDED_CHARS = {
 
 SMS_MAX_LENGTH = 160
 
+
 def gsm_encoded_content(content):
-    unicode_encoded = unicode(content, 'utf-8') if content.__class__ != unicode else content
+    # unicode_encoded = unicode(content, 'utf-8') if content.__class__ != unicode else content
 
     #print ['0x%02x' % ord(char) for char in unicode_encoded]
 
     # convert euro sign (allow iso convertion) and \n as \x7f
-    unicode_encoded = unicode_encoded.translate({0x20ac:0x84, 0x0a:0x7f})
+    # unicode_encoded = unicode_encoded.translate({0x20ac:0x84, 0x0a:0x7f})
+    unicode_encoded = content.translate({0x20ac: 0x84, 0x0a: 0x7f})
 
     #print ['0x%02x' % ord(char) for char in unicode_encoded]
 
