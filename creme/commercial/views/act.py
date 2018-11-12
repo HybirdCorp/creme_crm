@@ -217,7 +217,7 @@ class ActObjectivePatternCreation(generic.EntityCreation):
     form_class = forms.ObjectivePatternForm
 
 
-class RelatedOpportunityCreation(generic.AddingToEntity):
+class RelatedOpportunityCreation(generic.AddingToEntityPopup):
     model = Opportunity
     form_class = OpportunityCreateForm
     permissions = ['opportunities', cperm(Opportunity)]
@@ -299,7 +299,7 @@ def add_opportunity(request, act_id):
 #                                  entity_class=Act,
 #                                  submit_label=_('Save the objective'),
 #                                 )
-class _ObjectiveCreationBase(generic.AddingToEntity):
+class _ObjectiveCreationBase(generic.AddingToEntityPopup):
     model = ActObjective
     # form_class = ...
     title_format = _('New objective for «{}»')
@@ -327,7 +327,7 @@ class ObjectiveCreationFromPattern(_ObjectiveCreationBase):
 #                                  entity_class=ActObjectivePattern,
 #                                  submit_label=_('Save the objective'),
 #                                 )
-class PatternComponentCreation(generic.AddingToEntity):
+class PatternComponentCreation(generic.AddingToEntityPopup):
     model = ActObjectivePatternComponent
     form_class = forms.PatternComponentForm
     title_format = _('New objective for «{}»')
@@ -361,7 +361,7 @@ class PatternComponentCreation(generic.AddingToEntity):
 #                                reload=False,
 #                                delegate_reload=True,
 #                               )
-class SubPatternComponentCreation(generic.AddingToEntity):
+class SubPatternComponentCreation(generic.AddingToEntityPopup):
     model = ActObjectivePatternComponent
     # form_class = ....
     # title_format = _('New sub objective for «{}»')
@@ -430,7 +430,7 @@ class ParentPatternComponentCreation(SubPatternComponentCreation):
 #                                           forms.ObjectiveForm,
 #                                           ugettext('Objective for «%s»'),
 #                                          )
-class ObjectiveEdition(generic.RelatedToEntityEdition):
+class ObjectiveEdition(generic.RelatedToEntityEditionPopup):
     model = ActObjective
     form_class = forms.ObjectiveForm
     pk_url_kwarg = 'objective_id'
@@ -504,7 +504,7 @@ def incr_objective_counter(request, objective_id):
 #                                reload=False,
 #                                delegate_reload=True,
 #                               )
-class RelatedEntityCreation(generic.AddingToEntity):
+class RelatedEntityCreation(generic.AddingToEntityPopup):
     # model = ...
     # form_class = ....
     # title = ...

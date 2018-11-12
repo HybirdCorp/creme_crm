@@ -18,19 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
+import warnings
 
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404  # render
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import jsonify
-from creme.creme_core.views import generic
-from creme.creme_core.views.bricks import build_context, bricks_render_info
+from creme.creme_core.utils.html import sanitize_html
+from creme.creme_core.views import generic, bricks as bricks_views
 # from creme.creme_core.views.generic import add_to_entity
 
 from .. import get_emailcampaign_model
-from ..bricks import MailsBrick
+from ..bricks import MailsBrick, SendingBrick, SendingHTMLBodyBrick
 from ..forms.sending import SendingCreateForm
 from ..models import EmailSending
 
@@ -43,7 +44,7 @@ from ..models import EmailSending
 #                          entity_class=get_emailcampaign_model(),
 #                          submit_label=EmailSending.save_label,
 #                         )
-class SendingCreation(generic.AddingToEntity):
+class SendingCreation(generic.AddingToEntityPopup):
     model = EmailSending
     form_class = SendingCreateForm
     entity_id_url_kwarg = 'campaign_id'
@@ -51,8 +52,11 @@ class SendingCreation(generic.AddingToEntity):
     title_format = _('New sending for «{}»')
 
 
-# TODO: used once => inline
 def _get_sending(request, sending_id):
+    warnings.warn('emails.views.sending._get_sending() is deprecated.',
+                  DeprecationWarning
+                 )
+
     sending  = get_object_or_404(EmailSending, pk=sending_id)
     campaign = sending.campaign
 
@@ -67,25 +71,69 @@ def _get_sending(request, sending_id):
 #     return render(request, 'emails/popup_sending.html',
 #                   context={'object': _get_sending(request, sending_id)},
 #                  )
-class LightWeightEmails(generic.RelatedToEntityDetail):
+class SendingDetail(generic.RelatedToEntityDetail):
+    model = EmailSending
+    template_name = 'emails/view_sending.html'
+    pk_url_kwarg = 'sending_id'
+    permissions = 'emails'
+    bricks_reload_url_name = 'emails__reload_sending_bricks'
+
+
+# TODO: factorise with get_lightweight_mail_body()
+class SendingBody(generic.RelatedToEntityDetail):
     model = EmailSending
     pk_url_kwarg = 'sending_id'
     permissions = 'emails'
-    bricks_reload_url_name = 'emails__reload_lw_mails_brick'
 
-    def get_brick_ids(self):
-        return (
-            MailsBrick.id_,
+    def render_to_response(self, context, **response_kwargs):
+        return HttpResponse(
+            sanitize_html(self.object.body_html,
+                          # TODO: ? allow_external_img=request.GET.get('external_img', False),
+                          allow_external_img=True,
+                         )
         )
+
+
+@login_required
+@permission_required('emails')
+@jsonify
+def reload_mails_brick(request, sending_id):
+    warnings.warn('emails.views.sending.reload_mails_brick() is deprecated ; '
+                  'use reload_sending_bricks() instead.',
+                  DeprecationWarning
+                 )
+    return bricks_views.bricks_render_info(
+        request,
+        bricks=[MailsBrick()],
+        context=bricks_views.build_context(request, object=_get_sending(request, sending_id)),
+    )
 
 
 # Useful method because EmailSending is not a CremeEntity (should be ?)
 @login_required
 @permission_required('emails')
 @jsonify
-def reload_mails_brick(request, sending_id):
-    return bricks_render_info(
+def reload_sending_bricks(request, sending_id):
+    sending = get_object_or_404(EmailSending, pk=sending_id)
+    request.user.has_perm_to_view_or_die(sending.campaign)
+
+    bricks = []
+    allowed_bricks = {
+        SendingBrick.id_:         SendingBrick,
+        SendingHTMLBodyBrick.id_: SendingHTMLBodyBrick,
+        MailsBrick.id_:           MailsBrick,
+    }
+
+    for brick_id in bricks_views.get_brick_ids_or_404(request):
+        brick_cls = allowed_bricks.get(brick_id)
+
+        if brick_cls is not None:
+            bricks.append(brick_cls())
+        else:
+            raise Http404('Invalid brick ID')
+
+    return bricks_views.bricks_render_info(
         request,
-        bricks=[MailsBrick()],  # TODO: retrieve by 'id_' to allow complete overriding
-        context=build_context(request, object=_get_sending(request, sending_id)),
+        bricks=bricks,
+        context=bricks_views.build_context(request, object=sending),
     )

@@ -55,7 +55,7 @@ from ..forms.bricks import GraphInstanceBrickForm
 #                        reload=False,
 #                        delegate_reload=True,
 #                       )
-class GraphInstanceBrickCreation(generic.AddingToEntity):
+class GraphInstanceBrickCreation(generic.AddingToEntityPopup):
     model = InstanceBrickConfigItem
     form_class = GraphInstanceBrickForm
     permissions = 'reports.can_admin'
@@ -78,7 +78,7 @@ class GraphInstanceBrickCreation(generic.AddingToEntity):
         return context
 
 
-class GraphInstanceBricks(generic.RelatedToEntityDetail):
+class GraphInstanceBricks(generic.RelatedToEntityDetailPopup):
     model = get_rgraph_model()
     pk_url_kwarg = 'graph_id'
     bricks_reload_url_name = 'creme_core__reload_detailview_bricks'

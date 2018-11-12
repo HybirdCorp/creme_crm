@@ -483,7 +483,7 @@ class PollRepliesCreation(generic.EntityCreation):
     submit_label = PollReply.multi_save_label
 
 
-class _RelatedRepliesCreationBase(generic.AddingToEntity):
+class _RelatedRepliesCreationBase(generic.AddingToEntityPopup):
     model = PollReply
     form_class = preply_forms.PollRepliesCreateForm
     permissions = ('polls', _CREATION_PERM)
@@ -522,7 +522,7 @@ class PollReplyEdition(generic.EntityEdition):
     pk_url_kwarg = 'preply_id'
 
 
-class LinkingRepliesToPerson(generic.AddingToEntity):
+class LinkingRepliesToPerson(generic.AddingToEntityPopup):
     # model = PollReply
     template_name = 'creme_core/generics/blockform/link-popup.html'
     form_class = preply_forms.PersonAddRepliesForm

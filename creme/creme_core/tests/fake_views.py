@@ -106,7 +106,7 @@ def address_add(request, entity_id):
                                 )
 
 
-class FakeAddressCreation(generic.AddingToEntity):
+class FakeAddressCreation(generic.AddingToEntityPopup):
     model = fake_models.FakeAddress
     form_class = fake_forms.FakeAddressForm
     title_format = 'Adding address to <{}>'
@@ -122,7 +122,7 @@ def address_edit(request, address_id):
                                          )
 
 
-class FakeAddressEdition(generic.RelatedToEntityEdition):
+class FakeAddressEdition(generic.RelatedToEntityEditionPopup):
     model = fake_models.FakeAddress
     pk_url_kwarg = 'address_id'
     form_class = fake_forms.FakeAddressForm

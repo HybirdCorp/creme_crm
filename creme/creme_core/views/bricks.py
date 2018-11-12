@@ -216,7 +216,7 @@ def reload_home(request):
 #
 #     app_label = iter(app_labels).next()
 #
-#     if not request.user.has_perm(app_label):  # TODO: in a role method ??
+#     if not request.user.has_perm(app_label):  # todo: in a role method ??
 #         raise PermissionDenied('You are not allowed to access to the app: %s' % app_label)
 #
 #     return bricks_render_info(request,

@@ -235,7 +235,7 @@ class IconRendererNode(TemplateNode):
 def widget_hyperlink(instance):
     """{% widget_hyperlink my_instance %}
     @param instance: Instance of DjangoModel which has a get_absolute_url() method
-           & should have overload its __unicode__() method too.
+           & should have overload its __str__() method too.
            BEWARE: it must not be a CremeEntity instance, or an auxiliary instance,
            because the permissions are not checked.
     """

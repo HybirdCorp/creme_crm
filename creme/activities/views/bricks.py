@@ -25,7 +25,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation, CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
 # from creme.creme_core.views.generic import add_to_entity
-from creme.creme_core.views.generic.add import AddingToEntity
+from creme.creme_core.views.generic.add import AddingToEntityPopup
 
 from .. import get_activity_model, constants
 from ..forms import bricks as bricks_forms
@@ -44,7 +44,7 @@ Activity = get_activity_model()
 #                          submit_label=_('Add the participants'),
 #                          template='creme_core/generics/blockform/link_popup.html',
 #                         )
-class ParticipantsAdding(AddingToEntity):
+class ParticipantsAdding(AddingToEntityPopup):
     # model = Contact
     form_class = bricks_forms.ParticipantCreateForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
@@ -85,7 +85,7 @@ def delete_participant(request):
 #                          submit_label=_('Add the subjects'),
 #                          template='creme_core/generics/blockform/link_popup.html',
 #                         )
-class SubjectsAdding(AddingToEntity):
+class SubjectsAdding(AddingToEntityPopup):
     # model = Contact
     form_class = bricks_forms.SubjectCreateForm
     template_name = 'creme_core/generics/blockform/link-popup.html'

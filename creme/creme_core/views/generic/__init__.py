@@ -5,19 +5,19 @@ from .add import (
     add_entity, add_to_entity, add_model_with_popup,
     CremeModelCreation, EntityCreation,
     CremeModelCreationPopup, EntityCreationPopup,
-    AddingToEntity,
+    AddingToEntityPopup,
 )
 from .detailview import (
     view_entity,
     CremeModelDetail, EntityDetail,
     CremeModelDetailPopup, EntityDetailPopup,
-    RelatedToEntityDetail,
+    RelatedToEntityDetail, RelatedToEntityDetailPopup,
 )
 from .edit import (
     edit_entity, edit_related_to_entity, edit_model_with_popup,
     CremeModelEdition, EntityEdition,
     CremeModelEditionPopup, EntityEditionPopup,
-    RelatedToEntityEdition,
+    RelatedToEntityEditionPopup,
 )
 from .listview import list_view, list_view_popup
 from .portal import app_portal

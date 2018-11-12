@@ -124,7 +124,7 @@ class StrategyEdition(generic.EntityEdition):
     pk_url_kwarg = 'strategy_id'
 
 
-class _AddToStrategy(generic.AddingToEntity):
+class _AddToStrategy(generic.AddingToEntityPopup):
     entity_id_url_kwarg = 'strategy_id'
     entity_classes = Strategy
 
@@ -161,7 +161,7 @@ class EvaluatedOrgaAdding(_AddToStrategy):
     submit_label = _('Link the organisation(s)')
 
 
-class SegmentDescEdition(generic.RelatedToEntityEdition):
+class SegmentDescEdition(generic.RelatedToEntityEditionPopup):
     model = MarketSegmentDescription
     form_class = forms.SegmentEditForm
     permissions = 'commercial'
@@ -169,7 +169,7 @@ class SegmentDescEdition(generic.RelatedToEntityEdition):
     title_format = _('Segment for «{}»')
 
 
-class AssetEdition(generic.RelatedToEntityEdition):
+class AssetEdition(generic.RelatedToEntityEditionPopup):
     model = CommercialAsset
     form_class = forms.AssetForm
     permissions = 'commercial'
@@ -177,7 +177,7 @@ class AssetEdition(generic.RelatedToEntityEdition):
     title_format = _('Asset for «{}»')
 
 
-class CharmEdition(generic.RelatedToEntityEdition):
+class CharmEdition(generic.RelatedToEntityEditionPopup):
     model = MarketSegmentCharm
     form_class = forms.CharmForm
     permissions = 'commercial'

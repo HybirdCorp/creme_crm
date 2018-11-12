@@ -25,7 +25,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 class EmailsConfig(CremeAppConfig):
     name = 'creme.emails'
-    verbose_name = _(u'Emails')
+    verbose_name = _('Emails')
     dependencies = ['creme.persons', 'creme.documents']
 
     def all_apps_ready(self):
@@ -53,6 +53,7 @@ class EmailsConfig(CremeAppConfig):
 
         brick_registry.register(
             bricks.EmailHTMLBodyBrick,
+            bricks.SendingHTMLBodyBrick,
             bricks.TemplateHTMLBodyBrick,
             bricks.MailingListsBrick,
             bricks.EmailRecipientsBrick,
@@ -62,6 +63,7 @@ class EmailsConfig(CremeAppConfig):
             bricks.ParentListsBrick,
             bricks.AttachmentsBrick,
             bricks.SendingsBrick,
+            bricks.SendingBrick,
             bricks.MailsBrick,
             bricks.MailsHistoryBrick,
             bricks.MailPopupBrick,
@@ -73,22 +75,23 @@ class EmailsConfig(CremeAppConfig):
         brick_registry.register_hat(self.EntityEmail, main_brick_cls=bricks.EntityEmailBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
-        from .models import EmailSending, LightWeightEmail
+        from . import models
 
         register = bulk_update_registry.register
-        register(self.MailingList,   exclude=('children', 'contacts', 'organisations'))
+        register(self.MailingList, exclude=('children', 'contacts', 'organisations'))
         register(self.EmailCampaign, exclude=('mailing_lists',))
-        register(EmailSending,       exclude=('sender', 'type', 'sending_date'))  # TODO: tags modifiable=False ??
-        register(self.EntityEmail,   exclude=('sender', 'recipient', 'subject',
-                                              'body', 'body_html', 'signature', 'attachments',
-                                             )  # TODO: idem
+        register(models.EmailSending, exclude=('sender', 'type', 'sending_date'))  # TODO: tags modifiable=False ??
+        register(self.EntityEmail, exclude=('sender', 'recipient', 'subject',
+                                            'body', 'body_html', 'signature', 'attachments',
+                                           )  # TODO: idem
                 )
-        register(LightWeightEmail,   exclude=('sender', 'recipient', 'subject', 'body'))  # TODO: idem
+        register(models.LightWeightEmail, exclude=('sender', 'recipient', 'subject', 'body'))  # TODO: idem
 
     def register_buttons(self, button_registry):
         # from .buttons import entityemail_link_button
         # button_registry.register(entityemail_link_button)
         from . import buttons
+
         button_registry.register(buttons.EntityEmailLinkButton)
 
     def register_fields_config(self, fields_config_registry):
@@ -104,6 +107,7 @@ class EmailsConfig(CremeAppConfig):
         reg_icon = icon_registry.register
         reg_icon(self.EntityEmail,        'images/email_%(size)s.png')
         reg_icon(models.LightWeightEmail, 'images/email_%(size)s.png')
+        reg_icon(models.EmailSending,     'images/email_%(size)s.png')
         reg_icon(self.MailingList,        'images/email_%(size)s.png')
         reg_icon(self.EmailCampaign,      'images/email_%(size)s.png')
         reg_icon(self.EmailTemplate,      'images/email_%(size)s.png')
@@ -135,7 +139,7 @@ class EmailsConfig(CremeAppConfig):
         # else:
         group = creme_menu.get('features') \
                           .get_or_create(creme_menu.ContainerItem, 'marketing', priority=200,
-                                         defaults={'label': _(u'Marketing')},
+                                         defaults={'label': _('Marketing')},
                                         ) \
                           .get_or_create(creme_menu.ItemGroup, 'emails', priority=10)
         LvURLItem = creme_menu.URLItem.list_view
@@ -145,14 +149,14 @@ class EmailsConfig(CremeAppConfig):
              .add(LvURLItem('emails-templates', model=ETemplate),        priority=20) \
              .add(LvURLItem('emails-emails',    model=self.EntityEmail), priority=25)
         creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('marketing', _(u'Marketing'), priority=200) \
+                  .get_or_create_group('marketing', _('Marketing'), priority=200) \
                   .add_link('emails-create_campaign', ECampaign, priority=10) \
                   .add_link('emails-create_mlist',    MList, priority=15) \
                   .add_link('emails-create_template', ETemplate, priority=20)
 
         if apps.is_installed('creme.crudity'):
             group.add(creme_menu.URLItem('emails-sync', url=reverse('emails__crudity_sync'),
-                                         label=_(u'Synchronization of incoming emails'),
+                                         label=_('Synchronization of incoming emails'),
                                          perm='emails',
                                         ),
                       priority=100,

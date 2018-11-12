@@ -1,0 +1,23 @@
+{% extends 'creme_core/detailview.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block global_buttons %}
+    <li>
+        <a class="menu_button menu-button-icon" href="{{object.campaign.get_absolute_url}}">{% trans 'Back to the campaign' as back_label %}
+            {% widget_icon name='previous' size='global-button' label=back_label %}
+            {{back_label}}
+        </a>
+    </li>
+{% endblock %}
+
+{% block detail_view_left %}
+    {% brick_import app='emails' name='sending' as info_brick %}
+    {% brick_import app='emails' name='sending_html_body' as body_brick %}
+    {% brick_display info_brick %}
+    {% brick_display body_brick %}
+{% endblock %}
+
+{% block detail_view_right %}
+    {% brick_import app='emails' name='mails' as mails_brick %}
+    {% brick_display mails_brick %}
+{% endblock %}

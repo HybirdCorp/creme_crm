@@ -166,6 +166,14 @@ class CremeModelDetail(base.PermissionsMixin, base.BricksMixin, DetailView):
         return instance
 
 
+class RelatedToEntityDetail(CremeModelDetail):
+    """ This specialisation of CremeModelDetail is made for models
+    related to a CremeEntity instance.
+    """
+    def check_instance_permissions(self, instance, user):
+        user.has_perm_to_view_or_die(instance.get_related_entity())
+
+
 class EntityDetail(CremeModelDetail):
     """ Base class for detail view of CremeEntities.
 
@@ -241,7 +249,7 @@ class EntityDetailPopup(CremeModelDetailPopup):
         user.has_perm_to_access_or_die(self.model._meta.app_label)
 
 
-class RelatedToEntityDetail(CremeModelDetailPopup):
+class RelatedToEntityDetailPopup(CremeModelDetailPopup):
     """ This specialisation of CremeModelDetailPopup is made for models
     related to a CremeEntity instance.
     """

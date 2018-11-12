@@ -12,21 +12,23 @@ from .views import campaign, sending, recipient, mailing_list, template, mail, s
 urlpatterns = [
     # url(r'^$', portal.portal, name='emails__portal'),
 
-    # Campaign: mailing_list block
+    # Campaign: mailing_list brick
     # url(r'^campaign/(?P<campaign_id>\d+)/mailing_list/add[/]?$',    campaign.add_ml,    name='emails__add_mlists_to_campaign'),
     url(r'^campaign/(?P<campaign_id>\d+)/mailing_list/add[/]?$',    campaign.MailingListsAdding.as_view(), name='emails__add_mlists_to_campaign'),
     url(r'^campaign/(?P<campaign_id>\d+)/mailing_list/delete[/]?$', campaign.delete_ml,                    name='emails__remove_mlist_from_campaign'),
 
-    # Campaign: sending block
+    # Campaign: sending brick
     # url(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.add, name='emails__create_sending'),
     url(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.SendingCreation.as_view(), name='emails__create_sending'),
 
-    # Campaign: sending details block (TODO: remove 'campaign/' from url ??)
+    # Campaign: sending details brick
     # url(r'^campaign/sending/(?P<sending_id>\d+)[/]?$',              sending.detailview,         name='emails__view_sending'),
-    url(r'^campaign/sending/(?P<sending_id>\d+)[/]?$',              sending.LightWeightEmails.as_view(), name='emails__view_sending'),
-    url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload[/]?$', sending.reload_mails_brick,          name='emails__reload_lw_mails_brick'),
+    url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload[/]?$', sending.reload_mails_brick, name='emails__reload_lw_mails_brick'),  # DEPRECATED
+    url(r'^sending/(?P<sending_id>\d+)[/]?$',          sending.SendingDetail.as_view(), name='emails__view_sending'),
+    url(r'^sending/(?P<sending_id>\d+)/get_body[/]?$', sending.SendingBody.as_view(),   name='emails__sending_body'),
+    url(r'^sending/(?P<sending_id>\d+)/reload[/]?$',   sending.reload_sending_bricks,   name='emails__reload_sending_bricks'),
 
-    # Mailing list: recipients block
+    # Mailing list: recipients brick
     # url(r'^mailing_list/(?P<ml_id>\d+)/recipient/add[/]?$',     recipient.add,          name='emails__add_recipients'),
     url(r'^mailing_list/(?P<ml_id>\d+)/recipient/add[/]?$',     recipient.RecipientsAdding.as_view(),        name='emails__add_recipients'),
     # url(r'^mailing_list/(?P<ml_id>\d+)/recipient/add_csv[/]?$', recipient.add_from_csv, name='emails__add_recipients_from_csv'),
@@ -56,7 +58,7 @@ urlpatterns = [
     url(r'^template/(?P<template_id>\d+)/attachment/add[/]?$',    template.AttachmentsAdding.as_view(), name='emails__add_attachments_to_template'),
     url(r'^template/(?P<template_id>\d+)/attachment/delete[/]?$', template.delete_attachment, name='emails__remove_attachment_from_template'),
 
-    # Mails history blocks
+    # Mails history bricks
     # url(r'^mails_history/(?P<mail_id>\w+)[/]?$', mail.view_lightweight_mail,     name='emails__view_lw_mail'),
     url(r'^mails_history/(?P<mail_id>\w+)[/]?$', mail.LightWeightEmailPopup.as_view(), name='emails__view_lw_mail'),
     url(r'^mail/get_body/(?P<mail_id>\w+)[/]?$', mail.get_lightweight_mail_body,       name='emails__lw_mail_body'),

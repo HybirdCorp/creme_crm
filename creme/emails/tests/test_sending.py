@@ -23,6 +23,8 @@ try:
     from .base import (_EmailsTestCase, skipIfCustomEmailCampaign,
             skipIfCustomEmailTemplate, skipIfCustomMailingList,
             Contact, Organisation, EmailCampaign, EmailTemplate, MailingList)
+
+    from ..bricks import MailsBrick
     from ..constants import SETTING_EMAILCAMPAIGN_SENDER, MAIL_STATUS_NOTSENT
     from ..creme_jobs import campaign_emails_send_type
     from ..models import EmailSending, EmailRecipient, LightWeightEmail
@@ -282,16 +284,26 @@ class SendingsTestCase(_EmailsTestCase):
         response = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
         self.assertEqual(b'', response.content)
 
-        # Popup detail view -----------------------------------------------------
-        response = self.assertGET200(reverse('emails__view_sending', args=(sending.id,)))
+        # Detail view ----------------------------------------------------------
+        detail_url = reverse('emails__view_sending', args=(sending.id,))
+        self.assertPOST(405, detail_url)
+
+        response = self.assertGET200(detail_url)
         # self.assertTemplateUsed(response, 'emails/popup_sending.html')
-        self.assertTemplateUsed(response, 'creme_core/generics/detail-popup.html')
+        self.assertTemplateUsed(response, 'emails/view_sending.html')
         self.assertEqual(sending, response.context.get('object'))
 
         self.assertContains(response, contacts[0].email)
         self.assertContains(response, orgas[0].email)
 
-        # Test delete campaign --------------------------------------------------
+        # HTML body ----------------------------------------------------------
+        body_url = reverse('emails__sending_body', args=(sending.id,))
+        self.assertPOST(405, body_url)
+
+        response = self.assertGET200(body_url)
+        self.assertEqual(b'', response.content)
+
+        # Test delete campaign -------------------------------------------------
         camp.trash()
         self.assertPOST(302, camp.get_delete_absolute_url())
         self.assertFalse(EmailCampaign.objects.exists())
@@ -321,10 +333,10 @@ class SendingsTestCase(_EmailsTestCase):
                                                 body=body, body_html=body_html,
                                                )
         response = self.client.post(self._build_add_url(camp),
-                                    data = {'sender':   'vicious@reddragons.mrs',
-                                            'type':     SENDING_TYPE_IMMEDIATE,
-                                            'template': template.id,
-                                           }
+                                    data={'sender':   'vicious@reddragons.mrs',
+                                          'type':     SENDING_TYPE_IMMEDIATE,
+                                          'template': template.id,
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -342,6 +354,10 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(html, mail.rendered_body_html)
         # self.assertEqual(html, self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
         self.assertEqual(html.encode(), self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
+
+        # View template --------------------------------------------------------
+        response = self.assertGET200(reverse('emails__sending_body', args=(sending.id,)))
+        self.assertEqual(template.body_html.encode(), response.content)
 
         # test delete sending --------------------------------------------------
         ct = ContentType.objects.get_for_model(EmailSending)
@@ -558,11 +574,22 @@ class SendingsTestCase(_EmailsTestCase):
         sending = EmailSending.objects.create(sender='vicious@reddragons.mrs',
                                               campaign=camp,
                                               sending_date=now(),
+                                              body='My body is ready',
+                                              body_html='My body is <b>ready</b>',
                                              )
 
         lw_mail = LightWeightEmail(sending=sending)
         lw_mail.genid_n_save()
 
+        # List of emails ---
+        response = self.assertGET200(reverse('emails__view_sending', args=(sending.id,)))
+        self.assertTemplateUsed(response, 'emails/view_sending.html')
+        self.assertEqual(sending, response.context.get('object'))
+
+        # Template ---
+        self.assertGET200(reverse('emails__sending_body', args=(sending.id,)))
+
+        # Email detail ---
         response = self.assertGET200(reverse('emails__view_lw_mail', args=(lw_mail.id,)))
         self.assertEqual(_('Details of the email'), response.context.get('title'))
 
@@ -588,7 +615,65 @@ class SendingsTestCase(_EmailsTestCase):
         lw_mail = LightWeightEmail(sending=sending)
         lw_mail.genid_n_save()
 
+        self.assertGET403(reverse('emails__view_sending', args=(sending.id,)))
+        self.assertGET403(reverse('emails__sending_body', args=(sending.id,)))
         self.assertGET403(reverse('emails__view_lw_mail', args=(lw_mail.id,)))
+
+    def test_reload_sending_bricks01(self):
+        "Not super-user"
+        user = self.login(is_superuser=False,
+                          allowed_apps=('emails',),
+                          creatable_models=(EmailSending, EmailCampaign),
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        camp = EmailCampaign.objects.create(user=user, name='Camp#1')
+        sending = EmailSending.objects.create(sender='vicious@reddragons.mrs',
+                                              campaign=camp,
+                                              sending_date=now(),
+                                              body='My body is ready',
+                                              body_html='My body is <b>ready</b>',
+                                             )
+
+        url = reverse('emails__reload_sending_bricks', args=(sending.id,))
+        self.assertGET404(url)  # No brick ID
+
+        response = self.assertGET200(url, data={'brick_id': MailsBrick.id_})
+        self.assertEqual('application/json', response['Content-Type'])
+
+        content = response.json()
+        self.assertIsInstance(content, list)
+        self.assertEqual(1, len(content))
+
+        brick_data = content[0]
+        self.assertEqual(2, len(brick_data))
+        self.assertEqual(MailsBrick.id_, brick_data[0])
+        self.assertIn(' id="{}"'.format(MailsBrick.id_), brick_data[1])
+
+        # TODO: test other bricks
+
+    def test_reload_sending_bricks02(self):
+        "Can not see the campaign"
+        self.login(is_superuser=False, allowed_apps=('emails',))
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        camp = EmailCampaign.objects.create(user=self.other_user, name='Camp#1')
+        sending = EmailSending.objects.create(sender='vicious@reddragons.mrs',
+                                              campaign=camp,
+                                              sending_date=now(),
+                                              body='My body is ready',
+                                              body_html='My body is <b>ready</b>',
+                                             )
+
+        self.assertGET403(reverse('emails__reload_sending_bricks', args=(sending.id,)),
+                          data={'brick_id': MailsBrick.id_}
+                         )
 
     def test_inneredit(self):
         user = self.login()

@@ -226,7 +226,7 @@ def resend_mails(request):  # TODO: unit test
 
 # Class-based views  ----------------------------------------------------------
 
-class EntityEmailCreation(generic.AddingToEntity):
+class EntityEmailCreation(generic.AddingToEntityPopup):
     model = EntityEmail
     form_class = mail_forms.EntityEmailForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
@@ -317,7 +317,7 @@ class EntityEmailPopup(generic.EntityDetailPopup):
 
 
 # TODO: disable the link in the template if view is not allowed
-class LightWeightEmailPopup(generic.RelatedToEntityDetail):
+class LightWeightEmailPopup(generic.RelatedToEntityDetailPopup):
     model = LightWeightEmail
     pk_url_kwarg = 'mail_id'
     permissions = 'emails'
