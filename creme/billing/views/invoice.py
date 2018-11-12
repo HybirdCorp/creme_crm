@@ -21,6 +21,7 @@
 from datetime import date
 import warnings
 
+from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -121,8 +122,10 @@ def listview(request):
 @login_required
 @permission_required('billing')
 @decorators.POST_only
+@atomic
 def generate_number(request, invoice_id):
-    invoice = get_object_or_404(Invoice, pk=invoice_id)
+    # invoice = get_object_or_404(Invoice, pk=invoice_id)
+    invoice = get_object_or_404(Invoice.objects.select_for_update(), pk=invoice_id)
 
     request.user.has_perm_to_change_or_die(invoice)
 
