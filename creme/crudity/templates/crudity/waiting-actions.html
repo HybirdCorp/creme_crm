@@ -5,7 +5,7 @@
 
 {% block extrahead %}
 {# TODO: the 'refresh' button should be disabled when the page it loaded, & be enabled after the first automatic refreshing #}
-    <script>
+    <script type="text/javascript">
         function refreshWaitingActions(refresh_url) {
             $.ajax({url: refresh_url,
                     type: 'POST',

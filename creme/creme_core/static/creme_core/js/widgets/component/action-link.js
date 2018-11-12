@@ -104,7 +104,7 @@ creme.action.ActionLink = creme.component.Component.sub({
 
     _optActionData: function(button) {
         try {
-            var data = $('script:first', button).text();
+            var data = creme.utils.JSON.readScriptText($('script[type$="/json"]', button));
             return Object.isEmpty(data) ? {} : JSON.parse(data);
         } catch (e) {
             console.warn(e);

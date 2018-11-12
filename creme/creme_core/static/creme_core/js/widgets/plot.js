@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,38 +16,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+ "use strict";
 
 creme.widget.PlotEventHandlerRegistry = function() {
-    this._handlers = {}
-}
+    this._handlers = {};
+};
 
 creme.widget.PlotEventHandlerRegistry.prototype = {
-    register: function(name, handler)
-    {
-        if ($.isFunction(this.get(name, null)))
-            throw new Error('handler "' + name + '" is already registered');
+    register: function(name, handler) {
+        if ($.isFunction(this.get(name, null))) { throw new Error('handler "' + name + '" is already registered'); }
 
         this._handlers[name] = handler;
     },
 
-    unregister: function(name)
-    {
-        if (this.get(name) === undefined)
-            throw new Error('no such handler "' + name + '"');
+    unregister: function(name) {
+        if (this.get(name) === undefined) { throw new Error('no such handler "' + name + '"'); }
 
         delete this._handlers[name];
     },
 
-    get: function(name, defaults)
-    {
+    get: function(name, defaults) {
         var handler = this._handlers[name];
 
-        if ($.isFunction(handler) === false)
-        {
-            if (defaults === undefined)
-                throw new Error('no such plot event handler "' + name + '"');
-            
+        if ($.isFunction(handler) === false) {
+            if (defaults === undefined) { throw new Error('no such plot event handler "' + name + '"'); }
+
             return defaults;
         }
 
@@ -83,40 +77,39 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         'resize-delay': 200
     },
 
-    _create: function(element, options, cb, sync, attributes)
-    {
+    _create: function(element, options, cb, sync, attributes) {
         var self = this;
         var can_raster = !$.matchIEVersion(7, 8);
 
-        this._israster = options.plotmode == 'raster' && can_raster;
-        this._issavable = options.savable == 'true' && can_raster;
-        this._plot_info = {options: {}, data: []}
+        this._israster = options.plotmode === 'raster' && can_raster;
+        this._issavable = (options.savable === true || options.savable === 'true') && can_raster;
+        this._plot_info = {options: {}, data: []};
         this._plot_handlers = [];
 
-        element.bind('resizestop', function() {self._onResize(element);});
+        element.bind('resizestop', function() { self._onResize(element); });
 
         this.draw(element, this.plotScript(element), cb, cb);
     },
 
-    _rasterImage: function(plot, onload, options)
-    {
+    _rasterImage: function(plot, onload, options) {
         var image = document.createElement("img");
         var str = plot.jqplotToImageStr(options);
 
-        image.onload = function() {onload(image);}
+        if (Object.isFunc(onload)) {
+            image.onload = function() { onload(image); };
+        }
+
         image.src = str;
         return image;
     },
 
-    _popupRasterImage: function(element)
-    {
+    _popupRasterImage: function() {
         this._rasterImage(this._plot, function(image) {
             creme.dialogs.image(image, {title: gettext('Canvas image')}).open();
         });
     },
 
-    _draw: function(element, plot_info, cb)
-    {
+    _draw: function(element, plot_info, cb) {
         var width = element.attr('width') || element.width();
         var height = element.attr('height') || element.height();
 
@@ -127,22 +120,20 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
                                .css('padding', '0')
                                .attr('id', creme.object.uuid());
 
-        try
-        {
+        try {
             if (this._israster) {
-                this._drawRaster(element, target, plot_info.data, plot_info.options, cb)
+                this._drawRaster(element, target, plot_info.data, plot_info.options, cb);
             } else {
-                this._drawSVG(element, target, plot_info.data, plot_info.options, cb)
+                this._drawSVG(element, target, plot_info.data, plot_info.options, cb);
             }
-        } catch(err) {
+        } catch (err) {
             console.error(err);
             target.remove();
             throw err;
         }
     },
 
-    _drawRaster: function(element, target, data, options, cb)
-    {
+    _drawRaster: function(element, target, data, options, cb) {
         target.css('visibility', 'hidden');
         element.append(target);
 
@@ -162,8 +153,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         });
     },
 
-    _populateSVGActions: function(element, target, options)
-    {
+    _populateSVGActions: function(element, target, options) {
         var self = this;
         var actions = $('<div class="jqplot-actions">');
 
@@ -171,14 +161,17 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
             actions.append($('<button>').attr('title', gettext('View as image'))
                                         .attr('alt', gettext('View as image'))
                                         .attr('name', 'capture')
-                                        .bind('click', function() {self._popupRasterImage();}))
+                                        .click(function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            self._popupRasterImage();
+                                         }));
         }
 
         target.append(actions);
     },
 
-    _drawSVG: function(element, target, data, options, cb)
-    {
+    _drawSVG: function(element, target, data, options, cb) {
         var self = this;
 
         if (Object.isEmpty(data)) {
@@ -208,55 +201,51 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         creme.object.invoke(cb, element);
     },
 
-    _bindPlotHandlers: function(plot, options)
-    {
+    _bindPlotHandlers: function(plot, options) {
         var self = this;
 
         options.handlers.forEach(function(handler) {
             plot.bind(handler.event,
                       function(event, seriesIndex, pointIndex, data) {
                           handler.action.apply(self, [event, seriesIndex, pointIndex, data, handler]);
-                      })
+                      });
         });
     },
 
-    _jqplotRenderer: function(name)
-    {
+    _jqplotRenderer: function(name) {
         var renderer = name ? $.jqplot[name] : undefined;
 
-        if (typeof renderer !== 'function')
-            throw 'no such renderer "' + name + '"';
+        if (typeof renderer !== 'function') {
+            throw Error('no such renderer "' + name + '"');
+        }
 
         return renderer;
     },
 
-    _parseJQPlotOptions: function(data)
-    {
-        for(var key in data)
-        {
+    _parseJQPlotOptions: function(data) {
+        for (var key in data) {
             var value = data[key];
 
-            if (typeof value === 'object') {
-                this._parseJQPlotOptions(value);
-            } else if (typeof value === 'string' && /^jqplot\.[\w\d]+$/.test(value)) {
+            if (Object.isString(value) && /^jqplot\.[\w\d]+$/.test(value)) {
                 data[key] = this._jqplotRenderer(value.substr('jqplot.'.length));
+            } else if (typeof value === 'object') {
+                this._parseJQPlotOptions(value);
             }
         }
 
         return data;
     },
 
-    _preprocessPlotHandlers: function(handlers)
-    {
-        var handlers = handlers || [];
+    _preprocessPlotHandlers: function(handlers) {
+        handlers = handlers || [];
         var built = [];
 
         handlers.forEach(function(options) {
-            var options = options || {};
+            options = options || {};
             var name = options.action || 'redirect';
 
             var eventname = options.event || 'click';
-            var eventname = eventname.length > 1 ? eventname.substr(0, 1).toUpperCase() + eventname.substr(1).toLowerCase() : eventname;
+            eventname = eventname.length > 1 ? eventname.substr(0, 1).toUpperCase() + eventname.substr(1).toLowerCase() : eventname;
 
             built.push($.extend({}, options, {
                 event: 'jqplotData' + eventname,
@@ -271,12 +260,10 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         return creme.utils.converters.convert(options.dataFormat || 'jqplotData', 'jqplotData', data);
     },
 
-    _preprocess: function()
-    {
+    _preprocess: function() {
         var plot_info = this._plot_info;
 
-        if (plot_info.built !== undefined)
-            return plot_info.built;
+        if (plot_info.built !== undefined) { return plot_info.built; }
 
         plot_info.built = creme.widget.PlotProcessors.preprocess(plot_info);
         plot_info.built.options['handlers'] = this._preprocessPlotHandlers(plot_info.built.options.handlers);
@@ -288,36 +275,31 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         return plot_info.built;
     },
 
-    _onDrawSuccess: function(element, data, cb)
-    {
+    _onDrawSuccess: function(element, data, cb) {
         // console.log('success:', element, data);
         element.addClass('widget-ready').attr("status", "valid");
         element.trigger('plotSuccess', [this._plot, data]);
         creme.object.invoke(cb, element);
     },
 
-    _onDrawError: function(element, err, data, cb)
-    {
+    _onDrawError: function(element, err, data, cb) {
         // console.error(element ? element[0] : undefined, (err && err.message) ? err.message : err, (err && err.stack) ? err.stack : '');
         element.addClass('widget-ready').attr("status", "error");
         element.trigger('plotError', [err, data]);
         creme.object.invoke(cb, element);
     },
 
-    _onBeforeDraw: function(element)
-    {
+    _onBeforeDraw: function(element) {
         element.removeClass('widget-ready');
         this.clear(element);
         element.attr("status", "wait");
     },
 
-    _onResize: function(element)
-    {
+    _onResize: function(element) {
         var self = this;
         var delay = this.options['resize-delay'] || 0;
 
-        if (this.options.resize === false || element.is('[status="wait"]'))
-            return;
+        if (this.options.resize === false || element.is('[status="wait"]')) { return; }
 
         creme.object.deferred_start(element, 'jqplot-resize', function() {
             self.redraw(element);
@@ -329,8 +311,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         element.attr("status", status || "valid");
     },
 
-    draw: function(element, data, cb, error_cb)
-    {
+    draw: function(element, data, cb, error_cb) {
         var self = this;
 
         try {
@@ -340,13 +321,12 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
             self._draw(element, self._preprocess(), function() {
                 self._onDrawSuccess(element, data, cb);
             });
-        } catch(err) {
+        } catch (err) {
             self._onDrawError(element, err, data, error_cb);
         }
     },
 
-    redraw: function(element, cb, error_cb)
-    {
+    redraw: function(element, cb, error_cb) {
         var self = this;
         var info = null;
 
@@ -357,37 +337,37 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
             self._draw(element, info, function() {
                 self._onDrawSuccess(element, info, cb);
             });
-        } catch(err) {
+        } catch (err) {
             self._onDrawError(element, err, info, error_cb);
         }
     },
 
-    plotOptions: function(element, options)
-    {
-        if (options === undefined)
+    plotOptions: function(element, options) {
+        if (options === undefined) {
             return this._plot_info.options;
+        }
 
-        var options = creme.utils.JSON.clean(options);
-        this._plot_info.options = this._parseJQPlotOptions(options || {});
+        var cleaned_options = creme.utils.JSON.clean(options);
+
+        this._plot_info.options = this._parseJQPlotOptions(cleaned_options || {});
         this._plot_info.built = undefined;
     },
 
-    plotData: function(element, data)
-    {
-        if (data === undefined)
+    plotData: function(element, data) {
+        if (data === undefined) {
             return this._plot_info.data;
+        }
 
-        var data = creme.utils.JSON.clean(data);
-        this._plot_info.data = this._convertData(data, this._plot_info.options);
+        var cleaned_data = creme.utils.JSON.clean(data);
+        this._plot_info.data = this._convertData(cleaned_data, this._plot_info.options);
         this._plot_info.built = undefined;
     },
 
-    plotInfo: function(element, source)
-    {
-        if (source === undefined)
+    plotInfo: function(element, source) {
+        if (source === undefined) {
             return this._plot_info;
+        }
 
-        var self = this;
         var plot_info = this._plot_info;
 
         if (Object.isEmpty(source)) {
@@ -404,7 +384,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
     },
 
     plotScript: function(element) {
-        return $('> script[type="text/json"]', element).html();
+        return creme.utils.JSON.readScriptText($('> script[type$="/json"]', element));
     },
 
     plot: function(element) {
@@ -413,7 +393,23 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
 
     preprocess: function(element) {
         return this._preprocess();
+    },
+
+    isSavable: function(element) {
+        return this._issavable;
+    },
+
+    capture: function(element, cb) {
+        var img;
+
+        if (this._israster) {
+            img = $(element, '.jqplot-target img');
+            creme.object.invoke(cb, img.get());
+        } else {
+            img = $(this._rasterImage(this._plot, cb));
+        }
+
+        return img;
     }
 });
-
 }(jQuery));

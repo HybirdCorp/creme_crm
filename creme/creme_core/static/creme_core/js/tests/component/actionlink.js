@@ -1,3 +1,5 @@
+/* globals setTimeout */
+
 (function($) {
 "use strict";
 
@@ -361,9 +363,9 @@ QUnit.test('creme.action.ActionLink (already bound)', function(assert) {
     }, Error, 'Error: action link is already bound');
 });
 
-QUnit.test('creme.action.ActionLink (bind, data)', function(assert) {
+QUnit.test('creme.action.ActionLink (bind, text/json data)', function(assert) {
     var action = new creme.action.ActionLink();
-    var link = $('<span data-action-url="/actions/" data-action="b"><script datatype="text/json">{"data": 23}</script></span>');
+    var link = $('<span data-action-url="/actions/" data-action="b"><script type="text/json"><!--{"data": 23}--></script></span>');
 
     action.builders(this.mockActionBuilderDict);
     action.bind(link)
@@ -380,9 +382,50 @@ QUnit.test('creme.action.ActionLink (bind, data)', function(assert) {
     deepEqual([['action-link-done', [], this.mockActionB]], this.mockListenerCalls('complete'));
 });
 
+QUnit.test('creme.action.ActionLink (bind, application/json data)', function(assert) {
+    var action = new creme.action.ActionLink();
+    var link = $('<span data-action-url="/actions/" data-action="b"><script type="application/json"><!--{"data": 23}--></script></span>');
+
+    action.builders(this.mockActionBuilderDict);
+    action.bind(link)
+          .on('action-link-start', this.mockListener('start'))
+          .onComplete(this.mockListener('complete'));
+
+    equal(true, action.isBound());
+    equal(false, link.is('.is-disabled'));
+    equal(false, action.isDisabled());
+
+    link.click();
+    deepEqual(['b'], this.mockActionCalls());
+    deepEqual([['action-link-start', '/actions/', {}, 23, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
+    deepEqual([['action-link-done', [], this.mockActionB]], this.mockListenerCalls('complete'));
+});
+
+QUnit.test('creme.action.ActionLink (bind, multiple data)', function(assert) {
+    var action = new creme.action.ActionLink();
+    var link = $('<span data-action-url="/actions/" data-action="b">' +
+                    '<script type="text/json"><!-- {"data": "first"} --></script>' +
+                    '<script type="application/json"><!--{"data": 23}--></script>' +
+                 '</span>');
+
+    action.builders(this.mockActionBuilderDict);
+    action.bind(link)
+          .on('action-link-start', this.mockListener('start'))
+          .onComplete(this.mockListener('complete'));
+
+    equal(true, action.isBound());
+    equal(false, link.is('.is-disabled'));
+    equal(false, action.isDisabled());
+
+    link.click();
+    deepEqual(['b'], this.mockActionCalls());
+    deepEqual([['action-link-start', '/actions/', {}, 'first', 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
+    deepEqual([['action-link-done', [], this.mockActionB]], this.mockListenerCalls('complete'));
+});
+
 QUnit.test('creme.action.ActionLink (bind, invalid data)', function(assert) {
     var action = new creme.action.ActionLink();
-    var link = $('<span data-action-url="/actions/" data-action="b"><script datatype="text/json">{"data": 23}}}</script></span>');
+    var link = $('<span data-action-url="/actions/" data-action="b"><script type="text/json"><!--{"data": 23}}}--></script></span>');
 
     action.builders(this.mockActionBuilderDict);
     action.bind(link)

@@ -1,22 +1,23 @@
-(function($) {
+/* globals setTimeout */
 
+(function($) {
 var PLOTSELECTOR_PIEGRAPH_SCRIPT = {
     seriesDefaults: {
-        renderer: 'jqplot.PieRenderer', 
+        renderer: 'jqplot.PieRenderer',
         rendererOptions: {showDataLabels: true}
     }
 };
 
 var PLOTSELECTOR_PIEGRAPH = {
     seriesDefaults: {
-        renderer: $.jqplot.PieRenderer, 
+        renderer: $.jqplot.PieRenderer,
         rendererOptions: {showDataLabels: true}
     }
-}
+};
 
 var PLOTSELECTOR_BARGRAPH_SCRIPT = {
     seriesDefaults: {
-        renderer: 'jqplot.BarRenderer', 
+        renderer: 'jqplot.BarRenderer',
         rendererOptions: {
             showDataLabels: true,
             fillToZero: true
@@ -39,7 +40,7 @@ var PLOTSELECTOR_BARGRAPH_SCRIPT = {
 
 var PLOTSELECTOR_BARGRAPH = {
     seriesDefaults: {
-        renderer: $.jqplot.BarRenderer, 
+        renderer: $.jqplot.BarRenderer,
         rendererOptions: {
             showDataLabels: true,
             fillToZero: true
@@ -58,17 +59,17 @@ var PLOTSELECTOR_BARGRAPH = {
             tickOptions: {formatString: "%.2f €"}
         }
     }
-}
+};
 
 var PLOTSELECTOR_PLOT_01_DATA = [[[1, 2],   [3, 4],   [5, 12]]];
-var PLOTSELECTOR_PLOT_02_DATA = [[[1, 2.58],[3, 40.5],[5, 121.78]]];
+var PLOTSELECTOR_PLOT_02_DATA = [[[1, 2.58], [3, 40.5], [5, 121.78]]];
 
 
 /* globals stop, start, equal, deepEqual, */
 /* globals QUnit QUnitMixin, QUnitAjaxMixin, QUnitPlotMixin, QUnitWidgetMixin */
 QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin, QUnitPlotMixin, QUnitWidgetMixin, {
     buildMockBackend: function() {
-        return new creme.ajax.MockAjaxBackend({sync:true, name: 'creme.widget.plotselector.js'});
+        return new creme.ajax.MockAjaxBackend({sync: true, name: 'creme.widget.plotselector.js'});
     },
 
     beforeEach: function() {
@@ -104,7 +105,7 @@ QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin, QUn
     },
 
     cleanupMockPlotSelectors: function() {
-        for(var index = 0; index < this.mockSelectors.length; ++index) {
+        for (var index = 0; index < this.mockSelectors.length; ++index) {
             var selector = this.mockSelectors[index];
             var plot = $('.ui-creme-jqueryplot', selector);
 
@@ -117,21 +118,21 @@ QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin, QUn
     },
 
     createMockPlot: function(data, plotmode, savable, noauto)  {
-        var data = data || '';
+        data = data || '';
         var options = {
-                         plotmode: plotmode || 'svg', 
+                         plotmode: plotmode || 'svg',
                          savable: savable || false
                       };
 
         var plot = creme.widget.buildTag($('<div/>'), 'ui-creme-jqueryplot', options, !noauto)
-                               .append($('<script type="text/json">' + data + '</script>'));
+                               .append($('<script type="text/json"><!--' + data + '--></script>'));
 
         this.bindMockPlotEvents(plot);
         return plot;
     },
 
     createMockPlotSelector: function(options, noauto) {
-        var options = options || {};
+        options = options || {};
         var plot = this.createMockPlot('', 'svg', false, false);
         var selector = creme.widget.buildTag($('<div/>'), 'ui-creme-plotselector', options, !noauto)
                                    .append(plot);
@@ -146,7 +147,7 @@ QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin, QUn
         var script = data || '';
         script = (typeof script === 'string') ? script : $.toJSON(script);
 
-        selector.append($('<script name="' + name + '" type="text/json">' + script + '</script>'))
+        selector.append($('<script name="' + name + '" type="text/json"><!--' + script + '--></script>'));
     }
 }));
 
@@ -158,6 +159,8 @@ QUnit.test('creme.widget.PlotSelector.create (no graph, no data)', function(asse
     this.assertReady(element);
     this.assertReady($('.ui-creme-jqueryplot', element));
     this.assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
+
+    deepEqual(widget.dependencies(), []);
 
     deepEqual(widget.plotOptions(), []);
     equal(widget.plotOption('bar'), undefined);
@@ -178,7 +181,9 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, no data)', function(assert
     this.assertReady($('.ui-creme-jqueryplot', element));
     this.assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
-    deepEqual(widget.plotOptions().map(function(item) {return [item[0], item[1].replace(/\r\n/g, '')]}),
+    deepEqual(widget.dependencies(), []);
+
+    deepEqual(widget.plotOptions().map(function(item) { return [item[0], item[1].replace(/\r\n/g, '')]; }),
               [['bar', $.toJSON(PLOTSELECTOR_BARGRAPH_SCRIPT)],
                ['pie', $.toJSON(PLOTSELECTOR_PIEGRAPH_SCRIPT)]], 'test 1');
 
@@ -195,7 +200,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, name, no data)', function(
     this.appendMockPlotScript(element, 'bar', PLOTSELECTOR_BARGRAPH_SCRIPT);
     this.appendMockPlotScript(element, 'pie', PLOTSELECTOR_PIEGRAPH_SCRIPT);
 
-    var widget = creme.widget.create(element);
+    creme.widget.create(element);
     var plot_widget = $('.ui-creme-jqueryplot', element).creme().widget();
 
     this.assertReady(element);
@@ -211,7 +216,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, template name, no initial,
     this.appendMockPlotScript(element, 'bar-graph', PLOTSELECTOR_BARGRAPH_SCRIPT);
     this.appendMockPlotScript(element, 'pie-graph', PLOTSELECTOR_PIEGRAPH_SCRIPT);
 
-    var widget = creme.widget.create(element);
+    creme.widget.create(element);
     var plot_widget = $('.ui-creme-jqueryplot', element).creme().widget();
 
     this.assertReady(element);
@@ -224,14 +229,14 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, template name, no initial,
 
 QUnit.test('creme.widget.PlotSelector.create (graphs, template name, initial, no data)', function(assert) {
     var element = this.createMockPlotSelector({
-        'plot-name': '${name}-graph', 
+        'plot-name': '${name}-graph',
         'initial': $.toJSON({'name': 'pie'})
     });
 
     this.appendMockPlotScript(element, 'bar-graph', PLOTSELECTOR_BARGRAPH_SCRIPT);
     this.appendMockPlotScript(element, 'pie-graph', PLOTSELECTOR_PIEGRAPH_SCRIPT);
 
-    var widget = creme.widget.create(element);
+    creme.widget.create(element);
     var plot_widget = $('.ui-creme-jqueryplot', element).creme().widget();
 
     this.assertReady(element);
@@ -251,7 +256,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, name, data url)', function
     this.appendMockPlotScript(element, 'bar-graph', PLOTSELECTOR_BARGRAPH_SCRIPT);
     this.appendMockPlotScript(element, 'pie-graph', PLOTSELECTOR_PIEGRAPH_SCRIPT);
 
-    var widget = creme.widget.create(element, {backend: this.backend});
+    creme.widget.create(element, {backend: this.backend});
     var plot_widget = $('.ui-creme-jqueryplot', element).creme().widget();
 
     this.assertReady(element);
@@ -271,7 +276,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, name, template data url, n
     this.appendMockPlotScript(element, 'bar-graph', PLOTSELECTOR_BARGRAPH_SCRIPT);
     this.appendMockPlotScript(element, 'pie-graph', PLOTSELECTOR_PIEGRAPH_SCRIPT);
 
-    var widget = creme.widget.create(element, {backend: this.backend});
+    creme.widget.create(element, {backend: this.backend});
     var plot_widget = $('.ui-creme-jqueryplot', element).creme().widget();
 
     this.assertReady(element);
@@ -292,7 +297,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, name, template data url, i
     this.appendMockPlotScript(element, 'bar-graph', PLOTSELECTOR_BARGRAPH_SCRIPT);
     this.appendMockPlotScript(element, 'pie-graph', PLOTSELECTOR_PIEGRAPH_SCRIPT);
 
-    var widget = creme.widget.create(element, {backend: this.backend});
+    creme.widget.create(element, {backend: this.backend});
     var plot_widget = $('.ui-creme-jqueryplot', element).creme().widget();
 
     this.assertReady(element);
@@ -300,7 +305,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, name, template data url, i
     this.assertPlot(this, $('.ui-creme-jqueryplot', element));
 
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
-    deepEqual(plot_widget.plotData(),PLOTSELECTOR_PLOT_01_DATA);
+    deepEqual(plot_widget.plotData(), PLOTSELECTOR_PLOT_01_DATA);
 });
 
 QUnit.test('creme.widget.PlotSelector.reload (graphs, name, template data url)', function(assert) {
@@ -318,6 +323,8 @@ QUnit.test('creme.widget.PlotSelector.reload (graphs, name, template data url)',
     this.assertReady(element);
     this.assertReady($('.ui-creme-jqueryplot', element));
     this.assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
+
+    deepEqual(widget.dependencies(), ['id']);
 
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
     deepEqual(plot_widget.plotData(), []);
@@ -364,6 +371,8 @@ QUnit.test('creme.widget.PlotSelector.reload (no cache)', function(assert) {
     this.assertReady(element);
     this.assertReady($('.ui-creme-jqueryplot', element));
     this.assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
+
+    deepEqual(widget.dependencies(), ['id']);
 
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
     deepEqual(plot_widget.plotData(), []);
@@ -416,6 +425,8 @@ QUnit.test('creme.widget.PlotSelector.reload (cache, timeout)', function(assert)
     this.assertReady(element);
     this.assertReady($('.ui-creme-jqueryplot', element));
     this.assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
+
+    deepEqual(widget.dependencies(), ['id']);
 
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
     deepEqual(plot_widget.plotData(), []);
@@ -475,6 +486,8 @@ QUnit.test('creme.widget.PlotSelector.reload (cache, resetBackend)', function(as
     this.assertReady($('.ui-creme-jqueryplot', element));
     this.assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
+    deepEqual(widget.dependencies(), ['id']);
+
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
     deepEqual(plot_widget.plotData(), []);
 
@@ -486,8 +499,8 @@ QUnit.test('creme.widget.PlotSelector.reload (cache, resetBackend)', function(as
 
     // replace backend data
     this.setMockBackendGET({
-        'mock/plot/1/data': this.backend.response(200, PLOTSELECTOR_PLOT_02_DATA),
-    })
+        'mock/plot/1/data': this.backend.response(200, PLOTSELECTOR_PLOT_02_DATA)
+    });
 
     widget.reload({id: 1});
 
@@ -520,6 +533,8 @@ QUnit.test('creme.widget.PlotSelector.reload (graphs, template name, template da
     this.assertReady(element);
     this.assertReady($('.ui-creme-jqueryplot', element));
     this.assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
+
+    deepEqual(widget.dependencies(), ['id', 'name']);
 
     deepEqual(plot_widget.plotOptions(), {});
     deepEqual(plot_widget.plotData(), []);
@@ -565,6 +580,8 @@ QUnit.test('creme.widget.PlotSelector.reset (graphs, template name, template dat
     this.assertReady($('.ui-creme-jqueryplot', element));
     this.assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
+    deepEqual(widget.dependencies(), ['id', 'name']);
+
     deepEqual(plot_widget.plotOptions(), {});
     deepEqual(plot_widget.plotData(), []);
 
@@ -582,5 +599,4 @@ QUnit.test('creme.widget.PlotSelector.reset (graphs, template name, template dat
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
     deepEqual(plot_widget.plotData(), []);
 });
-
 }(jQuery));

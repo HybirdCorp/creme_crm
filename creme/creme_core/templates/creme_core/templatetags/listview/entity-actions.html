@@ -8,7 +8,7 @@
                 <a href="{{action.url}}" {% if action.help_text %}title="{{action.help_text}}"{% endif %} data-action="{{action.type}}" class="{% if not action.is_enabled %}is-disabled{% endif %}">
                     {% if action.icon %}{% widget_icon name=action.icon label=action.label size='listview-menu' class='listview-action-icon' %}{% endif %}
                     {{action.label}}
-                    {% if action.action_data %}<script type="application/json" class="listview-action-data">{{action.action_data|jsonify|safe}}</script>{% endif %}
+                    {% if action.action_data %}{% jsondata action.action_data class='listview-action-data' %}{% endif %}
                 </a>
             </div>
             {% endfor %}
@@ -21,7 +21,7 @@
         <a href="{{action.url}}" {% if action.help_text %}title="{{action.help_text}}"{% endif %} data-action="{{action.type}}" class="{% if not action.is_enabled %}is-disabled{% endif %}">
             {% if action.icon %}{% widget_icon name=action.icon label=action.label size='listview-menu' class='listview-action-icon' %}{% endif %}
             {{action.label}}
-            {% if action.action_data %}<script type="application/json" class="listview-action-data">{{action.action_data|jsonify|safe}}</script>{% endif %}
+            {% if action.action_data %}{% jsondata action.action_data class='listview-action-data' %}{% endif %}
         </a>
         {% else %}
         <a>{% trans 'Actions' %}</a>

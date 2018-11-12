@@ -665,7 +665,7 @@ creme.dialogs = $.extend(creme.dialogs, {
             return dialog;
         }
 
-        return this.html(source, options);
+        return this.html($(source), options);
     },
 
     url: function(url, options, data) {

@@ -107,9 +107,9 @@ QUnit.test('creme.emails.brick.emailsync-link (link)', function(assert) {
         classes: ['emails-emailsync-brick'],
         header: [
             '<a data-action="emailsync-link" href="mock/emails/sync/link" __rtypes="rtype.1,rtype.2">'
-               + '<script type="application/json" class="brick-action-data">'
+               + '<script type="application/json" class="brick-action-data"><!--'
                    + '{"data": {"rtypes": "rtype.1,rtype.2"}}'
-               + '</script>'
+               + '--></script>'
           + '</a>'
         ]
     }).brick();

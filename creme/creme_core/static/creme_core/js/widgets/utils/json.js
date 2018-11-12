@@ -96,4 +96,41 @@ creme.utils.JSON.encoder = function() {
 creme.utils.JSON.clean = function(data, defaults) {
     return Object.isString(data) ? new creme.utils.JSON().decode(data, defaults) : data;
 };
+
+creme.utils.JSON.readScriptText = function(element) {
+    element = $(element).first();
+
+    if (element.length === 0) {
+        console.warn('No such JSON script element');
+        return '';
+    }
+
+    if (!element.is('script') || ['text/json', 'application/json'].indexOf(element.attr('type')) === -1) {
+        console.warn('This element is not a JSON script', element);
+        return '';
+    }
+
+    var startTag = '<!--';
+    var endTag = '-->';
+
+    var rawData = ($(element).text() || '').replace(/^[\s\n\r]+|[\s\n\r]+$/g, '');
+
+    if (Object.isEmpty(rawData)) {
+        return rawData;
+    }
+
+    if (rawData.startsWith(startTag) && rawData.endsWith(endTag)) {
+        rawData = rawData.slice(startTag.length, rawData.length - endTag.length);
+    } else {
+        console.warn('Please use html comment <!-- --> within JSON <script> tag to prevent some browsers to interpret it as javascript');
+    }
+
+    return rawData.trim().replace(/\\u005c/gi, '\\')
+                         .replace(/\\u0026/gi, '&')
+                         .replace(/\\u003c/gi, '<')
+                         .replace(/\\u003e/gi, '>')
+                         .replace(/\\u2028/gi, '\u2028')
+                         .replace(/\\u2029/gi, '\u2029');
+};
+
 }(jQuery));

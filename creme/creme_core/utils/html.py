@@ -21,6 +21,8 @@
 import bleach
 
 from django.conf import settings
+from django.utils.encoding import force_text
+from django.utils.html import mark_safe
 
 
 IMG_SAFE_ATTRIBUTES = {'title', 'alt', 'width', 'height'}
@@ -96,3 +98,18 @@ def sanitize_html(html, allow_external_img=False):
     return bleach.clean(html, tags=ALLOWED_TAGS, attributes=attributes,
                         styles=ALLOWED_STYLES, strip=True,
                        )
+
+JSON_ESCAPES = {
+    ord('\\'): '\\u005C',
+    ord('>'): '\\u003E',
+    ord('<'): '\\u003C',
+    ord('&'): '\\u0026',
+    ord('\u2028'): '\\u2028',
+    ord('\u2029'): '\\u2029'
+}
+
+# Escape every ASCII character with a value less than 32.
+# JSON_ESCAPES.update((ord('%c' % z), '\\u%04X' % z) for z in range(32))
+
+def escapejson(value):
+    return mark_safe(force_text(value).translate(JSON_ESCAPES))

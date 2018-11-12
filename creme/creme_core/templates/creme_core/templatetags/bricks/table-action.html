@@ -1,6 +1,6 @@
-{% load creme_widgets %}
+{% load creme_core_tags creme_widgets %}
 <a href="{{url}}" title="{{label}}" class="brick-table-action action-type-{{action_type}} {{properties}} {{class}}" data-action="{{action_id}}">
-    <script type="application/json" class="brick-action-data">{{data}}</script>
+    {% jsondata data class='brick-action-data' %}
     {% if display == 'icon' %}
         {% if icon %}{% widget_render_icon icon class='brick-table-action-icon' %}{% else %}{{label}}{% endif %}
     {% elif display == 'both' %}
