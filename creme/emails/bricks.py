@@ -23,10 +23,11 @@
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 # from django.core.exceptions import PermissionDenied
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick
-from creme.creme_core.models import Relation
+from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick
+from creme.creme_core.models import CremeEntity, Relation
 
 from creme import documents, persons, emails
 
@@ -48,9 +49,21 @@ class EntityEmailBarHatBrick(SimpleBrick):
     template_name = 'emails/bricks/mail-hat-bar.html'
 
 
-class _HTMLBodyBrick(SimpleBrick):
+# class _HTMLBodyBrick(SimpleBrick):
+class _HTMLBodyBrick(Brick):
     verbose_name  = _('HTML body')
     template_name = 'emails/bricks/html-body.html'
+
+    def _get_body_url(self, instance):
+        return reverse('creme_core__sanitized_html_field',
+                       args=(instance.id, 'body_html')
+                      )
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            body_url=self._get_body_url(context['object']),
+        ))
 
 
 class EmailHTMLBodyBrick(_HTMLBodyBrick):
@@ -63,6 +76,15 @@ class TemplateHTMLBodyBrick(_HTMLBodyBrick):
     id_           = QuerysetBrick.generate_id('emails', 'template_html_body')
     dependencies  = (EmailTemplate,)
     target_ctypes = (EmailTemplate,)
+
+
+class SendingHTMLBodyBrick(_HTMLBodyBrick):
+    id_           = QuerysetBrick.generate_id('emails', 'sending_html_body')
+    dependencies  = (EmailSending,)
+    configurable = False
+
+    def _get_body_url(self, instance):
+        return reverse('emails__sending_body', args=(instance.id,))
 
 
 class _RelatedEntitesBrick(QuerysetBrick):
@@ -106,9 +128,9 @@ class EmailRecipientsBrick(QuerysetBrick):
     def detailview_display(self, context):
         mailing_list = context['object']
         return self._render(self.get_template_context(
-                    context,
-                    EmailRecipient.objects.filter(ml=mailing_list.id), #get_recipients() ???
-                    ct_id=ContentType.objects.get_for_model(EmailRecipient).id,
+            context,
+            EmailRecipient.objects.filter(ml=mailing_list.id),  # get_recipients() ???
+            ct_id=ContentType.objects.get_for_model(EmailRecipient).id,
         ))
 
 
@@ -196,22 +218,35 @@ class SendingsBrick(QuerysetBrick):
         ))
 
 
+class SendingBrick(SimpleBrick):
+    id_           = SimpleBrick.generate_id('emails', 'sending')
+    dependencies  = (EmailSending,)
+    verbose_name  = 'Info on the sending'
+    template_name = 'emails/bricks/sending.html'
+    configurable  = False
+
+
 class MailsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('emails', 'mails')
     dependencies  = (LightWeightEmail,)
     order_by      = 'id'
-    page_size     = 12
+    # page_size     = 12
+    page_size     = QuerysetBrick.page_size * 3
     verbose_name  = 'Emails of a sending'
     template_name = 'emails/bricks/lw-mails.html'
     configurable  = False
 
     def detailview_display(self, context):
-        sending = context['object']
-
-        return self._render(self.get_template_context(
+        btc = self.get_template_context(
             context,
-            sending.get_mails().select_related('recipient_entity'),
-        ))
+            context['object'].get_mails().select_related('recipient_entity'),
+        )
+
+        CremeEntity.populate_real_entities(
+            list(filter(None, (lw_mail.recipient_entity for lw_mail in btc['page'].object_list)))
+        )
+
+        return self._render(btc)
 
 
 class MailsHistoryBrick(QuerysetBrick):

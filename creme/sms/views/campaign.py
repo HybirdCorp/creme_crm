@@ -152,7 +152,7 @@ class SMSCampaignEdition(generic.EntityEdition):
     pk_url_kwarg = 'campaign_id'
 
 
-class MessagingListsAdding(generic.AddingToEntity):
+class MessagingListsAdding(generic.AddingToEntityPopup):
     # model = MessagingList
     form_class = camp_forms.CampaignAddListForm
     template_name = 'creme_core/generics/blockform/link-popup.html'

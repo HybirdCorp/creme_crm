@@ -154,7 +154,7 @@ class GraphEdition(generic.EntityEdition):
     pk_url_kwarg = 'graph_id'
 
 
-class RelationTypesAdding(generic.AddingToEntity):
+class RelationTypesAdding(generic.AddingToEntityPopup):
     # model = RelationType
     form_class = g_forms.AddRelationTypesForm
     template_name = 'creme_core/generics/blockform/link-popup.html'

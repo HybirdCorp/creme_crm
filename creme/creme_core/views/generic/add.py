@@ -289,7 +289,7 @@ class EntityCreationPopup(CremeModelCreationPopup):
         user.has_perm_to_create_or_die(model)
 
 
-class AddingToEntity(base.EntityRelatedMixin, CremeModelCreationPopup):
+class AddingToEntityPopup(base.EntityRelatedMixin, CremeModelCreationPopup):
     """ This specialisation of CremeModelCreationPopup creates some model
     instances related to a CremeEntity.
 

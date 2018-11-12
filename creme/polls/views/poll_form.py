@@ -118,7 +118,7 @@ def listview(request):
 #                                           pf_forms.PollFormLineEditForm,
 #                                           _('Question for «%s»'),
 #                                          )
-class LineEdition(generic.RelatedToEntityEdition):
+class LineEdition(generic.RelatedToEntityEditionPopup):
     # model = PollFormLine
     queryset = PollFormLine.objects.filter(disabled=False)
     form_class = pf_forms.PollFormLineEditForm
@@ -184,7 +184,7 @@ def disable_line(request, line_id):
 #                                           pf_forms.PollFormSectionEditForm,
 #                                           _('Section for «%s»'),
 #                                          )
-class SectionEdition(generic.RelatedToEntityEdition):
+class SectionEdition(generic.RelatedToEntityEditionPopup):
     model = PollFormSection
     form_class = pf_forms.PollFormSectionEditForm
     permissions = 'polls'
@@ -276,7 +276,7 @@ class PollFormEdition(generic.EntityEdition):
     pk_url_kwarg = 'pform_id'
 
 
-class _LineCreationBase(generic.AddingToEntity):
+class _LineCreationBase(generic.AddingToEntityPopup):
     model = PollFormLine
     form_class = pf_forms.PollFormLineCreateForm
     title_format = _('New question for «{}»')
@@ -317,7 +317,7 @@ class AddingLineToSection(_RelatedSectionMixin, _LineCreationBase):
         return self.title_format.format(self.get_related_section())
 
 
-class _SectionCreationBase(generic.AddingToEntity):
+class _SectionCreationBase(generic.AddingToEntityPopup):
     model = PollFormSection
     form_class = pf_forms.PollFormSectionCreateForm
     entity_classes = PollForm
@@ -336,7 +336,7 @@ class ChildSectionCreation(_RelatedSectionMixin, _SectionCreationBase):
         return self.title_format.format(self.get_related_section())
 
 
-class ConditionsEdition(generic.AddingToEntity):
+class ConditionsEdition(generic.AddingToEntityPopup):
     model = PollFormLineCondition
     form_class = pf_forms.PollFormLineConditionsForm
     title_format = _('Condition for «{}»')

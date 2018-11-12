@@ -135,7 +135,7 @@ class DocumentCreation(generic.EntityCreation):
         return initial
 
 
-class RelatedDocumentCreation(generic.AddingToEntity):
+class RelatedDocumentCreation(generic.AddingToEntityPopup):
     model = Document
     form_class = doc_forms.RelatedDocumentCreateForm
     permissions = ['documents', cperm(Document)]

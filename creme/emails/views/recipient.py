@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
 # from creme.creme_core.views.generic import add_to_entity
-from creme.creme_core.views.generic.add import AddingToEntity
+from creme.creme_core.views.generic.add import AddingToEntityPopup
 
 from .. import get_mailinglist_model
 from ..forms import recipient as forms
@@ -47,7 +47,7 @@ from ..models import EmailRecipient
 #                          submit_label=EmailRecipient.multi_save_label,
 #                         )
 
-class _RecipientsAddingBase(AddingToEntity):
+class _RecipientsAddingBase(AddingToEntityPopup):
     model = EmailRecipient
     # form_class = to be set
     title_format = _('New recipients for «{}»')

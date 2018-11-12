@@ -93,7 +93,7 @@ def add_multiple_service_line(request, document_id):
 
 
 # TODO: LINK credentials with add_popup.html ??
-class _LinesCreation(generic.AddingToEntity):
+class _LinesCreation(generic.AddingToEntityPopup):
     # model = Line
     # form_class = line_forms._LineMultipleAddForm
     submit_label = _('Save the lines')
@@ -159,7 +159,7 @@ def listview_service_line(request):
 #                                reload=False,
 #                                delegate_reload=True,
 #                               )
-class AddingToCatalog(generic.AddingToEntity):
+class AddingToCatalog(generic.AddingToEntityPopup):
     # model = ...
     form_class = line_forms.AddToCatalogForm
     permissions = 'billing'

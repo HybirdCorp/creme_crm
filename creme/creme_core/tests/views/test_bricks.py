@@ -797,7 +797,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                                        order=1000,  # Should be the last block
                                                        model=FakeContact,
                                                        zone=BrickDetailviewLocation.BOTTOM,
-                                                       )
+                                                      )
         naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
                                           first_name='Naru', phone='1122334455',
                                          )

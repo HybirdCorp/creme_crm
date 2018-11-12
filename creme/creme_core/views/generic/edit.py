@@ -313,7 +313,7 @@ class EntityEditionPopup(CremeModelEditionPopup):
 
 
 # TODO: factorise with AddingToEntity ?
-class RelatedToEntityEdition(CremeModelEditionPopup):
+class RelatedToEntityEditionPopup(CremeModelEditionPopup):
     """ This specialisation of CremeModelEditionPopup is made for models
     related to a CremeEntity instance.
 

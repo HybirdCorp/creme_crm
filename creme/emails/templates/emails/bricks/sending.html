@@ -1,0 +1,18 @@
+{% extends 'creme_core/bricks/base/tiles.html' %}
+{% load creme_bricks creme_cells %}
+
+{% block brick_extra_class %}{{block.super}} emails-sending-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Information') icon='info' %}
+{% endblock %}
+
+{% block brick_content %}
+    {% cell_4_regularfield instance=object field='sender'      as sender_cell      %}{% brick_tile_for_cell sender_cell      object user %}
+    {% cell_4_regularfield instance=object field='type'        as type_cell        %}{% brick_tile_for_cell type_cell        object user %}
+    {% cell_4_regularfield instance=object field='state'       as state_cell       %}{% brick_tile_for_cell state_cell       object user %}
+    {% cell_4_regularfield instance=object field='subject'     as subject_cell     %}{% brick_tile_for_cell subject_cell     object user %}
+    {% cell_4_regularfield instance=object field='body'        as body_cell        %}{% brick_tile_for_cell body_cell        object user %}
+    {% cell_4_regularfield instance=object field='signature'   as signature_cell   %}{% brick_tile_for_cell signature_cell   object user %}
+    {% cell_4_regularfield instance=object field='attachments' as attachments_cell %}{% brick_tile_for_cell attachments_cell object user %}
+{% endblock %}

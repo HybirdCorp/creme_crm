@@ -30,6 +30,7 @@ from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerFie
         EmailField, CharField, TextField, ManyToManyField, SET_NULL, CASCADE)
 from django.db.transaction import atomic
 from django.template import Template, Context
+from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext, pgettext_lazy
@@ -38,6 +39,7 @@ from creme.creme_core.models import CremeModel, CremeEntity
 
 from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 from ..utils import generate_id, EMailSender, ImageFromHTMLError
+
 from .mail import _Email, ID_LENGTH
 from .signature import EmailSignature
 
@@ -49,9 +51,9 @@ SENDING_TYPE_IMMEDIATE = 1
 SENDING_TYPE_DEFERRED  = 2
 
 SENDING_TYPES = {
-        SENDING_TYPE_IMMEDIATE: _(u'Immediate'),
-        SENDING_TYPE_DEFERRED:  pgettext_lazy('emails-sending', u'Deferred'),
-    }
+    SENDING_TYPE_IMMEDIATE: _('Immediate'),
+    SENDING_TYPE_DEFERRED:  pgettext_lazy('emails-sending', 'Deferred'),
+}
 
 SENDING_STATE_DONE       = 1
 SENDING_STATE_INPROGRESS = 2
@@ -59,50 +61,50 @@ SENDING_STATE_PLANNED    = 3
 SENDING_STATE_ERROR      = 4
 
 SENDING_STATES = {
-        SENDING_STATE_DONE:       pgettext_lazy('emails-sending', u'Done'),
-        SENDING_STATE_INPROGRESS: _(u'In progress'),
-        SENDING_STATE_PLANNED:    pgettext_lazy('emails-sending', u'Planned'),
-        SENDING_STATE_ERROR:      _(u'Error during sending'),
-    }
+    SENDING_STATE_DONE:       pgettext_lazy('emails-sending', 'Done'),
+    SENDING_STATE_INPROGRESS: _('In progress'),
+    SENDING_STATE_PLANNED:    pgettext_lazy('emails-sending', 'Planned'),
+    SENDING_STATE_ERROR:      _('Error during sending'),
+}
 
 
 class EmailSending(CremeModel):
-    sender        = EmailField(_(u'Sender address'), max_length=100)
+    sender        = EmailField(_('Sender address'), max_length=100)
     campaign      = ForeignKey(settings.EMAILS_CAMPAIGN_MODEL, on_delete=CASCADE,
-                               verbose_name=pgettext_lazy('emails', u'Related campaign'),
+                               verbose_name=pgettext_lazy('emails', 'Related campaign'),
                                related_name='sendings_set', editable=False,
                               )
-    type          = PositiveSmallIntegerField(verbose_name=_(u'Sending type'),
+    type          = PositiveSmallIntegerField(verbose_name=_('Sending type'),
                                               choices=SENDING_TYPES.items(),
                                               default=SENDING_TYPE_IMMEDIATE,
                                              )
-    sending_date  = DateTimeField(_(u'Sending date'))
-    state         = PositiveSmallIntegerField(verbose_name=_(u'Sending state'),
+    sending_date  = DateTimeField(_('Sending date'))
+    state         = PositiveSmallIntegerField(verbose_name=_('Sending state'),
                                               editable=False,
                                               choices=SENDING_STATES.items(),
                                               default=SENDING_STATE_PLANNED,
                                              )
 
-    subject     = CharField(_(u'Subject'), max_length=100, editable=False)
-    body        = TextField(_(u'Body'), editable=False)
-    body_html   = TextField(_(u'Body (HTML)'), null=True, editable=False)
-    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'),
+    subject     = CharField(_('Subject'), max_length=100, editable=False)
+    body        = TextField(_('Body'), editable=False)
+    body_html   = TextField(_('Body (HTML)'), null=True, editable=False)
+    signature   = ForeignKey(EmailSignature, verbose_name=_('Signature'),
                              null=True, editable=False, on_delete=SET_NULL,
                             )
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL,
-                                  verbose_name=_(u'Attachments'), editable=False,
+                                  verbose_name=_('Attachments'), editable=False,
                                  )
 
-    creation_label = pgettext_lazy('emails', u'Create a sending')
-    save_label     = pgettext_lazy('emails', u'Save the sending')
+    creation_label = pgettext_lazy('emails', 'Create a sending')
+    save_label     = pgettext_lazy('emails', 'Save the sending')
 
     class Meta:
         app_label = 'emails'
-        verbose_name = _(u'Email campaign sending')
-        verbose_name_plural = _(u'Email campaign sendings')
+        verbose_name = _('Email campaign sending')
+        verbose_name_plural = _('Email campaign sendings')
 
     def __str__(self):
-        return pgettext('emails', u'Sending of «{campaign}» on {date}').format(
+        return pgettext('emails', 'Sending of «{campaign}» on {date}').format(
                     campaign=self.campaign,
                     date=date_format(localtime(self.sending_date), 'DATETIME_FORMAT'),
                 )
@@ -114,7 +116,8 @@ class EmailSending(CremeModel):
         return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]).count()
 
     def get_absolute_url(self):
-        return self.campaign.get_absolute_url()
+        # return self.campaign.get_absolute_url()
+        return reverse('emails__view_sending', args=(self.id,))
 
     def get_related_entity(self):  # For generic views
         return self.campaign
@@ -124,8 +127,8 @@ class EmailSending(CremeModel):
             sender = LightWeightEmailSender(sending=self)
         except ImageFromHTMLError as e:
             send_mail(ugettext('[CremeCRM] Campaign email sending error.'),
-                      ugettext(u"Emails in the sending of the campaign «{campaign}» on {date} weren't sent "
-                               u"because the image «{image}» is no longer available in the template.").format(
+                      ugettext("Emails in the sending of the campaign «{campaign}» on {date} weren't sent "
+                               "because the image «{image}» is no longer available in the template.").format(
                             campaign=self.campaign,
                             date=self.sending_date,
                             image=e.filename,
@@ -171,8 +174,8 @@ class LightWeightEmail(_Email):
     """Used by campaigns.
     id is a unique generated string in order to avoid stats hacking.
     """
-    id               = CharField(_(u'Email ID'), primary_key=True, max_length=ID_LENGTH, editable=False)
-    sending          = ForeignKey(EmailSending, verbose_name=_(u'Related sending'),
+    id               = CharField(_('Email ID'), primary_key=True, max_length=ID_LENGTH, editable=False)
+    sending          = ForeignKey(EmailSending, verbose_name=_('Related sending'),
                                   related_name='mails_set', editable=False,
                                   on_delete=CASCADE,
                                  )
@@ -182,8 +185,8 @@ class LightWeightEmail(_Email):
 
     class Meta:
         app_label = 'emails'
-        verbose_name = _(u'Email of campaign')
-        verbose_name_plural = _(u'Emails of campaign')
+        verbose_name = _('Email of campaign')
+        verbose_name_plural = _('Emails of campaign')
 
     def _render_body(self, sending_body):
         body = self.body

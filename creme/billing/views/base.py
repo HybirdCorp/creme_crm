@@ -38,7 +38,7 @@ class BaseCreation(generic.EntityCreation):
         return initial
 
 
-class RelatedBaseCreation(generic.AddingToEntity):
+class RelatedBaseCreation(generic.AddingToEntityPopup):
     model = Base
     # form_class = BaseCreateForm
     permissions = 'billing'  # Need creation perm too

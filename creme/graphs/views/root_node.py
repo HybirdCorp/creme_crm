@@ -40,7 +40,7 @@ from ..models import RootNode
 #         entity_class=get_graph_model(),
 #         template='creme_core/generics/blockform/link_popup.html',
 #     )
-class RootNodesAdding(generic.AddingToEntity):
+class RootNodesAdding(generic.AddingToEntityPopup):
     # model = CremeEntity
     form_class = forms.AddRootNodesForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
@@ -57,7 +57,7 @@ class RootNodesAdding(generic.AddingToEntity):
 #         request, root_id, RootNode, forms.EditRootNodeForm,
 #         _('Edit root node for «%s»'),
 #     )
-class RootNodeEdition(generic.RelatedToEntityEdition):
+class RootNodeEdition(generic.RelatedToEntityEditionPopup):
     model = RootNode
     form_class = forms.EditRootNodeForm
     permissions = 'graphs'

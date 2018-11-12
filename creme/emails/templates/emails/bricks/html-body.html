@@ -22,6 +22,7 @@
 
 {% block brick_content %}
     {% if object.body_html %}
-        <iframe sandbox data-html-field="body_html" src="{% url 'creme_core__sanitized_html_field' object.id 'body_html' %}" frameborder="0" width="100%" {#height="100%"#} style="min-height:350px"></iframe>
+{#        <iframe sandbox data-html-field="body_html" src="{% url 'creme_core__sanitized_html_field' object.id 'body_html' %}" frameborder="0" width="100%" style="min-height:350px"></iframe> #}
+        <iframe sandbox data-html-field="body_html" src="{{body_url}}" frameborder="0" width="100%" {#height="100%"#} style="min-height:350px"></iframe>
     {% endif %}
 {% endblock %}

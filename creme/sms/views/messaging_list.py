@@ -156,7 +156,7 @@ class MessagingListEdition(generic.EntityEdition):
     pk_url_kwarg = 'mlist_id'
 
 
-class ContactsAdding(generic.AddingToEntity):
+class ContactsAdding(generic.AddingToEntityPopup):
     # model = Contact
     form_class = ml_forms.AddContactsForm
     template_name = 'creme_core/generics/blockform/link-popup.html'

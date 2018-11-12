@@ -63,7 +63,7 @@ class UserMessageCreation(generic.CremeModelCreationPopup):
 #                                  _('New message about «%s»'),
 #                                  submit_label=_('Save the message'),
 #                                 )
-class RelatedUserMessageCreation(generic.AddingToEntity):
+class RelatedUserMessageCreation(generic.AddingToEntityPopup):
     model = UserMessage
     form_class = UserMessageForm
     title_format = _('New message about «{}»')

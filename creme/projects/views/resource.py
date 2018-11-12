@@ -67,7 +67,7 @@ from ..models import Resource
 #                                reload=False,
 #                                delegate_reload=True,
 #                               )
-class ResourceCreation(generic.AddingToEntity):  # NB: Resource not registered as CremeEntity
+class ResourceCreation(generic.AddingToEntityPopup):  # NB: Resource not registered as CremeEntity
     model = Resource
     form_class = resource_forms.ResourceCreateForm
     title = _('Allocation of a new resource')
@@ -91,7 +91,7 @@ class ResourceCreation(generic.AddingToEntity):  # NB: Resource not registered a
 #                                           form_class=resource_forms.ResourceEditForm,
 #                                           title_format=_('Resource for «%s»'),
 #                                          )
-class ResourceEdition(generic.RelatedToEntityEdition):
+class ResourceEdition(generic.RelatedToEntityEditionPopup):
     model = Resource
     form_class = resource_forms.ResourceEditForm
     permissions = 'projects'
