@@ -15,6 +15,7 @@ try:
     # from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
     # from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.models import SetCredentials, FakeOrganisation  # CustomField
+    from creme.creme_core.utils.html import escapejson
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -362,6 +363,59 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self._assertJsonifyFilter([{'value': 0, 'label': 'a'}, {'value': 1, 'label': 'b'}, {'value': 2, 'label': 'c'}],
                                   ({'value': value, 'label': label} for value, label in enumerate(['a', 'b', 'c']))
                                  )
+
+    def _assertJsonscriptTag(self, expected, data, args=''):
+        with self.assertNoException():
+            template = Template("{% load creme_core_tags %}{% jsondata data " + args + " %}")
+            output = template.render(Context({'data': data, 'name': 'script#1'}))
+
+        self.assertEqual(expected, output)
+
+    def _assertJsonscriptNode(self, expected, data, args=''):
+        with self.assertNoException():
+            template = Template("{% load creme_core_tags %}{% blockjsondata " + args + " %}" + data + "{% endblockjsondata %}")
+            output = template.render(Context({'name': 'script#1'}))
+
+        self.assertEqual(expected, output)
+
+    def test_jsondata_tag(self):
+        self._assertJsonscriptTag('<script type="application/json"><!--  --></script>', '')
+        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('-->') + ' --></script>',
+                                  '-->')
+        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('--></script><script') + ' --></script>',
+                                  '--></script><script')
+
+        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('-->&gt;/script&lt;&gt;script') + ' --></script>', '-->&gt;/script&lt;&gt;script')
+        self._assertJsonscriptTag('<script type="application/json"><!-- [] --></script>', [])
+        self._assertJsonscriptTag('<script type="application/json"><!-- {} --></script>', {})
+        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":"-->alert();<script/>"}') + ' --></script>',
+                                     {"a": 12, "b": "-->alert();<script/>"})
+
+        self._assertJsonscriptTag('<script type="application/json" class="test" name="&lt;script/&gt;"><!--  --></script>',
+                                  '', "class='test' name='<script/>'")
+
+        self._assertJsonscriptTag('<script type="application/json" class="test" name="script#1"><!--  --></script>',
+                                  '', "class='test' name=name")
+
+    def test_jsondata_node(self):
+        self._assertJsonscriptNode('<script type="application/json"><!--  --></script>', '')
+        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson('-->') + ' --></script>',
+                                   '-->')
+        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson('--></script><script') + ' --></script>',
+                                   '--></script><script')
+
+        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson('-->&gt;/script&lt;&gt;script') + ' --></script>', '-->&gt;/script&lt;&gt;script')
+        self._assertJsonscriptNode('<script type="application/json"><!-- [] --></script>', '[]')
+        self._assertJsonscriptNode('<script type="application/json"><!-- {} --></script>', '{}')
+        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":"-->alert();<script/>"}') + ' --></script>',
+                                  '{"a":12,"b":"-->alert();<script/>"}')
+
+        self._assertJsonscriptNode('<script type="application/json" class="test" name="&lt;script/&gt;"><!--  --></script>',
+                                   '', "class='test' name='<script/>'")
+
+        self._assertJsonscriptNode('<script type="application/json" class="test" name="script#1"><!--  --></script>',
+                                   '', "class='test' name=name")
+
 
     def test_optionize_model_iterable_filter(self):
         user = self.login()

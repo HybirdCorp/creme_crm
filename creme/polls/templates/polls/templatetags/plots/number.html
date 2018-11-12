@@ -1,6 +1,6 @@
 {% load creme_core_tags %}
 <div class="poll-stat-chart ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" style="min-height: {{count|mult:26|add:14}}px;">
-    <script type="text/json">
+    {% blockjsondata %}
 {
     "options": {
         "seriesColors": ["#6666ff", "#8888ff", "#aaaaff"],
@@ -58,5 +58,5 @@
     },
     "data": {{data}}
 }
-    </script>
+    {% endblockjsondata %}
 </div>

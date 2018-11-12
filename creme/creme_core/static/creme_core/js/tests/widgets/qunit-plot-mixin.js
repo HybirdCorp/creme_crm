@@ -23,6 +23,17 @@
             equal(context.plotError, null, 'no error');
         },
 
+        assertRasterPlot: function(context, element) {
+            equal(element.creme().widget().plot(), undefined, 'plot element');
+
+            var img = $('.jqplot-target img', element);
+            equal(img.length, 1, 'jqplot-target count');
+            equal(true, img.attr('src').startsWith('data:image/png;base64'));
+
+            deepEqual(context.plotSuccess, element.creme().widget().plot(), 'success');
+            equal(context.plotError, null, 'no error');
+        },
+
         assertEmptyPlot: function(context, element) {
             equal(typeof element.creme().widget().plot(), 'object', 'plot element');
             equal($('.jqplot-target', element).length, 0, 'jqplot-target count');

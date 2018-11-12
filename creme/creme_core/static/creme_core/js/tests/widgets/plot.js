@@ -1,13 +1,18 @@
+/* globals QUnitPlotMixin QUnitWidgetMixin */
+
 (function($) {
 
 var MOCK_PLOT_CONTENT_JSON_INVALID = '{"options": {, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_EMPTY_DATA = '{"options": {}, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_DEFAULT = '{"options": {}, "data":[[[1, 2],[3, 4],[5, 12]]]}';
-var MOCK_PLOT_CONTENT_DEFAULT = {options: {}, data: [[[1, 2],[3, 4],[5, 12]]]};
 
-QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin, QUnitPlotMixin, QUnitWidgetMixin, {
+QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
+                                                    QUnitEventMixin,
+                                                    QUnitPlotMixin,
+                                                    QUnitDialogMixin,
+                                                    QUnitWidgetMixin, {
     buildMockBackend: function() {
-        return new creme.ajax.MockAjaxBackend({sync:true, name: 'creme.widget.plot.js'});
+        return new creme.ajax.MockAjaxBackend({sync: true, name: 'creme.widget.plot.js'});
     },
 
     beforeEach: function() {
@@ -29,18 +34,21 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin, QUnitPlotMix
 
         $('.ui-dialog-content').dialog('destroy');
         creme.widget.shutdown($('body'));
+        $('.ui-dialog-within-container').detach();
+
+        $('#mock_creme_widget_plot_container').detach();
     },
 
     _mockPlotData_to_jqplotData: function(data) {
         var result = [];
 
-        for(var s_index = 0; s_index < data.length; ++s_index) {
+        for (var s_index = 0; s_index < data.length; ++s_index) {
             var serie = data[s_index];
             var s_result = [];
 
-            for(var index = 0; index < serie.length; ++index) {
+            for (var index = 0; index < serie.length; ++index) {
                 var entry = serie[index];
-                
+
                 if (entry) {
                     entry = [index + 1].concat(entry);
                 } else {
@@ -59,11 +67,11 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin, QUnitPlotMix
     _jqplotData_to_mockRendererData: function(data) {
         var result = [];
 
-        for(var s_index = 0; s_index < data.length; ++s_index) {
+        for (var s_index = 0; s_index < data.length; ++s_index) {
             var serie = data[s_index];
             var s_result = [];
 
-            for(var index = 0; index < serie.length; ++index) {
+            for (var index = 0; index < serie.length; ++index) {
                 var entry = serie[index];
 
                 if (entry && entry.length > 1) {
@@ -84,7 +92,8 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin, QUnitPlotMix
 
         if (!this.plotContainer.get(0)) {
             $('body').append($('<div>').attr('id', 'mock_creme_widget_plot_container')
-                                       .css('display', 'none'));
+                                       .css('width', 0)
+                                       .css('height', 0));
         }
 
         this.plotContainer = $('#mock_creme_widget_plot_container');
@@ -92,8 +101,7 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin, QUnitPlotMix
     },
 
     cleanupMockPlots: function() {
-        for(var index = 0; index < this.mockPlots.length; ++index)
-        {
+        for (var index = 0; index < this.mockPlots.length; ++index) {
             var plot = this.mockPlots[index];
 
             plot.remove();
@@ -106,12 +114,12 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin, QUnitPlotMix
 
     createMockPlot: function(data, plotmode, savable, noauto)  {
         var options = {
-                         plotmode: plotmode || 'svg', 
+                         plotmode: plotmode || 'svg',
                          savable: savable || false
                       };
 
         var plot = creme.widget.buildTag($('<div/>'), 'ui-creme-jqueryplot', options, !noauto)
-                               .append($('<script type="text/json">' + data + '</script>'));
+                               .append($('<script type="text/json"><!--' + data + '--></script>'));
 
         this.plotContainer.append(plot);
         this.mockPlots.push(plot);
@@ -123,35 +131,71 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin, QUnitPlotMix
 
 QUnit.test('creme.widget.Plot.create (empty)', function(assert) {
     var element = this.createMockPlot('');
+    creme.widget.create(element, {},
+                        this.mockListener('plot-init'),
+                        this.mockListener('plot-init-fail'));
 
-    creme.widget.create(element);
     this.assertReady(element);
     this.assertNoPlot(this, element, 'null');
+
+    deepEqual({
+        'plot-init': [[element]]
+    }, this.mockListenerCalls());
 });
 
 QUnit.test('creme.widget.Plot.create (invalid)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_INVALID);
 
-    creme.widget.create(element);
+    creme.widget.create(element,
+                        this.mockListener('plot-init'),
+                        this.mockListener('plot-init-fail'));
+
     this.assertReady(element);
     this.assertNoPlot(this, element);
 
     equal(this.plotError.message.substr(0, 'JSON parse error'.length), 'JSON parse error');
+
+    deepEqual({
+        'plot-init-fail': [[element]]
+    }, this.mockListenerCalls());
 });
 
 QUnit.test('creme.widget.Plot.create (valid)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
-
-    stop(1);
-
-    creme.widget.create(element, {}, function() {
-        start();
-    }, function() {
-        start();
-    });
+    var widget = creme.widget.create(element, {},
+                                     this.mockListener('plot-init'),
+                                     this.mockListener('plot-init-fail'));
 
     this.assertReady(element);
     this.assertPlot(this, element);
+
+    equal(false, widget.isSavable());
+
+    var capture = $('.jqplot-actions button[name="capture"]', element);
+    equal(0, capture.length);
+
+    deepEqual({
+        'plot-init': [[element]]
+    }, this.mockListenerCalls());
+});
+
+QUnit.test('creme.widget.Plot.create (valid, savable)', function(assert) {
+    var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
+    var widget = creme.widget.create(element, {savable: true},
+                                     this.mockListener('plot-init'),
+                                     this.mockListener('plot-init-fail'));
+
+    this.assertReady(element);
+    this.assertPlot(this, element);
+
+    equal(true, widget.isSavable());
+
+    var capture = $('.jqplot-actions button[name="capture"]', element);
+    equal(1, capture.length);
+
+    deepEqual({
+        'plot-init': [[element]]
+    }, this.mockListenerCalls());
 });
 
 QUnit.test('creme.widget.Plot.draw (empty)', function(assert) {
@@ -162,16 +206,17 @@ QUnit.test('creme.widget.Plot.draw (empty)', function(assert) {
     this.assertNoPlot(this, element, 'null');
 
     this.resetMockPlotEvents();
-    stop(1);
 
-    widget.draw(MOCK_PLOT_CONTENT_JSON_EMPTY_DATA, function() {
-        start();
-    }, function() {
-        start();
-    });
+    widget.draw(MOCK_PLOT_CONTENT_JSON_EMPTY_DATA,
+                this.mockListener('plot-draw'),
+                this.mockListener('plot-draw-fail'));
 
     this.assertReady(element);
     this.assertNoPlot(this, element, 'null');
+
+    deepEqual({
+        'plot-draw': [[element]]
+    }, this.mockListenerCalls());
 });
 
 QUnit.test('creme.widget.Plot.draw (valid)', function(assert) {
@@ -180,16 +225,41 @@ QUnit.test('creme.widget.Plot.draw (valid)', function(assert) {
     this.assertActive(element);
 
     this.resetMockPlotEvents();
-    stop(1);
 
-    widget.draw(MOCK_PLOT_CONTENT_JSON_DEFAULT, function() {
-        start();
-    }, function() {
-        start();
-    });
+    widget.draw(MOCK_PLOT_CONTENT_JSON_DEFAULT,
+                this.mockListener('plot-draw'),
+                this.mockListener('plot-draw-fail'));
 
     this.assertReady(element);
     this.assertPlot(this, element);
+
+    deepEqual({
+        'plot-draw': [[element]]
+    }, this.mockListenerCalls());
+});
+
+QUnit.test('creme.widget.Plot.draw (valid, raster)', function(assert) {
+    var self = this;
+    var element = this.createMockPlot('');
+    var widget = creme.widget.create(element, {plotmode: 'raster'});
+
+    this.assertActive(element);
+    this.resetMockPlotEvents();
+
+    element.on('plotSuccess', function() {
+        self.assertReady(element);
+        self.assertRasterPlot(self, element);
+        start();
+    });
+
+    element.on('plotError', function(e) {
+        start();
+        fail('plot has failed', e);
+    });
+
+    widget.draw(MOCK_PLOT_CONTENT_JSON_DEFAULT);
+
+    stop(1);
 });
 
 QUnit.test('creme.widget.Plot.draw (invalid)', function(assert) {
@@ -198,15 +268,19 @@ QUnit.test('creme.widget.Plot.draw (invalid)', function(assert) {
     this.assertActive(element);
 
     this.resetMockPlotEvents();
-    stop(1);
 
-    widget.draw(MOCK_PLOT_CONTENT_JSON_INVALID, undefined, function() {
-        start();
-    });
+    widget.draw(MOCK_PLOT_CONTENT_JSON_INVALID,
+                this.mockListener('plot-draw'),
+                this.mockListener('plot-draw-fail'));
 
     this.assertReady(element);
     this.assertNoPlot(this, element);
+
     equal(this.plotError.message.substr(0, 'JSON parse error'.length), 'JSON parse error');
+
+    deepEqual({
+        'plot-draw-fail': [[element]]
+    }, this.mockListenerCalls());
 });
 
 QUnit.test('creme.widget.Plot.redraw (valid, data)', function(assert) {
@@ -217,24 +291,22 @@ QUnit.test('creme.widget.Plot.redraw (valid, data)', function(assert) {
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
 
-    widget.plotData([[[1, 2],[3, 4],[5, 12]]]);
+    widget.plotData([[[1, 2], [3, 4], [5, 12]]]);
 
-    deepEqual(widget.plotData(), [[[1, 2],[3, 4],[5, 12]]]);
+    deepEqual(widget.plotData(), [[[1, 2], [3, 4], [5, 12]]]);
     deepEqual(widget.plotOptions(), {});
 
     this.resetMockPlotEvents();
-    stop(1);
 
-    widget.redraw(function() {
-        start();
-    },
-    function() {
-        start();
-    });
+    widget.redraw(this.mockListener('plot-draw'),
+                  this.mockListener('plot-draw-fail'));
 
     this.assertPlot(this, element);
-});
 
+    deepEqual({
+        'plot-draw': [[element]]
+    }, this.mockListenerCalls());
+});
 
 QUnit.test('creme.widget.Plot.redraw (empty, valid default)', function(assert) {
     var element = this.createMockPlot('');
@@ -244,22 +316,21 @@ QUnit.test('creme.widget.Plot.redraw (empty, valid default)', function(assert) {
     deepEqual(widget.plotData(), []);
     deepEqual(widget.plotOptions(), {});
 
-    widget.plotOptions({dataDefaults: [[[5, 2],[4, 4]]]});
+    widget.plotOptions({dataDefaults: [[[5, 2], [4, 4]]]});
 
     this.resetMockPlotEvents();
-    stop(1);
 
-    widget.redraw(function() {
-        start();
-    },
-    function() {
-        start();
-    });
+    widget.redraw(this.mockListener('plot-draw'),
+                  this.mockListener('plot-draw-fail'));
 
     this.assertPlot(this, element);
+
+    deepEqual({
+        'plot-draw': [[element]]
+    }, this.mockListenerCalls());
+
     deepEqual(widget.plotData(), []);
 });
-
 
 QUnit.test('creme.widget.Plot.redraw (valid, options)', function(assert) {
     var element = this.createMockPlot('');
@@ -271,7 +342,7 @@ QUnit.test('creme.widget.Plot.redraw (valid, options)', function(assert) {
 
     var plot_options = {
         seriesDefaults: {
-            renderer: 'jqplot.PieRenderer', 
+            renderer: 'jqplot.PieRenderer',
             rendererOptions: {
                 showDataLabels: true
             }
@@ -279,19 +350,78 @@ QUnit.test('creme.widget.Plot.redraw (valid, options)', function(assert) {
     };
 
     widget.plotOptions(plot_options);
-    widget.plotData([[[1, 2],[3, 4],[5, 12]]]);
+    widget.plotData([[[1, 2], [3, 4], [5, 12]]]);
 
-    deepEqual(widget.plotData(), [[[1, 2],[3, 4],[5, 12]]]);
+    deepEqual(widget.plotData(), [[[1, 2], [3, 4], [5, 12]]]);
     deepEqual(widget.plotOptions(), plot_options);
 
     this.resetMockPlotEvents();
+
+    widget.redraw(this.mockListener('plot-draw'),
+                  this.mockListener('plot-draw-fail'));
+
+    this.assertPlot(this, element);
+
+    deepEqual({
+        'plot-draw': [[element]]
+    }, this.mockListenerCalls());
+});
+
+QUnit.test('creme.widget.Plot.capture (svg)', function(assert) {
+    var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
+    var widget = creme.widget.create(element, {});
+
+    this.assertReady(element);
+    this.assertPlot(this, element);
+
+    equal(1, widget.capture().length);
+});
+
+QUnit.test('creme.widget.Plot.capture (raster)', function(assert) {
+    var self = this;
+    var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
+
+    var widget = creme.widget.create(element, {plotmode: 'raster'});
+
     stop(1);
 
-    widget.redraw(function() {
+    element.on('plotSuccess', function() {
+        self.assertReady(element);
+        self.assertRasterPlot(self, element);
+
+        equal(1, widget.capture().length);
         start();
     });
 
+    element.on('plotError', function(e) {
+        start();
+        fail('plot has failed', e);
+    });
+});
+
+QUnit.test('creme.widget.Plot.capture (raster image in popup)', function(assert) {
+    var self = this;
+    var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
+    creme.widget.create(element, {savable: true});
+
+    this.assertReady(element);
     this.assertPlot(this, element);
+
+    var capture = $('.jqplot-actions button[name="capture"]', element);
+    equal(1, capture.length);
+
+    this.assertClosedDialog();
+
+    stop(1);
+
+    $(document).one('dialogopen', '.ui-dialog', function() {
+        self.assertOpenedDialog();
+        self.assertDialogTitle(gettext('Canvas image'));
+        console.log('dialog open checked');
+        start();
+    });
+
+    capture.click();
 });
 
 QUnit.test('creme.widget.Plot.preprocess (convert data)', function(assert) {
@@ -304,16 +434,16 @@ QUnit.test('creme.widget.Plot.preprocess (convert data)', function(assert) {
 
     var plot_options = {
         seriesDefaults: {
-            renderer: 'jqplot.PieRenderer', 
+            renderer: 'jqplot.PieRenderer',
             rendererOptions: {showDataLabels: true}
         },
         dataFormat: "mockPlotData"
     };
 
     widget.plotOptions(plot_options);
-    widget.plotData([[[1, 2.58],[3, 40.5],[5, 121.78]]]);
+    widget.plotData([[[1, 2.58], [3, 40.5], [5, 121.78]]]);
 
-    deepEqual(widget.plotData(), [[[1, 1, 2.58],[2, 3, 40.5],[3, 5, 121.78]]]);
+    deepEqual(widget.plotData(), [[[1, 1, 2.58], [2, 3, 40.5], [3, 5, 121.78]]]);
     deepEqual(widget.plotOptions(), plot_options);
 });
 
@@ -327,26 +457,26 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess data)', function(assert) {
 
     var plot_options = {
         seriesDefaults: {
-            renderer: 'jqplot.PieRenderer', 
+            renderer: 'jqplot.PieRenderer',
             rendererOptions: {showDataLabels: true}
         },
         dataPreprocessors: ["swap"]
     };
 
     widget.plotOptions(plot_options);
-    widget.plotData([[[1, 150.5, "a"],[2, 3.45, "b"],[3, 12.80, "c"]]]);
+    widget.plotData([[[1, 150.5, "a"], [2, 3.45, "b"], [3, 12.80, "c"]]]);
     widget.preprocess();
 
     var built_plot_options = {
         seriesDefaults: {
-            renderer: $.jqplot.PieRenderer, 
+            renderer: $.jqplot.PieRenderer,
             rendererOptions: {showDataLabels: true}
         },
         handlers: [],
         dataPreprocessors: ["swap"]
     };
 
-    deepEqual(widget.plotInfo().built.data, [[[150.5, 1, "a"],[3.45, 2, "b"],[12.80, 3, "c"]]]);
+    deepEqual(widget.plotInfo().built.data, [[[150.5, 1, "a"], [3.45, 2, "b"], [12.80, 3, "c"]]]);
     deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
@@ -360,29 +490,29 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess data chained)', function(as
 
     var plot_options = {
         seriesDefaults: {
-            renderer: 'jqplot.PieRenderer', 
+            renderer: 'jqplot.PieRenderer',
             rendererOptions: {showDataLabels: true}
         },
         dataPreprocessors: [
-                            "swap", 
+                            "swap",
                             "tee"
                            ]
     };
 
     widget.plotOptions(plot_options);
-    widget.plotData([[[1, 150.5, "a"],[2, 3.45, "b"],[3, 12.80, "c"]]]);
+    widget.plotData([[[1, 150.5, "a"], [2, 3.45, "b"], [3, 12.80, "c"]]]);
     widget.preprocess();
 
     var built_plot_options = {
         seriesDefaults: {
-            renderer: $.jqplot.PieRenderer, 
+            renderer: $.jqplot.PieRenderer,
             rendererOptions: {showDataLabels: true}
         },
         handlers: [],
         dataPreprocessors: ["swap", "tee"]
     };
 
-    deepEqual(widget.plotInfo().built.data, [[[150.5, 1, "a"]],[[3.45, 2, "b"]],[[12.80, 3, "c"]]]);
+    deepEqual(widget.plotInfo().built.data, [[[150.5, 1, "a"]], [[3.45, 2, "b"]], [[12.80, 3, "c"]]]);
     deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
@@ -396,7 +526,7 @@ QUnit.test('creme.widget.Plot.preprocess (convert + preprocess data)', function(
 
     var plot_options = {
         seriesDefaults: {
-            renderer: 'jqplot.PieRenderer', 
+            renderer: 'jqplot.PieRenderer',
             rendererOptions: {showDataLabels: true}
         },
         dataFormat: "mockPlotData",
@@ -404,12 +534,12 @@ QUnit.test('creme.widget.Plot.preprocess (convert + preprocess data)', function(
     };
 
     widget.plotOptions(plot_options);
-    widget.plotData([[[150.5, "a"],[3.45, "b"],[12.80, "c"]]]);
+    widget.plotData([[[150.5, "a"], [3.45, "b"], [12.80, "c"]]]);
     widget.preprocess();
 
     var built_plot_options = {
         seriesDefaults: {
-            renderer: $.jqplot.PieRenderer, 
+            renderer: $.jqplot.PieRenderer,
             rendererOptions: {showDataLabels: true}
         },
         handlers: [],
@@ -417,7 +547,7 @@ QUnit.test('creme.widget.Plot.preprocess (convert + preprocess data)', function(
         dataPreprocessors: ["swap"]
     };
 
-    deepEqual(widget.plotInfo().built.data, [[[150.5, 1, "a"],[3.45, 2, "b"],[12.80, 3, "c"]]]);
+    deepEqual(widget.plotInfo().built.data, [[[150.5, 1, "a"], [3.45, 2, "b"], [12.80, 3, "c"]]]);
     deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
@@ -431,7 +561,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess options)', function(assert)
 
     var plot_options = {
         seriesDefaults: {
-            renderer: 'jqplot.PieRenderer', 
+            renderer: 'jqplot.PieRenderer',
             rendererOptions: {showDataLabels: true}
         },
         series: 'preprocess.seriesLabel',
@@ -451,10 +581,10 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess options)', function(assert)
     };
 
     widget.plotOptions(plot_options);
-    widget.plotData([[[1, 150.5, "a", "serie1"],[2,  3.45, "b"],[3, 12.80, "c"]],
+    widget.plotData([[[1, 150.5, "a", "serie1"], [2,  3.45, "b"], [3, 12.80, "c"]],
                      [[1,  12.5, "serie2"],     [2, 13.45],     [3, 52.80]]]);
 
-    deepEqual(widget.plotData(), [[[1, 150.5, "a", "serie1"],[2,  3.45, "b"],[3, 12.80, "c"]],
+    deepEqual(widget.plotData(), [[[1, 150.5, "a", "serie1"], [2,  3.45, "b"], [3, 12.80, "c"]],
                                   [[1,  12.5, "serie2"],     [2, 13.45],     [3, 52.80]]]);
     deepEqual(widget.plotOptions(), plot_options);
     deepEqual(widget.plotInfo().built, undefined);
@@ -485,7 +615,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess options)', function(assert)
     };
 
     deepEqual(widget.plotInfo().built.options, plot_built_options);
-    deepEqual(widget.plotData(), [[[1, 150.5, "a", "serie1"],[2,  3.45, "b"],[3, 12.80, "c"]],
+    deepEqual(widget.plotData(), [[[1, 150.5, "a", "serie1"], [2,  3.45, "b"], [3, 12.80, "c"]],
                                   [[1,  12.5, "serie2"],     [2, 13.45],     [3, 52.80]]]);
     deepEqual(widget.plotOptions(), plot_options);
 });
@@ -500,7 +630,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess handlers)', function(assert
 
     var plot_options = {
         seriesDefaults: {
-            renderer: 'jqplot.PieRenderer', 
+            renderer: 'jqplot.PieRenderer',
             rendererOptions: {showDataLabels: true}
         },
         handlers: [
@@ -510,9 +640,9 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess handlers)', function(assert
     };
 
     widget.plotOptions(plot_options);
-    widget.plotData([[[1, 2.58],[3, 40.5],[5, 121.78]]]);
+    widget.plotData([[[1, 2.58], [3, 40.5], [5, 121.78]]]);
 
-    deepEqual(widget.plotData(), [[[1, 2.58],[3, 40.5],[5, 121.78]]]);
+    deepEqual(widget.plotData(), [[[1, 2.58], [3, 40.5], [5, 121.78]]]);
     deepEqual(widget.plotOptions(), plot_options);
 
     widget.preprocess();
@@ -541,7 +671,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess invalid handler)', function
 
     var plot_options = {
         seriesDefaults: {
-            renderer: 'jqplot.PieRenderer', 
+            renderer: 'jqplot.PieRenderer',
             rendererOptions: {showDataLabels: true}
         },
         handlers: [
@@ -551,14 +681,13 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess invalid handler)', function
     };
 
     widget.plotOptions(plot_options);
-    widget.plotData([[[1, 2.58],[3, 40.5],[5, 121.78]]]);
+    widget.plotData([[[1, 2.58], [3, 40.5], [5, 121.78]]]);
 
-    deepEqual(widget.plotData(), [[[1, 2.58],[3, 40.5],[5, 121.78]]]);
+    deepEqual(widget.plotData(), [[[1, 2.58], [3, 40.5], [5, 121.78]]]);
     deepEqual(widget.plotOptions(), plot_options);
 
     widget.redraw();
 
     this.assertNoPlot(this, element, 'Error: no such plot event handler "unknown"');
 });
-
 }(jQuery));

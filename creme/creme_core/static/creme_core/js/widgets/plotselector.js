@@ -115,15 +115,15 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
     plotOptions: function(element) {
         var options = [];
 
-        $('> script[type="text/json"]', element).each(function() {
-            options.push([$(this).attr('name'), $(this).html() || null]);
+        $('> script[type$="/json"][name]', element).each(function() {
+            options.push([$(this).attr('name'), creme.utils.JSON.readScriptText($(this)) || null]);
         });
 
         return options;
     },
 
     plotOption: function(element, name) {
-        return $('> script[type="text/json"][name="' + name + '"]', element).html() || null;
+        return creme.utils.JSON.readScriptText($('> script[type$="/json"][name="' + name + '"]', element)) || null;
     },
 
     dependencies: function(element) {

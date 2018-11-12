@@ -1,5 +1,5 @@
 <div class="poll-stat-chart ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" style="min-height: 60px;">
-    <script type="text/json">
+    {% blockjsondata %}
 {
     "options": {
         "seriesColors": ["#ffcccc", "#ccffcc"],
@@ -55,5 +55,5 @@
     },
     "data": {{data}}
 }
-    </script>
+    {% endblockjsondata %}
 </div>

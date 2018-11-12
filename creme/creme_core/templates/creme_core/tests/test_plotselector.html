@@ -83,7 +83,7 @@
     <div id="barplot" class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector" 
          plot-data-url="mock/content/${start}/${duration}" style="width:800px;margin-left: 2px;">
         <div style="height:320px; padding:2px; border:0px;" class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" savable="true">
-            <script type="text/json">
+            <script type="text/json"><!--
             {
                 "options": {
                     "seriesDefaults": {
@@ -122,7 +122,7 @@
                     "title": "This is a bargraph"
                 }
             }
-            </script>
+            --></script>
         </div>
     </div>
     <h4>Start month > End month > Plot Selector</h4>
@@ -166,7 +166,7 @@
                  plot-data-url="mock/content/${start}/${duration}"
                  plot-name="${graphtype}"
                  style="width:800px;margin-left: 2px;">
-                    <script name="bargraph" type="text/json">
+                    <script name="bargraph" type="text/json"><!--
                         {
                             "seriesDefaults": {
                                 "renderer": "jqplot.BarRenderer", 
@@ -203,8 +203,8 @@
                             },
                             "title": "Chiffre d&#39;affaire"
                         }
-                    </script>
-                    <script name="donut" type="text/json">
+                    --></script>
+                    <script name="donut" type="text/json"><!--
                         {
                             "seriesDefaults": {
                                 "renderer": "jqplot.DonutRenderer", 
@@ -216,8 +216,8 @@
                             "legend": {"show":true, "location": "e"},
                             "title": "Chiffre d&#39;affaire"
                         }
-                    </script>
-                    <script name="horizontal" type="text/json">
+                    --></script>
+                    <script name="horizontal" type="text/json"><!--
                         {
                             "stackSeries": true,
                             "seriesDefaults": {
@@ -253,7 +253,7 @@
                             "title": "Chiffre d&#39;affaire",
                             "dataFormat": "horizontalBargraphData"
                         }
-                    </script>
+                    --></script>
                 <div style="height:320px; padding:2px; border:0px;" class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" savable="true">
                 </div>
             </div>

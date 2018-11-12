@@ -39,8 +39,8 @@ var REPORT_CHART_CONTENT = '<div class="reports-graph-brick">' +
                                     '</div>' +
                                 '</div>' +
                                 '<div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector" plot-data-url="mock/fetch?order=${sort}" plot-name="${chart}">' +
-                                    '<script name="piechart" type="text/json">' + PLOTSELECTOR_PIEGRAPH_SCRIPT + '</script>' +
-                                    '<script name="barchart" type="text/json">' + PLOTSELECTOR_BARGRAPH_SCRIPT + '</script>' +
+                                    '<script name="piechart" type="text/json"><!-- ' + PLOTSELECTOR_PIEGRAPH_SCRIPT + ' --></script>' +
+                                    '<script name="barchart" type="text/json"><!-- ' + PLOTSELECTOR_BARGRAPH_SCRIPT + ' --></script>' +
                                     '<div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot ui-creme-resizable widget-active widget-ready" widget="ui-creme-jqueryplot" savable="false" format="creme.graphael.BargraphData"></div>' +
                                 '</div>' +
                            '</div>';

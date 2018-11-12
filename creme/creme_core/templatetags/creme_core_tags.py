@@ -23,8 +23,6 @@ from json import dumps as json_dump
 import logging
 from re import compile as compile_re
 from types import GeneratorType
-# from urllib import urlencode
-# from urlparse import urlsplit
 from urllib.parse import urlencode, urlsplit
 import warnings
 
@@ -32,7 +30,9 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
-from django.utils.html import format_html_join
+from django.template.library import token_kwargs
+from django.utils.encoding import force_text
+from django.utils.html import format_html_join, escape
 from django.utils.safestring import mark_safe
 
 from mediagenerator.generators.bundles.utils import _render_include_media
@@ -42,6 +42,7 @@ from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
 from ..utils import bool_as_html  # safe_unicode
 from ..utils.currency_format import currency
+from ..utils.html import escapejson 
 from ..utils.media import get_creme_media_url
 from ..utils.translation import plural
 from ..utils.unicode_collation import collator
@@ -321,6 +322,21 @@ def jsonify(value):
                      separators=(',', ':')
                     )
 
+@register.simple_tag
+def jsondata(value, **kwargs):
+    """ Encode and render json data in a <script> tag with attributes.
+
+    {% jsondata data arg1=foo.bar arg2='baz' %}
+    """
+
+    if kwargs.pop("type", None) is not None:
+        logger.warning('jsondata tag do not accept custom "type" attribute')
+
+    content = jsonify(value) if not isinstance(value, str) else value
+    attrs = ''.join(' {}="{}"'.format(k, escape(v)) for k, v in kwargs.items())
+
+    return mark_safe('<script type="application/json"{}><!-- {} --></script>'.format(attrs, escapejson(content)))
+
 
 # TODO: useless ?
 @register.simple_tag
@@ -571,3 +587,33 @@ def get_hg_info():
     from ..utils.version import get_hg_info
 
     return get_hg_info
+
+
+@register.tag(name='blockjsondata')
+def do_jsondata(parser, token):
+    """ Encode json of the block and render it in a <script> tag with attributes.
+
+    {% blockjsondata arg1=foo.bar arg2='baz' %}
+        {{data}}
+    {% endblockjsondata %}
+    """
+    nodelist = parser.parse(('endblockjsondata',))
+    parser.delete_first_token()
+    kwargs = token_kwargs(token.split_contents()[1:], parser)
+    return JsonScriptNode(nodelist, kwargs)
+
+class JsonScriptNode(TemplateNode):
+    def __init__(self, nodelist, kwargs):
+        self.nodelist = nodelist
+        self.kwargs = kwargs
+
+    def render(self, context):
+        output = self.nodelist.render(context)
+        kwargs = self.kwargs
+
+        if kwargs.pop("type", None) is not None:
+            logger.warning('jsondatablock tag do not accept custom "type" attribute')
+
+        attrs = ''.join(' {}="{}"'.format(k, escape(force_text(v.resolve(context)))) for k, v in kwargs.items())
+
+        return mark_safe('<script type="application/json"{}><!-- {} --></script>'.format(attrs, escapejson(output)))
