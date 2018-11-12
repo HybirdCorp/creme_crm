@@ -36,6 +36,8 @@ from ..utils.unicode_collation import collator
 
 from .function_field import FunctionFieldDecimal, FunctionFieldResultsList, function_field_registry
 
+# TODO: rename EntityCell to [Model]Cell ?
+#       rename 'entity' argument to 'instance'.
 
 logger = logging.getLogger(__name__)
 MULTILINE_FIELDS = (
@@ -71,12 +73,17 @@ class EntityCellsRegistry:
 
     def __call__(self, cls):
         if self._cell_classes.setdefault(cls.type_id, cls) is not cls:
-            raise self.RegistrationError("Duplicated Cell id: {}".format(cls.id))
+            raise self.RegistrationError('Duplicated Cell id: {}'.format(cls.id))
 
         return cls
 
     def build_cells_from_dicts(self, model, dicts):
-        "@return tuple(list_of_cells, errors) 'errors' is a boolean"
+        """Build some EntityCells instance from an iterable of dictionaries.
+
+        @param model: django.db.model.Model realted to the cells.
+        @param dicts: Iterable of dictionaries ; see 'EntityCell.to_dict()'.
+        @return: tuple(list_of_cells, errors) ; 'errors' is a boolean.
+        """
         cells = []
         errors = False
 
@@ -116,7 +123,7 @@ class EntityCell:
     _listview_css_class = None
     _header_listview_css_class = None
 
-    def __init__(self, model, value='', title=u'Title', has_a_filter=False,
+    def __init__(self, model, value='', title='Title', has_a_filter=False,
                  editable=False, sortable=False,
                  is_hidden=False, filter_string='',
                 ):
@@ -130,7 +137,7 @@ class EntityCell:
         self.filter_string = filter_string # TODO: remove from public interface when quick search has been refactored
 
     def __repr__(self):
-        return u"<EntityCell(type={}, value='{}')>".format(self.type_id, self.value)
+        return "<EntityCell(type={}, value='{}')>".format(self.type_id, self.value)
 
     def __str__(self):
         return self.title
@@ -195,12 +202,10 @@ class EntityCellActions(EntityCell):
     type_id = 'actions'
 
     # def __init__(self, model):
-    def __init__(self, model, user, actions_registry):
+    def __init__(self, model, actions_registry):
         """Constructor.
 
         @param model: see <EntityCell.model>.
-        @param user: User who displays this page (used to compute credentials).
-               Instance of 'django.contrib.auth.get_auth_model()'.
         @param actions_registry: Instance of 'creme.creme_core.gui.actions.ActionsRegistry'.
                Used to get the actions related to the model.
         """
@@ -209,7 +214,6 @@ class EntityCellActions(EntityCell):
         #                                         title=_(u'Actions'),
         #                                        )
         super().__init__(model=model, value='entity_actions', title=_('Actions'))
-        self.user = user
         self.registry = actions_registry
 
     def _sort_actions(self, actions):
@@ -218,25 +222,34 @@ class EntityCellActions(EntityCell):
 
         return actions
 
-    def bulk_actions(self):
+    def bulk_actions(self, user):
         """Get a sorted list of the visible <gui.actions.BulkAction> instances
         corresponding to the registered bulk actions (see 'registry' attribute).
+
+        @param user: User who displays this page (used to compute credentials).
+               Instance of 'django.contrib.auth.get_auth_model()'.
+        @return: A list of instances of 'gui.actions.BulkActions'.
         """
         # TODO: filter by is_visible in actions_registry.bulk_actions() ??
         return self._sort_actions([
-            action for action in self.registry.bulk_actions(user=self.user,
+            action for action in self.registry.bulk_actions(user=user,
                                                             model=self.model,
                                                            )
                 if action.is_visible
         ])
 
-    def instance_actions(self, instance):
+    def instance_actions(self, instance, user):
         """Get a sorted list of the visible <gui.actions.UIAction> instances
         corresponding to the registered instance actions (see 'registry' attribute).
+
+        @param instance: Should be an instance of 'self.model'.
+        @param user: User who displays this page (used to compute credentials).
+               Instance of 'django.contrib.auth.get_auth_model()'.
+        @return: A list of instances of 'gui.actions.UIActions'.
         """
         # TODO: filter by is_visible in actions_registry.instance_actions() ??
         return self._sort_actions([
-            action for action in self.registry.instance_actions(user=self.user,
+            action for action in self.registry.instance_actions(user=user,
                                                                 instance=instance,
                                                                )
                 if action.is_visible

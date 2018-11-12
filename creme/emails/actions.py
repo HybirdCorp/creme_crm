@@ -38,7 +38,7 @@ class EntityEmailResendAction(actions.UIAction):
 
     def _get_options(self):
         return {
-            'selection': [self.instance.id]
+            'selection': [self.instance.id],
         }
 
 
