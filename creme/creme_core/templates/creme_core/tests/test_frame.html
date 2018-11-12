@@ -113,8 +113,10 @@
 
         var mockPOST = function(name, redirect) {
             return function(url, form) {
-                var response = $('select[name="response"]', form).val() || '200';
-                var value = $('input[name="' + name + '"]', form).val() || '';
+                form = form || {};
+
+                var response = (form.response || ['200'])[0];
+                var value = (form.value || [''])[0];
 
                 if (response === '200' && (Object.isEmpty(value) || !name))
                     return mockbackend.GET[redirect || url];
@@ -358,7 +360,7 @@
         </form>
     </script>
     <script type="text/html" id="mock-wizard-A">
-        <h2 class="ui-creme-dialog-header">Step A</h2>
+        <div class="ui-creme-dialog-titlebar">Step A</div>
         <form class="popup-form" action="mock/wizard/A">
             <div class="popup-form-field">
                 <label for="name">Name</label>
@@ -379,7 +381,9 @@
         </form>
     </script>
     <script type="text/html" id="mock-wizard-B">
-        <h2 class="ui-creme-dialog-header">Step B</h2>
+        <div class="ui-creme-dialog-titlebar">
+            <a class="ui-creme-dialog-action" href="mock/wizard/A">Step A</a> − Step B
+        </div>
         <form class="popup-form" action="mock/wizard/B">
             <div class="popup-form-field">
                 <label for="value">Value</label>
@@ -401,7 +405,10 @@
         </form>
     </script>
     <script type="text/html" id="mock-wizard-C">
-        <h2 class="ui-creme-dialog-header">Step C</h2>
+        <div class="ui-creme-dialog-titlebar">
+            <a class="ui-creme-dialog-action" href="mock/wizard/A">Step A</a> − 
+            <a class="ui-creme-dialog-action" href="mock/wizard/B">Step B</a> − Step C
+        </div>
         <form class="popup-form" action="mock/wizard/C">
             <div class="popup-form-field">
                 <label for="value">Value</label>

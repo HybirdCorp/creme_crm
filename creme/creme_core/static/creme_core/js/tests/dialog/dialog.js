@@ -18,7 +18,7 @@ var MOCK_FRAME_CONTENT_TITLEBAR = '<div class="mock-content">' +
                                       '<div class="hat-bar-container ui-creme-dialog-titlebar">' +
                                           '<div class="hat-bar">' +
                                               '<div class="bar-icon"><img /></div>' +
-                                              '<div class="bar-title"><h1>Mock Dialog Title</h1></div>' +
+                                              '<div class="bar-title"><h1>Mock Dialog ${title}</h1></div>' +
                                           '</div>' +
                                       '</div>' +
                                   '</div>';
@@ -49,7 +49,8 @@ QUnit.module("creme.dialog.js", new QUnitMixin(QUnitEventMixin,
             'mock/html': backend.response(200, MOCK_FRAME_CONTENT),
             'mock/html2': backend.response(200, MOCK_FRAME_CONTENT_LIST),
             'mock/widget': backend.response(200, MOCK_FRAME_CONTENT_WIDGET),
-            'mock/titlebar': backend.response(200, MOCK_FRAME_CONTENT_TITLEBAR),
+            'mock/titlebar': backend.response(200, MOCK_FRAME_CONTENT_TITLEBAR.template({title: 'Title #1'})),
+            'mock/titlebar2': backend.response(200, MOCK_FRAME_CONTENT_TITLEBAR.template({title: 'Title #2'})),
             'mock/hatbar': backend.response(200, MOCK_FRAME_CONTENT_HATBAR),
             'mock/actions': backend.response(200, MOCK_FRAME_CONTENT_ACTION),
             'mock/red_dot': backend.response(200, RED_DOT_5x5_BASE64, {'content-type': 'image/png;base64'}),
@@ -793,13 +794,22 @@ QUnit.test('creme.dialog.Dialog (titlebar, fill)', function(assert) {
 
     this.assertDialogTitleHtml('Default title');
 
-    dialog.fill($(MOCK_FRAME_CONTENT_TITLEBAR));
+    dialog.fill($(MOCK_FRAME_CONTENT_TITLEBAR.template({title: 'Title #1'})));
 
     this.assertDialogTitleHtml(
         '<div class="hat-bar-container ui-creme-dialog-titlebar">' +
             '<div class="hat-bar">' +
             '<div class="bar-icon"><img /></div>' +
-            '<div class="bar-title"><h1>Mock Dialog Title</h1></div>' +
+            '<div class="bar-title"><h1>Mock Dialog Title #1</h1></div>' +
+        '</div>');
+
+    dialog.fill($(MOCK_FRAME_CONTENT_TITLEBAR.template({title: 'Title #154'})));
+
+    this.assertDialogTitleHtml(
+        '<div class="hat-bar-container ui-creme-dialog-titlebar">' +
+            '<div class="hat-bar">' +
+            '<div class="bar-icon"><img /></div>' +
+            '<div class="bar-title"><h1>Mock Dialog Title #154</h1></div>' +
         '</div>');
 });
 
@@ -834,7 +844,16 @@ QUnit.test('creme.dialog.Dialog (titlebar, fetch url)', function(assert) {
         '<div class="hat-bar-container ui-creme-dialog-titlebar">' +
             '<div class="hat-bar">' +
             '<div class="bar-icon"><img /></div>' +
-            '<div class="bar-title"><h1>Mock Dialog Title</h1></div>' +
+            '<div class="bar-title"><h1>Mock Dialog Title #1</h1></div>' +
+        '</div>');
+
+    dialog.fetch('mock/titlebar2');
+
+    this.assertDialogTitleHtml(
+        '<div class="hat-bar-container ui-creme-dialog-titlebar">' +
+            '<div class="hat-bar">' +
+            '<div class="bar-icon"><img /></div>' +
+            '<div class="bar-title"><h1>Mock Dialog Title #2</h1></div>' +
         '</div>');
 });
 
