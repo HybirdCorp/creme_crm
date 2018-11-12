@@ -94,17 +94,17 @@ creme.dialog.Dialog = creme.component.Component.sub({
             return;
         }
 
-        if (this.options.useFrameActions) {
-            this.replaceButtons(this._orderedFrameActionButtons(this.options));
-        }
-
         if (this.options.useFrameTitleBar) {
             var dialogHeader = this._dialog.parents('.ui-dialog:first').find('.ui-dialog-titlebar .ui-dialog-title');
-            var header = $('.ui-creme-dialog-titlebar:first');
+            var header = $('.ui-creme-dialog-titlebar:first', this.frame().delegate());
 
             if (header.size() > 0) {
                 header.appendTo(dialogHeader.empty());
             };
+        }
+
+        if (this.options.useFrameActions) {
+            this.replaceButtons(this._orderedFrameActionButtons(this.options));
         }
 
         this.frame().activateContent();
