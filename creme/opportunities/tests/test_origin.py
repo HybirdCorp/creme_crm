@@ -3,7 +3,6 @@
 try:
     from functools import partial
 
-    from django.core.exceptions import ValidationError
     from django.urls import reverse
 
     from creme.creme_core.tests.base import CremeTestCase

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import dumps as json_dump
-
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
     from django.utils.translation import ugettext as _

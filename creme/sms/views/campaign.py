@@ -22,7 +22,7 @@ import warnings
 
 from django.http import HttpResponse  # HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required

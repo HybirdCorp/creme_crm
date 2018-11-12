@@ -26,7 +26,7 @@ from time import sleep
 from django.conf import settings
 from django.core.mail import send_mail, get_connection
 from django.db import IntegrityError
-from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField, BinaryField,
+from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
         EmailField, CharField, TextField, ManyToManyField, SET_NULL, CASCADE)
 from django.db.transaction import atomic
 from django.template import Template, Context

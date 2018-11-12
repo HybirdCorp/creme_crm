@@ -24,7 +24,7 @@ from django.contrib.auth import get_user_model
 from django.db import DatabaseError
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, superuser_required, _check_superuser

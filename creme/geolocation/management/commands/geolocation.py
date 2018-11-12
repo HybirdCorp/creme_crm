@@ -141,10 +141,10 @@ class CSVPopulator:
         return _aux
 
     def create(self, row, context):
-        raise NotImplemented()
+        raise NotImplementedError
 
     def save(self, entries, context):
-        raise NotImplemented()
+        raise NotImplementedError
 
     def pre(self, rows, context):
         pass

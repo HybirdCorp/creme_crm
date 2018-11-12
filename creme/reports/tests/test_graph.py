@@ -2662,7 +2662,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual('??',                                   fetcher.verbose_volatile_column)
 
     def test_get_available_report_graph_types01(self):
-        user = self.login()
+        self.login()
         url = self._build_graph_types_url(self.ct_orga)
         self.assertGET404(url)
         self.assertPOST404(url)

@@ -1888,9 +1888,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer_not_superuser02(self):
         "Edition permission on PollReply is needed"
-        user = self.login(is_superuser=False, allowed_apps=['polls'],
-                          creatable_models=[PollReply],
-                         )
+        self.login(is_superuser=False, allowed_apps=['polls'],
+                   creatable_models=[PollReply],
+                  )
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
                                             # EntityCredentials.CHANGE |

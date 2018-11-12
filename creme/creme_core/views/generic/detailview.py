@@ -25,10 +25,10 @@ import warnings
 
 from django.db.models import Q
 from django.urls import reverse
-from django.utils.decorators import method_decorator
+# from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
 
-from creme.creme_core.auth.decorators import login_required
+# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.imprint import imprint_manager
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem

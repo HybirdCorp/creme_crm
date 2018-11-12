@@ -200,7 +200,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preply_from_campaign02(self):
+    def test_create_preply_from_campaign03(self):
         "Creation creds are needed"
         self.login(is_superuser=False, allowed_apps=['polls'],
                    # creatable_models=[PollReply],
@@ -220,7 +220,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     @skipIfCustomPollForm
     @skipIfCustomPollReply
-    def test_create_preply_from_campaign03(self):
+    def test_create_preply_from_campaign04(self):
         "LINK creds are needed"
         self.login(is_superuser=False, allowed_apps=['polls'],
                    creatable_models=[PollReply],
