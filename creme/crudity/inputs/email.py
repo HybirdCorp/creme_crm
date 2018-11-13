@@ -32,7 +32,7 @@ from creme.documents import get_document_model
 from ..backends.models import CrudityBackend
 from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
 from ..models import WaitingAction
-from ..utils import strip_html, strip_html_, decode_b64binary
+from ..utils import strip_html, decode_b64binary  # strip_html_
 from .base import CrudityInput
 
 
@@ -48,20 +48,22 @@ MULTILINE_SEP_LEN = len(RIGHT_MULTILINE_SEP)
 
 
 class EmailInput(CrudityInput):
-    name = u'raw'
-    verbose_name = _(u'Email - Raw')
+    name = 'raw'
+    verbose_name = _('Email - Raw')
 
     def strip_html(self, html):
         # 'Manually' replace &nbsp; because we don't want \xA0 unicode char
+        # TODO: improve strip_html() to give custom replacement ?
         html = re.sub(re_html_br, '\n', html).replace('&nbsp;', ' ')
         html = strip_html(html)
-        html = strip_html_(html)
+        # html = strip_html_(html)
+
         return html
 
 
 class CreateEmailInput(EmailInput):
     method = 'create'
-    verbose_method = _(u'Create')
+    verbose_method = _('Create')
     brickheader_action_templates = ('crudity/bricks/header-actions/email-creation-template.html',)
 
     def create(self, email):
@@ -192,7 +194,7 @@ remove_pattern = re.compile('[\t\n\r\f\v]')
 
 class CreateInfopathInput(CreateEmailInput):
     name         = 'infopath'
-    verbose_name = _(u'Email - Infopath')
+    verbose_name = _('Email - Infopath')
     brickheader_action_templates = ('crudity/bricks/header-actions/infopath-creation-form.html',)
 
     MIME_TYPES = ['application/x-microsoft-infopathform']
