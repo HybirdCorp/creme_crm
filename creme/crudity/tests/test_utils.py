@@ -3,7 +3,7 @@
 try:
     from creme.creme_core.tests.base import CremeTestCase
 
-    from ..utils import decode_b64binary
+    from ..utils import decode_b64binary, strip_html
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -52,3 +52,10 @@ JBTi5OHuzb/iXXkgWZlnk1qTVaC+9tzy9ZsV8ojCTLGGKvj/4nvaMlx38jF2lz5AeijU5LdeKkiQiO3x
 7LzY6XwDj2HfXPP0DUgAAAAASUVORK5CYII="
         filename, blob = decode_b64binary(encoded_utf8_name)
         self.assertEqual(img_blob, blob)
+
+    def test_strip_html(self):
+        self.assertEqual('foobar',  strip_html('foobar'))
+        self.assertEqual('foobar',  strip_html('<b>foobar</b>'))
+        self.assertEqual('97%',     strip_html('97&#x0025;'))
+        self.assertEqual('97%',     strip_html('97&#37;'))
+        self.assertEqual('foo bar', strip_html('foo&nbsp;bar'))

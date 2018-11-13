@@ -26,95 +26,104 @@ import struct
 import uuid
 
 
-html_mark = re.compile(r"""(?P<html>(</|<!|<|&lt;)[-="' ;/.#:@\w]*(>|/>|&gt;))""")
+# html_mark = re.compile(r"""(?P<html>(</|<!|<|&lt;)[-="' ;/.#:@\w]*(>|/>|&gt;))""")
 
 
-def strip_html_(html_content):
-    is_html = True
-    while is_html:
-        reg = re.search(html_mark, html_content)
-        if reg:
-            html_content = html_content.replace(reg.groupdict().get('html'), '')
-        else:
-            is_html = False
+# def strip_html_(html_content):
+#     is_html = True
+#     while is_html:
+#         reg = re.search(html_mark, html_content)
+#         if reg:
+#             html_content = html_content.replace(reg.groupdict().get('html'), '')
+#         else:
+#             is_html = False
+#
+#     return html_content
 
-    return html_content
 
-
-def unescape(text):
-    """Removes HTML or XML character references and entities from a text string.
-    keep &amp;, &gt;, &lt; in the source code.
-    from Fredrik Lundh
-    http://effbot.org/zone/re-sub.htm#unescape-html
-    """
-    def fixup(m):
-        text = m.group(0)
-
-        if text[:2] == "&#":
-            # Character reference
-            try:
-                if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
-                else:
-                    return unichr(int(text[2:-1]))
-            except ValueError:
-                pass
-        else:
-            # Named entity
-            frag = text[1:-1]
-            try:
-                if frag == "amp":
-                    text = "&amp;amp;"
-                elif frag == "gt":
-                    text = "&amp;gt;"
-                elif frag == "lt":
-                    text = "&amp;lt;"
-                else:
-                    text = unichr(htmlentitydefs.name2codepoint[frag])
-            except KeyError:
-                pass
-
-        return text  # Leave as is
-
-    return re.sub("&#?\w+;", fixup, text)
+# def unescape(text):
+#     """Removes HTML or XML character references and entities from a text string.
+#     keep &amp;, &gt;, &lt; in the source code.
+#     from Fredrik Lundh
+#     http://effbot.org/zone/re-sub.htm#unescape-html
+#     """
+#     def fixup(m):
+#         text = m.group(0)
+#
+#         if text[:2] == "&#":
+#             # Character reference
+#             try:
+#                 if text[:3] == "&#x":
+#                     return unichr(int(text[3:-1], 16))
+#                 else:
+#                     return unichr(int(text[2:-1]))
+#             except ValueError:
+#                 pass
+#         else:
+#             # Named entity
+#             frag = text[1:-1]
+#             try:
+#                 if frag == "amp":
+#                     text = "&amp;amp;"
+#                 elif frag == "gt":
+#                     text = "&amp;gt;"
+#                 elif frag == "lt":
+#                     text = "&amp;lt;"
+#                 else:
+#                     text = unichr(htmlentitydefs.name2codepoint[frag])
+#             except KeyError:
+#                 pass
+#
+#         return text  # Leave as is
+#
+#     return re.sub("&#?\w+;", fixup, text)
 
 
 def strip_html(text):
-    """
+    """ Removes HTML markups from a string.
+
+    THX to:
     http://effbot.org/zone/re-sub.htm#strip-html
     """
     def fixup(m):
         text = m.group(0)
+        startswith = text.startswith
 
-        if text[:1] == "<":
-            return ""  # ignore tags
-        if text[:2] == "&#":
-            try:
-                if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
-                else:
-                    return unichr(int(text[2:-1]))
-            except ValueError:
-                pass
-        elif text[:1] == "&":
-            entity = htmlentitydefs.entitydefs.get(text[1:-1])
+        if startswith('<'):
+            return ''  # ignore tags
 
-            if entity:
-                if entity[:2] == "&#":
-                    try:
-                        return unichr(int(entity[2:-1]))
-                    except ValueError:
-                        pass
-                else:
-                    return unicode(entity, "iso-8859-1")
+        if startswith('&'):
+            if startswith('&#'):
+                try:
+                    if startswith('&#x'):
+                        return chr(int(text[3:-1], 16))
+                    else:
+                        return chr(int(text[2:-1]))
+                except ValueError:
+                    pass
+            else:
+                entity = htmlentitydefs.get(text[1:-1])
+
+                if entity:
+                    if entity.startswith('&#'):  # TODO: test this case
+                        try:
+                            return chr(int(entity[2:-1]))
+                        except ValueError:
+                            pass
+                    else:
+                        # return unicode(entity, "iso-8859-1")
+                        return entity  # TODO: encode ?
 
         return text  # Leave as is
 
-    return re.sub("(?s)<[^>]*>|&#?\w+;", fixup, text)
+    return re.sub(r'(?s)<[^>]*>|&#?\w+;', fixup, text)
 
 
 def generate_guid_for_field(urn, model, field_name):
-    return "{%s}" % str(uuid.uuid5(uuid.NAMESPACE_X500, '{}.{}.{}'.format(urn, model._meta.object_name, field_name))).upper()
+    return '{%s}' % str(uuid.uuid5(uuid.NAMESPACE_X500,
+                                   '{}.{}.{}'.format(urn, model._meta.object_name, field_name)
+                                  )
+                       ).upper()
 
 
 def decode_b64binary(blob_b64):
@@ -136,5 +145,3 @@ def decode_b64binary(blob_b64):
     filename = str(filename.encode('utf8'))
 
     return filename, blob
-
-
