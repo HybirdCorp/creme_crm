@@ -792,6 +792,7 @@ TEST_CREME_CORE_JS = ['testcore.js',
                         'creme_core/js/tests/brick/dependencies.js',
 
                         'creme_core/js/tests/views/detailview-actions.js',
+                        'creme_core/js/tests/views/hatmenubar.js',
                         'creme_core/js/tests/views/utils.js',
                     ]
 

@@ -108,6 +108,32 @@ QUnit.test('creme.action.ActionLink', function(assert) {
     equal(false, action.isBound());
 });
 
+QUnit.test('creme.action.ActionLink (unbind, not bound)', function(assert) {
+    var action = new creme.action.ActionLink();
+    equal(false, action.isRunning());
+    equal(false, action.isBound());
+
+    this.assertRaises(function() {
+        action.unbind();
+    }, Error, 'Error: action link is not bound');
+});
+
+QUnit.test('creme.action.ActionLink (unbind)', function(assert) {
+    var action = new creme.action.ActionLink();
+    var link = $('<a data-action="a"></a>');
+
+    action.builders(this.mockActionBuilderDict);
+    action.bind(link);
+
+    equal(false, action.isRunning());
+    equal(true, action.isBound());
+
+    action.unbind();
+
+    equal(false, action.isRunning());
+    equal(false, action.isBound());
+});
+
 QUnit.test('creme.action.ActionLink (bind, no builder)', function(assert) {
     var action = new creme.action.ActionLink();
     var link = $('<a data-action="a"></a>');

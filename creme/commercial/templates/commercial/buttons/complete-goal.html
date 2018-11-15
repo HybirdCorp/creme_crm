@@ -1,4 +1,14 @@
 {% load i18n creme_core_tags creme_widgets %}{% has_perm_to link object as link_perm %}{% trans 'Commercial Action' as img_title %}
+<a class="menu_button menu-button-icon {% if not has_perm or not link_perm %}is-disabled{% endif %}" data-action="creme_core-hatmenubar-addrelationships">
+    {% widget_icon name='commercial' size='instance-button' label=img_title %}
+    {% trans 'Completes a goal' %}
+    {% blockjsondata %}{
+        "data": {
+            "subject_id": "{{object.id}}", "rtype_id": "{{predicate_id}}", "ctype_id": "{{act_ct.id}}"
+        }
+    }{% endblockjsondata %}
+</a>
+{% comment %}
 {% if has_perm and link_perm %}
 {#    <a class="menu_button" onclick="creme.relations.addRelationTo({{object.id}}, '{{predicate_id}}', {{act_ct.id}}, {reloadOnSuccess: true});"> #}
     <a class="menu_button menu-button-icon" onclick="creme.relations.addRelationTo({{object.id}}, '{{predicate_id}}', {{act_ct.id}});">
@@ -13,3 +23,4 @@
         {% trans 'Completes a goal' %}
     </span>
 {% endif %}
+{% endcomment %}
