@@ -30,7 +30,6 @@ QUnit.module("creme.detailview.hatmenubar", new QUnitMixin(QUnitEventMixin,
     },
 
     afterEach: function() {
-        $('.ui-dialog-content').dialog('destroy');
         creme.widget.shutdown($('body'));
     },
 

@@ -577,7 +577,7 @@ CREME_LIB_JS = ['lib.js',
                     'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
                     'creme_core/js/jquery/extensions/json-2.2.js',
                     'creme_core/js/jquery/extensions/highlight.js',
-                    'creme_core/js/jquery/extensions/magnifier.js',
+                    # 'creme_core/js/jquery/extensions/magnifier.js',  # TODO: remove the file
                     'creme_core/js/jquery/extensions/utils.js',
                     'creme_core/js/jquery/extensions/wait.js',
                     'creme_core/js/jquery/extensions/jquery.dragtable.js',

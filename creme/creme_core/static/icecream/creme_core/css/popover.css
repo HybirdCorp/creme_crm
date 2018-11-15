@@ -21,6 +21,8 @@
      -moz-box-shadow: 0 2px 4px rgba(0,0,0,0.10);
           box-shadow: 0 2px 4px rgba(0,0,0,0.10);
   white-space: normal;
+  max-width: calc(100vw - 10px);
+  max-height: calc(100vh - 10px);
 }
 
 .popover hr {
@@ -201,4 +203,39 @@
 
 .popover-glasspane {
     z-index: 100;
+}
+
+.popover.popover-picture {
+    max-height: calc(100vh - 16px);
+    max-width: calc(100vw - 16px);
+    padding: 0px;
+    border-top: 32px;
+}
+
+.popover.popover-picture .popover-content {
+    padding: 0px;
+}
+
+.popover.popover-picture img {
+    max-height: calc(100vh - 50px);
+    max-width: calc(100vw - 50px);
+    padding: 0px;
+}
+
+.popover.popover-picture img.no-title {
+    border-radius: 3px;
+    margin-bottom: -4px;
+    margin-right: -1px;
+}
+
+.popover-glasspane-picture {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.popover.popover-picture .picture-wait {
+    width: 50px;
+    height: 50px;
+    background-image: url("icecream/images/wait.gif");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
 }

@@ -651,6 +651,7 @@ creme.dialogs = creme.dialogs || {};
 
 creme.dialogs = $.extend(creme.dialogs, {
     image: function(source, options) {
+        /*
         if (Object.isString(source)) {
             var dialog = this.html('', options);
             var image = document.createElement("img");
@@ -666,6 +667,9 @@ creme.dialogs = $.extend(creme.dialogs, {
         }
 
         return this.html($(source), options);
+        */
+
+        return new creme.dialog.ImagePopover(options).fillImage(source);
     },
 
     url: function(url, options, data) {
