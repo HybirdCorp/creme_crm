@@ -99,6 +99,9 @@ td p {
        -moz-border-radius: 4px;
             border-radius: 4px;
 }
+*/
+
+/* Page header and top areas - list of buttons: "global-buttons" and "instance-buttons" */
 
 .buttons-list > ul {
     display: inline-table;
@@ -224,6 +227,8 @@ td p {
     top: 2px;
     left: 8px;
 }
+
+/* Page header and top areas - end */
 
 .spacer {
   clear: both;
