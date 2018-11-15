@@ -30,6 +30,10 @@ logger = logging.getLogger(__name__)
 
 
 class SettingValueManager(models.Manager):
+    def __init__(self, skey_registry, **kwargs):
+        super().__init__(**kwargs)
+        self.key_registry = skey_registry
+
     def get_4_key(self, key, **kwargs):
         """Get the SettingValue corresponding to a SettingKey. Results are cached (per request).
 
@@ -45,10 +49,10 @@ class SettingValueManager(models.Manager):
         # key_id = key if isinstance(key, str) else key.id
         if isinstance(key, str):
             key_id = key
-            __key = setting_key_registry[key_id]
+            __key = self.key_registry[key_id]
         else:
             key_id = key.id
-            # setting_key_registry[key_id] TODO ?
+            # self.key_registry[key_id] TODO ?
 
         cache = get_per_request_cache()
 
@@ -81,7 +85,7 @@ class SettingValue(models.Model):
     key_id    = models.CharField(max_length=100)  # See SettingKey.id
     value_str = models.TextField()
 
-    objects = SettingValueManager()
+    objects = SettingValueManager(skey_registry=setting_key_registry)
 
     class Meta:
         app_label = 'creme_core'
@@ -91,6 +95,7 @@ class SettingValue(models.Model):
 
     @property
     def key(self):
+        # TODO: pass setting_key_registry as argument ?
         return setting_key_registry[self.key_id]
 
     @key.setter

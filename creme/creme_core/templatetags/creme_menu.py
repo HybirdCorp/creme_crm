@@ -156,8 +156,10 @@ def menu_buttons_display(context):
                                 .values_list('button_id', flat=True)
 
     button_ctxt = context.flatten()
-    context['buttons'] = [button.render(button_ctxt)
-                            for button in button_registry.get_buttons(bmi, entity)
-                         ]
+    # TODO: pass the registry in the context ?
+    context['buttons'] = [
+        button.render(button_ctxt)
+            for button in button_registry.get_buttons(bmi, entity)
+    ]
 
     return context

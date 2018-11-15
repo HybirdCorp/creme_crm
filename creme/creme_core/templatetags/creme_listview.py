@@ -292,6 +292,7 @@ def listview_td_action_for_cell(cell, instance, user):
     from creme.creme_core.views.entity import _bulk_has_perm
 
     return {
+        # TODO: pass the registry in a list-view context
         'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
         'edit_perm': _bulk_has_perm(instance, user),
     }

@@ -520,6 +520,7 @@ class RGHForeignKey(_RGHRegularField):
 
         if field is not None:
             try:
+                # TODO: pass the registry as argument
                 enumerator = enumerable_registry.enumerator_by_field(field)
             except ValueError:
                 self.abscissa_error = _('this field cannot be used as abscissa.')

@@ -29,7 +29,7 @@ from django.urls import reverse
 from django.views.generic import DetailView
 
 # from creme.creme_core.auth.decorators import login_required
-from creme.creme_core.core.imprint import imprint_manager
+from creme.creme_core.core import imprint
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import CremeModel, CremeEntity, BrickDetailviewLocation
@@ -112,7 +112,7 @@ def view_entity(request, object_id, model,
     user.has_perm_to_view_or_die(entity)
 
     LastViewedItem(request, entity)
-    imprint_manager.create_imprint(entity=entity, user=user)
+    imprint.imprint_manager.create_imprint(entity=entity, user=user)
 
     template_dict = {
         'object': entity,
@@ -188,6 +188,8 @@ class EntityDetail(CremeModelDetail):
     pk_url_kwarg = 'entity_id'
     bricks_reload_url_name = 'creme_core__reload_detailview_bricks'
 
+    imprint_manager = imprint.imprint_manager
+
     def check_instance_permissions(self, instance, user):
         user.has_perm_to_view_or_die(instance)
 
@@ -203,7 +205,7 @@ class EntityDetail(CremeModelDetail):
         request = self.request
 
         LastViewedItem(request, entity)
-        imprint_manager.create_imprint(entity=entity, user=request.user)
+        self.imprint_manager.create_imprint(entity=entity, user=request.user)
 
         return entity
 

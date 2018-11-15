@@ -869,6 +869,7 @@ class Sandbox(Model):
 
     @property
     def type(self):
+        # TODO: pass registry as argument
         from creme.creme_core.core.sandbox import sandbox_type_registry
 
         return sandbox_type_registry.get(self)

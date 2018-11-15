@@ -663,6 +663,7 @@ def brick_tile_for_cell(cell, instance, user):
         'multiline': cell.is_multiline,
 
         # 'edit_url':  edit_url,
+        # TODO: pass the registry in context ?
         'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
         'edit_perm': _bulk_has_perm(instance, user),
     }

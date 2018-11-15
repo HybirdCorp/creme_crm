@@ -122,8 +122,10 @@ class AppConfigRegistry:
 
 
 class _ConfigRegistry:
-    def __init__(self, block_registry=brick_registry):
-        self._brick_registry = block_registry
+    # def __init__(self, block_registry=brick_registry):
+    def __init__(self, brick_registry=brick_registry):
+        # self._brick_registry = block_registry
+        self._brick_registry = brick_registry
         self._apps = _apps = {}
         self._user_brick_classes = []
         self._portal_brick_classes = []

@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from ..core.batch_process import batch_operator_manager, BatchAction
 from ..creme_jobs.batch_process import batch_process_type
-from ..gui.bulk_update import bulk_update_registry
+from ..gui import bulk_update
 from ..models import CremeEntity, EntityFilter, Job
 from ..utils.unicode_collation import collator
 from ..utils.url import TemplateURLBuilder
@@ -87,10 +87,11 @@ class BatchActionsField(JSONField):
     value_type = list
     _fields = None
 
-    def __init__(self, model=CremeEntity, *args, **kwargs):
+    def __init__(self, model=CremeEntity, bulk_update_registry=None, *args, **kwargs):
         # super(BatchActionsField, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.model = model
+        self.bulk_update_registry = bulk_update_registry or bulk_update.bulk_update_registry
 
     @property
     def model(self):
@@ -113,10 +114,11 @@ class BatchActionsField(JSONField):
             fields = []
             model = self._model
             managed_fields = tuple(batch_operator_manager.managed_fields)
-            updatable = partial(bulk_update_registry.is_updatable,
+            registry = self.bulk_update_registry
+            updatable = partial(registry.is_updatable,
                                 model=model, exclude_unique=False,
                                )
-            get_form = bulk_update_registry.status(model).get_form
+            get_form = registry.status(model).get_form
 
             for field in model._meta.fields:
                 if field.editable and isinstance(field, managed_fields):

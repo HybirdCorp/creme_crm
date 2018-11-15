@@ -86,6 +86,7 @@ class ContentTypeIconNode(IconNode):
     def _build_icon(self, context, theme, size_px, label, css_class):
         model = self.ctype_var.resolve(context).model_class()
 
+        # TODO: how to pass the registry in the context ? (context_processor?)
         icon = icon_registry.get_4_model(model=model, theme=theme, size_px=size_px)
         icon.css_class = css_class
 
@@ -104,6 +105,7 @@ class InstanceIconNode(IconNode):
     def _build_icon(self, context, theme, size_px, label, css_class):
         instance = self.instance_var.resolve(context)
 
+        # TODO: see ContentTypeIconNode._build_icon
         icon = icon_registry.get_4_instance(instance=instance, theme=theme, size_px=size_px)
         icon.css_class = css_class
 

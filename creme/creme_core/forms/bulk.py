@@ -31,7 +31,7 @@ from django.forms.widgets import Select
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from ..gui.bulk_update import bulk_update_registry
+from ..gui import bulk_update
 from ..models import custom_field
 
 from .base import CremeForm
@@ -51,9 +51,12 @@ class BulkFieldSelectWidget(Select):
 
 
 class BulkForm(CremeForm):
-    def __init__(self, model, field, user, entities, is_bulk, parent_field=None, **kwargs):
+    def __init__(self, model, field, user, entities, is_bulk,
+                 parent_field=None, bulk_update_registry=None, **kwargs):
         # super(BulkForm, self).__init__(user, **kwargs)
         super().__init__(user, **kwargs)
+        self.bulk_update_registry = bulk_update_registry or bulk_update.bulk_update_registry
+
         self.is_bulk = is_bulk
         self.is_subfield = parent_field is not None
         self.is_custom = is_custom = isinstance(field, custom_field.CustomField)
@@ -104,8 +107,9 @@ class BulkForm(CremeForm):
         return self._bulk_updatable_formfield(self.model_field, user, instance)
 
     def _bulk_model_choices(self, model, entities):
-        regular_fields = bulk_update_registry.regular_fields(model, expand=True)
-        custom_fields = bulk_update_registry.custom_fields(model)
+        registry = self.bulk_update_registry
+        regular_fields = registry.regular_fields(model, expand=True)
+        custom_fields  = registry.custom_fields(model)
 
         build_url = partial(self._bulk_field_url, model=model, entities=entities)
 
