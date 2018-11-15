@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
-from creme.creme_core.gui.button_menu import button_registry
+from creme.creme_core.gui import button_menu
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
@@ -63,13 +63,14 @@ class ButtonMenuEditForm(CremeForm):
                                      choices=(), widget=OrderedMultipleChoiceWidget,
                                     )
 
-    def __init__(self, button_menu_items, ct_id, instance=None, *args, **kwargs):
+    def __init__(self, button_menu_items, ct_id, instance=None, button_registry=None, *args, **kwargs):
         # super(ButtonMenuEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         self.ct = ContentType.objects.get_for_id(ct_id) if ct_id else None
         self.set_buttons = button_menu_items
 
+        button_registry = button_registry or button_menu.button_registry
         choices = []
 
         if not self.ct:  # Default conf

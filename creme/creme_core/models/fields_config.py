@@ -38,8 +38,8 @@ class FieldsConfig(CremeModel):
     content_type     = CTypeOneToOneField(editable=False, primary_key=True)  # verbose_name=_(u'Related type')
     raw_descriptions = TextField(editable=False)  # null=True  #TODO: JSONField ?
 
-    creation_label = _(u'Create a fields configuration')
-    save_label     = _(u'Save the configuration')
+    creation_label = _('Create a fields configuration')
+    save_label     = _('Save the configuration')
 
     HIDDEN = 'hidden'
 
@@ -145,9 +145,9 @@ class FieldsConfig(CremeModel):
     @property
     def descriptions(self):
         """Getter.
-        @returns Sequence of couples (field_name, attributes). 'attributes' is
-                 a dictionary with keys are in {FieldsConfig.HIDDEN} (yes only
-                 one at the moment), and values are Booleans.
+        @return Sequence of couples (field_name, attributes). 'attributes' is
+                a dictionary with keys are in {FieldsConfig.HIDDEN} (yes only
+                one at the moment), and values are Booleans.
                  eg:
                     [('phone',    {FieldsConfig.HIDDEN: True}),
                      ('birthday', {FieldsConfig.HIDDEN: True}),
@@ -175,13 +175,14 @@ class FieldsConfig(CremeModel):
         """Are some hidden fields needed ?
         @return List of unicode strings.
         """
+        # TODO: would be better to pas the registry as argument
         from ..gui.fields_config import fields_config_registry
 
         get_apps = partial(fields_config_registry.get_needing_apps,
                            model=self.content_type.model_class(),
                           )
         # TODO: cached_lazy_ugettext
-        fmt = ugettext(u'Warning: the app «{app}» need the field «{field}».').format
+        fmt = ugettext('Warning: the app «{app}» need the field «{field}».').format
 
         return [fmt(app=app.verbose_name, field=field.verbose_name)
                     for field in self.hidden_fields

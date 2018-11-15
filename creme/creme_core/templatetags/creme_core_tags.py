@@ -458,6 +458,7 @@ class FieldPrinterNode(TemplateNode):
         obj        = self.obj_var.eval(context)
         field_name = self.field_var.eval(context)
 
+        # TODO: pass the registry in the context ?
         return field_printers_registry.get_html_field_value(obj, field_name, context['user'])
 
 

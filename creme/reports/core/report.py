@@ -431,6 +431,7 @@ class RHFunctionField(ReportHand):
 
     def __init__(self, report_field):
         # funcfield = report_field.model.function_fields.get(report_field.name)
+        # TODO: get registry as argument
         funcfield = function_field_registry.get(report_field.model, report_field.name)
         if not funcfield:
             raise ReportHand.ValueError('Invalid function field: "{}"'.format(report_field.name))

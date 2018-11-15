@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
 from .gui.bricks import Brick, QuerysetBrick, BricksManager
-from .gui.statistics import statistics_registry
+from .gui import statistics
 from .models import (CremeEntity, RelationType, Relation, CremeProperty, CustomField, Imprint,
         Job, JobResult, MassImportJobResult, EntityJobResult)
 from .models.history import HistoryLine, TYPE_SYM_RELATION, TYPE_SYM_REL_DEL
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 class PropertiesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('creme_core', 'properties')
     dependencies  = (CremeProperty,)
-    verbose_name  = _(u'Properties')
+    verbose_name  = _('Properties')
     template_name = 'creme_core/bricks/properties.html'
     order_by = 'type__text'  # TODO: in model ??
 
@@ -58,7 +58,7 @@ class RelationsBrick(QuerysetBrick):
                                  # Useless because _iter_dependencies_info() has been overriden.
     relation_type_deps = ()  # Voluntarily void -> see detailview_display()
     order_by      = 'type__predicate'
-    verbose_name  = _(u'Relationships')
+    verbose_name  = _('Relationships')
     template_name = 'creme_core/bricks/relations.html'
 
     def __init__(self):
@@ -135,7 +135,7 @@ class RelationsBrick(QuerysetBrick):
 class CustomFieldsBrick(Brick):
     id_           = Brick.generate_id('creme_core', 'customfields')
     dependencies  = (CustomField,)
-    verbose_name  = _(u'Custom fields')
+    verbose_name  = _('Custom fields')
     template_name = 'creme_core/bricks/custom-fields.html'
 
     def detailview_display(self, context):
@@ -157,7 +157,7 @@ class HistoryBrick(QuerysetBrick):
     read_only     = True
     # order_by      = '-date'
     order_by      = '-id'
-    verbose_name  = _(u'History')
+    verbose_name  = _('History')
     template_name = 'creme_core/bricks/history.html'
 
     # TODO: factorise (see assistants.bricks) ??
@@ -251,7 +251,7 @@ class ImprintsBrick(QuerysetBrick):
     dependencies  = (Imprint,)
     read_only     = True
     order_by      = '-id'  # faster than '-date'
-    verbose_name  = _(u'History of consultation')
+    verbose_name  = _('History of consultation')
     template_name = 'creme_core/bricks/imprints.html'
 
     def detailview_display(self, context):
@@ -284,7 +284,7 @@ class TrashBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('creme_core', 'trash')
     dependencies  = (CremeEntity,)
     order_by      = '-modified'
-    verbose_name  = _(u'Trash')
+    verbose_name  = _('Trash')
     template_name = 'creme_core/bricks/trash.html'
     page_size     = 50
     permission    = None  # NB: the template uses credentials
@@ -302,9 +302,11 @@ class TrashBrick(QuerysetBrick):
 
 class StatisticsBrick(Brick):
     id_           = Brick.generate_id('creme_core', 'statistics')
-    verbose_name  = _(u'Statistics')
+    verbose_name  = _('Statistics')
     template_name = 'creme_core/bricks/statistics.html'
     # target_apps   = ('creme_core',)  # DEPRECATED
+
+    statistics_registry = statistics.statistics_registry
 
     def home_display(self, context):
         has_perm = context['user'].has_perm
@@ -312,7 +314,7 @@ class StatisticsBrick(Brick):
         return self._render(self.get_template_context(
                     context,
                     items=[item
-                            for item in statistics_registry
+                            for item in self.statistics_registry
                                 if not item.perm or has_perm(item.perm)
                           ],
         ))

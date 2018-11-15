@@ -412,15 +412,16 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeModelEditionPopup):
 
     def get_form_class(self):
         model = self.get_ctype().model_class()
+        registry = self.bulk_update_registry
         field_name = self.kwargs.get(self.field_name_url_kwarg)
-        if field_name is None:
-            field_name = bulk_update.bulk_update_registry.get_default_field(model).name
 
-        return self.bulk_update_registry \
-                   .get_form(model=model,
-                             field_name=field_name,
-                             default=BulkDefaultEditForm,
-                            )
+        if field_name is None:
+            field_name = registry.get_default_field(model).name
+
+        return registry.get_form(model=model,
+                                 field_name=field_name,
+                                 default=BulkDefaultEditForm,
+                                )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -564,6 +565,7 @@ def merge(request):
     entity1 = entity1.get_real_entity()
     entity2 = entity2.get_real_entity()
 
+    # TODO: 'merge_form_registry' as atribute in the future CBV + pass it as argument here
     EntitiesMergeForm = merge_form_factory(entity1.__class__)
 
     if EntitiesMergeForm is None:

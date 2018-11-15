@@ -37,6 +37,7 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from ..auth.entity_credentials import EntityCredentials
 from ..constants import REL_SUB_HAS
 from ..core import validators
+from ..gui import quick_forms
 from ..models import RelationType, CremeEntity, EntityFilter
 from ..utils import creme_entity_content_types, build_ct_choices, find_first
 from ..utils.collections import OrderedSet
@@ -249,7 +250,7 @@ class EntityCredsJSONField(JSONField):
         (EntityCredentials.LINK,   f_validators.validate_linkable_entity, f_validators.validate_linkable_entities),
     ]
 
-    def __init__(self, credentials=EntityCredentials.LINK, *args, **kwargs):
+    def __init__(self, credentials=EntityCredentials.LINK, quickforms_registry=None, *args, **kwargs):
         """Constructor.
         @param credentials: Binary combination of EntityCredentials.{VIEW, CHANGE, LINK}.
                             Default value is EntityCredentials.LINK.
@@ -257,6 +258,7 @@ class EntityCredsJSONField(JSONField):
         # super(EntityCredsJSONField, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._credentials = credentials
+        self.quickforms_registry = quickforms_registry or quick_forms.quickforms_registry
 
     def _check_entity_perms(self, entity, *args):
         user = self._user
@@ -288,6 +290,9 @@ class EntityCredsJSONField(JSONField):
                 validator_multi(entities, user)
 
         return entities
+
+    def _has_quickform(self, model):
+        return self.quickforms_registry.get_form(model) is not None
 
 
 class GenericEntityField(EntityCredsJSONField):
@@ -341,9 +346,8 @@ class GenericEntityField(EntityCredsJSONField):
     def _update_widget_choices(self):
         self.widget.content_types = fields.CallableChoiceIterator(self._get_ctypes_options)
 
-    def _has_quickform(self, model):
-        from creme.creme_core.gui.quick_forms import quickforms_registry
-        return quickforms_registry.get_form(model) is not None
+    # def _has_quickform(self, model):
+    #     return quickforms_registry.get_form(model) is not None
 
     def _create_url(self, user, ctype):
         model = ctype.model_class()
@@ -880,9 +884,8 @@ class CreatorEntityField(EntityCredsJSONField):
             widget.creation_allowed = False
             widget.creation_url = ''
 
-    def _has_quickform(self, model):
-        from creme.creme_core.gui.quick_forms import quickforms_registry
-        return quickforms_registry.get_form(model) is not None
+    # def _has_quickform(self, model):
+    #     return quickforms_registry.get_form(model) is not None
 
     def _value_to_jsonifiable(self, value):
         # if isinstance(value, (int, long)):

@@ -28,8 +28,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from ..core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
-from ..core.function_field import function_field_registry
-from ..gui.listview import smart_columns_registry
+from ..core import function_field
+from ..gui import listview
 from ..models import (CremeEntity, RelationType, CustomField, EntityCredentials,
         HeaderFilter, FieldsConfig)
 from ..utils.id_generator import generate_string_id_and_save
@@ -130,12 +130,13 @@ class EntityCellsWidget(Widget):
 class EntityCellsField(Field):
     widget = EntityCellsWidget
     default_error_messages = {
-        'invalid': _(u'Enter a valid value.'),
+        'invalid': _('Enter a valid value.'),
     }
 
-    def __init__(self, content_type=None, *args, **kwargs):
+    def __init__(self, content_type=None, function_field_registry=None, *args, **kwargs):
         # super(EntityCellsField, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
+        self.function_field_registry = function_field_registry or function_field.function_field_registry
         self._non_hiddable_cells = []
         self.content_type = content_type
         self.user = None
@@ -165,7 +166,7 @@ class EntityCellsField(Field):
         self.widget.function_fields = ffields_choices = []  # TODO: sort ?
 
         # for f in ct.model_class().function_fields:
-        for f in function_field_registry.fields(ct.model_class()):
+        for f in self.function_field_registry.fields(ct.model_class()):
             field_id = _FFIELD_PREFIX + f.name
             ffields_choices.append((field_id, f.verbose_name))
             builders[field_id] = EntityCellsField._build_4_functionfield
@@ -450,11 +451,14 @@ class _HeaderFilterForm(CremeModelForm):
 
 
 class HeaderFilterCreateForm(_HeaderFilterForm):
-    def __init__(self, ctype, *args, **kwargs):
+    def __init__(self, ctype, smart_columns_registry=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        registry = smart_columns_registry or listview.smart_columns_registry
+
         cells_f = self.fields['cells']
         cells_f.content_type = self.instance.entity_type = ctype
-        cells_f.initial = smart_columns_registry.get_cells(ctype.model_class())
+        cells_f.initial = registry.get_cells(ctype.model_class())
 
     @atomic
     def save(self, *args, **kwargs):

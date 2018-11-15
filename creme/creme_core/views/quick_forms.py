@@ -135,9 +135,11 @@ class QuickCreation(EntityCTypeRelatedMixin, generic.EntityCreationPopup):
     # form_class = ...
     template_name = 'creme_core/generics/form/add-popup.html'
 
+    quickforms_registry = quickforms_registry
+
     def get_form_class(self):
         model = self.model
-        form_class = quickforms_registry.get_form(model)
+        form_class = self.quickforms_registry.get_form(model)
 
         if form_class is None:
             raise Http404('No form registered for model: {}'.format(model))
