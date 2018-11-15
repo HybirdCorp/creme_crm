@@ -502,7 +502,7 @@ class CremeUser(AbstractBaseUser):
                          help_text=_('Required. 30 characters or fewer. '
                                      'Letters, digits and @/./+/-/_ only.'
                                     ),
-                         validators=[RegexValidator(re_compile('^[\w.@+-]+$'),
+                         validators=[RegexValidator(re_compile(r'^[\w.@+-]+$'),
                                                     _('Enter a valid username. '
                                                       'This value may contain only letters, numbers, '
                                                       'and @/./+/-/_ characters.'),

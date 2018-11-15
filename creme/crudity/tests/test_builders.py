@@ -130,7 +130,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         xml_find = xml.find
 
         namespace = builder.get_namespace()
-        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          namespace
                         )  # Can't be got with ElementTree, because it's a namespace
 
@@ -173,7 +173,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
 
         content = builder._render_manifest_xsf(self.request)
-        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.get_namespace()
                         )  # Can't be got with ElementTree, because it's a namespace
         xsf = '{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}'
@@ -197,7 +197,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
 
         content = builder._render_manifest_xsf(self.request)
-        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.get_namespace()
                         )  # Can't be got with ElementTree, because it's a namespace
 
@@ -234,7 +234,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         self.assertEqual(builder.namespace, xml.get('targetNamespace'))
         self.assertEqual(builder.namespace,
-                         re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns']
+                         re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns']
                         )  # Can't be got with ElementTree, because it's a namespace
 
         ref_attrs = {node.get('ref')
@@ -331,7 +331,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         self.assertEqual(builder.namespace, xml.get('targetNamespace'))
         self.assertEqual(builder.namespace,
-                         re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns']
+                         re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns']
                         )  # Can't be got with ElementTree, because it's a namespace
 
         ref_attrs = {node.get('ref')
@@ -385,7 +385,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
 
         content = builder._render_template_xml(self.request)
-        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.get_namespace()
                         )  # Can't be got with ElementTree, because it's a namespace
 
@@ -418,7 +418,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                    )
 
         content = builder._render_upgrade_xsl(self.request)
-        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.namespace
                         )  # Can't be got with ElementTree, because it's a namespace
 
@@ -441,7 +441,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                    )
 
         content = builder._render_upgrade_xsl(self.request)
-        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.namespace
                         )
 
@@ -471,7 +471,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
 
         content = builder._render_view_xsl(self.request)
-        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+        self.assertEqual(re.search(r'xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.namespace
                         )
 

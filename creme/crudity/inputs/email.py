@@ -245,7 +245,7 @@ class CreateInfopathInput(CreateEmailInput):
         content = xml_file.read().decode()
         # data = {}
         content = re.sub(remove_pattern, '', content.strip(), re.U)
-        content = re.sub('>[\s]*<', '><', content, re.U)
+        content = re.sub(r'>[\s]*<', '><', content, re.U)
 
         if not content:
             return None
@@ -259,7 +259,7 @@ class CreateInfopathInput(CreateEmailInput):
         data = backend.body_map.copy()
         for node in xml:
             try:
-                tag = re.search('[{].*[}](?P<tag>[-_\d\s\w]+)', node.tag).groupdict()['tag'] #TODO: compile
+                tag = re.search(r'[{].*[}](?P<tag>[-_\d\s\w]+)', node.tag).groupdict()['tag'] #TODO: compile
             except AttributeError:
                 continue
 
@@ -268,7 +268,7 @@ class CreateInfopathInput(CreateEmailInput):
                 children = list(node)
 
                 if children:  # Multi-line
-                    data[tag] = "\n".join(child.text or '' for child in children)
+                    data[tag] = '\n'.join(child.text or '' for child in children)
                 else:
                     data[tag] = node.text
 
