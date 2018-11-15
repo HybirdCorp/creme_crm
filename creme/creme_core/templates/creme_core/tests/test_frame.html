@@ -299,12 +299,10 @@
         });
 
         $('#popup button.popup-image').click(function() {
-            var url = '{% media_url "common/images/creme_logo.png" %}';
+            var url = '{% media_url "common/images/logos/hybird.png" %}';
             var dialog = creme.dialogs.image(url, {
-                title: url,
+                title: $('#popup  [name="image-title"]').is(':checked') ? url : false,
                 closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
-                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
-                scrollbackOnClose: $('#popup input.popup-scrollbackonclose').is(':checked')
             });
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
@@ -481,6 +479,7 @@
             </div>
             <div>
                 <button type="button" class="popup-image">Static - Image</button>
+                <label><input type="checkbox" value="1" name="image-title" checked/>Use title</label>&nbsp;
             </div>
             <div>
                 <button type="button" class="popup-select">Static - Select</button>

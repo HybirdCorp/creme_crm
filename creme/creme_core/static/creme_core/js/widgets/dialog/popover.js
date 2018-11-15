@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2017  Hybird
+ Copyright (C) 2017-2018  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,8 @@
 "use strict";
 
 var _DIRECTIONS = ['top', 'left', 'right',
-                   'bottom', 'bottom-left', 'bottom-right'];
+                   'bottom', 'bottom-left', 'bottom-right',
+                   'center', 'center-window'];
 
 var _assertDirection = function(direction) {
     if (_DIRECTIONS.indexOf(direction) === -1) {
@@ -69,12 +70,18 @@ creme.dialog.Popover = creme.component.Component.sub({
         }
 
         options = this._options = $.extend({}, this._options, options || {});
-        anchor = this._anchor = $(anchor);
+        anchor = $(anchor);
+
+        if (anchor.length === 0) {
+            anchor = $('.ui-dialog-within-container');
+        }
 
         var dialog = this._dialog;
         var close = this.close.bind(this);
 
         dialog.css('visiblility', 'hidden');  // hide dialog before positionning
+
+        this._anchor = anchor;
 
         $('body').append(dialog);
         this._glasspane.open(dialog);
@@ -147,6 +154,14 @@ creme.dialog.Popover = creme.component.Component.sub({
             case 'left':
                 position.top += (anchorHeight / 2) - 18;
                 position.left -= width;
+                break;
+            case 'center':
+                position.top += (anchorHeight / 2) - 18;
+                position.left += (anchorWidth - width) / 2;
+                break;
+            case 'center-window':
+                position.top += (($(window).height() - height) / 2) - 18;
+                position.left += ($(window).width() - width) / 2;
                 break;
         };
 
@@ -234,6 +249,11 @@ creme.dialog.Popover = creme.component.Component.sub({
             $('.popover-content', this._dialog).empty().append(rendered);
         }
 
+        if (this.isOpened()) {
+            this._updateDialogPosition(this._dialog, this._anchor, this.direction());
+        }
+
+        this._events.trigger('popover-update', [this.content()], this);
         return this;
     },
 
@@ -243,6 +263,10 @@ creme.dialog.Popover = creme.component.Component.sub({
         } else {
             return this.open(anchor, options);
         }
+    },
+
+    anchor: function() {
+        return this._anchor;
     },
 
     on: function(event, listener, decorator) {
@@ -260,4 +284,47 @@ creme.dialog.Popover = creme.component.Component.sub({
         return this;
     }
 });
+
+creme.dialog.ImagePopover = creme.dialog.Popover.sub({
+    _init_: function(options) {
+        options = $.extend({
+            direction:    'center-window',
+            title:        false,
+            closeOnClick: true
+        }, options || {});
+
+        this._super_(creme.dialog.Popover, '_init_', options);
+        this.addClass('popover-picture');
+        this._glasspane.addClass('popover-glasspane-picture');
+
+        if (options.closeOnClick) {
+            this.content().click(this.close.bind(this));
+        }
+    },
+
+    fill: function(content) {
+        this._super_(creme.dialog.Popover, 'fill', content);
+        this.content().find('img').toggleClass('no-title', this.options().title === false);
+        return this;
+    },
+
+    fillImage: function(content) {
+        if (Object.isString(content)) {
+            var image = document.createElement("img");
+            var fill = this.fill.bind(this);
+
+            fill($('<div class="picture-wait">&nbsp;</div>'));
+
+            image.onload = function() {
+                fill($(image));
+            };
+
+            image.src = content;
+            return this;
+        }
+
+        return this.fill($(content));
+    }
+});
+
 }(jQuery));

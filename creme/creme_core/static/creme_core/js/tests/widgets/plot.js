@@ -1,4 +1,4 @@
-/* globals QUnitPlotMixin QUnitWidgetMixin */
+/* globals setTimeout QUnitPlotMixin QUnitWidgetMixin */
 
 (function($) {
 
@@ -32,9 +32,7 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
         creme.utils.converters.unregister('mockPlotData', 'jqplotData');
         creme.utils.converters.unregister('jqplotData', 'mockRendererData');
 
-        $('.ui-dialog-content').dialog('destroy');
         creme.widget.shutdown($('body'));
-        $('.ui-dialog-within-container').detach();
 
         $('#mock_creme_widget_plot_container').detach();
     },
@@ -412,16 +410,15 @@ QUnit.test('creme.widget.Plot.capture (raster image in popup)', function(assert)
 
     this.assertClosedDialog();
 
+    capture.click();
+
     stop(1);
 
-    $(document).one('dialogopen', '.ui-dialog', function() {
-        self.assertOpenedDialog();
-        self.assertDialogTitle(gettext('Canvas image'));
-        console.log('dialog open checked');
+    setTimeout(function() {
         start();
-    });
-
-    capture.click();
+        self.assertOpenedPopover();
+        self.assertPopoverTitle(gettext('Canvas image'));
+    }, 200);
 });
 
 QUnit.test('creme.widget.Plot.preprocess (convert data)', function(assert) {

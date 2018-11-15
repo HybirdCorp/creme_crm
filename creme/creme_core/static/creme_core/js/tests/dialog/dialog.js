@@ -1,3 +1,5 @@
+/* globals setTimeout */
+
 (function($) {
 
 var RED_DOT_5x5_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==';
@@ -43,8 +45,6 @@ QUnit.module("creme.dialog.js", new QUnitMixin(QUnitEventMixin,
     beforeEach: function() {
         var backend = this.backend;
 
-        $('<div class="ui-dialog-within-container"></div>').appendTo('body');
-
         this.setMockBackendGET({
             'mock/html': backend.response(200, MOCK_FRAME_CONTENT),
             'mock/html2': backend.response(200, MOCK_FRAME_CONTENT_LIST),
@@ -65,9 +65,7 @@ QUnit.module("creme.dialog.js", new QUnitMixin(QUnitEventMixin,
     },
 
     afterEach: function() {
-        $('.ui-dialog-content').dialog('destroy');
         creme.widget.shutdown($('body'));
-        $('.ui-dialog-within-container').detach();
     }
 }));
 
@@ -859,20 +857,22 @@ QUnit.test('creme.dialog.Dialog (titlebar, fetch url)', function(assert) {
 
 QUnit.test('creme.dialogs.image (url)', function(assert) {
     var dialog = creme.dialogs.image('data:image/png;base64, ' + RED_DOT_5x5_BASE64);
+    var self = this;
 
-    // filled before opening
-    this.equalHtml('<img src="data:image/png;base64, ' + RED_DOT_5x5_BASE64 + '">', dialog.content());
+    self.equalHtml('<div class="picture-wait">&nbsp;</div>', dialog.content());
+
+    stop(1);
+
+    // deferred loading
+    setTimeout(function() {
+        self.equalHtml('<img src="data:image/png;base64, ' + RED_DOT_5x5_BASE64 + '" class="no-title">', dialog.content());
+        start();
+    }, 200);
 });
 
 QUnit.test('creme.dialogs.image (element)', function(assert) {
     var dialog = creme.dialogs.image($('<img src="nowhere" />'));
-
-    // filled AFTER opening
-    this.equalHtml('', dialog.content());
-
-    dialog.open();
-
-    this.equalHtml('<img src="nowhere" />', dialog.content());
+    this.equalHtml('<img src="nowhere" class="no-title"/>', dialog.content());
 });
 
 QUnit.test('creme.dialogs.html', function(assert) {

@@ -4,6 +4,39 @@
     "use strict";
 
     window.QUnitDialogMixin = {
+        beforeEach: function() {
+            $('<div class="ui-dialog-within-container"></div>').appendTo('body');
+        },
+
+        afterEach: function() {
+            this.shutdownDialogs();
+
+            // detach dialog container (limits movement of dialogs within it)
+            $('.ui-dialog-within-container').detach();
+        },
+
+        shutdownDialogs: function() {
+            // close all opened popover
+            $('.popover').trigger('modal-close');
+
+            // close opened dialogs
+            $('.ui-dialog-content').dialog('destroy');
+        },
+
+        assertClosedPopover: function() {
+            equal(0, $('body > .popover').length, 'is popover not opened');
+        },
+
+        assertOpenedPopover: function() {
+            var dialogs = $('body > .popover');
+            equal(1, dialogs.length, 'is popover not opened');
+            return dialogs;
+        },
+
+        assertPopoverTitle: function(title) {
+            equal(title, $('body > .popover .popover-title:not(.hidden)').text(), 'dialog title');
+        },
+
         assertClosedDialog: function() {
             equal(0, $('.ui-dialog').length, 'is dialog not opened');
         },

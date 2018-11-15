@@ -65,8 +65,6 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
     beforeEach: function() {
         var backend = this.backend;
 
-        $('<div class="ui-dialog-within-container"></div>').appendTo('body');
-
         this.setMockBackendGET({
             'mock/submit': backend.response(200, MOCK_FRAME_CONTENT_FORM),
             'mock/submit/json': backend.response(200, MOCK_FRAME_CONTENT_FORM_JSON),
@@ -106,9 +104,7 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
     },
 
     afterEach: function() {
-        $('.ui-dialog-content').dialog('destroy');
         creme.widget.shutdown($('body'));
-        $('.ui-dialog-within-container').detach();
     }
 }));
 

@@ -334,9 +334,6 @@ creme.lv_widget.initialize = function(options, listview) {
     });
 
     listview.list_view('setReloadUrl', submit_url);
-
-    // TODO : WTF ??
-    $('.magnify', listview).imageMagnifier();
 };
 
 creme.lv_widget.listViewAction = function(url, options, data) {

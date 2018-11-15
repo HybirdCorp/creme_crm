@@ -1,3 +1,5 @@
+(function($) {
+
 QUnit.module("creme.glasspane.js", new QUnitMixin(QUnitEventMixin, {
     beforeEach: function() {
         // The "position" is needed by Chromium to set "z-index" (or remains to "auto" value).
@@ -8,7 +10,7 @@ QUnit.module("creme.glasspane.js", new QUnitMixin(QUnitEventMixin, {
     afterEach: function() {
         this.anchor.detach();
         $('.glasspane').detach();
-    },
+    }
 }));
 
 QUnit.test('creme.dialog.GlassPane (open)', function(assert) {
@@ -90,3 +92,5 @@ QUnit.test('creme.dialog.GlassPane (add/remove/toggle Class)', function(assert) 
     glasspane.toggleClass('custom-glass');
     equal(false, glasspane.pane().is('.custom-glass'));
 });
+
+}(jQuery));
