@@ -2,34 +2,54 @@
     padding-left: 5px;
 }
 
-.detailview .column {
+/* Layout with columns
+   NB: the "inner-popup-content" layout is used for activity form in calendar)
+   TODO: new file inner-popup.css ??
+*/
+
+.detailview .column,
+.inner-popup-content .column {
     float: left;
     margin-left: 0px;
 }
 
-.detailview .column.last {
+.detailview .column.last,
+.inner-popup-content .column.last {
     float: right;
     margin-right: 0px;
 }
 
+/*
 .north,
 .west,
 .south,
-.east {
+.east
+*/
+.detailview .north,
+.detailview .west,
+.detailview .south,
+.detailview .east,
+.inner-popup-content .north,
+.inner-popup-content .west,
+.inner-popup-content .south,
+.inner-popup-content .east {
     -webkit-box-sizing: border-box;
        -moz-box-sizing: border-box;
             box-sizing: border-box;
 }
 
-.north:not(:empty) {
+/* .north:not(:empty) { */
+.detailview .north:not(:empty) {
     margin-bottom: 15px;
 }
 
-.south:not(:empty) {
+/* .south:not(:empty) { */
+.detailview .south:not(:empty) {
     margin-top: 15px;
 }
 
-.east.column.last {
+/*.east.column.last { */
+.detailview .east.column.last {
     padding-left: 13px;
 }
 
@@ -39,19 +59,26 @@
 /* TMP: using calc() ensures only modern browsers will see the width change until then.
         Since the 2 columns are floated on opposite sides, shortening their width by x will create a 2x margin between them */
 .detailview .east,
-.detailview .west {
+.detailview .west,
+.inner-popup-content .east,
+.inner-popup-content .west {
     width: 49.9%;
     width: calc(49.9% - 3px);
 }
 
-.detailview .clear {
+.detailview .clear,
+.inner-popup-content .clear {
     clear: both;
 }
 
 .detailview .north,
-.detailview .south {
+.detailview .south,
+.inner-popup-content .north,
+.inner-popup-content .south {
     width: 99.9%;
 }
+
+/* Layout with columns - end */
 
 /* Buttons lists (global, entity, business) */
 .detailview .global-buttons {
