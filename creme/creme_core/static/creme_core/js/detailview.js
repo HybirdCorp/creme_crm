@@ -51,4 +51,50 @@
     $(document).on('brick-setup-actions', '.brick.brick-hat', function(e, brick, actions) {
         actions.registerAll(detailViewActions);
     });
+
+    creme.views = creme.views || {};
+
+    // TODO : temporary widget. We should use a brick instead.
+    creme.views.HatMenuBar = creme.widget.declare('ui-creme-hatmenubar', {
+        _create: function(element, options, cb, sync, args) {
+            var builder = this._builder = new creme.action.ActionBuilderRegistry();
+            var buttons = $('.menu_button[data-action]', element);
+
+            $(element).trigger('hatmenubar-setup-actions', [builder]);
+
+            this._actionlinks = buttons.map(function() {
+                return new creme.action.ActionLink().builders(builder).bind($(this));
+            }).get();
+
+            element.addClass('widget-ready');
+            creme.object.invoke(cb, element);
+        },
+
+        _destroy: function(element) {
+            this._actionlinks.forEach(function(link) {
+                link.unbind();
+            });
+        }
+    });
+
+    var menuBarActions = {
+        'creme_core-hatmenubar-addrelationships': function(url, options, data) {
+            var action = new creme.relations.AddRelationToAction({
+                subject_id: data.subject_id,
+                rtype_id: data.rtype_id,
+                ctype_id: data.ctype_id,
+                addto_url: url,
+                selector_url: data.selector_url,
+                multiple: true,
+                reloadOnSuccess: true
+            });
+
+            return action;
+        }
+    };
+
+    $(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {
+        actions.registerAll(menuBarActions);
+    });
+
 }(jQuery));

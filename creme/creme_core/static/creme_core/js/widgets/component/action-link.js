@@ -138,7 +138,7 @@ creme.action.ActionLink = creme.component.Component.sub({
         var isvalid = Object.isFunc(builder);
 
         if (isvalid) {
-            var handler = this._debounce(function(e) {
+            var actionHandler = this._debounce(function(e) {
                 if (!isRunning()) {
                     var action = builder(url, actiondata.options, actiondata.data, e);
 
@@ -165,25 +165,38 @@ creme.action.ActionLink = creme.component.Component.sub({
             }, debounceDelay);
 
             // the handler is deferred, not the event. This prevents default behaviour of links.
-            button.click(function(e) {
+            this._onButtonClick = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
 
                 if (!isDisabled()) {
-                    handler(e);
+                    actionHandler(e);
                 }
-            });
+            };
         } else {
             button.addClass('is-disabled');
-            button.click(function(e) {
+
+            this._onButtonClick = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
-            });
+            };
         }
+
+        button.click(this._onButtonClick);
 
         this._button = button;
         return this;
+    },
+
+    unbind: function() {
+        if (this.isBound() === false) {
+            throw Error('action link is not bound');
+        }
+
+        this._button.off('click', this._onButtonClick);
+        this._button = undefined;
+        this._onButtonClick = undefined;
     }
 });
 
