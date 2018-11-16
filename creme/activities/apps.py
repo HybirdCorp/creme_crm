@@ -42,6 +42,11 @@ class ActivitiesConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Activity)
 
+    def register_actions(self, actions_registry):
+        from creme.activities import actions
+
+        actions_registry.register_bulk_actions(actions.BulkExportICalAction)
+
     def register_bricks(self, brick_registry):
         from . import bricks
 

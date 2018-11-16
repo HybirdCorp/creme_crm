@@ -17,6 +17,7 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import REL_SUB_HAS
+    from creme.creme_core.gui import actions
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
              EntityFilter, SettingValue)
     from creme.creme_core.tests.base import skipIfNotInstalled
@@ -27,6 +28,7 @@ try:
     from .base import (_ActivitiesTestCase, skipIfCustomActivity, Activity,
            Contact, Organisation)
     from .. import constants
+    from ..actions import BulkExportICalAction
     from ..models import ActivityType, ActivitySubType, Calendar, Status
     from ..utils import check_activity_collisions
 
@@ -1716,6 +1718,21 @@ class ActivityTestCase(_ActivitiesTestCase):
             meetings_page = response.context['entities']
 
         self.assertEqual([acts[1]], list(meetings_page.object_list))
+
+    def test_listview_bulk_actions(self):
+        user = self.login()
+        export_actions = [
+            action for action in actions.actions_registry.bulk_actions(user=user, model=Activity)
+                if isinstance(action, BulkExportICalAction)
+        ]
+        self.assertEqual(1, len(export_actions))
+
+        export_action = export_actions[0]
+        self.assertEqual('activities-export-ical', export_action.type)
+        self.assertEqual(reverse('activities__dl_ical'), export_action.url)
+        self.assertIsNone(export_action.action_data)
+        self.assertTrue(export_action.is_enabled)
+        self.assertTrue(export_action.is_visible)
 
     @skipIfCustomContact
     def test_unlink01(self):
