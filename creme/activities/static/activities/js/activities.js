@@ -27,10 +27,9 @@ creme.activities.exportAsICal = function(list, url) {
 
     if (!selection) {
         creme.dialogs.warning(gettext('Please select at least a line in order to export.')).open();
-        return false;
+    } else {
+        creme.utils.goTo(url + '?' + $.param({'id': selection.split(',')}));
     }
-
-    document.location.href = url + '?' + $.param({'id': selection.split(',')});
 };
 
 creme.activities.calendar = {};
