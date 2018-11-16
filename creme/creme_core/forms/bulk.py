@@ -219,7 +219,7 @@ class BulkForm(CremeForm):
         for key, value in error.message_dict.items():
             field = fields.get(key)
             message = ''.join(value) if isinstance(value, (list, tuple)) else value
-            messages.append(u'{} : {}'.format(ugettext(field.verbose_name), message)
+            messages.append('{} : {}'.format(field.verbose_name, message)
                             if field is not None else
                             message
                            )
