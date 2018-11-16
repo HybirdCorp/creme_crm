@@ -146,19 +146,16 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
 
         var events = this._events;
         var _APILoadedCb = function() {
-            var status = false;
-
             try {
                 if (Object.isNone(this.geocoder)) {
                     this.geocoder = new google.maps.Geocoder();
                 }
-
-                status = true;
             } catch (e) {
                 console.warn('creme.geolocation.GoogleMapController(): unable to build google.maps.Geocoder instance', e);
+                return;
             }
 
-            if (status && !Object.isNone(options.container)) {
+            if (!Object.isEmpty(options.container)) {
                 this.enableMap(options.container, options.styles);
             }
         }.bind(this);
