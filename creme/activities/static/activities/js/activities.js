@@ -16,21 +16,48 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-
+/* global creme_media_url */
 (function($) {
 "use strict";
 
-creme.activities = {};
+creme.activities = creme.activities || {};
+
+creme.activities.ExportAsICalAction = creme.component.Action.sub({
+    _init_: function(list, options) {
+        this._super_(creme.component.Action, '_init_', this._run, options);
+        this._list = list;
+    },
+
+    _run: function(options) {
+        options = $.extend({}, this.options(), options || {});
+
+        var self = this;
+        var selection = creme.lv_widget.selectedLines(this._list);
+
+        if (selection.length < 1) {
+            creme.dialogs.warning(gettext('Please select at least a line in order to export.'))
+                         .onClose(function() {
+                             self.cancel();
+                          })
+                         .open();
+        } else {
+            self.done();
+            creme.utils.goTo(options.url + '?' + $.param({'id': selection}));
+        }
+    }
+});
 
 creme.activities.exportAsICal = function(list, url) {
-    var selection = $(list).list_view('getSelectedEntities').trim();
-
-    if (!selection) {
-        creme.dialogs.warning(gettext('Please select at least a line in order to export.')).open();
-    } else {
-        creme.utils.goTo(url + '?' + $.param({'id': selection.split(',')}));
-    }
+    console.warn('creme.activities.exportAsICal is deprecated. Use ExportAsICalAction instead.');
+    var action = new creme.activities.ExportAsICalAction(list, {url: url});
+    action.start();
 };
+
+$(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actions) {
+    actions.register('activities-export-ical', function(url, options, data, e) {
+        return new creme.activities.ExportAsICalAction(this._list, {url: url});
+    });
+});
 
 creme.activities.calendar = {};
 

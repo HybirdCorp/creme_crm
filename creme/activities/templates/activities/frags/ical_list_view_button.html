@@ -1,4 +1,5 @@
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
+{% log 'The template file "creme/activities/templates/activities/frags/ical_list_view_button.html" is deprecated.' level='WARN' %}
 <a class="with-icon" href="{% url 'activities__dl_ical' %}" onclick="creme.activities.exportAsICal(creme.lv_widget.findList(this), $(this).attr('href')); return false;">
     {% widget_icon name='calendar_ical' label=_('iCalendar file') size='listview-button' %}{% trans 'Download in iCalendar format' %}
 </a>

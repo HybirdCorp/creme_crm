@@ -270,7 +270,7 @@ def listview(request, type_id=None):
         kwargs['extra_q'] = Q(type=type_id)
 
     return generic.list_view(request, Activity, hf_pk=constants.DEFAULT_HFILTER_ACTIVITY,
-                             extra_dict={'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )},
+                             # extra_dict={'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )},
                              **kwargs
                             )
 
