@@ -103,13 +103,18 @@ creme.action.ActionLink = creme.component.Component.sub({
     },
 
     _optActionData: function(button) {
+        var script = $('script[type$="/json"]', button);
+
         try {
-            var data = creme.utils.JSON.readScriptText($('script[type$="/json"]', button));
-            return Object.isEmpty(data) ? {} : JSON.parse(data);
+            if (!Object.isEmpty(script)) {
+                var data = creme.utils.JSON.readScriptText(script);
+                return Object.isEmpty(data) ? {} : JSON.parse(data);
+            }
         } catch (e) {
             console.warn(e);
-            return {};
         }
+
+        return {};
     },
 
     _optDebounceDelay: function(button) {
