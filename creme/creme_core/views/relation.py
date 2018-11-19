@@ -288,9 +288,9 @@ class RelationsAdding(generic.AddingToEntityPopup):
 #                        reload=False,
 #                        delegate_reload=True,
 #                       )
-# TODO: link_popup
 class RelationsBulkAdding(EntityCTypeRelatedMixin, generic.CremeModelCreationPopup):
     model = Relation
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     form_class = rel_forms.MultiEntitiesRelationCreateForm
     title = _('Multiple adding of relationships')
     submit_label = _('Save the relationships')
