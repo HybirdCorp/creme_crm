@@ -574,7 +574,8 @@ class RelationViewsTestCase(ViewsTestCase):
         url = reverse('creme_core__create_relations_bulk', args=(ct_id,))
 
         if kwargs.get('GET', False):
-            url += '?persist=ids' + ''.join('&ids={}'.format(e.id) for e in subjects)
+            # url += '?persist=ids' + ''.join('&ids={}'.format(e.id) for e in subjects)
+            url += '?' + '&'.join('ids={}'.format(e.id) for e in subjects)
 
         return url
 

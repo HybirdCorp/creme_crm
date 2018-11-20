@@ -446,10 +446,11 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
 
         # TODO: modification_label/bulk_label/... in model instead (fr: masculin/féminin)
         if initial_count == success_count:
-            summary = ungettext('{success} «{model}» has been successfully modified.',
-                                '{success} «{model}» have been successfully modified.',
-                                success_count
-                                )
+            summary = ungettext(
+                '{success} «{model}» has been successfully modified.',
+                '{success} «{model}» have been successfully modified.',
+                success_count
+            )
         else:
             summary = ungettext(
                 '{success} of {initial} «{model}» has been successfully modified.',
