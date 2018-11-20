@@ -37,7 +37,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         url = reverse('creme_core__add_properties_bulk', args=(ct.id,))
 
         if kwargs.get('GET', False):
-            url += '?persist=ids' + ''.join('&ids={}'.format(e.id) for e in entities)
+            # url += '?persist=ids' + ''.join('&ids={}'.format(e.id) for e in entities)
+            url += '?' + '&'.join('ids={}'.format(e.id) for e in entities)
 
         return url
 
