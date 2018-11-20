@@ -156,10 +156,11 @@ class SegmentCreateForm(_SegmentForm):
         return segment_desc
 
 
+# TODO: rename AddOrganisation_s_Form
 class AddOrganisationForm(CremeForm):
     organisations = MultiCreatorEntityField(label=_('Organisations'), model=get_organisation_model())
 
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(AddOrganisationForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._strategy = entity

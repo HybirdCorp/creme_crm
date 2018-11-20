@@ -143,7 +143,7 @@ class EmailTemplateEdition(generic.EntityEdition):
     pk_url_kwarg = 'template_id'
 
 
-class AttachmentsAdding(generic.AddingToEntityPopup):
+class AttachmentsAdding(generic.RelatedToEntityFormPopup):
     # model = Document
     form_class = tpl_forms.EmailTemplateAddAttachment
     template_name = 'creme_core/generics/blockform/link-popup.html'

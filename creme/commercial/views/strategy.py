@@ -124,7 +124,7 @@ class StrategyEdition(generic.EntityEdition):
     pk_url_kwarg = 'strategy_id'
 
 
-class _AddToStrategy(generic.AddingToEntityPopup):
+class _AddToStrategy(generic.AddingInstanceToEntityPopup):
     entity_id_url_kwarg = 'strategy_id'
     entity_classes = Strategy
 
@@ -153,12 +153,13 @@ class CharmCreation(_AddToStrategy):
     title_format = _('New segment charm for «{}»')
 
 
-class EvaluatedOrgaAdding(_AddToStrategy):
-    # model = Organisation
+class EvaluatedOrgaAdding(generic.RelatedToEntityFormPopup):
     form_class = forms.AddOrganisationForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title_format = _('New organisation(s) for «{}»')
     submit_label = _('Link the organisation(s)')
+    entity_id_url_kwarg = 'strategy_id'
+    entity_classes = Strategy
 
 
 class SegmentDescEdition(generic.RelatedToEntityEditionPopup):

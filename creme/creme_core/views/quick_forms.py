@@ -147,8 +147,7 @@ class QuickCreation(EntityCTypeRelatedMixin, generic.EntityCreationPopup):
         return form_class
 
     def form_valid(self, form):
-        # super().form_valid(form=form)
-        super(generic.CremeModelCreation, self).form_valid(form=form)  # HACK: to avoid double rendering
+        super().form_valid(form=form)
         return json_update_from_widget_response(form.instance)
 
     @cached_property

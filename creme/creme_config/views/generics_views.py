@@ -137,8 +137,7 @@ class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
 #     return json_update_from_widget_response(data)
 class FromWidgetCreation(GenericCreation):
     def form_valid(self, form):
-        # super().form_valid(form=form)
-        super(generic.CremeModelCreation, self).form_valid(form=form)  # HACK: to avoid double rendering
+        super().form_valid(form=form)
 
         return json_update_from_widget_response(
             form.update_from_widget_response_data()

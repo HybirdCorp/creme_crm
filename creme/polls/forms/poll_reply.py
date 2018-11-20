@@ -61,10 +61,11 @@ class PollRepliesCreateForm(CremeForm):
     pform    = CreatorEntityField(label=_('Related form'), model=polls.get_pollform_model())
 
     # def __init__(self, *args, **kwargs):
-    def __init__(self, instance=None, entity=None, *args, **kwargs):
+    def __init__(self, entity=None, *args, **kwargs):
         # super(PollRepliesCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        self.instance = instance
+        self.instance = None  # TODO: remove in Creme2.1
+        self.preplies = []
         fields = self.fields
         fields['user'].initial = self.user.id
 
@@ -152,15 +153,16 @@ class PollRepliesCreateForm(CremeForm):
             linked_persons = repeat(None, reply_number)
 
         duplicate_tree = self.pform.duplicate_tree
+        instance = None
 
         for i, person in enumerate(linked_persons, start=1):
             instance = self.create_preply(i, person, reply_number)
             instance.save()
             duplicate_tree(instance, self.pform_lines)
+            self.preplies.append(instance)
         else:
             self.instance = instance
 
-        # TODO: stores instanceS & modify the view instead to get the first one ?
         return self.instance
 
 
@@ -192,8 +194,7 @@ class PersonAddRepliesForm(CremeForm):
                                       credentials=EntityCredentials.CHANGE,
                                      )
 
-    # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(PersonAddRepliesForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 

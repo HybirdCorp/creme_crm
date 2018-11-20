@@ -49,7 +49,7 @@ class Portal(BricksView):
 #         _('New custom type of property'),
 #         submit_label=CremePropertyType.save_label,
 #     )
-class PropertyTypeCreation(base.BaseConfigCreation):
+class PropertyTypeCreation(base.ConfigModelCreation):
     model = CremePropertyType
     form_class = ptype_forms.CremePropertyTypeAddForm
     title = _('New custom type of property')
@@ -82,7 +82,7 @@ class PropertyTypeCreation(base.BaseConfigCreation):
 #         reload=False,
 #         delegate_reload=True,
 #     )
-class PropertyTypeEdition(base.BaseConfigEdition):
+class PropertyTypeEdition(base.ConfigModelEdition):
     # model = CremePropertyType
     queryset = CremePropertyType.objects.filter(is_custom=True)
     form_class = ptype_forms.CremePropertyTypeEditForm

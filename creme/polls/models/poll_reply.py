@@ -32,34 +32,34 @@ from .poll_form import PollFormLine
 
 
 class AbstractPollReply(CremeEntity):
-    name        = CharField(_(u'Name'), max_length=250)
-    pform       = ForeignKey(settings.POLLS_FORM_MODEL, verbose_name=_(u'Related form'),
+    name        = CharField(_('Name'), max_length=250)
+    pform       = ForeignKey(settings.POLLS_FORM_MODEL, verbose_name=_('Related form'),
                              editable=False, on_delete=PROTECT,
                             )
-    campaign    = ForeignKey(settings.POLLS_CAMPAIGN_MODEL, verbose_name=pgettext_lazy('polls', u'Related campaign'),
+    campaign    = ForeignKey(settings.POLLS_CAMPAIGN_MODEL, verbose_name=pgettext_lazy('polls', 'Related campaign'),
                              on_delete=PROTECT, null=True, blank=True,  # editable=False,
                             )
-    person      = ForeignKey(CremeEntity, verbose_name=_(u'Person who filled'),
+    person      = ForeignKey(CremeEntity, verbose_name=_('Person who filled'),
                              on_delete=PROTECT,  # editable=False,
                              null=True, blank=True, related_name='+',
                             )
-    type        = ForeignKey(PollType, verbose_name=_(u'Type'),
+    type        = ForeignKey(PollType, verbose_name=_('Type'),
                              editable=False, on_delete=SET_NULL,
                              null=True, blank=True,
                             )
-    is_complete = BooleanField(_(u'Is complete'), default=False, editable=False)
+    is_complete = BooleanField(_('Is complete'), default=False, editable=False)
 
-    # creation_label = _('Create a reply')
-    creation_label   = _(u'Create replies')  # TODO: multi creation label
-    save_label       = _('Save the reply')
-    multi_save_label = _('Save the replies')
+    creation_label = _('Create a reply')
+    save_label     = _('Save the reply')
+    multi_creation_label = _('Create replies')
+    multi_save_label     = _('Save the replies')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'polls'
-        verbose_name = _(u'Form reply')
-        verbose_name_plural = _(u'Form replies')
+        verbose_name = _('Form reply')
+        verbose_name_plural = _('Form replies')
         ordering = ('name',)
 
     def __str__(self):
@@ -90,13 +90,13 @@ class PollReplySection(CremeModel):
     preply = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='sections', on_delete=CASCADE)
     parent = ForeignKey('self', editable=False, null=True, on_delete=CASCADE)  # related_name='children'
     order  = PositiveIntegerField(editable=False, default=1)
-    name   = CharField(_(u'Name'), max_length=250)
-    body   = TextField(_(u'Section body'), blank=True)
+    name   = CharField(_('Name'), max_length=250)
+    body   = TextField(_('Section body'), blank=True)
 
     class Meta:
         app_label = 'polls'
-        verbose_name = _(u'Section')
-        verbose_name_plural = _(u'Sections')
+        verbose_name = _('Section')
+        verbose_name_plural = _('Sections')
         ordering = ('order',)
 
     def __str__(self):
@@ -112,13 +112,13 @@ class PollReplyLine(CremeModel, _PollLine):
     type_args    = TextField(editable=False, null=True)
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
-    applicable   = BooleanField(_(u'Applicable'), default=True, editable=False)
+    applicable   = BooleanField(_('Applicable'), default=True, editable=False)
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
-    conds_use_or = NullBooleanField(_(u'Use OR or AND between conditions'), editable=False)
+    conds_use_or = NullBooleanField(_('Use OR or AND between conditions'), editable=False)
 
-    question     = TextField(_(u'Question'))
-    raw_answer   = TextField(_(u'Answer'), null=True)  # NULL == not answered  [tip: use the property 'answer']
+    question     = TextField(_('Question'))
+    raw_answer   = TextField(_('Answer'), null=True)  # NULL == not answered  [tip: use the property 'answer']
 
     class Meta:
         app_label = 'polls'
@@ -126,7 +126,7 @@ class PollReplyLine(CremeModel, _PollLine):
 
     def __repr__(self):
         from django.utils.encoding import smart_str
-        return smart_str(u'PollReplyLine(section=%s, question="{}", answer="{}")'.format(
+        return smart_str('PollReplyLine(section={}, question="{}", answer="{}")'.format(
                             self.section_id, self.question, self.answer
                         ))
 
@@ -151,7 +151,7 @@ class PollReplyLine(CremeModel, _PollLine):
 
         if line_type.editable:
             answer_field = line_type.formfield(self.raw_answer)
-            answer_field.label = ugettext(u'Answer')
+            answer_field.label = ugettext('Answer')
         else:
             answer_field = None
 

@@ -275,7 +275,7 @@ class InnerEdition(base.ContentTypeRelatedMixin, generic.CremeModelEditionPopup)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        del kwargs['instance']
+        del kwargs['instance']  # TODO: use CremeEdition & remove this ?
         kwargs['entities'] = [self.object]  # TODO: rename 'entities' arg
 
         return kwargs
@@ -380,7 +380,7 @@ class InnerEdition(base.ContentTypeRelatedMixin, generic.CremeModelEditionPopup)
 #                        reload=False, delegate_reload=True,
 #                       )
 # TODO: factorise with InnerEdition
-class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeModelEditionPopup):
+class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
     # model = ...
     # form_class = ...
     # pk_url_kwarg = ...
@@ -425,7 +425,6 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeModelEditionPopup):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        del kwargs['instance']
         kwargs['entities'] = self.get_entities()
         kwargs['is_bulk'] = True
 
@@ -474,9 +473,7 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeModelEditionPopup):
 
     # TODO: avoid the use of 2 templates ?
     def form_valid(self, form):
-        # super().form_valid(form)
-        # return self.render_to_response(self.get_context_data(form=form))
-        generic.CremeModelEdition.form_valid(self, form)  # NB: avoid a double render
+        super().form_valid(form=form)
 
         return render(
             self.request,
@@ -487,9 +484,6 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeModelEditionPopup):
                 'summary': self.get_summary(form=form),
             },
         )
-
-    def get_object(self, *args, **kwargs):
-        return None
 
     def get_entity_ids(self):
         return self.request.POST.getlist('entities', [])

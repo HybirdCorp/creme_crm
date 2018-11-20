@@ -20,6 +20,7 @@
 
 from django.http import Http404
 # from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
@@ -118,29 +119,36 @@ def set_timezone(request):
 #                        reload=False,
 #                        delegate_reload=True,
 #                       )
-class UserSettingValueEdition(generic.CremeModelEditionPopup):
-    # model = User
+class UserSettingValueEdition(generic.CremeEditionPopup):
     form_class = UserSettingForm
     key_id_url_kwarg = 'skey_id'
+    title_format = _('Edit «{}»')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.skey = None
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        del kwargs['instance']
-
-        kwargs['skey'] = self.object
+        kwargs['skey'] = self.get_skey()
 
         return kwargs
 
-    def get_object(self, *args, **kwargs):
-        try:
-            skey = user_setting_key_registry[self.kwargs[self.key_id_url_kwarg]]
-        except KeyError as e:
-            raise Http404('This key is invalid') from e
+    def get_skey(self):
+        skey = self.skey
 
-        if skey.hidden:
-            raise ConflictError('You can not edit a UserSettingValue which is hidden.')
+        if skey is None:
+            try:
+                skey = user_setting_key_registry[self.kwargs[self.key_id_url_kwarg]]
+            except KeyError as e:
+                raise Http404('This key is invalid') from e
+
+            if skey.hidden:
+                raise ConflictError('You can not edit a UserSettingValue which is hidden.')
+
+            self.skey = skey
 
         return skey
 
     def get_title(self):
-        return self.title_format.format(self.get_object().description)
+        return self.title_format.format(self.get_skey().description)

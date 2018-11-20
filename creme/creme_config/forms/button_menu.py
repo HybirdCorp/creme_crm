@@ -63,7 +63,7 @@ class ButtonMenuEditForm(CremeForm):
                                      choices=(), widget=OrderedMultipleChoiceWidget,
                                     )
 
-    def __init__(self, button_menu_items, ct_id, instance=None, button_registry=None, *args, **kwargs):
+    def __init__(self, button_menu_items, ct_id, button_registry=None, *args, **kwargs):
         # super(ButtonMenuEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 

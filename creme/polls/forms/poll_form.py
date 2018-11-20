@@ -331,7 +331,7 @@ class PollFormLineConditionsForm(CremeForm):
     conditions = PollFormLineConditionsField(label=_('Conditions'), required=False)
 
     # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, line, instance=None, *args, **kwargs):
+    def __init__(self, entity, line, *args, **kwargs):
         # super(PollFormLineConditionsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         # self.line = line = self.initial['line']

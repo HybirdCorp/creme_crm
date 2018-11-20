@@ -106,7 +106,7 @@ def address_add(request, entity_id):
                                 )
 
 
-class FakeAddressCreation(generic.AddingToEntityPopup):
+class FakeAddressCreation(generic.AddingInstanceToEntityPopup):
     model = fake_models.FakeAddress
     form_class = fake_forms.FakeAddressForm
     title_format = 'Adding address to <{}>'

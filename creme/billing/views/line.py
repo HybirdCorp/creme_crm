@@ -92,8 +92,8 @@ def add_multiple_service_line(request, document_id):
     return abstract_add_multiple_service_line(request, document_id)
 
 
-# TODO: LINK credentials with add_popup.html ??
-class _LinesCreation(generic.AddingToEntityPopup):
+# TODO: LINK credentials + link-popup.html ??
+class _LinesCreation(generic.RelatedToEntityFormPopup):
     # model = Line
     # form_class = line_forms._LineMultipleAddForm
     submit_label = _('Save the lines')
@@ -104,13 +104,13 @@ class _LinesCreation(generic.AddingToEntityPopup):
 
 
 class ProductLinesCreation(_LinesCreation):
-    model = ProductLine
+    # model = ProductLine
     form_class = line_forms.ProductLineMultipleAddForm
     title_format = _('Add one or more product to «{}»')
 
 
 class ServiceLinesCreation(_LinesCreation):
-    model = ServiceLine
+    # model = ServiceLine
     form_class = line_forms.ServiceLineMultipleAddForm
     title_format = _('Add one or more service to «{}»')
 
@@ -159,7 +159,7 @@ def listview_service_line(request):
 #                                reload=False,
 #                                delegate_reload=True,
 #                               )
-class AddingToCatalog(generic.AddingToEntityPopup):
+class AddingToCatalog(generic.RelatedToEntityFormPopup):
     # model = ...
     form_class = line_forms.AddToCatalogForm
     permissions = 'billing'
@@ -174,7 +174,6 @@ class AddingToCatalog(generic.AddingToEntityPopup):
 
     def get_form_kwargs(self):
         kwargs = super(AddingToCatalog, self).get_form_kwargs()
-        del kwargs['instance']
         kwargs['related_item_class'] = self.get_item_class()
 
         return kwargs

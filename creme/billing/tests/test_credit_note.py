@@ -226,7 +226,7 @@ class CreditNoteTestCase(_BillingTestCase):
         url = reverse('billing__link_to_cnotes', args=(invoice.id,))
         response = self.assertGET200(url)
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
         # self.assertEqual(_('Credit notes for «%s»') % invoice, context.get('title'))

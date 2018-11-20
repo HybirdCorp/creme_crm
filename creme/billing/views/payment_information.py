@@ -44,7 +44,7 @@ from ..models import PaymentInformation
 #                                  entity_class=get_organisation_model(),
 #                                  submit_label=_('Save the payment information'),
 #                                 )
-class PaymentInformationCreation(generic.AddingToEntityPopup):
+class PaymentInformationCreation(generic.AddingInstanceToEntityPopup):
     model = PaymentInformation
     form_class = pi_forms.PaymentInformationCreateForm
     permissions = 'billing'

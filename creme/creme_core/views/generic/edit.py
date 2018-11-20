@@ -167,6 +167,18 @@ def edit_model_with_popup(request, query_dict, model, form_class,
 
 # Class-based views  -----------------------------------------------------------
 
+class CremeEdition(base.CremeFormView):
+    template_name = 'creme_core/generics/blockform/edit.html'
+    title = _('Edit')
+    submit_label = _('Save the modifications')
+
+
+class CremeEditionPopup(base.CremeFormPopup):
+    template_name = 'creme_core/generics/blockform/edit-popup.html'
+    title = _('Edit')
+    submit_label = _('Save the modifications')
+
+
 class CremeModelEdition(base.CancellableMixin, base.PermissionsMixin, UpdateView):
     """ Base class for edition view with a form in Creme.
     You'll have to override at least the attributes 'model' & 'form_class'
@@ -312,41 +324,21 @@ class EntityEditionPopup(CremeModelEditionPopup):
         user.has_perm_to_access_or_die(self.model._meta.app_label)
 
 
-# TODO: factorise with AddingToEntity ?
-class RelatedToEntityEditionPopup(CremeModelEditionPopup):
-    """ This specialisation of CremeModelEditionPopup is made for models
-    related to a CremeEntity instance.
+class RelatedToEntityEditionPopup(base.EntityRelatedMixin, CremeModelEditionPopup):
+    """ This specialisation of CremeModelEditionPopup is made to edit an instance
+    of model related to a CremeEntity instance.
 
-    These model have a method 'get_related_entity()'.
-
-    Attributes:
-    entity_form_kwarg: The related entity is given to the form with this name.
-                       ('entity' by default).
-                       <None> means the entity is not passed to the form.
+    This model must have a method 'get_related_entity()'.
 
     NB: the argument of "title_format" is the related entity (see get_title()).
     """
-    entity_form_kwarg = 'entity'
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.related_entity = None
 
-    def check_related_entity_permissions(self, entity, user):
-        """ Check the permissions of the related entity which just has been retrieved.
-
-        @param entity: Instance of model inheriting CremeEntity.
-        @param user: Instance of <auth.get_user_model()>.
-        @raise: PermissionDenied.
-        """
-        user.has_perm_to_change_or_die(entity)
-
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-
-        entity = self.get_related_entity()
-        if self.entity_form_kwarg:
-            kwargs[self.entity_form_kwarg] = entity
+        self.set_entity_in_form_kwargs(kwargs)
 
         return kwargs
 

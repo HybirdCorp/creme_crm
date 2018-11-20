@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Polls 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 20:13+0200\n"
+"POT-Creation-Date: 2018-11-20 15:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -162,7 +162,7 @@ msgstr ""
 msgid "Other"
 msgstr "Autre"
 
-#: core.py:420 forms/poll_reply.py:234
+#: core.py:420 forms/poll_reply.py:235
 msgid "Comment"
 msgstr "Remarques"
 
@@ -301,28 +301,28 @@ msgstr ""
 msgid "Related form"
 msgstr "Formulaire lié"
 
-#: forms/poll_reply.py:127
+#: forms/poll_reply.py:128
 msgid "The form must contain one line at least."
 msgstr "Le formulaire doit contenir au moins une ligne."
 
-#: forms/poll_reply.py:169 forms/poll_reply.py:278 models/poll_reply.py:42
+#: forms/poll_reply.py:171 forms/poll_reply.py:279 models/poll_reply.py:42
 msgid "Person who filled"
 msgstr "Personne qui a rempli"
 
-#: forms/poll_reply.py:191 templates/polls/bricks/preplies.html:7
+#: forms/poll_reply.py:193 templates/polls/bricks/preplies.html:7
 msgid "Replies"
 msgstr "Réponses"
 
-#: forms/poll_reply.py:212 models/poll_form.py:207 models/poll_form.py:214
+#: forms/poll_reply.py:213 models/poll_form.py:207 models/poll_form.py:214
 #: models/poll_reply.py:120 views/poll_reply.py:260
 msgid "Question"
 msgstr "Question"
 
-#: forms/poll_reply.py:229
+#: forms/poll_reply.py:230
 msgid "Not applicable"
 msgstr "Sans objet"
 
-#: forms/poll_reply.py:250
+#: forms/poll_reply.py:251
 msgid "The answer is required."
 msgstr "La réponse est obligatoire."
 
@@ -430,15 +430,19 @@ msgstr "Enregistrer la condition"
 msgid "Is complete"
 msgstr "Est complet"
 
-#: models/poll_reply.py:53 templates/polls/bricks/campaign-preplies.html:13
+#: models/poll_reply.py:52
+msgid "Create a reply"
+msgstr "Créer une réponse"
+
+#: models/poll_reply.py:53
+msgid "Save the reply"
+msgstr "Enregistrer la réponse"
+
+#: models/poll_reply.py:54 templates/polls/bricks/campaign-preplies.html:13
 #: templates/polls/bricks/person-preplies.html:14
 #: templates/polls/bricks/preplies.html:14
 msgid "Create replies"
 msgstr "Créer des réponses"
-
-#: models/poll_reply.py:54
-msgid "Save the reply"
-msgstr "Enregistrer la réponse"
 
 #: models/poll_reply.py:55
 msgid "Save the replies"
@@ -637,21 +641,25 @@ msgstr "Question pour «{}»"
 msgid "Section for «{}»"
 msgstr "Section pour «{}»"
 
-#: views/poll_form.py:271
+#: views/poll_form.py:282
 msgid "New question for «{}»"
 msgstr "Nouvelle question pour «{}»"
 
-#: views/poll_form.py:316
+#: views/poll_form.py:327
 msgid "New section for «{}»"
 msgstr "Nouvelle section pour «{}»"
 
-#: views/poll_form.py:321
+#: views/poll_form.py:332
 msgid "New sub-section for «{}»"
 msgstr "Nouvelle sous-section pour «{}»"
 
-#: views/poll_form.py:331
-msgid "Condition for «{}»"
-msgstr "Condition pour «{}»"
+#: views/poll_form.py:342
+msgid "Conditions for «{}»"
+msgstr "Conditions pour «{}»"
+
+#: views/poll_form.py:343
+msgid "Save the conditions"
+msgstr "Enregistrer les conditions"
 
 #: views/poll_reply.py:95 views/poll_reply.py:117 views/poll_reply.py:140
 #, python-format
@@ -662,35 +670,36 @@ msgstr "Nouvelles réponses pour «%s»"
 msgid "Reminder of the previous answered question :"
 msgstr "Rappel de la Question/Réponse précédente :"
 
+# Already in crem_core
 #: views/poll_reply.py:266
 msgid "Edit"
 msgstr ""
 
-#: views/poll_reply.py:326 views/poll_reply.py:381
+#: views/poll_reply.py:332 views/poll_reply.py:393
 msgid "Answers of the form : {}"
 msgstr "Réponses à un formulaire : {}"
 
-#: views/poll_reply.py:343
+#: views/poll_reply.py:355
 msgid "All questions have been answered."
 msgstr "Les questions ont déjà toute une réponse."
 
-#: views/poll_reply.py:478
+#: views/poll_reply.py:498
 msgid "New replies for «{}»"
 msgstr "Nouvelles réponses pour «{}»"
 
-#: views/poll_reply.py:517
+#: views/poll_reply.py:537
 msgid "Existing replies for «{}»"
 msgstr "Réponses existantes pour «{}»"
 
-#: views/poll_reply.py:519
+#: views/poll_reply.py:539
 msgid "Link to the replies"
 msgstr "Lier aux réponses"
 
-#: views/poll_reply.py:536
+#: views/poll_reply.py:556
 msgid "Answer edition"
 msgstr "Modification de réponse"
 
-#: views/poll_reply.py:537
+#: views/poll_reply.py:557
 msgid "Save the modification"
 msgstr "Enregistrer la modification"
 

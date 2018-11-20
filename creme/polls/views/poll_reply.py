@@ -474,16 +474,24 @@ def _clear_dependant_answers(tree, line_node):
 
 # Class-based views  ----------------------------------------------------------
 
-# TODO: use PollReply.multi_creation_label when all views are class based.
-#       then fix PollReply.creation_label
 
-class PollRepliesCreation(generic.EntityCreation):
-    model = PollReply
+class PollRepliesCreation(generic.CremeFormView):
+    # model = PollReply
     form_class = preply_forms.PollRepliesCreateForm
+    permissions = ('polls', _CREATION_PERM)
+    title = PollReply.multi_creation_label
     submit_label = PollReply.multi_save_label
 
+    def form_valid(self, form):
+        form.save()
+        preplies = form.preplies
 
-class _RelatedRepliesCreationBase(generic.AddingToEntityPopup):
+        return HttpResponseRedirect(
+            preplies[0].get_absolute_url() if preplies else self.get_success_url()
+        )
+
+
+class _RelatedRepliesCreationBase(generic.RelatedToEntityFormPopup):
     model = PollReply
     form_class = preply_forms.PollRepliesCreateForm
     permissions = ('polls', _CREATION_PERM)
@@ -522,11 +530,11 @@ class PollReplyEdition(generic.EntityEdition):
     pk_url_kwarg = 'preply_id'
 
 
-class LinkingRepliesToPerson(generic.AddingToEntityPopup):
+class LinkingRepliesToPerson(generic.RelatedToEntityFormPopup):
     # model = PollReply
     template_name = 'creme_core/generics/blockform/link-popup.html'
     form_class = preply_forms.PersonAddRepliesForm
-    title_format =  _('Existing replies for «{}»')
+    title_format = _('Existing replies for «{}»')
     permissions = 'polls'
     submit_label = _('Link to the replies')
     entity_id_url_kwarg = 'person_id'

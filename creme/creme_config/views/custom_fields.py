@@ -41,7 +41,7 @@ from . import base
 #               _('New custom field configuration'),
 #               submit_label=_('Save the configuration'),
 #     )
-class FirstCTypeCustomFieldCreation(base.BaseConfigCreation):
+class FirstCTypeCustomFieldCreation(base.ConfigModelCreation):
     model = CustomField
     form_class = cf_forms.CustomFieldsCTAddForm
     title = _('New custom field configuration')
@@ -57,7 +57,7 @@ class FirstCTypeCustomFieldCreation(base.BaseConfigCreation):
 #                             initial={'ct': ct},
 #                            )
 class CustomFieldCreation(EntityCTypeRelatedMixin,
-                          base.BaseConfigCreation,
+                          base.ConfigModelCreation,
                          ):
     model = CustomField
     form_class = cf_forms.CustomFieldsAddForm
@@ -87,7 +87,7 @@ class Portal(BricksView):
 #     return generic.edit_model_with_popup(request, {'pk': field_id},
 #                                          CustomField, cf_forms.CustomFieldsEditForm,
 #                                         )
-class CustomFieldEdition(base.BaseConfigEdition):
+class CustomFieldEdition(base.ConfigModelEdition):
     model = CustomField
     form_class = cf_forms.CustomFieldsEditForm
     pk_url_kwarg = 'field_id'

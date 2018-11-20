@@ -217,7 +217,7 @@ class ActObjectivePatternCreation(generic.EntityCreation):
     form_class = forms.ObjectivePatternForm
 
 
-class RelatedOpportunityCreation(generic.AddingToEntityPopup):
+class RelatedOpportunityCreation(generic.AddingInstanceToEntityPopup):
     model = Opportunity
     form_class = OpportunityCreateForm
     permissions = ['opportunities', cperm(Opportunity)]
@@ -299,24 +299,26 @@ def add_opportunity(request, act_id):
 #                                  entity_class=Act,
 #                                  submit_label=_('Save the objective'),
 #                                 )
-class _ObjectiveCreationBase(generic.AddingToEntityPopup):
+
+
+# def add_objective(request, act_id):
+#     return _add_objective(request, act_id, forms.ObjectiveForm)
+class ObjectiveCreation(generic.AddingInstanceToEntityPopup):
     model = ActObjective
-    # form_class = ...
+    form_class = forms.ObjectiveForm
     title_format = _('New objective for «{}»')
     entity_id_url_kwarg = 'act_id'
     entity_classes = Act
 
 
-# def add_objective(request, act_id):
-#     return _add_objective(request, act_id, forms.ObjectiveForm)
-class ObjectiveCreation(_ObjectiveCreationBase):
-    form_class = forms.ObjectiveForm
-
-
 # def add_objectives_from_pattern(request, act_id):
 #     return _add_objective(request, act_id, forms.ObjectivesFromPatternForm)
-class ObjectiveCreationFromPattern(_ObjectiveCreationBase):
+class ObjectivesCreationFromPattern(generic.RelatedToEntityFormPopup):
     form_class = forms.ObjectivesFromPatternForm
+    title_format = _('New objectives for «{}»')
+    submit_label = _('Save the objectives')
+    entity_id_url_kwarg = 'act_id'
+    entity_classes = Act
 
 
 # @login_required
@@ -327,7 +329,7 @@ class ObjectiveCreationFromPattern(_ObjectiveCreationBase):
 #                                  entity_class=ActObjectivePattern,
 #                                  submit_label=_('Save the objective'),
 #                                 )
-class PatternComponentCreation(generic.AddingToEntityPopup):
+class PatternComponentCreation(generic.AddingInstanceToEntityPopup):
     model = ActObjectivePatternComponent
     form_class = forms.PatternComponentForm
     title_format = _('New objective for «{}»')
@@ -361,7 +363,7 @@ class PatternComponentCreation(generic.AddingToEntityPopup):
 #                                reload=False,
 #                                delegate_reload=True,
 #                               )
-class SubPatternComponentCreation(generic.AddingToEntityPopup):
+class SubPatternComponentCreation(generic.AddingInstanceToEntityPopup):
     model = ActObjectivePatternComponent
     # form_class = ....
     # title_format = _('New sub objective for «{}»')
@@ -504,7 +506,7 @@ def incr_objective_counter(request, objective_id):
 #                                reload=False,
 #                                delegate_reload=True,
 #                               )
-class RelatedEntityCreation(generic.AddingToEntityPopup):
+class RelatedEntityCreation(generic.AddingInstanceToEntityPopup):
     # model = ...
     # form_class = ....
     # title = ...

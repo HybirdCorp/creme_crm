@@ -240,7 +240,7 @@ class _RelationsCreateForm(CremeForm):
 
 
 class RelationCreateForm(_RelationsCreateForm):
-    def __init__(self, subject, relations_types=None, instance=None, *args, **kwargs):
+    def __init__(self, subject, relations_types=None, *args, **kwargs):
         # super(RelationCreateForm, self).__init__([subject], subject.entity_type,
         super().__init__([subject], subject.entity_type,
                          relations_types=relations_types,

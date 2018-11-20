@@ -309,7 +309,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         fline4 = create_l('Do you eat swallows?', section11, conds_use_or=True)
 
         PollFormLineCondition.objects.create(line=fline4, source=fline3, raw_answer='1',
-                                             operator=PollFormLineCondition.EQUALS
+                                             operator=PollFormLineCondition.EQUALS,
                                             )
 
         url = self.ADD_REPLY_URL
@@ -339,6 +339,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         line_ids = list(l.id for l in lines)
         self.assertEqual(sorted(line_ids), line_ids)
+
+        self.assertRedirects(response, preply.get_absolute_url())
 
         # ----------------------------------------------------------------------
         line1 = lines[0]

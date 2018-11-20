@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponse
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -30,7 +30,7 @@ from creme.creme_core.views.generic import BricksView
 
 from ..forms.history import HistoryConfigForm
 
-from .base import BaseConfigCreation
+from .base import ConfigCreation
 # from .portal import _config_portal
 
 
@@ -38,7 +38,7 @@ from .base import BaseConfigCreation
 # @permission_required('creme_core.can_admin')
 # def add(request):
 #     return add_model_with_popup(request, HistoryConfigForm, _('New relation types'))
-class HistoryConfigCreation(BaseConfigCreation):
+class HistoryConfigCreation(ConfigCreation):
     model = HistoryConfigItem
     form_class = HistoryConfigForm
     title = _('New relation types')

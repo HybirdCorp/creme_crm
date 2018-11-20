@@ -50,8 +50,7 @@ class ParticipantCreateForm(CremeForm):
                                                   )
     participants        = MultiCreatorEntityField(label=_('Participants'), model=Contact, required=False)
 
-    # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(ParticipantCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.activity = entity
@@ -156,8 +155,7 @@ class SubjectCreateForm(CremeForm):
     # TODO: qfilter to exclude current subjects, see MultiGenericEntityField
     subjects = MultiGenericEntityField(label=_('Subjects'))
 
-    # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(SubjectCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.activity = entity

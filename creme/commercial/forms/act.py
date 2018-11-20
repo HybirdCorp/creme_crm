@@ -87,8 +87,7 @@ class ObjectivesFromPatternForm(CremeForm):
                                queryset=ActObjectivePattern.objects.all()
                               )
 
-    # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(ObjectivesFromPatternForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.act = entity

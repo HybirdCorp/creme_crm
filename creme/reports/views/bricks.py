@@ -55,7 +55,7 @@ from ..forms.bricks import GraphInstanceBrickForm
 #                        reload=False,
 #                        delegate_reload=True,
 #                       )
-class GraphInstanceBrickCreation(generic.AddingToEntityPopup):
+class GraphInstanceBrickCreation(generic.AddingInstanceToEntityPopup):
     model = InstanceBrickConfigItem
     form_class = GraphInstanceBrickForm
     permissions = 'reports.can_admin'

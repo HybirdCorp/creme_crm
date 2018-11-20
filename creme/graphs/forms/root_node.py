@@ -40,8 +40,7 @@ class AddRootNodesForm(CremeForm):
                                                      queryset=RelationType.objects.all(),
                                                     )
 
-    # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(AddRootNodesForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.graph = entity
