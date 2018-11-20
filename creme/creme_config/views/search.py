@@ -53,7 +53,7 @@ class Portal(BricksView):
 #         initial={'content_type': ctype},
 #     )
 class SearchConfigCreation(EntityCTypeRelatedMixin,
-                           base.BaseConfigCreation,
+                           base.ConfigModelCreation,
                           ):
     model = SearchConfigItem
     form_class = search_forms.SearchAddForm
@@ -78,7 +78,7 @@ class SearchConfigCreation(EntityCTypeRelatedMixin,
 #         model=SearchConfigItem,
 #         form_class=search_forms.SearchEditForm,
 #     )
-class SearchConfigEdition(base.BaseConfigEdition):
+class SearchConfigEdition(base.ConfigModelEdition):
     model = SearchConfigItem
     form_class = search_forms.SearchEditForm
     pk_url_kwarg = 'search_config_id'

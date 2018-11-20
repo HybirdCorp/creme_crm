@@ -142,7 +142,7 @@ class EmailCampaignEdition(generic.EntityEdition):
     pk_url_kwarg = 'campaign_id'
 
 
-class MailingListsAdding(generic.AddingToEntityPopup):
+class MailingListsAdding(generic.RelatedToEntityFormPopup):
     # model = MailingList
     form_class = camp_forms.CampaignAddMLForm
     template_name = 'creme_core/generics/blockform/link-popup.html'

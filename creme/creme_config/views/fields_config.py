@@ -36,7 +36,7 @@ from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import fields_config as fconf_forms
 
-from .base import BaseConfigEdition
+from .base import ConfigModelEdition
 
 
 @login_required
@@ -52,7 +52,7 @@ def portal(request):
 #     return edit_model_with_popup(request, {'pk': fconf_id}, model=FieldsConfig,
 #                                  form_class=fconf_forms.FieldsConfigEditForm,
 #                                 )
-class FieldsConfigEdition(BaseConfigEdition):
+class FieldsConfigEdition(ConfigModelEdition):
     model = FieldsConfig
     form_class = fconf_forms.FieldsConfigEditForm
     pk_url_kwarg = 'fconf_id'

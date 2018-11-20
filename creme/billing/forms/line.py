@@ -61,8 +61,7 @@ class _LineMultipleAddForm(core_forms.CremeForm):
     def _get_line_class(self):
         raise NotImplementedError
 
-    # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(_LineMultipleAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.billing_document = entity

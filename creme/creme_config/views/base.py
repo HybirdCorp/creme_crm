@@ -21,9 +21,20 @@
 from creme.creme_core.views import generic
 
 
-class BaseConfigCreation(generic.CremeModelCreationPopup):
-    permissions = 'creme_core.can_admin'
+_PERM = 'creme_core.can_admin'
 
 
-class BaseConfigEdition(generic.CremeModelEditionPopup):
-    permissions = 'creme_core.can_admin'
+class ConfigCreation(generic.CremeFormPopup):
+    permissions = _PERM
+
+
+class ConfigModelCreation(generic.CremeModelCreationPopup):
+    permissions = _PERM
+
+
+class ConfigEdition(generic.CremeEditionPopup):
+    permissions = _PERM
+
+
+class ConfigModelEdition(generic.CremeModelEditionPopup):
+    permissions = _PERM

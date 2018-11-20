@@ -214,7 +214,7 @@ def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):
 # Class-based views  ----------------------------------------------------------
 
 
-class GraphCreation(generic.AddingToEntityPopup):
+class GraphCreation(generic.AddingInstanceToEntityPopup):
     model = ReportGraph
     form_class = ReportGraphForm
     title_format = _('Create a graph for «{}»')

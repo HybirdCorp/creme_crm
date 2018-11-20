@@ -118,7 +118,7 @@ def edit(request, address_id):
 
 # Class-based views  -----------------------------------------------------------
 
-class AddressCreation(generic.AddingToEntityPopup):
+class AddressCreation(generic.AddingInstanceToEntityPopup):
     model = Address
     form_class = address_forms.AddressForm
     permissions = 'persons'

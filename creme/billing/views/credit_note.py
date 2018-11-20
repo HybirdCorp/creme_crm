@@ -183,10 +183,9 @@ class CommentEdition(generic.EntityEditionPopup):
         super().check_view_permissions(user)
 
 
-class CreditNotesLinking(generic.AddingToEntityPopup):
-    model = CreditNote
+class CreditNotesLinking(generic.RelatedToEntityFormPopup):
     form_class = cnote_forms.CreditNoteRelatedForm
-    # template_name = 'creme_core/generics/blockform/link-popup.html'  # TODO ?
+    template_name = 'creme_core/generics/blockform/link-popup.html'
     title_format = _('Credit notes for «{}»')
     submit_label = _('Link the credit notes')
     entity_id_url_kwarg = 'base_id'

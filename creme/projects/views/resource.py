@@ -67,7 +67,7 @@ from ..models import Resource
 #                                reload=False,
 #                                delegate_reload=True,
 #                               )
-class ResourceCreation(generic.AddingToEntityPopup):  # NB: Resource not registered as CremeEntity
+class ResourceCreation(generic.AddingInstanceToEntityPopup):  # NB: Resource not registered as CremeEntity
     model = Resource
     form_class = resource_forms.ResourceCreateForm
     title = _('Allocation of a new resource')

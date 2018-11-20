@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 
 # from creme.creme_core.auth.decorators import login_required
 # from creme.creme_core.views.generic import add_to_entity
-from creme.creme_core.views.generic.add import AddingToEntityPopup
+from creme.creme_core.views.generic.add import AddingInstanceToEntityPopup
 
 from ..forms.commercial_approach import ComAppCreateForm
 from ..models import CommercialApproach
@@ -34,7 +34,7 @@ from ..models import CommercialApproach
 #                          _('New commercial approach for «%s»'),
 #                          submit_label=_('Save the commercial approach'),
 #                         )
-class CommercialApproachCreation(AddingToEntityPopup):
+class CommercialApproachCreation(AddingInstanceToEntityPopup):
     model = CommercialApproach
     form_class = ComAppCreateForm
     title_format = _('New commercial approach for «{}»')

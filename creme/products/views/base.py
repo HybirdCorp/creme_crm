@@ -20,12 +20,12 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.views.generic.add import AddingToEntityPopup
+from creme.creme_core.views.generic import RelatedToEntityFormPopup
 
 from ..forms.base import AddImagesForm
 
 
-class ImagesAddingBase(AddingToEntityPopup):
+class ImagesAddingBase(RelatedToEntityFormPopup):
     # model = Document
     form_class = AddImagesForm
     template_name = 'creme_core/generics/blockform/link-popup.html'

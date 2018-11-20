@@ -36,7 +36,7 @@ from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import button_menu as button_forms
 
-from .base import BaseConfigEdition
+from .base import ConfigEdition
 # from .portal import _config_portal
 
 
@@ -111,9 +111,8 @@ class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
 #                        reload=False,
 #                        delegate_reload=True,
 #                       )
-class ButtonMenuEdition(EntityCTypeRelatedMixin, BaseConfigEdition):
+class ButtonMenuEdition(EntityCTypeRelatedMixin, ConfigEdition):
     model = ButtonMenuItem
-    # pk_url_kwarg = ''
     form_class = button_forms.ButtonMenuEditForm
     ct_id_0_accepted = True
 
@@ -142,9 +141,6 @@ class ButtonMenuEdition(EntityCTypeRelatedMixin, BaseConfigEdition):
         kwargs['button_menu_items'] = self.get_items()
 
         return kwargs
-
-    def get_object(self, *args, **kwargs):
-        return None
 
     def get_title(self):
         ctype = self.get_ctype()

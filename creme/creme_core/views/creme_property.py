@@ -86,8 +86,7 @@ from .generic.base import EntityCTypeRelatedMixin
 #                                reload=False,
 #                                delegate_reload=True,
 #                               )
-class PropertiesBulkAdding(EntityCTypeRelatedMixin, generic.CremeModelCreationPopup):
-    model = CremeProperty
+class PropertiesBulkAdding(EntityCTypeRelatedMixin, generic.CremeFormPopup):
     form_class = prop_forms.AddPropertiesBulkForm
     title = _('Multiple adding of properties')
     submit_label = _('Add the properties')
@@ -115,7 +114,6 @@ class PropertiesBulkAdding(EntityCTypeRelatedMixin, generic.CremeModelCreationPo
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        del kwargs['instance']
 
         model = self.get_ctype().model_class()
         kwargs['model'] = model
@@ -126,14 +124,15 @@ class PropertiesBulkAdding(EntityCTypeRelatedMixin, generic.CremeModelCreationPo
 
         return kwargs
 
+
 # @login_required
 # def add_to_entity(request, entity_id):
 #     return generic.add_to_entity(request, entity_id, prop_forms.AddPropertiesForm,
 #                                  _('New properties for «%s»'),
 #                                  submit_label=_('Add the properties'),
 #                                 )
-class PropertiesAdding(generic.AddingToEntityPopup):
-    model = CremeProperty
+class PropertiesAdding(generic.RelatedToEntityFormPopup):
+    # model = CremeProperty
     form_class = prop_forms.AddPropertiesForm
     title_format = _('New properties for «{}»')
     submit_label = _('Add the properties')

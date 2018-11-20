@@ -40,7 +40,7 @@ from ..models import RootNode
 #         entity_class=get_graph_model(),
 #         template='creme_core/generics/blockform/link_popup.html',
 #     )
-class RootNodesAdding(generic.AddingToEntityPopup):
+class RootNodesAdding(generic.RelatedToEntityFormPopup):
     # model = CremeEntity
     form_class = forms.AddRootNodesForm
     template_name = 'creme_core/generics/blockform/link-popup.html'

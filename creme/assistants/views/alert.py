@@ -37,7 +37,7 @@ from ..models import Alert
 #                                  _('New alert for «%s»'),
 #                                  submit_label=_('Save the alert'),
 #                                 )
-class AlertCreation(generic.AddingToEntityPopup):
+class AlertCreation(generic.AddingInstanceToEntityPopup):
     model = Alert
     form_class = AlertForm
     title_format = _('New alert for «{}»')

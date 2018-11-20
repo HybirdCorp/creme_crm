@@ -170,7 +170,7 @@ class FolderCreation(generic.EntityCreation):
 
 # TODO: no CHANGE credentials for parent ?
 # TODO: link-popup.html ?
-class ChildFolderCreation(generic.AddingToEntityPopup):
+class ChildFolderCreation(generic.AddingInstanceToEntityPopup):
     model = Folder
     form_class = f_forms.ChildFolderForm
     permissions = ['documents', cperm(Folder)]

@@ -1668,8 +1668,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('Condition for «%s»') % self.pform, context.get('title'))
-        self.assertEqual(_('Condition for «{}»').format(self.pform), context.get('title'))
-        self.assertEqual(PollFormLineCondition.save_label,           context.get('submit_label'))
+        self.assertEqual(_('Conditions for «{}»').format(self.pform), context.get('title'))
+        # self.assertEqual(PollFormLineCondition.save_label,           context.get('submit_label'))
+        self.assertEqual(_('Save the conditions'),                    context.get('submit_label'))
 
         # ---
         response = self.client.post(

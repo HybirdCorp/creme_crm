@@ -56,7 +56,7 @@ urlpatterns = [
     # Template: attachment brick
     # url(r'^template/(?P<template_id>\d+)/attachment/add[/]?$',    template.add_attachment,    name='emails__add_attachments_to_template'),
     url(r'^template/(?P<template_id>\d+)/attachment/add[/]?$',    template.AttachmentsAdding.as_view(), name='emails__add_attachments_to_template'),
-    url(r'^template/(?P<template_id>\d+)/attachment/delete[/]?$', template.delete_attachment, name='emails__remove_attachment_from_template'),
+    url(r'^template/(?P<template_id>\d+)/attachment/delete[/]?$', template.delete_attachment,           name='emails__remove_attachment_from_template'),
 
     # Mails history bricks
     # url(r'^mails_history/(?P<mail_id>\w+)[/]?$', mail.view_lightweight_mail,     name='emails__view_lw_mail'),

@@ -37,8 +37,7 @@ class HistoryConfigForm(CremeForm):
                                               widget=UnorderedMultipleChoiceWidget(columntype='wide'),
                                              )
 
-    # def __init__(self, *args, **kwargs):
-    def __init__(self, instance=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         # super(HistoryConfigForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 

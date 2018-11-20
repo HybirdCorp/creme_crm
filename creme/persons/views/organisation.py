@@ -166,17 +166,11 @@ class OrganisationEdition(generic.EntityEdition):
 #                                reload=False,
 #                                delegate_reload=True,
 #                               )
-class ManagedOrganisationsAdding(generic.CremeModelCreationPopup):
+class ManagedOrganisationsAdding(generic.CremeFormPopup):
     form_class = orga_forms.ManagedOrganisationsForm
     permissions = 'creme_core.can_admin'
     title = _('Add some managed organisations')
     submit_label = _('Save the modifications')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        del kwargs['instance']
-
-        return kwargs
 
 
 @decorators.POST_only

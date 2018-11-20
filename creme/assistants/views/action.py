@@ -37,7 +37,7 @@ from ..models import Action
 #     return generic.add_to_entity(request, entity_id, ActionForm, _('New action for «%s»'),
 #                                  submit_label=_('Save the action'),
 #                                 )
-class ActionCreation(generic.AddingToEntityPopup):
+class ActionCreation(generic.AddingInstanceToEntityPopup):
     model = Action
     form_class = ActionForm
     title_format = _('New action for «{}»')

@@ -141,7 +141,7 @@ def delete_parent(request):
 
 # Class-based views  ----------------------------------------------------------
 
-class TaskCreation(generic.AddingToEntityPopup):
+class TaskCreation(generic.AddingInstanceToEntityPopup):
     model = ProjectTask
     form_class = task_forms.TaskCreateForm
     title_format = _('Create a task for «{}»')
@@ -218,7 +218,7 @@ def abstract_edit_activity(request, activity_id, form=task_forms.RelatedActivity
 
 
 # TODO: LINK perm instead of CHANGE ?
-class RelatedActivityCreation(generic.AddingToEntityPopup):
+class RelatedActivityCreation(generic.AddingInstanceToEntityPopup):
     model = Activity
     form_class = task_forms.RelatedActivityCreateForm
     permissions = cperm(Activity)

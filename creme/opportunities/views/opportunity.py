@@ -186,7 +186,7 @@ class RelatedOpportunityCreation(EntityRelatedMixin, _BaseOpportunityCreation):
 
 
 # TODO: factorise ?
-class RelatedOpportunityCreationPopup(generic.AddingToEntityPopup):
+class RelatedOpportunityCreationPopup(generic.AddingInstanceToEntityPopup):
     model = Opportunity
     form_class = opp_forms.TargetedOpportunityCreationForm
     permissions = ['opportunities', cperm(Opportunity)]

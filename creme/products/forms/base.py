@@ -60,8 +60,7 @@ class _BaseEditForm(_BaseForm):
 class AddImagesForm(CremeForm):
     images = MultiImageEntityField(label=_('Images'))
 
-    # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(AddImagesForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.entity = entity

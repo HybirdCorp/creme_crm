@@ -46,7 +46,7 @@ from ..models import Sending, Message
 #                          entity_class=get_smscampaign_model(),
 #                          submit_label=Sending.save_label,
 #                         )
-class SendingCreation(generic.AddingToEntityPopup):
+class SendingCreation(generic.AddingInstanceToEntityPopup):
     model = Sending
     form_class = SendingCreateForm
     entity_id_url_kwarg = 'campaign_id'

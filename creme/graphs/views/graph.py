@@ -23,7 +23,7 @@ import warnings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -87,7 +87,7 @@ def dl_png(request, graph_id):
         return graph.generate_png(user)
     except Graph.GraphException:
         return render(request, 'graphs/graph_error.html',
-                      {'error_message': _('This graph is too big!')},
+                      {'error_message': ugettext('This graph is too big!')},
                      )
 
 
@@ -154,7 +154,7 @@ class GraphEdition(generic.EntityEdition):
     pk_url_kwarg = 'graph_id'
 
 
-class RelationTypesAdding(generic.AddingToEntityPopup):
+class RelationTypesAdding(generic.RelatedToEntityFormPopup):
     # model = RelationType
     form_class = g_forms.AddRelationTypesForm
     template_name = 'creme_core/generics/blockform/link-popup.html'

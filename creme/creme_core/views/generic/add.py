@@ -179,7 +179,7 @@ class CremeModelCreation(base.CancellableMixin,
                          base.PermissionsMixin,
                          CreateView,
                         ):
-    """ Base class for creation view with a form in Creme.
+    """ Base class for creation view with a model-form in Creme.
     You'll have to override at least the attributes 'model' & 'form_class'
     because the default ones are just abstract place-holders.
 
@@ -273,7 +273,7 @@ class CremeModelCreationPopup(CremeModelCreation):
 
     def form_valid(self, form):
         self.object = form.save()
-        return HttpResponse(self.get_success_url())
+        return HttpResponse(self.get_success_url(), content_type='text/plain')
 
 
 class EntityCreationPopup(CremeModelCreationPopup):
@@ -289,39 +289,23 @@ class EntityCreationPopup(CremeModelCreationPopup):
         user.has_perm_to_create_or_die(model)
 
 
-class AddingToEntityPopup(base.EntityRelatedMixin, CremeModelCreationPopup):
-    """ This specialisation of CremeModelCreationPopup creates some model
-    instances related to a CremeEntity.
+class AddingInstanceToEntityPopup(base.EntityRelatedMixin, CremeModelCreationPopup):
+    """ This specialisation of CremeModelCreationPopup creates an instance
+    related to a CremeEntity.
 
     Attributes:
-    entity_form_kwarg: The related entity is given to the form with this name.
-                       ('entity' by default).
-                       <None> means the entity is not passed to the form.
     title_format: If a {}-format string is given, it's used to built
                   the title with the related entity as argument (see get_title()).
     """
-    entity_form_kwarg = 'entity'
     title_format = None
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
-
-        entity_classes = self.entity_classes
-        if entity_classes is not None:
-            has_perm = user.has_perm_to_access_or_die
-
-            if isinstance(entity_classes, (list, tuple)):  # Sequence of classes
-                for app_label in {c._meta.app_label for c in entity_classes}:
-                    has_perm(app_label)
-            else:  # CremeEntity sub-model
-                has_perm(entity_classes._meta.app_label)
+        self.check_entity_classes_apps(user)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-
-        entity = self.get_related_entity()
-        if self.entity_form_kwarg:
-            kwargs[self.entity_form_kwarg] = entity
+        self.set_entity_in_form_kwargs(kwargs)
 
         return kwargs
 
@@ -334,5 +318,5 @@ class AddingToEntityPopup(base.EntityRelatedMixin, CremeModelCreationPopup):
         return title_format.format(self.get_related_entity()
                                        .allowed_str(self.request.user)
                                   ) \
-               if title_format is not None else\
+               if title_format is not None else \
                super().get_title()

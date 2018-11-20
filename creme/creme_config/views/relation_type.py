@@ -48,7 +48,7 @@ class Portal(BricksView):
 #                                 _('New custom type'),
 #                                 submit_label=RelationType.save_label,
 #                                )
-class RelationTypeCreation(base.BaseConfigCreation):
+class RelationTypeCreation(base.ConfigModelCreation):
     model = RelationType
     form_class = rtype_forms.RelationTypeCreateForm
     title = _('New custom type')
@@ -58,7 +58,7 @@ class RelationTypeCreation(base.BaseConfigCreation):
 # @permission_required('creme_core.can_admin')
 # def add_semi_fixed(request):
 #     return add_model_with_popup(request, rtype_forms.SemiFixedRelationTypeCreateForm)
-class SemiFixedRelationTypeCreation(base.BaseConfigCreation):
+class SemiFixedRelationTypeCreation(base.ConfigModelCreation):
     model = SemiFixedRelationType
     form_class = rtype_forms.SemiFixedRelationTypeCreateForm
 
@@ -90,7 +90,7 @@ class SemiFixedRelationTypeCreation(base.BaseConfigCreation):
 #                        reload=False,
 #                        delegate_reload=True,
 #                       )
-class RelationTypeEdition(base.BaseConfigEdition):
+class RelationTypeEdition(base.ConfigModelEdition):
     # model = RelationType
     queryset = RelationType.objects.filter(is_custom=True)
     form_class = rtype_forms.RelationTypeEditForm

@@ -22,7 +22,7 @@ from django.utils.translation import ugettext as _
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
 # from creme.creme_core.views.generic import add_to_entity
-from creme.creme_core.views.generic.add import AddingToEntityPopup
+from creme.creme_core.views.generic.add import AddingInstanceToEntityPopup
 
 from .. import get_messaginglist_model
 from ..forms import recipient as forms
@@ -37,7 +37,7 @@ from ..models import Recipient
 #                          entity_class=get_messaginglist_model(),
 #                          submit_label=Recipient.multi_save_label,
 #                         )
-class RecipientsAdding(AddingToEntityPopup):
+class RecipientsAdding(AddingInstanceToEntityPopup):
     model = Recipient
     form_class = forms.MessagingListAddRecipientsForm
     entity_id_url_kwarg = 'mlist_id'

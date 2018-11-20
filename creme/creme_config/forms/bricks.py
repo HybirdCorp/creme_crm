@@ -224,8 +224,7 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
     # TODO: manage Meta.fields in '*'
     blocks = FieldBlockManager(('general', _('Configuration'), ('role', 'hat', 'top', 'left', 'right', 'bottom')))
 
-    # def __init__(self, *args, **kwargs):
-    def __init__(self, instance=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         # super(BrickDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         fields = self.fields
@@ -257,7 +256,7 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
 
 class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
     # def __init__(self, *args, **kwargs):
-    def __init__(self, role, superuser, instance=None, *args, **kwargs):
+    def __init__(self, role, superuser, *args, **kwargs):
         # super(BrickDetailviewLocationsEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         # initial = self.initial
@@ -339,8 +338,7 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
 class BrickHomeLocationsForm(_BrickLocationsForm):
     bricks = BrickLocationsField(label=_('Blocks to display on the home'))
 
-    # def __init__(self, *args, **kwargs):
-    def __init__(self, instance=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         # super(BrickHomeLocationsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         # self.locations = locations = BlockPortalLocation.objects.filter(app_name='creme_core')
@@ -362,7 +360,7 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
     bricks = BrickLocationsField(label=_('Blocks to display on the «My Page» of the users'))
 
     # def __init__(self, owner, *args, **kwargs):
-    def __init__(self, owner=None, instance=None, *args, **kwargs):
+    def __init__(self, owner=None, *args, **kwargs):
         # super(BrickMypageLocationsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.owner = owner

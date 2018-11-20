@@ -276,7 +276,7 @@ class PollFormEdition(generic.EntityEdition):
     pk_url_kwarg = 'pform_id'
 
 
-class _LineCreationBase(generic.AddingToEntityPopup):
+class _LineCreationBase(generic.AddingInstanceToEntityPopup):
     model = PollFormLine
     form_class = pf_forms.PollFormLineCreateForm
     title_format = _('New question for «{}»')
@@ -317,7 +317,7 @@ class AddingLineToSection(_RelatedSectionMixin, _LineCreationBase):
         return self.title_format.format(self.get_related_section())
 
 
-class _SectionCreationBase(generic.AddingToEntityPopup):
+class _SectionCreationBase(generic.AddingInstanceToEntityPopup):
     model = PollFormSection
     form_class = pf_forms.PollFormSectionCreateForm
     entity_classes = PollForm
@@ -336,10 +336,11 @@ class ChildSectionCreation(_RelatedSectionMixin, _SectionCreationBase):
         return self.title_format.format(self.get_related_section())
 
 
-class ConditionsEdition(generic.AddingToEntityPopup):
-    model = PollFormLineCondition
+class ConditionsEdition(generic.RelatedToEntityFormPopup):
+    # model = PollFormLineCondition
     form_class = pf_forms.PollFormLineConditionsForm
-    title_format = _('Condition for «{}»')
+    title_format = _('Conditions for «{}»')
+    submit_label = _('Save the conditions')
     # entity_id_url_kwarg = 'pform_id'
     entity_classes = PollForm
     line_id_url_kwarg = 'line_id'

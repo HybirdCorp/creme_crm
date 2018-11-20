@@ -23,14 +23,16 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.contenttypes.models import ContentType
+from django.db.transaction import atomic
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
-from django.utils.translation import ugettext as _
-from django.views.generic import TemplateView
+from django.urls import reverse, reverse_lazy
+from django.utils.translation import ugettext_lazy as _, ugettext
+from django.views.generic import TemplateView, FormView
 
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.forms import CremeForm
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_ct_or_404
@@ -81,7 +83,7 @@ class PermissionsMixin:
                       user.has_perms(permissions)
 
             if not allowed:
-                raise PermissionDenied(_('You are not allowed to access this view.'))
+                raise PermissionDenied(ugettext('You are not allowed to access this view.'))
 
     def handle_not_logged(self):
         return HttpResponseRedirect(self.get_login_uri())
@@ -107,8 +109,8 @@ class EntityRelatedMixin:
     referencing this entity).
 
     Attributes:
-    entity_id_url_kwarg: string indicating the name of the key-word (ie <self.kwargs>)
-                         which stores the ID oh the related entity.
+    entity_id_url_kwarg: string indicating the name of the key-word
+        (ie <self.kwargs>) which stores the ID oh the related entity.
     entity_classes: it can be:
         - None => that all model of CremeEntity are accepted ; a second query
          is done to retrieve the real entity.
@@ -117,12 +119,17 @@ class EntityRelatedMixin:
         - a sequence (list/tuple) of classes (inheriting <CremeEntity>) => only
           entities of one of these classes are accepted ; a second query is done
           to retrieve the real entity if the class is accepted.
+    entity_form_kwarg: The related entity is given to the form with this name
+        when set_entity_in_form_kwargs() is called (views with form only).
+        ('entity' by default).
+        <None> means the entity is not passed to the form.
 
     Tips: override <check_related_entity_permissions()> if you want to check
     LINK permission instead of CHANGE.
     """
     entity_id_url_kwarg = 'entity_id'
     entity_classes = None
+    entity_form_kwarg = 'entity'
 
     def check_related_entity_permissions(self, entity, user):
         """ Check the permissions of the related entity which just has been retrieved.
@@ -132,6 +139,18 @@ class EntityRelatedMixin:
         @raise: PermissionDenied.
         """
         user.has_perm_to_change_or_die(entity)
+
+    def check_entity_classes_apps(self, user):
+        entity_classes = self.entity_classes
+
+        if entity_classes is not None:
+            has_perm = user.has_perm_to_access_or_die
+
+            if isinstance(entity_classes, (list, tuple)):  # Sequence of classes
+                for app_label in {c._meta.app_label for c in entity_classes}:
+                    has_perm(app_label)
+            else:  # CremeEntity sub-model
+                has_perm(entity_classes._meta.app_label)
 
     def get_related_entity_id(self):
         return self.kwargs[self.entity_id_url_kwarg]
@@ -165,6 +184,12 @@ class EntityRelatedMixin:
             self.related_entity = entity
 
         return entity
+
+    def set_entity_in_form_kwargs(self, form_kwargs):
+        entity = self.get_related_entity()
+
+        if self.entity_form_kwarg:
+            form_kwargs[self.entity_form_kwarg] = entity
 
 
 class ContentTypeRelatedMixin:
@@ -269,3 +294,119 @@ class BricksView(BricksMixin, CheckedTemplateView):
         context['bricks'] = self.get_bricks()
 
         return context
+
+
+class CremeFormView(CancellableMixin, PermissionsMixin, FormView):
+    """ Base class for views with a simple form (ie: not a model form) in Creme.
+    You'll have to override at least the attribute 'form_class' because the
+    default one is just abstract place-holders.
+
+    The mandatory argument "user" of forms in Creme is filled ; but no "instance"
+    argument is passed to the form instance.
+
+    It manages the common UI of Creme Forms:
+      - Title of the form
+      - Label for the submit button
+      - Cancel button.
+
+    Notice that POST requests are managed within a SQL transaction.
+
+    New attributes:
+    title: A string used as form's title. <None> (default value) means that
+           <model.creation_label> is used (see get_title()).
+    submit_label: A string used as label for the submission button of the form.
+                  <None> (default value) means that <model.save_label> is used
+                 (see get_submit_label()).
+    """
+    form_class = CremeForm
+    template_name = 'creme_core/generics/blockform/add.html'
+    title = '*insert title here*'
+    submit_label = _('Save')
+    success_url = reverse_lazy('creme_core__home')
+
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+
+        if not user.is_authenticated:
+            return self.handle_not_logged()
+
+        self.check_view_permissions(user=user)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form=form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.get_title()
+        context['submit_label'] = self.get_submit_label()
+        context['cancel_url'] = self.get_cancel_url()
+
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+
+        return kwargs
+
+    def get_title(self):
+        return self.title
+
+    def get_submit_label(self):
+        return self.submit_label
+
+    @atomic
+    def post(self, *args, **kwargs):
+        return super().post(*args, **kwargs)
+
+
+class CremeFormPopup(CremeFormView):
+    """  Base class for view with a simple form in Creme within an Inner-Popup.
+    See CremeFormView.
+    """
+    # template_name = 'creme_core/generics/blockform/add_popup.html'  # DO NOT USE OLD TEMPLATES !!!
+    template_name = 'creme_core/generics/blockform/add-popup.html'
+
+    def get_success_url(self):
+        return ''
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponse(self.get_success_url(), content_type='text/plain')
+
+
+class RelatedToEntityFormPopup(EntityRelatedMixin, CremeFormPopup):
+    """ This is a specialisation of CremeFormPopup made for changes
+    related to a CremeEntity (eg: create several instances at once linked
+    to an entity).
+
+    Attributes:
+    title_format: If a {}-format string is given, it's used to built
+                  the title with the related entity as argument (see get_title()).
+    """
+    title_format = None
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        self.check_entity_classes_apps(user)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        self.set_entity_in_form_kwargs(kwargs)
+
+        return kwargs
+
+    def get_title_format(self):
+        return self.title_format
+
+    def get_title(self):
+        title_format = self.get_title_format()
+
+        return title_format.format(self.get_related_entity()
+                                       .allowed_str(self.request.user)
+                                  ) \
+               if title_format is not None else\
+               super().get_title()

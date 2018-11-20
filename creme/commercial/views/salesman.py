@@ -84,6 +84,7 @@ def listview(request):
 
 class SalesManCreation(ContactCreation):
     title = _('Create a salesman')
+    submit_label = _('Save the salesman')
 
     def form_valid(self, form):
         with atomic():
@@ -91,6 +92,3 @@ class SalesManCreation(ContactCreation):
             CremeProperty.objects.create(type_id=PROP_IS_A_SALESMAN, creme_entity=self.object)
 
         return response
-
-    def get_submit_label(self):
-        return _('Save the salesman')

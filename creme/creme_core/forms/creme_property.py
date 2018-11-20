@@ -44,8 +44,7 @@ class _AddPropertiesForm(CremeForm):
 
 
 class AddPropertiesForm(_AddPropertiesForm):
-    # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # We need this entity in super constructor when post_init_callback is called.
         # TODO: Add unit tests for this !
         self.entity = entity

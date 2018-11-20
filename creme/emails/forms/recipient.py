@@ -60,8 +60,7 @@ class MailingListAddRecipientsForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _('Recipients'), '*'))
 
-    # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(MailingListAddRecipientsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
@@ -87,8 +86,7 @@ class MailingListAddCSVForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _('CSV file'), '*'))
 
-    # def __init__(self, entity, *args, **kwargs):
-    def __init__(self, entity, instance=None, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         # super(MailingListAddCSVForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity

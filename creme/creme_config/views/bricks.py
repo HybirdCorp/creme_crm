@@ -79,7 +79,7 @@ class Portal(BricksView):
 #         initial={'content_type': ctype},
 #     )
 class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
-                                       base.BaseConfigCreation,
+                                       base.ConfigEdition,
                                       ):
     # model = BrickDetailviewLocation
     form_class = bricks_forms.BrickDetailviewLocationsAddForm
@@ -145,7 +145,7 @@ class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
 #                                         title=_('New type of block'),
 #                                         submit_label=_('Save the block'),
 #                                        )
-class RelationTypeBrickCreation(base.BaseConfigCreation):
+class RelationTypeBrickCreation(base.ConfigModelCreation):
     model = RelationBrickItem
     form_class = bricks_forms.RTypeBrickAddForm
 
@@ -232,11 +232,11 @@ class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
 #         submit_label=_('Save the configuration'),
 #     )
 class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
-                                      base.BaseConfigCreation,
+                                      base.ConfigEdition,
                                      ):
     # model = BrickDetailviewLocation
     form_class = bricks_forms.BrickDetailviewLocationsEditForm
-    template_name = 'creme_core/generics/blockform/edit-popup.html'
+    # template_name = 'creme_core/generics/blockform/edit-popup.html'
     submit_label = _('Save the configuration')
     ct_id_0_accepted = True
 
@@ -374,15 +374,11 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
 #         reload=False,
 #         delegate_reload=True,
 #     )
-class HomeEdition(base.BaseConfigEdition):
+class HomeEdition(base.ConfigEdition):
     model = BrickDetailviewLocation
     form_class = bricks_forms.BrickHomeLocationsForm
-    # pk_url_kwarg = ''
     title_format = _('Edit the block «{}»')
     title = _('Edit home configuration')
-
-    def get_object(self, *args, **kwargs):
-        return None
 
 
 # def _edit_mypage(request, title, user=None):
@@ -405,13 +401,9 @@ class HomeEdition(base.BaseConfigEdition):
 #         reload=False,
 #         delegate_reload=True,
 #     )
-class BaseMyPageEdition(base.BaseConfigEdition):
+class BaseMyPageEdition(base.ConfigEdition):
     model = BrickMypageLocation
     form_class = bricks_forms.BrickMypageLocationsForm
-    # pk_url_kwarg = ''
-
-    def get_object(self, *args, **kwargs):
-        return None
 
 
 # @login_required
@@ -508,7 +500,7 @@ class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
 #         reload=False,
 #         delegate_reload=True,
 #     )
-class RelationCTypeBrickEdition(EntityCTypeRelatedMixin, base.BaseConfigEdition):
+class RelationCTypeBrickEdition(EntityCTypeRelatedMixin, base.ConfigModelEdition):
     model = RelationBrickItem
     form_class = bricks_forms.RTypeBrickItemEditCtypeForm
     pk_url_kwarg = 'rbi_id'
@@ -561,7 +553,7 @@ def delete_cells_of_rtype_brick(request, rbi_id):
 #         bricks.CustomBrickConfigItemEditForm,
 #         ugettext('Edit the block «%s»'),
 #     )
-class CustomBrickEdition(base.BaseConfigEdition):
+class CustomBrickEdition(base.ConfigModelEdition):
     model = CustomBrickConfigItem
     form_class = bricks_forms.CustomBrickConfigItemEditForm
     pk_url_kwarg = 'cbci_id'

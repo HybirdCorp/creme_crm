@@ -36,7 +36,7 @@ from ..models import ToDo
 #     return generic.add_to_entity(request, entity_id, ToDoForm, _('New Todo for «%s»'),
 #                                  submit_label=_('Save the todo'),
 #                                 )
-class ToDoCreation(generic.AddingToEntityPopup):
+class ToDoCreation(generic.AddingInstanceToEntityPopup):
     model = ToDo
     form_class = ToDoForm
     title_format = _('New todo for «{}»')

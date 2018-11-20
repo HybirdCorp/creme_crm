@@ -32,7 +32,7 @@ from ..models import Memo
 #     return generic.add_to_entity(request, entity_id, MemoForm, _('New Memo for «%s»'),
 #                                  submit_label=_('Save the memo'),
 #                                 )
-class MemoCreation(generic.AddingToEntityPopup):
+class MemoCreation(generic.AddingInstanceToEntityPopup):
     model = Memo
     form_class = MemoForm
     title_format = _('New memo for «{}»')

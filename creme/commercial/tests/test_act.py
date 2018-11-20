@@ -473,8 +473,9 @@ class ActTestCase(CommercialBaseTestCase):
 
         context = self.assertGET200(url).context
         # self.assertEqual(_('New objective for «%s»') % act, context.get('title'))
-        self.assertEqual(_('New objective for «{}»').format(act), context.get('title'))
-        self.assertEqual(_('Save the objective'),                 context.get('submit_label'))
+        self.assertEqual(_('New objectives for «{}»').format(act), context.get('title'))
+        # self.assertEqual(_('Save the objective'),                 context.get('submit_label'))
+        self.assertEqual(_('Save the objectives'),                 context.get('submit_label'))
 
         # ---
         self.assertNoFormError(self.client.post(url, data={'pattern': pattern.id}))

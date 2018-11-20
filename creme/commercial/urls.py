@@ -33,14 +33,14 @@ urlpatterns = [
 
     # Objectives & opportunities
     # url(r'^act/(?P<act_id>\d+)/add/objective[/]?$',               act.add_objective,               name='commercial__create_objective'),
-    url(r'^act/(?P<act_id>\d+)/add/objective[/]?$',               act.ObjectiveCreation.as_view(),            name='commercial__create_objective'),
+    url(r'^act/(?P<act_id>\d+)/add/objective[/]?$',               act.ObjectiveCreation.as_view(),             name='commercial__create_objective'),
     # url(r'^act/(?P<act_id>\d+)/add/objectives_from_pattern[/]?$', act.add_objectives_from_pattern, name='commercial__create_objective_from_pattern'),
-    url(r'^act/(?P<act_id>\d+)/add/objectives_from_pattern[/]?$', act.ObjectiveCreationFromPattern.as_view(), name='commercial__create_objective_from_pattern'),
+    url(r'^act/(?P<act_id>\d+)/add/objectives_from_pattern[/]?$', act.ObjectivesCreationFromPattern.as_view(), name='commercial__create_objective_from_pattern'),  # TODO: commercial__create_objectiveS_from_pattern
     # url(r'^objective/(?P<objective_id>\d+)/edit[/]?$',            act.edit_objective,              name='commercial__edit_objective'),
-    url(r'^objective/(?P<objective_id>\d+)/edit[/]?$',            act.ObjectiveEdition.as_view(),             name='commercial__edit_objective'),
-    url(r'^objective/(?P<objective_id>\d+)/incr[/]?$',            act.incr_objective_counter,                 name='commercial__incr_objective_counter'),
+    url(r'^objective/(?P<objective_id>\d+)/edit[/]?$',            act.ObjectiveEdition.as_view(),              name='commercial__edit_objective'),
+    url(r'^objective/(?P<objective_id>\d+)/incr[/]?$',            act.incr_objective_counter,                  name='commercial__incr_objective_counter'),
     # url(r'^objective/(?P<objective_id>\d+)/create_entity[/]?$',   act.create_objective_entity,     name='commercial__create_entity_from_objective'),
-    url(r'^objective/(?P<objective_id>\d+)/create_entity[/]?$',   act.RelatedEntityCreation.as_view(),        name='commercial__create_entity_from_objective'),
+    url(r'^objective/(?P<objective_id>\d+)/create_entity[/]?$',   act.RelatedEntityCreation.as_view(),         name='commercial__create_entity_from_objective'),
 
     # Pattern component
     # url(r'^objective_pattern/(?P<objpattern_id>\d+)/add_component[/]?$',      act.add_pattern_component,        name='commercial__create_component'),
