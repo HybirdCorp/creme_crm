@@ -399,7 +399,7 @@ class CommercialAssetScore(CremeModel):
 
     def __str__(self):  # Debugging
         return '<AssetScore: orga={} score={} segment={} asset={}>'.format(
-                    self.organisation, self.score, self.segment, self.asset)
+                    self.organisation, self.score, self.segment_desc, self.asset)
 
 
 class MarketSegmentCharm(CremeModel):
@@ -437,7 +437,7 @@ class MarketSegmentCharmScore(CremeModel):
 
     def __str__(self):  # Debugging
         return '<CharmScore: orga={} score={} segment={} charm={}>'.format(
-                    self.organisation, self.score, self.segment, self.charm)
+                    self.organisation, self.score, self.segment_desc, self.charm)
 
 
 class MarketSegmentCategory(CremeModel):
@@ -451,4 +451,4 @@ class MarketSegmentCategory(CremeModel):
 
     def __str__(self):  # Debugging
         return '<MarketSegmentCategory: orga={} cat={} segment={}>'.format(
-                    self.organisation, self.category, self.segment)
+                    self.organisation, self.category, self.segment_desc)
