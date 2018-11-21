@@ -8,18 +8,22 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 20:25+0200\n"
+"POT-Creation-Date: 2018-11-21 10:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: actions.py:36 templates/projects/buttons/close-project.html:2
+msgid "Close project"
+msgstr "Clôturer le projet"
+
 #: apps.py:28 models/project.py:62
 msgid "Projects"
 msgstr "Projets"
 
-#: apps.py:78
+#: apps.py:83
 msgid "Tools"
 msgstr "Outils"
 
@@ -125,7 +129,7 @@ msgstr "Type"
 msgid "Name of the project"
 msgstr "Nom du projet"
 
-#: models/project.py:36 models/projectstatus.py:31 models/task.py:47
+#: models/project.py:36 models/projectstatus.py:31 models/task.py:49
 #: models/taskstatus.py:31
 msgid "Description"
 msgstr "Description"
@@ -159,7 +163,7 @@ msgstr "Créer un projet"
 msgid "Save the project"
 msgstr "Enregistrer le projet"
 
-#: models/project.py:61 models/task.py:38
+#: models/project.py:61 models/task.py:40
 msgid "Project"
 msgstr "Projet"
 
@@ -178,7 +182,7 @@ msgstr "Nom"
 msgid "Color"
 msgstr "Couleur"
 
-#: models/projectstatus.py:32 models/task.py:40 models/taskstatus.py:33
+#: models/projectstatus.py:32 models/task.py:42 models/taskstatus.py:33
 #: templates/projects/bricks/tasks.html:16
 msgid "Order"
 msgstr "Ordre"
@@ -226,39 +230,39 @@ msgstr "Ressource de projet"
 msgid "Resources of project"
 msgstr "Ressources de projet"
 
-#: models/task.py:36
+#: models/task.py:37
 msgid "Title"
 msgstr "Titre"
 
-#: models/task.py:44
+#: models/task.py:46
 msgid "Start"
 msgstr "Début"
 
-#: models/task.py:45
+#: models/task.py:47
 msgid "End"
 msgstr "Fin"
 
-#: models/task.py:46
+#: models/task.py:48
 msgid "Duration (in hours)"
 msgstr "Durée (en heures)"
 
-#: models/task.py:48
+#: models/task.py:50
 msgid "Task situation"
 msgstr "Situation de la tâche"
 
-#: models/task.py:50
+#: models/task.py:52
 msgid "Create a task"
 msgstr "Créer une tâche"
 
-#: models/task.py:51
+#: models/task.py:53
 msgid "Save the task"
 msgstr "Enregistrer la tâche"
 
-#: models/task.py:57
+#: models/task.py:59
 msgid "Task of project"
 msgstr "Tâche d'un projet"
 
-#: models/task.py:58
+#: models/task.py:60
 msgid "Tasks of project"
 msgstr "Tâches d'un projet"
 
@@ -588,14 +592,6 @@ msgstr "Supprimer cette tâche"
 msgid "No task in this project for the moment"
 msgstr "Aucune tâche dans ce projet pour le moment"
 
-#: templates/projects/view_project.html:7
-msgid "Close project"
-msgstr "Clôturer le projet"
-
-#: templates/projects/view_project.html:14
-msgid "forbidden"
-msgstr "interdit"
-
 #: templates/projects/view_task.html:6
 msgid "Back to the project"
 msgstr "Retour au projet"
@@ -608,8 +604,8 @@ msgstr "Affectation d'une nouvelle ressource"
 msgid ""
 "You can't add a resource or a working period to a task which has status «{}»"
 msgstr ""
-"Vous ne pouvez pas ajouter de ressource ou de période travaillée à une "
-"tâche en statut «{}»"
+"Vous ne pouvez pas ajouter de ressource ou de période travaillée à une tâche "
+"en statut «{}»"
 
 #: views/resource.py:99
 msgid "Resource for «{}»"
@@ -650,6 +646,9 @@ msgstr "La suppression a provoqué une erreur inattendue [{}]."
 #: views/task.py:263
 msgid "Operation successfully completed"
 msgstr ""
+
+#~ msgid "forbidden"
+#~ msgstr "interdit"
 
 #~ msgid "Portal of projects"
 #~ msgstr "Portail des projets"

@@ -17,6 +17,7 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.models import SetCredentials, Currency
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.gui import actions
 
     from creme.persons.models import Contact
     from creme.persons.tests.base import skipIfCustomContact
@@ -29,6 +30,7 @@ try:
 
     from . import (project_model_is_custom, task_model_is_custom,
             get_project_model, get_task_model)
+    from .actions import ProjectCloseAction
     from .models import ProjectStatus, TaskStatus, Resource
     from .constants import (NOT_STARTED_PK, COMPLETED_PK, REL_SUB_PROJECT_MANAGER,
             REL_OBJ_PROJECT_MANAGER, REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE)
@@ -263,6 +265,42 @@ class ProjectsTestCase(CremeTestCase):
         self.create_project('Eva00')
         self.create_project('Eva01')
         self.assertGET200(reverse('projects__list_projects'))
+
+    def test_listview_instance_actions(self):
+        user = self.login()
+        project = self.create_project('Eva00')[0]
+
+        project_actions = [
+            action for action in actions.actions_registry.instance_actions(user=user, instance=project)
+                if isinstance(action, ProjectCloseAction)
+        ]
+        self.assertEqual(1, len(project_actions))
+
+        close_action = project_actions[0]
+        self.assertEqual('projects-close', close_action.type)
+        self.assertEqual(reverse('projects__close_project', args=(project.id,)), close_action.url)
+        self.assertTrue(close_action.is_enabled)
+        self.assertTrue(close_action.is_visible)
+
+    def test_listview_instance_actions_closed(self):
+        user = self.login()
+        project = self.create_project('Eva00', start_date='2012-2-16', end_date='2012-3-26')[0]
+        project.effective_end_date = now()
+        project.save()
+
+        self.assertTrue(project.is_closed)
+
+        project_actions = [
+            action for action in actions.actions_registry.instance_actions(user=user, instance=project)
+                if isinstance(action, ProjectCloseAction)
+        ]
+        self.assertEqual(1, len(project_actions))
+
+        close_action = project_actions[0]
+        self.assertEqual('projects-close', close_action.type)
+        self.assertEqual(reverse('projects__close_project', args=(project.id,)), close_action.url)
+        self.assertFalse(close_action.is_enabled)
+        self.assertTrue(close_action.is_visible)
 
     def test_project_inner_edit01(self):
         self.login()

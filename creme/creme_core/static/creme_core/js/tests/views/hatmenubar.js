@@ -1,4 +1,4 @@
-/* globals QUnitListViewMixin QUnitWidgetMixin */
+/* globals QUnitListViewMixin QUnitWidgetMixin QUnitDetailViewMixin */
 
 (function($) {
 
@@ -6,7 +6,8 @@ QUnit.module("creme.detailview.hatmenubar", new QUnitMixin(QUnitEventMixin,
                                                            QUnitAjaxMixin,
                                                            QUnitDialogMixin,
                                                            QUnitListViewMixin,
-                                                           QUnitWidgetMixin, {
+                                                           QUnitWidgetMixin,
+                                                           QUnitDetailViewMixin, {
     beforeEach: function() {
         var backend = this.backend;
         backend.options.enableUriSearch = true;
@@ -31,47 +32,6 @@ QUnit.module("creme.detailview.hatmenubar", new QUnitMixin(QUnitEventMixin,
 
     afterEach: function() {
         creme.widget.shutdown($('body'));
-    },
-
-    createHatMenuBarHtml: function(options) {
-        options = $.extend({
-            buttons: []
-        }, options || {});
-
-        var html = (
-            '<div widget="ui-creme-hatmenubar" class="ui-creme-hatmenubar ui-creme-widget">' +
-                '${buttons}' +
-            '</div>').template({
-                buttons: (options.buttons || []).join('')
-            });
-
-        return html;
-    },
-
-    createHatMenuBar: function(options) {
-        var html = this.createHatMenuBarHtml(options);
-
-        var element = $(html).appendTo($('body'));
-        var widget = creme.widget.create(element);
-
-        this.assertActive(element);
-        this.assertReady(element);
-
-        return widget;
-    },
-
-    createHatMenuActionButton: function(options) {
-        return (
-            '<a href="${url}" data-action="${action}" class="menu_button">' +
-                '<script type="application/json"><!-- ${data} --></script>' +
-            '</a>').template({
-                url: options.url,
-                action: options.action,
-                data: $.toJSON({
-                    data: options.data || {},
-                    options: options.options || {}
-                })
-            });
     }
 }));
 
@@ -91,6 +51,9 @@ QUnit.test('creme.detailview.hatmenubar (no action)', function(assert) {
         buttons: ['<a class="menu_button"/>']
     });
 
+    this.assertActive(widget.element);
+    this.assertReady(widget.element);
+
     deepEqual([], widget.delegate._actionlinks);
 });
 
@@ -106,6 +69,9 @@ QUnit.test('creme.detailview.hatmenubar (addrelationships)', function(assert) {
             })
         ]
     });
+
+    this.assertActive(widget.element);
+    this.assertReady(widget.element);
 
     deepEqual(1, widget.delegate._actionlinks.length);
 

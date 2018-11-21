@@ -1,0 +1,21 @@
+# FR LOCALISATION OF 'PROJECTS' APP (JavaScript only)
+# Copyright (C) 2018 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+# > django-admin.py makemessages -d djangojs -l fr -i "static/projects/js/tests/*"
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Creme Projects 2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-11-21 10:47+0100\n"
+"Last-Translator: Hybird <contact@hybird.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: static/projects/js/projects.js:28
+msgid "Do you really want to close this project?"
+msgstr "Voulez vous vraiment fermer ce projet ?"
