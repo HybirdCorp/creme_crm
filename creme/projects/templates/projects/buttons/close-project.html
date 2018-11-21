@@ -1,0 +1,6 @@
+{% load i18n creme_core_tags creme_widgets %}
+{% has_perm_to change object as has_perm %}{% trans 'Close project' as close_label %}
+<a class="menu_button menu-button-icon {% if not has_perm %}is-disabled{% endif %}" data-action="projects-hatmenubar-close" href="{% url 'projects__close_project' object.id %}">
+    {% widget_icon name='cancel' size='instance-button' label=close_label %}
+    {{close_label}}
+</a>

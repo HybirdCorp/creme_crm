@@ -702,6 +702,8 @@ CREME_OPT_JS = [  # OPTIONAL APPS
 
     ('creme.commercial',    'commercial/js/commercial.js'),
 
+    ('creme.projects',      'projects/js/projects.js'),
+
     ('creme.reports',       'reports/js/reports.js'),
     ('creme.reports',       'reports/js/reports-actions.js'),
 
@@ -791,6 +793,7 @@ TEST_CREME_CORE_JS = ['testcore.js',
                         'creme_core/js/tests/brick/brick-table.js',
                         'creme_core/js/tests/brick/dependencies.js',
 
+                        'creme_core/js/tests/views/qunit-detailview-mixin.js',
                         'creme_core/js/tests/views/detailview-actions.js',
                         'creme_core/js/tests/views/hatmenubar.js',
                         'creme_core/js/tests/views/utils.js',
@@ -805,6 +808,7 @@ TEST_CREME_OPT_JS = [
     ('creme.crudity',    'crudity/js/tests/crudity-actions.js'),
     ('creme.emails',     'emails/js/tests/emails-actions.js'),
     ('creme.emails',     'emails/js/tests/emails-listview.js'),
+    ('creme.projects',   'projects/js/tests/projects.js'),
     ('creme.reports',    'reports/js/tests/reports-listview.js'),
     ('creme.reports',    'reports/js/tests/reports-chart.js'),
 ]

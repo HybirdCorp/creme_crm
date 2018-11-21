@@ -1,0 +1,42 @@
+(function($) {
+    "use strict";
+
+    window.QUnitDetailViewMixin = {
+        createHatMenuBarHtml: function(options) {
+            options = $.extend({
+                buttons: []
+            }, options || {});
+
+            var html = (
+                '<div widget="ui-creme-hatmenubar" class="ui-creme-hatmenubar ui-creme-widget">' +
+                    '${buttons}' +
+                '</div>').template({
+                    buttons: (options.buttons || []).join('')
+                });
+
+            return html;
+        },
+
+        createHatMenuBar: function(options) {
+            var html = this.createHatMenuBarHtml(options);
+
+            var element = $(html).appendTo($('body'));
+            return creme.widget.create(element);
+        },
+
+        createHatMenuActionButton: function(options) {
+            return (
+                '<a href="${url}" data-action="${action}" class="menu_button">' +
+                    '<script type="application/json"><!-- ${data} --></script>' +
+                '</a>').template({
+                    url: options.url,
+                    action: options.action,
+                    data: $.toJSON({
+                        data: options.data || {},
+                        options: options.options || {}
+                    })
+                });
+        }
+    };
+
+}(jQuery));
