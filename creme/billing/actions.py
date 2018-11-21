@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.urls.base import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme import billing
 from creme.creme_core.gui.actions import UIAction
@@ -53,3 +53,26 @@ class ExportInvoiceAction(ExportAction):
 class ExportQuoteAction(ExportAction):
     id = ExportAction.generate_id('billing', 'export_quote')
     model = Quote
+
+
+class GenerateNumberAction(UIAction):
+    id = UIAction.generate_id('billing', 'generate_number')
+    type = 'billing-invoice-number'
+    model = Invoice
+
+    label = _('Invoice number')
+    icon = 'invoice'
+    help_text = _('Generate the number of the Invoice')
+
+    @property
+    def url(self):
+        return reverse('billing__generate_invoice_number', args=(self.instance.id,))
+
+    @property
+    def is_enabled(self):
+        return self.user.has_perm_to_change(self.instance) and not bool(self.instance.number)
+
+    def _get_options(self):
+        return {
+            'confirm': ugettext('Do you really want to generate an invoice number?'),
+        }

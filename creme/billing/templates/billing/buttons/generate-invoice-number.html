@@ -1,4 +1,14 @@
 {% load i18n creme_core_tags creme_widgets %}{% trans 'Invoice number' as img_title %}
+<a class="menu_button menu-button-icon {% if not has_perm %}is-disabled{% endif %}" data-action="billing-hatmenubar-invoice-number" href="{% url 'billing__generate_invoice_number' object.id %}">
+    {% widget_icon name='invoice' size='instance-button' label=img_title %}
+    {% trans 'Generate the number of the Invoice' %}
+    {% blockjsondata %}{
+        "options": {
+            "confirm": "{% trans 'Do you really want to generate an invoice number?' %}"
+        }
+    }{% endblockjsondata %}
+</a>
+{% comment %}
 {% if has_perm %}
     <a class="menu_button menu-button-icon" onclick="creme.billing.generateInvoiceNumber('{% url 'billing__generate_invoice_number' object.id %}');">
         {% widget_icon name='invoice' size='instance-button' label=img_title %}
@@ -10,3 +20,4 @@
         {% trans 'Generate the number of the Invoice' %}
     </span>
 {% endif %}
+{% endcomment %}
