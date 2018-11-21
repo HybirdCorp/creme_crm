@@ -615,4 +615,22 @@ QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
     deepEqual(['mock/entity/merge?id1=2&id2=3'], this.mockRedirectCalls());
 });
 
+QUnit.test('creme.listview.actionregistry', function(assert) {
+    var list = this.createListView();
+    var registry = list.getActionBuilders();
+
+    ok(Object.isSubClassOf(registry, creme.action.ActionBuilderRegistry));
+
+    ok(registry.has('update'));
+    ok(registry.has('delete'));
+    ok(registry.has('clone'));
+    ok(registry.has('form'));
+    ok(registry.has('redirect'));
+
+    ok(registry.has('edit-selection'));
+    ok(registry.has('delete-selection'));
+    ok(registry.has('addto-selection'));
+    ok(registry.has('merge-selection'));
+});
+
 }(jQuery));

@@ -180,6 +180,7 @@ creme.action.ActionLink = creme.component.Component.sub({
             };
         } else {
             button.addClass('is-disabled');
+            console.warn('action link builder for "' + actiontype + '" does not exist.', button);
 
             this._onButtonClick = function(e) {
                 e.preventDefault();
