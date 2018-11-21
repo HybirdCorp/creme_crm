@@ -60,6 +60,7 @@ class BillingConfig(CremeAppConfig):
         actions_registry.register_instance_actions(
             actions.ExportInvoiceAction,
             actions.ExportQuoteAction,
+            actions.GenerateNumberAction,
         )
 
     def register_billing_algorithm(self):

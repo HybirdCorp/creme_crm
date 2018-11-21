@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-31 11:12+0100\n"
+"POT-Creation-Date: 2018-11-21 08:22+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -22,15 +22,28 @@ msgstr "Télécharger"
 msgid "Download as PDF"
 msgstr "Télécharger en tant que PDF"
 
+#: actions.py:63 templates/billing/buttons/generate-invoice-number.html:1
+msgid "Invoice number"
+msgstr "Numéro de Facture"
+
+#: actions.py:65 buttons.py:40
+#: templates/billing/buttons/generate-invoice-number.html:4
+msgid "Generate the number of the Invoice"
+msgstr "Générer le numéro de facture"
+
+#: actions.py:77
+msgid "Do you really want to generate an invoice number?"
+msgstr "Voulez vous vraiment générer un numéro de facture ?"
+
 #: apps.py:28
 msgid "Billing"
 msgstr "Facturation"
 
-#: apps.py:184 apps.py:193
+#: apps.py:193 apps.py:202
 msgid "Management"
 msgstr "Gestion"
 
-#: apps.py:220
+#: apps.py:229
 #, python-brace-format
 msgctxt "billing-quote_stats"
 msgid "{count} won"
@@ -38,7 +51,7 @@ msgid_plural "{count} won"
 msgstr[0] "{count} gagné"
 msgstr[1] "{count} gagnés"
 
-#: apps.py:228
+#: apps.py:237
 #, python-brace-format
 msgctxt "billing-quote_stats"
 msgid "{count} in all"
@@ -157,11 +170,6 @@ msgstr "Information de paiement par défaut"
 #: bricks.py:352 templates/billing/bricks/persons-statistics.html:11
 msgid "Billing statistics"
 msgstr "Statistiques de facturation"
-
-#: buttons.py:40 templates/billing/buttons/generate-invoice-number.html:5
-#: templates/billing/buttons/generate-invoice-number.html:10
-msgid "Generate the number of the Invoice"
-msgstr "Générer le numéro de facture"
 
 #: buttons.py:83
 msgid "Create a related invoice"
@@ -1215,15 +1223,10 @@ msgid "Totals"
 msgstr "Totaux"
 
 #: templates/billing/buttons/add-billing-document.html:8
-#: templates/billing/buttons/generate-invoice-number.html:8
 #: templates/billing/frags/button_convert2invoice.html:14
 #: templates/billing/frags/button_convert2order.html:14
 msgid "forbidden"
 msgstr "interdit"
-
-#: templates/billing/buttons/generate-invoice-number.html:1
-msgid "Invoice number"
-msgstr "Numéro de Facture"
 
 #: templates/billing/frags/button_convert2invoice.html:6
 #: templates/billing/frags/button_convert2invoice.html:14
@@ -1286,12 +1289,12 @@ msgid ""
 "administrator."
 msgstr "La génération du PDF a échoué ; prévenez votre administrateur."
 
-#: views/invoice.py:58
+#: views/invoice.py:59
 #, python-format
 msgid "Create an invoice for «%s»"
 msgstr "Créer une facture pour «%s»"
 
-#: views/invoice.py:158
+#: views/invoice.py:161
 msgid "Create an invoice for «{}»"
 msgstr "Créer une facture pour «{}»"
 

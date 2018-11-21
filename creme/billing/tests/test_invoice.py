@@ -19,7 +19,7 @@ try:
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from ..actions import ExportInvoiceAction
+    from ..actions import ExportInvoiceAction, GenerateNumberAction
     from ..constants import (REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED,
             REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED, AMOUNT_PK, PERCENT_PK)  # REL_SUB_HAS_LINE
     from ..models import InvoiceStatus, AdditionalInformation, PaymentTerms
@@ -283,7 +283,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(2, invoices_page.paginator.count)
         self.assertEqual({invoice1, invoice2}, set(invoices_page.paginator.object_list))
 
-    def test_listview_actions(self):
+    def test_listview_export_actions(self):
         user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice #1')[0]
 
@@ -300,6 +300,51 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(reverse('billing__export', args=(invoice.id,)), export_action.url)
         self.assertTrue(export_action.is_enabled)
         self.assertTrue(export_action.is_visible)
+
+    def test_listview_generate_number_actions(self):
+        user = self.login()
+        invoice = self.create_invoice_n_orgas('Invoice #1')[0]
+
+        number_actions = [
+            action for action in actions.actions_registry
+                                        .instance_actions(user=user, instance=invoice)
+                if isinstance(action, GenerateNumberAction)
+        ]
+        self.assertEqual(1, len(number_actions))
+
+        number_action = number_actions[0]
+        self.assertEqual('billing-generate_number', number_action.id)
+        self.assertEqual('billing-invoice-number', number_action.type)
+        self.assertEqual(reverse('billing__generate_invoice_number', args=(invoice.id,)), number_action.url)
+        self.assertTrue(number_action.is_enabled)
+        self.assertTrue(number_action.is_visible)
+        self.assertEqual(_('Generate the number of the Invoice'), number_action.help_text)
+        self.assertEqual({
+            'data': {},
+            'options': {
+                'confirm': _('Do you really want to generate an invoice number?')
+            }
+        }, number_action.action_data)
+
+    def test_listview_generate_number_actions_disabled(self):
+        user = self.login()
+        invoice = self.create_invoice_n_orgas('Invoice #1')[0]
+        invoice.number = 'J03'
+        invoice.save()
+
+        number_actions = [
+            action for action in actions.actions_registry
+                                        .instance_actions(user=user, instance=invoice)
+                if isinstance(action, GenerateNumberAction)
+        ]
+        self.assertEqual(1, len(number_actions))
+
+        number_action = number_actions[0]
+        self.assertEqual('billing-generate_number', number_action.id)
+        self.assertEqual('billing-invoice-number', number_action.type)
+        self.assertEqual(reverse('billing__generate_invoice_number', args=(invoice.id,)), number_action.url)
+        self.assertFalse(number_action.is_enabled)
+        self.assertTrue(number_action.is_visible)
 
     def test_editview01(self):
         user = self.login()

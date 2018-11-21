@@ -1,12 +1,16 @@
 {% extends 'creme_core/bricks/generic/hat-bar.html' %}
-{% load i18n creme_widgets %}
+{% load i18n creme_bricks creme_widgets %}
 
 {% block buttons %}
     {% if download_button %}
     <div class='bar-action'>
+        {% url 'billing__export' object.id as export_url %}
+        {% brick_action id='billing-export' url=export_url label=_('Download as PDF') class='bar-button' icon_size='brick-hat-bar-button' icon='download' display='icon' %}
+        {% comment %}
         <a class="bar-button" href="{% url 'billing__export' object.id %}" onclick="event.preventDefault();creme.billing.exportAs($(this).attr('href'));">
             {% widget_icon name='download' size='brick-hat-bar-button' label=_('Download as PDF') %}
         </a>
+        {% endcomment %}
     </div>
     {% endif %}
     {{block.super}}

@@ -1,7 +1,19 @@
+(function($) {
+
 QUnit.module("creme.billing.listview.actions", new QUnitMixin(QUnitEventMixin,
                                                               QUnitAjaxMixin,
                                                               QUnitListViewMixin,
-                                                              QUnitDialogMixin));
+                                                              QUnitDialogMixin, {
+    beforeEach: function() {
+        var backend = this.backend;
+        backend.options.enableUriSearch = true;
+
+        this.setMockBackendPOST({
+            'mock/invoice/12/number': backend.response(200, ''),
+            'mock/invoice/12/number/fail': backend.response(400, 'Unable to generate invoice number')
+        });
+    }
+}));
 
 QUnit.test('creme.billing.ExportDocumentAction (no format)', function(assert) {
     var action = new creme.billing.ExportDocumentAction({
@@ -64,3 +76,60 @@ QUnit.test('creme.billing.ExportDocumentAction (multiple formats, choose one)', 
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual(['mock/export/12?format=html'], this.mockRedirectCalls());
 });
+
+QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', function(assert) {
+    var list = this.createDefaultListView();
+    var registry = list.getActionBuilders();
+
+    var builder = registry.get('billing-invoice-number');
+
+    ok(Object.isFunc(builder));
+    var action = builder('mock/invoice/12/number', {
+        confirm: 'Are you sure ?'
+    });
+
+    action.start();
+
+    this.assertOpenedConfirmDialog('Are you sure ?');
+    this.acceptConfirmDialog();
+
+    this.assertClosedDialog();
+
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/12/number'));
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            selected_rows: [''],
+            selection: 'multiple',
+            sort_field: ['regular_field-name'],
+            sort_order: ['']
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+
+QUnit.test('creme.billing.listview.actions (billing-invoice-number, fail)', function(assert) {
+    var list = this.createDefaultListView();
+    var registry = list.getActionBuilders();
+
+    var builder = registry.get('billing-invoice-number');
+
+    ok(Object.isFunc(builder));
+    var action = builder('mock/invoice/12/number/fail', {
+        confirm: 'Are you sure ?'
+    });
+
+    action.start();
+
+    this.assertOpenedConfirmDialog('Are you sure ?');
+    this.acceptConfirmDialog();
+
+    this.assertOpenedAlertDialog('Unable to generate invoice number');
+    this.closeDialog();
+
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/12/number/fail'));
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+}(jQuery));

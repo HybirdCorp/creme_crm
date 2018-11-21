@@ -72,6 +72,7 @@ creme.billing.EXPORT_FORMATS = [
 
 // TODO remove this after menu hat-bar refactor using action-links
 creme.billing.exportAs = function(url, formats) {
+    console.warn('creme.billing.exportAs is deprecated; use action ExportDocumentAction instead');
     new creme.billing.ExportDocumentAction({
         url: url,
         formats: formats || creme.billing.EXPORT_FORMATS
@@ -80,9 +81,51 @@ creme.billing.exportAs = function(url, formats) {
 
 // TODO remove this after menu hat-bar refactor using action-links
 creme.billing.generateInvoiceNumber = function(url) {
-    return creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, reloadOnSuccess: true})
-                      .start();
+    return creme.utils.ajaxQuery(url, {
+        action: 'post',
+        warnOnFail: true,
+        reloadOnSuccess: true
+    }).start();
 };
+
+$(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {
+    actions.register('billing-hatmenubar-invoice-number', function(url, options, data, e) {
+        return creme.utils.ajaxQuery(url, $.extend({
+            action: 'post',
+            warnOnFail: true,
+            reloadOnSuccess: true
+        }, options || {}));
+    });
+});
+
+$(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actions) {
+    actions.register('billing-invoice-number', function(url, options, data, e) {
+        var list = this._list;
+        var action = creme.utils.ajaxQuery(url, $.extend({
+            action: 'post',
+            warnOnFail: true
+        }, options || {}));
+
+        action.onDone(function() {
+            list.reload();
+        });
+
+        return action;
+    });
+});
+
+var hatbarActions = {
+    'billing-export': function(url, options, data, e) {
+        return new creme.billing.ExportDocumentAction({
+            url: url,
+            formats: options.formats || creme.billing.EXPORT_FORMATS
+        });
+    }
+};
+
+$(document).on('brick-setup-actions', '.brick.brick-hat-bar', function(e, brick, actions) {
+    actions.registerAll(hatbarActions);
+});
 
 var billingLinesActions = {
     'billing-line-addonfly': function(url, options, data, e) {
