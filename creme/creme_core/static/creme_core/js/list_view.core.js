@@ -53,11 +53,11 @@
             var count = (this._listview.getSelectedEntitiesAsArray() || []).length;
 
             this._dialog.content().find('a[data-row-min], a[data-row-max]').each(function() {
-                var min = parseInt($(this).attr('data-row-min'))
-                var max = parseInt($(this).attr('data-row-max'))
+                var min = parseInt($(this).attr('data-row-min'));
+                var max = parseInt($(this).attr('data-row-max'));
                 var message = '';
 
-                if (!isNaN(min) && min === max && count != min) {
+                if (!isNaN(min) && min === max && count !== min) {
                     message = ngettext('Select %d row',
                                        'Select %d rows',
                                        min).format(min);
@@ -165,7 +165,7 @@
 
                 /* **************** Getters & Setters **************** */
                 this.getActionBuilders = function() {
-                    return self._actionBuilders;
+                    return me._actionBuilders;
                 };
 
                 this.getSelectedEntities = function() {
