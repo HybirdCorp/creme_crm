@@ -232,9 +232,11 @@
 }
 */
 
-/*.activities-list-brick .brick-content {
+/*
+.activities-list-brick .brick-content {
     padding: 0;
-}*/
+}
+*/
 
 .activities-list-brick .brick-content .brick-list-item:last-child {
     padding-bottom: 5px;
