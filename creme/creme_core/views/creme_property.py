@@ -32,10 +32,11 @@ from creme.creme_config.forms import creme_property_type as ptype_forms
 from ..auth.decorators import login_required, permission_required
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import QuerysetBrick, Brick
-from ..models import CremeEntity, CremePropertyType, CremeProperty
-from ..utils import creme_entity_content_types, get_from_POST_or_404, jsonify  # get_ct_or_404
+from ..models import CremeEntity, CremePropertyType  # CremeProperty
+from ..utils import creme_entity_content_types, get_from_POST_or_404  # get_ct_or_404
 
 from . import generic, bricks as bricks_views
+from .decorators import jsonify
 from .generic.base import EntityCTypeRelatedMixin
 # from .utils import build_cancel_path
 

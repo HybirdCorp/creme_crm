@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+import warnings
+
 from itertools import zip_longest
 from json import dumps as json_dump
-import logging
 from re import compile as compile_re
-from types import GeneratorType
 from urllib.parse import urlencode, urlsplit
-import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -44,6 +44,7 @@ from ..utils import bool_as_html  # safe_unicode
 from ..utils.currency_format import currency
 from ..utils.html import escapejson 
 from ..utils.media import get_creme_media_url
+from ..utils.serializers import json_encode
 from ..utils.translation import plural
 from ..utils.unicode_collation import collator
 
@@ -226,8 +227,8 @@ def absolute(integer):
 
 
 @register.filter(name='in')
-def in_list(obj, list):
-    return obj in list
+def in_list(obj, sequence):
+    return obj in sequence
 
 
 @register.filter
@@ -318,9 +319,8 @@ def optionize_model_iterable(iterable, type='tuple'):
 
 @register.filter
 def jsonify(value):
-    return json_dump(list(value) if isinstance(value, GeneratorType) else value,
-                     separators=(',', ':')
-                    )
+    return json_encode(value)
+
 
 @register.simple_tag
 def jsondata(value, **kwargs):

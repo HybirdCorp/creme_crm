@@ -38,8 +38,9 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import EntityCredentials
-from creme.creme_core.utils import get_from_POST_or_404, jsonify
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.dates import make_aware_dt
+from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views import decorators, generic
 
 from creme.persons import get_contact_model

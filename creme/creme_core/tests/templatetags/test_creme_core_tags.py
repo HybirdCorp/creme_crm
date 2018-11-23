@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from decimal import Decimal
     from functools import partial
     from json import loads as json_load
+    from datetime import datetime, timezone
 
     from django.contrib.contenttypes.models import ContentType
     # from django.db.models.fields import FieldDoesNotExist
     from django.template import Template, Context # TemplateSyntaxError
     from django.urls import reverse
+    from django.utils.translation import ugettext_lazy, ugettext
 
     from ..base import CremeTestCase
 
@@ -364,6 +367,23 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                   ({'value': value, 'label': label} for value, label in enumerate(['a', 'b', 'c']))
                                  )
 
+        now = datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=timezone.utc)
+
+        self._assertJsonifyFilter({"a": 12,
+                                   "b": 0.47,
+                                   "c": str(ugettext('User')),
+                                   "d": "2018-01-12",
+                                   "e": "08:12:25.012Z",
+                                   "f": "2018-01-12T08:12:25.012Z",
+                                  },
+                                  {"a": 12,
+                                   "b": Decimal("0.47"),
+                                   "c": ugettext_lazy('User'),
+                                   "d": now.date(),
+                                   "e": now.time().replace(tzinfo=timezone.utc),
+                                   "f": now,
+                                  })
+
     def _assertJsonscriptTag(self, expected, data, args=''):
         with self.assertNoException():
             template = Template("{% load creme_core_tags %}{% jsondata data " + args + " %}")
@@ -390,6 +410,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self._assertJsonscriptTag('<script type="application/json"><!-- {} --></script>', {})
         self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":"-->alert();<script/>"}') + ' --></script>',
                                      {"a": 12, "b": "-->alert();<script/>"})
+
+        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":0.47,"c":"' + ugettext('User') + '"}') + r' --></script>',
+                                  {"a": 12, "b": Decimal("0.47"), "c": ugettext_lazy('User')})
 
         self._assertJsonscriptTag('<script type="application/json" class="test" name="&lt;script/&gt;"><!--  --></script>',
                                   '', "class='test' name='<script/>'")

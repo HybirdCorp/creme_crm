@@ -18,13 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from functools import wraps
 
-from django.http import Http404
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse, Http404
 from django.utils.translation import ugettext as _
 
 from ..core.exceptions import ConflictError
 from ..models import FieldsConfig
+from ..utils.serializers import json_encode
+
+
+logger = logging.getLogger(__name__)
 
 
 def POST_only(view):
@@ -60,3 +66,30 @@ def require_model_fields(model, *field_names):
         return _aux
 
     return _decorator
+
+
+def jsonify(func):
+    def _aux(*args, **kwargs):
+        status = 200
+
+        try:
+            rendered = func(*args, **kwargs)
+        except Http404 as e:
+            msg = str(e)
+            status = 404
+        except PermissionDenied as e:
+            msg = str(e)
+            status = 403
+        except ConflictError as e:
+            msg = str(e)
+            status = 409
+        except Exception as e:
+            logger.exception('Exception in @jsonify(%s)', func.__name__)
+            msg = str(e)
+            status = 400
+        else:
+            msg = json_encode(rendered)
+
+        return HttpResponse(msg, content_type='application/json', status=status)
+
+    return _aux

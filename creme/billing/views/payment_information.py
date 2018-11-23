@@ -26,8 +26,8 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, FieldsConfig
-from creme.creme_core.utils import jsonify
 from creme.creme_core.views import generic, decorators
+from creme.creme_core.views.decorators import jsonify
 
 from creme.persons import get_organisation_model
 

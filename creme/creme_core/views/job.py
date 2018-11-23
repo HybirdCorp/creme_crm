@@ -30,10 +30,9 @@ from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
 from ..core.job import JobManagerQueue
 from ..models import Job
-from ..utils import jsonify
 
 from . import bricks as bricks_views
-from .decorators import POST_only
+from .decorators import jsonify, POST_only
 # from .generic import inner_popup
 
 from . import generic

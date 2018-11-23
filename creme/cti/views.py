@@ -33,8 +33,9 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity, RelationType, Relation
-from creme.creme_core.utils import jsonify, get_from_POST_or_404, get_from_GET_or_404
+from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.views.bricks import build_context, bricks_render_info
+from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views import generic
 
 from creme import persons

@@ -18,10 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date, time
-from decimal import Decimal
+
 # from functools import partial
-from json import dumps as json_dump
 import logging
 # import warnings
 
@@ -39,6 +37,7 @@ from ..gui.bulk_update import bulk_update_registry
 from ..gui.pager import PagerContext
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
+from ..utils.serializers import json_encode
 # from ..views.bricks import render_detailview_brick, render_home_brick  # render_portal_brick
 # from ..views.entity import _bulk_has_perm
 
@@ -215,20 +214,6 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
                                 label=_(u'Information') if icon == 'info' else label,
                                )
 
-    # TODO: factorise with utils
-    def _jsonify(value):
-        if isinstance(value, (date, time)):
-            return value.isoformat()
-
-        if isinstance(value, Decimal):
-            return float(value)
-
-        # if isinstance(value, Promise):
-        #     return unicode(value)
-        #
-        # raise TypeError("%s is not JSON serializable" % type(value))
-        return str(value)
-
     def _clean_extra_data(data, prefix='__'):
         prefix_length = len(prefix)
         extra_data = {}
@@ -266,14 +251,13 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
         'class':      css_class,
         'loading':    bool(loading),
 
-        'data': mark_safe(json_dump({'options': {
+        'data': mark_safe(json_encode({'options': {
                                           'confirm': confirm,
                                           'loading': None if loading is True else loading,
-                                     },
-                                     'data': _clean_extra_data(kwargs),
-                                    },
-                                    default=_jsonify,
-                                   )
+                                       },
+                                       'data': _clean_extra_data(kwargs),
+                                      },
+                                     )
                          ),
     }
 

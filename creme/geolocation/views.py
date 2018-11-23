@@ -29,8 +29,8 @@ from django.shortcuts import get_object_or_404
 
 from creme.creme_core.auth.decorators import permission_required, login_required
 from creme.creme_core.models import EntityFilter
-from creme.creme_core.utils import jsonify, get_from_GET_or_404, get_from_POST_or_404
-from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.utils import get_from_GET_or_404, get_from_POST_or_404
+from creme.creme_core.views.decorators import jsonify, POST_only
 
 from creme.persons import get_contact_model, get_organisation_model, get_address_model
 

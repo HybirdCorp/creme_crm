@@ -29,9 +29,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.views import bricks
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404, jsonify
+from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404 
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.decorators import jsonify, POST_only
 
 from creme.persons import get_organisation_model
 

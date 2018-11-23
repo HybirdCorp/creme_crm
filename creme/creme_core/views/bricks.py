@@ -33,7 +33,9 @@ from django.template.engine import Engine
 from ..auth.decorators import login_required
 from ..gui.bricks import brick_registry, BricksManager
 from ..models import CremeEntity, BrickState
-from ..utils import jsonify, get_from_POST_or_404  # get_ct_or_404
+from ..utils import get_from_POST_or_404  # get_ct_or_404
+
+from .decorators import jsonify
 
 
 logger = logging.getLogger(__name__)

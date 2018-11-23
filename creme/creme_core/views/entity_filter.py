@@ -37,6 +37,7 @@ from ..forms import entity_filter as efilter_forms
 from ..gui.listview import ListViewState
 from ..models import EntityFilter, RelationType  # CremeEntity
 from . import generic
+from .decorators import jsonify
 from .generic.base import EntityCTypeRelatedMixin
 # from .generic import add_entity
 # from .utils import build_cancel_path
@@ -241,7 +242,7 @@ def delete(request):
 
 # TODO: factorise with views.relations.json_rtype_ctypes  ???
 @login_required
-@utils.jsonify
+@jsonify
 def get_content_types(request, rtype_id):
     content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all() or \
                     utils.creme_entity_content_types()
@@ -253,7 +254,7 @@ def get_content_types(request, rtype_id):
 
 
 @login_required
-@utils.jsonify
+@jsonify
 def get_for_ctype(request):
     GET = request.GET
     ct_id = utils.get_from_GET_or_404(GET, 'ct_id', int)

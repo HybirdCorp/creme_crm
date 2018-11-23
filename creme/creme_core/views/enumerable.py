@@ -34,7 +34,9 @@ from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CustomFieldEnumValue, CustomField
-from creme.creme_core.utils import get_ct_or_404, jsonify
+from creme.creme_core.utils import get_ct_or_404
+
+from .decorators import jsonify
 
 
 @login_required
