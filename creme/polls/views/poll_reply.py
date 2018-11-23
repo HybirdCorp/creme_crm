@@ -274,13 +274,9 @@ def _format_previous_answered_question(preply_id, line, style):
 @atomic
 def edit_line_wizard(request, preply_id, line_id):
     # preply = get_object_or_404(PollReply, pk=preply_id)
-    try:
-        preply = PollReply.objects.select_for_update().get(pk=preply_id)
-    except PollReply.DoesNotExist as e:
-        raise Http404(str(e))
+    preply = get_object_or_404(PollReply.objects.select_for_update(), pk=preply_id)
 
     user = request.user
-
     user.has_perm_to_change_or_die(preply)
 
     tree = ReplySectionTree(preply)
@@ -342,13 +338,9 @@ def edit_line_wizard(request, preply_id, line_id):
 @atomic
 def fill(request, preply_id):
     # preply = get_object_or_404(PollReply, pk=preply_id)
-    try:
-        preply = PollReply.objects.select_for_update().get(pk=preply_id)
-    except PollReply.DoesNotExist as e:
-        raise Http404(str(e))
+    preply = get_object_or_404(PollReply.objects.select_for_update(), pk=preply_id)
 
     user = request.user
-
     user.has_perm_to_change_or_die(preply)
 
     if preply.is_complete:

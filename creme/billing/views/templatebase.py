@@ -50,7 +50,7 @@ def abstract_edit_templatebase(request, template_id, form=TemplateBaseEditForm):
 @login_required
 @permission_required('billing')
 def edit(request, template_id):
-    warnings.warn('billing.views.templatebase.edit().', DeprecationWarning)
+    warnings.warn('billing.views.templatebase.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_templatebase(request, template_id)
 
 
@@ -70,7 +70,6 @@ def detailview(request, template_id):
     return generic.view_entity(request, template_id, TemplateBase,
                                template='billing/view_template.html',
                                # NB: not used by the template
-                               #     (do not remove because this view is deprecated a a next patch).
                                extra_template_dict={
                                     'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
                                     'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,

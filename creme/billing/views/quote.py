@@ -90,7 +90,6 @@ def abstract_view_quote(request, quote_id, template='billing/view_quote.html'):
 
     return generic.view_entity(request, quote_id, Quote,
                                template=template,
-                               # NB: useless, but this view is deprecated is a next patch...
                                extra_template_dict={
                                     'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
                                     'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
