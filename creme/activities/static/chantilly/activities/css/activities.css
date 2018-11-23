@@ -283,9 +283,11 @@
     border-bottom: 1px solid #fdedeb;
 }
 
+/*
 .activities-list-brick .activity-schedule {
-/*    margin-right: 11px;*/
+   margin-right: 11px;
 }
+*/
 
 .activities-list-brick .activity-schedule-beginning {
     font-weight: 600;
