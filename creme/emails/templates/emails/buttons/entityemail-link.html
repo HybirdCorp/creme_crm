@@ -1,4 +1,15 @@
 {% load i18n creme_core_tags creme_widgets %}{% has_perm_to link object as link_perm %}{% trans 'Link to' as link_label %}{# creme_block #}
+<a class="menu_button menu-button-icon {% if not link_perm %}is-disabled{% endif %}" data-action="emails-hatmenubar-linkto" href="{% url 'creme_core__create_relations_bulk' entity_email_ct_id %}">
+    {% widget_icon name='link' size='instance-button' label=link_label %}
+    {{link_label}}
+    {% blockjsondata %}{
+        "data": {
+            "rtypes": {{rtypes|jsonify|safe}},
+            "ids": ["{{object.pk}}"]
+        }
+    }{% endblockjsondata %}
+</a>
+{% comment %}
 {% if link_perm %}
     <a class="menu_button menu-button-icon" onclick="creme.dialogs.form('{% url 'creme_core__create_relations_bulk' entity_email_ct_id %}?ids={{object.pk}}&persist=ids{% for rt_id in rtypes %}&rtype={{rt_id}}{% endfor %}').onFormSuccess(function() {new creme.bricks.BricksReloader().dependencies(['creme_core.relation'{% for rt_id in rtypes %}, 'creme_core.relation.{{rt_id}}'{% endfor %}]).action().start();}).open();">
         {% widget_icon name='link' size='instance-button' label=link_label %}{{link_label}}
@@ -8,3 +19,4 @@
         {% widget_icon name='link' size='instance-button' label=link_label %}{{link_label}}
     </span>
 {% endif %}
+{% endcomment %}

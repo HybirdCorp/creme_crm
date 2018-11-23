@@ -1,17 +1,16 @@
+(function($) {
+
 QUnit.module("creme.emails.listview.actions", new QUnitMixin(QUnitEventMixin,
                                                              QUnitAjaxMixin,
                                                              QUnitListViewMixin,
                                                              QUnitDialogMixin, {
     beforeEach: function() {
         var backend = this.backend;
+        backend.options.enableUriSearch = true;
 
         this.setMockBackendPOST({
-            'mock/emails/resend': function(url, data, options) {
-                return backend.response(200, '');
-            },
-            'mock/emails/resend/fail': function(url, data, options) {
-                return backend.response(400, 'invalid response !');
-            }
+            'mock/emails/resend': backend.response(200, ''),
+            'mock/emails/resend/fail': backend.response(400, 'invalid response !')
         });
     }
 }));
@@ -112,7 +111,6 @@ QUnit.test('creme.emails.ResendEMailsAction (error)', function(assert) {
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
-
 QUnit.test('creme.emails.ResendEMailsAction (ok)', function(assert) {
     var list = this.createDefaultListView();
     var action = new creme.emails.ResendEMailsAction(list, {
@@ -145,3 +143,5 @@ QUnit.test('creme.emails.ResendEMailsAction (ok)', function(assert) {
             selection: 'multiple'}]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
+
+}(jQuery));

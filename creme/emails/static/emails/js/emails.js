@@ -85,6 +85,46 @@ $(document).on('brick-setup-actions', '.brick.emails-email-brick', function(e, b
     actions.registerAll(emailActions);
 });
 
+creme.emails.LinkEMailToAction = creme.component.Action.sub({
+    _init_: function(options) {
+        this._super_(creme.component.Action, '_init_', this._run, options);
+    },
+
+    _run: function(options) {
+        options = $.extend({}, this._options, options || {});
+
+        var self = this;
+        var formData = {
+            ids: options.ids,
+            rtype: options.rtypes
+        };
+
+        var dialog = creme.dialogs.form(options.url, {submitData: formData}, formData);
+
+        dialog.onFormSuccess(function(event, data) {
+                    var deps = ['creme_core.relation'].concat(options.rtypes.map(function(rtype) {
+                                                                                     return 'creme_core.relation.' + rtype;
+                                                                                 }));
+
+                    new creme.bricks.BricksReloader().dependencies(deps).action().start();
+                    self.done();
+               })
+               .onClose(function() {
+                   self.cancel();
+               })
+               .open({width: 800});
+    }
+});
+
+$(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {
+    actions.register('emails-hatmenubar-linkto', function(url, options, data, e) {
+        return new creme.emails.LinkEMailToAction({
+            url: url,
+            rtypes: data.rtypes,
+            ids: data.ids
+        });
+    });
+});
 
 creme.emails.ResendEMailsAction = creme.component.Action.sub({
     _init_: function(list, options) {
