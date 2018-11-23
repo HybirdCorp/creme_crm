@@ -25,7 +25,7 @@ from django.db.models.deletion import ProtectedError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
@@ -66,7 +66,8 @@ def _popup_title(model_conf):
     model = model_conf.model
     title = getattr(model, 'creation_label', None)
 
-    return title if title is not None else _('New value: {model}').format(model=model._meta.verbose_name)
+    return title if title is not None else \
+           ugettext('New value: {model}').format(model=model._meta.verbose_name)
 
 
 class ModelConfMixin:
@@ -93,6 +94,7 @@ class ModelConfMixin:
 #                                        )
 class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
     template_name = 'creme_core/generics/form/add-popup.html'
+    submit_label = _('Save')
 
     def get_form_class(self):
         return self.get_model_conf().model_form
@@ -101,7 +103,8 @@ class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
         return _popup_title(self.get_model_conf())
 
     def get_submit_label(self):
-        return getattr(self.get_model_conf().model, 'save_label', None) or _('Save')
+        return getattr(self.get_model_conf().model, 'save_label', None) or \
+               super().get_submit_label()
 
 
 # @login_required
@@ -185,7 +188,7 @@ def delete_model(request, app_name, model_name):
     try:
         instance.delete()
     except ProtectedError as e:
-        msg = _('{} can not be deleted because of its dependencies.').format(instance)
+        msg = ugettext('{} can not be deleted because of its dependencies.').format(instance)
 
         # TODO: factorise ??
         if request.is_ajax():

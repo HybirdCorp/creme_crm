@@ -296,7 +296,20 @@ class BricksView(BricksMixin, CheckedTemplateView):
         return context
 
 
-class CremeFormView(CancellableMixin, PermissionsMixin, FormView):
+class SubmittableMixin:
+    """Mixin for views with a submission button.
+
+    Attributes:
+    submit_label: A string used as label for the submission button of the form.
+                 (see get_submit_label()).
+    """
+    submit_label = _('Save')
+
+    def get_submit_label(self):
+        return self.submit_label
+
+
+class CremeFormView(CancellableMixin, PermissionsMixin, SubmittableMixin, FormView):
     """ Base class for views with a simple form (ie: not a model form) in Creme.
     You'll have to override at least the attribute 'form_class' because the
     default one is just abstract place-holders.
@@ -314,14 +327,10 @@ class CremeFormView(CancellableMixin, PermissionsMixin, FormView):
     New attributes:
     title: A string used as form's title. <None> (default value) means that
            <model.creation_label> is used (see get_title()).
-    submit_label: A string used as label for the submission button of the form.
-                  <None> (default value) means that <model.save_label> is used
-                 (see get_submit_label()).
     """
     form_class = CremeForm
     template_name = 'creme_core/generics/blockform/add.html'
     title = '*insert title here*'
-    submit_label = _('Save')
     success_url = reverse_lazy('creme_core__home')
 
     def dispatch(self, request, *args, **kwargs):
@@ -354,9 +363,6 @@ class CremeFormView(CancellableMixin, PermissionsMixin, FormView):
 
     def get_title(self):
         return self.title
-
-    def get_submit_label(self):
-        return self.submit_label
 
     @atomic
     def post(self, *args, **kwargs):
