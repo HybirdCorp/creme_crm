@@ -34,7 +34,7 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from creme.opportunities import get_opportunity_model
-from creme.opportunities.forms.opportunity import OpportunityCreateForm
+from creme.opportunities.forms.opportunity import OpportunityCreateForm, OpportunityCreationForm
 
 from .. import get_act_model, get_pattern_model, constants
 from ..forms import act as forms
@@ -219,7 +219,7 @@ class ActObjectivePatternCreation(generic.EntityCreation):
 
 class RelatedOpportunityCreation(generic.AddingInstanceToEntityPopup):
     model = Opportunity
-    form_class = OpportunityCreateForm
+    form_class = OpportunityCreationForm
     permissions = ['opportunities', cperm(Opportunity)]
     title = _('Create a linked opportunity')
     entity_id_url_kwarg = 'act_id'
