@@ -179,7 +179,10 @@ class CremeEditionPopup(base.CremeFormPopup):
     submit_label = _('Save the modifications')
 
 
-class CremeModelEdition(base.CancellableMixin, base.PermissionsMixin, UpdateView):
+class CremeModelEdition(base.CancellableMixin,
+                        base.PermissionsMixin,
+                        base.SubmittableMixin,
+                        UpdateView):
     """ Base class for edition view with a form in Creme.
     You'll have to override at least the attributes 'model' & 'form_class'
     because the default ones are just abstract place-holders.
@@ -254,9 +257,6 @@ class CremeModelEdition(base.CancellableMixin, base.PermissionsMixin, UpdateView
         self.check_instance_permissions(instance, request.user)
 
         return instance
-
-    def get_submit_label(self):
-        return self.submit_label
 
     def get_title_format(self):
         return self.title_format

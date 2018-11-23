@@ -177,6 +177,7 @@ def add_model_with_popup(request, form_class, title=None, initial=None,
 # TODO: add a system to be redirected after the creation (from an argument "?next=") ?
 class CremeModelCreation(base.CancellableMixin,
                          base.PermissionsMixin,
+                         base.SubmittableMixin,
                          CreateView,
                         ):
     """ Base class for creation view with a model-form in Creme.
@@ -195,9 +196,9 @@ class CremeModelCreation(base.CancellableMixin,
     New attributes:
     title: A string used as form's title. <None> (default value) means that
            <model.creation_label> is used (see get_title()).
-    submit_label: A string used as label for the submission button of the form.
-                  <None> (default value) means that <model.save_label> is used
-                 (see get_submit_label()).
+
+    Notes :
+    submit_label: <None> (default value) means that <model.save_label> is used.
     """
     model = models.CremeModel  # TO BE OVERRIDDEN
     form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
@@ -234,8 +235,7 @@ class CremeModelCreation(base.CancellableMixin,
         return self.model.creation_label if title is None else title
 
     def get_submit_label(self):
-        label = self.submit_label
-        return self.model.save_label if label is None else label
+        return super().get_submit_label() or self.model.save_label
 
     @atomic
     def post(self, *args, **kwargs):
