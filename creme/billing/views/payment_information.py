@@ -76,12 +76,7 @@ class PaymentInformationEdition(generic.RelatedToEntityEditionPopup):
 def set_default(request, payment_information_id, billing_id):
     pi = get_object_or_404(PaymentInformation, pk=payment_information_id)
     # billing_doc = get_object_or_404(CremeEntity, pk=billing_id).get_real_entity()
-
-    try:
-        entity = CremeEntity.objects.select_for_update().get(id=billing_id)
-    except CremeEntity.DoesNotExist as e:
-        raise Http404(str(e))
-
+    entity = get_object_or_404(CremeEntity.objects.select_for_update(), pk=billing_id)
     user = request.user
 
     real_model = entity.entity_type.model_class()

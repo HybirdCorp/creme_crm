@@ -22,7 +22,7 @@ import warnings
 
 from django.db.transaction import atomic
 from django.http import Http404
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -104,10 +104,7 @@ def detailview(request, project_id):
 @atomic
 def close(request, project_id):
     # project = Project.objects.get(pk=project_id)
-    try:
-        project = Project.objects.select_for_update().get(pk=project_id)
-    except Project.DoesNotExist as e:
-        raise Http404(str(e)) from e
+    project = get_object_or_404(Project.objects.select_for_update(), id=project_id)
 
     request.user.has_perm_to_change_or_die(project)
 

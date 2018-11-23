@@ -377,10 +377,7 @@ class OrgaSynthesis(BaseEvaluatedOrganisationView):
 @atomic
 def _set_score(request, strategy_id, method_name):
     # strategy = get_object_or_404(Strategy, pk=strategy_id)
-    try:
-        strategy = Strategy.objects.select_for_update().get(pk=strategy_id)
-    except Strategy.DoesNotExist as e:
-        raise Http404(str(e)) from e
+    strategy = get_object_or_404(Strategy.objects.select_for_update(), pk=strategy_id)
 
     request.user.has_perm_to_change_or_die(strategy)
 
@@ -412,10 +409,7 @@ def set_charm_score(request, strategy_id):
 @atomic
 def set_segment_category(request, strategy_id):
     # strategy = get_object_or_404(Strategy, pk=strategy_id)
-    try:
-        strategy = Strategy.objects.select_for_update().get(pk=strategy_id)
-    except Strategy.DoesNotExist as e:
-        raise Http404(str(e)) from e
+    strategy = get_object_or_404(Strategy.objects.select_for_update(), pk=strategy_id)
 
     request.user.has_perm_to_change_or_die(strategy)
 
