@@ -528,7 +528,7 @@ patterns = {}
 
 # Note that underscore is not legal for names, it's included because
 # Lotus Notes uses it
-patterns['name'] = '[a-zA-Z0-9\-_]+'
+patterns['name'] = r'[a-zA-Z0-9\-_]+'
 patterns['safe_char'] = '[^";:,]'
 patterns['qsafe_char'] = '[^"]'
 
@@ -1093,5 +1093,5 @@ behavior_registry = BehaviorRegistry()
 
 # -------------------------- Helper function -----------------------------------
 def backslashEscape(s):
-    return s.replace("\\", "\\\\").replace(";", "\;").replace(",", "\,") \
+    return s.replace("\\", "\\\\").replace(";", r"\;").replace(",", r"\,") \
             .replace("\r\n", "\\n").replace("\n", "\\n").replace("\r", "\\n")

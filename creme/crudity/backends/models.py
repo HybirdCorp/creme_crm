@@ -122,7 +122,7 @@ class CrudityBackend:
     @staticmethod
     def normalize_subject(subject):
         """Normalize the subject for an easier retrieve by the input"""
-        return re.sub('\s', '', subject or '').upper()
+        return re.sub(r'\s', '', subject or '').upper()
 
     def create(self, action):
         # return self._create_instance_n_history(action.get_data(), action.user, action.source, action.action)
@@ -150,7 +150,7 @@ class CrudityBackend:
 
         return need_new_save
 
-    def _create_instance_n_history(self, data, user=None, source="", action=""):  # TODO: remove 'action'
+    def _create_instance_n_history(self, data, user=None, source='', action=''):  # TODO: remove 'action'
         is_created = True
         instance = self.model()
         model_get_field = self.model._meta.get_field
@@ -207,7 +207,7 @@ class CrudityBackend:
                                 filedata=handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename),
                                 # folder=Folder.objects.get_or_create(
                                 linked_folder=Folder.objects.get_or_create(
-                                        title=_(u'External data'),
+                                        title=_('External data'),
                                         parent_folder=None,
                                         defaults={'user_id': shift_user_id},
                                 )[0],
@@ -245,7 +245,7 @@ class CrudityBackend:
                 history.action = 'create'
                 history.source = source
                 history.user = user
-                history.description = _(u'Creation of {entity}').format(entity=instance)
+                history.description = _('Creation of {entity}').format(entity=instance)
                 history.save()
         except IntegrityError as e:
             logger.error('_create_instance_n_history() : error when try to create instance [%s]', e)

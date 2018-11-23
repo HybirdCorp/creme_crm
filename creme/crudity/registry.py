@@ -183,7 +183,7 @@ class CRUDityRegistry:
 
     def get_backends(self):
         """Get all registered backend
-         @returns: A list of backend /!\classes (not instances)
+         @returns: A list of backend ; BEWARE it's classes, not instances.
         """
         return iter(self._backends.values())
 
