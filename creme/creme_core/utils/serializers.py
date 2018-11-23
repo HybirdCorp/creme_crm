@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, time, timezone, timedelta
+from datetime import datetime, time, timezone
 from decimal import Decimal
 from json import dumps as json_dumps
 from types import GeneratorType
@@ -26,7 +26,7 @@ from types import GeneratorType
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.timezone import is_aware, make_aware
 
-from creme.creme_core.utils.dates import dt_to_ISO8601, to_utc
+from creme.creme_core.utils.dates import to_utc
 
 
 # TODO: MUST BE REMOVED WHEN JSON STANDARD LIB HANDLES DECIMAL
@@ -39,14 +39,17 @@ class Number2Str(float):
 
 
 class CremeJSONEncoder(DjangoJSONEncoder):
+    """
+    DjangoJSONEncoder subclass with a better encoding for datetime.
+    """
     use_utc = True
 
     def __init__(self, use_utc=True, **kwargs):
-        """
-            @param use_utc: (default=True) forces all time/datetime objects to UTC representation.
-                        e.g: The datetime '12-01-2018 at 08:12:25.012345 (US/Eastern, -0500)' will become
-                             - "2018-01-12T13:12:25.012Z" (use_utc=True)
-                             - "2018-01-12T08:12:25.012-05:00" (use_utc=False)
+        """Constructor.
+        @param use_utc: Boolean (default=True) to control the time/datetime objects representation.
+               e.g: the datetime '12-01-2018 at 08:12:25.012345 (US/Eastern, -0500)' will become
+                     - "2018-01-12T13:12:25.012Z" (use_utc=True)
+                     - "2018-01-12T08:12:25.012-05:00" (use_utc=False)
         """
         self.use_utc = use_utc
         super().__init__(**kwargs)
@@ -96,17 +99,16 @@ class CremeJSONEncoder(DjangoJSONEncoder):
         return super().default(o)
 
 
-def json_encode(value, separators=(',', ':'), cls=CremeJSONEncoder, use_utc=True, **kwargs):
-    """
-        Encode data to json with improved handling of datetime objects.
-        @param value: object or generator
-        @param separators: json format separators (see json.dumps)
-        @param cls: json encoder class
-        
+def json_encode(value, separators=(',', ':'), cls=CremeJSONEncoder, **kwargs):
+    """Encode data to JSON with improved handling of datetime objects
+    and a compact output.
+
+    @param value: object or generator.
+    @param separators: json format separators (see json.dumps).
+    @param cls: json encoder class.
     """
     return json_dumps(list(value) if isinstance(value, GeneratorType) else value,
                       separators=separators,
                       cls=cls,
-                      use_utc=use_utc,
                       **kwargs
                      )
