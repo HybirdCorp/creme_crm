@@ -21,8 +21,8 @@
 from django.forms import RegexField, ValidationError
 
 
-PHONE_REGEX = '^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*$'
-PHONE_LIST_REGEX = '^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*([%s]{0,1}[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*)*$'
+PHONE_REGEX = r'^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*$'
+PHONE_LIST_REGEX = r'^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*([%s]{0,1}[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*)*$'
 
 
 class PhoneField(RegexField):

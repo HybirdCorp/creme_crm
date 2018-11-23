@@ -51,8 +51,8 @@ class SignaturesTestCase(_EmailsTestCase):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
-        self.assertEqual(_('Edit «%s»') % signature, response.context.get('title'))
-        # self.assertEqual(_('Edit «{}»').format(signature), response.context.get('title'))
+        # self.assertEqual(_('Edit «%s»') % signature, response.context.get('title'))
+        self.assertEqual(_('Edit «{}»').format(signature), response.context.get('title'))
 
         # ---
         name += '_edited'
