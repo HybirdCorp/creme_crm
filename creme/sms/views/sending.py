@@ -25,10 +25,11 @@ from django.shortcuts import get_object_or_404, redirect  # render
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import get_from_POST_or_404, jsonify
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.bricks import build_context, bricks_render_info
 # from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import jsonify
 
 from .. import get_smscampaign_model
 from ..bricks import MessagesBrick

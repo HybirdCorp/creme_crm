@@ -28,8 +28,10 @@ from ..auth.decorators import login_required
 from ..core.batch_process import batch_operator_manager
 from ..forms.batch_process import BatchProcessForm
 from ..models import Job
-from ..utils import get_ct_or_404, jsonify
+from ..utils import get_ct_or_404
+
 from .utils import build_cancel_path
+from .decorators import jsonify
 
 
 @login_required

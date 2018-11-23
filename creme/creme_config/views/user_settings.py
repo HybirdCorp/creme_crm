@@ -25,8 +25,8 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.core.setting_key import user_setting_key_registry
-from creme.creme_core.utils import jsonify
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import jsonify
 # from creme.creme_core.views.generic import inner_popup
 
 from ..forms import user_settings as settings_forms

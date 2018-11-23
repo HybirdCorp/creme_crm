@@ -25,9 +25,9 @@ from django.shortcuts import get_object_or_404  # render
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import jsonify
 from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic, bricks as bricks_views
+from creme.creme_core.views.decorators import jsonify
 # from creme.creme_core.views.generic import add_to_entity
 
 from .. import get_emailcampaign_model

@@ -28,10 +28,10 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required
-from creme.creme_core.utils import get_from_POST_or_404, jsonify
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.db import reorder_instances
 from creme.creme_core.views import bricks as bricks_views, generic
-from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.decorators import jsonify, POST_only
 from creme.creme_core.views.utils import json_update_from_widget_response
 
 from ..bricks import GenericModelBrick, SettingsBrick

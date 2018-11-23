@@ -27,8 +27,9 @@ from django.shortcuts import get_object_or_404, redirect
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.utils import jsonify, get_from_POST_or_404
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import jsonify
 
 from .. import get_product_model, get_service_model
 from ..constants import DEFAULT_HFILTER_PRODUCT

@@ -28,6 +28,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core import utils
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem, RelationType, CustomField
 
 from .. import get_rgraph_model, get_report_model, constants
@@ -151,7 +152,7 @@ def _get_available_report_graph_types(ct, name):
 
 
 # TODO: can be factorised with ReportGraphForm (use ReportGraphHand)
-@utils.jsonify
+@jsonify
 # @permission_required('reports') ??
 def get_available_report_graph_types(request, ct_id):
     ct = utils.get_ct_or_404(ct_id)
@@ -177,7 +178,7 @@ def cast_order(order):
     return order
 
 
-@utils.jsonify
+@jsonify
 # @permission_required('reports') ??
 # def fetch_graph(request, graph_id, order=None):
 def fetch_graph(request, graph_id):
@@ -196,7 +197,7 @@ def fetch_graph_from_instanceblock(request, instance_block_id, entity_id):
     return fetch_graph_from_instancebrick(request, instance_brick_id=instance_block_id, entity_id=entity_id)
 
 
-@utils.jsonify
+@jsonify
 # @permission_required('reports') ??
 def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):
     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')

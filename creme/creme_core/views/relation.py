@@ -35,6 +35,7 @@ from ..forms import relation as rel_forms
 from ..models import Relation, RelationType, CremeEntity
 
 from . import generic
+from .decorators import jsonify
 from .generic.base import EntityCTypeRelatedMixin
 
 
@@ -94,7 +95,7 @@ JSON_ENTITY_FIELDS = {
 # TODO: move to entity.py (rename ?) & change also url
 # TODO: factorise with entity.get_creme_entities_repr() ?
 @login_required
-@utils.jsonify
+@jsonify
 def json_entity_get(request, entity_id):
     getters, range, sort = _clean_fields_values_args(request.GET, JSON_ENTITY_FIELDS)
     user = request.user
@@ -114,7 +115,7 @@ JSON_PREDICATE_FIELDS = {
 
 
 @login_required
-@utils.jsonify
+@jsonify
 def json_entity_rtypes(request, entity_id):  # TODO: seems unused
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     request.user.has_perm_to_view_or_die(entity)
@@ -139,7 +140,7 @@ JSON_CONTENT_TYPE_FIELDS = {
 
 
 @login_required
-@utils.jsonify
+@jsonify
 def json_rtype_ctypes(request, rtype_id):
     content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all()
     getters, range, sort = _clean_fields_values_args(request.GET, JSON_CONTENT_TYPE_FIELDS)

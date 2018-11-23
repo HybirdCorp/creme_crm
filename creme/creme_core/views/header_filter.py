@@ -35,6 +35,8 @@ from ..forms import header_filter as hf_forms
 from ..models import HeaderFilter  # CremeEntity
 
 from . import generic, entity_filter
+from .decorators import jsonify
+
 # from .generic import add_entity
 # from .utils import build_cancel_path
 
@@ -181,7 +183,7 @@ def delete(request):
 
 
 @login_required
-@utils.jsonify
+@jsonify
 def get_for_ctype(request):
     ct_id = utils.get_from_GET_or_404(request.GET, 'ct_id', int)
     ct = utils.get_ct_or_404(ct_id)

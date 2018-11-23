@@ -40,6 +40,7 @@ from ..registry import creme_registry
 from ..utils.unicode_collation import collator
 
 from .bricks import bricks_render_info
+from .decorators import jsonify
 from .generic import base
 
 
@@ -235,7 +236,7 @@ class Search(base.EntityCTypeRelatedMixin, base.BricksView):
 
 
 @login_required
-@utils.jsonify
+@jsonify
 def reload_brick(request):
     GET = request.GET
     brick_id = utils.get_from_GET_or_404(GET, 'brick_id')
@@ -257,7 +258,7 @@ def reload_brick(request):
 
 
 @login_required
-@utils.jsonify
+@jsonify
 def light_search(request):
     GET_get = request.GET.get
     sought = GET_get('value', '')

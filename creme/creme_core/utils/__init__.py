@@ -24,8 +24,8 @@
 #
 ################################################################################
 
-from decimal import Decimal
-from json import dumps as json_dump
+# from decimal import Decimal
+# from json import dumps as json_dump
 import logging
 import sys
 import traceback
@@ -139,46 +139,45 @@ def replace_related_object(old_instance, new_instance):
 
 
 # TODO: MUST BE REMOVED WHEN JSON STANDARD LIB HANDLES DECIMAL
-class Number2Str(float):
-    def __init__(self, value):
-        self.value = value
-
-    def __repr__(self):
-        return str(self.value)
-
-
-def decimal_serializer(value):
-    if isinstance(value, Decimal):
-        return Number2Str(value)
-    raise TypeError(repr(value) + " is not JSON serializable")
+# class Number2Str(float):
+#     def __init__(self, value):
+#         self.value = value
+#
+#     def __repr__(self):
+#         return str(self.value)
 
 
-# TODO: move to views.decorators ?
-def jsonify(func):
-    def _aux(*args, **kwargs):
-        status = 200
+# def decimal_serializer(value):
+#     if isinstance(value, Decimal):
+#         return Number2Str(value)
+#     raise TypeError(repr(value) + " is not JSON serializable")
 
-        try:
-            rendered = func(*args, **kwargs)
-        except Http404 as e:
-            msg = str(e)
-            status = 404
-        except PermissionDenied as e:
-            msg = str(e)
-            status = 403
-        except ConflictError as e:
-            msg = str(e)
-            status = 409
-        except Exception as e:
-            logger.exception('Exception in @jsonify(%s)', func.__name__)
-            msg = str(e)
-            status = 400
-        else:
-            msg = json_dump(rendered, default=decimal_serializer)
 
-        return HttpResponse(msg, content_type='application/json', status=status)
-
-    return _aux
+# def jsonify(func):
+#     def _aux(*args, **kwargs):
+#         status = 200
+#
+#         try:
+#             rendered = func(*args, **kwargs)
+#         except Http404 as e:
+#             msg = str(e)
+#             status = 404
+#         except PermissionDenied as e:
+#             msg = str(e)
+#             status = 403
+#         except ConflictError as e:
+#             msg = str(e)
+#             status = 409
+#         except Exception as e:
+#             logger.exception('Exception in @jsonify(%s)', func.__name__)
+#             msg = str(e)
+#             status = 400
+#         else:
+#             msg = json_dump(rendered, default=decimal_serializer)
+#
+#         return HttpResponse(msg, content_type='application/json', status=status)
+#
+#     return _aux
 
 
 def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):

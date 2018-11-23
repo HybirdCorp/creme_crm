@@ -45,13 +45,13 @@ from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseF
 from ..gui import bulk_update  # NB: do no import <bulk_update_registry> to facilitate unit testing
 from ..models import CremeEntity, EntityCredentials, FieldsConfig, Sandbox
 from ..models.fields import UnsafeHTMLField
-from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify, bool_from_str_extended
+from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, bool_from_str_extended
 from ..utils.translation import get_model_verbose_name
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
 
 from . import generic
-from .decorators import POST_only
+from .decorators import jsonify, POST_only
 from .generic import base, listview  # inner_popup
 from .utils import build_cancel_path
 

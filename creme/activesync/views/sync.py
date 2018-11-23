@@ -25,7 +25,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import jsonify
+from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.bricks import bricks_render_info
 
 from .. import bricks

@@ -31,8 +31,9 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.models import CremeEntity, RelationType
-from creme.creme_core.utils import get_from_GET_or_404, jsonify
+from creme.creme_core.utils import get_from_GET_or_404
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.utils import build_cancel_path
 
 from creme.persons import get_contact_model
