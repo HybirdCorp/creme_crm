@@ -1,16 +1,20 @@
 /* eslint operator-linebreak: ["error", "before"] */
+/* global QUnitDetailViewMixin */
+
 (function($) {
 
 QUnit.module("creme.emails.brick.actions", new QUnitMixin(QUnitEventMixin,
                                                           QUnitAjaxMixin,
                                                           QUnitBrickMixin,
-                                                          QUnitDialogMixin, {
+                                                          QUnitDialogMixin,
+                                                          QUnitDetailViewMixin, {
     beforeEach: function() {
         var backend = this.backend;
         backend.options.enableUriSearch = true;
 
         this.setMockBackendGET({
-            'mock/emails/sync/link': backend.response(200, '')
+            'mock/emails/sync/link': backend.response(200, ''),
+            'mock/emails/linkto': backend.response(200, '<form></form>')
         });
 
         this.setMockBackendPOST({
@@ -18,7 +22,8 @@ QUnit.module("creme.emails.brick.actions", new QUnitMixin(QUnitEventMixin,
             'mock/emails/sync/action': backend.response(200, ''),
             'mock/emails/sync/action/fail': backend.response(400, ''),
             'mock/emails/sync/delete': backend.response(200, ''),
-            'mock/emails/sync/delete/fail': backend.response(400, '')
+            'mock/emails/sync/delete/fail': backend.response(400, ''),
+            'mock/emails/linkto': backend.response(200, '')
         });
     },
 
@@ -395,6 +400,129 @@ QUnit.test('creme.emails.brick.email-toggle-image', function(assert) {
     link.click();
 
     equal('/mock/emails/content', $('iframe', element).attr('src'));
+});
+
+QUnit.test('creme.emails.LinkEMailToAction', function(assert) {
+    this.createBrickWidget({
+        deps: ['creme_core.relation']
+    }).brick();
+
+    var action = new creme.emails.LinkEMailToAction({
+        url: 'mock/emails/linkto',
+        rtypes: ['rtype.1', 'rtype.5', 'rtype.78'],
+        ids: '12'
+    }).on({
+        'cancel': this.mockListener('action-cancel'),
+        'done': this.mockListener('action-done')
+    });
+
+    action.start();
+
+    deepEqual([
+        ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}]
+    ], this.mockBackendUrlCalls('mock/emails/linkto'));
+
+    this.assertOpenedDialog();
+    deepEqual([], this.mockListenerCalls('action-done'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    this.submitFormDialog();
+
+    this.assertClosedDialog();
+    deepEqual([['done']], this.mockListenerCalls('action-done'));
+
+    deepEqual([
+        ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}],
+        ['POST', {
+            rtype: ['rtype.1', 'rtype.5', 'rtype.78'],
+            ids: ['12']
+        }]
+    ], this.mockBackendUrlCalls('mock/emails/linkto'));
+
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.emails.LinkEMailToAction (cancel)', function(assert) {
+    this.createBrickWidget({
+        deps: ['creme_core.relation']
+    }).brick();
+
+    var action = new creme.emails.LinkEMailToAction({
+        url: 'mock/emails/linkto',
+        rtypes: ['rtype.1', 'rtype.5', 'rtype.78'],
+        ids: '12'
+    }).on({
+        'cancel': this.mockListener('action-cancel'),
+        'done': this.mockListener('action-done')
+    });
+
+    action.start();
+
+    deepEqual([
+        ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}]
+    ], this.mockBackendUrlCalls('mock/emails/linkto'));
+
+    this.assertOpenedDialog();
+    deepEqual([], this.mockListenerCalls('action-cancel'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    this.closeDialog();
+    this.assertClosedDialog();
+
+    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+
+    deepEqual([
+        ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}]
+    ], this.mockBackendUrlCalls('mock/emails/linkto'));
+
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.emails.hatmenubar.emails-hatmenubar-linkto', function(assert) {
+    this.createBrickWidget({
+        deps: ['creme_core.relation']
+    }).brick();
+
+    var widget = this.createHatMenuBar({
+        buttons: [
+            this.createHatMenuActionButton({
+                url: 'mock/emails/linkto',
+                action: 'emails-hatmenubar-linkto',
+                data: {
+                    rtypes: ['rtype.1', 'rtype.5', 'rtype.78'],
+                    ids: '12'
+                }
+            })
+        ]
+    });
+
+    $(widget.element).find('a.menu_button').click();
+
+    deepEqual([
+        ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}]
+    ], this.mockBackendUrlCalls('mock/emails/linkto'));
+
+    this.assertOpenedDialog();
+    deepEqual([], this.mockListenerCalls('action-done'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    this.submitFormDialog();
+
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}],
+        ['POST', {
+            rtype: ['rtype.1', 'rtype.5', 'rtype.78'],
+            ids: ['12']
+        }]
+    ], this.mockBackendUrlCalls('mock/emails/linkto'));
+
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 }(jQuery));
