@@ -39,7 +39,7 @@ from ..models import ToDo
 class ToDoCreation(generic.AddingInstanceToEntityPopup):
     model = ToDo
     form_class = ToDoForm
-    title_format = _('New todo for «{}»')
+    title = _('New todo for «{entity}»')
 
 
 # @login_required
@@ -49,7 +49,7 @@ class ToDoEdition(generic.RelatedToEntityEditionPopup):
     model = ToDo
     form_class = ToDoForm
     pk_url_kwarg = 'todo_id'
-    title_format = _('Todo for «{}»')
+    title = _('Todo for «{entity}»')
 
 
 @login_required

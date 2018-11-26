@@ -195,8 +195,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(_('Edit the job «{}»').format(job.type), context.get('title'))
-        self.assertEqual(_('Save the modifications'),             context.get('submit_label'))
+        self.assertEqual(_('Edit the job «{object}»').format(object=job.type), context.get('title'))
+        self.assertEqual(_('Save the modifications'),                          context.get('submit_label'))
 
         # ---
         response = self.client.post(

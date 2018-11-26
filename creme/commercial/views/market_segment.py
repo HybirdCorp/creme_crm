@@ -105,7 +105,7 @@ class SegmentDeletion(generic.CremeModelEditionPopup):
     template_name = 'creme_core/generics/blockform/delete-popup.html'
     pk_url_kwarg = 'segment_id'
     permissions = 'commercial'
-    title_format = _('Delete and replace «{}»')
+    title = _('Delete and replace «{object}»')
     submit_label = _('Replace')
 
     def check_view_permissions(self, user):

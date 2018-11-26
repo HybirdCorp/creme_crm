@@ -296,6 +296,23 @@ class BricksView(BricksMixin, CheckedTemplateView):
         return context
 
 
+class TitleMixin:
+    """ Mixin for views with a title bar.
+
+    Attributes:
+    title : A {}-format string used by the method get_title(), which interpolates
+            it with the context given by the method get_title_format_data().
+
+    """
+    title = '*insert title here*'
+
+    def get_title(self):
+        return self.title.format(**self.get_title_format_data())
+
+    def get_title_format_data(self):
+        return {}
+
+
 class SubmittableMixin:
     """Mixin for views with a submission button.
 
@@ -309,7 +326,11 @@ class SubmittableMixin:
         return self.submit_label
 
 
-class CremeFormView(CancellableMixin, PermissionsMixin, SubmittableMixin, FormView):
+class CremeFormView(CancellableMixin,
+                    PermissionsMixin,
+                    TitleMixin,
+                    SubmittableMixin,
+                    FormView):
     """ Base class for views with a simple form (ie: not a model form) in Creme.
     You'll have to override at least the attribute 'form_class' because the
     default one is just abstract place-holders.
@@ -323,14 +344,9 @@ class CremeFormView(CancellableMixin, PermissionsMixin, SubmittableMixin, FormVi
       - Cancel button.
 
     Notice that POST requests are managed within a SQL transaction.
-
-    New attributes:
-    title: A string used as form's title. <None> (default value) means that
-           <model.creation_label> is used (see get_title()).
     """
     form_class = CremeForm
     template_name = 'creme_core/generics/blockform/add.html'
-    title = '*insert title here*'
     success_url = reverse_lazy('creme_core__home')
 
     def dispatch(self, request, *args, **kwargs):
@@ -361,9 +377,6 @@ class CremeFormView(CancellableMixin, PermissionsMixin, SubmittableMixin, FormVi
 
         return kwargs
 
-    def get_title(self):
-        return self.title
-
     @atomic
     def post(self, *args, **kwargs):
         return super().post(*args, **kwargs)
@@ -388,12 +401,8 @@ class RelatedToEntityFormPopup(EntityRelatedMixin, CremeFormPopup):
     """ This is a specialisation of CremeFormPopup made for changes
     related to a CremeEntity (eg: create several instances at once linked
     to an entity).
-
-    Attributes:
-    title_format: If a {}-format string is given, it's used to built
-                  the title with the related entity as argument (see get_title()).
     """
-    title_format = None
+    title = '{entity}'
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
@@ -405,14 +414,8 @@ class RelatedToEntityFormPopup(EntityRelatedMixin, CremeFormPopup):
 
         return kwargs
 
-    def get_title_format(self):
-        return self.title_format
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['entity'] = self.get_related_entity().allowed_str(self.request.user)
 
-    def get_title(self):
-        title_format = self.get_title_format()
-
-        return title_format.format(self.get_related_entity()
-                                       .allowed_str(self.request.user)
-                                  ) \
-               if title_format is not None else\
-               super().get_title()
+        return data

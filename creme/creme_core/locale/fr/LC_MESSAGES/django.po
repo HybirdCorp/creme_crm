@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-16 20:07+0100\n"
+"POT-Creation-Date: 2018-11-26 16:31+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -29,7 +29,8 @@ msgstr ""
 #: templates/creme_core/generics/form/edit_innerpopup.html:6
 #: templates/creme_core/templatetags/listview/td-action.html:1
 #: templates/creme_core/view_property_type.html:33
-#: templatetags/creme_bricks.py:136
+#: templatetags/creme_bricks.py:135 views/generic/edit.py:172
+#: views/generic/edit.py:178
 msgid "Edit"
 msgstr "Modifier"
 
@@ -37,7 +38,7 @@ msgstr "Modifier"
 #: templates/creme_core/bricks/base/hat-card.html:111
 #: templates/creme_core/bricks/generic/hat-bar.html:47
 #: templates/creme_core/generics/blockform/delete-popup.html:4
-#: templatetags/creme_bricks.py:137
+#: templatetags/creme_bricks.py:136
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -55,7 +56,7 @@ msgstr "Accéder à la fiche {entity}"
 msgid "Clone"
 msgstr "Cloner"
 
-#: actions.py:114 views/entity.py:387
+#: actions.py:114 views/entity.py:388
 msgid "Multiple update"
 msgstr "Modification multiple"
 
@@ -529,7 +530,7 @@ msgstr "Filtre"
 #: templates/creme_core/templatetags/listview_columns_header.html:28
 #: templates/creme_core/templatetags/listview_entityfilters.html:7
 #: templates/creme_core/templatetags/search-form.html:7
-#: views/entity_filter.py:249 views/entity_filter.py:268
+#: views/entity_filter.py:250 views/entity_filter.py:269
 msgid "All"
 msgstr "Tout"
 
@@ -545,15 +546,15 @@ msgstr "Le champ «{}» est vide"
 msgid "Type of property"
 msgstr "Type de propriété"
 
-#: forms/creme_property.py:69 forms/relation.py:252
+#: forms/creme_property.py:68 forms/relation.py:252
 msgid "Related entities"
 msgstr "Fiches associées"
 
-#: forms/creme_property.py:81 forms/relation.py:267
+#: forms/creme_property.py:80 forms/relation.py:267
 msgid "NONE !"
 msgstr "AUCUNE !"
 
-#: forms/creme_property.py:85
+#: forms/creme_property.py:84
 msgid "Uneditable entities"
 msgstr "Fiches non modifiables"
 
@@ -1444,7 +1445,7 @@ msgstr "Vous n'êtes pas autorisé à modifier cette fiche: {}"
 msgid "You are not allowed to create: {}"
 msgstr "Vous n'avez pas la permission de créer : {}"
 
-#: models/auth.py:765 views/entity.py:728
+#: models/auth.py:765 views/entity.py:741
 msgid "You are not allowed to delete this entity: {}"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: {}"
 
@@ -1476,7 +1477,7 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 #: templates/creme_core/generics/blockformset/base.html:78
 #: templates/creme_core/generics/form/base.html:66
 #: templates/creme_core/generics/form/base.html:70 views/generic/add.py:88
-#: views/generic/add.py:158 views/generic/add.py:161
+#: views/generic/add.py:158 views/generic/add.py:161 views/generic/base.py:323
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -1649,7 +1650,7 @@ msgstr "Créer une fiche"
 msgid "Save the entity"
 msgstr "Enregistrer la fiche"
 
-#: models/entity.py:172 views/entity.py:77
+#: models/entity.py:172 views/entity.py:78
 #, python-brace-format
 msgid "Entity #{id} (not viewable)"
 msgstr "Fiche #{id} (non visible)"
@@ -2297,7 +2298,7 @@ msgstr "Voulez-vous vraiment cloner cette fiche ?"
 #: templates/creme_core/bricks/base/hat-card.html:123
 #: templates/creme_core/bricks/generic/hat-bar.html:67
 #: templates/creme_core/forms/merge.html:4
-#: templates/creme_core/forms/merge.html:14 views/entity.py:611
+#: templates/creme_core/forms/merge.html:14 views/entity.py:622
 msgid "Merge"
 msgstr "Fusionner"
 
@@ -2905,7 +2906,7 @@ msgid "More"
 msgstr "Plus"
 
 #: templates/creme_core/frags/bulk_process_report.html:5
-#: templatetags/creme_bricks.py:124 templatetags/creme_bricks.py:215
+#: templatetags/creme_bricks.py:123 templatetags/creme_bricks.py:214
 msgid "Information"
 msgstr "Informations"
 
@@ -3021,7 +3022,8 @@ msgstr "Modifier «%(object)s»"
 
 #: templates/creme_core/generics/blockform/edit.html:13
 #: templates/creme_core/generics/form/edit.html:13 views/generic/edit.py:69
-#: views/generic/edit.py:75 views/generic/edit.py:120 views/generic/edit.py:202
+#: views/generic/edit.py:75 views/generic/edit.py:120 views/generic/edit.py:173
+#: views/generic/edit.py:179 views/generic/edit.py:209
 msgid "Save the modifications"
 msgstr "Enregistrer les modifications"
 
@@ -3146,23 +3148,23 @@ msgstr "Aller à la configuration des types"
 msgid "Property type"
 msgstr "Type de propriété"
 
-#: templatetags/creme_bricks.py:360
+#: templatetags/creme_bricks.py:344
 msgid "Collapse block"
 msgstr "Replier le bloc"
 
-#: templatetags/creme_bricks.py:360
+#: templatetags/creme_bricks.py:344
 msgid "Expand block"
 msgstr "Déplier le bloc"
 
-#: templatetags/creme_bricks.py:368
+#: templatetags/creme_bricks.py:352
 msgid "Hide empty fields"
 msgstr "Cacher les champs vides"
 
-#: templatetags/creme_bricks.py:368
+#: templatetags/creme_bricks.py:352
 msgid "Show empty fields"
 msgstr "Montrer les champs vides"
 
-#: templatetags/creme_bricks.py:435
+#: templatetags/creme_bricks.py:419
 #, python-brace-format
 msgid "Sort «{model}» by «{field}»"
 msgstr "Trier «{model}» par «{field}»"
@@ -3309,7 +3311,7 @@ msgstr "N'est pas vide"
 msgid "(truncated cell)"
 msgstr "(cellule tronquée)"
 
-#: views/batch_process.py:65
+#: views/batch_process.py:67
 msgid "Run"
 msgstr "Exécuter"
 
@@ -3317,58 +3319,59 @@ msgstr "Exécuter"
 msgid "Multiple adding of properties"
 msgstr "Ajout multiple de propriétés"
 
-#: views/creme_property.py:93 views/creme_property.py:139
+#: views/creme_property.py:93 views/creme_property.py:138
 msgid "Add the properties"
 msgstr "Ajouter les propriétés"
 
-#: views/creme_property.py:138
-msgid "New properties for «{}»"
-msgstr "Nouvelles propriétés pour «{}»"
+#: views/creme_property.py:137
+#, python-brace-format
+msgid "New properties for «{entity}»"
+msgstr "Nouvelles propriétés pour «{entity}»"
 
-#: views/decorators.py:46
+#: views/decorators.py:52
 #, python-brace-format
 msgid "The field \"{model}.{field}\" is hidden."
 msgstr "Le champ \"{model}.{field}\" est caché."
 
-#: views/entity.py:129
+#: views/entity.py:130
 #, python-brace-format
 msgid "{field} [CREATION]"
 msgstr "{field} [CRÉATION]"
 
-#: views/entity.py:145
+#: views/entity.py:146
 msgid "This model does not use the generic clone view."
 msgstr "Ce modèle n'utilise pas la vue de clonage générique."
 
-#: views/entity.py:201
+#: views/entity.py:202
 msgid "This field is hidden."
 msgstr "Ce champ est caché."
 
-#: views/entity.py:211
+#: views/entity.py:212
 msgid "No entity corresponding to your search was found."
 msgstr "Aucun élément correspondant à votre recherche n'a été trouvé"
 
-#: views/entity.py:261
+#: views/entity.py:262
 msgid "You are not allowed to edit this entity"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche"
 
-#: views/entity.py:405
+#: views/entity.py:406
 #, python-brace-format
 msgid "{count} «{model}» has been selected."
 msgstr "{count} «{model}» a été sélectionné(e)"
 
-#: views/entity.py:407
+#: views/entity.py:408
 #, python-brace-format
 msgid "{count} «{model}» have been selected."
 msgstr "{count} «{model}» ont été sélectionné(e)s."
 
-#: views/entity.py:450
+#: views/entity.py:451
 #, python-brace-format
 msgid "{success} «{model}» has been successfully modified."
 msgid_plural "{success} «{model}» have been successfully modified."
 msgstr[0] "{success} «{model}» a été modifié(e) avec succès."
 msgstr[1] "{success} «{model}» ont été modifié(e)s avec succès."
 
-#: views/entity.py:456
+#: views/entity.py:457
 #, python-brace-format
 msgid "{success} of {initial} «{model}» has been successfully modified."
 msgid_plural ""
@@ -3376,30 +3379,30 @@ msgid_plural ""
 msgstr[0] "{success} «{model}» sur {initial} a été modifié(e) avec succès."
 msgstr[1] "{success} «{model}» sur {initial} ont été modifié(e)s avec succès."
 
-#: views/entity.py:462
+#: views/entity.py:463
 #, python-brace-format
 msgid "{forbidden} was not editable."
 msgid_plural "{forbidden} were not editable."
 msgstr[0] "{forbidden} n'est pas modifiable."
 msgstr[1] "{forbidden} ne sont pas modifiables."
 
-#: views/entity.py:468
+#: views/entity.py:469
 #, python-brace-format
 msgid "{invalid} has returned an error."
 msgid_plural "{invalid} have returned an error."
 msgstr[0] "{invalid} a retourné une erreur."
 msgstr[1] "{invalid} ont retourné une erreur."
 
-#: views/entity.py:512
+#: views/entity.py:508
 msgid "You are not allowed to edit these entities"
 msgstr "Vous n'êtes pas autorisé à modifier ces fiches"
 
-#: views/entity.py:600
+#: views/entity.py:611
 #, python-brace-format
 msgid "Merge «{entity1}» with «{entity2}»"
 msgstr "Fusionner «{entity1}» avec «{entity2}»"
 
-#: views/entity.py:604
+#: views/entity.py:615
 msgid ""
 "You are going to merge two entities into a new one.\n"
 "Choose which information you want the old entities give to the new entity.\n"
@@ -3413,69 +3416,69 @@ msgstr ""
 "des vieilles fiches seront automatiquement disponibles dans la nouvelle "
 "fiche fusionnée."
 
-#: views/entity.py:658 views/entity.py:754
+#: views/entity.py:671 views/entity.py:767
 #, python-brace-format
 msgid "«{entity}» can not be deleted because of its dependencies."
 msgstr "«{entity}» ne peut être supprimé à cause de ses dépendances."
 
-#: views/entity.py:664 views/entity.py:762
+#: views/entity.py:677 views/entity.py:775
 #, python-brace-format
 msgid "«{entity}» deletion caused an unexpected error [{error}]."
 msgstr ""
 "La suppression de «{entity}» a provoqué une erreur inattendue [{error}]."
 
-#: views/entity.py:678 views/entity.py:805 views/relation.py:406
-#: views/relation.py:541
+#: views/entity.py:691 views/entity.py:818 views/relation.py:404
+#: views/relation.py:539
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
-#: views/entity.py:683
+#: views/entity.py:696
 msgid "The following entities cannot be deleted"
 msgstr "Les entités suivantes ne peuvent être effacées"
 
-#: views/entity.py:701
+#: views/entity.py:714
 msgid "This model does not use the generic deletion view."
 msgstr "Ce modèle n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:718
+#: views/entity.py:731
 #, python-brace-format
 msgid "«{entity}» does not use the generic deletion view."
 msgstr "«{entity}» n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:731 views/entity.py:736 views/relation.py:400
+#: views/entity.py:744 views/entity.py:749 views/relation.py:398
 #, python-brace-format
 msgid "{entity} : <b>Permission denied</b>"
 msgstr "{entity} : <b>Permission refusée</b>"
 
-#: views/entity.py:748
+#: views/entity.py:761
 #, python-brace-format
 msgid "«{entity}» can not be deleted."
 msgstr "«{entity}» ne peut être supprimé."
 
-#: views/entity.py:779
+#: views/entity.py:792
 msgid "No selected entities"
 msgstr "Aucune fiche séléctionnée"
 
-#: views/entity.py:790 views/relation.py:504
+#: views/entity.py:803 views/relation.py:502
 #, python-brace-format
 msgid "{count} entity doesn't exist or has been removed."
 msgid_plural "{count} entities don't exist or have been removed."
 msgstr[0] "{count} fiche n'existe pas ou a été supprimée."
 msgstr[1] "{count} fiches n'existent pas ou ont été supprimées."
 
-#: views/entity_filter.py:208
+#: views/entity_filter.py:209
 msgid "Save the modified filter"
 msgstr "Enregistrer le filtre modifié"
 
-#: views/entity_filter.py:224
+#: views/entity_filter.py:225
 msgid "«{}» can not be deleted because of its dependencies."
 msgstr "«{}» ne peut être supprimé à cause de ses dépendances."
 
-#: views/entity_filter.py:230
+#: views/entity_filter.py:231
 msgid "Filter successfully deleted"
 msgstr "Filtre supprimé avec succès"
 
-#: views/enumerable.py:133
+#: views/enumerable.py:135
 msgid "Current user"
 msgstr "Utilisateur courant"
 
@@ -3487,7 +3490,7 @@ msgstr "Fichier invalide"
 msgid "New"
 msgstr "Nouveau"
 
-#: views/generic/base.py:84
+#: views/generic/base.py:86
 msgid "You are not allowed to access this view."
 msgstr "Vous n'êtes autorisé à accéder à cette page."
 
@@ -3500,9 +3503,10 @@ msgstr "Vous ne pouvez pas modifier ce modèle"
 msgid "Edit «%s»"
 msgstr "Modifier «%s»"
 
-#: views/generic/edit.py:201
-msgid "Edit «{}»"
-msgstr "Modifier «{}»"
+#: views/generic/edit.py:208
+#, python-brace-format
+msgid "Edit «{object}»"
+msgstr "Modifier «{object}»"
 
 #: views/generic/listview.py:296
 #, python-brace-format
@@ -3513,21 +3517,22 @@ msgstr "Liste des {models}"
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 
-#: views/header_filter.py:158
+#: views/header_filter.py:160
 msgid "Save the modified view"
 msgstr "Enregistrer la vue modifiée"
 
-#: views/header_filter.py:170
+#: views/header_filter.py:172
 msgid "View successfully deleted"
 msgstr "Vue supprimée avec succès"
 
-#: views/job.py:102
+#: views/job.py:101
 msgid "Unknown job type ({}). Please contact your administrator."
 msgstr "Type de job inconnu({}). Veuillez contacter votre administrateur."
 
-#: views/job.py:161
-msgid "Edit the job «{}»"
-msgstr "Modifier le job «{}»"
+#: views/job.py:160
+#, python-brace-format
+msgid "Edit the job «{object}»"
+msgstr "Modifier le job «{object}»"
 
 #: views/mass_import.py:62
 msgid "Save the entities"
@@ -3552,46 +3557,47 @@ msgid "Quick creation of «{model}»"
 msgstr "Création rapide de «{model}»"
 
 #: views/relation.py:204
-msgid "Relationships for «{}»"
-msgstr "Relations pour «{}»"
+#, python-brace-format
+msgid "Relationships for «{entity}»"
+msgstr "Relations pour «{entity}»"
 
-#: views/relation.py:205 views/relation.py:296
+#: views/relation.py:205 views/relation.py:295
 msgid "Save the relationships"
 msgstr "Enregistrer les relations"
 
-#: views/relation.py:295
+#: views/relation.py:294
 msgid "Multiple adding of relationships"
 msgstr "Ajout multiple de relations"
 
-#: views/relation.py:531
+#: views/relation.py:529
 msgid "Incompatible type for object entity with id={}"
 msgstr "Type incompatible pour la fiche objet avec l'id={}"
 
-#: views/relation.py:533
+#: views/relation.py:531
 msgid "Missing compatible property for object entity with id={}"
 msgstr "Il manque une propriété compatible pour la fiche objet avec l'id={}"
 
-#: views/relation.py:535
+#: views/relation.py:533
 msgid "Permission denied to entity with id={}"
 msgstr "Permission refusée pour la fiche avec l'id={}"
 
-#: views/search.py:212 views/search.py:278
+#: views/search.py:213 views/search.py:279
 #, python-brace-format
 msgid "Please enter at least {count} characters"
 msgstr "Veuillez entrer au moins {count} caractères"
 
-#: views/search.py:276
+#: views/search.py:277
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "Edit «{}»"
+#~ msgstr "Modifier «{}»"
 
 #~ msgid "forbidden"
 #~ msgstr "interdit"
 
 #~ msgid "The field «{}» does not exist or cannot be edited"
 #~ msgstr "Le champ «{}» n'existe pas ou ne peut être modifié."
-
-#~ msgid "Edit «{object}»"
-#~ msgstr "Modifier «{object}»"
 
 #~ msgid "%s «{model}» has been selected."
 #~ msgstr "%s «{model}» a été sélectionné(e)."

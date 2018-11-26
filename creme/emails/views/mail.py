@@ -232,7 +232,7 @@ class EntityEmailCreation(generic.AddingInstanceToEntityPopup):
     form_class = mail_forms.EntityEmailForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     permissions = ['emails', cperm(EntityEmail)]
-    title_format = _('Sending an email to «{}»')
+    title = _('Sending an email to «{entity}»')
     submit_label = EntityEmail.sending_label
 
     def check_related_entity_permissions(self, entity, user):

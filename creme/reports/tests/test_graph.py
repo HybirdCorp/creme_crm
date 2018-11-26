@@ -175,8 +175,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         url = self._build_add_graph_url(report)
         context = self.assertGET200(url).context
         # self.assertEqual(_('Create a graph for «%s»') % report, context.get('title'))
-        self.assertEqual(_('Create a graph for «{}»').format(report), context.get('title'))
-        self.assertEqual(ReportGraph.save_label,                      context.get('submit_label'))
+        self.assertEqual(_('Create a graph for «{entity}»').format(entity=report),
+                         context.get('title')
+                        )
+        self.assertEqual(ReportGraph.save_label, context.get('submit_label'))
 
         with self.assertNoException():
             fields = context['form'].fields
@@ -725,7 +727,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('Edit a graph for «%s»') % report, context.get('title'))
-        self.assertEqual(_('Edit a graph for «{}»').format(report), context.get('title'))
+        self.assertEqual(_('Edit a graph for «{entity}»').format(entity=report),
+                         context.get('title')
+                        )
 
         with self.assertNoException():
             aggregate_field_f = context['form'].fields['aggregate_field']
@@ -2281,8 +2285,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Create an instance block for «{graph}»').format(graph=rgraph),
-        self.assertEqual(_('Create an instance block for «{}»').format(rgraph),
+        self.assertEqual(_('Create an instance block for «{entity}»').format(entity=rgraph),
                          context.get('title')
                         )
         self.assertEqual(_('Save the block'), context.get('submit_label'))

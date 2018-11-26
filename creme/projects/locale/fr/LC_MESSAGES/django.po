@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-21 10:29+0100\n"
+"POT-Creation-Date: 2018-11-26 18:11+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -607,11 +607,12 @@ msgstr ""
 "Vous ne pouvez pas ajouter de ressource ou de période travaillée à une tâche "
 "en statut «{}»"
 
-#: views/resource.py:99
-msgid "Resource for «{}»"
-msgstr "Ressource pour «{}»"
+#: views/resource.py:100
+#, python-brace-format
+msgid "Resource for «{entity}»"
+msgstr "Ressource pour «{entity}»"
 
-#: views/resource.py:115
+#: views/resource.py:116
 msgid "This resource cannot be deleted, because it is linked to activities."
 msgstr ""
 "Cette ressource ne peut pas être supprimée, car elle est liée à des "
@@ -623,16 +624,19 @@ msgid "Create a task for «%s»"
 msgstr "Créer une tâche à «%s»"
 
 #: views/task.py:147
-msgid "Create a task for «{}»"
-msgstr "Créer une tâche à «{}»"
+#, python-brace-format
+msgid "Create a task for «{entity}»"
+msgstr "Créer une tâche à «{entity}»"
 
 #: views/task.py:178
-msgid "Adding parents to «{}»"
-msgstr "Ajouter des tâches parentes à «{}»"
+#, python-brace-format
+msgid "Adding parents to «{object}»"
+msgstr "Ajouter des tâches parentes à «{object}»"
 
 #: views/task.py:225
-msgid "New activity related to «{}»"
-msgstr "Nouvelle activité liée à «{}»"
+#, python-brace-format
+msgid "New activity related to «{entity}»"
+msgstr "Nouvelle activité liée à «{entity}»"
 
 #: views/task.py:258
 msgid "Can not be deleted because of its dependencies."

@@ -135,7 +135,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         role.save()
 
         SetCredentials.objects.create(role=role, value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_ALL
+                                      set_type=SetCredentials.ESET_ALL,
                                      )
 
         orga = Organisation.objects.create(user=self.user, name='Olympus', is_managed=True)
@@ -358,7 +358,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url)
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Edit «{}»').format(other_user), response.context.get('title'))
+        self.assertEqual(_('Edit «{object}»').format(object=other_user),
+                         response.context.get('title')
+                        )
 
         # ----
         first_name = 'Deunan'
@@ -491,7 +493,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Change password for «%s»') % other_user, response.context.get('title'))
-        self.assertEqual(_('Change password for «{}»').format(other_user), response.context.get('title'))
+        self.assertEqual(_('Change password for «{object}»').format(object=other_user),
+                         response.context.get('title')
+                        )
 
         # ---
         password = 'password'
@@ -828,7 +832,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('Delete «{user}» and assign his entities to user').format(user=root),
-        self.assertEqual(_('Delete «{}» and assign his entities to user').format(root),
+        self.assertEqual(_('Delete «{object}» and assign his entities to user').format(object=root),
                          context.get('title')
                         )
         self.assertEqual(_('Delete the user'), context.get('submit_label'))
@@ -1099,7 +1103,7 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(_('Edit «{}»').format(sk.description), context.get('title'))
+        self.assertEqual(_('Edit «{key}»').format(key=sk.description), context.get('title'))
         # self.assertEqual(_('Save the modifications'), context.get('submit_label'))  TODO
 
         # ---

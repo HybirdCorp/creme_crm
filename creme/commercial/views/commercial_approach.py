@@ -37,4 +37,4 @@ from ..models import CommercialApproach
 class CommercialApproachCreation(AddingInstanceToEntityPopup):
     model = CommercialApproach
     form_class = ComAppCreateForm
-    title_format = _('New commercial approach for «{}»')
+    title = _('New commercial approach for «{entity}»')

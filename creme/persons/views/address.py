@@ -122,17 +122,17 @@ class AddressCreation(generic.AddingInstanceToEntityPopup):
     model = Address
     form_class = address_forms.AddressForm
     permissions = 'persons'
-    title_format = _('Adding address to «{}»')
+    title = _('Adding address to «{entity}»')
 
 
 class BillingAddressCreation(AddressCreation):
     form_class = address_forms.BillingAddressForm
-    title_format = _('Adding billing address to «{}»')
+    title = _('Adding billing address to «{entity}»')
 
 
 class ShippingAddressCreation(AddressCreation):
     form_class = address_forms.ShippingAddressForm
-    title_format = _('Adding shipping address to «{}»')
+    title = _('Adding shipping address to «{entity}»')
 
 
 class AddressEdition(generic.RelatedToEntityEditionPopup):
@@ -140,15 +140,16 @@ class AddressEdition(generic.RelatedToEntityEditionPopup):
     form_class = address_forms.AddressForm
     pk_url_kwarg = 'address_id'
     permissions = 'persons'
-    title_format = _('Edit address for «{}»')
 
     form_classes = {
         'billing':  address_forms.BillingAddressForm,
         'shipping': address_forms.ShippingAddressForm,
     }
+
+    default_title_format = _('Edit address for «{entity}»')
     title_formats = {
-        'billing':  _('Edit billing address for «{}»'),
-        'shipping': _('Edit shipping address for «{}»'),
+        'billing':  _('Edit billing address for «{entity}»'),
+        'shipping': _('Edit shipping address for «{entity}»'),
     }
 
     def get_address_type(self):
@@ -157,5 +158,6 @@ class AddressEdition(generic.RelatedToEntityEditionPopup):
     def get_form_class(self):
         return self.form_classes.get(self.get_address_type()) or super().get_form_class()
 
-    def get_title_format(self):
-        return self.title_formats.get(self.get_address_type()) or super().get_title_format()
+    @property
+    def title(self):
+        return self.title_formats.get(self.get_address_type(), self.default_title_format)

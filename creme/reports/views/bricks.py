@@ -59,7 +59,7 @@ class GraphInstanceBrickCreation(generic.AddingInstanceToEntityPopup):
     model = InstanceBrickConfigItem
     form_class = GraphInstanceBrickForm
     permissions = 'reports.can_admin'
-    title_format = _('Create an instance block for «{}»')
+    title = _('Create an instance block for «{entity}»')
     entity_classes = get_rgraph_model()
     entity_id_url_kwarg = 'graph_id'
     entity_form_kwarg = 'graph'

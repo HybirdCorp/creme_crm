@@ -89,8 +89,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
         # self.assertEqual(_('New Todo for «%s»') % entity, context.get('title'))
-        self.assertEqual(_('New todo for «{}»').format(entity), context.get('title'))
-        self.assertEqual(_('Save the todo'),                    context.get('submit_label'))
+        self.assertEqual(_('New todo for «{entity}»').format(entity=entity),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the todo'), context.get('submit_label'))
 
         with self.assertNoException():
             hours = context['form'].fields['deadline_hour'].choices
@@ -150,8 +152,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('Todo for «%s»') % self.entity, context.get('title'))
-        self.assertEqual(_('Todo for «{}»').format(self.entity), context.get('title'))
-        self.assertEqual(_('Save the modifications'),            context.get('submit_label'))
+        self.assertEqual(_('Todo for «{entity}»').format(entity=self.entity),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         # ---
         title       += '_edited'

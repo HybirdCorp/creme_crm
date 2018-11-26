@@ -42,7 +42,7 @@ class RecipientsAdding(AddingInstanceToEntityPopup):
     form_class = forms.MessagingListAddRecipientsForm
     entity_id_url_kwarg = 'mlist_id'
     entity_classes = get_messaginglist_model()
-    title_format = _('New recipients for «{}»')
+    title = _('New recipients for «{entity}»')
     submit_label = Recipient.multi_save_label
 
 

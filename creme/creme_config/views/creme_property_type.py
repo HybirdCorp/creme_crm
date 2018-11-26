@@ -87,7 +87,7 @@ class PropertyTypeEdition(base.ConfigModelEdition):
     queryset = CremePropertyType.objects.filter(is_custom=True)
     form_class = ptype_forms.CremePropertyTypeEditForm
     pk_url_kwarg = 'ptype_id'
-    title_format = pgettext_lazy('creme_config-property', 'Edit the type «{}»')
+    title = pgettext_lazy('creme_config-property', 'Edit the type «{object}»')
 
 
 # TODO: use the view in creme_core instead

@@ -36,8 +36,8 @@ class SettingTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(_('Edit «{}»').format(sk.description), context.get('title'))
-        self.assertEqual(_('Save the modifications'),           context.get('submit_label'))
+        self.assertEqual(_('Edit «{key}»').format(key=sk.description), context.get('title'))
+        self.assertEqual(_('Save the modifications'),                  context.get('submit_label'))
 
         # ---
         title = title.upper()
@@ -47,7 +47,7 @@ class SettingTestCase(CremeTestCase):
     def test_edit_int(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_int', description=u"Page size",
+        sk = SettingKey(id='persons-test_edit_int', description='Page size',
                         app_label='persons', type=SettingKey.INT,
                        )
         setting_key_registry.register(sk)
@@ -65,7 +65,7 @@ class SettingTestCase(CremeTestCase):
     def test_edit_bool(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_bool', description=u"Display logo ?",
+        sk = SettingKey(id='persons-test_edit_bool', description='Display logo ?',
                         app_label='persons', type=SettingKey.BOOL,
                        )
         setting_key_registry.register(sk)

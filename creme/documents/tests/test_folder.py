@@ -124,8 +124,10 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         url = reverse('documents__create_child_folder', args=(parent.id,))
         context = self.assertGET200(url).context
         # self.assertEqual(_('New child folder for «%s»') % parent, context.get('title'))
-        self.assertEqual(_('New child folder for «{}»').format(parent), context.get('title'))
-        self.assertEqual(Folder.save_label,                             context.get('submit_label'))
+        self.assertEqual(_('New child folder for «{entity}»').format(entity=parent),
+                         context.get('title')
+                        )
+        self.assertEqual(Folder.save_label, context.get('submit_label'))
 
         title = 'Child folder'
         description = 'Child description'

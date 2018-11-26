@@ -174,7 +174,7 @@ class ChildFolderCreation(generic.AddingInstanceToEntityPopup):
     model = Folder
     form_class = f_forms.ChildFolderForm
     permissions = ['documents', cperm(Folder)]
-    title_format = _('New child folder for «{}»')
+    title = _('New child folder for «{entity}»')
     entity_id_url_kwarg = 'folder_id'
     entity_classes = Folder
 

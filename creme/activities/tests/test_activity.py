@@ -1828,8 +1828,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         context = response.context
         # self.assertEqual(_('Adding participants to activity «%s»') % activity, context.get('title'))
-        self.assertEqual(_('Adding participants to activity «{}»').format(activity), context.get('title'))
-        self.assertEqual(_('Add the participants'),                                  context.get('submit_label'))
+        self.assertEqual(_('Adding participants to activity «{entity}»').format(entity=activity),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Add the participants'), context.get('submit_label'))
 
         # ---
         self.assertNoFormError(
@@ -2065,8 +2067,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         context = response.context
         # self.assertEqual(_('Adding subjects to activity «%s»') % activity, context.get('title'))
-        self.assertEqual(_('Adding subjects to activity «{}»').format(activity), context.get('title'))
-        self.assertEqual(_('Add the subjects'),                                  context.get('submit_label'))
+        self.assertEqual(_('Adding subjects to activity «{entity}»').format(entity=activity),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Add the subjects'), context.get('submit_label'))
 
         # ---
         data = {'subjects': self.formfield_value_multi_generic_entity(orga)}

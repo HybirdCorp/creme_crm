@@ -138,7 +138,7 @@ class RelatedSalesOrderCreation(base.RelatedBaseCreation):
     model = SalesOrder
     form_class = order_forms.SalesOrderCreateForm
     permissions = ('billing', cperm(SalesOrder))
-    title_format = _('Create a salesorder for «{}»')
+    title = _('Create a salesorder for «{entity}»')
 
 
 class SalesOrderDetail(generic.EntityDetail):

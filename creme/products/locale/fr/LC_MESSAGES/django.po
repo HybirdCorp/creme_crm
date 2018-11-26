@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Products 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 20:18+0200\n"
+"POT-Creation-Date: 2018-11-26 18:06+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -392,8 +392,9 @@ msgid "Default sub-category"
 msgstr "Sous-catégorie par défaut"
 
 #: views/base.py:33
-msgid "New images for «{}»"
-msgstr "Nouvelles images pour «{}»"
+#, python-brace-format
+msgid "New images for «{entity}»"
+msgstr "Nouvelles images pour «{entity}»"
 
 #: views/base.py:34
 msgid "Link the images"

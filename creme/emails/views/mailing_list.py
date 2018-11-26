@@ -219,7 +219,7 @@ class _AddingToMailingList(generic.RelatedToEntityFormPopup):
 class ContactsAdding(_AddingToMailingList):
     # model = Contact
     form_class = ml_forms.AddContactsForm
-    title_format = _('New contacts for «{}»')
+    title = _('New contacts for «{entity}»')
     submit_label = _('Link the contacts')  # TODO: multi_link_label ??
 
 
@@ -231,7 +231,7 @@ class ContactsAddingFromFilter(ContactsAdding):
 class OrganisationsAdding(_AddingToMailingList):
     # model = Organisation
     form_class = ml_forms.AddOrganisationsForm
-    title_format = _('New organisations for «{}»')
+    title = _('New organisations for «{entity}»')
     submit_label = _('Link the organisations')  # TODO: multi_link_label ??
 
 
@@ -242,5 +242,5 @@ class OrganisationsAddingFromFilter(OrganisationsAdding):
 class ChildrenAdding(_AddingToMailingList):
     # model = MailingList
     form_class = ml_forms.AddChildForm
-    title_format = _('New child list for «{}»')
+    title = _('New child list for «{entity}»')
     submit_label = _('Link the mailing list')

@@ -139,7 +139,7 @@ class RelatedDocumentCreation(generic.AddingInstanceToEntityPopup):
     model = Document
     form_class = doc_forms.RelatedDocumentCreateForm
     permissions = ['documents', cperm(Document)]
-    title_format = _('New document for «{}»')
+    title = _('New document for «{entity}»')
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)

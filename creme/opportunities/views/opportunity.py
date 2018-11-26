@@ -190,7 +190,7 @@ class RelatedOpportunityCreationPopup(generic.AddingInstanceToEntityPopup):
     model = Opportunity
     form_class = opp_forms.TargetedOpportunityCreationForm
     permissions = ['opportunities', cperm(Opportunity)]
-    title_format = _('New opportunity targeting «{}»')
+    title = _('New opportunity targeting «{entity}»')
     entity_id_url_kwarg = 'person_id'
     entity_form_kwarg = 'target'
     entity_classes = [

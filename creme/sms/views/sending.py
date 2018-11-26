@@ -52,7 +52,7 @@ class SendingCreation(generic.AddingInstanceToEntityPopup):
     form_class = SendingCreateForm
     entity_id_url_kwarg = 'campaign_id'
     entity_classes = get_smscampaign_model()
-    title_format = _('New sending for «{}»')
+    title = _('New sending for «{entity}»')
 
 
 # TODO: use 'creme_core__delete_related_to_entity' instead ?

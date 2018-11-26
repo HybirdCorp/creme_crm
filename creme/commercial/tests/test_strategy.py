@@ -110,8 +110,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         context = self.assertGET200(url).context
         # self.assertEqual(_('New market segment for «%s»') % strategy, context.get('title'))
-        self.assertEqual(_('New market segment for «{}»').format(strategy), context.get('title'))
-        self.assertEqual(MarketSegmentDescription.save_label,               context.get('submit_label'))
+        self.assertEqual(_('New market segment for «{entity}»').format(entity=strategy),
+                         context.get('title')
+                        )
+        self.assertEqual(MarketSegmentDescription.save_label, context.get('submit_label'))
 
         name = 'Industry'
         product = 'Description about product'
@@ -201,7 +203,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         url = self._build_link_segment_url(strategy02)
         context = self.assertGET200(url).context
         # self.assertEqual(_('New market segment for «%s»') % strategy02, context.get('title'))
-        self.assertEqual(_('New market segment for «{}»').format(strategy02),
+        self.assertEqual(_('New market segment for «{entity}»').format(entity=strategy02),
                          context.get('title')
                         )
         self.assertEqual(MarketSegmentDescription.save_label, context.get('submit_label'))
@@ -242,7 +244,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Segment for «%s»') % strategy, response.context.get('title'))
-        self.assertEqual(_('Segment for «{}»').format(strategy), response.context.get('title'))
+        self.assertEqual(_('Segment for «{entity}»').format(entity=strategy),
+                         response.context.get('title')
+                        )
 
         name += ' of Cheese'
         product = 'Description about product'
@@ -327,8 +331,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         url = reverse('commercial__create_asset', args=(strategy.id,))
         context = self.assertGET200(url).context
         # self.assertEqual(_('New commercial asset for «%s»') % strategy, context.get('title'))
-        self.assertEqual(_('New commercial asset for «{}»').format(strategy), context.get('title'))
-        self.assertEqual(CommercialAsset.save_label,                          context.get('submit_label'))
+        self.assertEqual(_('New commercial asset for «{entity}»').format(entity=strategy),
+                         context.get('title')
+                        )
+        self.assertEqual(CommercialAsset.save_label, context.get('submit_label'))
 
         # ---
         name = 'Size'
@@ -345,7 +351,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Asset for «%s»') % strategy, response.context.get('title'))
-        self.assertEqual(_('Asset for «{}»').format(strategy), response.context.get('title'))
+        self.assertEqual(_('Asset for «{entity}»').format(entity=strategy),
+                         response.context.get('title')
+                        )
 
         # ---
         name += '_edited'
@@ -374,8 +382,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         url = reverse('commercial__create_charm', args=(strategy.id,))
         context = self.assertGET200(url).context
         # self.assertEqual(_('New segment charm for «%s»') % strategy, context.get('title'))
-        self.assertEqual(_('New segment charm for «{}»').format(strategy), context.get('title'))
-        self.assertEqual(MarketSegmentCharm.save_label,                    context.get('submit_label'))
+        self.assertEqual(_('New segment charm for «{entity}»').format(entity=strategy),
+                         context.get('title')
+                        )
+        self.assertEqual(MarketSegmentCharm.save_label, context.get('submit_label'))
 
         name = 'Size'
         self.assertPOST200(url, data={'name': name})
@@ -392,7 +402,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Charm for «%s»') % strategy, response.context.get('title'))
-        self.assertEqual(_('Charm for «{}»').format(strategy), response.context.get('title'))
+        self.assertEqual(_('Charm for «{entity}»').format(entity=strategy),
+                         response.context.get('title')
+                        )
 
         # ---
         name += '_edited'
@@ -431,8 +443,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('New organisation(s) for «%s»') % strategy, context.get('title'))
-        self.assertEqual(_('New organisation(s) for «{}»').format(strategy), context.get('title'))
-        self.assertEqual(_('Link the organisation(s)'),                      context.get('submit_label'))
+        self.assertEqual(_('New organisation(s) for «{entity}»').format(entity=strategy),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link the organisation(s)'), context.get('submit_label'))
 
         # ---
         self.assertPOST200(url, data={'organisations': self.formfield_value_multi_creator_entity(orga)})

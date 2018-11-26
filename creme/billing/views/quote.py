@@ -142,7 +142,7 @@ class RelatedQuoteCreation(base.RelatedBaseCreation):
     model = Quote
     form_class = quote_forms.QuoteCreateForm
     permissions = ('billing', cperm(Quote))
-    title_format = _('Create a quote for «{}»')
+    title = _('Create a quote for «{entity}»')
 
 
 class QuoteDetail(generic.EntityDetail):

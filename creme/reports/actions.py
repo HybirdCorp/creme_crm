@@ -38,7 +38,7 @@ class ExportReportAction(UIAction):
 
     @property
     def help_text(self):
-        return pgettext('reports-report', 'Export «{}»').format(self.instance)
+        return pgettext('reports-report', 'Export «{object}»').format(object=self.instance)
 
     @property
     def url(self):

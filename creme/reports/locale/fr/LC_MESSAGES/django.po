@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-09 13:03+0100\n"
+"POT-Creation-Date: 2018-11-26 18:27+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -21,9 +21,10 @@ msgid "Export"
 msgstr "Exporter"
 
 #: actions.py:41 views/export.py:176
+#, python-brace-format
 msgctxt "reports-report"
-msgid "Export «{}»"
-msgstr "Exporter «{}»"
+msgid "Export «{object}»"
+msgstr "Exporter «{object}»"
 
 #: apps.py:28 models/report.py:57
 msgid "Reports"
@@ -41,19 +42,19 @@ msgstr "Colonnes du rapport"
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
-#: constants.py:35 core/graph.py:335 core/graph.py:686
+#: constants.py:35 core/graph.py:335 core/graph.py:687
 msgid "By days"
 msgstr "Par jours"
 
-#: constants.py:36 core/graph.py:356 core/graph.py:702
+#: constants.py:36 core/graph.py:356 core/graph.py:703
 msgid "By months"
 msgstr "Par mois"
 
-#: constants.py:37 core/graph.py:375 core/graph.py:717
+#: constants.py:37 core/graph.py:375 core/graph.py:718
 msgid "By years"
 msgstr "Par années"
 
-#: constants.py:38 core/graph.py:418 core/graph.py:730
+#: constants.py:38 core/graph.py:418 core/graph.py:731
 msgid "By X days"
 msgstr "Par X jours"
 
@@ -61,7 +62,7 @@ msgstr "Par X jours"
 msgid "By values"
 msgstr "Par valeurs"
 
-#: constants.py:40 core/graph.py:571
+#: constants.py:40 core/graph.py:572
 msgid "By values (of related entities)"
 msgstr "Par valeurs (des fiches liées)"
 
@@ -81,11 +82,11 @@ msgstr "Par années (champ personnalisé)"
 msgid "By X days (custom field)"
 msgstr "Par X jours (champ personnalisé)"
 
-#: constants.py:45 core/graph.py:819
+#: constants.py:45 core/graph.py:820
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
 
-#: core/graph.py:129 core/graph.py:623
+#: core/graph.py:129 core/graph.py:624
 msgid "the custom field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
@@ -101,36 +102,36 @@ msgstr "Comptage"
 msgid "this field should be hidden."
 msgstr "ce champ devrait être caché"
 
-#: core/graph.py:525
+#: core/graph.py:526
 msgid "this field cannot be used as abscissa."
 msgstr "ce champ ne peut pas être utilisé comme abscisse."
 
-#: core/graph.py:581
+#: core/graph.py:582
 msgid "the relationship type does not exist any more."
 msgstr "le type de relation n'existe plus."
 
-#: core/graph.py:849
+#: core/graph.py:850
 msgid "No volatile column"
 msgstr "Pas de colonne volatile"
 
-#: core/graph.py:882
+#: core/graph.py:883
 msgid "The field is invalid."
 msgstr "Le champ est invalide."
 
-#: core/graph.py:886
+#: core/graph.py:887
 #, python-brace-format
 msgid "{field} (Field)"
 msgstr "{field} (Champ)"
 
-#: core/graph.py:893
+#: core/graph.py:894
 msgid "The field is invalid (not a foreign key)."
 msgstr "Le champ est invalide (pas une clé étrangère)."
 
-#: core/graph.py:926
+#: core/graph.py:927
 msgid "The relationship type is invalid."
 msgstr "Le type de relation est invalide."
 
-#: core/graph.py:930
+#: core/graph.py:931
 #, python-brace-format
 msgid "{rtype} (Relationship)"
 msgstr "{rtype} (Relation)"
@@ -151,15 +152,15 @@ msgstr "Relation"
 msgid "Computed field"
 msgstr "Champ calculé"
 
-#: core/report.py:449
+#: core/report.py:450
 msgid "Aggregated value"
 msgstr "Valeur agrégée"
 
-#: core/report.py:500
+#: core/report.py:501
 msgid "Aggregated value (custom field)"
 msgstr "Valeur agrégée (champ personnalisé)"
 
-#: core/report.py:518
+#: core/report.py:519
 msgid "Related field"
 msgstr "Champ relatif"
 
@@ -742,8 +743,9 @@ msgid "deleted"
 msgstr "supprimé"
 
 #: views/bricks.py:62
-msgid "Create an instance block for «{}»"
-msgstr "Créer un bloc d'instance pour «{}»"
+#, python-brace-format
+msgid "Create an instance block for «{entity}»"
+msgstr "Créer un bloc d'instance pour «{entity}»"
 
 #: views/bricks.py:74
 msgid ""
@@ -773,39 +775,43 @@ msgstr "Aucun(e) «{model}» ne correspond à votre filtre temporel"
 msgid "Fix your date filter"
 msgstr "Corrigez votre filtre temporel"
 
-#: views/graph.py:46
+#: views/graph.py:47
 #, python-format
 msgid "Create a graph for «%s»"
 msgstr "Créer un graphique pour «%s»"
 
-#: views/graph.py:62
+#: views/graph.py:63
 #, python-format
 msgid "Edit a graph for «%s»"
 msgstr "Modifier un graphique pour «%s»"
 
-#: views/graph.py:162
+#: views/graph.py:163
 msgid "Choose an abscissa field"
 msgstr "Choisir un champ d'abscisse"
 
-#: views/graph.py:220
-msgid "Create a graph for «{}»"
-msgstr "Créer un graphique pour «{}»"
+#: views/graph.py:221
+#, python-brace-format
+msgid "Create a graph for «{entity}»"
+msgstr "Créer un graphique pour «{entity}»"
 
-#: views/graph.py:242
-msgid "Edit a graph for «{}»"
-msgstr "Modifier un graphique pour «{}»"
+#: views/graph.py:243
+#, python-brace-format
+msgid "Edit a graph for «{entity}»"
+msgstr "Modifier un graphique pour «{entity}»"
 
 #: views/report.py:170
-msgid "Link of the column «{}»"
-msgstr "Liaison de la colonne «{}»"
+#, python-brace-format
+msgid "Link of the column «{object}»"
+msgstr "Liaison de la colonne «{object}»"
 
 #: views/report.py:171
 msgid "Link"
 msgstr "Lier"
 
 #: views/report.py:215
-msgid "Edit columns of «{}»"
-msgstr "Modifier les colonnes de «{}»"
+#, python-brace-format
+msgid "Edit columns of «{object}»"
+msgstr "Modifier les colonnes de «{object}»"
 
 #~ msgid "Download «%(object)s»"
 #~ msgstr "Télécharger «%(object)s»"

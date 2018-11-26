@@ -181,6 +181,7 @@ class CremeEditionPopup(base.CremeFormPopup):
 
 class CremeModelEdition(base.CancellableMixin,
                         base.PermissionsMixin,
+                        base.TitleMixin,
                         base.SubmittableMixin,
                         UpdateView):
     """ Base class for edition view with a form in Creme.
@@ -199,21 +200,12 @@ class CremeModelEdition(base.CancellableMixin,
     in order to serialize modifications correctly (eg: 2 form submissions
     at the same time won't causes some fields modifications of one form to
     be backed out by the 'initial' field value of the other form).
-
-    New attributes:
-    title: A string used as form's title. <None> (default value) means that the
-           attribute "title_format" will be used to build the title (see get_title()).
-    title_format: A {}-format string formatted with the edited instance as
-                  argument (see get_title()).
-    submit_label: A string used as label for the submission button of the form
-                 (see get_submit_label()).
     """
     model = models.CremeModel
     form_class = forms.CremeModelForm
     template_name = 'creme_core/generics/blockform/edit.html'
     pk_url_kwarg = 'object_id'
-    title = None
-    title_format = _('Edit «{}»')
+    title = _('Edit «{object}»')
     submit_label = _('Save the modifications')
 
     def check_instance_permissions(self, instance, user):
@@ -258,13 +250,11 @@ class CremeModelEdition(base.CancellableMixin,
 
         return instance
 
-    def get_title_format(self):
-        return self.title_format
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['object'] = self.object
 
-    def get_title(self):
-        title = self.title
-
-        return self.get_title_format().format(self.object) if title is None else title
+        return data
 
     @atomic
     def post(self, *args, **kwargs):
@@ -304,6 +294,7 @@ class CremeModelEditionPopup(CremeModelEdition):
 
     def form_valid(self, form):
         self.object = form.save()
+
         return HttpResponse(self.get_success_url(), content_type='text/plain')
 
 
@@ -330,7 +321,7 @@ class RelatedToEntityEditionPopup(base.EntityRelatedMixin, CremeModelEditionPopu
 
     This model must have a method 'get_related_entity()'.
 
-    NB: the argument of "title_format" is the related entity (see get_title()).
+    NB: get_title_format_data() injects the related entity with key "entity".
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -353,8 +344,8 @@ class RelatedToEntityEditionPopup(base.EntityRelatedMixin, CremeModelEditionPopu
 
         return entity
 
-    def get_title(self):
-        return self.get_title_format() \
-                   .format(self.get_related_entity()
-                               .allowed_str(self.request.user)
-                          )
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['entity'] = self.get_related_entity().allowed_str(self.request.user)
+
+        return data

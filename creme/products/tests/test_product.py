@@ -479,8 +479,10 @@ class ProductTestCase(_ProductsTestCase):
 
         context = response.context
         # self.assertEqual(_('New images for «%s»') % product, context.get('title'))
-        self.assertEqual(_('New images for «{}»').format(product), context.get('title'))
-        self.assertEqual(_('Link the images'),                     context.get('submit_label'))
+        self.assertEqual(_('New images for «{entity}»').format(entity=product),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link the images'), context.get('submit_label'))
 
         def post(*images):
             return self.client.post(url, follow=True,

@@ -54,8 +54,10 @@ class ActionTestCase(AssistantsTestCase):
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
         # self.assertEqual(_('New action for «%s»') % entity, context.get('title'))
-        self.assertEqual(_('New action for «{}»').format(entity), context.get('title'))
-        self.assertEqual(_('Save the action'),                    context.get('submit_label'))
+        self.assertEqual(_('New action for «{entity}»').format(entity=entity),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the action'), context.get('submit_label'))
 
         title    = 'TITLE'
         descr    = 'DESCRIPTION'
@@ -98,7 +100,9 @@ class ActionTestCase(AssistantsTestCase):
         url = action.get_edit_absolute_url()
         context = self.assertGET200(url).context
         # self.assertEqual(_('Action for «%s»') % self.entity, context.get('title'))
-        self.assertEqual(_('Action for «{}»').format(self.entity), context.get('title'))
+        self.assertEqual(_('Action for «{entity}»').format(entity=self.entity),
+                         context.get('title')
+                        )
 
         # ---
         title    += '_edited'

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme SMS 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 20:36+0200\n"
+"POT-Creation-Date: 2018-11-26 18:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -494,28 +494,32 @@ msgid "No sending for the moment"
 msgstr "Aucun envoi pour le moment"
 
 #: views/campaign.py:159
-msgid "New messaging lists for «{}»"
-msgstr "Nouvelles listes de diffusion pour «{}»"
+#, python-brace-format
+msgid "New messaging lists for «{entity}»"
+msgstr "Nouvelles listes de diffusion pour «{entity}»"
 
 #: views/campaign.py:160
 msgid "Link the messaging lists"
 msgstr "Lier les listes de diffusion"
 
 #: views/messaging_list.py:165
-msgid "New contacts for «{}»"
-msgstr "Nouveaux contacts pour «{}»"
+#, python-brace-format
+msgid "New contacts for «{entity}»"
+msgstr "Nouveaux contacts pour «{entity}»"
 
 #: views/messaging_list.py:166
 msgid "Link the contacts"
 msgstr "Lier les contacts"
 
 #: views/recipient.py:45
-msgid "New recipients for «{}»"
-msgstr "Nouveaux destinataires pour «{}»"
+#, python-brace-format
+msgid "New recipients for «{entity}»"
+msgstr "Nouveaux destinataires pour «{entity}»"
 
-#: views/sending.py:54
-msgid "New sending for «{}»"
-msgstr "Nouvel envoi pour «{}»"
+#: views/sending.py:55
+#, python-brace-format
+msgid "New sending for «{entity}»"
+msgstr "Nouvel envoi pour «{entity}»"
 
 #~ msgid "Portal of SMS"
 #~ msgstr "Portail des SMS"

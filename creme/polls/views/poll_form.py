@@ -124,7 +124,7 @@ class LineEdition(generic.RelatedToEntityEditionPopup):
     form_class = pf_forms.PollFormLineEditForm
     permissions = 'polls'
     pk_url_kwarg = 'line_id'
-    title_format = _('Question for «{}»')
+    title = _('Question for «{entity}»')
 
 
 @login_required
@@ -189,7 +189,7 @@ class SectionEdition(generic.RelatedToEntityEditionPopup):
     form_class = pf_forms.PollFormSectionEditForm
     permissions = 'polls'
     pk_url_kwarg = 'section_id'
-    title_format = _('Section for «{}»')
+    title = _('Section for «{entity}»')
 
 # @login_required
 # @permission_required('polls')
@@ -279,7 +279,7 @@ class PollFormEdition(generic.EntityEdition):
 class _LineCreationBase(generic.AddingInstanceToEntityPopup):
     model = PollFormLine
     form_class = pf_forms.PollFormLineCreateForm
-    title_format = _('New question for «{}»')
+    title = _('New question for «{entity}»')
     entity_classes = PollForm
 
 
@@ -313,8 +313,13 @@ class LineCreation(_LineCreationBase):
 
 
 class AddingLineToSection(_RelatedSectionMixin, _LineCreationBase):
-    def get_title(self):
-        return self.title_format.format(self.get_related_section())
+    title = _('New question for section «{section}»')
+
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['section'] = self.get_related_section()
+
+        return data
 
 
 class _SectionCreationBase(generic.AddingInstanceToEntityPopup):
@@ -324,22 +329,25 @@ class _SectionCreationBase(generic.AddingInstanceToEntityPopup):
 
 
 class SectionCreation(_SectionCreationBase):
-    title_format = _('New section for «{}»')
+    title = _('New section for «{entity}»')
     entity_id_url_kwarg = 'pform_id'
 
 
 class ChildSectionCreation(_RelatedSectionMixin, _SectionCreationBase):
-    title_format = _('New sub-section for «{}»')
+    title = _('New sub-section for «{section}»')
     section_form_kwarg = 'parent'
 
-    def get_title(self):
-        return self.title_format.format(self.get_related_section())
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['section'] = self.get_related_section()
+
+        return data
 
 
 class ConditionsEdition(generic.RelatedToEntityFormPopup):
     # model = PollFormLineCondition
     form_class = pf_forms.PollFormLineConditionsForm
-    title_format = _('Conditions for «{}»')
+    title = _('Conditions for «{entity}»')
     submit_label = _('Save the conditions')
     # entity_id_url_kwarg = 'pform_id'
     entity_classes = PollForm

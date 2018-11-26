@@ -312,7 +312,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         response = self.assertGET200(url)
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Edit «{}»').format(cal), response.context.get('title'))
+        self.assertEqual(_('Edit «{object}»').format(object=cal), response.context.get('title'))
 
         # ---
         name = 'My calendar'
@@ -435,7 +435,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Change calendar of «%s»') % act,
-        self.assertEqual(_('Change calendar of «{}»').format(act),
+        self.assertEqual(_('Change calendar of «{object}»').format(object=act),
                          response.context.get('title')
                         )
 

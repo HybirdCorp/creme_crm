@@ -306,7 +306,7 @@ def add_opportunity(request, act_id):
 class ObjectiveCreation(generic.AddingInstanceToEntityPopup):
     model = ActObjective
     form_class = forms.ObjectiveForm
-    title_format = _('New objective for «{}»')
+    title = _('New objective for «{entity}»')
     entity_id_url_kwarg = 'act_id'
     entity_classes = Act
 
@@ -315,7 +315,7 @@ class ObjectiveCreation(generic.AddingInstanceToEntityPopup):
 #     return _add_objective(request, act_id, forms.ObjectivesFromPatternForm)
 class ObjectivesCreationFromPattern(generic.RelatedToEntityFormPopup):
     form_class = forms.ObjectivesFromPatternForm
-    title_format = _('New objectives for «{}»')
+    title = _('New objectives for «{entity}»')
     submit_label = _('Save the objectives')
     entity_id_url_kwarg = 'act_id'
     entity_classes = Act
@@ -332,7 +332,7 @@ class ObjectivesCreationFromPattern(generic.RelatedToEntityFormPopup):
 class PatternComponentCreation(generic.AddingInstanceToEntityPopup):
     model = ActObjectivePatternComponent
     form_class = forms.PatternComponentForm
-    title_format = _('New objective for «{}»')
+    title = _('New objective for «{entity}»')
     submit_label = _('Save the objective')
     entity_id_url_kwarg = 'objpattern_id'
     entity_classes = ActObjectivePattern
@@ -366,7 +366,7 @@ class PatternComponentCreation(generic.AddingInstanceToEntityPopup):
 class SubPatternComponentCreation(generic.AddingInstanceToEntityPopup):
     model = ActObjectivePatternComponent
     # form_class = ....
-    # title_format = _('New sub objective for «{}»')
+    # title = 'Objective for «{component}»'
     submit_label = _('Save the objective')  # TODO: ActObjectivePatternComponent.save_label ?
     # entity_id_url_kwarg = ''
     entity_classes = ActObjectivePattern
@@ -399,8 +399,11 @@ class SubPatternComponentCreation(generic.AddingInstanceToEntityPopup):
 
         return comp
 
-    def get_title(self):
-        return self.title_format.format(self.get_related_component())
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['component'] = self.get_related_component()
+
+        return data
 
 
 # def add_child_pattern_component(request, component_id):
@@ -410,7 +413,7 @@ class SubPatternComponentCreation(generic.AddingInstanceToEntityPopup):
 #                                     )
 class ChildPatternComponentCreation(SubPatternComponentCreation):
     form_class = forms.PatternChildComponentForm
-    title_format = _('New child objective for «{}»')
+    title = _('New child objective for «{component}»')
     component_form_kwarg = 'parent'
 
 
@@ -421,7 +424,7 @@ class ChildPatternComponentCreation(SubPatternComponentCreation):
 #                                     )
 class ParentPatternComponentCreation(SubPatternComponentCreation):
     form_class = forms.PatternParentComponentForm
-    title_format = _('New parent objective for «{}»')
+    title = _('New parent objective for «{component}»')
     component_form_kwarg = 'child'
 
 
@@ -436,7 +439,7 @@ class ObjectiveEdition(generic.RelatedToEntityEditionPopup):
     model = ActObjective
     form_class = forms.ObjectiveForm
     pk_url_kwarg = 'objective_id'
-    title_format = _('Objective for «{}»')
+    title = _('Objective for «{entity}»')
 
 
 @login_required

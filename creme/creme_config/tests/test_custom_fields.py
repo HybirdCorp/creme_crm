@@ -104,7 +104,7 @@ class CustomFieldsTestCase(CremeTestCase):
         cfield2 = cfields[1]
         self.assertEqual(name,       cfield2.name)
         self.assertEqual(field_type, cfield2.field_type)
-        self.assertEqual([u'Eva01', u'Eva02', u'Eva03'],
+        self.assertEqual(['Eva01', 'Eva02', 'Eva03'],
                          [cfev.value 
                             for cfev in CustomFieldEnumValue.objects
                                                             .filter(custom_field=cfield2)
@@ -124,7 +124,7 @@ class CustomFieldsTestCase(CremeTestCase):
                                             'field_type': field_type,
                                            }
                                      )
-        self.assertFormError(response, 'form', 'name', _(u'There is already a custom field with this name.'))
+        self.assertFormError(response, 'form', 'name', _('There is already a custom field with this name.'))
 
     def test_edit01(self):
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -137,7 +137,7 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(_('Edit «{}»').format(cfield), context.get('title'))
+        self.assertEqual(_('Edit «{object}»').format(object=cfield), context.get('title'))
 
         # ---
         name = name.title()
@@ -165,7 +165,7 @@ class CustomFieldsTestCase(CremeTestCase):
             old_choices = fields['old_choices']
 
         self.assertFalse(new_choices.initial)
-        self.assertEqual([u'C', u'ABC', u'Java'], old_choices.content)
+        self.assertEqual(['C', 'ABC', 'Java'], old_choices.content)
 
         response = self.client.post(url, data={'name': cfield.name,
                                                'new_choices': 'C++\nHaskell',
@@ -179,7 +179,7 @@ class CustomFieldsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        self.assertEqual([u'C', u'Python', u'C++', u'Haskell'],
+        self.assertEqual(['C', 'Python', 'C++', 'Haskell'],
                          [cfev.value 
                             for cfev in CustomFieldEnumValue.objects
                                                             .filter(custom_field=cfield)
@@ -198,7 +198,7 @@ class CustomFieldsTestCase(CremeTestCase):
         response = self.assertPOST200(reverse('creme_config__edit_custom_field', args=(cfield2.id,)),
                                       data={'name': name},
                                      )
-        self.assertFormError(response, 'form', 'name', _(u'There is already a custom field with this name.'))
+        self.assertFormError(response, 'form', 'name', _('There is already a custom field with this name.'))
 
     def test_delete(self):
         create_cf = partial(CustomField.objects.create,

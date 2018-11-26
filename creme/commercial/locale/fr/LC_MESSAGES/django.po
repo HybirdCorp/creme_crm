@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-20 15:22+0100\n"
+"POT-Creation-Date: 2018-11-26 15:12+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -845,36 +845,43 @@ msgid "Synthesis of «%(orga)s» by «%(strategy)s»"
 msgstr "Synthèse de «%(orga)s» par «%(strategy)s»"
 
 #: views/act.py:309 views/act.py:335
-msgid "New objective for «{}»"
-msgstr "Nouvel objectif pour «{}»"
+#, python-brace-format
+msgid "New objective for «{entity}»"
+msgstr "Nouvel objectif pour «{entity}»"
 
 #: views/act.py:318
-msgid "New objectives for «{}»"
-msgstr "Nouveaux objectifs pour «{}»"
+#, python-brace-format
+msgid "New objectives for «{entity}»"
+msgstr "Nouveaux objectifs pour «{entity}»"
 
 #: views/act.py:319
 msgid "Save the objectives"
 msgstr "Enregistrer les objectifs"
 
-#: views/act.py:413
-msgid "New child objective for «{}»"
-msgstr "Nouvel objectif enfant pour «{}»"
+#: views/act.py:416
+#, python-brace-format
+msgid "New child objective for «{component}»"
+msgstr "Nouvel objectif enfant pour «{component}»"
 
-#: views/act.py:424
-msgid "New parent objective for «{}»"
-msgstr "Nouvel objectif parent pour «{}»"
+#: views/act.py:427
+#, python-brace-format
+msgid "New parent objective for «{component}»"
+msgstr "Nouvel objectif parent pour «{component}»"
 
-#: views/act.py:439
-msgid "Objective for «{}»"
-msgstr "Objectif pour «{}»"
+#: views/act.py:442
+#, python-brace-format
+msgid "Objective for «{entity}»"
+msgstr "Objectif pour «{entity}»"
 
 #: views/commercial_approach.py:40
-msgid "New commercial approach for «{}»"
-msgstr "Nouvelle démarche commerciale pour «{}»"
+#, python-brace-format
+msgid "New commercial approach for «{entity}»"
+msgstr "Nouvelle démarche commerciale pour «{entity}»"
 
 #: views/market_segment.py:108
-msgid "Delete and replace «{}»"
-msgstr "Supprimer et remplacer «{}»"
+#, python-brace-format
+msgid "Delete and replace «{object}»"
+msgstr "Supprimer et remplacer «{object}»"
 
 #: views/market_segment.py:109
 msgid "Replace"
@@ -901,36 +908,43 @@ msgid "List of salesmen"
 msgstr "Liste des commerciaux"
 
 #: views/strategy.py:135 views/strategy.py:141
-msgid "New market segment for «{}»"
-msgstr "Nouveau segment pour «{}»"
+#, fpython-brace-format
+msgid "New market segment for «{entity}»"
+msgstr "Nouveau segment pour «{entity}»"
 
 #: views/strategy.py:147
-msgid "New commercial asset for «{}»"
-msgstr "Nouvel atout pour «{}»"
+#, python-brace-format
+msgid "New commercial asset for «{entity}»"
+msgstr "Nouvel atout pour «{entity}»"
 
 #: views/strategy.py:153
-msgid "New segment charm for «{}»"
-msgstr "Nouvel attrait pour «{}»"
+#, python-brace-format
+msgid "New segment charm for «{entity}»"
+msgstr "Nouvel attrait pour «{entity}»"
 
 #: views/strategy.py:159
-msgid "New organisation(s) for «{}»"
-msgstr "Nouvelle(s) société(s) pour «{}»"
+#, python-brace-format
+msgid "New organisation(s) for «{entity}»"
+msgstr "Nouvelle(s) société(s) pour «{entity}»"
 
 #: views/strategy.py:160
 msgid "Link the organisation(s)"
 msgstr "Lier les sociétés"
 
 #: views/strategy.py:170
-msgid "Segment for «{}»"
-msgstr "Segment pour «{}»"
+#, python-brace-format
+msgid "Segment for «{entity}»"
+msgstr "Segment pour «{entity}»"
 
 #: views/strategy.py:178
-msgid "Asset for «{}»"
-msgstr "Atout pour «{}»"
+#, python-brace-format
+msgid "Asset for «{entity}»"
+msgstr "Atout pour «{entity}»"
 
 #: views/strategy.py:186
-msgid "Charm for «{}»"
-msgstr "Attrait pour «{}»"
+#, python-brace-format
+msgid "Charm for «{entity}»"
+msgstr "Attrait pour «{entity}»"
 
 #: views/strategy.py:340
 #, python-brace-format

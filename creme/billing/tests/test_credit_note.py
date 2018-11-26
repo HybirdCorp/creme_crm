@@ -230,9 +230,9 @@ class CreditNoteTestCase(_BillingTestCase):
 
         context = response.context
         # self.assertEqual(_('Credit notes for «%s»') % invoice, context.get('title'))
-        self.assertEqual(_('Credit notes for «{}»').format(invoice), context.get('title'))
+        self.assertEqual(_('Credit notes for «{entity}»').format(entity=invoice), context.get('title'))
         # self.assertEqual(_('Save the credit notes'),                 context.get('submit_label'))
-        self.assertEqual(_('Link the credit notes'),                 context.get('submit_label'))
+        self.assertEqual(_('Link the credit notes'),                              context.get('submit_label'))
 
         # ---
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
@@ -499,7 +499,10 @@ class CreditNoteTestCase(_BillingTestCase):
         response = self.assertGET200(url)
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Edit «%s»') % credit_note, response.context.get('title'))
+        # self.assertEqual(_('Edit «%s»') % credit_note, response.context.get('title'))
+        self.assertEqual(_('Edit «{object}»').format(object=credit_note),
+                         response.context.get('title')
+                        )
 
         # ---
         comment = 'Special gift'

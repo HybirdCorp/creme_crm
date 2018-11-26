@@ -549,7 +549,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_wizard_popup.html')
 
         context = response.context
-        title = _('Sending an email to «{}»').format(contact)
+        title = _('Sending an email to «{entity}»').format(entity=contact)
         self.assertEqual(
             # _('Sending an email to «{entity}» (step {step}/2)').format(entity=contact, step=1),
             title,

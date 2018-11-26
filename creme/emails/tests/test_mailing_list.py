@@ -92,8 +92,10 @@ class MailingListsTestCase(_EmailsTestCase):
 
         context = response.context
         # self.assertEqual(_('New mailing lists for «%s»') % campaign, context.get('title'))
-        self.assertEqual(_('New mailing lists for «{}»').format(campaign), context.get('title'))
-        self.assertEqual(_('Link the mailing lists'),                      context.get('submit_label'))
+        self.assertEqual(_('New mailing lists for «{entity}»').format(entity=campaign),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link the mailing lists'), context.get('submit_label'))
 
         # ----
         def post(*mlists):
@@ -156,8 +158,10 @@ class MailingListsTestCase(_EmailsTestCase):
 
         context = self.assertGET200(url).context
         # self.assertEqual(_('New recipients for «%s»') % mlist, context.get('title'))
-        self.assertEqual(_('New recipients for «{}»').format(mlist), context.get('title'))
-        self.assertEqual(EmailRecipient.multi_save_label,            context.get('submit_label'))
+        self.assertEqual(_('New recipients for «{entity}»').format(entity=mlist),
+                         context.get('title')
+                        )
+        self.assertEqual(EmailRecipient.multi_save_label, context.get('submit_label'))
 
         # --------------------
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
@@ -228,8 +232,10 @@ class MailingListsTestCase(_EmailsTestCase):
 
         context = response.context
         # self.assertEqual(_('New contacts for «%s»') % mlist, context.get('title'))
-        self.assertEqual(_('New contacts for «{}»').format(mlist), context.get('title'))
-        self.assertEqual(_('Link the contacts'),                   context.get('submit_label'))
+        self.assertEqual(_('New contacts for «{entity}»').format(entity=mlist),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link the contacts'), context.get('submit_label'))
 
         create = partial(Contact.objects.create, user=self.user)
         recipients = [create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
@@ -278,8 +284,10 @@ class MailingListsTestCase(_EmailsTestCase):
 
         context = response.context
         # self.assertEqual(_('New contacts for «%s»') % mlist, context.get('title'))
-        self.assertEqual(_('New contacts for «{}»').format(mlist), context.get('title'))
-        self.assertEqual(_('Link the contacts'),                   context.get('submit_label'))
+        self.assertEqual(_('New contacts for «{entity}»').format(entity=mlist),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link the contacts'), context.get('submit_label'))
 
         create = partial(Contact.objects.create, user=self.user)
         create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
@@ -355,8 +363,10 @@ class MailingListsTestCase(_EmailsTestCase):
 
         context = response.context
         # self.assertEqual(_('New organisations for «%s»') % mlist, context.get('title'))
-        self.assertEqual(_('New organisations for «{}»').format(mlist), context.get('title'))
-        self.assertEqual(_('Link the organisations'),                   context.get('submit_label'))
+        self.assertEqual(_('New organisations for «{entity}»').format(entity=mlist),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link the organisations'), context.get('submit_label'))
 
         create = partial(Organisation.objects.create, user=self.user)
         recipients = [create(name='NERV',  email='contact@nerv.jp'),
@@ -403,8 +413,10 @@ class MailingListsTestCase(_EmailsTestCase):
 
         context = response.context
         # self.assertEqual(_('New organisations for «%s»') % mlist, context.get('title'))
-        self.assertEqual(_('New organisations for «{}»').format(mlist), context.get('title'))
-        self.assertEqual(_('Link the organisations'),                   context.get('submit_label'))
+        self.assertEqual(_('New organisations for «{entity}»').format(entity=mlist),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link the organisations'), context.get('submit_label'))
 
         create_orga = partial(Organisation.objects.create, user=self.user)
         create_orga(name='NERV',  email='contact@nerv.jp'),
@@ -481,8 +493,10 @@ class MailingListsTestCase(_EmailsTestCase):
 
         context = response.context
         # self.assertEqual(_('New child lists for «%s»') % mlist01, context.get('title'))
-        self.assertEqual(_('New child list for «{}»').format(mlist01), context.get('title'))
-        self.assertEqual(_('Link the mailing list'),                   context.get('submit_label'))
+        self.assertEqual(_('New child list for «{entity}»').format(entity=mlist01),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link the mailing list'), context.get('submit_label'))
 
         # --------------------
         self.assertPOST200(url, data={'child': mlist02.id})

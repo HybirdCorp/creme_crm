@@ -210,19 +210,12 @@ class EntityDetail(CremeModelDetail):
         return entity
 
 
-class CremeModelDetailPopup(CremeModelDetail):
+class CremeModelDetailPopup(base.TitleMixin, CremeModelDetail):
     """ Base class for inner-popup displaying the detailed information
     of an instance.
-
-    New attributes:
-    title: A string used as popup's title. <None> (default value) means that the
-           attribute "title_format" will be used to build the title (see get_title()).
-    title_format: A {}-format string formatted with the edited instance as
-                  argument (see get_title()).
     """
     template_name = 'creme_core/generics/detail-popup.html'
-    title = None
-    title_format = '{}'
+    title = '{object}'
     bricks_reload_url_name = ''
 
     def get_context_data(self, **kwargs):
@@ -231,13 +224,11 @@ class CremeModelDetailPopup(CremeModelDetail):
 
         return context
 
-    def get_title_format(self):
-        return self.title_format
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['object'] = self.object
 
-    def get_title(self):
-        title = self.title
-
-        return self.get_title_format().format(self.object) if title is None else title
+        return data
 
 
 class EntityDetailPopup(CremeModelDetailPopup):
@@ -257,3 +248,10 @@ class RelatedToEntityDetailPopup(CremeModelDetailPopup):
     """
     def check_instance_permissions(self, instance, user):
         user.has_perm_to_view_or_die(instance.get_related_entity())
+
+    # TODO ?
+    # def get_title_format_data(self):
+    #     data = super().get_title_format_data()
+    #     data['entity'] = self.object.get_related_entity().allowed_str(self.request.user)
+    #
+    #     return data

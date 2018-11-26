@@ -420,7 +420,7 @@ class AddContactsToEvent(generic.EntityEdition):
     form_class = event_forms.AddContactsToEventForm
     template_name = 'creme_core/generics/blockform/link.html'
     pk_url_kwarg = 'event_id'
-    title_format = _('Link some contacts to «{}»')
+    title = _('Link some contacts to «{object}»')
     submit_label = _('Link these contacts')
 
     # TODO: use a "?next=" GET argument ?
@@ -432,7 +432,7 @@ class RelatedOpportunityCreation(generic.EntityCreation):
     model = Opportunity
     form_class = event_forms.RelatedOpportunityCreateForm
     permissions = 'events'
-    title_format = _('Create an opportunity related to «{contact}»')
+    title = _('Create an opportunity related to «{contact}»')
     event_id_url_kwarg = 'event_id'
     contact_id_url_kwarg = 'contact_id'
 
@@ -466,5 +466,9 @@ class RelatedOpportunityCreation(generic.EntityCreation):
 
         return kwargs
 
-    def get_title(self):
-        return self.title_format.format(contact=self.get_contact())
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['contact'] = self.get_contact()
+        # data['event'] = self.get_event()  TODO ?
+
+        return data

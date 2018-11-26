@@ -186,7 +186,7 @@ class CommentEdition(generic.EntityEditionPopup):
 class CreditNotesLinking(generic.RelatedToEntityFormPopup):
     form_class = cnote_forms.CreditNoteRelatedForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
-    title_format = _('Credit notes for «{}»')
+    title = _('Credit notes for «{entity}»')
     submit_label = _('Link the credit notes')
     entity_id_url_kwarg = 'base_id'
     # TODO: factorise (see populate.py => REL_OBJ_CREDIT_NOTE_APPLIED)

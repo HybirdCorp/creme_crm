@@ -22,7 +22,7 @@
 
 # from django.http import Http404
 # from django.shortcuts import get_object_or_404
-# from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
 # from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
@@ -54,7 +54,7 @@ from ..forms.setting import SettingForm
 #     return inner_popup(request,
 #                        'creme_core/generics/blockform/edit_popup.html',
 #                        {'form':  form,
-#                         'title': _(u'Edit «{}»').format(svalue.key.description),
+#                         'title': ugettext(u'Edit «{}»').format(svalue.key.description),
 #                        },
 #                        is_valid=form.is_valid(),
 #                        reload=False,
@@ -64,7 +64,7 @@ class SettingValueEdition(CremeModelEditionPopup):
     model = SettingValue
     form_class = SettingForm
     pk_url_kwarg = 'svalue_id'
-    # title_format = _('Edit «{}»')
+    title = _('Edit «{key}»')
 
     def get_object(self, *args, **kwargs):
         svalue = super().get_object(*args, **kwargs)
@@ -76,5 +76,8 @@ class SettingValueEdition(CremeModelEditionPopup):
 
         return svalue
 
-    def get_title(self):
-        return self.title_format.format(self.object.key.description)
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['key'] = self.object.key.description
+
+        return data

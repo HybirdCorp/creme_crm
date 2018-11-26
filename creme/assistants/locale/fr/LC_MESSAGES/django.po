@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 18:37+0200\n"
+"POT-Creation-Date: 2018-11-26 14:45+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -553,41 +553,50 @@ msgstr "Supprimer ce todo"
 msgid "No Todo for the moment"
 msgstr "Aucun Todo enregistré pour le moment"
 
-#: views/action.py:40
-msgid "New action for «{}»"
-msgstr "Nouvelle action pour «{}»"
+#: views/action.py:43
+#, python-brace-format
+msgid "New action for «{entity}»"
+msgstr "Nouvelle action pour «{entity}»"
 
-#: views/action.py:50
-msgid "Action for «{}»"
-msgstr "Action pour «{}»"
+#: views/action.py:53
+#, python-brace-format
+msgid "Action for «{entity}»"
+msgstr "Action pour «{entity}»"
 
-#: views/alert.py:40
-msgid "New alert for «{}»"
-msgstr "Nouvelle alerte pour «{}»"
+#: views/alert.py:43
+#, python-brace-format
+msgid "New alert for «{entity}»"
+msgstr "Nouvelle alerte pour «{entity}»"
 
-#: views/alert.py:52
-msgid "Alert for «{}»"
-msgstr "Alerte pour «{}»"
+#: views/alert.py:55
+#, python-brace-format
+msgid "Alert for «{entity}»"
+msgstr "Alerte pour «{entity}»"
 
 #: views/memo.py:38
-msgid "New memo for «{}»"
-msgstr "Nouveau Mémo pour «{}»"
+#, python-brace-format
+msgid "New memo for «{entity}»"
+msgstr "Nouveau Mémo pour «{entity}»"
 
 #: views/memo.py:48
-msgid "Memo for «{}»"
-msgstr "Mémo pour «{}»"
+#, python-brace-format
+msgid "Memo for «{entity}»"
+msgstr "Mémo pour «{entity}»"
 
-#: views/todo.py:39
-msgid "New todo for «{}»"
-msgstr "Nouveau Todo pour «{}»"
+#: views/todo.py:42
+#, python-brace-format
+msgid "New todo for «{entity}»"
+msgstr "Nouveau Todo pour «{entity}»"
 
-#: views/todo.py:49
-msgid "Todo for «{}»"
-msgstr "Todo pour «{}»"
+#: views/todo.py:52
+#, python-brace-format
+msgid "Todo for «{entity}»"
+msgstr "Todo pour «{entity}»"
 
 #: views/user_message.py:69
-msgid "New message about «{}»"
-msgstr "Nouveau message à propos de «{}»"
+#, python-brace-format
+msgid "New message about «{entity}»"
+msgstr "Nouveau message à propos de «{entity}»"
 
 #: views/user_message.py:77
 msgid "You are not allowed to delete this message: {}"

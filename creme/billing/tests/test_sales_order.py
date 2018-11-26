@@ -82,8 +82,10 @@ class SalesOrderTestCase(_BillingTestCase):
 
         context = response.context
         # self.assertEqual(_('Create a salesorder for «%s»') % target, context.get('title'))
-        self.assertEqual(_('Create a salesorder for «{}»').format(target), context.get('title'))
-        self.assertEqual(SalesOrder.save_label,                            context.get('submit_label'))
+        self.assertEqual(_('Create a salesorder for «{entity}»').format(entity=target),
+                         context.get('title')
+                        )
+        self.assertEqual(SalesOrder.save_label, context.get('submit_label'))
 
         with self.assertNoException():
             form = context['form']

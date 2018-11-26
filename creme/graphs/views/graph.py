@@ -155,9 +155,8 @@ class GraphEdition(generic.EntityEdition):
 
 
 class RelationTypesAdding(generic.RelatedToEntityFormPopup):
-    # model = RelationType
     form_class = g_forms.AddRelationTypesForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
-    title_format = _('Add relation types to «{}»')
+    title = _('Add relation types to «{entity}»')
     entity_id_url_kwarg = 'graph_id'
     entity_classes = Graph

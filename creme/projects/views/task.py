@@ -144,7 +144,7 @@ def delete_parent(request):
 class TaskCreation(generic.AddingInstanceToEntityPopup):
     model = ProjectTask
     form_class = task_forms.TaskCreateForm
-    title_format = _('Create a task for «{}»')
+    title = _('Create a task for «{entity}»')
     entity_id_url_kwarg = 'project_id'
     entity_classes = projects.get_project_model()
 
@@ -175,7 +175,7 @@ class ParentsAdding(generic.EntityEditionPopup):
     model = ProjectTask
     form_class = task_forms.TaskAddParentForm
     pk_url_kwarg = 'task_id'
-    title_format = _('Adding parents to «{}»')
+    title = _('Adding parents to «{object}»')
 
 
 class ActivityEditionPopup(generic.EntityEditionPopup):
@@ -222,7 +222,7 @@ class RelatedActivityCreation(generic.AddingInstanceToEntityPopup):
     model = Activity
     form_class = task_forms.RelatedActivityCreateForm
     permissions = cperm(Activity)
-    title_format = _('New activity related to «{}»')
+    title = _('New activity related to «{entity}»')
     entity_id_url_kwarg = 'task_id'
     entity_classes = ProjectTask
 

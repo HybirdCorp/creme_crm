@@ -158,7 +158,7 @@ class RelatedInvoiceCreation(base.RelatedBaseCreation):
     model = Invoice
     form_class = invoice_forms.InvoiceCreateForm
     permissions = ('billing', cperm(Invoice))
-    title_format = _('Create an invoice for «{}»')
+    title = _('Create an invoice for «{entity}»')
     initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
 
 

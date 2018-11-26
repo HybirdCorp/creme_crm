@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-31 16:16+0100\n"
+"POT-Creation-Date: 2018-11-26 17:11+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1013,28 +1013,34 @@ msgid "Edit address for «%s»"
 msgstr "Modifier l'adresse pour «%s»"
 
 #: views/address.py:125
-msgid "Adding address to «{}»"
-msgstr "Ajouter une addresse à «{}»"
+#, python-brace-format
+msgid "Adding address to «{entity}»"
+msgstr "Ajouter une addresse à «{entity}»"
 
 #: views/address.py:130
-msgid "Adding billing address to «{}»"
-msgstr "Ajouter l'adresse de facturation pour «{}»"
+#, python-brace-format
+msgid "Adding billing address to «{entity}»"
+msgstr "Ajouter l'adresse de facturation pour «{entity}»"
 
 #: views/address.py:135
-msgid "Adding shipping address to «{}»"
-msgstr "Ajouter l'adresse de livraison pour «{}»"
+#, python-brace-format
+msgid "Adding shipping address to «{entity}»"
+msgstr "Ajouter l'adresse de livraison pour «{entity}»"
 
-#: views/address.py:143
-msgid "Edit address for «{}»"
-msgstr "Modifier l'adresse pour «{}»"
-
-#: views/address.py:150
-msgid "Edit billing address for «{}»"
-msgstr "Modifier l'adresse de facturation pour «{}»"
+#: views/address.py:149
+#, python-brace-format
+msgid "Edit address for «{entity}»"
+msgstr "Modifier l'adresse pour «{entity}»"
 
 #: views/address.py:151
-msgid "Edit shipping address for «{}»"
-msgstr "Modifier l'adresse de livraison pour «{}»"
+#, python-brace-format
+msgid "Edit billing address for «{entity}»"
+msgstr "Modifier l'adresse de facturation pour «{entity}»"
+
+#: views/address.py:152
+#, python-brace-format
+msgid "Edit shipping address for «{entity}»"
+msgstr "Modifier l'adresse de livraison pour «{entity}»"
 
 #: views/organisation.py:115
 msgid "List of my suspects / prospects / customers"
@@ -1049,7 +1055,7 @@ msgstr "Ajouter des sociétés gérées"
 msgid "Save the modifications"
 msgstr ""
 
-#: views/organisation.py:198
+#: views/organisation.py:192
 msgid "You must have at least one managed organisation."
 msgstr "Vous devez avoir au moins une société gérée."
 

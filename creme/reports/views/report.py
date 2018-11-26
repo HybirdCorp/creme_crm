@@ -167,7 +167,7 @@ class ReportLinking(generic.CremeModelEditionPopup):
     form_class = report_forms.LinkFieldToReportForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     permissions = 'reports'
-    title_format = _('Link of the column «{}»')
+    title = _('Link of the column «{object}»')
     submit_label = _('Link')
 
     def check_instance_permissions(self, instance, user):
@@ -212,7 +212,7 @@ class FieldsEdition(generic.EntityEditionPopup):
     model = Report
     form_class = report_forms.ReportFieldsForm
     pk_url_kwarg = 'report_id'
-    title_format = _('Edit columns of «{}»')
+    title = _('Edit columns of «{object}»')
 
 
 @POST_only

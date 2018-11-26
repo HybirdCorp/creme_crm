@@ -185,9 +185,10 @@ class ServiceTestCase(_ProductsTestCase):
 
         context = response.context
         # self.assertEqual(_('New images for «%s»') % service, context.get('title'))
-        self.assertEqual(_('New images for «{}»').format(service), context.get('title'))
-        self.assertEqual(_('Link the images'),                     context.get('submit_label'))
-
+        self.assertEqual(_('New images for «{entity}»').format(entity=service),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Link the images'), context.get('submit_label'))
 
         def post(*images):
             return self.client.post(url, follow=True,

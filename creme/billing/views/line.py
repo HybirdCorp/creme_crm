@@ -106,13 +106,13 @@ class _LinesCreation(generic.RelatedToEntityFormPopup):
 class ProductLinesCreation(_LinesCreation):
     # model = ProductLine
     form_class = line_forms.ProductLineMultipleAddForm
-    title_format = _('Add one or more product to «{}»')
+    title = _('Add one or more product to «{entity}»')
 
 
 class ServiceLinesCreation(_LinesCreation):
     # model = ServiceLine
     form_class = line_forms.ServiceLineMultipleAddForm
-    title_format = _('Add one or more service to «{}»')
+    title = _('Add one or more service to «{entity}»')
 
 
 @login_required

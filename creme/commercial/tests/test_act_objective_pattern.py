@@ -108,8 +108,10 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         url = self._build_addcomp_url(pattern)
         context = self.assertGET200(url).context
         # self.assertEqual(_('New objective for «%s»') % pattern, context.get('title'))
-        self.assertEqual(_('New objective for «{}»').format(pattern), context.get('title'))
-        self.assertEqual(_('Save the objective'),                     context.get('submit_label'))
+        self.assertEqual(_('New objective for «{entity}»').format(entity=pattern),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the objective'), context.get('submit_label'))
 
         # ---
         name = 'Signed opportunities'
@@ -183,8 +185,10 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         context = response.context
         # self.assertEqual(_('New child objective for «%s»') % comp01, context.get('title'))
-        self.assertEqual(_('New child objective for «{}»').format(comp01), context.get('title'))
-        self.assertEqual(_('Save the objective'),                          context.get('submit_label'))
+        self.assertEqual(_('New child objective for «{component}»').format(component=comp01),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the objective'), context.get('submit_label'))
 
         # ---
         name = 'Spread Vcards'
@@ -232,8 +236,10 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         context = response.context
         # self.assertEqual(_('New parent objective for «%s»') % comp01, context.get('title'))
-        self.assertEqual(_('New parent objective for «{}»').format(comp01), context.get('title'))
-        self.assertEqual(_('Save the objective'),                           context.get('submit_label'))
+        self.assertEqual(_('New parent objective for «{component}»').format(component=comp01),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the objective'), context.get('submit_label'))
 
         # ---
         name = 'Signed opportunities'

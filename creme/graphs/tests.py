@@ -110,8 +110,10 @@ class GraphsTestCase(CremeTestCase):
 
         context = response.context
         # self.assertEqual(_('Add relation types to «%s»') % graph, context.get('title'))
-        self.assertEqual(_('Add relation types to «{}»').format(graph), context.get('title'))
-        self.assertEqual(_('Save'),                                     context.get('submit_label'))
+        self.assertEqual(_('Add relation types to «{entity}»').format(entity=graph),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save'), context.get('submit_label'))
 
         # ---
         rtype_create = RelationType.create
@@ -226,8 +228,10 @@ class GraphsTestCase(CremeTestCase):
 
         context = response.context
         # self.assertEqual(_('Add root nodes to «%s»') % graph, context.get('title'))
-        self.assertEqual(_('Add root nodes to «{}»').format(graph), context.get('title'))
-        self.assertEqual(_('Save'),                                 context.get('submit_label'))
+        self.assertEqual(_('Add root nodes to «{entity}»').format(entity=graph),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save'), context.get('submit_label'))
 
         # ----
         response = self.client.post(url, data={'entities': self.formfield_value_multi_generic_entity(
@@ -278,7 +282,7 @@ class GraphsTestCase(CremeTestCase):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Edit root node for «%s»') % graph, response.context.get('title'))
-        self.assertEqual(_('Edit root node for «{}»').format(graph),
+        self.assertEqual(_('Edit root node for «{entity}»').format(entity=graph),
                          response.context.get('title')
                         )
 

@@ -133,9 +133,8 @@ class PropertiesBulkAdding(EntityCTypeRelatedMixin, generic.CremeFormPopup):
 #                                  submit_label=_('Add the properties'),
 #                                 )
 class PropertiesAdding(generic.RelatedToEntityFormPopup):
-    # model = CremeProperty
     form_class = prop_forms.AddPropertiesForm
-    title_format = _('New properties for «{}»')
+    title = _('New properties for «{entity}»')
     submit_label = _('Add the properties')
 
 

@@ -350,8 +350,10 @@ class ProjectsTestCase(CremeTestCase):
 
         context = self.assertGET200(url).context
         # self.assertEqual(_('Create a task for «%s»') % project, context.get('title'))
-        self.assertEqual(_('Create a task for «{}»').format(project), context.get('title'))
-        self.assertEqual(ProjectTask.save_label,                      context.get('submit_label'))
+        self.assertEqual(_('Create a task for «{entity}»').format(entity=project),
+                         context.get('title')
+                        )
+        self.assertEqual(ProjectTask.save_label, context.get('submit_label'))
 
         # ---
         tstatus = TaskStatus.objects.all()[0]
@@ -543,7 +545,7 @@ class ProjectsTestCase(CremeTestCase):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Edit «%s»') % task03, response.context.get('title'))
-        self.assertEqual(_('Adding parents to «{}»').format(task03),
+        self.assertEqual(_('Adding parents to «{object}»').format(object=task03),
                          response.context.get('title')
                         )
 
@@ -668,8 +670,10 @@ class ProjectsTestCase(CremeTestCase):
 
         context = self.assertGET200(self._build_add_activity_url(task)).context
         # self.assertEqual(_('New activity related to «%s»') % task, context.get('title'))
-        self.assertEqual(_('New activity related to «{}»').format(task), context.get('title'))
-        self.assertEqual(Activity.save_label,                            context.get('submit_label'))
+        self.assertEqual(_('New activity related to «{entity}»').format(entity=task),
+                         context.get('title')
+                        )
+        self.assertEqual(Activity.save_label, context.get('submit_label'))
 
         atype = ACTIVITYTYPE_MEETING
         stype = ACTIVITYSUBTYPE_MEETING_MEETING
@@ -1030,7 +1034,9 @@ class ProjectsTestCase(CremeTestCase):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Resource for «%s»') % task1, response.context.get('title'))
-        self.assertEqual(_('Resource for «{}»').format(task1), response.context.get('title'))
+        self.assertEqual(_('Resource for «{entity}»').format(entity=task1),
+                         response.context.get('title')
+                        )
 
         response = self.client.post(url,
                                     follow=True,

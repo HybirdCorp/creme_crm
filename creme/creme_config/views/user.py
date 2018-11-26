@@ -52,7 +52,7 @@ class PasswordChange(generic.CremeModelEditionPopup):
     model = get_user_model()
     form_class = user_forms.UserChangePwForm
     pk_url_kwarg = 'user_id'
-    title_format = _('Change password for «{}»')
+    title = _('Change password for «{object}»')
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
@@ -175,7 +175,7 @@ class UserDeletion(BaseUserEdition):
     """
     form_class = user_forms.UserAssignationForm
     template_name = 'creme_core/generics/blockform/delete-popup.html'
-    title_format = _('Delete «{}» and assign his entities to user')
+    title = _('Delete «{object}» and assign his entities to user')
     submit_label = _('Delete the user')
 
     lock_name = 'creme_config-user_transfer'

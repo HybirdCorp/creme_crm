@@ -122,7 +122,7 @@ def set_timezone(request):
 class UserSettingValueEdition(generic.CremeEditionPopup):
     form_class = UserSettingForm
     key_id_url_kwarg = 'skey_id'
-    title_format = _('Edit «{}»')
+    title = _('Edit «{key}»')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -150,5 +150,8 @@ class UserSettingValueEdition(generic.CremeEditionPopup):
 
         return skey
 
-    def get_title(self):
-        return self.title_format.format(self.get_skey().description)
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['key'] = self.get_skey().description
+
+        return data
