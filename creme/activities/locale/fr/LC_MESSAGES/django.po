@@ -8,46 +8,50 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-08 00:36+0100\n"
+"POT-Creation-Date: 2018-11-26 14:31+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:30 apps.py:116 apps.py:141 models/activity.py:79
+#: actions.py:35 templates/activities/frags/ical_list_view_button.html:4
+msgid "Download in iCalendar format"
+msgstr "Télécharger au format iCalendar"
+
+#: apps.py:30 apps.py:121 apps.py:146 models/activity.py:79
 msgid "Activities"
 msgstr "Activités"
 
-#: apps.py:120 forms/calendar.py:71 models/calendar.py:45
+#: apps.py:125 forms/calendar.py:71 models/calendar.py:45
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: apps.py:129 populate.py:119
+#: apps.py:134 populate.py:119
 msgid "Phone calls"
 msgstr "Appels téléphoniques"
 
-#: apps.py:135 populate.py:118
+#: apps.py:140 populate.py:118
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-#: apps.py:142 constants.py:33 populate.py:86
+#: apps.py:147 constants.py:33 populate.py:86
 msgid "Phone call"
 msgstr "Appel téléphonique"
 
-#: apps.py:143 constants.py:32 populate.py:84 populate.py:92
+#: apps.py:148 constants.py:32 populate.py:84 populate.py:92
 msgid "Meeting"
 msgstr "Rendez-vous"
 
-#: apps.py:144 models/activity.py:78
+#: apps.py:149 models/activity.py:78
 msgid "Activity"
 msgstr "Activité"
 
-#: apps.py:145 constants.py:34 populate.py:82
+#: apps.py:150 constants.py:34 populate.py:82
 msgid "Task"
 msgstr "Tâche"
 
-#: apps.py:146 populate.py:90
+#: apps.py:151 populate.py:90
 msgid "Unavailability"
 msgstr "Indisponibilité"
 
@@ -56,7 +60,7 @@ msgstr "Indisponibilité"
 msgid "Participants"
 msgstr "Participants"
 
-#: bricks.py:95 forms/activity.py:271 forms/bricks.py:157
+#: bricks.py:95 forms/activity.py:271 forms/bricks.py:156
 #: templates/activities/bricks/subjects.html:7
 msgid "Subjects"
 msgstr "Sujets"
@@ -189,7 +193,7 @@ msgstr "Générer une alerte dans un certain temps"
 msgid "Users to keep informed"
 msgstr "Utilisateurs à tenir informés"
 
-#: forms/activity.py:306 forms/bricks.py:77
+#: forms/activity.py:306 forms/bricks.py:76
 msgid ""
 "The organisations of the participants will be automatically added as subjects"
 msgstr ""
@@ -279,7 +283,7 @@ msgstr[1] ""
 "Le type de {count} activités ne peut pas être modifié parce que ce sont des "
 "indisponibilités."
 
-#: forms/bricks.py:180
+#: forms/bricks.py:178
 #, python-format
 msgid "This entity is already a subject: %(duplicates)s"
 msgid_plural "These entities are already subjects: %(duplicates)s"
@@ -896,13 +900,9 @@ msgstr "Motif de contact"
 msgid "Create the Organisations which are not found?"
 msgstr "Créer les Sociétés qui ne sont pas trouvées ?"
 
-#: templates/activities/frags/ical_list_view_button.html:3
+#: templates/activities/frags/ical_list_view_button.html:4
 msgid "iCalendar file"
 msgstr "Fichier iCalendar"
-
-#: templates/activities/frags/ical_list_view_button.html:3
-msgid "Download in iCalendar format"
-msgstr "Télécharger au format iCalendar"
 
 #: templates/activities/view_activity.html:6
 msgid "Go to the calendar"
@@ -917,37 +917,40 @@ msgstr ""
 "{participant} participe déjà à l'activité «{activity}» entre {start} et "
 "{end}."
 
-#: views/activity.py:148
+#: views/activity.py:149
 msgid "New activity"
 msgstr "Nouvelle activité"
 
-#: views/bricks.py:51
-msgid "Adding participants to activity «{}»"
-msgstr "Ajout de participants pour l'activité «{}»"
+#: views/bricks.py:50
+#, python-brace-format
+msgid "Adding participants to activity «{entity}»"
+msgstr "Ajout de participants pour l'activité «{entity}»"
 
-#: views/bricks.py:52
+#: views/bricks.py:51
 msgid "Add the participants"
 msgstr "Ajouter les participants"
 
-#: views/bricks.py:92
-msgid "Adding subjects to activity «{}»"
-msgstr "Ajout de sujets pour l'activité «{}»"
+#: views/bricks.py:90
+#, python-brace-format
+msgid "Adding subjects to activity «{entity}»"
+msgstr "Ajout de sujets pour l'activité «{entity}»"
 
-#: views/bricks.py:93
+#: views/bricks.py:91
 msgid "Add the subjects"
 msgstr "Ajouter les sujets"
 
-#: views/bricks.py:110
+#: views/bricks.py:108
 msgid "One entity does not exist any more."
 msgstr "Une fiche n'existe plus."
 
-#: views/calendar.py:326
+#: views/calendar.py:327
 msgid "You are not allowed to delete this calendar."
 msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
 
-#: views/calendar.py:350
-msgid "Change calendar of «{}»"
-msgstr "Changer le calendrier de «{}»"
+#: views/calendar.py:351
+#, python-brace-format
+msgid "Change calendar of «{object}»"
+msgstr "Changer le calendrier de «{object}»"
 
 #~ msgctxt "activities-stats"
 #~ msgid "{count} in all"

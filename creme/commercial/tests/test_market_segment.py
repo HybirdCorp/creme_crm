@@ -105,8 +105,8 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         context = response.context
         # self.assertEqual(_('Edit «%s»') % segment, context.get('title'))
-        self.assertEqual(_('Edit «{}»').format(segment), context.get('title'))
-        self.assertEqual(_('Save the modifications'),    context.get('submit_label'))
+        self.assertEqual(_('Edit «{object}»').format(object=segment), context.get('title'))
+        self.assertEqual(_('Save the modifications'),                 context.get('submit_label'))
 
         # ---
         name = name.title()
@@ -227,8 +227,10 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete-popup.html')
 
         context = response.context
-        self.assertEqual(_('Delete and replace «{}»').format(segment1), context.get('title'))
-        self.assertEqual(_('Replace'),                                  context.get('submit_label'))
+        self.assertEqual(_('Delete and replace «{object}»').format(object=segment1),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Replace'), context.get('submit_label'))
 
         # ---
         self.assertPOST200(url, data={'to_segment': segment2.id})

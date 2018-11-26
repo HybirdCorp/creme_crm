@@ -48,8 +48,10 @@ class LineTestCase(_BillingTestCase):
 
         context = response.context
         # self.assertEqual(_('Add one or more product to «%s»') % invoice, context.get('title'))
-        self.assertEqual(_('Add one or more product to «{}»').format(invoice), context.get('title'))
-        self.assertEqual(_('Save the lines'),                                  context.get('submit_label'))
+        self.assertEqual(_('Add one or more product to «{entity}»').format(entity=invoice),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the lines'), context.get('submit_label'))
 
         # ---
         self.assertFalse(invoice.get_lines(ServiceLine))
@@ -220,8 +222,10 @@ class LineTestCase(_BillingTestCase):
 
         context = response.context
         # self.assertEqual(_('Add one or more service to «%s»') % invoice, context.get('title'))
-        self.assertEqual(_('Add one or more service to «{}»').format(invoice), context.get('title'))
-        self.assertEqual(_('Save the lines'),                                  context.get('submit_label'))
+        self.assertEqual(_('Add one or more service to «{entity}»').format(entity=invoice),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the lines'), context.get('submit_label'))
 
         # ---
         self.assertFalse(invoice.get_lines(Service))

@@ -172,8 +172,10 @@ class InvoiceTestCase(_BillingTestCase):
 
         context = response.context
         # self.assertEqual(_('Create an invoice for «%s»') % target, context.get('title'))
-        self.assertEqual(_('Create an invoice for «{}»').format(target), context.get('title'))
-        self.assertEqual(Invoice.save_label,                             context.get('submit_label'))
+        self.assertEqual(_('Create an invoice for «{entity}»').format(entity=target),
+                         context.get('title')
+                        )
+        self.assertEqual(Invoice.save_label, context.get('submit_label'))
 
         with self.assertNoException():
             form = context['form']

@@ -173,7 +173,7 @@ class ExportFilterURL(generic.EntityEditionPopup):
     form_class = report_forms.ReportExportFilterForm
     template_name = 'reports/forms/report-export-filter.html'
     pk_url_kwarg = 'report_id'
-    title_format = pgettext_lazy('reports-report', 'Export «{}»')
+    title = pgettext_lazy('reports-report', 'Export «{object}»')
     submit_label = pgettext_lazy('reports-report', 'Export')
 
     def __init__(self, *args, **kwargs):

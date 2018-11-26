@@ -543,8 +543,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('New replies for «%s»') % pform, context.get('title'))
-        self.assertEqual(_('New replies for «{}»').format(pform), context.get('title'))
-        self.assertEqual(PollReply.multi_save_label,              context.get('submit_label'))
+        self.assertEqual(_('New replies for «{entity}»').format(entity=pform),
+                         context.get('title')
+                        )
+        self.assertEqual(PollReply.multi_save_label, context.get('submit_label'))
 
         name = 'Reply#1'
         self.assertNoFormError(self.client.post(url, data={'user': user.id,
@@ -711,7 +713,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('Existing replies for «%s»') % person, context.get('title'))
-        self.assertEqual(_('Existing replies for «{}»').format(person),
+        self.assertEqual(_('Existing replies for «{entity}»').format(entity=person),
                          context.get('title')
                         )
         self.assertEqual(_('Link to the replies'), context.get('submit_label'))
@@ -803,8 +805,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('New replies for «%s»') % person, context.get('title'))
-        self.assertEqual(_('New replies for «{}»').format(person), context.get('title'))
-        self.assertEqual(PollReply.multi_save_label,               context.get('submit_label'))
+        self.assertEqual(_('New replies for «{entity}»').format(entity=person),
+                         context.get('title')
+                        )
+        self.assertEqual(PollReply.multi_save_label, context.get('submit_label'))
 
         with self.assertNoException():
             fields = context['form'].fields

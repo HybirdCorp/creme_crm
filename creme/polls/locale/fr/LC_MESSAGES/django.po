@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Polls 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-20 15:23+0100\n"
+"POT-Creation-Date: 2018-11-26 17:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -634,30 +634,41 @@ msgid "[An error occurred]"
 msgstr "[Une erreur s'est produite]"
 
 #: views/poll_form.py:127
-msgid "Question for «{}»"
-msgstr "Question pour «{}»"
+#, python-brace-format
+msgid "Question for «{entity}»"
+msgstr "Question pour «{entity}»"
 
 #: views/poll_form.py:192
-msgid "Section for «{}»"
-msgstr "Section pour «{}»"
+#, python-brace-format
+msgid "Section for «{entity}»"
+msgstr "Section pour «{entity}»"
 
 #: views/poll_form.py:282
-msgid "New question for «{}»"
-msgstr "Nouvelle question pour «{}»"
+#, python-brace-format
+msgid "New question for «{entity}»"
+msgstr "Nouvelle question pour «{entity}»"
 
-#: views/poll_form.py:327
-msgid "New section for «{}»"
-msgstr "Nouvelle section pour «{}»"
+#: views/poll_form.py:316
+#, python-brace-format
+msgid "New question for section «{section}»"
+msgstr "Nouvelle question pour la section «{section}»"
 
 #: views/poll_form.py:332
-msgid "New sub-section for «{}»"
-msgstr "Nouvelle sous-section pour «{}»"
+#, python-brace-format
+msgid "New section for «{entity}»"
+msgstr "Nouvelle section pour «{entity}»"
 
-#: views/poll_form.py:342
-msgid "Conditions for «{}»"
-msgstr "Conditions pour «{}»"
+#: views/poll_form.py:337
+#, python-brace-format
+msgid "New sub-section for «{section}»"
+msgstr "Nouvelle sous-section pour «{section}»"
 
-#: views/poll_form.py:343
+#: views/poll_form.py:350
+#, python-brace-format
+msgid "Conditions for «{entity}»"
+msgstr "Conditions pour «{entity}»"
+
+#: views/poll_form.py:351
 msgid "Save the conditions"
 msgstr "Enregistrer les conditions"
 
@@ -675,31 +686,33 @@ msgstr "Rappel de la Question/Réponse précédente :"
 msgid "Edit"
 msgstr ""
 
-#: views/poll_reply.py:332 views/poll_reply.py:393
+#: views/poll_reply.py:328 views/poll_reply.py:385
 msgid "Answers of the form : {}"
 msgstr "Réponses à un formulaire : {}"
 
-#: views/poll_reply.py:355
+#: views/poll_reply.py:347
 msgid "All questions have been answered."
 msgstr "Les questions ont déjà toute une réponse."
 
-#: views/poll_reply.py:498
-msgid "New replies for «{}»"
-msgstr "Nouvelles réponses pour «{}»"
+#: views/poll_reply.py:490
+#, python-brace-format
+msgid "New replies for «{entity}»"
+msgstr "Nouvelles réponses pour «{entity}»"
 
-#: views/poll_reply.py:537
-msgid "Existing replies for «{}»"
-msgstr "Réponses existantes pour «{}»"
+#: views/poll_reply.py:529
+#, python-brace-format
+msgid "Existing replies for «{entity}»"
+msgstr "Réponses existantes pour «{entity}»"
 
-#: views/poll_reply.py:539
+#: views/poll_reply.py:531
 msgid "Link to the replies"
 msgstr "Lier aux réponses"
 
-#: views/poll_reply.py:556
+#: views/poll_reply.py:548
 msgid "Answer edition"
 msgstr "Modification de réponse"
 
-#: views/poll_reply.py:557
+#: views/poll_reply.py:549
 msgid "Save the modification"
 msgstr "Enregistrer la modification"
 

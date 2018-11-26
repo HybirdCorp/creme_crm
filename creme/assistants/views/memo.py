@@ -35,7 +35,7 @@ from ..models import Memo
 class MemoCreation(generic.AddingInstanceToEntityPopup):
     model = Memo
     form_class = MemoForm
-    title_format = _('New memo for «{}»')
+    title = _('New memo for «{entity}»')
 
 
 # @login_required
@@ -45,4 +45,4 @@ class MemoEdition(generic.RelatedToEntityEditionPopup):
     model = Memo
     form_class = MemoForm
     pk_url_kwarg = 'memo_id'
-    title_format = _('Memo for «{}»')
+    title = _('Memo for «{entity}»')

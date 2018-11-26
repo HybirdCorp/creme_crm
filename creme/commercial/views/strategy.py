@@ -132,31 +132,31 @@ class _AddToStrategy(generic.AddingInstanceToEntityPopup):
 class SegmentDescCreation(_AddToStrategy):
     model = MarketSegment
     form_class = forms.SegmentCreateForm
-    title_format = _('New market segment for «{}»')
+    title = _('New market segment for «{entity}»')
 
 
 class SegmentLinking(_AddToStrategy):
     model = MarketSegmentDescription
     form_class = forms.SegmentLinkForm
-    title_format = _('New market segment for «{}»')
+    title = _('New market segment for «{entity}»')
 
 
 class AssetCreation(_AddToStrategy):
     model = CommercialAsset
     form_class = forms.AssetForm
-    title_format = _('New commercial asset for «{}»')
+    title = _('New commercial asset for «{entity}»')
 
 
 class CharmCreation(_AddToStrategy):
     model = MarketSegmentCharm
     form_class = forms.CharmForm
-    title_format = _('New segment charm for «{}»')
+    title = _('New segment charm for «{entity}»')
 
 
 class EvaluatedOrgaAdding(generic.RelatedToEntityFormPopup):
     form_class = forms.AddOrganisationForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
-    title_format = _('New organisation(s) for «{}»')
+    title = _('New organisation(s) for «{entity}»')
     submit_label = _('Link the organisation(s)')
     entity_id_url_kwarg = 'strategy_id'
     entity_classes = Strategy
@@ -167,7 +167,7 @@ class SegmentDescEdition(generic.RelatedToEntityEditionPopup):
     form_class = forms.SegmentEditForm
     permissions = 'commercial'
     pk_url_kwarg = 'segdesc_id'
-    title_format = _('Segment for «{}»')
+    title = _('Segment for «{entity}»')
 
 
 class AssetEdition(generic.RelatedToEntityEditionPopup):
@@ -175,7 +175,7 @@ class AssetEdition(generic.RelatedToEntityEditionPopup):
     form_class = forms.AssetForm
     permissions = 'commercial'
     pk_url_kwarg = 'asset_id'
-    title_format = _('Asset for «{}»')
+    title = _('Asset for «{entity}»')
 
 
 class CharmEdition(generic.RelatedToEntityEditionPopup):
@@ -183,7 +183,7 @@ class CharmEdition(generic.RelatedToEntityEditionPopup):
     form_class = forms.CharmForm
     permissions = 'commercial'
     pk_url_kwarg = 'charm_id'
-    title_format = _('Charm for «{}»')
+    title = _('Charm for «{entity}»')
 
 
 # Other views  ----------------------------------------------------------------

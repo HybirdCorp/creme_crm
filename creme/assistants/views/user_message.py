@@ -66,7 +66,7 @@ class UserMessageCreation(generic.CremeModelCreationPopup):
 class RelatedUserMessageCreation(generic.AddingInstanceToEntityPopup):
     model = UserMessage
     form_class = UserMessageForm
-    title_format = _('New message about «{}»')
+    title = _('New message about «{entity}»')
 
 
 @login_required

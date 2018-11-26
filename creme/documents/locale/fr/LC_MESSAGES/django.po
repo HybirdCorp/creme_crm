@@ -8,18 +8,34 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 19:14+0200\n"
+"POT-Creation-Date: 2018-11-26 16:35+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: actions.py:38
+msgid "Explore"
+msgstr "Explorer"
+
+#: actions.py:52 views/folder.py:111
+msgid "List sub-folders of «{}»"
+msgstr "Liste des sous-dossiers de «{}»"
+
+#: actions.py:61
+msgid "Download"
+msgstr "Télécharger"
+
+#: actions.py:74 templates/documents/bricks/document-hat-bar.html:7
+msgid "Download the file"
+msgstr "Télécharger le fichier"
+
 #: apps.py:31 models/document.py:59
 msgid "Documents"
 msgstr "Documents"
 
-#: apps.py:141
+#: apps.py:149
 msgid "Tools"
 msgstr "Outils"
 
@@ -70,7 +86,7 @@ msgstr "Fichier image"
 msgid "Name"
 msgstr "Nom"
 
-#: models/document.py:37 models/folder.py:41
+#: models/document.py:37 models/folder.py:40
 msgid "Description"
 msgstr "Description"
 
@@ -78,7 +94,7 @@ msgstr "Description"
 msgid "File"
 msgstr "Fichier"
 
-#: models/document.py:40 models/folder.py:66
+#: models/document.py:40 models/folder.py:65
 msgid "Folder"
 msgstr "Classeur"
 
@@ -102,41 +118,37 @@ msgstr "Enregistrer le document"
 msgid "Document"
 msgstr "Document"
 
-#: models/folder.py:40
+#: models/folder.py:39
 msgid "Title"
 msgstr "Titre"
 
-#: models/folder.py:42
+#: models/folder.py:41
 msgid "Parent folder"
 msgstr "Classeur parent"
 
-#: models/folder.py:47
+#: models/folder.py:46
 msgid "Category"
 msgstr "Catégorie"
 
-#: models/folder.py:58
+#: models/folder.py:57
 msgid "Create a folder"
 msgstr "Créer un classeur"
 
-#: models/folder.py:59
+#: models/folder.py:58
 msgid "Save the folder"
 msgstr "Enregistrer le classeur"
 
-#: models/folder.py:67
+#: models/folder.py:66
 msgid "Folders"
 msgstr "Classeurs"
 
-#: models/folder.py:75
+#: models/folder.py:74
 msgid "This folder is a system folder."
 msgstr "Ce classeur est un classeur système."
 
-#: models/folder.py:94
+#: models/folder.py:93
 msgid "Copy"
 msgstr "Copie"
-
-#: models/folder.py:108
-msgid "Explore"
-msgstr "Explorer"
 
 #: models/other_models.py:32
 msgid "Category name"
@@ -230,10 +242,6 @@ msgstr "Créer un classeur enfant"
 msgid "No child folder"
 msgstr "Pas de classeur enfant"
 
-#: templates/documents/bricks/document-hat-bar.html:7
-msgid "Download the file"
-msgstr "Télécharger le fichier"
-
 #: templates/documents/bricks/documents.html:7
 #, python-brace-format
 msgid "{count} Contained document"
@@ -305,23 +313,21 @@ msgstr ""
 "Classeur contenant tous les documents CSV utilisés lors des imports de "
 "données"
 
-#: views/document.py:150
-msgid "New document for «{}»"
-msgstr "Ajout de document à «{}»"
-
-#: views/folder.py:111
-msgid "List sub-folders of «{}»"
-msgstr "Liste des sous-dossiers de «{}»"
+#: views/document.py:142
+#, python-brace-format
+msgid "New document for «{entity}»"
+msgstr "Ajout de document à «{entity}»"
 
 #: views/folder.py:177
-msgid "New child folder for «{}»"
-msgstr "Nouveau classeur enfant pour «{}»"
+#, python-brace-format
+msgid "New child folder for «{entity}»"
+msgstr "Nouveau classeur enfant pour «{entity}»"
 
-#: views/quick_forms.py:87 views/quick_forms.py:110
+#: views/quick_forms.py:87 views/quick_forms.py:109
 msgid "Save the image"
 msgstr "Enregistrer l'image"
 
-#: views/quick_forms.py:88 views/quick_forms.py:109
+#: views/quick_forms.py:88 views/quick_forms.py:108
 msgid "Create an image"
 msgstr "Créer une image"
 
@@ -366,9 +372,6 @@ msgstr "Créer une image"
 
 #~ msgid "%s linked Documents"
 #~ msgstr "%s Documents liés"
-
-#~ msgid "Download"
-#~ msgstr "Télécharger"
 
 #~ msgid "Unlink"
 #~ msgstr "Délier"

@@ -62,8 +62,10 @@ class SendingsTestCase(_EmailsTestCase):
         response = self.assertGET200(url)
         context = response.context
         # self.assertEqual(_('New sending for «%s»') % camp, context.get('title'))
-        self.assertEqual(_('New sending for «{}»').format(camp), context.get('title'))
-        self.assertEqual(EmailSending.save_label,                context.get('submit_label'))
+        self.assertEqual(_('New sending for «{entity}»').format(entity=camp),
+                         context.get('title')
+                        )
+        self.assertEqual(EmailSending.save_label, context.get('submit_label'))
 
         with self.assertNoException():
             sender = context['form'].fields['sender']

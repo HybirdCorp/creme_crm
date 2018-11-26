@@ -95,7 +95,7 @@ class RelationTypeEdition(base.ConfigModelEdition):
     queryset = RelationType.objects.filter(is_custom=True)
     form_class = rtype_forms.RelationTypeEditForm
     pk_url_kwarg = 'rtype_id'
-    title_format = pgettext_lazy('creme_config-relationship', 'Edit the type «{}»')
+    title = pgettext_lazy('creme_config-relationship', 'Edit the type «{object}»')
 
 
 @login_required

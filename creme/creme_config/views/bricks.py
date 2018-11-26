@@ -377,7 +377,6 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
 class HomeEdition(base.ConfigEdition):
     model = BrickDetailviewLocation
     form_class = bricks_forms.BrickHomeLocationsForm
-    title_format = _('Edit the block «{}»')
     title = _('Edit home configuration')
 
 
@@ -504,7 +503,7 @@ class RelationCTypeBrickEdition(EntityCTypeRelatedMixin, base.ConfigModelEdition
     model = RelationBrickItem
     form_class = bricks_forms.RTypeBrickItemEditCtypeForm
     pk_url_kwarg = 'rbi_id'
-    title_format = _('Edit «{model}» configuration')
+    title = _('Edit «{model}» configuration')
 
     def check_instance_permissions(self, instance, user):
         super().check_instance_permissions(instance=instance, user=user)
@@ -518,8 +517,11 @@ class RelationCTypeBrickEdition(EntityCTypeRelatedMixin, base.ConfigModelEdition
 
         return kwargs
 
-    def get_title(self):
-        return self.title_format.format(model=self.get_ctype())
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['model'] = self.get_ctype()
+
+        return data
 
 
 @POST_only
@@ -553,7 +555,7 @@ class CustomBrickEdition(base.ConfigModelEdition):
     model = CustomBrickConfigItem
     form_class = bricks_forms.CustomBrickConfigItemEditForm
     pk_url_kwarg = 'cbci_id'
-    title_format = _('Edit the block «{}»')
+    title = _('Edit the block «{object}»')
 
 
 @login_required

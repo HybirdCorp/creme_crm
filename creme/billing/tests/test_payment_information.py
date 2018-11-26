@@ -34,7 +34,8 @@ class PaymentInformationTestCase(_BillingTestCase):
 
         context = self.assertGET200(url).context
         # self.assertEqual(_('New payment information in the organisation «%s»') % organisation, context.get('title'))
-        self.assertEqual(_('New payment information in the organisation «{}»').format(organisation),
+        self.assertEqual(_('New payment information in the organisation «{entity}»')
+                            .format(entity=organisation),
                          context.get('title')
                         )
         self.assertEqual(_('Save the payment information'), context.get('submit_label'))
@@ -88,7 +89,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Payment information for «%s»') % organisation, response.context.get('title'))
-        self.assertEqual(_('Payment information for «{}»').format(organisation),
+        self.assertEqual(_('Payment information for «{entity}»').format(entity=organisation),
                          response.context.get('title')
                         )
 

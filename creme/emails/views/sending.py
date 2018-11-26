@@ -49,7 +49,7 @@ class SendingCreation(generic.AddingInstanceToEntityPopup):
     form_class = SendingCreateForm
     entity_id_url_kwarg = 'campaign_id'
     entity_classes = get_emailcampaign_model()
-    title_format = _('New sending for «{}»')
+    title = _('New sending for «{entity}»')
 
 
 def _get_sending(request, sending_id):

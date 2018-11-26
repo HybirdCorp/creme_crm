@@ -547,7 +547,7 @@ class EventsTestCase(CremeTestCase):
         url = self._build_link_contacts_url(event)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link.html')
-        self.assertEqual(_('Link some contacts to «{}»').format(event),
+        self.assertEqual(_('Link some contacts to «{object}»').format(object=event),
                          response.context.get('title')
                         )
         self.assertEqual(_('Link these contacts'), response.context.get('submit_label'))

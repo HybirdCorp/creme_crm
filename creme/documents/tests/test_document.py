@@ -260,8 +260,10 @@ class DocumentTestCase(_DocumentsTestCase):
         url = self._buid_addrelated_url(entity)
         context = self.assertGET200(url).context
         # self.assertEqual(_('New document for «%s»') % entity, context.get('title'))
-        self.assertEqual(_('New document for «{}»').format(entity), context.get('title'))
-        self.assertEqual(Document.save_label,                       context.get('submit_label'))
+        self.assertEqual(_('New document for «{entity}»').format(entity=entity),
+                         context.get('title')
+                        )
+        self.assertEqual(Document.save_label, context.get('submit_label'))
 
         def post(title):
             response = self.client.post(

@@ -199,10 +199,9 @@ def json_rtype_ctypes(request, rtype_id):
 #                        delegate_reload=True,
 #                       )
 class RelationsAdding(generic.RelatedToEntityFormPopup):
-    # model = Relation
     form_class = rel_forms.RelationCreateForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
-    title_format = _('Relationships for «{}»')
+    title = _('Relationships for «{entity}»')
     submit_label = _('Save the relationships')
     entity_id_url_kwarg = 'subject_id'
     entity_form_kwarg = 'subject'

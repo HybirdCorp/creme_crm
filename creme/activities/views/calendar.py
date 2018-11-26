@@ -348,4 +348,4 @@ class CalendarLinking(generic.CremeModelEditionPopup):
     form_class = calendar_forms.ActivityCalendarLinkerForm
     permissions = 'activities'
     pk_url_kwarg = 'activity_id'
-    title_format = _('Change calendar of «{}»')
+    title = _('Change calendar of «{object}»')

@@ -97,8 +97,10 @@ class QuoteTestCase(_BillingTestCase):
 
         context = response.context
         # self.assertEqual(_('Create a quote for «%s»') % target, context.get('title'))
-        self.assertEqual(_('Create a quote for «{}»').format(target), context.get('title'))
-        self.assertEqual(Quote.save_label,                            context.get('submit_label'))
+        self.assertEqual(_('Create a quote for «{entity}»').format(entity=target),
+                         context.get('title')
+                        )
+        self.assertEqual(Quote.save_label, context.get('submit_label'))
 
         # ---
         with self.assertNoException():

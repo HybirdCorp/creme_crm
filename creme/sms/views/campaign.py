@@ -156,7 +156,7 @@ class MessagingListsAdding(generic.AddingInstanceToEntityPopup):
     # model = MessagingList
     form_class = camp_forms.CampaignAddListForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
-    title_format = _('New messaging lists for «{}»')
+    title = _('New messaging lists for «{entity}»')
     submit_label = _('Link the messaging lists')
     entity_id_url_kwarg = 'campaign_id'
     entity_classes = SMSCampaign

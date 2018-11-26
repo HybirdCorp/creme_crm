@@ -50,7 +50,7 @@ class PaymentInformationCreation(generic.AddingInstanceToEntityPopup):
     permissions = 'billing'
     entity_id_url_kwarg = 'orga_id'
     entity_classes = get_organisation_model()
-    title_format = _('New payment information in the organisation «{}»')
+    title = _('New payment information in the organisation «{entity}»')
 
 
 # @login_required
@@ -65,7 +65,7 @@ class PaymentInformationEdition(generic.RelatedToEntityEditionPopup):
     form_class = pi_forms.PaymentInformationEditForm
     permissions = 'billing'
     pk_url_kwarg = 'pinfo_id'
-    title_format = _('Payment information for «{}»')
+    title = _('Payment information for «{entity}»')
 
 
 @jsonify

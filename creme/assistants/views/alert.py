@@ -40,7 +40,7 @@ from ..models import Alert
 class AlertCreation(generic.AddingInstanceToEntityPopup):
     model = Alert
     form_class = AlertForm
-    title_format = _('New alert for «{}»')
+    title = _('New alert for «{entity}»')
 
 
 # @login_required
@@ -52,7 +52,7 @@ class AlertEdition(generic.RelatedToEntityEditionPopup):
     model = Alert
     form_class = AlertForm
     pk_url_kwarg = 'alert_id'
-    title_format = _('Alert for «{}»')
+    title = _('Alert for «{entity}»')
 
 
 @login_required

@@ -110,7 +110,7 @@ class PropertyTypeTestCase(CremeTestCase):
 
         context = response.context
         # self.assertEqual(_('Edit the type «{property}»').format(property=pt),
-        self.assertEqual(pgettext('creme_config-property', 'Edit the type «{}»').format(pt),
+        self.assertEqual(pgettext('creme_config-property', 'Edit the type «{object}»').format(object=pt),
                          context.get('title')
                         )
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))

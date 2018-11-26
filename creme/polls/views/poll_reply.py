@@ -487,7 +487,7 @@ class _RelatedRepliesCreationBase(generic.RelatedToEntityFormPopup):
     model = PollReply
     form_class = preply_forms.PollRepliesCreateForm
     permissions = ('polls', _CREATION_PERM)
-    title_format = _('New replies for «{}»')
+    title = _('New replies for «{entity}»')
     submit_label = PollReply.multi_save_label
 
     def check_related_entity_permissions(self, entity, user):
@@ -526,7 +526,7 @@ class LinkingRepliesToPerson(generic.RelatedToEntityFormPopup):
     # model = PollReply
     template_name = 'creme_core/generics/blockform/link-popup.html'
     form_class = preply_forms.PersonAddRepliesForm
-    title_format = _('Existing replies for «{}»')
+    title = _('Existing replies for «{entity}»')
     permissions = 'polls'
     submit_label = _('Link to the replies')
     entity_id_url_kwarg = 'person_id'
@@ -545,7 +545,7 @@ class LineEdition(generic.EntityEditionPopup):
     model = PollReply
     form_class = preply_forms.PollReplyFillForm
     pk_url_kwarg = 'preply_id'
-    title_format = _('Answer edition')
+    title = _('Answer edition')
     submit_label = _('Save the modification')
     line_id_url_kwarg = 'line_id'
 

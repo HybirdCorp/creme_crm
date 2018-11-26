@@ -218,7 +218,7 @@ def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):
 class GraphCreation(generic.AddingInstanceToEntityPopup):
     model = ReportGraph
     form_class = ReportGraphForm
-    title_format = _('Create a graph for «{}»')
+    title = _('Create a graph for «{entity}»')
     entity_id_url_kwarg = 'report_id'
     entity_classes = get_report_model()
 
@@ -240,4 +240,4 @@ class GraphEdition(generic.RelatedToEntityEditionPopup):
     form_class = ReportGraphForm
     permissions = 'reports'
     pk_url_kwarg = 'graph_id'
-    title_format = _('Edit a graph for «{}»')
+    title = _('Edit a graph for «{entity}»')

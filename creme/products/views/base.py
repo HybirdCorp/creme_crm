@@ -30,5 +30,5 @@ class ImagesAddingBase(RelatedToEntityFormPopup):
     form_class = AddImagesForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     permissions = 'products'
-    title_format = _('New images for «{}»')
+    title = _('New images for «{entity}»')
     submit_label = _('Link the images')

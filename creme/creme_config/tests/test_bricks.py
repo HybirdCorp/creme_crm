@@ -2101,7 +2101,7 @@ class BricksConfigTestCase(CremeTestCase):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Edit the block «%s»') % cbc_item,
-        self.assertEqual(_('Edit the block «{}»').format(cbc_item),
+        self.assertEqual(_('Edit the block «{object}»').format(object=cbc_item),
                          response.context.get('title')
                         )
 

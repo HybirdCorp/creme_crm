@@ -216,7 +216,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(_('Edit «{}»').format(sci), context.get('title'))
+        self.assertEqual(_('Edit «{object}»').format(object=sci), context.get('title'))
 
         with self.assertNoException():
             fields = context['form'].fields['fields']

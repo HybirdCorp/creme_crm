@@ -351,7 +351,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url)
         # self.assertTemplateUsed(response, 'creme_core/generics/form/edit_innerpopup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/form/edit-popup.html')
-        self.assertEqual(_('Edit «{}»').format(civ), response.context.get('title'))
+        self.assertEqual(_('Edit «{object}»').format(object=civ), response.context.get('title'))
 
         title = title.title()
         self.assertNoFormError(self.client.post(url, data={'title': title,

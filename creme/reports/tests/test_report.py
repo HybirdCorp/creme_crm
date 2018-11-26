@@ -548,7 +548,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(reverse('reports__export_report_filter', args=(report.id,)),
                          export_action.url
                         )
-        self.assertEqual(pgettext('reports-report', 'Export «{}»').format(report),
+        self.assertEqual(pgettext('reports-report', 'Export «{object}»').format(object=report),
                          export_action.help_text
                         )
         self.assertTrue(export_action.is_enabled)
@@ -782,7 +782,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         context = response.context
         # self.assertEqual(_('Export «{report}»').format(report=report),
-        self.assertEqual(pgettext('reports-report', 'Export «{}»').format(report),
+        self.assertEqual(pgettext('reports-report', 'Export «{object}»').format(object=report),
                          context.get('title')
                         )
         # self.assertEqual(_('Export'), context.get('submit_label'))
@@ -1140,7 +1140,9 @@ class ReportTestCase(BaseReportsTestCase):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Edit columns of «%s»').format(report), response.context.get('title'))
-        self.assertEqual(_('Edit columns of «{}»').format(report), response.context.get('title'))
+        self.assertEqual(_('Edit columns of «{object}»').format(object=report),
+                         response.context.get('title')
+                        )
 
         # ---
         old_rfield = report.columns[0]
@@ -1577,7 +1579,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('Link of the column «{}»').format(fk_img_field),
+        self.assertEqual(_('Link of the column «{object}»').format(object=fk_img_field),
                          context.get('title')
                         )
         self.assertEqual(_('Link'), context.get('submit_label'))

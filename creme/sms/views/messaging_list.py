@@ -162,7 +162,7 @@ class ContactsAdding(generic.AddingInstanceToEntityPopup):
     template_name = 'creme_core/generics/blockform/link-popup.html'
     entity_id_url_kwarg = 'mlist_id'
     entity_classes = MessagingList
-    title_format = _('New contacts for «{}»')
+    title = _('New contacts for «{entity}»')
     submit_label = _('Link the contacts')
 
 

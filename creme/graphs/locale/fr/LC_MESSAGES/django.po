@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Graphs 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 20:07+0200\n"
+"POT-Creation-Date: 2018-11-26 17:04+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -40,7 +40,7 @@ msgstr "Types des relations périphériques"
 msgid "Root entities"
 msgstr "Fiches racines"
 
-#: forms/root_node.py:39 forms/root_node.py:65
+#: forms/root_node.py:39 forms/root_node.py:64
 msgid "Related types of relations"
 msgstr "Types de relation associés"
 
@@ -165,17 +165,20 @@ msgstr "Liste des Graphes"
 msgid "This graph is too big!"
 msgstr "Ce graphe est trop gros !"
 
-#: views/graph.py:161
-msgid "Add relation types to «{}»"
-msgstr "Ajouter des types de relation à «{}»"
+#: views/graph.py:160
+#, python-brace-format
+msgid "Add relation types to «{entity}»"
+msgstr "Ajouter des types de relation à «{entity}»"
 
-#: views/root_node.py:47
-msgid "Add root nodes to «{}»"
-msgstr "Ajouter des nœuds racines à «{}»"
+#: views/root_node.py:46
+#, python-brace-format
+msgid "Add root nodes to «{entity}»"
+msgstr "Ajouter des nœuds racines à «{entity}»"
 
-#: views/root_node.py:65
-msgid "Edit root node for «{}»"
-msgstr "Modifier le nœud racine pour «{}»"
+#: views/root_node.py:64
+#, python-brace-format
+msgid "Edit root node for «{entity}»"
+msgstr "Modifier le nœud racine pour «{entity}»"
 
 #~ msgid "Portal of graphs"
 #~ msgstr "Portail des graphes"

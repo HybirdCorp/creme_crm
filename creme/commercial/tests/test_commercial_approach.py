@@ -73,8 +73,10 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         context = self.assertGET200(url).context
         # self.assertEqual(_('New commercial approach for «%s»') % entity, context.get('title'))
-        self.assertEqual(_('New commercial approach for «{}»').format(entity), context.get('title'))
-        self.assertEqual(_('Save the commercial approach'),                    context.get('submit_label'))
+        self.assertEqual(_('New commercial approach for «{entity}»').format(entity=entity),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the commercial approach'), context.get('submit_label'))
 
         title       = 'TITLE'
         description = 'DESCRIPTION'

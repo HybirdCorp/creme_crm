@@ -138,7 +138,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(_('Edit «{}»').format(fconf), context.get('title'))
+        self.assertEqual(_('Edit «{object}»').format(object=fconf), context.get('title'))
 
         with self.assertNoException():
             choices = context['form'].fields['hidden'].choices

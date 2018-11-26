@@ -177,6 +177,7 @@ def add_model_with_popup(request, form_class, title=None, initial=None,
 # TODO: add a system to be redirected after the creation (from an argument "?next=") ?
 class CremeModelCreation(base.CancellableMixin,
                          base.PermissionsMixin,
+                         base.TitleMixin,
                          base.SubmittableMixin,
                          CreateView,
                         ):
@@ -193,17 +194,13 @@ class CremeModelCreation(base.CancellableMixin,
 
     Notice that POST requests are managed within a SQL transaction.
 
-    New attributes:
-    title: A string used as form's title. <None> (default value) means that
-           <model.creation_label> is used (see get_title()).
-
     Notes :
     submit_label: <None> (default value) means that <model.save_label> is used.
     """
     model = models.CremeModel  # TO BE OVERRIDDEN
     form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
     template_name = 'creme_core/generics/blockform/add.html'
-    title = None
+    title = '{creation_label}'
     submit_label = None
 
     def dispatch(self, request, *args, **kwargs):
@@ -230,9 +227,11 @@ class CremeModelCreation(base.CancellableMixin,
 
         return kwargs
 
-    def get_title(self):
-        title = self.title
-        return self.model.creation_label if title is None else title
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['creation_label'] = self.model.creation_label
+
+        return data
 
     def get_submit_label(self):
         return super().get_submit_label() or self.model.save_label
@@ -273,6 +272,7 @@ class CremeModelCreationPopup(CremeModelCreation):
 
     def form_valid(self, form):
         self.object = form.save()
+
         return HttpResponse(self.get_success_url(), content_type='text/plain')
 
 
@@ -293,11 +293,9 @@ class AddingInstanceToEntityPopup(base.EntityRelatedMixin, CremeModelCreationPop
     """ This specialisation of CremeModelCreationPopup creates an instance
     related to a CremeEntity.
 
-    Attributes:
-    title_format: If a {}-format string is given, it's used to built
-                  the title with the related entity as argument (see get_title()).
+    NB: get_title_format_data() injects the related entity with key "entity".
     """
-    title_format = None
+    title = '{entity}'
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
@@ -309,14 +307,8 @@ class AddingInstanceToEntityPopup(base.EntityRelatedMixin, CremeModelCreationPop
 
         return kwargs
 
-    def get_title_format(self):
-        return self.title_format
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['entity'] = self.get_related_entity().allowed_str(self.request.user)
 
-    def get_title(self):
-        title_format = self.get_title_format()
-
-        return title_format.format(self.get_related_entity()
-                                       .allowed_str(self.request.user)
-                                  ) \
-               if title_format is not None else \
-               super().get_title()
+        return data

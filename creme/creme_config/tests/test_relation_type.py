@@ -165,7 +165,9 @@ class RelationTypeTestCase(CremeTestCase):
 
         context = response.context
         # self.assertEqual(_('Edit the type «{predicate}»').format(predicate=rt),
-        self.assertEqual(pgettext('creme_config-relationship', 'Edit the type «{}»').format(rt),
+        self.assertEqual(pgettext('creme_config-relationship',
+                                  'Edit the type «{object}»'
+                                 ).format(object=rt),
                          context.get('title')
                         )
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))

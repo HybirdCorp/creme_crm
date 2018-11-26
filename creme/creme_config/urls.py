@@ -39,7 +39,7 @@ user_settings_patterns = [
     url(r'^edit_value/(?P<skey_id>[\w-]+)[/]?$',
         # user_settings.edit_setting_value,
         user_settings.UserSettingValueEdition.as_view(),
-        name='creme_config__edit_user_setting'
+        name='creme_config__edit_user_setting',
     ),
 ]
 

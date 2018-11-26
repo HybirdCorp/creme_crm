@@ -50,7 +50,7 @@ from ..models import EmailRecipient
 class _RecipientsAddingBase(RelatedToEntityFormPopup):
     # model = EmailRecipient
     # form_class = to be set
-    title_format = _('New recipients for «{}»')
+    title = _('New recipients for «{entity}»')
     submit_label = EmailRecipient.multi_save_label
     entity_id_url_kwarg = 'ml_id'
     entity_classes = get_mailinglist_model()

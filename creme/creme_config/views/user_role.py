@@ -204,7 +204,7 @@ class BaseRoleEdition(generic.CremeModelEditionPopup):
 
 class CredentialsAdding(BaseRoleEdition):
     form_class = role_forms.AddCredentialsForm
-    title_format = _('Add credentials to «{}»')
+    title = _('Add credentials to «{object}»')
     submit_label = _('Add the credentials')
 
 
@@ -235,15 +235,18 @@ class CredentialsEdition(generic.CremeModelEditionPopup):
     model = SetCredentials
     form_class = role_forms.EditCredentialsForm
     pk_url_kwarg = 'cred_id'
-    title_format = _('Edit credentials for «{}»')
+    title = _('Edit credentials for «{role}»')
 
     # TODO: factorise
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
         _check_superuser(user)
 
-    def get_title(self):
-        return self.title_format.format(self.object.role)
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['role'] = self.object.role
+
+        return data
 
 
 @login_required
@@ -268,7 +271,7 @@ def delete_credentials(request):
 class RoleDeletion(BaseRoleEdition):
     form_class = role_forms.UserRoleDeleteForm
     template_name = 'creme_core/generics/blockform/delete-popup.html'
-    title_format = _('Delete role «{}»')
+    title = _('Delete role «{object}»')
     submit_label = _('Delete the role')  # TODO: deletion_label ?
 
     lock_name = 'creme_config-role_transfer'

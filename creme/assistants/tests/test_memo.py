@@ -42,8 +42,10 @@ class MemoTestCase(AssistantsTestCase):
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
         # self.assertEqual(_('New Memo for «%s»') % entity, context.get('title'))
-        self.assertEqual(_('New memo for «{}»').format(entity), context.get('title'))
-        self.assertEqual(_('Save the memo'),                    context.get('submit_label'))
+        self.assertEqual(_('New memo for «{entity}»').format(entity=entity),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the memo'), context.get('submit_label'))
 
         homepage = True
         content = 'Content'
@@ -68,7 +70,9 @@ class MemoTestCase(AssistantsTestCase):
         url = memo.get_edit_absolute_url()
         context = self.assertGET200(url).context
         # self.assertEqual(_('Memo for «%s»') % self.entity, context.get('title'))
-        self.assertEqual(_('Memo for «{}»').format(self.entity), context.get('title'))
+        self.assertEqual(_('Memo for «{entity}»').format(entity=self.entity),
+                         context.get('title')
+                        )
 
         # ---
         content += """: 

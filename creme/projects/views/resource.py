@@ -84,6 +84,7 @@ class ResourceCreation(generic.AddingInstanceToEntityPopup):  # NB: Resource not
                                         ).format(entity.tstatus.name)
                                )
 
+
 # @login_required
 # @permission_required('projects')
 # def edit(request, resource_id):
@@ -96,7 +97,7 @@ class ResourceEdition(generic.RelatedToEntityEditionPopup):
     form_class = resource_forms.ResourceEditForm
     permissions = 'projects'
     pk_url_kwarg = 'resource_id'
-    title_format = _('Resource for «{}»')
+    title = _('Resource for «{entity}»')
 
 
 @login_required

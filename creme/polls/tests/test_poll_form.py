@@ -234,8 +234,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         url = reverse('polls__create_form_section', args=(pform.id,))
         context = self.assertGET200(url).context
         # self.assertEqual(_('New section for «%s»') % pform, context.get('title'))
-        self.assertEqual(_('New section for «{}»').format(pform), context.get('title'))
-        self.assertEqual(PollFormSection.save_label,              context.get('submit_label'))
+        self.assertEqual(_('New section for «{entity}»').format(entity=pform),
+                         context.get('title')
+                        )
+        self.assertEqual(PollFormSection.save_label, context.get('submit_label'))
 
         # ---
         name = 'Name of the Chapter 1'
@@ -281,7 +283,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('New section for «%s»') % pform, context.get('title'))
-        self.assertEqual(_('New sub-section for «{}»').format(section_2.name),
+        self.assertEqual(_('New sub-section for «{section}»').format(section=section_2.name),
                          context.get('title')
                         )
         self.assertEqual(PollFormSection.save_label, context.get('submit_label'))
@@ -340,7 +342,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         # self.assertEqual(_('Section for «%s»') % pform, response.context.get('title'))
-        self.assertEqual(_('Section for «{}»').format(pform), response.context.get('title'))
+        self.assertEqual(_('Section for «{entity}»').format(entity=pform),
+                         response.context.get('title')
+                        )
 
         name = name.title()
         body = 'Once upon a time...'
@@ -431,8 +435,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('New question for «%s»') % pform, context.get('title'))
-        self.assertEqual(_('New question for «{}»').format(pform), context.get('title'))
-        self.assertEqual(PollFormLine.save_label,                  context.get('submit_label'))
+        self.assertEqual(_('New question for «{entity}»').format(entity=pform),
+                         context.get('title')
+                        )
+        self.assertEqual(PollFormLine.save_label, context.get('submit_label'))
 
         with self.assertNoException():
             fields = context['form'].fields
@@ -844,7 +850,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('New question for «%s»') % pform, context.get('title'))
-        self.assertEqual(_('New question for «{}»').format(section.name),
+        self.assertEqual(_('New question for section «{section}»').format(section=section.name),
                          context.get('title')
                         )
         self.assertEqual(PollFormLine.save_label, context.get('submit_label'))
@@ -1026,7 +1032,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('Question for «%s»') % pform, response.context.get('title'))
-        self.assertEqual(_('Question for «{}»').format(pform), response.context.get('title'))
+        self.assertEqual(_('Question for «{entity}»').format(entity=pform),
+                         response.context.get('title')
+                        )
 
         with self.assertNoException():
             fields = context['form'].fields
@@ -1668,9 +1676,11 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('Condition for «%s»') % self.pform, context.get('title'))
-        self.assertEqual(_('Conditions for «{}»').format(self.pform), context.get('title'))
-        # self.assertEqual(PollFormLineCondition.save_label,           context.get('submit_label'))
-        self.assertEqual(_('Save the conditions'),                    context.get('submit_label'))
+        self.assertEqual(_('Conditions for «{entity}»').format(entity=self.pform),
+                         context.get('title')
+                        )
+        # self.assertEqual(PollFormLineCondition.save_label,     context.get('submit_label'))
+        self.assertEqual(_('Save the conditions'), context.get('submit_label'))
 
         # ---
         response = self.client.post(

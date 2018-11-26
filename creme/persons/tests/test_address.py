@@ -84,8 +84,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         context = self.assertGET200(self._build_add_url(orga)).context
         # self.assertEqual(_('Adding address to «%s»') % orga, context.get('title'))
-        self.assertEqual(_('Adding address to «{}»').format(orga), context.get('title'))
-        self.assertEqual(_('Save the address'),                    context.get('submit_label'))
+        self.assertEqual(_('Adding address to «{entity}»').format(entity=orga),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the address'), context.get('submit_label'))
 
         name = 'Address#1'
         address_value = '21 jump street'
@@ -126,8 +128,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url)
         context = response.context
         # self.assertEqual(_('Adding billing address to «%s»') % orga, context.get('title'))
-        self.assertEqual(_('Adding billing address to «{}»').format(orga), context.get('title'))
-        self.assertEqual(_('Save the address'),                            context.get('submit_label'))
+        self.assertEqual(_('Adding billing address to «{entity}»').format(entity=orga),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the address'), context.get('submit_label'))
 
         with self.assertNoException():
             fields = context['form'].fields
@@ -172,8 +176,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         context = self.assertGET200(url).context
         # self.assertEqual(_('Adding shipping address to «%s»') % orga, context.get('title'))
-        self.assertEqual(_('Adding shipping address to «{}»').format(orga), context.get('title'))
-        self.assertEqual(_('Save the address'),                             context.get('submit_label'))
+        self.assertEqual(_('Adding shipping address to «{entity}»').format(entity=orga),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the address'), context.get('submit_label'))
 
         addr_value = '21 jump street'
         country = 'Wonderland'
@@ -217,7 +223,9 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         # self.assertEqual(_('Edit address for «%s»') % orga, response.context.get('title'))
-        self.assertEqual(_('Edit address for «{}»').format(orga), response.context.get('title'))
+        self.assertEqual(_('Edit address for «{entity}»').format(entity=orga),
+                         response.context.get('title')
+                        )
 
         # ---
         city = 'Groville'
@@ -255,7 +263,9 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url)
         # self.assertContains(response, escape(_('Edit billing address for «%s»') % orga))
         # self.assertEqual(_('Edit billing address for «%s»') % orga, response.context.get('title'))
-        self.assertEqual(_('Edit billing address for «{}»').format(orga), response.context.get('title'))
+        self.assertEqual(_('Edit billing address for «{entity}»').format(entity=orga),
+                         response.context.get('title')
+                        )
 
         # --
         city = 'Groville'
@@ -288,7 +298,9 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url)
         # self.assertContains(response, escape(_('Edit shipping address for «%s»') % orga))
         # self.assertEqual(_('Edit shipping address for «%s»') % orga, response.context.get('title'))
-        self.assertEqual(_('Edit shipping address for «{}»').format(orga), response.context.get('title'))
+        self.assertEqual(_('Edit shipping address for «{entity}»').format(entity=orga),
+                         response.context.get('title')
+                        )
 
         # ---
         city = 'Groville'

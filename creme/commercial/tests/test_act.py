@@ -357,8 +357,10 @@ class ActTestCase(CommercialBaseTestCase):
 
         context = self.assertGET200(url).context
         # self.assertEqual(_('New objective for «%s»') % act, context.get('title'))
-        self.assertEqual(_('New objective for «{}»').format(act), context.get('title'))
-        self.assertEqual(_('Save the objective'),                 context.get('submit_label'))
+        self.assertEqual(_('New objective for «{entity}»').format(entity=act),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the objective'), context.get('submit_label'))
 
         # ---
         self.assertEqual(0, ActObjective.objects.count())
@@ -473,9 +475,11 @@ class ActTestCase(CommercialBaseTestCase):
 
         context = self.assertGET200(url).context
         # self.assertEqual(_('New objective for «%s»') % act, context.get('title'))
-        self.assertEqual(_('New objectives for «{}»').format(act), context.get('title'))
-        # self.assertEqual(_('Save the objective'),                 context.get('submit_label'))
-        self.assertEqual(_('Save the objectives'),                 context.get('submit_label'))
+        self.assertEqual(_('New objectives for «{entity}»').format(entity=act),
+                         context.get('title')
+                        )
+        # self.assertEqual(_('Save the objective'),           context.get('submit_label'))
+        self.assertEqual(_('Save the objectives'), context.get('submit_label'))
 
         # ---
         self.assertNoFormError(self.client.post(url, data={'pattern': pattern.id}))
@@ -563,7 +567,9 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         # self.assertEqual(_('Objective for «%s»') % act, response.context.get('title'))
-        self.assertEqual(_('Objective for «{}»').format(act), response.context.get('title'))
+        self.assertEqual(_('Objective for «{entity}»').format(entity=act),
+                         response.context.get('title')
+                        )
 
         name = 'OBJ_NAME'
         efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)

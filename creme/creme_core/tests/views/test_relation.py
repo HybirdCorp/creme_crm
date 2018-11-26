@@ -141,9 +141,10 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Relationships for «{entity}»').format(entity=subject), context.get('title'))
-        self.assertEqual(_('Relationships for «{}»').format(subject), context.get('title'))
-        self.assertEqual(_('Save the relationships'),                 context.get('submit_label'))
+        self.assertEqual(_('Relationships for «{entity}»').format(entity=subject),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the relationships'), context.get('submit_label'))
 
         # ---
         response = self.client.post(url, data={'relations': self.formfield_value_multi_relation_entity(

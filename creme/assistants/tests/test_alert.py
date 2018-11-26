@@ -49,8 +49,10 @@ class AlertTestCase(AssistantsTestCase):
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
         # self.assertEqual(_('New alert for «%s»') % entity, context.get('title'))
-        self.assertEqual(_('New alert for «{}»').format(entity), context.get('title'))
-        self.assertEqual(_('Save the alert'),                    context.get('submit_label'))
+        self.assertEqual(_('New alert for «{entity}»').format(entity=entity),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the alert'), context.get('submit_label'))
 
         title = 'Title'
         alert = self._create_alert(title, 'Description', '2010-9-29')
@@ -94,7 +96,9 @@ class AlertTestCase(AssistantsTestCase):
         url = alert.get_edit_absolute_url()
         context = self.assertGET200(url).context
         # self.assertEqual(_('Alert for «%s»') % self.entity, context.get('title'))
-        self.assertEqual(_('Alert for «{}»').format(self.entity), context.get('title'))
+        self.assertEqual(_('Alert for «{entity}»').format(entity=self.entity),
+                         context.get('title')
+                        )
 
         # ---
         title       += '_edited'

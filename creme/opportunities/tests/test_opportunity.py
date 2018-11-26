@@ -320,8 +320,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         context = response.context
         # self.assertEqual(_('New opportunity related to «%s»') % target, context.get('title'))
-        self.assertEqual(_('New opportunity targeting «{}»').format(target), context.get('title'))
-        self.assertEqual(Opportunity.save_label,                             context.get('submit_label'))
+        self.assertEqual(_('New opportunity targeting «{entity}»').format(entity=target),
+                         context.get('title')
+                        )
+        self.assertEqual(Opportunity.save_label, context.get('submit_label'))
 
         get_initial = context['form'].initial.get
         self.assertIsInstance(get_initial('sales_phase'), SalesPhase)

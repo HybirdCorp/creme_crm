@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-05 11:57+0100\n"
+"POT-Creation-Date: 2018-11-26 17:07+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -771,8 +771,9 @@ msgid "New opportunity related to «%s»"
 msgstr "Nouvelle opportunité liée à «%s»"
 
 #: views/opportunity.py:193
-msgid "New opportunity targeting «{}»"
-msgstr "Nouvelle opportunité ciblant «{}»"
+#, python-brace-format
+msgid "New opportunity targeting «{entity}»"
+msgstr "Nouvelle opportunité ciblant «{entity}»"
 
 #~ msgctxt "opportunities-stats"
 #~ msgid "{count} won"

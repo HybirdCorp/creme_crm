@@ -160,8 +160,10 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('New replies for «%s»') % camp, context.get('title'))
-        self.assertEqual(_('New replies for «{}»').format(camp), context.get('title'))
-        self.assertEqual(PollReply.multi_save_label,             context.get('submit_label'))
+        self.assertEqual(_('New replies for «{entity}»').format(entity=camp),
+                         context.get('title')
+                        )
+        self.assertEqual(PollReply.multi_save_label, context.get('submit_label'))
 
         # ---
         name = 'Reply'

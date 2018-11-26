@@ -40,7 +40,7 @@ from ..models import Action
 class ActionCreation(generic.AddingInstanceToEntityPopup):
     model = Action
     form_class = ActionForm
-    title_format = _('New action for «{}»')
+    title = _('New action for «{entity}»')
 
 
 # @login_required
@@ -50,7 +50,7 @@ class ActionEdition(generic.RelatedToEntityEditionPopup):
     model = Action
     form_class = ActionForm
     pk_url_kwarg = 'action_id'
-    title_format = _('Action for «{}»')
+    title = _('Action for «{entity}»')
 
 
 @login_required

@@ -157,7 +157,7 @@ class JobEdition(generic.CremeModelEditionPopup):
     model = Job
     # form_class = ...
     pk_url_kwarg = 'job_id'
-    title_format = _('Edit the job «{}»')
+    title = _('Edit the job «{object}»')
 
     def check_instance_permissions(self, instance, user):
         super().check_instance_permissions(instance=instance, user=user)

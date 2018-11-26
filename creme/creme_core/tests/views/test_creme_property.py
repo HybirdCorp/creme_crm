@@ -55,7 +55,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         url = reverse('creme_core__add_properties', args=(entity.id,))
         context = self.assertGET200(url).context
-        self.assertEqual(_('New properties for «{}»').format(entity),
+        self.assertEqual(_('New properties for «{entity}»').format(entity=entity),
                          context.get('title')
                         )
         self.assertEqual(_('Add the properties'), context.get('submit_label'))

@@ -256,7 +256,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('Add credentials to «{role}»').format(role=role),
-        self.assertEqual(_('Add credentials to «{}»').format(role),
+        self.assertEqual(_('Add credentials to «{object}»').format(object=role),
                          context.get('title')
                         )
         self.assertEqual(_('Add the credentials'), context.get('submit_label'))
@@ -369,7 +369,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         context = response.context
         # self.assertEqual(_('Edit credentials for «{role}»').format(role=role),
-        self.assertEqual(_('Edit credentials for «{}»').format(role),
+        self.assertEqual(_('Edit credentials for «{role}»').format(role=role),
                          context.get('title')
                         )
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
@@ -627,8 +627,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete-popup.html')
 
         context = response.context
-        self.assertEqual(_('Delete role «{}»').format(role), context.get('title'))
-        self.assertEqual(_('Delete the role'),               context.get('submit_label'))
+        self.assertEqual(_('Delete role «{object}»').format(object=role), context.get('title'))
+        self.assertEqual(_('Delete the role'),                            context.get('submit_label'))
 
         with self.assertNoException():
             fields = context['form'].fields

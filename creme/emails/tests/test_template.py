@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import dumps as json_dump
+    # from json import dumps as json_dump
 
     from django.urls import reverse
     from django.utils.translation import ugettext as _
@@ -122,10 +122,13 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
 
         context = response.context
         # self.assertEqual(_('New attachments for «%s»') % template, context.get('title'))
-        self.assertEqual(_('New attachments for «{}»').format(template), context.get('title'))
-        self.assertEqual(_('Add the attachments'),                       context.get('submit_label'))
+        self.assertEqual(_('New attachments for «{entity}»').format(entity=template),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Add the attachments'), context.get('submit_label'))
 
-        response = self.client.post(url, data={'attachments': json_dump([doc1.id, doc2.id])})
+        # response = self.client.post(url, data={'attachments': json_dump([doc1.id, doc2.id])})
+        response = self.client.post(url, data={'attachments': self.formfield_value_multi_creator_entity(doc1, doc2)})
         self.assertNoFormError(response)
         self.assertEqual({doc1, doc2}, set(template.attachments.all()))
 
