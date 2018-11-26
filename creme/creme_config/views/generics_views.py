@@ -165,7 +165,8 @@ def portal_model(request, app_name, model_name):
                 if order != instance.order:
                     logger.warning('Fix an order problem in model %s (%s)', model, instance)
                     instance.order = order
-                    instance.save()
+                    # instance.save()
+                    instance.save(force_update=True, update_fields=('order',))
 
     return render(request, 'creme_config/generics/model_portal.html',
                   {'model':             model,
