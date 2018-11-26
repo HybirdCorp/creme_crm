@@ -736,11 +736,15 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         contact = user.linked_contact
         self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
 
-    def _build_quickform_url(self, count):
+    def _build_quickforms_url(self, count):  # DEPRECATED
         ct = ContentType.objects.get_for_model(Contact)
         return reverse('creme_core__quick_forms', args=(ct.id, count))
 
-    def test_quickform01(self):
+    def _build_quickform_url(self):
+        ct = ContentType.objects.get_for_model(Contact)
+        return reverse('creme_core__quick_form', args=(ct.id,))
+
+    def test_quickforms01(self):  # DEPRECATED
         "2 Contacts created"
         user = self.login()
 
@@ -753,7 +757,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         data = [('Faye', 'Valentine'), ('Spike', 'Spiegel')]
 
-        url = self._build_quickform_url(len(data))
+        url = self._build_quickforms_url(len(data))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -786,7 +790,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
     @skipIfCustomOrganisation
-    def test_quickform02(self):
+    def test_quickforms02(self):  # DEPRECATED
         "2 Contacts & 1 Organisation created"
         self.login(is_superuser=False, creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
@@ -802,7 +806,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         existing_orga = Organisation.objects.create(user=self.other_user, name=orga_name)  # Not viewable
 
         data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
-        response = self.client.post(self._build_quickform_url(len(data)),
+        response = self.client.post(self._build_quickforms_url(len(data)),
                                     data={'form-TOTAL_FORMS':      len(data),
                                           'form-INITIAL_FORMS':    0,
                                           'form-MAX_NUM_FORMS':    '',
@@ -829,7 +833,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, created_orga)
 
     @skipIfCustomOrganisation
-    def test_quickform03(self):
+    def test_quickforms03(self):  # DEPRECATED
         "2 Contacts created and link with an existing Organisation"
         user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
@@ -847,7 +851,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga2 = create_orga(user=self.other_user)  # This one cannot be seen by user
 
         data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
-        response = self.client.post(self._build_quickform_url(len(data)),
+        response = self.client.post(self._build_quickforms_url(len(data)),
                                     data={'form-TOTAL_FORMS':      len(data),
                                           'form-INITIAL_FORMS':    0,
                                           'form-MAX_NUM_FORMS':    '',
@@ -871,6 +875,115 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
             self.assertRelationCount(0, contact, REL_SUB_EMPLOYED_BY, orga2)
 
+    def test_quickform01(self):
+        "1 Contact"
+        user = self.login()
+
+        contact_count = Contact.objects.count()
+        orga_count = Organisation.objects.count()
+
+        models = set(quickforms_registry.iter_models())
+        self.assertIn(Contact, models)
+        self.assertIn(Organisation, models)
+
+        first_name = 'Faye'
+        last_name  = 'Valentine'
+
+        url = self._build_quickform_url()
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            orga_f = response.context['form'].fields['organisation']
+
+        self.assertEqual(_('If no organisation is found, a new one will be created.'),
+                         orga_f.help_text
+                        )
+        self.assertIsInstance(orga_f.widget, TextInput)
+        self.assertFalse(isinstance(orga_f.widget, Label))
+        self.assertFalse(orga_f.initial)
+
+        response = self.client.post(url, data={'user':        user.id,
+                                               'first_name':  first_name,
+                                               'last_name':   last_name,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count,        Organisation.objects.count())
+        self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+
+    @skipIfCustomOrganisation
+    def test_quickform02(self):
+        "1 Contact & 1 Organisation created"
+        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        count = Contact.objects.count()
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role,
+                            set_type=SetCredentials.ESET_OWN,
+                           )
+        create_sc(value=EntityCredentials.VIEW)
+        create_sc(value=EntityCredentials.LINK)
+
+        orga_name = 'Bebop'
+        self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
+        existing_orga = Organisation.objects.create(user=self.other_user, name=orga_name)  # Not viewable
+
+        first_name = 'Faye'
+        last_name  = 'Valentine'
+        response = self.client.post(self._build_quickform_url(),
+                                    data={'user':         self.user.id,
+                                          'first_name':   first_name,
+                                          'last_name':    last_name,
+                                          'organisation': orga_name,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(count + 1, Contact.objects.count())
+
+        orgas = Organisation.objects.filter(name=orga_name)
+        self.assertEqual(2, len(orgas))
+
+        created_orga = next(o for o in orgas if o != existing_orga)
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, created_orga)
+
+    @skipIfCustomOrganisation
+    def test_quickform03(self):
+        "1 Contact created and link with an existing Organisation"
+        user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        count = Contact.objects.count()
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        orga_name = 'Bebop'
+        self.assertFalse(Organisation.objects.filter(name=orga_name))
+
+        create_orga = partial(Organisation.objects.create, name=orga_name)
+        orga1 = create_orga(user=user)
+        orga2 = create_orga(user=self.other_user)  # This one cannot be seen by user
+
+        first_name = 'Faye'
+        last_name  = 'Valentine'
+        response = self.client.post(self._build_quickform_url(),
+                                    data={'user':         user.id,
+                                          'first_name':   first_name,
+                                          'last_name':    last_name,
+                                          'organisation': orga_name,
+                                         }
+                                    )
+        self.assertNoFormError(response)
+
+        self.assertEqual(count + 1, Contact.objects.count())
+        self.assertEqual(2, Organisation.objects.filter(name=orga_name).count())
+
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
+        self.assertRelationCount(0, contact, REL_SUB_EMPLOYED_BY, orga2)
+
     def test_quickform04(self):
         "No permission to create Organisation"
         user = self.login(is_superuser=False, creatable_models=[Contact])  # <== not 'Organisation'
@@ -886,29 +999,26 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         contact_count = Contact.objects.count()
         orga_count = Organisation.objects.count()
 
-        url = self._build_quickform_url(1)
+        url = self._build_quickform_url()
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            orga_f = response.context['formset'][0].fields['organisation']
+            orga_f = response.context['form'].fields['organisation']
 
         self.assertEqual(_('Enter the name of an existing Organisation.'),
                          str(orga_f.help_text)
                         )
 
         response = self.client.post(url,
-                                    data={'form-TOTAL_FORMS':      1,
-                                          'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    '',
-                                          'form-0-user':           user.id,
-                                          'form-0-first_name':     'Faye',
-                                          'form-0-last_name':      'Valentine',
-                                          'form-0-organisation':   orga_name,
+                                    data={'user':         user.id,
+                                          'first_name':   'Faye',
+                                          'last_name':    'Valentine',
+                                          'organisation': orga_name,
                                          }
                                    )
-        self.assertFormsetError(response, 'formset', 0, 'organisation',
-                                [_('You are not allowed to create an Organisation.')]
-                               )
+        self.assertFormError(response, 'form', 'organisation',
+                             _('You are not allowed to create an Organisation.')
+                            )
         self.assertEqual(contact_count, Contact.objects.count())
         self.assertEqual(orga_count, Organisation.objects.count())
 
@@ -926,11 +1036,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         orga_count = Organisation.objects.count()
 
-        url = self._build_quickform_url(1)
+        url = self._build_quickform_url()
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            orga_f = response.context['formset'][0].fields['organisation']
+            orga_f = response.context['form'].fields['organisation']
 
         self.assertIsInstance(orga_f.widget, Label)
         self.assertFalse(str(orga_f.help_text))
@@ -940,17 +1050,14 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         first_name = 'Faye'
         last_name = 'Valentine'
-        self.client.post(url,
-                         data={'form-TOTAL_FORMS':      1,
-                               'form-INITIAL_FORMS':    0,
-                               'form-MAX_NUM_FORMS':    '',
-                               'form-0-user':           user.id,
-                               'form-0-first_name':     first_name,
-                               'form-0-last_name':      last_name,
-                               'form-0-organisation':   'Bebop',
-                              }
-                        )
-        self.assertFormsetError(response, 'formset', 0, 'organisation', None)
+        response = self.client.post(url,
+                                    data={'user':           user.id,
+                                          'first_name':     first_name,
+                                          'last_name':      last_name,
+                                          'organisation':   'Bebop',
+                                         },
+                                   )
+        self.assertNoFormError(response)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(orga_count, Organisation.objects.count())
@@ -968,10 +1075,10 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                   ctype=ContentType.objects.get_for_model(Organisation),
                  )
 
-        response = self.assertGET200(self._build_quickform_url(1))
+        response = self.assertGET200(self._build_quickform_url())
 
         with self.assertNoException():
-            orga_f = response.context['formset'][0].fields['organisation']
+            orga_f = response.context['form'].fields['organisation']
 
         self.assertIsInstance(orga_f.widget, Label)
         self.assertEqual(_('You are not allowed to link with a Contact'),
@@ -988,33 +1095,29 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=get_ct(Organisation))
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN, ctype=get_ct(Contact))
 
-        url = self._build_quickform_url(1)
+        url = self._build_quickform_url()
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            orga_f = response.context['formset'][0].fields['organisation']
+            orga_f = response.context['form'].fields['organisation']
 
         self.assertIsNone(orga_f.initial)
 
         first_name = 'Faye'
         last_name = 'Valentine'
-        data = {'form-TOTAL_FORMS':     1,
-                'form-INITIAL_FORMS':   0,
-                'form-MAX_NUM_FORMS':   '',
-                'form-0-user':          self.other_user.id,
-                'form-0-first_name':    'Faye',
-                'form-0-last_name':     'Valentine',
-               }
-        response = self.client.post(url, data=dict(data, **{'form-0-organisation': 'Bebop'}))
-        self.assertFormsetError(response, 'formset', 0, None,
-                                [_('You are not allowed to link with the «{models}» of this user.').format(
+        data = {
+            'user':       self.other_user.id,
+            'first_name': 'Faye',
+            'last_name':  'Valentine',
+        }
+        response = self.client.post(url, data=dict(data, organisation='Bebop'))
+        self.assertFormError(response, 'form', None,
+                             _('You are not allowed to link with the «{models}» of this user.').format(
                                         models=_('Contacts'),
                                     )
-                                ]
-                               )
+                            )
 
-        response = self.client.post(url, data=data)
-        self.assertFormsetError(response, 'formset', 0, field=None, errors=None)
+        self.assertNoFormError(self.client.post(url, data=data))
         self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
     @skipIfCustomOrganisation
@@ -1027,19 +1130,16 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         create_orga(user=user)
         create_orga(user=self.other_user)
 
-        response = self.client.post(self._build_quickform_url(1),
-                                    data={'form-TOTAL_FORMS':      1,
-                                          'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    '',
-                                          'form-0-user':           user.id,
-                                          'form-0-first_name':     'Faye',
-                                          'form-0-last_name':      'Valentine',
-                                          'form-0-organisation':   orga_name,
-                                         }
+        response = self.client.post(self._build_quickform_url(),
+                                    data={'user':         user.id,
+                                          'first_name':   'Faye',
+                                          'last_name':    'Valentine',
+                                          'organisation': orga_name,
+                                         },
                                    )
-        self.assertFormsetError(response, 'formset', 0, 'organisation',
-                                [_('Several Organisations with this name have been found.')]
-                               )
+        self.assertFormError(response, 'form', 'organisation',
+                             _('Several Organisations with this name have been found.')
+                            )
 
     @skipIfCustomOrganisation
     def test_quickform09(self):
@@ -1057,24 +1157,21 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         first_name = 'Faye'
         last_name = 'Valentine'
-        response = self.client.post(self._build_quickform_url(1),
-                                    data={'form-TOTAL_FORMS':      1,
-                                          'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    '',
-                                          'form-0-user':           user.id,
-                                          'form-0-first_name':     first_name,
-                                          'form-0-last_name':      last_name,
-                                          'form-0-organisation':   orga_name,
-                                         }
+        response = self.client.post(self._build_quickform_url(),
+                                    data={'user':         user.id,
+                                          'first_name':   first_name,
+                                          'last_name':    last_name,
+                                          'organisation': orga_name,
+                                         },
                                    )
-        self.assertFormsetError(response, 'formset', 0, 'organisation', None)
+        self.assertNoFormError(response)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
 
     @skipIfCustomOrganisation
     def test_quickform10(self):
-        "Multiple Organisations found, but none of them is linkable"
+        "Multiple Organisations found, but none of them is linkable."
         user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
@@ -1086,22 +1183,19 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         for i in range(2):
             Organisation.objects.create(user=self.other_user, name=orga_name)
 
-        response = self.client.post(self._build_quickform_url(1),
-                                    data={'form-TOTAL_FORMS':      1,
-                                          'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    '',
-                                          'form-0-user':           user.id,
-                                          'form-0-first_name':     'Faye',
-                                          'form-0-last_name':      'Valentine',
-                                          'form-0-organisation':   orga_name,
-                                         }
+        response = self.client.post(self._build_quickform_url(),
+                                    data={'user':         user.id,
+                                          'first_name':   'Faye',
+                                          'last_name':    'Valentine',
+                                          'organisation': orga_name,
+                                         },
                                    )
-        self.assertFormsetError(response, 'formset', 0, 'organisation',
-                                _('No linkable Organisation found.')
-                               )
+        self.assertFormError(response, 'form', 'organisation',
+                             _('No linkable Organisation found.')
+                            )
 
     def test_quickform11(self):
-        "Have to create an Organisations, but can not link to it"
+        "Have to create an Organisations, but can not link to it."
         self.login(is_superuser=False, creatable_models=[Contact, Organisation])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
@@ -1114,25 +1208,22 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga_name = 'Bebop'
         self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
 
-        response = self.client.post(self._build_quickform_url(1),
-                                    data={'form-TOTAL_FORMS':      1,
-                                          'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    '',
-                                          'form-0-user':           self.other_user.id,
-                                          'form-0-first_name':     'Faye',
-                                          'form-0-last_name':      'Valentine',
-                                          'form-0-organisation':   orga_name,
-                                         }
+        response = self.client.post(self._build_quickform_url(),
+                                    data={'user':         self.other_user.id,
+                                          'first_name':   'Faye',
+                                          'last_name':    'Valentine',
+                                          'organisation': orga_name,
+                                         },
                                    )
-        self.assertFormsetError(response, 'formset', 0, None,
-                                _('You are not allowed to link with the «{models}» of this user.').format(
+        self.assertFormError(response, 'form', None,
+                             _('You are not allowed to link with the «{models}» of this user.').format(
                                         models=_('Organisations'),
                                     )
-                               )
+                            )
 
     @skipIfCustomOrganisation
     def test_quickform12(self):
-        "Multiple Organisations found, only one is not deleted (so we use it)"
+        "Multiple Organisations found, only one is not deleted (so we use it)."
         user = self.login()
 
         orga_name = 'Bebop'
@@ -1142,17 +1233,14 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         first_name = 'Faye'
         last_name = 'Valentine'
-        response = self.client.post(self._build_quickform_url(1),
-                                    data={'form-TOTAL_FORMS':    1,
-                                          'form-INITIAL_FORMS':  0,
-                                          'form-MAX_NUM_FORMS':  '',
-                                          'form-0-user':         user.id,
-                                          'form-0-first_name':   first_name,
-                                          'form-0-last_name':    last_name,
-                                          'form-0-organisation': orga_name,
-                                         }
+        response = self.client.post(self._build_quickform_url(),
+                                    data={'user':         user.id,
+                                          'first_name':   first_name,
+                                          'last_name':    last_name,
+                                          'organisation': orga_name,
+                                         },
                                    )
-        self.assertFormsetError(response, 'formset', 0, 'organisation', None)
+        self.assertNoFormError(response)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga2)
