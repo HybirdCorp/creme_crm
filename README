@@ -103,6 +103,7 @@ Here the minimal information you must fill :
             'HOST':     '',                          # Leave empty for localhost.
             'PORT':     '',                          # Leave empty for default port.
         },
+    }
 
     SECRET_KEY = ''  # <== TO BE REPLACED (see below).
     LANGUAGE_CODE = 'en'  # Also available : 'fr'
