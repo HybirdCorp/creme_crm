@@ -342,8 +342,10 @@ def _get_page_url(request):
 @lw_exceptions
 @mobile_login_required
 @POST_only
+@atomic
 def start_activity(request, activity_id):
-    activity = get_object_or_404(Activity, id=activity_id)
+    # activity = get_object_or_404(Activity, id=activity_id)
+    activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
 
     request.user.has_perm_to_change_or_die(activity)
 
@@ -362,8 +364,10 @@ def start_activity(request, activity_id):
 @lw_exceptions
 @mobile_login_required
 @POST_only
+@atomic
 def stop_activity(request, activity_id):
-    activity = get_object_or_404(Activity, id=activity_id)
+    # activity = get_object_or_404(Activity, id=activity_id)
+    activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
 
     request.user.has_perm_to_change_or_die(activity)
 
@@ -491,7 +495,12 @@ def _get_pcall(request):
     if pcall_id is None:
         return None
 
-    pcall = get_object_or_404(Activity, id=pcall_id, type_id=act_constants.ACTIVITYTYPE_PHONECALL)
+    # pcall = get_object_or_404(Activity, id=pcall_id, type_id=act_constants.ACTIVITYTYPE_PHONECALL)
+    pcall = get_object_or_404(
+        Activity.objects.select_for_update(),
+        id=pcall_id,
+        type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+    )
 
     request.user.has_perm_to_change_or_die(pcall)
 
@@ -568,6 +577,7 @@ def _improve_minutes(pcall, minutes):
 @mobile_login_required
 @POST_only
 @jsonify
+@atomic
 def _phonecall_workflow_set_end(request, end_function):
     POST = request.POST
     start = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))  # TODO: assert in the past
@@ -588,20 +598,21 @@ def _phonecall_workflow_set_end(request, end_function):
 
         me, person = _get_participants(user, POST)
 
-        with atomic():
-            pcall = done_activity_creator(user=user,
-                                          title=_('{status} call to {person} from Creme Mobile').format(
-                                                  status=_('Successful'),
-                                                  person=person,
-                                            ),
-                                          type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-                                          sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-                                          status_id=act_constants.STATUS_DONE,
-                                          start=start,
-                                          end=end,
-                                          minutes=minutes,
-                                         )
-            _add_participants(pcall, (me, person))
+        # with atomic():
+        pcall = done_activity_creator(
+            user=user,
+            title=_('{status} call to {person} from Creme Mobile').format(
+                    status=_('Successful'),
+                    person=person,
+              ),
+            type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            status_id=act_constants.STATUS_DONE,
+            start=start,
+            end=end,
+            minutes=minutes,
+         )
+        _add_participants(pcall, (me, person))
 
     return ''
 
@@ -625,20 +636,21 @@ def _create_failed_pcall(request):
 
     me, person = _get_participants(user, POST)
 
-    with atomic():
-        pcall = failed_activity_creator(user=user,
-                                        title=_('{status} call to {person} from Creme Mobile').format(
-                                                status=_('Failed'),
-                                                person=person,
-                                            ),
-                                        type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-                                        sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
-                                        status_id=act_constants.STATUS_DONE,
-                                        start=start,
-                                        end=start,
-                                        minutes=POST.get('minutes', ''),
-                                       )
-        _add_participants(pcall, (me, person))
+    # with atomic():
+    pcall = failed_activity_creator(
+        user=user,
+        title=_('{status} call to {person} from Creme Mobile').format(
+                status=_('Failed'),
+                person=person,
+            ),
+        type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+        sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
+        status_id=act_constants.STATUS_DONE,
+        start=start,
+        end=start,
+        minutes=POST.get('minutes', ''),
+    )
+    _add_participants(pcall, (me, person))
 
     return pcall, me, person
 
@@ -658,6 +670,7 @@ def _set_pcall_as_failed(pcall, request):
 @mobile_login_required
 @POST_only
 @jsonify
+@atomic
 def phonecall_workflow_failed(request):
     pcall = _get_pcall(request)
 
