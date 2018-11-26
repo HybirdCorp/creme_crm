@@ -14,7 +14,8 @@ entity_patterns = [
     url(r'^delete/(?P<entity_id>\d+)[/]?$',     entity.delete_entity,            name='creme_core__delete_entity'),
     url(r'^delete_related/(?P<ct_id>\d+)[/]?$', entity.delete_related_to_entity, name='creme_core__delete_related_to_entity'),
     url(r'^restore/(?P<entity_id>\d+)[/]?$',    entity.restore_entity,           name='creme_core__restore_entity'),
-    url(r'^trash[/]?$',                         entity.trash,                    name='creme_core__trash'),
+    # url(r'^trash[/]?$',                         entity.trash,                    name='creme_core__trash'),
+    url(r'^trash[/]?$',                         entity.Trash.as_view(),          name='creme_core__trash'),
     url(r'^trash/empty[/]?$',                   entity.empty_trash,              name='creme_core__empty_trash'),
 
     # TODO: add a view 'creme_core__entities_as_json'

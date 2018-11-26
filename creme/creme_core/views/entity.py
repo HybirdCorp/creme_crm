@@ -609,11 +609,13 @@ def merge(request):
                  )
 
 
-@login_required
-def trash(request):
-    return render(request, 'creme_core/trash.html',
-                  context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
-                 )
+# @login_required
+# def trash(request):
+#     return render(request, 'creme_core/trash.html',
+#                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
+#                  )
+class Trash(generic.BricksView):
+    template_name = 'creme_core/trash.html'
 
 
 @login_required
