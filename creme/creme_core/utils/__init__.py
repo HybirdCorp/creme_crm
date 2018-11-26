@@ -214,6 +214,7 @@ def find_first(iterable, function, *default):
     @param function: Callable which takes one argument (an element form "iterable")
            & returns a value used as a boolean ('True' to accept the element).
     @param default: Optional argument ; if given, it is returned if no element is found.
+    @raise IndexError.
     """
     for elt in iterable:
         if function(elt):

@@ -45,7 +45,8 @@ from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseF
 from ..gui import bulk_update  # NB: do no import <bulk_update_registry> to facilitate unit testing
 from ..models import CremeEntity, EntityCredentials, FieldsConfig, Sandbox
 from ..models.fields import UnsafeHTMLField
-from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, bool_from_str_extended
+from ..utils import (get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404,
+        bool_from_str_extended)
 from ..utils.translation import get_model_verbose_name
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
@@ -536,16 +537,27 @@ def select_entity_for_merge(request):
 
 
 @login_required
+@atomic
 def merge(request):
     GET = request.GET
     entity1_id = get_from_GET_or_404(GET, 'id1', cast=int)
     entity2_id = get_from_GET_or_404(GET, 'id2', cast=int)
 
-    entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
-    entity2 = get_object_or_404(CremeEntity, pk=entity2_id)
-
-    if entity1.id == entity2.id:
+    if entity1_id == entity2_id:
         raise ConflictError('You can not merge an entity with itself.')
+
+    entities = CremeEntity.objects.all()
+
+    if request.method == 'POST':
+        entities = entities.select_for_update()
+
+    entities_per_id = entities.in_bulk((entity1_id, entity2_id))
+
+    try:
+        entity1 = entities_per_id[entity1_id]
+        entity2 = entities_per_id[entity2_id]
+    except IndexError as e:
+        raise Http404('Entity not found: {}'.format(e)) from e
 
     if entity1.entity_type_id != entity2.entity_type_id:
         raise ConflictError('You can not merge entities of different types.')
@@ -557,11 +569,11 @@ def merge(request):
 
     # TODO: try to swap 1 & 2
 
-    entity1 = entity1.get_real_entity()
-    entity2 = entity2.get_real_entity()
+    real_entity1 = entity1.get_real_entity()
+    real_entity2 = entity2.get_real_entity()
 
-    # TODO: 'merge_form_registry' as atribute in the future CBV + pass it as argument here
-    EntitiesMergeForm = merge_form_factory(entity1.__class__)
+    # TODO: 'merge_form_registry' as attribute in the future CBV + pass it as argument here
+    EntitiesMergeForm = merge_form_factory(real_entity1.__class__)
 
     if EntitiesMergeForm is None:
         raise ConflictError('This type of entity cannot be merged')
@@ -569,7 +581,8 @@ def merge(request):
     if request.method == 'POST':
         POST = request.POST
         merge_form = EntitiesMergeForm(user=request.user, data=POST,
-                                       entity1=entity1, entity2=entity2,
+                                       entity1=real_entity1,
+                                       entity2=real_entity2,
                                       )
 
         if merge_form.is_valid():
@@ -583,7 +596,10 @@ def merge(request):
         cancel_url = POST.get('cancel_url')
     else:
         try:
-            merge_form = EntitiesMergeForm(user=request.user, entity1=entity1, entity2=entity2)
+            merge_form = EntitiesMergeForm(user=request.user,
+                                           entity1=real_entity1,
+                                           entity2=real_entity2,
+                                          )
         except MergeEntitiesBaseForm.CanNotMergeError as e:
             raise ConflictError(e) from e
 
@@ -593,8 +609,8 @@ def merge(request):
                   'creme_core/forms/merge.html',
                   {'form':   merge_form,
                    'title': ugettext('Merge «{entity1}» with «{entity2}»').format(
-                                   entity1=entity1,
-                                   entity2=entity2,
+                                   entity1=real_entity1,
+                                   entity2=real_entity2,
                                 ),
                    'help_message': _('You are going to merge two entities into a new one.\n'
                                      'Choose which information you want the old entities '
