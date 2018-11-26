@@ -62,12 +62,12 @@ def _get_modelconf(app_config, model_name):  # TODO: get_modelconf_or_404() ?
     raise Http404('Unknown model')
 
 
-def _popup_title(model_conf):
-    model = model_conf.model
-    title = getattr(model, 'creation_label', None)
-
-    return title if title is not None else \
-           ugettext('New value: {model}').format(model=model._meta.verbose_name)
+# def _popup_title(model_conf):
+#     model = model_conf.model
+#     title = getattr(model, 'creation_label', None)
+#
+#     return title if title is not None else \
+#            ugettext('New value: {model}').format(model=model._meta.verbose_name)
 
 
 class ModelConfMixin:
@@ -100,7 +100,11 @@ class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
         return self.get_model_conf().model_form
 
     def get_title(self):
-        return _popup_title(self.get_model_conf())
+        model = self.get_model_conf().model
+        title = getattr(model, 'creation_label', None)
+
+        return title if title is not None else \
+               ugettext('New value: {model}').format(model=model._meta.verbose_name)
 
     def get_submit_label(self):
         return getattr(self.get_model_conf().model, 'save_label', None) or \
