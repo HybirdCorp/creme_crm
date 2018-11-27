@@ -61,7 +61,7 @@ def get_backend(filedata):
     pathname, extension = splitext(filename)
     backend = import_backend_registry.get_backend(extension.replace('.', ''))
 
-    error_msg = ugettext(u'Error reading document, unsupported file type: {file}.')\
+    error_msg = ugettext('Error reading document, unsupported file type: {file}.')\
                         .format(file=filename) if backend is None else None
 
     return backend, error_msg
@@ -82,7 +82,7 @@ def get_header(filedata, has_header):
             header = next(backend(filedata))
         except Exception as e:
             logger.exception('Error when reading doc header in clean()')
-            raise ValidationError(ugettext(u'Error reading document: {error}.').format(error=e)) from e
+            raise ValidationError(ugettext('Error reading document: {error}.').format(error=e)) from e
         finally:
             filedata.close()
 
@@ -91,13 +91,13 @@ def get_header(filedata, has_header):
 
 class UploadForm(CremeForm):
     step       = IntegerField(widget=HiddenInput)
-    document   = CreatorEntityField(label=_(u'File to import'), model=Document,
+    document   = CreatorEntityField(label=_('File to import'), model=Document,
                                     create_action_url=reverse('documents__create_document_from_widget'),
                                     credentials=EntityCredentials.VIEW,
                                    )
-    has_header = BooleanField(label=_(u'Header present ?'), required=False,
-                              help_text=_(u'Does the first line of the line contain '
-                                          u'the header of the columns (eg: "Last name","First name") ?'
+    has_header = BooleanField(label=_('Header present ?'), required=False,
+                              help_text=_('Does the first line of the line contain '
+                                          'the header of the columns (eg: "Last name","First name") ?'
                                          )
                              )
 
@@ -107,8 +107,8 @@ class UploadForm(CremeForm):
         document_f = self.fields['document']
         document_f.user = self.user
         document_f.help_text = format_html(
-            u'<ul class="help-texts">{}</ul>',
-            format_html_join(u'', u'<li>{}: {}</li>',
+            '<ul class="help-texts">{}</ul>',
+            format_html_join('', '<li>{}: {}</li>',
                              ((be.verbose_name, be.help_text) for be in import_backend_registry.backends)
                             )
         )
@@ -173,18 +173,18 @@ class Extractor:
 
                                 value = creator.instance
                             else:
-                                err_msg = ugettext(u'Error while extracting value: tried to retrieve '
-                                                   u'and then build «{value}» (column {column}) on {model}. '
-                                                   u'Raw error: [{raw_error}]').format(
+                                err_msg = ugettext('Error while extracting value: tried to retrieve '
+                                                   'and then build «{value}» (column {column}) on {model}. '
+                                                   'Raw error: [{raw_error}]').format(
                                                         raw_error=e,
                                                         column=self._column_index,
                                                         value=line_value,
                                                         model=self._fk_model._meta.verbose_name,
                                 )
                         else:
-                            err_msg = ugettext(u'Error while extracting value: tried to retrieve '
-                                               u'«{value}» (column {column}) on {model}. '
-                                               u'Raw error: [{raw_error}]').format(
+                            err_msg = ugettext('Error while extracting value: tried to retrieve '
+                                               '«{value}» (column {column}) on {model}. '
+                                               'Raw error: [{raw_error}]').format(
                                                     raw_error=e,
                                                     column=self._column_index,
                                                     value=line_value,
@@ -283,7 +283,7 @@ class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldE
 class ExtractorField(Field):
     widget = ExtractorWidget
     default_error_messages = {
-        'invalid': _(u'Enter a valid value.'),
+        'invalid': _('Enter a valid value.'),
     }
 
     # TODO: default values + properties which update widget
@@ -416,8 +416,8 @@ class EntityExtractor:
                     created.full_clean()  # Can raise ValidationError
                     created.save()  # TODO should we use save points for this line ?
                 except Exception as e:
-                    error_msg = _(u'Error while extracting value [{raw_error}]: '
-                                  u'tried to retrieve and then build «{value}» on {model}').format(
+                    error_msg = _('Error while extracting value [{raw_error}]: '
+                                  'tried to retrieve and then build «{value}» on {model}').format(
                                         raw_error=e,
                                         value=value,
                                         model=model._meta.verbose_name,
@@ -425,8 +425,8 @@ class EntityExtractor:
                 else:
                     extracted = created
             else:
-                error_msg = _(u'Error while extracting value [{raw_error}]: '
-                              u'tried to retrieve «{value}» on {model}').format(
+                error_msg = _('Error while extracting value [{raw_error}]: '
+                              'tried to retrieve «{value}» on {model}').format(
                                     raw_error=e,
                                     value=value,
                                     model=model._meta.verbose_name,
@@ -449,7 +449,7 @@ class EntityExtractor:
             if error_part:
                 error_parts.append(error_part)
         else:
-            err_msg = u'\n'.join(error_parts)
+            err_msg = '\n'.join(error_parts)
 
         return extracted, err_msg
 
@@ -534,8 +534,8 @@ class EntityExtractorWidget(BaseExtractorWidget):
 class EntityExtractorField(Field):
     widget = EntityExtractorWidget
     default_error_messages = {
-        'invalid': _(u'Enter a valid value.'),
-        'nocreationperm': _(u'You are not allowed to create: %(model)s'),
+        'invalid': _('Enter a valid value.'),
+        'nocreationperm': _('You are not allowed to create: %(model)s'),
     }
 
     # TODO: default values + properties which update widget
@@ -614,9 +614,9 @@ class RelationExtractor:
             try:
                 object_entity = EntityCredentials.filter(user, model.objects.filter(**data)).first()
             except Exception as e:
-                err_msg = ugettext(u'Error while extracting value to build a Relation: '
-                                   u'tried to retrieve {field}=«{value}» (column {column}) on {model}. '
-                                   u'Raw error: [{raw_error}]').format(
+                err_msg = ugettext('Error while extracting value to build a Relation: '
+                                   'tried to retrieve {field}=«{value}» (column {column}) on {model}. '
+                                   'Raw error: [{raw_error}]').format(
                                         raw_error=e,
                                         column=self._column_index,
                                         field=self._subfield_search,
@@ -632,18 +632,18 @@ class RelationExtractor:
                         if creator.is_valid():
                             object_entity = creator.save()
                         else:
-                            err_msg = ugettext(u'Error while extracting value: '
-                                               u'tried to build {model} with data={data} '
-                                               u'(column {column}) ➔ errors={errors}').format(
+                            err_msg = ugettext('Error while extracting value: '
+                                               'tried to build {model} with data={data} '
+                                               '(column {column}) ➔ errors={errors}').format(
                                                     model=model._meta.verbose_name,
                                                     column=self._column_index,
                                                     data=data,
                                                     errors=creator.errors,
                             )
                     else:
-                        err_msg = ugettext(u'Error while extracting value to build a Relation: '
-                                           u'tried to retrieve {field}=«{value}» '
-                                           u'(column {column}) on {model}').format(
+                        err_msg = ugettext('Error while extracting value to build a Relation: '
+                                           'tried to retrieve {field}=«{value}» '
+                                           '(column {column}) on {model}').format(
                                                 field=self._subfield_search,
                                                 column=self._column_index,
                                                 value=value,
@@ -680,7 +680,7 @@ class RelationExtractorSelector(SelectorList):
 
         # TODO: use GET args instead of using TemplateURLBuilders ?
         add = partial(chained_input.add_dselect, attrs={'auto': False, 'autocomplete': True})
-        add('rtype', options=self.relation_types, label=ugettext(u'The entity'))
+        add('rtype', options=self.relation_types, label=ugettext('The entity'))
         add('ctype',
             options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))
                                       .resolve('creme_core__ctypes_compatible_with_rtype')
@@ -688,9 +688,9 @@ class RelationExtractorSelector(SelectorList):
         add('searchfield',
             options=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${ctype}'))
                                       .resolve('creme_core__entity_info_fields'),
-            label=ugettext(u'which field'),
+            label=ugettext('which field'),
            )
-        add('column', options=self.columns, label=ugettext(u'equals to'))
+        add('column', options=self.columns, label=ugettext('equals to'))
 
         # context = super(RelationExtractorSelector, self).get_context(name=name, attrs=attrs,
         #                                                              value=value.get('selectorlist'),
@@ -712,8 +712,8 @@ class RelationExtractorSelector(SelectorList):
 class RelationExtractorField(MultiRelationEntityField):
     widget = RelationExtractorSelector
     default_error_messages = {
-        'fielddoesnotexist': _(u"This field doesn't exist in this ContentType."),
-        'invalidcolunm':     _(u'This column is not a valid choice.'),
+        'fielddoesnotexist': _("This field doesn't exist in this ContentType."),
+        'invalidcolunm':     _('This column is not a valid choice.'),
     }
 
     def __init__(self, columns=(), *args, **kwargs):
@@ -849,9 +849,9 @@ class CustomFieldExtractor:
                                 err_msg
                                )
                     else:
-                        err_msg = ugettext(u'Error while extracting value: tried to retrieve '
-                                           u'the choice «{value}» (column {column}). '
-                                           u'Raw error: [{raw_error}]').format(
+                        err_msg = ugettext('Error while extracting value: tried to retrieve '
+                                           'the choice «{value}» (column {column}). '
+                                           'Raw error: [{raw_error}]').format(
                                                 raw_error=e,
                                                 column=self._column_index,
                                                 value=value,
@@ -958,27 +958,27 @@ class ImportForm(CremeModelForm):
     document   = IntegerField(widget=HiddenInput)
     has_header = BooleanField(widget=HiddenInput, required=False)
     key_fields = MultipleChoiceField(
-                        label=_(u'Key fields'), required=False,
+                        label=_('Key fields'), required=False,
                         choices=(),
                         widget=UnorderedMultipleChoiceWidget(columntype='wide'),
-                        help_text=_(u'Select at least one field if you want to use the "update" mode. '
-                                    u'If an entity already exists with the same field values, it will be simply updated '
-                                    u'(ie: a new entity will not be created).\n'
-                                    u'But if several entities are found, a new entity is created (in order to avoid errors).'
+                        help_text=_('Select at least one field if you want to use the "update" mode. '
+                                    'If an entity already exists with the same field values, it will be simply updated '
+                                    '(ie: a new entity will not be created).\n'
+                                    'But if several entities are found, a new entity is created (in order to avoid errors).'
                                    ),
                     )
 
     error_messages = {
-        'invalid_document': _(u"This document doesn't exist or doesn't exist any more."),
-        'forbidden_read': _(u"You have not the credentials to read this document."),
+        'invalid_document': _("This document doesn't exist or doesn't exist any more."),
+        'forbidden_read': _('You have not the credentials to read this document.'),
     }
 
     choices = [(0, 'Not in the file')] + [(i, 'Column {}'.format(i)) for i in range(1, 21)]  # Overloaded by factory
     header_dict = {}  # Idem
 
     blocks = FieldBlockManager(
-        ('general', _(u'Update mode'),  ('step', 'document', 'has_header', 'key_fields',)),
-        ('fields',  _(u'Field values'), '*'),
+        ('general', _('Update mode'),  ('step', 'document', 'has_header', 'key_fields',)),
+        ('fields',  _('Field values'), '*'),
        )
 
     def __init__(self, *args, **kwargs):
@@ -1109,11 +1109,16 @@ class ImportForm(CremeModelForm):
 
                         if found:
                             if len(found) == 1:
-                                instance = found[0]
-                                job_result.updated = updated = True
+                                # instance = found[0]
+                                try:
+                                    instance = model_class.objects.select_for_update().get(pk=found[0].pk)
+                                except model_class.DoesNotExist:
+                                    pass
+                                else:
+                                    job_result.updated = updated = True
                             else:
-                                append_error(ugettext(u'Several entities corresponding to the search have been found. '
-                                                      u'So a new entity have been created to avoid errors.'
+                                append_error(ugettext('Several entities corresponding to the search have been found. '
+                                                      'So a new entity have been created to avoid errors.'
                                                      ),
                                             )
 
@@ -1164,26 +1169,26 @@ class ImportForm(CremeModelForm):
 
 
 class ImportForm4CremeEntity(ImportForm):
-    user            = ModelChoiceField(label=_(u'Owner user'), empty_label=None,
+    user            = ModelChoiceField(label=_('Owner user'), empty_label=None,
                                        queryset=get_user_model().objects.filter(is_staff=False),
                                       )
-    property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
+    property_types  = ModelMultipleChoiceField(label=_('Properties'), required=False,
                                                queryset=CremePropertyType.objects.none(),
                                               )
-    fixed_relations = MultiRelationEntityField(label=_(u'Fixed relationships'),
+    fixed_relations = MultiRelationEntityField(label=_('Fixed relationships'),
                                                required=False, autocomplete=True,
                                               )
-    dyn_relations   = RelationExtractorField(label=_(u'Relationships from the file'), required=False)
+    dyn_relations   = RelationExtractorField(label=_('Relationships from the file'), required=False)
 
     blocks = FieldBlockManager(
-        ('general',    _(u'General'),                  ('step', 'document', 'has_header', 'user', 'key_fields')),
-        ('fields',     _(u'Field values'),             '*'),
-        ('properties', _(u'Related properties'),       ('property_types',)),
-        ('relations',  _(u'Associated relationships'), ('fixed_relations', 'dyn_relations')),
+        ('general',    _('General'),                  ('step', 'document', 'has_header', 'user', 'key_fields')),
+        ('fields',     _('Field values'),             '*'),
+        ('properties', _('Related properties'),       ('property_types',)),
+        ('relations',  _('Associated relationships'), ('fixed_relations', 'dyn_relations')),
        )
 
     error_messages = dict(ImportForm.error_messages,
-                          creation_forbidden=_(u'You are not allowed to create: %(model)s'),
+                          creation_forbidden=_('You are not allowed to create: %(model)s'),
                          )
 
     def __init__(self, *args, **kwargs):
@@ -1229,7 +1234,7 @@ class ImportForm4CremeEntity(ImportForm):
         return extractors
 
     def _find_existing_instances(self, model, field_names, extracted_values):
-        qs = super(ImportForm4CremeEntity, self)._find_existing_instances(
+        qs = super()._find_existing_instances(
             model=model, field_names=field_names, extracted_values=extracted_values
         ).exclude(is_deleted=True)
 
@@ -1250,7 +1255,7 @@ class ImportForm4CremeEntity(ImportForm):
             else:
                 if err_msg is not None:
                     self.append_error(err_msg)
-                elif value is not None and value != u'':
+                elif value is not None and value != '':
                     CustomFieldValue.save_values_for_entities(cfield, [instance], value)
 
         # Properties -----
@@ -1339,18 +1344,18 @@ def extractorfield_factory(modelfield, header_dict, choices):
 #     bit we need to avoid the model validation, because we are are not building a true
 #    'self.instance', but a set of instances ; we just use the regular form validation.
 def form_factory(ct, header):
-    choices = [(0, _(u'Not in the file'))]
+    choices = [(0, _('Not in the file'))]
     header_dict = {}
 
     if header:
-        fstring = ugettext(u'Column {index} - {name}')
+        fstring = ugettext('Column {index} - {name}')
 
         for i, col_name in enumerate(header):
             i += 1
             choices.append((i, fstring.format(index=i, name=col_name)))
             header_dict[slugify(col_name)] = i
     else:
-        fstring = ugettext(u'Column {}')
+        fstring = ugettext('Column {}')
         choices.extend((i, fstring.format(i)) for i in range(1, 21))
 
     model_class = ct.model_class()
