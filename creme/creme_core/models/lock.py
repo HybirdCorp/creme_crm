@@ -23,9 +23,12 @@
 # SOFTWARE.
 ################################################################################
 
-from django.db.models import Model, CharField
+import warnings
+
+from django.db import models
 from django.db.transaction import atomic
 from django.db.utils import IntegrityError
+from django.utils.decorators import ContextDecorator
 
 
 class MutexLockedException(Exception):  # TODO: inner class ?
@@ -40,8 +43,8 @@ class MutexNotLockedException(Exception):
         super().__init__('The mutex is not locked')
 
 
-class Mutex(Model):
-    id = CharField(max_length=100, primary_key=True)
+class Mutex(models.Model):
+    id = models.CharField(max_length=100, primary_key=True)
 
     class Meta:
         app_label = 'creme_core'
@@ -83,6 +86,11 @@ class Mutex(Model):
 
 
 def mutex_autolock(lock_name):
+    warnings.warn('creme_core.models.lock.mutex_autolock() is deprecated ; '
+                  'use MutexAutoLock as decorator instead.',
+                  DeprecationWarning
+                 )
+
     def _autolock_aux(func):
         def _aux(*args, **kwargs):
             Mutex.get_n_lock(lock_name)
@@ -96,7 +104,8 @@ def mutex_autolock(lock_name):
     return _autolock_aux
 
 
-class MutexAutoLock:
+# class MutexAutoLock:
+class MutexAutoLock(ContextDecorator):
     def __init__(self, lock_name):
         self.lock_name = lock_name
         self.locked = False
