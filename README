@@ -105,7 +105,7 @@ Here the minimal information you must fill :
         },
     }
 
-    SECRET_KEY = ''  # <== TO BE REPLACED (see below).
+    # SECRET_KEY = ''  # <== TO BE FILLED & UN-COMMENTED (see below).
     LANGUAGE_CODE = 'en'  # Also available : 'fr'
     TIME_ZONE = 'Europe/Paris'  # See http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 
