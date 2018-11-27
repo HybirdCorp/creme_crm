@@ -80,18 +80,51 @@ class MutexTestCase(CremeTransactionTestCase):
         self.assertEqual(0, Mutex.objects.count())
 
     @mutex_autolock('dummy_lock')
-    def locked_func(self, a):
+    def locked_func_legacy(self, a):
         return a
 
     @mutex_autolock('dummy_lock')
-    def invalid_locked_func(self, a):
+    def invalid_locked_func_legacy(self, a):
         raise Exception('invalid result {}'.format(a))
 
     def test_mutex_autolock(self):
-        self.assertEqual(self.locked_func(12), 12)
+        self.assertEqual(self.locked_func_legacy(12), 12)
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
 
     def test_mutex_autolock_already_locked(self):
+        self.assertEqual(self.locked_func_legacy(12), 12)
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+        Mutex.get_n_lock('dummy_lock')
+        self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+
+        with self.assertRaises(MutexLockedException):
+            self.locked_func_legacy(5)
+
+        self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+
+    def test_mutex_autolock_unlock_on_fail(self):
+        with self.assertRaises(Exception) as context:
+            self.invalid_locked_func_legacy(5)
+
+        # self.assertEqual(u'invalid result {}'.format(5), safe_unicode_error(context.exception))
+        self.assertEqual('invalid result {}'.format(5), str(context.exception))
+
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+    @MutexAutoLock('dummy_lock')
+    def locked_func(self, a):
+        return a
+
+    @MutexAutoLock('dummy_lock')
+    def invalid_locked_func(self, a):
+        raise Exception('invalid result {}'.format(a))
+
+    def test_MutexAutoLock_decorator(self):
+        self.assertEqual(self.locked_func(12), 12)
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+    def test_MutexAutoLock_decorator_already_locked(self):
         self.assertEqual(self.locked_func(12), 12)
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
 
@@ -103,12 +136,11 @@ class MutexTestCase(CremeTransactionTestCase):
 
         self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
 
-    def test_mutex_autolock_unlock_on_fail(self):
+    def test_MutexAutoLock_decorator_unlock_on_fail(self):
         with self.assertRaises(Exception) as context:
             self.invalid_locked_func(5)
 
-        # self.assertEqual(u'invalid result {}'.format(5), safe_unicode_error(context.exception))
-        self.assertEqual(u'invalid result {}'.format(5), str(context.exception))
+        self.assertEqual('invalid result {}'.format(5), str(context.exception))
 
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
 
@@ -153,5 +185,5 @@ class MutexTestCase(CremeTransactionTestCase):
                 raise Exception('invalid result !')
 
         # self.assertEqual(u'invalid result !', safe_unicode_error(context.exception))
-        self.assertEqual(u'invalid result !', str(context.exception))
+        self.assertEqual('invalid result !', str(context.exception))
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
