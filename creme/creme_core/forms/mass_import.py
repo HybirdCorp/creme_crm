@@ -1020,6 +1020,14 @@ class ImportForm(CremeModelForm):
 
         return document
 
+    def _find_existing_instances(self, model, field_names, extracted_values):
+        return model.objects \
+                    .filter(**dict((fname, extr_value)
+                                       for fname, extr_value, __ in extracted_values
+                                            if fname in field_names
+                                  )
+                           )
+
     def _post_instance_creation(self, instance, line, updated):  # Overload me
         pass
 
@@ -1093,12 +1101,11 @@ class ImportForm(CremeModelForm):
 
                     if key_fields:
                         # We avoid using exception within 'atomic' block
-                        found = model_class.objects.exclude(is_deleted=True) \
-                                                   .filter(**dict((fname, extr_value)
-                                                                    for fname, extr_value, __ in extr_values
-                                                                        if fname in key_fields
-                                                                 )
-                                                          )[:2]
+                        found = self._find_existing_instances(
+                            model=model_class,
+                            field_names=key_fields,
+                            extracted_values=extr_values,
+                        )[:2]
 
                         if found:
                             if len(found) == 1:
@@ -1220,6 +1227,14 @@ class ImportForm4CremeEntity(ImportForm):
                                      )
 
         return extractors
+
+    def _find_existing_instances(self, model, field_names, extracted_values):
+        qs = super(ImportForm4CremeEntity, self)._find_existing_instances(
+            model=model, field_names=field_names, extracted_values=extracted_values
+        ).exclude(is_deleted=True)
+
+        # TODO: VIEW | CHANGE
+        return EntityCredentials.filter(user=self.user, queryset=qs, perm=EntityCredentials.CHANGE)
 
     def _post_instance_creation(self, instance, line, updated):
         cdata = self.cleaned_data
