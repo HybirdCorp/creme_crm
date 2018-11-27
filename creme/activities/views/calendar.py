@@ -32,7 +32,8 @@ from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.timezone import now, make_naive, get_current_timezone
-from django.utils.translation import ugettext as _
+# from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -310,7 +311,7 @@ class CalendarEdition(generic.CremeModelEditionPopup):
 
     def check_instance_permissions(self, instance, user):
         if instance.user != user:  # TODO: and superuser ??
-            raise PermissionDenied('You cannot edit this Calendar (it is noy yours).')
+            raise PermissionDenied('You cannot edit this Calendar (it is not yours).')
 
 
 @login_required
@@ -324,7 +325,7 @@ def delete_user_calendar(request):
 
     # TODO: factorise calendar credentials functions ?
     if not calendar.is_custom or (not user.is_superuser and calendar.user_id != user.id):
-        raise PermissionDenied(_('You are not allowed to delete this calendar.'))
+        raise PermissionDenied(ugettext('You are not allowed to delete this calendar.'))
 
     # Attach all existing activities to the default calendar
     default_calendar = Calendar.get_user_default_calendar(user)
