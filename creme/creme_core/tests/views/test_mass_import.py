@@ -16,11 +16,12 @@ try:
 
     from .base import ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTestCaseMixin, skipIfNoXLSLib
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.bricks import MassImportJobErrorsBrick, JobErrorsBrick
     from creme.creme_core.creme_jobs import mass_import_type, batch_process_type
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
             RelationType, Relation, FieldsConfig, CustomField, CustomFieldEnumValue,
-            Job, MassImportJobResult,
+            Job, MassImportJobResult, SetCredentials,
             FakeContact, FakeOrganisation, FakeAddress, FakePosition, FakeSector, FakeEmailCampaign)
     from creme.creme_core.utils import update_model_instance
 
@@ -1153,6 +1154,49 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         c = FakeContact.objects.create(user=user, last_name=last_name, first_name='Lei')
         c.trash()
+
+        count = FakeContact.objects.count()
+
+        doc = self._build_csv_doc([(last_name, first_name)])
+        response = self.client.post(self._build_import_url(FakeContact), follow=True,
+                                    data=dict(self.lv_import_data, document=doc.id,
+                                              user=user.id,
+                                              key_fields=['last_name'],
+                                              last_name_colselect=1,
+                                              first_name_colselect=2,
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+
+        self.assertEqual(count + 1, FakeContact.objects.count())
+        self.get_object_or_fail(FakeContact, last_name=last_name, first_name=first_name)
+
+        results = self._get_job_results(job)
+        self.assertEqual(1, len(results))
+
+    def test_import_with_update04(self):
+        "Ignore non editable entities"
+        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
+                          creatable_models=[FakeContact, Document],
+                         )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            # EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                      ctype=ContentType.objects.get_for_model(FakeContact),
+                                     )
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+
+        c = FakeContact.objects.create(user=self.other_user, last_name=last_name, first_name='Lei')
+        self.assertTrue(user.has_perm_to_view(c))
+        self.assertFalse(user.has_perm_to_change(c))
 
         count = FakeContact.objects.count()
 
