@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2017  Hybird
+#    Copyright (C) 2016-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,6 @@ from django.utils.translation import ugettext_lazy as _, ungettext, ugettext
 from ..core.batch_process import BatchAction
 from ..core.paginator import FlowPaginator
 from ..models import EntityFilter, EntityCredentials, EntityJobResult
-# from ..utils.chunktools import iter_as_slices
 from .base import JobType, JobProgress
 
 
@@ -39,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 class _BatchProcessType(JobType):
     id           = JobType.generate_id('creme_core', 'batch_process')
-    verbose_name = _(u'Batch process')
+    verbose_name = _('Batch process')
 
     def _get_actions(self, model, job_data):
         for kwargs in job_data['actions']:
@@ -54,7 +53,7 @@ class _BatchProcessType(JobType):
                 efilter = EntityFilter.objects.get(id=efilter_id)
             except EntityFilter.DoesNotExist as e:
                 if raise_exception:
-                    raise self.Error(ugettext(u'The filter does not exist anymore')) from e
+                    raise self.Error(ugettext('The filter does not exist anymore')) from e
 
         return efilter
 
@@ -67,7 +66,7 @@ class _BatchProcessType(JobType):
         try:
             # TODO: NON_FIELD_ERRORS need to be unit tested...
             humanized = [str(errors) if field == NON_FIELD_ERRORS else
-                         u'{} => {}'.format(get_field(field).verbose_name, u', '.join(errors))
+                         '{} => {}'.format(get_field(field).verbose_name, ', '.join(errors))
                             for field, errors in ve.message_dict.items()
                         ]
         except Exception as e:
@@ -98,34 +97,40 @@ class _BatchProcessType(JobType):
         actions = list(self._get_actions(model, job_data))
         create_result = partial(EntityJobResult.objects.create, job=job)
 
-        # for entities_slice in iter_as_slices(entities, 1024):
         for entities_page in paginator.pages():
-            # for entity in entities_slice:
             for entity in entities_page.object_list:
                 if entity.id in already_processed:
                     continue
 
                 changed = False
 
-                for action in actions:
-                    if action(entity):
-                        changed = True
-
-                if changed:
+                with atomic():
                     try:
-                        entity.full_clean()
-                    except ValidationError as e:
-                        create_result(entity=entity, messages=self._humanize_validation_error(entity, e))
-                    else:
-                        with atomic():
-                            entity.save()
-                            create_result(entity=entity)
+                        final_entity = model.objects.select_for_update().get(id=entity.id)
+                    except model.DoesNotExist:
+                        continue
+
+                    for action in actions:
+                        if action(final_entity):
+                            changed = True
+
+                    if changed:
+                        try:
+                            final_entity.full_clean()
+                        except ValidationError as e:
+                            create_result(
+                                entity=final_entity,
+                                messages=self._humanize_validation_error(final_entity, e)
+                            )
+                        else:
+                            final_entity.save()
+                            create_result(entity=final_entity)
 
     def progress(self, job):
         count = EntityJobResult.objects.filter(job=job).count()
         return JobProgress(percentage=None,
-                           label=ungettext(u'{count} entity has been processed.',
-                                           u'{count} entities have been processed.',
+                           label=ungettext('{count} entity has been processed.',
+                                           '{count} entities have been processed.',
                                            count
                                           ).format(count=count)
                           )
@@ -155,8 +160,8 @@ class _BatchProcessType(JobType):
     def get_stats(self, job):
         count = EntityJobResult.objects.filter(job=job, raw_messages__isnull=True).count()
 
-        return [ungettext(u'{count} entity has been successfully modified.',
-                          u'{count} entities have been successfully modified.',
+        return [ungettext('{count} entity has been successfully modified.',
+                          '{count} entities have been successfully modified.',
                           count
                          ).format(count=count),
                ]
