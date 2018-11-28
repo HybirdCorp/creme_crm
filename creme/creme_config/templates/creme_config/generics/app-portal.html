@@ -13,8 +13,10 @@
     {% include 'creme_config/bricks/configurable-models.html' %}
 
     {% brick_import app='creme_config' name='settings' as settings_brick %}
-    {% brick_declare app_config_bricks %}
+{#    {% brick_declare app_config_bricks %} #}
+    {% brick_declare bricks %}
 
-    {% brick_display settings_brick app_config_bricks %}
+{#    {% brick_display settings_brick app_config_bricks %} #}
+    {% brick_display settings_brick bricks %}
 {# {% endblock before_statistics %} #}
 {% endblock %}

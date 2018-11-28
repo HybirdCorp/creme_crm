@@ -227,10 +227,14 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsInstance(bricks[1], TestUserBrick2)
 
     def test_portals(self):
-        self.assertGET200(reverse('creme_config__app_portal', args=('creme_core',)))
+        response = self.assertGET200(reverse('creme_config__app_portal', args=('creme_core',)))
+        self.assertTemplateUsed(response, 'creme_config/generics/app-portal.html')
+
         self.assertGET404(reverse('creme_config__app_portal', args=('unexistingapp',)))
 
-        self.assertGET200(reverse('creme_config__model_portal', args=('creme_core', 'fake_civility')))
+        response = self.assertGET200(reverse('creme_config__model_portal', args=('creme_core', 'fake_civility')))
+        self.assertTemplateUsed(response, 'creme_config/generics/model-portal.html')
+
         self.assertGET404(reverse('creme_config__model_portal', args=('creme_core', 'unexistingmodel')))
 
         if apps.is_installed('creme.persons'):
