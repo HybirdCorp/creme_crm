@@ -21,7 +21,8 @@
 import logging
 import warnings
 
-from django.http import HttpResponse
+from django.db.transaction import atomic
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _  # ugettext
 
@@ -29,9 +30,10 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.utils.db import reorder_instances
+# from creme.creme_core.utils.db import reorder_instances
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import POST_only
+# from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.generic.order import ReorderInstances
 
 from .. import get_report_model
 from ..constants import DEFAULT_HFILTER_REPORT
@@ -106,20 +108,26 @@ def listview(request):
 @login_required
 @permission_required('reports')
 def unlink_report(request):
-    field = get_object_or_404(Field, pk=get_from_POST_or_404(request.POST, 'field_id'))
+    field_id = get_from_POST_or_404(request.POST, 'field_id')
 
-    # TODO: odd credentials ?! (only edit on field.report ??)
-    has_perm_or_die = request.user.has_perm_to_unlink_or_die
-    has_perm_or_die(field.report)
+    with atomic():
+        try:
+            rfield = Field.objects.select_for_update().get(pk=field_id)
+        except Field.DoesNotExist as e:
+            raise Http404(str(e)) from e
 
-    if field.sub_report is None:
-        raise ConflictError('This field has no sub-report')
+        # TODO: odd credentials ?! (only edit on field.report ??)
+        has_perm_or_die = request.user.has_perm_to_unlink_or_die
+        has_perm_or_die(rfield.report)
 
-    has_perm_or_die(field.sub_report)
+        if rfield.sub_report is None:
+            raise ConflictError('This field has no sub-report')
 
-    field.sub_report = None
-    field.selected = False
-    field.save()
+        has_perm_or_die(rfield.sub_report)
+
+        rfield.sub_report = None
+        rfield.selected = False
+        rfield.save()
 
     return HttpResponse()
 
@@ -215,48 +223,67 @@ class FieldsEdition(generic.EntityEditionPopup):
     title = _('Edit columns of «{object}»')
 
 
-@POST_only
-@login_required
-@permission_required('reports')
-def reorder_field(request, field_id):
-    new_order = get_from_POST_or_404(request.POST, 'target', int)
-    rfield = get_object_or_404(Field, pk=field_id)
+# @POST_only
+# @login_required
+# @permission_required('reports')
+# def reorder_field(request, field_id):
+#     new_order = get_from_POST_or_404(request.POST, 'target', int)
+#     rfield = get_object_or_404(Field, pk=field_id)
+#
+#     report = rfield.report
+#     request.user.has_perm_to_change_or_die(report)
+#
+#     try:
+#         reorder_instances(moved_instance=rfield, new_order=new_order, queryset=report.fields)
+#     except Exception as e:
+#         return HttpResponse(e, status=409)
+#
+#     return HttpResponse()
+class MoveField(ReorderInstances):
+    pk_url_kwarg = 'field_id'
+    use_select_for_update = False  # We use our own select_for_update()
 
-    report = rfield.report
-    request.user.has_perm_to_change_or_die(report)
+    def get_queryset(self):
+        report = get_object_or_404(Report.objects.select_for_update(),
+                                   id=self.kwargs['report_id'],
+                                  )
+        self.request.user.has_perm_to_change_or_die(report)
 
-    try:
-        reorder_instances(moved_instance=rfield, new_order=new_order, queryset=report.fields)
-    except Exception as e:
-        return HttpResponse(e, status=409)
-
-    return HttpResponse()
+        return report.fields
 
 
 @login_required
 @permission_required('reports')
 def set_selected(request):
-    POST   = request.POST
-    rfield = get_object_or_404(Field, pk=get_from_POST_or_404(POST, 'field_id'))
-
-    if not rfield.sub_report_id:
-        raise ConflictError('This Field has no Report, so can no be (un)selected')
-
-    report = rfield.report
-
-    request.user.has_perm_to_change_or_die(report)
+    POST = request.POST
+    field_id  = get_from_POST_or_404(POST, 'field_id',  cast=int)
+    report_id = get_from_POST_or_404(POST, 'report_id', cast=int)
 
     try:
         checked = bool(int(POST.get('checked', 0)))
     except ValueError:
         checked = False
 
-    if rfield.selected != checked:
-        if checked:  # Only one Field should be selected
-            report.fields.exclude(pk=rfield.pk).update(selected=False)
+    with atomic():
+        report = get_object_or_404(Report.objects.select_for_update(), id=report_id)
+        request.user.has_perm_to_change_or_die(report)
 
-        rfield.selected = checked
-        rfield.save()
+        rfield = get_object_or_404(Field, id=field_id)
+
+        if rfield.report_id != report.id:
+            raise ConflictError('This Field & this Report do not match.')
+
+        if not rfield.sub_report_id:
+            raise ConflictError('This Field has no Report, so can no be (un)selected')
+
+        report = rfield.report
+
+        if rfield.selected != checked:
+            if checked:  # Only one Field should be selected
+                report.fields.exclude(pk=rfield.pk).update(selected=False)
+
+            rfield.selected = checked
+            rfield.save()
 
     return HttpResponse()
 

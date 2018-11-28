@@ -75,8 +75,8 @@ class AbstractReport(CremeEntity):
         return reverse('reports__list_reports')
 
     def _build_columns(self, allow_selected):
-        """@param allow_selected Boolean, 'True' allows columns to be 'selected'
-                                 (expanded sub-report)
+        """@param allow_selected: Boolean, 'True' allows columns to be 'selected'
+                  (ie: expanded sub-report).
         """
         self._columns = columns = []
         selected_found = False

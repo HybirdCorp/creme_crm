@@ -28,6 +28,7 @@
 from collections import defaultdict
 from fnmatch import fnmatch
 from functools import lru_cache
+import warnings
 
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models import ForeignKey
@@ -280,6 +281,11 @@ def reorder_instances(moved_instance, new_order, queryset=None, order_field='ord
             (so even if the global ordering of an instance has not changed, its field's value
              could have changed).
     """
+    warnings.warn('creme_core.utils.db.reorder_instances() is deprecated ; '
+                  'use creme_core.views.generic.order.ReorderInstances instead.',
+                  DeprecationWarning
+                 )
+
     if queryset is None:
         queryset = moved_instance.__class__._default_manager.all()
 

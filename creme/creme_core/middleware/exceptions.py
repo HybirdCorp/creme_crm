@@ -68,7 +68,6 @@ logger = logging.getLogger(__name__)
 #                                         )
 
 
-# class _AlternativeErrorMiddleware(object):
 class _AlternativeErrorMiddleware(MiddlewareMixin):
     error = None
     status = 400
@@ -83,7 +82,6 @@ class _AlternativeErrorMiddleware(MiddlewareMixin):
                 if self.log_ajax:
                     logger.exception('Error (status=%s)', self.status)
 
-                # return HttpResponse(msg, content_type='text/javascript', status=self.status)
                 return HttpResponse(msg, status=self.status)
 
             if self.template is None:

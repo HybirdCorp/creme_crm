@@ -29,9 +29,10 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.utils.db import reorder_instances
+# from creme.creme_core.utils.db import reorder_instances
 from creme.creme_core.views import bricks as bricks_views, generic
-from creme.creme_core.views.decorators import jsonify, POST_only
+from creme.creme_core.views.decorators import jsonify  # POST_only
+from creme.creme_core.views.generic.order import ReorderInstances
 from creme.creme_core.views.utils import json_update_from_widget_response
 
 from ..bricks import GenericModelBrick, SettingsBrick
@@ -165,7 +166,8 @@ def portal_model(request, app_name, model_name):
         pass
     else:
         if meta.ordering and meta.ordering[0] == 'order' and isinstance(order_field, IntegerField):
-            for order, instance in enumerate(model.objects.order_by('order', 'pk'), start=1):
+            # for order, instance in enumerate(model.objects.order_by('order', 'pk'), start=1):
+            for order, instance in enumerate(model._default_manager.order_by('order', 'pk'), start=1):
                 if order != instance.order:
                     logger.warning('Fix an order problem in model %s (%s)', model, instance)
                     instance.order = order
@@ -224,19 +226,22 @@ class GenericEdition(ModelConfMixin, generic.CremeModelEditionPopup):
         return self.get_model_conf().model._default_manager.all()
 
 
-@login_required
-@POST_only
-def reorder(request, app_name, model_name, object_id):
-    new_order = get_from_POST_or_404(request.POST, 'target', int)
-    model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
-    instance = get_object_or_404(model, pk=object_id)
-
-    try:
-        reorder_instances(moved_instance=instance, new_order=new_order)
-    except Exception as e:
-        return HttpResponse(e, status=409)
-
-    return HttpResponse()
+# @login_required
+# @POST_only
+# def reorder(request, app_name, model_name, object_id):
+#     new_order = get_from_POST_or_404(request.POST, 'target', int)
+#     model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
+#     instance = get_object_or_404(model, pk=object_id)
+#
+#     try:
+#         reorder_instances(moved_instance=instance, new_order=new_order)
+#     except Exception as e:
+#         return HttpResponse(e, status=409)
+#
+#     return HttpResponse()
+class Reorder(ModelConfMixin, ReorderInstances):
+    def get_queryset(self):
+        return self.get_model_conf().model._default_manager.all()
 
 
 @login_required
