@@ -212,10 +212,12 @@ urlpatterns = [
     url(r'^settings/',      include(setting_patterns)),
 
     # Generic portal config
-    url(r'^(?P<app_name>\w+)/portal[/]?$', generics_views.portal_app,        name='creme_config__app_portal'),
-    url(r'^(?P<app_name>\w+)/reload[/]?$', generics_views.reload_app_bricks, name='creme_config__reload_app_bricks'),
+    # url(r'^(?P<app_name>\w+)/portal[/]?$', generics_views.portal_app,        name='creme_config__app_portal'),
+    url(r'^(?P<app_name>\w+)/portal[/]?$', generics_views.AppPortal.as_view(), name='creme_config__app_portal'),
+    url(r'^(?P<app_name>\w+)/reload[/]?$', generics_views.reload_app_bricks,   name='creme_config__reload_app_bricks'),
     url(r'^(?P<app_name>\w+)/(?P<model_name>\w+)/', include([
-        url(r'^portal[/]?$',                        generics_views.portal_model,                 name='creme_config__model_portal'),
+        # url(r'^portal[/]?$',                        generics_views.portal_model,                 name='creme_config__model_portal'),
+        url(r'^portal[/]?$',                        generics_views.ModelPortal.as_view(),        name='creme_config__model_portal'),
         # url(r'^add[/]?$',                           generics_views.add_model,             name='creme_config__create_instance'),
         url(r'^add[/]?$',                           generics_views.GenericCreation.as_view(),    name='creme_config__create_instance'),
         # url(r'^add_widget[/]?$',                    generics_views.add_model_from_widget, name='creme_config__create_instance_from_widget'),

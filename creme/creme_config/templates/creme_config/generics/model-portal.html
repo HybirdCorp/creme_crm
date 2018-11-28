@@ -12,6 +12,9 @@
 
 {# {% block before_statistics %} #}
 {% block portal_bricks %}
-    {% brick_declare model_brick %}
-    {% brick_display model_brick %}
+{#    {% brick_declare model_brick %} #}
+{#    {% brick_display model_brick %} #}
+    {% brick_declare bricks %}
+    {% brick_display bricks %}
+    {% brick_end %}
 {% endblock %}

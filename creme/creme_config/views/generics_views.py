@@ -23,7 +23,7 @@ import logging  # warnings
 from django.db.models import FieldDoesNotExist, IntegerField
 from django.db.models.deletion import ProtectedError
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404  # render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -70,17 +70,31 @@ def _get_modelconf(app_config, model_name):  # TODO: get_modelconf_or_404() ?
 #     return title if title is not None else \
 #            ugettext('New value: {model}').format(model=model._meta.verbose_name)
 
+class AppConfMixin:
+    app_name_url_kwarg = 'app_name'
 
-class ModelConfMixin:
+    def get_app_conf(self):
+        try:
+            app_conf = getattr(self, 'app_conf')
+        except AttributeError:
+            self.app_conf = app_conf = _get_appconf(
+                user=self.request.user,
+                app_name=self.kwargs[self.app_name_url_kwarg],
+            )
+
+        return app_conf
+
+
+class ModelConfMixin(AppConfMixin):
+    model_name_url_kwarg = 'model_name'
+
     def get_model_conf(self):
         try:
             mconf = getattr(self, 'model_conf')
         except AttributeError:
             self.model_conf = mconf = \
-                _get_modelconf(app_config=_get_appconf(user=self.request.user,
-                                                       app_name=self.kwargs['app_name'],
-                                                      ),
-                               model_name=self.kwargs['model_name'],
+                _get_modelconf(app_config=self.get_app_conf(),
+                               model_name=self.kwargs[self.model_name_url_kwarg],
                               )
 
         return mconf
@@ -154,34 +168,90 @@ class FromWidgetCreation(GenericCreation):
         )
 
 
-@login_required
-def portal_model(request, app_name, model_name):
-    app_config = _get_appconf(request.user, app_name)
-    model      = _get_modelconf(app_config, model_name).model
-    meta = model._meta
+# @login_required
+# def portal_model(request, app_name, model_name):
+#     app_config = _get_appconf(request.user, app_name)
+#     model      = _get_modelconf(app_config, model_name).model
+#     meta = model._meta
+#
+#     try:
+#         order_field = meta.get_field('order')
+#     except FieldDoesNotExist:
+#         pass
+#     else:
+#         if meta.ordering and meta.ordering[0] == 'order' and isinstance(order_field, IntegerField):
+#             # for order, instance in enumerate(model.objects.order_by('order', 'pk'), start=1):
+#             for order, instance in enumerate(model._default_manager.order_by('order', 'pk'), start=1):
+#                 if order != instance.order:
+#                     logger.warning('Fix an order problem in model %s (%s)', model, instance)
+#                     instance.order = order
+#                     # instance.save()
+#                     instance.save(force_update=True, update_fields=('order',))
+#
+#     return render(request, 'creme_config/generics/model_portal.html',
+#                   {'model':             model,
+#                    'app_name':          app_name,
+#                    'app_verbose_name':  app_config.verbose_name,
+#                    'bricks_reload_url': reverse('creme_config__reload_model_brick', args=(app_name, model_name)),
+#                    'model_brick':       GenericModelBrick(app_name=app_name, model_name=model_name, model=model),
+#                   }
+#                  )
+class ModelPortal(ModelConfMixin, generic.BricksView):
+    template_name = 'creme_config/generics/model-portal.html'
 
-    try:
-        order_field = meta.get_field('order')
-    except FieldDoesNotExist:
-        pass
-    else:
-        if meta.ordering and meta.ordering[0] == 'order' and isinstance(order_field, IntegerField):
-            # for order, instance in enumerate(model.objects.order_by('order', 'pk'), start=1):
-            for order, instance in enumerate(model._default_manager.order_by('order', 'pk'), start=1):
-                if order != instance.order:
-                    logger.warning('Fix an order problem in model %s (%s)', model, instance)
-                    instance.order = order
-                    # instance.save()
-                    instance.save(force_update=True, update_fields=('order',))
+    def fix_orders(self):
+        model = self.get_model_conf().model
+        meta = model._meta
 
-    return render(request, 'creme_config/generics/model_portal.html',
-                  {'model':             model,
-                   'app_name':          app_name,
-                   'app_verbose_name':  app_config.verbose_name,
-                   'bricks_reload_url': reverse('creme_config__reload_model_brick', args=(app_name, model_name)),
-                   'model_brick':       GenericModelBrick(app_name=app_name, model_name=model_name, model=model),
-                  }
-                 )
+        try:
+            order_field = meta.get_field('order')
+        except FieldDoesNotExist:
+            pass
+        else:
+            ordering = meta.ordering
+
+            if ordering and ordering[0] == 'order' and \
+               isinstance(order_field, IntegerField):
+                for order, instance in enumerate(model._default_manager
+                                                      .order_by('order', 'pk'),
+                                                 start=1):
+                    if order != instance.order:
+                        logger.warning('Fix an order problem in model %s (%s)',
+                                       model, instance
+                                      )
+                        instance.order = order
+                        instance.save(force_update=True, update_fields=('order',))
+
+    def get_bricks(self):
+        model_conf = self.get_model_conf()
+
+        return [
+            GenericModelBrick(app_name=self.get_app_conf().name,
+                              model_name=model_conf.name_in_url,
+                              model=model_conf.model,
+                          ),
+        ]
+
+    def get_bricks_reload_url(self):
+        return reverse('creme_config__reload_model_brick',
+                       args=(self.get_app_conf().name,
+                             self.get_model_conf().name_in_url,
+                            ),
+                      )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        self.fix_orders()
+
+        app_config = self.get_app_conf()
+        model_conf = self.get_model_conf()
+
+        context['model'] = model_conf.model
+        context['app_name'] = app_config.name
+        context['app_verbose_name'] = app_config.verbose_name
+
+        return context
 
 
 @login_required
@@ -244,18 +314,38 @@ class Reorder(ModelConfMixin, ReorderInstances):
         return self.get_model_conf().model._default_manager.all()
 
 
-@login_required
-def portal_app(request, app_name):
-    app_config = _get_appconf(request.user, app_name)
+# @login_required
+# def portal_app(request, app_name):
+#     app_config = _get_appconf(request.user, app_name)
+#
+#     return render(request, 'creme_config/generics/app_portal.html',
+#                   {'app_name':          app_name,
+#                    'app_verbose_name':  app_config.verbose_name,
+#                    'app_config':        list(app_config.models()),  # list-> have the length in the template
+#                    'app_config_bricks': list(app_config.bricks),  # Get config registered bricks
+#                    'bricks_reload_url': reverse('creme_config__reload_app_bricks', args=(app_name,)),
+#                   }
+#                  )
+class AppPortal(AppConfMixin, generic.BricksView):
+    template_name = 'creme_config/generics/app-portal.html'
 
-    return render(request, 'creme_config/generics/app_portal.html',
-                  {'app_name':          app_name,
-                   'app_verbose_name':  app_config.verbose_name,
-                   'app_config':        list(app_config.models()),  # list-> have the length in the template
-                   'app_config_bricks': list(app_config.bricks),  # Get config registered bricks
-                   'bricks_reload_url': reverse('creme_config__reload_app_bricks', args=(app_name,)),
-                  }
-                 )
+    def get_bricks(self):
+        return list(self.get_app_conf().bricks)  # Get config registered bricks
+
+    def get_bricks_reload_url(self):
+        return reverse('creme_config__reload_app_bricks',
+                       args=(self.get_app_conf().name,),
+                      )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        app_config = self.get_app_conf()
+        context['app_name'] = app_config.name
+        context['app_verbose_name'] = app_config.verbose_name
+        context['app_config'] = list(app_config.models())  # list-> have the length in the template
+
+        return context
 
 
 @login_required
