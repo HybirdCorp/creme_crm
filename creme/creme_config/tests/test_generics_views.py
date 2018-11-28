@@ -541,9 +541,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         sector4 = create_sector(title='Web',   order=4)
 
         url = reverse('creme_config__reorder_instance', args=('creme_core', 'fake_sector', sector1.id))
-        self.assertGET404(url, data={'target': 3})
+        # self.assertGET404(url, data={'target': 3})
+        self.assertGET(405, url, data={'target': 3})
 
-        self.client.post(url, data={'target': 3})
+        self.assertPOST200(url, data={'target': 3})
         self.assertEqual(3, self.refresh(sector1).order)
         self.assertEqual(1, self.refresh(sector2).order)
         self.assertEqual(2, self.refresh(sector3).order)

@@ -5,12 +5,14 @@
 
 {% block brick_script %}
 <script type="text/javascript">
-     creme.reports.expandSubReport = function(checkbox, url, field_id) {
+//     creme.reports.expandSubReport = function(checkbox, url, field_id) {
+     creme.reports.expandSubReport = function(checkbox, url, report_id, field_id) {
         var brick = $(checkbox).parents('.brick').creme().widget().brick();
 
         creme.utils.ajaxQuery(url,
                              {action: 'post', warnOnFail: true},
                              {'field_id': field_id,
+                              'report_id': report_id,
                               'checked': $(checkbox).is(':checked') ? 1 : 0
                              }
                    )
@@ -50,7 +52,7 @@
     <tbody class="brick-reorderable-items ui-sortable">{% widget_icon name='reorder' size='brick-table-action' class='icon brick-reorderable-handle-icon' as reorder_icon %}
     {% for column in columns %}
     {% with sub_report=column.sub_report %}
-        <tr data-reorderable-item-order="{{column.order}}" data-reorderable-item-url="{% url 'reports__reorder_field' column.id %}">
+        <tr data-reorderable-item-order="{{column.order}}" data-reorderable-item-url="{% url 'reports__reorder_field' object.id column.id %}">
             <td data-reorderable-handle-column class="ui-sortable-handle">{{reorder_icon.render}}</td>
             <td {% brick_table_data_status primary %}>
                 {{column}}{% if column.hand.hidden %}<span class="hidden-report-field">{% trans '[hidden]' %}</span>{% endif %}
@@ -76,7 +78,7 @@
             {% if expand %}
             <td {% brick_table_data_status action %}>
                 {% if sub_report %}
-                <input type="checkbox" {% if has_perm %}onclick="creme.reports.expandSubReport(this, '{% url 'reports__set_selected_field' %}', '{{column.id}}')"{% else %}disabled="true"{% endif %} {% if column.selected %}checked {% endif %}/>
+                <input type="checkbox" {% if has_perm %}onclick="creme.reports.expandSubReport(this, '{% url 'reports__set_selected_field' %}', '{{object.id}}', '{{column.id}}')"{% else %}disabled="true"{% endif %} {% if column.selected %}checked {% endif %}/>
                 {% endif %}
             </td>
             {% endif %}

@@ -758,18 +758,32 @@ class ReportTestCase(BaseReportsTestCase):
     #                             }
     #                       )
 
-    def test_report_reorder_field(self):
+    def test_report_reorder_field01(self):
         self.login()
 
         report = self._create_report('trinita')
         rfield = self.get_field_or_fail(report, 'user')
-        url = reverse('reports__reorder_field', args=(rfield.id,))
-        self.assertGET404(url, data={'target': 1})
+        url = reverse('reports__reorder_field', args=(report.id, rfield.id,))
+        # self.assertGET404(url, data={'target': 1})
+        self.assertGET(405, url, data={'target': 1})
 
         self.client.post(url, data={'target': 1})
         self.assertEqual(['user', 'last_name', REL_SUB_HAS, 'get_pretty_properties'],
                          [f.name for f in report.fields.order_by('order')]
                         )
+
+    def test_report_reorder_field02(self):
+        "Report & Field do not match"
+        self.login()
+
+        report1 = self._create_report('Hill')
+        report2 = self._create_report('Spencer')
+
+        rfield = self.get_field_or_fail(report1, 'user')
+        # self.assertPOST409(reverse('reports__reorder_field', args=(report2.id, rfield.id,)),
+        self.assertPOST404(reverse('reports__reorder_field', args=(report2.id, rfield.id,)),
+                           data={'target': 1}
+                          )
 
     def test_export_filter_form_customrange(self):
         self.login()
@@ -1757,7 +1771,7 @@ class ReportTestCase(BaseReportsTestCase):
         rel_rfield.selected = True; rel_rfield.save()
         self.assertEqual(1, len([f for f in self.refresh(contact_report).columns if f.selected]))
 
-    def test_set_selected(self):
+    def test_set_selected01(self):
         user = self.login()
 
         img_report = self._build_image_report()
@@ -1774,16 +1788,17 @@ class ReportTestCase(BaseReportsTestCase):
         fk_rfield  = create_field(name='image__name',       order=2, sub_report=img_report)
         rel_rfield = create_field(name=FAKE_REL_SUB_EMPLOYED_BY, order=3,
                                   sub_report=orga_report, type=RFT_RELATION, selected=True,
-                                  )
+                                 )
 
-        # url = '/reports/report/field/set_selected'
         url = reverse('reports__set_selected_field')
         self.assertGET404(url)
 
-        data = {'report_id': contact_report.id, 
-                'field_id':  reg_rfield.id,
+        data = {'field_id':  reg_rfield.id,
                 'checked':   1,
                }
+        self.assertPOST404(url, data=data)
+
+        data['report_id'] = contact_report.id
         self.assertPOST409(url, data=data)
 
         data['field_id'] = fk_rfield.id
@@ -1798,6 +1813,44 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertPOST200(url, data=dict(data, checked=0))
         self.assertFalse(self.refresh(fk_rfield).selected)
         self.assertFalse(self.refresh(rel_rfield).selected)
+
+    def test_set_selected02(self):
+        "Missing Field ID"
+        user = self.login()
+
+        contact_report = Report.objects.create(user=user, name='Report on contacts',
+                                               ct=self.ct_contact,
+                                              )
+        self.assertPOST404(
+            reverse('reports__set_selected_field'),
+            data={
+                'report_id': contact_report.id,
+                # 'field_id':  fk_rfield.id,
+                'checked':   1,
+            },
+        )
+
+    def test_set_selected03(self):
+        "Field & report do not match"
+        user = self.login()
+
+        img_report = self._build_image_report()
+        orga_report = self._build_orga_report()
+        contact_report = Report.objects.create(user=user, name='Report on contacts',
+                                               ct=self.ct_contact,
+                                              )
+        fk_rfield = Field.objects.create(report=contact_report, name='image__name',
+                                         order=1, type=RFT_FIELD, sub_report=img_report,
+                                        )
+
+        self.assertPOST409(
+            reverse('reports__set_selected_field'),
+            data={
+                'report_id': orga_report.id,
+                'field_id':  fk_rfield.id,
+                'checked':   1,
+            },
+        )
 
     def _aux_test_fetch_persons(self, create_contacts=True, create_relations=True, report_4_contact=True):
         user = self.user
