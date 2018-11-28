@@ -1260,7 +1260,8 @@ class ImportForm4CremeEntity(ImportForm):
 
         # Properties -----
         create_prop = partial(CremeProperty.objects.create if not updated else
-                              CremeProperty.objects.get_or_create,
+                              # CremeProperty.objects.get_or_create,
+                              CremeProperty.objects.safe_get_or_create,
                               creme_entity=instance,
                              )
 
