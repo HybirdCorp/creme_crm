@@ -36,7 +36,6 @@ from .base import CremeModel  # CremeAbstractEntity
 from .creme_property import CremePropertyType
 from .entity import CremeEntity
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -52,7 +51,7 @@ class RelationManager(models.Manager):
         try:
             self.create(**kwargs)
         except IntegrityError:
-            logger.exception('Avoid a duplicate: %s ?!', kwargs)
+            logger.exception('Avoid a Relation duplicate: %s ?!', kwargs)
 
     def safe_get_or_create(self, **kwargs):
         """Kind of safe version of 'get_or_create'.
@@ -106,20 +105,19 @@ class RelationManager(models.Manager):
         count = 0
 
         # Group the relations by their unique "signature" (type, subject, object)
-        relation_groups = defaultdict(list)
+        unique_relations = {}
 
         for relation in relations:
             # NB: we could use a string '{type_is}#{sub_id}#{obj_id}' => what is the best ?
-            relation_groups[(relation.type_id,
+            unique_relations[(relation.type_id,
                              relation.subject_entity_id,
                              relation.object_entity_id,
-                            )].append(relation)
+                            )] = relation
 
-        if relation_groups:
+        if unique_relations:
             # Remove all existing relations in the list of relation to be created.
             existing_q = Q()
-            for relation_group in relation_groups.values():
-                relation = relation_group[0]
+            for relation in unique_relations.values():
                 existing_q |= Q(type_id=relation.type_id,
                                 subject_entity_id=relation.subject_entity_id,
                                 object_entity_id=relation.object_entity_id,
@@ -127,15 +125,15 @@ class RelationManager(models.Manager):
 
             for rel_sig in self.filter(existing_q) \
                                .values_list('type', 'subject_entity', 'object_entity'):
-                relation_groups.pop(rel_sig, None)
+                unique_relations.pop(rel_sig, None)
 
             # Creation (we take the first of each group to guaranty uniqueness)
-            for relation_group in relation_groups.values():
+            for relation in unique_relations.values():
                 try:
                     # NB: Relation.save is already @atomic'd
-                    relation_group[0].save()
+                    relation.save()
                 except IntegrityError:
-                    logger.exception('Avoid a duplicate: %s ?!', relation_group[0])
+                    logger.exception('Avoid a Relation duplicate: %s ?!', relation)
                 else:
                     count += 1
 

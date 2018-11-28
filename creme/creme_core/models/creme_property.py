@@ -18,9 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models.query_utils import Q
+from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -29,6 +32,98 @@ from .. import signals
 
 from .base import CremeModel
 from .entity import CremeEntity
+
+logger = logging.getLogger(__name__)
+
+
+# TODO: factorise with RelationManager ?
+class CremePropertyManager(models.Manager):
+    def safe_create(self, **kwargs):
+        """Create a CremeProperty in DB by taking care of the UNIQUE constraint
+        of Relation.
+        Notice that, unlike 'create()' it always return None (to avoid a
+        query in case of IntegrityError) ; use 'safe_get_or_create()' if
+        you need the CremeProperty instance.
+        @param kwargs: same as 'create()'.
+        """
+        try:
+            with atomic():
+                self.create(**kwargs)
+        except IntegrityError:
+            logger.exception('Avoid a CremeProperty duplicate: %s ?!', kwargs)
+
+    def safe_get_or_create(self, **kwargs):
+        """Kind of safe version of 'get_or_create'.
+        Safe means the UNIQUE constraint of Relation is respected, &
+        this method will never raise an IntegrityError.
+
+        Notice that the signature of this method is the same as 'create()'
+        & not the same as 'get_or_create()' : the argument "defaults" does
+        not exist & no boolean is returned.
+
+        @param kwargs: same as 'create()'.
+        return: A CremeProperty instance.
+        """
+        for _i in range(10):
+            try:
+                prop = self.get(**kwargs)
+            except self.model.DoesNotExist:
+                try:
+                    with atomic():
+                        prop = self.create(**kwargs)
+                except IntegrityError:
+                    logger.exception('Avoid a CremeProperty duplicate: %s ?!', kwargs)
+                    continue
+
+            break
+        else:
+            raise RuntimeError('It seems the CremeProperty <{}> keeps '
+                               'being created & deleted.'.format(kwargs)
+                              )
+
+        return prop
+
+    def safe_multi_save(self, properties):
+        """Save several instances of CremeProperty by taking care of the UNIQUE
+        constraint on ('type', 'creme_entity').
+
+        Notice that you should not rely on the instances which you gave ;
+        they can be saved (so get a fresh ID), or not be saved because they are
+        a duplicate (& so their ID remains 'None').
+
+        Compared to use N x 'safe_get_or_create()', this method will only
+        perform 1 query to retrieve the existing CremeProperties.
+
+        @param properties: An iterable of CremeProperties (not save yet)
+        @return: Number of CremeProperties inserted in base.
+        """
+        count = 0
+        unique_props = {
+            (prop.type_id, prop.creme_entity_id): prop
+                for prop in properties
+        }
+
+        if unique_props:
+            existing_q = Q()
+            for prop in unique_props.values():
+                existing_q |= Q(type_id=prop.type_id,
+                                creme_entity_id=prop.creme_entity_id,
+                               )
+
+            for prop_sig in self.filter(existing_q) \
+                                .values_list('type', 'creme_entity'):
+                unique_props.pop(prop_sig, None)
+
+            for prop in unique_props.values():
+                try:
+                    with atomic():
+                        prop.save()
+                except IntegrityError:
+                    logger.exception('Avoid a CremeProperty duplicate: %s ?!', prop)
+                else:
+                    count += 1
+
+        return count
 
 
 class CremePropertyType(CremeModel):
@@ -108,6 +203,8 @@ class CremePropertyType(CremeModel):
 class CremeProperty(CremeModel):
     type         = models.ForeignKey(CremePropertyType, on_delete=models.CASCADE)
     creme_entity = models.ForeignKey(CremeEntity, related_name='properties', on_delete=models.CASCADE)
+
+    objects = CremePropertyManager()
 
     class Meta:
         app_label = 'creme_core'

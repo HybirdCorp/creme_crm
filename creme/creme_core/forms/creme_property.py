@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.forms import ModelMultipleChoiceField, CharField
@@ -36,6 +38,11 @@ class _AddPropertiesForm(CremeForm):
                                     )
 
     def _create_properties(self, entities, ptypes):
+        warnings.warn('creme_core.forms.creme_property._AddPropertiesForm._create_properties() is deprecated ;'
+                      'use CremeProperty.objects.safe_multi_save() instead.',
+                      DeprecationWarning
+                     )
+
         property_get_or_create = CremeProperty.objects.get_or_create
 
         for entity in entities:
@@ -61,7 +68,11 @@ class AddPropertiesForm(_AddPropertiesForm):
                                      .exclude(pk__in=excluded)
 
     def save(self):
-        self._create_properties([self.entity], self.cleaned_data['types'])
+        # self._create_properties([self.entity], self.cleaned_data['types'])
+        create = CremeProperty.objects.safe_create
+
+        for ptype in self.cleaned_data['types']:
+            create(creme_entity=self.entity, type=ptype)
 
 
 class AddPropertiesBulkForm(_AddPropertiesForm):
@@ -87,4 +98,10 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
             )
 
     def save(self):
-        self._create_properties(self.entities, self.cleaned_data['types'])
+        # self._create_properties(self.entities, self.cleaned_data['types'])
+        CremeProperty.objects.safe_multi_save(
+            [CremeProperty(type=ptype, creme_entity=entity)
+                for entity in self.entities
+                    for ptype in self.cleaned_data['types']
+            ]
+        )

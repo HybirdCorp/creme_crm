@@ -7,7 +7,6 @@ try:
 
     # from django.core.files.base import ContentFile
     from django.contrib.contenttypes.models import ContentType
-    from django.db import IntegrityError
     from django.db.models.deletion import ProtectedError
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -77,20 +76,6 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(list(reversed(expected)),
                          list(qs.order_by('-sector', '-last_name'))
                         )
-
-    def test_property(self):  # TODO: create a test case for CremeProperty ???
-        text = 'TEXT'
-
-        with self.assertNoException():
-            ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text=text)
-            entity = CremeEntity.objects.create(user=self.user)
-            CremeProperty.objects.create(type=ptype, creme_entity=entity)
-
-        self.assertEqual(text, ptype.text)
-
-        # Uniqueness
-        with self.assertRaises(IntegrityError):
-            CremeProperty.objects.create(type=ptype, creme_entity=entity)
 
     def _build_rtypes_n_ptypes(self):
         create_rtype = RelationType.create

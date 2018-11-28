@@ -477,7 +477,8 @@ class CremeEntity(CremeModel):
         return new_entity
 
     def _copy_properties(self, source):
-        creme_property_create = CremeProperty.objects.create
+        # creme_property_create = CremeProperty.objects.create
+        creme_property_create = CremeProperty.objects.safe_create
 
         for type_id in source.properties.filter(type__is_copiable=True).values_list('type', flat=True):
             creme_property_create(type_id=type_id, creme_entity=self)
@@ -486,7 +487,8 @@ class CremeEntity(CremeModel):
         """@param allowed_internal: Sequence of RelationTypes pk with is_internal=True.
                                     Relationships with these types will be cloned anyway.
         """
-        relation_create = Relation.objects.create
+        # relation_create = Relation.objects.create
+        relation_create = Relation.objects.safe_create
 
         query = Q(type__in=RelationType.get_compatible_ones(self.entity_type).filter(Q(is_copiable=True)))
 
