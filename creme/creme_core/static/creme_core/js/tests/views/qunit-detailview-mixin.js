@@ -2,6 +2,12 @@
     "use strict";
 
     window.QUnitDetailViewMixin = {
+        afterEach: function() {
+            // detach menu hat bars
+            creme.widget.shutdown($('.ui-creme-hatmenubar'));
+            $('.ui-creme-hatmenubar').detach();
+        },
+
         createHatMenuBarHtml: function(options) {
             options = $.extend({
                 buttons: []

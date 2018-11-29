@@ -811,6 +811,7 @@ TEST_CREME_OPT_JS = [
     ('creme.projects',   'projects/js/tests/projects.js'),
     ('creme.reports',    'reports/js/tests/reports-listview.js'),
     ('creme.reports',    'reports/js/tests/reports-chart.js'),
+    ('creme.reports',    'reports/js/tests/reports-filter.js'),
 ]
 
 # Optional js/css bundles for extending projects.
