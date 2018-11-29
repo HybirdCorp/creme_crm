@@ -77,6 +77,36 @@ QUnit.test('creme.utils.appendInUrl', function(assert) {
     equal(creme.utils.appendInUrl('/test?bar=0#id_node', '?foo=1&plop=2'), '/test?foo=1&plop=2&bar=0#id_node');
 });
 
+QUnit.test('creme.utils.clickOnce', function(assert) {
+    var once = $('<a onclick="creme.utils.clickOnce(this, QUnit.mockInlineHtmlEvent, \'once call\', 12)"></a>');
+    var normal = $('<a onclick="QUnit.mockInlineHtmlEvent(\'normal call\', 13)"></a>');
+
+    equal(false, once.is('.clickonce'));
+    equal(false, normal.is('.clickonce'));
+    this.assertMockInlineHtmlEventCalls([]);
+
+    once.click();
+    normal.click();
+
+    equal(true, once.is('.clickonce'));
+    equal(false, normal.is('.clickonce'));
+    this.assertMockInlineHtmlEventCalls([
+        ['once call', 12],
+        ['normal call', 13]
+    ]);
+
+    once.click();
+    normal.click();
+
+    equal(true, once.is('.clickonce'));
+    equal(false, normal.is('.clickonce'));
+    this.assertMockInlineHtmlEventCalls([
+        ['once call', 12],
+        ['normal call', 13],
+        ['normal call', 13]
+    ]);
+});
+
 /* REMOVED
 QUnit.test('creme.utils.autoCheckallState / creme.utils.toggleCheckallState', function(assert) {
     var _checkbox            = '<input type="checkbox" checked="checked"/>';

@@ -576,4 +576,16 @@ creme.utils.debounce = function(func, wait, immediate) {
     };
 };
 
+// Temporary HACK : Fix used in some <a onclick="..."> tags to prevent multiple clicks.
+creme.utils.clickOnce = function(element, func) {
+    element = $(element);
+
+    if (element.is(':not(.clickonce') && Object.isFunc(func)) {
+        element.addClass('clickonce');
+        return func.apply(this, Array.copy(arguments).slice(2));
+    } else {
+        return false;
+    }
+};
+
 }(jQuery));
