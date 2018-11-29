@@ -25,6 +25,97 @@
 
 creme.reports = creme.reports || {};
 
+creme.reports.ReportFormController = creme.component.Component.sub({
+    _init_: function(options) {
+        options = options || {};
+
+        this._backend = options.backend || creme.ajax.defaultCacheBackend();
+        this._hfilters = this._createFilterModel({
+            url: options.hfilterUrl,
+            allLabel: gettext("No selected view")
+        });
+        this._efilters = this._createFilterModel({
+            url: options.efilterUrl,
+            allLabel: gettext("All"),
+            emptyLabel: gettext("All")
+        });
+    },
+
+    _createFilterModel: function(options) {
+        options = $.extend({
+            emptyLabel: gettext("None available")
+        }, options || {});
+
+        if (Object.isEmpty(options.url)) {
+            throw new Error('Unable to create filter model without fetch url');
+        }
+
+        var initial = [{
+            label: options.emptyLabel
+        }];
+
+        var converter = function(rawdata) {
+            var data = creme.model.ChoiceRenderer.choicesFromTuples(creme.utils.JSON.clean(rawdata, []));
+
+            if (Object.isEmpty(data)) {
+                data = initial;
+            } else if (options.allLabel) {
+                data = [{
+                    label: options.allLabel
+                }].concat(data);
+            }
+
+            return data;
+        };
+
+        var model = new creme.model.AjaxArray(this._backend, initial)
+                                   .url(options.url)
+                                   .converter(converter);
+
+        return new creme.model.ChoiceRenderer().model(model);
+    },
+
+    updateFilters: function(ctype) {
+        if (this.isBound()) {
+            if (Object.isEmpty(ctype)) {
+                this._hfilters.model().reset(this._hfilters.model().initial());
+                this._efilters.model().reset(this._efilters.model().initial());
+            } else {
+                this._hfilters.model().fetch({ct_id: ctype});
+                this._efilters.model().fetch({ct_id: ctype});
+            }
+        }
+
+        return this;
+    },
+
+    bind: function(element) {
+        if (this.isBound()) {
+            throw new Error('ReportFilterController is already bound');
+        }
+
+        this._hfilters.target(element.find('select[name="hf"]')).redraw();
+        this._efilters.target(element.find('select[name="filter"]')).redraw();
+
+        var self = this;
+        var ctypes = element.find('select[name="ct"]');
+
+        ctypes.change(function() {
+            self.updateFilters($(this).val());
+        });
+
+        this._element = element;
+        self.updateFilters(ctypes.val());
+
+        return this;
+    },
+
+    isBound: function() {
+        return Object.isNone(this._element) === false;
+    }
+});
+
+/*
 creme.reports.load = function(options, hfilters_url, efilters_url) {
     options = options || {};
 
@@ -107,6 +198,7 @@ creme.reports.loadEntityFilters = function(url, ct_id, $target_select) {
     };
     __loadFilters(url, ct_id, $target_select, params);
 };
+*/
 
 creme.reports.toggleDisableOthers = function(me, others) {
     var is_checked = me.checked; // More generic with all node types ?
@@ -144,7 +236,7 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
     return jqplotData.length ? [jqplotData] : [];
 });
 
-/* 
+/*
  * Moved to reports-actions.js
 creme.reports.exportReport = function(title, filterform_url, export_preview_url, export_url) {
     // The export view uses the 'callback_url' feature of inner_popup (maybe only used here).
@@ -304,5 +396,4 @@ creme.reports.ChartController = creme.component.Component.sub({
         this._plot.reload(this._state);
     }
 });
-
 }(jQuery));

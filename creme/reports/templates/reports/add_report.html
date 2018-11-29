@@ -3,6 +3,14 @@
 {% block extrahead %}
     <script type="text/javascript">
         $(document).ready(function() {
+            var controller = new creme.reports.ReportFormController({
+                hfilterUrl: "{% url 'creme_core__hfilters' %}",
+                efilterUrl: "{% url 'creme_core__efilters' %}",
+            });
+
+            controller.bind($('#editforms form:first'));
+
+            /*
             $('#{{form.ct.auto_id}}').change(function() {
                 var opts = {
                     'ct': this,
@@ -13,6 +21,7 @@
             });
 
             $('#{{form.ct.auto_id}}').change();
+            */
         });
     </script>
 {% endblock %}
