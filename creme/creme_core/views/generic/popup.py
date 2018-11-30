@@ -30,7 +30,7 @@ from django.utils.safestring import mark_safe
 def inner_popup(request, template, template_dict, is_valid=True, html=None,
                 callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
     warnings.warn('creme_core.views.generic.popup.inner_popup() is deprecated ; '
-                  'use a class-based view & InnerPopupMixin instead.',
+                  'use a class-based view (eg: generic.add.CremeModelCreationPopup) instead.',
                   DeprecationWarning
                  )
 

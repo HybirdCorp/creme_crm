@@ -35,7 +35,6 @@ from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import CremeModel, CremeEntity, BrickDetailviewLocation
 
 from . import base
-# from.popup import InnerPopupMixin
 
 
 logger = logging.getLogger(__name__)

@@ -31,7 +31,7 @@ from ..models.sending import (SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
 
 class _CampaignEmailsSendType(JobType):
     id           = JobType.generate_id('emails', 'campaign_emails_send')
-    verbose_name = _(u'Send emails from campaigns')
+    verbose_name = _('Send emails from campaigns')
     periodic     = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):
@@ -54,7 +54,7 @@ class _CampaignEmailsSendType(JobType):
             sending.save()
 
     # def get_description(self, job):
-    #     return [ugettext('Send all unsended mails that have to be.')]
+    #     return [ugettext('Send all un-sent mails that have to be.')]
 
     def next_wakeup(self, job, now_value):  # We have to implement it because it is a PSEUDO_PERIODIC JobType
         qs = EmailSending.objects.exclude(campaign__is_deleted=True) \
