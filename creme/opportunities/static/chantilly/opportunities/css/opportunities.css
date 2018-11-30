@@ -6,3 +6,7 @@
 .opportunities-card-brick .card-targets a {
     text-decoration: underline;
 }
+
+.opportunities-current-quote {
+    vertical-align: middle;
+}
