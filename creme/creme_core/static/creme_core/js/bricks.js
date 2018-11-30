@@ -788,6 +788,10 @@ creme.bricks.Brick = creme.component.Component.sub({
         return action;
     },
 
+    getActionBuilders: function() {
+        return this._actionBuilders;
+    },
+
     _defaultDialogOptions: function(url, title) {
         var width = $(window).innerWidth();
 
