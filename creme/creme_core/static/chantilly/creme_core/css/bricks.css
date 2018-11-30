@@ -210,6 +210,7 @@ table.table_detail_view + table.table_detail_view {
 
 .brick .brick-header-button.is-disabled {
     cursor: default;
+    opacity: 0.5;
 }
 
 .brick .brick-header-button:first-child {
@@ -247,7 +248,7 @@ table.table_detail_view + table.table_detail_view {
     z-index: 1;
 }
 
-.brick .brick-header-button:last-child:hover {
+.brick .brick-header-button:last-child:not(.is-disabled):hover {
     border-right: 1px solid currentColor;
 }
 
