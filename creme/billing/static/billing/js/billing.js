@@ -181,7 +181,9 @@ creme.billing.hideEmptyForm = function(ct_id, formset_prefix, line_count) {
 };
 
 creme.billing.showEmptyForm = function(btn, ct_id, prefix, line_count) {
-    if (btn.hasClass('forbidden')) return;
+    if (btn.hasClass('forbidden')) {
+        return;
+    }
 
     btn.addClass('forbidden');
 
@@ -257,8 +259,14 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
     var discounted = $('[name="discounted"]', element);
     var inclusive_of_tax = $('[name="inclusive_of_tax"]', element);
     var exclusive_of_tax = $('[name="exclusive_of_tax"]', element);
+    var container = element.parents('.bline-container:first');
 
-    element.delegate('.bound', 'change', function () {
+    element.on('change', '.bound', function () {
+        // HACK : ignore events from hidden forms (not used onfly or removed onfly)
+        if (container.is('.hidden-form')) {
+            return;
+        }
+
         var quantity = $('[name*="quantity"]', element);
         var unit_price = $('td input[name*="unit_price"]', element);
         var discount = $('input[name*="discount"]', element);
@@ -307,7 +315,9 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
             creme.billing.updateBrickTotals(currency);
         }
 
-        if (!vat_value_widget.val()) inclusive_of_tax.text('###');
+        if (!vat_value_widget.val()) {
+            inclusive_of_tax.text('###');
+        }
     });
 };
 

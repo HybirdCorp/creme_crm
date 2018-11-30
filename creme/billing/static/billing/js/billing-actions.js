@@ -140,8 +140,12 @@ var billingLinesActions = {
         var brick = this._brick;
 
         return new creme.component.Action(function() {
+            var self = this;
+
             if (creme.billing.formsHaveErrors()) {
-                creme.dialogs.alert('<p>' + gettext('There are some errors in your lines.') + '</p>').open();
+                creme.dialogs.alert('<p>' + gettext('There are some errors in your lines.') + '</p>')
+                             .onClose(function() { self.cancel(); })
+                             .open();
             } else {
                 var formsData = {};
 
@@ -156,8 +160,11 @@ var billingLinesActions = {
                 }
 
                 creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, warnOnFailTitle: gettext('Errors report')}, formsData)
-                           .onDone(function() { brick.refresh(); })
-                           .onFail(this.fail.bind(this))
+                           .onDone(function() {
+                               self.done();
+                               brick.refresh();
+                            })
+                           .onFail(function(event, message) { self.fail(message); })
                            .start();
             }
         });
