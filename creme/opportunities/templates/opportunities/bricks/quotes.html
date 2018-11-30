@@ -5,6 +5,7 @@
 
 {% block brick_script %}
 <script type="text/javascript">
+    {% comment %}
      creme.opportunities.setCurrentQuote = function(checkbox, url) {
         var brick = $(checkbox).parents('.brick').creme().widget().brick();
 
@@ -12,6 +13,11 @@
                    .onDone(function() {brick.refresh();})
                    .start();
      };
+    {% endcomment %}
+
+    $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
+        new creme.opportunities.QuoteController().bind(brick);
+    });
  </script>
 {% endblock %}
 
@@ -44,22 +50,16 @@
         <td>{% widget_entity_hyperlink quote user %}</td>
         <td>
         {% if quote_is_current %}
-            <input class="opportunities-current-quote" type="checkbox"
-                {% if unlink_perm and quote_unlink_perm %}
-                   onclick="creme.opportunities.setCurrentQuote(this, '{% url 'opportunities__linked_quote_is_current' object.id quote.id 'unset_current' %}')"
-                {% else %}
-                   disabled="true"
-                {% endif %}
-                   checked
-            >{% trans 'Yes' %}
+            <input class="opportunities-current-quote" type="checkbox" data-url="{% url 'opportunities__linked_quote_is_current' object.id quote.id 'unset_current' %}"
+                   {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %}
+                   checked>
+            </input>
+            {% trans 'Yes' %}
         {% else %}
-            <input class="opportunities-current-quote" type="checkbox"
-                {% if unlink_perm and quote_unlink_perm %}
-                   onclick="creme.opportunities.setCurrentQuote(this, '{% url 'opportunities__linked_quote_is_current' object.id quote.id 'set_current' %}')"
-                {% else %}
-                   disabled="true"
-                {% endif %}
-            >{% trans 'No' %}
+            <input class="opportunities-current-quote" type="checkbox" data-url="{% url 'opportunities__linked_quote_is_current' object.id quote.id 'set_current' %}"
+                   {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %}>
+            </input>
+            {% trans 'No' %}
         {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
