@@ -127,14 +127,14 @@ def abstract_view_rgenerator(request, generator_id,
 @login_required
 @permission_required('recurrents')
 def edit(request, generator_id):
-    warnings.warn('recurrents.views.recurrentgenerator.edit().', DeprecationWarning)
+    warnings.warn('recurrents.views.recurrentgenerator.edit() is deprecated.', DeprecationWarning)
     return abstract_edit_rgenerator(request, generator_id)
 
 
 @login_required
 @permission_required('recurrents')
 def detailview(request, generator_id):
-    warnings.warn('recurrents.views.recurrentgenerator.detailview().', DeprecationWarning)
+    warnings.warn('recurrents.views.recurrentgenerator.detailview() is deprecated.', DeprecationWarning)
     return abstract_view_rgenerator(request, generator_id)
 
 

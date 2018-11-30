@@ -47,7 +47,8 @@ _SEARCH_FIELD_MAX_LENGTH = 200
 
 class EntityAction:
     def __init__(self, url, text, is_allowed, attrs=None, icon=None, verbose=None):
-        warnings.warn('EntityAction is deprecated ; use UIAction and actions_registry mechanism instead.',
+        warnings.warn('creme_core.models.entity.EntityAction is deprecated ; '
+                      'use creme_core.gui.actions.UIAction and actions_registry mechanism instead.',
                       DeprecationWarning
                      )
         self.url = url
@@ -331,7 +332,8 @@ class CremeEntity(CremeModel):
 
     def get_entity_m2m_summary(self, user):
         """Return a string summary useful for list (ie: <ul><li>) representation."""
-        warnings.warn("CremeEntity.get_entity_m2m_summary() method is deprecated; use CremeEntity.get_entity_summary() instead",
+        warnings.warn("CremeEntity.get_entity_m2m_summary() method is deprecated ; "
+                      "use CremeEntity.get_entity_summary() instead",
                       DeprecationWarning
                      )
 
@@ -341,7 +343,7 @@ class CremeEntity(CremeModel):
         return '<a target="_blank" href="{}">{}</a>'.format(self.get_absolute_url(), escape(str(self)))
 
 # NB : Replaced by creme_core.gui.actions.actions_registry mechanism
-#     def get_actions(self, user):  # TODO: improve icon/css class management....
+#     def get_actions(self, user):  # todo: improve icon/css class management....
 #         actions = []
 #
 #         edit_url = self.get_edit_absolute_url()

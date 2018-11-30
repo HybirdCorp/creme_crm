@@ -25,7 +25,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 class ReportsConfig(CremeAppConfig):
     name = 'creme.reports'
-    verbose_name = _(u'Reports')
+    verbose_name = _('Reports')
     dependencies = ['creme.creme_core']
 
     def ready(self):
@@ -41,6 +41,11 @@ class ReportsConfig(CremeAppConfig):
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Report)
+
+    def register_actions(self, actions_registry):
+        from . import actions
+
+        actions_registry.register_instance_actions(actions.ExportReportAction)
 
     def register_bricks(self, brick_registry):
         from . import bricks
@@ -82,14 +87,9 @@ class ReportsConfig(CremeAppConfig):
         # else:
         creme_menu.get('features') \
                   .get_or_create(creme_menu.ContainerItem, 'analysis', priority=500,
-                                 defaults={'label': _(u'Analysis')},
+                                 defaults={'label': _('Analysis')},
                                 ) \
                   .add(creme_menu.URLItem.list_view('reports-reports', model=Report), priority=20)
         creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('analysis', _(u'Analysis'), priority=500) \
+                  .get_or_create_group('analysis', _('Analysis'), priority=500) \
                   .add_link('reports-create_report', Report, priority=20)
-
-    def register_actions(self, actions_registry):
-        from creme.reports import actions
-
-        actions_registry.register_instance_actions(actions.ExportReportAction)

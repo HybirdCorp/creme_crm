@@ -26,7 +26,11 @@ You can find more information on Creme on its official web site: http://cremecrm
 
 
 RECOMMENDATIONS:
-It's recommended to use a database engine which supports transactions.
+It's recommended to use a database engine which supports transactions :
+ - PostGreSQL is probably the best choice for data-bases with 100,000+ entities.
+ - Sqlite support is principally done for developers, but it remains a solution
+   for small data-bases (eg: a use as mono-user app with the server running of your computer).
+
 You probably should use 'virtualenv'.
 
 
