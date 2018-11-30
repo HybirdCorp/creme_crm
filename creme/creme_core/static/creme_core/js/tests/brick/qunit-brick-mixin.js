@@ -192,6 +192,21 @@
             return widget;
         },
 
+        createBrickActionHtml: function(options) {
+            return (
+                  '<a href="${url}" class="${classes} ${isasync} ${isdisabled}" data-action="${action}">'
+                    + '<script type="application/json"><!-- {"options": ${options}, "data": ${data}} --></script>'
+                + '</a>').template({
+                    url: options.url || '',
+                    action: options.action || 'redirect',
+                    classes: (options.classes || []).join(' '),
+                    isasync: options.async ? 'is-async-action' : '',
+                    isdisabled: options.disabled ? 'is-disabled' : '',
+                    options: $.toJSON(options.options || {}),
+                    data: $.toJSON(options.data || {})
+                });
+        },
+
         _brickTableItemInfo: function(d) {
             return {
                 selected: d.selected,
