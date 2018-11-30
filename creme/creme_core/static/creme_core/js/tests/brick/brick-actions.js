@@ -201,6 +201,19 @@ QUnit.test('creme.bricks.Brick.action (form-refresh, submit)', function(assert) 
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
+QUnit.test('creme.bricks.Brick.action (refresh)', function(assert) {
+    var brick = this.createBrickWidget('brick-for-test').brick();
+
+    brick.action('refresh').on(this.brickActionListeners).start();
+    equal(false, brick.isLoading());
+
+    deepEqual([['done']], this.mockListenerCalls('action-done').map(function(e) { return e.slice(0, 1); }));
+
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
 QUnit.test('creme.bricks.Brick.action (add, submit)', function(assert) {
     var brick = this.createBrickWidget('brick-for-test').brick();
 
@@ -1044,6 +1057,33 @@ QUnit.test('creme.bricks.Brick.action (link, async)', function(assert) {
               this.mockListenerCalls('action-link-start').map(function(d) { return d.slice(0, 4); }));
     deepEqual([['action-link-cancel', []]],
               this.mockListenerCalls('action-link-complete').map(function(d) { return d.slice(0, 2); }));
+});
+
+QUnit.test('creme.bricks.Brick.registry', function(assert) {
+    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
+    var brick = new creme.bricks.Brick().bind(element);
+    var registry = brick.getActionBuilders();
+
+    ok(Object.isSubClassOf(registry, creme.action.ActionBuilderRegistry));
+
+    ok(registry.has('view'));
+    ok(registry.has('redirect'));
+
+    ok(registry.has('refresh'));
+    ok(registry.has('collapse'));
+    ok(registry.has('reduce_content'));
+
+    ok(registry.has('form'));
+    ok(registry.has('form_refresh'));
+
+    ok(registry.has('add'));
+    ok(registry.has('edit'));
+    ok(registry.has('link'));
+    ok(registry.has('delete'));
+    ok(registry.has('update'));
+    ok(registry.has('update_redirect'));
+
+    ok(registry.has('add_relationships'));
 });
 
 }(jQuery));

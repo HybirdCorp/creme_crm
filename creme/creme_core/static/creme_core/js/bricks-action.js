@@ -126,6 +126,11 @@ creme.bricks.BrickActionBuilders = creme.action.ActionBuilderRegistry.sub({
         }
     },
 
+    _refreshBrickAction: function(url, options, data) {
+        var reloader = new creme.bricks.BricksReloader(data);
+        return reloader.sourceBrick(this._brick).action();
+    },
+
     _selectedRowValues: function(getter) {
         var selected = this._brick.table().selections().selected();
         getter = getter || function(item) {
@@ -192,6 +197,10 @@ creme.bricks.BrickActionBuilders = creme.action.ActionBuilderRegistry.sub({
 
     _build_update: function(url, options, data) {
         return this._updateAction(url, options, data).onDone(this._refreshBrick.bind(this));
+    },
+
+    _build_refresh: function(url, options, data) {
+        return this._refreshBrickAction(url, options, data);
     },
 
     _build_update_redirect: function(url, options, data) {
