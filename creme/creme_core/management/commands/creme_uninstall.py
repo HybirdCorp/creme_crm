@@ -632,6 +632,12 @@ def ordered_models_to_delete(app_config, connection):
             self.dependencies = dependencies
             # self.sql_cmd = sql_cmd
 
+        def __str__(self):
+            return 'ModelInfo(model={model}, dependencies={dependencies})'.format(
+                model=self.model.__name__,
+                dependencies=[d.__name__ for d in self.dependencies],
+            )
+
     models_info = []
     cursor = connection.cursor()
 
@@ -639,7 +645,10 @@ def ordered_models_to_delete(app_config, connection):
         table_names = set(connection.introspection.table_names(cursor))
         app_models = OrderedSet(router.get_migratable_models(app_config,
                                                              connection.alias,
-                                                             include_auto_created=True,
+                                                             # include_auto_created=True,
+                                                             # NB: the auto created tables are automatically
+                                                             #     deleted by schema_editor.delete_model(model)
+                                                             include_auto_created=False,
                                                             )
                                )
 
@@ -647,7 +656,8 @@ def ordered_models_to_delete(app_config, connection):
             meta = model._meta
 
             if connection.introspection.table_name_converter(meta.db_table) in table_names:
-                dependencies = []
+                # dependencies = []
+                dependencies = set()  # We use a set to avoid duplicates
 
                 for f in meta.local_fields:
                     # if f.rel:
@@ -655,8 +665,11 @@ def ordered_models_to_delete(app_config, connection):
                         # related_model = f.rel.to
                         related_model = f.remote_field.model
 
-                        if related_model in app_models:
-                            dependencies.append(related_model)
+                        # if related_model in app_models:
+                        # NB: we avoid self-referencing (TODO: improve dependence_sort() ?)
+                        if related_model is not model and related_model in app_models:
+                            # dependencies.append(related_model)
+                            dependencies.add(related_model)
 
                 models_info.append(ModelInfo(model=model,
                                              dependencies=dependencies,
