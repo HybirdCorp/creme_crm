@@ -146,11 +146,11 @@ class Brick:
 
     @staticmethod
     def generate_id(app_name, name):  # TODO: rename _generate_id ?
-        return u'block_{}-{}'.format(app_name, name)
+        return 'block_{}-{}'.format(app_name, name)
 
     @classmethod
     def _generate_hat_id(cls, app_name, name):
-        return u'{}-{}-{}'.format(cls.GENERIC_HAT_BRICK_ID, app_name, name)
+        return '{}-{}-{}'.format(cls.GENERIC_HAT_BRICK_ID, app_name, name)
 
     def _render(self, template_context):
         return get_template(self.template_name).render(template_context)
@@ -375,7 +375,7 @@ class QuerysetBrick(PaginatedBrick):
 
 
 class EntityBrick(Brick):
-    verbose_name  = _(u'Information on the entity (generic)')
+    verbose_name  = _('Information on the entity (generic)')
     template_name = 'creme_core/bricks/generic/entity.html'
 
     BASE_FIELDS = {'created', 'modified', 'user'}
@@ -397,7 +397,7 @@ class EntityBrick(Brick):
                ]
 
     def _get_title(self, entity, context):
-        return ugettext(u'Information «{model}»').format(model=entity.__class__._meta.verbose_name)
+        return ugettext('Information «{model}»').format(model=entity.__class__._meta.verbose_name)
 
     def detailview_display(self, context):
         entity = context['object']
@@ -412,27 +412,28 @@ class EntityBrick(Brick):
 class SpecificRelationsBrick(QuerysetBrick):
     dependencies  = (Relation,)  # NB: (Relation, CremeEntity) but useless
     order_by      = 'type'
-    verbose_name  = _(u'Relationships')
+    verbose_name  = _('Relationships')
     template_name = 'creme_core/bricks/specific-relations.html'
 
-    def __init__(self, relationblock_item):
-        "@param relationblock_item: Instance of RelationBrickItem"
+    # def __init__(self, relationblock_item):
+    def __init__(self, relationbrick_item):
+        "@param relationbrick_item: Instance of RelationBrickItem"
         # super(SpecificRelationsBrick, self).__init__()
         super().__init__()
-        self.id_ = relationblock_item.brick_id
-        self.config_item = relationblock_item
+        self.id_ = relationbrick_item.brick_id
+        self.config_item = relationbrick_item
 
-        rtype = relationblock_item.relation_type
+        rtype = relationbrick_item.relation_type
         self.relation_type_deps = (rtype.id,)
-        self.verbose_name = ugettext(u'Relationship block: «{predicate}»').format(predicate=rtype.predicate)
+        self.verbose_name = ugettext('Relationship block: «{predicate}»').format(predicate=rtype.predicate)
 
     @staticmethod
     def generate_id(app_name, name):
-        return u'specificblock_{}-{}'.format(app_name, name)
+        return 'specificblock_{}-{}'.format(app_name, name)
 
     @staticmethod
     def id_is_specific(id_):
-        return id_.startswith(u'specificblock_')
+        return id_.startswith('specificblock_')
 
     def detailview_display(self, context):
         entity = context['object']
@@ -712,7 +713,7 @@ class _BrickRegistry:
     @staticmethod
     def _generate_modelbrick_id(model):
         meta = model._meta
-        return u'modelblock_{}-{}'.format(meta.app_label, meta.model_name)
+        return 'modelblock_{}-{}'.format(meta.app_label, meta.model_name)
 
     def __getitem__(self, brick_id):
         return self._brick_classes[brick_id]
@@ -734,7 +735,7 @@ class _BrickRegistry:
 
             brick = Brick()
             brick.verbose_name = '??'
-            brick.errors = [_(u'Unknown type of block (bad uninstall ?)')]
+            brick.errors = [_('Unknown type of block (bad uninstall ?)')]
         else:
             brick = brick_class(ibi)
             brick.id_ = brick_id
@@ -839,7 +840,7 @@ class _BrickRegistry:
 
             if brick.verbose_name is Brick.verbose_name:
                 # TODO: warning ??
-                brick.verbose_name = _(u'Information on the entity')
+                brick.verbose_name = _('Information on the entity')
 
         brick.id_ = self._generate_modelbrick_id(model)
 
@@ -859,7 +860,7 @@ class _BrickRegistry:
                 brick.dependencies = (model,)  # TODO: what about FK, M2M ?
 
         brick.id_ = Brick.GENERIC_HAT_BRICK_ID
-        brick.verbose_name = _(u'Title bar')
+        brick.verbose_name = _('Title bar')
 
         return brick
 
