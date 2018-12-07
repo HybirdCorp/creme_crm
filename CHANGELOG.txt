@@ -101,7 +101,8 @@
                 - The function-view 'quick_forms.add()' is deprecated.
             - The method 'creme_core.forms.creme_property._AddPropertiesForm._create_properties()' is deprecated.
             - In the templatetag library "creme_core_tags" :
-                - {% get_viewable_fields %} is deprecated ; use {% cell_4_regularfield %} from the lib "creme_cells" instead.
+                - {% get_field_verbose_name %} is deprecated ; use {% cell_4_regularfield %} from the lib "creme_cells" instead.
+                - {% get_viewable_fields %} is deprecated.
                 - The filter "|get_tag" is deprecated.
                 - The filter "|allowed_unicode" is deprecated ; use "|allowed_str" instead.
                 - The filter "|xrange" is deprecated ; use "|range" instead.

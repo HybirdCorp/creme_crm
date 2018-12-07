@@ -66,7 +66,6 @@ class Brick:
 
     Bricks can be displayed on (see creme_core.templatetags.creme_bricks):
         - a detail-view (and so are related to a CremeEntity).
-        - a portal (related to the content types of an app) (DEPRECATED).
         - the homepage - ie the portal of creme_core (related to all the apps).
 
     A Brick can be directly displayed on a page (this is the only solution for
@@ -417,7 +416,7 @@ class SpecificRelationsBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/specific-relations.html'
 
     def __init__(self, relationblock_item):
-        "@param relationblock_item: Instance of RelationBlockItem"
+        "@param relationblock_item: Instance of RelationBrickItem"
         # super(SpecificRelationsBrick, self).__init__()
         super().__init__()
         self.id_ = relationblock_item.brick_id
@@ -512,8 +511,8 @@ class BricksManager:
 
     Documentation for DEPRECATED features:
     Using to solve the blocks dependencies problem in a page.
-    Blocks can depends on the same model : updating one block involves to update
-    the blocks that depends on the same than it.
+    Bricks can depends on the same model : updating one brick involves to update
+    the bricks which depend on the same than it.
     """
     var_name = 'blocks_manager'  # TODO: rename
 

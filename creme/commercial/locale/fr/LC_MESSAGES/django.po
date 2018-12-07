@@ -908,7 +908,7 @@ msgid "List of salesmen"
 msgstr "Liste des commerciaux"
 
 #: views/strategy.py:135 views/strategy.py:141
-#, fpython-brace-format
+#, python-brace-format
 msgid "New market segment for «{entity}»"
 msgstr "Nouveau segment pour «{entity}»"
 

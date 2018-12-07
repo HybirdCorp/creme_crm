@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.widget.ScrollActivator = creme.widget.declare('ui-creme-scrollactivator', {
     options: {
@@ -24,8 +25,7 @@ creme.widget.ScrollActivator = creme.widget.declare('ui-creme-scrollactivator', 
         delay: 50
     },
 
-    _scrollBox: function(container)
-    {
+    _scrollBox: function(container) {
         var self = this;
 
         var box = {
@@ -41,8 +41,7 @@ creme.widget.ScrollActivator = creme.widget.declare('ui-creme-scrollactivator', 
         return box;
     },
 
-    _collide: function(box, item)
-    {
+    _collide: function(box, item) {
         var top = this._isrelative ? box.top + item.position().top : item.offset().top;
         var left = this._isrelative ? box.left + item.position().left : item.offset().left;
         var bottom = top + item.height();
@@ -58,8 +57,7 @@ creme.widget.ScrollActivator = creme.widget.declare('ui-creme-scrollactivator', 
         return result;
     },
 
-    _activables: function(element, container)
-    {
+    _activables: function(element, container) {
         var self = this;
 
         if ((element.is(':visible') && self._collide(self._scrollBox($(document)), element)) == false)
@@ -72,15 +70,13 @@ creme.widget.ScrollActivator = creme.widget.declare('ui-creme-scrollactivator', 
         });
     },
 
-    _activateItem: function(item, delay)
-    {
+    _activateItem: function(item, delay) {
         creme.object.deferred_start(item, 'creme.widget.scrollactivator.activate_item', function() {
             item.creme().create();
         }, delay);
     },
 
-    _activate: function(element)
-    {
+    _activate: function(element) {
         var self = this;
 
         creme.object.deferred_start(element, 'creme.widget.scrollactivator.activate', function() {
@@ -92,8 +88,7 @@ creme.widget.ScrollActivator = creme.widget.declare('ui-creme-scrollactivator', 
         }, self._delay);
     },
 
-    _create: function(element, options, cb, sync, attributes)
-    {
+    _create: function(element, options, cb, sync, attributes) {
         var self = this;
         self._delay = options['delay'];
         self._isrelative = options['scroll'] == 'relative';

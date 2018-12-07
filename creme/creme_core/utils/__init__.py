@@ -32,12 +32,12 @@ import traceback
 # import warnings
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, Http404
+# from django.core.exceptions import PermissionDenied
+from django.http import Http404  # HttpResponse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from ..core.exceptions import ConflictError
+# from ..core.exceptions import ConflictError
 from ..signals import pre_replace_related
 
 

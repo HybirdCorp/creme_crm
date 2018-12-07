@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.widget.PlotProcessorRegistry = function() {
     this._processors = {}
@@ -30,8 +31,7 @@ creme.widget.PlotProcessorRegistry.prototype = {
         this._processors[name] = converter;
     },
 
-    unregister: function(name)
-    {
+    unregister: function(name) {
         if (this.processor(name) === undefined)
             throw new Error('no such processor "' + name + '"');
 
@@ -46,8 +46,7 @@ creme.widget.PlotProcessorRegistry.prototype = {
 creme.widget.PlotProcessors = new creme.widget.PlotProcessorRegistry();
 
 $.extend(creme.widget.PlotProcessors, {
-    preprocessOptions: function(options, data)
-    {
+    preprocessOptions: function(options, data) {
         for(var key in options)
         {
             var entry = options[key];
@@ -71,12 +70,10 @@ $.extend(creme.widget.PlotProcessors, {
         }
     },
 
-    preprocessData: function(preprocessors, data)
-    {
+    preprocessData: function(preprocessors, data) {
         var result = data;
 
-        for(var index = 0; index < preprocessors.length; ++index)
-        {
+        for(var index = 0; index < preprocessors.length; ++index) {
             var preprocessor_info = preprocessors[index];
 
             preprocessor_info = (typeof preprocessor_info === 'string') ? {preprocessor: preprocessor_info} : preprocessor_info;
@@ -88,8 +85,7 @@ $.extend(creme.widget.PlotProcessors, {
         return result;
     },
 
-    preprocess: function(plot_info)
-    {
+    preprocess: function(plot_info) {
         var options = plot_info.options || {};
         var data = Object.isEmpty(plot_info.data) ? (options.dataDefaults || []) : plot_info.data;
 

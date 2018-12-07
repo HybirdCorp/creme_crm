@@ -1,7 +1,6 @@
 {% load i18n %}
 {% load media %}
 {% load creme_menu creme_core_tags creme_search %}{# creme_quickforms #}
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
@@ -11,12 +10,6 @@
     <script type='text/javascript'>
         var THEME_NAME = "{{ THEME_NAME }}";
     </script>
-    <!--
-        Firebug for browsers without plugin/extension :
-            - uncomment the following script
-            - add debug="true" to <html> tag
-    -->
-    <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
     {% include_creme_media "main.css" %}
     {% include_media 'l10n.js' language=LANGUAGE_CODE %}
     {% include_media 'lib.js' %}

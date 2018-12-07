@@ -22,7 +22,6 @@ from itertools import chain
 import warnings
 
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields import FieldDoesNotExist
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -46,6 +45,8 @@ def json_list_enumerable(request, ct_id):
                   'use ChoicesView instead.',
                   DeprecationWarning
                  )
+
+    from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.enumerators import EntityFilterEnumerator
     from creme.creme_core.models import EntityFilter

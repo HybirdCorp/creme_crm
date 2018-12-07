@@ -21,7 +21,8 @@
  *            creme
  */
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.menu = {};
 //creme.menu.actions = {};  // Deprecated
@@ -269,8 +270,9 @@ creme.menu.openQuickForm = function(element) {
     $('.ui-creme-navigation-activated').removeClass ('ui-creme-navigation-activated');
 
     // ...or if there's a need to close all popups: $('.ui-dialog .ui-dialog-content').dialog('close');
-    if (creme.menu.currentPopup)
+    if (creme.menu.currentPopup) {
         creme.menu.currentPopup.close();
+    }
 
 ////    creme.menu.currentPopup = creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
 //    creme.menu.currentPopup = creme.dialogs.form(element.attr('href'), {reloadOnSuccess: true}).open();

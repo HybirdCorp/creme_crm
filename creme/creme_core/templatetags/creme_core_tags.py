@@ -112,7 +112,7 @@ def get_fieldtag(field, tag):
 
 @register.simple_tag
 def get_field_verbose_name(model_or_entity, field_name):
-    warnings.warn('{% get_viewable_fields %} is deprecated ; '
+    warnings.warn('{% get_field_verbose_name %} is deprecated ; '
                   'use {% cell_4_regularfield %} from lib "creme_cells" instead.',
                   DeprecationWarning
                  )

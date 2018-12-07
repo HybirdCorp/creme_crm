@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2011  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselect', {
     options: {
@@ -24,8 +25,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         dependencies: ''
     },
 
-    _create: function(element, options, cb, sync)
-    {
+    _create: function(element, options, cb, sync) {
         var self = this;
 
         this._context = {};
@@ -47,8 +47,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         this._removeSelector(element);
     },
 
-    _init_models: function(element)
-    {
+    _init_models: function(element) {
         var models = this._models = [];
 
         $('> script[selector-key]', element).each(function() {
@@ -60,8 +59,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         });
     },
 
-    _updateSelector: function(element, selector, value, cb, sync)
-    {
+    _updateSelector: function(element, selector, value, cb, sync) {
         var self = this;
 
         if (Object.isNone(selector)) {
@@ -72,10 +70,8 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         selector.val(value);
     },
 
-    _removeSelector: function(element)
-    {
-        if (this._selector !== undefined)
-        {
+    _removeSelector: function(element) {
+        if (this._selector !== undefined) {
             var selector = this._selector;
             var element = selector.element;
 
@@ -93,8 +89,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         }
     },
 
-    _createSelector: function(element, model, value, cb, error_cb, sync)
-    {
+    _createSelector: function(element, model, value, cb, error_cb, sync) {
         var self = this;
 
         this._target = $('<span>').addClass('delegate').html(model).appendTo(element);
@@ -113,8 +108,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         this._selectorModel = model;
     },
 
-    toggleSelector: function(element, previous_key, cb, error_cb, sync)
-    {
+    toggleSelector: function(element, previous_key, cb, error_cb, sync) {
         var value = this.val(element);
         var previous = this._selector;
         var previous_model = this._selectorModel;
@@ -145,8 +139,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         return (this._selectorKey && this._selectorKey.iscomplete()) ? this._selectorKey.render() || '' : '';
     },
 
-    selectorValue: function(element)
-    {
+    selectorValue: function(element) {
         var selector = this.selector(element);
         return selector !== undefined ? selector.val() : null;
     },
@@ -155,12 +148,10 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         return this._selector;
     },
 
-    selectorModel: function(element, key)
-    {
+    selectorModel: function(element, key) {
         var models = this.selectorModels(element);
 
-        for(var i in models)
-        {
+        for(var i in models) {
             var model = models[i];
 
             //console.log('model:', model.pattern, 'key:', key, 'match:', key.match(model.pattern), 'content:', model.content.pattern);
@@ -179,8 +170,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         return (this._selectorKey ? this._selectorKey.tags() : []).concat(this._dependencies);
     },
 
-    reload: function(element, data, cb, error_cb, sync)
-    {
+    reload: function(element, data, cb, error_cb, sync) {
         var previous_key = this.selectorKey(element);
 
         this._context = $.extend({}, this._context || {}, data || {});
@@ -188,15 +178,13 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         this.toggleSelector(element, previous_key, cb, error_cb, sync);
     },
 
-    reset: function(element)
-    {
+    reset: function(element) {
         if (this._selector) {
             this._selector.reset();
         }
     },
 
-    val: function(element, value)
-    {
+    val: function(element, value) {
         if (value === undefined)
             return this._selector ? this._selector.val() : null;
 
