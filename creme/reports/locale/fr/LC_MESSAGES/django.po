@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-26 18:27+0100\n"
+"POT-Creation-Date: 2018-12-03 16:13+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -30,11 +30,11 @@ msgstr "Exporter «{object}»"
 msgid "Reports"
 msgstr "Rapports"
 
-#: apps.py:85 apps.py:89
+#: apps.py:90 apps.py:94
 msgid "Analysis"
 msgstr "Analyse"
 
-#: bricks.py:45 templates/reports/bricks/fields.html:24
+#: bricks.py:45 templates/reports/bricks/fields.html:26
 msgid "Columns of the report"
 msgstr "Colonnes du rapport"
 
@@ -164,8 +164,8 @@ msgstr "Valeur agrégée (champ personnalisé)"
 msgid "Related field"
 msgstr "Champ relatif"
 
-#: forms/bricks.py:38 templates/reports/bricks/graph.html:65
-#: templates/reports/bricks/graphs.html:110
+#: forms/bricks.py:38 templates/reports/bricks/graph.html:68
+#: templates/reports/bricks/graphs.html:113
 #: templates/reports/bricks/instance-bricks-info.html:11
 msgid "Volatile column"
 msgstr "Colonne volatile"
@@ -448,8 +448,8 @@ msgstr "Maximum"
 msgid "Sum"
 msgstr "Somme"
 
-#: report_chart_registry.py:51 templates/reports/bricks/graph.html:54
-#: templates/reports/bricks/graphs.html:99
+#: report_chart_registry.py:51 templates/reports/bricks/graph.html:55
+#: templates/reports/bricks/graphs.html:100
 msgid "Histogram"
 msgstr "Histogramme"
 
@@ -461,60 +461,60 @@ msgstr "Camembert"
 msgid "Tube"
 msgstr "Barres empilées 100%"
 
-#: templates/reports/bricks/fields.html:29
+#: templates/reports/bricks/fields.html:31
 msgid "Edit the columns"
 msgstr "Modifier les colonnes"
 
-#: templates/reports/bricks/fields.html:35
+#: templates/reports/bricks/fields.html:37
 msgid "Column"
 msgstr "Colonne"
 
-#: templates/reports/bricks/fields.html:36
+#: templates/reports/bricks/fields.html:38
 msgid "Displayed in the report"
 msgstr "Affiché dans le rapport"
 
-#: templates/reports/bricks/fields.html:37
+#: templates/reports/bricks/fields.html:39
 #: templates/reports/bricks/graphs.html:68
 msgid "Type"
 msgstr "Type"
 
 # Already in creme_core
-#: templates/reports/bricks/fields.html:38
+#: templates/reports/bricks/fields.html:40
 msgid "Action"
 msgstr ""
 
-#: templates/reports/bricks/fields.html:40
+#: templates/reports/bricks/fields.html:42
 msgid "Expand?"
 msgstr "Développer ?"
 
-#: templates/reports/bricks/fields.html:43
+#: templates/reports/bricks/fields.html:45
 msgid "No column set for the moment"
 msgstr "Aucune colonne définie pour le moment"
 
-#: templates/reports/bricks/fields.html:56
+#: templates/reports/bricks/fields.html:58
 msgid "[hidden]"
 msgstr "[caché]"
 
-#: templates/reports/bricks/fields.html:60
+#: templates/reports/bricks/fields.html:62
 msgid "Columns of"
 msgstr "Colonnes de"
 
-#: templates/reports/bricks/fields.html:62
+#: templates/reports/bricks/fields.html:64
 msgid "Value"
 msgstr "Valeur"
 
-#: templates/reports/bricks/fields.html:70
+#: templates/reports/bricks/fields.html:72
 msgid "Unlink the report"
 msgstr "Délier le rapport"
 
-#: templates/reports/bricks/fields.html:72
+#: templates/reports/bricks/fields.html:74
 msgid "Link a report"
 msgstr "Lier un rapport"
 
 #: templates/reports/bricks/graph.html:17
-#: templates/reports/bricks/graph.html:60
+#: templates/reports/bricks/graph.html:61
 #: templates/reports/bricks/graphs.html:16
-#: templates/reports/bricks/graphs.html:105
+#: templates/reports/bricks/graphs.html:106
 #: templates/reports/templatetags/report_chart_selectors.html:13
 msgid "Ascending"
 msgstr "Ascendant"
@@ -526,8 +526,8 @@ msgid "Descending"
 msgstr "Descendant"
 
 #: templates/reports/bricks/graph.html:39
-#: templates/reports/bricks/graph.html:52
-#: templates/reports/bricks/graphs.html:97
+#: templates/reports/bricks/graph.html:53
+#: templates/reports/bricks/graphs.html:98
 #: templates/reports/templatetags/report_chart_selectors.html:3
 msgctxt "reports-graphs"
 msgid "Graph"
@@ -541,23 +541,23 @@ msgstr "Voir"
 msgid "Reload"
 msgstr "Recharger"
 
-#: templates/reports/bricks/graph.html:53
-#: templates/reports/bricks/graphs.html:98
+#: templates/reports/bricks/graph.html:54
+#: templates/reports/bricks/graphs.html:99
 msgid "Select the type of visualisation for this graph"
 msgstr "Sélectionner le type de visualisation du graphique"
 
-#: templates/reports/bricks/graph.html:58
-#: templates/reports/bricks/graphs.html:103
+#: templates/reports/bricks/graph.html:59
+#: templates/reports/bricks/graphs.html:104
 #: templates/reports/templatetags/report_chart_selectors.html:11
 msgid "Sorting"
 msgstr "Tri"
 
-#: templates/reports/bricks/graph.html:59
-#: templates/reports/bricks/graphs.html:104
+#: templates/reports/bricks/graph.html:60
+#: templates/reports/bricks/graphs.html:105
 msgid "Select the sort order"
 msgstr "Sélectionner l'ordre de tri"
 
-#: templates/reports/bricks/graph.html:90
+#: templates/reports/bricks/graph.html:94
 msgid "No values or graph is not applicable here"
 msgstr "Aucune valeur ou le graphique n'est pas utilisable ici"
 
@@ -600,22 +600,17 @@ msgstr "Fermer"
 msgid "Delete this graph"
 msgstr "Supprimer ce graphique"
 
-#: templates/reports/bricks/graphs.html:115
-#, python-format
-msgid "%(count)s block"
-msgid_plural "%(count)s blocks"
-msgstr[0] "%(count)s bloc"
-msgstr[1] "%(count)s blocs"
+#: templates/reports/bricks/graphs.html:117
+msgid "%(count)s configured block"
+msgid_plural "%(count)s configured blocks"
+msgstr[0] "%(count)s bloc configuré"
+msgstr[1] "%(count)s blocs configurés"
 
-#: templates/reports/bricks/graphs.html:119
-msgid "(No block currently)"
-msgstr "(Pas de bloc actuellement)"
+#: templates/reports/bricks/graphs.html:125
+msgid "Create a block for this graph"
+msgstr "Créer un bloc pour ce graphique"
 
-#: templates/reports/bricks/graphs.html:124
-msgid "Create a block with this graph"
-msgstr "Créer un bloc à partir de ce graphique"
-
-#: templates/reports/bricks/graphs.html:147
+#: templates/reports/bricks/graphs.html:149
 msgid "No graphs registered for the moment"
 msgstr "Aucun graphique enregistré pour le moment"
 
@@ -799,19 +794,22 @@ msgstr "Créer un graphique pour «{entity}»"
 msgid "Edit a graph for «{entity}»"
 msgstr "Modifier un graphique pour «{entity}»"
 
-#: views/report.py:170
+#: views/report.py:178
 #, python-brace-format
 msgid "Link of the column «{object}»"
 msgstr "Liaison de la colonne «{object}»"
 
-#: views/report.py:171
+#: views/report.py:179
 msgid "Link"
 msgstr "Lier"
 
-#: views/report.py:215
+#: views/report.py:223
 #, python-brace-format
 msgid "Edit columns of «{object}»"
 msgstr "Modifier les colonnes de «{object}»"
+
+#~ msgid "(No block currently)"
+#~ msgstr "(Pas de bloc actuellement)"
 
 #~ msgid "Download «%(object)s»"
 #~ msgstr "Télécharger «%(object)s»"

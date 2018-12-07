@@ -92,36 +92,38 @@
     </tr>
     <tr data-graph-chart="{{graph.chart|default:''}}" data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed">
         <td class="reports-graph-brick" colspan="7">
-            <div class="brick-graph-header clearfix">
-                <div class="graph-controls graph-controls-type">
-                    <span class="graph-control-name">{% trans 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                    <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">
-                        {% trans 'Histogram' %}
-                    </a>
+            <div class="brick-graph-header">
+                <div class="graph-controls">
+                    <div class="graph-control graph-controls-type">
+                        <span class="graph-control-name">{% trans 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                        <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">
+                            {% trans 'Histogram' %}
+                        </a>
+                    </div>
+                    <div class="graph-control graph-controls-sort">
+                        <span class="graph-control-name">{% trans 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                        <a class="graph-control-value" title="{% trans 'Select the sort order' %}">
+                            {% trans 'Ascending' %}
+                        </a>
+                    </div>
                 </div>
-                <div class="graph-controls graph-controls-sort">
-                    <span class="graph-control-name">{% trans 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                    <a class="graph-control-value" title="{% trans 'Select the sort order' %}">
-                        {% trans 'Ascending' %}
-                    </a>
-                </div>
-                {% if volatile_column %}
-                <div class="graph-relation">
-                    <span class="graph-relation-name">{% trans 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
-                    <span class="graph-relation-entity">{{volatile_column}}</span>
-                </div>
-                {% endif %}
-                <div class="graph-action">
-                {% with bricks_count=graph.instance_bricks_count %}{% blocktrans count count=bricks_count asvar popup_label %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                <div class="graph-actions">
+                    {% if volatile_column %}
+                    <div class="graph-volatile">
+                        <span class="graph-volatile-label">{% trans 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
+                        <span class="graph-volatile-value">{{volatile_column}}</span>
+                    </div>
+                    {% endif %}
+                    {% with bricks_count=graph.instance_bricks_count %}{% blocktrans count count=bricks_count asvar popup_label %}{{count}} configured block{% plural %}{{count}} configured blocks{% endblocktrans %}
                     {% if bricks_count %}{% url 'reports__instance_bricks_info' graph.id as view_bricks_url %}
-                        {% brick_table_action id='view' url=view_bricks_url label=popup_label display='both' %}{# __title=graph #}
-                    {% else  %}
-                        <span class="empty">{% trans "(No block currently)" %}</span>
+                    <div class="graph-action">
+                        {% brick_table_action id='view' url=view_bricks_url label=popup_label display='text' %}{# __title=graph #}
+                    </div>
                     {% endif  %}
-                {% endwith %}
-                </div>
-                <div class="graph-action">{% url 'reports__create_instance_brick' graph.id as create_brick_url %}
-                    {% brick_table_action id='add' url=create_brick_url label=_('Create a block with this graph') display='both' enabled=admin_perm %}
+                    {% endwith %}
+                    <div class="graph-action">{% url 'reports__create_instance_brick' graph.id as create_brick_url %}
+                        {% brick_table_action id='add' url=create_brick_url label=_('Create a block for this graph') display='text' enabled=admin_perm %}
+                    </div>
                 </div>
             </div>
             <div>

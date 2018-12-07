@@ -12,9 +12,10 @@
 }
 
 .reports-graph-brick .brick-graph-header {
-    padding: 3px 10px;
     background: #fcfcfc;
     border-bottom: 1px solid #dedede;
+    display: flex;
+    width: 100%;
 }
 
 .reports-graph-brick .brick-graph-container {
@@ -22,57 +23,100 @@
 }
 
 .reports-graph-brick .brick-graph-header .graph-controls {
-    float: left;
+    flex: 1;
     cursor: default;
+    padding: 5px 5px;
 }
 
-.reports-graph-brick .brick-graph-header .graph-controls-sort {
-    margin-left: 15px;
+.reports-graph-brick .brick-graph-header .graph-control {
+    display: inline-flex;
+    padding-left: 5px;
+}
+
+.reports-graph-brick .brick-graph-header .graph-control+.graph-control {
+    padding-left: 15px;
 }
 
 .reports-graph-brick .brick-graph-header .graph-control-name {
     text-transform: uppercase;
-    font-size: 11px;
-    font-weight: 600;
-    color: #666;
+    color: hsla(197, 15%, 50%, 1);
 }
 
 /* ? */
 .reports-graph-brick .brick-graph-header .graph-control-value {
     text-transform: uppercase;
-    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
 }
 
-.reports-graph-brick .brick-graph-header .graph-controls:hover .graph-control-value {
+.reports-graph-brick .brick-graph-header .graph-control:hover .graph-control-value {
     text-decoration: underline;
 }
 
 /* ? - end */
 
-.reports-graph-brick .brick-graph-header .graph-relation {
-    float: right;
+.reports-graph-brick .brick-graph-header .graph-actions {
+    display: inline-flex;
+}
+
+.reports-graph-brick .brick-graph-header .graph-action:before {
+    content: "";
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    top: -1px;
+    width: 1px;
+    background: -webkit-linear-gradient(transparent, #aaa);
+    background: -moz-linear-gradient(transparent, #aaa);
+    background: -o-linear-gradient(transparent, #aaa);
+    background: linear-gradient(transparent, #aaa);
 }
 
 .reports-graph-brick .brick-graph-header .graph-action {
-    float: right;
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    overflow: hidden;
+    padding: 3px 15px;
 }
 
 .reports-graph-brick .brick-graph-header .graph-action .empty {
-    display: inline-block;
+    display: inline-flex;
     padding: 11px 6px 3px 3px;
     color: gray;
 }
 
-.reports-graph-brick .brick-graph-header .graph-relation-name {
+.reports-graph-brick .graph-action .brick-table-action {
+    font-weight: 600;
+    font-size: 1em;
+    padding: 0px;
+}
+
+.reports-graph-brick .graph-action .brick-table-action:hover {
+    filter: none;
+}
+
+.reports-graph-brick .graph-action .brick-table-action.action-type-add {
+    font-weight: 600;
+    color: #3bab07;
+    display: inline-block;
+    white-space: nowrap;
+    max-height: 16px;
+    padding: 0px;
+}
+
+.reports-graph-brick .brick-graph-header .graph-volatile {
+    padding: 3px 5px;
+}
+
+.reports-graph-brick .brick-graph-header .graph-volatile-label {
     text-transform: uppercase;
     font-size: 11px;
     font-weight: 600;
     color: #666;
 }
 
-.reports-graph-brick .brick-graph-header .graph-relation-entity {
+.reports-graph-brick .brick-graph-header .graph-volatile-value {
     font-weight: 600;
 }
 
