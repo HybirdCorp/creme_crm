@@ -343,11 +343,14 @@ class CremeFormView(CancellableMixin,
       - Label for the submit button
       - Cancel button.
 
-    Notice that POST requests are managed within a SQL transaction.
+    Attributes:
+      - atomic_POST: <True> (default value means that POST requests are
+                     managed within a SQL transaction.
     """
     form_class = CremeForm
     template_name = 'creme_core/generics/blockform/add.html'
     success_url = reverse_lazy('creme_core__home')
+    atomic_POST = True
 
     def dispatch(self, request, *args, **kwargs):
         user = request.user
@@ -377,9 +380,12 @@ class CremeFormView(CancellableMixin,
 
         return kwargs
 
-    @atomic
     def post(self, *args, **kwargs):
-        return super().post(*args, **kwargs)
+        if self.atomic_POST:
+            with atomic():
+                return super().post(*args, **kwargs)
+        else:
+            return super().post(*args, **kwargs)
 
 
 class CremeFormPopup(CremeFormView):
