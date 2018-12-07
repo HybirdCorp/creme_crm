@@ -540,9 +540,11 @@
         # In the attribute 'creme_core.core.entity_cell.EntityCellCustomField._CF_PATTERNS', values are now {}-format strings.
         # The class 'creme_core.backends.csv_import.CSVImportBackend' does not inherit 'UnicodeReader' any more.
         # In the constructor of 'creme_core.gui.bricks.SpecificRelationsBrick', the argument "relationblock_item" has been renamed "relationblock_item".
-        # In the function 'creme_core.templatetags.creme_listview._build_select_search_widget()':
-          the argument "choices" uses the new dictionary format for choices (see 'creme_core.core.enumerable.Enumerator') & the "values" of the widget context uses a new format adapted for grouped choices ;
-          the template 'creme_core/templatetags/listview_columns_header.html' has changed to use this new format.
+        # In 'creme_core.templatetags' :
+         - The return of 'creme_bricks.brick_action()' has slightly changed ("data" key is now a dict/None, not a string any more).
+         - In the function 'creme_listview._build_select_search_widget()' : the argument "choices" uses the new dictionary format
+           for choices (see 'creme_core.core.enumerable.Enumerator') & the "values" of the widget context uses a new format adapted for grouped choices ;
+           the template 'creme_core/templatetags/listview_columns_header.html' has changed to use this new format.
         # The functions 'python_subprocess()' in 'creme_core.utils.system.nt' & 'creme_core.utils.system.posix' have been removed (replaced by the one in 'creme_core.utils.system').
         # The signal with uid "creme_core-blockmypagelocation._copy_default_config" is now  "creme_core-brickmypagelocation._copy_default_config".
         # Some patterns in 'creme_core.utils.url.TemplateURLBuilder' have changed to be {}-format strings.

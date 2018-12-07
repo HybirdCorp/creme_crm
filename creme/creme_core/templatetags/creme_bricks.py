@@ -36,7 +36,7 @@ from ..gui.bulk_update import bulk_update_registry
 from ..gui.pager import PagerContext
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
-from ..utils.serializers import json_encode
+# from ..utils.serializers import json_encode
 # from ..views.bricks import render_detailview_brick, render_home_brick  # render_portal_brick
 # from ..views.entity import _bulk_has_perm
 
@@ -200,6 +200,7 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
     action_type = kwargs.pop('type', id)
     css_class   = kwargs.pop('class', '')
     properties = []
+    action_options = {}
 
     if icon is None and display != 'text':
         icon = action_type
@@ -235,7 +236,14 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
     if loading:
         properties.append('is-async-action')
 
-    return {
+        if isinstance(loading, str):
+            action_options['loading'] = loading
+
+    if confirm:
+        action_options['confirm'] = confirm
+
+    action_extra_data = _clean_extra_data(kwargs)
+    data = {
         'url':      url,
         'disabled': not enabled,
 
@@ -250,15 +258,24 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
         'class':      css_class,
         'loading':    bool(loading),
 
-        'data': mark_safe(json_encode({'options': {
-                                          'confirm': confirm,
-                                          'loading': None if loading is True else loading,
-                                       },
-                                       'data': _clean_extra_data(kwargs),
-                                      },
-                                     )
-                         ),
+       # 'data': mark_safe(json_encode({'options': {
+       #                                   'confirm': confirm,
+       #                                   'loading': None if loading is True else loading,
+       #                                },
+       #                                'data': _clean_extra_data(kwargs),
+       #                               },
+       #                              )
+       #                  ),
+        'data': None,
     }
+
+    if action_options or action_extra_data:
+        data['data'] = {
+            'options': action_options,
+            'data': action_extra_data,
+        }
+
+    return data
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/header-action.html', takes_context=True)
