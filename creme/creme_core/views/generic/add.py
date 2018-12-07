@@ -192,7 +192,9 @@ class CremeModelCreation(base.CancellableMixin,
       - Label for the submit button
       - Cancel button.
 
-    Notice that POST requests are managed within a SQL transaction.
+    Attributes:
+      - atomic_POST: <True> (default value means that POST requests are
+                     managed within a SQL transaction.
 
     Notes :
     submit_label: <None> (default value) means that <model.save_label> is used.
@@ -202,6 +204,7 @@ class CremeModelCreation(base.CancellableMixin,
     template_name = 'creme_core/generics/blockform/add.html'
     title = '{creation_label}'
     submit_label = None
+    atomic_POST = True
 
     def dispatch(self, request, *args, **kwargs):
         user = request.user
@@ -236,9 +239,12 @@ class CremeModelCreation(base.CancellableMixin,
     def get_submit_label(self):
         return super().get_submit_label() or self.model.save_label
 
-    @atomic
     def post(self, *args, **kwargs):
-        return super().post(*args, **kwargs)
+        if self.atomic_POST:
+            with atomic():
+                return super().post(*args, **kwargs)
+        else:
+            return super().post(*args, **kwargs)
 
 
 # TODO: assert model is an entity ?
