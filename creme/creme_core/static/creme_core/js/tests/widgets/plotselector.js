@@ -1,4 +1,4 @@
-/* globals setTimeout */
+/* globals setTimeout QUnitConsoleMixin */
 
 (function($) {
 var PLOTSELECTOR_PIEGRAPH_SCRIPT = {
@@ -67,7 +67,10 @@ var PLOTSELECTOR_PLOT_02_DATA = [[[1, 2.58], [3, 40.5], [5, 121.78]]];
 
 /* globals stop, start, equal, deepEqual, */
 /* globals QUnit QUnitMixin, QUnitAjaxMixin, QUnitPlotMixin, QUnitWidgetMixin */
-QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin, QUnitPlotMixin, QUnitWidgetMixin, {
+QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin,
+                                                             QUnitConsoleMixin,
+                                                             QUnitPlotMixin,
+                                                             QUnitWidgetMixin, {
     buildMockBackend: function() {
         return new creme.ajax.MockAjaxBackend({sync: true, name: 'creme.widget.plotselector.js'});
     },
@@ -124,8 +127,11 @@ QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin, QUn
                          savable: savable || false
                       };
 
-        var plot = creme.widget.buildTag($('<div/>'), 'ui-creme-jqueryplot', options, !noauto)
-                               .append($('<script type="text/json"><!--' + data + '--></script>'));
+        var plot = creme.widget.buildTag($('<div/>'), 'ui-creme-jqueryplot', options, !noauto);
+
+        if (Object.isNone(data) === false) {
+            plot.append($('<script type="text/json"><!--' + data + '--></script>'));
+        }
 
         this.bindMockPlotEvents(plot);
         return plot;
@@ -133,7 +139,7 @@ QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin, QUn
 
     createMockPlotSelector: function(options, noauto) {
         options = options || {};
-        var plot = this.createMockPlot('', 'svg', false, false);
+        var plot = this.createMockPlot();
         var selector = creme.widget.buildTag($('<div/>'), 'ui-creme-plotselector', options, !noauto)
                                    .append(plot);
 
@@ -167,6 +173,9 @@ QUnit.test('creme.widget.PlotSelector.create (no graph, no data)', function(asse
 
     deepEqual(plot_widget.plotOptions(), {});
     deepEqual(plot_widget.plotData(), []);
+
+    deepEqual([], this.mockConsoleWarnCalls());
+    deepEqual([], this.mockConsoleErrorCalls());
 });
 
 QUnit.test('creme.widget.PlotSelector.create (graphs, no data)', function(assert) {

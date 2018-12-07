@@ -97,11 +97,17 @@ creme.utils.JSON.clean = function(data, defaults) {
     return Object.isString(data) ? new creme.utils.JSON().decode(data, defaults) : data;
 };
 
-creme.utils.JSON.readScriptText = function(element) {
+creme.utils.JSON.readScriptText = function(element, options) {
     element = $(element).first();
+    options = $.extend({
+        ignoreEmpty: false
+    }, options || {});
 
     if (element.length === 0) {
-        console.warn('No such JSON script element');
+        if (!options.ignoreEmpty) {
+            console.warn('No such JSON script element');
+        }
+
         return '';
     }
 
