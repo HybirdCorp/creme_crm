@@ -4,7 +4,8 @@ try:
     from django.db.transaction import atomic
 
     from ..base import CremeTransactionTestCase
-    from creme.creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException, mutex_autolock, MutexAutoLock
+    from creme.creme_core.models.lock import (Mutex, MutexLockedException,
+        MutexNotLockedException, mutex_autolock, MutexAutoLock)
     # from creme.creme_core.utils import safe_unicode_error
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))

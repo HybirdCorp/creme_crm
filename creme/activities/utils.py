@@ -76,8 +76,8 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
             collision_start = max(activity_start.time(), localtime(colliding_activity.start).time())
             collision_end   = min(activity_end.time(),   localtime(colliding_activity.end).time())
 
-            collisions.append(_(u"{participant} already participates to the activity "
-                                u"«{activity}» between {start} and {end}."
+            collisions.append(_('{participant} already participates to the activity '
+                                '«{activity}» between {start} and {end}.'
                                ).format(
                         participant=participant,
                         activity=colliding_activity,
@@ -103,10 +103,10 @@ def get_ical_date(date_time):
 
 def get_ical(activities):
     """Return a normalized iCalendar string
-    /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
+    BEWARE: each parameter has to be separated by \n ONLY no spaces allowed!
     Example : BEGIN:VCALENDAR\nVERSION:2.0
     """
-    return u"""BEGIN:VCALENDAR
+    return """BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//CremeCRM//CremeCRM//EN
 {}

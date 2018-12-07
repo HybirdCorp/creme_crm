@@ -26,10 +26,8 @@ import warnings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, UUIDField, CharField, BooleanField, ForeignKey, PROTECT
 from django.db.transaction import atomic
-from django.forms.utils import flatatt
 from django.urls import reverse
 from django.utils.html import escape
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 # from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList, FunctionFieldsManager
@@ -47,6 +45,9 @@ _SEARCH_FIELD_MAX_LENGTH = 200
 
 class EntityAction:
     def __init__(self, url, text, is_allowed, attrs=None, icon=None, verbose=None):
+        from django.forms.utils import flatatt
+        from django.utils.safestring import mark_safe
+
         warnings.warn('creme_core.models.entity.EntityAction is deprecated ; '
                       'use creme_core.gui.actions.UIAction and actions_registry mechanism instead.',
                       DeprecationWarning

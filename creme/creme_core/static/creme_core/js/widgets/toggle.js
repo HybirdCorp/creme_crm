@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2013  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,15 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
     options: {
         'ontoggle': undefined
     },
 
-    _create: function(element, options, cb, sync, attributes)
-    {
+    _create: function(element, options, cb, sync, attributes) {
         var self = this;
 
         this.trigger(element).each(function() {
@@ -44,8 +44,7 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
         element.addClass('widget-ready');
     },
 
-    _bind_trigger: function(element, trigger, options)
-    {
+    _bind_trigger: function(element, trigger, options) {
         var self = this;
         var toggle_event = options['toggle-event'];
         var open_event   = options['open-event'];
@@ -61,8 +60,7 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
             trigger.bind(close_event, function() {self.collapse(element, options)});
     },
 
-    trigger: function(element)
-    {
+    trigger: function(element) {
         var triggers =  $('.toggle-trigger', element).filter(function() {
             return $(this).parents('.ui-creme-toggle:first').is(element); 
         });
@@ -82,8 +80,7 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
         return $('.ui-creme-toggle.widget-ready', element);
     },
 
-    toggle: function(element, open, options)
-    {
+    toggle: function(element, open, options) {
         var self = this;
         var options = options || {};
         var collapsed = (open === undefined) ? !this.is_closed(element) : !open;
@@ -98,8 +95,7 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
             self._toggle_target($(this), collapsed, options);
         });
 
-        if (options.recursive)
-        {
+        if (options.recursive) {
             this.toggles(element).each(function() {
                 $(this).creme().widget().toggle(!collapsed, options);
             });
@@ -134,14 +130,12 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
         return element.hasClass('toggle-collapsed');
     },
 
-    _toggle_trigger: function(trigger, collapsed, options)
-    {
+    _toggle_trigger: function(trigger, collapsed, options) {
         trigger.toggleClass('toggle-collapsed', collapsed);
         this._toggle_attributes(trigger, collapsed);
     },
 
-    _toggle_target: function(target, collapsed, options)
-    {
+    _toggle_target: function(target, collapsed, options) {
         target.toggleClass('toggle-collapsed', collapsed);
         this._toggle_attributes(target, collapsed);
 
@@ -149,14 +143,11 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
                                         .trigger('resizestop');
     },
 
-    _toggle_attributes: function(target, collapsed)
-    {
-        for(var index = 0; index < target[0].attributes.length; ++index)
-        {
+    _toggle_attributes: function(target, collapsed) {
+        for(var index = 0; index < target[0].attributes.length; ++index) {
             var attr = target[0].attributes[index];
 
-            if (/^toggle\-(close|open)\-[\w\d]+$/.test(attr.name))
-            {
+            if (/^toggle\-(close|open)\-[\w\d]+$/.test(attr.name)) {
                 var attr_split_name = attr.name.split('-');
                 var mode = attr_split_name[1];
                 var name = attr_split_name[2];

@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2014  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
     options: {
@@ -25,8 +26,7 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
         disabled: false
     },
 
-    _create: function(element, options, cb, sync)
-    {
+    _create: function(element, options, cb, sync) {
         this._disabled = creme.object.isTrue(options.disabled) && element.is('[disabled]');
         this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
 
@@ -56,8 +56,7 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
         element.addClass('widget-ready');
     },
 
-    _updateDisabledState: function(element, disabled)
-    {
+    _updateDisabledState: function(element, disabled) {
         var state = disabled || this._readonly;
         this._datepicker.datepicker('option', 'disabled', state);
         this._buttons.forEach(function(button) {
@@ -65,8 +64,7 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
         });
     },
 
-    _appendHelperButton: function(buttons, name, label, getter)
-    {
+    _appendHelperButton: function(buttons, name, label, getter) {
         var datepicker = this._datepicker;
         var button = $('<button>').attr('name', name)
                                   .attr('type', 'button')
@@ -81,8 +79,7 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
         return button;
     },
 
-    _initHelperButtons: function()
-    {
+    _initHelperButtons: function() {
         var buttons = [];
         this._appendHelperButton(buttons, 'today', 'Today', function(current) {return new Date();});
         return buttons;
@@ -101,8 +98,7 @@ creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
         disabled: false
     },
 
-    _create: function(element, options, cb, sync)
-    {
+    _create: function(element, options, cb, sync) {
         this._disabled = creme.object.isTrue(options.disabled) && element.is('[disabled]');
         this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
 
@@ -123,8 +119,7 @@ creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
         element.addClass('widget-ready');
     },
 
-    _updateDisabledState: function(element, disabled)
-    {
+    _updateDisabledState: function(element, disabled) {
         var state = disabled || this._readonly;
         this._datepicker.datepicker('option', 'disabled', state);
         this._buttons.prop('disabled', state);

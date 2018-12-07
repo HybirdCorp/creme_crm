@@ -77,7 +77,7 @@ creme.utils.Lambda = creme.component.Component.sub({
         if (!Object.isNone(window['Function'])) {
             this._lambda = new Function(parameters, body);
         } else {
-            // HACK : compatibiliy for older browsers
+            // HACK : compatibility for older browsers
             var uuid = $.uidGen({
                 prefix: '__lambda_',
                 mode: 'random'

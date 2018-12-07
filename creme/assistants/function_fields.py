@@ -25,7 +25,6 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.core.function_field import (FunctionField,
         FunctionFieldResult, FunctionFieldResultsList)
 
-
 from .models import Alert, Memo, ToDo
 
 

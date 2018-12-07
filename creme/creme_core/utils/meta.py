@@ -191,11 +191,11 @@ class _ExcludeModelFieldQuery(_FilterModelFieldQuery):
 class ModelFieldEnumerator:
     def __init__(self, model, deep=0, only_leafs=True):
         """Constructor.
-        @param model DjangoModel class.
-        @param deep Deep of the returned fields (0=fields of the class, 1=also
-                    the fields of directly related classes, etc...).
-        @param only_leafs If True, FK/M2M fields are not returned (but eventually,
-                          their sub-fields, depending of the 'deep' paramater of course).
+        @param model: DjangoModel class.
+        @param deep: Deep of the returned fields (0=fields of the class, 1=also
+                     the fields of directly related classes, etc...).
+        @param only_leafs: If True, FK/M2M fields are not returned (but eventually,
+                           their sub-fields, depending of the 'deep' parameter of course).
         """
         self._model = model
         self._deep = deep
@@ -210,7 +210,7 @@ class ModelFieldEnumerator:
         return iter(self._fields)
 
     def _build_fields(self, fields_info, model, parents_fields, rem_depth, depth):
-        "@param rem_depth Remaining depth to look into"
+        "@param rem_depth: Remaining depth to look into"
         ffilters = self._ffilters
         include_fk = not self._only_leafs
         deeper_fields_args = []

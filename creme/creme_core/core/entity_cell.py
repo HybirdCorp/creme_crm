@@ -504,7 +504,7 @@ class EntityCellRelation(EntityCell):
                         )
 
     @staticmethod
-    def build(model, rtype_id, is_hidden=False):  # TODO: store 'model' in instance
+    def build(model, rtype_id, is_hidden=False):
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:

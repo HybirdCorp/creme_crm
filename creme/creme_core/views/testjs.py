@@ -56,14 +56,16 @@ logger = logging.getLogger(__name__)
 
 TEST_TEMPLATE_PATH = join(settings.CREME_ROOT, 'creme_core', 'templates', 'creme_core', 'tests')
 TEST_TEMPLATE_BRICK_PATH = join(TEST_TEMPLATE_PATH, 'bricks')
-TEST_IMAGE_URLS = (('add', 'icecream/images/add_32.png'),
-                   ('not_found', 'common/images/404_200.png'),
-                   ('creme', 'common/images/creme_logo.png'),
-                   ('action', 'chantilly/images/action_48.png'),
-                   ('action_not_in_time', 'icecream/images/action_not_in_time_48.png'),
-                   ('wait', 'icecream/images/wait.gif'),
-                  )
+TEST_IMAGE_URLS = (
+    ('add',                'icecream/images/add_32.png'),
+    ('not_found',          'common/images/404_200.png'),
+    ('creme',              'common/images/creme_logo.png'),
+    ('action',             'chantilly/images/action_48.png'),
+    ('action_not_in_time', 'icecream/images/action_not_in_time_48.png'),
+    ('wait',               'icecream/images/wait.gif'),
+)
 TEST_IMAGES_SIZES = (16, 22, 32, 48, 64)
+
 
 class MockImage:
     def __init__(self, url, width, height=None):
@@ -164,7 +166,7 @@ def js_testview_context(request, viewname):
         # brick_registry.register(dummy_list_block)
         brick_registry.register(DummyListBrick)
 
-    test_view_pattern = re_compile('^test_(?P<name>[\d\w]+)\.html$')
+    test_view_pattern = re_compile(r'^test_(?P<name>[\d\w]+)\.html$')
     test_views = []
 
     for filename in listdir(TEST_TEMPLATE_PATH):

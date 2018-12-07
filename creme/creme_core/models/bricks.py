@@ -240,8 +240,9 @@ class BrickMypageLocation(CremeModel):
                 except Exception:
                     # TODO: still useful ? (BrickMypageLocation table should exist when the first User is created)
                     logger.warning('Can not create brick config for this user: %s'
-                                ' (if it is the first user, do not worry because it is normal)', instance
-                               )
+                                   ' (if it is the first user, do not worry because it is normal)',
+                                   instance
+                                  )
 
     # @staticmethod
     # def create(block_id, order, user=None):
