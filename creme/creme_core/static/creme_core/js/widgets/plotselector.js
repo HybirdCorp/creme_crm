@@ -123,7 +123,8 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
     },
 
     plotOption: function(element, name) {
-        return creme.utils.JSON.readScriptText($('> script[type$="/json"][name="' + name + '"]', element)) || null;
+        var script = $('> script[type$="/json"][name="' + name + '"]', element);
+        return creme.utils.JSON.readScriptText(script, {ignoreEmpty: true}) || null;
     },
 
     dependencies: function(element) {

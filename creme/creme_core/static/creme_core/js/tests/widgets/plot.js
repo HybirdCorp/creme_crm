@@ -1,4 +1,4 @@
-/* globals setTimeout QUnitPlotMixin QUnitWidgetMixin */
+/* globals setTimeout QUnitPlotMixin QUnitWidgetMixin QUnitConsoleMixin */
 
 (function($) {
 
@@ -9,6 +9,7 @@ var MOCK_PLOT_CONTENT_JSON_DEFAULT = '{"options": {}, "data":[[[1, 2],[3, 4],[5,
 QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
                                                     QUnitEventMixin,
                                                     QUnitPlotMixin,
+                                                    QUnitConsoleMixin,
                                                     QUnitDialogMixin,
                                                     QUnitWidgetMixin, {
     buildMockBackend: function() {
@@ -116,8 +117,11 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
                          savable: savable || false
                       };
 
-        var plot = creme.widget.buildTag($('<div/>'), 'ui-creme-jqueryplot', options, !noauto)
-                               .append($('<script type="text/json"><!--' + data + '--></script>'));
+        var plot = creme.widget.buildTag($('<div/>'), 'ui-creme-jqueryplot', options, !noauto);
+
+        if (Object.isNone(data) === false) {
+            plot.append($('<script type="text/json"><!--' + data + '--></script>'));
+        }
 
         this.plotContainer.append(plot);
         this.mockPlots.push(plot);
@@ -128,7 +132,7 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
 }));
 
 QUnit.test('creme.widget.Plot.create (empty)', function(assert) {
-    var element = this.createMockPlot('');
+    var element = this.createMockPlot();
     creme.widget.create(element, {},
                         this.mockListener('plot-init'),
                         this.mockListener('plot-init-fail'));
@@ -139,6 +143,8 @@ QUnit.test('creme.widget.Plot.create (empty)', function(assert) {
     deepEqual({
         'plot-init': [[element]]
     }, this.mockListenerCalls());
+
+    deepEqual([], this.mockConsoleWarnCalls());
 });
 
 QUnit.test('creme.widget.Plot.create (invalid)', function(assert) {

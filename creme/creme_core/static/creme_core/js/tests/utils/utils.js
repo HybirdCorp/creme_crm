@@ -1,30 +1,8 @@
+/* global QUnitConsoleMixin */
+
 (function($) {
-QUnit.module("creme.widget.utils.js", new QUnitMixin({
-    beforeEach: function() {
-        this.resetMockConsoleWarnCalls();
 
-        var self = this;
-        var __consoleWarn = this.__consoleWarn = console.warn;
-
-        console.warn = function() {
-            var args = Array.copy(arguments);
-            self.__consoleWarnCalls.push(args);
-            return __consoleWarn.apply(this, args);
-        };
-    },
-
-    afterEach: function() {
-        console.warn = this.__consoleWarn;
-    },
-
-    mockConsoleWarnCalls: function() {
-        return this.__consoleWarnCalls;
-    },
-
-    resetMockConsoleWarnCalls: function() {
-        this.__consoleWarnCalls = [];
-    }
-}));
+QUnit.module("creme.widget.utils.js", new QUnitMixin(QUnitConsoleMixin));
 
 QUnit.test('creme.utils.JSON.encode (null)', function(assert) {
     var codec = new creme.utils.JSON();
@@ -234,4 +212,26 @@ QUnit.test('creme.utils.JSON.readScriptText', function(assert) {
 
     equal('{"a": 12, "b": "-->alert();<script/>"}', creme.utils.JSON.readScriptText('<script type="application/json">\n<!-- {"a": 12, "b": "--\\u003ealert();\\u003cscript/\\u003e"} -->\n\n</script>'));
 });
+
+QUnit.test('creme.utils.JSON.readScriptText (ignore empty)', function(assert) {
+    equal('', creme.utils.JSON.readScriptText(''));
+
+    deepEqual([['No such JSON script element']],
+              this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
+
+    this.resetMockConsoleWarnCalls();
+    equal('', creme.utils.JSON.readScriptText($('script.unknown')));
+
+    deepEqual([['No such JSON script element']],
+              this.mockConsoleWarnCalls().map(function(e) { return e.slice(0, 1); }));
+
+    this.resetMockConsoleWarnCalls();
+
+    equal('', creme.utils.JSON.readScriptText('', {ignoreEmpty: true}));
+    deepEqual([], this.mockConsoleWarnCalls());
+
+    equal('', creme.utils.JSON.readScriptText($('script.unknown'), {ignoreEmpty: true}));
+    deepEqual([], this.mockConsoleWarnCalls());
+});
+
 }(jQuery));

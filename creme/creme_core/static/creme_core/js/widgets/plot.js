@@ -384,7 +384,8 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
     },
 
     plotScript: function(element) {
-        return creme.utils.JSON.readScriptText($('> script[type$="/json"]', element));
+        var script = $('> script[type$="/json"]', element);
+        return creme.utils.JSON.readScriptText(script, {ignoreEmpty: true});
     },
 
     plot: function(element) {

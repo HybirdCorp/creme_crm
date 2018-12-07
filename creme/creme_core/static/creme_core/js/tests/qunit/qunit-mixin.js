@@ -56,4 +56,47 @@
             QUnit.assert.equal($('<div>').append(expected).html(), $('<div>').append($(element).clone()).html(), message);
         }
     };
+
+    window.QUnitConsoleMixin = {
+        beforeEach: function() {
+            this.resetMockConsoleWarnCalls();
+
+            var self = this;
+            var __consoleWarn = this.__consoleWarn = console.warn;
+            var __consoleError = this.__consoleError = console.error;
+
+            console.warn = function() {
+                var args = Array.copy(arguments);
+                self.__consoleWarnCalls.push(args);
+                return __consoleWarn.apply(this, args);
+            };
+
+            console.error = function() {
+                var args = Array.copy(arguments);
+                self.__consoleErrorCalls.push(args);
+                return __consoleError.apply(this, args);
+            };
+        },
+
+        afterEach: function() {
+            console.warn = this.__consoleWarn;
+            console.error = this.__consoleError;
+        },
+
+        mockConsoleWarnCalls: function() {
+            return this.__consoleWarnCalls;
+        },
+
+        resetMockConsoleWarnCalls: function() {
+            this.__consoleWarnCalls = [];
+        },
+
+        mockConsoleErrorCalls: function() {
+            return this.__consoleWarnCalls;
+        },
+
+        resetMockConsoleErrorCalls: function() {
+            this.__consoleWarnCalls = [];
+        }
+    };
 }(jQuery));
