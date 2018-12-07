@@ -399,6 +399,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.assertEqual(expected, output)
 
     def test_jsondata_tag(self):
+        self._assertJsonscriptTag('', None)
+
         self._assertJsonscriptTag('<script type="application/json"><!--  --></script>', '')
         self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('-->') + ' --></script>',
                                   '-->')

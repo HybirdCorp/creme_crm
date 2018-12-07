@@ -328,6 +328,8 @@ def jsondata(value, **kwargs):
 
     {% jsondata data arg1=foo.bar arg2='baz' %}
     """
+    if value is None:
+        return ''
 
     if kwargs.pop("type", None) is not None:
         logger.warning('jsondata tag do not accept custom "type" attribute')

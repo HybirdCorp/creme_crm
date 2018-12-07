@@ -2,13 +2,17 @@
 
 try:
     from django.contrib.sessions.backends.base import SessionBase
-    from django.template import Template, RequestContext
+    from django.template import Template, Context, RequestContext
     from django.test.client import RequestFactory
+
+    from creme.creme_core.gui.bricks import brick_registry, Brick
+    from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
+    from creme.creme_core.utils.media import get_current_theme
+    from creme.creme_core.utils.serializers import json_encode
 
     from ..base import CremeTestCase
     from ..views.base import BrickTestCaseMixin
     from ..fake_models import FakeContact
-    from creme.creme_core.gui.bricks import brick_registry, Brick
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -176,3 +180,142 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual('data-table-foo-column data-table-bar-column', render.strip())
 
     # TODO: complete
+
+
+class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
+    def setUp(self):
+        super().setUp()
+        self.factory = RequestFactory()
+        self.maxDiff = None
+
+    def _build_request(self, url='/'):
+        request = self.factory.get(url)
+        request.session = SessionBase()
+        request.user = self.user
+
+        return request
+
+    def _get_icon(self, name, size, label=''):
+        theme = get_current_theme()
+        return get_icon_by_name(name, theme, size_px=get_icon_size_px(theme, size), label=label)
+
+    def assertBrickActionHTML(self, bricktag, expected):
+        with self.assertNoException():
+            template = Template('{% load creme_bricks %}' + bricktag)
+            render = template.render(Context()).strip()
+
+        self.assertHTMLEqual(expected, render)
+
+    def test_brick_action(self):
+        self.assertBrickActionHTML(
+            "{% brick_action 'add' label='Add something' %}",
+            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            </a>'''.format(label='Add something',
+                           icon_url=self._get_icon('add', 'brick-action').url,
+                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+                          )
+        )
+
+    def test_brick_action_icon(self):
+        self.assertBrickActionHTML(
+            "{% brick_action 'add' label='Add something' icon='delete' icon_size='small' %}",
+            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            </a>'''.format(label='Add something',
+                           icon_url=self._get_icon('delete', 'small').url,
+                           icon_size=get_icon_size_px(get_current_theme(), 'small'),
+                          )
+        )
+
+    def test_brick_action_text(self):
+        self.assertBrickActionHTML(
+            "{% brick_action 'add' label='Add something' display='text' %}",
+            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
+                <span class="brick-action-title">{label}</span>
+            </a>'''.format(label='Add something')
+        )
+
+    def test_brick_action_both(self):
+        self.assertBrickActionHTML(
+            "{% brick_action 'add' label='Add something' display='both' %}",
+            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+                <span class="brick-action-title">{label}</span>
+            </a>'''.format(label='Add something',
+                           icon_url=self._get_icon('add', 'brick-action').url,
+                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+                          ),
+        )
+
+    def test_brick_action_disabled(self):
+        self.assertBrickActionHTML(
+            "{% brick_action 'add' label='Add something' enabled=False %}",
+            '''<a href="" title="{label}" class="brick-action action-type-add is-disabled " data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            </a>'''.format(label='Add something',
+                           icon_url=self._get_icon('add', 'brick-action').url,
+                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+                          ),
+        )
+
+    def test_brick_action_loading(self):
+        self.assertBrickActionHTML(
+            "{% brick_action 'add' label='Add something' loading=True %}",
+            '''<a href="" title="{label}" class="brick-action action-type-add is-async-action " data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            </a>'''.format(label='Add something',
+                           icon_url=self._get_icon('add', 'brick-action').url,
+                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+                          ),
+            )
+
+    def test_brick_action_confirm(self):
+        self.assertBrickActionHTML(
+            "{% brick_action 'add' label='Add something' confirm=True %}",
+            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
+                <script class="brick-action-data" type="application/json"><!-- {json_data} --></script>
+                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            </a>'''.format(label='Add something',
+                           icon_url=self._get_icon('add', 'brick-action').url,
+                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+                           json_data=json_encode({
+                                            'options': {'confirm': True},
+                                            'data': {},
+                                        }
+                                     ),
+                          )
+            )
+
+        self.assertBrickActionHTML(
+            "{% brick_action 'add' label='Add something' confirm='Are you sure ?' %}",
+            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
+                <script class="brick-action-data" type="application/json"><!-- {json_data} --></script>
+                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            </a>'''.format(label='Add something',
+                           icon_url=self._get_icon('add', 'brick-action').url,
+                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+                           json_data=json_encode({
+                                            'options': {'confirm': 'Are you sure ?'},
+                                            'data': {},
+                                        }
+                                     ),
+                          )
+        )
+
+    def test_brick_action_extra_data(self):
+        self.assertBrickActionHTML(
+            "{% brick_action 'add' label='Add something' confirm=True __name1='value1' __name2=2 %}",
+            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
+                <script class="brick-action-data" type="application/json"><!-- {json_data} --></script>
+                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            </a>'''.format(label='Add something',
+                           icon_url=self._get_icon('add', 'brick-action').url,
+                           icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
+                           json_data=json_encode({
+                                            'options': {'confirm': True},
+                                            'data': {'name1': 'value1', 'name2': 2},
+                                        }
+                                     ),
+                          )
+        )

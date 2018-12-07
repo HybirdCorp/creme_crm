@@ -115,3 +115,7 @@ class SerializerTestCase(CremeTestCase):
     def test_encode_generator(self):
         self.assertEqual('[0,1,2]', json_encode(x for x in range(3)))
         self.assertEqual('[2,4,6]', json_encode(x * 2 for x in [1, 2, 3]))
+
+    def test_encode_none(self):
+        self.assertEqual('null', json_encode(None))
+        self.assertEqual('{"a":null,"b":12}', json_encode({'a': None, 'b': 12}))
