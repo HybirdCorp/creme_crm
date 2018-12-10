@@ -40,8 +40,12 @@ class Number2Str(float):
 
 class CremeJSONEncoder(DjangoJSONEncoder):
     """
-    DjangoJSONEncoder subclass with a better encoding for datetime.
+    DjangoJSONEncoder subclass with a better encoding for datetime,
+    and compact output.
     """
+    item_separator = ','
+    key_separator = ':'
+
     use_utc = True
 
     def __init__(self, use_utc=True, **kwargs):
@@ -99,16 +103,15 @@ class CremeJSONEncoder(DjangoJSONEncoder):
         return super().default(o)
 
 
-def json_encode(value, separators=(',', ':'), cls=CremeJSONEncoder, **kwargs):
+def json_encode(value, cls=CremeJSONEncoder, **kwargs):
     """Encode data to JSON with improved handling of datetime objects
     and a compact output.
 
     @param value: object or generator.
-    @param separators: json format separators (see json.dumps).
     @param cls: json encoder class.
+    @param kwargs: see json.dumps().
     """
     return json_dumps(list(value) if isinstance(value, GeneratorType) else value,
-                      separators=separators,
                       cls=cls,
                       **kwargs
                      )
