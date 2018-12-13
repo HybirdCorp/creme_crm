@@ -40,7 +40,6 @@ class CreatorModelChoiceMixin:
 
         if user:
             model = self.queryset.model
-            app_name = model._meta.app_label
 
             if url:
                 app_name = model._meta.app_label

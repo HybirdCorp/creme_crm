@@ -70,22 +70,22 @@ def _get_modelconf(app_config, model_name):  # TODO: get_modelconf_or_404() ?
 #     return title if title is not None else \
 #            ugettext('New value: {model}').format(model=model._meta.verbose_name)
 
-class AppConfMixin:
+class AppRegistryMixin:
     app_name_url_kwarg = 'app_name'
 
-    def get_app_conf(self):
+    def get_app_registry(self):
         try:
-            app_conf = getattr(self, 'app_conf')
+            app_registry = getattr(self, 'app_registry')
         except AttributeError:
-            self.app_conf = app_conf = _get_appconf(
+            self.app_registry = app_registry = _get_appconf(
                 user=self.request.user,
                 app_name=self.kwargs[self.app_name_url_kwarg],
             )
 
-        return app_conf
+        return app_registry
 
 
-class ModelConfMixin(AppConfMixin):
+class ModelConfMixin(AppRegistryMixin):
     model_name_url_kwarg = 'model_name'
 
     def get_model_conf(self):
@@ -93,7 +93,7 @@ class ModelConfMixin(AppConfMixin):
             mconf = getattr(self, 'model_conf')
         except AttributeError:
             self.model_conf = mconf = \
-                _get_modelconf(app_config=self.get_app_conf(),
+                _get_modelconf(app_config=self.get_app_registry(),
                                model_name=self.kwargs[self.model_name_url_kwarg],
                               )
 
@@ -226,15 +226,15 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
         model_conf = self.get_model_conf()
 
         return [
-            GenericModelBrick(app_name=self.get_app_conf().name,
+            GenericModelBrick(app_name=self.get_app_registry().name,
                               model_name=model_conf.name_in_url,
                               model=model_conf.model,
-                          ),
+                             ),
         ]
 
     def get_bricks_reload_url(self):
         return reverse('creme_config__reload_model_brick',
-                       args=(self.get_app_conf().name,
+                       args=(self.get_app_registry().name,
                              self.get_model_conf().name_in_url,
                             ),
                       )
@@ -244,12 +244,12 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
 
         self.fix_orders()
 
-        app_config = self.get_app_conf()
+        app_registry = self.get_app_registry()
         model_conf = self.get_model_conf()
 
         context['model'] = model_conf.model
-        context['app_name'] = app_config.name
-        context['app_verbose_name'] = app_config.verbose_name
+        context['app_name'] = app_registry.name
+        context['app_verbose_name'] = app_registry.verbose_name
 
         return context
 
@@ -326,24 +326,24 @@ class Reorder(ModelConfMixin, ReorderInstances):
 #                    'bricks_reload_url': reverse('creme_config__reload_app_bricks', args=(app_name,)),
 #                   }
 #                  )
-class AppPortal(AppConfMixin, generic.BricksView):
+class AppPortal(AppRegistryMixin, generic.BricksView):
     template_name = 'creme_config/generics/app-portal.html'
 
     def get_bricks(self):
-        return list(self.get_app_conf().bricks)  # Get config registered bricks
+        return list(self.get_app_registry().bricks)  # Get config registered bricks
 
     def get_bricks_reload_url(self):
         return reverse('creme_config__reload_app_bricks',
-                       args=(self.get_app_conf().name,),
+                       args=(self.get_app_registry().name,),
                       )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        app_config = self.get_app_conf()
-        context['app_name'] = app_config.name
-        context['app_verbose_name'] = app_config.verbose_name
-        context['app_config'] = list(app_config.models())  # list-> have the length in the template
+        app_registry = self.get_app_registry()
+        context['app_name'] = app_registry.name
+        context['app_verbose_name'] = app_registry.verbose_name
+        context['app_config'] = list(app_registry.models())  # list-> have the length in the template
 
         return context
 
@@ -351,10 +351,11 @@ class AppPortal(AppConfMixin, generic.BricksView):
 @login_required
 @jsonify
 def reload_model_brick(request, app_name, model_name):
-    app_config = _get_appconf(request.user, app_name)
-    model      = _get_modelconf(app_config, model_name).model
+    user = request.user
+    app_registry = _get_appconf(user, app_name)
+    model = _get_modelconf(app_registry, model_name).model
 
-    request.user.has_perm_to_admin_or_die(app_name)
+    user.has_perm_to_admin_or_die(app_name)
 
     return bricks_views.bricks_render_info(
         request,
@@ -367,14 +368,14 @@ def reload_model_brick(request, app_name, model_name):
 @jsonify
 def reload_app_bricks(request, app_name):
     brick_ids = bricks_views.get_brick_ids_or_404(request)
-    app_config = _get_appconf(request.user, app_name)
+    app_registry = _get_appconf(request.user, app_name)
     bricks = []
 
     for b_id in brick_ids:
         if b_id == SettingsBrick.id_:
             brick = SettingsBrick()
         else:
-            for registered_brick in app_config.bricks:
+            for registered_brick in app_registry.bricks:
                 if b_id == registered_brick.id_:
                     brick = registered_brick
                     break
