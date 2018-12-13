@@ -18,7 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.transaction import atomic
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 # from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _
 
@@ -72,12 +74,21 @@ def _set_usersetting(request, form_cls):
     user = request.user
 
     if request.method == 'POST':
-        form = form_cls(instance=user, user=user, data=request.POST)
+        with atomic():
+            form = form_cls(
+                instance=get_object_or_404(user.__class__
+                                               ._default_manager
+                                               .select_for_update(),
+                                           pk=user.pk,
+                                          ),
+                user=user,
+                data=request.POST,
+            )
 
-        if form.is_valid():
-            form.save()
+            if form.is_valid():
+                form.save()
 
-            return {}
+                return {}
     else:
         form = form_cls(instance=user, user=user)
 
