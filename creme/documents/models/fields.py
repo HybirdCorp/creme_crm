@@ -19,17 +19,37 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import ForeignKey, ManyToManyField
+from django.db.models import ForeignKey, ManyToManyField, Q
 
 from ..constants import MIMETYPE_PREFIX_IMG
+
+
+def _build_limit_choices_to(extra_limit_choices_to):
+    kwargs = {'mime_type__name__startswith': MIMETYPE_PREFIX_IMG}
+    limit_choices_to = Q(**kwargs)
+
+    if extra_limit_choices_to is not None:
+        if callable(extra_limit_choices_to):
+            raise NotImplementedError('documents.models.fields: callable "limit_choices_to" is not managed yet.')
+
+        if isinstance(extra_limit_choices_to, dict):
+            # XXX: transform to Q VS let a dictionary like the user wanted
+            limit_choices_to = dict(extra_limit_choices_to, **kwargs)
+        else:
+            assert isinstance(extra_limit_choices_to, Q)
+
+            limit_choices_to &= extra_limit_choices_to
+
+    return limit_choices_to
 
 
 class ImageEntityForeignKey(ForeignKey):
     def __init__(self, **kwargs):
         kwargs['to'] = settings.DOCUMENTS_DOCUMENT_MODEL
 
-        limit_choices_to = kwargs.setdefault('limit_choices_to', {})
-        limit_choices_to['mime_type__name__startswith'] = MIMETYPE_PREFIX_IMG
+        # limit_choices_to = kwargs.setdefault('limit_choices_to', {})
+        # limit_choices_to['mime_type__name__startswith'] = MIMETYPE_PREFIX_IMG
+        kwargs['limit_choices_to'] = _build_limit_choices_to(kwargs.get('limit_choices_to'))
 
         # super(ImageEntityForeignKey, self).__init__(**kwargs)
         super().__init__(**kwargs)
@@ -60,8 +80,9 @@ class ImageEntityManyToManyField(ManyToManyField):
     def __init__(self, **kwargs):
         kwargs['to'] = settings.DOCUMENTS_DOCUMENT_MODEL
 
-        limit_choices_to = kwargs.setdefault('limit_choices_to', {})
-        limit_choices_to['mime_type__name__startswith'] = MIMETYPE_PREFIX_IMG
+        # limit_choices_to = kwargs.setdefault('limit_choices_to', {})
+        # limit_choices_to['mime_type__name__startswith'] = MIMETYPE_PREFIX_IMG
+        kwargs['limit_choices_to'] = _build_limit_choices_to(kwargs.get('limit_choices_to'))
 
         # super(ImageEntityManyToManyField, self).__init__(**kwargs)
         super().__init__(**kwargs)
