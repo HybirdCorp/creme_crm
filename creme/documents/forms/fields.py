@@ -22,7 +22,7 @@ from django.db.models.query_utils import Q
 from django.urls import reverse_lazy
 
 from creme.creme_core import forms
-from creme.creme_core.utils.queries import get_q_from_dict
+from creme.creme_core.utils.queries import get_q_from_dict, QSerializer
 
 from .. import get_document_model
 from ..constants import MIMETYPE_PREFIX_IMG
@@ -44,11 +44,13 @@ class ImageFieldMixin:
         basic_q = Q(mime_type__name__startswith=MIMETYPE_PREFIX_IMG)
 
         if q_filter is not None:
-            extra_filter = True
-
             if isinstance(q_filter, dict):
                 q_filter = get_q_from_dict(q_filter)
-            final_q = basic_q & q_filter
+
+            # NB: Q has not method __equal__(), so we compare serialized Q objects.
+            serialize = QSerializer().serialize
+            extra_filter = (serialize(q_filter) != serialize(basic_q))
+            final_q = (basic_q & q_filter) if extra_filter else q_filter
         else:
             final_q = basic_q
 
