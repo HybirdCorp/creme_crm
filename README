@@ -28,41 +28,41 @@ You can find more information on Creme on its official web site: http://cremecrm
 RECOMMENDATIONS:
 It's recommended to use a database engine which supports transactions :
  - PostGreSQL is probably the best choice for data-bases with 100,000+ entities.
- - Sqlite support is principally done for developers, but it remains a solution
+ - SQLite support is principally done for developers, but it remains a solution
    for small data-bases (eg: a use as mono-user app with the server running of your computer).
 
 You probably should use 'virtualenv'.
 
 
 DEPENDENCIES:
-(exact versions are indicated in the file 'creme/requirements.txt')
-    - Core
-        - Python 3.5+
-        - Django 1.11
-        - redis 2.10 (ie: the python library, & so you'll need the related server too, of course)
-        - python-dateutil 2.7
-        - bleach 2.1
-        - Pillow 5
-        - django-formtools 2.1
-        - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
+ - Python 3.5+
+ - MySQL 5.7+ or PostGreSQL 9.5+ (or SQLite which is included with Python)
+ - A web server compatible with Python, like Apache 2.4
+ - Redis 3+
+ - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
+ - These python packages :
+   (exact versions of Python packages are indicated in the file 'creme/requirements.txt')
+     - Mandatory :
+         - Django 1.11
+         - redis 2.10
+         - python-dateutil 2.7
+         - bleach 2.1
+         - Pillow 5
+         - django-formtools 2.1
 
-    - Optional
-        - creme.creme_core:
-            - xlrd (to import contacts and organisations from xls files)
-            - xlwt (to export contacts and organisations as xls files)
+     - Optional :
+         - creme.creme_core:
+             - xlrd (to import contacts and organisations from xls files)
+             - xlwt (to export contacts and organisations as xls files)
 
-        - creme.billing:
-            - pdflatex (if you want PDF export)
+         - creme.billing:
+             - pdflatex (if you want PDF export -- you'll need 'Latex' too)
 
-        - creme.graphs:
-            - pygraphviz (seems unavailable on windows)
+         - creme.graphs:
+             - pygraphviz (seems unavailable on windows -- you'll need 'graphviz' too)
 
-        - creme.crudity:
-            - lcab (if you want Infopath forms exports and your server doesn't run on Windows)
-
-        - creme.activesync (deprecated):
-            - restkit 4.2
-            - pycrypto 2.6
+         - creme.crudity:
+             - lcab (if you want Infopath forms exports and your server doesn't run on Windows)
 
 Installation with 'pip':
     - If you use MySQL, you can use the file 'creme/requirements.txt' to install all the libraries
@@ -146,7 +146,7 @@ To run the development server, you just have to run this command:
     >> python manage.py runserver
 You can then go to http://localhost:8000 & log in with root/root.
 
-For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/1.8/howto/deployment/
+For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/1.11/howto/deployment/
 
 In order to use the job system (eg: sending emails campaign, CSV import...), run the job manager too:
     >> python manage.py creme_job_manager

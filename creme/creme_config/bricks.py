@@ -129,7 +129,7 @@ class SettingsBrick(QuerysetBrick):
 
 class _ConfigAdminBrick(QuerysetBrick):
     page_size    = _PAGE_SIZE
-    permission   = None  # The portals can be viewed by all users => reloading can be done by all uers too.
+    permission   = None  # The portals can be viewed by all users => reloading can be done by all users too.
     configurable = False
 
 
