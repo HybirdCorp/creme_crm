@@ -49,5 +49,5 @@ urlpatterns += swap_manager.add_group(
     Swappable(url(r'^service/add[/]?$',                      service.ServiceCreation.as_view(), name='products__create_service')),
     Swappable(url(r'^service/edit/(?P<service_id>\d+)[/]?$', service.ServiceEdition.as_view(),  name='products__edit_service'), check_args=Swappable.INT_ID),
     Swappable(url(r'^service/(?P<service_id>\d+)[/]?$',      service.ServiceDetail.as_view(),   name='products__view_service'), check_args=Swappable.INT_ID),
-    app_name='persons',
+    app_name='products',
 ).kept_patterns()
