@@ -99,6 +99,7 @@ def sanitize_html(html, allow_external_img=False):
                         styles=ALLOWED_STYLES, strip=True,
                        )
 
+
 JSON_ESCAPES = {
     ord('\\'): '\\u005C',
     ord('>'): '\\u003E',
