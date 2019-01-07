@@ -29,6 +29,7 @@ try:
         dt_from_ISO8601, dt_to_ISO8601, round_hour, to_utc, make_aware_dt)
         # get_dt_to_iso8601_str get_dt_from_iso8601_str get_dt_from_json_str dt_to_json_str get_dt_from_str get_date_from_str
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
+    from creme.creme_core.utils.html import escapejson
     from creme.creme_core.utils.log import log_exceptions
     from creme.creme_core.utils.secure_filename import secure_filename
     from creme.creme_core.utils.url import TemplateURLBuilder
@@ -352,6 +353,13 @@ class MiscTestCase(CremeTestCase):
                                 )
                            ).size
         self.assertEqual((200, 200), size)
+
+    def test_escapejson(self):
+        self.assertEqual(escapejson('&'), '\\u0026')
+        self.assertEqual(escapejson('\\'), '\\u005C')
+        self.assertEqual(escapejson('{"a": 12, "b": "-->alert();<script/>"}'),
+                         '{"a": 12, "b": "--\\u003Ealert();\\u003Cscript/\\u003E"}'
+                        )
 
 
 class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase

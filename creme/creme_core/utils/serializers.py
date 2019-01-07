@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -65,13 +65,25 @@ class CremeJSONEncoder(DjangoJSONEncoder):
             if is_aware(dt_value):
                 dt_value = make_aware(to_utc(dt_value), timezone.utc)
 
-            r = dt_value.isoformat(timespec='milliseconds')[11:]
+            # r = dt_value.isoformat(timespec='milliseconds')[11:] # TODO: uncomment when Py3.6 is required
+            r = dt_value.isoformat()
+            if value.microsecond:
+                r = r[:23] + r[26:]
+            r = r[11:]
         else:
             # HACK : utcoffset is None for an AWARE datetime.time
             if value.tzinfo is not None:
-                r = datetime.combine(datetime.today(), value).isoformat(timespec='milliseconds')[11:]
+                # r = datetime.combine(datetime.today(), value).isoformat(timespec='milliseconds')[11:] # TODO: uncomment when Py3.6 is required
+                r = datetime.combine(datetime.today(), value).isoformat()
+                if value.microsecond:
+                    r = r[:23] + r[26:]
+
+                r = r[11:]
             else:
-                r = value.isoformat(timespec='milliseconds')
+                # r = value.isoformat(timespec='milliseconds') # TODO: uncomment when Py3.6 is required
+                r = value.isoformat()
+                if value.microsecond:
+                    r = r[:12]
 
         if r.endswith('+00:00'):
             r = r[:-6] + 'Z'
@@ -83,7 +95,10 @@ class CremeJSONEncoder(DjangoJSONEncoder):
             if is_aware(value):
                 value = make_aware(to_utc(value), timezone.utc)
 
-            r = value.isoformat(timespec='milliseconds')
+            # r = value.isoformat(timespec='milliseconds') # TODO: uncomment when Py3.6 is required
+            r = value.isoformat()
+            if value.microsecond:
+                r = r[:23] + r[26:]
 
             if r.endswith('+00:00'):
                 r = r[:-6] + 'Z'

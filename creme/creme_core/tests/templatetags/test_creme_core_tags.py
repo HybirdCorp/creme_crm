@@ -369,78 +369,120 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         now = datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=timezone.utc)
 
-        self._assertJsonifyFilter({"a": 12,
-                                   "b": 0.47,
-                                   "c": str(ugettext('User')),
-                                   "d": "2018-01-12",
-                                   "e": "08:12:25.012Z",
-                                   "f": "2018-01-12T08:12:25.012Z",
-                                  },
-                                  {"a": 12,
-                                   "b": Decimal("0.47"),
-                                   "c": ugettext_lazy('User'),
-                                   "d": now.date(),
-                                   "e": now.time().replace(tzinfo=timezone.utc),
-                                   "f": now,
-                                  })
+        self._assertJsonifyFilter(
+            {'a': 12,
+             'b': 0.47,
+             'c': str(ugettext('User')),
+             'd': '2018-01-12',
+             'e': '08:12:25.012Z',
+             'f': '2018-01-12T08:12:25.012Z',
+            },
+            {'a': 12,
+             'b': Decimal('0.47'),
+             'c': ugettext_lazy('User'),
+             'd': now.date(),
+             'e': now.time().replace(tzinfo=timezone.utc),
+             'f': now,
+            }
+        )
 
     def _assertJsonscriptTag(self, expected, data, args=''):
         with self.assertNoException():
-            template = Template("{% load creme_core_tags %}{% jsondata data " + args + " %}")
+            template = Template('{% load creme_core_tags %}{% jsondata data ' + args + ' %}')
             output = template.render(Context({'data': data, 'name': 'script#1'}))
 
-        self.assertEqual(expected, output)
+        # self.assertEqual(expected, output)
+        self.assertHTMLEqual(expected, output)
+        # if expected != output:
+        #     self.fail('{} != {}'.format(expected, output))  # TODO: if self.maxDiff is None ??
 
     def _assertJsonscriptNode(self, expected, data, args=''):
         with self.assertNoException():
-            template = Template("{% load creme_core_tags %}{% blockjsondata " + args + " %}" + data + "{% endblockjsondata %}")
+            template = Template('{% load creme_core_tags %}'
+                                '{% blockjsondata ' + args + ' %}' + data + '{% endblockjsondata %}'
+                               )
             output = template.render(Context({'name': 'script#1'}))
 
-        self.assertEqual(expected, output)
+        # self.assertEqual(expected, output)
+        self.assertHTMLEqual(expected, output)
 
     def test_jsondata_tag(self):
+        # self.maxDiff = None
         self._assertJsonscriptTag('', None)
 
         self._assertJsonscriptTag('<script type="application/json"><!--  --></script>', '')
-        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('-->') + ' --></script>',
-                                  '-->')
-        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('--></script><script') + ' --></script>',
-                                  '--></script><script')
 
-        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('-->&gt;/script&lt;&gt;script') + ' --></script>', '-->&gt;/script&lt;&gt;script')
+        data = '-->'
+        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>', data)
+
+        data = '--></script><script'
+        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>', data)
+
+        data = '-->&gt;/script&lt;&gt;script'
+        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>', data)
+
         self._assertJsonscriptTag('<script type="application/json"><!-- [] --></script>', [])
         self._assertJsonscriptTag('<script type="application/json"><!-- {} --></script>', {})
-        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":"-->alert();<script/>"}') + ' --></script>',
-                                     {"a": 12, "b": "-->alert();<script/>"})
+        # self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":"-->alert();<script/>"}') + ' --></script>',
+        #                           {"a": 12, "b": "-->alert();<script/>"}
+        #                          )  # TODO: uncomment when order is guaranteed (Python 3.7)
+        self._assertJsonscriptTag(
+            r'<script type="application/json"><!-- ' + escapejson('{"b":"-->alert();<script/>"}') + ' --></script>',
+            {'b': '-->alert();<script/>'}
+        )
 
-        self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":0.47,"c":"' + ugettext('User') + '"}') + r' --></script>',
-                                  {"a": 12, "b": Decimal("0.47"), "c": ugettext_lazy('User')})
+        # self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":0.47,"c":"' + ugettext('User') + '"}') + r' --></script>',
+        #                           {"a": 12, "b": Decimal("0.47"), "c": ugettext_lazy('User')}
+        #                          )  # TODO: uncomment when order is guaranteed (Python 3.7)
+        self._assertJsonscriptTag(r'<script type="application/json"><!-- {"a":12} --></script>',
+                                  {'a': 12}
+                                 )
+        self._assertJsonscriptTag(r'<script type="application/json"><!-- {"b":0.47} --></script>',
+                                  {'b': Decimal("0.47")}
+                                 )
+        self._assertJsonscriptTag(
+            r'<script type="application/json"><!-- ' + escapejson('{"c":"%s"}' % ugettext('User')) + r' --></script>',
+            {'c': ugettext_lazy('User')}
+        )
 
-        self._assertJsonscriptTag('<script type="application/json" class="test" name="&lt;script/&gt;"><!--  --></script>',
-                                  '', "class='test' name='<script/>'")
+        self._assertJsonscriptTag(
+            '<script type="application/json" class="test" name="&lt;script/&gt;"><!--  --></script>',
+            '', "class='test' name='<script/>'",
+        )
 
-        self._assertJsonscriptTag('<script type="application/json" class="test" name="script#1"><!--  --></script>',
-                                  '', "class='test' name=name")
+        self._assertJsonscriptTag(
+            '<script type="application/json" class="test" name="script#1"><!--  --></script>',
+            '', "class='test' name=name",
+        )
 
     def test_jsondata_node(self):
+        # self.maxDiff = None
         self._assertJsonscriptNode('<script type="application/json"><!--  --></script>', '')
-        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson('-->') + ' --></script>',
-                                   '-->')
-        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson('--></script><script') + ' --></script>',
-                                   '--></script><script')
 
-        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson('-->&gt;/script&lt;&gt;script') + ' --></script>', '-->&gt;/script&lt;&gt;script')
+        data = '-->'
+        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>', data)
+
+        data = '--></script><script'
+        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>', data)
+
+        data = '-->&gt;/script&lt;&gt;script'
+        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>', data)
+
         self._assertJsonscriptNode('<script type="application/json"><!-- [] --></script>', '[]')
         self._assertJsonscriptNode('<script type="application/json"><!-- {} --></script>', '{}')
-        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":"-->alert();<script/>"}') + ' --></script>',
-                                  '{"a":12,"b":"-->alert();<script/>"}')
 
-        self._assertJsonscriptNode('<script type="application/json" class="test" name="&lt;script/&gt;"><!--  --></script>',
-                                   '', "class='test' name='<script/>'")
+        data = '{"a":12,"b":"-->alert();<script/>"}'
+        self._assertJsonscriptNode(r'<script type="application/json"><!-- ' + escapejson(data) + ' --></script>', data)
 
-        self._assertJsonscriptNode('<script type="application/json" class="test" name="script#1"><!--  --></script>',
-                                   '', "class='test' name=name")
+        self._assertJsonscriptNode(
+            '<script type="application/json" class="test" name="&lt;script/&gt;"><!--  --></script>',
+            '', "class='test' name='<script/>'",
+        )
 
+        self._assertJsonscriptNode(
+            '<script type="application/json" class="test" name="script#1"><!--  --></script>',
+            '', "class='test' name=name",
+        )
 
     def test_optionize_model_iterable_filter(self):
         user = self.login()
