@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -102,15 +102,15 @@ class Command:
 class _BaseJobManagerQueue:
     verbose_name = 'Abstract queue'  # Overload me
     _main_queue = None
-    _manager_error = _(u'The job manager does not respond.\n'
-                       u'Please contact your administrator.'
+    _manager_error = _('The job manager does not respond.\n'
+                       'Please contact your administrator.'
                       )
 
     @classmethod
     def _queue_error(cls, msg):
-        return ugettext(u'There is a connection error with the job manager.\n'
-                        u'Please contact your administrator.\n'
-                        u'[Original error from «{queue}»:\n{message}]').format(
+        return ugettext('There is a connection error with the job manager.\n'
+                        'Please contact your administrator.\n'
+                        '[Original error from «{queue}»:\n{message}]').format(
                             queue=cls.verbose_name,
                             message=msg,
         )
@@ -257,7 +257,7 @@ else:
     # TODO: pub-sub allows to watch the numbers of readers -> use it to (re-)launch the command ?
     # TODO: base class -> children: Redis, AMQP, etc...
     class JobManagerQueue(_BaseJobManagerQueue):
-        verbose_name = _(u'Redis queue')
+        verbose_name = _('Redis queue')
         JOBS_COMMANDS_KEY = 'creme_jobs'
         JOBS_PONG_KEY_PREFIX = 'creme_jobs_pong'
 
@@ -299,8 +299,8 @@ else:
                     cmd = COMMANDS[cmd_type](data)
                 except Exception:
                     logger.warning('Job manager queue: invalid command "%s"\n%s',
-                                result, traceback.format_exc(),
-                               )
+                                   result, traceback.format_exc(),
+                                  )
 
             return cmd
 
@@ -322,7 +322,7 @@ else:
                     if pong_result is not None:
                         break
             except RedisError as e:
-                return self._queue_error(u'{}.{}: {}'.format(
+                return self._queue_error('{}.{}: {}'.format(
                     e.__module__, e.__class__, e
                 ))
 
@@ -497,8 +497,8 @@ class JobManager:
                         reference_run = self._system_jobs_starts.pop(job.id)
                     except KeyError:
                         logger.warning('JobManager.handle_command_end() ->  try to end '
-                                    'the job "%s" which was not started -> command is ignored', repr(job),
-                                    )
+                                       'the job "%s" which was not started -> command is ignored', repr(job),
+                                      )
                     else:
                         if job.enabled:  # Job may have been disabled during its execution
                             # heappush(self._system_jobs, (self._next_wakeup(job, reference_run), job))
@@ -550,11 +550,25 @@ class JobManager:
             return
 
         next_wakeup = self._next_wakeup(job)
+
+        # XXX: this is an UGLY HACK. We have received a REFRESH command, but the
+        #  data which should be used to compute the next wake up could be not
+        #  available because of a transaction (ie: the command has been sent during
+        #  this transaction) ; we force a wake up in a short time & pray that the
+        #  migration is finished.
+        #  TODO: improve this.
+        #    => IDEA: create a transaction marker within the transaction, send
+        #       its ID in the command, & wait for them to be reachable (so we
+        #       are sure the transaction is finished).
+        if job.enabled:
+            secure_wakeup = now() + timedelta(seconds=30)
+            next_wakeup = min(next_wakeup, secure_wakeup)
+
         # heappush(system_jobs, (next_wakeup, job))
         heappush(system_jobs, (next_wakeup, job.id, job))
         logger.warning('JobManager.handle_command_refresh() -> REFRESH job "%s": next wake up at %s',
-                    repr(job), date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
-                   )
+                       repr(job), date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
+                      )
 
     def _handle_command_start(self, cmd):
         job_id = cmd.data_id
@@ -591,11 +605,11 @@ class JobManager:
                 # for dt, job in system_jobs:
                 for dt, __, job in system_jobs:
                     if not job.enabled:
-                        print(u' - {job} (id={job_id}) -> disabled'.format(job=job, job_id=job.id))
+                        print(' - {job} (id={job_id}) -> disabled'.format(job=job, job_id=job.id))
                     elif dt <= now_value:
-                        print(u' - {job} (id={job_id}) -> run immediately'.format(job=job, job_id=job.id))
+                        print(' - {job} (id={job_id}) -> run immediately'.format(job=job, job_id=job.id))
                     else:
-                        print(u' - {job} (id={job_id}) -> next run at {start}'.format(
+                        print(' - {job} (id={job_id}) -> next run at {start}'.format(
                                     job=job, job_id=job.id,
                                     start=date_format(localtime(dt), 'DATETIME_FORMAT'),
                                 )
@@ -606,7 +620,7 @@ class JobManager:
             if users_jobs:
                 print('User jobs:')
                 for job in users_jobs:
-                    print(u' - {job} (id={job_id}; user={user})'.format(job=job, job_id=job.id, user=job.user))
+                    print(' - {job} (id={job_id}; user={user})'.format(job=job, job_id=job.id, user=job.user))
             else:
                 print('No user job at the moment.')
 
