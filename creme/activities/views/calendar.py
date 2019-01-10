@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,7 @@ from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.timezone import now, make_naive, get_current_timezone
 # from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -144,14 +145,14 @@ def user_calendar(request):
 
     for calendar in calendars:
         cal_user = calendar.user
-        filter_key = '{} {} {}'.format(
-                            cal_user.username,
-                            cal_user.first_name,
-                            cal_user.last_name,
-                        )
+        filter_key = escape('{} {} {}'.format(
+                                cal_user.username,
+                                cal_user.first_name,
+                                cal_user.last_name,
+                           ))
         cal_user.filter_key = filter_key
         others_calendars[cal_user].append(calendar)
-        creme_calendars_by_user[filter_key].append({'name': calendar.name,
+        creme_calendars_by_user[filter_key].append({'name': escape(calendar.name),
                                                     'id': calendar.id,
                                                    })
 
