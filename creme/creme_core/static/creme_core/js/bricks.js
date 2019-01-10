@@ -1027,12 +1027,6 @@ creme.bricks.BricksReloader.prototype = {
             }
         };
 
-        bricks.forEach(function(brick) {
-            // TODO: Brick method ?
-            brick._overlay.content('')
-                 .update(true, 'wait', brick._options.overlayDelay);
-        });
-
         return creme.ajax.query(this._url, queryOptions, data)
                          .onStart(function() {
                               bricks.forEach(function(brick) {
