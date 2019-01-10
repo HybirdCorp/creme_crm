@@ -1270,9 +1270,9 @@ class FlowPaginatorTestCase(CremeTestCase):
         key = 'sector'
         qs = FakeContact.objects.order_by(key, 'id')
         self.assertRegex(self._get_sql(qs),
-                         'ORDER BY '
-                         '.creme_core_fakesector.\..order. ASC( NULLS FIRST)?\, '
-                         '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                         r'ORDER BY '
+                         r'.creme_core_fakesector.\..order. ASC( NULLS FIRST)?\, '
+                         r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
                         )
 
         contacts = list(qs)
