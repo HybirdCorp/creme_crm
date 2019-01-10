@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 08-11-2018 pour la version 2.0 de Creme
+:Version: 10-01-2019 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -309,18 +309,44 @@ Il n'y a aucune trace de notre nouvelle app. Mais pas d'inquiétude, nous allons
 y remédier.
 
 
-
 Notre première vue : la vue de liste
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Nous allons à présent créer la vue permettant d'afficher la liste des castors,
 à laquelle on accède par l'URL: '/beavers/beavers'.
 
-Premièrement, jetons un coup d'œil au fichier ``creme/urls.py`` ; on y trouve
-la configuration des chemins de base pour chaque app. Nous remarquons ici que
-pour chaque app présente dans le tuple INSTALLED_CREME_APPS, on récupère le fichier
-``urls.py`` se trouvant dans le répertoire ``nom_de_votre_appli/``.
-Créons donc ce fichiers ``urls.py`` contenu dans ``beaver/`` : ::
+Ajoutons d'abord un nouveau répertoire nommé ``views/`` dans ``beavers/``,
+ainsi que le ``__init__.py`` habituel : ::
+
+    > mkdir views
+    > cd views
+    > touch __init__.py
+
+
+Dans ``views/``, nous créons le fichier ``beaver.py`` tel que : ::
+
+    # -*- coding: utf-8 -*-
+
+    from creme.creme_core.auth.decorators import login_required, permission_required
+    from creme.creme_core.views import generic
+
+    from creme.beavers.models import Beaver
+
+
+    @login_required
+    @permission_required('beavers')
+    def listview(request):
+        return generic.list_view(request, Beaver)
+
+
+On doit maintenant lier cette vue à son URL. Jetons un coup d'œil au fichier
+``creme/urls.py`` ; on y trouve la configuration des chemins de base pour chaque
+app. Nous remarquons ici que pour chaque app présente dans le tuple
+INSTALLED_CREME_APPS, on récupère le fichier ``urls.py`` se trouvant dans le
+répertoire ``nom_de_votre_appli/``.
+
+Nous n'avons donc pas à toucher à ``creme/urls.py`` et nous créons juste le
+fichier ``urls.py`` dans ``beaver/`` : ::
 
     # -*- coding: utf-8 -*-
 
@@ -339,36 +365,6 @@ Notez :
    vue en liste.
  - le '/' final de notre URL qui est optionel (c'est la politique des URLs
    de Creme en général).
-
-Si nous essayons à nouveau d'accéder dans notre navigateur à la liste des
-castors (ou n'importe quelle autre en fait), en la tapant à la main dans la
-barre d'adresse, nous provoquons une erreur 500 : c'est logique puisque nous
-déclarons dans notre ``beavers/urls.py`` avoir un fichier de vue "beaver"
-contenant une fonction ``listview``, ce qui n'est pas (encore) le cas.
-
-Remédions y ; ajoutons d'abord un nouveau répertoire nommé
-``views/`` dans ``beavers/``, ainsi que le ``__init__.py`` habituel : ::
-
-    > mkdir views
-    > cd views
-    > touch __init__.py
-
-
-Dans ``views/``, nous créons alors le fichier ``beaver.py`` : ::
-
-    # -*- coding: utf-8 -*-
-
-    from creme.creme_core.auth.decorators import login_required, permission_required
-    from creme.creme_core.views import generic
-
-    from creme.beavers.models import Beaver
-
-
-    @login_required
-    @permission_required('beavers')
-    def listview(request):
-        return generic.list_view(request, Beaver)
-
 
 Rajoutons enfin la méthode ``get_lv_absolute_url()`` dans notre modèle. Cette
 méthode permettra par exemple de revenir sur la liste des castors lorsqu'on
@@ -392,10 +388,10 @@ supprimera une fiche castor : ::
 **Note** : la méthode ``reverse()``, qui permet de retrouver une URL par le nom
 donné à la fonction ``url()`` utilisée dans notre ``urls.py``.
 
-Et là nous obtenons enfin un résultat intéressant lorsque nous nous rendons sur
-l'URL de liste : on nous demande de créer une vue pour cette liste. Ceci fait,
-on arrive bien sur une liste des castors… vide. Forcément, aucun castor n'a
-encore été créé.
+Nous pouvons maintenant accéder depuis notre navigateur à la liste des castors
+en la tapant à la main dans la barre d'adresse… enfin presque. En effet on nous
+demande de créer une vue pour cette liste. Ceci fait, on arrive bien sur une
+liste des castors… vide. Forcément, aucun castor n'a encore été créé.
 
 
 La vue de création
