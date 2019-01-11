@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db.transaction import atomic
 from django.shortcuts import redirect
@@ -98,36 +98,36 @@ class RecurrentGeneratorWizard(SessionWizardView):
         return {'user': self.request.user}
 
 
-def abstract_edit_rgenerator(request, generator_id, form=generator_forms.RecurrentGeneratorEditForm):
-    warnings.warn('recurrents.views.recurrentgenerator.abstract_edit_rgenerator() is deprecated ; '
-                  'use the class-based view RecurrentGeneratorEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, generator_id, RecurrentGenerator, form)
+# def abstract_edit_rgenerator(request, generator_id, form=generator_forms.RecurrentGeneratorEditForm):
+#     warnings.warn('recurrents.views.recurrentgenerator.abstract_edit_rgenerator() is deprecated ; '
+#                   'use the class-based view RecurrentGeneratorEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, generator_id, RecurrentGenerator, form)
 
 
-def abstract_view_rgenerator(request, generator_id,
-                             template='recurrents/view_generator.html',
-                            ):
-    warnings.warn('recurrents.views.recurrentgenerator.abstract_view_rgenerator() is deprecated ; '
-                  'use the class-based view RecurrentGeneratorDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, generator_id, RecurrentGenerator, template=template)
+# def abstract_view_rgenerator(request, generator_id,
+#                              template='recurrents/view_generator.html',
+#                             ):
+#     warnings.warn('recurrents.views.recurrentgenerator.abstract_view_rgenerator() is deprecated ; '
+#                   'use the class-based view RecurrentGeneratorDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, generator_id, RecurrentGenerator, template=template)
 
 
-@login_required
-@permission_required('recurrents')
-def edit(request, generator_id):
-    warnings.warn('recurrents.views.recurrentgenerator.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_rgenerator(request, generator_id)
+# @login_required
+# @permission_required('recurrents')
+# def edit(request, generator_id):
+#     warnings.warn('recurrents.views.recurrentgenerator.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_rgenerator(request, generator_id)
 
 
-@login_required
-@permission_required('recurrents')
-def detailview(request, generator_id):
-    warnings.warn('recurrents.views.recurrentgenerator.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_rgenerator(request, generator_id)
+# @login_required
+# @permission_required('recurrents')
+# def detailview(request, generator_id):
+#     warnings.warn('recurrents.views.recurrentgenerator.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_rgenerator(request, generator_id)
 
 
 @login_required
