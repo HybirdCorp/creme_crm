@@ -18,20 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging  # warnings
+import logging
 
 from django.db.models import FieldDoesNotExist, IntegerField
 from django.db.models.deletion import ProtectedError
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404  # render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.utils import get_from_POST_or_404
-# from creme.creme_core.utils.db import reorder_instances
 from creme.creme_core.views import bricks as bricks_views, generic
-from creme.creme_core.views.decorators import jsonify  # POST_only
+from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.order import ReorderInstances
 from creme.creme_core.views.utils import json_update_from_widget_response
 
@@ -63,13 +62,6 @@ def _get_modelconf(app_config, model_name):  # TODO: get_modelconf_or_404() ?
     raise Http404('Unknown model')
 
 
-# def _popup_title(model_conf):
-#     model = model_conf.model
-#     title = getattr(model, 'creation_label', None)
-#
-#     return title if title is not None else \
-#            ugettext('New value: {model}').format(model=model._meta.verbose_name)
-
 class AppRegistryMixin:
     app_name_url_kwarg = 'app_name'
 
@@ -100,13 +92,6 @@ class ModelConfMixin(AppRegistryMixin):
         return mconf
 
 
-# @login_required
-# def add_model(request, app_name, model_name):
-#     model_conf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
-#
-#     return generic.add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
-#                                         template='creme_core/generics/form/add_innerpopup.html',
-#                                        )
 class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
     template_name = 'creme_core/generics/form/add-popup.html'
     submit_label = _('Save')
@@ -126,37 +111,6 @@ class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
                super().get_submit_label()
 
 
-# @login_required
-# def add_model_from_widget(request, app_name, model_name):
-#     model_conf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
-#
-#     if request.method == 'GET':
-#         initial = request.GET.dict()
-#         return generic.add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
-#                                             template='creme_core/generics/form/add_innerpopup.html',
-#                                             initial=initial
-#                                            )
-#
-#     form = model_conf.model_form(user=request.user, data=request.POST, files=request.FILES or None)
-#
-#     if not form.is_valid():
-#         return generic.inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
-#                                    {'form':  form,
-#                                     'title': _popup_title(model_conf),
-#                                    },
-#                                    is_valid=form.is_valid(),  # todo: already computed -> variable
-#                                    reload=False,
-#                                    delegate_reload=True,
-#                                   )
-#
-#     form.save()
-#
-#     if callable(getattr(form, 'update_from_widget_response_data', None)):
-#         data = form.update_from_widget_response_data()
-#     else:
-#         data = form.instance
-#
-#     return json_update_from_widget_response(data)
 class FromWidgetCreation(GenericCreation):
     def form_valid(self, form):
         super().form_valid(form=form)
@@ -168,34 +122,6 @@ class FromWidgetCreation(GenericCreation):
         )
 
 
-# @login_required
-# def portal_model(request, app_name, model_name):
-#     app_config = _get_appconf(request.user, app_name)
-#     model      = _get_modelconf(app_config, model_name).model
-#     meta = model._meta
-#
-#     try:
-#         order_field = meta.get_field('order')
-#     except FieldDoesNotExist:
-#         pass
-#     else:
-#         if meta.ordering and meta.ordering[0] == 'order' and isinstance(order_field, IntegerField):
-#             # for order, instance in enumerate(model.objects.order_by('order', 'pk'), start=1):
-#             for order, instance in enumerate(model._default_manager.order_by('order', 'pk'), start=1):
-#                 if order != instance.order:
-#                     logger.warning('Fix an order problem in model %s (%s)', model, instance)
-#                     instance.order = order
-#                     # instance.save()
-#                     instance.save(force_update=True, update_fields=('order',))
-#
-#     return render(request, 'creme_config/generics/model_portal.html',
-#                   {'model':             model,
-#                    'app_name':          app_name,
-#                    'app_verbose_name':  app_config.verbose_name,
-#                    'bricks_reload_url': reverse('creme_config__reload_model_brick', args=(app_name, model_name)),
-#                    'model_brick':       GenericModelBrick(app_name=app_name, model_name=model_name, model=model),
-#                   }
-#                  )
 class ModelPortal(ModelConfMixin, generic.BricksView):
     template_name = 'creme_config/generics/model-portal.html'
 
@@ -276,16 +202,6 @@ def delete_model(request, app_name, model_name):
     return HttpResponse()
 
 
-# @login_required
-# def edit_model(request, app_name, model_name, object_id):
-#     modelconf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
-#
-#     return generic.edit_model_with_popup(request,
-#                                          {'pk': object_id},
-#                                          modelconf.model,
-#                                          modelconf.model_form,
-#                                          template='creme_core/generics/form/edit_innerpopup.html',
-#                                         )
 class GenericEdition(ModelConfMixin, generic.CremeModelEditionPopup):
     template_name = 'creme_core/generics/form/edit-popup.html'
 
@@ -296,36 +212,11 @@ class GenericEdition(ModelConfMixin, generic.CremeModelEditionPopup):
         return self.get_model_conf().model._default_manager.all()
 
 
-# @login_required
-# @POST_only
-# def reorder(request, app_name, model_name, object_id):
-#     new_order = get_from_POST_or_404(request.POST, 'target', int)
-#     model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
-#     instance = get_object_or_404(model, pk=object_id)
-#
-#     try:
-#         reorder_instances(moved_instance=instance, new_order=new_order)
-#     except Exception as e:
-#         return HttpResponse(e, status=409)
-#
-#     return HttpResponse()
 class Reorder(ModelConfMixin, ReorderInstances):
     def get_queryset(self):
         return self.get_model_conf().model._default_manager.all()
 
 
-# @login_required
-# def portal_app(request, app_name):
-#     app_config = _get_appconf(request.user, app_name)
-#
-#     return render(request, 'creme_config/generics/app_portal.html',
-#                   {'app_name':          app_name,
-#                    'app_verbose_name':  app_config.verbose_name,
-#                    'app_config':        list(app_config.models()),  # list-> have the length in the template
-#                    'app_config_bricks': list(app_config.bricks),  # Get config registered bricks
-#                    'bricks_reload_url': reverse('creme_config__reload_app_bricks', args=(app_name,)),
-#                   }
-#                  )
 class AppPortal(AppRegistryMixin, generic.BricksView):
     template_name = 'creme_config/generics/app-portal.html'
 

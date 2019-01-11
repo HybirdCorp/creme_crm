@@ -42,7 +42,7 @@ class HistoryConfigTestCase(CremeTestCase):
         self.assertEqual(set(rtype_ids), {hc_item.relation_type.id for hc_item in hc_items})
 
     def test_add02(self):
-        "No doublons"
+        "No duplicates"
         create_rt = RelationType.create
         rtype01 = create_rt(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
         rtype02 = create_rt(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))[0]

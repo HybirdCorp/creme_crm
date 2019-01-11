@@ -31,7 +31,6 @@ class CustomFieldsTestCase(CremeTestCase):
         url = reverse('creme_config__create_first_ctype_custom_field')
         context = self.assertGET200(url).context
         self.assertEqual(_('New custom field configuration'), context.get('title'))
-        # self.assertEqual(_('Save the configuration'),         context.get('submit_label'))
         self.assertEqual(_('Save the custom field'),          context.get('submit_label'))
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -133,7 +132,6 @@ class CustomFieldsTestCase(CremeTestCase):
 
         url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context

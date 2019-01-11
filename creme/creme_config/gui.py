@@ -11,19 +11,13 @@ from creme.creme_core.gui.menu import ViewableItem, ContainerItem
 # TODO: js widget instead of URL
 class TimezoneItem(ViewableItem):
     def __init__(self, id, icon=None, icon_label=''):
-        # super(TimezoneItem, self).__init__(id=id, icon=icon, icon_label=icon_label)
         super().__init__(id=id, icon=icon, icon_label=icon_label)
 
     def render(self, context, level=0):
-        # return u'<a href="%s">%s%s</a>' % (
-        #             reverse('creme_config__user_settings'),
-        #             self.render_icon(context),
-        #             _(u'Time zone: %s') % context['TIME_ZONE'],
-        #         )
-        return format_html(u'<a href="{url}">{icon}{label}</a>',
+        return format_html('<a href="{url}">{icon}{label}</a>',
                            url=reverse('creme_config__user_settings'),
                            icon=self.render_icon(context),
-                           label=_(u'Time zone: {}').format(context['TIME_ZONE']),
+                           label=_('Time zone: {}').format(context['TIME_ZONE']),
                           )
 
 
@@ -42,5 +36,4 @@ class ConfigContainerItem(ContainerItem):
         return mark_safe("<svg viewBox='0 0 24 24' ><use xlink:href='#creme_config-menu_icon' /></svg>")
 
     def render(self, context, level=0):
-        # return mark_safe(self.SVG_DATA + super(ConfigContainerItem, self).render(context))
         return mark_safe(self.SVG_DATA + super().render(context))

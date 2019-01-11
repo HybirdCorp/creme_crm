@@ -9,19 +9,16 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-    # from creme.creme_core.forms.widgets import Label
-    from creme.creme_core.models import FieldsConfig, FakeContact  # FakeAddress FakeCivility FakeEmailCampaign
+    from creme.creme_core.models import FieldsConfig, FakeContact
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
 class FieldsConfigTestCase(CremeTestCase):
-    # ADD_CTYPE_URL = reverse('creme_config__create_fields_config_legacy')
     WIZARD_URL = reverse('creme_config__create_fields_config')
 
     @classmethod
     def setUpClass(cls):
-        # super(FieldsConfigTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.ct = ContentType.objects.get_for_model(FakeContact)
@@ -30,9 +27,6 @@ class FieldsConfigTestCase(CremeTestCase):
         return reverse('creme_config__edit_fields_config', args=(fconf.pk,))
 
     def _create_fconf(self):
-        # ct = self.ct
-        # self.assertNoFormError(self.client.post(self.ADD_CTYPE_URL, data={'ctype': ct.id}))
-        # return self.get_object_or_fail(FieldsConfig, content_type=ct)
         return FieldsConfig.objects.create(content_type=self.ct, descriptions=())
 
     def _configure_all_models(self):
@@ -60,66 +54,6 @@ class FieldsConfigTestCase(CremeTestCase):
         response = self.assertGET200(reverse('creme_config__fields'))
         self.assertNotContains(response, self.WIZARD_URL)
 
-    # def test_add01(self):
-    #     self.login()
-    #
-    #     ct = self.ct
-    #     self.assertFalse(FieldsConfig.objects.filter(content_type=ct))
-    #
-    #     url = self.ADD_CTYPE_URL
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         ctypes = response.context['form'].fields['ctype'].ctypes
-    #
-    #     self.assertIn(ct, ctypes)
-    #
-    #     self.assertFalse(FieldsConfig.is_model_valid(FakeEmailCampaign))
-    #     self.assertNotIn(ContentType.objects.get_for_model(FakeEmailCampaign), ctypes)
-    #
-    #     fconf = self._create_fconf()
-    #     self.assertEqual([], jsonloads(fconf.raw_descriptions))  # TODO: bof bof
-    #
-    #     # ---------------
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         ctypes = response.context['form'].fields['ctype'].ctypes
-    #
-    #     self.assertNotIn(ct, ctypes)
-
-    # def test_add02(self):
-    #     "Not a CremeEntity : must be registered"
-    #     self.login()
-    #
-    #     get_ct = ContentType.objects.get_for_model
-    #     ct_addr = get_ct(FakeAddress)
-    #     ct_civ  = get_ct(FakeCivility)
-    #     self.assertFalse(FieldsConfig.objects.filter(content_type=ct_addr))
-    #
-    #     url = self.ADD_CTYPE_URL
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         ctypes = response.context['form'].fields['ctype'].ctypes
-    #
-    #     self.assertNotIn(ct_civ, ctypes)
-    #     self.assertIn(ct_addr, ctypes)
-
-    # def test_add03(self):
-    #     "All CTypes are already configured"
-    #     self._configure_all_models()
-    #     self.login()
-    #
-    #     response = self.assertGET200(self.ADD_CTYPE_URL)
-    #
-    #     with self.assertNoException():
-    #         ctype_f = response.context['form'].fields['ctype']
-    #
-    #     self.assertIsInstance(ctype_f.widget, Label)
-    #
-    #     self.assertPOST200(self.ADD_CTYPE_URL)
-
     def test_edit01(self):
         self.login()
 
@@ -134,7 +68,6 @@ class FieldsConfigTestCase(CremeTestCase):
 
         url = self._build_edit_url(fconf)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -222,7 +155,7 @@ class FieldsConfigTestCase(CremeTestCase):
                                     }
                                    )
         self.assertFormError(response, 'form', 'ctype',
-                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                             _('Select a valid choice. That choice is not one of the available choices.')
                             )
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 

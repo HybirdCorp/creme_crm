@@ -8,16 +8,8 @@
     {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}{% trans 'Blocks' %}
 {% endblock %}
 
-{# {% block before_statistics %} #}
 {% block portal_bricks %}
     {% brick_import app='creme_config' name='blocks_dv_locations' as blocks_dv_locations_brick %}
-{% comment %}
-    {% if OLD_MENU %}
-        {% brick_import app='creme_config' name='blocks_portal_locations' as blocks_portal_locations_brick %}
-    {% else %}
-        {% brick_import app='creme_config' name='blocks_home_locations' as blocks_home_locations_brick %}
-    {% endif %}
-{% endcomment %}
     {% brick_import app='creme_config' name='blocks_home_locations' as blocks_home_locations_brick %}
     {% brick_import app='creme_config' name='blocks_default_mypage_locations' as blocks_mypage_locations_brick %}
     {% brick_import app='creme_config' name='relation_blocks_config' as rblocks_config_brick %}
@@ -25,13 +17,6 @@
     {% brick_import app='creme_config' name='custom_blocks_config' as cblocks_config_brick %}
 
     {% brick_display blocks_dv_locations_brick %}
-{% comment %}
-    {% if OLD_MENU %}
-        {% brick_display blocks_portal_locations_brick %}
-    {% else %}
-        {% brick_display blocks_home_locations_brick %}
-    {% endif %}
-{% endcomment %}
     {% brick_display blocks_home_locations_brick %}
     {% brick_display blocks_mypage_locations_brick %}
     {% brick_display rblocks_config_brick %}

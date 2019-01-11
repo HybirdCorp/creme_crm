@@ -22,7 +22,7 @@
 {% block brick_table_rows %}
 {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_custom_brick' as delete_url %}
     {% for ctw in page.object_list %}
-    {% for config_item in ctw.items %} {# {% for config_item in page.object_list %} #}
+    {% for config_item in ctw.items %}
     <tr>
         {% if forloop.first %}<td class="custombrick-config-type" rowspan="{{ctw.items|length}}">{{ctw.ctype}}</td>{% endif %}
         <td {% brick_table_data_status primary %} class="custombrick-config-label">{{config_item.name}}</td>

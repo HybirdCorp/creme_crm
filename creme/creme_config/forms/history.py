@@ -38,7 +38,6 @@ class HistoryConfigForm(CremeForm):
                                              )
 
     def __init__(self, *args, **kwargs):
-        # super(HistoryConfigForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         self.fields['relation_types'].queryset = \

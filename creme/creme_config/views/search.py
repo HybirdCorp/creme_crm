@@ -25,33 +25,19 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import SearchConfigItem
-from creme.creme_core.utils import get_from_POST_or_404  # get_ct_or_404
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from ..forms import search as search_forms
 
 from . import base
-# from .portal import _config_portal
 
 
-# @login_required
-# def portal(request):
-#     return _config_portal(request, 'creme_config/search_portal.html')
 class Portal(BricksView):
     template_name = 'creme_config/search_portal.html'
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def add(request, ct_id):
-#     ctype = get_ct_or_404(ct_id)
-#
-#     return generic.add_model_with_popup(
-#         request, search_forms.SearchAddForm,
-#         title=_('New search configuration for «{model}»').format(model=ctype),
-#         initial={'content_type': ctype},
-#     )
 class SearchConfigCreation(EntityCTypeRelatedMixin,
                            base.ConfigModelCreation,
                           ):
@@ -70,14 +56,6 @@ class SearchConfigCreation(EntityCTypeRelatedMixin,
         )
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def edit(request, search_config_id):
-#     return generic.edit_model_with_popup(
-#         request, query_dict={'pk': search_config_id},
-#         model=SearchConfigItem,
-#         form_class=search_forms.SearchEditForm,
-#     )
 class SearchConfigEdition(base.ConfigModelEdition):
     model = SearchConfigItem
     form_class = search_forms.SearchEditForm

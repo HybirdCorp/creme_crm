@@ -19,14 +19,12 @@
 ################################################################################
 
 from itertools import chain
-# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
 from django.forms import MultipleChoiceField, ChoiceField, ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-# from creme.creme_core.apps import creme_app_configs
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
@@ -42,7 +40,6 @@ from creme.creme_core.utils.unicode_collation import collator
 
 
 __all__ = ('BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm',
-           # 'BlockPortalLocationsAddForm', 'BlockPortalLocationsEditForm',
            'BrickMypageLocationsForm',
            'RTypeBrickAddForm', 'RTypeBrickItemAddCtypeForm', 'RTypeBrickItemEditCtypeForm',
            'CustomBrickConfigItemCreateForm', 'CustomBrickConfigItemEditForm',
@@ -51,27 +48,12 @@ __all__ = ('BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm'
 
 class BrickLocationsField(MultipleChoiceField):
     def __init__(self, required=False, choices=(), widget=OrderedMultipleChoiceWidget, *args, **kwargs):
-        # super(BrickLocationsField, self).__init__(required=required, choices=choices,
         super().__init__(required=required, choices=choices,
                          widget=widget, *args, **kwargs
                         )
 
 
 class _BrickLocationsForm(CremeForm):
-    # def _build_portal_locations_field(self, app_name, field_name, block_locations):
-    #     warnings.warn('creme_config.forms.bricks._BrickLocationsForm._build_portal_locations_field() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     bricks = self.fields[field_name]
-    #     choices = [(brick.id_, unicode(brick.verbose_name))
-    #                     for brick in gui_bricks.brick_registry.get_compatible_portal_blocks(app_name)
-    #               ]
-    #     sort_key = collator.sort_key
-    #     choices.sort(key=lambda c: sort_key(c[1]))
-    #
-    #     bricks.choices = choices
-    #     bricks.initial = [bl.brick_id for bl in block_locations]
-
     def _build_home_locations_field(self, field_name, brick_locations):
         bricks = self.fields[field_name]
         choices = [(brick.id_, str(brick.verbose_name))
@@ -107,7 +89,6 @@ class _BrickLocationsForm(CremeForm):
                 brick_ids = ('',)
 
             for order, brick_id in enumerate(brick_ids, start=1):
-                # location = store_it.next()
                 location = next(store_it)
                 location.brick_id = brick_id
                 location.order = order
@@ -137,15 +118,12 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
              )
 
     def __init__(self, ctype=None, *args, **kwargs):
-        # super(_BrickDetailviewLocationsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self.ct = ct = self.initial['content_type']
         self.ct = ctype
 
         self.role = None
         self.superuser = False
         self.locations = ()
-        # model = ct.model_class() if ct else None
         model = ctype.model_class() if ctype else None
 
         self.choices = choices = [
@@ -172,7 +150,6 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
             del fields['hat']
 
     def clean(self):
-        # cdata = super(_BrickDetailviewLocationsForm, self).clean()
         cdata = super().clean()
         all_brick_ids = set()
 
@@ -225,7 +202,6 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
     blocks = FieldBlockManager(('general', _('Configuration'), ('role', 'hat', 'top', 'left', 'right', 'bottom')))
 
     def __init__(self, *args, **kwargs):
-        # super(BrickDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         fields = self.fields
 
@@ -250,19 +226,13 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
     def save(self, *args, **kwargs):
         self.role      = role = self.cleaned_data['role']
         self.superuser = (role is None)
-        # super(BrickDetailviewLocationsAddForm, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
 
 class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
-    # def __init__(self, *args, **kwargs):
     def __init__(self, role, superuser, *args, **kwargs):
-        # super(BrickDetailviewLocationsEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # initial = self.initial
-        # self.role      = role      = initial['role']
         self.role      = role
-        # self.superuser = superuser = initial['superuser']
         self.superuser = superuser
 
         self.locations = locations = \
@@ -283,72 +253,17 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
             hat_f.initial = selected[0] if selected else hat_f.choices[0][0]
 
 
-# class _BlockPortalLocationsForm(_BrickLocationsForm):
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('creme_config.forms.bricks._BlockPortalLocationsForm is deprecated.', DeprecationWarning)
-#         super(_BlockPortalLocationsForm, self).__init__(*args, **kwargs)
-#
-#     def _save_portal_locations(self, app_name, old_locations=(), block_ids=()):
-#         self._save_locations(BlockPortalLocation,
-#                              lambda: BlockPortalLocation(app_name=app_name),
-#                              {1: block_ids},  # 1 is a "nameless" zone
-#                              old_locations,
-#                             )
-
-
-# class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
-#     app_name = ChoiceField(label=_(u'Related application'), choices=(),
-#                            widget=DynamicSelect(attrs={'autocomplete': True}),
-#                           )
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('creme_config.forms.bricks.BlockPortalLocationsAddForm is deprecated.', DeprecationWarning)
-#         super(BlockPortalLocationsAddForm, self).__init__(*args, **kwargs)
-#
-#         excluded_apps = set(BlockPortalLocation.objects.values_list('app_name', flat=True))
-#         excluded_apps.add('creme_core')
-#         excluded_apps.add('creme_config')
-#
-#         self.fields['app_name'].choices = [(app_config.label, app_config.verbose_name)
-#                                                for app_config in creme_app_configs()
-#                                                    if not app_config.label in excluded_apps
-#                                           ]
-#
-#     def save(self, *args, **kwargs):
-#         self._save_portal_locations(self.cleaned_data['app_name'])
-
-
-# class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
-#     blocks = BrickLocationsField(label=_(u'Blocks to display on the portal'))
-#
-#     def __init__(self, app_name, block_locations, *args, **kwargs):
-#         warnings.warn('creme_config.forms.bricks.BlockPortalLocationsEditForm is deprecated.', DeprecationWarning)
-#         super(BlockPortalLocationsEditForm, self).__init__(*args, **kwargs)
-#         self.app_name = app_name
-#         self.locations = block_locations
-#
-#         self._build_portal_locations_field(app_name=app_name, field_name='blocks',
-#                                            block_locations=block_locations,
-#                                           )
-#
-#     def save(self, *args, **kwargs):
-#         self._save_portal_locations(self.app_name, self.locations, self.cleaned_data['blocks'])
-
-
 class BrickHomeLocationsForm(_BrickLocationsForm):
     bricks = BrickLocationsField(label=_('Blocks to display on the home'))
 
     def __init__(self, *args, **kwargs):
-        # super(BrickHomeLocationsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self.locations = locations = BlockPortalLocation.objects.filter(app_name='creme_core')
         self.locations = locations = BrickHomeLocation.objects.all()
 
         self._build_home_locations_field(field_name='bricks', brick_locations=locations)
 
     def save(self, *args, **kwargs):
         self._save_locations(location_model=BrickHomeLocation,
-                             # location_builder=lambda: BlockPortalLocation(app_name='creme_core'),
                              location_builder=lambda: BrickHomeLocation(),
                              bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
                              old_locations=self.locations,
@@ -356,23 +271,18 @@ class BrickHomeLocationsForm(_BrickLocationsForm):
 
 
 class BrickMypageLocationsForm(_BrickLocationsForm):
-    # blocks = BrickLocationsField(label=_(u'Blocks to display on the "My Page" of the users'))
     bricks = BrickLocationsField(label=_('Blocks to display on the «My Page» of the users'))
 
-    # def __init__(self, owner, *args, **kwargs):
     def __init__(self, owner=None, *args, **kwargs):
-        # super(BrickMypageLocationsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.owner = owner
         self.locations = locations = BrickMypageLocation.objects.filter(user=owner)
 
-        # self._build_home_locations_field(field_name='blocks', brick_locations=locations)
         self._build_home_locations_field(field_name='bricks', brick_locations=locations)
 
     def save(self, *args, **kwargs):
         self._save_locations(BrickMypageLocation,
                              lambda: BrickMypageLocation(user=self.owner),
-                             # {1: self.cleaned_data['blocks']},  # 1 is a "nameless" zone
                              {1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
                              self.locations,
                             )
@@ -387,7 +297,6 @@ class RTypeBrickAddForm(CremeModelForm):
         model = RelationBrickItem
 
     def __init__(self, *args, **kwargs):
-        # super(RTypeBrickAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         existing_type_ids = RelationBrickItem.objects.values_list('relation_type_id', flat=True)
@@ -400,7 +309,6 @@ class RTypeBrickAddForm(CremeModelForm):
                                         'creme_config',
                                         self.cleaned_data['relation_type'].id,
                                     )
-        # return super(RTypeBrickAddForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -414,7 +322,6 @@ class RTypeBrickItemAddCtypeForm(CremeModelForm):
         exclude = ('relation_type',)
 
     def __init__(self, *args, **kwargs):
-        # super(RTypeBrickItemAddCtypeForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         instance = self.instance
         ct_field = self.fields['ctype']
@@ -429,7 +336,6 @@ class RTypeBrickItemAddCtypeForm(CremeModelForm):
     def save(self, *args, **kwargs):
         self.instance.set_cells(self.cleaned_data['ctype'], ())
 
-        # return super(RTypeBrickItemAddCtypeForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -445,7 +351,6 @@ class RTypeBrickItemEditCtypeForm(CremeModelForm):
     }
 
     def __init__(self, ctype, *args, **kwargs):
-        # super(RTypeBrickItemEditCtypeForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ctype = ctype
 
@@ -480,7 +385,6 @@ class RTypeBrickItemEditCtypeForm(CremeModelForm):
     def save(self, *args, **kwargs):
         self.instance.set_cells(self.ctype, self.cleaned_data['cells'])
 
-        # return super(RTypeBrickItemEditCtypeForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -493,7 +397,6 @@ class CustomBrickConfigItemCreateForm(CremeModelForm):
         model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
-        # super(CustomBrickConfigItemCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         # TODO: add an 'exclude' argument in creme_entity_content_types() ??
         get_for_model = ContentType.objects.get_for_model
@@ -508,7 +411,6 @@ class CustomBrickConfigItemCreateForm(CremeModelForm):
         ct = self.cleaned_data['ctype']
         instance.content_type = ct
 
-        # super(CustomBrickConfigItemCreateForm, self).save(commit=False)
         super().save(commit=False)
         generate_string_id_and_save(CustomBrickConfigItem, [instance],
                                     'creme_core-user_customblock_{}-{}'.format(ct.app_label, ct.model)
@@ -526,7 +428,6 @@ class CustomBrickConfigItemEditForm(CremeModelForm):
         model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
-        # super(CustomBrickConfigItemEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         instance = self.instance
@@ -539,5 +440,4 @@ class CustomBrickConfigItemEditForm(CremeModelForm):
     def save(self, *args, **kwargs):
         self.instance.cells = self.cleaned_data['cells']
 
-        # return super(CustomBrickConfigItemEditForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)

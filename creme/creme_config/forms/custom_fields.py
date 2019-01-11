@@ -32,12 +32,12 @@ from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumVal
 
 
 class CustomFieldsBaseForm(CremeModelForm):
-    field_type  = TypedChoiceField(label=_(u'Type of field'), coerce=int,
+    field_type  = TypedChoiceField(label=_('Type of field'), coerce=int,
                                    choices=[(i, klass.verbose_name) for i, klass in _TABLES.items()],
                                   )
-    enum_values = CharField(widget=Textarea(), label=_(u'Available choices'), required=False,
-                            help_text=_(u'Give the possible choices (one per line) '
-                                        u'if you choose the type "Choice list".'
+    enum_values = CharField(widget=Textarea(), label=_('Available choices'), required=False,
+                            help_text=_('Give the possible choices (one per line) '
+                                        'if you choose the type "Choice list".'
                                        ),
                            )
 
@@ -45,13 +45,12 @@ class CustomFieldsBaseForm(CremeModelForm):
         model = CustomField
 
     def clean(self):
-        # cdata = super(CustomFieldsBaseForm, self).clean()
         cdata = super().clean()
 
         if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM) \
            and not cdata['enum_values'].strip():
-            raise ValidationError(ugettext(u'The choices list must not be empty '
-                                           u'if you choose the type "Choice list".'
+            raise ValidationError(ugettext('The choices list must not be empty '
+                                           'if you choose the type "Choice list".'
                                           ),
                                   code='empty_list',
                                  )
@@ -59,7 +58,6 @@ class CustomFieldsBaseForm(CremeModelForm):
         return cdata
 
     def save(self):
-        # instance     = super(CustomFieldsBaseForm, self).save()
         instance = super().save()
         cleaned_data = self.cleaned_data
 
@@ -74,15 +72,14 @@ class CustomFieldsBaseForm(CremeModelForm):
 
 class CustomFieldsCTAddForm(CustomFieldsBaseForm):
     content_type = EntityCTypeChoiceField(
-                        label=_(u'Related resource'),
-                        help_text=_(u'The other custom fields for this type of resource '
-                                    u'will be chosen by editing the configuration'
+                        label=_('Related resource'),
+                        help_text=_('The other custom fields for this type of resource '
+                                    'will be chosen by editing the configuration'
                                    ),
                         widget=DynamicSelect({'autocomplete': True})
                     )
 
     def __init__(self, *args, **kwargs):
-        # super(CustomFieldsCTAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         used_ct_ids = set(CustomField.objects.values_list('content_type_id', flat=True))
@@ -94,24 +91,20 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
     class Meta(CustomFieldsBaseForm.Meta):
         exclude = ('content_type',)
 
-    # def __init__(self, *args, **kwargs):
     def __init__(self, ctype, *args, **kwargs):
-        # super(CustomFieldsAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self.ct = self.initial['ct']
         self.ct = ctype
 
     def clean_name(self):
         name = self.cleaned_data['name']
 
         if CustomField.objects.filter(content_type=self.ct, name=name).exists():
-            raise ValidationError(ugettext(u'There is already a custom field with this name.'))
+            raise ValidationError(ugettext('There is already a custom field with this name.'))
 
         return name
 
     def save(self):
         self.instance.content_type = self.ct
-        # return super(CustomFieldsAddForm, self).save()
         return super().save()
 
 
@@ -121,7 +114,6 @@ class CustomFieldsEditForm(CremeModelForm):
         fields = ('name',)
 
     def __init__(self, *args, **kwargs):
-        # super(CustomFieldsEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         if self.instance.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
@@ -129,12 +121,12 @@ class CustomFieldsEditForm(CremeModelForm):
 
             fields = self.fields
             fields['old_choices'] = ListEditionField(content=[enum.value for enum in self._enum_values],
-                                                     label=ugettext(u'Existing choices of the list'),
-                                                     help_text=ugettext(u'Uncheck the choices you want to delete.'),
+                                                     label=ugettext('Existing choices of the list'),
+                                                     help_text=ugettext('Uncheck the choices you want to delete.'),
                                                     )
             fields['new_choices'] = CharField(widget=Textarea(), required=False,
-                                              label=ugettext(u'New choices of the list'),
-                                              help_text=ugettext(u'Give the new possible choices (one per line).'),
+                                              label=ugettext('New choices of the list'),
+                                              help_text=ugettext('Give the new possible choices (one per line).'),
                                              )
 
     def clean_name(self):
@@ -144,12 +136,11 @@ class CustomFieldsEditForm(CremeModelForm):
         if CustomField.objects.filter(content_type=instance.content_type, name=name)\
                               .exclude(id=instance.id)\
                               .exists():
-            raise ValidationError(ugettext(u'There is already a custom field with this name.'))
+            raise ValidationError(ugettext('There is already a custom field with this name.'))
 
         return name
 
     def save(self):
-        # cfield = super(CustomFieldsEditForm, self).save()
         cfield = super().save()
 
         if cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):

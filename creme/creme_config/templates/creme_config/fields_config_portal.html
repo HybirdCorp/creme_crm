@@ -8,7 +8,6 @@
     {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}{% trans 'Configuration of fields' %}
 {% endblock %}
 
-{# {% block before_statistics %} #}
 {% block portal_bricks %}
     {% brick_import app='creme_config' name='fields_configs' as fields_configs_brick %}
     {% brick_display fields_configs_brick %}

@@ -25,14 +25,12 @@ class SettingTestCase(CremeTestCase):
         setting_key_registry.register(sk)
 
         title = 'May the source be with you'
-        # sv = SettingValue.objects.create(key=sk, user=None, value=title)
         sv = SettingValue(key=sk)
         sv.value = title
         sv.save()
 
         url = self._build_edit_url(sv)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -53,7 +51,6 @@ class SettingTestCase(CremeTestCase):
         setting_key_registry.register(sk)
 
         size = 156
-        # sv = SettingValue.objects.create(key=sk, value=size)
         sv = SettingValue(key=sk)
         sv.value = size
         sv.save()
@@ -70,7 +67,6 @@ class SettingTestCase(CremeTestCase):
                        )
         setting_key_registry.register(sk)
 
-        # sv = SettingValue.objects.create(key=sk, value=True)
         sv = SettingValue(key=sk)
         sv.value = True
         sv.save()
@@ -87,7 +83,6 @@ class SettingTestCase(CremeTestCase):
         setting_key_registry.register(sk)
 
         hour = 11
-        # sv = SettingValue.objects.create(key=sk, value=hour)
         sv = SettingValue(key=sk)
         sv.value = hour
         sv.save()
@@ -120,7 +115,6 @@ class SettingTestCase(CremeTestCase):
         setting_key_registry.register(sk)
 
         email = 'd.knut@eswat.ol'
-        # sv = SettingValue.objects.create(key=sk, value=email)
         sv = SettingValue(key=sk)
         sv.value = email
         sv.save()
@@ -145,11 +139,9 @@ class SettingTestCase(CremeTestCase):
                        )
         setting_key_registry.register(sk)
 
-        # sv = SettingValue.objects.create(key=sk, value=True)
         sv = SettingValue(key=sk)
         sv.value = True
         sv.save()
-        # self.assertGET404(self._build_edit_url(sv))
         self.assertGET409(self._build_edit_url(sv))
 
     def test_edit_hidden02(self):
@@ -161,11 +153,9 @@ class SettingTestCase(CremeTestCase):
                        )
         setting_key_registry.register(sk)
 
-        # sv = SettingValue.objects.create(key=sk, value=False)
         sv = SettingValue(key=sk)
         sv.value = False
         sv.save()
-        # self.assertGET404(self._build_edit_url(sv))
         self.assertGET409(self._build_edit_url(sv))
 
     def test_edit_blank01(self):
@@ -177,7 +167,6 @@ class SettingTestCase(CremeTestCase):
                        )
         setting_key_registry.register(sk)
 
-        # sv = SettingValue.objects.create(key=sk, value='123-456-abc')
         sv = SettingValue(key=sk)
         sv.value = '123-456-abc'
         sv.save()
@@ -197,7 +186,6 @@ class SettingTestCase(CremeTestCase):
                        )
         setting_key_registry.register(sk)
 
-        # sv = SettingValue.objects.create(key=sk, value=12345)
         sv = SettingValue(key=sk)
         sv.value = 12345
         sv.save()

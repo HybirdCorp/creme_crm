@@ -20,7 +20,6 @@
 
 import logging
 import re
-# import warnings
 
 from django.apps import apps
 from django.urls import reverse
@@ -31,9 +30,6 @@ from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.utils.imports import import_apps_sub_modules
-
-# from creme.creme_config.utils import generate_portal_url
-
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +82,6 @@ class AppConfigRegistry:
 
     @property
     def portal_url(self):
-        # return generate_portal_url(self.name)
         return reverse('creme_config__app_portal', args=(self.name,))
 
     def register_model(self, model, model_name_in_url, form_class=None):
@@ -122,9 +117,7 @@ class AppConfigRegistry:
 
 
 class _ConfigRegistry:
-    # def __init__(self, block_registry=brick_registry):
     def __init__(self, brick_registry=brick_registry):
-        # self._brick_registry = block_registry
         self._brick_registry = brick_registry
         self._apps = _apps = {}
         self._user_brick_classes = []

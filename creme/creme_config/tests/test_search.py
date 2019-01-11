@@ -22,7 +22,6 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        # super(SearchConfigTestCase, cls).setUpClass()
         super().setUpClass()
 
         SearchConfigItem.objects.all().delete()  # TODO: backup ?
@@ -167,7 +166,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             role_f = response.context['form'].fields['role']
             choices = role_f.choices
 
-        self.assertEqual(u'*{}*'.format(_(u'Superuser')), role_f.empty_label)
+        self.assertEqual('*{}*'.format(_('Superuser')), role_f.empty_label)
 
         role_ids = {c[0] for c in choices}
         self.assertIn(role2.id, role_ids)
@@ -212,7 +211,6 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = self._build_edit_url(sci)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context

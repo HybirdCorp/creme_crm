@@ -43,12 +43,11 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field.user = user
 
         render_str = field.widget.render('position', None)
-        self.assertIn(_(u'Cannot create'), render_str)
+        self.assertIn(_('Cannot create'), render_str)
 
         field.user = None
-#        self.assertFalse(hasattr(field.widget, 'actions'))
         render_str = field.widget.render('position', None)
-        self.assertNotIn(_(u'Cannot create'), render_str)
+        self.assertNotIn(_('Cannot create'), render_str)
 
     def test_actions_admin(self):
         field = CreatorModelChoiceField(queryset=FakePosition.objects.all())
@@ -64,7 +63,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
         render_str = field.widget.render('position', None)
         self.assertIn(self.ADD_URL, render_str)
-        self.assertIn(_(u'Create'), render_str)
+        self.assertIn(_('Create'), render_str)
 
         field.user = None
         render_str = field.widget.render('position', None)
@@ -73,7 +72,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
     def test_queryset01(self):
         "No action"
         field = CreatorModelChoiceField(queryset=FakePosition.objects.all())
-        positions = [(u'', u'---------')]
+        positions = [('', '---------')]
         positions.extend((p.pk, str(p)) for p in FakePosition.objects.all())
 
         with self.assertNoException():
@@ -86,7 +85,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelChoiceField(queryset=FakePosition.objects.all())
         field.user = self._create_superuser()
 
-        positions = [(u'', u'---------')]
+        positions = [('', '---------')]
         positions.extend((p.pk, str(p)) for p in FakePosition.objects.all())
 
         with self.assertNoException():
@@ -96,7 +95,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
         # ------
         render_str = field.widget.render('position', None)
-        self.assertIn(u'---------', render_str)
+        self.assertIn('---------', render_str)
 
         for p in FakePosition.objects.all():
             self.assertIn(str(p), render_str)
@@ -109,7 +108,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         with self.assertNoException():
             choices = list(field.choices)
 
-        self.assertEqual([(u'', u'---------'),
+        self.assertEqual([('', '---------'),
                           (pk, FakePosition.objects.get(pk=pk).title),
                          ],
                          choices
@@ -123,7 +122,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field.user = self._create_superuser()
 
         render_str = field.widget.render('position', None)
-        self.assertIn(u'---------', render_str)
+        self.assertIn('---------', render_str)
         self.assertIn(first.title, render_str)
         self.assertNotIn(second.title, render_str)
 
@@ -132,9 +131,9 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelChoiceField(queryset=FakePosition.objects.none())
 
         self.assertFalse(hasattr(field.widget, 'actions'))
-        self.assertEqual([(u'', u'---------')], list(field.widget.choices))
+        self.assertEqual([('', '---------')], list(field.widget.choices))
 
-        positions = [(u'', u'---------')]
+        positions = [('', '---------')]
         positions.extend((p.pk, str(p)) for p in FakePosition.objects.all())
 
         field.queryset = FakePosition.objects.all()
@@ -147,7 +146,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelChoiceField(queryset=FakePosition.objects.none())
         field.user = self._create_superuser()
 
-        positions = [(u'', u'---------')]
+        positions = [('', '---------')]
         self.assertEqual(positions, list(field.widget.choices))
 
         field.queryset = FakePosition.objects.all()
@@ -181,7 +180,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
                                          )
         name = 'test'
         expected = \
-u'''<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
+'''<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
         widget="ui-creme-actionbuttonlist">
     <li class="delegate">
         <select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" name="{name}" url=""
@@ -195,7 +194,7 @@ u'''<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonl
                 type="button" popupurl="{create_url}">{create_label}</button>
     </li>
 </ul>'''.format(create_url=self.ADD_URL,
-                create_label=_(u'Create'),
+                create_label=_('Create'),
                 name=name,
                )
 
@@ -211,14 +210,14 @@ u'''<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonl
         name = 'testnoaction'
 
         self.assertHTMLEqual(
-u'''<select name="{name}" disabled>
+'''<select name="{name}" disabled>
     <option value="1" selected>A</option>
     <option value="2">B</option>
 </select>'''.format(name=name),
             widget.render(name, 1, attrs={'disabled': True})
         )
         self.assertHTMLEqual(
-u'''<select name="{name}" disabled readonly>
+'''<select name="{name}" disabled readonly>
     <option value="1" selected>A</option>
     <option value="2">B</option>
 </select>'''.format(name=name),
@@ -236,7 +235,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
 
         self.assertEqual('', field.widget.creation_url)
         self.assertFalse(field.widget.creation_allowed)
-        self.assertEqual(_(u'Create'), str(field.widget.creation_label))
+        self.assertEqual(_('Create'), str(field.widget.creation_label))
 
         field.user = user
 
