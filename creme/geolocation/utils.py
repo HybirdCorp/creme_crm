@@ -130,14 +130,12 @@ def get_setting(key, default=None):
 
 
 def get_radius():
-    # return get_setting(setting_keys.NEIGHBOURHOOD_DISTANCE, default=DEFAULT_SEPARATING_NEIGHBOURS)
     return SettingValue.objects.get_4_key(setting_keys.NEIGHBOURHOOD_DISTANCE,
                                           default=DEFAULT_SEPARATING_NEIGHBOURS,
                                          ).value
 
 
 def get_google_api_key():
-    # return get_setting(setting_keys.GOOGLE_API_KEY) or ''
     return SettingValue.objects.get_4_key(setting_keys.GOOGLE_API_KEY, default='').value or ''
 
 

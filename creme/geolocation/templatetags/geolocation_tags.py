@@ -25,7 +25,6 @@ register = Library()
 
 
 @register.filter
-# def format_distance(value):
 def geolocation_distance(value):
     if value < 1000:
         return ungettext('{distance} meter', '{distance} meters', value).format(distance=value)

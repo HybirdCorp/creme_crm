@@ -42,33 +42,32 @@ class GeoAddress(Model):
     COMPLETE   = 3
 
     STATUS_LABELS = {
-        UNDEFINED: _(u'Not localized'),
-        MANUAL:    _(u'Manual location'),
-        PARTIAL:   _(u'Partially matching location'),
+        UNDEFINED: _('Not localized'),
+        MANUAL:    _('Manual location'),
+        PARTIAL:   _('Partially matching location'),
         COMPLETE:  '',
     }
 
-    address   = OneToOneField(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Address'),
+    address   = OneToOneField(settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Address'),
                               primary_key=True, on_delete=CASCADE,
                              )
-    latitude  = FloatField(verbose_name=_(u'Latitude'), null=True, blank=True)  # min_value=-90, max_value=90
-    longitude = FloatField(verbose_name=_(u'Longitude'), null=True, blank=True)  # min_value=-180, max_value=180
-    draggable = BooleanField(verbose_name=_(u'Is this marker draggable in maps ?'), default=True)
-    geocoded  = BooleanField(verbose_name=_(u'Geocoded from address ?'), default=False)
-    status    = SmallIntegerField(verbose_name=pgettext_lazy('geolocation', u'Status'),
+    latitude  = FloatField(verbose_name=_('Latitude'), null=True, blank=True)  # min_value=-90, max_value=90
+    longitude = FloatField(verbose_name=_('Longitude'), null=True, blank=True)  # min_value=-180, max_value=180
+    draggable = BooleanField(verbose_name=_('Is this marker draggable in maps ?'), default=True)
+    geocoded  = BooleanField(verbose_name=_('Geocoded from address ?'), default=False)
+    status    = SmallIntegerField(verbose_name=pgettext_lazy('geolocation', 'Status'),
                                   choices=STATUS_LABELS.items(), default=UNDEFINED,
                                  )
 
-    creation_label = pgettext_lazy('geolocation-address', u'Create an address')
+    creation_label = pgettext_lazy('geolocation-address', 'Create an address')
 
     class Meta:
         app_label = 'geolocation'
-        verbose_name = pgettext_lazy('geolocation-address', u'Address')
-        verbose_name_plural = pgettext_lazy('geolocation-address', u'Addresses')
+        verbose_name = pgettext_lazy('geolocation-address', 'Address')
+        verbose_name_plural = pgettext_lazy('geolocation-address', 'Addresses')
         ordering = ('address_id',)
 
     def __init__(self, *args, **kwargs):
-        # super(GeoAddress, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._neighbours = {}
 
@@ -162,31 +161,30 @@ class GeoAddress(Model):
                                          longitude__range=(upper_left[1], lower_right[1]))
 
     def __str__(self):
-        return u'GeoAddress(lat={}, lon={}, status={})'.format(self.latitude, self.longitude, self.status)
+        return 'GeoAddress(lat={}, lon={}, status={})'.format(self.latitude, self.longitude, self.status)
 
 
 class Town(Model):
-    name      = CharField(_(u'Name of the town'), max_length=100, blank=False, null=False)
-    slug      = SlugField(_(u'Slugified name of the town'), max_length=100, blank=False, null=False)
-    zipcode   = CharField(_(u'Zip code'), max_length=100, blank=True)
-    country   = CharField(_(u'Country'), max_length=40, blank=True)
-    latitude  = FloatField(verbose_name=_(u'Latitude'))
-    longitude = FloatField(verbose_name=_(u'Longitude'))
+    name      = CharField(_('Name of the town'), max_length=100, blank=False, null=False)
+    slug      = SlugField(_('Slugified name of the town'), max_length=100, blank=False, null=False)
+    zipcode   = CharField(_('Zip code'), max_length=100, blank=True)
+    country   = CharField(_('Country'), max_length=40, blank=True)
+    latitude  = FloatField(verbose_name=_('Latitude'))
+    longitude = FloatField(verbose_name=_('Longitude'))
 
-    creation_label = _(u'Create a town')
+    creation_label = _('Create a town')
 
     class Meta:
         app_label = 'geolocation'
-        verbose_name = _(u'Town')
-        verbose_name_plural = _(u'Towns')
+        verbose_name = _('Town')
+        verbose_name_plural = _('Towns')
         ordering = ('name',)
 
     def __str__(self):
-        return u'{} {} {}'.format(self.zipcode, self.name, self.country)
+        return '{} {} {}'.format(self.zipcode, self.name, self.country)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
-        # super(Town, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
     @classmethod
@@ -207,7 +205,6 @@ class Town(Model):
         towns = list(towns.filter(query_filter))
 
         if len(towns) > 1 and slug:
-            # towns = filter(lambda c: c.slug == slug, towns)[:1]
             return next((t for t in towns if t.slug == slug), None)
 
         return towns[0] if len(towns) == 1 else None
@@ -236,10 +233,6 @@ class Town(Model):
             elif slug:
                 towns = get_city(slug, [])
 
-            # if len(towns) > 1 and slug:
-            #     towns = filter(lambda c: c.slug == slug, towns)[:1]
-            #
-            # yield towns[0] if len(towns) == 1 else None
             if len(towns) > 1 and slug:
                 yield next((t for t in towns if t.slug == slug), None)
             else:

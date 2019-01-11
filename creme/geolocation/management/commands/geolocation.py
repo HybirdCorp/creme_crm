@@ -22,9 +22,6 @@ import csv
 from functools import partial
 import io
 import logging
-# from urlparse import urlparse
-# from urllib2 import urlopen
-# from StringIO import StringIO
 from urllib.parse import urlparse
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -32,10 +29,8 @@ from zipfile import ZipFile
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
-# from django.db.models.query_utils import Q
 from django.template.defaultfilters import slugify
 
-# from creme.creme_core.utils import safe_unicode
 from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.creme_core.utils.collections import OrderedSet
 
@@ -78,28 +73,6 @@ class CSVPopulator:
         self.defaults = defaults or {}
         self.chunksize = chunksize
 
-    # def _open(self, url):
-    #     try:
-    #         url_info = urlparse(url)
-    #
-    #         if url_info.scheme in ('file', ''):
-    #             input = open(url_info.path, 'rb')  # binary mode in order to avoid surprises with windows.
-    #         elif url_info.scheme in ('http', 'https'):
-    #             self.info('Downloading database...')
-    #             input = urlopen(url)
-    #         else:
-    #             raise self.ProtocolError('Unable to open CSV data from {} : unsupported protocol.'.format(url))
-    #
-    #         if url_info.path.endswith('.zip'):
-    #             archive = ZipFile(StringIO(input.read()))
-    #             input = archive.open(archive.namelist()[0])
-    #
-    #         return csv.reader(input)
-    #     except CSVPopulatorError as e:
-    #         raise e
-    #     except Exception as e:
-    #         raise self.ReadError('Unable to open CSV data from {} : {}'.format(url, e))
-
     def _get_source_file(self, url_info):
         if url_info.scheme in {'file', ''}:
             return open(url_info.path, 'rb')
@@ -115,7 +88,6 @@ class CSVPopulator:
         columns = self.columns
         defaults = self.defaults
 
-        # column_keys = frozenset(h.lower() for h in columns)
         column_keys = OrderedSet(h.lower() for h in columns)  # TODO: OrderedFrozenSet
         row_keys = frozenset(k.lower() for k in header)
 
@@ -161,37 +133,6 @@ class CSVPopulator:
     def info(self, message):
         logger.info(message)
 
-    # def populate(self, source):
-    #     if isinstance(source, str):
-    #         reader = self._open(source)
-    #     else:
-    #         reader = iter(source)
-    #
-    #     # mapper = self._mapper(reader.next())
-    #     mapper = self._mapper(next(reader))
-    #     context = self.Context(self.defaults)
-    #
-    #     for rows in iter_as_chunk(reader, self.chunksize):
-    #         entries = []
-    #
-    #         if mapper:
-    #             rows = [mapper(row) for row in rows]
-    #
-    #         try:
-    #             self.pre(rows, context)
-    #
-    #             for row in rows:
-    #                 try:
-    #                     entries.extend(self.create(row, context))
-    #                 except Exception as e:
-    #                     self.line_error(e, row, context)
-    #
-    #                 context.line += 1
-    #
-    #             self.save(entries, context)
-    #             self.post(entries, context)
-    #         except Exception as e:
-    #             self.chunk_error(e, rows, context)
     def populate(self, source):
         if isinstance(source, str):
             try:
@@ -266,7 +207,6 @@ class CSVPopulator:
 
 class CSVTownPopulator(CSVPopulator):
     def __init__(self, defaults=None, chunksize=100):
-        # super(CSVTownPopulator, self).__init__(['title', 'zipcode', 'latitude', 'longitude', 'country'],
         super().__init__(['title', 'zipcode', 'latitude', 'longitude', 'country'],
                          defaults=defaults, chunksize=chunksize,
                         )
@@ -275,19 +215,16 @@ class CSVTownPopulator(CSVPopulator):
         logger.error('    invalid data (line %d) : %s', context.line, e)
 
     def chunk_error(self, e, rows, context):
-#         from creme.creme_core.utils import print_traceback
-#         print_traceback()
         logger.error('    invalid data chunk : %s', e)
 
     def create(self, row, context):
         zipcodes = row['zipcode'].split('-')
-        # name, latitude, longitude = safe_unicode(row['title']), row['latitude'], row['longitude']
+
         name      = row['title']
         latitude  = row['latitude']
         longitude = row['longitude']
 
         slug = slugify(name)
-        # country = safe_unicode(row['country'])
         country = row['country']
 
         build_town = partial(Town, country=country)
@@ -321,16 +258,13 @@ class Command(BaseCommand):
 
     def sysout(self, message, visible):
         if visible:
-            # self.stdout.write(safe_unicode(message))
             self.stdout.write(message)
 
     def syserr(self, message):
-        # self.stderr.write(safe_unicode(message))
         self.stderr.write(message)
 
     def populate_addresses(self, verbosity=0):
         self.sysout('Populate geolocation information of addresses...', verbosity > 0)
-        # GeoAddress.populate_geoaddresses(get_address_model().objects.filter(Q(zipcode__isnull=False) | Q(city__isnull=False)))
         GeoAddress.populate_geoaddresses(get_address_model().objects.exclude(zipcode='', city=''))
 
     def import_town_database(self, url, defaults):

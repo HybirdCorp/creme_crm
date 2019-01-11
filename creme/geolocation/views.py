@@ -20,7 +20,6 @@
 
 from functools import partial
 from itertools import chain
-# import warnings
 
 from django.db.transaction import atomic
 from django.contrib.contenttypes.models import ContentType
@@ -44,8 +43,6 @@ from .utils import address_as_dict, addresses_from_persons, get_radius
 @atomic
 def set_address_info(request):
     get = partial(get_from_POST_or_404, request.POST)
-    # address_id = get('id', int)
-    # address = get_object_or_404(get_address_model(), id=address_id)
     address = get_object_or_404(
         get_address_model().objects.select_for_update(),
         id=get('id', cast=int),

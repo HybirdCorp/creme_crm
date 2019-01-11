@@ -105,7 +105,6 @@ class CSVPopulatorTestCase(CremeTestCase):
         class InvalidLineCSVPopulator(MockCSVPopulator):
             def create(self, row, context):
                 if context.line % 2 > 0:
-                    # return super(InvalidLineCSVPopulator, self).create(row, context)
                     return super().create(row, context)
 
                 raise Exception('invalid line !')
@@ -236,12 +235,6 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
 
     def setUp(self):
         self.command = GeolocationCommand()
-#         self.populator = Populator(verbosity=3, app='geolocation',
-#                                    all_apps=frozenset(('creme_core', 'persons')),
-#                                    options={'verbosity': 3},
-#                                    stdout=None, # TODO: fake stdout ?
-#                                    style=None, #TODO: fake style ?
-#                                   )
 
     def assertTown(self, town, **kwargs):
         self.assertModelInstance(town, Town, **kwargs)
@@ -335,7 +328,6 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
                                          zipcode='01630',
                                          city=u'Péron',
                                          department='01',
-                                         # state=None,
                                          state='',
                                          country='FRANCE',
                                          owner=orga,
