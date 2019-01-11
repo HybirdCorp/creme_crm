@@ -73,11 +73,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(get_contact_model()).id).exists())
         self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=ticket_ct.id).exists())
 
-    # def test_portal(self):
-    #     self.login()
-    #     # self.assertGET200('/tickets/')
-    #     self.assertGET200(reverse('tickets__portal'))
-
     def test_detailview01(self):
         self.login()
 
@@ -151,8 +146,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(ticket.closing_date)
         self.assertFalse(ticket.get_resolving_duration())
 
-        # with self.assertNoException():
-        #     funf = ticket.function_fields.get('get_resolving_duration')
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertIsNotNone(funf)
 
@@ -286,7 +279,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertTrue(ticket.closing_date)
         self.assertTrue(ticket.get_resolving_duration())
-        # self.assertTrue(ticket.function_fields.get('get_resolving_duration')(ticket, user))
         self.assertTrue(function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user))
 
     def test_listview01(self):

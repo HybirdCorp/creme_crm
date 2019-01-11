@@ -33,7 +33,6 @@ class TicketsConfig(CremeAppConfig):
 
         self.Ticket         = get_ticket_model()
         self.TicketTemplate = get_tickettemplate_model()
-        # super(TicketsConfig, self).all_apps_ready()
         super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
@@ -63,19 +62,7 @@ class TicketsConfig(CremeAppConfig):
         import_form_registry.register(self.Ticket)
 
     def register_menu(self, creme_menu):
-        # from django.conf import settings
-
         Ticket = self.Ticket
-
-        # if settings.OLD_MENU:
-        #     from django.urls import reverse_lazy as reverse
-        #     from creme.creme_core.auth import build_creation_perm as cperm
-        #
-        #     reg_item = creme_menu.register_app('tickets', '/tickets/').register_item
-        #     reg_item(reverse('tickets__portal'),        _(u'Portal of tickets'), 'tickets')
-        #     reg_item(reverse('tickets__list_tickets'),  _(u'All tickets'),       'tickets')
-        #     reg_item(reverse('tickets__create_ticket'), Ticket.creation_label,   cperm(Ticket))
-        # else:
         creme_menu.get('features', 'tools') \
                   .add(creme_menu.URLItem.list_view('tickets-tickets', model=Ticket), priority=100)
         creme_menu.get('creation', 'any_forms') \

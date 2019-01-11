@@ -30,5 +30,4 @@ class TicketTemplateForm(CremeEntityForm):
 
 class TicketTemplateRecurrentsForm(TicketTemplateForm):
     def __init__(self, ct, *args, **kwargs):  # 'ct' arg => see RecurrentGeneratorWizard
-        # super(TicketTemplateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)

@@ -19,27 +19,19 @@
 ################################################################################
 
 from django.utils.translation import ugettext_lazy as _
-# from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.gui.button_menu import Button
 
-# from . import get_ticket_model
 from .constants import REL_SUB_LINKED_2_TICKET
 
 
 class Linked2TicketButton(Button):
     id_           = Button.generate_id('tickets', 'linked2ticket')
     verbose_name  = _('Is linked to a ticket')
-    # template_name = 'tickets/templatetags/button_linked.html'
     template_name = 'tickets/buttons/linked.html'
     permission    = 'tickets'
 
     def render(self, context):
         context['rtype_id'] = REL_SUB_LINKED_2_TICKET
-        # context['ticket_ct'] = ContentType.objects.get_for_model(get_ticket_model())
 
-        # return super(Linked2TicketButton, self).render(context)
         return super().render(context)
-
-
-# linked_2_ticket_button = Linked2TicketButton()
