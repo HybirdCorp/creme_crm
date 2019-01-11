@@ -86,7 +86,6 @@ class SectionTree:
             sections_map[section.parent_id].append(section)
 
         lines_map = defaultdict(list)
-        # gen_number = count(1).next
         gen_number = count(1).__next__
         # for line in pform.lines.all(): #TODO: idem
         for line in line_model.objects.filter(**kwargs):
@@ -134,7 +133,6 @@ class SectionTree:
 
 class ReplySectionTree(SectionTree):
     def __init__(self, preply):
-        # super(ReplySectionTree, self).__init__(preply)
         super().__init__(preply)
         PollReplyLine.populate_conditions([node for node in self if not node.is_section])
 

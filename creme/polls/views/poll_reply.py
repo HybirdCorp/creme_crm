@@ -229,17 +229,6 @@ def listview(request):
     return generic.list_view(request, PollReply, hf_pk=DEFAULT_HFILTER_PREPLY)
 
 
-# @login_required
-# @permission_required(('polls', 'persons'))
-# def link_to_person(request, person_id):
-#     return generic.add_to_entity(request, person_id, preply_forms.PersonAddRepliesForm,
-#                                  ugettext('Existing replies for «%s»'),
-#                                  link_perm=True,
-#                                  submit_label=_('Link to the replies'),
-#                                  template='creme_core/generics/blockform/link_popup.html',
-#                                 )
-
-
 # TODO: do this job in template instead ??
 def _format_previous_answered_question(preply_id, line, style):
     if not line.applicable:
@@ -273,7 +262,6 @@ def _format_previous_answered_question(preply_id, line, style):
 @permission_required('polls')
 @atomic
 def edit_line_wizard(request, preply_id, line_id):
-    # preply = get_object_or_404(PollReply, pk=preply_id)
     preply = get_object_or_404(PollReply.objects.select_for_update(), pk=preply_id)
 
     user = request.user
@@ -298,7 +286,6 @@ def edit_line_wizard(request, preply_id, line_id):
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
 
         if form.is_valid():
-            # with atomic():
             form.save()
 
             # Optimize 'next_question_to_answer' & cie
@@ -337,7 +324,6 @@ def edit_line_wizard(request, preply_id, line_id):
 @permission_required('polls')
 @atomic
 def fill(request, preply_id):
-    # preply = get_object_or_404(PollReply, pk=preply_id)
     preply = get_object_or_404(PollReply.objects.select_for_update(), pk=preply_id)
 
     user = request.user
@@ -361,7 +347,6 @@ def fill(request, preply_id):
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
 
         if form.is_valid():
-            # with atomic():
             form.save()
 
             next_line = tree.next_question_to_answer
@@ -415,53 +400,6 @@ def _clear_dependant_answers(tree, line_node):
 
         update_model_instance(dep_line_node, raw_answer=None)
         _clear_dependant_answers(tree, dep_line_node)
-
-
-# # todo: if not line's type.editable ??
-# @login_required
-# @permission_required('polls')
-# def edit_line(request, preply_id, line_id):
-#     # NB: we do not use the generic view edit_related_to_entity(), because it would
-#     #     oblige us to transform PollReplyLine in a True auxiliary model
-#     #     (get_related_entity() method), so the delete view could be called without
-#     #     our consent.
-#     preply = get_object_or_404(PollReply, pk=preply_id)
-#     user = request.user
-#
-#     user.has_perm_to_change_or_die(preply)
-#
-#     tree = ReplySectionTree(preply)
-#
-#     try:
-#         line_node = tree.find_line(int(line_id))
-#     except KeyError as e:
-#         raise Http404('This PollReplyLine id does not correspond to the PollReply instance') from e
-#
-#     if not tree.conditions_are_met(line_node):
-#         raise Http404('This answered can not be edited (conditions are not met)')
-#
-#     if request.method == 'POST':
-#         edit_form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
-#
-#         if edit_form.is_valid():
-#             with atomic():
-#                 edit_form.save()
-#                 _clear_dependant_answers(tree, line_node)
-#                 update_model_instance(preply, is_complete=not bool(tree.next_question_to_answer))
-#     else:  # GET
-#         edit_form = preply_forms.PollReplyFillForm(line_node=line_node, user=user)
-#
-#     return generic.inner_popup(
-#         request, 'creme_core/generics/blockform/edit_popup.html',
-#         {'form':  edit_form,
-#          'title': ugettext('Answer edition'),
-#          # todo: help_text (cleared answers + conditions etc...) ??
-#          'submit_label': _('Save the modification'),
-#         },
-#         is_valid=edit_form.is_valid(),
-#         reload=False,
-#         delegate_reload=True,
-#     )
 
 
 # Class-based views  ----------------------------------------------------------

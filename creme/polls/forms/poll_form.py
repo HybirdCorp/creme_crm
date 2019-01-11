@@ -47,7 +47,6 @@ class PollFormSectionEditForm(CremeModelForm):
         model = PollFormSection
 
     def __init__(self, entity, *args, **kwargs):
-        # super(PollFormSectionEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.pform = entity
 
@@ -62,7 +61,6 @@ class PollFormSectionCreateForm(PollFormSectionEditForm):
         pform = self.pform
         instance.pform = pform
 
-        # parent = self.initial.get('parent')
         parent = self.parent
         instance.parent = parent
 
@@ -86,7 +84,6 @@ class PollFormSectionCreateForm(PollFormSectionEditForm):
             section.order += 1
             section.save()
 
-        # return super(PollFormSectionCreateForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -95,7 +92,6 @@ class _PollFormLineForm(CremeModelForm):
         model = PollFormLine
 
     def __init__(self, entity, *args, **kwargs):
-        # super(_PollFormLineForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.pform = entity
 
@@ -117,11 +113,8 @@ class PollFormLineCreateForm(_PollFormLineForm):
                                        )
                            )
 
-    # def __init__(self, *args, **kwargs):
     def __init__(self, section=None, *args, **kwargs):
-        # super(PollFormLineCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self.section = section = self.initial.get('section')
         self.section = section
         self.section_lines = section_lines = []  # Lines which are in the section where we create our line
         self.next_lines = next_lines = []  # The lines after the one we create (but not in the same section):
@@ -135,7 +128,6 @@ class PollFormLineCreateForm(_PollFormLineForm):
         node_it = reversed(nodes)
         try:
             while True:
-                # node = node_it.next()
                 node = next(node_it)
 
                 if not node.is_section:
@@ -157,7 +149,7 @@ class PollFormLineCreateForm(_PollFormLineForm):
             section_lines.reverse()
 
             choices = [(0, ugettext('Start of section'))]
-            msg_fmt = ugettext('Before: «{question}» (#{number})') #TODO: cached_ugettext ??
+            msg_fmt = ugettext('Before: «{question}» (#{number})')  # TODO: cached_ugettext ??
 
             choices.extend((i, msg_fmt.format(question=node.question, number=node.number))
                                 for i, node in enumerate(section_lines[1:], start=1)
@@ -169,21 +161,21 @@ class PollFormLineCreateForm(_PollFormLineForm):
                                                    )
 
     def clean(self):
-        # cleaned_data = super(PollFormLineCreateForm, self).clean()
         cleaned_data = super().clean()
 
         if not self._errors:
             get_data = cleaned_data.get
-            self.type_args = PollLineType.build_serialized_args(ptype=cleaned_data['type'],
-                                                                lower_bound=get_data('lower_bound'),
-                                                                upper_bound=get_data('upper_bound'),
-                                                                choices=list(enumerate(filter(None,
-                                                                                              (choice.strip() for choice in get_data('choices', '').split('\n'))
-                                                                                             ),
-                                                                                       start=1
-                                                                                      )
-                                                                            ),
-                                                               )  # Can raise Validation errors
+            self.type_args = PollLineType.build_serialized_args(
+                ptype=cleaned_data['type'],
+                lower_bound=get_data('lower_bound'),
+                upper_bound=get_data('upper_bound'),
+                choices=list(enumerate(filter(None,
+                                              (choice.strip() for choice in get_data('choices', '').split('\n'))
+                                             ),
+                                       start=1
+                                      )
+                            ),
+            )  # Can raise Validation errors
 
         return cleaned_data
 
@@ -213,7 +205,6 @@ class PollFormLineCreateForm(_PollFormLineForm):
             line.order += 1
             line.save()
 
-        # return super(PollFormLineCreateForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -229,13 +220,7 @@ class PollFormLineEditForm(_PollFormLineForm):
     }
 
     def __init__(self, *args, **kwargs):
-        # super(PollFormLineEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-
-        # if self.instance.disabled:
-        #     from django.http import Http404
-        #     raise Http404('You can not edit a disabled line.')
-
         self.initial_choices = None
         choices = self.instance.poll_line_type.get_editable_choices()
 
@@ -291,7 +276,6 @@ class PollFormLineEditForm(_PollFormLineForm):
         return old_choices
 
     def clean(self):
-        # cleaned_data = super(PollFormLineEditForm, self).clean()
         cleaned_data = super().clean()
         self.type_args = None
 
@@ -318,7 +302,6 @@ class PollFormLineEditForm(_PollFormLineForm):
         if self.type_args:
             self.instance.type_args = self.type_args
 
-        # return super(PollFormLineEditForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -330,11 +313,8 @@ class PollFormLineConditionsForm(CremeForm):
                                  )
     conditions = PollFormLineConditionsField(label=_('Conditions'), required=False)
 
-    # def __init__(self, entity, *args, **kwargs):
     def __init__(self, entity, line, *args, **kwargs):
-        # super(PollFormLineConditionsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self.line = line = self.initial['line']
         self.line = line
         self.old_conditions = conditions = line.get_conditions()
 
@@ -354,7 +334,6 @@ class PollFormLineConditionsForm(CremeForm):
         conds2del = []
 
         # TODO: select for update ??
-        # for old_condition, condition in map(None, self.old_conditions, cdata['conditions']):
         for old_condition, condition in zip_longest(self.old_conditions, cdata['conditions']):
             if not condition:  # Less new conditions that old conditions => delete conditions in excess
                 conds2del.append(old_condition.id)

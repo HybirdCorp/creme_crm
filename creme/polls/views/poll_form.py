@@ -101,23 +101,6 @@ def listview(request):
     return generic.list_view(request, PollForm, hf_pk=DEFAULT_HFILTER_PFORM)
 
 
-# @login_required
-# @permission_required('polls')
-# def add_line(request, pform_id):
-#     return generic.add_to_entity(request, pform_id,
-#                                  pf_forms.PollFormLineCreateForm,
-#                                 _('New question for «%s»'),
-#                                 entity_class=PollForm,
-#                                 submit_label=PollFormLine.save_label,
-#                                )
-
-# @login_required
-# @permission_required('polls')
-# def edit_line(request, line_id):
-#     return generic.edit_related_to_entity(request, line_id, PollFormLine,
-#                                           pf_forms.PollFormLineEditForm,
-#                                           _('Question for «%s»'),
-#                                          )
 class LineEdition(generic.RelatedToEntityEditionPopup):
     # model = PollFormLine
     queryset = PollFormLine.objects.filter(disabled=False)
@@ -149,41 +132,6 @@ def disable_line(request, line_id):
     return redirect(pform)
 
 
-# @login_required
-# @permission_required('polls')
-# def edit_line_conditions(request, line_id):
-#     line = get_object_or_404(PollFormLine, pk=line_id)
-#
-#     if line.disabled:
-#         raise Http404('You can not add condition to a disabled line.')
-#
-#     return generic.add_to_entity(request, line.pform_id,
-#                                  pf_forms.PollFormLineConditionsForm,
-#                                  _('Condition for «%s»'),
-#                                  entity_class=PollForm,
-#                                  initial={'line': line},
-#                                  submit_label=PollFormLineCondition.save_label,
-#                                 )
-
-
-# @login_required
-# @permission_required('polls')
-# def add_section(request, pform_id):
-#     return generic.add_to_entity(request, pform_id,
-#                                  pf_forms.PollFormSectionCreateForm,
-#                                  _('New section for «%s»'),
-#                                  entity_class=PollForm,
-#                                  submit_label=PollFormSection.save_label,
-#                                 )
-
-
-# @login_required
-# @permission_required('polls')
-# def edit_section(request, section_id):
-#     return generic.edit_related_to_entity(request, section_id, PollFormSection,
-#                                           pf_forms.PollFormSectionEditForm,
-#                                           _('Section for «%s»'),
-#                                          )
 class SectionEdition(generic.RelatedToEntityEditionPopup):
     model = PollFormSection
     form_class = pf_forms.PollFormSectionEditForm
@@ -191,44 +139,7 @@ class SectionEdition(generic.RelatedToEntityEditionPopup):
     pk_url_kwarg = 'section_id'
     title = _('Section for «{entity}»')
 
-# @login_required
-# @permission_required('polls')
-# def add_section_child(request, section_id):
-#     parent_section = get_object_or_404(PollFormSection, pk=section_id)
-#
-#     return generic.add_to_entity(request, parent_section.pform_id,
-#                                  pf_forms.PollFormSectionCreateForm,
-#                                  _('New section for «%s»'),
-#                                  entity_class=PollForm,
-#                                  initial={'parent': parent_section},
-#                                  submit_label=PollFormSection.save_label,
-#                                 )
 
-
-# @login_required
-# @permission_required('polls')
-# def add_line_to_section(request, section_id):
-#     section = get_object_or_404(PollFormSection, pk=section_id)
-#
-#     return generic.add_to_entity(request, section.pform_id,
-#                                  pf_forms.PollFormLineCreateForm,
-#                                  _('New question for «%s»'),
-#                                  entity_class=PollForm,
-#                                  initial={'section': section},
-#                                  submit_label=PollFormLine.save_label,
-#                                 )
-
-
-# @login_required
-# @permission_required('polls')
-# def stats(request, pform_id):
-#     pform = get_object_or_404(PollForm, pk=pform_id)
-#
-#     return render(request, 'polls/stats.html',
-#                   {'nodes': StatsTree(pform),
-#                    'style': NodeStyle(),
-#                   }
-#                  )
 class Statistics(generic.EntityDetail):
     model = PollForm
     pk_url_kwarg = 'pform_id'

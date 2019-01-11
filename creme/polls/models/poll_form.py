@@ -35,18 +35,18 @@ from .poll_type import PollType
 
 
 class AbstractPollForm(CremeEntity):
-    name = CharField(_(u'Name'), max_length=220)
-    type = ForeignKey(PollType, verbose_name=_(u'Type'), null=True, blank=True, on_delete=SET_NULL)
+    name = CharField(_('Name'), max_length=220)
+    type = ForeignKey(PollType, verbose_name=_('Type'), null=True, blank=True, on_delete=SET_NULL)
 
-    creation_label = _(u'Create a form')
-    save_label     = _(u'Save the form of poll')
+    creation_label = _('Create a form')
+    save_label     = _('Save the form of poll')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'polls'
-        verbose_name = _(u'Form of poll')
-        verbose_name_plural = _(u'Forms of poll')
+        verbose_name = _('Form of poll')
+        verbose_name_plural = _('Forms of poll')
         ordering = ('name',)
 
     def __str__(self):
@@ -149,16 +149,16 @@ class PollFormSection(CremeModel):
     pform  = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='sections', on_delete=CASCADE)
     parent = ForeignKey('self', editable=False, null=True, on_delete=CASCADE)  # related_name='children'
     order  = PositiveIntegerField(editable=False, default=1)
-    name   = CharField(_(u'Name'), max_length=250)
-    body   = TextField(_(u'Section body'), blank=True)
+    name   = CharField(_('Name'), max_length=250)
+    body   = TextField(_('Section body'), blank=True)
 
-    creation_label = _(u'Create a section')
-    save_label     = _(u'Save the section')
+    creation_label = _('Create a section')
+    save_label     = _('Save the section')
 
     class Meta:
         app_label = 'polls'
-        verbose_name = _(u'Section')
-        verbose_name_plural = _(u'Sections')
+        verbose_name = _('Section')
+        verbose_name_plural = _('Sections')
         ordering = ('order',)
 
     def __str__(self):
@@ -166,7 +166,7 @@ class PollFormSection(CremeModel):
 
     def __repr__(self):
         from django.utils.encoding import smart_str
-        return smart_str(u'PollFormSection(id={}, name={}, parent={})'.format(
+        return smart_str('PollFormSection(id={}, name={}, parent={})'.format(
                                 self.id, self.name, self.parent_id,
                             )
                         )
@@ -179,9 +179,8 @@ class PollFormSection(CremeModel):
         for node in SectionTree(self.pform):
             if node.is_section and node.id == section_id:
                 if not node.has_line: break
-                raise ProtectedError(ugettext(u'There is at least one question in this section.'), [self])
+                raise ProtectedError(ugettext('There is at least one question in this section.'), [self])
 
-        # super(PollFormSection, self).delete(*args, **kwargs)
         super().delete(*args, **kwargs)
 
     def get_edit_absolute_url(self):
@@ -198,26 +197,26 @@ class PollFormLine(CremeModel, _PollLine):
     disabled     = BooleanField(default=False, editable=False)
 
     # See PollLineType ['choices' is not set here, in order to allow the contribution by other apps]
-    type         = PositiveSmallIntegerField(_(u'Type'))
+    type         = PositiveSmallIntegerField(_('Type'))
     type_args    = TextField(editable=False, null=True)  # TODO: use a JSONField ?
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
-    conds_use_or = NullBooleanField(_(u'Use OR or AND between conditions'), editable=False)
+    conds_use_or = NullBooleanField(_('Use OR or AND between conditions'), editable=False)
 
-    question     = TextField(_(u'Question'))
+    question     = TextField(_('Question'))
 
-    creation_label = _(u'Create a question')
-    save_label     = _(u'Save the question')
+    creation_label = _('Create a question')
+    save_label     = _('Save the question')
 
     class Meta:
         app_label = 'polls'
-        verbose_name = _(u'Question')
-        verbose_name_plural = _(u'Questions')
+        verbose_name = _('Question')
+        verbose_name_plural = _('Questions')
         ordering = ('order',)
 
     def __repr__(self):
         from django.utils.encoding import smart_str
-        return smart_str(u'PollFormLine(section={}, question="{}")'.format(
+        return smart_str('PollFormLine(section={}, question="{}")'.format(
                                 self.section_id, self.question
                             )
                         )
@@ -237,16 +236,15 @@ class PollFormLine(CremeModel, _PollLine):
                                  [self]
                                 )
 
-        # super(PollFormLine, self).delete(*args, **kwargs)
         super().delete(*args, **kwargs)
 
     def disable(self):
         if self.disabled:
-            raise ProtectedError(ugettext(u'This question is already disabled.'), [self])
+            raise ProtectedError(ugettext('This question is already disabled.'), [self])
 
         if PollFormLineCondition.objects.filter(source=self).exists():
-            raise ProtectedError(ugettext(u'There is at least one other question '
-                                          u'which depends on this question.'
+            raise ProtectedError(ugettext('There is at least one other question '
+                                          'which depends on this question.'
                                          ),
                                  [self]
                                 )
@@ -263,7 +261,7 @@ class PollFormLine(CremeModel, _PollLine):
 
     @property
     def verbose_conds_use_or(self):  # TODO: templatetag instead ?
-        return ugettext(u'OR') if self.conds_use_or else ugettext(u'AND')
+        return ugettext('OR') if self.conds_use_or else ugettext('AND')
 
 
 class PollFormLineCondition(CremeModel):
@@ -296,13 +294,13 @@ class PollFormLineCondition(CremeModel):
     operator   = PositiveSmallIntegerField()  # See EQUALS etc...
     raw_answer = TextField(null=True)
 
-    save_label = _(u'Save the condition')
+    save_label = _('Save the condition')
 
     class Meta:
         app_label = 'polls'
 
     def __repr__(self):
-        return u'PollFormLineCondition(source={}, raw_answer="{}")'.format(
+        return 'PollFormLineCondition(source={}, raw_answer="{}")'.format(
                         self.source_id, self.raw_answer
                     )
 

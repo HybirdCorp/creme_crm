@@ -538,11 +538,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self._build_preply_from_pform_url(pform)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New replies for «%s»') % pform, context.get('title'))
         self.assertEqual(_('New replies for «{entity}»').format(entity=pform),
                          context.get('title')
                         )
@@ -570,9 +568,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
         self._get_formline_creator(pform)('What is the difference between a swallow?',
-                                      qtype=PollLineType.STRING,
-                                      disabled=True,  # <=========
-                                     )
+                                          qtype=PollLineType.STRING,
+                                          disabled=True,  # <=========
+                                         )
         self.assertGET404(self._build_preply_from_pform_url(pform))
 
     def test_create_from_pollform04(self):
@@ -708,11 +706,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self._build_linkto_url(person)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Existing replies for «%s»') % person, context.get('title'))
         self.assertEqual(_('Existing replies for «{entity}»').format(entity=person),
                          context.get('title')
                         )
@@ -787,7 +783,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
         SetCredentials.objects.create(
             role=self.role,
-            # value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_ALL,
         )
@@ -800,11 +795,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self._build_preply_from_person_url(person)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New replies for «%s»') % person, context.get('title'))
         self.assertEqual(_('New replies for «{entity}»').format(entity=person),
                          context.get('title')
                         )
@@ -2031,8 +2024,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def _build_rline_for_stat(self, type, answer, choices=None):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
         fline = self._get_formline_creator(pform)('What do you think about swallows?',
-                                           qtype=type, choices=choices,
-                                          )
+                                                  qtype=type, choices=choices,
+                                                 )
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         self._fill(preply, answer)

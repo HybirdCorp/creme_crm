@@ -17,7 +17,6 @@ try:
     from ..core import PollLineType
     from ..bricks import PollFormLinesBrick, PollRepliesBrick
     from ..models import PollType, PollFormSection, PollFormLine, PollFormLineCondition
-    # from ..templatetags.polls_tags import print_node_number, print_node_css, print_line_condition
     from ..templatetags.polls_tags import poll_node_number, poll_node_css, poll_line_condition
     from ..utils import SectionTree, NodeStyle
 except Exception as e:
@@ -29,13 +28,6 @@ get_ct = ContentType.objects.get_for_model
 
 @skipIfCustomPollForm
 class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
-    # _CONDSFIELD_STR   = '[{"source": "%(source)s", "choice": "%(choice)s"}]'
-    # _CONDSFIELD_STR2X = '[{"source": "%(source1)s", "choice": "%(choice1)s"},' \
-    #                     ' {"source": "%(source2)s", "choice": "%(choice2)s"}]'
-
-    # def setUp(self):
-    #     self.login()
-
     @classmethod
     def conds_formfield_entry(cls, source, choice):
         return {'source': source, 'choice': choice}
@@ -233,7 +225,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = reverse('polls__create_form_section', args=(pform.id,))
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New section for «%s»') % pform, context.get('title'))
         self.assertEqual(_('New section for «{entity}»').format(entity=pform),
                          context.get('title')
                         )
@@ -278,11 +269,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = reverse('polls__create_child_form_section', args=(section_2.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New section for «%s»') % pform, context.get('title'))
         self.assertEqual(_('New sub-section for «{section}»').format(section=section_2.name),
                          context.get('title')
                         )
@@ -339,9 +328,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = section.get_edit_absolute_url()
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Section for «%s»') % pform, response.context.get('title'))
         self.assertEqual(_('Section for «{entity}»').format(entity=pform),
                          response.context.get('title')
                         )
@@ -434,7 +421,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url)
 
         context = response.context
-        # self.assertEqual(_('New question for «%s»') % pform, context.get('title'))
         self.assertEqual(_('New question for «{entity}»').format(entity=pform),
                          context.get('title')
                         )
@@ -633,7 +619,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(desc, plt.verbose_name)
         self.assertEqual(desc, plt.description)
 
-        # self.assertItemsEqual(plt.get_choices(), [(0, _('No')), (1, _('Yes'))])
         self.assertCountEqual(plt.get_choices(), [(0, _('No')), (1, _('Yes'))])
         self.assertIsNone(plt.get_editable_choices())
 
@@ -845,11 +830,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self.build_addline2section_url(section)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New question for «%s»') % pform, context.get('title'))
         self.assertEqual(_('New question for section «{section}»').format(section=section.name),
                          context.get('title')
                         )
@@ -1027,11 +1010,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = line.get_edit_absolute_url()
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Question for «%s»') % pform, response.context.get('title'))
         self.assertEqual(_('Question for «{entity}»').format(entity=pform),
                          response.context.get('title')
                         )
@@ -1365,12 +1346,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         # Templatetag
         style = NodeStyle()
         self.assertEqual(['1', 'None', 'I', '2', '1', '3', '4', 'II'],
-                         # [print_node_number(style, node) for node in nodes]
                          [poll_node_number(style, node) for node in nodes]
                         )
-        # self.assertEqual('',                           print_node_css(style, nodes[0]))
-        # self.assertEqual('background-color: #BDD8E4;', print_node_css(style, nodes[2]))
-        # self.assertEqual('background-color: #D8E5EB;', print_node_css(style, nodes[4]))
         self.assertEqual('',                           poll_node_css(style, nodes[0]))
         self.assertEqual('background-color: #BDD8E4;', poll_node_css(style, nodes[2]))
         self.assertEqual('background-color: #D8E5EB;', poll_node_css(style, nodes[4]))
@@ -1671,15 +1648,12 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = self.build_editlineconditions_url(line3)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Condition for «%s»') % self.pform, context.get('title'))
         self.assertEqual(_('Conditions for «{entity}»').format(entity=self.pform),
                          context.get('title')
                         )
-        # self.assertEqual(PollFormLineCondition.save_label,     context.get('submit_label'))
         self.assertEqual(_('Save the conditions'), context.get('submit_label'))
 
         # ---
@@ -1782,7 +1756,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                              operator=PollFormLineCondition.EQUALS,
                                             )
         self.assertGET403(self.build_editlineconditions_url(line3))
-
 
     # TODO: remove conditions --> update conds_use_or ?? (or remove 'None' feature)
 
@@ -2026,7 +1999,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             conditions = line.get_conditions()
         self.assertEqual([], conditions)
 
-        with self.assertNumQueries(1):  #TODO: 0
+        with self.assertNumQueries(1):  # TODO: 0
             conditions = line.get_reversed_conditions()
         self.assertEqual([], conditions)
 

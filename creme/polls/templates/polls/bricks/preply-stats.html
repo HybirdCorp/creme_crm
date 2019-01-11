@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/list.html' %}
-{% load i18n creme_core_tags creme_bricks polls_tags %} {# creme_widgets #}
+{% load i18n creme_core_tags creme_bricks polls_tags %}
 
 {% block brick_extra_class %}{{block.super}} polls-list-brick polls-stats-brick{% endblock %}
 
@@ -15,7 +15,6 @@
             {% if node.is_section %}
             <div class="poll-group">
                 <div class="poll-title" style="padding-left:{{node.deep|mult:1.5}}em;">
-{#                    <div class="poll-title-number"><div style="{% print_node_css style node %}">{% print_node_number style node %}</div></div> #}
                     <div class="poll-title-number"><div style="{% poll_node_css style node %}">{% poll_node_number style node %}</div></div>
                     <div class="poll-title-label">
                         <span>{% print_field object=node field='name' %}</span>
@@ -26,7 +25,6 @@
             {% else %}
             <div class="poll-group">
                 <div class="poll-title" style="padding-left:{{node.deep|mult:1.5}}em;">
-{#                    <div class="poll-title-number">{% if node.number %}<div style="{% print_node_css style node %}">{% print_node_number style node %}</div>{% endif %}</div> #}
                     <div class="poll-title-number">{% if node.number %}<div style="{% poll_node_css style node %}">{% poll_node_number style node %}</div>{% endif %}</div>
                     <div class="poll-title-label">
                         <span>{{node.question}}</span>
