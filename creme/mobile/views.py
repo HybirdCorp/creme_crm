@@ -22,7 +22,7 @@ from copy import copy
 from datetime import datetime, time, timedelta
 from functools import partial, wraps
 import logging
-import warnings
+# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
@@ -35,15 +35,15 @@ from django.utils.encoding import smart_text
 from django.utils.timezone import now, localtime
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth import build_creation_perm as cperm
+from creme.creme_core.auth.decorators import login_required  # permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, Relation, EntityCredentials
 from creme.creme_core.utils import (get_from_GET_or_404, get_from_POST_or_404,
         split_filter)
 from creme.creme_core.utils.dates import make_aware_dt, dt_from_ISO8601
 from creme.creme_core.views.decorators import POST_only, jsonify
-from creme.creme_core.views.generic import add_entity
+# from creme.creme_core.views.generic import add_entity
 from creme.creme_core.views.utils import build_cancel_path
 
 from creme import persons
@@ -210,21 +210,21 @@ def persons_portal(request):
     )
 
 
-def abstract_create_contact(request, form=mobile_forms.MobileContactCreateForm,
-                            template='mobile/add_contact.html',
-                           ):
-    warnings.warn('mobile.views.abstract_create_contact() is deprecated ; '
-                  'use the class-based view MobileContactCreation instead.',
-                  DeprecationWarning
-                 )
-
-    last_name = request.GET.get('last_name')
-
-    return add_entity(request, form,
-                      url_redirect=reverse('mobile__directory'),
-                      template=template,
-                      extra_initial={'last_name': last_name.title()} if last_name else None,
-                     )
+# def abstract_create_contact(request, form=mobile_forms.MobileContactCreateForm,
+#                             template='mobile/add_contact.html',
+#                            ):
+#     warnings.warn('mobile.views.abstract_create_contact() is deprecated ; '
+#                   'use the class-based view MobileContactCreation instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     last_name = request.GET.get('last_name')
+#
+#     return add_entity(request, form,
+#                       url_redirect=reverse('mobile__directory'),
+#                       template=template,
+#                       extra_initial={'last_name': last_name.title()} if last_name else None,
+#                      )
 
 
 class MobileBase:
@@ -247,12 +247,12 @@ class MobilePersonBase(MobileBase):
         return reverse('mobile__directory')
 
 
-@lw_exceptions
-@mobile_login_required
-@permission_required(cperm(Contact))
-def create_contact(request):
-    warnings.warn('mobile.views.create_contact() is deprecated.', DeprecationWarning)
-    return abstract_create_contact(request)
+# @lw_exceptions
+# @mobile_login_required
+# @permission_required(cperm(Contact))
+# def create_contact(request):
+#     warnings.warn('mobile.views.create_contact() is deprecated.', DeprecationWarning)
+#     return abstract_create_contact(request)
 
 
 @method_decorator(lw_exceptions, name='dispatch')
@@ -262,29 +262,29 @@ class MobileContactCreation(MobilePersonBase, persons.views.contact.ContactCreat
     field_to_init = 'last_name'
 
 
-def abstract_create_organisation(request, form=mobile_forms.MobileOrganisationCreateForm,
-                                 template='mobile/add_orga.html',
-                                ):
-    warnings.warn('mobile.views.abstract_create_organisation() is deprecated ; '
-                  'use the class-based view MobileOrganisationCreation instead.',
-                  DeprecationWarning
-                 )
+# def abstract_create_organisation(request, form=mobile_forms.MobileOrganisationCreateForm,
+#                                  template='mobile/add_orga.html',
+#                                 ):
+#     warnings.warn('mobile.views.abstract_create_organisation() is deprecated ; '
+#                   'use the class-based view MobileOrganisationCreation instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     name = request.GET.get('name')
+#
+#     return add_entity(request, form,
+#                       url_redirect=reverse('mobile__directory'),
+#                       template=template,
+#                       extra_initial={'name': name.title()} if name else None,
+#                      )
 
-    name = request.GET.get('name')
 
-    return add_entity(request, form,
-                      url_redirect=reverse('mobile__directory'),
-                      template=template,
-                      extra_initial={'name': name.title()} if name else None,
-                     )
-
-
-@lw_exceptions
-@mobile_login_required
-@permission_required(cperm(Organisation))
-def create_organisation(request):
-    warnings.warn('mobile.views.create_organisation() is deprecated.', DeprecationWarning)
-    return abstract_create_organisation(request)
+# @lw_exceptions
+# @mobile_login_required
+# @permission_required(cperm(Organisation))
+# def create_organisation(request):
+#     warnings.warn('mobile.views.create_organisation() is deprecated.', DeprecationWarning)
+#     return abstract_create_organisation(request)
 
 
 @method_decorator(lw_exceptions, name='dispatch')
