@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import logging
 import warnings
 
 from django.db.models import (PositiveIntegerField, DateTimeField, CharField,
@@ -29,14 +28,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, SettingValue
 
-from ..constants import (NARROW, CREATION_LABELS,  # SETTING_DISPLAY_REVIEW SETTING_AUTO_ORGA_SUBJECTS
+from ..constants import (NARROW, CREATION_LABELS,
         REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
 from ..setting_keys import auto_subjects_key
+
 from .calendar import Calendar
 from .other_models import ActivityType, ActivitySubType, Status
-
-
-# logger = logging.getLogger(__name__)
 
 
 class AbstractActivity(CremeEntity):
@@ -221,24 +218,6 @@ END:VEVENT
 
     # TODO: move to utils ?
     def is_auto_orga_subject_enabled(self):
-        # CACHE_NAME = '_auto_orga_subject_cache'
-        # enabled = getattr(self, CACHE_NAME, None)
-        #
-        # if enabled is None:
-        #     try:
-        #         sv = SettingValue.objects.get(key_id=SETTING_AUTO_ORGA_SUBJECTS)
-        #     except SettingValue.DoesNotExist:
-        #         logger.critical('SettingValue with key=%s cannot be found !'
-        #                         ' ("creme_populate" command has not been run correctly)',
-        #                         SETTING_AUTO_ORGA_SUBJECTS
-        #                        )
-        #         enabled = False
-        #     else:
-        #         enabled = sv.value
-        #
-        #     setattr(self, CACHE_NAME, enabled)
-        #
-        # return enabled
         return SettingValue.objects.get_4_key(auto_subjects_key, default=False).value
 
     @staticmethod
@@ -252,7 +231,6 @@ END:VEVENT
         return SettingValue.objects.get(key_id=SETTING_DISPLAY_REVIEW).value
 
     def _copy_relations(self, source):
-        # super(AbstractActivity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
         super()._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
 
     def _pre_delete(self):

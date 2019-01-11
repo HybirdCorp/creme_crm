@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, date, time  # timedelta
+    from datetime import datetime, date, time
     from functools import partial
 
     from django.apps import apps
@@ -11,7 +11,6 @@ try:
     from django.urls import reverse
     from django.utils.encoding import force_text
     from django.utils.formats import date_format
-    # from django.utils.html import escape
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
 
@@ -92,11 +91,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                        end=create_dt(year=2013,   month=4, day=day, hour=18, minute=0),
                                       )
 
-    # def _relation_field_value(self, *entities):
-    #     return '[{}]'.format(','.join('{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
-    #                                 for entity in entities
-    #                             ))
-
     def test_populate(self):
         rtypes_pks = [constants.REL_SUB_LINKED_2_ACTIVITY,
                       constants.REL_SUB_ACTIVITY_SUBJECT,
@@ -155,10 +149,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
         self.assertIs(sv.value, True)
-
-    # def test_portal(self):
-    #     self.login()
-    #     self.assertGET200(reverse('activities__portal'))
 
     def test_get_subtypes(self):
         self.login()
@@ -251,7 +241,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         "Credentials errors"
         user = self.login(is_superuser=False)
         self._build_nolink_setcreds()
-        # self.role.creatable_ctypes = [ContentType.objects.get_for_model(Activity)]
         self.role.creatable_ctypes.set([ContentType.objects.get_for_model(Activity)])
 
         other_user = self.other_user
@@ -285,7 +274,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'my_participation',
-                             _(u'You are not allowed to link this entity: {}').format(mireille)
+                             _('You are not allowed to link this entity: {}').format(mireille)
                             )
 
         fmt = _('Some entities are not linkable: {}').format
@@ -1527,45 +1516,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(ACTIVITYTYPE_INDISPO, activity2.type_id)
         self.assertEqual(subtype,              activity2.sub_type)
 
-    # def test_bulk_edit_type_legacy(self):
-    #     user = self.login()
-    #
-    #     create_dt = self.create_datetime
-    #     create_activity = partial(Activity.objects.create, user=user)
-    #     activity1 = create_activity(title='act01',
-    #                                 start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
-    #                                 end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-    #                                 type_id=constants.ACTIVITYTYPE_INDISPO,
-    #                                )
-    #     activity2 = create_activity(title='act02',
-    #                                 start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
-    #                                 end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
-    #                                 type_id=constants.ACTIVITYTYPE_PHONECALL,
-    #                                 sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-    #                                )
-    #
-    #     url = self.build_bulkedit_url([activity1, activity2], 'type')
-    #     response = self.assertGET200(url)
-    #     self.assertContains(response,
-    #                         escape(ungettext('The type of %s activity cannot be changed because it is an indisponibility.',
-    #                                          'The type of %s activities cannot be changed because they are indisponibilities.',
-    #                                          1
-    #                                         ) % 1
-    #                               )
-    #                        )
-    #
-    #     self.assertNoFormError(self.client.post(
-    #                                 url,
-    #                                 data={'field_value': self._acttype_field_value(
-    #                                                               constants.ACTIVITYTYPE_MEETING,
-    #                                                               constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-    #                                                             ),
-    #                                      }
-    #                                )
-    #                           )
-    #     self.assertEqual(constants.ACTIVITYTYPE_MEETING, self.refresh(activity2).type_id)
-    #     self.assertEqual(constants.ACTIVITYTYPE_INDISPO, self.refresh(activity1).type_id)  # No change
-
     def _check_activity_collisions(self, activity_start, activity_end, participants,
                                    busy=True, exclude_activity_id=None,
                                   ):
@@ -1823,11 +1773,9 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         url = self._buid_add_participants_url(activity)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Adding participants to activity «%s»') % activity, context.get('title'))
         self.assertEqual(_('Adding participants to activity «{entity}»').format(entity=activity),
                          context.get('title')
                         )
@@ -2029,30 +1977,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertRelationCount(1, dojo, constants.REL_SUB_ACTIVITY_SUBJECT, activity)
 
-    # @skipIfCustomContact
-    # @skipIfCustomOrganisation
-    # def test_participants09(self):
-    #     "Auto-subject + duplicated Relations"
-    #     user = self.login()
-    #     activity = self._create_meeting()
-    #
-    #     akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
-    #     dojo = Organisation.objects.create(user=user, name='Tendo Dojo')
-    #
-    #     create_rel = partial(Relation.objects.create, user=user)
-    #     create_rel(subject_entity=akane, type_id=REL_SUB_EMPLOYED_BY, object_entity=dojo)
-    #
-    #     for i_ in range(2):
-    #         create_rel(subject_entity=dojo, type_id=constants.REL_SUB_ACTIVITY_SUBJECT, object_entity=activity)
-    #
-    #     self.assertNoFormError(
-    #         self.client.post(self._buid_add_participants_url(activity),
-    #                          data={'participants': self.formfield_value_multi_creator_entity(akane)},
-    #                         )
-    #     )
-    #
-    #     self.assertRelationCount(2, dojo, constants.REL_SUB_ACTIVITY_SUBJECT, activity)
-
     @skipIfCustomOrganisation
     def test_add_subjects01(self):
         user = self.login()
@@ -2062,11 +1986,9 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         url = self._buid_add_subjects_url(activity)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Adding subjects to activity «%s»') % activity, context.get('title'))
         self.assertEqual(_('Adding subjects to activity «{entity}»').format(entity=activity),
                          context.get('title')
                         )
@@ -2292,11 +2214,9 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         url = self.ADD_POPUP_URL
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'activities/add_popup_activity_form.html')
         self.assertTemplateUsed(response, 'activities/forms/add-activity-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New activity'),   context.get('title'))
         self.assertEqual(Activity.creation_label, context.get('title'))
         self.assertEqual(Activity.save_label,     context.get('submit_label'))
 
@@ -2457,49 +2377,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         "Creation perm is needed"
         self.login(is_superuser=False)  #creatable_models=[Activity]
         self.assertGET403(self.ADD_POPUP_URL)
-
-    # def test_dl_ical_legacy(self):
-    #     user = self.login()
-    #
-    #     create_act = partial(Activity.objects.create, user=user,
-    #                          type_id=constants.ACTIVITYTYPE_TASK, busy=True,
-    #                         )
-    #     create_dt = self.create_datetime
-    #     act1 = create_act(title='Act#1',
-    #                       start=create_dt(year=2013, month=4, day=1, hour=9),
-    #                       end=create_dt(year=2013,   month=4, day=1, hour=10),
-    #                      )
-    #     act2 = create_act(title='Act#2',
-    #                       start=create_dt(year=2013, month=4, day=2, hour=9),
-    #                       end=create_dt(year=2013,   month=4, day=2, hour=10),
-    #                      )
-    #
-    #     response = self.assertGET200(reverse('activities__dl_ical',
-    #                                          args=('%s,%s' % (act1.id, act2.id),)
-    #                                         )
-    #                                 )
-    #     self.assertEqual('text/calendar', response['Content-Type'])
-    #     self.assertEqual('attachment; filename=Calendar.ics',
-    #                      response['Content-Disposition']
-    #                     )
-    #
-    #     content = force_unicode(response.content)
-    #     self.assertTrue(content.startswith('BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CremeCRM//CremeCRM//EN\n'
-    #                                        'BEGIN:VEVENT\n'
-    #                                        'UID:http://cremecrm.com\n'
-    #                                       )
-    #                    )
-    #     self.assertIn('SUMMARY:Act#2\n'
-    #                   'DTSTART:20130402T090000Z\n'
-    #                   'DTEND:20130402T100000Z\n'
-    #                   'LOCATION:\n'
-    #                   'CATEGORIES:%s\n'
-    #                   'STATUS:\n'
-    #                   'END:VEVENT\n' %  act2.type.name,
-    #                   content
-    #                  )
-    #     self.assertIn('SUMMARY:Act#1\n', content)
-    #     self.assertTrue(content.endswith('END:VCALENDAR'))
 
     def test_dl_ical(self):
         user = self.login()

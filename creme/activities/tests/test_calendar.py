@@ -3,7 +3,7 @@
 try:
     from datetime import timedelta, date
     from functools import partial
-    from json import dumps as jsondumps # loads as jsonloads
+    from json import dumps as jsondumps
 
     from django.core.exceptions import ValidationError
     from django.urls import reverse
@@ -44,15 +44,12 @@ class CalendarTestCase(_ActivitiesTestCase):
         return reverse('activities__link_calendar', args=(activity_id,))
 
     def _get_cal_activities(self, calendars, start=None, end=None, status=200):
-        # data = {}
         data = {'calendar_id': [str(c.id) for c in calendars]}
         if start: data['start'] = start
         if end:   data['end'] = end
 
         return self.assertGET(status,
-                              reverse('activities__calendars_activities',
-                                      # args=(','.join(str(c.id) for c in calendars),)
-                                     ),
+                              reverse('activities__calendars_activities'),
                               data=data,
                              )
 
@@ -62,7 +59,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         with self.assertNumQueries(3):
             def_cal = Calendar.get_user_default_calendar(user)
 
-        self.assertEqual(_(u"{user}'s calendar").format(user=user),
+        self.assertEqual(_("{user}'s calendar").format(user=user),
                          def_cal.name,
                         )
 
@@ -211,7 +208,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual({str(cal1.id), str(cal2.id)}, set(cal_ids))
         self.assertEqual({act1, act2, act4}, set(floating_acts))
         self.assertEqual({cal1}, set(my_cals))
-        # self.assertEqual(reverse('activities__calendars_activities', args=('',)), event_url)
         self.assertEqual(reverse('activities__calendars_activities'), event_url)
         self.assertEqual({other_user: [cal2]}, others_calendars)
         self.assertEqual(1, n_others_calendars)
@@ -310,7 +306,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = Calendar.get_user_default_calendar(user)
         url = reverse('activities__edit_calendar', args=(cal.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(_('Edit «{object}»').format(object=cal), response.context.get('title'))
 
@@ -432,9 +427,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         url = self.build_link_url(act.id)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Change calendar of «%s»') % act,
         self.assertEqual(_('Change calendar of «{object}»').format(object=act),
                          response.context.get('title')
                         )
@@ -449,7 +442,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @skipIfCustomActivity
     def test_change_activity_calendar02(self):
-        "Multiple calendars => error (waiting the rigth solution)"
+        "Multiple calendars => error (waiting the right solution)"
         user = self.login()
         default_calendar = Calendar.get_user_default_calendar(user)
 
@@ -458,7 +451,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal2 = create_cal(name='Cal #2')
 
         act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
-        # act.calendars = (default_calendar, cal1)
         act.calendars.set([default_calendar, cal1])
 
         url = self.build_link_url(act.id)
@@ -551,10 +543,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                                             end=end.strftime('%s'),
                                            )
 
-        # with self.assertNoException():
-        #     data = jsonloads(response.content)
         data = response.json()
-
         self.assertEqual(4, len(data))
 
         def formatted_dt(dt):
@@ -585,7 +574,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'calendar_color': '#{}'.format(cal.color),
                           'url':            build_popup_url(act1),
                           'editable':       True,
-                          'type':           _(u'Task'),
+                          'type':           _('Task'),
                          },
                          data[1]
                         )
@@ -598,7 +587,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'calendar_color': '#{}'.format(cal.color),
                           'url':            build_popup_url(act0),
                           'editable':       True,
-                          'type':           _(u'Task'),
+                          'type':           _('Task'),
                          },
                          data[2]
                         )
@@ -626,10 +615,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         act3 = create(title='Act#3', start=start + timedelta(days=32), end=start + timedelta(days=33))  # Start KO
         act4 = create(title='Act#4', start=start + timedelta(days=29), end=start + timedelta(days=30))
 
-        # act1.calendars = [cal1]
-        # act2.calendars = [cal2]
-        # act3.calendars = [cal3]
-        # act4.calendars = [cal3]
         act1.calendars.set([cal1])
         act2.calendars.set([cal2])
         act3.calendars.set([cal3])
@@ -649,8 +634,6 @@ class CalendarTestCase(_ActivitiesTestCase):
                                             start=start.strftime('%s'),
                                            )
 
-        # with self.assertNoException():
-        #     data = jsonloads(response.content)
         data = response.json()
 
         expected = [act1]
@@ -661,97 +644,6 @@ class CalendarTestCase(_ActivitiesTestCase):
                                                         ['{} -> {}'.format(act.id, act.title) for act in expected]
                                                        )
                         )
-
-    # @skipIfCustomActivity
-    # def test_get_users_activities_legacy(self):
-    #     "One user, several activities (deprecated version without GET parameter)"
-    #     user = self.login()
-    #     cal = Calendar.get_user_default_calendar(user)
-    #     Calendar.objects.create(user=user, name='Other Cal #1', is_custom=True)
-    #
-    #     create_dt = self.create_datetime
-    #     start = create_dt(year=2013, month=3, day=1)
-    #     end   = create_dt(year=2013, month=3, day=31, hour=23, minute=59)
-    #
-    #     create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
-    #     act0 = create(title='Act#0', start=start, end=start)
-    #     act1 = create(title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2))
-    #     act2 = create(title='Act#2', start=start + timedelta(days=1), end=start + timedelta(days=2))  # Not in calendar
-    #     act3 = create(title='Act#3', start=start + timedelta(days=2), end=end   + timedelta(days=1),  # Start OK
-    #                   is_all_day=True, type_id=ACTIVITYTYPE_MEETING,
-    #                   sub_type_id=ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-    #                  )
-    #     act4 = create(title='Act#4', start=start - timedelta(days=1), end=start + timedelta(days=3))  # End OK
-    #     act5 = create(title='Act#5', start=start + timedelta(days=5), end=start + timedelta(days=5, hours=3),
-    #                   is_deleted=True,
-    #                  )
-    #
-    #     for act in (act0, act1, act3, act4, act5):
-    #         # act.calendars = [cal]
-    #         act.calendars.set([cal])
-    #
-    #     create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
-    #     create_rel(subject_entity=user.linked_contact,            object_entity=act3)
-    #     create_rel(subject_entity=self.other_user.linked_contact, object_entity=act3)
-    #
-    #     response = self.assertGET200(reverse('activities__calendars_activities', args=(cal.id,)),
-    #                                  data={
-    #                                      'start': start.strftime('%s'),
-    #                                      'end':   end.strftime('%s'),
-    #                                  },
-    #                                 )
-    #
-    #     # with self.assertNoException():
-    #     #     data = jsonloads(response.content)
-    #     data = response.json()
-    #     self.assertEqual(4, len(data))
-    #
-    #     def formatted_dt(dt):
-    #         return make_naive(dt, get_current_timezone()).isoformat()
-    #
-    #     def build_popup_url(act):
-    #         return reverse('activities__view_activity_popup', args=(act.id,))
-    #
-    #     self.assertEqual({'id':             act3.id,
-    #                       'title':         'Act#3',
-    #                       'start':          formatted_dt(act3.start),
-    #                       'end':            formatted_dt(act3.end),
-    #                       'allDay':         True,
-    #                       'calendar':       cal.id,
-    #                       'calendar_color': '#%s' % cal.color,
-    #                       'url':            build_popup_url(act3),
-    #                       'editable':       True,
-    #                       'type':           _('Meeting'),
-    #                      },
-    #                      data[0]
-    #                     )
-    #     self.assertEqual({'id':             act1.id,
-    #                       'title':          'Act#1',
-    #                       'start':          formatted_dt(act1.start),
-    #                       'end':            formatted_dt(act1.end),
-    #                       'allDay':         False,
-    #                       'calendar':       cal.id,
-    #                       'calendar_color': '#%s' % cal.color,
-    #                       'url':            build_popup_url(act1),
-    #                       'editable':       True,
-    #                       'type':           _(u'Task'),
-    #                      },
-    #                      data[1]
-    #                     )
-    #     self.assertEqual({'id':             act0.id,
-    #                       'title':          'Act#0',
-    #                       'start':          formatted_dt(act0.start),
-    #                       'end':            formatted_dt(act0.end + timedelta(seconds=1)),
-    #                       'allDay':         False,
-    #                       'calendar':       cal.id,
-    #                       'calendar_color': '#%s' % cal.color,
-    #                       'url':            build_popup_url(act0),
-    #                       'editable':       True,
-    #                       'type':           _(u'Task'),
-    #                      },
-    #                      data[2]
-    #                     )
-    #     self.assertEqual(act4.id, data[3]['id'])
 
     @skipIfCustomActivity
     def test_update_activity_date01(self):

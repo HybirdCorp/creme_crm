@@ -220,7 +220,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         # Validation errors ----------
         response = self.client.post(self._build_import_url(Activity), data=data)
-        self.assertFormError(response, 'form', 'my_participation', _(u'Enter a value if you check the box.'))
+        self.assertFormError(response, 'form', 'my_participation', _('Enter a value if you check the box.'))
 
         response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(data,
@@ -269,7 +269,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self.assertEqual(1, len(jr_errors))
 
         jr_error = jr_errors[0]
-        self.assertEqual([_(u'The participant «{}» is unfoundable').format(unfoundable)],
+        self.assertEqual([_('The participant «{}» is unfoundable').format(unfoundable)],
                          jr_error.messages
                         )
         self.assertEqual(act3, jr_error.entity.get_real_entity())
@@ -302,21 +302,21 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         title3 = 'Meeting#3'
         title4 = 'Meeting#4'
         title5 = 'Meeting#5'
-        lines = [(title1, u'{} {}/{} {}'.format(participant1.last_name, participant1.first_name,
+        lines = [(title1, '{} {}/{} {}'.format(participant1.last_name, participant1.first_name,
                                                 participant2.last_name, participant2.first_name,
                                                )
                  ),
-                 (title2, u'{} {}'.format(other_contact.last_name,
+                 (title2, '{} {}'.format(other_contact.last_name,
                                           other_contact.first_name,
                                          )
                  ),
-                 (title3, u' {} {} '.format(participant2.last_name, participant2.first_name)),  # Trailing spaces
-                 (title4, u'{} {}/{} {}/{}/'.format(unfoundable,            unfoundable,
+                 (title3, ' {} {} '.format(participant2.last_name, participant2.first_name)),  # Trailing spaces
+                 (title4, '{} {}/{} {}/{}/'.format(unfoundable,            unfoundable,
                                                     participant2.last_name, participant2.first_name,
                                                     unfoundable2,
                                                    )
                  ),
-                 (title5, u'{} {}/{}'.format(participant3.last_name, participant3.first_name,
+                 (title5, '{} {}/{}'.format(participant3.last_name, participant3.first_name,
                                              participant2.last_name,
                                             )
                  ),
@@ -334,7 +334,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                               participants_mode='2',  # Search with pattern
                                               participants_separator='/',
                                               participants_pattern=4,  # '$last_name $first_name'
-                                              # participants_colselect=2,
                                               participants_pattern_colselect=2,
                                              )
                                    )
@@ -375,7 +374,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self.assertEqual(1, len(jr_errors))
 
         jr_error = jr_errors[0]
-        err_fmt = _(u'The participant «{}» is unfoundable').format
+        err_fmt = _('The participant «{}» is unfoundable').format
         self.assertEqual([err_fmt('{} {}'.format(unfoundable, unfoundable)),
                           err_fmt(unfoundable2),
                          ],
@@ -410,7 +409,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                     participants_mode=2,  # Search with pattern
                     participants_separator='/',
                     participants_pattern=1,  # $civility $first_name $last_name
-                    # participants_colselect=2,
                     participants_pattern_colselect=2,
                    )
 
@@ -485,7 +483,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                               participants_mode=2,  # Search with pattern
                                               participants_separator='#',
                                               participants_pattern=3,  # '$first_name $last_name'
-                                              # participants_colselect=2,
                                               participants_pattern_colselect=2,
                                               participants_create=True,
                                              )
@@ -579,11 +576,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         clan2 = create_orga(name='Clan')
 
         doc = self._build_csv_doc([(title1, str(aoi)),
-                                   (title2, (u' {} '.format(aoi)).upper()),
-                                   (title3, u' {} '.format(name)),
+                                   (title2, (' {} '.format(aoi)).upper()),
+                                   (title3, ' {} '.format(name)),
                                    (title4, clan1.name),
                                    (title5, furyo1.last_name),
-                                   (title6, u'{}/{}'.format(aoi, clan1.name)),
+                                   (title6, '{}/{}'.format(aoi, clan1.name)),
                                   ]
                                  )
         response = self.client.post(self._build_import_url(Activity), follow=True,
@@ -630,11 +627,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         jr_error = jr_errors[0]
         self.assertEqual(task3, jr_error.entity.get_real_entity())
-        self.assertEqual([_(u'The subject «{}» is unfoundable').format(name)],
+        self.assertEqual([_('The subject «{}» is unfoundable').format(name)],
                          jr_error.messages
                         )
 
-        err_fmt = _(u'Several «{models}» were found for the search «{search}»').format
+        err_fmt = _('Several «{models}» were found for the search «{search}»').format
         jr_error = jr_errors[1]
         self.assertEqual(task4, jr_error.entity.get_real_entity())
         self.assertEqual([err_fmt(models=_('Organisations'),
@@ -669,7 +666,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         title = 'My task'
         name = 'Ishiyama'
 
-        doc = self._build_csv_doc([(title, u' {} '.format(name))])
+        doc = self._build_csv_doc([(title, ' {} '.format(name))])
         response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
@@ -699,7 +696,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         title = 'Task#1'
         name = 'Ishiyama'
-        doc = self._build_csv_doc([(title, u' {} '.format(name))])
+        doc = self._build_csv_doc([(title, ' {} '.format(name))])
         response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
@@ -854,51 +851,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         activity = self.get_object_or_fail(Activity, title=title)
         self.assertRelationCount(1, activity, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)  # Not 2
 
-    # @skipIfCustomContact
-    # @skipIfCustomOrganisation
-    # def test_import_duplicated_subjects02(self):
-    #     "The Relations is already duplicated (crash with get_or_create())"
-    #     user = self.login()
-    #
-    #     subject = Organisation.objects.create(user=user, name='Ishiyama')
-    #     activity = Activity.objects.create(
-    #         user=user,
-    #         title='Fight against demons#1',
-    #         type_id=constants.ACTIVITYTYPE_MEETING,
-    #         sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-    #     )
-    #
-    #     for i_ in range(2):
-    #         Relation.objects.create(subject_entity=activity,
-    #                                 type_id=constants.REL_OBJ_ACTIVITY_SUBJECT,
-    #                                 object_entity=subject,
-    #                                 user=user,
-    #                                )
-    #
-    #     doc = self._build_csv_doc([(activity.title, subject.name)])
-    #     response = self.client.post(
-    #         self._build_import_url(Activity), follow=True,
-    #         data=dict(self.lv_import_data,
-    #                   document=doc.id,
-    #                   user=user.id,
-    #                   key_fields=['title'],
-    #
-    #                   type_selector=self._acttype_field_value(
-    #                       constants.ACTIVITYTYPE_PHONECALL,
-    #                       constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-    #                   ),
-    #
-    #                   subjects_colselect=2,
-    #                  )
-    #     )
-    #     self.assertNoFormError(response)
-    #
-    #     self._execute_job(response)
-    #
-    #     activity = self.refresh(activity)
-    #     self.assertEqual(activity.sub_type_id, constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING)
-    #     self.assertRelationCount(2, activity, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
-
     def test_pattern1(self):
         "Pattern #1: 'Civility FirstName LastName'"
         with self.assertNoException():
@@ -966,7 +918,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         last_name = 'Kunieda'
         contacts, err_msg = ext.extract_value([first_name, last_name], user)
         self.assertEqual((), contacts)
-        self.assertEqual(tuple([_(u'The participant «{}» is unfoundable').format(
+        self.assertEqual(tuple([_('The participant «{}» is unfoundable').format(
                                         _('{first_name} {last_name}').format(
                                             first_name=first_name,
                                             last_name=last_name,
@@ -988,20 +940,20 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self.assertEqual([aoi], list(contacts))
         self.assertEqual((), err_msg)
 
-        ittosai = create_contact(first_name=u'Ittôsai')
+        ittosai = create_contact(first_name='Ittôsai')
         contacts, err_msg = ext.extract_value([last_name], user)
         self.assertEqual({aoi, ittosai}, set(contacts))
-        self.assertEqual((_(u'Several contacts were found for the search «{}»').format(last_name),),
+        self.assertEqual((_('Several contacts were found for the search «{}»').format(last_name),),
                          err_msg
                         )
 
         create_contact(first_name='Shinobu')
-        create_contact(first_name=u'Kôta')
+        create_contact(first_name='Kôta')
         create_contact(first_name='')
         create_contact(first_name='Tatsumi')
         contacts, err_msg = ext.extract_value([last_name], user)
         self.assertFalse(contacts)
-        self.assertEqual(tuple([_(u'Too many contacts were found for the search «{}»').format(last_name)]),
+        self.assertEqual(tuple([_('Too many contacts were found for the search «{}»').format(last_name)]),
                          err_msg
                         )
 
@@ -1018,7 +970,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         last_name = 'Kunieda'
         create_contact = partial(Contact.objects.create, last_name=last_name)
         aoi = create_contact(user=user, first_name='Aoi')
-        create_contact(user=self.other_user, first_name=u'Ittôsai')
+        create_contact(user=self.other_user, first_name='Ittôsai')
 
         ext = MultiColumnsParticipantsExtractor(0, 1)
         contacts, err_msg = ext.extract_value([last_name], user)
@@ -1044,16 +996,16 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         contacts, err_msg = extract()
         self.assertFalse(contacts)
-        self.assertEqual((_(u'The participant «{}» is unfoundable').format(last_name),),
+        self.assertEqual((_('The participant «{}» is unfoundable').format(last_name),),
                          err_msg
                         )
 
         create_contact = partial(Contact.objects.create, last_name=last_name)
-        create_contact(user=self.other_user, first_name=u'Ittôsai')
+        create_contact(user=self.other_user, first_name='Ittôsai')
 
         contacts, err_msg = extract()
         self.assertFalse(contacts)
-        self.assertEqual((_(u'No linkable contact found for the search «{}»').format(last_name),),
+        self.assertEqual((_('No linkable contact found for the search «{}»').format(last_name),),
                          err_msg
                         )
 
@@ -1093,7 +1045,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         searched = 'Aoi Kunieda'
         contacts, err_msg = ext.extract_value([searched], user)
         self.assertFalse(contacts)
-        self.assertEqual([_(u'The participant «{}» is unfoundable').format(searched)],
+        self.assertEqual([_('The participant «{}» is unfoundable').format(searched)],
                          err_msg
                         )
 
@@ -1108,20 +1060,20 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         # -------
         searched = 'Kunieda'
-        ittosai = create_contact(first_name=u'Ittôsai')
+        ittosai = create_contact(first_name='Ittôsai')
         contacts, err_msg = ext.extract_value([searched], user)
         self.assertEqual({aoi, ittosai}, set(contacts))
-        self.assertEqual([_(u'Several contacts were found for the search «{}»').format(searched)],
+        self.assertEqual([_('Several contacts were found for the search «{}»').format(searched)],
                          err_msg
                         )
 
         create_contact(first_name='Shinobu')
-        create_contact(first_name=u'Kôta')
+        create_contact(first_name='Kôta')
         create_contact(first_name='')
         create_contact(first_name='Tatsumi')
         contacts, err_msg = ext.extract_value([searched], user)
         self.assertFalse(contacts)
-        self.assertEqual([_(u'Too many contacts were found for the search «{}»').format(searched)],
+        self.assertEqual([_('Too many contacts were found for the search «{}»').format(searched)],
                          err_msg
                         )
 
@@ -1137,7 +1089,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         create_contact = partial(Contact.objects.create, last_name='Kunieda')
         aoi = create_contact(user=user, first_name='Aoi')
-        create_contact(user=self.other_user, first_name=u'Ittôsai')
+        create_contact(user=self.other_user, first_name='Ittôsai')
 
         ext = SplitColumnParticipantsExtractor(1, '#', _pattern_FL)
         contacts, err_msg = ext.extract_value(['Kunieda'], user)
@@ -1159,8 +1111,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         aoi = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertIsNone(aoi.civility)
 
-        first_name = u'Ittôsai'
-        contacts, err_msg = ext.extract_value([u'Sensei {} {}'.format(first_name, last_name)], user)
+        first_name = 'Ittôsai'
+        contacts, err_msg = ext.extract_value(['Sensei {} {}'.format(first_name, last_name)], user)
         self.assertFalse(err_msg)
         ittosai = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertIsNone(ittosai.civility)
@@ -1169,20 +1121,20 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         mister = self.get_object_or_fail(Civility, pk=3)
         first_name = 'Tatsumi'
         last_name = 'Oga'
-        contacts, err_msg = ext.extract_value([u'{} {} {}'.format(mister.title, first_name, last_name)], user)
+        contacts, err_msg = ext.extract_value(['{} {} {}'.format(mister.title, first_name, last_name)], user)
         self.assertFalse(err_msg)
         oga = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(mister, oga.civility)
 
         # Civility is not used to search
-        contacts, err_msg = ext.extract_value([u'Sensei {} {}'.format(first_name, last_name)], user)
+        contacts, err_msg = ext.extract_value(['Sensei {} {}'.format(first_name, last_name)], user)
         self.assertEqual([oga], contacts)
         self.assertEqual(mister, self.refresh(oga).civility)
 
         # Civility retrieved by short name
         first_name = 'Takayuki'
         last_name = 'Furuichi'
-        ext.extract_value([u'{} {} {}'.format(mister.shortcut, first_name, last_name)], user)
+        ext.extract_value(['{} {} {}'.format(mister.shortcut, first_name, last_name)], user)
         furuichi = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(mister, furuichi.civility)
 
@@ -1206,16 +1158,16 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         contacts, err_msg = extract()
         self.assertFalse(contacts)
-        self.assertEqual([_(u'The subject «{}» is unfoundable').format(last_name)],
+        self.assertEqual([_('The subject «{}» is unfoundable').format(last_name)],
                          err_msg
                         )
 
         create_contact = partial(Contact.objects.create, last_name=last_name)
-        create_contact(user=self.other_user, first_name=u'Ittôsai')
+        create_contact(user=self.other_user, first_name='Ittôsai')
 
         contacts, err_msg = extract()
         self.assertFalse(contacts)
-        self.assertEqual([_(u'No linkable entity found for the search «{}»').format(last_name)],
+        self.assertEqual([_('No linkable entity found for the search «{}»').format(last_name)],
                          err_msg
                         )
 
@@ -1234,15 +1186,15 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         create_contact = partial(Contact.objects.create, user=user, last_name=last_name)
         create_contact(first_name='Aoi')
-        create_contact(first_name=u'Ittôsai')
+        create_contact(first_name='Ittôsai')
         create_contact(first_name='Shinobu')
-        create_contact(first_name=u'Kôta')
+        create_contact(first_name='Kôta')
         create_contact(first_name='')
         create_contact(first_name='Tatsumi')
 
         contacts, err_msg = ext.extract_value([' {} #'.format(last_name)], user)
         self.assertFalse(contacts)
-        self.assertEqual([_(u'Too many «{models}» were found for the search «{search}»').format(
+        self.assertEqual([_('Too many «{models}» were found for the search «{search}»').format(
                                 models=_('Contacts'),
                                 search=last_name,
                             )

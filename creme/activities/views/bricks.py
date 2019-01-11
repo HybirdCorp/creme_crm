@@ -24,7 +24,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation, CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
-# from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.views.generic import RelatedToEntityFormPopup
 
 from .. import get_activity_model, constants
@@ -34,16 +33,6 @@ from ..forms import bricks as bricks_forms
 Activity = get_activity_model()
 
 
-# @login_required
-# @permission_required('activities')
-# def add_participant(request, activity_id):
-#     return add_to_entity(request, activity_id, bricks_forms.ParticipantCreateForm,
-#                          _('Adding participants to activity «%s»'),
-#                          entity_class=Activity,
-#                          link_perm=True,
-#                          submit_label=_('Add the participants'),
-#                          template='creme_core/generics/blockform/link_popup.html',
-#                         )
 class ParticipantsAdding(RelatedToEntityFormPopup):
     form_class = bricks_forms.ParticipantCreateForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
@@ -75,15 +64,6 @@ def delete_participant(request):
     return shortcuts.redirect(subject.get_real_entity())
 
 
-# @login_required
-# @permission_required('activities')
-# def add_subject(request, activity_id):
-#     return add_to_entity(request, activity_id, bricks_forms.SubjectCreateForm,
-#                          _('Adding subjects to activity «%s»'),
-#                          entity_class=Activity, link_perm=True,
-#                          submit_label=_('Add the subjects'),
-#                          template='creme_core/generics/blockform/link_popup.html',
-#                         )
 class SubjectsAdding(RelatedToEntityFormPopup):
     form_class = bricks_forms.SubjectCreateForm
     template_name = 'creme_core/generics/blockform/link-popup.html'

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _  # pgettext, ungettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
 
@@ -34,7 +34,6 @@ class ActivitiesConfig(CremeAppConfig):
         from . import get_activity_model
 
         self.Activity = get_activity_model()
-        # super(ActivitiesConfig, self).all_apps_ready()
         super().all_apps_ready()
 
         from . import signals
@@ -71,11 +70,7 @@ class ActivitiesConfig(CremeAppConfig):
 
     def register_buttons(self, button_registry):
         from . import buttons
-        # button_registry.register(buttons.add_activity_button,
-        #                          buttons.add_meeting_button,
-        #                          buttons.add_phonecall_button,
-        #                          buttons.add_task_button,
-        #                         )
+
         button_registry.register(
             buttons.AddRelatedActivityButton,
             buttons.AddMeetingButton,
@@ -94,27 +89,12 @@ class ActivitiesConfig(CremeAppConfig):
         import_form_registry.register(self.Activity, mass_import.get_massimport_form_builder)
 
     def register_menu(self, creme_menu):
-        # from django.conf import settings
         from django.urls import reverse_lazy as reverse
 
         from creme.creme_core.auth import build_creation_perm
 
         Activity = self.Activity
         creation_perm = build_creation_perm(Activity)
-
-        # if settings.OLD_MENU:
-        #     reg_item = creme_menu.register_app('activities', '/activities/').register_item
-        #     reg_item(reverse('activities__portal'),                               _(u'Portal of activities'),     'activities')
-        #     reg_item(reverse('activities__calendar'),                             _(u'Calendar'),                 'activities')
-        #     reg_item(reverse('activities__create_activity'),                      Activity.creation_label,        creation_perm)
-        #     reg_item(reverse('activities__create_activity', args=('meeting',)),   _(u'Create a meeting'),         creation_perm)
-        #     reg_item(reverse('activities__create_activity', args=('phonecall',)), _(u'Create a phone call'),      creation_perm)
-        #     reg_item(reverse('activities__create_activity', args=('task',)),      _(u'Create a task'),            creation_perm)
-        #     reg_item(reverse('activities__create_indispo'),                       _(u'Create an unavailability'), creation_perm)
-        #     reg_item(reverse('activities__list_activities'),                      _(u'All activities'),           'activities')
-        #     reg_item(reverse('activities__list_phone_calls'),                     _(u'All phone calls'),          'activities')
-        #     reg_item(reverse('activities__list_meetings'),                        _(u'All meetings'),             'activities')
-        # else:
         URLItem = creme_menu.URLItem
         creme_menu.get('features') \
                   .get_or_create(creme_menu.ContainerItem, 'activities-main', priority=10,
@@ -166,25 +146,6 @@ class ActivitiesConfig(CremeAppConfig):
                                      )
 
     def register_statistics(self, statistics_registry):
-        # Activity = self.Activity
-        # act_filter = Activity.objects.filter
-        #
-        # def meetings_count():
-        #     count = act_filter(type=constants.ACTIVITYTYPE_MEETING).count()
-        #     return ungettext(u'{count} meeting', u'{count} meetings', count).format(count=count)
-        #
-        # def phone_calls_count():
-        #     count = act_filter(type=constants.ACTIVITYTYPE_PHONECALL).count()
-        #     return ungettext(u'{count} phone call', u'{count} phone calls', count).format(count=count)
-        #
-        # statistics_registry.register(
-        #     id='activities', label=Activity._meta.verbose_name_plural,
-        #     func=lambda: [pgettext('activities-stats', u'{count} in all').format(count=Activity.objects.count()),
-        #                   meetings_count(),
-        #                   phone_calls_count(),
-        #                  ],
-        #     perm='activities', priority=30,
-        # )
         from .statistics import AveragePerMonthStatistics
 
         statistics_registry.register(

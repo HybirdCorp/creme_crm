@@ -52,12 +52,9 @@ class Calendar(CremeModel):
     @property
     def get_color(self):  # TODO: rename (safe_color ?)
         "color can be null, so in this case a default color is used in templates"
-        # return self.color if self.color else DEFAULT_CALENDAR_COLOR
         return self.color or DEFAULT_CALENDAR_COLOR
 
-    # def delete(self, using=None):
     def delete(self, using=None, keep_parents=False):
-        # super(Calendar, self).delete(using=using, keep_parents=keep_parents)
         super().delete(using=using, keep_parents=keep_parents)
 
         if self.is_default:
@@ -124,7 +121,6 @@ class Calendar(CremeModel):
            not Calendar.objects.filter(user=self.user, is_default=True).exists():
             self.is_default = True
 
-        # super(Calendar, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
         if check and self.is_default:

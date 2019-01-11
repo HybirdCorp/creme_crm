@@ -36,7 +36,7 @@ from ..models import ActivityType, ActivitySubType
 
 
 class ActivityTypeForm(CremeModelForm):
-    default_hour_duration = DurationField(label=_(u'Duration'))
+    default_hour_duration = DurationField(label=_('Duration'))
 
     class Meta(CremeModelForm.Meta):
         model = ActivityType
@@ -45,13 +45,11 @@ class ActivityTypeForm(CremeModelForm):
         instance = self.instance
 
         if not instance.id:
-            # super(ActivityTypeForm, self).save(commit=False)
             super().save(commit=False)
             generate_string_id_and_save(ActivityType, [instance],
                                         'creme_config-useractivitytype',
                                        )
         else:
-            # super(ActivityTypeForm, self).save()
             super().save()
 
         return instance
@@ -65,13 +63,11 @@ class ActivitySubTypeForm(CremeModelForm):
         instance = self.instance
 
         if not instance.id:
-            # super(ActivitySubTypeForm, self).save(commit=False, *args, **kwargs)
             super().save(commit=False, *args, **kwargs)
             generate_string_id_and_save(ActivitySubType, [instance],
                                         'creme_config-useractivitydetailesubtype',
                                        )
         else:
-            # super(ActivitySubTypeForm, self).save(*args, **kwargs)
             super().save(*args, **kwargs)
 
         return instance
@@ -79,7 +75,6 @@ class ActivitySubTypeForm(CremeModelForm):
 
 class ActivityTypeWidget(ChainedInput):
     def __init__(self, types=(), attrs=None, creation_allowed=True):
-        # super(ActivityTypeWidget, self).__init__(attrs)
         super().__init__(attrs)
         self.creation_allowed = creation_allowed  # TODO: useless at the moment ...
         self.types = types
@@ -92,7 +87,6 @@ class ActivityTypeWidget(ChainedInput):
                                       .resolve('activities__get_types'),
            )
 
-        # return super(ActivityTypeWidget, self).get_context(name=name, value=value, attrs=attrs)
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
@@ -104,15 +98,13 @@ class ActivityTypeField(JSONField):
     }
     value_type = dict
 
-    def __init__(self, types=ActivityType.objects.all(), empty_label=u'---------', *args, **kwargs):
+    def __init__(self, types=ActivityType.objects.all(), empty_label='---------', *args, **kwargs):
         self.empty_label = empty_label
 
-        # super(ActivityTypeField, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.types = types
 
     def __deepcopy__(self, memo):
-        # result = super(ActivityTypeField, self).__deepcopy__(memo)
         result = super().__deepcopy__(memo)
 
         # Need to force a fresh iterator to be created.
@@ -187,10 +179,9 @@ class BulkEditTypeForm(BulkDefaultEditForm):
     }
 
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
-        # super(BulkEditTypeForm, self).__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
         self.fields['field_value'] = type_selector = \
-                    ActivityTypeField(label=_(u'Type'),
+                    ActivityTypeField(label=_('Type'),
                                       types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO),
                                      )
         self._mixed_indispo = False
@@ -206,8 +197,8 @@ class BulkEditTypeForm(BulkDefaultEditForm):
                 self.fields['beware'] = CharField(
                         label=_('Beware !'),
                         required=False, widget=Label,
-                        initial=ungettext(u'The type of {count} activity cannot be changed because it is an indisponibility.',
-                                          u'The type of {count} activities cannot be changed because they are indisponibilities.',
+                        initial=ungettext('The type of {count} activity cannot be changed because it is an indisponibility.',
+                                          'The type of {count} activities cannot be changed because they are indisponibilities.',
                                           indispo_count
                                          ).format(count=indispo_count),
                     )

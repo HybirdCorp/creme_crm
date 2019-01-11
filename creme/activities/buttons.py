@@ -36,7 +36,7 @@ class AddRelatedActivityButton(Button):
     # template_name = 'activities/templatetags/button_add_related.html'
     template_name = 'activities/buttons/add-related.html'
     permission    = cperm(Activity)
-    verbose_name  = _(u'Create a related activity')
+    verbose_name  = _('Create a related activity')
     activity_type = None  # None means type is not fixed
 
     def render(self, context):
@@ -55,29 +55,22 @@ class AddRelatedActivityButton(Button):
                                            size_px=get_icon_size_px(theme=theme, size='instance-button'),
                                           )
 
-        # return super(AddRelatedActivityButton, self).render(context)
         return super().render(context)
 
 
 class AddMeetingButton(AddRelatedActivityButton):
     id_           = Button.generate_id('activities', 'add_meeting')
-    verbose_name  = _(u'Create a related meeting')
+    verbose_name  = _('Create a related meeting')
     activity_type = constants.ACTIVITYTYPE_MEETING
 
 
 class AddPhoneCallButton(AddRelatedActivityButton):
     id_           = Button.generate_id('activities', 'add_phonecall')
-    verbose_name  = _(u'Create a related phone call')
+    verbose_name  = _('Create a related phone call')
     activity_type = constants.ACTIVITYTYPE_PHONECALL
 
 
 class AddTaskButton(AddRelatedActivityButton):
     id_           = Button.generate_id('activities', 'add_task')
-    verbose_name  = _(u'Create a related task')
+    verbose_name  = _('Create a related task')
     activity_type = constants.ACTIVITYTYPE_TASK
-
-
-# add_activity_button  = AddRelatedActivityButton()
-# add_meeting_button   = AddMeetingButton()
-# add_phonecall_button = AddPhoneCallButton()
-# add_task_button      = AddTaskButton()
