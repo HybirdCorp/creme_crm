@@ -52,7 +52,6 @@ class OpportunityEditForm(CremeEntityForm):
                       DeprecationWarning
                      )
 
-        # super(OpportunityEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         if self.instance.pk:  # Edition
@@ -84,7 +83,6 @@ class OpportunityCreateForm(OpportunityEditForm):
         return emitter
 
     def save(self, *args, **kwargs):
-        # instance = super(OpportunityCreateForm, self).save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
 
         form_post_save.send(sender=Opportunity, instance=instance, created=True)

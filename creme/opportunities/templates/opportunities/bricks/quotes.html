@@ -5,16 +5,6 @@
 
 {% block brick_script %}
 <script type="text/javascript">
-    {% comment %}
-     creme.opportunities.setCurrentQuote = function(checkbox, url) {
-        var brick = $(checkbox).parents('.brick').creme().widget().brick();
-
-        creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true})
-                   .onDone(function() {brick.refresh();})
-                   .start();
-     };
-    {% endcomment %}
-
     $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
         new creme.opportunities.QuoteController().bind(brick);
     });

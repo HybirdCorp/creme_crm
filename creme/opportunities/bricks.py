@@ -46,7 +46,7 @@ class OpportunityCardHatBrick(Brick):
                                                                    + CommercialActs4Card.dependencies
     relation_type_deps = [REL_SUB_EMPLOYED_BY] + Activities4Card.relation_type_deps\
                                                + CommercialActs4Card.relation_type_deps
-    verbose_name  = _(u'Card header block')
+    verbose_name  = _('Card header block')
     template_name = 'opportunities/bricks/opportunity-hat-card.html'
 
     def detailview_display(self, context):
@@ -79,7 +79,7 @@ class OpportunityCardHatBrick(Brick):
 
 
 class OpportunityBrick(EntityBrick):
-    verbose_name = _(u'Information on the opportunity')
+    verbose_name = _('Information on the opportunity')
     dependencies  = (Opportunity, Relation)
     relation_type_deps = (constants.REL_OBJ_LINKED_QUOTE, )
 
@@ -112,7 +112,7 @@ class LinkedContactsBrick(_LinkedStuffBrick):
     id_           = QuerysetBrick.generate_id('opportunities', 'linked_contacts')
     dependencies  = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_LINKED_CONTACT, )
-    verbose_name  = _(u'Linked Contacts')
+    verbose_name  = _('Linked Contacts')
     template_name = 'opportunities/bricks/contacts.html'
 
     def _get_queryset(self, entity):
@@ -123,7 +123,7 @@ class LinkedProductsBrick(_LinkedStuffBrick):
     id_           = QuerysetBrick.generate_id('opportunities', 'linked_products')
     dependencies  = (Relation, Product)
     relation_type_deps = (constants.REL_OBJ_LINKED_PRODUCT, )
-    verbose_name  = _(u'Linked Products')
+    verbose_name  = _('Linked Products')
     template_name = 'opportunities/bricks/products.html'
     order_by      = 'name'
 
@@ -135,7 +135,7 @@ class LinkedServicesBrick(_LinkedStuffBrick):
     id_           = QuerysetBrick.generate_id('opportunities', 'linked_services')
     dependencies  = (Relation, Service)
     relation_type_deps = (constants.REL_OBJ_LINKED_SERVICE, )
-    verbose_name  = _(u'Linked Services')
+    verbose_name  = _('Linked Services')
     template_name = 'opportunities/bricks/services.html'
     order_by      = 'name'
 
@@ -147,7 +147,7 @@ class BusinessManagersBrick(_LinkedStuffBrick):
     id_           = QuerysetBrick.generate_id('opportunities', 'responsibles')
     dependencies  = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_RESPONSIBLE, )
-    verbose_name  = _(u'Business managers')
+    verbose_name  = _('Business managers')
     template_name = 'opportunities/bricks/managers.html'
 
     def _get_queryset(self, entity):
@@ -158,7 +158,7 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('opportunities', 'target_organisations')
     dependencies  = (Relation, Opportunity)
     relation_type_deps = (constants.REL_OBJ_TARGETS, )
-    verbose_name  = _(u'Opportunities which target the organisation / contact')
+    verbose_name  = _('Opportunities which target the organisation / contact')
     template_name = 'opportunities/bricks/opportunities.html'
     target_ctypes = (Organisation, Contact)
     order_by      = 'name'
@@ -187,7 +187,7 @@ class OppTotalBrick(SimpleBrick):
     id_                 = SimpleBrick.generate_id('opportunities', 'total')
     dependencies        = (Opportunity, Relation)
     relation_type_deps  = (constants.REL_OBJ_LINKED_QUOTE,)
-    verbose_name        = _(u'Total')
+    verbose_name        = _('Total')
     template_name       = 'opportunities/bricks/total.html'
     target_ctypes       = (Opportunity,)
 
@@ -196,12 +196,11 @@ class OppTargetBrick(Brick):
     id_           = Brick.generate_id('opportunities', 'target')
     dependencies  = (Opportunity, Organisation, Relation)
     relation_type_deps = (constants.REL_SUB_TARGETS,)
-    verbose_name  = _(u'Target and source')
+    verbose_name  = _('Target and source')
     template_name = 'opportunities/bricks/target.html'
     target_ctypes = (Opportunity,)
 
     def __init__(self):
-        # super(OppTargetBrick, self).__init__()
         super().__init__()
         self.display_source = display_source = len(Organisation.get_all_managed_by_creme()) > 1
 
@@ -239,7 +238,7 @@ if apps.is_installed('creme.billing'):
         id_                = QuerysetBrick.generate_id('opportunities', 'quotes')
         dependencies       = (Relation, Quote)
         relation_type_deps = (constants.REL_OBJ_LINKED_QUOTE,)
-        verbose_name       = _(u'Quotes linked to the opportunity')
+        verbose_name       = _('Quotes linked to the opportunity')
         template_name      = 'opportunities/bricks/quotes.html'
         order_by           = 'name'
 
@@ -255,7 +254,7 @@ if apps.is_installed('creme.billing'):
         id_                = QuerysetBrick.generate_id('opportunities', 'sales_orders')
         dependencies       = (Relation, SalesOrder)
         relation_type_deps = (constants.REL_OBJ_LINKED_SALESORDER, )
-        verbose_name       = _(u'Salesorders linked to the opportunity')
+        verbose_name       = _('Salesorders linked to the opportunity')
         template_name      = 'opportunities/bricks/sales-orders.html'
         order_by           = 'name'
 
@@ -271,7 +270,7 @@ if apps.is_installed('creme.billing'):
         id_                = QuerysetBrick.generate_id('opportunities', 'invoices')
         dependencies       = (Relation, Invoice)
         relation_type_deps = (constants.REL_OBJ_LINKED_INVOICE, )
-        verbose_name       = _(u'Invoices linked to the opportunity')
+        verbose_name       = _('Invoices linked to the opportunity')
         template_name      = 'opportunities//bricks/invoices.html'
         order_by           = 'name'
 
