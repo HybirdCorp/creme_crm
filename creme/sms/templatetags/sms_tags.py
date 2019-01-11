@@ -23,6 +23,8 @@ from django.template import Library
 register = Library()
 
 
+# TODO: prefix with 'sms_'
+
 @register.filter(name="phonenumber")
 def phonenumber(value):
     return ''.join(c for c in value if c.isdigit())

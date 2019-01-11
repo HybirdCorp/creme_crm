@@ -30,12 +30,11 @@ from ..models.recipient import Recipient
 
 class MessagingListAddRecipientsForm(CremeForm):
     # TODO: see for phonelist widget
-    # recipients = PhoneListField(widget=Textarea(), label=_(u'Recipients'),
-    recipients = PhoneListField(widget=Textarea, label=_(u'Recipients'),
-                                help_text=_(u'One phone number per line'),
+    recipients = PhoneListField(widget=Textarea, label=_('Recipients'),
+                                help_text=_('One phone number per line'),
                                )
 
-    blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
+    blocks = FieldBlockManager(('general', _('Recipients'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -64,7 +63,7 @@ _HELP = _(u"A text file where each line contains digits (which can be separated 
 
 
 class MessagingListAddCSVForm(CremeForm):
-    recipients = FileField(label=_(u'Recipients'), help_text=_HELP)
+    recipients = FileField(label=_('Recipients'), help_text=_HELP)
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)

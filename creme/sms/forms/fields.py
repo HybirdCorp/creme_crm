@@ -48,7 +48,6 @@ class PhoneListField(RegexField):
         regex = PHONE_LIST_REGEX % separator
         self.separator = separator
 
-        # super(PhoneListField, self).__init__(regex, max_length, min_length, error_message, *args, **kwargs)
         super().__init__(regex=regex, max_length=max_length, min_length=min_length,
                          error_messages=error_message, *args, **kwargs)
 

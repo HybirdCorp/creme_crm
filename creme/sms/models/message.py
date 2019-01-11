@@ -40,33 +40,32 @@ MESSAGE_STATUS_ERROR = SAMOUSSA_STATUS_ERROR
 
 # TODO: can we manage plural in a better way ?
 MESSAGE_STATUS = {
-    MESSAGE_STATUS_NOTSENT: (pgettext_lazy('sms', u'Not sent'), pgettext_lazy('sms-plural', u'Not sent')),
-    MESSAGE_STATUS_WAITING: (pgettext_lazy('sms', u'Waiting'),  pgettext_lazy('sms-plural', u'Waiting')),
-    MESSAGE_STATUS_ACCEPT:  (pgettext_lazy('sms', u'Accepted'), pgettext_lazy('sms-plural', u'Accepted')),
-    MESSAGE_STATUS_SENT:    (pgettext_lazy('sms', u'Sent'),     pgettext_lazy('sms-plural', u'Sent')),
-    MESSAGE_STATUS_ERROR:   (_(u'Error'),                       _(u'Errors')),
+    MESSAGE_STATUS_NOTSENT: (pgettext_lazy('sms', 'Not sent'), pgettext_lazy('sms-plural', 'Not sent')),
+    MESSAGE_STATUS_WAITING: (pgettext_lazy('sms', 'Waiting'),  pgettext_lazy('sms-plural', 'Waiting')),
+    MESSAGE_STATUS_ACCEPT:  (pgettext_lazy('sms', 'Accepted'), pgettext_lazy('sms-plural', 'Accepted')),
+    MESSAGE_STATUS_SENT:    (pgettext_lazy('sms', 'Sent'),     pgettext_lazy('sms-plural', 'Sent')),
+    MESSAGE_STATUS_ERROR:   (_('Error'),                       _('Errors')),
 }
 
 
 class Sending(CremeModel):
-    date     = DateField(_(u'Date'))
+    date     = DateField(_('Date'))
     campaign = ForeignKey(settings.SMS_CAMPAIGN_MODEL, on_delete=CASCADE,
-                          verbose_name=_(u'Related campaign'), related_name='sendings',
+                          verbose_name=_('Related campaign'), related_name='sendings',
                          )
-    template = ForeignKey(settings.SMS_TEMPLATE_MODEL, verbose_name=_(u'Message template'), on_delete=CASCADE)  # TODO: PROTECT ? copy data like in 'emails' ?
-    content  = TextField(_(u'Generated message'), max_length=160)
+    template = ForeignKey(settings.SMS_TEMPLATE_MODEL, verbose_name=_('Message template'), on_delete=CASCADE)  # TODO: PROTECT ? copy data like in 'emails' ?
+    content  = TextField(_('Generated message'), max_length=160)
 
-    creation_label = pgettext_lazy('sms', u'Create a sending')
-    save_label     = pgettext_lazy('sms', u'Save the sending')
+    creation_label = pgettext_lazy('sms', 'Create a sending')
+    save_label     = pgettext_lazy('sms', 'Save the sending')
 
     class Meta:
         app_label = 'sms'
-        verbose_name = _(u'Sending')
-        verbose_name_plural = _(u'Sendings')
+        verbose_name = _('Sending')
+        verbose_name_plural = _('Sendings')
 
     def __str__(self):
-        # return self.date
-        return pgettext('sms', u'Sending of «{campaign}» on {date}').format(
+        return pgettext('sms', 'Sending of «{campaign}» on {date}').format(
                     campaign=self.campaign,
                     date=date_format(self.date, 'DATE_FORMAT'),
                )
@@ -75,11 +74,10 @@ class Sending(CremeModel):
         items = ((self.messages.filter(status=status).count(), status_name)
                     for status, status_name in MESSAGE_STATUS.items()
                 )
-        return ', '.join((u'{} {}'.format(count, label[1] if count > 1 else label[0])
+        return ', '.join(('{} {}'.format(count, label[1] if count > 1 else label[0])
                             for count, label in items if count > 0)
                         )
 
-    # def delete(self, using=None):
     def delete(self, *args, **kwargs):
         ws = SamoussaBackEnd()  # TODO: 'with'
         ws.connect()
@@ -87,24 +85,23 @@ class Sending(CremeModel):
         ws.close()
 
         # self.messages.all().delete()
-        # return super(Sending, self).delete(using=using)
         return super().delete(*args, **kwargs)
 
 
 # TODO: keep the related entity (to hide the number when the entity is not viewable)
 class Message(CremeModel):
-    sending = ForeignKey(Sending, verbose_name=_(u'Sending'), related_name='messages', on_delete=CASCADE)
-    phone  = CharField(_(u'Number'), max_length=100)
-    status = CharField(_(u'State'), max_length=10)
-    status_message = CharField(_(u'Full state'), max_length=100, blank=True)
+    sending = ForeignKey(Sending, verbose_name=_('Sending'), related_name='messages', on_delete=CASCADE)
+    phone  = CharField(_('Number'), max_length=100)
+    status = CharField(_('State'), max_length=10)
+    status_message = CharField(_('Full state'), max_length=100, blank=True)
 
     def __str__(self):
         return self.phone
 
     class Meta:
         app_label = 'sms'
-        verbose_name = _(u'Message')
-        verbose_name_plural = _(u'Messages')
+        verbose_name = _('Message')
+        verbose_name_plural = _('Messages')
 
     # TODO: improve delete() method & remove the view delete_message ?
     # def get_related_entity(self):  # For generic views (deletion)
@@ -112,7 +109,7 @@ class Message(CremeModel):
 
     def statusname(self):
         status_desc = MESSAGE_STATUS.get(self.status)
-        return status_desc[0] if status_desc else ugettext(u'Unknown')
+        return status_desc[0] if status_desc else ugettext('Unknown')
 
     @staticmethod
     def _connect(sending):
