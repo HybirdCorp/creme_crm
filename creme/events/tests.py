@@ -48,7 +48,6 @@ def skipIfCustomEvent(test_func):
 class EventsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(EventsTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.ADD_URL = reverse('events__create_event')
@@ -68,10 +67,6 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(len(rtypes_pks), len(rtypes))
 
         self.assertTrue(EventType.objects.exists())
-
-    # def test_portal(self):
-    #     self.login()
-    #     self.assertGET200(reverse('events__portal'))
 
     def _create_event(self, name, etype=None, start_date='2010-11-3', **extra_data):
         etype = etype or EventType.objects.all()[0]
@@ -694,7 +689,6 @@ class EventsTestCase(CremeTestCase):
         url = self._build_related_opp_url(event, casca)
         response = self.assertGET200(url)
         context = response.context
-        # self.assertEqual(Opportunity.creation_label, context.get('title'))
         self.assertEqual(_('Create an opportunity related to «{contact}»').format(contact=casca),
                          context.get('title')
                         )
