@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
@@ -38,41 +38,41 @@ from ..forms import graph as g_forms
 Graph = get_graph_model()
 
 
-def abstract_add_graph(request, form=g_forms.GraphForm,
-                       submit_label=Graph.save_label,
-                      ):
-    warnings.warn('graphs.views.graph.abstract_dd_graph() is deprecated ; '
-                  'use the class-based view GraphCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_graph(request, form=g_forms.GraphForm,
+#                        submit_label=Graph.save_label,
+#                       ):
+#     warnings.warn('graphs.views.graph.abstract_dd_graph() is deprecated ; '
+#                   'use the class-based view GraphCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_graph(request, graph_id, form=g_forms.GraphForm):
-    warnings.warn('graphs.views.graph.abstract_edit_graph() is deprecated ; '
-                  'use the class-based view GraphEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, graph_id, Graph, form)
+# def abstract_edit_graph(request, graph_id, form=g_forms.GraphForm):
+#     warnings.warn('graphs.views.graph.abstract_edit_graph() is deprecated ; '
+#                   'use the class-based view GraphEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, graph_id, Graph, form)
 
 
-def abstract_view_graph(request, graph_id,
-                        template='graphs/view_graph.html',
-                       ):
-    warnings.warn('graphs.views.graph.abstract_view_graph() is deprecated ; '
-                  'use the class-based view GraphDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, graph_id, Graph, template=template)
+# def abstract_view_graph(request, graph_id,
+#                         template='graphs/view_graph.html',
+#                        ):
+#     warnings.warn('graphs.views.graph.abstract_view_graph() is deprecated ; '
+#                   'use the class-based view GraphDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, graph_id, Graph, template=template)
 
 
-@login_required
-@permission_required(('graphs', cperm(Graph)))
-def add(request):
-    warnings.warn('graphs.views.graph.add() is deprecated.', DeprecationWarning)
-    return abstract_add_graph(request)
+# @login_required
+# @permission_required(('graphs', cperm(Graph)))
+# def add(request):
+#     warnings.warn('graphs.views.graph.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_graph(request)
 
 
 @login_required
@@ -91,18 +91,18 @@ def dl_png(request, graph_id):
                      )
 
 
-@login_required
-@permission_required('graphs')
-def edit(request, graph_id):
-    warnings.warn('graphs.views.graph.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_graph(request, graph_id)
+# @login_required
+# @permission_required('graphs')
+# def edit(request, graph_id):
+#     warnings.warn('graphs.views.graph.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_graph(request, graph_id)
 
 
-@login_required
-@permission_required('graphs')
-def detailview(request, graph_id):
-    warnings.warn('graphs.views.graph.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_graph(request, graph_id)
+# @login_required
+# @permission_required('graphs')
+# def detailview(request, graph_id):
+#     warnings.warn('graphs.views.graph.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_graph(request, graph_id)
 
 
 @login_required
