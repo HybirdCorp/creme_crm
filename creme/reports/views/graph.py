@@ -19,14 +19,14 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core import utils
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem, RelationType, CustomField
@@ -43,62 +43,62 @@ ReportGraph = get_rgraph_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
-                        title=_('Create a graph for «%s»'),
-                        submit_label=ReportGraph.save_label,
-                       ):
-    warnings.warn('reports.views.graph.abstract_add_rgraph() is deprecated ; '
-                  'use the class-based view GraphCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_to_entity(request,
-                                 entity_id=report_id,
-                                 entity_class=get_report_model(),
-                                 form_class=form,
-                                 title=title, submit_label=submit_label,
-                                )
+# def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
+#                         title=_('Create a graph for «%s»'),
+#                         submit_label=ReportGraph.save_label,
+#                        ):
+#     warnings.warn('reports.views.graph.abstract_add_rgraph() is deprecated ; '
+#                   'use the class-based view GraphCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_to_entity(request,
+#                                  entity_id=report_id,
+#                                  entity_class=get_report_model(),
+#                                  form_class=form,
+#                                  title=title, submit_label=submit_label,
+#                                 )
 
 
-def abstract_edit_rgraph(request, graph_id, form=ReportGraphForm,
-                         title=_('Edit a graph for «%s»'),
-                        ):
-    warnings.warn('reports.views.graph.abstract_edit_rgraph() is deprecated ; '
-                  'use the class-based view GraphEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_related_to_entity(request, graph_id, ReportGraph, form, title)
+# def abstract_edit_rgraph(request, graph_id, form=ReportGraphForm,
+#                          title=_('Edit a graph for «%s»'),
+#                         ):
+#     warnings.warn('reports.views.graph.abstract_edit_rgraph() is deprecated ; '
+#                   'use the class-based view GraphEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_related_to_entity(request, graph_id, ReportGraph, form, title)
 
 
-def abstract_view_rgraph(request, graph_id, template='reports/view_graph.html'):
-    warnings.warn('reports.views.graph.abstract_view_rgraph() is deprecated ; '
-                  'use the class-based view GraphDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, graph_id, ReportGraph,
-                               template=template,
-                               extra_template_dict={'report_charts': report_chart_registry},
-                              )
+# def abstract_view_rgraph(request, graph_id, template='reports/view_graph.html'):
+#     warnings.warn('reports.views.graph.abstract_view_rgraph() is deprecated ; '
+#                   'use the class-based view GraphDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, graph_id, ReportGraph,
+#                                template=template,
+#                                extra_template_dict={'report_charts': report_chart_registry},
+#                               )
 
 
-@login_required
-@permission_required('reports')
-def add(request, report_id):
-    warnings.warn('reports.views.graph.add() is deprecated.', DeprecationWarning)
-    return abstract_add_rgraph(request, report_id)
+# @login_required
+# @permission_required('reports')
+# def add(request, report_id):
+#     warnings.warn('reports.views.graph.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_rgraph(request, report_id)
 
 
-@login_required
-@permission_required('reports')
-def edit(request, graph_id):
-    warnings.warn('reports.views.graph.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_rgraph(request, graph_id)
+# @login_required
+# @permission_required('reports')
+# def edit(request, graph_id):
+#     warnings.warn('reports.views.graph.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_rgraph(request, graph_id)
 
 
-@login_required
-@permission_required('reports')
-def detailview(request, graph_id):
-    warnings.warn('reports.views.graph.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_rgraph(request, graph_id)
+# @login_required
+# @permission_required('reports')
+# def detailview(request, graph_id):
+#     warnings.warn('reports.views.graph.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_rgraph(request, graph_id)
 
 
 # TODO: use prefix ?? (rfield-, ctield-, rtype-)
@@ -186,13 +186,13 @@ def fetch_graph(request, graph_id):
     return {'x': x, 'y': y, 'graph_id': graph_id}  # TODO: graph_id useful ??
 
 
-def fetch_graph_from_instanceblock(request, instance_block_id, entity_id):
-    warnings.warn('reports.views.graph.fetch_graph_from_instanceblock() is deprecated ; '
-                  'use fetch_graph_from_instancebrick() instead.',
-                  DeprecationWarning
-                 )
-
-    return fetch_graph_from_instancebrick(request, instance_brick_id=instance_block_id, entity_id=entity_id)
+# def fetch_graph_from_instanceblock(request, instance_block_id, entity_id):
+#     warnings.warn('reports.views.graph.fetch_graph_from_instanceblock() is deprecated ; '
+#                   'use fetch_graph_from_instancebrick() instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     return fetch_graph_from_instancebrick(request, instance_brick_id=instance_block_id, entity_id=entity_id)
 
 
 @jsonify

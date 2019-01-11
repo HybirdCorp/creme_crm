@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey, CASCADE
@@ -84,14 +84,14 @@ class AbstractReportGraph(CremeEntity):
 
         return self.hand.fetch(entities=entities, order=order, user=user)
 
-    @classmethod
-    def get_fetcher_from_instance_block(cls, instance_block_config):
-        warnings.warn('AbstractReportGraph.get_fetcher_from_instance_block() is deprecated ; '
-                      'use get_fetcher_from_instance_brick() instead.',
-                      DeprecationWarning
-                     )
-
-        return cls.get_fetcher_from_instance_brick(instance_block_config)
+    # @classmethod
+    # def get_fetcher_from_instance_block(cls, instance_block_config):
+    #     warnings.warn('AbstractReportGraph.get_fetcher_from_instance_block() is deprecated ; '
+    #                   'use get_fetcher_from_instance_brick() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return cls.get_fetcher_from_instance_brick(instance_block_config)
 
     @staticmethod
     def get_fetcher_from_instance_brick(instance_brick_config):
@@ -140,25 +140,25 @@ class AbstractReportGraph(CremeEntity):
     class InstanceBrickConfigItemError(Exception):
         pass
 
-    class InstanceBlockConfigItemError(Exception):
-        def __init__(self, *args, **kwarg):
-            warnings.warn('AbstractReportGraph.InstanceBlockConfigItemError is deprecated ; '
-                          'use InstanceBrickConfigItemError instead.',
-                          DeprecationWarning
-                         )
+    # class InstanceBlockConfigItemError(Exception):
+    #     def __init__(self, *args, **kwarg):
+    #         warnings.warn('AbstractReportGraph.InstanceBlockConfigItemError is deprecated ; '
+    #                       'use InstanceBrickConfigItemError instead.',
+    #                       DeprecationWarning
+    #                      )
+    #
+    #         super().__init__(*args, **kwarg)
 
-            super().__init__(*args, **kwarg)
-
-    def create_instance_block_config_item(self, *args, **kwargs):
-        warnings.warn('AbstractReportGraph.create_instance_block_config_item() is deprecated ; '
-                      'use create_instance_block_config_item() instead.',
-                      DeprecationWarning
-                     )
-
-        try:
-            return self.create_instance_brick_config_item(*args, **kwargs)
-        except self.InstanceBrickConfigItemError as e:
-            raise self.InstanceBlockConfigItemError(e.args[0])
+    # def create_instance_block_config_item(self, *args, **kwargs):
+    #     warnings.warn('AbstractReportGraph.create_instance_block_config_item() is deprecated ; '
+    #                   'use create_instance_block_config_item() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     try:
+    #         return self.create_instance_brick_config_item(*args, **kwargs)
+    #     except self.InstanceBrickConfigItemError as e:
+    #         raise self.InstanceBlockConfigItemError(e.args[0])
 
     def create_instance_brick_config_item(self, volatile_field=None, volatile_rtype=None, save=True):
         from ..bricks import ReportGraphBrick

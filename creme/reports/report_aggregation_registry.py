@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -58,13 +58,13 @@ class FieldAggregationRegistry:
     def aggregations(self):
         return iter(self._aggregations.values())
 
-    def itervalues(self):
-        warnings.warn('FieldAggregationRegistry.itervalues() is deprecated ; '
-                      'use FieldAggregationRegistry.aggregations instead.',
-                      DeprecationWarning
-                     )
-
-        return self.aggregations
+    # def itervalues(self):
+    #     warnings.warn('FieldAggregationRegistry.itervalues() is deprecated ; '
+    #                   'use FieldAggregationRegistry.aggregations instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return self.aggregations
 
 
 field_aggregation_registry = FieldAggregationRegistry()
