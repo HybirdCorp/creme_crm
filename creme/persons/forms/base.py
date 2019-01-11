@@ -35,7 +35,6 @@ _SHIPPING_ADDRESS_FIELD = 'shipping_address'
 
 
 def _get_address_field_names(addr_fieldname):
-    # form = AddressForm(entity=None, user=None, prefix=addr_fieldname)
     form = _AuxiliaryAddressForm(prefix=addr_fieldname)
     return [form.add_prefix(name) for name in form.base_fields]
 
@@ -55,7 +54,6 @@ class _BasePersonForm(CremeEntityForm):
     hide_shipping_address = False
 
     def __init__(self, *args, **kwargs):
-        # super(_BasePersonForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         fconfig = self.fields_configs.get_4_model(self.instance.__class__)
@@ -102,7 +100,6 @@ class _BasePersonForm(CremeEntityForm):
         return save_instance
 
     def save(self, *args, **kwargs):
-        # instance = super(_BasePersonForm, self).save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
         change4billing  = self._save_address(_BILLING_ADDRESS_FIELD,  _('Billing address'))
         change4shipping = self._save_address(_SHIPPING_ADDRESS_FIELD, _('Shipping address'))

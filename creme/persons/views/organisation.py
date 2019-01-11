@@ -145,27 +145,6 @@ class OrganisationEdition(generic.EntityEdition):
 
 # Other views  ----------------------------------------------------------------
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def set_managed(request):
-#     if request.method == 'POST':
-#         form = orga_forms.ManagedOrganisationsForm(user=request.user, data=request.POST)
-#
-#         if form.is_valid():
-#             form.save()
-#     else:
-#         form = orga_forms.ManagedOrganisationsForm(user=request.user)
-#
-#     return generic.inner_popup(request,
-#                                'creme_core/generics/blockform/edit_popup.html',
-#                                {'form':         form,
-#                                 'title':        _('Add some managed organisations'),
-#                                 'submit_label': _('Save the modifications'),
-#                                },
-#                                is_valid=form.is_valid(),
-#                                reload=False,
-#                                delegate_reload=True,
-#                               )
 class ManagedOrganisationsAdding(generic.CremeFormPopup):
     form_class = orga_forms.ManagedOrganisationsForm
     permissions = 'creme_core.can_admin'

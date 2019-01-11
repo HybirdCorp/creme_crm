@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -29,7 +28,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
-from creme.creme_core.models import CremeEntity, Language  # CremeEntityManager
+from creme.creme_core.models import CremeEntity, Language
 from creme.creme_core.models.fields import PhoneField
 from creme.creme_core.utils import update_model_instance
 
@@ -86,11 +85,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     image    = ImageEntityForeignKey(verbose_name=_('Photograph'),
                                      blank=True, null=True, on_delete=SET_NULL,
                                     ).set_tags(optional=True)
-
-    # objects = CremeEntityManager()
-
-    # # Needed because we expand its function fields in other apps (ie. billing)
-    # function_fields = CremeEntity.function_fields.new()
 
     search_score = 101
 
@@ -159,14 +153,12 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        # super(AbstractContact, self).delete(*args, **kwargs)
         super().delete(*args, **kwargs)
 
     def _post_save_clone(self, source):
         self._aux_post_save_clone(source)
 
     def save(self, *args, **kwargs):
-        # super(AbstractContact, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
         rel_user = self.is_user
@@ -181,7 +173,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     def trash(self):
         self._check_deletion()
-        # super(AbstractContact, self).trash()
         super().trash()
 
     @staticmethod

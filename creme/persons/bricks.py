@@ -20,10 +20,8 @@
 
 from collections import OrderedDict
 from functools import partial
-# import warnings
 
 from django.apps import apps
-# from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -76,8 +74,8 @@ if apps.is_installed('creme.activities'):
 
     class NeglectedContactIndicator:
         delta = timedelta(days=15)
-        label_not = _(u'Not contacted since 15 days')
-        label_never = _(u'Never contacted')
+        label_not = _('Not contacted since 15 days')
+        label_never = _('Never contacted')
 
         def __init__(self, context, contact):
             self.context = context
@@ -186,7 +184,7 @@ class ContactCardHatBrick(Brick):
     relation_type_deps = [constants.REL_SUB_EMPLOYED_BY] + Activities4Card.relation_type_deps\
                                                          + Opportunities4Card.relation_type_deps\
                                                          + CommercialActs4Card.relation_type_deps
-    verbose_name  = _(u'Card header block')
+    verbose_name  = _('Card header block')
     template_name = 'persons/bricks/contact-hat-card.html'
 
     def detailview_display(self, context):
@@ -216,7 +214,7 @@ class OrganisationCardHatBrick(Brick):
                          ] + Activities4Card.relation_type_deps\
                            + Opportunities4Card.relation_type_deps\
                            + CommercialActs4Card.relation_type_deps
-    verbose_name  = _(u'Card header block')
+    verbose_name  = _('Card header block')
     template_name = 'persons/bricks/organisation-hat-card.html'
 
     def detailview_display(self, context):
@@ -257,7 +255,7 @@ class ManagersBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('persons', 'managers')
     dependencies  = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_MANAGES, )
-    verbose_name  = _(u'Organisation managers')
+    verbose_name  = _('Organisation managers')
     template_name = 'persons/bricks/managers.html'
     target_ctypes = (Organisation,)
 
@@ -265,7 +263,7 @@ class ManagersBrick(QuerysetBrick):
         return orga.get_managers()
 
     def _get_add_title(self):
-        return _(u'Create a manager')  # Lazy -> translated only if used
+        return _('Create a manager')  # Lazy -> translated only if used
 
     def detailview_display(self, context):
         orga = context['object']
@@ -285,14 +283,14 @@ class ManagersBrick(QuerysetBrick):
 class EmployeesBrick(ManagersBrick):
     id_           = QuerysetBrick.generate_id('persons', 'employees')
     relation_type_deps = (constants.REL_OBJ_EMPLOYED_BY, )
-    verbose_name  = _(u'Organisation employees')
+    verbose_name  = _('Organisation employees')
     template_name = 'persons/bricks/employees.html'
 
     def _get_people_qs(self, orga):
         return orga.get_employees()
 
     def _get_add_title(self):
-        return _(u'Create an employee')  # Lazy -> translated only if used
+        return _('Create an employee')  # Lazy -> translated only if used
 
 
 # TODO: factorise (see CSV import) ? (exclude param in info_field_names())
@@ -309,7 +307,7 @@ def _get_address_field_names():
 
 class _AddressesBrick(Brick):
     dependencies  = (Address,)
-    verbose_name  = u'Addresses'
+    verbose_name  = 'Addresses'
     target_ctypes = (Contact, Organisation)
 
     def get_template_context(self, context, **kwargs):
@@ -347,7 +345,6 @@ class _AddressesBrick(Brick):
 
         build_cell = partial(EntityCellRegularField.build, model=Address)
 
-        # return super(_AddressesBrick, self).get_template_context(
         return super().get_template_context(
                     context,
                     b_address=b_address,
@@ -362,25 +359,24 @@ class _AddressesBrick(Brick):
 
 class DetailedAddressesBrick(_AddressesBrick):
     id_           = Brick.generate_id('persons', 'address')  # TODO: rename 'addresses'
-    verbose_name  = _(u'Addresses (detailed)')
+    verbose_name  = _('Addresses (detailed)')
     template_name = 'persons/bricks/addresses-detailed.html'
 
 
 class PrettyAddressesBrick(_AddressesBrick):
     id_           = Brick.generate_id('persons', 'addresses_pretty')
-    verbose_name  = _(u'Addresses (pretty)')
+    verbose_name  = _('Addresses (pretty)')
     template_name = 'persons/bricks/addresses-pretty.html'
 
 
 class _OtherAddressesBrick(QuerysetBrick):
     dependencies  = (Address,)
-    verbose_name  = u'Other addresses'
+    verbose_name  = 'Other addresses'
     target_ctypes = (Contact, Organisation)
 
     def get_template_context(self, context, **kwargs):
         build_cell = partial(EntityCellRegularField.build, model=Address)
 
-        # return super(_OtherAddressesBrick, self).get_template_context(
         return super().get_template_context(
                     context,
                     context['object'].other_addresses,
@@ -394,14 +390,14 @@ class _OtherAddressesBrick(QuerysetBrick):
 class DetailedOtherAddressesBrick(_OtherAddressesBrick):
     id_           = QuerysetBrick.generate_id('persons', 'other_address')  # TODO: rename 'other_addresses'
     dependencies  = (Address,)
-    verbose_name  = _(u'Other addresses (detailed)')
+    verbose_name  = _('Other addresses (detailed)')
     template_name = 'persons/bricks/other-addresses-detailed.html'
     target_ctypes = (Contact, Organisation)
 
 
 class PrettyOtherAddressesBrick(_OtherAddressesBrick):
     id_           = QuerysetBrick.generate_id('persons', 'other_addresses_pretty')
-    verbose_name  = _(u'Other addresses (pretty)')
+    verbose_name  = _('Other addresses (pretty)')
     template_name = 'persons/bricks/other-addresses-pretty.html'
 
 
@@ -435,9 +431,8 @@ if apps.is_installed('creme.activities'):
         """Customers/prospects organisations that have no Activity in the future."""
         id_           = PaginatedBrick.generate_id('persons', 'neglected_orgas')
         dependencies  = (Activity,)
-        verbose_name  = _(u'Neglected organisations')
+        verbose_name  = _('Neglected organisations')
         template_name = 'persons/bricks/neglected-organisations.html'
-        # target_apps   = ('persons', 'creme_core')  # DEPRECATED
 
         _RTYPE_IDS_CUSTOMERS = (constants.REL_SUB_CUSTOMER_SUPPLIER, constants.REL_SUB_PROSPECT)
         _RTYPE_IDS_ORGA_N_ACT = (activities_constants.REL_SUB_ACTIVITY_SUBJECT, activities_constants.REL_SUB_LINKED_2_ACTIVITY)
@@ -488,19 +483,6 @@ if apps.is_installed('creme.activities'):
                 neglected_orgas = [orga for orga in neglected_orgas if neglected_map[orga.id]]
 
             return neglected_orgas
-
-        # def portal_display(self, context, ct_ids):
-        #     warnings.warn('persons.bricks.NeglectedOrganisationsBrick.portal_display() is deprecated.',
-        #                   DeprecationWarning
-        #                  )
-        #
-        #     if not context['user'].has_perm('persons'):
-        #         raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
-        #
-        #     return self._render(self.get_template_context(
-        #                 context,
-        #                 self._get_neglected(context['today']),
-        #     ))
 
         def home_display(self, context):
             # We do not check the 'persons' permission, because it's only

@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
@@ -38,10 +37,6 @@ class AbstractAddress(CremeModel):
     state      = models.CharField(_('State'),      max_length=100, blank=True).set_tags(optional=True)
     country    = models.CharField(_('Country'),    max_length=40,  blank=True).set_tags(optional=True)
 
-    # content_type = models.ForeignKey(ContentType, related_name="object_set", editable=False, on_delete=models.CASCADE)\
-    #                                 .set_tags(viewable=False)
-    # object_id    = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
-    # owner        = GenericForeignKey(ct_field='content_type', fk_field='object_id')
     content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False) \
                                .set_tags(viewable=False)
     object       = models.ForeignKey(CremeEntity, related_name='persons_addresses',
@@ -100,7 +95,6 @@ class AbstractAddress(CremeModel):
     @classmethod
     def info_field_names(cls):
         is_field_hidden = FieldsConfig.get_4_model(cls).is_field_hidden
-        # excluded = {'id', 'content_type', 'object_id'}
         excluded = {'id', 'content_type', 'object'}  # TODO: just exclude not viewable ?
         return tuple(f.name
                         for f in cls._meta.fields

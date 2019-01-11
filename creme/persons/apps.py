@@ -38,7 +38,6 @@ class PersonsConfig(CremeAppConfig):
         self.Contact      = persons.get_contact_model()
         self.Organisation = persons.get_organisation_model()
         self.Address      = persons.get_address_model()
-        # super(PersonsConfig, self).all_apps_ready()
         super().all_apps_ready()
         self.hook_user()
         self.hook_user_form()
@@ -67,9 +66,8 @@ class PersonsConfig(CremeAppConfig):
         register(self.Contact)
 
     def register_buttons(self, button_registry):
-        # from .buttons import button_list
-        # button_registry.register(*button_list)
         from . import buttons
+
         button_registry.register(
             buttons.BecomeCustomerButton,
             buttons.BecomeProspectButton,
@@ -111,25 +109,12 @@ class PersonsConfig(CremeAppConfig):
         reg_form(Organisation, partial(get_massimport_form_builder, model=Organisation))
 
     def register_menu(self, creme_menu):
-        # from django.conf import settings
         from django.urls import reverse_lazy as reverse
+
+        from .gui import UserContactURLItem
 
         Contact = self.Contact
         Organisation = self.Organisation
-
-        # if settings.OLD_MENU:
-        #     from creme.creme_core.auth import build_creation_perm as cperm
-        #
-        #     reg_item = creme_menu.register_app('persons', '/persons/').register_item
-        #     reg_item(reverse('persons__portal'),              _(u'Portal of accounts and contacts'),     'persons')
-        #     reg_item(reverse('persons__list_contacts'),       _(u'All contacts'),                        'persons')
-        #     reg_item(reverse('persons__create_contact'),      Contact.creation_label,                    cperm(Contact))
-        #     reg_item(reverse('persons__leads_customers'),     _(u'My customers / prospects / suspects'), 'persons')
-        #     reg_item(reverse('persons__list_organisations'),  _(u'All organisations'),                   'persons')
-        #     reg_item(reverse('persons__create_organisation'), Organisation.creation_label,               cperm(Organisation))
-        # else:
-        from .gui import UserContactURLItem
-
         URLItem = creme_menu.URLItem
         creme_menu.get('creme', 'user').add(UserContactURLItem('persons-user_contact'), priority=2)
         creme_menu.get('features') \

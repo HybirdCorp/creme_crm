@@ -54,7 +54,6 @@ class _PersonMassImportForm(ImportForm4CremeEntity):  # TODO: rename 'PersonCSVI
             if extr_value:
                 address_dict[field_name] = extr_value
 
-            # self.append_error(line, err_msg, person)
             self.append_error(err_msg)
 
         if address_dict:
@@ -74,7 +73,6 @@ class _PersonMassImportForm(ImportForm4CremeEntity):  # TODO: rename 'PersonCSVI
         return save
 
     def _post_instance_creation(self, instance, line, updated):
-        # super(_PersonMassImportForm, self)._post_instance_creation(instance, line, updated)
         super()._post_instance_creation(instance, line, updated)
         data = self.cleaned_data
         save_address    = self._save_address
@@ -117,8 +115,8 @@ def get_massimport_form_builder(header_dict, choices, model, base_form=_PersonMa
     shipping_address_fnames = add_fields('shipping_address', _SHIP_PREFIX)
 
     attrs['blocks'] = ImportForm4CremeEntity.blocks.new(
-                            ('billing_address',  _(u'Billing address'),  billing_address_fnames),
-                            ('shipping_address', _(u'Shipping address'), shipping_address_fnames)
+                            ('billing_address',  _('Billing address'),  billing_address_fnames),
+                            ('shipping_address', _('Shipping address'), shipping_address_fnames)
                         )
 
     return type('PersonMassImportForm', (base_form,), attrs)

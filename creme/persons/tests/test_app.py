@@ -6,7 +6,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
 
-    from creme.creme_core.models import HeaderFilter, EntityFilter  # Relation
+    from creme.creme_core.models import HeaderFilter, EntityFilter
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -40,10 +40,6 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
                                     efilter.filter(Organisation.objects.all())
                                    )
 
-    # def test_portal(self):
-    #     self.login()
-    #     self.assertGET200(reverse('persons__portal'))
-
     def test_config_portal(self):
         self.login()
         response = self.assertGET200(reverse('creme_config__portal'))
@@ -62,25 +58,6 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         workflow.transform_target_into_prospect(source, target, user)
         self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
 
-    # def test_transform_target_into_prospect02(self):
-    #     "Crash with existing duplicated Relation"
-    #     user = self.login()
-    #     create_orga = partial(Organisation.objects.create, user=user)
-    #     source = create_orga(name='Source')
-    #     target = create_orga(name='Target')
-    #
-    #     for i_ in range(2):
-    #         Relation.objects.create(subject_entity=target,
-    #                                 type_id=constants.REL_SUB_PROSPECT,
-    #                                 object_entity=source,
-    #                                 user=user,
-    #                                )
-    #
-    #     with self.assertNoException():
-    #         workflow.transform_target_into_prospect(source, target, user)
-    #
-    #     self.assertRelationCount(2, target, constants.REL_SUB_PROSPECT, source)
-
     def test_transform_target_into_customer01(self):
         user = self.login()
         create_orga = partial(Organisation.objects.create, user=user)
@@ -93,22 +70,3 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         # Do not create duplicate
         workflow.transform_target_into_prospect(source, target, user)
         self.assertRelationCount(1, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)
-
-    # def test_transform_target_into_customer02(self):
-    #     "Crash with existing duplicated Relation"
-    #     user = self.login()
-    #     create_orga = partial(Organisation.objects.create, user=user)
-    #     source = create_orga(name='Source')
-    #     target = create_orga(name='Target')
-    #
-    #     for i_ in range(2):
-    #         Relation.objects.create(subject_entity=target,
-    #                                 type_id=constants.REL_SUB_CUSTOMER_SUPPLIER,
-    #                                 object_entity=source,
-    #                                 user=user,
-    #                                )
-    #
-    #     with self.assertNoException():
-    #         workflow.transform_target_into_customer(source, target, user)
-    #
-    #     self.assertRelationCount(2, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)

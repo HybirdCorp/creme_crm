@@ -37,14 +37,14 @@ Organisation = persons.get_organisation_model()
 
 
 class ContactQuickForm(CremeModelWithUserForm):  # NB: not CremeEntityForm to ignore custom fields
-    organisation = CharField(label=_(u'Organisation'), required=False,
-                             help_text=_(u'If no organisation is found, a new one will be created.'),
+    organisation = CharField(label=_('Organisation'), required=False,
+                             help_text=_('If no organisation is found, a new one will be created.'),
                             )
 
     error_messages = {
-        'forbidden_creation': _(u'You are not allowed to create an Organisation.'),
-        'no_linkable': _(u'No linkable Organisation found.'),
-        'several_found': _(u'Several Organisations with this name have been found.'),
+        'forbidden_creation': _('You are not allowed to create an Organisation.'),
+        'no_linkable': _('No linkable Organisation found.'),
+        'several_found': _('Several Organisations with this name have been found.'),
     }
 
     class Meta:
@@ -52,7 +52,6 @@ class ContactQuickForm(CremeModelWithUserForm):  # NB: not CremeEntityForm to ig
         fields = ('user', 'last_name', 'first_name', 'phone', 'email')
 
     def __init__(self, *args, **kwargs):
-        # super(ContactQuickForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         has_perm = self.user.has_perm_to_link
@@ -65,10 +64,10 @@ class ContactQuickForm(CremeModelWithUserForm):  # NB: not CremeEntityForm to ig
             orga_field = self.fields['organisation']
             orga_field.widget = Label()
             orga_field.help_text = ''
-            orga_field.initial = ugettext(u'You are not allowed to link with a Contact') if not c_link_perm else \
-                                 ugettext(u'You are not allowed to link with an Organisation')
+            orga_field.initial = ugettext('You are not allowed to link with a Contact') if not c_link_perm else \
+                                 ugettext('You are not allowed to link with an Organisation')
         elif not self.can_create():
-            self.fields['organisation'].help_text = ugettext(u'Enter the name of an existing Organisation.')
+            self.fields['organisation'].help_text = ugettext('Enter the name of an existing Organisation.')
 
     def can_create(self):
         return self.user.has_perm_to_create(Organisation)
@@ -109,7 +108,6 @@ class ContactQuickForm(CremeModelWithUserForm):  # NB: not CremeEntityForm to ig
         return orga_name
 
     def clean(self):
-        # cdata = super(ContactQuickForm, self).clean()
         cdata = super().clean()
 
         if not self._errors and cdata['organisation']:
@@ -126,7 +124,6 @@ class ContactQuickForm(CremeModelWithUserForm):  # NB: not CremeEntityForm to ig
         return EntityCredentials.filter(self.user, Organisation.objects.filter(name=orga_name))
 
     def save(self, *args, **kwargs):
-        # contact = super(ContactQuickForm, self).save(*args, **kwargs)
         contact = super().save(*args, **kwargs)
 
         if self.has_perm_to_link:

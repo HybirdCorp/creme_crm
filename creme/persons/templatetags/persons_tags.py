@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from contextlib import closing
 from io import StringIO
 
 from django import template
@@ -37,7 +36,6 @@ register = template.Library()
 def persons_pretty_address(address):
     is_field_hidden = FieldsConfig.get_4_model(address.__class__).is_fieldname_hidden
 
-    # with closing(StringIO()) as sio:
     with StringIO() as sio:
         write = sio.write
 
@@ -47,7 +45,6 @@ def persons_pretty_address(address):
 
         po_box = '' if is_field_hidden('po_box') else address.po_box
         if po_box:
-            # if sio.len:
             if sio.tell():
                 write('\n')
 
@@ -56,7 +53,6 @@ def persons_pretty_address(address):
         zipcode = '' if is_field_hidden('zipcode') else address.zipcode
         city    = '' if is_field_hidden('city')    else address.city
         if zipcode or city:
-            # if sio.len:
             if sio.tell():
                 write('\n')
 
@@ -78,14 +74,14 @@ def persons_pretty_contact(contact):
     last_name = contact.last_name.upper()
 
     if civ and civ.shortcut:
-        return _(u'{civility} {first_name} {last_name}').format(
+        return _('{civility} {first_name} {last_name}').format(
             civility=civ.shortcut,
             first_name=contact.first_name,
             last_name=last_name,
         )
 
     if contact.first_name:
-        return _(u'{first_name} {last_name}').format(
+        return _('{first_name} {last_name}').format(
             first_name=contact.first_name,
             last_name=last_name,
         )
@@ -93,7 +89,6 @@ def persons_pretty_contact(contact):
     return last_name or ''
 
 
-# @register.assignment_tag
 @register.simple_tag
 def persons_contact_first_employer(contact, user):
     info = {}

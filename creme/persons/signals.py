@@ -25,11 +25,9 @@ from django.db.models import signals
 from django.db.utils import DatabaseError
 from django.dispatch import receiver
 
-# from creme.creme_core.models import CremeEntity
-# from creme.creme_core.signals import pre_merge_related
 from creme.creme_core.utils import update_model_instance
 
-from . import get_contact_model  # get_address_model
+from . import get_contact_model
 from .constants import UUID_FIRST_CONTACT
 
 logger = logging.getLogger(__name__)
@@ -57,15 +55,3 @@ def sync_with_user(sender, instance, created, **kwargs):
         logger.warning('Can not create linked contact for this user: %s (if it is the first user,'
                        ' do not worry because it is normal) (%s)', instance, e
                       )
-
-
-# @receiver(signals.post_delete, sender=CremeEntity)
-# def dispose_addresses(sender, instance, **kwargs):
-#     get_address_model().objects.filter(object_id=instance.id).delete()
-
-
-# @receiver(pre_merge_related)
-# def handle_merge(sender, other_entity, **kwargs):
-#     for address in other_entity.other_addresses:
-#         address.owner = sender
-#         address.save()

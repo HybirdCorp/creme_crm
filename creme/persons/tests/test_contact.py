@@ -62,14 +62,12 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             'billaddr_department_colselect': 0,  'shipaddr_department_colselect': 0,
         }
 
-    # def _build_addrelated_uri(self, orga_id, rtype_id=None, url='/'):
     def _build_addrelated_url(self, orga_id, rtype_id=None):
         kwargs = {'orga_id': orga_id}
 
         if rtype_id:
             kwargs['rtype_id'] = rtype_id
 
-        # return reverse('persons__create_related_contact', kwargs=kwargs) + '?callback_url=' + url
         return reverse('persons__create_related_contact', kwargs=kwargs)
 
     def test_empty_fields(self):
@@ -151,9 +149,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNone(contact.billing_address)
         self.assertIsNone(contact.shipping_address)
 
-        abs_url = contact.get_absolute_url()
-        # self.assertEqual('/persons/contact/%s' % contact.id, abs_url)
-        self.assertRedirects(response, abs_url)
+        self.assertRedirects(response, contact.get_absolute_url())
 
     @skipIfCustomAddress
     def test_createview02(self):
@@ -364,17 +360,12 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(contact.get_absolute_url(), user.get_absolute_url())
 
     def test_is_user02(self):
-        """Contact.clean() + integrity of User.
-        # first_name = NULL (not nullable in User)
-        # email = NULL (not nullable in User)
-        """
+        """Contact.clean() + integrity of User."""
         user = self.login()
         contact = user.linked_contact
         last_name = contact.last_name
         first_name = contact.first_name
 
-        # contact.email = None
-        # contact.first_name = None
         contact.email = ''
         contact.first_name = ''
         contact.save()
@@ -427,15 +418,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Acme')
-        # redir = orga.get_absolute_url()
-        # uri = self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, redir)
         url = self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY)
-        # self.assertGET200(uri)
         self.assertGET200(url)
 
         first_name = 'Bugs'
         last_name = 'Bunny'
-        # response = self.client.post(uri, follow=True,
         response = self.client.post(url, follow=True,
                                     data={'orga_overview': 'dontcare',
                                           'relation':      'dontcare',
@@ -445,7 +432,6 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          },
                                    )
         self.assertNoFormError(response)
-        # self.assertRedirects(response, redir)
         self.assertRedirects(response, orga.get_absolute_url())
 
         contact = self.get_object_or_fail(Contact, first_name=first_name)
@@ -458,14 +444,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Acme')
-        # uri = self._build_addrelated_uri(orga.id, url=orga.get_absolute_url())
         url = self._build_addrelated_url(orga.id)
-        # self.assertGET200(uri)
         self.assertGET200(url)
 
         first_name = 'Bugs'
         last_name = 'Bunny'
-        # response = self.client.post(uri, follow=True,
         response = self.client.post(url, follow=True,
                                     data={'orga_overview': 'dontcare',
                                           'relation':      REL_SUB_EMPLOYED_BY,
@@ -495,21 +478,16 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_link(orga))
 
-        # uri = self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, orga.get_absolute_url())
         url = self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY)
-        # self.assertGET403(uri)
         self.assertGET403(url)
 
         get_ct = ContentType.objects.get_for_model
         create_sc(value=EntityCredentials.LINK, ctype=get_ct(Organisation))
-        # self.assertGET403(uri)
         self.assertGET403(url)
 
         create_sc(value=EntityCredentials.LINK, ctype=get_ct(Contact))
-        # self.assertGET200(uri)
         self.assertGET200(url)
 
-        # response = self.assertPOST200(uri, follow=True,
         response = self.assertPOST200(url, follow=True,
                                       data={'orga_overview': 'dontcare',
                                             'relation':      'dontcare',
@@ -540,7 +518,6 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga = Organisation.objects.create(user=user, name='Acme')
         self.assertFalse(user.has_perm_to_view(orga))
 
-        # response = self.client.get(self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, orga.get_absolute_url()))
         response = self.client.get(self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY))
         self.assertContains(response,
                             escape(_('You are not allowed to view this entity: {}').format(
@@ -572,10 +549,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_link(orga))
 
-        # uri = self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, orga.get_absolute_url())
-        url = self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY)
-        # self.assertGET403(uri)
-        self.assertGET403(url)
+        self.assertGET403(self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY))
 
     @skipIfCustomOrganisation
     def test_create_linked_contact06(self):
@@ -585,13 +559,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertGET404(self._build_addrelated_url(1024,  # Doesn't exist
                                                      REL_OBJ_EMPLOYED_BY,
-                                                     # orga.get_absolute_url(),
-                                                     )
+                                                    )
                          )
         self.assertGET404(self._build_addrelated_url(orga.id,
                                                      'IDONOTEXIST',
-                                                     # orga.get_absolute_url(),
-                                                     )
+                                                    )
                         )
 
         create_rtype = RelationType.create
@@ -640,29 +612,6 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertFormError(response, 'form', 'relation',
                              _('Select a valid choice. That choice is not one of the available choices.')
                             )
-
-    # @skipIfCustomOrganisation
-    # def test_create_linked_contact06(self):
-    #     "Unsafe redirection URL"
-    #     user = self.login()
-    #     orga = Organisation.objects.create(user=user, name='Acme')
-    #
-    #     first_name = 'Bugs'
-    #     last_name = 'Bunny'
-    #     response = self.client.post(self._build_addrelated_uri(orga.id, url='http://kernel.org'),
-    #                                 data={'user':          user.id,
-    #
-    #                                       'orga_overview': 'dontcare',
-    #                                       'relation':      REL_SUB_EMPLOYED_BY,
-    #
-    #                                       'first_name':    first_name,
-    #                                       'last_name':     last_name,
-    #                                      },
-    #                                )
-    #     self.assertNoFormError(response, status=302)
-    #
-    #     contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-    #     self.assertRedirects(response, contact.get_absolute_url())
 
     @skipIfCustomAddress
     def test_clone(self):
@@ -1504,11 +1453,6 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         with self.assertNoException():
             contact01 = self.refresh(contact01)
-
-        # self.assertFalse(Address.objects.filter(object_id=contact01.id))
-        # self.assertIsNone(contact01.billing_address)
-        # self.assertIsNone(contact01.shipping_address)
-        # self.assertDoesNotExist(ship_addr02)
 
         self.assertIsNone(contact01.billing_address)
 

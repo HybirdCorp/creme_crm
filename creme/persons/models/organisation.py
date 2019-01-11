@@ -78,9 +78,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
                                           blank=True, null=True, on_delete=SET_NULL,
                                          ).set_tags(optional=True)
 
-    # # Needed because we expand it's function fields in other apps (ie. billing)
-    # function_fields = CremeEntity.function_fields.new()
-
     search_score = 102
 
     creation_label = _('Create an organisation')
@@ -104,10 +101,8 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
                                          [self]
                                         )
 
-    # def delete(self, using=None):
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        # super(AbstractOrganisation, self).delete(using=using)
         super().delete(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -157,7 +152,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     def trash(self):
         self._check_deletion()
-        # super(AbstractOrganisation, self).trash()
         super().trash()
 
 

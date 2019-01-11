@@ -360,23 +360,12 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         url = reverse(url_name, args=(customer.id,))
         data = {'id': mng_orga.id}
-        # response = self.assertPOST200(url, data=data, follow=True)
         self.assertPOST200(url, data=data, follow=True)
-        # self.assertTrue(response.redirect_chain)
         self.get_object_or_fail(Relation, subject_entity=customer, object_entity=mng_orga, type=relation_type_id)
 
         # POST twice
         self.assertPOST200(url, data=data, follow=True)
         self.assertRelationCount(1, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id)
-
-        # # Duplicated Relation
-        # Relation.objects.create(subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id, user=user)
-        #
-        # with self.assertNoException():
-        #     response = self.client.post(url, data=data, follow=True)
-        #
-        # self.assertEqual(200, response.status_code)
-        # self.assertRelationCount(2, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id)
 
     def test_become_customer01(self):
         self._become_test('persons__become_customer', constants.REL_SUB_CUSTOMER_SUPPLIER)
@@ -779,10 +768,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         with self.assertNoException():
             orga01 = self.refresh(orga01)
-
-        # self.assertFalse(Address.objects.filter(object_id=orga01.id))
-        # self.assertIsNone(orga01.billing_address)
-        # self.assertIsNone(orga01.shipping_address)
 
         self.assertIsNone(orga01.shipping_address)
 
@@ -1193,7 +1178,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         url = reverse('persons__orga_set_managed')
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
