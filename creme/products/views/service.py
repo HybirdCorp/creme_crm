@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
@@ -35,55 +35,55 @@ Service = get_service_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_service(request, form=service_forms.ServiceCreateForm,
-                         submit_label=Service.save_label,
-                        ):
-    warnings.warn('products.views.service.abstract_add_service() is deprecated ; '
-                  'use the class-based view ServiceCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_service(request, form=service_forms.ServiceCreateForm,
+#                          submit_label=Service.save_label,
+#                         ):
+#     warnings.warn('products.views.service.abstract_add_service() is deprecated ; '
+#                   'use the class-based view ServiceCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_service(request, service_id, form=service_forms.ServiceEditForm):
-    warnings.warn('products.views.service.abstract_edit_service() is deprecated ; '
-                  'use the class-based view ServiceEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, service_id, Service, form)
+# def abstract_edit_service(request, service_id, form=service_forms.ServiceEditForm):
+#     warnings.warn('products.views.service.abstract_edit_service() is deprecated ; '
+#                   'use the class-based view ServiceEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, service_id, Service, form)
 
 
-def abstract_view_service(request, service_id,
-                          template='products/view_service.html',
-                         ):
-    warnings.warn('products.views.service.abstract_view_service() is deprecated ; '
-                  'use the class-based view ServiceDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, service_id, Service, template=template)
+# def abstract_view_service(request, service_id,
+#                           template='products/view_service.html',
+#                          ):
+#     warnings.warn('products.views.service.abstract_view_service() is deprecated ; '
+#                   'use the class-based view ServiceDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, service_id, Service, template=template)
 
 
-@login_required
-@permission_required(('products', cperm(Service)))
-def add(request):
-    warnings.warn('products.views.service.add() is deprecated.', DeprecationWarning)
-    return abstract_add_service(request)
+# @login_required
+# @permission_required(('products', cperm(Service)))
+# def add(request):
+#     warnings.warn('products.views.service.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_service(request)
 
 
-@login_required
-@permission_required('products')
-def edit(request, service_id):
-    warnings.warn('products.views.service.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_service(request, service_id)
+# @login_required
+# @permission_required('products')
+# def edit(request, service_id):
+#     warnings.warn('products.views.service.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_service(request, service_id)
 
 
-@login_required
-@permission_required('products')
-def detailview(request, service_id):
-    warnings.warn('products.views.service.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_service(request, service_id)
+# @login_required
+# @permission_required('products')
+# def detailview(request, service_id):
+#     warnings.warn('products.views.service.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_service(request, service_id)
 
 
 @login_required
