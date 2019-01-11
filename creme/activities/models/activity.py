@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db.models import (PositiveIntegerField, DateTimeField, CharField,
         TextField, BooleanField, ManyToManyField, ForeignKey, PROTECT, SET_NULL)
@@ -149,18 +149,18 @@ END:VEVENT
                                  ) \
                           .distinct()
 
-    @classmethod
-    def _get_linked_for_ctypes_aux(cls, ct_ids):
-        warnings.warn('AbstractActivity._get_linked_for_ctypes_aux() is deprecated.',
-                      DeprecationWarning
-                     )
-
-        types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        return cls.objects.filter(is_deleted=False,
-                                  relations__object_entity__entity_type__in=ct_ids,
-                                  relations__type__in=types,
-                                 ) \
-                          .distinct()
+    # @classmethod
+    # def _get_linked_for_ctypes_aux(cls, ct_ids):
+    #     warnings.warn('AbstractActivity._get_linked_for_ctypes_aux() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+    #     return cls.objects.filter(is_deleted=False,
+    #                               relations__object_entity__entity_type__in=ct_ids,
+    #                               relations__type__in=types,
+    #                              ) \
+    #                       .distinct()
 
     # TODO: test
     @classmethod
@@ -180,12 +180,12 @@ END:VEVENT
     def get_future_linked(cls, entity, today):  # TODO end greater than today or floating type equal to floating
         return cls._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
-    @classmethod
-    def get_future_linked_for_ctypes(cls, ct_ids, today):
-        warnings.warn('AbstractActivity.get_future_linked_for_ctypes() is deprecated.',
-                      DeprecationWarning
-                     )
-        return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
+    # @classmethod
+    # def get_future_linked_for_ctypes(cls, ct_ids, today):
+    #     warnings.warn('AbstractActivity.get_future_linked_for_ctypes() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #     return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
 
     @classmethod
     def get_future_linked_for_orga(cls, orga, today):
@@ -195,12 +195,12 @@ END:VEVENT
     def get_past_linked(cls, entity, today):
         return cls._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
 
-    @classmethod
-    def get_past_linked_for_ctypes(cls, ct_ids, today):
-        warnings.warn('AbstractActivity.get_past_linked_for_ctypes() is deprecated.',
-                      DeprecationWarning
-                     )
-        return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
+    # @classmethod
+    # def get_past_linked_for_ctypes(cls, ct_ids, today):
+    #     warnings.warn('AbstractActivity.get_past_linked_for_ctypes() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #     return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
 
     @classmethod
     def get_past_linked_for_orga(cls, orga, today):
@@ -220,15 +220,15 @@ END:VEVENT
     def is_auto_orga_subject_enabled(self):
         return SettingValue.objects.get_4_key(auto_subjects_key, default=False).value
 
-    @staticmethod
-    def display_review():
-        warnings.warn('AbstractActivity.display_review() is deprecated ; '
-                      'use "SettingValue.objects.get_4_key(setting_keys.review_key).value" instead.',
-                      DeprecationWarning
-                     )
-        from ..constants import SETTING_DISPLAY_REVIEW
-
-        return SettingValue.objects.get(key_id=SETTING_DISPLAY_REVIEW).value
+    # @staticmethod
+    # def display_review():
+    #     warnings.warn('AbstractActivity.display_review() is deprecated ; '
+    #                   'use "SettingValue.objects.get_4_key(setting_keys.review_key).value" instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     from ..constants import SETTING_DISPLAY_REVIEW
+    #
+    #     return SettingValue.objects.get(key_id=SETTING_DISPLAY_REVIEW).value
 
     def _copy_relations(self, source):
         super()._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])

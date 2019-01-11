@@ -41,6 +41,7 @@ QUnit.test('creme.activities.ExportAsICalAction (ok)', function(assert) {
     deepEqual(['mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
 });
 
+/*
 QUnit.test('creme.activities.exportAsICal', function(assert) {
     var list = this.createDefaultListView();
 
@@ -54,3 +55,4 @@ QUnit.test('creme.activities.exportAsICal', function(assert) {
 
     deepEqual(['mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
 });
+*/
