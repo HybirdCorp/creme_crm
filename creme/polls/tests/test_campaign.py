@@ -23,9 +23,6 @@ except Exception as e:
 
 @skipIfCustomPollCampaign
 class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
-    # def setUp(self):
-    #     self.login()
-
     def _create_segment(self, name, label):  # TODO: inline ?
         ptype = CremePropertyType.create('polls-prop_{}'.format(name), 'is from segment "{}"'.format(label))
         return MarketSegment.objects.create(name=label, property_type=ptype)
@@ -155,11 +152,9 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         url = reverse('polls__create_reply_from_campaign', args=(camp.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New replies for «%s»') % camp, context.get('title'))
         self.assertEqual(_('New replies for «{entity}»').format(entity=camp),
                          context.get('title')
                         )

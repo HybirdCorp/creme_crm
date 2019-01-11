@@ -19,7 +19,6 @@
 ################################################################################
 
 from creme.creme_core.forms import CremeEntityForm
-# from creme.creme_core.forms.widgets import CalendarWidget
 
 from .. import get_pollcampaign_model
 
@@ -27,10 +26,3 @@ from .. import get_pollcampaign_model
 class PollCampaignForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = get_pollcampaign_model()
-
-    # def __init__(self, *args, **kwargs):
-    #     super(PollCampaignForm, self).__init__(*args, **kwargs)
-    #     fields = self.fields
-    #     print('OLA')
-    #     fields['start'].widget = CalendarWidget()
-    #     fields['due_date'].widget = CalendarWidget()

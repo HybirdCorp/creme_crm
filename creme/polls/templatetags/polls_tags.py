@@ -19,7 +19,7 @@
 ################################################################################
 
 from json import dumps as json_dump
-import logging  # warnings
+import logging
 
 from django import template
 from django.utils.safestring import mark_safe
@@ -44,10 +44,10 @@ def poll_line_condition(nodes, condition):
     answer = source.poll_line_type.decode_condition(condition.raw_answer)
 
     if isinstance(answer, list):  # TODO: move logic to core.py ???:
-        msg_fmt = _(u'The answer to the question #{number} contains «{answer}».')
-        answer = u' / '.join(answer)  # TODO: stringify sub elements ?
+        msg_fmt = _('The answer to the question #{number} contains «{answer}».')
+        answer = ' / '.join(answer)  # TODO: stringify sub elements ?
     else:
-        msg_fmt = _(u'The answer to the question #{number} is «{answer}».')
+        msg_fmt = _('The answer to the question #{number} is «{answer}».')
 
     return msg_fmt.format(number=source.number,
                           answer=answer,
@@ -69,7 +69,7 @@ def poll_stats_chart(node):
     try:
         if node.type == PollLineType.BOOL:
             chartpath = 'polls/templatetags/plots/boolean.html'
-            data = [[[percent, 1, u'{} − {} %'.format(answer, percent)]]
+            data = [[[percent, 1, '{} − {} %'.format(answer, percent)]]
                         for answer, _stat, percent in node.answer_stats
                    ]
         else:
@@ -87,4 +87,4 @@ def poll_stats_chart(node):
     except Exception:
         logger.exception('An error occurred in {% poll_stats_chart %}')
 
-        return _(u'[An error occurred]')
+        return _('[An error occurred]')
