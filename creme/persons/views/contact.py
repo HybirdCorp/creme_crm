@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import RelationType
@@ -39,115 +39,115 @@ Contact = get_contact_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_contact(request, form=c_forms.ContactForm,
-                         template='persons/add_contact_form.html',
-                         submit_label=Contact.save_label,
-                        ):
-    warnings.warn('persons.views.contact.abstract_add_contact() is deprecated ; '
-                  'use the class-based view ContactCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form, template=template,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_contact(request, form=c_forms.ContactForm,
+#                          template='persons/add_contact_form.html',
+#                          submit_label=Contact.save_label,
+#                         ):
+#     warnings.warn('persons.views.contact.abstract_add_contact() is deprecated ; '
+#                   'use the class-based view ContactCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form, template=template,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_add_related_contact(request, orga_id, rtype_id,
-                                 form=c_forms.RelatedContactForm,
-                                 template='persons/add_contact_form.html',
-                                 submit_label=Contact.save_label,
-                                ):
-    warnings.warn('persons.views.contact.abstract_add_related_contact() is deprecated ; '
-                  'use the class-based view RelatedContactCreation instead.',
-                  DeprecationWarning
-                 )
-
-    from django.utils.http import is_safe_url
-
-    user = request.user
-    linked_orga = get_object_or_404(get_organisation_model(), pk=orga_id)
-    user.has_perm_to_view_or_die(linked_orga)  # Displayed in the form....
-    user.has_perm_to_link_or_die(linked_orga)
-
-    user.has_perm_to_link_or_die(Contact)
-
-    initial = {'linked_orga': linked_orga}
-
-    if rtype_id:
-        rtype = get_object_or_404(RelationType, id=rtype_id)
-
-        if rtype.is_internal:
-            raise ConflictError('This RelationType cannot be used because it is internal.')
-
-        if not rtype.is_compatible(linked_orga.entity_type_id):
-            raise ConflictError('This RelationType is not compatible with Organisation as subject')
-
-        # TODO: improve API of is_compatible
-        if not rtype.symmetric_type.is_compatible(ContentType.objects.get_for_model(Contact).id):
-            raise ConflictError('This RelationType is not compatible with Contact as relationship-object')
-
-        initial['relation_type'] = rtype.symmetric_type
-
-    redirect_to = request.POST.get('callback_url') or request.GET.get('callback_url')
-    redirect_to_is_safe = is_safe_url(
-        url=redirect_to,
-        allowed_hosts={request.get_host()},
-        require_https=request.is_secure(),
-    )
-
-    return generic.add_entity(request, form,
-                              url_redirect=redirect_to if redirect_to_is_safe else '',
-                              template=template, extra_initial=initial,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
-
-
-def abstract_edit_contact(request, contact_id, form=c_forms.ContactForm,
-                          template='persons/edit_contact_form.html',
-                         ):
-    warnings.warn('persons.views.contact.abstract_edit_contact() is deprecated ; '
-                  'use the class-based view ContactEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, contact_id, model=Contact, edit_form=form, template=template)
+# def abstract_add_related_contact(request, orga_id, rtype_id,
+#                                  form=c_forms.RelatedContactForm,
+#                                  template='persons/add_contact_form.html',
+#                                  submit_label=Contact.save_label,
+#                                 ):
+#     warnings.warn('persons.views.contact.abstract_add_related_contact() is deprecated ; '
+#                   'use the class-based view RelatedContactCreation instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     from django.utils.http import is_safe_url
+#
+#     user = request.user
+#     linked_orga = get_object_or_404(get_organisation_model(), pk=orga_id)
+#     user.has_perm_to_view_or_die(linked_orga)  # Displayed in the form....
+#     user.has_perm_to_link_or_die(linked_orga)
+#
+#     user.has_perm_to_link_or_die(Contact)
+#
+#     initial = {'linked_orga': linked_orga}
+#
+#     if rtype_id:
+#         rtype = get_object_or_404(RelationType, id=rtype_id)
+#
+#         if rtype.is_internal:
+#             raise ConflictError('This RelationType cannot be used because it is internal.')
+#
+#         if not rtype.is_compatible(linked_orga.entity_type_id):
+#             raise ConflictError('This RelationType is not compatible with Organisation as subject')
+#
+#         # todo: improve API of is_compatible
+#         if not rtype.symmetric_type.is_compatible(ContentType.objects.get_for_model(Contact).id):
+#             raise ConflictError('This RelationType is not compatible with Contact as relationship-object')
+#
+#         initial['relation_type'] = rtype.symmetric_type
+#
+#     redirect_to = request.POST.get('callback_url') or request.GET.get('callback_url')
+#     redirect_to_is_safe = is_safe_url(
+#         url=redirect_to,
+#         allowed_hosts={request.get_host()},
+#         require_https=request.is_secure(),
+#     )
+#
+#     return generic.add_entity(request, form,
+#                               url_redirect=redirect_to if redirect_to_is_safe else '',
+#                               template=template, extra_initial=initial,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_view_contact(request, contact_id,
-                          template='persons/view_contact.html',
-                         ):
-    warnings.warn('persons.views.contact.abstract_view_contact() is deprecated ; '
-                  'use the class-based view ContactDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, contact_id, model=Contact, template=template)
+# def abstract_edit_contact(request, contact_id, form=c_forms.ContactForm,
+#                           template='persons/edit_contact_form.html',
+#                          ):
+#     warnings.warn('persons.views.contact.abstract_edit_contact() is deprecated ; '
+#                   'use the class-based view ContactEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, contact_id, model=Contact, edit_form=form, template=template)
 
 
-@login_required
-@permission_required(('persons', cperm(Contact)))
-def add(request):
-    warnings.warn('persons.views.contact.add() is deprecated.', DeprecationWarning)
-    return abstract_add_contact(request)
+# def abstract_view_contact(request, contact_id,
+#                           template='persons/view_contact.html',
+#                          ):
+#     warnings.warn('persons.views.contact.abstract_view_contact() is deprecated ; '
+#                   'use the class-based view ContactDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, contact_id, model=Contact, template=template)
 
 
-@login_required
-@permission_required(('persons', cperm(Contact)))
-def add_related_contact(request, orga_id, rtype_id=None):
-    warnings.warn('persons.views.contact.add_related_contact() is deprecated.', DeprecationWarning)
-    return abstract_add_related_contact(request, orga_id, rtype_id)
+# @login_required
+# @permission_required(('persons', cperm(Contact)))
+# def add(request):
+#     warnings.warn('persons.views.contact.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_contact(request)
 
 
-@login_required
-@permission_required('persons')
-def edit(request, contact_id):
-    warnings.warn('persons.views.contact.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_contact(request, contact_id)
+# @login_required
+# @permission_required(('persons', cperm(Contact)))
+# def add_related_contact(request, orga_id, rtype_id=None):
+#     warnings.warn('persons.views.contact.add_related_contact() is deprecated.', DeprecationWarning)
+#     return abstract_add_related_contact(request, orga_id, rtype_id)
 
 
-@login_required
-@permission_required('persons')
-def detailview(request, contact_id):
-    warnings.warn('persons.views.contact.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_contact(request, contact_id)
+# @login_required
+# @permission_required('persons')
+# def edit(request, contact_id):
+#     warnings.warn('persons.views.contact.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_contact(request, contact_id)
+
+
+# @login_required
+# @permission_required('persons')
+# def detailview(request, contact_id):
+#     warnings.warn('persons.views.contact.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_contact(request, contact_id)
 
 
 @login_required
