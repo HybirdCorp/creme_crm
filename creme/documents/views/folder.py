@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.db.models.query_utils import Q
 from django.shortcuts import get_object_or_404
@@ -40,34 +40,34 @@ Folder = get_folder_model()
 
 # Function views --------------------------------------------------------------
 
-def abstract_add_folder(request, form=f_forms.FolderForm,
-                        submit_label=Folder.save_label,
-                       ):
-    warnings.warn('documents.views.folder.abstract_add_folder() is deprecated ; '
-                  'use the class-based view FolderDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_folder(request, form=f_forms.FolderForm,
+#                         submit_label=Folder.save_label,
+#                        ):
+#     warnings.warn('documents.views.folder.abstract_add_folder() is deprecated ; '
+#                   'use the class-based view FolderDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_folder(request, folder_id, form=f_forms.FolderForm):
-    warnings.warn('documents.views.folder.abstract_edit_folder() is deprecated ; '
-                  'use the class-based view FolderEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, folder_id, Folder, form)
+# def abstract_edit_folder(request, folder_id, form=f_forms.FolderForm):
+#     warnings.warn('documents.views.folder.abstract_edit_folder() is deprecated ; '
+#                   'use the class-based view FolderEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, folder_id, Folder, form)
 
 
-def abstract_view_folder(request, folder_id,
-                         template='documents/view_folder.html',
-                        ):
-    warnings.warn('documents.views.folder.abstract_view_folder() is deprecated ; '
-                  'use the class-based view FolderDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, folder_id, Folder, template=template)
+# def abstract_view_folder(request, folder_id,
+#                          template='documents/view_folder.html',
+#                         ):
+#     warnings.warn('documents.views.folder.abstract_view_folder() is deprecated ; '
+#                   'use the class-based view FolderDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, folder_id, Folder, template=template)
 
 
 def abstract_list_folders(request, **extra_kwargs):
@@ -111,25 +111,25 @@ def abstract_list_folders(request, **extra_kwargs):
     )
 
 
-@login_required
-@permission_required(('documents', cperm(Folder)))
-def add(request):
-    warnings.warn('documents.views.folder.add() is deprecated.', DeprecationWarning)
-    return abstract_add_folder(request)
+# @login_required
+# @permission_required(('documents', cperm(Folder)))
+# def add(request):
+#     warnings.warn('documents.views.folder.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_folder(request)
 
 
-@login_required
-@permission_required('documents')
-def edit(request, folder_id):
-    warnings.warn('documents.views.folder.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_folder(request, folder_id)
+# @login_required
+# @permission_required('documents')
+# def edit(request, folder_id):
+#     warnings.warn('documents.views.folder.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_folder(request, folder_id)
 
 
-@login_required
-@permission_required('documents')
-def detailview(request, folder_id):
-    warnings.warn('documents.views.folder.abstract_view_folder() is deprecated.', DeprecationWarning)
-    return abstract_view_folder(request, folder_id)
+# @login_required
+# @permission_required('documents')
+# def detailview(request, folder_id):
+#     warnings.warn('documents.views.folder.abstract_view_folder() is deprecated.', DeprecationWarning)
+#     return abstract_view_folder(request, folder_id)
 
 
 @login_required
