@@ -39,7 +39,6 @@ TemplateBase = get_template_base_model()
 class RecurrentsBillingTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(RecurrentsBillingTestCase, cls).setUpClass()
         super().setUpClass()
 
         Vat.objects.get_or_create(is_default=True, defaults={'value': DEFAULT_VAT})
@@ -126,8 +125,6 @@ class RecurrentsBillingTestCase(CremeTestCase):
         self.assertEqual(source,    tpl.get_source().get_real_entity())
         self.assertEqual(target,    tpl.get_target().get_real_entity())
 
-        # self.assertEqual(status.name, tpl.verbose_status)
-
         billing_address = tpl.billing_address
         self.assertIsInstance(billing_address, Address)
         self.assertEqual(tpl, billing_address.owner)
@@ -180,7 +177,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
     def test_create_credentials01(self):
         "Creation credentials for generated models"
         user = self.login(is_superuser=False, allowed_apps=['persons', 'recurrents'],
-                          creatable_models=[RecurrentGenerator, Quote], #not Invoice
+                          creatable_models=[RecurrentGenerator, Quote],  # Not Invoice
                          )
 
         url = self.ADD_URL
