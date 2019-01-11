@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Mobile 2.0\n"
+"Project-Id-Version: Creme Mobile 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-05 11:37+0200\n"
+"POT-Creation-Date: 2018-12-05 15:04+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -268,15 +268,15 @@ msgstr "Erreur ! (%(status)s)"
 msgid "Detail:"
 msgstr "Détail :"
 
-#: templates/mobile/frags/button_done.html:4
+#: templates/mobile/frags/button_done.html:3
 msgid "This call has already been spent"
 msgstr "Cet appel a déjà été passé"
 
-#: templates/mobile/frags/buttons_start_stop.html:5
+#: templates/mobile/frags/buttons_start_stop.html:4
 msgid "Start this activity"
 msgstr "Commencer l'activité"
 
-#: templates/mobile/frags/buttons_start_stop.html:10
+#: templates/mobile/frags/buttons_start_stop.html:8
 msgid "Stop this activity"
 msgstr "Terminer l'activité"
 
@@ -316,8 +316,8 @@ msgstr "fonction"
 msgid "organisation"
 msgstr "société"
 
-#: templates/mobile/frags/phonecall_script.html:101
-#: templates/mobile/frags/phonecall_script.html:145
+#: templates/mobile/frags/phonecall_script.html:99
+#: templates/mobile/frags/phonecall_script.html:143
 msgid "Error"
 msgstr "Erreur"
 
@@ -436,11 +436,11 @@ msgid "d/m/Y H:i"
 msgstr "d/m/Y H\\hi"
 
 # Already in creme_core
-#: templates/mobile/templatetags/footer.html:4
+#: templates/mobile/templatetags/footer.html:3
 msgid "Log out"
 msgstr ""
 
-#: templates/mobile/templatetags/footer.html:5
+#: templates/mobile/templatetags/footer.html:4
 msgid "Go to the complete site"
 msgstr "Accéder au site complet"
 
@@ -502,42 +502,42 @@ msgid "Do not save"
 msgstr "Ne pas sauvegarder"
 
 # Already in creme_core
-#: views.py:83
+#: views.py:88
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:86
+#: views.py:92
 msgid "The page you have requested is not found."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:89
+#: views.py:96
 msgid "You can not perform this action because of business constraints."
 msgstr ""
 
-#: views.py:250
+#: views.py:302
 msgid "Your search is too short."
 msgstr "Votre recherche est trop courte."
 
-#: views.py:481
+#: views.py:539
 msgid "You cannot create a call to yourself."
 msgstr "Vous ne pouvez pas créer un appel vers vous-même."
 
-#: views.py:540 views.py:577
+#: views.py:599 views.py:636
 #, python-brace-format
 msgid "{status} call to {person} from Creme Mobile"
 msgstr "Appel {status} vers {person} depuis Creme Mobile"
 
-#: views.py:541
+#: views.py:600
 msgid "Successful"
 msgstr "réussi"
 
-#: views.py:578
+#: views.py:637
 msgid "Failed"
 msgstr "échoué"
 
-#: views.py:635
+#: views.py:695
 msgid "Call to {} from Creme Mobile"
 msgstr "Appel vers {} depuis Creme Mobile"
 
