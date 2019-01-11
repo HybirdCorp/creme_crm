@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from json import dumps as json_dump
-
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -42,10 +40,9 @@ class DocumentBarHatBrick(SimpleBrick):
 
 
 class DocumentBrick(EntityBrick):
-    verbose_name = _(u'Information on the document')
+    verbose_name = _('Information on the document')
 
     def _get_cells(self, entity, context):
-        # cells = super(DocumentBrick, self)._get_cells(entity=entity, context=context)
         cells = super()._get_cells(entity=entity, context=context)
         cells.append(EntityCellRegularField.build(model=Document, name='categories'))
 
@@ -58,7 +55,7 @@ class DocumentBrick(EntityBrick):
 class FolderDocsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('documents', 'folder_docs')
     dependencies  = (Document,)
-    verbose_name  = _(u'Folder documents')
+    verbose_name  = _('Folder documents')
     template_name = 'documents/bricks/documents.html'
     target_ctypes = (Folder,)
     order_by      = 'title'
@@ -70,7 +67,6 @@ class FolderDocsBrick(QuerysetBrick):
                     context,
                     Document.objects.filter(**q_dict),
                     # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
-                    # q_filter=json_dump(q_dict),
                     q_filter=QSerializer().dumps(Q(**q_dict)),
         ))
 
@@ -79,7 +75,7 @@ class ChildFoldersBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('documents', 'child_folders')
     dependencies  = (Folder,)
     order_by      = 'title'
-    verbose_name  = _(u'Child Folders')
+    verbose_name  = _('Child Folders')
     template_name = 'documents/bricks/child-folders.html'
     target_ctypes = (Folder,)
 
@@ -97,7 +93,7 @@ class LinkedDocsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('documents', 'linked_docs')
     dependencies  = (Relation, Document)
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )
-    verbose_name  = _(u'Linked documents')
+    verbose_name  = _('Linked documents')
     template_name = 'documents/bricks/linked-docs.html'
     order_by      = 'id'  # For consistent ordering between 2 queries (for pages)
 

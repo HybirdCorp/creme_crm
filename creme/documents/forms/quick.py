@@ -39,11 +39,9 @@ Document = get_document_model()
 class DocumentQuickForm(CremeModelWithUserForm):
     class Meta:
         model = Document
-        # fields = ('user', 'filedata', 'folder')
         fields = ('user', 'filedata', 'linked_folder')
 
     def __init__(self, *args, **kwargs):
-        # super(DocumentQuickForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         folder_f = self.fields.get('linked_folder')
@@ -64,7 +62,6 @@ class DocumentQuickForm(CremeModelWithUserForm):
             )
         assign_2_charfield(instance, 'title', basename(fpath))
 
-        # return super(DocumentQuickForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -74,7 +71,6 @@ class DocumentWidgetQuickForm(DocumentQuickForm):
         fields = ('user', 'filedata')
 
     def __init__(self, folder=None, user=None, *args, **kwargs):
-        # super(DocumentWidgetQuickForm, self).__init__(user=user, *args, **kwargs)
         super().__init__(user=user, *args, **kwargs)
         self.folder = folder
 
@@ -82,14 +78,12 @@ class DocumentWidgetQuickForm(DocumentQuickForm):
         if self.folder is not None:
             self.instance.linked_folder = self.folder
 
-        # return super(DocumentWidgetQuickForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
 # TODO: check Mimetype of the uploaded file ?
 class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
     def __init__(self, user=None, *args, **kwargs):
-        # super(DocumentWidgetQuickForm, self).__init__(user=user, *args, **kwargs)
         super().__init__(user=user, *args, **kwargs)
         self.fields['filedata'].widget.attrs = {'accept': ','.join('.' + ext
                                                                        for ext in import_backend_registry.extensions
@@ -98,7 +92,6 @@ class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
 
     def clean(self):
         self.folder = get_csv_folder_or_create(self.user)
-        # return super(CSVDocumentWidgetQuickForm, self).clean()
         return super().clean()
 
 
@@ -108,11 +101,9 @@ class ImageQuickForm(CremeModelWithUserForm):
 
     class Meta:
         model = Document
-        # fields = ('user', 'image', 'folder')
         fields = ('user', 'image', 'linked_folder')
 
     def __init__(self, *args, **kwargs):
-        # super(ImageQuickForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         fields = self.fields
         fields['linked_folder'].initial = get_folder_model().objects.filter(uuid=constants.UUID_FOLDER_IMAGES).first()
@@ -129,5 +120,4 @@ class ImageQuickForm(CremeModelWithUserForm):
             )
         assign_2_charfield(instance, 'title', basename(fpath))
 
-        # return super(ImageQuickForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)

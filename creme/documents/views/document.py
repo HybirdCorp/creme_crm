@@ -20,12 +20,10 @@
 
 import warnings
 
-# from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-# from creme.creme_core.models import CremeEntity
 from creme.creme_core.views import generic
 
 from .. import get_folder_model, get_document_model
@@ -53,24 +51,6 @@ def abstract_add_document(request, form=doc_forms.DocumentCreateForm,
     )
 
 
-# def abstract_add_related_document(request, entity_id,
-#                                   form=doc_forms.RelatedDocumentCreateForm,
-#                                   title=_('New document for «%s»'),
-#                                   submit_label=Document.save_label,
-#                                  ):
-#     entity = get_object_or_404(CremeEntity, pk=entity_id)
-#     user = request.user
-#
-#     user.has_perm_to_view_or_die(entity)
-#     user.has_perm_to_link_or_die(entity)
-#     user.has_perm_to_link_or_die(Document, owner=None)
-#
-#     return generic.add_model_with_popup(request, form, title % entity,
-#                                         initial={'entity': entity},
-#                                         submit_label=submit_label,
-#                                        )
-
-
 def abstract_edit_document(request, document_id, form=doc_forms.DocumentEditForm):
     warnings.warn('documents.views.document.abstract_edit_document() is deprecated ; '
                   'use the class-based view DocumentEdition instead.',
@@ -94,12 +74,6 @@ def abstract_view_document(request, object_id,
 def add(request):
     warnings.warn('documents.views.document.add() is deprecated.', DeprecationWarning)
     return abstract_add_document(request)
-
-
-# @login_required
-# @permission_required(('documents', cperm(Document)))
-# def add_related(request, entity_id):
-#     return abstract_add_related_document(request, entity_id)
 
 
 @login_required

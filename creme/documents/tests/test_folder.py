@@ -26,16 +26,10 @@ except Exception as e:
 class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        # super(FolderTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.ADD_URL  = reverse('documents__create_folder')
         cls.LIST_URL = reverse('documents__list_folders')
-
-    # def setUp(self):
-    #     # super(FolderTestCase, self).setUp()
-    #     super().setUp()
-    #     self.login()
 
     def test_createview01(self):
         "No parent folder"
@@ -123,7 +117,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         url = reverse('documents__create_child_folder', args=(parent.id,))
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New child folder for «%s»') % parent, context.get('title'))
         self.assertEqual(_('New child folder for «{entity}»').format(entity=parent),
                          context.get('title')
                         )

@@ -36,7 +36,6 @@ class DocumentsConfig(CremeAppConfig):
 
         self.Document = get_document_model()
         self.Folder   = get_folder_model()
-        # super(DocumentsConfig, self).all_apps_ready()
         super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
@@ -77,11 +76,6 @@ class DocumentsConfig(CremeAppConfig):
             mime_type = fval.mime_type
 
             if mime_type and mime_type.is_image:
-                # return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
-                #         fval.get_dl_url(),
-                #         ' class="is_deleted"' if fval.is_deleted else u'',
-                #         fval.get_entity_summary(user)
-                #     )
                 return format_html(
                     '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
                     url=fval.get_dl_url(),
@@ -98,11 +92,6 @@ class DocumentsConfig(CremeAppConfig):
             mime_type = instance.mime_type
 
             if mime_type and mime_type.is_image:
-                # return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
-                #             instance.get_dl_url(),
-                #             ' class="is_deleted"' if instance.is_deleted else u'',
-                #             instance.get_entity_summary(user),
-                #         )
                 return format_html(
                     '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
                     url=instance.get_dl_url(),
@@ -125,22 +114,8 @@ class DocumentsConfig(CremeAppConfig):
         reg_icon(self.Folder,   'images/document_%(size)s.png')
 
     def register_menu(self, creme_menu):
-        # from django.conf import settings
-
         Document = self.Document
         Folder   = self.Folder
-
-        # if settings.OLD_MENU:
-        #     from django.urls import reverse_lazy as reverse
-        #     from creme.creme_core.auth import build_creation_perm as cperm
-        #
-        #     reg_item = creme_menu.register_app('documents', '/documents/').register_item
-        #     reg_item(reverse('documents__portal'),          _(u'Portal of documents'), 'documents')
-        #     reg_item(reverse('documents__list_documents'),  _(u'All documents'),       'documents')
-        #     reg_item(reverse('documents__create_document'), Document.creation_label,   cperm(Document))
-        #     reg_item(reverse('documents__list_folders'),    _(u'All folders'),         'documents')
-        #     reg_item(reverse('documents__create_folder'),   Folder.creation_label,     cperm(Folder))
-        # else:
         LvURLItem = creme_menu.URLItem.list_view
         creme_menu.get('features', 'tools') \
                   .add(LvURLItem('documents-documents', model=Document), priority=10) \

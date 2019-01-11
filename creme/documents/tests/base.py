@@ -35,21 +35,10 @@ def skipIfCustomFolder(test_func):
 class _DocumentsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(_DocumentsTestCase, cls).setUpClass()
         super().setUpClass()
         cls.ADD_DOC_URL = reverse('documents__create_document')
 
     def _build_filedata(self, content_str, suffix='.txt'):
-        # tmpfile = NamedTemporaryFile(suffix=suffix, delete=False)
-        # tmpfile.write(content_str)
-        # tmpfile.flush()
-        #
-        # # We close and reopen in order to have a file with the right name (so we must specify delete=False)
-        # tmpfile.close()
-        #
-        # name = tmpfile.name
-        #
-        # return open(name, 'rb'), basename(name)
         tmpfile = NamedTemporaryFile(suffix=suffix)
         tmpfile.write(content_str.encode())
         tmpfile.flush()
@@ -62,7 +51,6 @@ class _DocumentsTestCase(CremeTestCase):
         return tmpfile
 
     def _create_doc(self, title, file_obj=None, folder=None, description=None, user=None):
-        # file_obj = file_obj or self._build_filedata('{} : Content'.format(title))[0]
         file_obj = file_obj or self._build_filedata('{} : Content'.format(title))
         folder = folder or Folder.objects.all()[0]
         user = user or self.user

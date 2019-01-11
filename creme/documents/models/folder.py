@@ -36,14 +36,14 @@ MAXINT = 100000
 
 class AbstractFolder(CremeEntity):
     """Folder: contains Documents"""
-    title         = CharField(_(u'Title'), max_length=100)
-    description   = TextField(_(u'Description'), blank=True).set_tags(optional=True)
-    parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'),
+    title         = CharField(_('Title'), max_length=100)
+    description   = TextField(_('Description'), blank=True).set_tags(optional=True)
+    parent_folder = ForeignKey('self', verbose_name=_('Parent folder'),
                                blank=True, null=True,
                                related_name='children',
                                on_delete=PROTECT,
                               )
-    category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'),
+    category      = ForeignKey(FolderCategory, verbose_name=_('Category'),
                                blank=True, null=True, on_delete=SET_NULL,
                                related_name='folder_category_set',
                               )
@@ -54,16 +54,16 @@ class AbstractFolder(CremeEntity):
                            constants.UUID_FOLDER_IMAGES,
                           }
 
-    creation_label = _(u'Create a folder')
-    save_label     = _(u'Save the folder')
+    creation_label = _('Create a folder')
+    save_label     = _('Save the folder')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'documents'
         unique_together = ('title', 'parent_folder', 'category')
-        verbose_name = _(u'Folder')
-        verbose_name_plural = _(u'Folders')
+        verbose_name = _('Folder')
+        verbose_name_plural = _('Folders')
         ordering = ('title',)
 
     def __str__(self):
@@ -71,7 +71,7 @@ class AbstractFolder(CremeEntity):
 
     def _check_deletion(self):
         if str(self.uuid) in self.not_deletable_UUIDs:
-            raise SpecificProtectedError(ugettext(u'This folder is a system folder.'), [self])
+            raise SpecificProtectedError(ugettext('This folder is a system folder.'), [self])
 
     def get_absolute_url(self):
         return reverse('documents__view_folder', args=(self.id,))
@@ -90,7 +90,7 @@ class AbstractFolder(CremeEntity):
     def _pre_save_clone(self, source):
         max_length = self._meta.get_field('title').max_length
         self.title = truncate_str(source.title, max_length,
-                                  suffix=u' ({} {:08x})'.format(ugettext(u'Copy'),
+                                  suffix=' ({} {:08x})'.format(ugettext('Copy'),
                                                                 randint(0, MAXINT),
                                                                ),
                                  )
@@ -98,18 +98,6 @@ class AbstractFolder(CremeEntity):
         # TODO: atomic
         while Folder.objects.filter(title=self.title).exists():
             self._pre_save_clone(source)
-
-# NB : Replaced by creme_core.gui.actions.actions_registry mechanism
-#     def get_actions(self, user):
-#         actions = super().get_actions(user)
-#
-#         actions['others'].append(EntityAction('{}?parent_id={}'.format(self.get_lv_absolute_url(), self.id),
-#                                               ugettext(u'Explore'),
-#                                               user.has_perm_to_view(self),
-#                                               icon='view',
-#                                              ),
-#                                 )  # TODO: Ajaxify this
-#         return actions
 
     def already_in_children(self, other_folder_id):
         children = self.children.all()
@@ -126,7 +114,6 @@ class AbstractFolder(CremeEntity):
 
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        # super(AbstractFolder, self).delete(*args, **kwargs)
         super().delete(*args, **kwargs)
 
     def get_parents(self):
@@ -141,7 +128,6 @@ class AbstractFolder(CremeEntity):
 
     def trash(self):
         self._check_deletion()
-        # super(AbstractFolder, self).trash()
         super().trash()
 
 

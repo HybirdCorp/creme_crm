@@ -34,12 +34,6 @@ class ImageFieldMixin:
         return reverse_lazy('documents__create_image_popup')
 
     def build_q_filter(self, q_filter):
-        # basic_filter = {'mime_type__name__startswith': MIMETYPE_PREFIX_IMG}
-        #
-        # q_filter = dict(q_filter) if q_filter else {}
-        # q_filter.update(basic_filter)
-        #
-        # return q_filter, q_filter != basic_filter
         extra_filter = False
         basic_q = Q(mime_type__name__startswith=MIMETYPE_PREFIX_IMG)
 
@@ -75,8 +69,6 @@ class ImageFieldMixin:
 
     @q_filter.setter
     def q_filter(self, q_filter):
-        # self._check_qfilter(q_filter)
-
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
         self.widget.q_filter = self._q_filter = q_filter
 
@@ -91,16 +83,12 @@ class ImageEntityField(ImageFieldMixin, forms.CreatorEntityField):
     def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
 
-        # if not is_extra_filter or (force_creation and not create_action_url):
-        #     force_creation = True
-        #     create_action_url = self._image_creation_url
         if create_action_url:
             force_creation = True
         elif not is_extra_filter or force_creation:
             force_creation = True
             create_action_url = self._image_creation_url
 
-        # super(ImageEntityField, self).__init__(
         super().__init__(
                 model=get_document_model(),
                 q_filter=q_filter,
@@ -114,16 +102,12 @@ class MultiImageEntityField(ImageFieldMixin, forms.MultiCreatorEntityField):
     def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
 
-        # if not is_extra_filter or (force_creation and not create_action_url):
-        #     force_creation = True
-        #     create_action_url = self._image_creation_url
         if create_action_url:
             force_creation = True
         elif not is_extra_filter or force_creation:
             force_creation = True
             create_action_url = self._image_creation_url
 
-        # super(MultiImageEntityField, self).__init__(
         super().__init__(
                 model=get_document_model(),
                 q_filter=q_filter,
