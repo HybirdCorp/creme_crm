@@ -34,7 +34,7 @@ def get_mass_form_builder(header_dict, choices):
         target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
                                       choices, label=_('Target'),
                                      )
-        emitter = ModelChoiceField(label=_(u'Concerned organisation'), empty_label=None,
+        emitter = ModelChoiceField(label=_('Concerned organisation'), empty_label=None,
                                    queryset=Organisation.get_all_managed_by_creme(),
                                   )
 
@@ -46,7 +46,6 @@ def get_mass_form_builder(header_dict, choices):
 
             target, err_msg = cdata['target'].extract_value(line, self.user)
             instance.target = target
-            # self.append_error(line, err_msg, instance)
             self.append_error(err_msg)  # Error is really appended if 'err_msg' is not empty
 
 

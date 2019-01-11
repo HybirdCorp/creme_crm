@@ -35,7 +35,6 @@ except Exception as e:
 class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(OpportunitiesTestCase, cls).setUpClass()
         super().setUpClass()
 
         try:
@@ -50,13 +49,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             args=(entity.id,)
         )
 
-    # def _genericfield_format_entity(self, entity):
-    #     return '{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
-
     def test_populate(self):  # test get_compatible_ones() too
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(Opportunity)
-        # relation_types = {rtype.id: rtype for rtype in RelationType.get_compatible_ones(ct)}
         relation_types = RelationType.get_compatible_ones(ct).in_bulk()
 
         Product = products.get_product_model()
@@ -94,10 +89,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertTrue(rtype.subject_ctypes.filter(id=ct.id).exists())
         self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
         self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=ct.id).exists())
-
-    # def test_portal(self):
-    #     self.login()
-    #     self.assertGET200(reverse('opportunities__portal'))
 
     @skipIfCustomOrganisation
     def test_createview01(self):
@@ -180,7 +171,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             prop_target = opportunity.target
         self.assertEqual(target, prop_target)
 
-    # @skipIfNotInstalled('creme.billing')
     def test_createview03(self):
         "Only contact & orga models are allowed as target"
         user = self.login()
@@ -216,7 +206,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
+                                            EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
@@ -315,11 +305,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         target, emitter = self._create_target_n_emitter()
         url = self._build_addrelated_url(target, popup=True)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New opportunity related to «%s»') % target, context.get('title'))
         self.assertEqual(_('New opportunity targeting «{entity}»').format(entity=target),
                          context.get('title')
                         )
@@ -327,7 +315,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         get_initial = context['form'].initial.get
         self.assertIsInstance(get_initial('sales_phase'), SalesPhase)
-        # self.assertEqual(target, get_initial('target'))
 
         # ---
         salesphase = SalesPhase.objects.all()[0]
@@ -336,7 +323,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               # 'target':       self.formfield_value_generic_entity(target),
                                                'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
@@ -480,25 +466,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         "Target is not a Contact/Organisation"
         user = self.login()
 
-        target  = CremeEntity.objects.create(user=user)
-        # emitter = Organisation.objects.create(user=user, name='My society', is_managed=True)
-        # opportunity_count = Opportunity.objects.count()
-
-        # url = self._build_addrelated_url(target)
-        # self.assertGET200(url)
+        target = CremeEntity.objects.create(user=user)
         self.assertGET404(self._build_addrelated_url(target))
         self.assertGET404(self._build_addrelated_url(target, popup=True))
-
-        # response = self.client.post(url, data={'user':         user.pk,
-        #                                        'name':         'Opp #1',
-        #                                        'sales_phase':  SalesPhase.objects.all()[0].id,
-        #                                        'closing_date': '2011-03-12',
-        #                                        'target':       self.formfield_value_generic_entity(target),
-        #                                        'emitter':      emitter.id,
-        #                                       }
-        #                            )
-        # self.assertFormError(response, 'form', 'target', _('This content type is not allowed.'))
-        # self.assertEqual(opportunity_count, Opportunity.objects.count())  # No new opportunity was created
 
     @skipIfCustomOrganisation
     def test_editview01(self):
@@ -643,7 +613,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         user = self.login()
 
         opportunity = self._create_opportunity_n_organisations()[0]
-        # funf = opportunity.function_fields.get('get_weighted_sales')
         funf = function_field_registry.get(Opportunity, 'get_weighted_sales')
         self.assertIsNotNone(funf)
 

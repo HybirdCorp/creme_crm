@@ -74,7 +74,6 @@ def current_quote(request, opp_id, quote_id, action):
 
     if action == 'set_current':
         if not relations:
-            # Relation.objects.create(**kwargs)
             Relation.objects.safe_create(**kwargs)
     else:  # action == 'unset_current':
         relations.delete()

@@ -6,25 +6,13 @@ from django.conf.urls import url
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
 from . import opportunity_model_is_custom
-# from .views import portal
 from .views import opportunity
 
 
 urlpatterns = [
-    # url(r'^$', portal.portal, name='opportunities__portal'),
+
 ]
 
-# if not opportunity_model_is_custom():
-#     urlpatterns += [
-#         url(r'^opportunities[/]?$',                           opportunity.listview,  name='opportunities__list_opportunities'),
-#         url(r'^opportunity/add[/]?$',                         opportunity.add,       name='opportunities__create_opportunity'),
-#         url(r'^opportunity/add_to/(?P<ce_id>\d+)[/]?$',       opportunity.add_to,    name='opportunities__create_related_opportunity'),
-#         url(r'^opportunity/add_to/(?P<ce_id>\d+)/popup[/]?$', opportunity.add_to, {'inner_popup': True},
-#             name='opportunities__create_related_opportunity_popup',
-#            ),
-#         url(r'^opportunity/edit/(?P<opp_id>\d+)[/]?$',        opportunity.edit,       name='opportunities__edit_opportunity'),
-#         url(r'^opportunity/(?P<opp_id>\d+)[/]?$',             opportunity.detailview, name='opportunities__view_opportunity'),
-#     ]
 urlpatterns += swap_manager.add_group(
     opportunity_model_is_custom,
     Swappable(url(r'^opportunities[/]?$',   opportunity.listview,                      name='opportunities__list_opportunities')),

@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import logging
 from functools import partial
 import warnings
 
@@ -31,9 +30,8 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-# from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal
 from creme.creme_core.models import (CremeEntity, CremeModel, Relation,
-        Currency, Vat)  # FieldsConfig
+        Currency, Vat)
 from creme.creme_core.models.fields import BasicAutoField
 
 from creme.persons import get_contact_model, get_organisation_model
@@ -42,15 +40,6 @@ from creme.persons.workflow import transform_target_into_prospect
 from creme.products import get_product_model, get_service_model
 
 from .. import constants
-
-
-# logger = logging.getLogger(__name__)
-
-
-# class _TurnoverField(FunctionField):
-#     name         = 'get_weighted_sales'
-#     verbose_name = _('Weighted sales')
-#     result_type  = FunctionFieldDecimal
 
 
 class SalesPhase(CremeModel):
@@ -71,7 +60,6 @@ class SalesPhase(CremeModel):
         ordering = ('order',)
 
     def clean(self):
-        # super(SalesPhase, self).clean()
         super().clean()
 
         if self.won and self.lost:
@@ -122,8 +110,6 @@ class AbstractOpportunity(CremeEntity):
     first_action_date     = DateField(_('Date of the first action'), blank=True, null=True)\
                                      .set_tags(optional=True)
 
-    # function_fields = CremeEntity.function_fields.new(_TurnoverField())
-
     creation_label = _('Create an opportunity')
     submit_label   = _('Save the opportunity')
 
@@ -162,7 +148,6 @@ class AbstractOpportunity(CremeEntity):
 
     def clean(self):
         self._clean_emitter_n_target()
-        # super(AbstractOpportunity, self).clean()
         super().clean()
 
     def get_absolute_url(self):
@@ -288,7 +273,6 @@ class AbstractOpportunity(CremeEntity):
         if not self.pk:  # Creation
             self._clean_emitter_n_target()
 
-            # super(AbstractOpportunity, self).save(*args, **kwargs)
             super().save(*args, **kwargs)
 
             create_relation(subject_entity=self._opp_emitter, type_id=constants.REL_SUB_EMIT_ORGA)
@@ -296,7 +280,6 @@ class AbstractOpportunity(CremeEntity):
 
             transform_target_into_prospect(self._opp_emitter, target, self.user)
         else:
-            # super(AbstractOpportunity, self).save(*args, **kwargs)
             super().save(*args, **kwargs)
 
             old_relation = self._opp_target_rel

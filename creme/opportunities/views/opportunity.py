@@ -75,7 +75,6 @@ def abstract_add_related_opportunity(request, entity_id, form=opp_forms.Opportun
     # and can be seen as ForeignKeys).
 
     initial = {
-        # 'target': form(user).fields['target'].from_python(entity),
         'target':      entity,
         'sales_phase': SalesPhase.objects.first(),
     }

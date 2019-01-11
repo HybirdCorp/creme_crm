@@ -34,7 +34,6 @@ class OpportunitiesConfig(CremeAppConfig):
     dependencies = ['creme.persons', 'creme.products']
 
     def ready(self):
-        # super(OpportunitiesConfig, self).ready()
         super().ready()
 
         from django.apps import apps
@@ -44,7 +43,6 @@ class OpportunitiesConfig(CremeAppConfig):
         from . import get_opportunity_model
 
         self.Opportunity = get_opportunity_model()
-        # super(OpportunitiesConfig, self).all_apps_ready()
         super().all_apps_ready()
 
         if self.MIGRATION_MODE:
@@ -85,21 +83,8 @@ class OpportunitiesConfig(CremeAppConfig):
         import_form_registry.register(self.Opportunity, get_mass_form_builder)
 
     def register_menu(self, creme_menu):
-        # from django.conf import settings
-
         Opportunity = self.Opportunity
-
-        # if settings.OLD_MENU:
-        #     from django.urls import reverse_lazy as reverse
-        #     from creme.creme_core.auth import build_creation_perm as cperm
-        #
-        #     reg_item = creme_menu.register_app('opportunities', '/opportunities/').register_item
-        #     reg_item(reverse('opportunities__portal'),             _(u'Portal of opportunities'), 'opportunities')
-        #     reg_item(reverse('opportunities__list_opportunities'), _(u'All opportunities'),       'opportunities')
-        #     reg_item(reverse('opportunities__create_opportunity'), Opportunity.creation_label,    cperm(Opportunity))
-        # else:
         URLItem = creme_menu.URLItem
-
         container = creme_menu.get('features') \
                               .get_or_create(creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
                                              defaults={'label': _('Commercial')},

@@ -19,7 +19,6 @@ class SalesPhaseTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(SalesPhaseTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls._phase_backup = list(SalesPhase.objects.all())
@@ -27,7 +26,6 @@ class SalesPhaseTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # super(SalesPhaseTestCase, cls).tearDownClass()
         super().tearDownClass()
 
         try:
@@ -61,11 +59,9 @@ class SalesPhaseTestCase(CremeTestCase):
         response = self.assertGET200(self.PORTAL_URL)
         content = response.content.decode()
 
-        # sp1_index = response.content.index(sp1.name)
         sp1_index = content.index(sp1.name)
         self.assertNotEqual(-1, sp1_index)
 
-        # sp2_index = response.content.index(sp2.name)
         sp2_index = content.index(sp2.name)
         self.assertNotEqual(-1, sp2_index)
 

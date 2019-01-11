@@ -18,12 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import logging
-
 from django.apps import apps
-
-
-# logger = logging.getLogger(__name__)
 
 
 if apps.is_installed('creme.billing'):
@@ -35,7 +30,7 @@ if apps.is_installed('creme.billing'):
 
     from creme.billing import get_quote_model
 
-    from .constants import REL_SUB_CURRENT_DOC  # SETTING_USE_CURRENT_QUOTE
+    from .constants import REL_SUB_CURRENT_DOC
     from .setting_keys import quote_key
 
     Quote = get_quote_model()
@@ -50,13 +45,6 @@ if apps.is_installed('creme.billing'):
         opp.save()
 
     def use_current_quote():
-        # try:
-        #     use_current_quote = SettingValue.objects.get(key_id=SETTING_USE_CURRENT_QUOTE).value
-        # except SettingValue.DoesNotExist:
-        #     logger.critical("Populate for opportunities has not been run !")
-        #     use_current_quote = False
-        #
-        # return use_current_quote
         return SettingValue.objects.get_4_key(quote_key, default=False).value
 
     # Adding "current" feature to other billing document (sales order, invoice) does not really make sense.
