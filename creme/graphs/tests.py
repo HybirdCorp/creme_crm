@@ -37,14 +37,9 @@ def skipIfCustomGraph(test_func):
 @skipIfCustomGraph
 class GraphsTestCase(CremeTestCase):
     def login(self, allowed_apps=('graphs',), *args, **kwargs):
-        # return super(GraphsTestCase, self).login(allowed_apps=allowed_apps,
         return super().login(allowed_apps=allowed_apps,
                              *args, **kwargs
                             )
-
-    # def test_portal(self):
-    #     self.login()
-    #     self.assertGET200(reverse('graphs__portal'))
 
     def test_graph_create(self):
         user = self.login()
@@ -105,11 +100,9 @@ class GraphsTestCase(CremeTestCase):
 
         url = reverse('graphs__add_rtypes', args=(graph.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Add relation types to «%s»') % graph, context.get('title'))
         self.assertEqual(_('Add relation types to «{entity}»').format(entity=graph),
                          context.get('title')
                         )
@@ -184,7 +177,6 @@ class GraphsTestCase(CremeTestCase):
         existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
 
         response = self.assertGET200(reverse('graphs__dl_image', args=(graph.id,)), follow=True)
-        # self.assertEqual('png', response['Content-Type'])
         self.assertEqual('image/png', response['Content-Type'])
 
         filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
@@ -198,11 +190,9 @@ class GraphsTestCase(CremeTestCase):
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), '<{}> does not exists ?!'.format(fullpath))
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'graphs'), dirname(fullpath))
-
-        # cdisp = response['Content-Disposition']
-        # self.assertTrue(cdisp.startswith('attachment; filename=graph_{}'.format(graph.id)))
-        # self.assertTrue(cdisp.endswith('.png'))
-        self.assertEqual('attachment; filename={}'.format(basename(fullpath)), response['Content-Disposition'])
+        self.assertEqual('attachment; filename={}'.format(basename(fullpath)),
+                         response['Content-Disposition']
+                        )
 
     def test_add_rootnode(self):
         user = self.login()
@@ -223,11 +213,9 @@ class GraphsTestCase(CremeTestCase):
         url = reverse('graphs__add_roots', args=(graph.id,))
 
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Add root nodes to «%s»') % graph, context.get('title'))
         self.assertEqual(_('Add root nodes to «{entity}»').format(entity=graph),
                          context.get('title')
                         )
@@ -274,14 +262,11 @@ class GraphsTestCase(CremeTestCase):
 
         graph = Graph.objects.create(user=user, name='Graph01')
         rnode = RootNode.objects.create(graph=graph, entity=orga)
-        # rnode.relation_types = [rtype01]
         rnode.relation_types.set([rtype01])
 
         url = rnode.get_edit_absolute_url()
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Edit root node for «%s»') % graph, response.context.get('title'))
         self.assertEqual(_('Edit root node for «{entity}»').format(entity=graph),
                          response.context.get('title')
                         )

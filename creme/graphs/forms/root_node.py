@@ -41,7 +41,6 @@ class AddRootNodesForm(CremeForm):
                                                     )
 
     def __init__(self, entity, *args, **kwargs):
-        # super(AddRootNodesForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.graph = entity
         entities_field = self.fields['entities']
@@ -56,7 +55,6 @@ class AddRootNodesForm(CremeForm):
 
         for entity in entities:
             root_node = create_node(entity=entity, graph=graph)
-            # root_node.relation_types = rtypes
             root_node.relation_types.set(rtypes)
 
 
@@ -70,6 +68,5 @@ class EditRootNodeForm(CremeModelForm):
         exclude = ()
 
     def __init__(self, entity, *args, **kwargs):  # NB only useful for the generic view edit_related_to_entity()
-        # super(EditRootNodeForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.graph = entity

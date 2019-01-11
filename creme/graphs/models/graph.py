@@ -32,11 +32,11 @@ from creme.creme_core.utils.file_handling import FileCreator
 
 
 class AbstractGraph(CremeEntity):
-    name                   = CharField(pgettext_lazy('graphs', u'Name of the graph'), max_length=100)
-    orbital_relation_types = ManyToManyField(RelationType, verbose_name=_(u'Types of the peripheral relations'))
+    name                   = CharField(pgettext_lazy('graphs', 'Name of the graph'), max_length=100)
+    orbital_relation_types = ManyToManyField(RelationType, verbose_name=_('Types of the peripheral relations'))
 
-    creation_label = pgettext_lazy('graphs', u'Create a graph')
-    save_label     = pgettext_lazy('graphs', u'Save the graph')
+    creation_label = pgettext_lazy('graphs', 'Create a graph')
+    save_label     = pgettext_lazy('graphs', 'Save the graph')
 
     class GraphException(Exception):
         pass
@@ -45,8 +45,8 @@ class AbstractGraph(CremeEntity):
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'graphs'
-        verbose_name = pgettext_lazy('graphs', u'Graph')
-        verbose_name_plural = pgettext_lazy('graphs', u'Graphs')
+        verbose_name = pgettext_lazy('graphs', 'Graph')
+        verbose_name_plural = pgettext_lazy('graphs', 'Graphs')
         ordering = ('name',)
 
     def __str__(self):
@@ -159,7 +159,6 @@ class AbstractGraph(CremeEntity):
                                          basename=img_basename,
                                         )
 
-        # return HttpResponseRedirect(reverse('creme_core__dl_file', args=('/upload/graphs/' + basename(path),)))
         return HttpResponseRedirect(reverse('creme_core__dl_file', args=(fileref.filedata,)))
 
     def _post_save_clone(self, source):
