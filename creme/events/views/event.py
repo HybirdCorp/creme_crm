@@ -54,56 +54,56 @@ Opportunity = get_opportunity_model()
 # Function views ---------------------------------------------------------------
 
 
-def abstract_add_event(request, form=event_forms.EventForm,
-                       submit_label=Event.save_label,
-                      ):
-    warnings.warn('events.views.abstract_add_event() is deprecated ; '
-                  'use the class-based view EventCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_initial={'type': EventType.objects.first()},
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_event(request, form=event_forms.EventForm,
+#                        submit_label=Event.save_label,
+#                       ):
+#     warnings.warn('events.views.abstract_add_event() is deprecated ; '
+#                   'use the class-based view EventCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_initial={'type': EventType.objects.first()},
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_event(request, event_id, form=event_forms.EventForm):
-    warnings.warn('events.views.abstract_edit_event() is deprecated ; '
-                  'use the class-based view EventEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, event_id, Event, form)
+# def abstract_edit_event(request, event_id, form=event_forms.EventForm):
+#     warnings.warn('events.views.abstract_edit_event() is deprecated ; '
+#                   'use the class-based view EventEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, event_id, Event, form)
 
 
-def abstract_view_event(request, event_id,
-                        template='events/view_event.html',
-                       ):
-    warnings.warn('events.views.abstract_view_event() is deprecated ; '
-                  'use the class-based view EventDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, event_id, Event, template=template)
+# def abstract_view_event(request, event_id,
+#                         template='events/view_event.html',
+#                        ):
+#     warnings.warn('events.views.abstract_view_event() is deprecated ; '
+#                   'use the class-based view EventDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, event_id, Event, template=template)
 
 
-@login_required
-@permission_required(('events', cperm(Event)))
-def add(request):
-    warnings.warn('events.views.add() is deprecated.', DeprecationWarning)
-    return abstract_add_event(request)
+# @login_required
+# @permission_required(('events', cperm(Event)))
+# def add(request):
+#     warnings.warn('events.views.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_event(request)
 
 
-@login_required
-@permission_required('events')
-def edit(request, event_id):
-    warnings.warn('events.views.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_event(request, event_id)
+# @login_required
+# @permission_required('events')
+# def edit(request, event_id):
+#     warnings.warn('events.views.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_event(request, event_id)
 
 
-@login_required
-@permission_required('events')
-def detailview(request, event_id):
-    warnings.warn('events.views.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_event(request, event_id)
+# @login_required
+# @permission_required('events')
+# def detailview(request, event_id):
+#     warnings.warn('events.views.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_event(request, event_id)
 
 
 @login_required
@@ -291,14 +291,14 @@ def list_contacts(request, event_id):
     )
 
 
-@login_required
-@permission_required('events')
-def link_contacts(request, event_id):
-    warnings.warn('events.views.link_contacts() is deprecated ; '
-                  'use the class-based view AddContactsToEvent instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, event_id, Event, event_forms.AddContactsToEventForm)
+# @login_required
+# @permission_required('events')
+# def link_contacts(request, event_id):
+#     warnings.warn('events.views.link_contacts() is deprecated ; '
+#                   'use the class-based view AddContactsToEvent instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, event_id, Event, event_forms.AddContactsToEventForm)
 
 
 def _get_status(request, valid_status):
