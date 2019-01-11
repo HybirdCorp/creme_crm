@@ -1,9 +1,0 @@
-{% load creme_core_tags creme_bricks %}
-
-{% log 'The template file "creme/emails/templates/emails/view_entity_mail_popup.html" is deprecated.' level='WARN' %}
-
-{% url 'creme_core__reload_detailview_bricks' object.id as bricks_reload_url %}{% url_join bricks_reload_url base_url=request.path as bricks_reload_uri %}
-<div data-bricks-reload-url="{{bricks_reload_uri}}">
-{% brick_import app='emails' name='mail_popup' as mail_brick %}
-{% brick_display mail_brick %}
-</div>

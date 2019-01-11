@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$', sending.SendingCreation.as_view(), name='emails__create_sending'),
 
     # Campaign: sending details brick
-    url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload[/]?$', sending.reload_mails_brick, name='emails__reload_lw_mails_brick'),  # DEPRECATED
+    # url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload[/]?$', sending.reload_mails_brick, name='emails__reload_lw_mails_brick'),
     url(r'^sending/(?P<sending_id>\d+)[/]?$',          sending.SendingDetail.as_view(), name='emails__view_sending'),
     url(r'^sending/(?P<sending_id>\d+)/get_body[/]?$', sending.SendingBody.as_view(),   name='emails__sending_body'),
     url(r'^sending/(?P<sending_id>\d+)/reload[/]?$',   sending.reload_sending_bricks,   name='emails__reload_sending_bricks'),

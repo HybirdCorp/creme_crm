@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db.transaction import atomic
 from django.http import HttpResponse
@@ -30,7 +30,7 @@ from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import CremeEntity
+# from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic
@@ -63,113 +63,113 @@ def get_lightweight_mail_body(request, mail_id):
                        )
 
 
-def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html'):
-    warnings.warn('emails.views.mail.abstract_view_email() is deprecated ; '
-                  'use the class-based view EntityEmailDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, mail_id, EntityEmail,
-                               template=template,
-                               # NB: not used...
-                               extra_template_dict={'sent_status': constants.MAIL_STATUS_SENT},
-                              )
+# def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html'):
+#     warnings.warn('emails.views.mail.abstract_view_email() is deprecated ; '
+#                   'use the class-based view EntityEmailDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, mail_id, EntityEmail,
+#                                template=template,
+#                                # NB: not used...
+#                                extra_template_dict={'sent_status': constants.MAIL_STATUS_SENT},
+#                               )
 
 
-def abstract_popupview(request, mail_id, template='emails/view_entity_mail_popup.html'):
-    warnings.warn('emails.views.mail.abstract_popupview() is deprecated ; '
-                  'use the class-based view EntityEmailPopup instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, mail_id, EntityEmail, template=template)
+# def abstract_popupview(request, mail_id, template='emails/view_entity_mail_popup.html'):
+#     warnings.warn('emails.views.mail.abstract_popupview() is deprecated ; '
+#                   'use the class-based view EntityEmailPopup instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, mail_id, EntityEmail, template=template)
 
 
-def abstract_create_n_send(request, entity_id, form=mail_forms.EntityEmailForm,
-                           title=_('Sending an email to «%s»'),
-                           submit_label=EntityEmail.sending_label,
-                          ):
-    warnings.warn('emails.views.mail.abstract_create_n_send() is deprecated ; '
-                  'use the class-based view EntityEmailCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_to_entity(request, entity_id, form, title=title,
-                                 link_perm=True, submit_label=submit_label,
-                                )
+# def abstract_create_n_send(request, entity_id, form=mail_forms.EntityEmailForm,
+#                            title=_('Sending an email to «%s»'),
+#                            submit_label=EntityEmail.sending_label,
+#                           ):
+#     warnings.warn('emails.views.mail.abstract_create_n_send() is deprecated ; '
+#                   'use the class-based view EntityEmailCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_to_entity(request, entity_id, form, title=title,
+#                                  link_perm=True, submit_label=submit_label,
+#                                 )
 
 
-def abstract_create_from_template_n_send(request, entity_id,
-                                         selection_form=mail_forms.TemplateSelectionForm,
-                                         email_form=mail_forms.EntityEmailFromTemplateForm,
-                                         template='creme_core/generics/blockform/add_popup.html',
-                                        ):
-    warnings.warn('emails.views.mail.abstract_create_from_template_n_send() is deprecated ; '
-                  'use the class-based view EntityEmailWizard instead.',
-                  DeprecationWarning
-                 )
-
-    entity = get_object_or_404(CremeEntity, pk=entity_id)
-    user = request.user
-
-    user.has_perm_to_link_or_die(entity)
-
-    entity = entity.get_real_entity()
-    submit_label = _('Next step')
-
-    if request.method == 'POST':
-        POST = request.POST
-        step = int(POST.get('step', 1))
-
-        if step == 1:
-            step = 2
-            form = selection_form(user=user, data=POST)
-
-            if form.is_valid():
-                email_template = form.cleaned_data['template']
-                ctx = {varname: getattr(entity, varname, '') for varname in TEMPLATES_VARS}
-                form = email_form(user=user, entity=entity,
-                                  initial={'subject':     email_template.subject,
-                                           'body':        Template(email_template.body).render(Context(ctx)),
-                                           'body_html':   Template(email_template.body_html).render(Context(ctx)),
-                                           'signature':   email_template.signature_id,
-                                           'attachments': list(email_template.attachments.values_list('id', flat=True)),
-                                          }
-                                 )
-                submit_label = EntityEmail.sending_label
-        else:
-            assert step == 2
-            form = email_form(user=user, entity=entity, data=POST)
-
-            if form.is_valid():
-                form.save()
-    else:
-        step = 1
-        form = selection_form(user=user)
-
-    return generic.inner_popup(request, template,
-                               {'form':   form,
-                                'title':  ugettext('Sending an email to «{entity}» (step {step}/2)').format(
-                                                entity=entity,
-                                                step=step,
-                                            ),
-                                'submit_label': submit_label,
-                               },
-                               is_valid=form.is_valid(),
-                               reload=False,
-                               delegate_reload=True,
-                              )
-
-
-@login_required
-@permission_required('emails')
-def detailview(request, mail_id):
-    warnings.warn('emails.views.mail.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_email(request, mail_id)
+# def abstract_create_from_template_n_send(request, entity_id,
+#                                          selection_form=mail_forms.TemplateSelectionForm,
+#                                          email_form=mail_forms.EntityEmailFromTemplateForm,
+#                                          template='creme_core/generics/blockform/add_popup.html',
+#                                         ):
+#     warnings.warn('emails.views.mail.abstract_create_from_template_n_send() is deprecated ; '
+#                   'use the class-based view EntityEmailWizard instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     entity = get_object_or_404(CremeEntity, pk=entity_id)
+#     user = request.user
+#
+#     user.has_perm_to_link_or_die(entity)
+#
+#     entity = entity.get_real_entity()
+#     submit_label = _('Next step')
+#
+#     if request.method == 'POST':
+#         POST = request.POST
+#         step = int(POST.get('step', 1))
+#
+#         if step == 1:
+#             step = 2
+#             form = selection_form(user=user, data=POST)
+#
+#             if form.is_valid():
+#                 email_template = form.cleaned_data['template']
+#                 ctx = {varname: getattr(entity, varname, '') for varname in TEMPLATES_VARS}
+#                 form = email_form(user=user, entity=entity,
+#                                   initial={'subject':     email_template.subject,
+#                                            'body':        Template(email_template.body).render(Context(ctx)),
+#                                            'body_html':   Template(email_template.body_html).render(Context(ctx)),
+#                                            'signature':   email_template.signature_id,
+#                                            'attachments': list(email_template.attachments.values_list('id', flat=True)),
+#                                           }
+#                                  )
+#                 submit_label = EntityEmail.sending_label
+#         else:
+#             assert step == 2
+#             form = email_form(user=user, entity=entity, data=POST)
+#
+#             if form.is_valid():
+#                 form.save()
+#     else:
+#         step = 1
+#         form = selection_form(user=user)
+#
+#     return generic.inner_popup(request, template,
+#                                {'form':   form,
+#                                 'title':  ugettext('Sending an email to «{entity}» (step {step}/2)').format(
+#                                                 entity=entity,
+#                                                 step=step,
+#                                             ),
+#                                 'submit_label': submit_label,
+#                                },
+#                                is_valid=form.is_valid(),
+#                                reload=False,
+#                                delegate_reload=True,
+#                               )
 
 
-@login_required
-@permission_required('emails')
-def popupview(request, mail_id):
-    warnings.warn('emails.views.mail.popupview() is deprecated.', DeprecationWarning)
-    return abstract_popupview(request, mail_id)
+# @login_required
+# @permission_required('emails')
+# def detailview(request, mail_id):
+#     warnings.warn('emails.views.mail.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_email(request, mail_id)
+
+
+# @login_required
+# @permission_required('emails')
+# def popupview(request, mail_id):
+#     warnings.warn('emails.views.mail.popupview() is deprecated.', DeprecationWarning)
+#     return abstract_popupview(request, mail_id)
 
 
 @login_required
@@ -178,20 +178,20 @@ def listview(request):
     return generic.list_view(request, EntityEmail, hf_pk=constants.DEFAULT_HFILTER_EMAIL)
 
 
-@login_required
-@permission_required(('emails', cperm(EntityEmail)))
-def create_n_send(request, entity_id):
-    warnings.warn('emails.views.mail.create_n_send() is deprecated.', DeprecationWarning)
-    return abstract_create_n_send(request, entity_id)
+# @login_required
+# @permission_required(('emails', cperm(EntityEmail)))
+# def create_n_send(request, entity_id):
+#     warnings.warn('emails.views.mail.create_n_send() is deprecated.', DeprecationWarning)
+#     return abstract_create_n_send(request, entity_id)
 
 
-@login_required
-@permission_required(('emails', cperm(EntityEmail)))
-def create_from_template_n_send(request, entity_id):
-    warnings.warn('emails.views.mail.create_from_template_n_send() is deprecated.',
-                  DeprecationWarning
-                 )
-    return abstract_create_from_template_n_send(request, entity_id)
+# @login_required
+# @permission_required(('emails', cperm(EntityEmail)))
+# def create_from_template_n_send(request, entity_id):
+#     warnings.warn('emails.views.mail.create_from_template_n_send() is deprecated.',
+#                   DeprecationWarning
+#                  )
+#     return abstract_create_from_template_n_send(request, entity_id)
 
 
 @login_required

@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
@@ -39,55 +39,55 @@ EmailCampaign = get_emailcampaign_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_campaign(request, form=camp_forms.CampaignCreateForm,
-                          submit_label=EmailCampaign.save_label,
-                         ):
-    warnings.warn('emails.views.campaign.abstract_add_campaign() is deprecated ; '
-                  'use the class-based view EmailCampaignCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_campaign(request, form=camp_forms.CampaignCreateForm,
+#                           submit_label=EmailCampaign.save_label,
+#                          ):
+#     warnings.warn('emails.views.campaign.abstract_add_campaign() is deprecated ; '
+#                   'use the class-based view EmailCampaignCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_campaign(request, campaign_id, form=camp_forms.CampaignEditForm):
-    warnings.warn('emails.views.campaign.abstract_edit_campaign() is deprecated ; '
-                  'use the class-based view EmailCampaignEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, campaign_id, EmailCampaign, form)
+# def abstract_edit_campaign(request, campaign_id, form=camp_forms.CampaignEditForm):
+#     warnings.warn('emails.views.campaign.abstract_edit_campaign() is deprecated ; '
+#                   'use the class-based view EmailCampaignEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, campaign_id, EmailCampaign, form)
 
 
-def abstract_view_campaign(request, campaign_id,
-                           template='emails/view_campaign.html'
-                          ):
-    warnings.warn('emails.views.campaign.abstract_view_campaign() is deprecated ; '
-                  'use the class-based view EmailCampaignDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, campaign_id, EmailCampaign, template=template)
+# def abstract_view_campaign(request, campaign_id,
+#                            template='emails/view_campaign.html'
+#                           ):
+#     warnings.warn('emails.views.campaign.abstract_view_campaign() is deprecated ; '
+#                   'use the class-based view EmailCampaignDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, campaign_id, EmailCampaign, template=template)
 
 
-@login_required
-@permission_required(('emails', cperm(EmailCampaign)))
-def add(request):
-    warnings.warn('emails.views.campaign.add() is deprecated.', DeprecationWarning)
-    return abstract_add_campaign(request)
+# @login_required
+# @permission_required(('emails', cperm(EmailCampaign)))
+# def add(request):
+#     warnings.warn('emails.views.campaign.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_campaign(request)
 
 
-@login_required
-@permission_required('emails')
-def edit(request, campaign_id):
-    warnings.warn('emails.views.campaign.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_campaign(request, campaign_id)
+# @login_required
+# @permission_required('emails')
+# def edit(request, campaign_id):
+#     warnings.warn('emails.views.campaign.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_campaign(request, campaign_id)
 
 
-@login_required
-@permission_required('emails')
-def detailview(request, campaign_id):
-    warnings.warn('emails.views.campaign.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_campaign(request, campaign_id)
+# @login_required
+# @permission_required('emails')
+# def detailview(request, campaign_id):
+#     warnings.warn('emails.views.campaign.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_campaign(request, campaign_id)
 
 
 @login_required
