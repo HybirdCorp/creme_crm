@@ -57,7 +57,6 @@ class MobileTestCase(CremeTestCase):
     WF_JUSTDONE_URL   = reverse('mobile__pcall_wf_just_done')
 
     def login(self, is_superuser=True, is_staff=False, allowed_apps=('activities', 'persons'), *args, **kwargs):
-        # return super(MobileTestCase, self).login(is_superuser=is_superuser,
         return super().login(is_superuser=is_superuser,
                              is_staff=is_staff,
                              allowed_apps=allowed_apps,
@@ -1053,7 +1052,6 @@ class MobileTestCase(CremeTestCase):
         create_dt = partial(self.create_datetime, utc=True, year=2014, month=3, day=10, hour=11)
         self.assertEqual(create_dt(minute=30, second=28), pcall.start)
         self.assertEqual(create_dt(minute=35, second=28), pcall.end)
-        # self.assertIsNone(pcall.minutes)
         self.assertEqual('', pcall.minutes)
 
     @skipIfCustomActivity
