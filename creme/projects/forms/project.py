@@ -33,8 +33,8 @@ from ..constants import REL_OBJ_PROJECT_MANAGER
 
 
 class ProjectEditForm(CremeEntityForm):
-    start_date = DateTimeField(label=_(u'Start date'), required=True)  # TODO: not required in the model !
-    end_date   = DateTimeField(label=_(u'End date'), required=True)
+    start_date = DateTimeField(label=_('Start date'), required=True)  # TODO: not required in the model !
+    end_date   = DateTimeField(label=_('End date'), required=True)
 
     class Meta(CremeEntityForm.Meta):
         model = get_project_model()
@@ -42,10 +42,9 @@ class ProjectEditForm(CremeEntityForm):
 
 
 class ProjectCreateForm(ProjectEditForm):
-    responsibles = MultiCreatorEntityField(label=_(u'Project leaders'), model=get_contact_model())
+    responsibles = MultiCreatorEntityField(label=_('Project leaders'), model=get_contact_model())
 
     def save(self, *args, **kwargs):
-        # instance = super(ProjectCreateForm, self).save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
         cleaned_data = self.cleaned_data
         create_relation = partial(Relation.objects.create, user=cleaned_data['user'],

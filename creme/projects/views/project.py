@@ -103,7 +103,6 @@ def detailview(request, project_id):
 @permission_required('projects')
 @atomic
 def close(request, project_id):
-    # project = Project.objects.get(pk=project_id)
     project = get_object_or_404(Project.objects.select_for_update(), id=project_id)
 
     request.user.has_perm_to_change_or_die(project)

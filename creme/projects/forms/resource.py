@@ -35,7 +35,7 @@ from .task import _link_contact_n_activity
 
 
 class ResourceCreateForm(CremeEntityForm):
-    contact = CreatorEntityField(label=_(u'Contact to be assigned to this task'),
+    contact = CreatorEntityField(label=_('Contact to be assigned to this task'),
                                  model=get_contact_model(),
                                 )
 
@@ -43,7 +43,6 @@ class ResourceCreateForm(CremeEntityForm):
         model = Resource
 
     def __init__(self, task, *args, **kwargs):
-        # super(ResourceCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         instance = self.instance
         instance.task = task
@@ -54,9 +53,6 @@ class ResourceCreateForm(CremeEntityForm):
             other_resources = other_resources.exclude(pk=instance.pk)
 
         contact_f = self.fields['contact']
-        # contact_f.q_filter = {
-        #         '~pk__in': list(other_resources.values_list('linked_contact_id', flat=True)),
-        #     }
         contact_f.q_filter = ~Q(
             pk__in=list(other_resources.values_list('linked_contact_id', flat=True)),
         )
@@ -66,19 +62,17 @@ class ResourceCreateForm(CremeEntityForm):
 
     def save(self, *args, **kwargs):
         self.instance.linked_contact = self.cleaned_data['contact']
-        # return super(ResourceCreateForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
 class ResourceEditForm(ResourceCreateForm):
-    keep_participating = BooleanField(label=_(u'If the contact changes, the old one '
-                                              u'keeps participating to the activities.'
+    keep_participating = BooleanField(label=_('If the contact changes, the old one '
+                                              'keeps participating to the activities.'
                                              ),
                                       required=False,
                                      )
 
     def __init__(self, entity, *args, **kwargs):
-        # super(ResourceEditForm, self).__init__(task=entity, *args, **kwargs)
         super().__init__(task=entity, *args, **kwargs)
         self.old_contact = self.fields['contact'].initial = self.instance.linked_contact
 
@@ -106,5 +100,4 @@ class ResourceEditForm(ResourceCreateForm):
                 if activity.id in activities_ids:
                     _link_contact_n_activity(new_contact, activity, self.user)
 
-        # return super(ResourceEditForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)

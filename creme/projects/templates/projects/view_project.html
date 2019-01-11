@@ -1,23 +1,10 @@
 {% extends 'creme_core/generics/view_entity.html' %}
 {% load i18n creme_core_tags creme_widgets %}
 
-{# {% block extra_menu_buttons %} #}
 {% block instance_buttons %}
     {% if not object.is_closed %}
         <li>
             {% include 'projects/buttons/close-project.html' %}
-            {% comment %}
-            {% if has_perm %}
-                <a class="menu_button menu-button-icon" onclick="$(this).find('#id_project_close').submit();">
-                    {% widget_icon name='cancel' size='instance-button' label=close_label %}{{close_label}}
-                    <div style="display:none;"><form id="id_project_close" method="POST" action="{% url 'projects__close_project' object.id %}">{% csrf_token %}</form></div>
-                </a>
-            {% else %}
-                <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
-                    {% widget_icon name='cancel' size='instance-button' label=close_label %}{{close_label}}
-                </span>
-            {% endif %}
-            {% endcomment %}
         </li>
     {% endif %}
     {{block.super}}

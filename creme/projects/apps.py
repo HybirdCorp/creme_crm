@@ -25,7 +25,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 class ProjectsConfig(CremeAppConfig):
     name = 'creme.projects'
-    verbose_name = _(u'Projects')
+    verbose_name = _('Projects')
     dependencies = ['creme.persons', 'creme.activities']
 
     def all_apps_ready(self):
@@ -33,7 +33,6 @@ class ProjectsConfig(CremeAppConfig):
 
         self.Project     = get_project_model()
         self.ProjectTask = get_task_model()
-        # super(ProjectsConfig, self).all_apps_ready()
         super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
@@ -64,21 +63,9 @@ class ProjectsConfig(CremeAppConfig):
         reg_icon(Resource,         'images/task_%(size)s.png')
 
     def register_menu(self, creme_menu):
-        # from django.conf import settings
-
         Project = self.Project
-
-        # if settings.OLD_MENU:
-        #     from django.urls import reverse_lazy as reverse
-        #     from creme.creme_core.auth import build_creation_perm
-        #
-        #     reg_item = creme_menu.register_app('projects', '/projects/').register_item
-        #     reg_item(reverse('projects__portal'),         _('Portal of projects'), 'projects')
-        #     reg_item(reverse('projects__list_projects'),  _('All projects'),       'projects')
-        #     reg_item(reverse('projects__create_project'), Project.creation_label,  build_creation_perm(Project))
-        # else:
         creme_menu.get('features', 'tools') \
                   .add(creme_menu.URLItem.list_view('projects-projects', model=Project), priority=50)
         creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('tools', label=_(u'Tools'), priority=100) \
+                  .get_or_create_group('tools', label=_('Tools'), priority=100) \
                   .add_link('projects-create_project', Project, priority=50)

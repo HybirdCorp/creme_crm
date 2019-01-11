@@ -53,16 +53,16 @@ class Populator(BasePopulator):
         ProjectTask = get_task_model()
 
         create_rtype = RelationType.create
-        create_rtype((constants.REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
-                     (constants.REL_OBJ_PROJECT_MANAGER, _(u'has as leader'),                         [Project]),
+        create_rtype((constants.REL_SUB_PROJECT_MANAGER, _('is one of the leaders of this project'), [Contact]),
+                     (constants.REL_OBJ_PROJECT_MANAGER, _('has as leader'),                         [Project]),
                     )
-        create_rtype((constants.REL_SUB_LINKED_2_PTASK, _(u'is related to the task of project'), [Activity]),
-                     (constants.REL_OBJ_LINKED_2_PTASK, _(u'includes the activity'),             [ProjectTask]),
+        create_rtype((constants.REL_SUB_LINKED_2_PTASK, _('is related to the task of project'), [Activity]),
+                     (constants.REL_OBJ_LINKED_2_PTASK, _('includes the activity'),             [ProjectTask]),
                      is_internal=True,
                      minimal_display=(False, True),
                     )
-        create_rtype((constants.REL_SUB_PART_AS_RESOURCE, _(u'is a resource of'),  [Contact]),
-                     (constants.REL_OBJ_PART_AS_RESOURCE, _(u'has as a resource'), [Activity]),
+        create_rtype((constants.REL_SUB_PART_AS_RESOURCE, _('is a resource of'),  [Contact]),
+                     (constants.REL_OBJ_PART_AS_RESOURCE, _('has as a resource'), [Activity]),
                      is_internal=True,
                     )
 
@@ -76,7 +76,7 @@ class Populator(BasePopulator):
         create_hf = HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_PROJECT,
                   model=Project,
-                  name=_(u'Project view'),
+                  name=_('Project view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'start_date'}),
                               (EntityCellRegularField, {'name': 'end_date'}),
@@ -86,14 +86,14 @@ class Populator(BasePopulator):
                  )
 
         # Used in form
-        create_hf(pk='projects-hf_task', name=_(u'Task view'), model=ProjectTask,
+        create_hf(pk='projects-hf_task', name=_('Task view'), model=ProjectTask,
                   cells_desc=[(EntityCellRegularField, {'name': 'title'}),
                               (EntityCellRegularField, {'name': 'description'}),
                              ],
                  )
 
         # Used in form
-        create_hf(pk='projects-hf_resource', name=_(u'Resource view'), model=Resource,
+        create_hf(pk='projects-hf_resource', name=_('Resource view'), model=Resource,
                   cells_desc=[(EntityCellRegularField, {'name': 'linked_contact'}),
                               (EntityCellRegularField, {'name': 'hourly_cost'}),
                              ],
@@ -103,18 +103,17 @@ class Populator(BasePopulator):
         create_searchconf = SearchConfigItem.create_if_needed
         create_searchconf(Project,     ['name', 'description', 'status__name'])
         create_searchconf(Resource,    ['linked_contact__last_name', 'linked_contact__first_name', 'hourly_cost'])
-        # create_searchconf(ProjectTask, ['project__name', 'duration', 'tstatus__name'])
         create_searchconf(ProjectTask, ['linked_project__name', 'duration', 'tstatus__name'])
 
         # ---------------------------
         if not already_populated:
-            create_if_needed(ProjectStatus, {'pk': 1}, name=_(u'Invitation to tender'),  order=1, description=_(u'Response to an invitation to tender'))
-            create_if_needed(ProjectStatus, {'pk': 2}, name=_(u'Initialization'),        order=2, description=_(u'The project is starting'))
-            create_if_needed(ProjectStatus, {'pk': 3}, name=_(u'Preliminary phase'),     order=3, description=_(u'The project is in the process of analysis and design'))
-            create_if_needed(ProjectStatus, {'pk': 4}, name=_(u'Achievement'),           order=4, description=_(u'The project is being implemented'))
-            create_if_needed(ProjectStatus, {'pk': 5}, name=_(u'Tests'),                 order=5, description=_(u'The project is in the testing process (unit / integration / functional)'))
-            create_if_needed(ProjectStatus, {'pk': 6}, name=_(u'User acceptance tests'), order=6, description=_(u'The project is in the user acceptance testing process'))
-            create_if_needed(ProjectStatus, {'pk': 7}, name=_(u'Finished'),              order=7, description=_(u'The project is finished'))
+            create_if_needed(ProjectStatus, {'pk': 1}, name=_('Invitation to tender'),  order=1, description=_('Response to an invitation to tender'))
+            create_if_needed(ProjectStatus, {'pk': 2}, name=_('Initialization'),        order=2, description=_('The project is starting'))
+            create_if_needed(ProjectStatus, {'pk': 3}, name=_('Preliminary phase'),     order=3, description=_('The project is in the process of analysis and design'))
+            create_if_needed(ProjectStatus, {'pk': 4}, name=_('Achievement'),           order=4, description=_('The project is being implemented'))
+            create_if_needed(ProjectStatus, {'pk': 5}, name=_('Tests'),                 order=5, description=_('The project is in the testing process (unit / integration / functional)'))
+            create_if_needed(ProjectStatus, {'pk': 6}, name=_('User acceptance tests'), order=6, description=_('The project is in the user acceptance testing process'))
+            create_if_needed(ProjectStatus, {'pk': 7}, name=_('Finished'),              order=7, description=_('The project is finished'))
 
             # ---------------------------
             create_bdl = BrickDetailviewLocation.create_if_needed
