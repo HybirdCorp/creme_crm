@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.db.models import ProtectedError
 from django.http import HttpResponse
@@ -45,72 +45,72 @@ Activity = get_activity_model()
 ProjectTask = projects.get_task_model()
 
 
-def abstract_add_ptask(request, project_id, form=task_forms.TaskCreateForm,
-                       title=_('Create a task for «%s»'),
-                       submit_label=ProjectTask.save_label,
-                      ):
-    warnings.warn('projects.views.task.abstract_add_ptask() is deprecated ; '
-                  'use the class-based view TaskCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_to_entity(request, project_id, form, title,
-                                 entity_class=projects.get_project_model(),
-                                 submit_label=submit_label,
-                                )
+# def abstract_add_ptask(request, project_id, form=task_forms.TaskCreateForm,
+#                        title=_('Create a task for «%s»'),
+#                        submit_label=ProjectTask.save_label,
+#                       ):
+#     warnings.warn('projects.views.task.abstract_add_ptask() is deprecated ; '
+#                   'use the class-based view TaskCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_to_entity(request, project_id, form, title,
+#                                  entity_class=projects.get_project_model(),
+#                                  submit_label=submit_label,
+#                                 )
 
 
-def abstract_edit_ptask(request, task_id, form=task_forms.TaskEditForm):
-    warnings.warn('projects.views.task.abstract_edit_ptask() is deprecated ; '
-                  'use the class-based view TaskEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, task_id, ProjectTask, form)
+# def abstract_edit_ptask(request, task_id, form=task_forms.TaskEditForm):
+#     warnings.warn('projects.views.task.abstract_edit_ptask() is deprecated ; '
+#                   'use the class-based view TaskEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, task_id, ProjectTask, form)
 
 
-def abstract_edit_ptask_popup(request, task_id, form=task_forms.TaskEditForm):
-    warnings.warn('projects.views.task.abstract_edit_ptask_popup() is deprecated ; '
-                  'use the class-based view TaskEditionPopup instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_model_with_popup(request, {'pk': task_id}, ProjectTask, form)
+# def abstract_edit_ptask_popup(request, task_id, form=task_forms.TaskEditForm):
+#     warnings.warn('projects.views.task.abstract_edit_ptask_popup() is deprecated ; '
+#                   'use the class-based view TaskEditionPopup instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_model_with_popup(request, {'pk': task_id}, ProjectTask, form)
 
 
-def abstract_view_ptask(request, task_id,
-                        template='projects/view_task.html',
-                       ):
-    warnings.warn('projects.views.task.abstract_view_ptask() is deprecated ; '
-                  'use the class-based view TaskDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, task_id, ProjectTask, template=template)
+# def abstract_view_ptask(request, task_id,
+#                         template='projects/view_task.html',
+#                        ):
+#     warnings.warn('projects.views.task.abstract_view_ptask() is deprecated ; '
+#                   'use the class-based view TaskDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, task_id, ProjectTask, template=template)
 
 
-@login_required
-@permission_required(('projects', cperm(ProjectTask)))
-def add(request, project_id):
-    warnings.warn('projects.views.task.add() is deprecated.', DeprecationWarning)
-    return abstract_add_ptask(request, project_id)
+# @login_required
+# @permission_required(('projects', cperm(ProjectTask)))
+# def add(request, project_id):
+#     warnings.warn('projects.views.task.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_ptask(request, project_id)
 
 
-@login_required
-@permission_required('projects')
-def detailview(request, task_id):
-    warnings.warn('projects.views.task.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_ptask(request, task_id)
+# @login_required
+# @permission_required('projects')
+# def detailview(request, task_id):
+#     warnings.warn('projects.views.task.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_ptask(request, task_id)
 
 
-@login_required
-@permission_required('projects')
-def edit(request, task_id):
-    warnings.warn('projects.views.task.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_ptask(request, task_id)
+# @login_required
+# @permission_required('projects')
+# def edit(request, task_id):
+#     warnings.warn('projects.views.task.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_ptask(request, task_id)
 
 
-@login_required
-@permission_required('projects')
-def edit_popup(request, task_id):
-    warnings.warn('projects.views.task.edit_popup() is deprecated.', DeprecationWarning)
-    return abstract_edit_ptask_popup(request, task_id)
+# @login_required
+# @permission_required('projects')
+# def edit_popup(request, task_id):
+#     warnings.warn('projects.views.task.edit_popup() is deprecated.', DeprecationWarning)
+#     return abstract_edit_ptask_popup(request, task_id)
 
 
 @login_required
@@ -177,12 +177,12 @@ class ActivityEditionPopup(generic.EntityEditionPopup):
 
 # Activities -------------------------------------------------------------------
 
-def abstract_edit_activity(request, activity_id, form=task_forms.RelatedActivityEditForm):
-    warnings.warn('projects.views.task.abstract_edit_activity() is deprecated ; '
-                  'use the class-based view ActivityEditionPopup instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_model_with_popup(request, {'pk': activity_id}, Activity, form)
+# def abstract_edit_activity(request, activity_id, form=task_forms.RelatedActivityEditForm):
+#     warnings.warn('projects.views.task.abstract_edit_activity() is deprecated ; '
+#                   'use the class-based view ActivityEditionPopup instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_model_with_popup(request, {'pk': activity_id}, Activity, form)
 
 
 # TODO: LINK perm instead of CHANGE ?
@@ -195,11 +195,11 @@ class RelatedActivityCreation(generic.AddingInstanceToEntityPopup):
     entity_classes = ProjectTask
 
 
-@login_required
-@permission_required('projects')
-def edit_activity(request, activity_id):
-    warnings.warn('projects.views.task.edit_activity() is deprecated.', DeprecationWarning)
-    return abstract_edit_activity(request, activity_id)
+# @login_required
+# @permission_required('projects')
+# def edit_activity(request, activity_id):
+#     warnings.warn('projects.views.task.edit_activity() is deprecated.', DeprecationWarning)
+#     return abstract_edit_activity(request, activity_id)
 
 
 @login_required
