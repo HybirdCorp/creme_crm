@@ -20,7 +20,7 @@
 
 from django.db.transaction import atomic
 from django.http import Http404
-from django.shortcuts import redirect  # get_object_or_404
+from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required
@@ -59,7 +59,6 @@ class AlertEdition(generic.RelatedToEntityEditionPopup):
 @POST_only
 @atomic
 def validate(request, alert_id):
-    # alert = get_object_or_404(Alert, pk=alert_id)
     try:
         alert = Alert.objects.select_for_update().get(pk=alert_id)
     except Alert.DoesNotExist as e:

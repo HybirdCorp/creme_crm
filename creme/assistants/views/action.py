@@ -20,7 +20,7 @@
 
 from django.db.transaction import atomic
 from django.http import Http404
-from django.shortcuts import redirect  # get_object_or_404
+from django.shortcuts import redirect
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
@@ -57,7 +57,6 @@ class ActionEdition(generic.RelatedToEntityEditionPopup):
 @POST_only
 @atomic
 def validate(request, action_id):
-    # action = get_object_or_404(Action, pk=action_id)
     try:
         action = Action.objects.select_for_update().get(pk=action_id)
     except Action.DoesNotExist as e:

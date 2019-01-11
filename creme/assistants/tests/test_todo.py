@@ -36,12 +36,10 @@ except Exception as e:
 class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        # super(TodoTestCase, cls).setUpClass()
         super().setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
     def tearDown(self):
-        # super(TodoTestCase, self).tearDown()
         super().tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
@@ -88,7 +86,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
-        # self.assertEqual(_('New Todo for «%s»') % entity, context.get('title'))
         self.assertEqual(_('New todo for «{entity}»').format(entity=entity),
                          context.get('title')
                         )
@@ -147,11 +144,9 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         url = todo.get_edit_absolute_url()
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response,'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response,'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Todo for «%s»') % self.entity, context.get('title'))
         self.assertEqual(_('Todo for «{entity}»').format(entity=self.entity),
                          context.get('title')
                         )
@@ -213,7 +208,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         for i in range(1, 4):
             self._create_todo('Todo{}'.format(i), 'Description {}'.format(i))
 
-        # todos = ToDo.get_todos(self.entity)
         todos = ToDo.objects.filter(entity=self.entity.id)
         self.assertEqual(3, len(todos))
         self.assertEqual(set(ToDo.objects.values_list('id', flat=True)),
@@ -268,13 +262,11 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         todo.save()
 
     def test_function_field01(self):
-        # funf = CremeEntity.function_fields.get('assistants-get_todos')
         funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
         self.assertIsNotNone(funf)
         self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
 
     def test_function_field02(self):
-        # funf = CremeEntity.function_fields.get('assistants-get_todos')
         funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
         self._oldify_todo(self._create_todo('Todo01', 'Description01'))
         self._create_todo('Todo02', 'Description02')
@@ -306,7 +298,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         entity02 = CremeEntity.objects.create(user=user)
         self._create_todo('Todo04', 'Description04', entity=entity02)
 
-        # funf = CremeEntity.function_fields.get('assistants-get_todos')
         funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
 
         with self.assertNumQueries(1):
@@ -689,9 +680,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         create_todo(title='Todo#2', user=self.other_user)  # No (other user)
         todo3 = create_todo(title='Todo#3', user=team1)
         create_todo(title='Todo#4', user=team2)  # No (other team)
-
-        # entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
-        # create_todo(title='Todo#5', creme_entity=entity2)  # No (deleted entity)
 
         todos = ToDo.get_todos_for_home(user=user)
         self.assertIsInstance(todos, QuerySet)

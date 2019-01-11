@@ -33,14 +33,13 @@ from ..models import Alert
 
 # TODO: alright, we need a real date time widget that does this shit !
 class AlertForm(CremeModelWithUserForm):
-    trigger_time = TimeField(label=_(u'Hour'), required=False)
+    trigger_time = TimeField(label=_('Hour'), required=False)
 
     class Meta(CremeModelWithUserForm.Meta):
         model = Alert
         widgets = {'trigger_date': CalendarWidget}
 
     def __init__(self, entity, *args, **kwargs):
-        # super(AlertForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         instance = self.instance
         instance.creme_entity = entity

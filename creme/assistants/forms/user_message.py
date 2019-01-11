@@ -39,9 +39,7 @@ class UserMessageForm(CremeModelForm):
         model = UserMessage
         fields = ('title', 'body', 'priority')
 
-    # def __init__(self, entity, *args, **kwargs):
     def __init__(self, entity=None, *args, **kwargs):
-        # super(UserMessageForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.entity = entity
 

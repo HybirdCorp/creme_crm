@@ -20,8 +20,6 @@
 
 import warnings
 
-# from django.contrib.contenttypes.fields import GenericForeignKey
-# from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -45,9 +43,6 @@ class Action(creme_models.CremeModel):
     validation_date   = models.DateTimeField(_('Validation date'), blank=True, null=True, editable=False)
     user              = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    # entity_content_type = models.ForeignKey(ContentType, related_name='action_entity_set', editable=False, on_delete=models.CASCADE)
-    # entity_id           = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
-    # creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field='entity_id')
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity              = models.ForeignKey(creme_models.CremeEntity, related_name='assistants_actions',
                                             editable=False, on_delete=models.CASCADE,
@@ -88,7 +83,6 @@ class Action(creme_models.CremeModel):
         return Action.objects.filter(is_ok=False,
                                      deadline__gt=today,
                                      user__in=[user] + user.teams,
-                                     # entity__is_deleted=False,
                                     ) \
                              .select_related('user')
 
@@ -98,7 +92,6 @@ class Action(creme_models.CremeModel):
         return Action.objects.filter(is_ok=False,
                                      deadline__lte=today,
                                      user__in=[user] + user.teams,
-                                     # entity__is_deleted=False,
                                     ) \
                              .select_related('user')
 

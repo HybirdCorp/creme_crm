@@ -18,16 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from collections import defaultdict
 import warnings
 
-# from django.contrib.contenttypes.fields import GenericForeignKey
-# from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-# from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from creme.creme_core import models as creme_models
 from creme.creme_core.models import fields as creme_fields
 from creme.creme_core.utils import ellipsis
@@ -44,9 +40,6 @@ class Memo(creme_models.CremeModel):
     creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
     user          = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    # entity_content_type = models.ForeignKey(ContentType, related_name='memo_entity_set', editable=False, on_delete=models.CASCADE)
-    # entity_id           = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
-    # creme_entity        = GenericForeignKey(ct_field='entity_content_type', fk_field='entity_id')
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity              = models.ForeignKey(creme_models.CremeEntity,  related_name='assistants_memos',
                                             editable=False, on_delete=models.CASCADE,
@@ -80,7 +73,6 @@ class Memo(creme_models.CremeModel):
         warnings.warn('Memo.get_memos_for_home() is deprecated.', DeprecationWarning)
         return Memo.objects.filter(on_homepage=True,
                                    user__in=[user] + user.teams,
-                                   # entity__is_deleted=False,
                                   ) \
                           .select_related('user')
 
@@ -92,35 +84,3 @@ class Memo(creme_models.CremeModel):
 
     def get_related_entity(self):  # For generic views
         return self.creme_entity
-
-
-# class _GetMemos(FunctionField):
-#     name         = 'assistants-get_memos'
-#     verbose_name = _(u'Memos')
-#     result_type  = FunctionFieldResultsList
-#
-#     def __call__(self, entity, user):
-#         cache = getattr(entity, '_memos_cache', None)
-#
-#         if cache is None:
-#             cache = entity._memos_cache = list(Memo.objects.filter(entity_id=entity.id)
-#                                                            .order_by('-creation_date')
-#                                                            .values_list('content', flat=True)
-#                                               )
-#
-#         return FunctionFieldResultsList(FunctionFieldResult(content) for content in cache)
-#
-#     @classmethod
-#     def populate_entities(cls, entities, user):
-#         memos_map = defaultdict(list)
-#
-#         for content, e_id in Memo.objects.filter(entity_id__in=[e.id for e in entities]) \
-#                                          .order_by('-creation_date') \
-#                                          .values_list('content', 'entity_id'):
-#             memos_map[e_id].append(content)
-#
-#         for entity in entities:
-#             entity._memos_cache = memos_map[entity.id]
-#
-#
-# CremeEntity.function_fields.add(_GetMemos())

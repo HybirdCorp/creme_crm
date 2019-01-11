@@ -19,7 +19,6 @@
 ################################################################################
 
 from collections import defaultdict
-# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
@@ -56,18 +55,6 @@ class _AssistantsBrick(QuerysetBrick):
         """OVERLOAD ME"""
         pass
 
-    # def _get_queryset_for_portal(self, ct_ids, context):
-    #     """OVERLOAD ME"""
-    #     warnings.warn('assistants.bricks._AssistantsBrick._get_queryset_for_portal() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-
-    # @classmethod
-    # def _get_contenttype_id(cls):
-    #     warnings.warn('assistants.bricks._AssistantsBrick._get_contenttype_id() is deprecated.', DeprecationWarning)
-    #
-    #     return ContentType.objects.get_for_model(cls.dependencies[0]).id
-
     def detailview_display(self, context):
         entity = context['object']
         btc = self.get_template_context(
@@ -79,16 +66,6 @@ class _AssistantsBrick(QuerysetBrick):
             assistant.creme_entity = entity
 
         return self._render(btc)
-
-    # def portal_display(self, context, ct_ids):
-    #     warnings.warn('assistants.bricks._AssistantsBrick.portal_display() is deprecated.', DeprecationWarning)
-    #
-    #     btc = self.get_template_context(
-    #         context, self._get_queryset_for_portal(ct_ids, context),
-    #     )
-    #     self._populate_related_real_entities(btc['page'].object_list)
-    #
-    #     return self._render(btc)
 
     def home_display(self, context):
         btc = self.get_template_context(
@@ -107,20 +84,12 @@ class TodosBrick(_AssistantsBrick):
     template_name = 'assistants/bricks/todos.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return ToDo.get_todos(entity)
         return ToDo.objects.filter(entity_id=entity.id).select_related('user')
 
     def _get_queryset_for_home(self, context):
-        # return ToDo.get_todos_for_home(context['user'])
         return ToDo.objects.filter_by_user(context['user'])\
                            .filter(entity__is_deleted=False) \
                            .select_related('user')
-
-    # def _get_queryset_for_portal(self, ct_ids, context):
-    #     warnings.warn('assistants.bricks.TodosBrick._get_queryset_for_portal() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return ToDo.get_todos_for_ctypes(ct_ids, context['user'])
 
 
 class MemosBrick(_AssistantsBrick):
@@ -131,21 +100,13 @@ class MemosBrick(_AssistantsBrick):
     template_name = 'assistants/bricks/memos.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return Memo.get_memos(entity)
         return Memo.objects.filter(entity_id=entity.id).select_related('user')
 
     def _get_queryset_for_home(self, context):
-        # return Memo.get_memos_for_home(context['user'])
         return Memo.objects \
                    .filter_by_user(context['user'])\
                    .filter(on_homepage=True, entity__is_deleted=False) \
                    .select_related('user')
-
-    # def _get_queryset_for_portal(self, ct_ids, context):
-    #     warnings.warn('assistants.bricks.MemosBrick._get_queryset_for_portal() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return Memo.get_memos_for_ctypes(ct_ids, context['user'])
 
 
 class AlertsBrick(_AssistantsBrick):
@@ -156,28 +117,20 @@ class AlertsBrick(_AssistantsBrick):
     template_name = 'assistants/bricks/alerts.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return Alert.get_alerts(entity)
         return  Alert.objects.filter(is_validated=False, entity_id=entity.id)\
                              .select_related('user')
 
     def _get_queryset_for_home(self, context):
-        # return Alert.get_alerts_for_home(context['user'])
         return Alert.objects.filter_by_user(context['user']) \
                             .filter(is_validated=False,
                                     entity__is_deleted=False,
                                    ) \
                             .select_related('user')
 
-    # def _get_queryset_for_portal(self, ct_ids, context):
-    #     warnings.warn('assistants.bricks.AlertsBrick._get_queryset_for_portal() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return Alert.get_alerts_for_ctypes(ct_ids, context['user'])
-
 
 class _ActionsBrick(_AssistantsBrick):
-    dependencies  = (Action,)
-    order_by      = 'deadline'
+    dependencies = (Action,)
+    order_by     = 'deadline'
 
     def _get_queryset_for_detailview(self, entity, context):
         return Action.objects \
@@ -191,54 +144,32 @@ class _ActionsBrick(_AssistantsBrick):
                      .select_related('user')
 
 
-# class ActionsOnTimeBrick(_AssistantsBrick):
 class ActionsOnTimeBrick(_ActionsBrick):
     id_           = QuerysetBrick.generate_id('assistants', 'actions_it')
-    # dependencies  = (Action,)
-    # order_by      = 'deadline'
     verbose_name  = _('Actions in time')
     template_name = 'assistants/bricks/actions-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return Action.get_actions_it(entity, context['today'])
         return super()._get_queryset_for_detailview(entity, context) \
                       .filter(deadline__gt=context['today'])
 
     def _get_queryset_for_home(self, context):
-        # return Action.get_actions_it_for_home(context['user'], context['today'])
         return super()._get_queryset_for_home(context) \
                       .filter(deadline__gt=context['today'])
 
-    # def _get_queryset_for_portal(self, ct_ids, context):
-    #     warnings.warn('assistants.bricks.ActionsOnTimeBrick._get_queryset_for_portal() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return Action.get_actions_it_for_ctypes(ct_ids, context['user'], context['today'])
 
-
-# class ActionsNotOnTimeBrick(_AssistantsBrick):
 class ActionsNotOnTimeBrick(_ActionsBrick):
     id_           = QuerysetBrick.generate_id('assistants', 'actions_nit')
-    # dependencies  = (Action,)
-    # order_by      = 'deadline'
     verbose_name  = _('Reactions not in time')
     template_name = 'assistants/bricks/actions-not-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return Action.get_actions_nit(entity, context['today'])
         return super()._get_queryset_for_detailview(entity, context) \
                       .filter(deadline__lte=context['today'])
 
     def _get_queryset_for_home(self, context):
-        # return Action.get_actions_nit_for_home(context['user'], context['today'])
         return super()._get_queryset_for_home(context) \
                       .filter(deadline__lte=context['today'])
-
-    # def _get_queryset_for_portal(self, ct_ids, context):
-    #     warnings.warn('assistants.bricks.ActionsNotOnTimeBrick._get_queryset_for_portal() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return Action.get_actions_nit_for_ctypes(ct_ids, context['user'], context['today'])
 
 
 class UserMessagesBrick(_AssistantsBrick):
@@ -249,18 +180,10 @@ class UserMessagesBrick(_AssistantsBrick):
     template_name = 'assistants/bricks/messages.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return UserMessage.get_messages(entity, context['user'])
         return UserMessage.objects.filter(entity_id=entity.id, recipient=context['user']) \
                           .select_related('sender')
 
     def _get_queryset_for_home(self, context):
-        # return UserMessage.get_messages_for_home(context['user'])
         return UserMessage.objects \
                           .filter(recipient=context['user'], entity__is_deleted=False) \
                           .select_related('sender')
-
-    # def _get_queryset_for_portal(self, ct_ids, context):
-    #     warnings.warn('assistants.bricks.UserMessagesBrick._get_queryset_for_portal() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return UserMessage.get_messages_for_ctypes(ct_ids, context['user'])
