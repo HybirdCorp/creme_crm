@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.db import models
@@ -61,9 +61,9 @@ class CommercialApproach(creme_models.CremeModel):
         return queryset.filter(entity_id=entity_pk) if entity_pk else \
                queryset.exclude(entity__is_deleted=True)
 
-    @staticmethod
-    def get_approaches_for_ctypes(ct_ids):
-        warnings.warn('CommercialApproach.get_approaches_for_ctypes() is deprecated.', DeprecationWarning)
-
-        return CommercialApproach.objects.filter(entity_content_type__in=ct_ids) \
-                                 .select_related('related_activity')
+    # @staticmethod
+    # def get_approaches_for_ctypes(ct_ids):
+    #     warnings.warn('CommercialApproach.get_approaches_for_ctypes() is deprecated.', DeprecationWarning)
+    #
+    #     return CommercialApproach.objects.filter(entity_content_type__in=ct_ids) \
+    #                              .select_related('related_activity')
