@@ -46,7 +46,6 @@ def _link_contact_n_activity(contact, activity, user):
     if contact.is_user:
         activity.calendars.add(Calendar.get_user_default_calendar(contact.is_user))
 
-    # create_rel = partial(Relation.objects.create,
     create_rel = partial(Relation.objects.safe_create,
                          subject_entity=contact,
                          object_entity=activity,
@@ -61,7 +60,6 @@ class _TaskForm(CremeEntityForm):
         model = ProjectTask
 
     def __init__(self, *args, **kwargs):
-        # super(_TaskForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         fields = self.fields
@@ -78,23 +76,19 @@ class TaskCreateForm(_TaskForm):
     parent_tasks = MultiCreatorEntityField(label=_('Parent tasks'), required=False, model=ProjectTask)
 
     def __init__(self, entity, *args, **kwargs):
-        # super(TaskCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._project = entity
 
         fields = self.fields
-        # fields['parent_tasks'].q_filter = {'project': entity.id}
         fields['parent_tasks'].q_filter = {'linked_project': entity.id}
 
     def save(self, *args, **kwargs):
         instance = self.instance
         project  = self._project
 
-        # instance.project = project
         instance.linked_project = project
         instance.order = project.attribute_order_task()
 
-        # super(TaskCreateForm, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
         return instance
@@ -107,15 +101,8 @@ class TaskAddParentForm(CremeForm):
         model = ProjectTask
 
     def __init__(self, instance, *args, **kwargs):
-        # super(TaskAddParentForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.task = instance
-        # self.fields['parents'].q_filter = {
-        #     # 'project':       instance.project_id,
-        #     'linked_project': instance.linked_project_id,
-        #     '~id__in':        [t.id for t in instance.get_subtasks()],
-        #     '~children_set':  instance.pk,
-        # }
         self.fields['parents'].q_filter =  Q(linked_project=instance.linked_project_id) & \
                                           ~Q(id__in=[t.id for t in instance.get_subtasks()]) & \
                                           ~Q(children_set=instance.pk)
@@ -146,7 +133,6 @@ class RelatedActivityEditForm(CremeEntityForm):
             raise ConflictError('This Activity is not related to a project task.') from e
 
     def __init__(self, *args, **kwargs):
-        # super(RelatedActivityEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         fields = self.fields
         fields['duration'].required = True
@@ -206,7 +192,6 @@ class RelatedActivityEditForm(CremeEntityForm):
         cdata = self.cleaned_data
         instance.type, instance.sub_type = cdata['type_selector']
 
-        # super(RelatedActivityEditForm, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
         participant = cdata['resource'].linked_contact
@@ -229,33 +214,26 @@ class RelatedActivityEditForm(CremeEntityForm):
 
 
 class RelatedActivityCreateForm(RelatedActivityEditForm):
-    # def __init__(self, *args, **kwargs):
     def __init__(self, entity, *args, **kwargs):
-        # super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
         self._task = entity
         super().__init__(*args, **kwargs)
-        # self._task = self._get_task()
 
     def _get_task(self):
-        # return self.initial['task']
         return self._task
 
     def save(self, *args, **kwargs):
         instance = self.instance
         task = self._task
-        # p_name, t_name = ellipsis_multi((task.project.name, task.title),
         p_name, t_name = ellipsis_multi((task.linked_project.name, task.title),
                                         # 9 is the length of ' -  - XYZ' (ie: the 'empty' format string)
                                         Activity._meta.get_field('title').max_length - 9
                                        )
-        # instance.title = u'%s - %s - %003d' % (p_name, t_name, len(task.related_activities) + 1)
         instance.title = '{project} - {task} - {count:03}'.format(
             project=p_name,
             task=t_name,
             count=len(task.related_activities) + 1,
         )
 
-        # super(RelatedActivityCreateForm, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
         Relation.objects.create(subject_entity=instance,

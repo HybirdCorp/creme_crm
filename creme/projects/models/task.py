@@ -29,13 +29,11 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import CremeEntity, Relation
 
 from ..constants import COMPLETED_PK, CANCELED_PK, REL_OBJ_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE
-# from .project import Project
 from .taskstatus import TaskStatus
 
 
 class AbstractProjectTask(CremeEntity):
     title        = CharField(_('Title'), max_length=100)
-    # linked_project = ForeignKey(Project, on_delete=CASCADE,
     linked_project = ForeignKey(settings.PROJECTS_PROJECT_MODEL, on_delete=CASCADE,
                                 verbose_name=_('Project'), related_name='tasks_set', editable=False,
                                )

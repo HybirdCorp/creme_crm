@@ -73,10 +73,6 @@ def abstract_edit_ptask_popup(request, task_id, form=task_forms.TaskEditForm):
                   DeprecationWarning
                  )
     return generic.edit_model_with_popup(request, {'pk': task_id}, ProjectTask, form)
-# todo: ?
-#    return edit_related_to_entity(request, task_id, ProjectTask,
-#                                  TaskEditForm, _(u'Edit a task for «%s»'),
-#                                 )
 
 
 def abstract_view_ptask(request, task_id,
@@ -115,12 +111,6 @@ def edit(request, task_id):
 def edit_popup(request, task_id):
     warnings.warn('projects.views.task.edit_popup() is deprecated.', DeprecationWarning)
     return abstract_edit_ptask_popup(request, task_id)
-
-
-# @login_required
-# @permission_required('projects')
-# def add_parent(request, task_id):
-#     return generic.edit_model_with_popup(request, {'pk': task_id}, ProjectTask, task_forms.TaskAddParentForm)
 
 
 @login_required
@@ -187,34 +177,12 @@ class ActivityEditionPopup(generic.EntityEditionPopup):
 
 # Activities -------------------------------------------------------------------
 
-# def abstract_add_activity(request, task_id, form=task_forms.RelatedActivityCreateForm,
-#                           title=_('New activity related to «%s»'),
-#                           submit_label=Activity.save_label,
-#                          ):
-#     task = get_object_or_404(ProjectTask, pk=task_id)
-#     user = request.user
-#
-#     user.has_perm_to_change_or_die(task)  # todo: has_perm_to_link_or_die ??
-#
-#     return generic.add_model_with_popup(request, form,
-#                                         title=title % task.allowed_str(user),
-#                                         initial={'task': task},
-#                                         submit_label=submit_label,
-#                                        )
-
-
 def abstract_edit_activity(request, activity_id, form=task_forms.RelatedActivityEditForm):
     warnings.warn('projects.views.task.abstract_edit_activity() is deprecated ; '
                   'use the class-based view ActivityEditionPopup instead.',
                   DeprecationWarning
                  )
     return generic.edit_model_with_popup(request, {'pk': activity_id}, Activity, form)
-
-
-# @login_required
-# @permission_required(('projects', cperm(Activity)))
-# def add_activity(request, task_id):
-#     return abstract_add_activity(request, task_id)
 
 
 # TODO: LINK perm instead of CHANGE ?
