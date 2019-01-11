@@ -46,7 +46,6 @@ class ContactForm(_BasePersonForm):
         model = Contact
 
     def __init__(self, *args, **kwargs):
-        # super(ContactForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         if self.instance.is_user_id:
@@ -61,11 +60,8 @@ class ContactForm(_BasePersonForm):
 class RelatedContactForm(ContactForm):
     orga_overview = CharField(label=_('Concerned organisation'), widget=Label, initial=_('No one'))
 
-    # def __init__(self, *args, **kwargs):
     def __init__(self, linked_orga=None, rtype=None, *args, **kwargs):
-        # super(RelatedContactForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self.linked_orga = self.initial.get('linked_orga')
         if not linked_orga:
             linked_orga = self.initial.get('linked_orga')
             if linked_orga:
@@ -84,7 +80,6 @@ class RelatedContactForm(ContactForm):
 
         fields = self.fields
         fields['orga_overview'].initial = self.linked_orga
-        # self.relation_type = self.initial.get('relation_type')
         if not rtype:
             rtype = self.initial.get('relation_type')
             if rtype:
@@ -117,7 +112,6 @@ class RelatedContactForm(ContactForm):
         return validate_linkable_model(Contact, self.user, owner=self.cleaned_data['user'])
 
     def save(self, *args, **kwargs):
-        # instance = super(RelatedContactForm, self).save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
 
         if self.linked_orga:

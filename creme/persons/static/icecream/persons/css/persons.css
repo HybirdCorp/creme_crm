@@ -1,16 +1,3 @@
-/*
-td.width_inner_edit_address {
-    width: 2%;
-}
-*/
-
-/*
-#block_persons-managed_organisations .tips {
-    font-weight: 500;
-    padding-left: 15px;
-}
-*/
-
 /* Brick card contact */
 
 .persons-contact-card-brick .card-job {
@@ -55,10 +42,6 @@ td.width_inner_edit_address {
 
 /* NOTE: maps from the prototype have not been imported yet, and probably not until the
          geolocation brick or some of it is folded into the addresses brick */
-/*
-.persons-addresses-brick {}
-*/
-
 .persons-addresses-brick .brick-content {
     padding-top: 15px;
     padding-bottom: 17px;

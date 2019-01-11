@@ -3,7 +3,6 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    # from django.utils.html import escape
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
@@ -21,7 +20,6 @@ except Exception as e:
 @skipIfCustomAddress
 class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     def login(self, create_orga=True, *args, **kwargs):
-        # super(AddressTestCase, self).login(*args, **kwargs)
         super().login(*args, **kwargs)
 
         if create_orga:
@@ -83,7 +81,6 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
         context = self.assertGET200(self._build_add_url(orga)).context
-        # self.assertEqual(_('Adding address to «%s»') % orga, context.get('title'))
         self.assertEqual(_('Adding address to «{entity}»').format(entity=orga),
                          context.get('title')
                         )
@@ -127,7 +124,6 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         url = reverse('persons__create_billing_address', args=(orga.id,))
         response = self.assertGET200(url)
         context = response.context
-        # self.assertEqual(_('Adding billing address to «%s»') % orga, context.get('title'))
         self.assertEqual(_('Adding billing address to «{entity}»').format(entity=orga),
                          context.get('title')
                         )
@@ -175,7 +171,6 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         url = reverse('persons__create_shipping_address', args=(orga.id,))
 
         context = self.assertGET200(url).context
-        # self.assertEqual(_('Adding shipping address to «%s»') % orga, context.get('title'))
         self.assertEqual(_('Adding shipping address to «{entity}»').format(entity=orga),
                          context.get('title')
                         )
@@ -218,11 +213,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url()
         response = self.assertGET200(url)
-        # self.assertContains(response, escape(_('Edit address for «%s»') % orga))
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-
-        # self.assertEqual(_('Edit address for «%s»') % orga, response.context.get('title'))
         self.assertEqual(_('Edit address for «{entity}»').format(entity=orga),
                          response.context.get('title')
                         )
@@ -261,8 +252,6 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url() + '?type=billing'
         response = self.assertGET200(url)
-        # self.assertContains(response, escape(_('Edit billing address for «%s»') % orga))
-        # self.assertEqual(_('Edit billing address for «%s»') % orga, response.context.get('title'))
         self.assertEqual(_('Edit billing address for «{entity}»').format(entity=orga),
                          response.context.get('title')
                         )
@@ -296,8 +285,6 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url() + '?type=shipping'
         response = self.assertGET200(url)
-        # self.assertContains(response, escape(_('Edit shipping address for «%s»') % orga))
-        # self.assertEqual(_('Edit shipping address for «%s»') % orga, response.context.get('title'))
         self.assertEqual(_('Edit shipping address for «{entity}»').format(entity=orga),
                          response.context.get('title')
                         )
@@ -407,19 +394,19 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         orga = self.login()
 
         create_address = Address.objects.create
-        orga.billing_address = b_addr = create_address(name="Billing address",
-                                                       address="BA - Address",
+        orga.billing_address = b_addr = create_address(name='Billing address',
+                                                       address='BA - Address',
                                                        owner=orga,
                                                       )
         orga.save()
 
-        orga.shipping_address = s_addr = create_address(name="Shipping address",
-                                                        address="SA - Address",
+        orga.shipping_address = s_addr = create_address(name='Shipping address',
+                                                        address='SA - Address',
                                                         owner=orga,
                                                        )
         orga.save()
 
-        other_addr = create_address(name="Other address", address="OA - Address", owner=orga)
+        other_addr = create_address(name='Other address', address='OA - Address', owner=orga)
 
         orga.delete()
         self.assertDoesNotExist(orga)
@@ -433,19 +420,19 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         contact = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
 
         create_address = Address.objects.create
-        contact.billing_address = b_addr = create_address(name="Billing address",
-                                                          address="BA - Address",
+        contact.billing_address = b_addr = create_address(name='Billing address',
+                                                          address='BA - Address',
                                                           owner=contact,
                                                          )
         contact.save()
 
-        contact.shipping_address = s_addr = create_address(name="Shipping address",
-                                                           address="SA - Address",
+        contact.shipping_address = s_addr = create_address(name='Shipping address',
+                                                           address='SA - Address',
                                                            owner=contact,
                                                           )
         contact.save()
 
-        other_addr = create_address(name="Other address", address="OA - Address", owner=contact)
+        other_addr = create_address(name='Other address', address='OA - Address', owner=contact)
 
         contact.delete()
         self.assertDoesNotExist(contact)

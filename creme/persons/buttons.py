@@ -36,7 +36,6 @@ Organisation = persons.get_organisation_model()
 class CrmButton(Button):
     __managed_orga   = False
     relation_type_id = 'OVERLOADME'
-    # template_name    = 'persons/templatetags/button_become.html'
     template_name    = 'persons/buttons/become.html'
     what             = 'OVERLOADME'
     url_name         = 'OVERLOADME'
@@ -46,7 +45,6 @@ class CrmButton(Button):
         self.__managed_orga = Organisation.get_all_managed_by_creme()
         already_linked_pk = Relation.objects.filter(type=self.relation_type_id,
                                                     subject_entity=entity,
-                                                    # is_deleted=False,
                                                    ) \
                                             .values_list('object_entity_id', flat=True)
         self.__managed_orga = self.__managed_orga.exclude(pk__in=already_linked_pk)
@@ -62,13 +60,12 @@ class CrmButton(Button):
         context['verbose_name'] = self.verbose_name
         context['become_url'] = reverse(self.url_name, args=(context['object'].id,))
 
-        # return super(CrmButton, self).render(context)
         return super().render(context)
 
 
 class BecomeCustomerButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_customer')
-    verbose_name     = _(u'Transform into a customer')
+    verbose_name     = _('Transform into a customer')
     relation_type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
     what = 'customer'
     url_name = 'persons__become_customer'
@@ -76,7 +73,7 @@ class BecomeCustomerButton(CrmButton):
 
 class BecomeProspectButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_prospect')
-    verbose_name     = _(u'Transform into a prospect')
+    verbose_name     = _('Transform into a prospect')
     relation_type_id = constants.REL_SUB_PROSPECT
     what = 'prospect'
     url_name = 'persons__become_prospect'
@@ -84,7 +81,7 @@ class BecomeProspectButton(CrmButton):
 
 class BecomeSuspectButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_suspect')
-    verbose_name     = _(u'Transform into a suspect')
+    verbose_name     = _('Transform into a suspect')
     relation_type_id = constants.REL_SUB_SUSPECT
     what = 'suspect'
     url_name = 'persons__become_suspect'
@@ -92,7 +89,7 @@ class BecomeSuspectButton(CrmButton):
 
 class BecomeInactiveButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_inactive')
-    verbose_name     = _(u'Transform into an inactive customer')
+    verbose_name     = _('Transform into an inactive customer')
     relation_type_id = constants.REL_SUB_INACTIVE
     what = 'inactive_customer'
     url_name = 'persons__become_inactive_customer'
@@ -100,7 +97,7 @@ class BecomeInactiveButton(CrmButton):
 
 class BecomeSupplierButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_supplier')
-    verbose_name     = _(u'Transform into a supplier')
+    verbose_name     = _('Transform into a supplier')
     relation_type_id = constants.REL_OBJ_CUSTOMER_SUPPLIER
     what = 'supplier'
     url_name = 'persons__become_supplier'
@@ -111,8 +108,7 @@ class BecomeSupplierButton(CrmButton):
 
 class AddLinkedContactButton(Button):
     id_           = Button.generate_id('persons', 'add_linked_contact')
-    verbose_name  = _(u'Create a related contact')
-    # template_name = 'persons/templatetags/button_add_linked_contact.html'
+    verbose_name  = _('Create a related contact')
     template_name = 'persons/buttons/add-linked-contact.html'
     permission    = cperm(Contact)  # TODO: 'persons.addrelated_contact' ??
 
@@ -122,22 +118,4 @@ class AddLinkedContactButton(Button):
     def render(self, context):
         context['contact_link_perm'] = context['user'].has_perm_to_link(Contact)
 
-        # return super(AddLinkedContactButton, self).render(context)
         return super().render(context)
-
-
-# become_customer_button    = BecomeCustomerButton()
-# become_prospect_button    = BecomeProspectButton()
-# become_suspect_button     = BecomeSuspectButton()
-# become_inactive_button    = BecomeInactiveButton()
-# become_supplier_button    = BecomeSupplierButton()
-# add_linked_contact_button = AddLinkedContactButton()
-#
-# button_list = (
-#         become_customer_button,
-#         become_prospect_button,
-#         become_suspect_button,
-#         become_inactive_button,
-#         become_supplier_button,
-#         add_linked_contact_button,
-#     )

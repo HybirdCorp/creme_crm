@@ -346,9 +346,6 @@ class Populator(BasePopulator):
             create_bdl(brick_id=core_bricks.RelationsBrick.id_,       order=500, zone=LEFT,  model=Contact)
             create_bdl(brick_id=core_bricks.HistoryBrick.id_,         order=20,  zone=RIGHT, model=Contact)
 
-            # create_bpl = core_models.BlockPortalLocation.create_or_update
-            # create_bpl(app_name='persons', brick_id=core_bricks.HistoryBrick.id_, order=30)
-
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
@@ -364,10 +361,6 @@ class Populator(BasePopulator):
                 create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Organisation)
                 create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=500, zone=RIGHT, model=Organisation)
 
-                # create_bpl(app_name='persons', brick_id=a_bricks.MemosBrick.id_,        order=100)
-                # create_bpl(app_name='persons', brick_id=a_bricks.AlertsBrick.id_,       order=200)
-                # create_bpl(app_name='persons', brick_id=a_bricks.UserMessagesBrick.id_, order=400)
-
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail views')
 
@@ -377,7 +370,4 @@ class Populator(BasePopulator):
                 create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Organisation)
 
             if apps.is_installed('creme.activities'):
-                # create_bpl(app_name='persons',    brick_id=bricks.NeglectedOrganisationsBrick.id_, order=10)
-
-                # create_bpl(app_name='creme_core', brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15)
                 core_models.BrickHomeLocation.objects.create(brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15)
