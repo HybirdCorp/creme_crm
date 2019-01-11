@@ -43,7 +43,6 @@ class _AuxForm(CremeModelForm):
         exclude = ()
 
     def __init__(self, entity, *args, **kwargs):
-        # super(_AuxForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.instance.strategy = entity
 
@@ -53,7 +52,6 @@ class SegmentLinkForm(_AuxForm):
         model = MarketSegmentDescription
 
     def __init__(self, entity, *args, **kwargs):
-        # super(SegmentLinkForm, self).__init__(entity, *args, **kwargs)
         super().__init__(entity=entity, *args, **kwargs)
 
         segment_field = self.fields['segment']
@@ -115,12 +113,10 @@ class _SegmentForm(_AuxForm):
 
 class SegmentEditForm(_SegmentForm):
     def __init__(self, *args, **kwargs):
-        # super(SegmentEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.fields['name'].initial = self.instance.segment.name
 
     def save(self, *args, **kwargs):
-        # seginfo = super(SegmentEditForm, self).save(*args, **kwargs)
         seginfo = super().save(*args, **kwargs)
         name = self.cleaned_data['name']
 
@@ -130,7 +126,7 @@ class SegmentEditForm(_SegmentForm):
 
         ptype = segment.property_type
 
-        if ptype: # NB: there is _one_ segment with no related PropertyType
+        if ptype:  # NB: there is _one_ segment with no related PropertyType
             ptype.text = MarketSegment.generate_property_text(name)
             ptype.save()
 
@@ -150,7 +146,6 @@ class SegmentCreateForm(_SegmentForm):
                                         )
 
         segment_desc.segment = MarketSegment.objects.create(name=name, property_type=ptype)
-        # super(SegmentCreateForm, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
         return segment_desc
@@ -161,7 +156,6 @@ class AddOrganisationForm(CremeForm):
     organisations = MultiCreatorEntityField(label=_('Organisations'), model=get_organisation_model())
 
     def __init__(self, entity, *args, **kwargs):
-        # super(AddOrganisationForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._strategy = entity
 

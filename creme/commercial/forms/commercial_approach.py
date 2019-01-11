@@ -28,6 +28,5 @@ class ComAppCreateForm(CremeModelForm):
         model = CommercialApproach
 
     def __init__(self, entity, *args, **kwargs):
-        # super(ComAppCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.instance.creme_entity = entity

@@ -107,7 +107,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         url = self._build_addcomp_url(pattern)
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New objective for «%s»') % pattern, context.get('title'))
         self.assertEqual(_('New objective for «{entity}»').format(entity=pattern),
                          context.get('title')
                         )
@@ -184,7 +183,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New child objective for «%s»') % comp01, context.get('title'))
         self.assertEqual(_('New child objective for «{component}»').format(component=comp01),
                          context.get('title')
                         )
@@ -231,11 +229,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         url = self._build_parent_url(comp01)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New parent objective for «%s»') % comp01, context.get('title'))
         self.assertEqual(_('New parent objective for «{component}»').format(component=comp01),
                          context.get('title')
                         )
@@ -304,7 +300,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         url = self._build_addcomp_url(pattern)
 
         response = self.client.post(url, data={'name':         'Signed opportunities',
-                                               'success_rate': 0,  # Minimunm is 1
+                                               'success_rate': 0,  # Minimum is 1
                                               }
                                    )
         self.assertFormError(response, 'form', 'success_rate',

@@ -22,7 +22,7 @@ import warnings
 
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, redirect  # render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -188,80 +188,6 @@ class CharmEdition(generic.RelatedToEntityEditionPopup):
 
 # Other views  ----------------------------------------------------------------
 
-# @login_required
-# @permission_required('commercial')
-# def add_segment(request, strategy_id):
-#     return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
-#                                  ugettext('New market segment for «%s»'),
-#                                  entity_class=Strategy,
-#                                  submit_label=MarketSegment.save_label,
-#                                 )
-
-
-# @login_required
-# @permission_required('commercial')
-# def link_segment(request, strategy_id):
-#     return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
-#                                  ugettext('New market segment for «%s»'),
-#                                  entity_class=Strategy,
-#                                  submit_label=MarketSegment.save_label,  # todo: MarketSegmentDescription ?
-#                                 )
-
-
-# @login_required
-# @permission_required('commercial')
-# def add_asset(request, strategy_id):
-#     return generic.add_to_entity(request, strategy_id, forms.AssetForm,
-#                                  ugettext('New commercial asset for «%s»'),
-#                                  entity_class=Strategy,
-#                                  submit_label=CommercialAsset.save_label,
-#                                 )
-
-
-# @login_required
-# @permission_required('commercial')
-# def add_charm(request, strategy_id):
-#     return generic.add_to_entity(request, strategy_id, forms.CharmForm,
-#                                  ugettext('New segment charm for «%s»'),
-#                                  entity_class=Strategy,
-#                                  submit_label=MarketSegmentCharm.save_label,
-#                                 )
-
-
-# @login_required
-# @permission_required('commercial')
-# def add_evalorga(request, strategy_id):
-#     return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
-#                                  ugettext('New organisation(s) for «%s»'),
-#                                  entity_class=Strategy,
-#                                  submit_label=_('Link the organisation(s)'),
-#                                  template='creme_core/generics/blockform/link_popup.html',
-#                                 )
-
-
-# @login_required
-# @permission_required('commercial')
-# def edit_segment(request, strategy_id, seginfo_id):
-#     return generic.edit_related_to_entity(request, seginfo_id, MarketSegmentDescription,
-#                                           forms.SegmentEditForm, ugettext('Segment for «%s»'),
-#                                          )
-
-
-# @login_required
-# @permission_required('commercial')
-# def edit_asset(request, asset_id):
-#     return generic.edit_related_to_entity(request, asset_id, CommercialAsset,
-#                                           forms.AssetForm, ugettext('Asset for «%s»'),
-#                                          )
-
-
-# @login_required
-# @permission_required('commercial')
-# def edit_charm(request, charm_id):
-#     return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm,
-#                                           forms.CharmForm, ugettext('Charm for «%s»'),
-#                                          )
-
 
 @login_required
 @permission_required('commercial')
@@ -292,22 +218,6 @@ def _get_strategy_n_orga(request, strategy_id, orga_id):
     return strategy, orga
 
 
-# @login_required
-# @permission_required('commercial')
-# def _orga_view(request, strategy_id, orga_id, template):
-#     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
-#
-#     if not strategy.evaluated_orgas.filter(pk=orga_id).exists():
-#         raise Http404(ugettext('This organisation «{orga}» is not (no more ?) evaluated by the strategy «{strategy}»').format(
-#                             orga=orga, strategy=strategy)
-#                      )
-#
-#     return render(request, template,
-#                   context={'orga': orga,
-#                            'strategy': strategy,
-#                            'bricks_reload_url': reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-#                           },
-#                  )
 class BaseEvaluatedOrganisationView(generic.BricksView):
     permissions = 'commercial'
     bricks_reload_url_name = 'commercial__reload_matrix_brick'
@@ -359,14 +269,10 @@ class BaseEvaluatedOrganisationView(generic.BricksView):
         return strategy
 
 
-# def orga_evaluation(request, strategy_id, orga_id):
-#     return _orga_view(request, strategy_id, orga_id, 'commercial/orga_evaluation.html')
 class OrgaEvaluation(BaseEvaluatedOrganisationView):
     template_name = 'commercial/orga_evaluation.html'
 
 
-# def orga_synthesis(request, strategy_id, orga_id):
-#     return _orga_view(request, strategy_id, orga_id, 'commercial/orga_synthesis.html')
 class OrgaSynthesis(BaseEvaluatedOrganisationView):
     template_name = 'commercial/orga_synthesis.html'
 
@@ -376,7 +282,6 @@ class OrgaSynthesis(BaseEvaluatedOrganisationView):
 @permission_required('commercial')
 @atomic
 def _set_score(request, strategy_id, method_name):
-    # strategy = get_object_or_404(Strategy, pk=strategy_id)
     strategy = get_object_or_404(Strategy.objects.select_for_update(), pk=strategy_id)
 
     request.user.has_perm_to_change_or_die(strategy)
@@ -408,7 +313,6 @@ def set_charm_score(request, strategy_id):
 @permission_required('commercial')
 @atomic
 def set_segment_category(request, strategy_id):
-    # strategy = get_object_or_404(Strategy, pk=strategy_id)
     strategy = get_object_or_404(Strategy.objects.select_for_update(), pk=strategy_id)
 
     request.user.has_perm_to_change_or_die(strategy)

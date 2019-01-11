@@ -87,7 +87,6 @@ class MarketSegmentForm(CremeModelForm):
                                                               is_custom=False,
                                                              )
 
-        # return super(MarketSegmentForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -97,12 +96,8 @@ class SegmentReplacementForm(CremeForm):
                                   queryset=MarketSegment.objects.none(),
                                  )
 
-    # def __init__(self, *args, **kwargs):
     def __init__(self, instance, *args, **kwargs):
-        # super(SegmentReplacementForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self.segment_2_delete = segment = self.initial['segment_to_delete']
-        # self.fields['to_segment'].queryset = MarketSegment.objects.exclude(pk=segment.id)
         self.segment_2_delete = instance
         self.fields['to_segment'].queryset = MarketSegment.objects.exclude(pk=instance.id)
 

@@ -17,9 +17,6 @@ except Exception as e:
 
 
 class MarketSegmentTestCase(CommercialBaseTestCase):
-    # def setUp(self):
-    #     self.login()
-
     def _build_delete_url(self, segment):
         return reverse('commercial__delete_segment', args=(segment.id,))
 
@@ -34,7 +31,6 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         url = self.ADD_SEGMENT_URL
 
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New market segment'),      context.get('title'))
         self.assertEqual(_('Create a market segment'), context.get('title'))
         self.assertEqual(_('Save the market segment'), context.get('submit_label'))
 
@@ -100,11 +96,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         url = segment.get_edit_absolute_url()
 
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Edit «%s»') % segment, context.get('title'))
         self.assertEqual(_('Edit «{object}»').format(object=segment), context.get('title'))
         self.assertEqual(_('Save the modifications'),                 context.get('submit_label'))
 
@@ -311,7 +305,6 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
         self._create_segment('Industry')  # We add this segment to not try to delete the last one.
 
-        # self.assertGET409(self._build_delete_url(segment))
         self.assertGET404(self._build_delete_url(segment))
 
     @skipIfCustomOrganisation

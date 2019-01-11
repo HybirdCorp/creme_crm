@@ -81,7 +81,6 @@ class AbstractAct(CremeEntity):
         return self.name
 
     def clean(self):
-        # super(AbstractAct, self).clean()
         super().clean()
         start = self.start
         due_date = self.due_date
@@ -285,13 +284,12 @@ class ActObjectivePatternComponent(CremeModel):
     _children_cache = None
 
     class Meta:
-        app_label = "commercial"
+        app_label = 'commercial'
 
     def __str__(self):
         return self.name
 
     # TODO: delete this code with new ForeignKey in Django1.3 ?? (maybe it causes more queries)
-    # def delete(self):
     def delete(self, *args, **kwargs):
         def find_node(nodes, pk):
             for node in nodes:

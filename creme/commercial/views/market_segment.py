@@ -19,15 +19,11 @@
 ################################################################################
 
 import logging
-# import warnings
 
 from django.db import DatabaseError
-# from django.urls import reverse
 from django.http import HttpResponse
-# from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views import generic
 
@@ -38,27 +34,12 @@ from ..models import MarketSegment
 logger = logging.getLogger(__name__)
 
 
-# @login_required
-# @permission_required('commercial')
-# def add(request):
-#     return generic.add_model_with_popup(request, segment_forms.MarketSegmentForm,
-#                                         title=_('New market segment'),
-#                                         submit_label=_('Save the market segment'),
-#                                        )
-
-
 class SegmentCreation(generic.CremeModelCreationPopup):
     model = MarketSegment
     form_class = segment_forms.MarketSegmentForm
     permissions = 'commercial'
 
 
-# @login_required
-# @permission_required('commercial')
-# def edit(request, segment_id):
-#     return generic.edit_model_with_popup(request, {'id': segment_id}, MarketSegment,
-#                                          segment_forms.MarketSegmentForm,
-#                                         )
 class SegmentEdition(generic.CremeModelEditionPopup):
     model = MarketSegment
     form_class = segment_forms.MarketSegmentForm
@@ -66,38 +47,12 @@ class SegmentEdition(generic.CremeModelEditionPopup):
     permissions = 'commercial'
 
 
-# @login_required
-# @permission_required('commercial')
-# def listview(request):
-#     return render(request, 'commercial/list_segments.html',
-#                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
-#                  )
 class Segments(generic.BricksView):
     template_name = 'commercial/list_segments.html'
     permissions = 'commercial'
     bricks_reload_url_name = 'creme_core__reload_bricks'
 
 
-# @login_required
-# @permission_required('commercial')
-# def delete(request, segment_id):
-#     if MarketSegment.objects.count() < 2:
-#         raise ConflictError(ugettext("You can't delete the last segment."))
-#
-#     segment = get_object_or_404(MarketSegment, id=segment_id)
-#
-#     if segment.property_type is None:
-#         raise ConflictError("You can't delete this specific segment.")
-#
-#     try:
-#         return generic.add_model_with_popup(request, segment_forms.SegmentReplacementForm,
-#                                             ugettext('Delete and replace «{}»').format(segment),
-#                                             initial={'segment_to_delete': segment},
-#                                             submit_label=_('Replace'),
-#                                            )
-#     except Exception:
-#         logger.exception('Error in MarketSegment deletion view')
-#         return HttpResponse(_("You can't delete this segment."), status=400)
 class SegmentDeletion(generic.CremeModelEditionPopup):
     # model = MarketSegment
     queryset = MarketSegment.objects.exclude(property_type=None)

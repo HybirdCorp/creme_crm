@@ -26,17 +26,17 @@ from creme.creme_core.models import CremeModel, CremePropertyType
 
 
 class MarketSegment(CremeModel):
-    name          = CharField(_(u'Name'), max_length=100)  # TODO: unique ?
+    name          = CharField(_('Name'), max_length=100)  # TODO: unique ?
     property_type = ForeignKey(CremePropertyType, null=True, editable=False, on_delete=CASCADE)\
                               .set_tags(viewable=False)
 
-    creation_label = _(u'Create a market segment')
-    save_label     = _(u'Save the market segment')
+    creation_label = _('Create a market segment')
+    save_label     = _('Save the market segment')
 
     class Meta:
         app_label = 'commercial'
-        verbose_name = _(u'Market segment')
-        verbose_name_plural = _(u'Market segments')
+        verbose_name = _('Market segment')
+        verbose_name_plural = _('Market segments')
 
     def __str__(self):
         return self.name
@@ -50,7 +50,7 @@ class MarketSegment(CremeModel):
 
     @staticmethod
     def generate_property_text(segment_name):
-        return ugettext(u'is in the segment «{}»').format(segment_name)
+        return ugettext('is in the segment «{}»').format(segment_name)
 
     def save(self, *args, **kwargs):
         if self.property_type is None:
@@ -62,5 +62,4 @@ class MarketSegment(CremeModel):
             if qs.exists():
                 raise ValueError('Only one MarketSegment with property_type=NULL is allowed.')
 
-        # super(MarketSegment, self).save(*args, **kwargs)
         super().save(*args, **kwargs)

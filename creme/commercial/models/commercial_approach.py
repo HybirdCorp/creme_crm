@@ -21,8 +21,6 @@
 import warnings
 
 from django.conf import settings
-# from django.contrib.contenttypes.fields import GenericForeignKey
-# from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -32,7 +30,6 @@ from creme.creme_core.models import fields as creme_fields
 
 class CommercialApproach(creme_models.CremeModel):
     title          = models.CharField(_('Title'), max_length=200)
-    # ok_or_in_futur = models.BooleanField(_('Done?'), editable=False, default=False)
     description    = models.TextField(_('Description'), blank=True)
     creation_date  = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
 
@@ -40,9 +37,6 @@ class CommercialApproach(creme_models.CremeModel):
                                          editable=False, on_delete=models.CASCADE,
                                         )
 
-    # entity_content_type = models.ForeignKey(ContentType, related_name="comapp_entity_set", editable=False, on_delete=models.CASCADE)
-    # entity_id           = models.PositiveIntegerField(editable=False)  # .set_tags(viewable=False) uncomment if it becomes an auxiliary (get_related_entity())
-    # creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity              = models.ForeignKey(creme_models.CremeEntity, related_name='commercial_approaches',
                                             editable=False, on_delete=models.CASCADE,
@@ -62,8 +56,6 @@ class CommercialApproach(creme_models.CremeModel):
 
     @staticmethod
     def get_approaches(entity_pk=None):
-        # queryset = CommercialApproach.objects.filter(ok_or_in_futur=False) \
-        #                                      .select_related('related_activity')
         queryset = CommercialApproach.objects.select_related('related_activity')
 
         return queryset.filter(entity_id=entity_pk) if entity_pk else \
@@ -72,6 +64,6 @@ class CommercialApproach(creme_models.CremeModel):
     @staticmethod
     def get_approaches_for_ctypes(ct_ids):
         warnings.warn('CommercialApproach.get_approaches_for_ctypes() is deprecated.', DeprecationWarning)
-        # return CommercialApproach.objects.filter(entity_content_type__in=ct_ids, ok_or_in_futur=False) \
+
         return CommercialApproach.objects.filter(entity_content_type__in=ct_ids) \
                                  .select_related('related_activity')

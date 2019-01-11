@@ -43,7 +43,6 @@ except Exception as e:
 class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        # super(CommercialApproachTestCase, cls).setUpClass()
         super().setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
@@ -51,12 +50,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
 
     def tearDown(self):
-        # super(CommercialApproachTestCase, self).tearDown()
         super().tearDown()
         EmailBackend.send_messages = self.original_send_messages
-
-    # def _build_entity_field(self, entity):
-    #     return '[{"ctype": {"id": "%s"}, "entity":"%s"}]' % (entity.entity_type_id, entity.id)
 
     def _get_commap_brick_node(self, response):
         tree = self.get_html_tree(response.content)
@@ -72,7 +67,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         url = reverse('commercial__create_approach', args=(entity.id,))
 
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New commercial approach for «%s»') % entity, context.get('title'))
         self.assertEqual(_('New commercial approach for «{entity}»').format(entity=entity),
                          context.get('title')
                         )
@@ -354,18 +348,10 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_brick02(self):
         "Home"
-        # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ApproachesBrick.id_, order=100)
         BrickHomeLocation.objects.create(brick_id=ApproachesBrick.id_, order=100)
 
         response = self.assertGET200('/')
         self._get_commap_brick_node(response)
-
-    # def test_brick03(self):
-    #     "Commercial portal"
-    #     BlockPortalLocation.create_or_update(app_name='commercial', brick_id=ApproachesBrick.id_, order=100)
-    #
-    #     response = self.assertGET200(reverse('commercial__portal'))
-    #     self._get_commap_brick_node(response)
 
     def _send_mails(self):
         job = self.get_object_or_fail(Job, type_id=com_approaches_emails_send_type.id)

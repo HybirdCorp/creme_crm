@@ -20,20 +20,12 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-# from creme.creme_core.auth.decorators import login_required
-# from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.views.generic.add import AddingInstanceToEntityPopup
 
 from ..forms.commercial_approach import ComAppCreateForm
 from ..models import CommercialApproach
 
 
-# @login_required
-# def add(request, entity_id):
-#     return add_to_entity(request, entity_id, ComAppCreateForm,
-#                          _('New commercial approach for «%s»'),
-#                          submit_label=_('Save the commercial approach'),
-#                         )
 class CommercialApproachCreation(AddingInstanceToEntityPopup):
     model = CommercialApproach
     form_class = ComAppCreateForm
