@@ -24,7 +24,7 @@ import warnings
 
 from django.db.transaction import atomic
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect  # render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.timezone import now
@@ -39,8 +39,6 @@ from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views import generic
 
 from creme import persons
-# from creme.persons.forms.contact import ContactForm
-# from creme.persons.forms.organisation import OrganisationForm
 
 from creme import activities
 from creme.activities import constants as act_constants
@@ -72,7 +70,6 @@ def abstract_create_phonecall_as_caller(request, pcall_creator=_create_phonecall
     pcall = _build_related_phonecall(request.user,
                                      get_from_POST_or_404(request.POST, 'entity_id'),
                                      act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-                                     # _('Call to %s'),
                                      _('Call to {entity}'),
                                      pcall_creator=pcall_creator,
                                     )
@@ -146,7 +143,6 @@ def _build_related_phonecall(user, entity_id, calltype_id, title_format, pcall_c
     user.has_perm_to_create_or_die(Activity)
 
     entity = entity.get_real_entity()
-    # pcall = pcall_creator(user, title=title_format % entity, calltype_id=calltype_id)
     pcall = pcall_creator(user, title=title_format.format(entity=entity), calltype_id=calltype_id)
 
     pcall.calendars.add(Calendar.get_user_default_calendar(user))
@@ -182,15 +178,6 @@ def create_phonecall_as_caller(request):
     return abstract_create_phonecall_as_caller(request)
 
 
-# @login_required
-# def respond_to_a_call(request):
-#     number = get_from_GET_or_404(request.GET, 'number')
-#
-#     return render(request, 'cti/respond_to_a_call.html',
-#                   {'number':            number,
-#                    'bricks_reload_url': reverse('cti__reload_callers_brick', args=(number,)),
-#                   }
-#                  )
 class AnswerToACall(generic.BricksView):
     template_name = 'cti/respond_to_a_call.html'
 
