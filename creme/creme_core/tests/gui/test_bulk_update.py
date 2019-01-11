@@ -414,7 +414,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         user = self.login()
 
         civility_field = FakeContact._meta.get_field('civility')
-        # self.assertFalse(civility_field.rel.limit_choices_to)
         self.assertFalse(civility_field.remote_field.limit_choices_to)
 
         contact = FakeContact.objects.create(first_name='A', last_name='B', user=user)
@@ -429,7 +428,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         user = self.login()
 
         lform_field = FakeOrganisation._meta.get_field('legal_form')
-        # self.assertEqual({'title__endswith': '[OK]'}, lform_field.rel.limit_choices_to)
         self.assertEqual({'title__endswith': '[OK]'}, lform_field.remote_field.limit_choices_to)
 
         orga = FakeOrganisation.objects.create(user=user, name='A')
@@ -445,7 +443,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         sector_field = FakeContact._meta.get_field('sector')
         # NB: limit_choices_to=lambda: ~Q(title='[INVALID]')
-        # self.assertTrue(callable(sector_field.rel.limit_choices_to))
         self.assertTrue(callable(sector_field.remote_field.limit_choices_to))
 
         contact = FakeContact.objects.create(first_name='A', last_name='B', user=user)
@@ -459,14 +456,12 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         user = self.login()
 
         image_field = FakeContact._meta.get_field('image')
-        # self.assertFalse(image_field.rel.limit_choices_to)
         self.assertFalse(image_field.remote_field.limit_choices_to)
 
         contact = FakeContact.objects.create(first_name='A', last_name='B', user=user)
 
         form = BulkDefaultEditForm(FakeContact, image_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorEntityField)
-        # self.assertIsNone(form.fields['field_value'].q_filter)
         self.assertFalse(form.fields['field_value'].q_filter)
 
     def test_fk_entity_innerform02(self):
@@ -475,14 +470,12 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         image_field = FakeOrganisation._meta.get_field('image')
         # NB: limit_choices_to=lambda: {'user__is_staff': False}
-        # self.assertTrue(callable(image_field.rel.limit_choices_to))
         self.assertTrue(callable(image_field.remote_field.limit_choices_to))
 
         orga = FakeOrganisation.objects.create(user=user, name='A')
         form = BulkDefaultEditForm(FakeOrganisation, image_field, user, [orga])
 
         field_value_f = form.fields['field_value']
-        # self.assertEqual({'user__is_staff': False}, field_value_f.q_filter)
         self.assertTrue(callable(field_value_f.q_filter))
         self.assertQEqual(Q(user__is_staff=False), field_value_f.q_filter_query)
 
@@ -498,8 +491,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         user = self.login()
 
         categories_field = FakeImage._meta.get_field('categories')
-        # # self.assertFalse(hasattr(categories_field, 'limit_choices_to'))
-        # self.assertFalse(categories_field.rel.limit_choices_to)
         self.assertFalse(categories_field.remote_field.limit_choices_to)
 
         image = FakeImage.objects.create(name='A', user=user)
@@ -517,7 +508,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         languages_field = FakeContact._meta.get_field('languages')
         # NB: limit_choices_to=~Q(name__contains='[deprecated]')
-        # self.assertIsInstance(languages_field.rel.limit_choices_to, Q)
         self.assertIsInstance(languages_field.remote_field.limit_choices_to, Q)
 
         contact = FakeContact.objects.create(user=user, first_name='A', last_name='B')
@@ -531,7 +521,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         user = self.login()
 
         mailing_lists_field = FakeEmailCampaign._meta.get_field('mailing_lists')
-        # self.assertFalse(mailing_lists_field.rel.limit_choices_to)
         self.assertFalse(mailing_lists_field.remote_field.limit_choices_to)
 
         campaign = FakeEmailCampaign.objects.create(name='A', user=user)
@@ -548,7 +537,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         user = self.login()
 
         images_field = FakeProduct._meta.get_field('images')
-        # self.assertEqual({'user__is_active': True}, images_field.rel.limit_choices_to)
         self.assertEqual({'user__is_active': True}, images_field.remote_field.limit_choices_to)
 
         product = FakeProduct.objects.create(user=user, name='P1')

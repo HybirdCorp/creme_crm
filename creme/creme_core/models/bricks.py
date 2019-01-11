@@ -21,7 +21,6 @@
 from functools import partial
 from json import loads as jsonloads, dumps as jsondumps
 import logging
-# import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -51,7 +50,6 @@ __all__ = (
 logger = logging.getLogger(__name__)
 
 
-# class BlockDetailviewLocation(CremeModel):
 class BrickDetailviewLocation(CremeModel):
     content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
     role         = ForeignKey(UserRole, verbose_name=_('Related role'), null=True, default=None, on_delete=CASCADE)
@@ -67,7 +65,6 @@ class BrickDetailviewLocation(CremeModel):
     BOTTOM = 4
     HAT    = 5
 
-    # ZONES = (HAT, TOP, LEFT, RIGHT, BOTTOM)
     ZONE_NAMES = {
         HAT:    'hat',
         TOP:    'top',
@@ -90,14 +87,6 @@ class BrickDetailviewLocation(CremeModel):
                 order=self.order,
                 zone=self.zone,
         )
-
-    # @staticmethod
-    # def create(block_id, order, zone, model=None, role=None):
-    #     warnings.warn('BlockDetailviewLocation.create() is deprecated ; '
-    #                   'use create_if_needed() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return BlockDetailviewLocation.create_if_needed(brick_id=block_id, order=order, zone=zone, model=model, role=role)
 
     @staticmethod
     def create_if_needed(brick_id, order, zone, model=None, role=None):
@@ -141,24 +130,8 @@ class BrickDetailviewLocation(CremeModel):
         ct = ContentType.objects.get_for_model(model)
         return BrickDetailviewLocation.objects.filter(content_type=ct).exists()
 
-    # @staticmethod
-    # def create_empty_config(model=None):
-    #     warnings.warn('BlockDetailviewLocation.create_empty_config() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     ct = ContentType.objects.get_for_model(model) if model else None
-    #
-    #     if not BlockDetailviewLocation.objects.filter(content_type=ct).exists():
-    #         create = BlockDetailviewLocation.objects.create
-    #
-    #         for zone in BlockDetailviewLocation.ZONES:
-    #             create(content_type=ct, brick_id='', order=1, zone=zone)
 
-
-# class BlockPortalLocation(CremeModel):
 class BrickHomeLocation(CremeModel):
-    # app_name = CharField(max_length=40)
     brick_id = CharField(max_length=100)
     order    = PositiveIntegerField()
 
@@ -167,41 +140,9 @@ class BrickHomeLocation(CremeModel):
         ordering = ('order',)
 
     def __repr__(self):
-        # return 'BlockPortalLocation(id={id}, app_name={app}, brick_id={brick_id}, order={order})'.format(
-        #         id=self.id, app=self.app_name, brick_id=self.brick_id, order=self.order,
-        #     )
         return 'BrickHomeLocation(id={id}, brick_id={brick_id}, order={order})'.format(
                 id=self.id, brick_id=self.brick_id, order=self.order,
             )
-
-    # @staticmethod
-    # def create(block_id, order, app_name=''):
-    #     warnings.warn('BlockPortalLocation.create() is deprecated ; '
-    #                   'use create_or_update() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return BlockPortalLocation.create_or_update(brick_id=block_id, order=order, app_name=app_name)
-
-    # @staticmethod
-    # def create_or_update(brick_id, order, app_name=''):
-    #     try:
-    #         loc = BlockPortalLocation.objects.get(app_name=app_name, brick_id=brick_id)
-    #     except Exception:
-    #         loc = BlockPortalLocation.objects.create(app_name=app_name, brick_id=brick_id, order=order)
-    #     else:
-    #         loc.order = order
-    #         loc.save()
-    #
-    #     return loc
-
-    # @staticmethod
-    # def create_empty_config(app_name=''):
-    #     warnings.warn('BlockPortalLocation.create_empty_config() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     if not BlockPortalLocation.objects.filter(app_name=app_name).exists():
-    #         BlockPortalLocation.objects.create(app_name=app_name, brick_id='', order=1)
 
     @property
     def brick_verbose_name(self):
@@ -211,7 +152,6 @@ class BrickHomeLocation(CremeModel):
 
 
 # TODO: merge with BrickHomeLocation ?
-# class BlockMypageLocation(CremeModel):
 class BrickMypageLocation(CremeModel):
     user     = ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=CASCADE)
     brick_id = CharField(max_length=100)
@@ -244,23 +184,6 @@ class BrickMypageLocation(CremeModel):
                                    instance
                                   )
 
-    # @staticmethod
-    # def create(block_id, order, user=None):
-    #     warnings.warn('BlockMypageLocation.create() is deprecated ; '
-    #                   'use BlockMypageLocation.objects.create() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     try:
-    #         loc = BlockMypageLocation.objects.get(user=user, brick_id=block_id)
-    #     except Exception:
-    #         loc = BlockMypageLocation.objects.create(user=user, brick_id=block_id, order=order)
-    #     else:
-    #         loc.order = order
-    #         loc.save()
-    #
-    #     return loc
-
     # TODO: factorise ?
     @property
     def brick_verbose_name(self):
@@ -270,12 +193,10 @@ class BrickMypageLocation(CremeModel):
 
 
 post_save.connect(BrickMypageLocation._copy_default_config, sender=settings.AUTH_USER_MODEL,
-                  # dispatch_uid='creme_core-blockmypagelocation._copy_default_config',
                   dispatch_uid='creme_core-brickmypagelocation._copy_default_config',
                  )
 
 
-# class RelationBlockItem(CremeModel):
 class RelationBrickItem(CremeModel):
     # TODO: 'brick_id' not really useful (can be dynamically generated with the RelationType)
     #        + in the 'brick_id': 1)remove the app_name  2)"specificblock_" => "rtypebrick_" (need data migration)
@@ -292,7 +213,6 @@ class RelationBrickItem(CremeModel):
         app_label = 'creme_core'
 
     def __init__(self, *args, **kwargs):
-        # super(RelationBrickItem, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         if self.json_cells_map is None:
             self._cells_map = {}
@@ -304,7 +224,6 @@ class RelationBrickItem(CremeModel):
     def delete(self, *args, **kwargs):
         BrickDetailviewLocation.objects.filter(brick_id=self.brick_id).delete()
 
-        # super(RelationBrickItem, self).delete(*args, **kwargs)
         super().delete(*args, **kwargs)
 
     @property
@@ -384,7 +303,6 @@ class RelationBrickItem(CremeModel):
         self._dump_cells_map()
 
 
-# class InstanceBlockConfigItem(CremeModel):
 class InstanceBrickConfigItem(CremeModel):
     brick_id = CharField(_('Block ID'), max_length=300, blank=False, null=False, editable=False)
     entity   = ForeignKey(CremeEntity, verbose_name=_('Block related entity'), on_delete=CASCADE)
@@ -404,7 +322,6 @@ class InstanceBrickConfigItem(CremeModel):
         return self.brick.verbose_name
 
     @atomic
-    # def delete(self, using=None):
     def delete(self, *args, **kwargs):
         brick_id = self.brick_id
         BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
@@ -412,7 +329,6 @@ class InstanceBrickConfigItem(CremeModel):
         BrickHomeLocation.objects.filter(brick_id=brick_id).delete()
         BrickMypageLocation.objects.filter(brick_id=brick_id).delete()
 
-        # super(InstanceBlockConfigItem, self).delete(using=using)
         super().delete(*args, **kwargs)
 
     @property
@@ -454,7 +370,6 @@ class InstanceBrickConfigItem(CremeModel):
         return brick_id.split('|', 1)[0]
 
 
-# class CustomBlockConfigItem(CremeModel):
 class CustomBrickConfigItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100, editable=False)
     content_type = CTypeForeignKey(verbose_name=_('Related type'), editable=False)
@@ -467,7 +382,6 @@ class CustomBrickConfigItem(CremeModel):
         app_label = 'creme_core'
 
     def __init__(self, *args, **kwargs):
-        # super(CustomBrickConfigItem, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         if self.json_cells is None:
             self.cells = []
@@ -481,7 +395,6 @@ class CustomBrickConfigItem(CremeModel):
         BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
         BrickState.objects.filter(brick_id=brick_id).delete()
 
-        # super(CustomBrickConfigItem, self).delete(*args, **kwargs)
         super().delete(*args, **kwargs)
 
     def generate_id(self):
@@ -533,7 +446,6 @@ class CustomBrickConfigItem(CremeModel):
         return FieldsConfig.filter_cells(self.content_type.model_class(), self.cells)
 
 
-# class BlockState(CremeModel):
 class BrickState(CremeModel):
     user              = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
     brick_id          = CharField(_('Block ID'), max_length=100)
@@ -567,7 +479,7 @@ class BrickState(CremeModel):
         """Get current states of bricks.
         @param brick_ids: a list of brick ids.
         @param user: owner of a BrickState.
-        @returns: A dict with brick_id as key and state as value
+        @returns: A dict with brick_id as key and state as value.
         """
         states = {}
 

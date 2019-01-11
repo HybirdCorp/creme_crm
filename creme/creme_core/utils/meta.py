@@ -25,7 +25,6 @@
 
 from functools import partial
 from itertools import chain
-# import warnings
 
 from django.db.models import FieldDoesNotExist, DateField
 

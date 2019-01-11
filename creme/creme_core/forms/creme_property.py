@@ -55,7 +55,6 @@ class AddPropertiesForm(_AddPropertiesForm):
         # We need this entity in super constructor when post_init_callback is called.
         # TODO: Add unit tests for this !
         self.entity = entity
-        # super(AddPropertiesForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         # TODO: move queryset to a CremePropertyType method ??
@@ -68,7 +67,6 @@ class AddPropertiesForm(_AddPropertiesForm):
                                      .exclude(pk__in=excluded)
 
     def save(self):
-        # self._create_properties([self.entity], self.cleaned_data['types'])
         create = CremeProperty.objects.safe_create
 
         for ptype in self.cleaned_data['types']:
@@ -79,7 +77,6 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
     entities_lbl = CharField(label=_('Related entities'), widget=Label(), required=False)
 
     def __init__(self, model, entities, forbidden_entities, *args, **kwargs):
-        # super(AddPropertiesBulkForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.entities = entities
         fields = self.fields
@@ -98,7 +95,6 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
             )
 
     def save(self):
-        # self._create_properties(self.entities, self.cleaned_data['types'])
         CremeProperty.objects.safe_multi_save(
             [CremeProperty(type=ptype, creme_entity=entity)
                 for entity in self.entities

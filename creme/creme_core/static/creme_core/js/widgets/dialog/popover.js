@@ -105,18 +105,6 @@ creme.dialog.Popover = creme.component.Component.sub({
         return Object.isNone(this._anchor) === false;
     },
 
-    // TODO : never used ? (maybe deprecated by glasspane)
-/*
-    _closeIfOutside: function(e) {
-        var target = $(e.target);
-        var isinside = target.closest(this._dialog).length > 0;
-
-        if (isinside === false) {
-            this.close();
-        }
-    },
-*/
-
     _updateDialogPosition: function(dialog, anchor, direction) {
         // offset() is used since it returns the position of the element relative to the document
         // whereas position() is relative to the parent. When adding the popover to the body,

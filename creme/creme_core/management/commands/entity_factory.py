@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from __future__ import unicode_literals, print_function
-
 try:
     import factory
 except ImportError:
@@ -154,11 +152,7 @@ def _get_contact_n_factory(locale):
         user       = factory.LazyAttribute(get_user)
         first_name = factory.Faker('first_name', locale=locale)
         last_name  = factory.Faker('last_name', locale=locale)
-        # email      = factory.LazyAttribute(or_None(build_email))
         email      = factory.LazyAttribute(or_blank(build_email))
-
-        # email = factory.Sequence(lambda n: 'person{0}@example.com'.format(n))
-        # author = factory.SubFactory(UserFactory)
 
     return Contact, ContactFactory
 
@@ -179,7 +173,6 @@ def _get_organisation_n_factory(locale):
 
         user  = factory.LazyAttribute(get_user)
         name  = factory.Faker('company', locale=locale)
-        # email = factory.LazyAttribute(or_None(build_email))
         email = factory.LazyAttribute(or_blank(build_email))
 
     return Organisation, OrganisationFactory
@@ -202,7 +195,6 @@ class BaseOptimizeContext:
 
 class OptimizeMySQLContext(BaseOptimizeContext):
     def __init__(self, *args, **kwargs):
-        # super(OptimizeMySQLContext, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.engine = None
         self.flush_policy = None
@@ -307,7 +299,6 @@ class Command(BaseCommand):
                      help='Locale used for random data. [default: see settings.LANGUAGE_CODE]',
                     )
 
-    # def handle(self, *app_names, **options):
     def handle(self, *args, **options):
         get_opt = options.get
 

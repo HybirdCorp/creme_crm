@@ -20,7 +20,6 @@
 
 from collections import defaultdict
 import logging
-# import warnings
 
 from django.conf import settings
 from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
@@ -34,11 +33,8 @@ from ..core.enumerable import enumerable_registry, Enumerator
 from ..core.paginator import FlowPaginator
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.listview import NULL_FK
-# from ..gui.merge import merge_form_registry
 from ..gui.pager import PagerContext
 from ..models import CustomField
-# from ..models.fields import EntityCTypeForeignKey
-# from ..utils import creme_entity_content_types, build_ct_choices
 
 
 logger = logging.getLogger(__name__)
@@ -142,14 +138,8 @@ def _build_date_search_widget(widget_ctx, search_value):
 
 
 def _build_select_search_widget(widget_ctx, search_value, choices):
-    # selected_value = str(search_value[0].decode('utf-8')) if search_value else None  # meh
     selected_value = search_value[0] if search_value else None  # meh
     widget_ctx['type'] = 'select'
-    # widget_ctx['values'] = [{'value':    key,
-    #                          'text':     str(val),
-    #                          'selected': 'selected' if selected_value == str(key) else ''
-    #                         } for key, val in choices
-    #                        ]
     groups = defaultdict(list)
 
     for choice in choices:
@@ -186,20 +176,6 @@ def get_listview_columns_header(context):
                     if search_value:
                         widget_ctx['value'] = search_value[0]
                 else:
-                    # if isinstance(field, EntityCTypeForeignKey):
-                    #     choices = build_ct_choices(creme_entity_content_types())
-                    # elif not field.get_tag('enumerable'):
-                    #     # todo: generalise the system of 'header_filter_search_field' ??
-                    #     continue
-                    # else:
-                    #     choices = []
-                    #
-                    #     if field.null or field.many_to_many:
-                    #         choices.append((NULL_FK, _('* is empty *')))
-                    #
-                    #     choices.extend((o.id, o) for o in field.remote_field.model.objects.distinct())
-                    #
-                    # _build_select_search_widget(widget_ctx, search_value, choices)
                     try:
                         enumerator = enumerable_registry.enumerator_by_field(field)
                     except ValueError:
@@ -212,7 +188,6 @@ def get_listview_columns_header(context):
 
                         _build_select_search_widget(widget_ctx, search_value, choices)
             elif field.choices:
-                # _build_select_search_widget(widget_ctx, search_value, field.choices)
                 _build_select_search_widget(widget_ctx, search_value,
                                             Enumerator.convert_choices(field.choices)
                                            )
@@ -225,7 +200,6 @@ def get_listview_columns_header(context):
         elif isinstance(cell, EntityCellFunctionField):
             choices = cell.function_field.choices
             if choices is not None:
-                # _build_select_search_widget(widget_ctx, search_value, choices)
                 _build_select_search_widget(widget_ctx, search_value,
                                             Enumerator.convert_choices(choices)
                                            )
@@ -239,8 +213,6 @@ def get_listview_columns_header(context):
             field_type = cf.field_type
 
             if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-                # choices = [(NULL_FK, _('* is empty *'))]
-                # choices.extend(cf.customfieldenumvalue_set.values_list('id', 'value'))
                 choices = [{'value': NULL_FK, 'label': _('* is empty *')}]
                 choices.extend(Enumerator.convert_choices(cf.customfieldenumvalue_set.values_list('id', 'value')))
 
@@ -255,24 +227,10 @@ def get_listview_columns_header(context):
         cell.widget_ctx = widget_ctx
 
     context['NULL_FK'] = NULL_FK
-    # context['can_merge_entities'] = merge_form_registry.get(context['model']) is not None
 
     return context
 
 # ------------------------------------------------------------------------------
-
-
-# @register.simple_tag
-# def ctype_is_registered_for_import(ctype):
-#     warnings.warn('{% ctype_is_registered_for_import %} is deprecated ; '
-#                   'use the filter "ctype_can_be_mass_imported" (from lib creme_ctype) instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     from ..gui.mass_import import import_form_registry
-#
-#     return import_form_registry.is_registered(ctype)
-
 
 @register.simple_tag
 def listview_header_colspan(cells, is_readonly, is_single_select):

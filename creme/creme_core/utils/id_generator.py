@@ -45,7 +45,6 @@ def generate_string_id_and_save(model, objects, prefix):
               ]
     # TODO: do-able in SQL ????
     # TODO: would it be cool to fill the 'holes' in id ranges ???
-    # index = max(id_list) if id_list else 0
     index = max(id_list, default=0)
     last_exception = None
 

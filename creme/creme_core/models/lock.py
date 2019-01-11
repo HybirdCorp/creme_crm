@@ -33,13 +33,11 @@ from django.utils.decorators import ContextDecorator
 
 class MutexLockedException(Exception):  # TODO: inner class ?
     def __init__(self, *args, **kwargs):
-        # super(MutexLockedException, self).__init__('Mutex is already locked')
         super().__init__('Mutex is already locked')
 
 
 class MutexNotLockedException(Exception):
     def __init__(self, *args, **kwargs):
-        # super(MutexNotLockedException, self).__init__('The mutex is not locked')
         super().__init__('The mutex is not locked')
 
 
@@ -81,7 +79,6 @@ class Mutex(models.Model):
         Mutex.objects.filter(id=id_).delete()
 
     def save(self, *args, **kwargs):
-        # super(Mutex, self).save(force_insert=True, *args, **kwargs)
         super().save(force_insert=True, *args, **kwargs)
 
 
@@ -104,7 +101,6 @@ def mutex_autolock(lock_name):
     return _autolock_aux
 
 
-# class MutexAutoLock:
 class MutexAutoLock(ContextDecorator):
     def __init__(self, lock_name):
         self.lock_name = lock_name

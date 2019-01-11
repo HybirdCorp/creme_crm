@@ -30,7 +30,6 @@ class CastError(Exception):
 
 
 def cast_2_str(value):
-    # return str(value)
     return str(value)
 
 
@@ -54,7 +53,6 @@ class BatchOperator:
         self._name = name
         self._function = function
         self._cast_function = cast_function
-        # self._need_arg = (function.func_code.co_argcount > 1)
         self._need_arg = (function.__code__.co_argcount > 1)
 
     def __str__(self):
@@ -111,7 +109,7 @@ class BatchOperatorManager:
 
     def get(self, model_field_type, operator_name):
         """Get the wanted BatchOperator object.
-        @param model_field_type Class inheriting django.db.model.Field.
+        @param model_field_type: Class inheriting django.db.model.Field.
         """
         category = self._get_category(model_field_type)
         if category:
@@ -124,8 +122,8 @@ class BatchOperatorManager:
 
     def operators(self, model_field_type=None):
         """Iterator that yields (operator_name, operator_instance) tuples
-        @param model_field_type Class inheriting django.db.model.Field.
-                                None means "all operators".
+        @param model_field_type: Class inheriting django.db.model.Field.
+                                 <None> means "all operators".
         """
         if model_field_type:
             category = self._get_category(model_field_type)
@@ -158,12 +156,12 @@ class BatchAction:
             raise BatchAction.InvalidOperator()
 
         if operator.need_arg and not value:
-            raise BatchAction.ValueError(ugettext(u"The operator '{}' needs a value.").format(operator))
+            raise BatchAction.ValueError(ugettext("The operator '{}' needs a value.").format(operator))
 
         try:
             self._value = operator.cast(value)
         except CastError as e:
-            raise BatchAction.ValueError(ugettext(u'{operator} : {message}.').format(
+            raise BatchAction.ValueError(ugettext('{operator} : {message}.').format(
                                                 operator=operator,
                                                 message=e,
                                             )
@@ -191,5 +189,5 @@ class BatchAction:
         op = self._operator
         field = self._model._meta.get_field(self._field_name).verbose_name
 
-        return ugettext(u'{field} ➔ {operator}').format(field=field, operator=op) if not op.need_arg else \
-               ugettext(u'{field} ➔ {operator}: «{value}»').format(field=field, operator=op, value=self._value)
+        return ugettext('{field} ➔ {operator}').format(field=field, operator=op) if not op.need_arg else \
+               ugettext('{field} ➔ {operator}: «{value}»').format(field=field, operator=op, value=self._value)

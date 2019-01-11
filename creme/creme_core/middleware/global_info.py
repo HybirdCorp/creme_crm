@@ -23,7 +23,6 @@ from django.utils.deprecation import MiddlewareMixin
 from ..global_info import set_global_info, clear_global_info
 
 
-# class GlobalInfoMiddleware(object):
 class GlobalInfoMiddleware(MiddlewareMixin):
     def process_request(self, request):
         set_global_info(user=request.user,

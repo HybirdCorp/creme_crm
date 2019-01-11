@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from __future__ import division, absolute_import  # For collections...
-
 from calendar import monthrange
 from collections import OrderedDict
 from datetime import datetime, timedelta
@@ -55,7 +53,7 @@ def get_quarter_dates(year, quarter):
 
 class DateRange:
     name = 'base_date_range'  # Overload
-    verbose_name = u'Date range'  # Overload
+    verbose_name = 'Date range'  # Overload
 
     def __str__(self):
         return str(self.verbose_name)
@@ -94,7 +92,7 @@ class CustomRange(DateRange):
 
 class PreviousYearRange(DateRange):
     name = 'previous_year'
-    verbose_name = _(u'Previous year')
+    verbose_name = _('Previous year')
 
     @staticmethod
     def get_dates(now):
@@ -106,7 +104,7 @@ class PreviousYearRange(DateRange):
 
 class CurrentYearRange(DateRange):
     name = 'current_year'
-    verbose_name = _(u'Current year')
+    verbose_name = _('Current year')
 
     @staticmethod
     def get_dates(now):
@@ -118,7 +116,7 @@ class CurrentYearRange(DateRange):
 
 class NextYearRange(DateRange):
     name = 'next_year'
-    verbose_name = _(u'Next year')
+    verbose_name = _('Next year')
 
     @staticmethod
     def get_dates(now):
@@ -130,7 +128,7 @@ class NextYearRange(DateRange):
 
 class PreviousMonthRange(DateRange):
     name = 'previous_month'
-    verbose_name = _(u'Previous month')
+    verbose_name = _('Previous month')
 
     @staticmethod
     def get_dates(now):
@@ -148,7 +146,7 @@ class PreviousMonthRange(DateRange):
 
 class CurrentMonthRange(DateRange):
     name = 'current_month'
-    verbose_name = _(u'Current month')
+    verbose_name = _('Current month')
 
     @staticmethod
     def get_dates(now):
@@ -159,7 +157,7 @@ class CurrentMonthRange(DateRange):
 
 class NextMonthRange(DateRange):
     name = 'next_month'
-    verbose_name = _(u'Next month')
+    verbose_name = _('Next month')
 
     @staticmethod
     def get_dates(now):
@@ -177,7 +175,7 @@ class NextMonthRange(DateRange):
 
 class PreviousQuarterRange(DateRange):
     name = 'previous_quarter'
-    verbose_name = _(u'Previous quarter')
+    verbose_name = _('Previous quarter')
 
     @staticmethod
     def get_dates(now):
@@ -195,7 +193,7 @@ class PreviousQuarterRange(DateRange):
 
 class CurrentQuarterRange(DateRange):
     name = 'current_quarter'
-    verbose_name = _(u'Current quarter')
+    verbose_name = _('Current quarter')
 
     @staticmethod
     def get_dates(now):
@@ -204,7 +202,7 @@ class CurrentQuarterRange(DateRange):
 
 class NextQuarterRange(DateRange):
     name = 'next_quarter'
-    verbose_name = _(u'Next quarter')
+    verbose_name = _('Next quarter')
 
     @staticmethod
     def get_dates(now):
@@ -222,7 +220,7 @@ class NextQuarterRange(DateRange):
 
 class FutureRange(DateRange):
     name = 'in_future'
-    verbose_name = _(u'In the future')
+    verbose_name = _('In the future')
 
     @staticmethod
     def get_dates(now):
@@ -231,7 +229,7 @@ class FutureRange(DateRange):
 
 class PastRange(DateRange):
     name = 'in_past'
-    verbose_name = _(u'In the past')
+    verbose_name = _('In the past')
 
     @staticmethod
     def get_dates(now):
@@ -240,7 +238,7 @@ class PastRange(DateRange):
 
 class YesterdayRange(DateRange):
     name = 'yesterday'
-    verbose_name = _(u'Yesterday')
+    verbose_name = _('Yesterday')
 
     @staticmethod
     def get_dates(now):
@@ -252,7 +250,7 @@ class YesterdayRange(DateRange):
 
 class TodayRange(DateRange):
     name = 'today'
-    verbose_name = _(u'Today')
+    verbose_name = _('Today')
 
     @staticmethod
     def get_dates(now):
@@ -263,7 +261,7 @@ class TodayRange(DateRange):
 
 class TomorrowRange(DateRange):
     name = 'tomorrow'
-    verbose_name = _(u'Tomorrow')
+    verbose_name = _('Tomorrow')
 
     @staticmethod
     def get_dates(now):
@@ -275,7 +273,7 @@ class TomorrowRange(DateRange):
 
 class EmptyRange(DateRange):
     name = 'empty'
-    verbose_name = _(u'Is empty')
+    verbose_name = _('Is empty')
 
     def get_q_dict(self, field, now):
         return {'{}__isnull'.format(field): True}
@@ -283,7 +281,7 @@ class EmptyRange(DateRange):
 
 class NotEmptyRange(DateRange):
     name = 'not_empty'
-    verbose_name = _(u'Is not empty')
+    verbose_name = _('Is not empty')
 
     def get_q_dict(self, field, now):
         return {'{}__isnull'.format(field): False}
@@ -310,9 +308,7 @@ class DateRangeRegistry:
         for drange in dranges:
             name = drange.name
 
-            # if ranges_map.has_key(name):
             if name in ranges_map:
-                # logger.warning("Duplicate date range's id or date range registered twice : %s", name)
                 raise self.RegistrationError("Duplicate date range's id or date range registered twice : {}".format(name))
 
             ranges_map[name] = drange

@@ -130,11 +130,11 @@ class EntityCell:
         self._model = model
         self.value = value
         self.title = title
-        self.has_a_filter = has_a_filter # TODO: refactor list view templatetags
-        self.editable = editable # TODO: still useful ???
+        self.has_a_filter = has_a_filter  # TODO: refactor list view templatetags
+        self.editable = editable  # TODO: still useful ???
         self.sortable = sortable
         self.is_hidden = is_hidden
-        self.filter_string = filter_string # TODO: remove from public interface when quick search has been refactored
+        self.filter_string = filter_string  # TODO: remove from public interface when quick search has been refactored
 
     def __repr__(self):
         return "<EntityCell(type={}, value='{}')>".format(self.type_id, self.value)
@@ -201,7 +201,6 @@ class EntityCell:
 class EntityCellActions(EntityCell):
     type_id = 'actions'
 
-    # def __init__(self, model):
     def __init__(self, model, actions_registry):
         """Constructor.
 
@@ -209,10 +208,6 @@ class EntityCellActions(EntityCell):
         @param actions_registry: Instance of 'creme.creme_core.gui.actions.ActionsRegistry'.
                Used to get the actions related to the model.
         """
-        # super(EntityCellActions, self).__init__(model=model,
-        #                                         value='entity_actions',
-        #                                         title=_(u'Actions'),
-        #                                        )
         super().__init__(model=model, value='entity_actions', title=_('Actions'))
         self.registry = actions_registry
 
@@ -297,7 +292,6 @@ class EntityCellRegularField(EntityCell):
         if any(f.many_to_many or f.one_to_many for f in field_info):
             sortable = False
 
-        # super(EntityCellRegularField, self).__init__(model=model,
         super().__init__(model=model,
                          value=name,
                          title=field_info.verbose_name,
@@ -392,7 +386,6 @@ class EntityCellCustomField(EntityCell):
         self._customfield = customfield
         pattern = self._CF_PATTERNS.get(customfield.field_type, '{}__value__icontains')
 
-        # super(EntityCellCustomField, self).__init__(model=customfield.content_type.model_class(),
         super().__init__(model=customfield.content_type.model_class(),
                          value=str(customfield.id),
                          title=customfield.name,
@@ -446,7 +439,6 @@ class EntityCellFunctionField(EntityCell):
     def __init__(self, model, func_field):
         self._functionfield = func_field
 
-        # super(EntityCellFunctionField, self).__init__(model=model,
         super().__init__(model=model,
                          value=func_field.name,
                          title=str(func_field.verbose_name),
@@ -456,7 +448,6 @@ class EntityCellFunctionField(EntityCell):
 
     @staticmethod
     def build(model, func_field_name):
-        # func_field = model.function_fields.get(func_field_name)
         # TODO: pass the 'function_field_registry' in a context
         func_field = function_field_registry.get(model, func_field_name)
 
@@ -495,7 +486,6 @@ class EntityCellRelation(EntityCell):
 
     def __init__(self, model, rtype, is_hidden=False):
         self._rtype = rtype
-        # super(EntityCellRelation, self).__init__(model=model,
         super().__init__(model=model,
                          value=str(rtype.id),
                          title=rtype.predicate,
@@ -557,7 +547,6 @@ class EntityCellVolatile(EntityCell):
 
     def __init__(self, model, value, title, render_func, is_hidden=False):
         self._render_func = render_func
-        # super(EntityCellVolatile, self).__init__(model=model,
         super().__init__(model=model,
                          value=value,
                          title=title,

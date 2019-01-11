@@ -19,15 +19,13 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeCivility
 
-    # from creme.creme_core.models import PreferedMenuItem
     from creme.creme_core.global_info import clear_global_info
     from creme.creme_core.utils import (find_first, truncate_str, split_filter,
         create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
-        safe_unicode, int_2_roman, ellipsis, ellipsis_multi, prefixed_truncate) # safe_unicode_error
+        safe_unicode, int_2_roman, ellipsis, ellipsis_multi, prefixed_truncate)
     from creme.creme_core.utils.dates import (dt_from_str, date_from_str,
         date_from_ISO8601, date_to_ISO8601, date_2_dict,
         dt_from_ISO8601, dt_to_ISO8601, round_hour, to_utc, make_aware_dt)
-        # get_dt_to_iso8601_str get_dt_from_iso8601_str get_dt_from_json_str dt_to_json_str get_dt_from_str get_date_from_str
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
     from creme.creme_core.utils.html import escapejson
     from creme.creme_core.utils.log import log_exceptions
@@ -80,7 +78,7 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('a',     truncate_str('b',       1, suffix='a'))
         self.assertEqual('abcd',  truncate_str('abcdef',  4, suffix='01234'))
 
-    def test_create_if_needed01(self):
+    def test_create_if_needed(self):
         title = 'Mister'
         pk = 1024
         self.assertFalse(FakeCivility.objects.filter(pk=pk).exists())
@@ -96,28 +94,6 @@ class MiscTestCase(CremeTestCase):
 
         civ = create_if_needed(FakeCivility, {'pk': pk}, title=title + '2')
         self.assertEqual(title, civ.title)
-
-    # def test_create_if_needed02(self):
-    #     user = self.login()
-    #     url = '/foo/bar'
-    #     label = 'Oh yeah'
-    #     order = 3
-    #     pmi = create_if_needed(PreferedMenuItem, {'user': user, 'url': url}, label=label, order=order)
-    #
-    #     self.assertIsInstance(pmi, PreferedMenuItem)
-    #     self.assertEqual(user,   pmi.user)
-    #     self.assertEqual(url,    pmi.url)
-    #     self.assertEqual(label,  pmi.label)
-    #     self.assertEqual(order,  pmi.order)
-    #
-    #     pmi = self.get_object_or_fail(PreferedMenuItem, pk=pmi.pk)  # Check has been saved
-    #
-    #     self.assertEqual(label,  pmi.label)
-    #     self.assertEqual(order,  pmi.order)
-    #
-    #     pmi = create_if_needed(PreferedMenuItem, {'user': user, 'url': url}, label=label + ' new', order=order + 2)
-    #     self.assertEqual(label,  pmi.label)
-    #     self.assertEqual(order,  pmi.order)
 
     def test_update_model_instance01(self):
         self.login()
@@ -167,15 +143,6 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(1,  get_from_POST_or_404(request, 'name_', int, default=1))
 
     def test_safe_unicode(self):
-        # self.assertEqual(u"kjøÔ€ôþâ", safe_unicode(u"kjøÔ€ôþâ"))
-        # self.assertEqual(u"aé‡ae15", safe_unicode("a\xe9\x87ae15"))
-        # self.assertEqual(u"aé‡ae15", safe_unicode("aé‡ae15"))
-        #
-        # # Custom encoding list
-        # self.assertEqual(u"a\ufffdae15", safe_unicode("a\xe9\x87ae15", ('utf-8',)))
-        # self.assertEqual(u"aé‡ae15", safe_unicode("a\xe9\x87ae15", ('cp1252',)))
-
-        # P3K
         self.assertEqual('kjøÔ€ôþâ', safe_unicode('kjøÔ€ôþâ'))
         self.assertEqual('aé‡ae15', safe_unicode(b'a\xe9\x87ae15'))
         self.assertEqual('aé‡ae15', safe_unicode('aé‡ae15'))
@@ -185,28 +152,6 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('aé‡ae15',      safe_unicode(b'a\xe9\x87ae15', ('cp1252',)))
 
     def test_safe_unicode_object(self):
-        # class no_unicode_object:
-        #     pass
-        #
-        # class unicode_object:
-        #     def __unicode__(self):
-        #         return u"aé‡ae15"
-        #
-        # class false_unicode_object:
-        #     def __init__(self, text):
-        #         self.text = text
-        #
-        #     def __unicode__(self):
-        #         return self.text
-        #
-        # self.assertEqual(u"<class 'creme.creme_core.tests.utils.test_main.no_unicode_object'>",
-        #                  safe_unicode(no_unicode_object)
-        #                 )
-        # self.assertEqual(u"aé‡ae15", safe_unicode(unicode_object()))
-        # self.assertEqual(u"aé‡ae15", safe_unicode(false_unicode_object(u"aé‡ae15")))
-        # self.assertEqual(u"aé‡ae15", safe_unicode(false_unicode_object("a\xe9\x87ae15")))
-
-        # P3K
         class no_unicode_object:
             pass
 
@@ -227,39 +172,6 @@ class MiscTestCase(CremeTestCase):
                         )
         self.assertEqual('aé‡ae15', safe_unicode(unicode_object()))
         # self.assertEqual(u"aé‡ae15", safe_unicode(false_unicode_object("a\xe9\x87ae15")))
-
-    # def test_safe_unicode_error1(self):
-    #     "Encoding errors"
-    #     self.assertEqual(u"kjøÔ€ôþâ", safe_unicode_error(OSError(u"kjøÔ€ôþâ")))
-    #     self.assertEqual(u"kjøÔ€ôþâ", safe_unicode_error(Exception(u"kjøÔ€ôþâ")))
-    #
-    #     self.assertEqual(u"aé‡ae15", safe_unicode_error(OSError("a\xe9\x87ae15")))
-    #     self.assertEqual(u"aé‡ae15", safe_unicode_error(Exception("a\xe9\x87ae15")))
-    #
-    #     self.assertEqual(u"aé‡ae15", safe_unicode_error(OSError("aé‡ae15")))
-    #     self.assertEqual(u"aé‡ae15", safe_unicode_error(Exception("aé‡ae15")))
-    #
-    #     # Custom encoding list
-    #     self.assertEqual(u"a\ufffdae15", safe_unicode_error(OSError("a\xe9\x87ae15"), ('utf-8',)))
-    #     self.assertEqual(u"a\ufffdae15", safe_unicode_error(Exception("a\xe9\x87ae15"), ('utf-8',)))
-    #
-    #     self.assertEqual(u"aé‡ae15", safe_unicode_error(OSError("a\xe9\x87ae15"), ('cp1252',)))
-    #     self.assertEqual(u"aé‡ae15", safe_unicode_error(Exception("a\xe9\x87ae15"), ('cp1252',)))
-
-    # def test_safe_unicode_error2(self):
-    #     "'message' attribute is not a string/unicode (like ExpatError)"
-    #     class MyAnnoyingException(Exception):
-    #         class MyAnnoyingExceptionMsg:
-    #             def __str__(self):
-    #                 return u'My message'
-    #
-    #         def __init__(self):
-    #             self.message = self.MyAnnoyingExceptionMsg()
-    #
-    #         def __str__(self):
-    #             return str(self.message)
-    #
-    #     self.assertEqual(u'My message', safe_unicode_error(MyAnnoyingException()))
 
     def test_date_2_dict(self):
         d = {'year': 2012, 'month': 6, 'day': 6}
@@ -434,28 +346,6 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
 
 
 class DatesTestCase(CremeTestCase):
-    # def test_get_dt_from_iso8601_str_01(self):
-    #     dt = get_dt_from_iso8601_str('20110522T223000Z')
-    #     self.assertEqual(datetime(2011, 5, 22, 22, 30, 0), dt)
-
-    # def test_get_dt_to_iso8601_str_01(self):
-    #     dt = datetime(2011, 5, 22, 22, 30, 0)
-    #     self.assertEqual('20110522T223000Z', get_dt_to_iso8601_str(dt))
-
-    # def test_get_dt_from_json_str(self):
-    #     self.assertEqual(self.create_datetime(year=2014, month=3, day=17, hour=15,
-    #                                           minute=22, second=3, microsecond=357000,
-    #                                           utc=True,
-    #                                          ),
-    #                      get_dt_from_json_str('2014-03-17T15:22:03.357Z')
-    #                     )
-    #     self.assertEqual(self.create_datetime(year=2015, month=1, day=16, hour=15,
-    #                                           minute=22, second=3, microsecond=123456,
-    #                                           utc=True,
-    #                                          ),
-    #                      get_dt_from_json_str('2015-01-16T15:22:03.123456Z')
-    #                     )
-
     def test_dt_from_ISO8601(self):
         self.assertEqual(self.create_datetime(year=2014, month=3, day=17, hour=15,
                                               minute=22, second=3, microsecond=357000,
@@ -469,16 +359,6 @@ class DatesTestCase(CremeTestCase):
                                              ),
                          dt_from_ISO8601('2015-01-16T15:22:03.123456Z')
                         )
-
-    # def test_dt_to_json_str(self):
-    #     self.assertEqual('2015-01-16T15:22:03.357000Z',
-    #                      dt_to_json_str(
-    #                          self.create_datetime(year=2015, month=1, day=16, hour=15,
-    #                                               minute=22, second=3, microsecond=357000,
-    #                                               utc=True,
-    #                                              )
-    #                         )
-    #                     )
 
     def test_dt_to_ISO8601(self):
         self.assertEqual('2015-01-16T15:22:03.357000Z',
@@ -505,30 +385,6 @@ class DatesTestCase(CremeTestCase):
                                       )
                          )
 
-    # def test_get_dt_from_str(self):
-    #     create_dt = self.create_datetime
-    #     self.assertEqual(create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
-    #                      get_dt_from_str('2013-07-25 12:28:45')
-    #                     )
-    #     self.assertEqual(create_dt(year=2013, month=7, day=25, hour=8, utc=True),
-    #                      get_dt_from_str('2013-07-25 11:00:00+03:00')
-    #                     )
-    #
-    #     DATETIME_INPUT_FORMATS = settings.DATETIME_INPUT_FORMATS
-    #
-    #     def check(fmt, dt_str, **kwargs):
-    #         if fmt in DATETIME_INPUT_FORMATS:
-    #             self.assertEqual(create_dt(**kwargs), get_dt_from_str(dt_str))
-    #         else:
-    #             print('DatesTestCase: skipped datetime format:', fmt)
-    #
-    #     check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
-    #     check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
-    #
-    #     check('%Y-%m-%dT%H:%M:%S.%fZ', '2013-07-25 12:28:45',
-    #           year=2013, month=7, day=25, hour=12, minute=28, second=45
-    #          )
-
     def test_dt_from_str(self):
         create_dt = self.create_datetime
         self.assertEqual(create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
@@ -552,18 +408,6 @@ class DatesTestCase(CremeTestCase):
         check('%Y-%m-%dT%H:%M:%S.%fZ', '2013-07-25 12:28:45',
               year=2013, month=7, day=25, hour=12, minute=28, second=45
              )
-
-    # def test_get_date_from_str(self):
-    #     DATE_INPUT_FORMATS = settings.DATE_INPUT_FORMATS
-    # 
-    #     def check(fmt, date_str, **kwargs):
-    #         if fmt in DATE_INPUT_FORMATS:
-    #             self.assertEqual(date(**kwargs), get_date_from_str(date_str))
-    #         else:
-    #             print('DatesTestCase: skipped date format:', fmt)
-    #
-    #     check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
-    #     check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
 
     def test_date_from_str(self):
         DATE_INPUT_FORMATS = settings.DATE_INPUT_FORMATS
@@ -674,7 +518,7 @@ class UnicodeCollationTestCase(CremeTestCase):
     #                      sort(['hats', 'gloves', 'shoes', u'ĝloves']),
     #                     )
     #
-    #     #test memory comsumption
+    #     #test memory consumption
     #     #from time import sleep
     #     #sleep(10)
 
@@ -777,27 +621,17 @@ class TemplateURLBuilderTestCase(CremeTestCase):
                         )
 
     def test_two_place_holders02(self):
-        # "2 int place holders"
         "2 int & 1 word place holders"
-        # vname = 'creme_core__merge_entities'
         vname = 'creme_core__inner_edition'
 
         placeholder1 = '123456'; final_value1 = '${id1}'
         placeholder2 = '789456'; final_value2 = '${id2}'
         placeholder3 = 'fobbar'; final_value3 = '${fname}'
 
-        # tub = TemplateURLBuilder(entity1_id=(TemplateURLBuilder.Int, final_value1),
-        #                          entity2_id=(TemplateURLBuilder.Int, final_value2),
-        #                         )
         tub = TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, final_value1),
                                  id=(TemplateURLBuilder.Int, final_value2),
                                  field_name=(TemplateURLBuilder.Word, final_value3),
                                 )
-
-        # self.assertEqual(reverse(vname, args=(placeholder1, placeholder2)).replace(placeholder1, final_value1)
-        #                                                                   .replace(placeholder2, final_value2),
-        #                  tub.resolve(vname)
-        #                 )
         self.assertEqual(reverse(vname, args=(placeholder1, placeholder2, placeholder3))
                                 .replace(placeholder1, final_value1)
                                 .replace(placeholder2, final_value2)

@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from __future__ import print_function
-
 from os.path import dirname
 from shutil import rmtree
 from tempfile import mkdtemp
@@ -64,13 +62,11 @@ class CremeTestLoader(unittest.TestLoader):
     suiteClass = CremeTestSuite
 
     def __init__(self):
-        # super(CremeTestLoader, self).__init__()
         super().__init__()
         self._allowed_paths = [app_conf.path for app_conf in apps.get_app_configs()]
         self._ignored_dir_paths = set()
 
     def _match_path(self, path, full_path, pattern):
-        # match = super(CremeTestLoader, self)._match_path(path, full_path, pattern)
         match = super()._match_path(path, full_path, pattern)
 
         if match:
@@ -97,14 +93,12 @@ class CremeDiscoverRunner(DiscoverRunner):
     test_loader = CremeTestLoader()
 
     def __init__(self, *args, **kwargs):
-        # super(CremeDiscoverRunner, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._mock_media_path = None
         self._original_media_root = settings.MEDIA_ROOT
         self._http_server = None
 
     def setup_test_environment(self, **kwargs):
-        # super(CremeDiscoverRunner, self).setup_test_environment(**kwargs)
         super().setup_test_environment(**kwargs)
         print('Creating mock media directory...')
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
@@ -120,7 +114,6 @@ class CremeDiscoverRunner(DiscoverRunner):
         )
 
     def teardown_test_environment(self, **kwargs):
-        # super(CremeDiscoverRunner, self).teardown_test_environment(**kwargs)
         super().teardown_test_environment(**kwargs)
         settings.MEDIA_ROOT = self._original_media_root
 
@@ -131,12 +124,3 @@ class CremeDiscoverRunner(DiscoverRunner):
         if self._http_server is not None:
             print('Shutting down HTTP server...')
             self._http_server.terminate()
-
-    # def setup_databases(self, *args, **kwargs):
-    #     res = super(CremeDiscoverRunner, self).setup_databases(*args, **kwargs)
-    #     # PopulateCommand().execute(verbosity=0)
-    #     call_command(PopulateCommand(), verbosity=0)
-    #
-    #     ContentType.objects.clear_cache()  # The cache seems corrupted when we switch to the test DB
-    #
-    #     return res

@@ -147,12 +147,12 @@ class GuiTestCase(CremeTestCase):
         # FK: with & without customised null_label
         self.assertEqual('', get_html_val(judo, 'position', user))
         self.assertEqual('', get_csv_val(judo,  'position', user))
-        self.assertEqual(u'<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
+        self.assertEqual('<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
                          get_html_val(casca, 'is_user', user)
                         )
         self.assertEqual('', get_csv_val(casca, 'is_user', user))  # Null_label not used in CSV backend
 
-        self.assertEqual(u'<a href="{}">{}</a>'.format(img.get_absolute_url(), escape(img)),
+        self.assertEqual('<a href="{}">{}</a>'.format(img.get_absolute_url(), escape(img)),
                          get_html_val(casca, 'image', user)
                         )
         self.assertEqual(str(casca.image), get_csv_val(casca, 'image', user))
@@ -217,7 +217,6 @@ class GuiTestCase(CremeTestCase):
     def test_field_printers03(self):
         "ManyToMany (CremeEntity)"
         user = self.login(is_superuser=False)
-        # self.role.exportable_ctypes = [ContentType.objects.get_for_model(FakeEmailCampaign)]
         self.role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeEmailCampaign)])
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
@@ -239,8 +238,6 @@ class GuiTestCase(CremeTestCase):
         ml1 = create_ml(name='ML#1')
         ml2 = create_ml(name='ML#2')
         ml3 = create_ml(name='ML#3', user=self.other_user)
-        # camp1.mailing_lists = [ml1, ml2]
-        # camp2.mailing_lists = [ml3]
         camp1.mailing_lists.set([ml1, ml2])
         camp2.mailing_lists.set([ml3])
 
@@ -265,12 +262,12 @@ class GuiTestCase(CremeTestCase):
                          get_html_val(camp1, 'mailing_lists__name', user)
                         )
 
-        csv_value = u'{}/{}'.format(ml1, ml2)
+        csv_value = '{}/{}'.format(ml1, ml2)
         self.assertEqual(csv_value, get_csv_val(camp1, 'mailing_lists', user))
         self.assertEqual(csv_value, get_csv_val(camp1, 'mailing_lists__name', user))
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        html_value = '<ul><li>{}</li></ul>'.format(HIDDEN_VALUE)  #_(u'Entity #%s (not viewable)') % ml3.id,
+        html_value = '<ul><li>{}</li></ul>'.format(HIDDEN_VALUE)  #_('Entity #%s (not viewable)') % ml3.id,
         self.assertEqual(html_value, get_html_val(camp2, 'mailing_lists', user))
         self.assertEqual(html_value, get_html_val(camp2, 'mailing_lists__name', user))
 
@@ -280,7 +277,6 @@ class GuiTestCase(CremeTestCase):
     def test_field_printers04(self):
         "Credentials"
         user = self.login(is_superuser=False, allowed_apps=['creme_core'])
-        # self.role.exportable_ctypes = [ContentType.objects.get_for_model(FakeContact)]
         self.role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeContact)])
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
@@ -304,7 +300,7 @@ class GuiTestCase(CremeTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(u'<a href="{}">{}</a>'.format(judo_face.get_absolute_url(), judo_face),
+        self.assertEqual('<a href="{}">{}</a>'.format(judo_face.get_absolute_url(), judo_face),
                          get_html_val(judo, 'image', user)
                         )
         self.assertEqual('<p>Judo&#39;s selfie</p>',
@@ -312,7 +308,7 @@ class GuiTestCase(CremeTestCase):
                         )
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image', user)) #_(u'Entity #%s (not viewable)') % casca_face.id
+        self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image', user)) #_('Entity #%s (not viewable)') % casca_face.id
         self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image__description', user))
         self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image__categories', user))
 
@@ -331,10 +327,10 @@ class GuiTestCase(CremeTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    is_a_nerd=True)
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(u'<input type="checkbox" disabled/>' + _('No'),
+        self.assertEqual('<input type="checkbox" disabled/>' + _('No'),
                          get_html_val(casca, 'is_a_nerd', user)
                         )
-        self.assertEqual(u'<input type="checkbox" checked disabled/>' + _('Yes'),
+        self.assertEqual('<input type="checkbox" checked disabled/>' + _('Yes'),
                          get_html_val(judo, 'is_a_nerd', user)
                         )
 
@@ -517,11 +513,11 @@ class GuiTestCase(CremeTestCase):
         icon1 = icon_reg.get_4_model(model=FakeContact, theme='icecream', size_px=22)
         self.assertIsInstance(icon1, Icon)
         self.assertIn('icecream/images/contact_22', icon1.url)
-        self.assertEqual(u'Test Contact',           icon1.label)
+        self.assertEqual('Test Contact',           icon1.label)
 
         icon2 = icon_reg.get_4_model(model=FakeOrganisation, theme='chantilly', size_px=48)
         self.assertIn('chantilly/images/organisation_48', icon2.url)
-        self.assertEqual(u'Test Organisation',            icon2.label)
+        self.assertEqual('Test Organisation',            icon2.label)
 
         # Bad size
         icon3 = icon_reg.get_4_model(model=FakeContact, theme='icecream', size_px=1024)
@@ -561,57 +557,7 @@ class GuiTestCase(CremeTestCase):
         o = FakeOrganisation(name='Midland')
         icon3 = icon_reg.get_4_instance(instance=o, theme='icecream', size_px=22)
         self.assertIn('icecream/images/organisation_22', icon3.url)
-        self.assertEqual(u'Test Organisation',           icon3.label)
-
-    # def test_button_registry_legacy(self):
-    #     class TestButton1(Button):
-    #         id_ = Button.generate_id('creme_core', 'test_button_registry_legacy1')
-    #
-    #     class TestButton2(Button):
-    #         id_ = Button.generate_id('creme_core', 'test_button_registry_legacy2')
-    #
-    #         def ok_4_display(self, entity):
-    #             return False
-    #
-    #     class TestButton3(Button):
-    #         id_ = Button.generate_id('creme_core', 'test_button_registry_legacy3')
-    #
-    #     class TestButton4(Button):
-    #         id_ = Button.generate_id('creme_core', 'test_button_registry_legacy4')
-    #
-    #     registry = ButtonsRegistry()
-    #     registry.register(TestButton1(), TestButton2(), TestButton3(), TestButton4())
-    #
-    #     class DuplicatedTestButton(Button):
-    #         id_ = TestButton1.id_
-    #
-    #     with self.assertRaises(ButtonsRegistry.RegistrationError):
-    #         registry.register(DuplicatedTestButton())
-    #
-    #     get = registry.get_button
-    #     self.assertIsInstance(get(TestButton1.id_), TestButton1)
-    #     self.assertIsInstance(get(TestButton2.id_), TestButton2)
-    #     self.assertIsNone(get(Button.generate_id('creme_core', 'test_button_registry_legacy_invalid')))
-    #
-    #     c = FakeContact(first_name='Casca', last_name='Mylove')
-    #     buttons = registry.get_buttons([TestButton3.id_,
-    #                                     TestButton2.id_,  # No because ok_4_display() returns False
-    #                                     'test_button_registry_legacy_invalid',
-    #                                     TestButton1.id_,
-    #                                    ],
-    #                                    entity=c
-    #                                   )
-    #     self.assertIsInstance(buttons, list)
-    #     self.assertEqual(2, len(buttons))
-    #     self.assertIsInstance(buttons[0], TestButton3)
-    #     self.assertIsInstance(buttons[1], TestButton1)
-    #
-    #     all_button_items = list(registry)
-    #     self.assertEqual(4, len(all_button_items))
-    #
-    #     button_item = all_button_items[0]
-    #     self.assertIsInstance(button_item[1], Button)
-    #     self.assertEqual(button_item[0], button_item[1].id_)
+        self.assertEqual('Test Organisation',           icon3.label)
 
     def test_button_registry(self):
         class TestButton1(Button):

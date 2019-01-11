@@ -49,11 +49,7 @@ def get_q_from_dict(dict, is_or=False):
 
     for k, v in dict.items():
         k = str(k)
-        # __, is_not, req = k.rpartition('~')
-        # if bool(is_not):
-        #     sub_q = ~Q(**{req: v})
-        # else:
-        #     sub_q = Q(**{req: v})
+
         if k.startswith('~'):
             warnings.warn('creme_core.utils.queries.get_q_from_dict(): the "~" feature is deprecated ; '
                           'use a django.db.models.query.Q instead.',

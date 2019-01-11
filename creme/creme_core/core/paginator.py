@@ -28,7 +28,6 @@ import sys
 from django.core.exceptions import ValidationError
 from django.core.paginator import InvalidPage
 from django.db.models import Q
-# from django.utils.lru_cache import lru_cache
 
 from creme.creme_core.utils.dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 from creme.creme_core.utils.db import populate_related
@@ -125,7 +124,6 @@ class FlowPaginator:
         last_field = field_info[-1]
 
         if last_field.is_relation:
-            # subfield_model = last_field.rel.to
             subfield_model = last_field.remote_field.model
             subfield_ordering = subfield_model._meta.ordering
 

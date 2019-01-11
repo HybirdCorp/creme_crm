@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json import dumps as json_dump  # loads as load_json
+    from json import dumps as json_dump
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
@@ -23,10 +23,6 @@ except Exception as e:
 
 
 class BatchProcessViewsTestCase(ViewsTestCase):
-    # format_str1 = '[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]'
-    # format_str2 = '[{"name": "%(name01)s", "operator": "%(operator01)s", "value": "%(value01)s"},' \
-    #               ' {"name": "%(name02)s", "operator": "%(operator02)s", "value": "%(value02)s"}]'
-
     @classmethod
     def build_formfield_entry(cls, name, operator, value):
         return {'name': name, 'operator': operator, 'value': value}
@@ -37,7 +33,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(BatchProcessViewsTestCase, cls).setUpClass()
         super().setUpClass()
         Job.objects.all().delete()
 
@@ -45,10 +40,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         cls.orga_ct       = get_ct(FakeOrganisation)
         cls.contact_ct_id = get_ct(FakeContact).id
 
-    # def _build_add_url(self, model):
-    #     return reverse('creme_core__batch_process',
-    #                    args=(ContentType.objects.get_for_model(model).id,),
-    #                   ) + '?list_url=' + model.get_lv_absolute_url()
     def _build_add_url(self, model, efilter_id=None):
         uri = reverse('creme_core__batch_process',
                        args=(ContentType.objects.get_for_model(model).id,),
@@ -136,15 +127,15 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertIsNone(job.error)
         self.assertFalse(EntityJobResult.objects.filter(job=job))
         self.assertIsNone(job.last_run)
-        self.assertEqual(_(u'Core'), job.type.app_config.verbose_name)
+        self.assertEqual(_('Core'), job.type.app_config.verbose_name)
 
         # Properties
         self.assertIs(batch_process_type, job.type)
         self.assertIs(False, job.is_finished)
-        self.assertEqual([_(u'Entity type: {}').format('Test Organisation'),
-                          _(u'{field} ➔ {operator}').format(
-                                field=_(u'Name'),
-                                operator=_(u'To upper case'),
+        self.assertEqual([_('Entity type: {}').format('Test Organisation'),
+                          _('{field} ➔ {operator}').format(
+                                field=_('Name'),
+                                operator=_('To upper case'),
                             )
                          ],
                          job.description
@@ -166,8 +157,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertIsNone(job.error)
 
         orga_count = FakeOrganisation.objects.count()
-        self.assertEqual([ungettext(u'{count} entity has been successfully modified.',
-                                    u'{count} entities have been successfully modified.',
+        self.assertEqual([ungettext('{count} entity has been successfully modified.',
+                                    '{count} entities have been successfully modified.',
                                     orga_count
                                    ).format(count=orga_count),
                          ],
@@ -204,14 +195,14 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         user = self.login()
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        contact01 = create_contact(first_name=u'Saki',   last_name=u'Kasukabe')
-        contact02 = create_contact(first_name=u'Kanako', last_name=u'Ono')
+        contact01 = create_contact(first_name='Saki',   last_name='Kasukabe')
+        contact02 = create_contact(first_name='Kanako', last_name='Ono')
 
         response = self.client.post(self._build_add_url(FakeContact), follow=True,
                                     data={'actions': self.build_formfield_value(
                                                             name='first_name',
                                                             operator='suffix',
-                                                            value=u'-adorée',
+                                                            value='-adorée',
                                                         ),
                                          }
                                    )
@@ -219,8 +210,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self._execute_job(response)
 
-        self.assertEqual(u'Saki-adorée',   self.refresh(contact01).first_name)
-        self.assertEqual(u'Kanako-adorée', self.refresh(contact02).first_name)
+        self.assertEqual('Saki-adorée',   self.refresh(contact01).first_name)
+        self.assertEqual('Kanako-adorée', self.refresh(contact02).first_name)
 
     def test_validation_error01(self):
         "Invalid field"
@@ -235,7 +226,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'actions',
-                             _(u'This field is invalid with this model.'),
+                             _('This field is invalid with this model.'),
                             )
 
 # TODO: uncomment when a model has a field with batchable type and not inner editable (maybe a test model)
@@ -272,10 +263,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                     ),
                                                  ],
                                      )
-
-        # # We set the current list view state
-        # # Now needs a POST request for session changes.
-        # self.assertPOST200(FakeOrganisation.get_lv_absolute_url(), data={'filter': efilter.id})
 
         response = self.assertGET200(self._build_add_url(FakeOrganisation, efilter_id=efilter.id))
 
@@ -316,7 +303,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'actions',
-                             _(u'The field «%(field)s» can not be used twice.') % {
+                             _('The field «%(field)s» can not be used twice.') % {
                                     'field': _('First name'),
                                  }
                             )
@@ -360,8 +347,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.get_object_or_fail(EntityJobResult, job=job, entity=orga02)
         self.assertFalse(EntityJobResult.objects.filter(job=job, entity=orga01))
-        self.assertEqual([ungettext(u'{count} entity has been successfully modified.',
-                                    u'{count} entities have been successfully modified.',
+        self.assertEqual([ungettext('{count} entity has been successfully modified.',
+                                    '{count} entities have been successfully modified.',
                                     2
                                    ).format(count=2),
                          ],
@@ -370,8 +357,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         progress = job.progress
         self.assertIsNone(progress.percentage)
-        self.assertEqual(ungettext(u'{count} entity has been processed.',
-                                   u'{count} entities have been processed.',
+        self.assertEqual(ungettext('{count} entity has been processed.',
+                                   '{count} entities have been processed.',
                                    2
                                   ).format(count=2),
                          progress.label
@@ -402,7 +389,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'filter',
-                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                             _('Select a valid choice. That choice is not one of the available choices.')
                             )
 
     def test_with_filter03(self):
@@ -523,15 +510,15 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         batch_process_type.execute(job)
         contact01 = self.refresh(contact01)
         self.assertEqual(last_name,  contact01.last_name)  # No change !!
-        self.assertEqual(first_name, contact01.first_name)  # TODO: make the changes that are possible (u'KANAKO') ??
+        self.assertEqual(first_name, contact01.first_name)  # TODO: make the changes that are possible ('KANAKO') ??
 
         jresult = self.get_object_or_fail(EntityJobResult, job=job, entity=contact01)
-        self.assertEqual([u'{} => {}'.format(_('Last name'), _(u'This field cannot be blank.'))],
+        self.assertEqual(['{} => {}'.format(_('Last name'), _('This field cannot be blank.'))],
                          jresult.messages
                         )
 
-        self.assertEqual([ungettext(u'{count} entity has been successfully modified.',
-                                    u'{count} entities have been successfully modified.',
+        self.assertEqual([ungettext('{count} entity has been successfully modified.',
+                                    '{count} entities have been successfully modified.',
                                     1
                                    ).format(count=1),
                          ],
@@ -557,8 +544,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             json_data = response.json()
             self.assertIsInstance(json_data, list)
             self.assertTrue(json_data)
-            self.assertIn(['upper', _(u'To upper case')], json_data)
-            self.assertIn(['lower', _(u'To lower case')], json_data)
+            self.assertIn(['upper', _('To upper case')], json_data)
+            self.assertIn(['lower', _('To lower case')], json_data)
             self.assertNotIn('add_int', (e[0] for e in json_data))
 
         assertStrOps('first_name')
@@ -570,10 +557,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self.build_ops_url(self.orga_ct.id, 'capital'))
 
-        # json_data = load_json(response.content)
         json_data = response.json()
-        self.assertIn(['add_int', _(u'Add')], json_data)
-        self.assertIn(['sub_int', _(u'Subtract')], json_data)
+        self.assertIn(['add_int', _('Add')], json_data)
+        self.assertIn(['sub_int', _('Subtract')], json_data)
         self.assertNotIn('prefix', (e[0] for e in json_data))
 
     def test_get_ops04(self):
@@ -581,7 +567,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
 
         response = self.assertGET200(self.build_ops_url(self.contact_ct_id, 'image'))
-        # self.assertEqual([], load_json(response.content))
         self.assertEqual([], response.json())
 
     def test_get_ops05(self):
@@ -680,7 +665,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             batch_process_type.execute(job)
 
         self.assertEqual(Job.STATUS_ERROR, job.status)
-        self.assertEqual(_(u'The filter does not exist anymore'), job.error)
+        self.assertEqual(_('The filter does not exist anymore'), job.error)
         self.assertTrue(job.is_finished)
 
     # TODO: custom fields ??

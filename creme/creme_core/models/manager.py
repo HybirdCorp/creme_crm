@@ -36,7 +36,6 @@ class LowNullsSQLCompiler(SQLCompiler):
     So it injects 'NULLS FIRST/LAST' into queries (on PostgreSQL only).
     """
     def get_order_by(self):
-        # result = super(LowNullsSQLCompiler, self).get_order_by()
         result = super().get_order_by()
 
         if result and self.connection.vendor == 'postgresql':
@@ -62,6 +61,5 @@ class LowNullsQuery(models.sql.query.Query):
 
 class LowNullsQuerySet(models.QuerySet):
     def __init__(self, model=None, query=None, using=None, hints=None):
-        # super(LowNullsQuerySet, self).__init__(model, query, using, hints)
         super().__init__(model, query, using, hints)
         self.query = query or LowNullsQuery(self.model)

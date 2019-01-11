@@ -57,15 +57,15 @@ class SearchField:
 
 
 class SearchConfigItem(CremeModel):
-    content_type = EntityCTypeForeignKey(verbose_name=_(u'Related resource'))
-    role         = ForeignKey(UserRole, verbose_name=_(u'Related role'), null=True, default=None, on_delete=CASCADE)
+    content_type = EntityCTypeForeignKey(verbose_name=_('Related resource'))
+    role         = ForeignKey(UserRole, verbose_name=_('Related role'), null=True, default=None, on_delete=CASCADE)
     # TODO: a UserRole for superusers instead ??
-    superuser    = BooleanField(u'related to superusers', default=False, editable=False)
-    disabled     = BooleanField(pgettext_lazy('creme_core-search_conf', u'Disabled?'), default=False)
+    superuser    = BooleanField('related to superusers', default=False, editable=False)
+    disabled     = BooleanField(pgettext_lazy('creme_core-search_conf', 'Disabled?'), default=False)
     field_names  = TextField(null=True)  # Do not this field directly; use 'searchfields' property
 
-    creation_label = _(u'Create a search configuration')
-    save_label     = _(u'Save the configuration')
+    creation_label = _('Create a search configuration')
+    save_label     = _('Save the configuration')
 
     _searchfields = None
     EXCLUDED_FIELDS_TYPES = [models.DateTimeField, models.DateField,
@@ -80,14 +80,14 @@ class SearchConfigItem(CremeModel):
 
     def __str__(self):
         if self.superuser:
-            return ugettext(u'Search configuration of super-users for «{model}»').format(model=self.content_type)
+            return ugettext('Search configuration of super-users for «{model}»').format(model=self.content_type)
 
         role = self.role
 
         if role is None:
-            return ugettext(u'Default search configuration for «{model}»').format(model=self.content_type)
+            return ugettext('Default search configuration for «{model}»').format(model=self.content_type)
 
-        return ugettext(u'Search configuration of «{role}» for «{model}»').format(
+        return ugettext('Search configuration of «{role}» for «{model}»').format(
                     role=role,
                     model=self.content_type,
         )
@@ -149,7 +149,7 @@ class SearchConfigItem(CremeModel):
 
     @searchfields.setter
     def searchfields(self, fields):
-        "@param fields Sequence of strings representing field names"
+        "@param fields: Sequence of strings representing field names"
         self._build_searchfields(self.content_type.model_class(), fields, save=False)
 
     def get_modelfields_choices(self):
@@ -162,9 +162,9 @@ class SearchConfigItem(CremeModel):
     def create_if_needed(model, fields, role=None, disabled=False):
         """Create a config item & its fields if one does not already exists.
         SearchConfigItem.create_if_needed(SomeDjangoModel, ['YourEntity_field1', 'YourEntity_field2', ..])
-        @param fields Sequence of strings representing field names.
-        @param role UserRole instance; or 'superuser'; or None, for default configuration.
-        @param disabled Boolean
+        @param fields: Sequence of strings representing field names.
+        @param role: UserRole instance; or 'superuser'; or None, for default configuration.
+        @param disabled: Boolean.
         """
         ct = ContentType.objects.get_for_model(model)
         superuser = False
@@ -231,5 +231,4 @@ class SearchConfigItem(CremeModel):
         if self.superuser and self.role_id:
             raise ValueError('"role" must be NULL if "superuser" is True')
 
-        # super(SearchConfigItem, self).save(*args, **kwargs)
         super().save(*args, **kwargs)

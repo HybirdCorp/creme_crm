@@ -71,17 +71,6 @@ class DatePeriodFieldTestCase(FieldTestCase):
                                         [name, '2'], message_args={'value': name},
                                        )
 
-    # def test_choices_1(self):
-    #     clean = DatePeriodField(choices=('months',)).clean
-    #     period = clean(['months', '5'])
-    #     self.assertIsInstance(period, DatePeriod)
-    #
-    #     name = 'years'
-    #     self.assertFieldValidationError(ChoiceField, 'invalid_choice', clean,
-    #                                     [name, '2'], message_args={'value': name},
-    #                                    )
-
-    # def test_choices_2(self):
     def test_choices(self):
         choices = list(DatePeriodField().choices)
         self.assertIn((MinutesPeriod.name, MinutesPeriod.verbose_name), choices)
@@ -102,7 +91,7 @@ class DatePeriodFieldTestCase(FieldTestCase):
         with self.assertRaises(ValidationError) as cm:
             DatePeriodField().clean(['days', '0'])
 
-        self.assertEqual([_(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
+        self.assertEqual([_('Ensure this value is greater than or equal to %(limit_value)s.') % {
                                 'limit_value': 1
                             },
                          ],
@@ -208,16 +197,16 @@ class DurationFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(DurationField, 'required', clean, [])
 
     def test_invalid01(self):
-        self.assertFieldValidationError(DurationField, 'invalid', DurationField().clean, [u'a', u'b', u'c'])
+        self.assertFieldValidationError(DurationField, 'invalid', DurationField().clean, ['a', 'b', 'c'])
 
     def test_positive01(self):
         self.assertFieldValidationError(DurationField, 'min_value', DurationField().clean,
-                                        [u'-1', u'-1', u'-1'], message_args={'limit_value': 0}
+                                        ['-1', '-1', '-1'], message_args={'limit_value': 0}
                                        )
 
     def test_ok01(self):
         clean = DurationField().clean
-        self.assertEqual('10:2:0', clean([u'10', u'2', u'0']))
+        self.assertEqual('10:2:0', clean(['10', '2', '0']))
         self.assertEqual('10:2:0', clean([10, 2, 0]))
 
 
@@ -254,7 +243,7 @@ class OptionalChoiceFieldTestCase(FieldTestCase):
         with self.assertRaises(ValidationError) as cm:
             field.clean([False, 'invalid'])
 
-        self.assertEqual([_(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+        self.assertEqual([_('Select a valid choice. %(value)s is not one of the available choices.') % {
                                 'value': 'invalid',
                             },
                          ],
@@ -304,7 +293,6 @@ class ChoiceOrCharFieldTestCase(FieldTestCase):
 class _CTypeChoiceFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(_CTypeChoiceFieldTestCase, cls).setUpClass()
         super().setUpClass()
 
         get_ct = ContentType.objects.get_for_model
@@ -357,7 +345,6 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
 class _EntityCTypeChoiceFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(_EntityCTypeChoiceFieldTestCase, cls).setUpClass()
         super().setUpClass()
 
         get_ct = ContentType.objects.get_for_model

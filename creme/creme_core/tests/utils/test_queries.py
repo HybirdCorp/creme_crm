@@ -18,7 +18,6 @@ except Exception as e:
 class QueriesTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(QueriesTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls._civ_backup = list(FakeCivility.objects.all())
@@ -26,7 +25,6 @@ class QueriesTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # super(QueriesTestCase, cls).tearDownClass()
         super().tearDownClass()
         FakeCivility.objects.all().delete()
         FakeCivility.objects.bulk_create(cls._civ_backup)
@@ -91,7 +89,6 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q1, [adrian])
 
         str_q = QSerializer().dumps(q1)
-        #print str_q
         self.assertIsInstance(str_q, str)
 
         q2 = QSerializer().loads(str_q)
@@ -107,7 +104,6 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [self.adrian])
 
         str_q = QSerializer().dumps(q)
-        # print(str_q)
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def test_q_serializer_04(self):
@@ -119,7 +115,6 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [self.richard, self.adrian])
 
         str_q = QSerializer().dumps(q)
-        # print(str_q)
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def test_q_serializer_05(self):
@@ -131,7 +126,6 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [self.marianne])
 
         str_q = QSerializer().dumps(q)
-        #print str_q
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def test_q_serializer_06(self):
@@ -160,7 +154,6 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [acts[0]])
 
         str_q = QSerializer().dumps(q)
-        # print(str_q)
         self._assertQEqual(FakeActivity, q, QSerializer().loads(str_q))
 
     def test_q_serializer_08(self): 
@@ -176,7 +169,6 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [o2])
 
         str_q = QSerializer().dumps(q)
-        # print(str_q)
         self._assertQEqual(FakeOrganisation, q, QSerializer().loads(str_q))
 
     def test_q_serializer_09(self): 
@@ -223,7 +215,6 @@ class QueriesTestCase(CremeTestCase):
 
         qsr = QSerializer()
         str_q = qsr.dumps(q)
-        # print(str_q)
         self._assertQEqual(FakeContact, q, qsr.loads(str_q))
 
     def test_q_serializer_12(self):

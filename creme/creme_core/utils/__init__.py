@@ -24,20 +24,15 @@
 #
 ################################################################################
 
-# from decimal import Decimal
-# from json import dumps as json_dump
 import logging
 import sys
 import traceback
-# import warnings
 
 from django.contrib.contenttypes.models import ContentType
-# from django.core.exceptions import PermissionDenied
-from django.http import Http404  # HttpResponse
+from django.http import Http404
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-# from ..core.exceptions import ConflictError
 from ..signals import pre_replace_related
 
 
@@ -47,8 +42,6 @@ logger = logging.getLogger(__name__)
 def creme_entity_content_types():
     "Generator which yields ContentType instances corresponding to registered entity models."
     from ..registry import creme_registry
-    # get_for_model = ContentType.objects.get_for_model
-    # return (get_for_model(model) for model in creme_registry.iter_entity_models())
     return map(ContentType.objects.get_for_model, creme_registry.iter_entity_models())
 
 
@@ -138,48 +131,6 @@ def replace_related_object(old_instance, new_instance):
             m2m_mngr.remove(old_instance)
 
 
-# TODO: MUST BE REMOVED WHEN JSON STANDARD LIB HANDLES DECIMAL
-# class Number2Str(float):
-#     def __init__(self, value):
-#         self.value = value
-#
-#     def __repr__(self):
-#         return str(self.value)
-
-
-# def decimal_serializer(value):
-#     if isinstance(value, Decimal):
-#         return Number2Str(value)
-#     raise TypeError(repr(value) + " is not JSON serializable")
-
-
-# def jsonify(func):
-#     def _aux(*args, **kwargs):
-#         status = 200
-#
-#         try:
-#             rendered = func(*args, **kwargs)
-#         except Http404 as e:
-#             msg = str(e)
-#             status = 404
-#         except PermissionDenied as e:
-#             msg = str(e)
-#             status = 403
-#         except ConflictError as e:
-#             msg = str(e)
-#             status = 409
-#         except Exception as e:
-#             logger.exception('Exception in @jsonify(%s)', func.__name__)
-#             msg = str(e)
-#             status = 400
-#         else:
-#             msg = json_dump(rendered, default=decimal_serializer)
-#
-#         return HttpResponse(msg, content_type='application/json', status=status)
-#
-#     return _aux
-
-
 def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
     """@param cast: A function that cast the return value,
                     and raise an Exception if it is not possible (eg: int).
@@ -248,15 +199,14 @@ def entities2unicode(entities, user):
     """Return a unicode objects representing a sequence of CremeEntities,
     with care of permissions.
     """
-    return u', '.join(entity.allowed_str(user) for entity in entities)
+    return ', '.join(entity.allowed_str(user) for entity in entities)
 
 
 def related2unicode(entity, user):
     """Return a unicode object representing a related entity with its owner,
     with care of permissions of this owner.
     """
-    # return u'%s - %s' % (entity.get_related_entity().allowed_unicode(user), unicode(entity))
-    return u'{} - {}'.format(entity.get_related_entity().allowed_str(user), entity)
+    return '{} - {}'.format(entity.get_related_entity().allowed_str(user), entity)
 
 
 __BFS_MAP = {
@@ -286,12 +236,12 @@ def bool_from_str_extended(value):
 def bool_as_html(b):
     if b:
         checked = 'checked '
-        label = _(u'Yes')
+        label = _('Yes')
     else:
         checked = ''
-        label = _(u'No')
+        label = _('No')
 
-    return u'<input type="checkbox" {}disabled/>{}'.format(checked, label)
+    return '<input type="checkbox" {}disabled/>{}'.format(checked, label)
 
 
 _I2R_NUMERAL_MAP = [(1000, 'M'),  (900, 'CM'), (500, 'D'),  (400, 'CD'), (100, 'C'),
@@ -346,7 +296,7 @@ def truncate_str(str, max_length, suffix=''):
 def ellipsis(s, length):
     "Ensures that an unicode-string has a maximum length."
     if len(s) > length:
-        s = s[:length - 1] + u'…'
+        s = s[:length - 1] + '…'
 
     return s
 
@@ -360,7 +310,7 @@ def ellipsis_multi(strings, length):
     @return: A list of str instances.
 
     >> ellipsis_multi(['123456', '12', '12'], 9)
-    [u'1234…', '12', '12']
+    ['1234…', '12', '12']
     """
     str_2_truncate = [[len(s), s] for s in strings]
     total_len = sum(elt[0] for elt in str_2_truncate)
@@ -400,23 +350,6 @@ def prefixed_truncate(s, prefix, length):
 
 # TODO: deprecate ? keep only the 'bytes' part ?
 def safe_unicode(value, encodings=None):
-    # if isinstance(value, unicode):
-    #     return value
-    #
-    # if not isinstance(value, basestring):
-    #     value = value.__unicode__() if hasattr(value, '__unicode__') else repr(value)
-    #     return safe_unicode(value, encodings)
-    #
-    # encodings = encodings or ('utf-8', 'cp1252', 'iso-8859-1',)
-    #
-    # for encoding in encodings:
-    #     try:
-    #         return str(value, encoding=encoding)
-    #     except Exception:
-    #         continue
-    #
-    # return str(value, encoding='utf-8', errors='replace')
-
     if isinstance(value, str):
         return value
 
@@ -430,20 +363,6 @@ def safe_unicode(value, encodings=None):
         return value.decode(encoding='utf-8', errors='replace')
 
     return str(value)
-
-
-# def safe_unicode_error(err, encodings=None):
-#     # Is this method deprecated for python 3.* (but str/unicode conversions won't be useful at all) ??
-#     try:
-#         return str(err)
-#     except:
-#         pass
-#
-#     # todo: keep this deprecated method until migration to python 3.*,
-#     #       because some old APIs may use it in python 2.*
-#     msg = err.message
-#
-#     return safe_unicode(msg, encodings)
 
 
 def log_traceback(logger, limit=10):  # TODO: use traceback.format_exc() ?

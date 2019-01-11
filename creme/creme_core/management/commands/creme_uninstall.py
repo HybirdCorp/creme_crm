@@ -26,7 +26,6 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import AppCommand, CommandError
-# from django.core.management.color import no_style
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.migrations.recorder import MigrationRecorder
 from django.dispatch import receiver
@@ -37,7 +36,7 @@ from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import (CremeEntity, RelationType, CremePropertyType,
         EntityFilter, HistoryLine, SettingValue, Job,
-        ButtonMenuItem,  # PreferedMenuItem
+        ButtonMenuItem,
         BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
         RelationBrickItem, InstanceBrickConfigItem, BrickState)
 from creme.creme_core.utils import split_filter
@@ -60,7 +59,6 @@ def uninstall_handler(msg):
                    )
 
             if verbosity:
-                # stdout_write(' [OK]', style.MIGRATE_SUCCESS)
                 stdout_write(' [OK]', style.SUCCESS)
 
         return _aux
@@ -123,16 +121,6 @@ def _uninstall_blocks(sender, **kwargs):
     bmpl.delete()
 
     BrickState.objects.filter(brick_id__in=brick_ids)
-
-    # # Blocks on the app's portal (not related to ContentTypes,
-    # # so they won't be removed automatically)
-    # BrickHomeLocation.objects.filter(app_name=app_label).delete()
-
-
-# @receiver(pre_uninstall_flush)
-# @uninstall_handler('Deleting preferred menu entries...')
-# def _uninstall_preferred_menu(sender, **kwargs):
-#     PreferedMenuItem.objects.filter(url__startswith='/{}/'.format(sender.label)).delete()
 
 
 @receiver(pre_uninstall_flush)
@@ -312,7 +300,6 @@ class Command(AppCommand):
                     next_models_info.append((model, False))
                 elif verbosity:
                     self.stdout.write(' [OK] All instances have been deleted.',
-                                      # self.style.MIGRATE_SUCCESS,
                                       self.style.SUCCESS,
                                      )
 
@@ -366,7 +353,6 @@ class Command(AppCommand):
                     progress = True
 
                     if verbosity:
-                        # self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
                         self.stdout.write(' [OK]', self.style.SUCCESS)
 
             ctypes_info = next_ctypes_info
@@ -399,21 +385,16 @@ class Command(AppCommand):
         MigrationRecorder.Migration.objects.filter(app=app_label).delete()
 
         if verbosity:
-            # self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
             self.stdout.write(' [OK]', self.style.SUCCESS)
 
     # TODO: close cursor
     def _delete_tables(self, app_config, app_label, verbosity):
         connection = connections[DEFAULT_DB_ALIAS]  # TODO: options.get('database') ?
 
-# #         sql_commands = sql_delete(app, no_style(), connection)
-# #         sql_commands = sql_delete(app_config, no_style(), connection, close_connection=False)
-#         sql_commands, dep_error = sql_delete_V2(app_config, no_style(), connection)
         models, dep_error = ordered_models_to_delete(app_config, connection)
 
         if dep_error:
             self.stderr.write(u" [KO] Dependencies loop (cannot find a safe deletion order).\n"
-                              # u"SQL commands:\n{}\n".format(u'\n'.join(sql_commands))  # todo: .encode('utf-8')  ??
                               u"Tables:\n{}\n".format(u'\n'.join(model._meta.db_table for model in models))
                              )
 
@@ -429,15 +410,10 @@ class Command(AppCommand):
             schema_editor = connection.schema_editor()
 
             try:
-                # cursor = connection.cursor()
-
-                # while sql_commands:
                 while models:
-                    # sql_command = sql_commands.pop(0)
                     model = models.pop(0)
 
                     if verbosity:
-                        # self.stdout.write(sql_command)
                         meta = model._meta
                         self.stdout.write(u' Drop the model "{app}.{model}" (table: "{table}").'.format(
                                                 app=meta.app_label,
@@ -446,20 +422,11 @@ class Command(AppCommand):
                                             )
                                          )
 
-                    # cursor.execute(sql_command)
                     schema_editor.delete_model(model)
 
                     if verbosity:
-                        # self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
                         self.stdout.write(' [OK]', self.style.SUCCESS)
             except Exception as e:
-                # self.stderr.write(u" [KO] Original error: {error}.\n"
-                #                   u"Remaining SQL commands:\n"
-                #                   u"{commands}\n".format(
-                #                         error=force_unicode(e),  # PostGreSQL returns localized errors...
-                #                         commands=u'\n'.join(sql_commands),  # todo: .encode('utf-8')  ??
-                #                     )
-                #                  )
                 self.stderr.write(u' [KO] Original error: {error}.\n'
                                   u'Remaining tables:\n'
                                   u'{models}\n'.format(
@@ -474,7 +441,6 @@ class Command(AppCommand):
 
             if verbosity > 1:
                 self.stdout.write(' [OK] All tables have been deleted',
-                                  # self.style.MIGRATE_SUCCESS
                                   self.style.SUCCESS,
                                  )
         elif verbosity:
@@ -484,7 +450,6 @@ class Command(AppCommand):
         verbosity = options.get('verbosity')
         app_label = app_config.label
 
-        # self._check_creme_app(app_label)
         if not app_config.creme_app:
             raise CommandError('"{}" seems not to be a Creme app '
                                '(see settings.INSTALLED_CREME_APPS)'.format(app_label)
@@ -548,71 +513,6 @@ class Command(AppCommand):
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ################################################################################
 
-# # NOT USED
-# # NB: copied from django/core/management/sql.py  (+ check_for_migrations removed)
-# # 1 - check_for_migrations() annoys us because we want to uninstall Creme apps,
-# #     which have migrations ; it dnagerous but we know what we are doing
-# # 2 - sql_destroy_model() strangely returns references that cause errors with MySQL & PGSQL !
-# def sql_delete(app_config, style, connection, close_connection=True):
-#     "Returns a list of the DROP TABLE SQL statements for the given app."
-# #    check_for_migrations(app_config, connection)
-#
-#     from django.db import router
-#
-#     # This should work even if a connection isn't available
-#     try:
-#         cursor = connection.cursor()
-#     except Exception:
-#         cursor = None
-#
-#     try:
-#         # Figure out which tables already exist
-#         if cursor:
-#             table_names = connection.introspection.table_names(cursor)
-#         else:
-#             table_names = []
-#
-#         output = []
-#
-#         # Output DROP TABLE statements for standard application tables.
-#         to_delete = set()
-#
-#         references_to_delete = {}
-#         app_models = router.get_migratable_models(app_config, connection.alias, include_auto_created=True)
-#         for model in app_models:
-#             if cursor and connection.introspection.table_name_converter(model._meta.db_table) in table_names:
-#                 # The table exists, so it needs to be dropped
-#                 opts = model._meta
-#                 for f in opts.local_fields:
-#                     # if f.rel and f.rel.to not in to_delete:
-#                     if f.remote_field and f.remote_field.model not in to_delete:
-#                         # references_to_delete.setdefault(f.rel.to, []).append((model, f))
-#                         references_to_delete.setdefault(f.remote_field.model, []).append((model, f))
-#
-#                 to_delete.add(model)
-#
-#         for model in app_models:
-#             if connection.introspection.table_name_converter(model._meta.db_table) in table_names:
-#                 output.extend(connection.creation.sql_destroy_model(model, references_to_delete, style))
-#     finally:
-#         # Close database connection explicitly, in case this output is being piped
-#         # directly into a database client, to avoid locking issues.
-#         if cursor and close_connection:
-#             cursor.close()
-#             connection.close()
-#
-#     # if not output:
-#     #     output.append('-- App creates no tables in the database. Nothing to do.')
-#
-#     return output[::-1]  # Reverse it, to deal with table dependencies.
-
-
-# def sql_delete_V2(app_config, style, connection): # todo: use sql_destroy_indexes() ??
-#     """SQL queries which drop tables of the given app.
-#     @return A tuple (command, loop_error).
-#             'command' is a list of the DROP TABLE SQL statements (strings)
-#             'loop_error' is a boolean which indicates dependencies loop error.
-#     """
 def ordered_models_to_delete(app_config, connection):
     """Models of the given app to delete.
     @return A tuple (models, loop_error).
@@ -626,11 +526,9 @@ def ordered_models_to_delete(app_config, connection):
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
 
     class ModelInfo:
-        # def __init__(self, model, dependencies, sql_cmd):
         def __init__(self, model, dependencies):
             self.model = model
             self.dependencies = dependencies
-            # self.sql_cmd = sql_cmd
 
         def __str__(self):
             return 'ModelInfo(model={model}, dependencies={dependencies})'.format(
@@ -645,7 +543,6 @@ def ordered_models_to_delete(app_config, connection):
         table_names = set(connection.introspection.table_names(cursor))
         app_models = OrderedSet(router.get_migratable_models(app_config,
                                                              connection.alias,
-                                                             # include_auto_created=True,
                                                              # NB: the auto created tables are automatically
                                                              #     deleted by schema_editor.delete_model(model)
                                                              include_auto_created=False,
@@ -656,24 +553,18 @@ def ordered_models_to_delete(app_config, connection):
             meta = model._meta
 
             if connection.introspection.table_name_converter(meta.db_table) in table_names:
-                # dependencies = []
                 dependencies = set()  # We use a set to avoid duplicates
 
                 for f in meta.local_fields:
-                    # if f.rel:
                     if f.remote_field:
-                        # related_model = f.rel.to
                         related_model = f.remote_field.model
 
-                        # if related_model in app_models:
                         # NB: we avoid self-referencing (TODO: improve dependence_sort() ?)
                         if related_model is not model and related_model in app_models:
-                            # dependencies.append(related_model)
                             dependencies.add(related_model)
 
                 models_info.append(ModelInfo(model=model,
                                              dependencies=dependencies,
-                                             # sql_cmd=connection.creation.sql_destroy_model(model, [], style)[0],
                                             )
                                   )
     finally:
@@ -690,5 +581,4 @@ def ordered_models_to_delete(app_config, connection):
     else:
         models_info.reverse()  # The dependencies must be deleted _after_
 
-    # return [mi.sql_cmd for mi in models_info], dep_error
     return [mi.model for mi in models_info], dep_error

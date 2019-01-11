@@ -19,7 +19,6 @@ import logging
 from django.conf import settings
 from django.utils import translation
 
-# from ..constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
 from ..models import Currency, SettingValue
 from ..setting_keys import currency_symbol_key
 
@@ -61,8 +60,6 @@ def currency(val, currency_or_id=None):
             locale.setlocale(LC_MONETARY, '')
 
     conv = locale.localeconv()
-
-    # is_local_symbol = SettingValue.objects.get(key_id=DISPLAY_CURRENCY_LOCAL_SYMBOL).value
     is_local_symbol = SettingValue.objects.get_4_key(currency_symbol_key).value
 
     if currency_or_id:
@@ -78,9 +75,7 @@ def currency(val, currency_or_id=None):
     if digits == 127:
         raise ValueError("Currency formatting is not possible using the 'C' locale.")
 
-    # s = locale.format('%%.%if' % digits, abs(val), True, monetary=True)
     s = locale.format('%.{}f'.format(digits), abs(val), grouping=True, monetary=True)
-    # s = s.decode(locale.getlocale(LC_MONETARY)[1])
 
     # '<' and '>' are markers if the sign must be inserted between symbol and value
     s = '<' + s + '>'

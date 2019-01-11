@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django import template
 from django.contrib.contenttypes.models import ContentType
 
@@ -27,29 +25,7 @@ from ..core.search import Searcher
 from ..registry import creme_registry
 from ..utils.unicode_collation import collator
 
-
 register = template.Library()
-
-
-# @register.inclusion_tag('creme_core/templatetags/search_panel.html', takes_context=True)
-# def get_search_panel(context):
-#     warnings.warn('{% get_search_panel %} is deprecated ; use {% search_form %} instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     get_ct = ContentType.objects.get_for_model
-#     content_types = [{'id':           get_ct(model).id,
-#                       'verbose_name': unicode(model._meta.verbose_name),
-#                      } for model in Searcher(creme_registry.iter_entity_models(),
-#                                              context['user'],
-#                                             ).models
-#                     ]
-#     sort_key = collator.sort_key
-#     content_types.sort(key=lambda k: sort_key(k['verbose_name']))
-#
-#     context['content_types'] = content_types
-#
-#     return context
 
 
 @register.inclusion_tag('creme_core/templatetags/search-form.html')

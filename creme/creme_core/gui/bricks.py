@@ -20,7 +20,6 @@
 
 from collections import defaultdict
 import logging
-# import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -120,12 +119,6 @@ class Brick:
     # An empty sequence means that all types are OK.
     # Example of value: target_ctypes = (Contact, Organisation)  # Available for detail-views of Contact & Organisation
     target_ctypes = ()
-
-    # # DEPRECATED
-    # # Sequence of names of the Apps which can have this Brick on their portal.
-    # # A empty sequence means that all Apps are ok.
-    # # Example of value: target_apps = ('persons',)  # Available for the portal of 'persons'
-    # target_apps = ()
     # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS [END] ----------------------------------------------------
 
     GENERIC_HAT_BRICK_ID = 'hatbrick'
@@ -272,7 +265,6 @@ class PaginatedBrick(Brick):
         except (EmptyPage, InvalidPage):
             page = paginator.page(paginator.num_pages)
 
-        # return super(PaginatedBrick, self)._build_template_context(
         return super()._build_template_context(
                 context=context, brick_id=brick_id, brick_context=brick_context, page=page,
                 **extra_kwargs
@@ -287,7 +279,6 @@ class _QuerysetBrickContext(_PaginatedBrickContext):
     __slots__ = ('page', '_order_by')
 
     def __init__(self):
-        # super(_QuerysetBrickContext, self).__init__()
         super().__init__()  # *args **kwargs ??
         self._order_by = ''
 
@@ -295,7 +286,6 @@ class _QuerysetBrickContext(_PaginatedBrickContext):
         return '<QuerysetBrickContext: page={} order_by={}>'.format(self.page, self._order_by)
 
     def as_dict(self):
-        # d = super(_QuerysetBrickContext, self).as_dict()
         d = super().as_dict()
         d['_order_by'] = self._order_by
 
@@ -310,7 +300,6 @@ class _QuerysetBrickContext(_PaginatedBrickContext):
         return order_by
 
     def update(self, template_context):
-        # modified = super(_QuerysetBrickContext, self).update(template_context)
         modified = super().update(template_context)
         order_by = template_context['order_by']
 
@@ -361,7 +350,6 @@ class QuerysetBrick(PaginatedBrick):
                 order_by = raw_order_by
                 extra_kwargs['objects'] = objects.order_by(order_by)
 
-        # return super(QuerysetBrick, self)._build_template_context(
         return super()._build_template_context(
                 context=context, brick_id=brick_id, brick_context=brick_context,
                 objects_ctype=ContentType.objects.get_for_model(objects.model),
@@ -415,10 +403,8 @@ class SpecificRelationsBrick(QuerysetBrick):
     verbose_name  = _('Relationships')
     template_name = 'creme_core/bricks/specific-relations.html'
 
-    # def __init__(self, relationblock_item):
     def __init__(self, relationbrick_item):
         "@param relationbrick_item: Instance of RelationBrickItem"
-        # super(SpecificRelationsBrick, self).__init__()
         super().__init__()
         self.id_ = relationbrick_item.brick_id
         self.config_item = relationbrick_item
@@ -483,7 +469,6 @@ class CustomBrick(Brick):
 
     def __init__(self, id_, customblock_conf_item):
         "@param customblock_conf_item: Instance of CustomBlockConfigItem"
-        # super(CustomBrick, self).__init__()
         super().__init__()
         self.id_ = id_
         # TODO: related models (by FK/M2M/...) ?
@@ -564,43 +549,12 @@ class BricksManager:
 
         return dep_map
 
-    # def _get_dependencies_ids(self, block):
-    #     warnings.warn('BricksManager._get_dependencies_ids() is deprecated.', DeprecationWarning)
-    #     dep_map = self._build_dependencies_map()
-    #     depblocks_ids = set()
-    #
-    #     if not block.read_only:
-    #         id_ = block.id_
-    #
-    #         dependencies = block.dependencies
-    #         if dependencies == '*':
-    #             dependencies = dep_map.keys()
-    #
-    #         for dep in dependencies:
-    #             for other_block in dep_map[dep]:
-    #                 if other_block.id_ == id_:
-    #                     continue
-    #
-    #                 if dep == Relation:
-    #                     if other_block.dependencies != '*' and \
-    #                        not set(block.relation_type_deps) & set(other_block.relation_type_deps):
-    #                         continue
-    #
-    #                 depblocks_ids.add(other_block.id_)
-    #
-    #     return depblocks_ids
-
     @staticmethod
     def get(context):
         return context[BricksManager.var_name]  # Will raise exception if not created: OK
 
     def get_remaining_groups(self):
         return list(self._bricks_groups.keys())
-
-    # def get_dependencies_map(self):
-    #     warnings.warn('BricksManager.get_dependencies_map() is deprecated.', DeprecationWarning)
-    #     get_dep = self._get_dependencies_ids
-    #     return {block.id_: get_dep(block) for block in self._bricks}
 
     def get_state(self, brick_id, user):
         "Get the state for a brick and fill a cache to avoid multiple SQL requests"
@@ -901,25 +855,6 @@ class _BrickRegistry:
         for brick_id, brick_cls in self._hat_brick_classes[model].items():
             if brick_id:  # Only generic hat brick's ID is empty
                 yield brick_cls()
-
-    # def get_compatible_portal_blocks(self, app_name):
-    #     warnings.warn('_BrickRegistry.get_compatible_portal_blocks() is deprecated.', DeprecationWarning)
-    #
-    #     method_name = 'home_display' if app_name == 'creme_core' else 'portal_display'
-    #
-    #     for brick_cls in self._brick_classes.itervalues():
-    #         brick = brick_cls()
-    #
-    #         if brick.configurable and hasattr(brick, method_name) \
-    #                 and (not brick.target_apps or app_name in brick.target_apps):
-    #             yield brick
-    #
-    #     for ibi in InstanceBrickConfigItem.objects.all():
-    #         block = self.get_brick_4_instance(ibi)
-    #
-    #         if hasattr(block, method_name) and \
-    #                 (not block.target_apps or app_name in block.target_apps):
-    #             yield block
 
     def get_compatible_home_bricks(self):
         method_name = 'home_display'

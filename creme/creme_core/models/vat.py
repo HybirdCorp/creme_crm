@@ -27,19 +27,19 @@ from ..constants import DEFAULT_VAT
 
 
 class Vat(CremeModel):
-    value      = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
-    is_default = BooleanField(_(u'Is default?'), default=False)
+    value      = DecimalField(_('VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
+    is_default = BooleanField(_('Is default?'), default=False)
     is_custom  = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = _(u'Create a VAT value')
+    creation_label = _('Create a VAT value')
 
     def __str__(self):
         return str(self.value)
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'VAT')
-        verbose_name_plural = _(u'VAT')
+        verbose_name = _('VAT')
+        verbose_name_plural = _('VAT')
         ordering = ('value',)
 
     @atomic
@@ -49,7 +49,6 @@ class Vat(CremeModel):
         elif not Vat.objects.filter(is_default=True).exclude(pk=self.id).exists():
             self.is_default = True
 
-        # super(Vat, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
     @atomic
@@ -61,7 +60,6 @@ class Vat(CremeModel):
                 first_vat.is_default = True
                 first_vat.save()
 
-        # super(Vat, self).delete(*args, **kwargs)
         super().delete(*args, **kwargs)
 
     @staticmethod

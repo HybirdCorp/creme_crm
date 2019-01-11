@@ -27,7 +27,6 @@
 import warnings
 
 
-# def iter_splitchunks(chunks, sep, filter):
 def iter_splitchunks(chunks, sep, parser=None, limit=None):
     """Iterator through chunks as split single stream.
 
@@ -90,8 +89,8 @@ def iter_splitlinechunks(chunks, parser=None, limit=None):
 
 def iter_as_chunk(iterable, step):
     """Iterator which returns chunks from an iterable.
-    @param iterable: iterator
-    @param step: chunks size
+    @param iterable: iterator.
+    @param step: chunks size.
     """
     chunk = []
 
@@ -108,8 +107,8 @@ def iter_as_chunk(iterable, step):
 
 def iter_as_slices(iterable, step):
     """Iterator that returns chunks from an iterable using slices.
-    @param iterable: iterator
-    @param step: chunks size
+    @param iterable: iterator.
+    @param step: chunks size.
     """
     index = 0
 

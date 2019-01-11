@@ -96,36 +96,6 @@ creme.utils.showDialog = function(text, options, div_id) {
     }, options));
 };
 
-
-/*
-creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //todo: factorise (see ajaxDelete()) ??
-    console.warn('creme.utils.confirmBeforeGo() is deprecated.');
-
-    creme.dialogs.confirm(gettext("Are you sure ?"))
-                 .onOk(function() {
-                     if (ajax) {
-                         $.ajax(jQuery.extend({
-                                   url: url,
-                                   data: {},
-                                   success: function(data, status, req) {
-                                       creme.utils.reload(); //todo: reload list-view content instead (so rename the function)
-                                   },
-                                   error: function(req, status, error) {
-                                       creme.dialogs.warning(req.responseText || gettext("Error")).open();
-                                   },
-                                   complete: function(request, textStatus) {},
-                                   sync: false,
-                                   parameters : undefined
-                               }, ajax_options)
-                       );
-                     } else {
-                       creme.utils.goTo(url);
-                     }
-                  })
-                 .open();
-};
-*/
-
 creme.utils.confirmSubmit = function(atag, msg) {
     creme.dialogs.confirm(msg || gettext('Are you sure ?'))
                  .onOk(function() {
@@ -199,7 +169,6 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload
                  var buttons = $me.dialog('option', 'buttons');
 
                  // TODO: use the OS order for 'Cancel'/'OK' buttons
-//                 buttons.unshift({
                  buttons.push({
                      text: options['send_button_label'] || gettext("Save"),
                      click: submit_handler
@@ -360,20 +329,6 @@ creme.utils.appendInUrl = function(url, strToAppend) {
 
     return url + anchor;
 };
-
-/*
-creme.utils.openQuickForms = function(element) {
-    // NB: deprecated because it does not use reversed URLs
-    //     creme.menu.openQuickForm() is OK, but need the new menu.
-    console.warn('creme.utils.openQuickForms() is deprecated.');
-
-    var uri = '/creme_core/quickforms/%s/%s';
-    var type = $('[name="ct_id"]', element).val();
-    var count = $('[name="entity_count"]', element).val();
-
-    creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
-};
-*/
 
 creme.utils.showErrorNReload = function(delay) {
     delay = Object.isNone(delay) ? 3000 : delay;

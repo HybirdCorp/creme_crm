@@ -40,7 +40,7 @@ from mediagenerator.generators.bundles.utils import _render_include_media
 from ..backends import import_backend_registry, export_backend_registry
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
-from ..utils import bool_as_html  # safe_unicode
+from ..utils import bool_as_html
 from ..utils.currency_format import currency
 from ..utils.html import escapejson 
 from ..utils.media import get_creme_media_url
@@ -310,10 +310,8 @@ def format_amount(amount, currency_or_id=None):
 @register.filter
 def optionize_model_iterable(iterable, type='tuple'):
     if type == 'dict':
-        # return ({'value': model.id, 'label': safe_unicode(model)} for model in iterable)
         return ({'value': model.id, 'label': str(model)} for model in iterable)
     else:
-        # return ((model.id, safe_unicode(model)) for model in iterable)
         return ((model.id, str(model)) for model in iterable)
 
 

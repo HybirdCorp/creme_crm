@@ -48,9 +48,7 @@ elif os_name == 'posix':
     from .posix import *
 else:  # 'os2', 'ce', 'java', 'riscos', other ?
     import logging
-    # from subprocess import Popen
-    from sys import exit  #, version_info
-    # from sys import executable as PYTHON_BIN
+    from sys import exit
 
     logger = logging.getLogger(__name__)
     logger.critical('It seems your platform "%s" has not been tested for the sub-process feature ;'
@@ -67,12 +65,3 @@ else:  # 'os2', 'ce', 'java', 'riscos', other ?
 
     def is_exit_handler_enabled():
         return False
-
-
-    # def python_subprocess(script, python=PYTHON_BIN, start_new_session=False, **kwargs):
-    #     if version_info < (3, 2):
-    #         logger.critical('python_subprocess(): "start_new_session" argument may be not supported.')
-    #     else:
-    #         kwargs.update(start_new_session=start_new_session)
-    #
-    #     return Popen([python, '-c', script], **kwargs)

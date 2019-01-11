@@ -2,7 +2,6 @@
 
 try:
     from functools import partial
-    # from json import loads as load_json
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
@@ -26,19 +25,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(HeaderFilterViewsTestCase, cls).setUpClass()
         super().setUpClass()
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
-
-        # cls._hf_backup = list(HeaderFilter.objects.all())
-        # HeaderFilter.objects.all().delete()
-
-    # @classmethod
-    # def tearDownClass(cls):
-    #     # super(HeaderFilterViewsTestCase, cls).tearDownClass()
-    #     super().tearDownClass()
-    #     HeaderFilter.objects.all().delete()
-    #     HeaderFilter.objects.bulk_create(cls._hf_backup)
 
     def assertCellsEqual(self, cells1, cells2):
         self.assertEqual(len(cells1), len(cells2))
@@ -49,9 +37,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def _build_add_url(self, ctype):
         return reverse('creme_core__create_hfilter', args=(ctype.id,))
-
-    # def _build_edit_url(self, hf):
-    #     return reverse('creme_core__edit_hfilter', args=(hf.id,))
 
     def _build_get4ctype_url(self, ctype):
         return '{}?ct_id={}'.format(reverse('creme_core__hfilters'), ctype.id)
@@ -622,7 +607,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_hfilters_for_ctype01(self):
         self.login()
 
-        # response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
         response = self.assertGET200(self._build_get4ctype_url(ContentType.objects.get_for_model(FakeMailingList)))
         self.assertEqual([], response.json())
 
@@ -641,7 +625,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         create_hf(pk=pk_fmt(4),         name='Private',   model=FakeMailingList,  is_custom=True, is_private=True, user=self.other_user)
 
         expected = [[hf01.id, name01], [hf02.id, name02], [hf03.id, name03]]
-        # response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
         ct = ContentType.objects.get_for_model(FakeMailingList)
         response = self.assertGET200(self._build_get4ctype_url(ct))
         self.assertEqual(expected, response.json())

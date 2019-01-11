@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging  # warnings
+import logging
 
 from django.utils.html import format_html
 
@@ -174,7 +174,6 @@ class BaseIcon:
 
 class Icon(BaseIcon):
     def __init__(self, url, *args, **kwargs):
-        # super(Icon, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.url = url
 
@@ -182,17 +181,16 @@ class Icon(BaseIcon):
         final_css_class = self.css_class + css_class
 
         return format_html(
-            u'<img src="{url}" {attrs} title="{label}" alt="{label}" width="{size}px"/>',
+            '<img src="{url}" {attrs} title="{label}" alt="{label}" width="{size}px"/>',
             size=self.size,
             label=self.label,
-            attrs=format_html(u' class="{}"', final_css_class) if final_css_class else '',
+            attrs=format_html(' class="{}"', final_css_class) if final_css_class else '',
             url=self.url,
         )
 
 
 class SVGIcon(BaseIcon):
     def __init__(self, view_box, svg_path, *args, **kwargs):
-        # super(SVGIcon, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.view_box = view_box
         self.svg_path = svg_path
@@ -201,12 +199,12 @@ class SVGIcon(BaseIcon):
         final_css_class = self.css_class + css_class
 
         return format_html(
-            u'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{box}" {attrs} title="{label}" alt="{label}" height="{size}px" width="{size}px">'
-                u'<path d="{path}"></path>'
-            u'</svg>',
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{box}" {attrs} title="{label}" alt="{label}" height="{size}px" width="{size}px">'
+                '<path d="{path}"></path>'
+            '</svg>',
             size=self.size,
             label=self.label,
-            attrs=format_html(u' class="{}"', final_css_class) if final_css_class else '',
+            attrs=format_html(' class="{}"', final_css_class) if final_css_class else '',
             box=self.view_box,
             path=self.svg_path,
         )

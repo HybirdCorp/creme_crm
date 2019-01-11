@@ -331,7 +331,6 @@ class CreationTestCase(ViewsTestCase):
         url = reverse('creme_core__create_fake_address', args=(nerv.id,))
 
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
@@ -610,7 +609,6 @@ class EditionTestCase(ViewsTestCase):
         url = reverse('creme_core__edit_fake_address', args=(address.id,))
 
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context

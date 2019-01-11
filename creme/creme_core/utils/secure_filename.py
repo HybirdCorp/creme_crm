@@ -44,8 +44,6 @@ def secure_filename(filename):
     @param filename: the filename to secure (str).
     @return: A new string.
     """
-    # if isinstance(filename, unicode):
-    #     filename = normalize('NFKD', filename).encode('ascii', 'ignore')
     filename = normalize('NFKD', filename).encode('ascii', 'ignore').decode()
 
     for sep in (os.path.sep, os.path.altsep):

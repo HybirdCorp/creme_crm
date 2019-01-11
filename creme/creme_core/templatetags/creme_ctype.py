@@ -34,7 +34,6 @@ register = Library()
 
 
 # NB: not used, but here for API completeness
-# @register.assignment_tag
 @register.simple_tag
 def ctype_for_naturalkey(app_label, model):
     """Returns a instance of ContentType for the natural key of a model.
@@ -79,7 +78,7 @@ def ctype_counted_instances_label(ctype, count):
     @return: A string.
 
         {% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as contact_ctype %}
-        {% ctype_counted_instances_label  ctype=contact_ctype count=12 as my_label %}
+        {% ctype_counted_instances_label ctype=contact_ctype count=12 as my_label %}
         <h1>{{my_label}}</h1>
     """
     return _(u'{count} {model}').format(

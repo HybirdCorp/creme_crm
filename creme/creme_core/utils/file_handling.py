@@ -144,16 +144,13 @@ class FileCreator:
                 final_path = join(dir_path, current_name_root + name_ext)
 
                 try:
-                    # fd = os.open(final_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
                     f = io.open(final_path, 'x')
-                # except OSError as e:
                 except FileExistsError as e:
                      if trials >= max_trials:
                         raise self.Error('No unique filename has been found with the '
                                          'current rules (max trials reached).'
                                         ) from e
                 else:
-                    # os.close(fd)
                     f.close()
 
                     return final_path

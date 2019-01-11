@@ -7,17 +7,14 @@ try:
     from datetime import datetime, timezone
 
     from django.contrib.contenttypes.models import ContentType
-    # from django.db.models.fields import FieldDoesNotExist
-    from django.template import Template, Context # TemplateSyntaxError
+    from django.template import Template, Context
     from django.urls import reverse
     from django.utils.translation import ugettext_lazy, ugettext
 
     from ..base import CremeTestCase
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    # from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
-    # from creme.creme_core.gui.bulk_update import bulk_update_registry
-    from creme.creme_core.models import SetCredentials, FakeOrganisation  # CustomField
+    from creme.creme_core.models import SetCredentials, FakeOrganisation
     from creme.creme_core.utils.html import escapejson
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -224,9 +221,6 @@ class CremeCoreTagsTestCase(CremeTestCase):
                         )
 
     def assertFieldEditorTag(self, render, entity, field_name, block=False):
-        # fmt = """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {blockReloadUrl:""" if block else \
-        #       """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {reloadOnSuccess:"""
-        # expected = fmt % (entity.entity_type_id, entity.id, field_name)
         url = reverse('creme_core__inner_edition', args=(entity.entity_type_id, entity.id, field_name))
 
         if block:
@@ -238,123 +232,17 @@ class CremeCoreTagsTestCase(CremeTestCase):
                         "{}\n doesn't start with\n {}".format(render.strip(), expected)
                        )
 
-    # def test_get_field_editor01(self):
-    #     user = self.login()
-    #     orga = FakeOrganisation.objects.create(user=user, name='Amestris')
-    #
-    #     with self.assertNoException():
-    #         template = Template(r"{% load creme_block %}"
-    #                             r"{% get_field_editor on regular 'name' for object %}"
-    #                            )
-    #         render = template.render(Context({'object': orga, 'user': user}))
-    #
-    #     self.assertFieldEditorTag(render, orga, 'name')
-
-    # def test_get_field_editor02(self):
-    #     user = self.login()
-    #     orga = FakeOrganisation.objects.create(user=user, name='Amestris')
-    #
-    #     with self.assertNoException():
-    #         template = Template(r"{% load creme_block %}"
-    #                             r'{% get_field_editor on regular "name" for object %}'
-    #                            )
-    #         render = template.render(Context({'object':     orga,
-    #                                           'user':       user,
-    #                                           'block_name': 'tests-test_block',
-    #                                          })
-    #                                 )
-    #
-    #     self.assertFieldEditorTag(render, orga, 'name', block=True)
-
-    # def test_get_field_editor03(self):
-    #     self.login()
-    #     orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
-    #     orga_field_name = orga.entity_type.model_class()._meta.get_field('name')
-    #
-    #     with self.assertNoException():
-    #         template = Template(r"{% load creme_block %}"
-    #                             r"{% get_field_editor on regular field for object %}"
-    #                            )
-    #         render = template.render(Context({'object': orga, 'user': self.user, 'field': orga_field_name}))
-    #
-    #     self.assertFieldEditorTag(render, orga, orga_field_name.name)
-
-    # def test_get_field_editor04(self):
-    #     user = self.login()
-    #     orga = FakeOrganisation.objects.create(user=user, name='Amestris')
-    #     custom_field_orga = CustomField.objects.create(name='custom 1',
-    #                                                    content_type=orga.entity_type,
-    #                                                    field_type=CustomField.STR,
-    #                                                   )
-    #
-    #     with self.assertNoException():
-    #         template = Template(r"{% load creme_block %}"
-    #                             r"{% get_field_editor on custom custom_field_id for object %}"
-    #                            )
-    #         render = template.render(Context({'object':          orga,
-    #                                           'user':            user,
-    #                                           'custom_field_id': custom_field_orga,
-    #                                          }
-    #                                         )
-    #                                 )
-    #
-    #     self.assertFieldEditorTag(render, orga, _CUSTOMFIELD_FORMAT % custom_field_orga.id)
-
-    # def _unauthorized_get_field_editor(self, orga, unauthorized_tag):
-    #     with self.assertNoException():
-    #         template = Template(r"{% load creme_block %}" + unauthorized_tag)
-    #         render = template.render(Context({'object': orga, 'user': self.user}))
-    #
-    #     self.assertEqual("", render.strip())
-
-    # def test_get_field_editor05(self):
-    #     self.login()
-    #     orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
-    #     cdict = {'object': orga, 'user': self.user}
-    #
-    #     with self.assertRaises(TemplateSyntaxError):  # Invalid field type : Should be 'regular' or 'custom'
-    #         Template(r"{% load creme_block %}{% get_field_editor on unknown_type 'name' for object %}")
-    #
-    #     with self.assertRaises(FieldDoesNotExist):  # Invalid field name for object model
-    #         template = Template(r"{% load creme_block %}{% get_field_editor on regular 'unkwnown_field' for object %}")
-    #         template.render(Context(cdict))
-    #
-    #     with self.assertRaises(AttributeError):  # Invalid custom field object for object model
-    #         template = Template(r"{% load creme_block %}{% get_field_editor on custom unkwnown_custom for object %}")
-    #         template.render(Context(cdict))
-
-    # def test_get_field_editor06(self):
-    #     self.login()
-    #     orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
-    #     bulk_update_registry.register(FakeOrganisation, exclude=['siren'])
-    #
-    #     # Not editable
-    #     self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'created' for object %}")
-    #     self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'modified' for object %}")
-
     def _assertJsonifyFilter(self, expected, data):
         with self.assertNoException():
             template = Template("{% load creme_core_tags %}{{data|jsonify|safe}}")
             render = template.render(Context({'data': data}))
 
-        # self.assertEqual(expected, render.strip())
         with self.assertNoException():
             deserialized = json_load(render.strip())
 
         self.assertEqual(expected, deserialized)
 
     def test_jsonify_filter(self):
-        # self._assertJsonifyFilter('""', '')
-        # self._assertJsonifyFilter('"test string"', 'test string')
-        #
-        # self._assertJsonifyFilter('[1,2,3]', (1, 2, 3))
-        # self._assertJsonifyFilter('[1,2,3]', [1, 2, 3])
-        # self._assertJsonifyFilter('{"value":1,"label":"a"}', {'value': 1, 'label':"a"})
-        #
-        # self._assertJsonifyFilter('[0,1,2]', (v for v in xrange(3)))
-        # self._assertJsonifyFilter('[{"value":0,"label":"a"},{"value":1,"label":"b"},{"value":2,"label":"c"}]',
-        #                           ({'value': value, 'label': label} for value, label in enumerate(['a', 'b', 'c']))
-        #                          )
         self._assertJsonifyFilter('', '')
         self._assertJsonifyFilter('test string', 'test string')
 
@@ -496,12 +384,6 @@ class CremeCoreTagsTestCase(CremeTestCase):
             template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable|jsonify|safe}}")
             render = template.render(Context({'data': orgas}))
 
-        # self.assertEqual('[[{},"{}"],[{},"{}"]]'.format(
-        #                         orga1.id, orga1,
-        #                         orga2.id, orga2,
-        #                     ),
-        #                  render.strip()
-        #                 )
         with self.assertNoException():
             deserialized = json_load(render.strip())
 
@@ -514,12 +396,6 @@ class CremeCoreTagsTestCase(CremeTestCase):
             template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable:'dict'|jsonify|safe}}")
             render = template.render(Context({'data': orgas}))
 
-        # self.assertEqual(u'[{"value":%d,"label":"%s"},{"value":%d,"label":"%s"}]' % (
-        #                          orga1.pk, orga1,
-        #                          orga2.pk, orga2,
-        #                     ),
-        #                  render.strip()
-        #                 )
         with self.assertNoException():
             deserialized = json_load(render.strip())
 

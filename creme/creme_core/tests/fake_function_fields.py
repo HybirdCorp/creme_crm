@@ -8,7 +8,6 @@ from .fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
 
 
 class FakeTodosField(FunctionField):
-    # name = 'tests-get_fake_todos'
     name = 'tests-fake_todos'
     verbose_name = 'Fake Todos'
     # has_filter   = False #==> cannot search

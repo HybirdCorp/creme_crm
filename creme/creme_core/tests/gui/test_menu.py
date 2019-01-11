@@ -1,30 +1,25 @@
 # -*- coding: utf-8 -*-
 
 try:
-    # from unittest import skipIf
     from xml.etree import ElementTree
 
     import html5lib
 
-    # from django.conf import settings
     from django.test.client import RequestFactory
 
     from ..base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeDocument, FakeActivity
 
-    # if not settings.OLD_MENU:
     from creme.creme_core.gui.menu import (ViewableItem, URLItem, LabelItem,
            ItemGroup, ContainerItem, CreationFormsItem, Menu)  # OnClickItem
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
-# @skipIf(settings.OLD_MENU, 'Old menu is used, so we do not test the new one.')
 class MenuTestCase(CremeTestCase):
     theme = 'icecream'
 
     def setUp(self):
-        # super(MenuTestCase, self).setUp()
         super().setUp()
         self.factory = RequestFactory()
         self.maxDiff = None
@@ -149,7 +144,7 @@ class MenuTestCase(CremeTestCase):
         self.assertIsInstance(item, URLItem)
         self.assertEqual(id_,               item.id)
         self.assertEqual('/tests/contacts', item.url)
-        self.assertEqual(u'Test Contacts',  item.label)
+        self.assertEqual('Test Contacts',  item.label)
         self.assertEqual('creme_core',      item.perm)
 
         # Custom attributes
@@ -170,7 +165,7 @@ class MenuTestCase(CremeTestCase):
         self.assertIsInstance(item, URLItem)
         self.assertEqual(id_,                          item.id)
         self.assertEqual('/tests/contact/add',         item.url)
-        self.assertEqual(u'Test Contact',              item.label)
+        self.assertEqual('Test Contact',              item.label)
         self.assertEqual('creme_core.add_fakecontact', item.perm)
 
         # Custom attributes
@@ -346,7 +341,7 @@ class MenuTestCase(CremeTestCase):
         menu = Menu()
 
         id_ = 'analysis'
-        label = u'Analysis'
+        label = 'Analysis'
         container1 = menu.get_or_create(ContainerItem, id_, priority=5,
                                         defaults={'label': label},
                                        )
@@ -377,19 +372,19 @@ class MenuTestCase(CremeTestCase):
 
     def test_creation_forms_item01(self):
         user = self.login()
-        cfi = CreationFormsItem('any_forms', label=u'Other type of entity')
+        cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
-        cfi.get_or_create_group('persons', u'Directory') \
+        cfi.get_or_create_group('persons', 'Directory') \
            .add_link('add_contact', label='Contact', url='/tests/contact/add', perm='creme_core.add_fakecontact')
         self.assertEqual(
-            [[{'label': u'Directory', 'links': [{'label': 'Contact', 'url': '/tests/contact/add'}]}]],
+            [[{'label': 'Directory', 'links': [{'label': 'Contact', 'url': '/tests/contact/add'}]}]],
             cfi.as_grid(user)
         )
 
-        cfi.get_or_create_group('persons', u'Directory') \
+        cfi.get_or_create_group('persons', 'Directory') \
            .add_link('add_orga', label='Organisation', url='/tests/organisation/add', perm='creme_core.add_fakeorganisation')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
                          {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
@@ -399,24 +394,24 @@ class MenuTestCase(CremeTestCase):
             cfi.as_grid(user)
         )
 
-        cfi.get_or_create_group('activities', u'Activities') \
+        cfi.get_or_create_group('activities', 'Activities') \
            .add_link('add_pcall',   label='Phone call', url='/tests/phone_call/add', perm='creme_core.add_fakeactivity') \
            .add_link('add_meeting', label='Meeting',    url='/tests/meeting/add',    perm='creme_core.add_fakeactivity')
-        cfi.get_or_create_group('tools', u'Tools')\
+        cfi.get_or_create_group('tools', 'Tools')\
            .add_link('add_doc', label='Document', url='/tests/document/add', perm='creme_core.add_fakedocument')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
                          {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
               },
              ],
-             [{'label': u'Activities',
+             [{'label': 'Activities',
                'links': [{'label': 'Phone call', 'url': '/tests/phone_call/add'},
                          {'label': 'Meeting',    'url': '/tests/meeting/add'},
                         ],
               },
-              {'label': u'Tools',
+              {'label': 'Tools',
                'links': [{'label': 'Document', 'url': '/tests/document/add'}],
               },
              ],
@@ -424,24 +419,24 @@ class MenuTestCase(CremeTestCase):
             cfi.as_grid(user)
         )
 
-        cfi.get_or_create_group('analysis', u'Analysis')\
+        cfi.get_or_create_group('analysis', 'Analysis')\
            .add_link('add_report', label='Report', url='/tests/report/add', perm='creme_core.add_fakereport')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
                          {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
               },
-              {'label': u'Activities',
+              {'label': 'Activities',
                'links': [{'label': 'Phone call', 'url': '/tests/phone_call/add'},
                          {'label': 'Meeting',    'url': '/tests/meeting/add'},
                         ],
               },
              ],
-             [{'label': u'Tools',
+             [{'label': 'Tools',
                'links': [{'label': 'Document', 'url': '/tests/document/add'}],
               },
-              {'label': u'Analysis',
+              {'label': 'Analysis',
                'links': [{'label': 'Report', 'url': '/tests/report/add'}],
               },
              ],
@@ -449,28 +444,28 @@ class MenuTestCase(CremeTestCase):
             cfi.as_grid(user)
         )
 
-        cfi.get_or_create_group('management', u'Management') \
+        cfi.get_or_create_group('management', 'Management') \
            .add_link('add_invoice', label='Invoice', url='/tests/invoice/add', perm='creme_core.add_fakeinvoice')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
                          {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
               },
              ],
-             [{'label': u'Activities',
+             [{'label': 'Activities',
                'links': [{'label': 'Phone call', 'url': '/tests/phone_call/add'},
                          {'label': 'Meeting',    'url': '/tests/meeting/add'},
                         ],
               },
-              {'label': u'Tools',
+              {'label': 'Tools',
                'links': [{'label': 'Document', 'url': '/tests/document/add'}],
               },
              ],
-             [{'label': u'Analysis',
+             [{'label': 'Analysis',
                'links': [{'label': 'Report', 'url': '/tests/report/add'}],
               },
-              {'label': u'Management',
+              {'label': 'Management',
                'links': [{'label': 'Invoice', 'url': '/tests/invoice/add'}],
               },
              ]
@@ -478,31 +473,31 @@ class MenuTestCase(CremeTestCase):
             cfi.as_grid(user)
         )
 
-        cfi.get_or_create_group('commercial', u'Commercial') \
+        cfi.get_or_create_group('commercial', 'Commercial') \
            .add_link('add_act', label='Act', url='/tests/act/add', perm='creme_core')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
                          {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
               },
-              {'label': u'Activities',
+              {'label': 'Activities',
                'links': [{'label': 'Phone call', 'url': '/tests/phone_call/add'},
                          {'label': 'Meeting',    'url': '/tests/meeting/add'},
                         ],
               },
              ],
-             [{'label': u'Tools',
+             [{'label': 'Tools',
                'links': [{'label': 'Document', 'url': '/tests/document/add'}],
               },
-              {'label': u'Analysis',
+              {'label': 'Analysis',
                'links': [{'label': 'Report', 'url': '/tests/report/add'}],
               },
              ],
-             [{'label': u'Management',
+             [{'label': 'Management',
                'links': [{'label': 'Invoice', 'url': '/tests/invoice/add'}],
               },
-              {'label': u'Commercial',
+              {'label': 'Commercial',
                'links': [{'label': 'Act', 'url': '/tests/act/add'}],
               },
              ]
@@ -510,34 +505,34 @@ class MenuTestCase(CremeTestCase):
             cfi.as_grid(user)
         )
 
-        cfi.get_or_create_group('marketing', u'Marketing') \
+        cfi.get_or_create_group('marketing', 'Marketing') \
            .add_link('add_campaign', label='Campaign', url='/tests/campaign/add', perm='creme_core')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
                          {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
               },
-              {'label': u'Activities',
+              {'label': 'Activities',
                'links': [{'label': 'Phone call', 'url': '/tests/phone_call/add'},
                          {'label': 'Meeting',    'url': '/tests/meeting/add'},
                         ],
               },
              ],
-             [{'label': u'Tools',
+             [{'label': 'Tools',
                'links': [{'label': 'Document', 'url': '/tests/document/add'}],
               },
-              {'label': u'Analysis',
+              {'label': 'Analysis',
                'links': [{'label': 'Report', 'url': '/tests/report/add'}],
               },
              ],
-             [{'label': u'Management',
+             [{'label': 'Management',
                'links': [{'label': 'Invoice', 'url': '/tests/invoice/add'}],
               },
-              {'label': u'Commercial',
+              {'label': 'Commercial',
                'links': [{'label': 'Act', 'url': '/tests/act/add'}],
               },
-              {'label': u'Marketing',
+              {'label': 'Marketing',
                'links': [{'label': 'Campaign', 'url': '/tests/campaign/add'}],
               },
              ]
@@ -548,11 +543,11 @@ class MenuTestCase(CremeTestCase):
     def test_creation_forms_item02(self):
         "Simplified API"
         user = self.login()
-        cfi = CreationFormsItem('any_forms', label=u'Other type of entity')
+        cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
-        cfi.get_or_create_group('persons', u'Directory').add_link('add_contact', FakeContact)
+        cfi.get_or_create_group('persons', 'Directory').add_link('add_contact', FakeContact)
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
               },
              ],
@@ -561,14 +556,14 @@ class MenuTestCase(CremeTestCase):
         )
 
         # ----
-        cfi = CreationFormsItem('any_forms', label=u'Other types')
+        cfi = CreationFormsItem('any_forms', label='Other types')
 
         label = 'Contact'
         url = '/tests/customer/add'
-        cfi.get_or_create_group('persons', u'Directory')\
+        cfi.get_or_create_group('persons', 'Directory')\
            .add_link('add_contact', FakeContact, label=label, url=url)
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': label, 'url': url}],
               },
              ],
@@ -577,7 +572,7 @@ class MenuTestCase(CremeTestCase):
         )
 
         # ----
-        group = CreationFormsItem('any_forms', label=u'Other types').get_or_create_group('persons', u'Directory')
+        group = CreationFormsItem('any_forms', label='Other types').get_or_create_group('persons', 'Directory')
 
         with self.assertRaises(TypeError):
            group.add_link('add_contact', label=label, url=url)  # No model + missing perm
@@ -585,13 +580,13 @@ class MenuTestCase(CremeTestCase):
     def test_creation_forms_item03(self):
         "Link priority"
         user = self.login()
-        cfi = CreationFormsItem('any_forms', label=u'Other type of entity')
-        group = cfi.get_or_create_group('persons', u'Directory')
+        cfi = CreationFormsItem('any_forms', label='Other type of entity')
+        group = cfi.get_or_create_group('persons', 'Directory')
 
         group.add_link('add_contact', FakeContact,      priority=10) \
              .add_link('add_orga',    FakeOrganisation, priority=5)
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Test Organisation', 'url': '/tests/organisation/add'},
                          {'label': 'Test Contact',      'url': '/tests/contact/add'},
                         ],
@@ -603,7 +598,7 @@ class MenuTestCase(CremeTestCase):
 
         group.add_link('add_customer', label='Customer', url='/tests/customer/add', perm='creme_core.add_fakecontact')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Test Organisation', 'url': '/tests/organisation/add'},
                          {'label': 'Test Contact',      'url': '/tests/contact/add'},
                          {'label': 'Customer',          'url': '/tests/customer/add'},
@@ -618,7 +613,7 @@ class MenuTestCase(CremeTestCase):
                        perm='creme_core.add_fakecontact', priority=15,
                       )
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Test Organisation', 'url': '/tests/organisation/add'},
                          {'label': 'Test Contact',      'url': '/tests/contact/add'},
                          {'label': 'Customer',          'url': '/tests/customer/add'},
@@ -632,7 +627,7 @@ class MenuTestCase(CremeTestCase):
 
         group.change_priority(1, 'add_propect', 'add_customer')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Prospect',          'url': '/tests/prospect/add'},
                          {'label': 'Customer',          'url': '/tests/customer/add'},
                          {'label': 'Test Organisation', 'url': '/tests/organisation/add'},
@@ -650,8 +645,8 @@ class MenuTestCase(CremeTestCase):
     def test_creation_forms_item04(self):
         "Remove Link"
         user = self.login()
-        cfi = CreationFormsItem('any_forms', label=u'Other type of entity')
-        group = cfi.get_or_create_group('persons', u'Directory')
+        cfi = CreationFormsItem('any_forms', label='Other type of entity')
+        group = cfi.get_or_create_group('persons', 'Directory')
 
         group.add_link('add_contact', FakeContact) \
              .add_link('add_orga',    FakeOrganisation) \
@@ -659,7 +654,7 @@ class MenuTestCase(CremeTestCase):
 
         group.remove('add_contact', 'add_propect', 'invalid')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Test Organisation', 'url': '/tests/organisation/add'}],
               },
              ],
@@ -670,17 +665,17 @@ class MenuTestCase(CremeTestCase):
     def test_creation_forms_item05(self):
         "Group priority"
         user = self.login()
-        cfi = CreationFormsItem('any_forms', label=u'Other type of entity')
+        cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
-        cfi.get_or_create_group('persons', u'Directory', priority=10).add_link('add_contact', FakeContact)
-        cfi.get_or_create_group('tools', u'Tools', priority=2).add_link('add_doc', FakeDocument)
+        cfi.get_or_create_group('persons', 'Directory', priority=10).add_link('add_contact', FakeContact)
+        cfi.get_or_create_group('tools', 'Tools', priority=2).add_link('add_doc', FakeDocument)
 
         self.assertEqual(
-            [[{'label': u'Tools',
+            [[{'label': 'Tools',
                'links': [{'label': 'Test Document', 'url': ''}],
               },
              ],
-             [{'label': u'Directory',
+             [{'label': 'Directory',
                'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
               },
              ],
@@ -690,11 +685,11 @@ class MenuTestCase(CremeTestCase):
 
         cfi.change_priority(1, 'persons')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
               },
              ],
-             [{'label': u'Tools',
+             [{'label': 'Tools',
                'links': [{'label': 'Test Document', 'url': ''}],
               },
              ],
@@ -705,15 +700,15 @@ class MenuTestCase(CremeTestCase):
     def test_creation_forms_item06(self):
         "Remove Group"
         user = self.login()
-        cfi = CreationFormsItem('any_forms', label=u'Other type of entity')
+        cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
-        cfi.get_or_create_group('tools', u'Tools').add_link('add_doc', FakeDocument)
-        cfi.get_or_create_group('persons', u'Directory').add_link('add_contact', FakeContact)
-        cfi.get_or_create_group('activities', u'Activities').add_link('add_act', FakeActivity)
+        cfi.get_or_create_group('tools', 'Tools').add_link('add_doc', FakeDocument)
+        cfi.get_or_create_group('persons', 'Directory').add_link('add_contact', FakeContact)
+        cfi.get_or_create_group('activities', 'Activities').add_link('add_act', FakeActivity)
 
         cfi.remove('tools', 'activities', 'unknown')
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
               },
              ],
@@ -724,13 +719,13 @@ class MenuTestCase(CremeTestCase):
     def test_creation_forms_item07(self):
         "Credentials"
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
-        cfi = CreationFormsItem('any_forms', label=u'Other type of entity')
+        cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
-        cfi.get_or_create_group('persons', u'Directory') \
+        cfi.get_or_create_group('persons', 'Directory') \
            .add_link('add_contact', FakeContact) \
            .add_link('add_orga',    FakeOrganisation)
         self.assertEqual(
-            [[{'label': u'Directory',
+            [[{'label': 'Directory',
                'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'},
                          {'label': 'Test Organisation'},
                         ],
@@ -742,9 +737,9 @@ class MenuTestCase(CremeTestCase):
 
     def test_creation_forms_item08(self):
         "ID uniqueness"
-        cfi = CreationFormsItem('any_forms', label=u'Other type of entity')
+        cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
-        group = cfi.get_or_create_group('persons', u'Directory') \
+        group = cfi.get_or_create_group('persons', 'Directory') \
                    .add_link('add_contact', FakeContact)
 
         with self.assertRaises(ValueError):

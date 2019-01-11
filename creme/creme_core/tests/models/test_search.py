@@ -12,28 +12,12 @@ except Exception as e:
 
 
 class SearchConfigTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     # super(SearchConfigTestCase, cls).setUpClass()
-    #     super().setUpClass()
-    #     cls._sci_backup = list(SearchConfigItem.objects.all())
-    #     SearchConfigItem.objects.all().delete()
-
-    # @classmethod
-    # def tearDownClass(cls):
-    #     # super(SearchConfigTestCase, cls).tearDownClass()
-    #     super().tearDownClass()
-    #     SearchConfigItem.objects.all().delete()
-    #     SearchConfigItem.objects.bulk_create(cls._sci_backup)
-
     def test_create_if_needed01(self):
-        # self.assertEqual(0, SearchConfigItem.objects.count())
         count = SearchConfigItem.objects.count()
         ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ct))
 
         SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
-        # sc_items = SearchConfigItem.objects.all()
         self.assertEqual(count + 1, SearchConfigItem.objects.count())
 
         sc_items = SearchConfigItem.objects.filter(content_type=ct)

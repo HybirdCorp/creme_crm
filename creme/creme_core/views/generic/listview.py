@@ -28,7 +28,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db.models.query_utils import Q
-from django.http import HttpResponse  # Http404
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import Template, Context
 from django.template.loader import render_to_string
@@ -44,9 +44,6 @@ from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.utils.queries import get_q_from_dict, QSerializer
-
-# from .popup import inner_popup
-
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +133,6 @@ def _build_entity_queryset(user, model, list_view_state, extra_q, entity_filter,
 def _build_entities_page(arguments, list_view_state, queryset, size, count, ordering, fast_mode=False):
     if not fast_mode:
         paginator = Paginator(queryset, size)
-        # paginator._count = count
         paginator.count = count
 
         try:
@@ -174,15 +170,6 @@ def _build_entities_page(arguments, list_view_state, queryset, size, count, orde
     return entities_page
 
 
-# def _build_extrafilter(arguments, extra_filter=None):
-#     json_q_filter = arguments.get('q_filter')
-#     q_filter_as_dict = _clean_value(json_q_filter, json_load, {})
-#     q_filter = get_q_from_dict(q_filter_as_dict)
-#
-#     if extra_filter is not None:
-#         q_filter &= extra_filter
-#
-#     return json_dump(q_filter_as_dict, separators=(',', ':')), q_filter
 def _build_extrafilter(arguments, extra_filter=None):
     json_q_filter = arguments.get('q_filter')
     q_filter = Q()
@@ -262,7 +249,6 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     cells = hf.cells
 
     if show_actions:
-        # cells.insert(0, EntityCellActions(model=model))
         cells.insert(0, EntityCellActions(model=model, actions_registry=actions_registry))
 
     if arguments.get('search', '') == 'clear':
@@ -340,10 +326,6 @@ def list_view(request, model, **kwargs):
     try:
         template_name, template_dict = list_view_content(request, model, mode=mode, **kwargs)
     except NoHeaderFilterAvailable:
-        # from ..header_filter import add as add_header_filter
-        # return add_header_filter(request, ContentType.objects.get_for_model(model).id,
-        #                          {'help_message': _('The desired list does not have any view, please create one.')}
-        #                         )
         from ..header_filter import HeaderFilterCreation
 
         logger.critical('No HeaderFilter is available for <%s> ; '
@@ -395,37 +377,9 @@ def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, lv_state_id=None
     """
     assert mode in (MODE_SINGLE_SELECTION, MODE_MULTIPLE_SELECTION)
 
-    # if not request.user.has_perm(model._meta.app_label):
-    #     raise Http404(_('You are not allowed to access to this app'))
     request.user.has_perm_to_access_or_die(model._meta.app_label)
 
     # TODO: only use GET on GET request etc...
-
-    # request_get = request.GET.get
-    # kwargs['show_actions'] = bool(int(request_get('sa', False)))
-    # extra_dict = {
-    #     'whoami':        request_get('whoami'),
-    #     'is_popup_view': True,
-    # }
-    #
-    # extra_dict.update(kwargs.pop('extra_dict', None) or {})
-    #
-    # extra_q = kwargs.pop('extra_q', None)
-    #
-    # try:
-    #     template_name, template_dict = list_view_content(request, model=model, extra_dict=extra_dict,
-    #                                                      template='creme_core/frags/list_view.html',
-    #                                                      extra_q=extra_q,
-    #                                                      mode=mode,
-    #                                                      lv_state_id=lv_state_id,
-    #                                                      **kwargs
-    #                                                     )
-    # except NoHeaderFilterAvailable:
-    #     return inner_popup(request, '', {}, is_valid=False,
-    #                        html=_('The desired list does not have any view, please create one.')
-    #                       )
-    #
-    # return inner_popup(request, template_name, template_dict, is_valid=False)
 
     # NB: we have duplicated the code of popup.inner_popup() in order to deprecate it without having
     #     some annoying deprecation messages. This function will probably be removed in Creme 2.1

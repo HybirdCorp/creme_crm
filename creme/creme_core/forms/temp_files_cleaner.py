@@ -34,7 +34,6 @@ class TempFilesCleanerJobForm(JobForm):
     delay = DatePeriodField(label=_(u'Remove temporary files which are older than:'))
 
     def __init__(self, *args, **kwargs):
-        # super(TempFilesCleanerJobForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         job = self.instance
 
@@ -44,5 +43,4 @@ class TempFilesCleanerJobForm(JobForm):
     def save(self, *args, **kwargs):
         self.instance.data = {'delay': self.cleaned_data['delay'].as_dict()}
 
-        # return super(TempFilesCleanerJobForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)

@@ -50,27 +50,26 @@ class CustomField(CremeModel):
     MULTI_ENUM  = 101
 
     uuid          = UUIDField(unique=True, editable=False, default=uuid.uuid4)
-    name          = CharField(_(u'Field name'), max_length=100)
-    content_type  = CTypeForeignKey(verbose_name=_(u'Related type'))
-    field_type    = PositiveSmallIntegerField(_(u'Field type'))  # See INT, FLOAT etc...
-    # default_value = CharField(_(u'Valeur par defaut'), max_length=100, blank=True, null=True)
+    name          = CharField(_('Field name'), max_length=100)
+    content_type  = CTypeForeignKey(verbose_name=_('Related type'))
+    field_type    = PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
+    # default_value = CharField(_('Valeur par defaut'), max_length=100, blank=True, null=True)
     # extra_args    = CharField(max_length=500, blank=True, null=True)
     # required      = BooleanField(defaut=False) ????
 
-    creation_label = _(u'Create a custom field')
-    save_label     = _(u'Save the custom field')
+    creation_label = _('Create a custom field')
+    save_label     = _('Save the custom field')
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Custom field')
-        verbose_name_plural = _(u'Custom fields')
+        verbose_name = _('Custom field')
+        verbose_name_plural = _('Custom fields')
         unique_together = ('content_type', 'name')
         ordering = ('id',)
 
     def __str__(self):
         return self.name
 
-    # def delete(self, using=None):
     def delete(self, *args, **kwargs):
         for value_class in _TABLES.values():
             value_class.objects.filter(custom_field=self).delete()
@@ -78,7 +77,6 @@ class CustomField(CremeModel):
         # Beware: we don't call the CustomFieldEnumValue.delete() to avoid loop.
         self.customfieldenumvalue_set.all().delete()
 
-        # super(CustomField, self).delete(using=using)
         super().delete(*args, **kwargs)
 
     def type_verbose_name(self):
@@ -97,7 +95,7 @@ class CustomField(CremeModel):
         # TODO: select_related() for enum ???
         cf_values = self.get_value_class().objects.filter(custom_field=self.id, entity=entity_id)
 
-        return str(cf_values[0]) if cf_values else u''
+        return str(cf_values[0]) if cf_values else ''
 
     @staticmethod
     def get_custom_values_map(entities, custom_fields):
@@ -200,7 +198,7 @@ class CustomFieldValue(CremeModel):
 class CustomFieldString(CustomFieldValue):
     value = CharField(max_length=100)
 
-    verbose_name = _(u'String')
+    verbose_name = _('String')
 
     class Meta:
         app_label = 'creme_core'
@@ -216,7 +214,7 @@ class CustomFieldString(CustomFieldValue):
 class CustomFieldInteger(CustomFieldValue):
     value = IntegerField()
 
-    verbose_name = _(u'Integer')
+    verbose_name = _('Integer')
 
     class Meta:
         app_label = 'creme_core'
@@ -233,7 +231,7 @@ class CustomFieldFloat(CustomFieldValue):
 
     value = DecimalField(max_digits=_MAX_DIGITS, decimal_places=_DECIMAL_PLACES)
 
-    verbose_name = _(u'Decimal')
+    verbose_name = _('Decimal')
 
     class Meta:
         app_label = 'creme_core'
@@ -249,7 +247,7 @@ class CustomFieldFloat(CustomFieldValue):
 class CustomFieldDateTime(CustomFieldValue):
     value = DateTimeField()
 
-    verbose_name = _(u'Date and time')
+    verbose_name = _('Date and time')
 
     class Meta:
         app_label = 'creme_core'
@@ -267,13 +265,13 @@ class CustomFieldDateTime(CustomFieldValue):
 class CustomFieldBoolean(CustomFieldValue):
     value = BooleanField(default=False)
 
-    verbose_name = _(u'Boolean (2 values: Yes/No)')
+    verbose_name = _('Boolean (2 values: Yes/No)')
 
     class Meta:
         app_label = 'creme_core'
 
     def __str__(self):
-        return ugettext(u'Yes') if self.value else ugettext(u'No')
+        return ugettext('Yes') if self.value else ugettext('No')
 
     @staticmethod
     def _get_formfield(**kwargs):
@@ -296,17 +294,15 @@ class CustomFieldEnumValue(CremeModel):
     def __str__(self):
         return self.value
 
-    # def delete(self, using=None):
     def delete(self, *args, **kwargs):
         CustomFieldEnum.objects.filter(custom_field=self.custom_field_id, value=str(self.id)).delete()
-        # super(CustomFieldEnumValue, self).delete(using=using)
         super().delete(*args, **kwargs)
 
 
 class CustomFieldEnum(CustomFieldValue):
     value = ForeignKey(CustomFieldEnumValue, on_delete=CASCADE)
 
-    verbose_name = _(u'Choice list')
+    verbose_name = _('Choice list')
 
     class Meta:
         app_label = 'creme_core'
@@ -340,7 +336,7 @@ class CustomFieldEnum(CustomFieldValue):
 class CustomFieldMultiEnum(CustomFieldValue):
     value = ManyToManyField(CustomFieldEnumValue)
 
-    verbose_name = _(u'Multiple choice list')
+    verbose_name = _('Multiple choice list')
 
     _enumvalues = None
 
@@ -348,7 +344,7 @@ class CustomFieldMultiEnum(CustomFieldValue):
         app_label = 'creme_core'
 
     def __str__(self):
-        return u' / '.join(str(val) for val in self.get_enumvalues())
+        return ' / '.join(str(val) for val in self.get_enumvalues())
 
     @staticmethod
     def _get_formfield(**kwargs):
@@ -378,7 +374,6 @@ class CustomFieldMultiEnum(CustomFieldValue):
         if not self.pk:
             self.save()  # M2M field need a pk
 
-        # self.value = value
         self.value.set(value)
 
 

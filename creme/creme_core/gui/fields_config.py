@@ -19,7 +19,6 @@
 ################################################################################
 
 from collections import defaultdict
-# import warnings
 
 from django.apps import apps
 

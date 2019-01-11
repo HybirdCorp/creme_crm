@@ -24,8 +24,6 @@
 #
 ################################################################################
 
-# from __future__ import absolute_import  # For standard 'collections' module
-
 import collections
 from sys import maxsize
 

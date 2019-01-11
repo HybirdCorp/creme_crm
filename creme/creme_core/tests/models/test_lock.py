@@ -6,14 +6,12 @@ try:
     from ..base import CremeTransactionTestCase
     from creme.creme_core.models.lock import (Mutex, MutexLockedException,
         MutexNotLockedException, mutex_autolock, MutexAutoLock)
-    # from creme.creme_core.utils import safe_unicode_error
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
 class MutexTestCase(CremeTransactionTestCase):
     def tearDown(self):
-        # super(MutexTestCase, self).tearDown()
         super().tearDown()
         Mutex.graceful_release('dummy_lock')
 
@@ -108,9 +106,7 @@ class MutexTestCase(CremeTransactionTestCase):
         with self.assertRaises(Exception) as context:
             self.invalid_locked_func_legacy(5)
 
-        # self.assertEqual(u'invalid result {}'.format(5), safe_unicode_error(context.exception))
         self.assertEqual('invalid result {}'.format(5), str(context.exception))
-
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
 
     @MutexAutoLock('dummy_lock')
@@ -185,6 +181,5 @@ class MutexTestCase(CremeTransactionTestCase):
                 self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
                 raise Exception('invalid result !')
 
-        # self.assertEqual(u'invalid result !', safe_unicode_error(context.exception))
         self.assertEqual('invalid result !', str(context.exception))
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())

@@ -18,30 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from functools import partial
 import logging
-# import warnings
 
-# from django.contrib.contenttypes.models import ContentType
-# from django.core.urlresolvers import reverse
 from django.template import Library, TemplateSyntaxError
 from django.template.base import TextNode
-# from django.utils.functional import Promise
 from django.utils.safestring import mark_safe, SafeData
 from django.utils.translation import ugettext as _, ugettext_lazy
 
-from ..core.entity_cell import EntityCellRegularField  # EntityCellCustomField
+from ..core.entity_cell import EntityCellRegularField
 from ..gui.bricks import Brick, brick_registry, BricksManager
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.pager import PagerContext
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
-# from ..utils.serializers import json_encode
-# from ..views.bricks import render_detailview_brick, render_home_brick  # render_portal_brick
-# from ..views.entity import _bulk_has_perm
 
 from .creme_widgets import get_icon_size_px, get_icon_by_name
-
 
 register = Library()
 logger = logging.getLogger(__name__)
@@ -218,10 +209,6 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
         prefix_length = len(prefix)
         extra_data = {}
 
-        # return {key[prefix_length:]: value
-        #             for key, value in data.iteritems()
-        #                 if key.startswith(prefix)
-        # }
         for key, value in data.items():
             if not key.startswith(prefix):
                 raise TemplateSyntaxError('The key "{}" does not starts with {}'.format(key, prefix))
@@ -258,14 +245,6 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
         'class':      css_class,
         'loading':    bool(loading),
 
-       # 'data': mark_safe(json_encode({'options': {
-       #                                   'confirm': confirm,
-       #                                   'loading': None if loading is True else loading,
-       #                                },
-       #                                'data': _clean_extra_data(kwargs),
-       #                               },
-       #                              )
-       #                  ),
         'data': None,
     }
 
@@ -633,19 +612,6 @@ def brick_tile_for_cell(cell, instance, user):
             ...
         {% endblock %}
     """
-    # edit_url = None
-    #
-    # if isinstance(cell, EntityCellRegularField):
-    #     field_name = cell.field_info[0].name
-    #
-    #     if bulk_update_registry.is_updatable(instance.__class__, field_name, exclude_unique=False):
-    #         ct = ContentType.objects.get_for_model(instance.__class__)
-    #         edit_url = reverse('creme_core__inner_edition', args=(ct.id, instance.id, field_name))
-    #
-    # elif isinstance(cell, EntityCellCustomField):
-    #     edit_url = reverse('creme_core__inner_edition',
-    #                        args=(instance.entity_type_id, instance.id, 'customfield-%s' % cell.value),
-    #                       )
     from creme.creme_core.views.entity import _bulk_has_perm
 
     try:
@@ -662,7 +628,6 @@ def brick_tile_for_cell(cell, instance, user):
         'data_type': cell.data_type,
         'multiline': cell.is_multiline,
 
-        # 'edit_url':  edit_url,
         # TODO: pass the registry in context ?
         'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
         'edit_perm': _bulk_has_perm(instance, user),
@@ -679,7 +644,6 @@ def brick_pager(page):
     }
 
 
-# @register.assignment_tag(takes_context=True)
 @register.simple_tag(takes_context=True)
 def brick_import(context, app=None, name=None, object=None):
     """ Import an instance of a registered Brick.
@@ -811,11 +775,7 @@ def brick_display(context, *bricks, **kwargs):
         render = render_detailview_brick
     elif render_type == 'home':
         render = render_home_brick
-    # elif render_type == 'portal':
-    #     warnings.warn('''In {% brick_display %}, the option "render='portal'" is deprecated.''', DeprecationWarning)
-    #     render = partial(render_portal_brick, ct_ids=context['ct_ids'])
     else:
-        # raise ValueError('{% brick_display %}: "render" argument must be in {detail|home|portal}.')
         raise ValueError('{% brick_display %}: "render" argument must be in {detail|home}.')
 
     bricks_to_render = []
@@ -850,7 +810,6 @@ def brick_display(context, *bricks, **kwargs):
     )))
 
 
-
 @register.simple_tag(takes_context=True)
 def brick_end(context):
     """You should use this tag in every view which uses some bricks,
@@ -858,33 +817,10 @@ def brick_end(context):
     """
     bricks_manager = BricksManager.get(context)
 
-#     res = """
-# <script type='text/javascript'>
-#     $(document).ready(function() {
-#         creme.utils.blocks_deps = {
-#             %s
-#         };
-#
-#         creme.utils.getBlocksDeps = function(block_name) {
-#             console.warn('creme.utils.getBlocksDeps() is deprecated.');
-#             var deps = creme.utils.blocks_deps[block_name];
-#
-#             if (typeof(deps) === undefined) {
-#                 deps = '';
-#             }
-#
-#             return deps;
-#         };
-#     });
-# </script>""" % (', '.join('"{}": "{}"'.format(brick_id, ','.join(brick_deps))
-#                               for brick_id, brick_deps in bricks_manager.get_dependencies_map().iteritems()
-#                          )
-#                )
     res = ''
     remaining_groups = bricks_manager.get_remaining_groups()
 
     if remaining_groups:
-        # res += """
         res = """
 <div>
     BEWARE ! There are some unused imported bricks.

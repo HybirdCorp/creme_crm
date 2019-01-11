@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect  # render
@@ -32,61 +30,17 @@ from creme.creme_config.forms import creme_property_type as ptype_forms
 from ..auth.decorators import login_required, permission_required
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import QuerysetBrick, Brick
-from ..models import CremeEntity, CremePropertyType  # CremeProperty
-from ..utils import creme_entity_content_types, get_from_POST_or_404  # get_ct_or_404
+from ..models import CremeEntity, CremePropertyType
+from ..utils import creme_entity_content_types, get_from_POST_or_404
 
 from . import generic, bricks as bricks_views
 from .decorators import jsonify
 from .generic.base import EntityCTypeRelatedMixin
-# from .utils import build_cancel_path
 
 # TODO: Factorise with views in creme_config
 
 
 # TODO: Factorise with add_relations_bulk and bulk_update?
-# @login_required
-# def add_properties_bulk(request, ct_id):
-#     user = request.user
-#     model = get_ct_or_404(ct_id).model_class()
-#     entities = get_list_or_404(model,
-#                                pk__in=request.POST.getlist('ids')
-#                                       if request.method == 'POST' else
-#                                       request.GET.getlist('ids'),
-#                               )
-#
-#     CremeEntity.populate_real_entities(entities)
-#
-#     filtered = {True: [], False: []}
-#     has_perm = user.has_perm_to_change
-#     for entity in entities:
-#         filtered[has_perm(entity)].append(entity)
-#
-#     if request.method == 'POST':
-#         form = prop_forms.AddPropertiesBulkForm(
-#                     model=model, user=user,
-#                     entities=filtered[True],
-#                     forbidden_entities=filtered[False],
-#                     data=request.POST,
-#         )
-#
-#         if form.is_valid():
-#             form.save()
-#     else:
-#         form = prop_forms.AddPropertiesBulkForm(
-#                     model=model, user=user,
-#                     entities=filtered[True],
-#                     forbidden_entities=filtered[False],
-#         )
-#
-#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-#                                {'form':  form,
-#                                 'title': _('Multiple adding of properties'),
-#                                 'submit_label': _('Add the properties'),
-#                                },
-#                                is_valid=form.is_valid(),
-#                                reload=False,
-#                                delegate_reload=True,
-#                               )
 class PropertiesBulkAdding(EntityCTypeRelatedMixin, generic.CremeFormPopup):
     form_class = prop_forms.AddPropertiesBulkForm
     title = _('Multiple adding of properties')
@@ -126,77 +80,18 @@ class PropertiesBulkAdding(EntityCTypeRelatedMixin, generic.CremeFormPopup):
         return kwargs
 
 
-# @login_required
-# def add_to_entity(request, entity_id):
-#     return generic.add_to_entity(request, entity_id, prop_forms.AddPropertiesForm,
-#                                  _('New properties for «%s»'),
-#                                  submit_label=_('Add the properties'),
-#                                 )
 class PropertiesAdding(generic.RelatedToEntityFormPopup):
     form_class = prop_forms.AddPropertiesForm
     title = _('New properties for «{entity}»')
     submit_label = _('Add the properties')
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def add_type(request):
-#     if request.method == 'POST':
-#         POST = request.POST
-#         form = ptype_forms.CremePropertyTypeAddForm(user=request.user, data=POST)
-#
-#         if form.is_valid():
-#             ptype = form.save()
-#
-#             return redirect(ptype)
-#
-#         cancel_url = POST.get('cancel_url')
-#     else:  # GET
-#         form = ptype_forms.CremePropertyTypeAddForm(user=request.user)
-#         cancel_url = build_cancel_path(request)
-#
-#     return render(request, 'creme_core/generics/blockform/add.html',
-#                   {'form':         form,
-#                    'title':        CremePropertyType.creation_label,
-#                    'submit_label': _('Save the type of property'),
-#                    'cancel_url':   cancel_url,
-#                   }
-#                  )
 class PropertyTypeCreation(generic.CremeModelCreation):
     model = CremePropertyType
     form_class = ptype_forms.CremePropertyTypeAddForm
     permissions = 'creme_core.can_admin'
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def edit_type(request, ptype_id):
-#     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
-#
-#     if not ptype.is_custom:
-#         raise Http404("Can't edit a standard PropertyType")
-#
-#     if request.method == 'POST':
-#         POST = request.POST
-#         form = ptype_forms.CremePropertyTypeEditForm(ptype, user=request.user, data=POST)
-#
-#         if form.is_valid():
-#             form.save()
-#
-#             return redirect(ptype)
-#
-#         cancel_url = POST.get('cancel_url')
-#     else:  # GET
-#         form = ptype_forms.CremePropertyTypeEditForm(ptype, user=request.user)
-#         cancel_url = build_cancel_path(request)
-#
-#     return render(request, 'creme_core/generics/blockform/edit.html',
-#                   {'form': form,
-#                    'object': ptype,
-#                    'submit_label': _('Save the modifications'),
-#                    'cancel_url': cancel_url,
-#                   }
-#                  )
 class PropertyTypeEdition(generic.CremeModelEdition):
     # model = CremePropertyType
     queryset = CremePropertyType.objects.filter(is_custom=True)
@@ -241,7 +136,6 @@ class PropertyTypeInfoBrick(Brick):
     template_name = 'creme_core/bricks/ptype-info.html'
 
     def __init__(self, ptype, ctypes):
-        # super(PropertyTypeInfoBrick, self).__init__()
         super().__init__()
         self.ptype = ptype
         self.ctypes = ctypes
@@ -260,7 +154,6 @@ class TaggedEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/tagged-entities.html'
 
     def __init__(self, ptype, ctype):
-        # super(TaggedEntitiesBrick, self).__init__()
         super().__init__()
         self.ptype = ptype
         self.ctype = ctype
@@ -303,7 +196,6 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/tagged-entities.html'
 
     def __init__(self, ptype, excluded_ctypes):
-        # super(TaggedMiscEntitiesBrick, self).__init__()
         super().__init__()
         self.ptype = ptype
         self.excluded_ctypes = excluded_ctypes
@@ -323,25 +215,6 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
         return self._render(btc)
 
 
-# @login_required
-# def type_detailview(request, ptype_id):
-#     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
-#     ctypes = ptype.subject_ctypes.all()
-#
-#     bricks = [PropertyTypeInfoBrick(ptype, ctypes)]
-#     bricks.extend(TaggedEntitiesBrick(ptype, ctype)
-#                       for ctype in (ctypes or creme_entity_content_types())
-#                  )
-#
-#     if ctypes:
-#         bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))
-#
-#     return render(request, 'creme_core/view_property_type.html',
-#                   {'object': ptype,
-#                    'blocks': bricks,
-#                    'bricks_reload_url': reverse('creme_core__reload_ptype_bricks', args=(ptype_id,)),
-#                   }
-#                  )
 class PropertyTypeDetail(generic.CremeModelDetail):
     model = CremePropertyType
     template_name = 'creme_core/view_property_type.html'

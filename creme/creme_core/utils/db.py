@@ -23,8 +23,6 @@
 # SOFTWARE.
 ################################################################################
 
-# from __future__ import absolute_import  # for std 'collections'
-
 from collections import defaultdict
 from fnmatch import fnmatch
 from functools import lru_cache
@@ -33,7 +31,6 @@ import warnings
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models import ForeignKey
 from django.db.transaction import atomic
-# from django.utils.lru_cache import lru_cache
 
 from .meta import FieldInfo
 

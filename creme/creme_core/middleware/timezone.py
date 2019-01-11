@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 
 
-# class TimezoneMiddleware(object):
 class TimezoneMiddleware(MiddlewareMixin):
     def process_request(self, request):
         # NB: AnonymousUser has no 'time_zone' attribute (we need it for the login view)

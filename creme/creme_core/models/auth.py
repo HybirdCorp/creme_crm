@@ -64,7 +64,6 @@ class UserRole(Model):
         verbose_name_plural = _('Roles')
 
     def __init__(self, *args, **kwargs):
-        # super(UserRole, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._allowed_apps = None; self._extended_allowed_apps = None
         self._admin_4_apps = None; self._extended_admin_4_apps = None
@@ -593,11 +592,6 @@ class CremeUser(AbstractBaseUser):
         return self.username
 
     # TODO: def clean() ?? (team + role= None etc...)
-
-    # TODO find where forms are imported, making that method called BEFORE User has been contributed
-    # @staticmethod
-    # def get_common_ones():
-    #     return User.objects.filter(is_staff=False)
 
     @property
     def settings(self):

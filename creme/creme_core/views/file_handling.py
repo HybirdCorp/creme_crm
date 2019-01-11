@@ -22,7 +22,6 @@ from mimetypes import guess_type
 import os
 from os.path import basename, join
 from random import randint
-# import warnings
 
 from django.conf import settings
 from django.http import HttpResponse, Http404
@@ -82,35 +81,14 @@ def handle_uploaded_file(f, path=None, name=None, max_length=None):
 
 
 @login_required
-# def download_file(request, location, mimetype=None):
 def download_file(request, location):
-    # if mimetype is not None:
-    #     ftype = mimetype
-    # else:
-    #     name_parts = location.replace('\\', '/').rpartition('/')[2].split('.')
-    #
-    #     if len(name_parts) == 1:  # Should not happen
-    #         ftype = 'text/plain'
-    #         name = name_parts[0]
-    #     else:
-    #         if len(name_parts) > 2 and name_parts[-1] == 'txt' and \
-    #            name_parts[-2] not in settings.ALLOWED_EXTENSIONS:
-    #             name_parts.pop()  # Drop the added '.txt'
-    #
-    #         name = '.'.join(name_parts)
-    #         ftype = name_parts[-1]
     name_parts = location.replace('\\', '/').rpartition('/')[2].split('.')
 
     if len(name_parts) == 1:  # Should not happen
         ftype = 'text/plain'
         name = name_parts[0]
     else:
-        # if len(name_parts) > 2 and name_parts[-1] == 'txt' and \
-        #         name_parts[-2] not in settings.ALLOWED_EXTENSIONS:
-        #     name_parts.pop()  # Drop the added '.txt'
-
         name = '.'.join(name_parts)
-        # ftype = name_parts[-1]
         ftype = guess_type(name)[0] or 'application/octet-stream'
 
     path = settings.MEDIA_ROOT + os.sep + location.replace('../', '').replace('..\\', '')
@@ -125,13 +103,3 @@ def download_file(request, location):
     response['Content-Disposition'] = 'attachment; filename={}'.format(name.replace(' ', '_'))
 
     return response
-
-
-# def fetch_resources(uri, rel):
-#     """Callback to allow pisa/reportlab to retrieve Images,Stylesheets, etc.
-#     `uri` is the href attribute from the html link element.
-#     `rel` gives a relative path, but it's not used here.
-#     """
-#     warnings.warn('creme_core.views.file_handling.fetch_resources() is deprecated.', DeprecationWarning)
-#
-#     return join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ''))

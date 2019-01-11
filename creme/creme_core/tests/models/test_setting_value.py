@@ -17,12 +17,10 @@ except Exception as e:
 
 class SettingValueTestCase(CremeTestCase):
     def setUp(self):
-        # super(SettingValueTestCase, self).setUp()
         super().setUp()
         self._registered_skey = []
 
     def tearDown(self):
-        # super(SettingValueTestCase, self).tearDown()
         super().tearDown()
         setting_key_registry.unregister(*self._registered_skey)
 
@@ -32,14 +30,13 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_type_string(self):
         sk = SettingKey('creme_core-test_model_string',
-                        description=u"Page title",
+                        description='Page title',
                         app_label='creme_core',
                         type=SettingKey.STRING, hidden=False,
                        )
         self._register_key(sk)
 
         title = 'May the source be with you'
-        # sv = SettingValue.objects.create(key=sk, user=None, value=title)
         sv = SettingValue(key=sk)
         sv.value = title
         sv.save()
@@ -47,7 +44,7 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(title, self.refresh(sv).value)
 
     def test_type_int(self):
-        sk = SettingKey(id='persons-test_model_int', description=u"Page size",
+        sk = SettingKey(id='persons-test_model_int', description='Page size',
                         app_label='persons', type=SettingKey.INT,
                        )
         self.assertFalse(sk.hidden)
@@ -56,7 +53,6 @@ class SettingValueTestCase(CremeTestCase):
         self._register_key(sk)
 
         size = 156
-        # sv = SettingValue.objects.create(key=sk, user=None, value=size)
         sv = SettingValue(key=sk)
         sv.value = size
         sv.save()
@@ -73,12 +69,11 @@ class SettingValueTestCase(CremeTestCase):
     def test_type_bool(self):
         self.login()
 
-        sk = SettingKey(id='activities-test_model_bool', description=u"Display logo ?",
+        sk = SettingKey(id='activities-test_model_bool', description='Display logo?',
                         app_label='activities', type=SettingKey.BOOL,
                        )
         self._register_key(sk)
 
-        # sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
         sv = SettingValue(key=sk)
         sv.value = True
         sv.save()
@@ -103,7 +98,6 @@ class SettingValueTestCase(CremeTestCase):
         self._register_key(sk)
 
         hour = 9
-        # sv = SettingValue.objects.create(key=sk, user=self.user, value=hour)
         sv = SettingValue(key=sk)
         sv.value = hour
         sv.save()
@@ -120,8 +114,7 @@ class SettingValueTestCase(CremeTestCase):
                        )
         self._register_key(sk)
 
-        email = u'd.knut@eswat.ol'
-        # sv = SettingValue.objects.create(key=sk, user=self.user, value=email)
+        email = 'd.knut@eswat.ol'
         sv = SettingValue(key=sk)
         sv.value = email
         sv.save()
@@ -130,38 +123,15 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(email, sv.value)
         self.assertEqual(email, sv.as_html)
 
-    # def test_create_value_if_needed(self):
-    #     self.login()
-    #
-    #     sk = SettingKey(id='persons-test_create_value_if_needed', description=u"Page size",
-    #                     app_label='persons', type=SettingKey.INT,
-    #                    )
-    #     self._register_key(sk)
-    #
-    #     self.assertFalse(SettingValue.objects.filter(key_id=sk))
-    #
-    #     size = 156
-    #     sv = SettingValue.create_if_needed(key=sk, user=None, value=size)
-    #     self.assertIsInstance(sv, SettingValue)
-    #     self.assertIsNone(sv.user)
-    #     self.assertEqual(size, sv.value)
-    #
-    #     with self.assertNoException():
-    #         self.refresh(sv)
-    #
-    #     sv = SettingValue.create_if_needed(key=sk, user=None, value=size + 1)
-    #     self.assertEqual(size, sv.value)  # Not a new size
-
     def test_blank(self):
         sk = SettingKey('creme_core-test_model_blank',
-                        description=u'API key',
+                        description='API key',
                         app_label='creme_core',
                         type=SettingKey.STRING,
                         blank=True,
                        )
         self._register_key(sk)
 
-        # sv = SettingValue.objects.create(key=sk, value='')
         sv = SettingValue(key=sk)
         sv.value = ''
         sv.save()
@@ -176,7 +146,7 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_not_blank(self):
         sk = SettingKey('creme_core-test_model_not_blank',
-                        description=u'API key',
+                        description='API key',
                         app_label='creme_core',
                         type=SettingKey.STRING,
                         blank=False,
@@ -186,13 +156,10 @@ class SettingValueTestCase(CremeTestCase):
         sv = SettingValue(key=sk)
 
         with self.assertRaises(ValueError):
-            # # SettingValue.objects.create(key=sk, value='')
-            # SettingValue.objects.create(key=sk, value=None)
             sv.value = None
             # sv.value = '' # TODO
 
         value = '111'
-        # sv = SettingValue.objects.create(key=sk, value=value)
 
         with self.assertNoException():
             sv.value = value
@@ -203,7 +170,7 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(value, sv.value)
 
     def test_bad_value(self):
-        sk = SettingKey(id='persons-test_bad_value', description=u'Page size',
+        sk = SettingKey(id='persons-test_bad_value', description='Page size',
                         app_label='persons', type=SettingKey.INT,
                        )
         self._register_key(sk)
@@ -211,7 +178,6 @@ class SettingValueTestCase(CremeTestCase):
         sv = SettingValue(key=sk)
 
         with self.assertRaises(ValueError):
-            # SettingValue.objects.create(key=sk, value='abc')
             sv.value = 'abc'
 
     def test_get_4_key01(self):
@@ -289,20 +255,16 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(1, len(messages))
         self.assertIn('creme_populate', messages[0])
 
-        # self.assertIsInstance(sv, SettingValue)
-        # self.assertIsNone(sv.id)
         self.assertEqual(sk.id, sv.key_id)
         self.assertIs(False, sv.value)
 
 
 class UserSettingValueTestCase(CremeTestCase):
     def setUp(self):
-        # super(UserSettingValueTestCase, self).setUp()
         super().setUp()
         self._registered_skey = []
 
     def tearDown(self):
-        # super(UserSettingValueTestCase, self).tearDown()
         super().tearDown()
         user_setting_key_registry.unregister(*self._registered_skey)
 
@@ -314,7 +276,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.login()
 
         sk = UserSettingKey('creme_core-test_model_string',
-                            description=u'Page title',
+                            description='Page title',
                             app_label='creme_core',
                             type=SettingKey.STRING, hidden=False,
                            )
@@ -346,7 +308,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.login()
 
         sk = UserSettingKey('creme_core-test_model_string',
-                            description=u'Page title',
+                            description='Page title',
                             app_label='creme_core',
                             type=SettingKey.STRING, hidden=False,
                            )
@@ -378,7 +340,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.login()
 
         sk = UserSettingKey('creme_core-test_model_int',
-                            description=u'Page size',
+                            description='Page size',
                             app_label='creme_core',
                             type=SettingKey.INT, hidden=False,
                            )
@@ -400,7 +362,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.login()
 
         sk = UserSettingKey('creme_core-test_model_bool',
-                            description=u'Page displayed',
+                            description='Page displayed',
                             app_label='creme_core',
                             type=SettingKey.BOOL, hidden=False,
                            )
@@ -425,10 +387,10 @@ class UserSettingValueTestCase(CremeTestCase):
                             type=SettingKey.INT, hidden=False,
                            )
         sk1 = build_key('creme_core-test_model_int1',
-                        description=u'Page width',
+                        description='Page width',
                        )
         sk2 = build_key('creme_core-test_model_int2',
-                        description=u'Page height',
+                        description='Page height',
                        )
         self._register_key(sk1, sk2)
 
@@ -454,7 +416,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.login()
 
         sk = UserSettingKey('creme_core-test_model_int',
-                            description=u'Page size',
+                            description='Page size',
                             app_label='creme_core',
                             type=SettingKey.INT, hidden=False,
                            )
@@ -506,7 +468,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.login()
 
         sk = UserSettingKey('creme_core-test_model_int',
-                            description=u'Page size',
+                            description='Page size',
                             app_label='creme_core',
                             type=SettingKey.INT, hidden=False,
                            )
@@ -532,7 +494,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.login()
 
         sk = UserSettingKey('creme_core-test_model_bool',
-                            description=u'Page displayed',
+                            description='Page displayed',
                             app_label='creme_core',
                             type=SettingKey.BOOL, hidden=False,
                            )
@@ -566,15 +528,15 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.login()
 
         sk1 = UserSettingKey('creme_core-test_model_bool',
-                             description=u'Page displayed',
+                             description='Page displayed',
                              app_label='creme_core',
                              type=SettingKey.BOOL, hidden=False,
                             )
         sk2 = UserSettingKey('creme_core-test_model_str',
-                            description=u'Page size',
-                            app_label='creme_core',
-                            type=SettingKey.STRING, hidden=False,
-                           )
+                             description='Page size',
+                             app_label='creme_core',
+                             type=SettingKey.STRING, hidden=False,
+                            )
         self._register_key(sk1, sk2)
 
         with self.assertRaises(KeyError):

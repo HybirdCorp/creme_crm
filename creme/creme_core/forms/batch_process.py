@@ -40,7 +40,6 @@ from .widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
 
 class BatchActionsWidget(SelectorList):
     def __init__(self, model=CremeEntity, fields=(), attrs=None):
-        # super(BatchActionsWidget, self).__init__(selector=None, attrs=attrs)
         super().__init__(selector=None, attrs=attrs)
         self.model = model
         self.fields = fields
@@ -71,24 +70,22 @@ class BatchActionsWidget(SelectorList):
 
         chained_input.add_input('value', pinput, attrs=sub_attrs)
 
-        # return super(BatchActionsWidget, self).get_context(name=name, value=value, attrs=attrs)
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class BatchActionsField(JSONField):
     widget = BatchActionsWidget  # Should have 'model' & 'fields' attributes
     default_error_messages = {
-        'invalidfield':    _(u'This field is invalid with this model.'),
-        'reusedfield':     _(u'The field «%(field)s» can not be used twice.'),
-        'invalidoperator': _(u'This operator is invalid.'),
-        'invalidvalue':    _(u'Invalid value => %(error)s'),
+        'invalidfield':    _('This field is invalid with this model.'),
+        'reusedfield':     _('The field «%(field)s» can not be used twice.'),
+        'invalidoperator': _('This operator is invalid.'),
+        'invalidvalue':    _('Invalid value => %(error)s'),
     }
 
     value_type = list
     _fields = None
 
     def __init__(self, model=CremeEntity, bulk_update_registry=None, *args, **kwargs):
-        # super(BatchActionsField, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.model = model
         self.bulk_update_registry = bulk_update_registry or bulk_update.bulk_update_registry
@@ -187,18 +184,17 @@ class BatchActionsField(JSONField):
 
 
 class BatchProcessForm(CremeModelForm):
-    filter  = ModelChoiceField(label=pgettext_lazy('creme_core-noun', u'Filter'),
+    filter  = ModelChoiceField(label=pgettext_lazy('creme_core-noun', 'Filter'),
                                queryset=EntityFilter.objects.none(),
-                               empty_label=_(u'All'), required=False,
+                               empty_label=_('All'), required=False,
                               )
-    actions = BatchActionsField(label=_(u'Actions'))
+    actions = BatchActionsField(label=_('Actions'))
 
     class Meta:
         model = Job
         exclude = ('reference_run', 'periodicity')
 
     def __init__(self, *args, **kwargs):
-        # super(BatchProcessForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ct = ct = self.initial['content_type']
 
@@ -226,5 +222,4 @@ class BatchProcessForm(CremeModelForm):
         instance.user = self.user
         instance.data = job_data
 
-        # return super(BatchProcessForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)

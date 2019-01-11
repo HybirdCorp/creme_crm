@@ -24,7 +24,6 @@ class FlowPaginatorTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(FlowPaginatorTestCase, cls).setUpClass()
         super().setUpClass()
 
         all_names = [('Rei',     'Ichido'),
@@ -47,7 +46,6 @@ class FlowPaginatorTestCase(CremeTestCase):
                             ]
 
     def setUp(self):
-        # super(FlowPaginatorTestCase, self).setUp()
         super().setUp()
         self.login()
 
@@ -169,7 +167,6 @@ class FlowPaginatorTestCase(CremeTestCase):
         contacts = FakeContact.objects.all()
         count = len(contacts)
 
-        # with self.assertRaises(ValueError):
         with self.assertRaises(TypeError):
             FlowPaginator(contacts, key='last_name', per_page='notint', count=count)
 

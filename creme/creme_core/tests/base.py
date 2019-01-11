@@ -226,7 +226,6 @@ class _CremeTestCase:
                       '[redirections={redirect}; content={content}]'.format(
                             status=status_code,
                             expected=status,
-                            # redirect=response.redirect_chain,
                             redirect=redirect,
                             content=response.content
                      ))
@@ -505,12 +504,10 @@ class _CremeTestCase:
 class CremeTestCase(TestCase, _CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(CremeTestCase, cls).setUpClass()
         super().setUpClass()
         _CremeTestCase.setUpClass()
 
     def tearDown(self):
-        # super(CremeTestCase, self).tearDown()
         super().tearDown()
         _CremeTestCase.tearDown(self)
 
@@ -518,12 +515,10 @@ class CremeTestCase(TestCase, _CremeTestCase):
 class CremeTransactionTestCase(TransactionTestCase, _CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(CremeTransactionTestCase, cls).setUpClass()
         super().setUpClass()
         _CremeTestCase.setUpClass()
 
     def tearDown(self):
-        # super(CremeTransactionTestCase, self).tearDown()
         super().tearDown()
         _CremeTestCase.tearDown(self)
 

@@ -19,7 +19,6 @@
 ################################################################################
 
 from os.path import splitext
-# import warnings
 
 from django.conf import settings
 from django.db import models
@@ -124,12 +123,7 @@ def print_boolean_csv(entity, fval, user, field):
 
 
 def print_url_html(entity, fval, user, field):
-    # if not fval:
-    #     return ''
-    #
-    # esc_fval = escape(fval)
-    # return '<a href="%s" target="_blank">%s</a>' % (esc_fval, esc_fval)
-    return format_html(u'<a href="{url}" target="_blank">{url}</a>', url=fval) if fval else ''
+    return format_html('<a href="{url}" target="_blank">{url}</a>', url=fval) if fval else ''
 
 
 def print_datetime(entity, fval, user, field):
@@ -144,7 +138,7 @@ class FKPrinter:
     @staticmethod
     def print_fk_null_html(entity, user, field):
         null_label = field.get_null_label()
-        return format_html(u'<em>{}</em>', null_label) if null_label else ''
+        return format_html('<em>{}</em>', null_label) if null_label else ''
 
     @staticmethod
     def print_fk_entity_html(entity, fval, user, field):
@@ -174,7 +168,7 @@ def print_foreignkey_csv(entity, fval, user, field):
         # TODO: change allowed unicode ??
         return str(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
 
-    return str(fval) if fval else u''
+    return str(fval) if fval else ''
 
 
 class M2MPrinter:
@@ -193,9 +187,9 @@ class M2MPrinter:
     @staticmethod
     def printer_entity_html(instance, related_entity, fval, user, field):
         return format_html(
-            u'<a target="_blank" href="{url}"{attrs}>{content}</a>',
+            '<a target="_blank" href="{url}"{attrs}>{content}</a>',
             url=instance.get_absolute_url(),
-            attrs=mark_safe(u' class="is_deleted"' if instance.is_deleted else u''),
+            attrs=mark_safe(' class="is_deleted"' if instance.is_deleted else ''),
             content=instance.get_entity_summary(user),
         ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
 
@@ -205,11 +199,11 @@ class M2MPrinter:
     def __call__(self, entity, fval, user, field):
         printer, enumerator = self._sub_printers[fval.model]
         li_tags = format_html_join(
-            '', u'<li>{}</li>',
+            '', '<li>{}</li>',
             ((printer(e, entity, fval, user, field),) for e in enumerator(entity, fval, user, field))
         )
 
-        return format_html(u'<ul>{}</ul>', li_tags) if li_tags else ''
+        return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
 
     def register(self, model, printer, enumerator):
         self._sub_printers[model] = (printer, enumerator)
@@ -227,12 +221,12 @@ print_many2many_html = M2MPrinter(default_printer=M2MPrinter.printer_html,
 def print_many2many_csv(entity, fval, user, field):
     if issubclass(fval.model, CremeEntity):
         # TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
-        return u'/'.join(str(e) if user.has_perm_to_view(e)
+        return '/'.join(str(e) if user.has_perm_to_view(e)
                          else settings.HIDDEN_VALUE
                             for e in fval.filter(is_deleted=False)
                         )
 
-    return u'/'.join(str(a) for a in fval.all())
+    return '/'.join(str(a) for a in fval.all())
 
 
 def print_duration(entity, fval, user, field):
@@ -256,7 +250,7 @@ def print_duration(entity, fval, user, field):
 
 
 def print_email_html(entity, fval, user, field):
-    return format_html(u'<a href="mailto:{email}">{email}</a>', email=fval) if fval else ''
+    return format_html('<a href="mailto:{email}">{email}</a>', email=fval) if fval else ''
 
 
 def print_text_html(entity, fval, user, field):
@@ -414,34 +408,34 @@ class _FieldPrintersRegistry:
                         def printer(obj, user):
                             has_perm = user.has_perm_to_view
 
-                            return u'/'.join(sub_printer(e, user) if has_perm(e) else HIDDEN_VALUE
+                            return '/'.join(sub_printer(e, user) if has_perm(e) else HIDDEN_VALUE
                                                 for e in getattr(obj, base_name).filter(is_deleted=False)
                                             )
                     else:
                         def printer(obj, user):
                             has_perm = user.has_perm_to_view
                             li_tags = format_html_join(
-                                u'', u'<li>{}</li>',
+                                '', '<li>{}</li>',
                                 ([sub_printer(e, user) if has_perm(e) else HIDDEN_VALUE]
                                     for e in getattr(obj, base_name).filter(is_deleted=False)
                                 )
                             )
 
-                            return format_html(u'<ul>{}</ul>', li_tags) if li_tags else ''
+                            return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
                 else:
                     if output == 'csv':
                         def printer(obj, user):
-                            return u'/'.join(sub_printer(a, user)
+                            return '/'.join(sub_printer(a, user)
                                                 for a in getattr(obj, base_name).all()
                                             )
                     else:
                         def printer(obj, user):
                             li_tags = format_html_join(
-                                u'', u'<li>{}</li>',
+                                '', '<li>{}</li>',
                                 ((sub_printer(a, user),) for a in getattr(obj, base_name).all())
                             )
 
-                            return format_html(u'<ul>{}</ul>', li_tags) if li_tags else ''
+                            return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
         else:
             print_func = self._printers_maps[output][base_field.__class__]
 

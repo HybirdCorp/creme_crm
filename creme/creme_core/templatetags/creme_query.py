@@ -23,11 +23,9 @@ from django.template import Library
 from ..auth.entity_credentials import EntityCredentials
 from ..models import CremeEntity
 
-
 register = Library()
 
 
-# @register.assignment_tag
 @register.simple_tag
 def query_entities_count(ctype, user):
     """Returns the number of viewable entities with a specific type, in a fast way.

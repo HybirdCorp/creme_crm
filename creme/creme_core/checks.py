@@ -23,8 +23,6 @@ from django.conf import settings
 from django.core.checks import register, Error, Warning, Tags as CoreTags
 from django.db.utils import DatabaseError
 
-# from .models import CremeEntity
-
 
 class Tags:
     settings = 'settings'

@@ -33,7 +33,6 @@ def skipIfNoXLSLib(test_func):
 
 class ViewsTestCase(CremeTestCase):
     def login(self, is_superuser=True, *args, **kwargs):
-        # user = super(ViewsTestCase, self).login(is_superuser, *args, **kwargs)
         user = super().login(is_superuser, *args, **kwargs)
 
         SetCredentials.objects.create(role=self.role,
@@ -143,17 +142,12 @@ class CSVImportBaseTestCaseMixin:
         return doc
 
     def _build_csv_doc(self, lines, separator=',', extension='csv'):
-        # content = u'\n'.join(separator.join(u'"%s"' % item for item in line) for line in lines)
-        # content = str(content.encode('utf8'))
         content = '\n'.join(separator.join('"{}"'.format(item) for item in line) for line in lines)
-
-        # tmpfile = self._build_file(content, extension)
         tmpfile = self._build_file(content.encode(), extension)
 
         return self._build_doc(tmpfile)
 
     def _build_xls_doc(self, lines, extension='xls'):
-        # tmpfile = self._build_file('', extension)
         tmpfile = self._build_file(b'', extension)
         wb = XlwtWriter()
         for line in lines:

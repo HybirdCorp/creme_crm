@@ -51,5 +51,4 @@ class FileRef(models.Model):  # NB: not a CremeModel, because it's used by Creme
         if not self.basename:
             self.basename = basename(self.filedata.path)
 
-        # super(FileRef, self).save(*args, **kwargs)
         super().save(*args, **kwargs)

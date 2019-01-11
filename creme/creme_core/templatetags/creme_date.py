@@ -18,22 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django import template
 from django.utils.translation import ungettext
 
-
 register = template.Library()
-
-
-# @register.filter(name='timedelta_pprint')
-# def _timedelta_pprint(timedelta_):
-#     warnings.warn('The tag {% timedelta_pprint %} is deprecated ; use {% date_timedelta_pprint %} instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     return timedelta_pprint(timedelta_)
 
 
 @register.filter(name='date_timedelta_pprint')
@@ -41,16 +29,16 @@ def timedelta_pprint(timedelta_):
     days = timedelta_.days
 
     if days > 0:
-        return ungettext(u'{number} day', u'{number} days', days).format(number=days)
+        return ungettext('{number} day', '{number} days', days).format(number=days)
 
     hours, hour_remain = divmod(timedelta_.seconds, 3600)
 
     if hours > 0:
-        return ungettext(u'{number} hour', u'{number} hours', hours).format(number=hours)
+        return ungettext('{number} hour', '{number} hours', hours).format(number=hours)
 
     minutes, seconds = divmod(hour_remain, 60)
 
     if minutes > 0:
-        return ungettext(u'{number} minute', u'{number} minutes', minutes).format(number=minutes)
+        return ungettext('{number} minute', '{number} minutes', minutes).format(number=minutes)
 
-    return ungettext(u'{number} second', u'{number} seconds', seconds).format(number=seconds)
+    return ungettext('{number} second', '{number} seconds', seconds).format(number=seconds)

@@ -20,7 +20,6 @@ except Exception as e:
 class HeaderFiltersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(HeaderFiltersTestCase, cls).setUpClass()
         super().setUpClass()
 
         get_ct = ContentType.objects.get_for_model
@@ -64,11 +63,11 @@ class HeaderFiltersTestCase(CremeTestCase):
         user = self.login()
 
         create_rtype = RelationType.create
-        loves = create_rtype(('test-subject_love', u'Is loving'),
-                             ('test-object_love',  u'Is loved by')
+        loves = create_rtype(('test-subject_love', 'Is loving'),
+                             ('test-object_love',  'Is loved by')
                             )[0]
-        likes = create_rtype(('test-subject_like', u'Is liking'),
-                             ('test-object_like',  u'Is liked by')
+        likes = create_rtype(('test-subject_like', 'Is liking'),
+                             ('test-object_like',  'Is liked by')
                             )[0]
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -155,7 +154,7 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_cells_property01(self):
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cells = [build_cell(name=fn) for fn in ('first_name', 'last_name')]
-        hf = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=FakeContact,
+        hf = HeaderFilter.create(pk='test-hf01', name='Contact view', model=FakeContact,
                                  cells_desc=cells,
                                 )
 
@@ -166,7 +165,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_cells_property02(self):
         "None value are ignored"
-        hf = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=FakeContact)
+        hf = HeaderFilter.create(pk='test-hf01', name='Contact view', model=FakeContact)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell01 = build_cell(name='first_name')
@@ -186,7 +185,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         ffield_name = 'get_pretty_properties'
         rfield_name = 'last_name'
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
+        hf = HeaderFilter.create(pk='test-hf', name='Contact view', model=FakeContact,
                                  cells_desc=[(EntityCellFunctionField, {'func_field_name': ffield_name}),
                                              (EntityCellRegularField,  {'name': rfield_name}),
                                             ],
@@ -263,7 +262,7 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_populate_entities_fields01(self):
         "Regular fields: no FK"
         user = self.login()
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
+        hf = HeaderFilter.create(pk='test-hf', name='Contact view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
                                             ])
@@ -284,7 +283,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         "Regular fields: FK"
         user = self.login()
         build = partial(EntityCellRegularField.build, model=FakeContact)
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
+        hf = HeaderFilter.create(pk='test-hf', name='Contact view', model=FakeContact,
                                  cells_desc=[build(name='last_name'), build(name='first_name'),
                                              build(name='position'),
                                              build(name='civility__title'),
@@ -318,7 +317,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         cell2 = EntityCellRegularField.build(model=FakeContact, name='first_name')
         cell2.value = 'invalid'  # filter_string='invalid__icontains'
 
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view',
+        hf = HeaderFilter.create(pk='test-hf', name='Contact view',
                                  model=FakeContact, cells_desc=[cell1, cell2],
                                 )
 
@@ -353,7 +352,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         cell2 = EntityCellRegularField.build(model=FakeContact, name='user__username')
         cell2.value = 'user__invalid'  # filter_string='__icontains'
 
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
+        hf = HeaderFilter.create(pk='test-hf', name='Contact view', model=FakeContact,
                                  cells_desc=[cell1, cell2],
                                 )
 
@@ -370,10 +369,10 @@ class HeaderFiltersTestCase(CremeTestCase):
         user = self.login()
 
         create_rt = RelationType.create
-        loved = create_rt(('test-subject_love', u'Is loving'), ('test-object_love', u'Is loved by'))[1]
-        hated = create_rt(('test-subject_hate', u'Is hating'), ('test-object_hate', u'Is hated by'))[1]
+        loved = create_rt(('test-subject_love', 'Is loving'), ('test-object_love', 'Is loved by'))[1]
+        hated = create_rt(('test-subject_hate', 'Is hating'), ('test-object_hate', 'Is hated by'))[1]
 
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
+        hf = HeaderFilter.create(pk='test-hf', name='Contact view', model=FakeContact,
                                  cells_desc=[EntityCellRegularField.build(model=FakeContact, name='last_name'),
                                              EntityCellRelation(model=FakeContact, rtype=loved),
                                              EntityCellRelation(model=FakeContact, rtype=hated),

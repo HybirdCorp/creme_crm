@@ -61,7 +61,6 @@ class _BulkUpdateRegistry:
             if not isinstance(field, ForeignKey) or field.get_tag('enumerable'):
                 return False
 
-            # return issubclass(field.rel.to, CremeModel) or field.name in self.expandables
             return issubclass(field.remote_field.model, CremeModel) or field.name in self.expandables
 
         def is_updatable(self, field):

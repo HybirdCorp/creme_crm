@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 
 from django.template.loader import get_template
 
@@ -77,13 +76,6 @@ class ButtonsRegistry:
         setdefault = self._button_classes.setdefault
 
         for button_cls in button_classes:
-            # if isinstance(button_cls, Button):
-            #     warnings.warn('ButtonsRegistry.register(): registered button instance is deprecated ; '
-            #                   'register button class instead (button ID=%s)' % button_cls.id_,
-            #                   DeprecationWarning
-            #                  )
-            #     button_cls = button_cls.__class__
-
             if setdefault(button_cls.id_, button_cls) is not button_cls:
                 raise self.RegistrationError("Duplicated button's ID (or button registered twice) : {}".format(button_cls.id_))
 

@@ -22,16 +22,13 @@ import csv
 
 from django.utils.translation import ugettext_lazy as _
 
-# from creme.creme_core.utils.unicode_csv import UnicodeReader
-
 from .base import ImportBackend
 
 
-# class CSVImportBackend(UnicodeReader, ImportBackend):
 class CSVImportBackend(ImportBackend):
     id = 'csv'
-    verbose_name = _(u'CSV File')
-    help_text = _(u'A CSV file contains the fields values of an entity on each line, '
+    verbose_name = _('CSV File')
+    help_text = _('A CSV file contains the fields values of an entity on each line, '
                   'separated by commas or semicolons and each one can be surrounded by quotation marks " '
                   '(to protect a value containing a comma for example).'
                  )

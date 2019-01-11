@@ -893,12 +893,6 @@ table.table_detail_view + table.table_detail_view {
     font-weight: 700;
 }
 
-/*
-.brick.is-loading .brick-content {
-    opacity: 0.6;
-}
-*/
-
 .brick.is-collapsed .brick-content,
 .brick.is-collapsed .brick-footer {
     display: none;
@@ -956,13 +950,6 @@ table.table_detail_view + table.table_detail_view {
 .brick.is-loading.is-loading-border {
     position: relative;
 }
-
-/*
-.brick.is-loading.is-loading-border .brick-loading-indicator {
-    color: hsl(210, 90%, 62%);
-    color: hsl(210, 90%, 45%);
-}
-*/
 
 .brick.is-loading.is-loading-border::before {
     content: ' ';
@@ -1074,7 +1061,7 @@ table.table_detail_view + table.table_detail_view {
 
 /* brick types - selectable type - end */
 
-/* brick types - reorderable type */
+/* brick types - re-orderable type */
 
 .icon.brick-reorderable-handle-icon {
     width: 15px;
@@ -1140,7 +1127,7 @@ table.table_detail_view + table.table_detail_view {
 
 */
 
-/* brick types - reorderable type - end */
+/* brick types - re-orderable type - end */
 
 /* brick types - list of cards */
 /* brick types - list of cards - end */

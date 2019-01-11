@@ -20,8 +20,6 @@
 
 import xml.etree.ElementTree as ET
 
-# from django.utils.encoding import smart_str
-
 
 def _element_iterator(tree):
     elements = [[tree]]
@@ -65,7 +63,6 @@ class XMLDiff:
 
     @property
     def long_msg(self):
-        # return ET.tostring(self._root, 'utf-8')
         return ET.tostring(self._root, 'utf-8').decode()
 
 
@@ -75,13 +72,9 @@ def xml_diff(xml1, xml2):
     @param xml2 String representing the second XML document.
     @return XMLDiff instance, or None if there is no difference.
     """
-    # if isinstance(xml1, unicode):
-    #     xml1 = smart_str(xml1)
     if isinstance(xml1, str):
         xml1 = xml1.encode()
 
-    # if isinstance(xml2, unicode):
-    #     xml2 = smart_str(xml2)
     if isinstance(xml2, str):
         xml2 = xml2.encode()
 
@@ -105,12 +98,9 @@ def xml_diff(xml1, xml2):
         while True:
             # Length comparison ------------------------------------------------
             try:
-                # deep_change1, node1 = iter1.next()
                 deep_change1, node1 = next(iter1)
             except StopIteration:
                 try:
-                    # deep_change2, node2 =
-                    # iter2.next()
                     next(iter2)
                 except StopIteration:
                     raise
@@ -120,7 +110,6 @@ def xml_diff(xml1, xml2):
                                   )
 
             try:
-                # deep_change2, node2 = iter2.next()
                 deep_change2, node2 = next(iter2)
             except StopIteration:
                 return XMLDiff('Does not exist in second document', node1, tree1)
@@ -156,7 +145,6 @@ def xml_diff(xml1, xml2):
                     )
             if attrs1:
                 return XMLDiff(
-                    # 'Attribute "{}" is missing in the second document'.format(attrs1.keys()[0]),
                     'Attribute "{}" is missing in the second document'.format(next(iter(attrs1.keys()))),
                     node1, tree1,
                 )

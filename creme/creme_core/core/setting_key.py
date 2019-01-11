@@ -72,8 +72,8 @@ class _SettingKey:
         self._castor = self._CASTORS[type]
 
     def __str__(self):
-        return u'{cls}(id="{id}", description="{description}", ' \
-               u'app_label="{app_label}", type={type}, hidden={hidden})'.format(
+        return '{cls}(id="{id}", description="{description}", ' \
+               'app_label="{app_label}", type={type}, hidden={hidden})'.format(
                 cls=self.__class__.__name__,
                 id=self.id,
                 description=self.description,
@@ -101,7 +101,6 @@ class UserSettingKey(_SettingKey):
     _CASTORS = {
             _SettingKey.STRING: str,
             _SettingKey.INT:    int,
-            # _SettingKey.BOOL:   bool_from_str,
             _SettingKey.BOOL:   bool,  # TODO: fix _SettingKey to use JSON ('True' => 'true') ??
             _SettingKey.HOUR:   int,
             _SettingKey.EMAIL:  str,

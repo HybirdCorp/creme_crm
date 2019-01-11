@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from ..signals import pre_merge_related
 
 from . import fields as creme_fields
-from .base import CremeModel  # CremeAbstractEntity
+from .base import CremeModel
 from .creme_property import CremePropertyType
 from .entity import CremeEntity
 
@@ -204,12 +204,10 @@ class RelationType(CremeModel):
         self.subject_ctypes.add(*cts)
         self.symmetric_type.object_ctypes.add(*cts)
 
-    # def delete(self, using=None):
     def delete(self, using=None, keep_parents=False):
         sym_type = self.symmetric_type
 
         super(RelationType, sym_type).delete(using=using)
-        # super(RelationType, self).delete(using=using)
         super().delete(using=using, keep_parents=keep_parents)
 
     @staticmethod
@@ -318,7 +316,6 @@ class RelationType(CremeModel):
             raise Http404(ugettext("You can't add/delete the relationships with this type (internal type)"))
 
 
-# class Relation(CremeAbstractEntity):
 class Relation(CremeModel):
     """2 instances of creme_core.models.CremeEntity can be linked by Relations.
     The first instance is called "object", the second one "object".
@@ -336,7 +333,6 @@ class Relation(CremeModel):
     created = creme_fields.CreationDateTimeField(_('Creation date'), editable=False).set_tags(clonable=False)
     user    = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    # type               = ForeignKey(RelationType, blank=True, null=True, on_delete=CASCADE)
     type               = models.ForeignKey(RelationType, on_delete=models.CASCADE)
     symmetric_relation = models.ForeignKey('self', null=True, on_delete=models.CASCADE)  # blank=True
     subject_entity     = models.ForeignKey(CremeEntity, related_name='relations', on_delete=models.PROTECT)
@@ -371,7 +367,6 @@ class Relation(CremeModel):
         return sym_relation
 
     @atomic
-    # def save(self, using='default', force_insert=False):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         """See django.db.models.Model.save()
 
@@ -380,7 +375,6 @@ class Relation(CremeModel):
         """
         update = bool(self.pk)
 
-        # super(Relation, self).save(using=using, force_insert=force_insert)
         super().save(using=using, force_insert=force_insert)
 
         sym_relation = self._build_symmetric_relation(update)
@@ -388,12 +382,8 @@ class Relation(CremeModel):
 
         if self.symmetric_relation is None:
             self.symmetric_relation = sym_relation
-            # super(Relation, self).save(using=using, force_insert=False)
             # TODO: save only field "symmetric_relation" ?
             super().save(using=using, force_insert=False)
-
-    # def get_real_entity(self):
-    #     return self._get_real_entity(Relation)
 
     @staticmethod
     def populate_real_object_entities(relations):
@@ -432,28 +422,6 @@ class SemiFixedRelationType(CremeModel):
         return self.predicate
 
 
-# @receiver(pre_merge_related)
-# def _handle_merge(sender, other_entity, **kwargs):
-#     """Delete 'Duplicated' Relations (ie: exist in the removed entity & the
-#     remaining entity).
-#     """
-#     from .history import HistoryLine
-#
-#     # TRICK: We use the related accessor 'relations_where_is_object' instead
-#     # of 'relations' because HistoryLine creates lines for relation with
-#     # types '*-subject_*' (symmetric with types '*-object_*')
-#     # If we'd use 'sender.relations' we should disable/delete
-#     # 'relation.symmetric_relation' that would take an additional query.
-#     relations_info = defaultdict(list)
-#     for rtype_id, entity_id in sender.relations_where_is_object \
-#                                      .values_list('type', 'subject_entity'):
-#         relations_info[rtype_id].append(entity_id)
-#
-#     rel_filter = other_entity.relations_where_is_object.filter
-#     for rtype_id, entity_ids in relations_info.iteritems():
-#         for relation in rel_filter(type=rtype_id, subject_entity__in=entity_ids):
-#             HistoryLine.disable(relation)
-#             relation.delete()
 @receiver(pre_merge_related)
 def _handle_merge(sender, other_entity, **kwargs):
     """The generic creme_core.utils.replace_related_object() cannot correctly

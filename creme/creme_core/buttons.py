@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.utils.translation import ugettext_lazy as _
 
 from .constants import UUID_SANDBOX_SUPERUSERS
@@ -36,5 +34,4 @@ class Restrict2SuperusersButton(Button):
         context['sandbox_uuid'] = str(sandbox.uuid) if sandbox else None
         context['UUID_SANDBOX_SUPERUSERS'] = UUID_SANDBOX_SUPERUSERS
 
-        # return super(Restrict2SuperusersButton, self).render(context)
         return super().render(context)

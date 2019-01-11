@@ -19,13 +19,11 @@ except Exception as e:
 class MetaTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(MetaTestCase, cls).setUpClass()
         super().setUpClass()
         cls._lang = translation.get_language()
         cls._translation_deactivated = False
 
     def tearDown(self):
-        # super(MetaTestCase, self).tearDown()
         super().tearDown()
 
         if self._translation_deactivated:
@@ -35,51 +33,6 @@ class MetaTestCase(CremeTestCase):
     def _deactivate_translation(self):  # TODO: decorator ?? in CremeTestCase ?
         translation.deactivate_all()
         self._translation_deactivated = True
-
-    # def test_get_instance_field_info01(self):
-    #     get_info = meta.get_instance_field_info
-    #     text = 'TEXT'
-    #
-    #     user   = get_user_model().objects.create(username='name')
-    #     ptype  = CremePropertyType.objects.create(text=text, is_custom=True)
-    #     entity = CremeEntity.objects.create(user=user)
-    #     prop   = CremeProperty(type=ptype, creme_entity=entity)
-    #
-    #     self.assertEqual((models.CharField,    text), get_info(prop, 'type__text'))
-    #     self.assertEqual((models.BooleanField, True), get_info(prop, 'type__is_custom'))
-    #
-    #     self.assertEqual((None, ''), get_info(prop, 'foobar__is_custom'))
-    #     self.assertEqual((None, ''), get_info(prop, 'type__foobar'))
-    #
-    #     self.assertEqual(models.CharField, get_info(prop, 'creme_entity__entity_type__model')[0])
-    #
-    # def test_get_instance_field_info02(self):
-    #     "ManyToMany"
-    #     get_info = meta.get_instance_field_info
-    #     user = get_user_model().objects.create(username='name')
-    #     contact = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
-    #     self.assertEqual((models.CharField, contact.first_name), get_info(contact, 'first_name'))
-    #
-    #     # -----------
-    #     m2m_info = get_info(contact, 'languages')
-    #     self.assertEqual(models.ManyToManyField, m2m_info[0])
-    #
-    #     values = m2m_info[1]
-    #     self.assertEqual(Language, values.model)
-    #     self.assertEqual([], list(values))
-    #
-    #     # -------------
-    #     create_language = Language.objects.create
-    #     l1 = create_language(name='English',  code='EN')
-    #     l2 = create_language(name='French',   code='FRA')
-    #     l3 = create_language(name='Japanese', code='JP')
-    #
-    #     contact.languages = [l1, l3]
-    #     self.assertEqual({l1, l3}, set(get_info(contact, 'languages')[1]))
-    #
-    #     # -------------
-    #     # todo: fix it ??
-    #     self.assertEqual((None, ''), get_info(contact, 'languages__code'))
 
     def test_field_info01(self):
         "Simple field"
@@ -111,7 +64,7 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual(FakeContact._meta.get_field('image'), fi[0])
         self.assertEqual(FakeImage._meta.get_field('name'), fi[1])
 
-        self.assertEqual(_(u'Photograph') + ' - ' + _(u'Name'), fi.verbose_name)
+        self.assertEqual(_('Photograph') + ' - ' + _('Name'), fi.verbose_name)
 
         with self.assertNoException():
             fi_as_list = list(meta.FieldInfo(FakeContact, 'image__user__username'))
@@ -276,12 +229,11 @@ class MetaTestCase(CremeTestCase):
     def test_field_enumerator01(self):
         self._deactivate_translation()
 
-        expected = [('created',                    _(u'Creation date')),
+        expected = [('created',                    _('Creation date')),
                     ('header_filter_search_field', 'header filter search field'),
                     ('id',                         'ID'),
-                    # ('is_actived',                 'is actived'),
                     ('is_deleted',                 'is deleted'),
-                    ('modified',                   _(u'Last modification')),
+                    ('modified',                   _('Last modification')),
                     ('uuid',                       'uuid'),
                    ]
         choices = meta.ModelFieldEnumerator(CremeEntity).choices()
@@ -291,14 +243,13 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual(expected, choices, choices)
 
         choices = meta.ModelFieldEnumerator(CremeEntity, only_leafs=False).choices()
-        self.assertEqual([('created',                    _(u'Creation date')),
+        self.assertEqual([('created',                    _('Creation date')),
                           ('entity_type',                'entity type'),
                           ('header_filter_search_field', 'header filter search field'),
                           ('id',                         'ID'),
-                          # ('is_actived',                 'is actived'),
                           ('is_deleted',                 'is deleted'),
-                          ('modified',                   _(u'Last modification')),
-                          ('user',                       _(u'Owner user')),
+                          ('modified',                   _('Last modification')),
+                          ('user',                       _('Owner user')),
                           ('sandbox',                    'sandbox'),
                           ('uuid',                       'uuid'),
                          ],
@@ -309,8 +260,8 @@ class MetaTestCase(CremeTestCase):
         "Filter, exclude (simple)"
         self._deactivate_translation()
 
-        expected = [('created',  _(u'Creation date')),
-                    ('modified', _(u'Last modification')),
+        expected = [('created',  _('Creation date')),
+                    ('modified', _('Last modification')),
                    ]
         choices = meta.ModelFieldEnumerator(CremeEntity).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
@@ -318,9 +269,9 @@ class MetaTestCase(CremeTestCase):
         choices = meta.ModelFieldEnumerator(CremeEntity).exclude(viewable=False).choices()
         self.assertEqual(expected, choices, choices)
 
-        expected = [('created',  _(u'Creation date')),
-                    ('modified', _(u'Last modification')),
-                    ('user',     _(u'Owner user'))
+        expected = [('created',  _('Creation date')),
+                    ('modified', _('Last modification')),
+                    ('user',     _('Owner user'))
                    ]
         choices = meta.ModelFieldEnumerator(CremeEntity, only_leafs=False).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
@@ -332,13 +283,13 @@ class MetaTestCase(CremeTestCase):
         "deep = 1"
         self._deactivate_translation()
 
-        fs = partial(u'[{user}] - {field}'.format, user=_(u'Owner user'))
-        expected = [('created',         _(u'Creation date')),
+        fs = partial('[{user}] - {field}'.format, user=_('Owner user'))
+        expected = [('created',         _('Creation date')),
                     ('modified',        _('Last modification')),
 
-                    ('user__email',     fs(field=_(u'Email address'))),
-                    ('user__last_name', fs(field=_(u'Last name'))),
-                    ('user__username',  fs(field=_(u'Username'))),
+                    ('user__email',     fs(field=_('Email address'))),
+                    ('user__last_name', fs(field=_('Last name'))),
+                    ('user__username',  fs(field=_('Username'))),
                    ]
         self.assertEqual(expected,
                          meta.ModelFieldEnumerator(CremeEntity, deep=1)
@@ -348,13 +299,13 @@ class MetaTestCase(CremeTestCase):
                          meta.ModelFieldEnumerator(CremeEntity, deep=1, only_leafs=True)
                              .filter(viewable=True).choices()
                         )
-        self.assertEqual([('created',         _(u'Creation date')),
-                          ('modified',        _(u'Last modification')),
-                          ('user',            _(u'Owner user')),  # <===
+        self.assertEqual([('created',         _('Creation date')),
+                          ('modified',        _('Last modification')),
+                          ('user',            _('Owner user')),  # <===
 
-                          ('user__email',     fs(field=_(u'Email address'))),
-                          ('user__last_name', fs(field=_(u'Last name'))),
-                          ('user__username',  fs(field=_(u'Username'))),
+                          ('user__email',     fs(field=_('Email address'))),
+                          ('user__last_name', fs(field=_('Last name'))),
+                          ('user__username',  fs(field=_('Username'))),
                          ],
                          meta.ModelFieldEnumerator(CremeEntity, deep=1, only_leafs=False)
                              .filter(viewable=True).choices()
@@ -379,9 +330,9 @@ class MetaTestCase(CremeTestCase):
         "Other ct"
         self._deactivate_translation()
 
-        expected = [('created',     _(u'Creation date')),
-                    ('modified',    _(u'Last modification')),
-                    ('name',        _(u'Name of the campaign')),
+        expected = [('created',     _('Creation date')),
+                    ('modified',    _('Last modification')),
+                    ('name',        _('Name of the campaign')),
                    ]
         choices = meta.ModelFieldEnumerator(FakeEmailCampaign).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
@@ -391,28 +342,28 @@ class MetaTestCase(CremeTestCase):
                               viewable=True,
                              ) \
                       .choices()
-        expected.append(('mailing_lists', _(u'Related mailing lists')))
+        expected.append(('mailing_lists', _('Related mailing lists')))
         self.assertEqual(expected, choices, choices)
 
     def test_field_enumerator06(self):
         "Filter/exclude : multiple conditions + field true attributes"
         self._deactivate_translation()
 
-        expected = [('birthday',    _(u'Birthday')),
-                    ('civility',    _(u'Civility')),
-                    ('description', _(u'Description')),
-                    ('email',       _(u'Email address')),
-                    ('first_name',  _(u'First name')),
-                    ('is_a_nerd',   _(u'Is a Nerd')),
-                    ('last_name',   _(u'Last name')),
-                    ('sector',      _(u'Line of business')),
-                    ('mobile',      _(u'Mobile')),
-                    ('user',        _(u'Owner user')),
-                    ('phone',       _(u'Phone number')),
-                    ('image',       _(u'Photograph')),
-                    ('position',    _(u'Position')),
-                    ('languages',   _(u'Spoken language(s)')),
-                    ('url_site',    _(u'Web Site')),
+        expected = [('birthday',    _('Birthday')),
+                    ('civility',    _('Civility')),
+                    ('description', _('Description')),
+                    ('email',       _('Email address')),
+                    ('first_name',  _('First name')),
+                    ('is_a_nerd',   _('Is a Nerd')),
+                    ('last_name',   _('Last name')),
+                    ('sector',      _('Line of business')),
+                    ('mobile',      _('Mobile')),
+                    ('user',        _('Owner user')),
+                    ('phone',       _('Phone number')),
+                    ('image',       _('Photograph')),
+                    ('position',    _('Position')),
+                    ('languages',   _('Spoken language(s)')),
+                    ('url_site',    _('Web Site')),
                    ]
         choices = meta.ModelFieldEnumerator(FakeContact, only_leafs=False) \
                       .filter(editable=True, viewable=True).choices()
@@ -428,22 +379,22 @@ class MetaTestCase(CremeTestCase):
 
         choices = meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False) \
                       .filter(viewable=True).choices()
-        fs = u'[{}] - {}'.format
-        type_lbl = _(u'Activity type')
+        fs = '[{}] - {}'.format
+        type_lbl = _('Activity type')
         user_lbl = _('Owner user')
         self.assertEqual([('type',            type_lbl),
-                          ('created',         _(u'Creation date')),
-                          ('end',             _(u'End')),
-                          ('modified',        _(u'Last modification')),
+                          ('created',         _('Creation date')),
+                          ('end',             _('End')),
+                          ('modified',        _('Last modification')),
                           ('user',            user_lbl),
-                          ('start',           _(u'Start')),
-                          ('title',           _(u'Title')),
+                          ('start',           _('Start')),
+                          ('title',           _('Title')),
 
-                          ('type__name',      fs(type_lbl, _(u'Name'))),
+                          ('type__name',      fs(type_lbl, _('Name'))),
 
-                          ('user__email',     fs(user_lbl, _(u'Email address'))),
-                          ('user__last_name', fs(user_lbl, _(u'Last name'))),
-                          ('user__username',  fs(user_lbl, _(u'Username'))),
+                          ('user__email',     fs(user_lbl, _('Email address'))),
+                          ('user__last_name', fs(user_lbl, _('Last name'))),
+                          ('user__username',  fs(user_lbl, _('Username'))),
                          ],
                          choices, choices
                         )
@@ -456,16 +407,16 @@ class MetaTestCase(CremeTestCase):
                       .filter((lambda f, depth: not depth or f.name == 'name'), viewable=True) \
                       .choices()
 
-        type_lbl = _(u'Activity type')
+        type_lbl = _('Activity type')
         self.assertEqual([('type',       type_lbl),
-                          ('created',    _(u'Creation date')),
-                          ('end',        _(u'End')),
-                          ('modified',   _(u'Last modification')),
-                          ('user',       _(u'Owner user')),
-                          ('start',      _(u'Start')),
-                          ('title',      _(u'Title')),
+                          ('created',    _('Creation date')),
+                          ('end',        _('End')),
+                          ('modified',   _('Last modification')),
+                          ('user',       _('Owner user')),
+                          ('start',      _('Start')),
+                          ('title',      _('Title')),
 
-                          ('type__name', u'[{}] - {}'.format(type_lbl, _(u'Name'))),
+                          ('type__name', '[{}] - {}'.format(type_lbl, _('Name'))),
                          ],
                          choices, choices
                         )
@@ -475,22 +426,22 @@ class MetaTestCase(CremeTestCase):
         choices = set(meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False)
                           .filter(viewable=True).choices()
                      )
-        fs = u'[{}] - {}'.format
-        type_lbl = _(u'Activity type')
+        fs = '[{}] - {}'.format
+        type_lbl = _('Activity type')
         user_lbl = _('Owner user')
         self.assertEqual({('type',            type_lbl),
-                          ('created',         _(u'Creation date')),
-                          ('end',             _(u'End')),
-                          ('modified',        _(u'Last modification')),
+                          ('created',         _('Creation date')),
+                          ('end',             _('End')),
+                          ('modified',        _('Last modification')),
                           ('user',            user_lbl),
-                          ('start',           _(u'Start')),
-                          ('title',           _(u'Title')),
+                          ('start',           _('Start')),
+                          ('title',           _('Title')),
 
-                          ('type__name',      fs(type_lbl, _(u'Name'))),
+                          ('type__name',      fs(type_lbl, _('Name'))),
 
-                          ('user__email',     fs(user_lbl, _(u'Email address'))),
-                          ('user__last_name', fs(user_lbl, _(u'Last name'))),
-                          ('user__username',  fs(user_lbl, _(u'Username'))),
+                          ('user__email',     fs(user_lbl, _('Email address'))),
+                          ('user__last_name', fs(user_lbl, _('Last name'))),
+                          ('user__username',  fs(user_lbl, _('Username'))),
                          },
                          choices, choices
                         )

@@ -20,7 +20,7 @@
 
 from django.db.transaction import atomic
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404  # render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -33,18 +33,10 @@ from ..models import Job
 
 from . import bricks as bricks_views
 from .decorators import jsonify, POST_only
-# from .generic import inner_popup
 
 from . import generic
 
 
-# @login_required
-# @superuser_required
-# def list_all(request):
-#     return render(request, 'creme_core/job/list-all.html',
-#                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
-#                   # {'back_url': request.META.get('HTTP_REFERER')} #problem when we come from a deleted job
-#                  )
 class Jobs(generic.BricksView):
     template_name = 'creme_core/job/list-all.html'
 
@@ -53,42 +45,10 @@ class Jobs(generic.BricksView):
         _check_superuser(user)
 
 
-# @login_required
-# def list_mine(request):
-#     return render(request, 'creme_core/job/list-mine.html',
-#                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
-#                   # {'back_url': request.META.get('HTTP_REFERER')} #problem when we come from a deleted job
-#                  )
 class MyJobs(generic.BricksView):
     template_name = 'creme_core/job/list-mine.html'
 
 
-# @login_required
-# def detailview(request, job_id):
-#     job = get_object_or_404(Job, id=job_id)
-#
-#     jtype = job.type
-#     if jtype is None:
-#         raise Http404(ugettext('Unknown job type ({}). Please contact your administrator.').format(job_id))
-#
-#     job.check_owner_or_die(request.user)
-#
-#     list_url = request.GET.get('list_url')
-#     list_url_is_safe = list_url and is_safe_url(
-#         url=list_url,
-#         allowed_hosts={request.get_host()},
-#         require_https=request.is_secure(),
-#     )
-#
-#     return render(request, 'creme_core/job/detail.html',
-#                   {'job': job,
-#                    'results_bricks': jtype.results_bricks,
-#                    'bricks_reload_url': reverse('creme_core__reload_job_bricks', args=(job.id,)),
-#                    # 'back_url': request.META.get('HTTP_REFERER'),
-#                    # 'back_url': '/', #todo: improve (page before form, not form itself)
-#                    'list_url': list_url if list_url_is_safe else reverse('creme_core__my_jobs'),
-#                   }
-#                  )
 class JobDetail(generic.CremeModelDetail):
     model = Job
     template_name = 'creme_core/job/detail.html'
@@ -125,34 +85,6 @@ class JobDetail(generic.CremeModelDetail):
         return context
 
 
-# @login_required
-# @superuser_required
-# def edit(request, job_id):
-#     job = get_object_or_404(Job, id=job_id)
-#
-#     if job.user_id is not None:
-#         raise ConflictError('A non-system job cannot be edited')
-#
-#     config_form = job.get_config_form_class()
-#     if config_form is None:
-#         raise ConflictError('This job cannot be edited')
-#
-#     if request.method == 'POST':
-#         edit_form = config_form(user=request.user, data=request.POST, instance=job)
-#
-#         if edit_form.is_valid():
-#             edit_form.save()
-#     else:  # GET request
-#         edit_form = config_form(user=request.user, instance=job)
-#
-#     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-#                        {'form':  edit_form,
-#                         'title': ugettext('Edit the job «{}»').format(job.type),
-#                        },
-#                        is_valid=edit_form.is_valid(),
-#                        reload=False,
-#                        delegate_reload=True,
-#                       )
 class JobEdition(generic.CremeModelEditionPopup):
     model = Job
     # form_class = ...
@@ -182,7 +114,6 @@ class JobEdition(generic.CremeModelEditionPopup):
 @POST_only
 @atomic
 def enable(request, job_id, enabled=True):
-    # job = get_object_or_404(Job, id=job_id)
     job = get_object_or_404(Job.objects.select_for_update(), id=job_id)
 
     if job.user_id is not None:

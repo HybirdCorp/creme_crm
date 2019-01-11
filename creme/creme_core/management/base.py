@@ -22,8 +22,6 @@ import csv
 
 from django.core.management.base import BaseCommand
 
-# from creme.creme_core.utils.unicode_csv import UnicodeReader
-
 
 class CSVImportCommand(BaseCommand):
     """Base class for commands which import CSV files.
@@ -40,9 +38,7 @@ class CSVImportCommand(BaseCommand):
         )
 
     def _read(self, filename, callback, delimiter=','):
-        # with open(filename, 'rb') as csvfile:
         with open(filename, 'r') as csvfile:
-            # it = iter(UnicodeReader(csvfile, delimiter=delimiter))
             it = csv.reader(csvfile, delimiter=delimiter)
 
             try:
@@ -58,8 +54,6 @@ class CSVImportCommand(BaseCommand):
         """Overload this method."""
         raise NotImplementedError
 
-    # def handle(self, csv_filename, *app_labels, **options):
-    #     self._read(csv_filename, callback=self._manage_line, delimiter=";")
     def handle(self, *csv_filenames, **options):
         for csv_filename in csv_filenames:
             self._read(csv_filename, callback=self._manage_line, delimiter=';')

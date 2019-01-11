@@ -72,9 +72,7 @@ boolean_str = lambda val: TRUE if val else FALSE
 
 
 class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector ??
-    # def __init__(self, fields=(), operators=(), attrs=None, autocomplete=False):
     def __init__(self, model=CremeEntity, fields=(), operators=(), attrs=None, autocomplete=False):
-        # super(FieldConditionWidget, self).__init__(attrs)
         super().__init__(attrs)
         self.model = model
         self.fields = fields
@@ -90,8 +88,6 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
                   widget=DynamicSelectMultiple, attrs=field_attrs,
                   # TODO: use a GET arg instead of using a TemplateURLBuilder ?
                   # TODO: remove "field.ctype" ?
-                  # url=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${field.ctype}'))
-                  #                       .resolve('creme_core__list_enumerable'),
                   url=TemplateURLBuilder(field=(TemplateURLBuilder.Word, '${field.name}'))
                                         .resolve('creme_core__enumerable_choices',
                                                  kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id},
@@ -202,14 +198,11 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
                    )
         self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
 
-        # return super(FieldConditionWidget, self).get_context(name=name, value=value, attrs=attrs)
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class RegularFieldsConditionsWidget(SelectorList):
-    # def __init__(self, fields=(), attrs=None, enabled=True):
     def __init__(self, model=CremeEntity, fields=(), attrs=None, enabled=True):  # TODO: use/remove 'enabled'
-        # super(RegularFieldsConditionsWidget, self).__init__(None, attrs)
         super().__init__(None, attrs)
         self.model = model
         self.fields = fields
@@ -222,13 +215,11 @@ class RegularFieldsConditionsWidget(SelectorList):
                                              autocomplete=True,
                                             )
 
-        # return super(RegularFieldsConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class DateFieldsConditionsWidget(SelectorList):
     def __init__(self, fields=(), attrs=None, enabled=True):
-        # super(DateFieldsConditionsWidget, self).__init__(None, enabled=enabled, attrs=attrs)
         super().__init__(None, enabled=enabled, attrs=attrs)
         self.fields = fields
 
@@ -272,7 +263,6 @@ class DateFieldsConditionsWidget(SelectorList):
 
         chained_input.add_input('range', pinput, attrs=sub_attrs)
 
-        # return super(DateFieldsConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
@@ -343,7 +333,6 @@ class CustomFieldConditionWidget(SelectorList):
     template_name = 'creme_core/forms/widgets/efilter-cfield-conditions.html'
 
     def __init__(self, fields=(), attrs=None, enabled=True):
-        # super(CustomFieldConditionWidget, self).__init__(None, attrs)
         super().__init__(None, attrs)
         self.fields = fields
 
@@ -359,7 +348,6 @@ class CustomFieldConditionWidget(SelectorList):
                                                      operators=EntityFilterCondition._OPERATOR_MAP,
                                                     )
 
-        # return super(CustomFieldConditionWidget, self).get_context(name=name, value=value, attrs=attrs)
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
@@ -367,7 +355,6 @@ class DateCustomFieldsConditionsWidget(SelectorList):
     template_name = 'creme_core/forms/widgets/efilter-cfield-conditions.html'
 
     def __init__(self, date_fields_options=(), attrs=None, enabled=True):
-        # super(DateCustomFieldsConditionsWidget, self).__init__(selector=None, enabled=enabled, attrs=attrs)
         super().__init__(selector=None, enabled=enabled, attrs=attrs)
         self.date_fields_options = date_fields_options
 
@@ -384,13 +371,11 @@ class DateCustomFieldsConditionsWidget(SelectorList):
         chained_input.add_dselect('field', options=options, attrs=sub_attrs)
         chained_input.add_input('range', NullableDateRangeSelect, attrs=sub_attrs)
 
-        # return super(DateCustomFieldsConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class RelationTargetWidget(PolymorphicInput):
     def __init__(self, key='', multiple=False, attrs=None):
-        # super(RelationTargetWidget, self).__init__(key=key, attrs=attrs)
         super().__init__(key=key, attrs=attrs)
         self.add_input('^0$', widget=DynamicInput, type='hidden', attrs={'auto': False, 'value':'[]'})
         self.set_default_input(widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
@@ -398,7 +383,6 @@ class RelationTargetWidget(PolymorphicInput):
 
 class RelationsConditionsWidget(SelectorList):
     def __init__(self, rtypes=(), attrs=None):
-        # super(RelationsConditionsWidget, self).__init__(None, attrs=attrs)
         super().__init__(None, attrs=attrs)
         self.rtypes = rtypes
 
@@ -421,13 +405,11 @@ class RelationsConditionsWidget(SelectorList):
                                 attrs={'auto': False}, key='${ctype}', multiple=True,
                                )
 
-        # return super(RelationsConditionsWidget, self).get_context(name=name, value=value, attrs=name)
         return super().get_context(name=name, value=value, attrs=name)
 
 
 class RelationSubfiltersConditionsWidget(SelectorList):
     def __init__(self, rtypes=(), attrs=None):
-        # super(RelationSubfiltersConditionsWidget, self).__init__(None, attrs=attrs)
         super().__init__(None, attrs=attrs)
         self.rtypes = rtypes
 
@@ -451,13 +433,11 @@ class RelationSubfiltersConditionsWidget(SelectorList):
                     attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _('(no filter)')},
                    )
 
-        # return super(RelationSubfiltersConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class PropertiesConditionsWidget(SelectorList):
     def __init__(self, ptypes=(), attrs=None):
-        # super(PropertiesConditionsWidget, self).__init__(None, attrs=attrs)
         super().__init__(None, attrs=attrs)
         self.ptypes = ptypes
 
@@ -470,7 +450,6 @@ class PropertiesConditionsWidget(SelectorList):
                    )
         add_dselect('ptype', options=self.ptypes, attrs={'auto': False})
 
-        # return super(PropertiesConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
@@ -481,7 +460,6 @@ class _ConditionsField(JSONField):
     _model = None
 
     def __init__(self, model=CremeEntity, *args, **kwargs):
-        # super(_ConditionsField, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.model = model
 
@@ -1225,13 +1203,11 @@ class PropertiesConditionsField(_ConditionsField):
 # TODO: factorise with _ConditionsField (mixin ?)
 class SubfiltersConditionsField(ModelMultipleChoiceField):
     def __init__(self, model=CremeEntity, *args, **kwargs):
-        # super(SubfiltersConditionsField, self).__init__(queryset=EntityFilter.objects.none(), *args, **kwargs)
         super().__init__(queryset=EntityFilter.objects.none(), *args, **kwargs)
 
     def clean(self, value):
         build = EntityFilterCondition.build_4_subfilter
 
-        # return [build(subfilter) for subfilter in super(SubfiltersConditionsField, self).clean(value)]
         return [build(subfilter) for subfilter in super().clean(value)]
 
     def initialize(self, ctype, conditions=None, efilter=None):
@@ -1294,7 +1270,6 @@ class _EntityFilterForm(CremeModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # super(_EntityFilterForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.fields['user'].empty_label = _('All users')
 
@@ -1308,7 +1283,6 @@ class _EntityFilterForm(CremeModelForm):
         return conditions
 
     def clean(self):
-        # cdata = super(_EntityFilterForm, self).clean()
         cdata = super().clean()
 
         if not self._errors:
@@ -1337,16 +1311,12 @@ class _EntityFilterForm(CremeModelForm):
 
 
 class EntityFilterCreateForm(_EntityFilterForm):
-    # def __init__(self, *args, **kwargs):
     def __init__(self, ctype, *args, **kwargs):
-        # super(EntityFilterCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self._entity_type = self.instance.entity_type = ct = self.initial['content_type']
         self._entity_type = self.instance.entity_type = ctype
         fields = self.fields
 
         for field_name in self._CONDITIONS_FIELD_NAMES:
-            # fields[field_name].initialize(ct)
             fields[field_name].initialize(ctype)
 
         fields['use_or'].initial = 'False'
@@ -1357,7 +1327,6 @@ class EntityFilterCreateForm(_EntityFilterForm):
 
         instance.is_custom = True
 
-        # super(EntityFilterCreateForm, self).save(commit=False, *args, **kwargs)
         super().save(commit=False, *args, **kwargs)
         generate_string_id_and_save(EntityFilter, [instance],
                                     'creme_core-userfilter_{}-{}'.format(ct.app_label, ct.model),
@@ -1374,7 +1343,6 @@ class EntityFilterCreateForm(_EntityFilterForm):
 
 class EntityFilterEditForm(_EntityFilterForm):
     def __init__(self, *args, **kwargs):
-        # super(EntityFilterEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         fields = self.fields
@@ -1389,7 +1357,6 @@ class EntityFilterEditForm(_EntityFilterForm):
             del fields['is_private']
 
     def clean(self):
-        # cdata = super(EntityFilterEditForm, self).clean()
         cdata = super().clean()
 
         if not self.errors:
@@ -1405,7 +1372,6 @@ class EntityFilterEditForm(_EntityFilterForm):
         return cdata
 
     def save(self, *args, **kwargs):
-        # instance = super(EntityFilterEditForm, self).save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
         instance.set_conditions(self.cleaned_data['all_conditions'],
                                 check_cycles=False, check_privacy=False,  # Already checked in clean()

@@ -20,7 +20,6 @@
 
 from collections import defaultdict
 import logging
-# import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -182,14 +181,6 @@ class HistoryBrick(QuerysetBrick):
             # Should not happen (means that entity does not exist anymore) but...
             hline.entity = entities_map.get(hline.entity_id)
 
-    # @staticmethod
-    # def _populate_users(hlines, user):
-    #     warnings.warn('HistoryBrick._populate_users() is deprecated ; use HistoryLine.populate_users() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     HistoryLine.populate_users(hlines, user)
-
     @staticmethod
     def _populate_perms(hlines, user):
         for hline in hlines:
@@ -204,7 +195,6 @@ class HistoryBrick(QuerysetBrick):
         btc = self.get_template_context(context, HistoryLine.objects.filter(entity=pk))
         hlines = btc['page'].object_list
 
-        # self._populate_users(hlines, context['user'])
         HistoryLine.populate_users(hlines, context['user'])
 
         for hline in hlines:
@@ -212,23 +202,6 @@ class HistoryBrick(QuerysetBrick):
             hline.can_be_viewed = True
 
         return self._render(btc)
-
-    # def portal_display(self, context, ct_ids):
-    #     warnings.warn('creme_core.bricks.HistoryBrick.portal_display() is deprecated.', DeprecationWarning)
-    #
-    #     btc = self.get_template_context(
-    #                 context,
-    #                 HistoryLine.objects.filter(entity_ctype__in=ct_ids),
-    #                 HIDDEN_VALUE=settings.HIDDEN_VALUE,
-    #                )
-    #     hlines = btc['page'].object_list
-    #     user = context['user']
-    #
-    #     self._populate_related_real_entities(hlines, user)
-    #     HistoryLine.populate_users(hlines, user)
-    #     self._populate_perms(hlines, user)
-    #
-    #     return self._render(btc)
 
     def home_display(self, context):
         btc = self.get_template_context(
@@ -259,11 +232,6 @@ class ImprintsBrick(QuerysetBrick):
         qs = Imprint.objects.filter(entity=context['object'].pk) if can_view else Imprint.objects.none()
 
         return self._render(self.get_template_context(context, qs))
-
-    # def portal_display(self, context, ct_ids):
-    #     warnings.warn('creme_core.bricks.ImprintsBrick.portal_display() is deprecated.', DeprecationWarning)
-    #
-    #     return self.home_display(context)  # Avoid crashes
 
     def home_display(self, context):
         can_view = context['user'].is_superuser
@@ -304,7 +272,6 @@ class StatisticsBrick(Brick):
     id_           = Brick.generate_id('creme_core', 'statistics')
     verbose_name  = _('Statistics')
     template_name = 'creme_core/bricks/statistics.html'
-    # target_apps   = ('creme_core',)  # DEPRECATED
 
     statistics_registry = statistics.statistics_registry
 
@@ -392,7 +359,6 @@ class JobErrorsBrick(JobResultsBrick):
     template_name = 'creme_core/bricks/job-errors.html'
 
     def _build_queryset(self, job):
-        # return super(JobErrorsBrick, self)._build_queryset(job).filter(raw_messages__isnull=False)
         return super()._build_queryset(job).filter(raw_messages__isnull=False)
 
     def _extra_context(self, job):
