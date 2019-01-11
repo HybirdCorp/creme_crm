@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
@@ -43,55 +43,55 @@ Service = get_service_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_product(request, form=product_forms.ProductCreateForm,
-                         submit_label=Product.save_label,
-                        ):
-    warnings.warn('products.views.product.abstract_add_product() is deprecated ; '
-                  'use the class-based view ProductCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_product(request, form=product_forms.ProductCreateForm,
+#                          submit_label=Product.save_label,
+#                         ):
+#     warnings.warn('products.views.product.abstract_add_product() is deprecated ; '
+#                   'use the class-based view ProductCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_product(request, product_id, form=product_forms.ProductEditForm):
-    warnings.warn('products.views.product.abstract_edit_product() is deprecated ; '
-                  'use the class-based view ProductEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, product_id, Product, form)
+# def abstract_edit_product(request, product_id, form=product_forms.ProductEditForm):
+#     warnings.warn('products.views.product.abstract_edit_product() is deprecated ; '
+#                   'use the class-based view ProductEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, product_id, Product, form)
 
 
-def abstract_view_product(request, product_id,
-                          template='products/view_product.html',
-                         ):
-    warnings.warn('products.views.product.abstract_view_product() is deprecated ; '
-                  'use the class-based view ProductDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, product_id, Product, template=template)
+# def abstract_view_product(request, product_id,
+#                           template='products/view_product.html',
+#                          ):
+#     warnings.warn('products.views.product.abstract_view_product() is deprecated ; '
+#                   'use the class-based view ProductDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, product_id, Product, template=template)
 
 
-@login_required
-@permission_required(('products', cperm(Product)))
-def add(request):
-    warnings.warn('products.views.product.add() is deprecated.', DeprecationWarning)
-    return abstract_add_product(request)
+# @login_required
+# @permission_required(('products', cperm(Product)))
+# def add(request):
+#     warnings.warn('products.views.product.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_product(request)
 
 
-@login_required
-@permission_required('products')
-def edit(request, product_id):
-    warnings.warn('products.views.product.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_product(request, product_id)
+# @login_required
+# @permission_required('products')
+# def edit(request, product_id):
+#     warnings.warn('products.views.product.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_product(request, product_id)
 
 
-@login_required
-@permission_required('products')
-def detailview(request, product_id):
-    warnings.warn('products.views.product.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_product(request, product_id)
+# @login_required
+# @permission_required('products')
+# def detailview(request, product_id):
+#     warnings.warn('products.views.product.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_product(request, product_id)
 
 
 @login_required
