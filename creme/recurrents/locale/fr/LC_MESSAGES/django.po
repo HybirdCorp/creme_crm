@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Recurrents 2.0\n"
+"Project-Id-Version: Creme Recurrents 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 20:28+0200\n"
+"POT-Creation-Date: 2018-12-05 15:13+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "Recurrent documents"
 msgstr "Documents récurrents"
 
-#: apps.py:66
+#: apps.py:53
 msgid "Management"
 msgstr "Gestion"
 
@@ -27,7 +27,7 @@ msgstr "Gestion"
 msgid "Generate recurrent documents"
 msgstr "Générer les documents récurrents"
 
-#: forms/recurrentgenerator.py:41
+#: forms/recurrentgenerator.py:40
 msgid "Type of resource used as template"
 msgstr "Type de ressource utilisé en tant que modèle"
 
