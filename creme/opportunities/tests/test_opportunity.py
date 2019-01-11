@@ -618,14 +618,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         self.assertIsNone(opportunity.estimated_sales)
         self.assertIsNone(opportunity.chance_to_win)
-        self.assertEqual(0, opportunity.get_weighted_sales())
+        # self.assertEqual(0, opportunity.get_weighted_sales())
         self.assertEqual(number_format('0.0', use_l10n=True),
                          funf(opportunity, user).for_html()
                         )
 
         opportunity.estimated_sales = 1000
         opportunity.chance_to_win   =  10
-        self.assertEqual(100, opportunity.get_weighted_sales())
+        # self.assertEqual(100, opportunity.get_weighted_sales())
         self.assertEqual(number_format('100.0', use_l10n=True),
                          funf(opportunity, user).for_html()
                         )
@@ -643,16 +643,16 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         FieldsConfig.get_4_model(Opportunity)
 
+        # with self.assertNumQueries(0):
+        #     w_sales = opportunity.get_weighted_sales()
+        #
+        # self.assertEqual(_('Error: «Estimated sales» is hidden'), w_sales)
+        funf = function_field_registry.get(Opportunity, 'get_weighted_sales')
+
         with self.assertNumQueries(0):
-            w_sales = opportunity.get_weighted_sales()
+            w_sales = funf(opportunity, user).for_html()
 
         self.assertEqual(_('Error: «Estimated sales» is hidden'), w_sales)
-
-        # ---
-        funf = function_field_registry.get(Opportunity, 'get_weighted_sales')
-        self.assertEqual(_('Error: «Estimated sales» is hidden'),
-                         funf(opportunity, user).for_html()
-                        )
 
     def test_delete_currency(self):
         user = self.login()

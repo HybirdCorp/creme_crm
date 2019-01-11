@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-import warnings
+# import warnings
 
 from django.apps import apps
 from django.core.exceptions import ValidationError
@@ -164,23 +164,23 @@ class AbstractOpportunity(CremeEntity):
     def get_lv_absolute_url():
         return reverse('opportunities__list_opportunities')
 
-    def get_weighted_sales(self):
-        warnings.warn('models.AbstractOpportunity.get_weighted_sales() is deprecated ; '
-                      'use function_fields.TurnoverField instead.',
-                      DeprecationWarning
-                     )
-
-        from creme.creme_core.models import FieldsConfig
-
-        is_hidden = FieldsConfig.get_4_model(self.__class__).is_fieldname_hidden
-
-        if is_hidden('estimated_sales'):
-            return ugettext('Error: «Estimated sales» is hidden')
-
-        if is_hidden('chance_to_win'):
-            return ugettext(r'Error: «% of chance to win» is hidden')
-
-        return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
+    # def get_weighted_sales(self):
+    #     warnings.warn('models.AbstractOpportunity.get_weighted_sales() is deprecated ; '
+    #                   'use function_fields.TurnoverField instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     from creme.creme_core.models import FieldsConfig
+    #
+    #     is_hidden = FieldsConfig.get_4_model(self.__class__).is_fieldname_hidden
+    #
+    #     if is_hidden('estimated_sales'):
+    #         return ugettext('Error: «Estimated sales» is hidden')
+    #
+    #     if is_hidden('chance_to_win'):
+    #         return ugettext(r'Error: «% of chance to win» is hidden')
+    #
+    #     return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
 
     def get_total(self):
         if self.made_sales:
