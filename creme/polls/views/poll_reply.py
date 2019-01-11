@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.db.transaction import atomic
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import CremeEntity
+# from creme.creme_core.models import CremeEntity
 from creme.creme_core.templatetags.creme_widgets import get_icon_by_name, get_icon_size_px
 from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
 from creme.creme_core.utils.media import get_current_theme
@@ -57,170 +57,170 @@ _CREATION_PERM = cperm(PollReply)
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_pollreply(request, form=preply_forms.PollRepliesCreateForm,
-                           template='creme_core/generics/blockform/add.html',
-                           submit_label=PollReply.multi_save_label,
-                          ):
-    warnings.warn('polls.views.poll_reply.abstract_add_pollreply() is deprecated ; '
-                  'use the class-based view PollRepliesCreation instead.',
-                  DeprecationWarning
-                 )
-    from creme.creme_core.views.utils import build_cancel_path
-
-    if request.method == 'POST':
-        POST = request.POST
-        reply_form = form(user=request.user, data=POST)
-
-        if reply_form.is_valid():
-            reply_form.save()
-
-            return redirect(reply_form.instance)
-
-        cancel_url = POST.get('cancel_url')
-    else:  # GET
-        reply_form = form(user=request.user)
-        cancel_url = build_cancel_path(request)
-
-    return render(request, template,
-                  {'form':         reply_form,
-                   'title':        PollReply.creation_label,
-                   'submit_label': submit_label,
-                   'cancel_url':   cancel_url,
-                  }
-                 )
-
-
-def abstract_add_preply_from_campaign(request, campaign_id,
-                                      form=preply_forms.PollRepliesCreateForm,
-                                      title=_('New replies for «%s»'),
-                                      submit_label=PollReply.multi_save_label,
-                                     ):
-    warnings.warn('polls.views.poll_reply.abstract_add_preply_from_campaign() is deprecated ; '
-                  'use the class-based view PollRepliesCreationFromCampaign instead.',
-                  DeprecationWarning
-                 )
-
-    campaign = get_object_or_404(polls.get_pollcampaign_model(), pk=campaign_id)
-    user = request.user
-
-    user.has_perm_to_view_or_die(campaign)
-    user.has_perm_to_link_or_die(campaign)
-
-    return generic.add_model_with_popup(request, form,
-                                        title % campaign,
-                                        initial={'campaign': campaign},
-                                        submit_label=submit_label,
-                                       )
+# def abstract_add_pollreply(request, form=preply_forms.PollRepliesCreateForm,
+#                            template='creme_core/generics/blockform/add.html',
+#                            submit_label=PollReply.multi_save_label,
+#                           ):
+#     warnings.warn('polls.views.poll_reply.abstract_add_pollreply() is deprecated ; '
+#                   'use the class-based view PollRepliesCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     from creme.creme_core.views.utils import build_cancel_path
+#
+#     if request.method == 'POST':
+#         POST = request.POST
+#         reply_form = form(user=request.user, data=POST)
+#
+#         if reply_form.is_valid():
+#             reply_form.save()
+#
+#             return redirect(reply_form.instance)
+#
+#         cancel_url = POST.get('cancel_url')
+#     else:  # GET
+#         reply_form = form(user=request.user)
+#         cancel_url = build_cancel_path(request)
+#
+#     return render(request, template,
+#                   {'form':         reply_form,
+#                    'title':        PollReply.creation_label,
+#                    'submit_label': submit_label,
+#                    'cancel_url':   cancel_url,
+#                   }
+#                  )
 
 
-def abstract_add_preply_from_pform(request, pform_id, form=preply_forms.PollRepliesCreateForm,
-                                   title=_('New replies for «%s»'),
-                                   submit_label=PollReply.multi_save_label,
-                                  ):
-    warnings.warn('polls.views.poll_reply.abstract_add_preply_from_pform() is deprecated ; '
-                  'use the class-based view PollRepliesCreationFromPForm instead.',
-                  DeprecationWarning
-                 )
-
-    pform = get_object_or_404(polls.get_pollform_model(), pk=pform_id)
-    user = request.user
-
-    user.has_perm_to_view_or_die(pform)
-    user.has_perm_to_link_or_die(pform)
-
-    return generic.add_model_with_popup(request, form,
-                                        title % pform,
-                                        initial={'pform': pform},
-                                        submit_label=submit_label,
-                                       )
-
-
-def abstract_add_preply_from_person(request, person_id,
-                                    form=preply_forms.PollRepliesCreateForm,
-                                    title=_('New replies for «%s»'),
-                                    submit_label=PollReply.multi_save_label,
-                                   ):
-    warnings.warn('polls.views.poll_reply.abstract_add_preply_from_person() is deprecated ; '
-                  'use the class-based view PollRepliesCreationFromPerson instead.',
-                  DeprecationWarning
-                 )
-
-    person = get_object_or_404(CremeEntity, pk=person_id)
-    user = request.user
-
-    user.has_perm_to_view_or_die(person)
-    user.has_perm_to_link_or_die(person)
-
-    person = person.get_real_entity()
-
-    if not isinstance(person, (Contact, Organisation)):
-        raise Http404('You can only create from Contacts & Organisations')
-
-    return generic.add_model_with_popup(request, form,
-                                        title % person,
-                                        initial={'persons': [person]},
-                                        submit_label=submit_label,
-                                       )
+# def abstract_add_preply_from_campaign(request, campaign_id,
+#                                       form=preply_forms.PollRepliesCreateForm,
+#                                       title=_('New replies for «%s»'),
+#                                       submit_label=PollReply.multi_save_label,
+#                                      ):
+#     warnings.warn('polls.views.poll_reply.abstract_add_preply_from_campaign() is deprecated ; '
+#                   'use the class-based view PollRepliesCreationFromCampaign instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     campaign = get_object_or_404(polls.get_pollcampaign_model(), pk=campaign_id)
+#     user = request.user
+#
+#     user.has_perm_to_view_or_die(campaign)
+#     user.has_perm_to_link_or_die(campaign)
+#
+#     return generic.add_model_with_popup(request, form,
+#                                         title % campaign,
+#                                         initial={'campaign': campaign},
+#                                         submit_label=submit_label,
+#                                        )
 
 
-def abstract_edit_pollreply(request, preply_id, form=preply_forms.PollReplyEditForm):
-    warnings.warn('polls.views.poll_reply.abstract_edit_pollreply() is deprecated ; '
-                  'use the class-based view PollReplyEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, preply_id, PollReply, form)
+# def abstract_add_preply_from_pform(request, pform_id, form=preply_forms.PollRepliesCreateForm,
+#                                    title=_('New replies for «%s»'),
+#                                    submit_label=PollReply.multi_save_label,
+#                                   ):
+#     warnings.warn('polls.views.poll_reply.abstract_add_preply_from_pform() is deprecated ; '
+#                   'use the class-based view PollRepliesCreationFromPForm instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     pform = get_object_or_404(polls.get_pollform_model(), pk=pform_id)
+#     user = request.user
+#
+#     user.has_perm_to_view_or_die(pform)
+#     user.has_perm_to_link_or_die(pform)
+#
+#     return generic.add_model_with_popup(request, form,
+#                                         title % pform,
+#                                         initial={'pform': pform},
+#                                         submit_label=submit_label,
+#                                        )
 
 
-def abstract_view_pollreply(request, preply_id,
-                            template='polls/view_pollreply.html',
-                           ):
-    warnings.warn('polls.views.poll_reply.abstract_view_pollreply() is deprecated ; '
-                  'use the class-based view PollReplyDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, preply_id, PollReply, template=template)
+# def abstract_add_preply_from_person(request, person_id,
+#                                     form=preply_forms.PollRepliesCreateForm,
+#                                     title=_('New replies for «%s»'),
+#                                     submit_label=PollReply.multi_save_label,
+#                                    ):
+#     warnings.warn('polls.views.poll_reply.abstract_add_preply_from_person() is deprecated ; '
+#                   'use the class-based view PollRepliesCreationFromPerson instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     person = get_object_or_404(CremeEntity, pk=person_id)
+#     user = request.user
+#
+#     user.has_perm_to_view_or_die(person)
+#     user.has_perm_to_link_or_die(person)
+#
+#     person = person.get_real_entity()
+#
+#     if not isinstance(person, (Contact, Organisation)):
+#         raise Http404('You can only create from Contacts & Organisations')
+#
+#     return generic.add_model_with_popup(request, form,
+#                                         title % person,
+#                                         initial={'persons': [person]},
+#                                         submit_label=submit_label,
+#                                        )
 
 
-@login_required
-@permission_required(('polls', _CREATION_PERM))
-def add(request):
-    warnings.warn('polls.views.poll_reply.add() is deprecated.', DeprecationWarning)
-    return abstract_add_pollreply(request)
+# def abstract_edit_pollreply(request, preply_id, form=preply_forms.PollReplyEditForm):
+#     warnings.warn('polls.views.poll_reply.abstract_edit_pollreply() is deprecated ; '
+#                   'use the class-based view PollReplyEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, preply_id, PollReply, form)
 
 
-@login_required
-@permission_required(('polls', _CREATION_PERM))
-def add_from_pform(request, pform_id):
-    warnings.warn('polls.views.poll_reply.add_from_pform() is deprecated.', DeprecationWarning)
-    return abstract_add_preply_from_pform(request, pform_id)
+# def abstract_view_pollreply(request, preply_id,
+#                             template='polls/view_pollreply.html',
+#                            ):
+#     warnings.warn('polls.views.poll_reply.abstract_view_pollreply() is deprecated ; '
+#                   'use the class-based view PollReplyDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, preply_id, PollReply, template=template)
 
 
-@login_required
-@permission_required(('polls', _CREATION_PERM))
-def add_from_campaign(request, campaign_id):
-    warnings.warn('polls.views.poll_reply.add_from_campaign() is deprecated.', DeprecationWarning)
-    return abstract_add_preply_from_campaign(request, campaign_id)
+# @login_required
+# @permission_required(('polls', _CREATION_PERM))
+# def add(request):
+#     warnings.warn('polls.views.poll_reply.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_pollreply(request)
 
 
-@login_required
-@permission_required(('polls', _CREATION_PERM))
-def add_from_person(request, person_id):
-    warnings.warn('polls.views.poll_reply.add_from_person() is deprecated.', DeprecationWarning)
-    return abstract_add_preply_from_person(request, person_id)
+# @login_required
+# @permission_required(('polls', _CREATION_PERM))
+# def add_from_pform(request, pform_id):
+#     warnings.warn('polls.views.poll_reply.add_from_pform() is deprecated.', DeprecationWarning)
+#     return abstract_add_preply_from_pform(request, pform_id)
 
 
-@login_required
-@permission_required('polls')
-def edit(request, preply_id):
-    warnings.warn('polls.views.poll_reply.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_pollreply(request, preply_id)
+# @login_required
+# @permission_required(('polls', _CREATION_PERM))
+# def add_from_campaign(request, campaign_id):
+#     warnings.warn('polls.views.poll_reply.add_from_campaign() is deprecated.', DeprecationWarning)
+#     return abstract_add_preply_from_campaign(request, campaign_id)
 
 
-@login_required
-@permission_required('polls')
-def detailview(request, preply_id):
-    warnings.warn('polls.views.poll_reply.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_pollreply(request, preply_id)
+# @login_required
+# @permission_required(('polls', _CREATION_PERM))
+# def add_from_person(request, person_id):
+#     warnings.warn('polls.views.poll_reply.add_from_person() is deprecated.', DeprecationWarning)
+#     return abstract_add_preply_from_person(request, person_id)
+
+
+# @login_required
+# @permission_required('polls')
+# def edit(request, preply_id):
+#     warnings.warn('polls.views.poll_reply.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_pollreply(request, preply_id)
+
+
+# @login_required
+# @permission_required('polls')
+# def detailview(request, preply_id):
+#     warnings.warn('polls.views.poll_reply.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_pollreply(request, preply_id)
 
 
 @login_required

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import ProtectedError
@@ -26,7 +26,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect  # render
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
@@ -44,55 +44,55 @@ PollForm = get_pollform_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_pollform(request, form=pf_forms.PollFormForm,
-                          submit_label=PollForm.save_label,
-                         ):
-    warnings.warn('polls.views.poll_form.abstract_add_pollform() is deprecated ; '
-                  'use the class-based view PollFormCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_pollform(request, form=pf_forms.PollFormForm,
+#                           submit_label=PollForm.save_label,
+#                          ):
+#     warnings.warn('polls.views.poll_form.abstract_add_pollform() is deprecated ; '
+#                   'use the class-based view PollFormCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_pollform(request, pform_id, form=pf_forms.PollFormForm):
-    warnings.warn('polls.views.poll_form.abstract_edit_pollform() is deprecated ; '
-                  'use the class-based view PollFormEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, pform_id, PollForm, form)
+# def abstract_edit_pollform(request, pform_id, form=pf_forms.PollFormForm):
+#     warnings.warn('polls.views.poll_form.abstract_edit_pollform() is deprecated ; '
+#                   'use the class-based view PollFormEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, pform_id, PollForm, form)
 
 
-def abstract_view_pollform(request, pform_id,
-                           template='polls/view_pollform.html',
-                          ):
-    warnings.warn('polls.views.poll_form.abstract_view_pollform() is deprecated ; '
-                  'use the class-based view PollFormDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, pform_id, PollForm, template=template)
+# def abstract_view_pollform(request, pform_id,
+#                            template='polls/view_pollform.html',
+#                           ):
+#     warnings.warn('polls.views.poll_form.abstract_view_pollform() is deprecated ; '
+#                   'use the class-based view PollFormDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, pform_id, PollForm, template=template)
 
 
-@login_required
-@permission_required(('polls', cperm(PollForm)))
-def add(request):
-    warnings.warn('polls.views.poll_form.add() is deprecated.', DeprecationWarning)
-    return abstract_add_pollform(request)
+# @login_required
+# @permission_required(('polls', cperm(PollForm)))
+# def add(request):
+#     warnings.warn('polls.views.poll_form.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_pollform(request)
 
 
-@login_required
-@permission_required('polls')
-def edit(request, pform_id):
-    warnings.warn('polls.views.poll_form.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_pollform(request, pform_id)
+# @login_required
+# @permission_required('polls')
+# def edit(request, pform_id):
+#     warnings.warn('polls.views.poll_form.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_pollform(request, pform_id)
 
 
-@login_required
-@permission_required('polls')
-def detailview(request, pform_id):
-    warnings.warn('polls.views.poll_form.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_pollform(request, pform_id)
+# @login_required
+# @permission_required('polls')
+# def detailview(request, pform_id):
+#     warnings.warn('polls.views.poll_form.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_pollform(request, pform_id)
 
 
 @login_required
