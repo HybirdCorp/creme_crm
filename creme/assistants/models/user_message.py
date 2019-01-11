@@ -22,8 +22,6 @@ from functools import partial
 import logging
 import warnings
 
-# from django.contrib.contenttypes.fields import GenericForeignKey
-# from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.transaction import atomic
 from django.utils.timezone import now
@@ -65,9 +63,6 @@ class UserMessage(CremeModel):
 
     email_sent = models.BooleanField(default=False)
 
-    # entity_content_type = models.ForeignKey(ContentType, null=True, on_delete=models.CASCADE)
-    # entity_id           = models.PositiveIntegerField(null=True)
-    # creme_entity        = GenericForeignKey(ct_field='entity_content_type', fk_field='entity_id')
     entity_content_type = creme_fields.EntityCTypeForeignKey(null=True, related_name='+', editable=False)
     entity              = models.ForeignKey(CremeEntity, null=True,  related_name='assistants_messages',
                                             editable=False, on_delete=models.CASCADE,
@@ -93,18 +88,13 @@ class UserMessage(CremeModel):
     @staticmethod
     def get_messages_for_home(user):
         warnings.warn('UserMessage.get_messages_for_home() is deprecated.', DeprecationWarning)
-        return UserMessage.objects.filter(recipient=user,
-                                          # entity__is_deleted=False
-                                         ).select_related('sender')
+        return UserMessage.objects.filter(recipient=user).select_related('sender')
 
     @staticmethod
     def get_messages_for_ctypes(ct_ids, user):
         warnings.warn('UserMessage.get_messages_for_ctypes() is deprecated.', DeprecationWarning)
         return UserMessage.objects.filter(entity_content_type__in=ct_ids, recipient=user).select_related('sender')
 
-    # @staticmethod
-    # @atomic
-    # def create_messages(users, title, body, priority_id, sender, entity):
     @classmethod
     @atomic
     def create_messages(cls, users, title, body, priority_id, sender, entity):
@@ -119,13 +109,11 @@ class UserMessage(CremeModel):
             else:
                 users_map[user.id] = user
 
-        # build_msg = partial(UserMessage, creation_date=now(),
         build_msg = partial(cls, creation_date=now(),
                             title=title, body=body,
                             priority_id=priority_id,
                             sender=sender, creme_entity=entity,
                            )
-        # UserMessage.objects.bulk_create(build_msg(recipient=user)
         cls.objects.bulk_create(build_msg(recipient=user)
                                     for user in users_map.values()
                                )
@@ -134,14 +122,11 @@ class UserMessage(CremeModel):
 
         usermessages_send_type.refresh_job()
 
-    # @staticmethod
-    # def send_mails(job):
     @classmethod
     def send_mails(cls, job):
         from django.conf import settings
         from django.core.mail import EmailMessage, get_connection
 
-        # usermessages = list(UserMessage.objects.filter(email_sent=False))
         usermessages = list(cls.objects.filter(email_sent=False))
 
         if not usermessages:
@@ -169,6 +154,5 @@ class UserMessage(CremeModel):
                                               ],
                                     )
 
-        # UserMessage.objects.filter(pk__in=[m.id for m in usermessages]) \
         cls.objects.filter(pk__in=[m.id for m in usermessages]) \
                    .update(email_sent=True)

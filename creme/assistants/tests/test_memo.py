@@ -41,7 +41,6 @@ class MemoTestCase(AssistantsTestCase):
 
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
-        # self.assertEqual(_('New Memo for «%s»') % entity, context.get('title'))
         self.assertEqual(_('New memo for «{entity}»').format(entity=entity),
                          context.get('title')
                         )
@@ -69,7 +68,6 @@ class MemoTestCase(AssistantsTestCase):
 
         url = memo.get_edit_absolute_url()
         context = self.assertGET200(url).context
-        # self.assertEqual(_('Memo for «%s»') % self.entity, context.get('title'))
         self.assertEqual(_('Memo for «{entity}»').format(entity=self.entity),
                          context.get('title')
                         )
@@ -106,7 +104,6 @@ will be truncate by str() method"""
         self.assertEqual(0, Memo.objects.count())
 
     def test_function_field01(self):
-        # funf = CremeEntity.function_fields.get('assistants-get_memos')
         funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
         self.assertIsNotNone(funf)
         self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
@@ -117,7 +114,6 @@ will be truncate by str() method"""
         memo.save()
 
     def test_function_field02(self):
-        # funf = CremeEntity.function_fields.get('assistants-get_memos')
         funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
 
         self._oldify_memo(self._create_memo('Content01'))
@@ -138,7 +134,6 @@ will be truncate by str() method"""
         self._oldify_memo(self._create_memo('Content03', entity=entity02))
         self._create_memo('Content04', entity=entity02)
 
-        # funf = CremeEntity.function_fields.get('assistants-get_memos')
         funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
 
         with self.assertNumQueries(1):
@@ -190,9 +185,6 @@ will be truncate by str() method"""
         create_memo(content='Memo#2', on_homepage=False)  # No
         memo3 = create_memo(content='Memo#3')
         create_memo(content='Memo#4', user=self.other_user)  # No (other user)
-
-        # entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
-        # create_memo(content='Memo#4', creme_entity=entity2)  # Not retrieved (deleted entity)
 
         memos = Memo.get_memos_for_home(user=user)
         self.assertIsInstance(memos, QuerySet)

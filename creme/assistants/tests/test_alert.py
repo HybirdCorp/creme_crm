@@ -48,7 +48,6 @@ class AlertTestCase(AssistantsTestCase):
 
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
-        # self.assertEqual(_('New alert for «%s»') % entity, context.get('title'))
         self.assertEqual(_('New alert for «{entity}»').format(entity=entity),
                          context.get('title')
                         )
@@ -95,7 +94,6 @@ class AlertTestCase(AssistantsTestCase):
 
         url = alert.get_edit_absolute_url()
         context = self.assertGET200(url).context
-        # self.assertEqual(_('Alert for «%s»') % self.entity, context.get('title'))
         self.assertEqual(_('Alert for «{entity}»').format(entity=self.entity),
                          context.get('title')
                         )
@@ -146,13 +144,11 @@ class AlertTestCase(AssistantsTestCase):
         self.assertTrue(self.refresh(alert).is_validated)
 
     def test_function_field01(self):
-        # funf = CremeEntity.function_fields.get('assistants-get_alerts')
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
         self.assertIsNotNone(funf)
         self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
 
     def test_function_field02(self):
-        # funf = CremeEntity.function_fields.get('assistants-get_alerts')
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
 
         self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
@@ -181,7 +177,6 @@ class AlertTestCase(AssistantsTestCase):
 
         self._create_alert('Alert04', 'Description04', trigger_date='2010-10-3', entity=entity02)
 
-        # funf = CremeEntity.function_fields.get('assistants-get_alerts')
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
 
         with self.assertNumQueries(1):
@@ -309,9 +304,6 @@ class AlertTestCase(AssistantsTestCase):
         create_alert(title='Alert#2', is_validated=True)  # No (validated)
         alert3 = create_alert(title='Alert#3')
         create_alert(title='Alert#4', user=self.other_user)  # No (other user)
-
-        # entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
-        # create_alert(title='Alert#5', creme_entity=entity2)  # No (deleted entity)
 
         alerts = Alert.get_alerts_for_home(user=user)
         self.assertIsInstance(alerts, QuerySet)

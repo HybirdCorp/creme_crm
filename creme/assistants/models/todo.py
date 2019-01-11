@@ -18,17 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from collections import defaultdict
 import warnings
 
-# from django.contrib.contenttypes.fields import GenericForeignKey
-# from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-# from creme.creme_core.core.function_field import (FunctionField,
-#         FunctionFieldResult, FunctionFieldResultsList)
 from creme.creme_core.models import CremeModel, CremeEntity, fields as creme_fields
 
 
@@ -46,9 +41,6 @@ class ToDo(CremeModel):
     deadline      = models.DateTimeField(_('Deadline'), blank=True, null=True)
     user          = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    # entity_content_type = models.ForeignKey(ContentType, related_name='todo_entity_set', editable=False, on_delete=models.CASCADE)
-    # entity_id           = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
-    # creme_entity        = GenericForeignKey(ct_field='entity_content_type', fk_field='entity_id')
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity              = models.ForeignKey(CremeEntity,  related_name='assistants_todos',
                                             editable=False, on_delete=models.CASCADE,
@@ -82,9 +74,7 @@ class ToDo(CremeModel):
                       'use ToDo.objects.filter_by_user() instead.',
                       DeprecationWarning
                      )
-        return ToDo.objects.filter(user__in=[user] + user.teams,
-                                   # entity__is_deleted=False
-                                  )\
+        return ToDo.objects.filter(user__in=[user] + user.teams)\
                            .select_related('user')
 
     @staticmethod
@@ -100,37 +90,3 @@ class ToDo(CremeModel):
     @property
     def to_be_reminded(self):
         return self.deadline and not self.is_ok and not self.reminded
-
-
-# class _GetTodos(FunctionField):
-#     name         = 'assistants-get_todos'
-#     verbose_name = _(u'Todos')
-#     result_type  = FunctionFieldResultsList
-#
-#     # def __call__(self, entity):
-#     def __call__(self, entity, user):
-#         cache = getattr(entity, '_todos_cache', None)
-#
-#         if cache is None:
-#             cache = entity._todos_cache = list(ToDo.objects.filter(entity_id=entity.id, is_ok=False)
-#                                                            .order_by('-creation_date')
-#                                                            .values_list('title', flat=True)
-#                                               )
-#
-#         return FunctionFieldResultsList(FunctionFieldResult(title) for title in cache)
-#
-#     @classmethod
-#     # def populate_entities(cls, entities):
-#     def populate_entities(cls, entities, user):
-#         todos_map = defaultdict(list)
-#
-#         for title, e_id in ToDo.objects.filter(entity_id__in=[e.id for e in entities], is_ok=False) \
-#                                        .order_by('-creation_date') \
-#                                        .values_list('title', 'entity_id'):
-#             todos_map[e_id].append(title)
-#
-#         for entity in entities:
-#             entity._todos_cache = todos_map[entity.id]
-#
-#
-# CremeEntity.function_fields.add(_GetTodos())

@@ -28,6 +28,5 @@ class MemoForm(CremeModelWithUserForm):
         model = Memo
 
     def __init__(self, entity, *args, **kwargs):
-        # super(MemoForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.instance.creme_entity = entity

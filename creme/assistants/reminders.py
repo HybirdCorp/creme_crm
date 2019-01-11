@@ -28,7 +28,6 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.core.reminder import Reminder
 from creme.creme_core.models import SettingValue
 
-# from .constants import MIN_HOUR_4_TODO_REMINDER
 from .models import Alert, ToDo
 from .setting_keys import todo_reminder_key
 
@@ -51,10 +50,10 @@ class ReminderAlert(AssistantReminder):
         return timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
 
     def generate_email_subject(self, object):
-        return _(u'Reminder concerning a Creme CRM alert related to {entity}').format(entity=object.creme_entity)
+        return _('Reminder concerning a Creme CRM alert related to {entity}').format(entity=object.creme_entity)
 
     def generate_email_body(self, object):
-        return _(u"""This mail is automatically sent by Crème CRM to remind you that an alert concerning {entity} will expire.
+        return _("""This mail is automatically sent by Crème CRM to remind you that an alert concerning {entity} will expire.
             Alert : {title}.
             which description is : {description}.
 
@@ -83,14 +82,13 @@ class ReminderTodo(AssistantReminder):
         return timedelta(days=TODO_REMINDER_DAYS_BEFORE)
 
     def _get_min_hour(self):
-        # return SettingValue.objects.get(key_id=MIN_HOUR_4_TODO_REMINDER).value
         return SettingValue.objects.get_4_key(key=todo_reminder_key, default=9).value
 
     def generate_email_subject(self, object):
-        return _(u'Reminder concerning a Creme CRM todo related to {entity}').format(entity=object.creme_entity)
+        return _('Reminder concerning a Creme CRM todo related to {entity}').format(entity=object.creme_entity)
 
     def generate_email_body(self, object):
-        return _(u"""This mail is automatically sent by Crème CRM to remind you that a todo concerning {entity} will expire.
+        return _("""This mail is automatically sent by Crème CRM to remind you that a todo concerning {entity} will expire.
             Todo : {title}.
             which description is : {description}.
 
@@ -114,7 +112,6 @@ class ReminderTodo(AssistantReminder):
                            .first()
 
         if todo is not None:
-            # wakeup = localtime(todo.deadline) - self._get_delta()
             wakeup = localtime(todo.deadline - self._get_delta())
             min_hour = self._get_min_hour()
 
@@ -125,7 +122,3 @@ class ReminderTodo(AssistantReminder):
                 wakeup = wakeup.replace(hour=min_hour)
 
         return wakeup
-
-
-# reminder_alert = ReminderAlert()
-# reminder_todo  = ReminderTodo()

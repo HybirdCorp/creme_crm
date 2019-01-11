@@ -18,19 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from collections import defaultdict
 import warnings
 
-# from django.contrib.contenttypes.fields import GenericForeignKey
-# from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core import models as creme_models
 from creme.creme_core.models import fields as creme_fields
-# from creme.creme_core.core.function_field import (FunctionField, FunctionFieldResult,
-#         FunctionFieldResultsList)
 
 
 class AlertManager(models.Manager):
@@ -46,9 +41,6 @@ class Alert(creme_models.CremeModel):
     trigger_date = models.DateTimeField(_('Trigger date'))
     user         = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    # entity_content_type = models.ForeignKey(ContentType, related_name='alert_entity_set', editable=False, on_delete=models.CASCADE)
-    # entity_id           = models.PositiveIntegerField(editable=False).set_tags(viewable=False)
-    # creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field='entity_id')
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity              = models.ForeignKey(creme_models.CremeEntity, related_name='assistants_alerts',
                                             editable=False, on_delete=models.CASCADE,
@@ -81,7 +73,6 @@ class Alert(creme_models.CremeModel):
         warnings.warn('Alert.get_alerts_for_home() is deprecated.', DeprecationWarning)
         return Alert.objects.filter(is_validated=False,
                                     user__in=[user] + user.teams,
-                                    # entity__is_deleted=False,
                                    )\
                             .select_related('user')
 
@@ -97,36 +88,3 @@ class Alert(creme_models.CremeModel):
     @property
     def to_be_reminded(self):
         return not self.is_validated and not self.reminded
-
-
-# class _GetAlerts(FunctionField):
-#     name         = 'assistants-get_alerts'
-#     verbose_name = _(u'Alerts')
-#     result_type  = FunctionFieldResultsList
-#
-#     def __call__(self, entity, user):
-#         cache = getattr(entity, '_alerts_cache', None)
-#
-#         if cache is None:
-#             cache = entity._alerts_cache = list(Alert.objects
-#                                                      .filter(entity_id=entity.id, is_validated=False)
-#                                                      .order_by('trigger_date')
-#                                                      .values_list('title', flat=True)
-#                                                )
-#
-#         return FunctionFieldResultsList(FunctionFieldResult(title) for title in cache)
-#
-#     @classmethod
-#     def populate_entities(cls, entities, user):
-#         alerts_map = defaultdict(list)
-#
-#         for title, e_id in Alert.objects.filter(entity_id__in=[e.id for e in entities], is_validated=False) \
-#                                         .order_by('trigger_date') \
-#                                         .values_list('title', 'entity_id'):
-#             alerts_map[e_id].append(title)
-#
-#         for entity in entities:
-#             entity._alerts_cache = alerts_map[entity.id]
-#
-#
-# CremeEntity.function_fields.add(_GetAlerts())

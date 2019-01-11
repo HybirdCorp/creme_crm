@@ -32,10 +32,10 @@ from ..models import ToDo
 
 
 class ToDoForm(CremeModelWithUserForm):
-    deadline_hour = TypedChoiceField(label=_(u'Deadline hour'), coerce=int,
+    deadline_hour = TypedChoiceField(label=_('Deadline hour'), coerce=int,
                                      choices=[(i, '%ih' % i) for i in range(0, 24)],
                                      required=False, empty_value=None, initial=8,
-                                     help_text=_(u'The hour is used only if you set the deadline date.'),
+                                     help_text=_('The hour is used only if you set the deadline date.'),
                                     )
 
     class Meta(CremeModelWithUserForm.Meta):
@@ -43,7 +43,6 @@ class ToDoForm(CremeModelWithUserForm):
         widgets = {'deadline': CalendarWidget}
 
     def __init__(self, entity, *args, **kwargs):
-        # super(ToDoForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.instance.creme_entity = entity
 
@@ -52,7 +51,6 @@ class ToDoForm(CremeModelWithUserForm):
             self.fields['deadline_hour'].initial = localtime(deadline).hour
 
     def clean(self):
-        # cdata = super(ToDoForm, self).clean()
         cdata = super().clean()
 
         if not self._errors:
@@ -63,7 +61,7 @@ class ToDoForm(CremeModelWithUserForm):
                 deadline_hour = get_data('deadline_hour') 
 
                 if deadline_hour is None:
-                    self.add_error('deadline_hour', _(u'The hour is required if you set a date.'))
+                    self.add_error('deadline_hour', _('The hour is required if you set a date.'))
                 else:
                     cdata['deadline'] = make_aware_dt(datetime.combine(deadline,
                                                                        time(deadline_hour)

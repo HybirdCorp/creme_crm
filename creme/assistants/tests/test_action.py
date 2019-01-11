@@ -53,7 +53,6 @@ class ActionTestCase(AssistantsTestCase):
 
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
-        # self.assertEqual(_('New action for «%s»') % entity, context.get('title'))
         self.assertEqual(_('New action for «{entity}»').format(entity=entity),
                          context.get('title')
                         )
@@ -99,7 +98,6 @@ class ActionTestCase(AssistantsTestCase):
 
         url = action.get_edit_absolute_url()
         context = self.assertGET200(url).context
-        # self.assertEqual(_('Action for «%s»') % self.entity, context.get('title'))
         self.assertEqual(_('Action for «{entity}»').format(entity=self.entity),
                          context.get('title')
                         )
@@ -223,10 +221,6 @@ class ActionTestCase(AssistantsTestCase):
         action5 = create_action(title='Action#5', deadline=yesterday)  # No (deadline)
         create_action(title='Action#6', deadline=yesterday, is_ok=True)  # No
         create_action(title='Action#7', deadline=yesterday, user=self.other_user)  # No
-
-        # entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny', is_deleted=True)
-        # create_action(title='Action#8', creme_entity=entity2)  # No (deleted entity)
-        # create_action(title='Action#9', creme_entity=entity2, deadline=yesterday)  # No (deleted entity + deadline)
 
         actions = Action.get_actions_it_for_home(user=user, today=now_value)
         self.assertIsInstance(actions, QuerySet)

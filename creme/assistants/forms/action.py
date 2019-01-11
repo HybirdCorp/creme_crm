@@ -33,14 +33,13 @@ from ..models import Action
 
 # TODO: alright, we need a real date time widget that does this shit !
 class ActionForm(CremeModelWithUserForm):
-    deadline_time = TimeField(label=_(u'Hour'), required=False)
+    deadline_time = TimeField(label=_('Hour'), required=False)
 
     class Meta(CremeModelWithUserForm.Meta):
         model = Action
         widgets = {'deadline': CalendarWidget}
 
     def __init__(self, entity, *args, **kwargs):
-        # super(ActionForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         instance = self.instance
         instance.creme_entity = entity
@@ -54,7 +53,6 @@ class ActionForm(CremeModelWithUserForm):
                                                        )
 
     def clean(self):
-        # cdata = super(ActionForm, self).clean()
         cdata = super().clean()
 
         if not self._errors:
@@ -62,7 +60,7 @@ class ActionForm(CremeModelWithUserForm):
 
             if deadline_time:
                 cdata['deadline'] = make_aware_dt(datetime.combine(cdata['deadline'],
-                                                                   deadline_time
+                                                                   deadline_time,
                                                                   )
                                                  )
 

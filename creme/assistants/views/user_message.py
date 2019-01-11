@@ -31,38 +31,12 @@ from creme.assistants.forms.user_message import UserMessageForm
 from creme.assistants.models import UserMessage
 
 
-# @login_required
-# def add(request):
-#     if request.method == 'POST':
-#         message_form = UserMessageForm(entity=None, user=request.user, data=request.POST)
-#
-#         if message_form.is_valid():
-#             message_form.save()
-#     else:
-#         message_form = UserMessageForm(entity=None, user=request.user)
-#
-#     return generic.inner_popup(
-#         request, 'creme_core/generics/blockform/add_popup.html',
-#         {'form':   message_form,
-#          'title':  _('New message'),
-#          'submit_label': _('Save the message'),
-#         },
-#         is_valid=message_form.is_valid(),
-#         reload=False,
-#         delegate_reload=True,
-#     )
 class UserMessageCreation(generic.CremeModelCreationPopup):
     model = UserMessage
     form_class = UserMessageForm
     title = _('New message')
 
 
-# @login_required
-# def add_to_entity(request, entity_id):
-#     return generic.add_to_entity(request, entity_id, UserMessageForm,
-#                                  _('New message about «%s»'),
-#                                  submit_label=_('Save the message'),
-#                                 )
 class RelatedUserMessageCreation(generic.AddingInstanceToEntityPopup):
     model = UserMessage
     form_class = UserMessageForm

@@ -27,12 +27,10 @@ class UserMessageTestCase(AssistantsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(UserMessageTestCase, cls).setUpClass()
         super().setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
     def tearDown(self):
-        # super(AssistantsTestCase, self).tearDown()
         super().tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
@@ -68,11 +66,9 @@ class UserMessageTestCase(AssistantsTestCase):
 
         entity = self.entity
         response = self.assertGET200(self._build_add_url(entity))
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New message about «%s»') % entity, context.get('title'))
         self.assertEqual(_('New message about «{entity}»').format(entity=entity),
                          context.get('title')
                         )
@@ -154,7 +150,6 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_create03(self):
         "Without related entity"
         response = self.assertGET200(self._build_add_url())
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
@@ -240,15 +235,11 @@ class UserMessageTestCase(AssistantsTestCase):
                                            )
         entity1 = self.entity
         entity2 = FakeOrganisation.objects.create(user=self.user, name='Thousand sunny')
-        # entity3 = FakeOrganisation.objects.create(user=self.user, name='World gvt')
 
         create_msg = self._create_usermessage
         create_msg('TITLE#1', 'BODY#1', priority, [self.other_user], entity1)
         create_msg('TITLE#2', 'BODY#2', priority, [user3],           entity1)
         create_msg('TITLE#3', 'BODY#3', priority, [user3],           entity2)
-        # create_msg('TITLE#4', 'BODY#4', priority, [user3],           entity3)
-
-        # entity3.trash()  # So the related messages will be avoided.
 
         self.assertEqual(['TITLE#2', 'TITLE#3'],
                          [msg.title for msg in UserMessage.get_messages_for_home(user3).order_by('id')]
