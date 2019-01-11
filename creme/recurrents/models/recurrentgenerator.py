@@ -28,31 +28,30 @@ from creme.creme_core.models.fields import CTypeForeignKey, DatePeriodField
 
 
 class AbstractRecurrentGenerator(CremeEntity):
-    name             = CharField(_(u'Name of the generator'), max_length=100, blank=True)
-    description      = TextField(_(u'Description'), blank=True)
-    first_generation = DateTimeField(_(u'Date of the first generation'))
-    last_generation  = DateTimeField(_(u'Date of the last generation'), null=True, editable=False)
-    periodicity      = DatePeriodField(_(u'Periodicity of the generation'))
-    ct               = CTypeForeignKey(verbose_name=_(u'Type of the recurrent resource'), editable=False)
-    template         = ForeignKey(CremeEntity, verbose_name=_(u'Related model'),
+    name             = CharField(_('Name of the generator'), max_length=100, blank=True)
+    description      = TextField(_('Description'), blank=True)
+    first_generation = DateTimeField(_('Date of the first generation'))
+    last_generation  = DateTimeField(_('Date of the last generation'), null=True, editable=False)
+    periodicity      = DatePeriodField(_('Periodicity of the generation'))
+    ct               = CTypeForeignKey(verbose_name=_('Type of the recurrent resource'), editable=False)
+    template         = ForeignKey(CremeEntity, verbose_name=_('Related model'),
                                   related_name='template_set', editable=False,
                                   on_delete=CASCADE,
                                  )
-    is_working       = BooleanField(_(u'Active ?'), editable=False, default=True)  # TODO: useful ?
+    is_working       = BooleanField(_('Active ?'), editable=False, default=True)  # TODO: useful ?
 
-    creation_label = _(u'Create a generator')
-    save_label     = _(u'Save the generator')
+    creation_label = _('Create a generator')
+    save_label     = _('Save the generator')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'recurrents'
-        verbose_name = _(u'Recurrent generator')
-        verbose_name_plural = _(u'Recurrent generators')
+        verbose_name = _('Recurrent generator')
+        verbose_name_plural = _('Recurrent generators')
         ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
-        # super(AbstractRecurrentGenerator, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.__init_refreshing_cache()
 
@@ -80,8 +79,8 @@ class AbstractRecurrentGenerator(CremeEntity):
 
     def save(self, *args, **kwargs):
         from ..creme_jobs import recurrents_gendocs_type
+
         created = bool(not self.pk)
-        # super(AbstractRecurrentGenerator, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
         if created or self._old_first_generation != self.first_generation or \
