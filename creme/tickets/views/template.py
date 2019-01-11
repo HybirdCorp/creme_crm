@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
@@ -31,36 +31,36 @@ from ..forms.template import TicketTemplateForm
 TicketTemplate = get_tickettemplate_model()
 
 
-def abstract_edit_ticket_template(request, template_id, form=TicketTemplateForm):
-    warnings.warn('tickets.views.template.abstract_edit_ticket_template() is deprecated ; '
-                  'use the class-based view TicketTemplateEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, template_id, TicketTemplate, form)
+# def abstract_edit_ticket_template(request, template_id, form=TicketTemplateForm):
+#     warnings.warn('tickets.views.template.abstract_edit_ticket_template() is deprecated ; '
+#                   'use the class-based view TicketTemplateEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, template_id, TicketTemplate, form)
 
 
-def abstract_view_ticket_template(request, template_id,
-                                  template='tickets/view_template.html',
-                                 ):
-    warnings.warn('tickets.views.template.abstract_view_ticket_template() is deprecated ; '
-                  'use the class-based view TicketTemplateDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, template_id, TicketTemplate, template=template)
+# def abstract_view_ticket_template(request, template_id,
+#                                   template='tickets/view_template.html',
+#                                  ):
+#     warnings.warn('tickets.views.template.abstract_view_ticket_template() is deprecated ; '
+#                   'use the class-based view TicketTemplateDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, template_id, TicketTemplate, template=template)
 
 
-@login_required
-@permission_required('tickets')
-def edit(request, template_id):
-    warnings.warn('tickets.views.template.edition() is deprecated.', DeprecationWarning)
-    return abstract_edit_ticket_template(request, template_id)
+# @login_required
+# @permission_required('tickets')
+# def edit(request, template_id):
+#     warnings.warn('tickets.views.template.edition() is deprecated.', DeprecationWarning)
+#     return abstract_edit_ticket_template(request, template_id)
 
 
-@login_required
-@permission_required('tickets')
-def detailview(request, template_id):
-    warnings.warn('tickets.views.template.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_ticket_template(request, template_id)
+# @login_required
+# @permission_required('tickets')
+# def detailview(request, template_id):
+#     warnings.warn('tickets.views.template.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_ticket_template(request, template_id)
 
 
 @login_required

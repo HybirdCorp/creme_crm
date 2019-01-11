@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
@@ -35,58 +35,58 @@ Ticket = get_ticket_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_ticket(request, form=ticket_forms.TicketCreateForm,
-                        submit_label=Ticket.save_label,
-                       ):
-    warnings.warn('tickets.views.ticket.abstract_add_ticket() is deprecated ; '
-                  'use the class-based view TicketCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_initial={'priority':  Priority.objects.first(),
-                                             'criticity': Criticity.objects.first(),
-                                            },
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_ticket(request, form=ticket_forms.TicketCreateForm,
+#                         submit_label=Ticket.save_label,
+#                        ):
+#     warnings.warn('tickets.views.ticket.abstract_add_ticket() is deprecated ; '
+#                   'use the class-based view TicketCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_initial={'priority':  Priority.objects.first(),
+#                                              'criticity': Criticity.objects.first(),
+#                                             },
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_ticket(request, ticket_id, form=ticket_forms.TicketEditForm):
-    warnings.warn('tickets.views.ticket.abstract_edit_ticket() is deprecated ; '
-                  'use the class-based view TicketEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, ticket_id, Ticket, form)
+# def abstract_edit_ticket(request, ticket_id, form=ticket_forms.TicketEditForm):
+#     warnings.warn('tickets.views.ticket.abstract_edit_ticket() is deprecated ; '
+#                   'use the class-based view TicketEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, ticket_id, Ticket, form)
 
 
-def abstract_view_ticket(request, ticket_id,
-                         template='tickets/view_ticket.html',
-                        ):
-    warnings.warn('tickets.views.ticket.abstract_view_ticket() is deprecated ; '
-                  'use the class-based view TicketDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, ticket_id, Ticket, template=template)
+# def abstract_view_ticket(request, ticket_id,
+#                          template='tickets/view_ticket.html',
+#                         ):
+#     warnings.warn('tickets.views.ticket.abstract_view_ticket() is deprecated ; '
+#                   'use the class-based view TicketDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, ticket_id, Ticket, template=template)
 
 
-@login_required
-@permission_required(('tickets', cperm(Ticket)))
-def add(request):
-    warnings.warn('tickets.views.ticket.add() is deprecated.', DeprecationWarning)
-    return abstract_add_ticket(request)
+# @login_required
+# @permission_required(('tickets', cperm(Ticket)))
+# def add(request):
+#     warnings.warn('tickets.views.ticket.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_ticket(request)
 
 
-@login_required
-@permission_required('tickets')
-def edit(request, ticket_id):
-    warnings.warn('tickets.views.ticket.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_ticket(request, ticket_id)
+# @login_required
+# @permission_required('tickets')
+# def edit(request, ticket_id):
+#     warnings.warn('tickets.views.ticket.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_ticket(request, ticket_id)
 
 
-@login_required
-@permission_required('tickets')
-def detailview(request, ticket_id):
-    warnings.warn('tickets.views.ticket.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_ticket(request, ticket_id)
+# @login_required
+# @permission_required('tickets')
+# def detailview(request, ticket_id):
+#     warnings.warn('tickets.views.ticket.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_ticket(request, ticket_id)
 
 
 @login_required

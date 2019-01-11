@@ -144,7 +144,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertNotEqual(number, ticket.number)
 
         self.assertFalse(ticket.closing_date)
-        self.assertFalse(ticket.get_resolving_duration())
+        # self.assertFalse(ticket.get_resolving_duration())
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertIsNotNone(funf)
@@ -186,13 +186,17 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=Criticity.objects.all()[0],
                                       )
         self.assertIsNone(ticket.closing_date)
-        self.assertEqual('', ticket.get_resolving_duration())
+
+        funf = function_field_registry.get(Ticket, 'get_resolving_duration')
+        # self.assertEqual('', ticket.get_resolving_duration())
+        self.assertEqual('', funf(ticket, user).for_html())
 
         ticket.status = get_status(pk=CLOSED_PK)
         ticket.save()
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
         self.assertEqual(timedelta_pprint(ticket.closing_date - ticket.created),
-                         ticket.get_resolving_duration()
+                         # ticket.get_resolving_duration()
+                         funf(ticket, user).for_html()
                         )
 
     def test_get_resolving_duration02(self):
@@ -206,7 +210,10 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        priority=Priority.objects.all()[0],
                                        criticity=Criticity.objects.all()[0],
                                       )
-        self.assertEqual('?', ticket.get_resolving_duration())
+
+        funf = function_field_registry.get(Ticket, 'get_resolving_duration')
+        # self.assertEqual('?', ticket.get_resolving_duration())
+        self.assertEqual('?', funf(ticket, user).for_html())
 
     def test_editview01(self):
         user = self.login()
@@ -243,7 +250,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(title,        ticket.title)
         self.assertEqual(description,  ticket.description)
         self.assertEqual(INVALID_PK,   ticket.status.id)
-        self.assertFalse(ticket.get_resolving_duration())
+        # self.assertFalse(ticket.get_resolving_duration())
 
         self.assertRedirects(response, ticket.get_absolute_url())
 
@@ -278,7 +285,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(CLOSED_PK, ticket.status_id)
 
         self.assertTrue(ticket.closing_date)
-        self.assertTrue(ticket.get_resolving_duration())
+        # self.assertTrue(ticket.get_resolving_duration())
         self.assertTrue(function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user))
 
     def test_listview01(self):

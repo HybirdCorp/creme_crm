@@ -19,7 +19,7 @@
 ################################################################################
 
 from datetime import timedelta
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.db.models import (Model, PositiveIntegerField, CharField, TextField,
@@ -114,20 +114,20 @@ class AbstractTicket(TicketMixin):
 
         return attrs
 
-    def get_resolving_duration(self):
-        warnings.warn('tickets.models.AbstractTicket.get_resolving_duration() is deprecated ; '
-                      'use tickets.function_fields.ResolvingDurationField instead.',
-                      DeprecationWarning
-                     )
-
-        from creme.creme_core.templatetags.creme_date import timedelta_pprint
-
-        if self.status_id == CLOSED_PK:
-            closing_date = self.closing_date
-
-            return timedelta_pprint(closing_date - self.created) if closing_date else '?'
-
-        return ''
+    # def get_resolving_duration(self):
+    #     warnings.warn('tickets.models.AbstractTicket.get_resolving_duration() is deprecated ; '
+    #                   'use tickets.function_fields.ResolvingDurationField instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     from creme.creme_core.templatetags.creme_date import timedelta_pprint
+    #
+    #     if self.status_id == CLOSED_PK:
+    #         closing_date = self.closing_date
+    #
+    #         return timedelta_pprint(closing_date - self.created) if closing_date else '?'
+    #
+    #     return ''
 
     @atomic
     def save(self, *args, **kwargs):
