@@ -62,7 +62,6 @@ class AbstractStrategy(CremeEntity):
         ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
-        # super(AbstractStrategy, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._clear_caches()
 
@@ -79,17 +78,6 @@ class AbstractStrategy(CremeEntity):
         self._charms_scores_map = {}  # Dict of dict of dict for hierarchy: organisation/segment_description/charm
 
         self._segments_categories = {}
-
-    # def delete(self):
-    #     CommercialAssetScore.objects.filter(asset__strategy=self.id).delete()
-    #     MarketSegmentCharmScore.objects.filter(charm__strategy=self.id).delete()
-    #     MarketSegmentCategory.objects.filter(strategy=self.id).delete()
-    #
-    #     self.segment_info.all().delete()
-    #     self.assets.all().delete()
-    #     self.charms.all().delete()
-    #
-    #     super(AbstractStrategy, self).delete()
 
     def get_absolute_url(self):
         return reverse('commercial__view_strategy', args=(self.id,))
@@ -224,7 +212,8 @@ class AbstractStrategy(CremeEntity):
         raise KeyError('Strategy.get_segment_category() for segment: {}'.format(segment))
 
     def _get_segments_categories(self, orga):
-        """@return A dictionary with key= Category (int, between 1 & 4) and value=list of MarketSegmentDescription.
+        """@return A dictionary with key= Category (int, between 1 & 4) and
+                   value=list of MarketSegmentDescription.
         """
         categories = self._segments_categories.get(orga)
 
@@ -348,16 +337,7 @@ class MarketSegmentDescription(CremeModel):
     def __str__(self):
         return self.segment.name
 
-    # def delete(self):
     def delete(self, *args, **kwargs):
-        # # strategy = self.strategy
-        # #
-        # # CommercialAssetScore.objects.filter(segment_desc=self, asset__strategy=strategy).delete()
-        # # MarketSegmentCharmScore.objects.filter(segment_desc=self, charm__strategy=strategy).delete()
-        # # MarketSegmentCategory.objects.filter(strategy=strategy, segment_desc=self).delete()
-        # #
-        # # super(MarketSegmentDescription, self).delete()
-        # super(MarketSegmentDescription, self).delete(*args, **kwargs)
         super().delete(*args, **kwargs)
 
         self.strategy._clear_caches()  # NB: not really useful...

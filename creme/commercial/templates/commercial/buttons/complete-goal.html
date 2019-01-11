@@ -8,19 +8,3 @@
         }
     }{% endblockjsondata %}
 </a>
-{% comment %}
-{% if has_perm and link_perm %}
-{#    <a class="menu_button" onclick="creme.relations.addRelationTo({{object.id}}, '{{predicate_id}}', {{act_ct.id}}, {reloadOnSuccess: true});"> #}
-    <a class="menu_button menu-button-icon" onclick="creme.relations.addRelationTo({{object.id}}, '{{predicate_id}}', {{act_ct.id}});">
-{#        <img src="{% creme_media_url 'images/commercial_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" /> #}
-        {% widget_icon name='commercial' size='instance-button' label=img_title %}
-        {% trans 'Completes a goal' %}
-    </a>
-{% else %}
-    <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
-{#        <img src="{% creme_media_url 'images/commercial_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" /> #}
-        {% widget_icon name='commercial' size='instance-button' label=img_title %}
-        {% trans 'Completes a goal' %}
-    </span>
-{% endif %}
-{% endcomment %}

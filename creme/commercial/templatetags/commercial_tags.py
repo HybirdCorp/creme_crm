@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.template import Library
 
 from creme.creme_core.gui.quick_forms import quickforms_registry

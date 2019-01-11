@@ -36,7 +36,6 @@ class CommercialConfig(CremeAppConfig):
         self.Act      = get_act_model()
         self.Pattern  = get_pattern_model()
         self.Strategy = get_strategy_model()
-        # super(CommercialConfig, self).all_apps_ready()
         super().all_apps_ready()
 
         from . import signals
@@ -72,9 +71,8 @@ class CommercialConfig(CremeAppConfig):
         register(MarketSegmentDescription,     exclude=['segment'])  # TODO: special form for segment
 
     def register_buttons(self, button_registry):
-        # from .buttons import complete_goal_button
-        # button_registry.register(complete_goal_button)
         from . import buttons
+
         button_registry.register(buttons.CompleteGoalButton)
 
     def register_icons(self, icon_registry):
@@ -84,33 +82,15 @@ class CommercialConfig(CremeAppConfig):
         reg_icon(self.Strategy, 'images/commercial_%(size)s.png')
 
     def register_menu(self, creme_menu):
-        # from django.conf import settings
         from django.urls import reverse_lazy as reverse
 
         from creme.persons import get_contact_model
 
+        from .models import MarketSegment
+
         Act = self.Act
         Pattern  = self.Pattern
         Strategy = self.Strategy
-
-        # if settings.OLD_MENU:
-        #     from creme.creme_core.auth import build_creation_perm as cperm
-        #
-        #     reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
-        #     reg_item(reverse('commercial__portal'),          _(u'Portal of commercial strategy'), 'commercial')
-        #     reg_item(reverse('commercial__list_segments'),   _(u'All market segments'),           'commercial')
-        #     reg_item(reverse('commercial__list_acts'),       _(u'All commercial actions'),        'commercial')
-        #     reg_item(reverse('commercial__create_act'),      Act.creation_label,                  cperm(Act))
-        #     reg_item(reverse('commercial__list_strategies'), _(u'All strategies'),                'commercial')
-        #     reg_item(reverse('commercial__create_strategy'), Strategy.creation_label,             cperm(Strategy))
-        #     reg_item(reverse('commercial__list_patterns'),   _(u'All objective patterns'),        'commercial')
-        #     reg_item(reverse('commercial__create_pattern'),  Pattern.creation_label,              cperm(Pattern))
-        #
-        #     reg_item = creme_menu.get_app_item('persons').register_item
-        #     reg_item(reverse('commercial__list_salesmen'),   _(u'All salesmen'),   'persons')
-        #     reg_item(reverse('commercial__create_salesman'), _(u'Add a salesman'), cperm(get_contact_model()))
-        # else:
-        from .models import MarketSegment
 
         URLItem = creme_menu.URLItem
         features = creme_menu.get('features')

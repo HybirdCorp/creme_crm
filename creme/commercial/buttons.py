@@ -29,8 +29,7 @@ from .constants import REL_SUB_COMPLETE_GOAL
 
 class CompleteGoalButton(Button):
     id_           = Button.generate_id('commercial', 'complete_goal')
-    verbose_name  = _(u'Completes a goal (Commercial action)')
-    # template_name = 'commercial/templatetags/button_complete_goal.html'
+    verbose_name  = _('Completes a goal (Commercial action)')
     template_name = 'commercial/buttons/complete-goal.html'
     permission    = 'commercial'
 
@@ -38,8 +37,4 @@ class CompleteGoalButton(Button):
         context['predicate_id'] = REL_SUB_COMPLETE_GOAL
         context['act_ct'] = ContentType.objects.get_for_model(get_act_model())
 
-        # return super(CompleteGoalButton, self).render(context)
         return super().render(context)
-
-
-# complete_goal_button = CompleteGoalButton()

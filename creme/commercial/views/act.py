@@ -23,7 +23,7 @@ import warnings
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _  # ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -92,7 +92,6 @@ def abstract_edit_objective_pattern(request, objpattern_id, form=forms.Objective
 
 
 def abstract_view_act(request, act_id,
-                      # template='creme_core/generics/view_entity.html',
                       template='commercial/view_act.html',
                      ):
     warnings.warn('commercial.views.act.abstract_view_act() is deprecated ; '
@@ -291,18 +290,6 @@ def add_opportunity(request, act_id):
     return abstract_add_opportunity(request, act_id)
 
 
-# @login_required
-# @permission_required('commercial')
-# def _add_objective(request, act_id, form_class):
-#     return generic.add_to_entity(request, act_id, form_class,
-#                                  ugettext('New objective for «%s»'),
-#                                  entity_class=Act,
-#                                  submit_label=_('Save the objective'),
-#                                 )
-
-
-# def add_objective(request, act_id):
-#     return _add_objective(request, act_id, forms.ObjectiveForm)
 class ObjectiveCreation(generic.AddingInstanceToEntityPopup):
     model = ActObjective
     form_class = forms.ObjectiveForm
@@ -311,8 +298,6 @@ class ObjectiveCreation(generic.AddingInstanceToEntityPopup):
     entity_classes = Act
 
 
-# def add_objectives_from_pattern(request, act_id):
-#     return _add_objective(request, act_id, forms.ObjectivesFromPatternForm)
 class ObjectivesCreationFromPattern(generic.RelatedToEntityFormPopup):
     form_class = forms.ObjectivesFromPatternForm
     title = _('New objectives for «{entity}»')
@@ -321,14 +306,6 @@ class ObjectivesCreationFromPattern(generic.RelatedToEntityFormPopup):
     entity_classes = Act
 
 
-# @login_required
-# @permission_required('commercial')
-# def add_pattern_component(request, objpattern_id):
-#     return generic.add_to_entity(request, objpattern_id, forms.PatternComponentForm,
-#                                  ugettext('New objective for «%s»'),
-#                                  entity_class=ActObjectivePattern,
-#                                  submit_label=_('Save the objective'),
-#                                 )
 class PatternComponentCreation(generic.AddingInstanceToEntityPopup):
     model = ActObjectivePatternComponent
     form_class = forms.PatternComponentForm
@@ -338,31 +315,6 @@ class PatternComponentCreation(generic.AddingInstanceToEntityPopup):
     entity_classes = ActObjectivePattern
 
 
-# @login_required
-# @permission_required('commercial')
-# def _add_subpattern_component(request, component_id, form_class, title):
-#     related_comp = get_object_or_404(ActObjectivePatternComponent, pk=component_id)
-#     user = request.user
-#
-#     user.has_perm_to_change_or_die(related_comp.pattern)
-#
-#     if request.method == 'POST':
-#         form = form_class(related_comp, user=user, data=request.POST)
-#
-#         if form.is_valid():
-#             form.save()
-#     else:
-#         form = form_class(related_comp, user=user)
-#
-#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-#                                {'form':  form,
-#                                 'title': title % related_comp,
-#                                 'submit_label': _('Save the objective'),
-#                                },
-#                                is_valid=form.is_valid(),
-#                                reload=False,
-#                                delegate_reload=True,
-#                               )
 class SubPatternComponentCreation(generic.AddingInstanceToEntityPopup):
     model = ActObjectivePatternComponent
     # form_class = ....
@@ -406,35 +358,18 @@ class SubPatternComponentCreation(generic.AddingInstanceToEntityPopup):
         return data
 
 
-# def add_child_pattern_component(request, component_id):
-#     return _add_subpattern_component(request, component_id,
-#                                      forms.PatternChildComponentForm,
-#                                      ugettext('New child objective for «%s»'),
-#                                     )
 class ChildPatternComponentCreation(SubPatternComponentCreation):
     form_class = forms.PatternChildComponentForm
     title = _('New child objective for «{component}»')
     component_form_kwarg = 'parent'
 
 
-# def add_parent_pattern_component(request, component_id):
-#     return _add_subpattern_component(request, component_id,
-#                                      forms.PatternParentComponentForm,
-#                                      ugettext('New parent objective for «%s»'),
-#                                     )
 class ParentPatternComponentCreation(SubPatternComponentCreation):
     form_class = forms.PatternParentComponentForm
     title = _('New parent objective for «{component}»')
     component_form_kwarg = 'child'
 
 
-# @login_required
-# @permission_required('commercial')
-# def edit_objective(request, objective_id):
-#     return generic.edit_related_to_entity(request, objective_id, ActObjective,
-#                                           forms.ObjectiveForm,
-#                                           ugettext('Objective for «%s»'),
-#                                          )
 class ObjectiveEdition(generic.RelatedToEntityEditionPopup):
     model = ActObjective
     form_class = forms.ObjectiveForm
@@ -464,51 +399,6 @@ def incr_objective_counter(request, objective_id):
     return HttpResponse()
 
 
-# @login_required
-# @permission_required('commercial')
-# def create_objective_entity(request, objective_id):
-#     objective = get_object_or_404(ActObjective, pk=objective_id)
-#     user = request.user
-#     user.has_perm_to_link_or_die(objective.act)
-#
-#     ctype = objective.ctype
-#     if ctype is None:
-#         raise ConflictError('This objective is not a relationship counter.')
-#
-#     if objective.filter_id is not None:
-#         raise ConflictError('This objective has a filter, so you cannot build a related entity.')
-#
-#     model = ctype.model_class()
-#     user.has_perm_to_create_or_die(model)
-#     user.has_perm_to_link_or_die(model)
-#
-#     form_class = quickforms_registry.get_form(model)
-#     if form_class is None:
-#         raise ConflictError('This type of resource has no quick form.')
-#
-#     if request.method == 'POST':
-#         form = form_class(user=user, data=request.POST)
-#
-#         if form.is_valid():
-#             with atomic():
-#                 entity = form.save()
-#                 Relation.objects.create(subject_entity=entity,
-#                                         type_id=constants.REL_SUB_COMPLETE_GOAL,
-#                                         object_entity=objective.act,
-#                                         user=user,
-#                                        )
-#     else:  # return page on GET request
-#         form = form_class(user=user)
-#
-#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-#                                {'form':  form,
-#                                 'title': model.creation_label,
-#                                 'submit_label': model.save_label,
-#                                },
-#                                is_valid=form.is_valid(),
-#                                reload=False,
-#                                delegate_reload=True,
-#                               )
 class RelatedEntityCreation(generic.AddingInstanceToEntityPopup):
     # model = ...
     # form_class = ....

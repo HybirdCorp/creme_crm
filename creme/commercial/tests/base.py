@@ -52,9 +52,6 @@ class CommercialBaseTestCase(CremeTestCase):
     def _build_add_segmentdesc_url(self, strategy):
         return reverse('commercial__create_segment_desc', args=(strategy.id,))
 
-    # def _build_ctypefilter_field(self, ctype=None, efilter=None):
-    #     return '{"ctype": "%s", "efilter": "%s"}' % (ctype.id if ctype else 0, efilter.id if efilter else '')
-
     def _create_segment(self, name='Segment#1'):
         self.assertNoFormError(self.client.post(self.ADD_SEGMENT_URL, data={'name': name}))
 

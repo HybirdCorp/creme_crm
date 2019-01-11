@@ -35,7 +35,6 @@ except Exception as e:
 class ActTestCase(CommercialBaseTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(CommercialBaseTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.ADD_URL = reverse('commercial__create_act')
@@ -121,7 +120,7 @@ class ActTestCase(CommercialBaseTestCase):
                                              )
                                     )
 
-        msg = _(u"This field is required.")
+        msg = _('This field is required.')
         self.assertFormError(post(start='2011-11-20'),    'form', 'due_date', msg)
         self.assertFormError(post(due_date='2011-11-20'), 'form', 'start',    msg)
 
@@ -356,7 +355,6 @@ class ActTestCase(CommercialBaseTestCase):
         url = self._build_addobjective_url(act)
 
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New objective for «%s»') % act, context.get('title'))
         self.assertEqual(_('New objective for «{entity}»').format(entity=act),
                          context.get('title')
                         )
@@ -474,11 +472,9 @@ class ActTestCase(CommercialBaseTestCase):
         url = self._build_addobjectivefrompattern_url(act)
 
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New objective for «%s»') % act, context.get('title'))
         self.assertEqual(_('New objectives for «{entity}»').format(entity=act),
                          context.get('title')
                         )
-        # self.assertEqual(_('Save the objective'),           context.get('submit_label'))
         self.assertEqual(_('Save the objectives'), context.get('submit_label'))
 
         # ---
@@ -563,10 +559,7 @@ class ActTestCase(CommercialBaseTestCase):
 
         url = objective.get_edit_absolute_url()
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-
-        # self.assertEqual(_('Objective for «%s»') % act, response.context.get('title'))
         self.assertEqual(_('Objective for «{entity}»').format(entity=act),
                          response.context.get('title')
                         )
@@ -629,7 +622,6 @@ class ActTestCase(CommercialBaseTestCase):
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         ct = ContentType.objects.get_for_model(ActObjective)
 
-        # response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
         response = self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
                                     data={'id': objective.id}
                                    )
@@ -671,11 +663,9 @@ class ActTestCase(CommercialBaseTestCase):
 
         url = self._build_create_related_entity_url(objective)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New parent objective for «%s»') % comp01, context.get('title'))
         self.assertEqual(Organisation.creation_label, context.get('title'))
         self.assertEqual(Organisation.save_label,     context.get('submit_label'))
 

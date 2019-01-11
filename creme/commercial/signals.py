@@ -18,14 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from functools import partial
-
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save  # pre_delete
 from django.dispatch import receiver
 
-from creme.creme_core.models import Relation  # CremeEntity
-# from creme.creme_core.signals import pre_merge_related
+from creme.creme_core.models import Relation
 
 from creme.activities import get_activity_model
 from creme.activities.constants import REL_OBJ_ACTIVITY_SUBJECT
@@ -45,19 +42,6 @@ def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
         get_ct = ContentType.objects.get_for_model
 
         if object_entity.entity_type == get_ct(get_opportunity_model()):
-            # relations = Relation.objects.filter(subject_entity=object_entity,
-            #                                     type=REL_SUB_COMPLETE_GOAL,
-            #                                     object_entity__entity_type=get_ct(get_act_model()),
-            #                                    )
-            #
-            # create_relation = partial(Relation.objects.create,
-            #                           subject_entity=instance.subject_entity,
-            #                           type_id=REL_SUB_COMPLETE_GOAL,
-            #                           user=instance.user,
-            #                          )
-            #
-            # for relation in relations:
-            #     create_relation(object_entity=relation.object_entity)
             activity = instance.subject_entity
             user = instance.user
 
@@ -73,18 +57,6 @@ def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
                                                    object_entity__entity_type=get_ct(get_act_model()),
                                                   )
             )
-
-
-# @receiver(pre_delete, sender=CremeEntity)
-# def dispose_comapps(sender, instance, **kwargs):
-#     CommercialApproach.objects.filter(entity_id=instance.id).delete()
-#
-#
-# @receiver(pre_merge_related)
-# def handle_merge(sender, other_entity, **kwargs):
-#     for commapp in CommercialApproach.objects.filter(entity_id=other_entity.id):
-#         commapp.creme_entity = sender
-#         commapp.save()
 
 
 @receiver(post_save, sender=get_activity_model())

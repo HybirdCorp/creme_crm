@@ -2,7 +2,6 @@
 
 try:
     from functools import partial
-    # from json import loads as load_json
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
@@ -25,14 +24,9 @@ except Exception as e:
 
 @skipIfCustomStrategy
 class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
-    # def setUp(self):
-    #     self.login()
-
     def _build_link_segment_url(self, strategy):
         return reverse('commercial__link_segment', args=(strategy.id,))
 
-    # def _build_edit_segmentdesc_url(self, strategy, segment_desc):
-    #     return reverse('commercial__edit_segment_desc', args=(strategy.id, segment_desc.id))
     def _build_edit_segmentdesc_url(self, segment_desc):
         return reverse('commercial__edit_segment_desc', args=(segment_desc.id,))
 
@@ -109,7 +103,6 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         url = reverse('commercial__create_segment_desc', args=(strategy.id,))
 
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New market segment for «%s»') % strategy, context.get('title'))
         self.assertEqual(_('New market segment for «{entity}»').format(entity=strategy),
                          context.get('title')
                         )
@@ -202,7 +195,6 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = self._build_link_segment_url(strategy02)
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New market segment for «%s»') % strategy02, context.get('title'))
         self.assertEqual(_('New market segment for «{entity}»').format(entity=strategy02),
                          context.get('title')
                         )
@@ -238,12 +230,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         name = 'Industry'
         segment_desc = self._create_segment_desc(strategy, name)
 
-        # url = self._build_edit_segmentdesc_url(strategy, segment_desc)
         url = self._build_edit_segmentdesc_url(segment_desc)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Segment for «%s»') % strategy, response.context.get('title'))
         self.assertEqual(_('Segment for «{entity}»').format(entity=strategy),
                          response.context.get('title')
                         )
@@ -282,7 +271,6 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         segment_desc = self._create_segment_desc(strategy, name, product=product)
 
         product = product.title()
-        # response = self.client.post(self._build_edit_segmentdesc_url(strategy, segment_desc),
         response = self.client.post(self._build_edit_segmentdesc_url(segment_desc),
                                     data={'name':    name,
                                           'product': product,
@@ -315,7 +303,6 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertFalse(segment_desc.product)
 
         product = 'Description about product'
-        # response = self.client.post(self._build_edit_segmentdesc_url(strategy, segment_desc),
         response = self.client.post(self._build_edit_segmentdesc_url(segment_desc),
                                     data={'name':    segment.name,
                                           'product': product,
@@ -330,7 +317,6 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = reverse('commercial__create_asset', args=(strategy.id,))
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New commercial asset for «%s»') % strategy, context.get('title'))
         self.assertEqual(_('New commercial asset for «{entity}»').format(entity=strategy),
                          context.get('title')
                         )
@@ -348,9 +334,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         asset = CommercialAsset.objects.create(name=name, strategy=strategy)
         url = asset.get_edit_absolute_url()
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Asset for «%s»') % strategy, response.context.get('title'))
         self.assertEqual(_('Asset for «{entity}»').format(entity=strategy),
                          response.context.get('title')
                         )
@@ -381,7 +365,6 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = reverse('commercial__create_charm', args=(strategy.id,))
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New segment charm for «%s»') % strategy, context.get('title'))
         self.assertEqual(_('New segment charm for «{entity}»').format(entity=strategy),
                          context.get('title')
                         )
@@ -399,9 +382,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = charm.get_edit_absolute_url()
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Charm for «%s»') % strategy, response.context.get('title'))
         self.assertEqual(_('Charm for «{entity}»').format(entity=strategy),
                          response.context.get('title')
                         )
@@ -438,11 +419,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = reverse('commercial__add_evaluated_orgas', args=(strategy.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New organisation(s) for «%s»') % strategy, context.get('title'))
         self.assertEqual(_('New organisation(s) for «{entity}»').format(entity=strategy),
                          context.get('title')
                         )
@@ -941,31 +920,6 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertGET(400, build_url(segment_desc, 'strategy'))
         self.assertGET(400, build_url(segment_desc, 'segment'))
 
-    # @skipIfCustomOrganisation
-    # def test_reload_assets_matrix_legacy(self):
-    #     strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-    #     segment_desc = self._create_segment_desc(strategy, 'Industry')
-    #     asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
-    #
-    #     orga = Organisation.objects.create(user=self.user, name='Nerv')
-    #     strategy.evaluated_orgas.add(orga)
-    #
-    #     self._set_asset_score(strategy, orga, asset, segment_desc, 1)
-    #
-    #     response = self.assertGET200(reverse('commercial__reload_assets_matrix', args=(strategy.id, orga.id)))
-    #
-    #     with self.assertNoException():
-    #         result = load_json(response.content)
-    #
-    #     self.assertIsInstance(result, list)
-    #     self.assertEqual(1, len(result))
-    #
-    #     result = result[0]
-    #     self.assertIsInstance(result, list)
-    #     self.assertEqual(2, len(result))
-    #     self.assertEqual(AssetsMatrixBrick.id_, result[0])
-    #     self.get_brick_node(self.get_html_tree(result[1]), AssetsMatrixBrick.id_)
-
     @skipIfCustomOrganisation
     def test_reload_assets_matrix(self):
         user = self.login()
@@ -982,10 +936,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
                                      data={'brick_id': brick_id},
                                     )
 
-        # with self.assertNoException():
-        #     result = load_json(response.content)
         result = response.json()
-
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
 
@@ -994,27 +945,6 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(result))
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
-
-    # @skipIfCustomOrganisation
-    # def test_reload_charms_matrix_legacy(self):
-    #     strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-    #     segment_desc = self._create_segment_desc(strategy, 'Industry')
-    #     charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
-    #
-    #     orga = Organisation.objects.create(user=self.user, name='Nerv')
-    #     strategy.evaluated_orgas.add(orga)
-    #
-    #     self._set_charm_score(strategy, orga, charm, segment_desc, 1)
-    #
-    #     response = self.assertGET200(reverse('commercial__reload_charms_matrix', args=(strategy.id, orga.id)))
-    #
-    #     with self.assertNoException():
-    #         result = load_json(response.content)
-    #
-    #     result = result[0]
-    #     brick_id = CharmsMatrixBrick.id_
-    #     self.assertEqual(brick_id, result[0])
-    #     self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
     @skipIfCustomOrganisation
     def test_reload_charms_matrix(self):
@@ -1032,36 +962,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
                                      data={'brick_id': brick_id},
                                     )
 
-        # with self.assertNoException():
-        #     results = load_json(response.content)
-
-        # result = results[0]
         result = response.json()[0]
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
-
-    # @skipIfCustomOrganisation
-    # def test_reload_assets_charms_matrix_legacy(self):
-    #     strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-    #     segment_desc = self._create_segment_desc(strategy, 'Industry')
-    #     asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
-    #     charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
-    #
-    #     orga = Organisation.objects.create(user=self.user, name='Nerv')
-    #     strategy.evaluated_orgas.add(orga)
-    #
-    #     self._set_asset_score(strategy, orga, asset, segment_desc, 1)
-    #     self._set_charm_score(strategy, orga, charm, segment_desc, 1)
-    #
-    #     response = self.assertGET200(reverse('commercial__reload_assets_charms_matrix', args=(strategy.id, orga.id)))
-    #
-    #     with self.assertNoException():
-    #         result = load_json(response.content)
-    #
-    #     result = result[0]
-    #     brick_id = AssetsCharmsMatrixBrick.id_
-    #     self.assertEqual(brick_id, result[0])
-    #     self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
     @skipIfCustomOrganisation
     def test_reload_assets_charms_matrix(self):
@@ -1082,10 +985,6 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
                                      data={'brick_id': brick_id},
                                     )
 
-        # with self.assertNoException():
-        #     result = load_json(response.content)
-        #
-        # result = result[0]
         result = response.json()[0]
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)

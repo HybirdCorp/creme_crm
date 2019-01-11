@@ -35,7 +35,6 @@ class SalesManCreateForm(ContactForm):
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        # instance = super(SalesManCreateForm, self).save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
 
         CremeProperty.objects.create(type_id=PROP_IS_A_SALESMAN, creme_entity=instance)
