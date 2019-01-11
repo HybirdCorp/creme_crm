@@ -53,7 +53,6 @@ creme.reports.ExportReportAction = creme.component.Action.sub({
     }
 });
 
-// creme.reports.exportReport = function(title, filterform_url, export_preview_url, export_url) {
 creme.reports.exportReport = function(filterUrl) {
     return new creme.reports.ExportReportAction({
         filterUrl: filterUrl

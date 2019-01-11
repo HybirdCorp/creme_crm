@@ -216,8 +216,6 @@ class RHRegularField(ReportHand):
         except FieldDoesNotExist as e:
             raise ReportHand.ValueError('Invalid field: "{}" (does not exist)'.format(report_field.name)) from e
 
-        # if len(field_info) > 1 and isinstance(field_info[1], (ForeignKey, ManyToManyField)):
-        #      raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
         info_length = len(field_info)
         if info_length > 1:
             if info_length > 2:
@@ -226,7 +224,6 @@ class RHRegularField(ReportHand):
             second_part = field_info[1]
 
             if (isinstance(second_part, (ForeignKey, ManyToManyField)) and
-               # issubclass(second_part.rel.to, CremeEntity)):
                issubclass(second_part.remote_field.model, CremeEntity)):
                 raise ReportHand.ValueError('Invalid field: "{}" (no entity at depth=1)'.format(report_field.name))
 
@@ -242,7 +239,6 @@ class RHRegularField(ReportHand):
 
     def __init__(self, report_field, support_subreport=False, title=None):
         model = report_field.model
-        # super(RHRegularField, self).__init__(report_field,
         super().__init__(report_field,
                          title=title or self._field_info.verbose_name,
                          support_subreport=support_subreport,
@@ -274,7 +270,6 @@ class RHForeignKey(RHRegularField):
         field_info = self._field_info
         fk_field = field_info[0]
         self._fk_attr_name = fk_field.get_attname()
-        # fk_model = fk_field.rel.to
         fk_model = fk_field.remote_field.model
         self._linked2entity = issubclass(fk_model, CremeEntity)
         qs = fk_model.objects.all()
@@ -297,7 +292,6 @@ class RHForeignKey(RHRegularField):
                 self._value_extractor = lambda fk_instance, user: str(fk_instance)
 
         self._qs = qs
-        # super(RHForeignKey, self).__init__(report_field,
         super().__init__(report_field,
                          support_subreport=True,
                          title=str(fk_field.verbose_name) if sub_report else None,
@@ -341,7 +335,6 @@ class RHForeignKey(RHRegularField):
 
 class RHManyToManyField(RHRegularField):
     def __init__(self, report_field):
-        # super(RHManyToManyField, self).__init__(report_field, support_subreport=True)
         super().__init__(report_field, support_subreport=True)
         field_info = self._field_info
 
@@ -357,7 +350,6 @@ class RHManyToManyField(RHRegularField):
         return getattr(entity, self._field_info[0].name).all()
 
     def get_linkable_ctypes(self):
-        # m2m_model = self._field_info[0].rel.to
         m2m_model = self._field_info[0].remote_field.model
 
         return (ContentType.objects.get_for_model(m2m_model),) \
@@ -374,7 +366,6 @@ class RHCustomField(ReportHand):
         except CustomField.DoesNotExist as e:
             raise ReportHand.ValueError('Invalid custom field: "{}"'.format(report_field.name)) from e
 
-        # super(RHCustomField, self).__init__(report_field, title=cf.name)
         super().__init__(report_field, title=cf.name)
 
     def _get_value_single_on_allowed(self, entity, user, scope):
@@ -397,7 +388,6 @@ class RHRelation(ReportHand):
         if report_field.sub_report:
             self._related_model = report_field.sub_report.ct.model_class()
 
-        # super(RHRelation, self).__init__(report_field,
         super().__init__(report_field,
                          title=str(rtype.predicate),
                          support_subreport=True,
@@ -430,7 +420,6 @@ class RHFunctionField(ReportHand):
     verbose_name = _('Computed field')
 
     def __init__(self, report_field):
-        # funcfield = report_field.model.function_fields.get(report_field.name)
         # TODO: get registry as argument
         funcfield = function_field_registry.get(report_field.model, report_field.name)
         if not funcfield:
@@ -438,11 +427,9 @@ class RHFunctionField(ReportHand):
 
         self._funcfield = funcfield
 
-        # super(RHFunctionField, self).__init__(report_field, title=str(funcfield.verbose_name))
         super().__init__(report_field, title=str(funcfield.verbose_name))
 
     def _get_value_single_on_allowed(self, entity, user, scope):
-        # return self._funcfield(entity).for_csv()
         return self._funcfield(entity, user).for_csv()
 
 
@@ -463,7 +450,6 @@ class RHAggregate(ReportHand):
                                                                       aggregation,
                                                                      )
 
-        # super(RHAggregate, self).__init__(report_field,
         super().__init__(report_field,
                          title='{} - {}'.format(aggregation.title, verbose_name),
                         )
@@ -527,7 +513,6 @@ class RHRelated(ReportHand):
         self._related_field = related_field
         self._attr_name = related_field.get_accessor_name()
 
-        # super(RHRelated, self).__init__(report_field,
         super().__init__(report_field,
                          title=str(related_field.related_model._meta.verbose_name),
                          support_subreport=True,

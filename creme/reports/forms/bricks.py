@@ -30,7 +30,6 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator
 from .. import get_rgraph_model
 
 
-# InstanceBlockConfigItemError = get_rgraph_model().InstanceBlockConfigItemError
 InstanceBrickConfigItemError = get_rgraph_model().InstanceBrickConfigItemError
 
 
@@ -43,12 +42,9 @@ class GraphInstanceBrickForm(CremeForm):
                                              ),
                                  )
 
-    # def __init__(self, graph, *args, **kwargs):
     def __init__(self, graph, instance=None, *args, **kwargs):
-        # super(GraphInstanceBrickForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.graph = graph
-        # self.fields['volatile_column'].choices = self._get_volatile_choices(graph.report.ct)
         self.fields['volatile_column'].choices = self._get_volatile_choices(graph.linked_report.ct)
 
     def _get_volatile_choices(self, ct):
@@ -56,7 +52,6 @@ class GraphInstanceBrickForm(CremeForm):
         fk_choices = [('fk-' + name, vname)
                         for name, vname in ModelFieldEnumerator(ct.model_class(), deep=0, only_leafs=False)
                                             .filter((lambda f, deep: isinstance(f, ForeignKey) and
-                                                                     # issubclass(f.rel.to, CremeEntity)
                                                                      issubclass(f.remote_field.model, CremeEntity)
                                                     ),
                                                     viewable=True,
@@ -85,7 +80,6 @@ class GraphInstanceBrickForm(CremeForm):
         return choices
 
     def clean(self):
-        # cleaned_data = super(GraphInstanceBrickForm, self).clean()
         cleaned_data = super().clean()
         volatile_column = cleaned_data.get('volatile_column')
         kwargs = {}
@@ -99,9 +93,7 @@ class GraphInstanceBrickForm(CremeForm):
                 kwargs['volatile_rtype'] = self._rtypes[link_val]
 
         try:
-            # self.ibci = self.graph.create_instance_block_config_item(save=False, **kwargs)
             self.ibci = self.graph.create_instance_brick_config_item(save=False, **kwargs)
-        # except InstanceBlockConfigItemError as e:
         except InstanceBrickConfigItemError as e:
             raise ValidationError(str(e)) from e
 

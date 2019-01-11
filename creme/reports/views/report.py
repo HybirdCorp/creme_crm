@@ -24,15 +24,13 @@ import warnings
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _  # ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
-# from creme.creme_core.utils.db import reorder_instances
 from creme.creme_core.views import generic
-# from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic.order import ReorderInstances
 
 from .. import get_report_model
@@ -132,42 +130,6 @@ def unlink_report(request):
     return HttpResponse()
 
 
-# @login_required
-# @permission_required('reports')
-# def link_report(request, field_id):
-#     rfield = get_object_or_404(Field, pk=field_id)
-#     user = request.user
-#
-#     user.has_perm_to_link_or_die(rfield.report)
-#
-#     hand = rfield.hand
-#
-#     if hand is None:
-#         raise ConflictError('This field is invalid')  # todo: force brick to reload
-#
-#     ctypes = rfield.hand.get_linkable_ctypes()
-#
-#     if ctypes is None:
-#         raise ConflictError('This field is not linkable')
-#
-#     if request.method == 'POST':
-#         link_form = report_forms.LinkFieldToReportForm(rfield, ctypes, user=user, data=request.POST)
-#
-#         if link_form.is_valid():
-#             link_form.save()
-#     else:
-#         link_form = report_forms.LinkFieldToReportForm(rfield, ctypes, user=user)
-#
-#     return generic.inner_popup(request,
-#                                'creme_core/generics/blockform/link_popup.html',
-#                                {'form': link_form,
-#                                 'title': ugettext('Link of the column «{}»').format(rfield),
-#                                 'submit_label': _('Link'),
-#                                },
-#                                is_valid=link_form.is_valid(),
-#                                reload=False,
-#                                delegate_reload=True,
-#                               )
 # NB: cannot use RelatedToEntityEdition because Field hss no get_related_entity() method
 class ReportLinking(generic.CremeModelEditionPopup):
     model = Field
@@ -201,21 +163,6 @@ class ReportLinking(generic.CremeModelEditionPopup):
         return kwargs
 
 
-# @login_required
-# @permission_required('reports')
-# def edit_fields(request, report_id):
-#     # return generic.add_to_entity(request, report_id, report_forms.ReportFieldsForm,
-#     #                              _('Edit columns of «%s»'),
-#     #                              entity_class=Report,
-#     #                              submit_label=_('Save the modifications'),
-#     #                              template='creme_core/generics/blockform/edit_popup.html',
-#     #                             )
-#     return generic.edit_model_with_popup(request,
-#                                          model=Report,
-#                                          query_dict={'id': report_id},
-#                                          form_class=report_forms.ReportFieldsForm,
-#                                          title_format=_('Edit columns of «%s»'),
-#                                         )
 class FieldsEdition(generic.EntityEditionPopup):
     model = Report
     form_class = report_forms.ReportFieldsForm
@@ -223,22 +170,6 @@ class FieldsEdition(generic.EntityEditionPopup):
     title = _('Edit columns of «{object}»')
 
 
-# @POST_only
-# @login_required
-# @permission_required('reports')
-# def reorder_field(request, field_id):
-#     new_order = get_from_POST_or_404(request.POST, 'target', int)
-#     rfield = get_object_or_404(Field, pk=field_id)
-#
-#     report = rfield.report
-#     request.user.has_perm_to_change_or_die(report)
-#
-#     try:
-#         reorder_instances(moved_instance=rfield, new_order=new_order, queryset=report.fields)
-#     except Exception as e:
-#         return HttpResponse(e, status=409)
-#
-#     return HttpResponse()
 class MoveField(ReorderInstances):
     pk_url_kwarg = 'field_id'
     use_select_for_update = False  # We use our own select_for_update()

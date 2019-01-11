@@ -38,14 +38,14 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractReport(CremeEntity):
-    name   = CharField(_(u'Name of the report'), max_length=100)
-    ct     = EntityCTypeForeignKey(verbose_name=_(u'Entity type'))
-    filter = ForeignKey(EntityFilter, verbose_name=_(u'Filter'),
+    name   = CharField(_('Name of the report'), max_length=100)
+    ct     = EntityCTypeForeignKey(verbose_name=_('Entity type'))
+    filter = ForeignKey(EntityFilter, verbose_name=_('Filter'),
                         blank=True, null=True, on_delete=PROTECT,
-                       ).set_null_label(_(u'No filter'))
+                       ).set_null_label(_('No filter'))
 
-    creation_label = _(u'Create a report')
-    save_label     = _(u'Save the report')
+    creation_label = _('Create a report')
+    save_label     = _('Save the report')
 
     _columns = None
 
@@ -53,8 +53,8 @@ class AbstractReport(CremeEntity):
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'reports'
-        verbose_name = _(u'Report')
-        verbose_name_plural = _(u'Reports')
+        verbose_name = _('Report')
+        verbose_name_plural = _('Reports')
         ordering = ('name',)
 
     def __str__(self):
@@ -168,7 +168,6 @@ class AbstractReport(CremeEntity):
         for graph in source.reportgraph_set.all():
             # TODO: avoid multiple save()
             new_graph = graph.clone()
-            # new_graph.report = self
             new_graph.linked_report = self
             new_graph.save()
 
@@ -202,7 +201,7 @@ class Report(AbstractReport):
 class Field(CremeModel):
     report     = ForeignKey(settings.REPORTS_REPORT_MODEL, related_name='fields', on_delete=CASCADE)\
                            .set_tags(viewable=False)
-    name       = CharField(_(u'Name of the column'), max_length=100).set_tags(viewable=False)
+    name       = CharField(_('Name of the column'), max_length=100).set_tags(viewable=False)
     order      = PositiveIntegerField().set_tags(viewable=False)
     type       = PositiveSmallIntegerField().set_tags(viewable=False)  # ==> see RFT_* in constants #Add in choices ?
     selected   = BooleanField(default=False).set_tags(viewable=False)  # Use this field to expand
@@ -213,8 +212,8 @@ class Field(CremeModel):
 
     class Meta:
         app_label = 'reports'
-        verbose_name = _(u'Column of report')
-        verbose_name_plural = _(u'Columns of report')
+        verbose_name = _('Column of report')
+        verbose_name_plural = _('Columns of report')
         ordering = ('order',)
 
     def __str__(self):

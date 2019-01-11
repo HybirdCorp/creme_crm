@@ -52,7 +52,6 @@ class _EntityCellRelated(EntityCell):
     type_id = 'related'
 
     def __init__(self, model, agg_id):
-        # super(_EntityCellRelated, self).__init__(model=model, value=agg_id, title='Related')
         super().__init__(model=model, value=agg_id, title='Related')
 
 
@@ -60,7 +59,6 @@ class _EntityCellAggregate(EntityCell):
     type_id = 'regular_aggregate'
 
     def __init__(self, model, agg_id):
-        # super(_EntityCellAggregate, self).__init__(model=model, value=agg_id, title='Aggregate')
         super().__init__(model=model, value=agg_id, title='Aggregate')
 
 
@@ -68,7 +66,6 @@ class _EntityCellCustomAggregate(EntityCell):
     type_id = 'custom_aggregate'
 
     def __init__(self, model, agg_id):
-        # super(_EntityCellCustomAggregate, self).__init__(model=model, value=agg_id, title='Custom Aggregate')
         super().__init__(model=model, value=agg_id, title='Custom Aggregate')
 
 
@@ -101,7 +98,6 @@ class ReportCreateForm(CremeEntityForm):
         model = Report
 
     def clean(self):
-        # cleaned_data = super(ReportCreateForm, self).clean()
         cleaned_data = super().clean()
 
         if not self._errors:
@@ -120,7 +116,6 @@ class ReportCreateForm(CremeEntityForm):
 
     @atomic
     def save(self, *args, **kwargs):
-        # report = super(ReportCreateForm, self).save(*args, **kwargs)
         report = super().save(*args, **kwargs)
         hf = self.cleaned_data['hf']
 
@@ -142,7 +137,6 @@ class ReportEditForm(CremeEntityForm):
         exclude = CremeEntityForm.Meta.exclude + ('ct',)
 
     def __init__(self, *args, **kwargs):
-        # super(ReportEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         fields = self.fields
         filter_f = fields['filter']
@@ -163,25 +157,18 @@ class ReportEditForm(CremeEntityForm):
 class LinkFieldToReportForm(CremeForm):
     report = CreatorEntityField(label=_('Sub-report linked to the column'), model=Report)
 
-    # def __init__(self, field, ctypes, *args, **kwargs):
     def __init__(self, instance, ctypes, *args, **kwargs):
-        # super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self.rfield = field
         self.instance = instance
-        # report = field.report
         report = instance.report
-        # q_filter = {'~id__in': [r.id for r in chain(report.get_ascendants_reports(), [report])]}
         q_filter = ~Q(id__in=[r.id for r in chain(report.get_ascendants_reports(), [report])])
 
         if ctypes:
-            # q_filter['ct__in'] = [ct.id for ct in ctypes]
             q_filter &= Q(ct__in=[ct.id for ct in ctypes])
 
         self.fields['report'].q_filter = q_filter
 
     def save(self):
-        # rfield = self.rfield
         rfield = self.instance
         rfield.sub_report = self.cleaned_data['report']
 
@@ -197,14 +184,12 @@ class ReportHandsWidget(EntityCellsWidget):
     template_name = 'reports/forms/widgets/report-hands.html'
 
     def __init__(self, related_entities=(), *args, **kwargs):
-        # super(ReportHandsWidget, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.related_entities = related_entities
         self.regular_aggregates = ()
         self.custom_aggregates = ()
 
     def get_context(self, name, value, attrs):
-        # context = super(ReportHandsWidget, self).get_context(name=name, value=value, attrs=attrs)
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
@@ -228,7 +213,6 @@ class ReportHandsField(EntityCellsField):
         return _EntityCellRelated(model, name[len(_RELATED_PREFIX):])
 
     def _regular_fields_enum(self, model):
-        # fields = super(ReportHandsField, self)._regular_fields_enum(model)
         fields = super()._regular_fields_enum(model)
         fields.filter(lambda field, depth: not (depth and isinstance(field, (ForeignKey, ManyToManyField))
                                                 and issubclass(field.remote_field.model, CremeEntity)
@@ -269,7 +253,6 @@ class ReportHandsField(EntityCellsField):
                                                     viewable=True,
                                                    ) \
                                             .choices():
-                    # agg_id = _REGULAR_AGG_PREFIX + pattern % f_name
                     agg_id = _REGULAR_AGG_PREFIX + pattern.format(f_name)
                     reg_agg_choices.append((agg_id, '{} - {}'.format(title, f_vname)))
 
@@ -277,7 +260,6 @@ class ReportHandsField(EntityCellsField):
 
                 for cf in self._custom_fields:
                     if cf.field_type in authorized_customfields:
-                        # agg_id = _CUSTOM_AGG_PREFIX + pattern % cf.id
                         agg_id = _CUSTOM_AGG_PREFIX + pattern.format(cf.id)
                         cust_agg_choices.append((agg_id, '{} - {}'.format(title, cf.name)))
                         builders[agg_id] = ReportHandsField._build_4_custom_aggregate
@@ -286,16 +268,12 @@ class ReportHandsField(EntityCellsField):
 class ReportFieldsForm(CremeForm):
     columns = ReportHandsField(label=_('Columns'))
 
-    # def __init__(self, entity, *args, **kwargs):
     def __init__(self, instance, *args, **kwargs):
-        # self.report = entity
         self.report = instance
-        # super(ReportFieldsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         cells = []
         model = self.report.ct.model_class()
-        # for column in entity.columns:
         for column in instance.columns:
             # TODO: this is a hack : EntityCellWidgets only use value & type_id to check initial data
             #       it would be better to use a method column.hand.to_entity_cell()
@@ -311,7 +289,6 @@ class ReportFieldsForm(CremeForm):
 
         columns_f = self.fields['columns']
         columns_f.non_hiddable_cells = cells
-        # columns_f.content_type = entity.ct
         columns_f.content_type = instance.ct
         columns_f.initial = cells
 
@@ -358,7 +335,6 @@ class ReportExportPreviewFilterForm(CremeForm):
 
     # TODO: rename "report" to "instance" to be consistent ?
     def __init__(self, report, *args, **kwargs):
-        # super(ReportExportPreviewFilterForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         fields = self.fields
 
@@ -381,7 +357,6 @@ class ReportExportPreviewFilterForm(CremeForm):
                ]
 
     def clean(self):
-        # cleaned_data = super(ReportExportPreviewFilterForm, self).clean()
         cleaned_data = super().clean()
 
         if cleaned_data.get('date_field'):
@@ -429,9 +404,7 @@ class ReportExportPreviewFilterForm(CremeForm):
 
 
 class ReportExportFilterForm(ReportExportPreviewFilterForm):
-    # def __init__(self, report, *args, **kwargs):
     def __init__(self, instance, *args, **kwargs):
-        # super(ReportExportFilterForm, self).__init__(report, *args, **kwargs)
         super().__init__(instance, *args, **kwargs)
         self.fields['doc_type'].required = True
 

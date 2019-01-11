@@ -52,5 +52,4 @@ def _uninstall_reports(sender, content_types, verbosity, stdout_write, style, **
     # TODO: warning for fields on RelationTypes which are deleted ?
 
     if verbosity:
-        # stdout_write(' [OK]', style.MIGRATE_SUCCESS)
         stdout_write(' [OK]', style.SUCCESS)

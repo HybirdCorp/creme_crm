@@ -115,91 +115,6 @@ creme.reports.ReportFormController = creme.component.Component.sub({
     }
 });
 
-/*
-creme.reports.load = function(options, hfilters_url, efilters_url) {
-    options = options || {};
-
-    if (Object.isEmpty(options)) {
-        return;
-    }
-
-    var ct_id = $(options.ct).val();
-    var $hf = $(options.hf);
-    this.loadHeaderFilters(hfilters_url, ct_id, $hf);
-
-    var $filter = $(options.filter);
-    this.loadEntityFilters(efilters_url, ct_id, $filter);
-};
-
-// TODO: Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
-var __loadFilters = function(url, ct_id, $target_select, parameters) {
-    if ($target_select.size() !== 1) {
-        return;
-    }
-
-    var params = $.extend({
-        'err_label':     gettext("None available"),
-        'always_option': null, // Always the 1st option in non-empty success cases
-        'empty_option':  null,
-        'error_option':  null
-    }, parameters);
-
-    var default_option = $('<option value="">' + params.err_label + '</option>');
-
-    var success_cb = function(data) {
-        $target_select.empty();
-
-        if (Object.isEmpty(data)) {
-            if (params.empty_option) {
-                $target_select.append(params.empty_option);
-            } else {
-                $target_select.append(default_option);
-            }
-        } else if (params.always_option) {
-            $target_select.append(params.always_option);
-        }
-
-        for (var i in data) {
-            var d = data[i];
-            $target_select.append($('<option value="' + d[0] + '">' + d[1] + '</option>'));
-        }
-    };
-
-    var error_cb = function(data, err) {
-        // WTF: 'error_option' not used ?!
-        if (params.error_option) {
-            $target_select.empty().append(params.empty_option);
-        } else {
-            $target_select.empty().append(default_option);
-        }
-    };
-
-    creme.ajax.query(url)
-              .onDone(success_cb)
-              .onFail(error_cb)
-              .get();
-};
-
-creme.reports.loadHeaderFilters = function(url, ct_id, $target_select) {
-    url = url + '?' + $.param({ct_id: ct_id});
-    var params = {
-        'always_option': $('<option value="">' + gettext("No selected view") + '</option>')
-    };
-    __loadFilters(url, ct_id, $target_select, params);
-};
-
-creme.reports.loadEntityFilters = function(url, ct_id, $target_select) {
-    url = url + '?' + $.param({ct_id: ct_id});
-    var $all_opt = $('<option value="">' + gettext("All") + '</option>');
-    var params = {
-        'empty_option': $all_opt,
-        'always_option': $all_opt,
-        'error_option': $all_opt
-    };
-    __loadFilters(url, ct_id, $target_select, params);
-};
-*/
-
 creme.reports.toggleDisableOthers = function(me, others) {
     var is_checked = me.checked; // More generic with all node types ?
     $.each(others, function(i, n) {
@@ -235,23 +150,6 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
 
     return jqplotData.length ? [jqplotData] : [];
 });
-
-/*
- * Moved to reports-actions.js
-creme.reports.exportReport = function(title, filterform_url, export_preview_url, export_url) {
-    // The export view uses the 'callback_url' feature of inner_popup (maybe only used here).
-    // Emulate it for this case.
-    // TODO : filterform should be used as select and redirection url build in js.
-    creme.dialogs.form(filterform_url, {'title': title || ''})
-                 .on('frame-activated', function(event, frame) {
-                      new creme.reports.PreviewController(export_preview_url, export_url).bind(frame.delegate());
-                  })
-                 .onFormSuccess(function(event, data, statusText, dataType) {
-                      creme.utils.goTo($(data).attr('redirect'));
-                  })
-                 .open({width: 1024});
-});
-*/
 
 creme.reports.PreviewController = creme.component.Component.sub({
     _init_: function(options) {
@@ -326,7 +224,6 @@ creme.reports.toggleDaysField = function(operator, types) {
 };
 
 creme.reports.ChartController = creme.component.Component.sub({
-    // _init_: function(preview_url, export_url) {
     _init_: function(properties) {
         this._properties = properties || {};
     },
