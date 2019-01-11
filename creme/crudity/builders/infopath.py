@@ -26,10 +26,8 @@ import sys
 import shutil
 import subprocess
 from tempfile import mkdtemp
-# from unicodedata import normalize
 
 from django.conf import settings
-# from django.core.files.base import File
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist, EmailField
 from django.http import HttpResponse
@@ -106,7 +104,6 @@ _ELEMENT_TEMPLATE = {
     doc_fields.ImageEntityManyToManyField: lambda element_type: get_element_template(element_type, 'm2m_field.xml'),
 }
 
-# XSL_VIEW_FIELDS_TEMPLATES_PATH = "crudity/infopath/create_template/frags/xsl/view/%s.xml"
 XSL_VIEW_FIELDS_TEMPLATES_PATH = 'crudity/infopath/create_template/frags/xsl/view/{}.xml'
 _TEMPLATE_NILLABLE_TYPES = (  # Types which could be nil="true" in template.xml
     models.DecimalField,
@@ -147,9 +144,6 @@ class InfopathFormField:
             raise e
 
     def _get_element(self, element_type):
-        # template_name = _ELEMENT_TEMPLATE.get(self.model_field.__class__)(element_type)
-        # return render_to_string(template_name, {'field': self}, request=self.request) \
-        #        if template_name is not None else None
         model_field = self.model_field
         field_type  = model_field.__class__
 
@@ -196,7 +190,6 @@ class InfopathFormField:
 
         elif isinstance(model_field, models.ImageField) or \
             (isinstance(model_field, models.ForeignKey) and issubclass(model_field.remote_field.model, Document)):
-            # (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Document)):
             tpl_dict.update({'allowed_file_types': settings.ALLOWED_IMAGES_EXTENSIONS})
             template_name = 'crudity/infopath/create_template/frags/editing/file_field.xml'
 
@@ -206,7 +199,6 @@ class InfopathFormField:
         return render_to_string(template_name, tpl_dict, request=self.request) if template_name is not None else None
 
     def get_view_element(self):
-        # template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH % self.model_field.get_internal_type()
         template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH.format(self.model_field.get_internal_type())
         try:
             return render_to_string(template_name,
@@ -223,7 +215,6 @@ class InfopathFormField:
 
         if isinstance(self.model_field, (models.ForeignKey, models.ManyToManyField)):
             choices = [(entity.pk, str(entity))
-                            # for entity in self.model_field.rel.to._default_manager.all()
                             for entity in self.model_field.remote_field.model._default_manager.all()
                       ]
 
@@ -239,7 +230,6 @@ class InfopathFormField:
         model_field = self.model_field
         return issubclass(model_field.__class__, models.FileField) \
                or (isinstance(model_field, models.ForeignKey) and
-                   # issubclass(model_field.rel.to, Document)
                    issubclass(model_field.remote_field.model, Document)
                   )
 
@@ -301,12 +291,6 @@ class InfopathFormBuilder:
     # def _render(self):
     def _render(self, file_name):
         request = self.request
-        # cab_files = {'manifest.xsf': self._render_manifest_xsf(request),
-        #              'myschema.xsd': self._render_myschema_xsd(request),
-        #              'template.xml': self._render_template_xml(request),
-        #              'upgrade.xsl':  self._render_upgrade_xsl(request),
-        #              'view1.xsl':    self._render_view_xsl(request),
-        #             }
         cab_files_renderers = {
             'manifest.xsf': self._render_manifest_xsf,
             'myschema.xsd': self._render_myschema_xsd,
@@ -332,23 +316,17 @@ class InfopathFormBuilder:
                 media_path = path_join(crudity_media_path, name)
                 copy2(media_path, path_join(backend_path, name))
 
-            # for file_name, content in cab_files.items():
-            #     with open(path_join(backend_path, file_name), 'wb') as f:
-            #         f.write(content.encode('utf8'))
             for file_name, renderer in cab_files_renderers.items():
                 with open(path_join(backend_path, file_name), 'wb') as f:
                     f.write(renderer(request).encode('utf8'))
 
-            # final_files_paths = (path_join(backend_path, cab_file) for cab_file in chain(cab_files.iterkeys(), media_files))
             final_files_paths = (path_join(backend_path, cab_file)
                                     for cab_file in chain(cab_files_renderers, media_files)
                                 )
-            # infopath_form_filepath = path_join(backend_path, '{}.xsn'.format(self.backend.subject))
             infopath_form_filepath = path_join(backend_path, file_name)
 
             if sys.platform.startswith('win'):
                 ddf_file_content = render_to_string('crudity/infopath/create_template/create_cab.ddf',
-                                                    # {'file_name': '{}.xsn'.format(self.backend.subject),
                                                     {'file_name':    file_name,
                                                      'backend_path': backend_path,
                                                     },
@@ -440,7 +418,7 @@ class InfopathFormBuilder:
         return render_to_string('crudity/infopath/create_template/view1.xsl',
                                 {'creme_namespace': self.namespace,
                                  'fields':          self.fields,
-                                 'form_title':      u'{} {}'.format(_(u'Create'), backend.model._meta.verbose_name),
+                                 'form_title':      '{} {}'.format(_('Create'), backend.model._meta.verbose_name),
                                 },
                                 request=request,
                                )

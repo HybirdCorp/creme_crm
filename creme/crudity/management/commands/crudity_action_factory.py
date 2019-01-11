@@ -47,7 +47,6 @@ def _entity_2_dict(entity):
             if fvalue is None:
                 continue
 
-            # if field.rel:
             if field.remote_field:
                 # TODO: manage M2M
                 fname = field.attname
@@ -120,17 +119,7 @@ class Command(BaseCommand):
                         factory = _get_model_n_factory(locale)[1]
 
                         for i in range(number):
-                            # action = WaitingAction(
-                            #     action=method,
-                            #     source='{} - {}'.format(fetcher_name, input.name),
-                            #     ct=ContentType.objects.get_for_model(backend.model),
-                            #     subject=backend.subject,
-                            #     # user=owner,  TODO ?
-                            # )
-                            # action.set_data(_entity_2_dict(factory.build()))
-
                             try:
-                                # action.save()
                                 WaitingAction.objects.create(
                                         action=method,
                                         source='{} - {}'.format(fetcher_name, input.name),
@@ -140,7 +129,6 @@ class Command(BaseCommand):
                                         data=_entity_2_dict(factory.build()),
                                 )
                             except Exception as e:
-                                # self.stderr.write('A error occurred when saving "{}" ({}).'.format(action, e))
                                 self.stderr.write('A error occurred when saving action: {}.'.format(e))
                             else:
                                 action_count += 1

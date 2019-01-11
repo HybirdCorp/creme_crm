@@ -119,7 +119,6 @@ class CreateEmailInput(EmailInput):
 
                 return self._create(backend, data, email.senders[0])
 
-        # return False
         return None
 
     def _pre_create(self, backend, data):
@@ -138,15 +137,6 @@ class CreateEmailInput(EmailInput):
         self._pre_process_data(backend, data)
 
         if backend.in_sandbox:
-            # action = WaitingAction(
-            #     action='create',
-            #     source='email - {}'.format(self.name),
-            #     ct=ContentType.objects.get_for_model(backend.model),
-            #     subject=backend.subject,
-            #     user=owner,
-            # )
-            # action.set_data(data)
-            # action.save()
             WaitingAction.objects.create(
                 action='create',
                 source='email - {}'.format(self.name),
@@ -211,7 +201,6 @@ class CreateInfopathInput(CreateEmailInput):
             if field_value is not None \
                and (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, Document)) \
                or isinstance(field, FileField):
-                # data[field_name] = decode_b64binary(field_value)  # (filename, image_blob)
                 data[field_name] = decode_b64binary(field_value.encode())  # (filename, image_blob)
 
     def create(self, email):
@@ -241,9 +230,7 @@ class CreateInfopathInput(CreateEmailInput):
                     return backend
 
     def get_data_from_infopath_file(self, backend, xml_file):
-        # content = xml_file.read()
         content = xml_file.read().decode()
-        # data = {}
         content = re.sub(remove_pattern, '', content.strip(), re.U)
         content = re.sub(r'>[\s]*<', '><', content, re.U)
 

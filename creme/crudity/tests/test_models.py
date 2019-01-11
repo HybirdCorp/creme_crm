@@ -19,7 +19,6 @@ except Exception as e:
 class WaitingActionTestCase(CrudityTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(WaitingActionTestCase, cls).setUpClass()
         super().setUpClass()
 
         get_ct = ContentType.objects.get_for_model
@@ -33,7 +32,6 @@ class WaitingActionTestCase(CrudityTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # super(WaitingActionTestCase, cls).tearDownClass()
         super().tearDownClass()
         cls.User.objects.exclude(id__in=cls._staff_user_ids_backup).update(is_staff=False)
 
@@ -95,14 +93,8 @@ class WaitingActionTestCase(CrudityTestCase):
         self.assertEqual(superuser, self.refresh(action).user)
 
     def test_data_property01(self):
-        # action = WaitingAction(ct=self.ct_contact)
-        # expected_data = {'first_name': 'Mario', 'last_name': 'Bros'}
-        # action.set_data(expected_data)
-        # action.save()
         expected_data = {'first_name': 'Mario', 'last_name': 'Bros'}
         action = WaitingAction.objects.create(ct=self.ct_contact, data=expected_data)
-
-        # self.assertEqual(expected_data, self.refresh(action).get_data())
         self.assertEqual(expected_data, self.refresh(action).data)
 
     def test_data_property02(self):
@@ -114,9 +106,7 @@ class WaitingActionTestCase(CrudityTestCase):
                          'enemies': {'Bowser': 1, 'Koopa': 50},
                          'epoch': now(),
                         }
-        # action.set_data(expected_data)
         action.data = expected_data
         action.save()
 
-        # self.assertEqual(expected_data, self.refresh(action).get_data())
         self.assertEqual(expected_data, self.refresh(action).data)

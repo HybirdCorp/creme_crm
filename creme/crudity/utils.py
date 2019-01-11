@@ -19,26 +19,10 @@
 ################################################################################
 
 import base64
-# import htmlentitydefs
 from html.entities import entitydefs as htmlentitydefs
 import re
 import struct
 import uuid
-
-
-# html_mark = re.compile(r"""(?P<html>(</|<!|<|&lt;)[-="' ;/.#:@\w]*(>|/>|&gt;))""")
-
-
-# def strip_html_(html_content):
-#     is_html = True
-#     while is_html:
-#         reg = re.search(html_mark, html_content)
-#         if reg:
-#             html_content = html_content.replace(reg.groupdict().get('html'), '')
-#         else:
-#             is_html = False
-#
-#     return html_content
 
 
 # def unescape(text):
@@ -131,7 +115,6 @@ def decode_b64binary(blob_b64):
     @param blob_b64: <bytes> data encoded in base64.
     @return: A tuple (file_name, decoded_data) ; "file_name" is a str, "decoded_data" bytes.
     """
-    # blob_str = base64.decodestring(blob_b64)
     blob_str = base64.decodebytes(blob_b64)
     blob_str_len = len(blob_str)
 
@@ -140,7 +123,6 @@ def decode_b64binary(blob_b64):
 
     header, filesize, filename_len, filename, blob = struct.unpack('16sII{}s{}s'.format(filename_len, (blob_str_len - 16 - 2 * 4 - filename_len)), blob_str)
 
-    # filename = ''.join(unichr(i) for i in struct.unpack('{}h'.format(len(filename) / 2), filename) if i > 0)
     filename = ''.join(chr(i) for i in struct.unpack('{}h'.format(len(filename) // 2), filename) if i > 0)
     filename = str(filename.encode('utf8'))
 

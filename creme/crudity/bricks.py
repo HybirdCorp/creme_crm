@@ -25,14 +25,12 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.gui.bricks import QuerysetBrick
 from creme.creme_core.models import SettingValue
 
-# from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from .models import WaitingAction, History
 from .setting_keys import sandbox_key
 
 
 class CrudityQuerysetBrick(QuerysetBrick):
     def __init__(self, *args, **kwargs):
-        # super(CrudityQuerysetBrick, self).__init__()
         super().__init__()
 
     def detailview_display(self, context):
@@ -43,19 +41,16 @@ class CrudityQuerysetBrick(QuerysetBrick):
     @property
     def is_sandbox_by_user(self):
         # No cache: we need to create sub-blocks on the fly
-        # # return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
-        # return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER).value
         return SettingValue.objects.get_4_key(sandbox_key, default=False).value
 
 
 class WaitingActionsBrick(CrudityQuerysetBrick):
     # dependencies  = ()
-    verbose_name  = _(u'Waiting actions')
+    verbose_name  = _('Waiting actions')
     template_name = 'crudity/bricks/waiting-actions.html'
     order_by      = 'id'
 
     def __init__(self, backend):
-        # super(WaitingActionsBrick, self).__init__()
         super().__init__()
         self.backend = backend
         self.id_     = self.generate_id()
@@ -69,7 +64,6 @@ class WaitingActionsBrick(CrudityQuerysetBrick):
     def detailview_display(self, context):
         # Credentials are OK: brick is not registered in brick registry,
         # so reloading is necessarily done with the custom view
-        # super(WaitingActionsBrick, self).detailview_display(context)
         super().detailview_display(context)
         backend = self.backend
         ct = ContentType.objects.get_for_model(backend.model)
@@ -94,12 +88,11 @@ class WaitingActionsBrick(CrudityQuerysetBrick):
 
 class CrudityHistoryBrick(CrudityQuerysetBrick):
     # dependencies  = ()
-    verbose_name  = _(u'History')
+    verbose_name  = _('History')
     template_name = 'crudity/bricks/history.html'
     order_by      = 'id'
 
     def __init__(self, ct):
-        # super(CrudityHistoryBrick, self).__init__()
         super().__init__()
         self.ct = ct
         self.id_ = self.generate_id()

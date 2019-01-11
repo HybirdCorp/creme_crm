@@ -38,7 +38,6 @@ class CruditySynchronizeJobForm(JobForm):
                            )
 
     def __init__(self, *args, **kwargs):
-        # super(CruditySynchronizeJobForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         user_f = self.fields['user']
         user_f.queryset = get_user_model().objects.filter(is_staff=False)
@@ -51,5 +50,4 @@ class CruditySynchronizeJobForm(JobForm):
     def save(self, *args, **kwargs):
         self.instance.data = {'user': self.cleaned_data['user'].id}
 
-        # return super(CruditySynchronizeJobForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)

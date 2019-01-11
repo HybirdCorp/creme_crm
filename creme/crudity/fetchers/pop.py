@@ -27,8 +27,6 @@ import re
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 
-# from creme.creme_core.utils import safe_unicode
-
 from .base import CrudityFetcher
 
 
@@ -36,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 class PopEmail:
-    def __init__(self, body=u'', body_html=u'', senders=(), tos=(), ccs=(), subject='', dates=(), attachments=()):
+    def __init__(self, body='', body_html='', senders=(), tos=(), ccs=(), subject='', dates=(), attachments=()):
         self.body        = body
         self.body_html   = body_html
         self.senders     = senders
@@ -102,14 +100,11 @@ class PopFetcher(CrudityFetcher):
 
             dates = [datetime(*parsedate(d)[:-3]) for d in get_all('date', []) if d is not None]
 
-            body_html = u''
-            body = u''
+            body_html = ''
+            body = ''
             # CONTENT HTML / PLAIN
             if email_message.is_multipart():
                 for part in email_message.walk():
-                    # encodings = set(part.get_charsets())
-                    # encodings.discard(None)
-
                     payload = part.get_payload(decode=True)
 
                     mct = part.get_content_maintype()
@@ -128,7 +123,6 @@ class PopFetcher(CrudityFetcher):
                                           )
 
                     else:
-                        # content = safe_unicode(payload, encodings)
                         content = payload
                         if cst == 'html':
                             body_html = content
@@ -136,11 +130,7 @@ class PopFetcher(CrudityFetcher):
                             body = content
                         # else:  TODO ??
             else:
-                # encodings = set(email_message.get_charsets())
-                # encodings.discard(None)
-
                 cst = email_message.get_content_subtype()
-                # content = safe_unicode(email_message.get_payload(decode=True), encodings)
                 content = email_message.get_payload(decode=True)
                 if cst == 'plain':
                     body = content
@@ -156,5 +146,3 @@ class PopFetcher(CrudityFetcher):
         client.quit()
 
         return emails
-
-# pop_fetcher = PopFetcher()

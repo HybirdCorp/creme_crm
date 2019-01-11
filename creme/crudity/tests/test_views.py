@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    # import ConfigParser
     import configparser
     import io
-    # from json import loads as load_json
     import poplib
 
     from django.conf import settings
@@ -88,7 +86,6 @@ class FakePOP3_SSL(FakePOP3):
     def __init__(self, host, port=None, keyfile=None, certfile=None):
         # self.host = host
         # self.port = port
-        # super(FakePOP3_SSL, self).__init__(host=host, port=port)
         super().__init__(host=host, port=port)
         self._keyfile = keyfile
         self._certfile = certfile
@@ -101,7 +98,6 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        # super(CrudityViewsTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls._original_POP3 = poplib.POP3
@@ -113,7 +109,6 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         cls._original_crudity_registry = registry.crudity_registry
 
     def setUp(self):
-        # super(CrudityViewsTestCase, self).setUp()
         super().setUp()
 
         registry.crudity_registry = crudity_registry = registry.CRUDityRegistry()
@@ -121,7 +116,6 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
     @classmethod
     def tearDownClass(cls):
-        # super(CrudityViewsTestCase, cls).tearDownClass()
         super().tearDownClass()
 
         poplib.POP3     = cls._original_POP3
@@ -130,7 +124,6 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         registry.crudity_registry = cls._original_crudity_registry
 
     def tearDown(self):
-        # super(CrudityViewsTestCase, self).tearDown()
         super().tearDown()
 
         FakePOP3.instances.clear()
@@ -140,7 +133,6 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                                            settings.CRUDITY_BACKENDS
                                           )
 
-    # @skipIfCustomContact
     def test_validate01(self):
         self._build_test_registry()
 
@@ -150,10 +142,6 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         subject = CrudityBackend.normalize_subject('test_create_contact')
         wa = WaitingAction()
         wa.ct = ContentType.objects.get_for_model(FakeContact)
-        # wa.set_data({'first_name': first_name,
-        #              'last_name':  last_name,
-        #              'user_id':    self.user.id,
-        #             })
         wa.data = {'first_name': first_name,
                    'last_name':  last_name,
                    'user_id':    self.user.id,
@@ -257,11 +245,9 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                         )
         self.assertEqual('text/plain', response['Content-Type'])
 
-        # config = ConfigParser.RawConfigParser()
         config = configparser.RawConfigParser()
 
         with self.assertNoException():
-            # config.readfp(io.BytesIO(response.content))
             config.read_file(io.StringIO(response.content.decode()))
 
         with self.assertNoException():
@@ -280,7 +266,6 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
             read_last_name = config.get('body', 'last_name')
         self.assertEqual(last_name, read_last_name)
 
-        # with self.assertRaises(ConfigParser.NoOptionError):
         with self.assertRaises(configparser.NoOptionError):
             config.get('body', 'sector')
 
@@ -310,11 +295,9 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                                  )
 
         response = self.assertGET200(reverse('crudity__dl_fs_ini_template', args=(subject,)))
-        # config = ConfigParser.RawConfigParser()
         config = configparser.RawConfigParser()
 
         with self.assertNoException():
-            # config.readfp(io.BytesIO(response.content))
             config.read_file(io.StringIO(response.content.decode()))
 
         with self.assertNoException():
