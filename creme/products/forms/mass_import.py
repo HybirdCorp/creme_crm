@@ -100,7 +100,6 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
     template_name = 'products/forms/widgets/mass-import/categories-extractor.html'
 
     def __init__(self, categories=(), *args, **kwargs):
-        # super(CategoriesExtractorWidget, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.categories = categories
         self.propose_creation = False
@@ -115,7 +114,6 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
         #     twice -- python + js sides).
 
         value = value or {}
-        # context = super(CategoriesExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
         widget_cxt['propose_creation'] = self.propose_creation
@@ -202,7 +200,6 @@ class CategoriesExtractorField(Field):
     }
 
     def __init__(self, choices, categories, *args, **kwargs):
-        # super(CategoriesExtractorField, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._user = None
         self._can_create = False
@@ -276,7 +273,6 @@ def get_massimport_form_builder(header_dict, choices):
             category, sub_category, error = self.cleaned_data['categories'].extract_value(line)
 
             if error:
-                # self.append_error(line, error, instance)
                 self.append_error(error)
             else:
                 instance.category = category

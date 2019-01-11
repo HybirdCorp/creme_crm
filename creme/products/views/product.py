@@ -22,7 +22,6 @@ import warnings
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
-# from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -34,7 +33,6 @@ from creme.creme_core.views.decorators import jsonify
 from .. import get_product_model, get_service_model
 from ..constants import DEFAULT_HFILTER_PRODUCT
 from ..forms import product as product_forms
-# from ..forms.base import AddImagesForm
 from ..models import Category, SubCategory
 
 from .base import ImagesAddingBase
@@ -110,17 +108,6 @@ def get_subcategories(request, category_id):
                                    .order_by('id')
                                    .values_list('id', 'name')
                )
-
-
-# @login_required
-# @permission_required('products')
-# def add_images(request, product_id):
-#     return generic.add_to_entity(request, product_id, AddImagesForm,
-#                                  ugettext('New images for «%s»'),
-#                                  entity_class=Product,
-#                                  submit_label=_('Link the images'),
-#                                  template='creme_core/generics/blockform/link_popup.html',
-#                                 )
 
 
 @login_required

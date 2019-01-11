@@ -24,7 +24,6 @@ class CategoryFieldTestCase(FieldTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(CategoryFieldTestCase, cls).setUpClass()
         super().setUpClass()
         SubCategory.objects.all().delete()
         Category.objects.all().delete()
@@ -211,7 +210,6 @@ class CreateCategoryTestCase(CremeTestCase):
 
         url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
 
         context = response.context

@@ -3,7 +3,6 @@
 try:
     from decimal import Decimal
     from functools import partial
-    # import json
 
     from django.urls import reverse
     from django.utils.translation import ugettext as _
@@ -29,10 +28,6 @@ class ProductTestCase(_ProductsTestCase):
     def test_populate(self):
         self.assertTrue(Category.objects.exists())
         self.assertTrue(SubCategory.objects.exists())
-
-    # def test_portal(self):
-    #     self.login()
-    #     self.assertGET200(reverse('products__portal'))
 
     def test_ajaxview01(self):
         self.login()
@@ -474,11 +469,9 @@ class ProductTestCase(_ProductsTestCase):
 
         url = reverse('products__add_images_to_product', args=(product.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New images for «%s»') % product, context.get('title'))
         self.assertEqual(_('New images for «{entity}»').format(entity=product),
                          context.get('title')
                         )
