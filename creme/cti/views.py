@@ -20,7 +20,7 @@
 
 from datetime import timedelta
 from functools import partial
-import warnings
+# import warnings
 
 from django.db.transaction import atomic
 from django.http import Http404
@@ -34,9 +34,9 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity, RelationType, Relation
 from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404
+from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import build_context, bricks_render_info
 from creme.creme_core.views.decorators import jsonify
-from creme.creme_core.views import generic
 
 from creme import persons
 
@@ -81,17 +81,17 @@ def abstract_create_phonecall_as_caller(request, pcall_creator=_create_phonecall
                       )
 
 
-def abstract_add_contact(request, number,
-                         form=persons.forms.contact.ContactForm,
-                         template='persons/add_contact_form.html',
-                        ):
-    warnings.warn('cti.views.abstract_add_contact() is deprecated ; '
-                  'use the class-based view CTIContactCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form, template=template,
-                              extra_initial={'phone': number},
-                             )
+# def abstract_add_contact(request, number,
+#                          form=persons.forms.contact.ContactForm,
+#                          template='persons/add_contact_form.html',
+#                         ):
+#     warnings.warn('cti.views.abstract_add_contact() is deprecated ; '
+#                   'use the class-based view CTIContactCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form, template=template,
+#                               extra_initial={'phone': number},
+#                              )
 
 
 class CTIPersonMixin:
@@ -108,17 +108,17 @@ class CTIContactCreation(CTIPersonMixin, persons.views.contact.ContactCreation):
     pass
 
 
-def abstract_add_organisation(request, number,
-                              form=persons.forms.organisation.OrganisationForm,
-                              template='persons/add_organisation_form.html',
-                             ):
-    warnings.warn('cti.views.abstract_add_organisation() is deprecated ; '
-                  'use the class-based view CTIOrganisationCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form, template=template,
-                              extra_initial={'phone': number},
-                             )
+# def abstract_add_organisation(request, number,
+#                               form=persons.forms.organisation.OrganisationForm,
+#                               template='persons/add_organisation_form.html',
+#                              ):
+#     warnings.warn('cti.views.abstract_add_organisation() is deprecated ; '
+#                   'use the class-based view CTIOrganisationCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form, template=template,
+#                               extra_initial={'phone': number},
+#                              )
 
 
 class CTIOrganisationCreation(CTIPersonMixin, persons.views.organisation.OrganisationCreation):
@@ -211,18 +211,18 @@ def reload_callers_brick(request, number):
                              )
 
 
-@login_required
-@permission_required(('persons', cperm(Contact)))
-def add_contact(request, number):
-    warnings.warn('cti.views.add_contact() is deprecated.', DeprecationWarning)
-    return abstract_add_contact(request, number)
+# @login_required
+# @permission_required(('persons', cperm(Contact)))
+# def add_contact(request, number):
+#     warnings.warn('cti.views.add_contact() is deprecated.', DeprecationWarning)
+#     return abstract_add_contact(request, number)
 
 
-@login_required
-@permission_required(('persons', cperm(Organisation)))
-def add_orga(request, number):
-    warnings.warn('cti.views.add_orga() is deprecated.', DeprecationWarning)
-    return abstract_add_organisation(request, number)
+# @login_required
+# @permission_required(('persons', cperm(Organisation)))
+# def add_orga(request, number):
+#     warnings.warn('cti.views.add_orga() is deprecated.', DeprecationWarning)
+#     return abstract_add_organisation(request, number)
 
 
 @login_required

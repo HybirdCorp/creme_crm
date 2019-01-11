@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme CTI 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 19:12+0200\n"
+"POT-Creation-Date: 2018-12-05 14:57+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -57,24 +57,24 @@ msgstr "Créer un appel téléphonique"
 msgid "No contact/organisation corresponds to this number : %(number)s"
 msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
 
-#: utils.py:53
+#: utils.py:43
 msgid "Call"
 msgstr "Appeler"
 
-#: views.py:61
+#: views.py:60
 msgid "Automatically created by CTI"
 msgstr "Créé automatiquement par CTI"
 
-#: views.py:75
+#: views.py:73
 #, python-brace-format
 msgid "Call to {entity}"
 msgstr "Appel à {entity}"
 
-#: views.py:80
+#: views.py:78
 msgid "Phone call successfully created."
 msgstr "Appel téléphonique créé avec succès."
 
-#: views.py:134
+#: views.py:132
 #, python-brace-format
 msgid "Call from {entity}"
 msgstr "Appel de {entity}"
