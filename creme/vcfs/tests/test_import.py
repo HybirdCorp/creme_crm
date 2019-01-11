@@ -7,7 +7,6 @@ try:
     from django.conf import settings
     from django.urls import reverse
     from django.test.utils import override_settings
-    # from django.utils.encoding import smart_str
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import FieldsConfig
@@ -28,14 +27,12 @@ except Exception as e:
 class VcfImportTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(VcfImportTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.IMPORT_URL = reverse('vcfs__import')
 
     def _post_step0(self, content):
         tmpfile = NamedTemporaryFile()
-        # tmpfile.write(smart_str(content))
         tmpfile.write(content.encode())
         tmpfile.flush()
 
@@ -1110,7 +1107,6 @@ END:VCARD""".format(name=name)
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
-        # image_count   = Image.objects.count()
         image_count   = Document.objects.count()
         address_count = Address.objects.count()
 
@@ -1218,7 +1214,6 @@ PHOTO:""" \
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
-        # image_count   = Image.objects.count()
         image_count   = Document.objects.count()
         address_count = Address.objects.count()
 
@@ -1258,7 +1253,6 @@ PHOTO;TYPE=JPEG:""" \
                               }
                         )
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        # self.assertEqual(image_count + 1,   Image.objects.count())
         self.assertEqual(image_count + 1,   Document.objects.count())
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count,     Address.objects.count())
@@ -1266,7 +1260,6 @@ PHOTO;TYPE=JPEG:""" \
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertTrue(contact.image)
         self.assertEqual(_('Image of {contact}').format(contact=contact), contact.image.title)
-        # contact.image.filedata.delete()
 
     @skipIfCustomContact
     def test_add_contact_vcf15(self):
@@ -1311,7 +1304,6 @@ END:VCARD""".format(path=path)
         self.login()
 
         contact_count = Contact.objects.count()
-        # image_count   = Image.objects.count()
         image_count   = Document.objects.count()
 
         content = """BEGIN:VCARD
@@ -1424,7 +1416,7 @@ ORG:Corporate\nEND:VCARD"""
                                ],
                  )
 
-        orga_count    = Organisation.objects.count()
+        orga_count = Organisation.objects.count()
         content = """BEGIN:VCARD
 FN:Asuna Kagurazaka
 ADR;TYPE=HOME:56;;Second street;Kyoto;Kyoto region;7777;Japan
