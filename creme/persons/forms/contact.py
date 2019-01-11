@@ -60,33 +60,34 @@ class ContactForm(_BasePersonForm):
 class RelatedContactForm(ContactForm):
     orga_overview = CharField(label=_('Concerned organisation'), widget=Label, initial=_('No one'))
 
-    def __init__(self, linked_orga=None, rtype=None, *args, **kwargs):
+    # def __init__(self, linked_orga=None, rtype=None, *args, **kwargs):
+    def __init__(self, linked_orga, rtype=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not linked_orga:
-            linked_orga = self.initial.get('linked_orga')
-            if linked_orga:
-                warnings.warn('RelatedContactForm: the use of initial for "linked_orga" is deprecated ; '
-                              'use constructor argument "linked_orga" instead.',
-                              DeprecationWarning
-                             )
+        # if not linked_orga:
+        #     linked_orga = self.initial.get('linked_orga')
+        #     if linked_orga:
+        #         warnings.warn('RelatedContactForm: the use of initial for "linked_orga" is deprecated ; '
+        #                       'use constructor argument "linked_orga" instead.',
+        #                       DeprecationWarning
+        #                      )
 
         self.linked_orga = linked_orga
 
-        if not self.linked_orga:
-            warnings.warn('RelatedContactForm: empty "linked_orga" argument is deprecated ;.',
-                          DeprecationWarning
-                         )
-            return
+        # if not self.linked_orga:
+        #     warnings.warn('RelatedContactForm: empty "linked_orga" argument is deprecated ;.',
+        #                   DeprecationWarning
+        #                  )
+        #     return
 
         fields = self.fields
         fields['orga_overview'].initial = self.linked_orga
-        if not rtype:
-            rtype = self.initial.get('relation_type')
-            if rtype:
-                warnings.warn('RelatedContactForm: the use of initial for "rtype" is deprecated ; ',
-                              'use constructor argument "rtype" instead.',
-                              DeprecationWarning
-                             )
+        # if not rtype:
+        #     rtype = self.initial.get('relation_type')
+        #     if rtype:
+        #         warnings.warn('RelatedContactForm: the use of initial for "rtype" is deprecated ; ',
+        #                       'use constructor argument "rtype" instead.',
+        #                       DeprecationWarning
+        #                      )
 
         self.relation_type = rtype
 

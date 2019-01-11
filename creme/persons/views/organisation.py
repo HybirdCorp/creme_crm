@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
@@ -26,7 +26,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
@@ -41,62 +41,62 @@ Organisation = get_organisation_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_organisation(request, form=orga_forms.OrganisationForm,
-                              template='persons/add_organisation_form.html',
-                              submit_label=Organisation.save_label,
-                             ):
-    warnings.warn('persons.views.organisation.abstract_add_organisation() is deprecated ; '
-                  'use the class-based view OrganisationCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form, template=template,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_organisation(request, form=orga_forms.OrganisationForm,
+#                               template='persons/add_organisation_form.html',
+#                               submit_label=Organisation.save_label,
+#                              ):
+#     warnings.warn('persons.views.organisation.abstract_add_organisation() is deprecated ; '
+#                   'use the class-based view OrganisationCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form, template=template,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_organisation(request, organisation_id, form=orga_forms.OrganisationForm,
-                               template='persons/edit_organisation_form.html',
-                              ):
-    warnings.warn('persons.views.organisation.abstract_edit_organisation() is deprecated ; '
-                  'use the class-based view OrganisationEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, organisation_id, model=Organisation,
-                               edit_form=form, template=template,
-                              )
+# def abstract_edit_organisation(request, organisation_id, form=orga_forms.OrganisationForm,
+#                                template='persons/edit_organisation_form.html',
+#                               ):
+#     warnings.warn('persons.views.organisation.abstract_edit_organisation() is deprecated ; '
+#                   'use the class-based view OrganisationEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, organisation_id, model=Organisation,
+#                                edit_form=form, template=template,
+#                               )
 
 
-def abstract_view_organisation(request,organisation_id,
-                               template='persons/view_organisation.html',
-                              ):
-    warnings.warn('persons.views.organisation.abstract_view_organisation() is deprecated ; '
-                  'use the class-based view OrganisationDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, organisation_id, model=Organisation,
-                               template=template,
-                              )
+# def abstract_view_organisation(request,organisation_id,
+#                                template='persons/view_organisation.html',
+#                               ):
+#     warnings.warn('persons.views.organisation.abstract_view_organisation() is deprecated ; '
+#                   'use the class-based view OrganisationDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, organisation_id, model=Organisation,
+#                                template=template,
+#                               )
 
 
-@login_required
-@permission_required(('persons', cperm(Organisation)))
-def add(request):
-    warnings.warn('persons.views.organisation.add() is deprecated.', DeprecationWarning)
-    return abstract_add_organisation(request)
+# @login_required
+# @permission_required(('persons', cperm(Organisation)))
+# def add(request):
+#     warnings.warn('persons.views.organisation.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_organisation(request)
 
 
-@login_required
-@permission_required('persons')
-def edit(request, organisation_id):
-    warnings.warn('persons.views.organisation.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_organisation(request, organisation_id)
+# @login_required
+# @permission_required('persons')
+# def edit(request, organisation_id):
+#     warnings.warn('persons.views.organisation.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_organisation(request, organisation_id)
 
 
-@login_required
-@permission_required('persons')
-def detailview(request, organisation_id):
-    warnings.warn('persons.views.organisation.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_organisation(request, organisation_id)
+# @login_required
+# @permission_required('persons')
+# def detailview(request, organisation_id):
+#     warnings.warn('persons.views.organisation.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_organisation(request, organisation_id)
 
 
 @login_required
