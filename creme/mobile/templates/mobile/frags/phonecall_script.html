@@ -44,7 +44,6 @@
 
       // Cookie way (page is reload after click on a phone number)
       d.setTime(d.getTime() + 24 * 60 * 60 * 1000);
-{#      document.cookie = PHONECALL_COOKIE + JSON.stringify(phonecall_data) + "; expires=" + d.toGMTString(); #}
       document.cookie = PHONECALL_COOKIE + JSON.stringify(phonecall_data) + "; expires=" + d.toUTCString();
 
       // Timer way (page is just suspended after click on a phone number)
@@ -93,7 +92,6 @@
 
   function displayWorkflowPanel() {
     var xhr = new XMLHttpRequest();
-{#    xhr.open("GET", "/mobile/phone_call/panel?" + objectToParameters(phonecall_data), false);  #}
     xhr.open("GET", "{% url 'mobile__pcall_panel' %}?" + objectToParameters(phonecall_data), false);
     xhr.send();
 

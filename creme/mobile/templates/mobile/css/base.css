@@ -496,8 +496,6 @@ html.ios .activity-actions-minutes .activity-minutes::-webkit-input-placeholder 
 
 /* à voir pour factoriser ça ds une autre classe html comme 'activity-with-icon' */
 .activity-floating .activity-summary::before,
-/*.activity-type-call .activity-summary::before,
-.activity-type-meeting .activity-summary::before {*/
 .activity-type-activities-activitytype_phonecall .activity-summary::before,
 .activity-type-activities-activitytype_meeting .activity-summary::before {
   content: '';
@@ -509,22 +507,14 @@ html.ios .activity-actions-minutes .activity-minutes::-webkit-input-placeholder 
 }
 
 .activity-floating .activity-summary::before {
-/*   background-image: url(img/calendar_16.png); */
-{#   background-image: url({% media_url 'mobile/calendar_16.png' %}); #}
   background-position: 0 -32px;
 }
 
-/*.activity-type-call .activity-summary::before {*/
 .activity-type-activities-activitytype_phonecall .activity-summary::before {
-/*   background-image: url(img/phone_16.png); */
-{#   background-image: url({% media_url 'mobile/phone_16.png' %});  #}
   background-position: 0 -48px;
 }
 
-/*.activity-type-meeting .activity-summary::before {*/
 .activity-type-activities-activitytype_meeting .activity-summary::before {
-/*   background-image: url(img/meeting_16.png); */
-{#   background-image: url({% media_url 'mobile/meeting_16.png' %});  #}
   background-position: 0 -64px;
 }
 
@@ -545,27 +535,10 @@ html.ios .activity-actions-minutes .activity-minutes::-webkit-input-placeholder 
   background-image: url({% media_url 'mobile/sprites_16.png' %});
 }
 
-/*.card-list.list-contact .card-list-title::before,
-.form-add-contact .form-title::before {
-  background-image: url(img/contact_16.png);
-{#  background-image: url({% media_url 'mobile/contact_16.png' %}); #}
-}*/
-
 .card-list.list-orga .card-list-title::before,
 .form-add-orga .form-title::before {
-/*   background-image: url(img/organisation_16.png); */
-{#   background-image: url({% media_url 'mobile/organisation_16.png' %}); #}
   background-position: 0 -16px;
 }
-
-/*TODO:  useful ?? */
-/*.card-list.list-contact .card-list-title::before {
-  background-image: url(img/contact_16.png);
-}*/
-
-/*.card-list.list-orga .card-list-title::before {
-  background-image: url(img/organisation_16.png);
-}*/
 
 /* Retina icons */
 @media
@@ -576,36 +549,24 @@ only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 2dppx),
 only screen and (                min-resolution: 192dpi) {
   .activity-floating .activity-summary::before {
-/*     background-image: url(img/calendar_32.png); */
-{#     background-image: url({% media_url 'mobile/calendar_32.png' %}); #}
     background-image: url({% media_url 'mobile/sprites_32.png' %});
   }
 
-/*   .activity-type-call .activity-summary::before { */
   .activity-type-activities-activitytype_phonecall .activity-summary::before {
-/*     background-image: url(img/phone_32.png); */
-{#     background-image: url({% media_url 'mobile/phone_32.png' %});  #}
     background-image: url({% media_url 'mobile/sprites_32.png' %});
   }
 
-/*   .activity-type-meeting .activity-summary::before { */
   .activity-type-activities-activitytype_meeting .activity-summary::before {
-/*     background-image: url(img/meeting_32.png); */
-{#     background-image: url({% media_url 'mobile/meeting_32.png' %}); #}
     background-image: url({% media_url 'mobile/sprites_32.png' %});
   }
 
   .card-list.list-contact .card-list-title::before,
   .form-add-contact .form-title::before {
-/*     background-image: url(img/contact_32.png); */
-{#     background-image: url({% media_url 'mobile/contact_32.png' %}); #}
     background-image: url({% media_url 'mobile/sprites_32.png' %});
   }
 
   .card-list.list-orga .card-list-title::before,
   .form-add-orga .form-title::before {
-/*     background-image: url(img/organisation_32.png); */
-{#     background-image: url({% media_url 'mobile/organisation_32.png' %}); #}
     background-image: url({% media_url 'mobile/sprites_32.png' %});
   }
 }

@@ -113,7 +113,6 @@ def lw_ajax_exceptions(view):
         status = 200
 
         try:
-            # content = view(*args, **kwargs)
             return view(*args, **kwargs)
         except Http404 as e:
             content = str(e)
@@ -344,7 +343,6 @@ def _get_page_url(request):
 @POST_only
 @atomic
 def start_activity(request, activity_id):
-    # activity = get_object_or_404(Activity, id=activity_id)
     activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
 
     request.user.has_perm_to_change_or_die(activity)
@@ -366,7 +364,6 @@ def start_activity(request, activity_id):
 @POST_only
 @atomic
 def stop_activity(request, activity_id):
-    # activity = get_object_or_404(Activity, id=activity_id)
     activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
 
     request.user.has_perm_to_change_or_die(activity)
@@ -495,7 +492,6 @@ def _get_pcall(request):
     if pcall_id is None:
         return None
 
-    # pcall = get_object_or_404(Activity, id=pcall_id, type_id=act_constants.ACTIVITYTYPE_PHONECALL)
     pcall = get_object_or_404(
         Activity.objects.select_for_update(),
         id=pcall_id,
@@ -598,7 +594,6 @@ def _phonecall_workflow_set_end(request, end_function):
 
         me, person = _get_participants(user, POST)
 
-        # with atomic():
         pcall = done_activity_creator(
             user=user,
             title=_('{status} call to {person} from Creme Mobile').format(
@@ -636,7 +631,6 @@ def _create_failed_pcall(request):
 
     me, person = _get_participants(user, POST)
 
-    # with atomic():
     pcall = failed_activity_creator(
         user=user,
         title=_('{status} call to {person} from Creme Mobile').format(
