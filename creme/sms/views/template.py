@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
@@ -34,55 +34,55 @@ MessageTemplate = get_messagetemplate_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_messagetemplate(request, form=tpl_forms.TemplateCreateForm,
-                                 submit_label=MessageTemplate.save_label,
-                                ):
-    warnings.warn('sms.views.template.abstract_add_messagetemplate() is deprecated ; '
-                  'use the class-based view MessageTemplateCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_messagetemplate(request, form=tpl_forms.TemplateCreateForm,
+#                                  submit_label=MessageTemplate.save_label,
+#                                 ):
+#     warnings.warn('sms.views.template.abstract_add_messagetemplate() is deprecated ; '
+#                   'use the class-based view MessageTemplateCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_messagetemplate(request, template_id, form=tpl_forms.TemplateEditForm):
-    warnings.warn('sms.views.template.abstract_edit_messagetemplate() is deprecated ; '
-                  'use the class-based view MessageTemplateEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, template_id, MessageTemplate, form)
+# def abstract_edit_messagetemplate(request, template_id, form=tpl_forms.TemplateEditForm):
+#     warnings.warn('sms.views.template.abstract_edit_messagetemplate() is deprecated ; '
+#                   'use the class-based view MessageTemplateEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, template_id, MessageTemplate, form)
 
 
-def abstract_view_messagetemplate(request, template_id,
-                                  template='sms/view_template.html',
-                                 ):
-    warnings.warn('sms.views.template.abstract_view_messagetemplate() is deprecated ; '
-                  'use the class-based view MessageTemplateDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, template_id, MessageTemplate, template=template)
+# def abstract_view_messagetemplate(request, template_id,
+#                                   template='sms/view_template.html',
+#                                  ):
+#     warnings.warn('sms.views.template.abstract_view_messagetemplate() is deprecated ; '
+#                   'use the class-based view MessageTemplateDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, template_id, MessageTemplate, template=template)
 
 
-@login_required
-@permission_required(('sms', cperm(MessageTemplate)))
-def add(request):
-    warnings.warn('sms.views.template.add() is deprecated.', DeprecationWarning)
-    return abstract_add_messagetemplate(request)
+# @login_required
+# @permission_required(('sms', cperm(MessageTemplate)))
+# def add(request):
+#     warnings.warn('sms.views.template.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_messagetemplate(request)
 
 
-@login_required
-@permission_required('sms')
-def edit(request, template_id):
-    warnings.warn('sms.views.template.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_messagetemplate(request, template_id)
+# @login_required
+# @permission_required('sms')
+# def edit(request, template_id):
+#     warnings.warn('sms.views.template.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_messagetemplate(request, template_id)
 
 
-@login_required
-@permission_required('sms')
-def detailview(request, template_id):
-    warnings.warn('sms.views.template.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_messagetemplate(request, template_id)
+# @login_required
+# @permission_required('sms')
+# def detailview(request, template_id):
+#     warnings.warn('sms.views.template.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_messagetemplate(request, template_id)
 
 
 @login_required
