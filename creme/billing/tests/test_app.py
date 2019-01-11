@@ -65,7 +65,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertEqual([(SimpleBillingAlgo.ALGO_NAME, SimpleAlgo)],
                          list(registry)
                         )
-        self.assertEqual([SimpleAlgo], list(registry.itervalues()))
+        # self.assertEqual([SimpleAlgo], list(registry.itervalues()))
         self.assertEqual([SimpleAlgo], list(registry.algorithms))
 
         # ---

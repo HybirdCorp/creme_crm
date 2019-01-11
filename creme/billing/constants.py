@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 DEFAULT_DECIMAL = Decimal()
 
 ROUND_POLICY = ROUND_HALF_UP
-CURRENCY = 'Euro'  # DEPRECATED
+# CURRENCY = 'Euro'
 
 REL_SUB_BILL_ISSUED = 'billing-subject_bill_issued'
 REL_OBJ_BILL_ISSUED = 'billing-object_bill_issued'

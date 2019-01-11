@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -39,86 +39,86 @@ Invoice = billing.get_invoice_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_salesorder(request, form=order_forms.SalesOrderCreateForm,
-                            initial_status=1,
-                            submit_label=SalesOrder.save_label,
-                           ):
-    warnings.warn('billing.views.sales_order.abstract_add_salesorder() is deprecated ; '
-                  'use the class-based view SalesOrderCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form, extra_initial={'status': initial_status},
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_salesorder(request, form=order_forms.SalesOrderCreateForm,
+#                             initial_status=1,
+#                             submit_label=SalesOrder.save_label,
+#                            ):
+#     warnings.warn('billing.views.sales_order.abstract_add_salesorder() is deprecated ; '
+#                   'use the class-based view SalesOrderCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form, extra_initial={'status': initial_status},
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_add_related_salesorder(request, target_id,
-                                    form=order_forms.SalesOrderCreateForm, initial_status=1,
-                                    title=_(u'Create a salesorder for «%s»'),
-                                    submit_label=SalesOrder.save_label,
-                                   ):
-    warnings.warn('billing.views.sales_order.abstract_add_related_salesorder() is deprecated ; '
-                  'use the class-based view RelatedSalesOrderCreation instead.',
-                  DeprecationWarning
-                 )
-    from ..views.workflow import generic_add_related
-
-    return generic_add_related(request, target_id, form=form,
-                               title=title, status_id=initial_status,
-                               submit_label=submit_label,
-                              )
-
-
-def abstract_edit_salesorder(request, order_id, form=order_forms.SalesOrderEditForm):
-    warnings.warn('billing.views.sales_order.abstract_edit_salesorder() is deprecated ; '
-                  'use the class-based view SalesOrderDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, order_id, SalesOrder, form)
+# def abstract_add_related_salesorder(request, target_id,
+#                                     form=order_forms.SalesOrderCreateForm, initial_status=1,
+#                                     title=_(u'Create a salesorder for «%s»'),
+#                                     submit_label=SalesOrder.save_label,
+#                                    ):
+#     warnings.warn('billing.views.sales_order.abstract_add_related_salesorder() is deprecated ; '
+#                   'use the class-based view RelatedSalesOrderCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     from ..views.workflow import generic_add_related
+#
+#     return generic_add_related(request, target_id, form=form,
+#                                title=title, status_id=initial_status,
+#                                submit_label=submit_label,
+#                               )
 
 
-def abstract_view_salesorder(request, order_id, template='billing/view_sales_order.html'):
-    warnings.warn('billing.views.sales_order.abstract_view_salesorder() is deprecated ; '
-                  'use the class-based view SalesOrderDetail instead.',
-                  DeprecationWarning
-                 )
-
-    user = request.user
-
-    return generic.view_entity(request, order_id, SalesOrder,
-                               template=template,
-                               extra_template_dict={
-                                    'can_create_invoice': user.has_perm(cperm(Invoice)) and not user.is_staff,
-                               },
-                              )
+# def abstract_edit_salesorder(request, order_id, form=order_forms.SalesOrderEditForm):
+#     warnings.warn('billing.views.sales_order.abstract_edit_salesorder() is deprecated ; '
+#                   'use the class-based view SalesOrderDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, order_id, SalesOrder, form)
 
 
-@login_required
-@permission_required(('billing', cperm(SalesOrder)))
-def add(request):
-    warnings.warn('billing.views.sales_order.add() is deprecated.', DeprecationWarning)
-    return abstract_add_salesorder(request)
+# def abstract_view_salesorder(request, order_id, template='billing/view_sales_order.html'):
+#     warnings.warn('billing.views.sales_order.abstract_view_salesorder() is deprecated ; '
+#                   'use the class-based view SalesOrderDetail instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     user = request.user
+#
+#     return generic.view_entity(request, order_id, SalesOrder,
+#                                template=template,
+#                                extra_template_dict={
+#                                     'can_create_invoice': user.has_perm(cperm(Invoice)) and not user.is_staff,
+#                                },
+#                               )
 
 
-@login_required
-@permission_required(('billing', cperm(SalesOrder)))
-def add_related(request, target_id):
-    warnings.warn('billing.views.sales_order.add_related() is deprecated.', DeprecationWarning)
-    return abstract_add_related_salesorder(request, target_id)
+# @login_required
+# @permission_required(('billing', cperm(SalesOrder)))
+# def add(request):
+#     warnings.warn('billing.views.sales_order.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_salesorder(request)
 
 
-@login_required
-@permission_required('billing')
-def edit(request, order_id):
-    warnings.warn('billing.views.sales_order.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_salesorder(request, order_id)
+# @login_required
+# @permission_required(('billing', cperm(SalesOrder)))
+# def add_related(request, target_id):
+#     warnings.warn('billing.views.sales_order.add_related() is deprecated.', DeprecationWarning)
+#     return abstract_add_related_salesorder(request, target_id)
 
 
-@login_required
-@permission_required('billing')
-def detailview(request, order_id):
-    warnings.warn('billing.views.sales_order.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_salesorder(request, order_id)
+# @login_required
+# @permission_required('billing')
+# def edit(request, order_id):
+#     warnings.warn('billing.views.sales_order.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_salesorder(request, order_id)
+
+
+# @login_required
+# @permission_required('billing')
+# def detailview(request, order_id):
+#     warnings.warn('billing.views.sales_order.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_salesorder(request, order_id)
 
 
 @login_required

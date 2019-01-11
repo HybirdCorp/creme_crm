@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.views import generic
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.views import generic
 
 from ... import billing
 
@@ -40,89 +40,89 @@ SalesOrder = billing.get_sales_order_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_quote(request, form=quote_forms.QuoteCreateForm,
-                       initial_status=1,
-                       submit_label=Quote.save_label,
-                      ):
-    warnings.warn('billing.views.quote.abstract_view_quote() is deprecated ; '
-                  'use the class-based view QuoteCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form, extra_initial={'status': initial_status},
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_quote(request, form=quote_forms.QuoteCreateForm,
+#                        initial_status=1,
+#                        submit_label=Quote.save_label,
+#                       ):
+#     warnings.warn('billing.views.quote.abstract_view_quote() is deprecated ; '
+#                   'use the class-based view QuoteCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form, extra_initial={'status': initial_status},
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_add_related_quote(request, target_id, form=quote_forms.QuoteCreateForm,
-                               initial_status=1,
-                               title=_('Create a quote for «%s»'),
-                               submit_label=Quote.save_label,
-                              ):
-    warnings.warn('billing.views.quote.abstract_add_related_quote() is deprecated ; '
-                  'use the class-based view RelatedQuoteCreation instead.',
-                  DeprecationWarning
-                 )
-    from ..views.workflow import generic_add_related
-
-    return generic_add_related(request, target_id, form=form,
-                               title=title, status_id=initial_status,
-                               submit_label=submit_label,
-                              )
-
-
-def abstract_edit(request, quote_id, form=quote_forms.QuoteEditForm):
-    warnings.warn('billing.views.quote.abstract_edit_quote() is deprecated ; '
-                  'use the class-based view QuoteEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, quote_id, Quote, form)
+# def abstract_add_related_quote(request, target_id, form=quote_forms.QuoteCreateForm,
+#                                initial_status=1,
+#                                title=_('Create a quote for «%s»'),
+#                                submit_label=Quote.save_label,
+#                               ):
+#     warnings.warn('billing.views.quote.abstract_add_related_quote() is deprecated ; '
+#                   'use the class-based view RelatedQuoteCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     from ..views.workflow import generic_add_related
+#
+#     return generic_add_related(request, target_id, form=form,
+#                                title=title, status_id=initial_status,
+#                                submit_label=submit_label,
+#                               )
 
 
-def abstract_view_quote(request, quote_id, template='billing/view_quote.html'):
-    warnings.warn('billing.views.quote.abstract_view_quote() is deprecated ; '
-                  'use the class-based view QuoteDetail instead.',
-                  DeprecationWarning
-                 )
-
-    user = request.user
-    has_perm = user.has_perm
-    isnt_staff = not user.is_staff
-
-    return generic.view_entity(request, quote_id, Quote,
-                               template=template,
-                               extra_template_dict={
-                                    'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
-                                    'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
-                               },
-                              )
+# def abstract_edit(request, quote_id, form=quote_forms.QuoteEditForm):
+#     warnings.warn('billing.views.quote.abstract_edit_quote() is deprecated ; '
+#                   'use the class-based view QuoteEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, quote_id, Quote, form)
 
 
-@login_required
-@permission_required(('billing', cperm(Quote)))
-def add(request):
-    warnings.warn('billing.views.quote.add() is deprecated.', DeprecationWarning)
-    return abstract_add_quote(request)
+# def abstract_view_quote(request, quote_id, template='billing/view_quote.html'):
+#     warnings.warn('billing.views.quote.abstract_view_quote() is deprecated ; '
+#                   'use the class-based view QuoteDetail instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     user = request.user
+#     has_perm = user.has_perm
+#     isnt_staff = not user.is_staff
+#
+#     return generic.view_entity(request, quote_id, Quote,
+#                                template=template,
+#                                extra_template_dict={
+#                                     'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
+#                                     'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
+#                                },
+#                               )
 
 
-@login_required
-@permission_required(('billing', cperm(Quote)))
-def add_related(request, target_id):
-    warnings.warn('billing.views.quote.add_related() is deprecated.', DeprecationWarning)
-    return abstract_add_related_quote(request, target_id)
+# @login_required
+# @permission_required(('billing', cperm(Quote)))
+# def add(request):
+#     warnings.warn('billing.views.quote.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_quote(request)
 
 
-@login_required
-@permission_required('billing')
-def edit(request, quote_id):
-    warnings.warn('billing.views.quote.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit(request, quote_id)
+# @login_required
+# @permission_required(('billing', cperm(Quote)))
+# def add_related(request, target_id):
+#     warnings.warn('billing.views.quote.add_related() is deprecated.', DeprecationWarning)
+#     return abstract_add_related_quote(request, target_id)
 
 
-@login_required
-@permission_required('billing')
-def detailview(request, quote_id):
-    warnings.warn('billing.views.quote.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_quote(request, quote_id)
+# @login_required
+# @permission_required('billing')
+# def edit(request, quote_id):
+#     warnings.warn('billing.views.quote.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit(request, quote_id)
+
+
+# @login_required
+# @permission_required('billing')
+# def detailview(request, quote_id):
+#     warnings.warn('billing.views.quote.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_quote(request, quote_id)
 
 
 @login_required
