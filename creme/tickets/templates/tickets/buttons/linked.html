@@ -9,16 +9,3 @@
         }
     }{% endblockjsondata %}
 </a>
-{% comment %}
-{% if has_perm and link_perm %}{% ctype_for_swappable 'TICKETS_TICKET_MODEL' as ticket_ct %}
-    <a class="menu_button menu-button-icon" onclick="creme.relations.addRelationTo({{object.id}}, '{{rtype_id}}', {{ticket_ct.id}}, {multiple: true});">
-        {% widget_icon name='ticket' size='instance-button' label=img_title %}
-        {% trans 'Link to a ticket' %}
-    </a>
-{% else %}
-    <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
-        {% widget_icon name='ticket' size='instance-button' label=img_title %}
-        {% trans 'Link to a ticket' %}
-    </span>
-{% endif %}
-{% endcomment %}

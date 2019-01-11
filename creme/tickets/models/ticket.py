@@ -30,18 +30,11 @@ from django.utils.formats import date_format
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
-# from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.models import CremeEntity
-# from creme.creme_core.templatetags.creme_date import timedelta_pprint
 
 from .criticity import Criticity
 from .priority import Priority
 from .status import Status, OPEN_PK, CLOSED_PK
-
-
-# class _ResolvingDurationField(FunctionField):
-#     name         = 'get_resolving_duration'
-#     verbose_name = _('Resolving duration')
 
 
 class TicketNumber(Model):
@@ -80,8 +73,6 @@ class AbstractTicket(TicketMixin):
                                  editable=False,
                                 ).set_tags(clonable=False)
 
-    # function_fields = CremeEntity.function_fields.new(_ResolvingDurationField())
-
     creation_label = _('Create a ticket')
     save_label     = _('Save the ticket')
 
@@ -94,7 +85,6 @@ class AbstractTicket(TicketMixin):
         ordering = ('title',)
 
     def __init__(self, *args, **kwargs):
-        # super(AbstractTicket, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.old_status_id = self.status_id
 
@@ -116,7 +106,6 @@ class AbstractTicket(TicketMixin):
         return reverse('tickets__list_tickets')
 
     def get_html_attrs(self, context):
-        # attrs = super(AbstractTicket, self).get_html_attrs(context)
         attrs = super().get_html_attrs(context)
 
         if self.status_id == OPEN_PK and \
@@ -153,7 +142,6 @@ class AbstractTicket(TicketMixin):
             self.number = number_id
             TicketNumber.objects.filter(id__lt=number_id).delete()
 
-        # super(AbstractTicket, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
 
