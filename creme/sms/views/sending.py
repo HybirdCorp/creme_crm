@@ -18,16 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect  # render
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.bricks import build_context, bricks_render_info
-# from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
 
@@ -35,18 +32,8 @@ from .. import get_smscampaign_model
 from ..bricks import MessagesBrick
 from ..forms.message import SendingCreateForm
 from ..models import Sending, Message
-# from creme.sms.webservice.samoussa import SamoussaBackEnd
-# from creme.sms.webservice.backend import WSException
 
 
-# @login_required
-# @permission_required('sms')
-# def add(request,campaign_id):
-#     return add_to_entity(request, campaign_id, SendingCreateForm,
-#                          _(u'New sending for «%s»'),
-#                          entity_class=get_smscampaign_model(),
-#                          submit_label=Sending.save_label,
-#                         )
 class SendingCreation(generic.AddingInstanceToEntityPopup):
     model = Sending
     form_class = SendingCreateForm
@@ -94,17 +81,9 @@ def send_messages(request, id):
     return HttpResponse()
 
 
-# @login_required
-# @permission_required('sms')
-# def detailview(request, id):
-#     sending = get_object_or_404(Sending, id=id)
-#     request.user.has_perm_to_view_or_die(sending.campaign)
-#
-#     return render(request, 'sms/popup_sending.html', {'object': sending})
 # TODO: RelatedToEntityDetail when Sending is/if an auxiliary
 class Messages(generic.CremeModelDetailPopup):
     model = Sending
-    # template_name = 'sms/popup_sending.html'
     pk_url_kwarg = 'id'
     permissions = 'sms'
     bricks_reload_url_name = 'sms__reload_messages_brick'

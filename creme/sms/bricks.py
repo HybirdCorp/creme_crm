@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import QuerysetBrick
@@ -67,7 +66,6 @@ class RecipientsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                 context,
                 Recipient.objects.filter(messaging_list=pk),  # get_recipients() ??? related_name() ?
-                # ct_id=ContentType.objects.get_for_model(Recipient).id,
         ))
 
 

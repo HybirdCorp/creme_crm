@@ -22,7 +22,7 @@ import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext_lazy as _  # ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -92,28 +92,6 @@ def detailview(request, mlist_id):
 @permission_required('sms')
 def listview(request):
     return generic.list_view(request, MessagingList, hf_pk=DEFAULT_HFILTER_MLIST)
-
-
-# @login_required
-# @permission_required('sms')
-# def add_contacts(request, mlist_id):
-#     return generic.add_to_entity(request, mlist_id, ml_forms.AddContactsForm,
-#                                  ugettext('New contacts for «%s»'),
-#                                  entity_class=MessagingList,
-#                                  submit_label=_('Link the contacts'),
-#                                  template='creme_core/generics/blockform/link_popup.html',
-#                                 )
-
-
-# @login_required
-# @permission_required('sms')
-# def add_contacts_from_filter(request, mlist_id):
-#     return generic.add_to_entity(request, mlist_id, ml_forms.AddContactsFromFilterForm,
-#                                  ugettext('New contacts for «%s»'),
-#                                  entity_class=MessagingList,
-#                                  submit_label=_('Link the contacts'),
-#                                  template='creme_core/generics/blockform/link_popup.html',
-#                                 )
 
 
 @login_required
