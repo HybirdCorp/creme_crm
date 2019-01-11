@@ -18,13 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.http import HttpResponse
-# from django.shortcuts import render
-# from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -40,27 +36,6 @@ EntityEmail = get_entityemail_model()
 
 
 # TODO: credentials (don't forget templates)
-# @login_required
-# @permission_required('emails')
-# def synchronisation(request):
-#     # todo: Apply permissions?
-#     bricks_obj = None
-#
-#     try:
-#         backend = registry.crudity_registry.get_default_backend('email')
-#     except KeyError:
-#         pass
-#     else:
-#         if isinstance(backend, EntityEmailBackend):
-#             bricks_obj = [bricks.WaitingSynchronizationMailsBrick(backend=backend),
-#                           bricks.SpamSynchronizationMailsBrick(backend=backend),
-#                          ]
-#
-#     return render(request, template_name='emails/synchronize.html',
-#                   context={'bricks':            bricks_obj,
-#                            'bricks_reload_url': reverse('crudity__reload_actions_bricks'),
-#                           },
-#                  )
 class Synchronisation(BricksView):
     template_name = 'emails/synchronize.html'
     permissions = 'emails'
@@ -89,19 +64,11 @@ class Synchronisation(BricksView):
 def set_emails_status(request, status):
     user = request.user
     errors = []
-    # has_perm = user.has_perm_to_change
     has_perm_or_die = user.has_perm_to_change_or_die
 
     with atomic():
         for email in EntityEmail.objects.filter(id__in=request.POST.getlist('ids')) \
                                         .select_for_update():
-            # if not has_perm(email):
-            #     errors.append(_('You are not allowed to edit this entity: {}').format(
-            #                     email.allowed_str(user)
-            #                  ))
-            # else:
-            #     email.status = status
-            #     email.save()
             try:
                 has_perm_or_die(email)
             except PermissionDenied as e:

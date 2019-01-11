@@ -33,7 +33,6 @@ EntityEmail = get_entityemail_model()
 class EntityEmailLinkButton(Button):
     id_           = Button.generate_id('emails', 'entity_email_link')
     verbose_name  = _(u'Link this email to')
-    # template_name = 'emails/templatetags/button_entityemail_link.html'
     template_name = 'emails/buttons/entityemail-link.html'
     permission    = build_link_perm(EntityEmail)
 
@@ -46,8 +45,4 @@ class EntityEmailLinkButton(Button):
         context['entity_email_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
         context['rtypes'] = self.rtype_ids
 
-        # return super(EntityEmailLinkButton, self).render(context)
         return super().render(context)
-
-
-# entityemail_link_button = EntityEmailLinkButton()

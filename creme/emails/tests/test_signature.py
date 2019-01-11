@@ -12,7 +12,6 @@ except Exception as e:
 
 class SignaturesTestCase(_EmailsTestCase):
     def login(self, is_superuser=True, allowed_apps=('emails',), *args, **kwargs):
-        # return super(SignaturesTestCase, self).login(is_superuser, allowed_apps=allowed_apps, *args, **kwargs)
         return super().login(is_superuser, allowed_apps=allowed_apps, *args, **kwargs)
 
     def test_create(self):
@@ -48,10 +47,7 @@ class SignaturesTestCase(_EmailsTestCase):
 
         url = signature.get_edit_absolute_url()
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-
-        # self.assertEqual(_('Edit «%s»') % signature, response.context.get('title'))
         self.assertEqual(_('Edit «{}»').format(signature), response.context.get('title'))
 
         # ---

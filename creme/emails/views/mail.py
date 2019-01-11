@@ -22,7 +22,7 @@ import warnings
 
 from django.db.transaction import atomic
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404  # render
+from django.shortcuts import get_object_or_404
 from django.template import Template, Context
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -61,25 +61,6 @@ def get_lightweight_mail_body(request, mail_id):
                                       allow_external_img=True,
                                      )
                        )
-
-
-# @login_required
-# @permission_required('emails')
-# def view_lightweight_mail(request, mail_id):
-#     email = get_object_or_404(LightWeightEmail, pk=mail_id)
-#
-#     # todo: disable the link in the template if view is not allowed
-#     request.user.has_perm_to_view_or_die(email.sending.campaign)
-#
-#     template = 'emails/view_email.html'
-#     ctx_dict = {'mail': email, 'title': _('Details of the mail')}
-#
-#     if request.is_ajax():
-#         return generic.inner_popup(request, template, ctx_dict,
-#                                    is_valid=False, reload=False,
-#                                   )
-#
-#     return render(request, template, ctx_dict)
 
 
 def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html'):

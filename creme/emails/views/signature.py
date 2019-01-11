@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -33,26 +31,12 @@ from ..forms.signature import SignatureForm
 from ..models import EmailSignature
 
 
-# @login_required
-# @permission_required('emails')
-# def add(request):
-#     return generic.add_model_with_popup(request, SignatureForm,
-#                                         title=EmailSignature.creation_label,
-#                                         submit_label=EmailSignature.save_label,
-#                                        )
 class SignatureCreation(generic.CremeModelCreationPopup):
     model = EmailSignature
     form_class = SignatureForm
     permissions = 'emails'
 
 
-# @login_required
-# @permission_required('emails')
-# def edit(request, signature_id):
-#     return generic.edit_model_with_popup(request, {'pk': signature_id},
-#                                          model=EmailSignature, form_class=SignatureForm,
-#                                          can_change=EmailSignature.can_change_or_delete,
-#                                         )
 class SignatureEdition(generic.CremeModelEditionPopup):
     model = EmailSignature
     form_class = SignatureForm

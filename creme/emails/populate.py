@@ -30,7 +30,7 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
         BrickDetailviewLocation, CustomBrickConfigItem,
-        ButtonMenuItem, HeaderFilter, Job)  # BlockPortalLocation
+        ButtonMenuItem, HeaderFilter, Job)
 
 from creme import persons
 
@@ -61,35 +61,35 @@ class Populator(BasePopulator):
         SettingValue.objects.get_or_create(key_id=emailcampaign_sender.id, defaults={'value': ''})
 
         # ---------------------------
-        RelationType.create((constants.REL_SUB_MAIL_RECEIVED, _(u'(email) received by'),  [EntityEmail]),
-                            (constants.REL_OBJ_MAIL_RECEIVED, _(u'received the email'),   [Organisation, Contact]))
-        RelationType.create((constants.REL_SUB_MAIL_SENDED,   _(u'(email) sent by'),      [EntityEmail]),
-                            (constants.REL_OBJ_MAIL_SENDED,   _(u'sent the email'),       [Organisation, Contact]))
-        RelationType.create((constants.REL_SUB_RELATED_TO,    _(u'(email) related to'),   [EntityEmail]),
-                            (constants.REL_OBJ_RELATED_TO,    _(u'related to the email'), []))
+        RelationType.create((constants.REL_SUB_MAIL_RECEIVED, _('(email) received by'),  [EntityEmail]),
+                            (constants.REL_OBJ_MAIL_RECEIVED, _('received the email'),   [Organisation, Contact]))
+        RelationType.create((constants.REL_SUB_MAIL_SENDED,   _('(email) sent by'),      [EntityEmail]),
+                            (constants.REL_OBJ_MAIL_SENDED,   _('sent the email'),       [Organisation, Contact]))
+        RelationType.create((constants.REL_SUB_RELATED_TO,    _('(email) related to'),   [EntityEmail]),
+                            (constants.REL_OBJ_RELATED_TO,    _('related to the email'), []))
 
         # ---------------------------
         create_hf = HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_MAILINGLIST,
                   model=MailingList,
-                  name=_(u'Mailing list view'),
+                  name=_('Mailing list view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_CAMPAIGN,
                   model=EmailCampaign,
-                  name=_(u'Campaign view'),
+                  name=_('Campaign view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_TEMPLATE,
                   model=EmailTemplate,
-                  name=_(u'Email template view'),
+                  name=_('Email template view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'subject'}),
                              ],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_EMAIL,
                   model=EntityEmail,
-                  name=_(u'Email view'),
+                  name=_('Email view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'sender'}),
                               (EntityCellRegularField, {'name': 'recipient'}),
                               (EntityCellRegularField, {'name': 'subject'}),
@@ -123,7 +123,7 @@ class Populator(BasePopulator):
             build_cell = EntityCellRegularField.build
 
             cbci_email = create_cbci(id='emails-entityemail_info',
-                                     name=_(u'Email information'),
+                                     name=_('Email information'),
                                      content_type=get_ct(EntityEmail),
                                      cells=[
                                         build_cell(EntityEmail, 'user'),
@@ -138,7 +138,7 @@ class Populator(BasePopulator):
                                      ],
                                     )
             cbci_template = create_cbci(id='emails-emailtemplate_info',
-                                        name=_(u'Email template information'),
+                                        name=_('Email template information'),
                                         content_type=get_ct(EmailTemplate),
                                         cells=[
                                             build_cell(EmailTemplate, 'created'),
@@ -194,9 +194,6 @@ class Populator(BasePopulator):
             create_bdl(brick_id=bricks.MailsHistoryBrick.id_, order=600, zone=RIGHT, model=Contact)
             create_bdl(brick_id=bricks.MailsHistoryBrick.id_, order=600, zone=RIGHT, model=Organisation)
 
-            # BlockPortalLocation.create_or_update(app_name='emails', brick_id=bricks.SignaturesBrick.id_, order=10)
-            # BlockPortalLocation.create_or_update(app_name='emails', brick_id=core_bricks.HistoryBrick.id_, order=30)
-
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
@@ -207,10 +204,6 @@ class Populator(BasePopulator):
                     create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=model)
                     create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
                     create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=model)
-
-                # BlockPortalLocation.create_or_update(app_name='emails', brick_id=a_bricks.MemosBrick.id_,        order=100)
-                # BlockPortalLocation.create_or_update(app_name='emails', brick_id=a_bricks.AlertsBrick.id_,       order=200)
-                # BlockPortalLocation.create_or_update(app_name='emails', brick_id=a_bricks.UserMessagesBrick.id_, order=300)
 
             if apps.is_installed('creme.documents'):
                 # logger.info("Documents app is installed => we use the documents block on EmailCampaign's detail view")

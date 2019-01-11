@@ -20,13 +20,11 @@
 
 from datetime import datetime, time
 from json import dumps as json_dump
-# import logging
-# from pickle import dumps
 
 from django.forms import IntegerField, EmailField, DateTimeField, ValidationError
 from django.template.base import Template, VariableNode
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _  # ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import CremeModelForm, CreatorEntityField
@@ -35,49 +33,35 @@ from creme.creme_core.models import HistoryLine, SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
-# from ..constants import SETTING_EMAILCAMPAIGN_SENDER
-from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPE_DEFERRED  # SENDING_STATE_PLANNED
+from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPE_DEFERRED
 from ..setting_keys import emailcampaign_sender
 
 
-# logger = logging.getLogger(__name__)
-
-
 class SendingCreateForm(CremeModelForm):
-    sender       = EmailField(label=_(u'Sender address'))
-    template     = CreatorEntityField(label=_(u'Email template'), model=get_emailtemplate_model(),
+    sender       = EmailField(label=_('Sender address'))
+    template     = CreatorEntityField(label=_('Email template'), model=get_emailtemplate_model(),
                                       credentials=EntityCredentials.VIEW,
                                      )
-    sending_date = DateTimeField(label=_(u'Sending date'), required=False, widget=CalendarWidget,
-                                 help_text=_(u'Required only of the sending is deferred.'))
-    hour         = IntegerField(label=_(u'Sending hour'), required=False, min_value=0, max_value=23)
-    minute       = IntegerField(label=_(u'Sending minute'), required=False, min_value=0, max_value=59)
+    sending_date = DateTimeField(label=_('Sending date'), required=False, widget=CalendarWidget,
+                                 help_text=_('Required only of the sending is deferred.'))
+    hour         = IntegerField(label=_('Sending hour'), required=False, min_value=0, max_value=23)
+    minute       = IntegerField(label=_('Sending minute'), required=False, min_value=0, max_value=59)
 
     error_messages = {
-        'forbidden': _(u'You are not allowed to modify the sender address, please contact your administrator.'),
+        'forbidden': _('You are not allowed to modify the sender address, please contact your administrator.'),
     }
 
-    blocks = CremeModelForm.blocks.new(('sending_date', _(u'Sending date'), ['type', 'sending_date', 'hour', 'minute']))
+    blocks = CremeModelForm.blocks.new(('sending_date', _('Sending date'), ['type', 'sending_date', 'hour', 'minute']))
 
     class Meta:
         model   = EmailSending
         exclude = ()
 
     def __init__(self, entity, *args, **kwargs):
-        # super(SendingCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.campaign = entity
         self.can_admin_emails = can_admin_emails = self.user.has_perm_to_admin("emails")
 
-        # try:
-        #     sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
-        # except SettingValue.DoesNotExist:
-        #     # sender_setting = None
-        #     logger.critical('SettingValue with key=%s cannot be found !'
-        #                     ' ("creme_populate" command has not been run correctly)',
-        #                     SETTING_EMAILCAMPAIGN_SENDER
-        #                 )
-        #     raise
         sender_setting = SettingValue.objects.get_4_key(emailcampaign_sender)
 
         sender_field = self.fields['sender']
@@ -103,14 +87,13 @@ class SendingCreateForm(CremeModelForm):
         return sender_value
 
     def clean(self):
-        # cleaned_data = super(SendingCreateForm, self).clean()
         cleaned_data = super().clean()
 
         if cleaned_data['type'] == SENDING_TYPE_DEFERRED:
             sending_date = cleaned_data['sending_date']
 
             if sending_date is None:
-                self.add_error('sending_date', _(u"Sending date required for a deferred sending"))
+                self.add_error('sending_date', _('Sending date required for a deferred sending'))
             else:
                 get_data = cleaned_data.get
                 sending_date = make_aware_dt(datetime.combine(sending_date,
@@ -121,7 +104,7 @@ class SendingCreateForm(CremeModelForm):
                                             )
 
                 if sending_date < now():
-                    self.add_error('sending_date', _(u'Sending date must be is the future'))
+                    self.add_error('sending_date', _('Sending date must be is the future'))
                 else:
                     cleaned_data['sending_date'] = sending_date
         else:
@@ -140,7 +123,6 @@ class SendingCreateForm(CremeModelForm):
         sender_setting = self.sender_setting
 
         instance.campaign = self.campaign
-#        instance.state = SENDING_STATE_PLANNED
 
         template = cleaned_data['template']
         instance.subject   = template.subject
@@ -148,7 +130,6 @@ class SendingCreateForm(CremeModelForm):
         instance.body_html = template.body_html
         instance.signature = template.signature
 
-        # super(SendingCreateForm, self).save()
         super().save()
 
         sender_address = cleaned_data['sender']
@@ -180,11 +161,9 @@ class SendingCreateForm(CremeModelForm):
                 for varname in varlist:
                     val = getattr(recipient_entity, varname, None)
                     if val:
-                        # context[varname] = val.encode('utf-8')
                         context[varname] = val  # TODO: str(val) ?
 
                 if context:
-                    # mail.body = dumps(context)
                     mail.body = json_dump(context, separators=(',', ':'))
 
             disable_history(mail)

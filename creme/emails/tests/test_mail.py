@@ -39,12 +39,10 @@ except Exception as e:
 class EntityEmailTestCase(_EmailsTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(EntityEmailTestCase, cls).setUpClass()
         super().setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
     def tearDown(self):
-        # super(EntityEmailTestCase, self).tearDown()
         super().tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
@@ -52,7 +50,6 @@ class EntityEmailTestCase(_EmailsTestCase):
               allowed_apps=('persons', 'emails'),
               creatable_models=(Contact, Organisation, EntityEmail),
               *args, **kwargs):
-        # return super(EntityEmailTestCase, self).login(is_superuser=is_superuser,
         return super().login(is_superuser=is_superuser,
                              allowed_apps=allowed_apps,
                              creatable_models=creatable_models,
@@ -80,7 +77,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         url = self._build_create_entitymail_url(contact)
 
         context = self.assertGET200(url).context
-        # self.assertEqual(_('Sending an email to «%s»') % contact, context.get('title'))
         self.assertEqual(_('Sending an email to «{}»').format(contact), context.get('title'))
         self.assertEqual(EntityEmail.sending_label,                     context.get('submit_label'))
 
@@ -119,7 +115,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'emails/view_entity_mail.html')
 
         response = self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
-        # self.assertTemplateUsed(response, 'emails/view_entity_mail_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/detail-popup.html')
 
         messages = mail.outbox
@@ -222,7 +217,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                    email='vincent.law@immigrates',  # Invalid
                                   )
         contact02 = create_contact(first_name='Pino', last_name='AutoReiv',
-                                   email='pino@autoreivs.rmd', #ok
+                                   email='pino@autoreivs.rmd',  # Ok
                                   )
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -491,7 +486,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
-        # contact01 = create_contact(first_name='Vincent', last_name='Law',email=None)
         contact01 = create_contact(first_name='Vincent', last_name='Law', email='')
         contact02 = create_contact(first_name='Pino', last_name='AutoReiv', email='pino@autoreivs.rmd')
 
@@ -545,25 +539,19 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         url = self._build_send_from_template_url(contact)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_wizard_popup.html')
 
         context = response.context
         title = _('Sending an email to «{entity}»').format(entity=contact)
         self.assertEqual(
-            # _('Sending an email to «{entity}» (step {step}/2)').format(entity=contact, step=1),
             title,
             context.get('title')
         )
-        # self.assertEqual(_('Next step'), context.get('submit_label'))
         self.assertEqual(_('Select this template'), context.get('submit_label'))
 
         # ---
         step_key = 'entity_email_wizard-current_step'
         response = self.client.post(url,
-                                    # data={'step':     1,
-                                    #       'template': template.id,
-                                    #      },
                                     data={step_key: '0',
                                           '0-template': template.id,
                                          },
@@ -572,7 +560,6 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         context = response.context
         self.assertEqual(
-            # _('Sending an email to «{entity}» (step {step}/2)').format(entity=contact, step=2),
             title,
             context.get('title')
         )
@@ -587,8 +574,6 @@ class EntityEmailTestCase(_EmailsTestCase):
             fields['signature']
             fields['attachments']
 
-        # self.assertEqual(2, fields['step'].initial)
-
         ini_get = form.initial.get
         self.assertEqual(subject, ini_get('subject'))
         self.assertEqual(body_format(contact.first_name, contact.last_name),      ini_get('body'))
@@ -597,15 +582,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         # self.assertEqual(attachments,  ini_get('attachments')) #TODO
 
         response = self.client.post(url,
-                                    # data={'step':         2,
-                                    #       'user':         user.id,
-                                    #       'sender':       user.linked_contact.email,
-                                    #       'c_recipients': self.formfield_value_multi_creator_entity(contact),
-                                    #       'subject':      subject,
-                                    #       'body':         ini_get('body'),
-                                    #       'body_html':    ini_get('body_html'),
-                                    #       'signature':    signature.id,
-                                    # },
                                     data={step_key: '1',
                                           '1-step': 2,
                                           '1-user': user.id,

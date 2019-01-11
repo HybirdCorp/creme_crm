@@ -46,7 +46,6 @@ _IMG_PATTERN = re_compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?
 
 class ImageFromHTMLError(Exception):
     def __init__(self, filename, *args, **kwargs):
-        # super(Exception, self).__init__('Can not use the image : {}'.format(filename))
         super().__init__('Can not use the image : {}'.format(filename))
         self._filename = filename
 
@@ -63,9 +62,8 @@ def get_mime_image(image_entity):
         mime_image = getattr(image_entity, _MIME_IMG_CACHE)
     except AttributeError:
         try:
-            # image_file = image_entity.image.file
             image_file = image_entity.filedata.file
-            image_file.open() # NB: 'with' seems not working
+            image_file.open()  # NB: 'with' seems not working
             mime_image = MIMEImage(image_file.read())
             mime_image.add_header('Content-ID','<img_{}>'.format(image_entity.id))
             mime_image.add_header('Content-Disposition', 'inline', filename=basename(image_file.name))

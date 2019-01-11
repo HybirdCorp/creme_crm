@@ -46,10 +46,8 @@ class CampaignAddMLForm(CremeForm):
     blocks = FieldBlockManager(('general', _('Mailing lists'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        # super(CampaignAddMLForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.campaign = entity
-        # self.fields['mailing_lists'].q_filter = {'~id__in': list(entity.mailing_lists.values_list('id', flat=True))}
         self.fields['mailing_lists'].q_filter = \
             ~Q(id__in=list(entity.mailing_lists.values_list('id', flat=True)))
 

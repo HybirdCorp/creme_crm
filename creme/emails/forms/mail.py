@@ -78,7 +78,6 @@ class EntityEmailForm(CremeEntityForm):
         fields = ('sender', 'subject', 'body', 'body_html', 'signature', 'attachments')
 
     def __init__(self, entity, *args, **kwargs):
-        # super(EntityEmailForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.entity = entity
 
@@ -140,7 +139,6 @@ class EntityEmailForm(CremeEntityForm):
         return self._clean_recipients('o_recipients')
 
     def clean(self):
-        # cdata = super(EntityEmailForm, self).clean()
         cdata = super().clean()
 
         if not self._errors and not cdata['c_recipients'] and not cdata['o_recipients']:

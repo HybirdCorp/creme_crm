@@ -23,7 +23,6 @@ except Exception as e:
 @skipIfCustomMailingList
 class MailingListsTestCase(_EmailsTestCase):
     def setUp(self):
-        # super(MailingListsTestCase, self).setUp()
         super().setUp()
         self.login()
 
@@ -87,11 +86,9 @@ class MailingListsTestCase(_EmailsTestCase):
 
         url = reverse('emails__add_mlists_to_campaign', args=(campaign.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New mailing lists for «%s»') % campaign, context.get('title'))
         self.assertEqual(_('New mailing lists for «{entity}»').format(entity=campaign),
                          context.get('title')
                         )
@@ -157,7 +154,6 @@ class MailingListsTestCase(_EmailsTestCase):
         url = reverse('emails__add_recipients', args=(mlist.id,))
 
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New recipients for «%s»') % mlist, context.get('title'))
         self.assertEqual(_('New recipients for «{entity}»').format(entity=mlist),
                          context.get('title')
                         )
@@ -199,7 +195,6 @@ class MailingListsTestCase(_EmailsTestCase):
         csvfile.name = 'recipients.csv'  # Django uses this
 
         self.assertNoFormError(self.client.post(url, data={'recipients': csvfile}))
-        # self.assertEqual(set(recipients), {r.address for r in mlist.emailrecipient_set.all()})
         self.assertEqual({recipient1, recipient2}, {r.address for r in mlist.emailrecipient_set.all()})
 
         csvfile.close()
@@ -227,11 +222,9 @@ class MailingListsTestCase(_EmailsTestCase):
         url = self._build_addcontact_url(mlist)
 
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New contacts for «%s»') % mlist, context.get('title'))
         self.assertEqual(_('New contacts for «{entity}»').format(entity=mlist),
                          context.get('title')
                         )
@@ -279,11 +272,9 @@ class MailingListsTestCase(_EmailsTestCase):
         url = self._build_addcontactfilter_url(mlist)
 
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New contacts for «%s»') % mlist, context.get('title'))
         self.assertEqual(_('New contacts for «{entity}»').format(entity=mlist),
                          context.get('title')
                         )
@@ -358,11 +349,9 @@ class MailingListsTestCase(_EmailsTestCase):
         url = self._build_addorga_url(mlist)
 
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New organisations for «%s»') % mlist, context.get('title'))
         self.assertEqual(_('New organisations for «{entity}»').format(entity=mlist),
                          context.get('title')
                         )
@@ -408,11 +397,9 @@ class MailingListsTestCase(_EmailsTestCase):
         url = self._build_addorgafilter_url(mlist)
 
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New organisations for «%s»') % mlist, context.get('title'))
         self.assertEqual(_('New organisations for «{entity}»').format(entity=mlist),
                          context.get('title')
                         )
@@ -488,11 +475,9 @@ class MailingListsTestCase(_EmailsTestCase):
 
         url = reverse('emails__add_child_mlists', args=(mlist01.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New child lists for «%s»') % mlist01, context.get('title'))
         self.assertEqual(_('New child list for «{entity}»').format(entity=mlist01),
                          context.get('title')
                         )

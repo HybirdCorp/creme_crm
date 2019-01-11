@@ -9,7 +9,7 @@ try:
 
     from .base import _EmailsTestCase, EntityEmail
     from ..models import EmailSignature
-    from ..utils import get_mime_image, EMailSender  # get_images_from_html
+    from ..utils import get_mime_image, EMailSender
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -87,7 +87,6 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
                                                   name='Funny signature',
                                                   body='I love you... not',
                                                  )
-        # signature.images = [img1, img2]
         signature.images.set([img1, img2])
 
         body = 'Want to meet you'

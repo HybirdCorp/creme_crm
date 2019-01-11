@@ -61,7 +61,6 @@ class MailingListAddRecipientsForm(CremeForm):
     blocks = FieldBlockManager(('general', _('Recipients'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        # super(MailingListAddRecipientsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
 
@@ -87,13 +86,11 @@ class MailingListAddCSVForm(CremeForm):
     blocks = FieldBlockManager(('general', _('CSV file'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        # super(MailingListAddCSVForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
 
     @staticmethod
     def filter_mail_chunk(value):
-        # result = smart_unicode(value)
         result = smart_text(value.strip())
 
         try:
@@ -109,9 +106,7 @@ class MailingListAddCSVForm(CremeForm):
         filter_ = EmailRecipient.objects.filter
 
         uploaded_file = self.cleaned_data['recipients']
-        # addresses = chunktools.iter_splitlinechunks(uploaded_file.chunks(),
-        #                                             parser=self.filter_mail_chunk,
-        #                                            )
+
         # TODO: genexpr
         def addresses():
             for line in uploaded_file:
@@ -119,7 +114,6 @@ class MailingListAddCSVForm(CremeForm):
                 if address:
                     yield address
 
-        # for recipients in chunktools.iter_as_chunk(addresses, 256):
         for recipients in chunktools.iter_as_chunk(addresses(), 256):
             recipients = frozenset(recipients)
             existing   = frozenset(filter_(ml=ml, address__in=recipients).values_list('address', flat=True))

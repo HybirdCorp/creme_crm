@@ -22,7 +22,7 @@ import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext_lazy as _  # ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -94,18 +94,6 @@ def detailview(request, template_id):
 @permission_required('emails')
 def listview(request):
     return generic.list_view(request, EmailTemplate, hf_pk=DEFAULT_HFILTER_TEMPLATE)
-
-
-# @login_required
-# @permission_required('emails')
-# def add_attachment(request, template_id):
-#     return generic.add_to_entity(
-#         request, template_id, tpl_forms.EmailTemplateAddAttachment,
-#         ugettext('New attachments for «%s»'),
-#         entity_class=EmailTemplate,
-#         submit_label=_('Save the attachments'),
-#         template='creme_core/generics/blockform/link_popup.html',
-#     )
 
 
 @login_required

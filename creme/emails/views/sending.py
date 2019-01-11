@@ -21,14 +21,13 @@
 import warnings
 
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404  # render
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic, bricks as bricks_views
 from creme.creme_core.views.decorators import jsonify
-# from creme.creme_core.views.generic import add_to_entity
 
 from .. import get_emailcampaign_model
 from ..bricks import MailsBrick, SendingBrick, SendingHTMLBodyBrick
@@ -36,14 +35,6 @@ from ..forms.sending import SendingCreateForm
 from ..models import EmailSending
 
 
-# @login_required
-# @permission_required('emails')
-# def add(request, campaign_id):
-#     return add_to_entity(request, campaign_id, SendingCreateForm,
-#                          _('New sending for «%s»'),
-#                          entity_class=get_emailcampaign_model(),
-#                          submit_label=EmailSending.save_label,
-#                         )
 class SendingCreation(generic.AddingInstanceToEntityPopup):
     model = EmailSending
     form_class = SendingCreateForm
@@ -65,12 +56,6 @@ def _get_sending(request, sending_id):
     return sending
 
 
-# @login_required
-# @permission_required('emails')
-# def detailview(request, sending_id):
-#     return render(request, 'emails/popup_sending.html',
-#                   context={'object': _get_sending(request, sending_id)},
-#                  )
 class SendingDetail(generic.RelatedToEntityDetail):
     model = EmailSending
     template_name = 'emails/view_sending.html'

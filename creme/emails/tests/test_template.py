@@ -16,7 +16,6 @@ except Exception as e:
 
 
 @skipIfCustomEmailTemplate
-# class TemplatesTestCase(_EmailsTestCase):
 class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
     def setUp(self):
         self.login()
@@ -117,17 +116,14 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         url = reverse('emails__add_attachments_to_template', args=(template.id,))
 
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        # self.assertEqual(_('New attachments for «%s»') % template, context.get('title'))
         self.assertEqual(_('New attachments for «{entity}»').format(entity=template),
                          context.get('title')
                         )
         self.assertEqual(_('Add the attachments'), context.get('submit_label'))
 
-        # response = self.client.post(url, data={'attachments': json_dump([doc1.id, doc2.id])})
         response = self.client.post(url, data={'attachments': self.formfield_value_multi_creator_entity(doc1, doc2)})
         self.assertNoFormError(response)
         self.assertEqual({doc1, doc2}, set(template.attachments.all()))
