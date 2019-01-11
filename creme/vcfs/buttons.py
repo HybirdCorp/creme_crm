@@ -32,6 +32,3 @@ class GenerateVcfButton(Button):
 
     def get_ctypes(self):
         return (get_contact_model(),)
-
-
-# generate_vcf_button = GenerateVcfButton()

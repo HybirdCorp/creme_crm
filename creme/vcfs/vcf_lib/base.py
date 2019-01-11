@@ -4,7 +4,6 @@ import codecs
 from collections import defaultdict
 import logging
 import re
-# import StringIO, cStringIO
 from io import StringIO
 import sys
 
@@ -278,7 +277,6 @@ class ContentLine(VBase):
 
         Underscores, legal in python variable names, are converted to dashes,
         which are legal in IANA tokens.
-
         """
         try:
             if name.endswith('_param'):
@@ -332,7 +330,6 @@ class Component(VBase):
         be serialized.
     """
     def __init__(self, name=None, *args, **kwds):
-        # super(Component, self).__init__(*args, **kwds)
         super().__init__(*args, **kwds)
         self.contents  = {}
         if name:
@@ -607,7 +604,7 @@ def parseParams(string):
     return allParameters
 
 
-def parseLine(line, lineNumber = None):
+def parseLine(line, lineNumber=None):
     """
     >>> parseLine("BLAH:")
     ('BLAH', [], '', None)
@@ -787,33 +784,6 @@ def dquoteEscape(param):
 def foldOneLine(outbuf, input, lineLength=75):
     # Folding line procedure that ensures multi-byte utf-8 sequences are not broken
     # across lines
-
-    # if len(input) < lineLength:
-    #     # Optimize for unfolded line case
-    #     outbuf.write(input)
-    # else:
-    #     # Look for valid utf8 range and write that out
-    #     start = 0
-    #     written = 0
-    #     while written < len(input):
-    #         # Start max length -1 chars on from where we are
-    #         offset = start + lineLength - 1
-    #         if offset >= len(input):
-    #             line = input[start:]
-    #             outbuf.write(line)
-    #             written = len(input)
-    #         else:
-    #             # Check whether next char is valid utf8 lead byte
-    #             while (input[offset] > 0x7F) and ((ord(input[offset]) & 0xC0) == 0x80):
-    #                 # Step back until we have a valid char
-    #                 offset -= 1
-    #
-    #             line = input[start:offset]
-    #             outbuf.write(line)
-    #             outbuf.write("\r\n ")
-    #             written += offset - start
-    #             start = offset
-    # outbuf.write("\r\n")
     input_length = len(input)
 
     if input_length < lineLength:
@@ -870,7 +840,6 @@ def defaultSerialize(obj, buf, lineLength):
         if obj.behavior and not startedEncoded:
             obj.behavior.encode(obj)
 
-        # s = codecs.getwriter('utf-8')(StringIO())  # unfolded buffer
         s = StringIO()  # unfolded buffer
 
         if obj.group is not None:
@@ -917,7 +886,7 @@ class Stack:
         else:
             new = Component()
             self.push(new)
-            new.add(item) #add sets behavior for item and children
+            new.add(item)  # Add sets behavior for item and children
 
     def push(self, obj):
         self.stack.append(obj)
@@ -1023,8 +992,6 @@ END:VCALENDAR''')
 def readOne(stream, validate=False, transform=True, findBegin=True,
             ignoreUnreadable=False, allowQP=False):
     """Return the first component from stream."""
-    # return readComponents(stream, validate, transform, findBegin,
-    #                       ignoreUnreadable, allowQP).next()
     return next(readComponents(stream, validate, transform, findBegin,
                                ignoreUnreadable, allowQP,
                               )

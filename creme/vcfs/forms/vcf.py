@@ -22,8 +22,6 @@ import base64
 from itertools import chain
 import logging
 from os import path
-# from urllib import urlretrieve
-# from urllib2 import urlopen
 from urllib.request import urlopen, urlretrieve
 
 from django.conf import settings
@@ -181,8 +179,6 @@ class VcfImportForm(CremeModelWithUserForm):
                }
 
     # Form-field names prefix for address + correspondence with VCF field types.
-    # HOME_ADDR_PREFIX = 'homeaddr_'
-    # WORK_ADDR_PREFIX = 'workaddr_'
     address_prefixes = {'HOME': HOME_ADDR_PREFIX,
                         'WORK': WORK_ADDR_PREFIX,
                        }
@@ -214,7 +210,6 @@ class VcfImportForm(CremeModelWithUserForm):
     other_help_text = _('Read in VCF File : ')
 
     def __init__(self, vcf_data=None, *args, **kwargs):
-        # super(VcfImportForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         fields = self.fields
 
@@ -241,14 +236,12 @@ class VcfImportForm(CremeModelWithUserForm):
 
         # TODO: use shipping address if not hidden ?
         if fconfigs[Contact].is_fieldname_hidden('billing_address'):
-            # prefix = self.HOME_ADDR_PREFIX
             prefix = HOME_ADDR_PREFIX
 
             for form_fname, __ in address_mapping:
                 del fields[prefix + form_fname]
 
         is_orga_field_hidden = fconfigs[Organisation].is_fieldname_hidden
-        # for fname in fields:
         for fname in list(fields):  # NB: Cannot mutate the OrderedDict during iteration.
             # NB: 5 == len('work_')
             if fname.startswith('work_') and is_orga_field_hidden(fname[5:]):
@@ -256,7 +249,6 @@ class VcfImportForm(CremeModelWithUserForm):
                 del fields['update_' + fname]
 
         if is_orga_field_hidden('billing_address'):
-            # prefix = self.WORK_ADDR_PREFIX
             prefix = WORK_ADDR_PREFIX
 
             for form_fname, __ in address_mapping:
@@ -484,7 +476,6 @@ class VcfImportForm(CremeModelWithUserForm):
             else:  # TODO: manage urls encoded in base64 ??
                 try:
                     # TODO: factorise with activesync ??
-                    # img_data = base64.decodestring(image_encoded)
                     img_data = base64.decodebytes(image_encoded.encode())
                     img_path = handle_uploaded_file(ContentFile(img_data),
                                                     path=IMG_UPLOAD_PATH.split('/'),
@@ -512,7 +503,6 @@ class VcfImportForm(CremeModelWithUserForm):
             organisation = get_data('organisation')
             save_orga    = False
             user         = cleaned_data['user']
-            # addr_prefix  = self.WORK_ADDR_PREFIX
             addr_prefix  = WORK_ADDR_PREFIX
 
             if organisation:
@@ -579,7 +569,6 @@ class VcfImportForm(CremeModelWithUserForm):
             save_contact = True
 
         contact_addr = self._create_address(cleaned_data, owner=contact,
-                                            # data_prefix=self.HOME_ADDR_PREFIX,
                                             data_prefix=HOME_ADDR_PREFIX,
                                            )
         if contact_addr is not None:
