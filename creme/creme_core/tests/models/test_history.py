@@ -34,18 +34,15 @@ class HistoryTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(HistoryTestCase, cls).setUpClass()
         super().setUpClass()
         HistoryLine.objects.all().delete()
 
     def setUp(self):
-        # super(HistoryTestCase, self).setUp()
         super().setUp()
         self.old_time = now().replace(microsecond=0)
         self.login()
 
     def tearDown(self):
-        # super(HistoryTestCase, self).tearDown()
         super().tearDown()
         HistoryLine.ENABLED = True
 
@@ -190,7 +187,6 @@ about this fantastic animation studio."""
                                           'email':         email,
                                           'description':   description,
                                           'sector':        sector02.id,
-                                          # 'creation_date': '1984-12-24',
                                           'creation_date': creation_date,
                                           'subject_to_vat': True,
                                          }

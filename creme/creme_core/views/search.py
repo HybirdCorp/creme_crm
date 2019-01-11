@@ -21,13 +21,9 @@
 from functools import partial
 from time import time
 from urllib.parse import urlencode
-# import warnings
 
-# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-# from django.shortcuts import render
-# from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from .. import utils
@@ -51,7 +47,6 @@ class FoundEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/found-entities.html'
 
     def __init__(self, searcher, model, research, user, id=None):
-        # super(FoundEntitiesBrick, self).__init__()
         super().__init__()
         # dependencies  = (...,)  # TODO: ??
         self.searcher = searcher
@@ -106,46 +101,6 @@ class FoundEntitiesBrick(QuerysetBrick):
         ))
 
 
-# @login_required
-# def search(request):
-#     GET_get = request.GET.get
-#     research = GET_get('research', '')
-#     ct_id    = GET_get('ct_id', '')
-#
-#     t_ctx  = {'bricks_reload_url': reverse('creme_core__reload_search_brick') + '?' + urlencode({'search': research})}
-#     models = []
-#     bricks = []
-#
-#     # if not research:
-#     #     if settings.OLD_MENU:
-#     #         t_ctx['error_message'] = _(u'Empty search…')
-#     # elif len(research) < MIN_RESEARCH_LENGTH:
-#     if len(research) < MIN_RESEARCH_LENGTH:
-#         t_ctx['error_message'] = _(u'Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
-#     else:
-#         if not ct_id:
-#             models.extend(creme_registry.iter_entity_models())
-#             models.sort(key=lambda m: m._meta.verbose_name)
-#         else:
-#             model = utils.get_ct_or_404(ct_id).model_class()
-#
-#             if not issubclass(model, CremeEntity):
-#                 raise Http404('The model must be a CremeEntity')
-#
-#             models.append(model)
-#
-#         user = request.user
-#         searcher = Searcher(models, user)
-#
-#         models = list(searcher.models)  # Remove disabled models
-#         bricks.extend(FoundEntitiesBrick(searcher, model, research, user) for model in models)
-#
-#     t_ctx['research'] = research
-#     t_ctx['models'] = [m._meta.verbose_name for m in models]
-#     t_ctx['bricks'] = bricks
-#     t_ctx['selected_ct_id'] = int(ct_id) if ct_id.isdigit() else None
-#
-#     return render(request, 'creme_core/search_results.html', t_ctx)
 class Search(base.EntityCTypeRelatedMixin, base.BricksView):
     template_name = 'creme_core/search_results.html'
     ct_id_0_accepted = True

@@ -45,7 +45,6 @@ except Exception as e:
 class ListViewTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(ListViewTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.url = FakeOrganisation.get_lv_absolute_url()
@@ -56,7 +55,6 @@ class ListViewTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # super(ListViewTestCase, cls).tearDownClass()
         super().tearDownClass()
         FakeCivility.objects.all().delete()
         FakeCivility.objects.bulk_create(cls._civ_backup)
@@ -933,7 +931,6 @@ class ListViewTestCase(ViewsTestCase):
 
         lv_node = self._get_lv_node(response)
         inputs_content = self._get_lv_inputs_content(lv_node)
-        # self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
         self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
 
         content = self._get_lv_content(lv_node)
@@ -1095,36 +1092,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(dragons.name,   content)
         self.assertEqual(4, response.context['entities'].paginator.count)
 
-        # optimized_count = 0
-        #
-        # todo: use regex to reduce code ?
-        # db_engine = settings.DATABASES['default']['ENGINE']
-        # if db_engine == 'django.db.backends.mysql':
-        #     fast_sql = 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` WHERE ' \
-        #                '(`creme_core_cremeentity`.`is_deleted` = 0 AND ' \
-        #                '`creme_core_cremeentity`.`entity_type_id` = %s)' % self.ctype.id
-        #     slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT `creme_core_cremeentity`.`id`'
-        # elif db_engine == 'django.db.backends.sqlite3':
-        #     fast_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" ' \
-        #                     'WHERE ("creme_core_cremeentity"."is_deleted" = %s AND ' \
-        #                     '"creme_core_cremeentity"."entity_type_id" = %s)'
-        #     slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT "creme_core_cremeentity"."id"'
-        # # elif db_engine == 'django.db.backends.postgresql_psycopg2':
-        # elif db_engine.startswith('django.db.backends.postgresql'):
-        #     fast_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE ' \
-        #                '("creme_core_cremeentity"."is_deleted" = false AND ' \
-        #                '"creme_core_cremeentity"."entity_type_id" = %s)' % self.ctype.id
-        #     slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT "creme_core_cremeentity"."id"'
-        # else:
-        #     self.fail('This RDBMS is not managed by this test case.')
-        #
-        # for sql in context.captured_sql:
-        #     if fast_sql in sql:
-        #         optimized_count += 1
-        #
-        #     self.assertNotIn(slow_sql, sql)
-        #
-        # self.assertEqual(1, optimized_count, context.captured_queries)
         db_engine = settings.DATABASES['default']['ENGINE']
         if db_engine == 'django.db.backends.mysql':
             trash_sql = 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` WHERE `creme_core_cremeentity`.`is_deleted` = 1'
@@ -1723,8 +1690,6 @@ class ListViewTestCase(ViewsTestCase):
         img2 = create_img(name='Dragon logo')
         img3 = create_img(name='Mushrooms image')
 
-        # img1.categories = [cat1, cat2]
-        # img2.categories = [cat1]
         img1.categories.set([cat1, cat2])
         img2.categories.set([cat1])
 
@@ -3034,7 +2999,6 @@ class ListViewTestCase(ViewsTestCase):
 
         lv_node = self._get_lv_node(response)
         inputs_content = self._get_lv_inputs_content(lv_node)
-        # self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
         self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
 
         content = self._get_lv_content(lv_node)

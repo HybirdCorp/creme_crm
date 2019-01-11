@@ -19,10 +19,8 @@
 ################################################################################
 
 from collections import Iterator
-# from functools import partial
 from json import loads as json_load
 import logging
-# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -33,7 +31,7 @@ from django.template.engine import Engine
 from ..auth.decorators import login_required
 from ..gui.bricks import brick_registry, BricksManager
 from ..models import CremeEntity, BrickState
-from ..utils import get_from_POST_or_404  # get_ct_or_404
+from ..utils import get_from_POST_or_404
 
 from .decorators import jsonify
 
@@ -78,17 +76,6 @@ def render_home_brick(brick, context):
         return fun(context)
 
     logger.warning('Brick without home_display() : %s (id=%s)', brick.__class__, brick.id_)
-
-
-# def render_portal_brick(brick, context, ct_ids):
-#     warnings.warn('creme_core.views.bricks.render_portal_brick() is deprecated.', DeprecationWarning)
-#
-#     fun = getattr(brick, 'portal_display', None)
-#
-#     if fun:
-#         return fun(context, ct_ids)
-#
-#     logger.warn('Brick without portal_display() : %s (id=%s)', brick.__class__, brick.id_)
 
 
 def bricks_render_info(request, bricks, context=None,
@@ -202,29 +189,6 @@ def reload_home(request):
                               bricks=list(brick_registry.get_bricks(get_brick_ids_or_404(request))),
                               brick_render_function=render_home_brick,
                              )
-
-
-# @login_required
-# @jsonify
-# def reload_portal(request):
-#     warnings.warn('creme_core.views.bricks.reload_portal() is deprecated.', DeprecationWarning)
-#
-#     brick_ids = get_brick_ids_or_404(request)
-#     ct_ids = request.GET.getlist('ct_id')
-#     app_labels = {get_ct_or_404(ct_id).model_class()._meta.app_label for ct_id in ct_ids}
-#
-#     if len(app_labels) != 1:
-#         raise PermissionDenied('Error: all ContentTypes must be related to the same app')
-#
-#     app_label = iter(app_labels).next()
-#
-#     if not request.user.has_perm(app_label):  # todo: in a role method ??
-#         raise PermissionDenied('You are not allowed to access to the app: %s' % app_label)
-#
-#     return bricks_render_info(request,
-#                               bricks=list(brick_registry.get_bricks(brick_ids)),
-#                               brick_render_function=partial(render_portal_brick, ct_ids=ct_ids),
-#                              )
 
 
 @login_required

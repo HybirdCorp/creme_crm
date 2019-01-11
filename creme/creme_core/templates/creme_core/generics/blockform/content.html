@@ -11,7 +11,6 @@
                     </thead>
                     <tr>
                         <td class="{% cycle 'block_line_dark' 'block_line_light' %} td_info">
-{#                            {% if field.help_text %}{{field.help_text}}<br />{% endif %}#}
                             {% if field.help_text %}<div class="help-text">{{field.help_text}}</div>{% endif %}
                             {{field.errors}} {{field}}
                         </td>
@@ -33,7 +32,6 @@
                                 <label for="{{field.auto_id}}">{{field.label}} {% if is_required %}<span class="required-mark">*</span>{% endif %}</label>
                             </th>
                             <td class="{% cycle 'block_line_dark' 'block_line_light' %} td_info">
-{#                                {% if field.help_text %}{{field.help_text}}<br />{% endif %} #}
                                 {% if field.help_text %}<div class="help-text">{{field.help_text}}</div>{% endif %}
                                 {{field.errors}} {{field}}
                             </td>

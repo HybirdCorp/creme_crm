@@ -11,7 +11,6 @@ try:
     from creme.creme_core.gui.bricks import Brick
     from creme.creme_core.models import (Language, Currency,
             FakeContact, FakeImage, FakeOrganisation)
-    # from creme.creme_core.utils import is_testenvironment
     from creme.creme_core.views.testjs import js_testview_or_404
 
     from .base import ViewsTestCase
@@ -21,20 +20,16 @@ except Exception as e:
 
 class MiscViewsTestCase(ViewsTestCase):
     def setUp(self):
-        # super(MiscViewsTestCase, self).setUp()
         super().setUp()
-
         self.FORCE_JS_TESTVIEW = settings.FORCE_JS_TESTVIEW
         settings.FORCE_JS_TESTVIEW = False
 
     def tearDown(self):
-        # super(MiscViewsTestCase, self).tearDown()
         super().tearDown()
         settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
 
     def test_home(self):
         self.login()
-        # response = self.assertGET200('/')
         response = self.assertGET200(reverse('creme_core__home'))
         self.assertTemplateUsed(response, 'creme_core/home.html')
 
@@ -87,7 +82,6 @@ class MiscViewsTestCase(ViewsTestCase):
 
         request = factory.get('/test_js')
         self.assertFalse(settings.FORCE_JS_TESTVIEW)
-        # self.assertTrue(is_testenvironment(request))
 
         with self.assertRaises(Http404):
             js_testview_or_404('', '')

@@ -11,16 +11,12 @@ urlpatterns = [
     url(r'^tests/documents[/]?$', fake_views.document_listview, name='creme_core__list_fake_documents'),
 
     url(r'^tests/images[/]?$',                  fake_views.image_listview, name='creme_core__list_fake_images'),
-    # url(r'^tests/image/(?P<image_id>\d+)[/]?$', fake_views.image_detailview, name='creme_core__view_fake_image'),
     url(r'^tests/image/(?P<image_id>\d+)[/]?$', fake_views.FakeImageDetail.as_view(), name='creme_core__view_fake_image'),
 
-    url(r'^tests/contacts[/]?$',                         fake_views.contact_listview,   name='creme_core__list_fake_contacts'),
-    # url(r'^tests/contact/add[/]?$',                      fake_views.contact_add,        name='creme_core__create_fake_contact'),
+    url(r'^tests/contacts[/]?$',                         fake_views.contact_listview,              name='creme_core__list_fake_contacts'),
     url(r'^tests/contact/add[/]?$',                      fake_views.FakeContactCreation.as_view(), name='creme_core__create_fake_contact'),
-    # url(r'^tests/contact/edit/(?P<contact_id>\d+)[/]?$', fake_views.contact_edit,       name='creme_core__edit_fake_contact'),
     url(r'^tests/contact/edit/(?P<contact_id>\d+)[/]?$', fake_views.FakeContactEdition.as_view(),  name='creme_core__edit_fake_contact'),
-    # url(r'^tests/contact/(?P<contact_id>\d+)[/]?$',      fake_views.contact_detailview, name='creme_core__view_fake_contact'),
-    url(r'^tests/contact/(?P<contact_id>\d+)[/]?$',      fake_views.FakeContactDetail.as_view(), name='creme_core__view_fake_contact'),
+    url(r'^tests/contact/(?P<contact_id>\d+)[/]?$',      fake_views.FakeContactDetail.as_view(),   name='creme_core__view_fake_contact'),
 
     # NB: keep legacy views until Creme 2.1
     # TODO: remove tests for legacy views when these views are converted to new Class-Bases Views

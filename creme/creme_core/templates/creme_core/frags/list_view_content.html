@@ -106,44 +106,6 @@
                 {% if cell.is_hidden %}
                     <th style="display:none;"></th>
                 {% elif cell.type_id == 'actions' %}
-                    {% comment %}
-                    <th class="actions">
-                        <ul class="header-actions-list">
-                            <li class="header-actions-trigger" title="{% trans 'Actions on the selected entities' %}">
-                                <span>{% trans 'Actions' %}</span>
-                                <div class="listview-actions-container">
-                                    <div class="listview-action">
-                                        <a data-action="edit-selection" href="{% url 'creme_core__bulk_update' content_type_id %}">
-                                            {% widget_icon name='edit' label=_('Edit') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple update' %}
-                                        </a>
-                                    </div>
-                                    <div class="listview-action">
-                                        <a data-action="delete-selection" href="{% url 'creme_core__delete_entities' %}">
-                                            {% widget_icon name='delete' label=_('Delete') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple deletion' %}
-                                        </a>
-                                    </div>
-                                    <div class="listview-action">
-                                        <a data-action="addto-selection" href="{% url 'creme_core__add_properties_bulk' content_type_id %}">
-                                            {% widget_icon name='property' label=_('Property') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple property adding' %}
-                                        </a>
-                                    </div>
-                                    <div class="listview-action">
-                                        <a data-action="addto-selection" href="{% url 'creme_core__create_relations_bulk' content_type_id %}">
-                                            {% widget_icon name='relations' label=_('Relationship') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple relationship adding' %}
-                                        </a>
-                                    </div>
-                                    {% if content_type|ctype_can_be_merged %}
-                                    <div class="listview-action">
-                                        <a data-action="merge-selection" href="{% url 'creme_core__merge_entities' %}">
-                                            {% widget_icon name='merge' label=_('Merge') size='listview-menu' class='listview-action-icon' %}{% trans 'Merge 2 entities' %}
-                                        </a>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </li>
-                        </ul>
-                    </th>
-                    {% endcomment %}
                     <th class="actions">{% listview_header_actions cell=cell user=user %}</th>
                 {% else %}{# NB: TMP - this header currently adds the css class cell.listview_css_class until semantic information is provided in the template context #}
                     {# TODO: should this header also add the cell.header_listview_css_class ? #}
@@ -171,7 +133,6 @@
                 </td>
                 {% for cell in cells %}
                     {% if cell.type_id == 'actions' and show_actions %}
-{#                        <td class="list_view_actions actions">{% get_entity_actions entity %}</td> #}
                         <td class="list_view_actions actions">{% listview_entity_actions cell=cell instance=entity user=user %}</td>
                     {% else %}
                         <td class="lv-cell lv-cell-content {% if cell.key == list_view_state.sort_field %}sorted{% endif %} column cl_lv {{cell.listview_css_class}}" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>

@@ -178,6 +178,4 @@ class JobType:
                             self.id,
                            )
         else:
-            # if job.enabled:
-            #     job.refresh()
             job.refresh(force=force)

@@ -89,7 +89,7 @@ class CredentialsTestCase(CremeTestCase):
     def test_attributes01(self):
         user = self.user
 
-        full_name = _(u'{first_name} {last_name}.').format(
+        full_name = _('{first_name} {last_name}.').format(
             first_name=user.first_name,
             last_name=user.last_name[0],
         )
@@ -628,7 +628,6 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(has_perm_to_create(CremeProperty))  # Helper
 
         get_ct = ContentType.objects.get_for_model
-        # role.creatable_ctypes = [get_ct(CremeProperty), get_ct(Relation)]
         role.creatable_ctypes.set([get_ct(CremeProperty), get_ct(Relation)])
 
         user.role = self.refresh(role)  # Refresh cache
@@ -883,8 +882,7 @@ class CredentialsTestCase(CremeTestCase):
 
         team = self._create_team('Teamee', [user])
 
-        # entity = self.refresh(CremeEntity.objects.create(user=team))  # No cache
-        entity = self.refresh(FakeContact.objects.create(user=team, first_name='Ito', last_name=u'Ittosaï'))  # No cache
+        entity = self.refresh(FakeContact.objects.create(user=team, first_name='Ito', last_name='Ittosaï'))  # No cache
         user = self.refresh(user)  # Refresh cache
 
         with self.assertNumQueries(3):  # Role, SetCredentials & teams
@@ -1274,7 +1272,7 @@ class CredentialsTestCase(CremeTestCase):
 
         # sandbox = Sandbox.objects.create(superuser=True)
         sandbox = Sandbox.objects.create()
-        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name=u'Ittosaï')
+        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name='Ittosaï')
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1))
@@ -1330,7 +1328,7 @@ class CredentialsTestCase(CremeTestCase):
 
         sandbox = Sandbox.objects.create(role=role1)
 
-        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name=u'Ittosaï')
+        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name='Ittosaï')
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1))
@@ -1386,7 +1384,7 @@ class CredentialsTestCase(CremeTestCase):
                           )
         sandbox = Sandbox.objects.create(user=user)
 
-        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name=u'Ittosaï')
+        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name='Ittosaï')
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1))
@@ -1435,7 +1433,7 @@ class CredentialsTestCase(CremeTestCase):
         team = self._create_team('Teamee', [user])
         sandbox = Sandbox.objects.create(user=team)
 
-        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name=u'Ittosaï')
+        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name='Ittosaï')
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1))

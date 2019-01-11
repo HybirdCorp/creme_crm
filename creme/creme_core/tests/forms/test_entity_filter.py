@@ -447,7 +447,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         civility_field = get_field('civility')
         self.assertTrue(civility_field.get_tag('enumerable'))
-        # self.assertFalse(issubclass(civility_field.rel.to, CremeEntity))
         self.assertFalse(issubclass(civility_field.remote_field.model, CremeEntity))
         self.assertEqual(field_choicetype(civility_field), 'enum__null')
 
@@ -461,7 +460,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         image_field = get_field('image')
         self.assertTrue(image_field.get_tag('enumerable'))
-        # self.assertTrue(issubclass(image_field.rel.to, CremeEntity))
         self.assertTrue(issubclass(image_field.remote_field.model, CremeEntity))
         self.assertEqual(field_choicetype(image_field), 'fk__null')
 

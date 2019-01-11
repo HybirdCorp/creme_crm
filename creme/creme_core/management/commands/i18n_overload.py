@@ -68,7 +68,6 @@ class Command(BaseCommand):
                 help='The terms to find in existing messages.',
                )
 
-    # def handle(self, *args, **options):
     def handle(self, *terms, **options):
         try:
             import polib
@@ -87,10 +86,8 @@ class Command(BaseCommand):
         file_name = 'djangojs.po'if get_opt('javascript') else 'django.po'
 
         if get_opt('comment_useless'):
-            # self._comment_useless(language, verbosity, polib, file_name, *args)
             self._comment_useless(language, verbosity, polib, file_name, *terms)
         else:
-            # self._overload_terms(language, verbosity, polib, file_name, *args)
             self._overload_terms(language, verbosity, polib, file_name, *terms)
 
     def _get_catalog_paths(self, language, file_name):

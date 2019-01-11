@@ -19,35 +19,12 @@
 ################################################################################
 
 from importlib import import_module
-import logging  # warnings
+import logging
 
 from django.apps import apps
 
 
 logger = logging.getLogger(__name__)
-
-
-# def find_n_import(filename, imports):
-#     from imp import find_module
-#
-#     warnings.warn('creme_core.utils.imports.find_n_import() is deprecated ; use import_apps_sub_modules() instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     results = []
-#
-#     for app_config in apps.get_app_configs():
-#         app_name = app_config.name
-#
-#         try:
-#             find_module(filename, __import__(app_name, {}, {}, [app_name.split(".")[-1]]).__path__)
-#         except (ImportError, TypeError):
-#             # There is no app report_backend_register.py, skip it
-#             continue
-#
-#         results.append(__import__("%s.%s" % (app_name, filename), globals(), locals(), imports, -1))
-#
-#     return results
 
 
 def import_apps_sub_modules(module_name):

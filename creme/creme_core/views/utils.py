@@ -21,8 +21,6 @@
 from urllib.parse import urlparse
 
 from django.db.models.base import Model
-# from django.http.response import JsonResponse
-# from django.utils.six.moves.urllib.parse import urlparse
 
 from creme.creme_core.http import CremeJsonResponse
 
@@ -57,7 +55,6 @@ def json_update_from_widget_response(instance):
     which supports collection "patch" :
        {"value": id, "added": [[id, label]]} is returned (the JS will add the choice and select it).
     """
-    # return JsonResponse(
     return CremeJsonResponse(
         data={'value': instance.id,
               'added': [(instance.id, str(instance))],

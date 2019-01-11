@@ -10,11 +10,6 @@
                     {% if widget_type == 'select' %}
                         <select name="{{cell.key}}" title="{{cell.title}}">
                             <option value="">{% trans 'All' %}</option>
-{% comment %}
-                            {% for options in widget_ctx.values %}
-                                <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %} {% if options.value == NULL_FK %}class="search-nullfk"{% endif %}>{{options.text}}</option>
-                            {% endfor %}
-{% endcomment %}
                         {% for group_name, group_choices in widget_ctx.values %}
                             {% if group_name %}<optgroup label="{{group_name}}">{% endif %}
                             {% for choice in group_choices %}

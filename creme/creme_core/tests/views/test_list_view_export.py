@@ -45,7 +45,6 @@ except Exception:
 class CSVExportViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(CSVExportViewsTestCase, cls).setUpClass()
         super().setUpClass()
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 
@@ -54,7 +53,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # super(CSVExportViewsTestCase, cls).tearDownClass()
         super().tearDownClass()
         HeaderFilter.objects.all().delete()
         HeaderFilter.objects.bulk_create(cls._hf_backup)
@@ -103,7 +101,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
                  EntityCellRegularField.build(model=FakeContact, name='first_name'),
                  EntityCellRelation(model=FakeContact, rtype=rtype_pilots),
                  # TODO: EntityCellCustomField
-                 # EntityCellFunctionField(FakeContact, func_field=FakeContact.function_fields.get('get_pretty_properties')),
                  EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
                 ]
         hf = HeaderFilter.create(pk='test-hf_contact', name='Contact view',
@@ -114,12 +111,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         return hf
 
     @staticmethod
-    # def _build_dl_url(ct, doc_type='csv', header=False, list_url='', use_GET=True):
     def _build_dl_url(ct_id, doc_type='csv', header=False, list_url='', hfilter_id=None, **kwargs):
-        # if not use_GET:
-        #     return reverse('creme_core__dl_listview_header' if header else 'creme_core__dl_listview',
-        #                    args=(ct.id, doc_type)
-        #                   )
         parameters = '?ct_id={ctid}&type={doctype}&list_url={url}{hfilter}{header}'.format(
                          ctid=ct_id or '',
                          doctype=doc_type,
@@ -196,14 +188,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
                         )
         self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
 
-        # # Legacy
-        # response = self.assertGET200(self._build_dl_url(self.ct.id, header=True, use_GET=False),
-        #                              data={'list_url': lv_url}
-        #                             )
-        # self.assertEqual([','.join('"%s"' % hfi.title for hfi in cells)],
-        #                  [force_unicode(line) for line in response.content.splitlines()]
-        #                 )
-
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export_header(self):
         self.login()
@@ -221,7 +205,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
     def test_list_view_export01(self):
         "csv"
         user = self.login()
-        # cells = self._build_hf_n_contacts()
         hf = self._build_hf_n_contacts()
         existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))
 
@@ -241,10 +224,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(next(it), '"","Wong","Edward","","is a girl"')
         with self.assertRaises(StopIteration):
             next(it)
-
-        # # Legacy
-        # response = self.assertGET200(self._build_dl_url(self.ct.id, use_GET=False), data={'list_url': lv_url})
-        # self.assertEqual(result, response.content.splitlines())
 
         # History
         hlines = HistoryLine.objects.exclude(id__in=existing_hline_ids)
@@ -272,7 +251,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
     def test_list_view_export02(self):
         "scsv"
         self.login()
-        # cells = self._build_hf_n_contacts()
         cells = self._build_hf_n_contacts().cells
 
         response = self.assertGET200(self._build_contact_dl_url(doc_type='scsv'))
@@ -299,14 +277,12 @@ class CSVExportViewsTestCase(ViewsTestCase):
         url = self._build_contact_dl_url()
         self.assertGET403(url)
 
-        # self.role.exportable_ctypes = [self.ct]  # Set the 'export' credentials
         self.role.exportable_ctypes.set([self.ct])  # Set the 'export' credentials
         self.assertGET200(url)
 
     def test_list_view_export04(self):
         "Credential"
         user = self.login(is_superuser=False)
-        # self.role.exportable_ctypes = [self.ct]
         self.role.exportable_ctypes.set([self.ct])
 
         self._build_hf_n_contacts()
@@ -395,8 +371,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
         create_camp(name='Camp#3')
 
         create_ml = partial(FakeMailingList.objects.create, user=user)
-        # camp1.mailing_lists = [create_ml(name='ML#1'), create_ml(name='ML#2')]
-        # camp2.mailing_lists = [create_ml(name='ML#3')]
         camp1.mailing_lists.set([create_ml(name='ML#1'), create_ml(name='ML#2')])
         camp2.mailing_lists.set([create_ml(name='ML#3')])
 
@@ -732,8 +706,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
         ml1 = create_ml(name='Bebop staff')
         ml2 = create_ml(name='Mafia staff')
 
-        # camp1.mailing_lists = [ml1, ml2]
-        # camp2.mailing_lists = [ml1]
         camp1.mailing_lists.set([ml1, ml2])
         camp2.mailing_lists.set([ml1])
 
@@ -753,12 +725,3 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2
         self.assertCountOccurrences(camp2.name, content, count=1)
         self.assertNotIn(camp3.name, content)
-
-        # # ------
-        # response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeEmailCampaign), use_GET=False),
-        #                              data={'list_url': lv_url}
-        #                             )
-        # result = [force_unicode(line) for line in response.content.splitlines()]
-        # self.assertEqual(3, len(result))
-        # self.assertEqual(result[1], '"Camp#1","Bebop staff/Mafia staff"')
-        # self.assertEqual(result[2], '"Camp#2","Bebop staff"')

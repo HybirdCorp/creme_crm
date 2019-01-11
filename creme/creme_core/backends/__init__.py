@@ -48,11 +48,9 @@ class _BackendRegistry:
 
                 backend_id = getattr(BackendClass, 'id', None)
                 if backend_id is None:
-                    # raise Exception('Backend: %s has invalid id.' % BackendClass)
                     raise self.InvalidId('Backend: {} has invalid id.'.format(BackendClass))
 
                 if backend_id in backends:
-                    # raise Exception('Id: %s already used for %s. Please specify another id for %s' %
                     raise self.DuplicatedId('Id: {} already used for {}. Please specify another id for {}'.format(
                                     backend_id, backends[backend_id], BackendClass
                     ))

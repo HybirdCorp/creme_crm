@@ -108,8 +108,6 @@ class EntityCredentials:
 
         return Q(sandbox=None) | Q(sandbox__role__isnull=False, sandbox__role=user.role) | user_q
 
-    # @staticmethod
-    # def filter(user, queryset, perm=VIEW):
     @classmethod
     def filter(cls, user, queryset, perm=VIEW):
         """Filter a Queryset of CremeEntities by the credentials of a given user.
@@ -139,8 +137,6 @@ class EntityCredentials:
 
         return queryset
 
-    # @staticmethod
-    # def filter_entities(user, queryset, perm=VIEW, as_model=None):
     @classmethod
     def filter_entities(cls, user, queryset, perm=VIEW, as_model=None):
         """Filter a Queryset of CremeEntities by the credentials of a given user.

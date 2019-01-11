@@ -28,7 +28,6 @@ def _add_tags_to_fields():
     DO NOT CALL THIS METHOD, CREME DOES IT FOR YOU !!
     """
     from django.db.models import Field, AutoField, OneToOneField, ForeignKey, ManyToManyField, UUIDField
-    # from django.contrib.contenttypes.models import ContentType
 
     def _set_tags(self, **kwargs):
         for tag_name in ('clonable', 'viewable', 'enumerable', 'optional'):
@@ -69,10 +68,3 @@ def _add_tags_to_fields():
 
     # 'optional'
     Field._cremetag_optional = False
-
-    # # TODO: could become useless with HeaderFilter refactoring, that ignores
-    # #       by default the sub fields of FK. (to be continued...)
-    # # ContentType hooking
-    # get_ct_field = ContentType._meta.get_field
-    # for fname in ('app_label', 'model'):
-    #     get_ct_field(fname).set_tags(viewable=False)

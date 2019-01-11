@@ -82,6 +82,7 @@ _SERIALISABLE_FIELDS = frozenset(('CharField',
 
 _TIME_FMT = '%H:%M:%S.%f'
 
+
 # TODO: in creme_core.utils ??
 class _JSONEncoder(JSONEncoder):
     def default(self, o):
@@ -90,7 +91,6 @@ class _JSONEncoder(JSONEncoder):
             return str(o)
 
         if isinstance(o, datetime):
-            # return dt_to_ISO8601(make_naive(o, timezone=utc))
             return dt_to_ISO8601(o)
 
         if isinstance(o, date):
@@ -118,7 +118,6 @@ def _fk_printer(field, val, user):
     if val is None:
         return ''
 
-    # model = field.rel.to
     model = field.remote_field.model
 
     try:
@@ -132,12 +131,13 @@ def _fk_printer(field, val, user):
 
     return str(out)
 
+
 # TODO: ClassKeyedMap ?
 _PRINTERS = {
-        'BooleanField': (lambda field, val, user: ugettext(u'Yes') if val else ugettext(u'No')),
-        'NullBooleanField': (lambda field, val, user: ugettext(u'Yes') if val else
-                                                      ugettext(u'No') if val is False else
-                                                      ugettext(u'N/A')
+        'BooleanField': (lambda field, val, user: ugettext('Yes') if val else ugettext('No')),
+        'NullBooleanField': (lambda field, val, user: ugettext('Yes') if val else
+                                                      ugettext('No') if val is False else
+                                                      ugettext('N/A')
                             ),
 
         'ForeignKey': _fk_printer,
@@ -195,7 +195,7 @@ TYPE_EXPORT       = 20
 
 class _HistoryLineType:
     type_id           = None  # Overload with TYPE_*
-    verbose_name      = u'OVERLOAD ME'
+    verbose_name      = 'OVERLOAD ME'
     has_related_line  = False
     is_about_relation = False
 
@@ -260,21 +260,21 @@ class _HistoryLineType:
             try:
                 field = get_field(field_name)
             except FieldDoesNotExist:
-                vmodif = ugettext(u'Set field “{field}”').format(field=field_name)
+                vmodif = ugettext('Set field “{field}”').format(field=field_name)
             else:
                 field_vname = field.verbose_name
                 length = len(modif)
 
                 if length == 1:
-                    vmodif = ugettext(u'Set field “{field}”').format(field=field_vname)
+                    vmodif = ugettext('Set field “{field}”').format(field=field_vname)
                 elif length == 2:
-                    vmodif = ugettext(u'Set field “{field}” to “{value}”').format(
+                    vmodif = ugettext('Set field “{field}” to “{value}”').format(
                                         field=field_vname,
                                         value=self._get_printer(field)(field, modif[1], user),
                     )
                 else:  # length == 3
                     printer = self._get_printer(field)
-                    vmodif = ugettext(u'Set field “{field}” from “{oldvalue}” to “{value}”').format(
+                    vmodif = ugettext('Set field “{field}” from “{oldvalue}” to “{value}”').format(
                                         field=field_vname,
                                         oldvalue=printer(field, modif[1], user),
                                         value=printer(field, modif[2], user),
@@ -291,7 +291,7 @@ class _HistoryLineType:
 
 @TYPES_MAP(TYPE_CREATION)
 class _HLTEntityCreation(_HistoryLineType):
-    verbose_name = _(u'Creation')
+    verbose_name = _('Creation')
 
     @classmethod
     def create_line(cls, entity):
@@ -304,7 +304,7 @@ class _HLTEntityCreation(_HistoryLineType):
 
 @TYPES_MAP(TYPE_EDITION)
 class _HLTEntityEdition(_HistoryLineType):
-    verbose_name = _(u'Edition')
+    verbose_name = _('Edition')
 
     @classmethod
     def create_lines(cls, entity):
@@ -321,7 +321,7 @@ class _HLTEntityEdition(_HistoryLineType):
 
 @TYPES_MAP(TYPE_DELETION)
 class _HLTEntityDeletion(_HistoryLineType):
-    verbose_name = _(u'Deletion')
+    verbose_name = _('Deletion')
 
     @classmethod
     def create_line(cls, entity):
@@ -334,7 +334,7 @@ class _HLTEntityDeletion(_HistoryLineType):
 
 @TYPES_MAP(TYPE_RELATED)
 class _HLTRelatedEntity(_HistoryLineType):
-    verbose_name     = _(u'Related modification')
+    verbose_name     = _('Related modification')
     has_related_line = True
 
     @classmethod
@@ -358,8 +358,8 @@ class _HLTRelatedEntity(_HistoryLineType):
 
 @TYPES_MAP(TYPE_PROP_ADD)
 class _HLTPropertyCreation(_HistoryLineType):
-    verbose_name = _(u'Property creation')
-    _fmt = _(u'Add property “{}”')
+    verbose_name = _('Property creation')
+    _fmt = _('Add property “{}”')
 
     @classmethod
     def create_line(cls, prop):
@@ -380,8 +380,8 @@ class _HLTPropertyCreation(_HistoryLineType):
 
 @TYPES_MAP(TYPE_PROP_DEL)
 class _HLTPropertyDeletion(_HLTPropertyCreation):
-    verbose_name = _(u'Property deletion')
-    _fmt = _(u'Delete property “{}”')
+    verbose_name = _('Property deletion')
+    _fmt = _('Delete property “{}”')
 
     @classmethod
     def create_line(cls, prop):
@@ -392,10 +392,10 @@ class _HLTPropertyDeletion(_HLTPropertyCreation):
 
 @TYPES_MAP(TYPE_RELATION)
 class _HLTRelation(_HistoryLineType):
-    verbose_name      = _(u'Relationship')
+    verbose_name      = _('Relationship')
     has_related_line  = True
     is_about_relation = True
-    _fmt = _(u'Add a relationship “{}”')
+    _fmt = _('Add a relationship “{}”')
 
     @classmethod
     def _create_lines(cls, relation, sym_cls, date=None):
@@ -414,7 +414,6 @@ class _HLTRelation(_HistoryLineType):
     def create_lines(cls, relation, created):
         if not created:
             cls._create_lines(relation if '-subject_' in relation.type_id else relation.symmetric_relation,
-                              # _HLTSymRelation, relation.modified,
                               _HLTSymRelation, relation.created,
                              )
 
@@ -436,8 +435,8 @@ class _HLTSymRelation(_HLTRelation):
 
 @TYPES_MAP(TYPE_RELATION_DEL)
 class _HLTRelationDeletion(_HLTRelation):
-    verbose_name = _(u'Relationship deletion')
-    _fmt = _(u'Delete a relationship “{}”')
+    verbose_name = _('Relationship deletion')
+    _fmt = _('Delete a relationship “{}”')
 
     @classmethod
     def create_lines(cls, relation):
@@ -452,7 +451,7 @@ class _HLTSymRelationDeletion(_HLTRelationDeletion):
 
 @TYPES_MAP(TYPE_AUX_CREATION)
 class _HLTAuxCreation(_HistoryLineType):
-    verbose_name = _(u'Auxiliary (creation)')
+    verbose_name = _('Auxiliary (creation)')
 
     @staticmethod
     def _model_info(ct_id):
@@ -473,7 +472,7 @@ class _HLTAuxCreation(_HistoryLineType):
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, aux_id, str_obj = modifications  # TODO: use aux_id to display an up-to-date value ??
 
-        yield ugettext(u'Add <{type}>: “{value}”').format(
+        yield ugettext('Add <{type}>: “{value}”').format(
                         type=self._model_info(ct_id)[1],
                         value=str_obj,
         )
@@ -481,7 +480,7 @@ class _HLTAuxCreation(_HistoryLineType):
 
 @TYPES_MAP(TYPE_AUX_EDITION)
 class _HLTAuxEdition(_HLTAuxCreation):
-    verbose_name = _(u'Auxiliary (edition)')
+    verbose_name = _('Auxiliary (edition)')
 
     @classmethod
     def create_line(cls, related):
@@ -501,7 +500,7 @@ class _HLTAuxEdition(_HLTAuxCreation):
         ct_id, aux_id, str_obj = modifications[0]  # TODO: idem (see _HLTAuxCreation)
         model_class, verbose_name = self._model_info(ct_id)
 
-        yield ugettext(u'Edit <{type}>: “{value}”').format(
+        yield ugettext('Edit <{type}>: “{value}”').format(
                         type=verbose_name,
                         value=str_obj,
         )
@@ -512,7 +511,7 @@ class _HLTAuxEdition(_HLTAuxCreation):
 
 @TYPES_MAP(TYPE_AUX_DELETION)
 class _HLTAuxDeletion(_HLTAuxCreation):
-    verbose_name = _(u'Auxiliary (deletion)')
+    verbose_name = _('Auxiliary (deletion)')
 
     @staticmethod
     def _build_modifs(related):
@@ -521,7 +520,7 @@ class _HLTAuxDeletion(_HLTAuxCreation):
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, str_obj = modifications
 
-        yield ugettext(u'Delete <{type}>: “{value}”').format(
+        yield ugettext('Delete <{type}>: “{value}”').format(
                         type=self._model_info(ct_id)[1],
                         value=str_obj,
         )
@@ -529,7 +528,7 @@ class _HLTAuxDeletion(_HLTAuxCreation):
 
 @TYPES_MAP(TYPE_EXPORT)
 class _HLTEntityExport(_HistoryLineType):
-    verbose_name = _(u'Mass export')
+    verbose_name = _('Mass export')
 
     @classmethod
     def create_line(cls, ctype, user, count, hfilter, efilter=None):
@@ -555,11 +554,11 @@ class _HLTEntityExport(_HistoryLineType):
     def verbose_modifications(self, modifications, entity_ctype, user):
         count = modifications[0]
 
-        yield ugettext(u'Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+        yield ugettext('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
                 count=count,
                 model=get_model_verbose_name(entity_ctype.model_class(), count),
                 view=modifications[1],
-                filter=modifications[2] if len(modifications) >= 3 else ugettext(u'All'),
+                filter=modifications[2] if len(modifications) >= 3 else ugettext('All'),
         )
 
 
@@ -570,8 +569,8 @@ class HistoryLine(Model):
     entity_owner = CremeUserForeignKey()  # We do not use entity.user because we keep history of the deleted entities
     username     = CharField(max_length=30)  # Not a Fk to a User object because we want to
                                              # keep the same line after the deletion of a User.
-    date         = CreationDateTimeField(_(u'Date'))
-    type         = PositiveSmallIntegerField(_(u'Type'))  # See TYPE_*
+    date         = CreationDateTimeField(_('Date'))
+    type         = PositiveSmallIntegerField(_('Type'))  # See TYPE_*
     value        = TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
 
     ENABLED = True  # False means that no new HistoryLines are created.
@@ -584,8 +583,8 @@ class HistoryLine(Model):
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Line of history')
-        verbose_name_plural = _(u'Lines of history')
+        verbose_name = _('Line of history')
+        verbose_name_plural = _('Lines of history')
 
     def __repr__(self):
         return 'HistoryLine(entity_id={entity_id}, entity_owner_id={owner_id}, username={username}, ' \
@@ -665,8 +664,6 @@ class HistoryLine(Model):
         """
         instance._hline_reassigned = (old_reference, new_reference, field_name)
 
-    # @staticmethod
-    # def _encode_attrs(instance, modifs=(), related_line_id=None):
     @classmethod
     def _encode_attrs(cls, instance, modifs=(), related_line_id=None):
         value = [str(instance)]
@@ -739,7 +736,6 @@ class HistoryLine(Model):
         @param hlines: Sequence of HistoryLine instances (need to be iterated twice)
         @param user: current user (instance of get_user_model()) ; no query is need to retrieve it again.
         """
-
         # We retrieve the User instances corresponding to the line usernames, in order to have a verbose display.
         # We avoid a useless query to User if the only used User is the current User (which is already retrieved).
         usernames = {hline.username for hline in hlines}
@@ -767,8 +763,6 @@ class HistoryLine(Model):
 
         return self._related_line
 
-    # @staticmethod
-    # def _create_line_4_instance(instance, ltype, date=None, modifs=(), related_line_id=None):
     @classmethod
     def _create_line_4_instance(cls, instance, ltype, date=None, modifs=(), related_line_id=None):
         """Builder.
@@ -781,14 +775,12 @@ class HistoryLine(Model):
                   'entity_ctype': instance.entity_type,
                   'entity_owner': instance.user,
                   'type': ltype,
-                  # 'value': HistoryLine._encode_attrs(instance, modifs=modifs,
                   'value': cls._encode_attrs(instance, modifs=modifs,
                                              related_line_id=related_line_id,
                                             ),
                  }
         if date: kwargs['date'] = date
 
-        # return HistoryLine.objects.create(**kwargs)
         return cls.objects.create(**kwargs)
 
     def save(self, *args, **kwargs):
@@ -797,7 +789,6 @@ class HistoryLine(Model):
             user = get_global_info('user')
             self.username = user.username if user else ''
 
-            # super(HistoryLine, self).save(*args, **kwargs)
             super().save(*args, **kwargs)
 
     @property
@@ -818,7 +809,7 @@ class HistoryLine(Model):
 
 # TODO: method of CremeEntity ??
 def _final_entity(entity):
-    "Is the instance an instance of a 'leaf' class"
+    "Is the instance an instance of a 'leaf' class."
     return entity.entity_type_id == _get_ct(entity).id
 
 

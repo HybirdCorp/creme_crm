@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, Http404
@@ -29,43 +28,7 @@ from django.utils.encoding import smart_text
 
 from creme.creme_core.core.exceptions import ConflictError
 
-
 logger = logging.getLogger(__name__)
-
-
-# # class Beautiful403Middleware(object):
-# class Beautiful403Middleware(MiddlewareMixin):
-#     def process_exception(self, request, exception):
-#         warnings.warn('creme.creme_core.middleware.exceptions.Beautiful403Middleware is deprecated.',
-#                       DeprecationWarning
-#                      )
-#         from django.http import HttpResponseForbidden
-#         from django.template.loader import render_to_string
-#
-#         if isinstance(exception, PermissionDenied):
-#             protected_objects = None
-#             args = exception.args
-#
-#             if len(args) > 1:
-#                 msg = smart_unicode(args[0])
-#                 arg = args[1]
-#
-#                 if isinstance(arg, dict):
-#                     protected_objects = arg.get('protected_objects')
-#             else:
-#                 msg = smart_unicode(exception)
-#
-#             if request.is_ajax():  # todo: use protected_objects ??
-#                 # return HttpResponse(msg, content_type='text/javascript', status=403)
-#                 return HttpResponse(msg, status=403)
-#
-#             return HttpResponseForbidden(render_to_string('creme_core/forbidden.html',
-#                                                           {'error_message':     msg,
-#                                                            'protected_objects': protected_objects,
-#                                                           },
-#                                                           request=request,
-#                                                          )
-#                                         )
 
 
 class _AlternativeErrorMiddleware(MiddlewareMixin):

@@ -70,7 +70,6 @@ def detailview_bricks(user, entity, registry=brick_registry):
     # We call the method block_registry.get_bricks() once to regroup additional queries
     bricks = {}
     model = entity.__class__
-    # for brick in brick_registry.get_bricks(list(chain.from_iterable(brick_ids for brick_ids in loc_map.values())),
     for brick in registry.get_bricks(list(chain.from_iterable(brick_ids for brick_ids in loc_map.values())),
                                      entity=entity,
                                     ):
@@ -82,7 +81,6 @@ def detailview_bricks(user, entity, registry=brick_registry):
 
     hat_bricks = loc_map[BrickDetailviewLocation.HAT]
     if not hat_bricks:
-        # hat_brick = brick_registry.get_generic_hat_brick(model)
         hat_brick = registry.get_generic_hat_brick(model)
 
         hat_bricks.append(hat_brick.id_)

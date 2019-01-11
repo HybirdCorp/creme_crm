@@ -33,7 +33,6 @@ class FunctionFieldResult:
     def __init__(self, str_data):
         self._data = str_data
 
-    # def __unicode__(self, str_data):
     def __str__(self):
         return self.for_html()
 

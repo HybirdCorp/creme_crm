@@ -38,13 +38,11 @@ from .base import CremeForm
 
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
-# _CUSTOMFIELD_FORMAT = 'customfield-%d'
 _CUSTOMFIELD_FORMAT = 'customfield-{}'  # TODO: remove & use base._CUSTOM_NAME instead
 
 
 class BulkFieldSelectWidget(Select):
     def build_attrs(self, base_attrs, extra_attrs=None):
-        # attrs = super(BulkFieldSelectWidget, self).build_attrs(base_attrs=base_attrs, extra_attrs=extra_attrs)
         attrs = super().build_attrs(base_attrs=base_attrs, extra_attrs=extra_attrs)
         attrs['onchange'] = 'creme.dialog.redirect($(this).val(), $(this));'
         return attrs
@@ -53,7 +51,6 @@ class BulkFieldSelectWidget(Select):
 class BulkForm(CremeForm):
     def __init__(self, model, field, user, entities, is_bulk,
                  parent_field=None, bulk_update_registry=None, **kwargs):
-        # super(BulkForm, self).__init__(user, **kwargs)
         super().__init__(user, **kwargs)
         self.bulk_update_registry = bulk_update_registry or bulk_update.bulk_update_registry
 
@@ -61,7 +58,6 @@ class BulkForm(CremeForm):
         self.is_subfield = parent_field is not None
         self.is_custom = is_custom = isinstance(field, custom_field.CustomField)
 
-        # self.field_name = field.name if not is_custom else _CUSTOMFIELD_FORMAT % field.pk
         self.field_name = field.name if not is_custom else _CUSTOMFIELD_FORMAT.format(field.pk)
         self.model = model
         self.model_field = field
@@ -130,7 +126,6 @@ class BulkForm(CremeForm):
 
         if custom_fields:
             choices.append((ugettext(u'Custom fields'),
-                            # [(build_url(fieldname=_CUSTOMFIELD_FORMAT % field.id), field.name)
                             [(build_url(fieldname=_CUSTOMFIELD_FORMAT.format(field.id)), field.name)
                                 for field in custom_fields
                             ]
@@ -246,7 +241,6 @@ class BulkForm(CremeForm):
 
 class BulkDefaultEditForm(BulkForm):
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
-        # super(BulkDefaultEditForm, self).__init__(model, field, user, entities, is_bulk, **kwargs)
         super().__init__(model, field, user, entities, is_bulk, **kwargs)
 
         instance = entities[0] if not is_bulk else None
@@ -255,7 +249,6 @@ class BulkDefaultEditForm(BulkForm):
         self.fields['field_value'] = form_field
 
     def clean(self):
-        # cleaned_data = super(BulkDefaultEditForm, self).clean()
         cleaned_data = super().clean()
 
         if self.errors:

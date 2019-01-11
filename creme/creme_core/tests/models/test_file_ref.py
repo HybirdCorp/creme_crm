@@ -181,7 +181,6 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
         except ValueError:
             pass
 
-        # doc = self.assertStillExists(doc)  # NB: does not work because 'pk' is set to None, but not 'id'
         doc = self.get_object_or_fail(FakeDocument, id=doc.id)
         self.assertEqual(full_path, doc.filedata.path)
         self.assertTrue(exists(full_path))

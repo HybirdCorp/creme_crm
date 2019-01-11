@@ -19,13 +19,11 @@ except Exception as e:
 class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        # super(ImprintViewsTestCase, cls).setUpClass()
         super().setUpClass()
 
         BrickDetailviewLocation.create_if_needed(brick_id=ImprintsBrick.id_, order=1,
                                                  zone=BrickDetailviewLocation.LEFT,
                                                 )
-        # BlockPortalLocation.create_or_update(brick_id=ImprintsBrick.id_, order=1, app_name='creme_core')
         BrickHomeLocation.objects.create(brick_id=ImprintsBrick.id_, order=1)
 
     def test_detailview(self):

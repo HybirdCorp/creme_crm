@@ -46,7 +46,6 @@ class SettingValueManager(models.Manager):
         @raise: SettingValue.DoesNotExist.
         @raise: KeyError if the SettingKey is not registered.
         """
-        # key_id = key if isinstance(key, str) else key.id
         if isinstance(key, str):
             key_id = key
             __key = self.key_registry[key_id]

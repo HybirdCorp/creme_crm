@@ -29,7 +29,6 @@ from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models.signals import pre_save
 
 from creme.creme_core.apps import creme_app_configs
-# from creme.creme_core.utils import safe_unicode_error, safe_unicode
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.dependence_sort import dependence_sort
 
@@ -164,15 +163,12 @@ class Command(BaseCommand):
             try:
                 populator.populate()
             except Exception as e:
-                # self.stderr.write(' Populate "{}" failed ({})'.format(populator.app, safe_unicode_error(e)))
                 self.stderr.write(' Populate "{}" failed ({})'.format(populator.app, e))
                 if verbosity >= 1:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
-                    # self.stderr.write(safe_unicode(''.join(format_exception(exc_type, exc_value, exc_traceback))))
                     self.stderr.write(''.join(format_exception(exc_type, exc_value, exc_traceback)))
 
             if verbosity >= 1:
-                # self.stdout.write(' OK', self.style.MIGRATE_SUCCESS)
                 self.stdout.write(' OK', self.style.SUCCESS)
 
         pre_save.disconnect(dispatch_uid=dispatch_uid)
@@ -196,13 +192,11 @@ class Command(BaseCommand):
             # connection.close() #seems useless (& does not work with mysql)
 
             if verbosity >= 1:
-                # self.stdout.write(self.style.MIGRATE_SUCCESS(' OK'))
                 self.stdout.write(self.style.SUCCESS(' OK'))
         elif verbosity >= 1:
                 self.stdout.write('No sequence to update.')
 
         if verbosity >= 1:
-            # self.stdout.write(self.style.MIGRATE_SUCCESS('Populate is OK.'))
             self.stdout.write(self.style.SUCCESS('Populate is OK.'))
 
     def _get_populator(self, app_label, verbosity, all_apps, options):

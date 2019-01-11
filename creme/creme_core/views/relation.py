@@ -20,7 +20,6 @@
 
 from collections import defaultdict
 from functools import partial
-# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
@@ -84,7 +83,6 @@ def _clean_fields_values_args(data, allowed_fields):
 
 
 JSON_ENTITY_FIELDS = {
-    # 'unicode':     lambda e, user: e.allowed_unicode(user),
     'unicode':     lambda e, user: e.allowed_str(user),
     'id':          lambda e, user: e.id,
     'entity_type': lambda e, user: e.entity_type_id,
@@ -151,53 +149,6 @@ def json_rtype_ctypes(request, rtype_id):
     return _fields_values(content_types, getters, range, sort)
 
 
-# @login_required
-# def add_relations(request, subject_id, rtype_id=None):
-#     """
-#         NB: In case of rtype_id=None is internal relation type is verified in RelationCreateForm clean
-#     """
-#     subject = get_object_or_404(CremeEntity, pk=subject_id)
-#
-#     user = request.user
-#     user.has_perm_to_link_or_die(subject)
-#
-#     relations_types = None
-#
-#     if rtype_id:
-#         get_object_or_404(RelationType, pk=rtype_id).is_not_internal_or_die()
-#         relations_types = [rtype_id]
-#
-#     if request.method == 'POST':
-#         form = rel_forms.RelationCreateForm(subject=subject, user=user,
-#                                   relations_types=relations_types,
-#                                   data=request.POST,
-#                                  )
-#
-#         if form.is_valid():
-#             form.save()
-#     else:  # GET
-#         if rtype_id is None:
-#             excluded_rtype_ids = request.GET.getlist('exclude')
-#             if excluded_rtype_ids:
-#                 # Theses type are excluded to provide a better GUI, but they cannot cause business conflict
-#                 # (internal rtypes are always excluded), so it's not a problem to only excluded them only in GET part.
-#                 relations_types = RelationType.get_compatible_ones(subject.entity_type) \
-#                                               .exclude(id__in=excluded_rtype_ids)
-#
-#         form = rel_forms.RelationCreateForm(subject=subject, user=user,
-#                                   relations_types=relations_types,
-#                                  )
-#
-#     return generic.inner_popup(request,
-#                        'creme_core/generics/blockform/link_popup.html',
-#                        {'form':  form,
-#                         'title': ugettext('Relationships for «{entity}»').format(entity=subject),
-#                         'submit_label': _('Save the relationships'),
-#                        },
-#                        is_valid=form.is_valid(),
-#                        reload=False,
-#                        delegate_reload=True,
-#                       )
 class RelationsAdding(generic.RelatedToEntityFormPopup):
     form_class = rel_forms.RelationCreateForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
@@ -239,55 +190,6 @@ class RelationsAdding(generic.RelatedToEntityFormPopup):
 
 
 # TODO: Factorise with add_properties_bulk and bulk_update?
-# @login_required
-# def add_relations_bulk(request, model_ct_id):
-#     rtype_ids = None
-#
-#     if request.method == 'GET':
-#         rtype_ids = request.GET.getlist('rtype') or None
-#
-#     user = request.user
-#     model = utils.get_ct_or_404(model_ct_id).model_class()
-#
-#     # todo: rename 'ids' -> 'entity/id' ?
-#     entities = get_list_or_404(model,
-#                                pk__in=request.POST.getlist('ids') if request.method == 'POST' else
-#                                       request.GET.getlist('ids'),
-#                               )
-#
-#     CremeEntity.populate_real_entities(entities)
-#
-#     filtered = {True: [], False: []}
-#     has_perm_to_link = user.has_perm_to_link
-#     for entity in entities:
-#         filtered[has_perm_to_link(entity)].append(entity)
-#
-#     if request.method == 'POST':
-#         form = rel_forms.MultiEntitiesRelationCreateForm(subjects=filtered[True],
-#                                                forbidden_subjects=filtered[False],
-#                                                user=user,
-#                                                data=request.POST,
-#                                                relations_types=rtype_ids,
-#                                               )
-#
-#         if form.is_valid():
-#             form.save()
-#     else:
-#         form = rel_forms.MultiEntitiesRelationCreateForm(subjects=filtered[True],
-#                                                forbidden_subjects=filtered[False],
-#                                                user=user,
-#                                                relations_types=rtype_ids,
-#                                               )
-#
-#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-#                        {'form':  form,
-#                         'title': _('Multiple adding of relationships'),
-#                         'submit_label': _('Save the relationships'),
-#                        },
-#                        is_valid=form.is_valid(),
-#                        reload=False,
-#                        delegate_reload=True,
-#                       )
 class RelationsBulkAdding(EntityCTypeRelatedMixin, generic.CremeFormPopup):
     template_name = 'creme_core/generics/blockform/link-popup.html'
     form_class = rel_forms.MultiEntitiesRelationCreateForm
@@ -342,11 +244,9 @@ def delete(request):
     has_perm(relation.object_entity)
     relation.type.is_not_internal_or_die()
 
-    # relation.get_real_entity().delete()
     relation.delete()
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(subject.get_real_entity())
@@ -371,11 +271,9 @@ def delete_similar(request):
     rtype.is_not_internal_or_die()
 
     for relation in Relation.objects.filter(subject_entity=subject.id, type=rtype, object_entity=object_id):
-        # relation.get_real_entity().delete()
         relation.delete()
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(subject.get_real_entity())
@@ -391,7 +289,6 @@ def delete_all(request):  # TODO: deprecate ?
     errors = defaultdict(list)
 
     for relation in Relation.objects.filter(type__is_internal=False, subject_entity=subject_id):
-        # relation = relation.get_real_entity()
         if user.has_perm_to_unlink(relation.object_entity):
             relation.delete()
         else:

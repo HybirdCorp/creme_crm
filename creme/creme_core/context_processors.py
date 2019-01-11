@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.conf import settings
 from django.utils.timezone import now
 
@@ -29,17 +27,12 @@ from .gui.bricks import BricksManager
 from .models import FieldsConfig
 
 
-# def get_logo_url(request):
-#     return {'logo_url': settings.LOGO_URL}
-
-
 def get_css_theme(request):
     # NB: AnonymousUser has no 'theme_info' attribute (we need it for the login view)
     theme_info = getattr(request.user, 'theme_info', settings.THEMES[0])
 
     return {
         'THEME_NAME':         theme_info[0],
-        # 'DEFAULT_THEME':      settings.THEMES[0][0],
         'THEME_VERBOSE_NAME': theme_info[1],
     }
 
@@ -73,10 +66,6 @@ def get_django_version(request):
         from django import get_version
         return {'django_version': get_version()}
     return {}
-
-
-# def get_old_menu(request):
-#     return {'OLD_MENU': settings.OLD_MENU}
 
 
 def get_site_domain(request):

@@ -18,18 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from __future__ import absolute_import  # For collections...
-
-# import logging
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY  # SECONDLY
 
 from django.utils.translation import ugettext_lazy as _, ungettext
-
-
-# logger = logging.getLogger(__name__)
 
 
 class DatePeriod:
@@ -75,7 +69,6 @@ class SimpleValueDatePeriod(DatePeriod):
 
     def __str__(self):
         value = self._value
-        # return self._ungettext(self._value) % value
         return self._ungettext(self._value).format(number=value)
 
     def _ungettext(self, value):
@@ -183,9 +176,7 @@ class DatePeriodRegistry:
         for period in periods:
             name = period.name
 
-            # if periods_map.has_key(name):
             if name in periods_map:
-                # logger.warning("Duplicate date period's id or period registered twice : %s", name)
                 raise self.RegistrationError("Duplicate date period's id or period registered twice : {}".format(name))
 
             periods_map[name] = period

@@ -73,14 +73,6 @@ ALLOWED_STYLES = [
 ]
 
 
-# def filter_img_src(name, value):
-#     if name in IMG_SAFE_ATTRIBUTES:
-#         return True
-#
-#     if name == 'src':
-#         return value.startswith(settings.MEDIA_URL)
-#
-#     return False
 def filter_img_src(tag, attr, value):
     if attr in IMG_SAFE_ATTRIBUTES:
         return True
@@ -98,6 +90,7 @@ def sanitize_html(html, allow_external_img=False):
     return bleach.clean(html, tags=ALLOWED_TAGS, attributes=attributes,
                         styles=ALLOWED_STYLES, strip=True,
                        )
+
 
 
 JSON_ESCAPES = {

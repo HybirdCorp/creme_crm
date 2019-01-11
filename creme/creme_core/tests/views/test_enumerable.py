@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 try:
-    # import json
-
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse

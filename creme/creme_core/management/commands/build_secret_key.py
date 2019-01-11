@@ -33,18 +33,14 @@
 import random
 
 from django.core.management.base import BaseCommand
-# from django.utils.crypto import get_random_string
 
 
 class Command(BaseCommand):
-    help = "Generates a new SECRET_KEY which can be used in your settings file."
+    help = 'Generates a new SECRET_KEY which can be used in your settings file.'
 
     requires_system_checks = False
 
     def handle(self, **options):
-        # # Code copied from django/core/management/commands/startproject.py
-        # return get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
-
         # Code based on django/utils/crypto.py
         try:
             choice = random.SystemRandom().choice
@@ -70,7 +66,7 @@ class Command(BaseCommand):
 
             random.seed(
                 sha256((
-                   u'{}{}{}'.format(random.getstate(), time(), force_text(kb_seed))).encode('utf-8')
+                   '{}{}{}'.format(random.getstate(), time(), force_text(kb_seed))).encode('utf-8')
                 ).digest()
             )
 

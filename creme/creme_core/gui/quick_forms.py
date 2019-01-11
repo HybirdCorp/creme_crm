@@ -18,12 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import logging
-
-
-# logger = logging.getLogger(__name__)
-
-
 class QuickFormsRegistry:
     class RegistrationError(Exception):
         pass
@@ -35,7 +29,6 @@ class QuickFormsRegistry:
         forms = self._forms
 
         if model in forms:
-            # logger.warning("A Quick Form is already registered for the model : %s", model)
             raise self.RegistrationError('A Quick Form is already registered for the model : {}'.format(model))
 
         forms[model] = form

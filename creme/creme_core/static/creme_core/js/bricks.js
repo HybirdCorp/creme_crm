@@ -29,11 +29,9 @@ creme.bricks.dialogCenterPosition = function(dialog) {
      */
     var outer_height = $('.header-menu').outerHeight();
 
-//    if (dialog.dialog().parents('.ui-dialog:first').position().top < $('.header-menu').outerHeight()) {
     if (dialog.dialog().parents('.ui-dialog:first').position().top < outer_height) {
         dialog.position({
             my: 'center top',
-//            at: 'center top+' + (2 * $('.header-menu').outerHeight()),
             at: 'center top+' + (2 * outer_height),
             of: window
         });
@@ -352,7 +350,6 @@ creme.bricks.BrickTable = creme.component.Component.sub({
 
                 // 2: pretend the row still has the same height, in order to not offset the siblings
                 ui.placeholder.height(state.height);
-//                ui.placeholder[0].innerHTML = '<td colspan="50">' + gettext('Drop here to reorder') + '</td>';
                 events.trigger('row-drag-start', [e, ui.item]);
             },
             stop: function (e, ui) {
@@ -879,14 +876,6 @@ creme.bricks.Brick = creme.component.Component.sub({
 });
 
 creme.bricks.replaceContent = function(block, content) {
-//    if (block.is('.brick')) {
-//        creme.widget.destroy(block);
-//        block.replaceWith(content);
-//        creme.widget.create(content);
-//    } else {
-//        block.replaceWith(content);
-//        creme.blocks.initialize(content);
-//    }
     creme.widget.destroy(block);
     block.replaceWith(content);
     creme.widget.create(content);

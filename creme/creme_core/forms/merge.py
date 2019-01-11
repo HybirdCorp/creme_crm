@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 
 from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
@@ -45,7 +44,6 @@ class EntitiesHeaderWidget(Widget):
         if attrs is not None:
             extra_attrs.update(attrs)
 
-        # context = super(EntitiesHeaderWidget, self).get_context(name=name, value=value, attrs=extra_attrs)
         context = super().get_context(name=name, value=value, attrs=extra_attrs)
         context['widget']['labels'] = value or ('', '', '')
 
@@ -56,7 +54,6 @@ class MergeWidget(Widget):
     template_name = 'creme_core/forms/widgets/merge/triple.html'
 
     def __init__(self, original_widget, *args, **kwargs):
-        # super(MergeWidget, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._original_widget = original_widget
 
@@ -66,7 +63,6 @@ class MergeWidget(Widget):
         if attrs is not None:
             extra_attrs.update(attrs)
 
-        # context = super(MergeWidget, self).get_context(name=name, value=value, attrs=extra_attrs)
         context = super().get_context(name=name, value=value, attrs=extra_attrs)
         widget_cxt = context['widget']
         id_attr = widget_cxt['attrs']['id']
@@ -115,7 +111,6 @@ class MergeWidget(Widget):
 
 class MergeField(Field):
     def __init__(self, modelform_field, model_field, user=None, *args, **kwargs):
-        # super(MergeField, self).__init__(self, widget=MergeWidget(modelform_field.widget), *args, **kwargs)
         super().__init__(self, widget=MergeWidget(modelform_field.widget), *args, **kwargs)
 
         self.required = modelform_field.required
@@ -144,7 +139,6 @@ class MergeEntitiesBaseForm(CremeForm):
         pass
 
     def __init__(self, entity1, entity2, *args, **kwargs):
-        # super(MergeEntitiesBaseForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.entity1 = entity1
         self.entity2 = entity2
@@ -198,7 +192,6 @@ class MergeEntitiesBaseForm(CremeForm):
 
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
         for i, (custom_field, cvalue1, cvalue2) in enumerate(self._customs):
-            # value = cleaned_data[_CUSTOM_NAME % i]
             value = cleaned_data[_CUSTOM_NAME.format(i)]  # TODO: factorize with __init__() ?
             CustomFieldValue.save_values_for_entities(custom_field, [entity1], value)
 
@@ -206,7 +199,6 @@ class MergeEntitiesBaseForm(CremeForm):
                 cvalue2.delete()
 
     def clean(self):
-        # cdata = super(MergeEntitiesBaseForm, self).clean()
         cdata = super().clean()
 
         if not self._errors:
@@ -227,7 +219,6 @@ class MergeEntitiesBaseForm(CremeForm):
 
     @atomic
     def save(self, *args, **kwargs):
-        # super(MergeEntitiesBaseForm, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
         cdata = self.cleaned_data
 

@@ -47,7 +47,6 @@
         }
     };
 
-//    $(document).on('brick-before-bind', '.brick.brick-hat-card', function(e, brick, options) {
     $(document).on('brick-setup-actions', '.brick.brick-hat', function(e, brick, actions) {
         actions.registerAll(detailViewActions);
     });

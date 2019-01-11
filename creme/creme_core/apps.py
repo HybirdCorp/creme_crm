@@ -20,7 +20,6 @@
 
 import logging
 from sys import argv
-# import warnings
 
 from django.apps import AppConfig, apps
 from django.core import checks
@@ -181,15 +180,7 @@ class CremeAppConfig(AppConfig):
             self.register_quickforms(quick_forms.quickforms_registry)
             self.register_reminders(reminder.reminder_registry)
             self.register_sanboxes(sandbox.sandbox_type_registry)
-
             self.register_setting_keys(setting_key.setting_key_registry)
-            # if hasattr(self, 'register_setting_key'):
-            #     warnings.warn('The AppConfig for "%s" has a method "register_setting_key()" which is now deprecated ; '
-            #                   'you should rename it register_setting_keys().' % self.name,
-            #                   DeprecationWarning
-            #                  )
-            #     self.register_setting_key(setting_key.setting_key_registry)
-
             self.register_statistics(statistics.statistics_registry)
             self.register_user_setting_keys(setting_key.user_setting_key_registry)
             self.register_smart_columns(listview.smart_columns_registry)
@@ -267,7 +258,6 @@ class CremeCoreConfig(CremeAppConfig):
         return ''  # We want to catch some URLs which do not start by 'creme_core/'
 
     def ready(self):
-        # super(CremeCoreConfig, self).ready()
         super().ready()
 
         if self.MIGRATION_MODE:
@@ -290,17 +280,11 @@ class CremeCoreConfig(CremeAppConfig):
             from .tests.fake_apps import ready
             ready()
 
-        # super(CremeCoreConfig, self).all_apps_ready()
         super().all_apps_ready()
 
     def register_menu(self, creme_menu):
         from django.urls import reverse_lazy as reverse
 
-        # if settings.OLD_MENU:
-        #     reg_app = creme_menu.register_app
-        #     reg_app('creme_core', reverse('creme_core__home'),    _(u'Home'),    force_order=0)
-        #     reg_app('my_page',    reverse('creme_core__my_page'), _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
-        # else:
         from .gui.menu import (ItemGroup, ContainerItem, URLItem, TrashItem, LastViewedEntitiesItem,
                 QuickCreationItemGroup, CreationFormsItem)
         from .gui.quick_forms import quickforms_registry

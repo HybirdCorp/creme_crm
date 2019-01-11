@@ -87,7 +87,5 @@ class XlrdReader:
     def __iter__(self):
         return self
 
-    # def next(self):
     def __next__(self):
-        # return self._calc.next()
         return next(self._calc)

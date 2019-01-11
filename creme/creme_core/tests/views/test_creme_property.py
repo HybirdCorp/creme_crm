@@ -2,7 +2,6 @@
 
 try:
     from functools import partial
-    # import json
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
@@ -23,7 +22,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        # super(PropertyViewsTestCase, cls).setUpClass()
         super().setUpClass()
         cls.centity_ct = ContentType.objects.get_for_model(CremeEntity)
 
@@ -37,7 +35,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         url = reverse('creme_core__add_properties_bulk', args=(ct.id,))
 
         if kwargs.get('GET', False):
-            # url += '?persist=ids' + ''.join('&ids={}'.format(e.id) for e in entities)
             url += '?' + '&'.join('ids={}'.format(e.id) for e in entities)
 
         return url
@@ -280,7 +277,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             self.assertEqual(0, entity.properties.count())
 
         response = self.assertGET200(self._build_bulk_url(self.centity_ct, *entities, GET=True))
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
@@ -289,8 +285,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         # ---
         url = self._build_bulk_url(self.centity_ct)
-        # self.assertGET200(url)
-
         ids = [e.id for e in entities]
         response = self.assertPOST200(url,
                                       data={'types': [],
@@ -342,7 +336,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                          label.initial
                         )
 
-        # response = self.client.post(url,
         response = self.client.post(self._build_bulk_url(self.centity_ct),
                                     data={'entities_lbl':     'do not care',
                                           'bad_entities_lbl': 'do not care',
@@ -513,7 +506,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url, data={'brick_id': brick_id})
 
         with self.assertNoException():
-            # result = json.loads(response.content)
             result = response.json()
 
         self.assertIsInstance(result, list)
@@ -550,7 +542,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                     )
 
         with self.assertNoException():
-            # result = json.loads(response.content)
             result = response.json()
 
         self.assertEqual(2, len(result))
@@ -573,7 +564,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                     )
 
         with self.assertNoException():
-            # result = json.loads(response.content)
             result = response.json()
 
         self.assertEqual(1, len(result))

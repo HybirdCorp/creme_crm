@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from json import dumps as json_dump
 import warnings
 
 from django.core.exceptions import PermissionDenied
@@ -65,7 +64,6 @@ def add(request, ct_id, count):
     # We had the mandatory 'user' argument
     class _QuickForm(base_form_class):
         def __init__(self, *args, **kwargs):
-            # super(_QuickForm, self).__init__(user=user, *args, **kwargs)
             super().__init__(user=user, *args, **kwargs)
             # HACK : empty_permitted attribute allows formset to remove fields data that hasn't change from initial.
             # This behaviour force user_id value to null when form is empty and causes an SQL integrity error.
@@ -94,41 +92,6 @@ def add(request, ct_id, count):
     )
 
 
-# @login_required
-# def add_from_widget(request, ct_id):
-#     model = get_ct_or_404(ct_id).model_class()
-#     model_name = model._meta.verbose_name
-#     user = request.user
-#
-#     if not user.has_perm_to_create(model):
-#         # todo: manage/display error on JS side (for now it just does nothing)
-#         raise PermissionDenied('You are not allowed to create entity with type "{}"'.format(model_name))
-#
-#     form_class = quickforms_registry.get_form(model)
-#
-#     if form_class is None:
-#         raise Http404('No form registered for model: {}'.format(model))
-#
-#     if request.method == 'POST':
-#         form = form_class(user=user, data=request.POST, files=request.FILES or None, initial=None)
-#
-#         if form.is_valid():
-#             form.save()
-#
-#             return json_update_from_widget_response(form.instance)
-#     else:
-#         form = form_class(user=user, initial=None)
-#
-#     return generic.inner_popup(
-#         request, 'creme_core/generics/form/add_innerpopup.html',
-#         {'form':         form,
-#          'title':        model.creation_label,
-#          'submit_label': model.save_label,
-#         },
-#         is_valid=form.is_valid(),
-#         reload=False,
-#         delegate_reload=True,
-#     )
 # TODO: manage/display error (like PermissionDenied) on JS side (for now it just does nothing)
 class QuickCreation(EntityCTypeRelatedMixin, generic.EntityCreationPopup):
     # model = ...

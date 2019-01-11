@@ -61,10 +61,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
             id_          = Button.generate_id('creme_core', 'test_create_if_needed02')
             verbose_name = u'Testing purpose'
 
-        # button = TestButton()
-
         old_count = ButtonMenuItem.objects.count()
-        # bmi = ButtonMenuItem.create_if_needed('creme_core-test_button', None, button, 15)
         bmi = ButtonMenuItem.create_if_needed('creme_core-test_button', None, TestButton, 15)
         self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())
         self.assertIsNone(bmi.content_type)
@@ -75,17 +72,13 @@ class ButtonMenuItemTestCase(CremeTestCase):
             id_          = Button.generate_id('creme_core', 'test_create_if_needed03')
             verbose_name = u'Testing purpose'
 
-        # button = TestButton()
-
         old_count = ButtonMenuItem.objects.count()
-        # ButtonMenuItem.create_if_needed('creme_core-test_button', None, button, 15)
         ButtonMenuItem.create_if_needed('creme_core-test_button', None, TestButton, 15)
         self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())
 
         TestButton.id_ = Button.generate_id('creme_core', 'test_create_if_needed03_bis')
 
         with self.assertNoException():
-            # ButtonMenuItem.create_if_needed('creme_core-test_button', None, button, 15)
             ButtonMenuItem.create_if_needed('creme_core-test_button', None, TestButton, 15)
 
         self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())

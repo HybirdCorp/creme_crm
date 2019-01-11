@@ -136,48 +136,9 @@ button {
     padding-right: 20px;
 }
 
-/*
-#top {
-    margin-top: 10px;
-    padding-left: 5px;
-}
-*/
-
 /* Page structure - header and footer - [end] */
 
 /* Page structure - left navigation menu */
-
-/*
-.menu_expanded {
-    display: block;
-    height: 100%;
-    position: absolute;
-    z-index: 50;
-    font-size: 0.8em;
-    margin-left: 0px;
-}
-
-.menu_collapse {
-    position: absolute;
-    background-color: #E4EAEC;
-    border: 1px solid #6EAAC4;
-    display: block;
-    height: 100%;
-    margin : 0;
-    width: 1%;
-    z-index: 1;
-    color: #539fc6;
-    margin-left: 0px;
-    font-weight: bold;
-    text-align: center;
-}
-
-#logo_container {
-    padding-left: 0%;
-    padding-bottom: 10px;
-    padding-top: 10px;
-}
-*/
 
 /* page structure - left navigation menu - [end] */
 
@@ -201,22 +162,6 @@ button {
 }
 
 /* Page header - search and "quick create" - [end] */
-
-/* Page header - "last pages viewed" and "quick access pages" */
-
-
-/*
-#last_viewed , #preferred_menu {
-    padding: 6px 0 6px 6px;
-    margin: 4px 0 4px 5px;
-
-    color: #2c596c;
-    background: #fafafa;
-    border: 1px solid #d7e2e7;
-}
-*/
-
-/* page header - "last pages viewed" and "quick access pages" - [end] */
 
 /* Page header and top areas - list of buttons: "global-buttons" and "instance-buttons" */
 
@@ -480,22 +425,6 @@ button {
 .list td {
     text-align: center;
 }
-
-/*
-.pointer {
-    cursor: pointer;
-}
-*/
-
-/*
-.top_fixed {
-    display: block;
-    top: 0 !important;
-    z-index: 1000;
-    left: 0;
-    position: fixed;
-}
-*/
 
 span.enumerator-item {
     font-weight: 800;

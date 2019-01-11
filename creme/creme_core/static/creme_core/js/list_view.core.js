@@ -261,14 +261,6 @@
                              me.getSubmit()(this);
                          });
 
-//                    self.find('.columns_bottom .column.datefield input')
-//                        .bind('keydown', function(event) {
-//                             event.stopPropagation();
-//                             me.getKdSubmit()(event, this, {'_search': 1});
-//                         })
-//                        .datepicker({showOn: 'both',
-//                                     buttonImage: creme_media_url('images/icon_calendar.gif'),
-//                                     buttonImageOnly: true});
                     var date_inputs = self.find('.columns_bottom .column.datefield input');
 
                     date_inputs.bind('keydown', function(event) {
@@ -285,22 +277,6 @@
                            buttonImageOnly: true});
                     });
                 };
-
-//                this.enableActions = function() {
-//                    self.find('.lv-header-action-list').NavIt({ArrowSideOnRight: false});
-//                    self.find('.lv-action-toggle')
-//                        .click(function() {
-//                            $(this).parents('ul').find('ul').slideToggle('slide');
-//                         });
-//
-//                    creme.menu.HNavIt(self.find('.lv-row-action-list'), {}, {
-//                        done: function() {
-//                            if (this.options().link.is('.lv_reload')) {
-//                                me.reload();
-//                            }
-//                        }
-//                    });
-//                };
 
                 this.enableActions = function() {
                     self.find('a[data-action]').each(function() {

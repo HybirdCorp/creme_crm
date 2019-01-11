@@ -26,11 +26,8 @@
 # SOFTWARE.
 ################################################################################
 
-# from os import setpgrp
-# from subprocess import Popen
 import signal
-from sys import exit # version_info
-# from sys import executable as PYTHON_BIN
+from sys import exit
 
 
 def enable_exit_handler(on_exit=lambda *args: exit()):
@@ -46,14 +43,3 @@ def disable_exit_handler():
 def is_exit_handler_enabled():
     return signal.getsignal(signal.SIGINT) not in (signal.SIG_DFL, None) and \
            signal.getsignal(signal.SIGTERM) not in (signal.SIG_DFL, None)
-
-
-# def python_subprocess(script, python=PYTHON_BIN, start_new_session=False, **kwargs):
-#     # Hack that prevents signal propagation from parent process.
-#     # Useless in python 3 (use start_new_session instead)
-#     if version_info < (3, 2):
-#         kwargs.update(preexec_fn=setpgrp() if start_new_session else None)
-#     else:
-#         kwargs.update(start_new_session=start_new_session)
-#
-#     return Popen([python, '-c', script], **kwargs)

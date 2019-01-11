@@ -61,7 +61,6 @@ class RFieldCellNode(TemplateNode):
 
 class ModelRFieldCellNode(RFieldCellNode):
     def __init__(self, model_var, **kwargs):
-        # super(ModelRFieldCellNode, self).__init__(**kwargs)
         super().__init__(**kwargs)
         self.model_var = model_var
 
@@ -71,7 +70,6 @@ class ModelRFieldCellNode(RFieldCellNode):
 
 class CTypeRFieldCellNode(RFieldCellNode):
     def __init__(self, ctype_var, **kwargs):
-        # super(CTypeRFieldCellNode, self).__init__(**kwargs)
         super().__init__(**kwargs)
         self.ctype_var = ctype_var
 
@@ -81,7 +79,6 @@ class CTypeRFieldCellNode(RFieldCellNode):
 
 class InstanceRFieldCellNode(RFieldCellNode):
     def __init__(self, instance_var, **kwargs):
-        # super(InstanceRFieldCellNode, self).__init__(**kwargs)
         super().__init__(**kwargs)
         self.instance_var = instance_var
 

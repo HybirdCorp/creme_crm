@@ -23,11 +23,8 @@ import logging
 import math
 import warnings
 
-# from django.apps import apps
-# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy as reverse
-# from django.utils.encoding import smart_unicode
 from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.translation import ugettext as _, ungettext, ugettext_lazy
 
@@ -41,86 +38,6 @@ from ..utils.unicode_collation import collator
 logger = logging.getLogger(__name__)
 
 
-# if settings.OLD_MENU:
-#     warnings.warn('The old menu API (settings.OLD_MENU = True) is deprecated.',
-#                   DeprecationWarning
-#                  )
-#
-#     # ---------------- Old Menu API --------------------------------------------
-#     class MenuItem(object):
-#         __slots__ = ('url', 'name', 'perm')
-#
-#         def __init__(self, url, name, perm):
-#             self.url  = url
-#             self.name = name
-#             self.perm = perm
-#
-#         def __unicode__(self):
-#             return u'<MenuItem: name:%s url:%s perm:%s>' % (self.url, self.name, self.perm)
-#
-#
-#     class MenuAppItem(object):
-#         def __init__(self, app_name, app_url, verbose_name=None, force_order=None):
-#             """@param force_order Order of the item in the menu ; None if the verbose_name is use as key."""
-#             self.app_name = app_name
-#             self.app_url = app_url
-#             self.name = verbose_name or apps.get_app_config(app_name).verbose_name
-#             self.force_order = force_order
-#             self._items = []
-#
-#         def __unicode__(self):
-#             return u'<MenuAppItem: app:%s url:%s name:%s>' % (self.app_name, self.app_url, self.name)
-#
-#         def __iter__(self):
-#             return iter(self._items)
-#
-#         items = property(lambda self: self._items)
-#
-#         def register_item(self, url, name, perm):
-#             """
-#             @param name Label used in the GUI ; using ugettext_lazy returned object is advised.
-#             @param perm Permission string ; eg:'persons.add_organisation'
-#             """
-#             self.items.append(MenuItem(url, name, perm))
-#
-#
-#     class CremeMenu(object):
-#         def __init__(self):
-#             self._app_items = {}
-#
-#         def __iter__(self):
-#             return self._app_items.itervalues()
-#
-#         def get_app_item(self, app_name):
-#             app_item = self._app_items.get(app_name)
-#
-#             if not app_item:
-#                 raise KeyError('App not (yet) registered : %s (beware to the order for INSTALLED_APPS in settings.py)', app_name)
-#
-#             return app_item
-#
-#         def get_item_name(self, item_url):
-#             for app_item in self._app_items.itervalues():
-#                 for item in app_item:
-#                     if smart_unicode(item.url) == smart_unicode(item_url):  # TODO: smart_unicode useful ???
-#                         return item.name
-#
-#             return ''  # TODO: None ? exception ??
-#
-#         def register_app(self, app_name, app_url, name=None, force_order=None):
-#             """@param force_order Order of the item in the menu ; None if the verbose_name is use as key."""
-#             if not self._app_items.has_key(app_name):
-#                 app_item = MenuAppItem(app_name, app_url, name, force_order)
-#                 self._app_items[app_name] = app_item
-#             else:
-#                 logger.warn('This app has already been registered in the menu: %s', app_name)
-#                 app_item = None
-#
-#             return app_item
-#
-#
-#     creme_menu = CremeMenu()
-# else:
 def _validate_id(id_):
     if '"' in id_ or "'" in id_:
         raise ValueError("""ID cannot contain <"'> characters.""")
@@ -160,7 +77,6 @@ class ViewableItem(Item):
                (eg: 'persons', 'persons.add_contact') or a callable which takes one argument (user) & returns
                a boolean.
         """
-        # super(ViewableItem, self).__init__(id)
         super().__init__(id)
         # TODO: assert there is at least an icon or a label ????
         self.label = label
@@ -469,7 +385,6 @@ class ContainerItem(ViewableItem, ItemList):
 
 class LabelItem(ViewableItem):
     def __init__(self, id,  label, css_classes='ui-creme-navigation-text-entry'):
-        # super(LabelItem, self).__init__(id=id, label=label)
         super().__init__(id=id, label=label)
         self.css_class = css_classes
 
@@ -480,7 +395,6 @@ class LabelItem(ViewableItem):
 class GroupLabelItem(LabelItem):
     "You should not instancing these class (just set a 'label' on your ItemGroup)."
     def __init__(self, id,  label):
-        # super(GroupLabelItem, self).__init__(id=id, label=label, css_classes='ui-creme-navigation-title')
         super().__init__(id=id, label=label, css_classes='ui-creme-navigation-title')
 
     def __str__(self):
@@ -491,7 +405,6 @@ class URLItem(ViewableItem):
     "Item which is rendered as a <a> tag"
     def __init__(self, id, url, *args, **kwargs):
         "@param url: see 'url' property."
-        # super(URLItem, self).__init__(id, *args, **kwargs)
         super().__init__(id, *args, **kwargs)
         self._url = url
 
@@ -594,7 +507,6 @@ class URLItem(ViewableItem):
 class TrashItem(URLItem):
     "Item rendering as a link to the Creme trash."
     def __init__(self, id, url=reverse('creme_core__trash')):
-        # super(TrashItem, self).__init__(id=id, url=url)
         super().__init__(id=id, url=url)
 
     def render(self, context, level=0):
@@ -622,7 +534,6 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
 
         def render(self, context, level=0):
             return format_html('<a href="#" data-href="{url}" class="quickform-menu-link">{label}</a>',
-                               # url=reverse('creme_core__quick_forms', args=(self.ct_id, 1)),
                                url=reverse('creme_core__quick_form', args=(self.ct_id,)),
                                label=self.label,
                               ) \
@@ -631,7 +542,6 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
 
     def __init__(self, id, registry, label=ugettext_lazy('Quick creation')):
         """@param registry: QuickFormsRegistry instance (indeed, we only need a iter_models() method)."""
-        # super(QuickCreationItemGroup, self).__init__(id=id, label=label)
         super().__init__(id=id, label=label)
         self._registry = registry
 
@@ -758,7 +668,6 @@ class CreationFormsItem(ViewableItem):
             self._links.remove(*link_ids)
 
     def __init__(self, *args, **kwargs):
-        # super(CreationFormsItem, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._groups = ItemList()  # we do not inherit to expose a (slightly) different API
 
@@ -882,7 +791,6 @@ class Menu(ItemList):
     ItemGroup = ItemGroup
 
     def __iter__(self):
-        # for item in super(Menu, self).__iter__():
         for item in super().__iter__():
             # TODO: what about nested group (in group) ? forbid or manage ?
             # TODO: attr 'must_be_flattened' ?

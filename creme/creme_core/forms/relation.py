@@ -28,8 +28,7 @@ from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType
 from ..utils import entities2unicode
 from .base import CremeForm, FieldBlockManager
 from .fields import MultiRelationEntityField
-# from .validators import validate_linkable_entities
-from .widgets import Label  # UnorderedMultipleChoiceWidget
+from .widgets import Label
 
 
 class _RelationsCreateForm(CremeForm):
@@ -37,7 +36,6 @@ class _RelationsCreateForm(CremeForm):
     semifixed_rtypes = ModelMultipleChoiceField(label=_('Semi-fixed types of relationship'),
                                                 queryset=SemiFixedRelationType.objects.none(),
                                                 required=False,
-                                                # widget=UnorderedMultipleChoiceWidget,
                                                )
 
     error_messages = {
@@ -59,7 +57,6 @@ class _RelationsCreateForm(CremeForm):
         @param relations_types: Sequence of RelationTypes ids to narrow to these types ;
                                 A empty sequence means all types compatible with the parameter 'content_type'.
         """
-        # super(_RelationsCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.subjects = subjects
         self.subjects_ids = subjects_ids = frozenset(s.id for s in subjects)
@@ -139,7 +136,6 @@ class _RelationsCreateForm(CremeForm):
                         raise ValidationError(
                                     self.error_messages['missing_property_single'],
                                     params={'subject':    subject,
-                                            # 'property':   needed_properties.itervalues().next(),
                                             'property':   next(iter(needed_properties.values())),
                                             'predicate':  rtype.predicate,
                                            },
@@ -181,7 +177,6 @@ class _RelationsCreateForm(CremeForm):
         return sf_rtypes
 
     def clean(self):
-        # cdata = super(_RelationsCreateForm, self).clean()
         cdata = super().clean()
 
         if not self._errors:
@@ -206,28 +201,7 @@ class _RelationsCreateForm(CremeForm):
 
     def save(self):
         user = self.user
-        # subjects = self.subjects
-        # hash_relation = self._hash_relation
-        relations_desc = self.relations_desc
-        # existing_relations_query = Q()
-        #
-        # for subject in subjects:
-        #     for rtype, object_entity in relations_desc:
-        #         existing_relations_query |= Q(type=rtype, subject_entity=subject.id, object_entity=object_entity.id)
-        #
-        # existing_relations = frozenset(hash_relation(r.subject_entity_id, r.type_id, r.object_entity_id)
-        #                                     for r in Relation.objects.filter(existing_relations_query)
-        #                               )
-        # create_relation = Relation.objects.create
-        #
-        # for subject in subjects:
-        #     for rtype, object_entity in relations_desc:
-        #         if not hash_relation(subject.id, rtype.id, object_entity.id) in existing_relations:
-        #             create_relation(user=user,
-        #                             subject_entity=subject,
-        #                             type=rtype,
-        #                             object_entity=object_entity,
-        #                            )
+
         Relation.objects.safe_multi_save(
             Relation(
                 user=user,
@@ -235,13 +209,12 @@ class _RelationsCreateForm(CremeForm):
                 type=rtype,
                 object_entity=object_entity,
             ) for subject in self.subjects
-                  for rtype, object_entity in relations_desc
+                  for rtype, object_entity in self.relations_desc
         )
 
 
 class RelationCreateForm(_RelationsCreateForm):
     def __init__(self, subject, relations_types=None, *args, **kwargs):
-        # super(RelationCreateForm, self).__init__([subject], subject.entity_type,
         super().__init__([subject], subject.entity_type,
                          relations_types=relations_types,
                          *args, **kwargs
@@ -256,7 +229,6 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
 
     def __init__(self, subjects, forbidden_subjects, relations_types=None, *args, **kwargs):
         first_subject = subjects[0] if subjects else forbidden_subjects[0]
-        # super(MultiEntitiesRelationCreateForm, self).__init__(subjects, first_subject.entity_type,
         super().__init__(subjects, first_subject.entity_type,
                          relations_types=relations_types,
                          *args, **kwargs

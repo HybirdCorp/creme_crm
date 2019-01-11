@@ -18,34 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.shortcuts import render
-# from django.urls import reverse
-
-# from ..auth.decorators import login_required
-# from ..gui.bricks import brick_registry
 from ..models import BrickHomeLocation, BrickMypageLocation
 
 from .generic.base import BricksView
 
 
-# def _render_home(request, template_name, brick_ids):
-#     return render(request, template_name,
-#                   context={'bricks':            list(brick_registry.get_bricks([id_ for id_ in brick_ids if id_])),
-#                            'bricks_reload_url': reverse('creme_core__reload_home_bricks'),
-#                           },
-#                  )
 class BaseHome(BricksView):
     bricks_reload_url_name = 'creme_core__reload_home_bricks'
 
 
-# @login_required
-# def home(request):
-#     return _render_home(request, 'creme_core/home.html',
-#                         brick_ids=BrickHomeLocation.objects
-#                                                    # .filter(app_name='creme_core')
-#                                                    .order_by('order')
-#                                                    .values_list('brick_id', flat=True),
-#                        )
 class Home(BaseHome):
     template_name = 'creme_core/home.html'
 
@@ -54,14 +35,6 @@ class Home(BaseHome):
                                         .values_list('brick_id', flat=True)
 
 
-# @login_required
-# def my_page(request):
-#     return _render_home(request, 'creme_core/my_page.html',
-#                         brick_ids=BrickMypageLocation.objects
-#                                                      .filter(user=request.user)
-#                                                      .order_by('order')
-#                                                      .values_list('brick_id', flat=True),
-#                        )
 class MyPage(BaseHome):
     template_name = 'creme_core/my_page.html'
 

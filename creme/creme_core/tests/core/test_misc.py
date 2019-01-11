@@ -463,7 +463,6 @@ class BatchActionTestCase(CremeTestCase):
 class EntityCellTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(EntityCellTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
@@ -658,7 +657,6 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_functionfield01(self):
         name = 'get_pretty_properties'
-        # funfield = FakeContact.function_fields.get(name)
         funfield = function_field_registry.get(FakeContact, name)
         self.assertIsNotNone(funfield)
 
@@ -780,33 +778,6 @@ class ReminderTestCase(CremeTestCase):
         self.assertFalse(list(registry))
         self.assertFalse(list(registry.itervalues()))
 
-    # def test_register_legacy(self):
-    #     registry = ReminderRegistry()
-    #
-    #     class TestReminder1(Reminder):
-    #         id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_legacy_1')
-    #
-    #     class TestReminder2(Reminder):
-    #         id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_legacy_2')
-    #
-    #     reminder1 = TestReminder1()
-    #     reminder2 = TestReminder2()
-    #     registry.register(reminder1)
-    #     registry.register(reminder2)
-    #     self.assertEqual({(reminder1.id, reminder1),
-    #                       (reminder2.id, reminder2),
-    #                      },
-    #                      set(registry)
-    #                     )
-    #     self.assertEqual({reminder1, reminder2}, set(registry.itervalues()))
-    #
-    #     # --
-    #     registry.unregister(reminder1)
-    #     self.assertEqual([reminder2], list(registry.itervalues()))
-    #
-    #     with self.assertNoException():
-    #         registry.unregister(reminder1)
-
     def test_register(self):
         registry = ReminderRegistry()
 
@@ -819,10 +790,6 @@ class ReminderTestCase(CremeTestCase):
         registry.register(TestReminder1)
         registry.register(TestReminder2)
 
-        # items = dict(registry)
-        # self.assertEqual(2, len(items))
-        # self.assertIsInstance(items[TestReminder1.id], TestReminder1)
-        # self.assertIsInstance(items[TestReminder2.id], TestReminder2)
         self.assertEqual({TestReminder1, TestReminder2},
                          {r.__class__ for r in registry}
                         )
@@ -833,11 +800,9 @@ class ReminderTestCase(CremeTestCase):
         # --
         registry.unregister(TestReminder1)
         self.assertEqual([TestReminder2],
-                         # [r.__class__ for r in registry.itervalues()]
                          [r.__class__ for r in registry]
                         )
 
-        # with self.assertNoException():
         with self.assertRaises(registry.RegistrationError):
             registry.unregister(TestReminder1)
 
@@ -858,12 +823,10 @@ class ReminderTestCase(CremeTestCase):
 
 class JobManagerTestCase(CremeTestCase):
     def setUp(self):
-        # super(JobManagerTestCase, self).setUp()
         super().setUp()
         self.reminders = []
 
     def tearDown(self):
-        # super(JobManagerTestCase, self).tearDown()
         super().tearDown()
 
         for reminder in self.reminders:
@@ -879,7 +842,6 @@ class JobManagerTestCase(CremeTestCase):
         rounded_hour = round_hour(now())
         job = Job.objects.get(type_id=reminder_type.id)
 
-        # self.assertEqual(rounded_hour, job.reference_run)
         if job.reference_run != rounded_hour:
             job.reference_run = rounded_hour
             job.save()
@@ -908,7 +870,6 @@ class JobManagerTestCase(CremeTestCase):
             def next_wakeup(self, now_value):
                 return wake_up
 
-        # self._register_reminder(TestReminder())
         self._register_reminder(TestReminder)
         self.assertEqual(wake_up, JobManager()._next_wakeup(job))
 
@@ -924,7 +885,6 @@ class JobManagerTestCase(CremeTestCase):
             def next_wakeup(self, now_value):
                 return rounded_hour + timedelta(minutes=70)
 
-        # self._register_reminder(TestReminder())
         self._register_reminder(TestReminder)
 
         self.assertEqual(rounded_hour + timedelta(hours=1),

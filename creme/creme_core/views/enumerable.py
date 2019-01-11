@@ -60,17 +60,6 @@ def json_list_enumerable(request, ct_id):
 
     if issubclass(model, EntityFilter):
         sort_key = collator.sort_key
-        # key = lambda e: sort_key(e['group'] + e['label'])
-        #
-        # return sorted([{'value': filter.pk,
-        #                 'label': filter.name,
-        #                 'help':  _(u'Private ({})').format(filter.user)
-        #                          if filter.is_private else '',
-        #                 'group': str(filter.entity_type),
-        #                } for filter in EntityFilter.objects.all()
-        #               ],
-        #               key=key,
-        #              )
         choices = list(map(EntityFilterEnumerator.efilter_as_dict, EntityFilter.objects.all()))
         choices.sort(key=lambda d: sort_key(d['group'] + d['label']))
 

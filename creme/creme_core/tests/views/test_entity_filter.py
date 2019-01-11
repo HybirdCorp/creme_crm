@@ -3,7 +3,7 @@
 try:
     from datetime import date
     from functools import partial
-    from json import dumps as json_dump  #loads as load_json
+    from json import dumps as json_dump
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
@@ -23,7 +23,6 @@ except Exception as e:
 class EntityFilterViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(EntityFilterViewsTestCase, cls).setUpClass()
         super().setUpClass()
 
         get_ct = ContentType.objects.get_for_model
@@ -36,9 +35,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def _build_get_ct_url(self, rtype):
         return reverse('creme_core__ctypes_compatible_with_rtype_as_choices', args=(rtype.id,))
 
-    # def _build_get_filter_url(self, ct, use_GET=False):
-    #     return reverse('creme_core__efilters', args=(ct.id,)) if not use_GET else \
-    #            reverse('creme_core__efilters') + '?ct_id=%s' % ct.id
     def _build_get_filter_url(self, ct, all_filter=False):
         return reverse('creme_core__efilters') + '?ct_id={}'.format(ct.id)
 
@@ -140,7 +136,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                                condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
-        # self.assertRedirects(response, '{}?filter={}'.format(FakeContact.get_lv_absolute_url(), efilter.id))
         lv_url = FakeContact.get_lv_absolute_url()
         self.assertRedirects(response, lv_url)
 
@@ -165,10 +160,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                      )
                                  ])
 
-        rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
-                                            ('test-object_love',  u'Is loved by')
+        rtype, srtype = RelationType.create(('test-subject_love', 'Is loving'),
+                                            ('test-object_love',  'Is loved by')
                                            )
-        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
+        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
 
         create_cf = CustomField.objects.create
         custom_field = create_cf(name='Profits',        field_type=CustomField.INT,  content_type=ct)
@@ -243,19 +238,16 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(8, len(conditions))
         iter_conds = iter(conditions)
 
-        # condition = iter_conds.next()
         condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_FIELD,                       condition.type)
         self.assertEqual(field_name,                                            condition.name)
         self.assertEqual({'operator': field_operator, 'values': [field_value]}, condition.decoded_value)
 
-        # condition = iter_conds.next()
         condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(date_field_name,                     condition.name)
         self.assertEqual({'name': daterange_type},            condition.decoded_value)
 
-        # condition = iter_conds.next()
         condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(str(custom_field.id),                  condition.name)
@@ -263,7 +255,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                          condition.decoded_value
                         )
 
-        # condition = iter_conds.next()
         condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_DATECUSTOMFIELD, condition.type)
         self.assertEqual(str(datecfield.id),                        condition.name)
@@ -271,25 +262,21 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                          condition.decoded_value
                         )
 
-        # condition = iter_conds.next()
         condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_RELATION, condition.type)
         self.assertEqual(rtype.id,                           condition.name)
         self.assertEqual({'has': True},                      condition.decoded_value)
 
-        # condition = iter_conds.next()
         condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_RELATION_SUBFILTER, condition.type)
         self.assertEqual(srtype.id,                                    condition.name)
         self.assertEqual({'has': False, 'filter_id': relsubfilfer.id}, condition.decoded_value)
 
-        # condition = iter_conds.next()
         condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_PROPERTY, condition.type)
         self.assertEqual(ptype.id,                           condition.name)
         self.assertIs(condition.decoded_value, True)
 
-        # condition = iter_conds.next()
         condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_SUBFILTER, condition.type)
         self.assertEqual(subfilter.id,                        condition.name)
@@ -327,7 +314,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                 name='name',
                                                 value='NERV',
                                             ),
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertRedirects(response, lv_url)
@@ -378,7 +365,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                          condition.name)
         self.assertEqual({'name': daterange_type},            condition.decoded_value)
 
-        # self.assertRedirects(response, '{}?filter={}'.format(callback_url, efilter.id))
         self.assertRedirects(response, callback_url)
 
     def test_create05(self):
@@ -420,7 +406,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                        name='last_name',
                                                                        value='Katsuragi',
                                                                     ),
-                                           }
+                                           },
                                      )
 
         response = post(self.other_user)
@@ -639,8 +625,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                 }
                             )
 
-        rtype = RelationType.create(('test-subject_love', u'Is loving'),
-                                    ('test-object_love',  u'Is loved by')
+        rtype = RelationType.create(('test-subject_love', 'Is loving'),
+                                    ('test-object_love',  'Is loved by')
                                    )[0]
         response = post(dict(data,
                              relsubfilfers_conditions=self._build_subfilters_data(
@@ -775,7 +761,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
                 ' So this private sub-filter cannot be chosen: {}',
                 'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
-                u' So these private sub-filters cannot be chosen: {}',
+                ' So these private sub-filters cannot be chosen: {}',
                 1
             ).format(subfilter3.name)
         )
@@ -1558,10 +1544,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                     [efilter02.id, 'Filter 02'],
                    ]
 
-        # response = self.assertGET200(reverse('creme_core__efilters_n_all', args=(self.ct_contact.id,)))
-        # self.assertEqual(expected, load_json(response.content))
-
-        # url = self._build_get_filter_url(self.ct_contact, use_GET=True)
         url = self._build_get_filter_url(self.ct_contact)
         response = self.assertGET200(url + '&all=1')
         self.assertEqual(expected, response.json())

@@ -17,7 +17,6 @@ except Exception as e:
 class EntityCellsFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(EntityCellsFieldTestCase, cls).setUpClass()
         super().setUpClass()
         cls.ct_contact = ContentType.objects.get_for_model(FakeContact)
 
@@ -65,7 +64,6 @@ class EntityCellsFieldTestCase(FieldTestCase):
                                                  field_type=CustomField.INT,
                                                  content_type=self.ct_contact,
                                                 )
-        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 
         field = EntityCellsField(content_type=self.ct_contact)

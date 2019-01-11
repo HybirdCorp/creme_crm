@@ -19,7 +19,6 @@
 ################################################################################
 
 from decimal import Decimal
-# import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -28,11 +27,9 @@ from django.utils.translation import ugettext as _
 from . import bricks, constants, creme_jobs, sandboxes, setting_keys
 from .management.commands.creme_populate import BasePopulator
 from .models import (RelationType, SettingValue, Currency, Language, Vat, Job, Sandbox,
-        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation, ButtonMenuItem)  # CremePropertyType
+        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation, ButtonMenuItem)
 from .utils import create_if_needed
 from .utils.date_period import date_period_registry
-
-# logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -108,10 +105,6 @@ class Populator(BasePopulator):
             create_bdl(brick_id=bricks.RelationsBrick.id_,    order=500, zone=LEFT)
             create_bdl(brick_id=bricks.HistoryBrick.id_,      order=8,   zone=BrickDetailviewLocation.RIGHT)
 
-            # BlockPortalLocation.create_or_update(brick_id=bricks.HistoryBrick.id_, order=8)
-
-            # BlockPortalLocation.create_or_update(brick_id=bricks.StatisticsBrick.id_, order=8,  app_name='creme_core')
-            # BlockPortalLocation.create_or_update(brick_id=bricks.HistoryBrick.id_,    order=10, app_name='creme_core')
             BrickHomeLocation.objects.create(brick_id=bricks.StatisticsBrick.id_, order=8)
             BrickHomeLocation.objects.create(brick_id=bricks.HistoryBrick.id_,    order=10)
 

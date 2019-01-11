@@ -4,7 +4,6 @@ from .auth import CremeUser, EntityCredentials, UserRole, SetCredentials, Sandbo
 
 from .file_ref import FileRef  # NOQA
 
-# from .base import CremeAbstractEntity
 from .base import CremeModel # NOQA
 from .entity import CremeEntity  # NOQA
 
@@ -25,7 +24,6 @@ from .currency import Currency  # NOQA
 from .vat import Vat  # NOQA
 
 from .bricks import *  # NOQA
-# from .prefered_menu import PreferedMenuItem
 from .button_menu import ButtonMenuItem  # NOQA
 
 from .reminder import DateReminder  # NOQA

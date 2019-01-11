@@ -107,7 +107,6 @@ class Command(BaseCommand):
 
                 if len(entries_per_msg) == 1:
                     if not_diverging:
-                        # msg_entries = entries_per_msg.itervalues().next()
                         msg_entries = next(entries_per_msg.values())
                         self.stdout.write('\n[duplicates] ({}) in {}'.format(
                                                 msgid,

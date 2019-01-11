@@ -29,7 +29,6 @@ from time import sleep
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-# from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
@@ -39,20 +38,12 @@ from mediagenerator.utils import media_url
 
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
-# from ..global_info import set_global_info
-# from ..gui import brick_registry
 from ..gui.bricks import brick_registry, PaginatedBrick
 from ..gui.field_printers import (print_image_html, print_url_html, print_datetime,
         print_date, print_duration, print_foreignkey_html, print_many2many_html)
-#       print_image print_urlfield print_foreignkey print_many2many
-# from ..utils import is_testenvironment
-# from ..utils.media import creme_media_themed_url as media_url  # get_current_theme
-
 from ..models import CremeProperty
 
-
 logger = logging.getLogger(__name__)
-
 
 TEST_TEMPLATE_PATH = join(settings.CREME_ROOT, 'creme_core', 'templates', 'creme_core', 'tests')
 TEST_TEMPLATE_BRICK_PATH = join(TEST_TEMPLATE_PATH, 'bricks')
@@ -74,7 +65,6 @@ class MockImage:
         self.height = height or width
 
     def html(self, entity):
-        # return mark_safe(print_image(entity, self, entity.user, None))
         return mark_safe(print_image_html(entity, self, entity.user, None))
 
 
@@ -98,17 +88,14 @@ class Dummy:
         self.datetime = mark_safe(print_datetime(self, now(), user, None))
         self.date = mark_safe(print_date(self, date.today(), user, None))
         self.duration = mark_safe(print_duration(self, '{}:{}:{}'.format(randint(0, 23), randint(0, 59), randint(0, 59)), user, None))
-        # self.foreignkey = mark_safe(print_foreignkey(self, CremeProperty.objects.all()[0], user, None))
         property = CremeProperty.objects.first()
         self.foreignkey = mark_safe(print_foreignkey_html(self, property, user, None)) if property is not None else None
-        # self.manytomany = mark_safe(print_many2many(self, MockManyToMany(CremeProperty), user, None))
         self.manytomany = mark_safe(print_many2many_html(self, MockManyToMany(CremeProperty), user, None))
 
     def __str__(self):
         return self.name
 
 
-# class DummyListBlock(PaginatedBrick):
 class DummyListBrick(PaginatedBrick):
     id_           = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
     verbose_name  = 'Dummies'
@@ -135,20 +122,13 @@ class DummyListBrick(PaginatedBrick):
             image_name, image_url = images[random_choice(image_ids)]
             data.append(Dummy('Dummy ({}) - {}'.format(item_id + 1, image_name), user, media_url(image_url)))
 
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, data,
                     reloading_info={'count': item_count}
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
-                    # update_url=reverse('creme_core__set_block_state', args=(self.id_,)),
         ))
 
-# dummy_list_block = DummyListBlock()
 
-
-# def js_testview_or_404(request, message, error):
 def js_testview_or_404(message, error):
-    # if is_testenvironment(request) or not settings.FORCE_JS_TESTVIEW:
     if settings.TESTS_ON or not settings.FORCE_JS_TESTVIEW:
         raise Http404(error)
 
@@ -157,13 +137,9 @@ def js_testview_or_404(message, error):
 
 def js_testview_context(request, viewname):
     try:
-        # brick_registry[dummy_list_block.id_]
         brick_registry[DummyListBrick.id_]
-    # except:
     except KeyError:
-        # logger.info('Register dummy object list block %s' % dummy_list_block.id_)
         logger.info('Register dummy object list block %s', DummyListBrick.id_)
-        # brick_registry.register(dummy_list_block)
         brick_registry.register(DummyListBrick)
 
     test_view_pattern = re_compile(r'^test_(?P<name>[\d\w]+)\.html$')
@@ -190,7 +166,6 @@ def js_testview_context(request, viewname):
 
 
 def test_http_response(request):
-    # if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
     if not settings.TESTS_ON and not settings.FORCE_JS_TESTVIEW:
         raise Http404('This is view is only reachable during javascript or server unittests')
 
@@ -218,20 +193,17 @@ def test_http_response(request):
 
     if request.is_ajax():
         return HttpResponse('XML Http Response {}'.format(status),
-                            # content_type='text/javascript',
                             status=status,
                            )
 
     return HttpResponse('<p>Http Response {}</p>'.format(status),
-                        # content_type='text/html',
                         status=status,
                        )
 
 
 @login_required
 def test_js(request):
-    js_testview_or_404(  # request,
-                       "Beware: if you are not running unittest this view shouldn't be reachable. "
+    js_testview_or_404("Beware: if you are not running unittest this view shouldn't be reachable. "
                        "Check your server configuration.",
                        "This is view is only reachable during javascript unittests."
                       )
@@ -241,23 +213,15 @@ def test_js(request):
 
 @login_required
 def test_widget(request, widget):
-    js_testview_or_404(  # request,
-                       "Beware: if you are not in testing javascript widgets this view shouldn't be reachable. "
+    js_testview_or_404("Beware: if you are not in testing javascript widgets this view shouldn't be reachable. "
                        "Check your server configuration.",
                        "This is view is only reachable during javascript debug."
                       )
 
     context = js_testview_context(request, widget)
-    # theme = context['THEME_NAME']
-    # usertheme = get_current_theme()
-
-    # set_global_info(usertheme=theme)
     request.user.theme = context['THEME_NAME']
 
-    # try:
     if widget:
         return render(request, 'creme_core/tests/test_{}.html'.format(widget), context)
 
     return render(request, 'creme_core/tests/test.html', context)
-    # finally:
-    #     set_global_info(usertheme=usertheme)

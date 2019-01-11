@@ -3,7 +3,7 @@
 try:
     from decimal import Decimal
     from functools import partial
-    from json import dumps as json_dump  # loads as json_load
+    from json import dumps as json_dump
     from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
@@ -78,7 +78,6 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
     @classmethod
     def setUpClass(cls):
-        # super(MassImportViewsTestCase, cls).setUpClass()
         super().setUpClass()
         Job.objects.all().delete()
 
@@ -144,7 +143,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         # Properties
         self.assertIs(mass_import_type, job.type)
-        self.assertEqual([_(u'Import «{model}» from {doc}').format(
+        self.assertEqual([_('Import «{model}» from {doc}').format(
                                 model='Test Contact',
                                 doc=doc,
                             )
@@ -181,14 +180,14 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self._assertNoResultError(results)
         self.assertIs(results[0].updated, False)
 
-        self.assertEqual([ungettext(u'{count} «{model}» has been created.',
-                                    u'{count} «{model}» have been created.',
+        self.assertEqual([ungettext('{count} «{model}» has been created.',
+                                    '{count} «{model}» have been created.',
                                     lines_count
                                    ).format(count=lines_count,
                                             model='Test Contacts',
                                            ),
-                          ungettext(u'{count} line in the file.',
-                                    u'{count} lines in the file.',
+                          ungettext('{count} line in the file.',
+                                    '{count} lines in the file.',
                                     lines_count,
                                    ).format(count=lines_count),
                          ],
@@ -197,8 +196,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         progress = job.progress
         self.assertIsNone(progress.percentage)
-        self.assertEqual(ungettext(u'{count} line has been processed.',
-                                   u'{count} lines have been processed.',
+        self.assertEqual(ungettext('{count} line has been processed.',
+                                   '{count} lines have been processed.',
                                    lines_count
                                   ).format(count=lines_count),
                          progress.label
@@ -338,12 +337,12 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         results = self._get_job_results(job)
         self.assertEqual(lines_count, len(results))
-        self.assertEqual([ungettext(u'{count} «{model}» has been created.',
-                                    u'{count} «{model}» have been created.',
+        self.assertEqual([ungettext('{count} «{model}» has been created.',
+                                    '{count} «{model}» have been created.',
                                     lines_count
                                   ).format(count=lines_count, model='Test Contacts'),
-                          ungettext(u'{count} line in the file.',
-                                    u'{count} lines in the file.',
+                          ungettext('{count} line in the file.',
+                                    '{count} lines in the file.',
                                     lines_count,
                                    ).format(count=lines_count),
                          ],
@@ -420,9 +419,9 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         user = self.login()
         contact_ids = list(FakeContact.objects.values_list('id', flat=True))
 
-        lines = [(u'First name', u'Last name'),
-                 (u'Unchô',      u'Kan-u'),
-                 (u'Gentoku',    u'Ryûbi'),
+        lines = [('First name', 'Last name'),
+                 ('Unchô',      'Kan-u'),
+                 ('Gentoku',    'Ryûbi'),
                 ]
 
         doc = self._build_csv_doc(lines, separator=';')
@@ -452,7 +451,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self.assertEqual(2, len(results))
         self._assertNoResultError(results)
 
-    def test_duplicated_relations01(self):
+    def test_duplicated_relations(self):
         "Same Relation in fixed & dynamic fields at creation"
         user = self.login()
 
@@ -480,46 +479,12 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, rei, employed.id, nerv)  # Not 2
 
-    # def test_duplicated_relations02(self):
-    #     "The Relations is already duplicated (crash with get_or_create())"
-    #     user = self.login()
-    #
-    #     employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
-    #                                    ('persons-object_employed_by',  'employs')
-    #                                   )[0]
-    #
-    #     nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-    #     rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-    #
-    #     for i_ in range(2):
-    #         Relation.objects.create(subject_entity=rei, type=employed, object_entity=nerv, user=user)
-    #
-    #     description = 'Pilot'
-    #     doc = self._build_csv_doc([(rei.first_name, rei.last_name, description, nerv.name)])
-    #     response = self.client.post(
-    #         self._build_import_url(FakeContact), follow=True,
-    #         data=dict(self.lv_import_data,
-    #                   document=doc.id,
-    #                   user=user.id,
-    #                   key_fields=['first_name', 'last_name'],
-    #                   description_colselect=3,
-    #                   fixed_relations=self.formfield_value_multi_relation_entity([employed.id, nerv]),
-    #                   dyn_relations=self._dyn_relations_value(employed, FakeOrganisation, 4, 'name'),
-    #                  ),
-    #     )
-    #
-    #     self._execute_job(response)
-    #
-    #     rei = self.refresh(rei)
-    #     self.assertEqual(description, rei.description)
-    #     self.assertRelationCount(2, rei, employed.id, nerv)
-
     def test_default_value(self):
         "Use default value when CSV value is empty (+ fix unicode bug)"
         self.login()
 
-        first_name = u'Gentoku'
-        last_name = u'Ryûbi'
+        first_name = 'Gentoku'
+        last_name = 'Ryûbi'
         doc = self._build_csv_doc([(first_name, '')])
         response = self.client.post(self._build_import_url(FakeContact), follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
@@ -547,11 +512,11 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         cf_dec = create_cf(name='Weight (kg)', field_type=CustomField.FLOAT)
         cf_str = create_cf(name='Nickname',    field_type=CustomField.STR)
 
-        lines = [('First name', 'Last name', 'Size', 'Weight'),
-                 (u'Unchô',      u'Kan-u',   '180',    '55'),
-                 (u'Gentoku',    u'Ryûbi',   '155',    ''),
-                 (u'Hakufu',     u'Sonsaku', '',       '50.2'),
-                 (u'Shimei',     u'Ryomou',  'notint', '48'),
+        lines = [('First name', 'Last name', 'Size',   'Weight'),
+                 ('Unchô',      'Kan-u',     '180',    '55'),
+                 ('Gentoku',    'Ryûbi',     '155',    ''),
+                 ('Hakufu',     'Sonsaku',   '',       '50.2'),
+                 ('Shimei',     'Ryomou',    'notint', '48'),
                 ]
 
         kanu = FakeContact.objects.create(user=user, first_name=lines[1][0],
@@ -589,7 +554,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         get_cf_values = self._get_cf_values
         self.assertEqual(180, get_cf_values(cf_int, kanu).value)
         self.assertEqual(Decimal('55'), get_cf_values(cf_dec, kanu).value)
-        self.assertEqual(u'Kan', get_cf_values(cf_str, kanu).value)
+        self.assertEqual('Kan', get_cf_values(cf_str, kanu).value)
 
         ryubi = get_contact(2)
         self.assertEqual(155, get_cf_values(cf_int, ryubi).value)
@@ -611,7 +576,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         jr_error = jr_errors[0]
         self.assertEqual(list(lines[4]), jr_error.line)
-        self.assertEqual([_(u'Enter a whole number.')],  # TODO: add the field verbose name !!
+        self.assertEqual([_('Enter a whole number.')],  # TODO: add the field verbose name !!
                          jr_error.messages
                         )
         self.assertEqual(ryomou, jr_error.entity.get_real_entity())
@@ -637,8 +602,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         spear = create_evalue(custom_field=cf_menum, value='Spear')
 
         lines = [('First name', 'Last name', 'Attack',        'Weapons'),
-                 (u'Hakufu',     u'Sonsaku', 'punch',         ''),
-                 (u'Unchô',      u'Kan-u',   'strangulation', 'Spear'),
+                 ('Hakufu',     'Sonsaku',   'punch',         ''),
+                 ('Unchô',      'Kan-u',     'strangulation', 'Spear'),
                 ]
 
         doc = self._build_csv_doc(lines)
@@ -680,9 +645,9 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         jr_error = jr_errors[0]
         self.assertEqual(list(lines[2]), jr_error.line)
-        self.assertEqual([_(u'Error while extracting value: tried to retrieve '
-                            u'the choice «{value}» (column {column}). '
-                            u'Raw error: [{raw_error}]').format(
+        self.assertEqual([_('Error while extracting value: tried to retrieve '
+                            'the choice «{value}» (column {column}). '
+                            'Raw error: [{raw_error}]').format(
                                 raw_error='CustomFieldEnumValue matching query does not exist.',
                                 column=3,
                                 value='strangulation',
@@ -706,9 +671,9 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         sword = create_evalue(custom_field=cf_menum, value='Sword')
 
         lines = [('First name', 'Last name', 'Attack',        'Weapons'),
-                 (u'Hakufu',     u'Sonsaku', 'punch',         'sword'),
-                 (u'Unchô',      u'Kan-u',   'strangulation', 'spear'),
-                 (u'Gentoku',    u'Ryûbi',   '',              ''),
+                 ('Hakufu',     'Sonsaku',   'punch',         'sword'),
+                 ('Unchô',      'Kan-u',     'strangulation', 'spear'),
+                 ('Gentoku',    'Ryûbi',     '',              ''),
                 ]
 
         doc = self._build_csv_doc(lines)
@@ -770,7 +735,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         create_evalue(custom_field=cf_menum, value='Sword')
 
         lines = [('First name', 'Last name', 'Attack',        'Weapons'),
-                 (u'Unchô',      u'Kan-u',   'strangulation', 'spear'),
+                 ('Unchô',      'Kan-u',     'strangulation', 'spear'),
                 ]
 
         doc = self._build_csv_doc(lines)
@@ -828,7 +793,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         sword = create_evalue(custom_field=cf_menum, value='Sword')
 
         lines = [('First name', 'Last name', 'Size', 'Attack', 'Weapons'),
-                 (u'Unchô',      u'Kan-u',   '',     '',       ''),
+                 ('Unchô',      'Kan-u',   '',     '',       ''),
                 ]
 
         doc = self._build_csv_doc(lines)
@@ -854,7 +819,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         response = post('notint')
         self.assertFormError(response, 'form', 'custom_field_{}'.format(cf_int.id),
-                             _(u'Enter a whole number.')
+                             _('Enter a whole number.')
                             )
 
         response = post('180')
@@ -882,7 +847,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                       data={'step': 0, 'document': doc.id}
                                      )
         self.assertFormError(response, 'form', None,
-                             _(u'Error reading document, unsupported file type: {file}.').format(
+                             _('Error reading document, unsupported file type: {file}.').format(
                                     file=doc.filedata.name,
                                 )
                             )
@@ -906,7 +871,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                                    capital_defval='notint',
                                                   ),
                                    )
-        self.assertFormError(response, 'form', 'capital', _(u'Enter a whole number.'))
+        self.assertFormError(response, 'form', 'capital', _('Enter a whole number.'))
 
     def test_import_error03(self):
         "Required field without column or default value"
@@ -923,7 +888,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                                    capital_colselect=1,
                                                   ),
                                    )
-        self.assertFormError(response, 'form', 'name', _(u'This field is required.'))
+        self.assertFormError(response, 'form', 'name', _('This field is required.'))
 
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_import_error04(self):
@@ -987,8 +952,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                                ),
                                      )
         self.assertFormError(response, 'form', 'dyn_relations', 
-                             _(u'You are not allowed to create: %(model)s') % {
-                                    'model': u'Test Organisation',
+                             _('You are not allowed to create: %(model)s') % {
+                                    'model': 'Test Organisation',
                                 }
                             )
 
@@ -1080,16 +1045,16 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         jresult = self.get_object_or_fail(MassImportJobResult, job=job, entity=rei)
         self.assertTrue(jresult.updated)
 
-        self.assertEqual([ungettext(u'{count} «{model}» has been created.',
-                                    u'{count} «{model}» have been created.',
+        self.assertEqual([ungettext('{count} «{model}» has been created.',
+                                    '{count} «{model}» have been created.',
                                     1
                                    ).format(count=1, model='Test Contact'),
-                          ungettext(u'{count} «{model}» has been updated.',
-                                    u'{count} «{model}» have been updated.',
+                          ungettext('{count} «{model}» has been updated.',
+                                    '{count} «{model}» have been updated.',
                                     1
                                    ).format(count=1, model='Test Contact'),
-                          ungettext(u'{count} line in the file.',
-                                    u'{count} lines in the file.',
+                          ungettext('{count} line in the file.',
+                                    '{count} lines in the file.',
                                     2
                                    ).format(count=2),
                          ],
@@ -1136,8 +1101,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         jr_error = jr_errors[0]
         self.assertEqual([last_name, first_name], jr_error.line)
-        self.assertEqual([_(u'Several entities corresponding to the search have been found. '
-                            u'So a new entity have been created to avoid errors.'
+        self.assertEqual([_('Several entities corresponding to the search have been found. '
+                            'So a new entity have been created to avoid errors.'
                            )
                          ],
                          jr_error.messages
@@ -1295,8 +1260,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         "CSV, no header"
         user = self.login()
 
-        first_name = u'Unchô'
-        # first_name = u'Uncho'
+        first_name = 'Unchô'
         last_name = 'Kan-u'
         birthday = '1995'
         lines = [('First name',   'Last name', 'Birthday')] if header else []
@@ -1327,7 +1291,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         kanu = j_error.entity
         self.assertIsNotNone(kanu)
         self.assertEqual(first_name, kanu.get_real_entity().first_name)
-        self.assertEqual([_(u'Enter a valid date.')], j_error.messages)
+        self.assertEqual([_('Enter a valid date.')], j_error.messages)
 
         response = self.assertGET200(self._build_dl_errors_url(job), follow=True)
 
@@ -1337,15 +1301,15 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                        )
         self.assertTrue(cdisp.endswith('.' + ext))
 
-        result_lines = [['First name',   'Last name', 'Birthday', _(u'Errors')]] if header else []
-        result_lines.append([first_name, last_name,   birthday,   _(u'Enter a valid date.')])
+        result_lines = [['First name',   'Last name', 'Birthday', _('Errors')]] if header else []
+        result_lines.append([first_name, last_name,   birthday,   _('Enter a valid date.')])
 
         self.assertEqual(result_lines,
                          result_builder(response),
                         )
 
     def _csv_to_list(self, response):
-        separator = u','
+        separator = ','
 
         return [[i[1:-1] for i in line.split(separator)]
                     for line in smart_text(response.content).splitlines()

@@ -30,10 +30,8 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-# from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList, FunctionFieldsManager
-
 from .auth import Sandbox
-from .base import CremeModel  # CremeAbstractEntity, _SEARCH_FIELD_MAX_LENGTH
+from .base import CremeModel
 from .fields import (CreationDateTimeField, ModificationDateTimeField,
          CremeUserForeignKey, CTypeForeignKey)
 from .manager import LowNullsQuerySet
@@ -60,28 +58,6 @@ class EntityAction:
         self.is_allowed = is_allowed
 
 
-# class _PrettyPropertiesField(FunctionField):
-#     name         = 'get_pretty_properties'
-#     verbose_name = _('Properties')
-#     has_filter   = True  # ==> quick search in ListView
-#     result_type  = FunctionFieldResultsList
-#
-#     @classmethod
-#     def filter_in_result(cls, search_string):
-#         # Should we make a separated query to retrieve first the searched types ?
-#         return Q(properties__type__text__icontains=search_string)
-#
-#     def __call__(self, entity, user):
-#         return FunctionFieldResultsList(FunctionFieldResult(str(p))
-#                                             for p in entity.get_properties()
-#                                        )
-#
-#     @classmethod
-#     def populate_entities(cls, entities, user):
-#         CremeEntity.populate_properties(entities)
-
-
-# class CremeEntity(CremeAbstractEntity):
 class CremeEntity(CremeModel):
     created  = CreationDateTimeField(_('Creation date'), editable=False).set_tags(clonable=False)
     modified = ModificationDateTimeField(_('Last modification'), editable=False).set_tags(clonable=False)
@@ -99,8 +75,6 @@ class CremeEntity(CremeModel):
 
     _real_entity = None
 
-    # function_fields = FunctionFieldsManager(_PrettyPropertiesField())
-
     # Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
     # TODO: use tag instead.
     allowed_related = set()
@@ -116,19 +90,15 @@ class CremeEntity(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
-        # ordering = ('id',) # order by id on a FK can cause a crashes
-        ordering = ('header_filter_search_field',)
+        ordering = ('header_filter_search_field',)  # NB: order by id on a FK can cause a crashes
         index_together = [
             ['entity_type', 'is_deleted'],  # Optimise the basic COUNT in list-views
         ]
 
     def __init__(self, *args, **kwargs):
-        # super(CremeEntity, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         if self.pk is None:
-            # has_arg = kwargs.has_key
-            # if not has_arg('entity_type') and not has_arg('entity_type_id'):
             if 'entity_type' not in kwargs and 'entity_type_id' not in kwargs:
                 self.entity_type = ContentType.objects.get_for_model(self)
 
@@ -151,7 +121,6 @@ class CremeEntity(CremeModel):
         for prop in self.properties.all():
             prop.delete(using=using)
 
-        # super(CremeEntity, self)._delete_without_transaction(using=using, keep_parents=keep_parents)
         super()._delete_without_transaction(using=using, keep_parents=keep_parents)
 
     def __str__(self):
@@ -174,7 +143,6 @@ class CremeEntity(CremeModel):
                ugettext('Entity #{id} (not viewable)').format(id=self.id)
 
     def get_real_entity(self):
-        # return self._get_real_entity(CremeEntity)
         entity = self._real_entity
 
         if entity is True:
@@ -227,7 +195,6 @@ class CremeEntity(CremeModel):
         """Returns the url of the deletion view (should use POST method) for this instance.
         If '' (void string) is returned, the model can not be deleted directly.
         """
-        # return "/creme_core/entity/delete/%s" % self.id
         return reverse('creme_core__delete_entity', args=(self.id,))
 
     def get_html_attrs(self, context):
@@ -343,38 +310,6 @@ class CremeEntity(CremeModel):
 
         return '<a target="_blank" href="{}">{}</a>'.format(self.get_absolute_url(), escape(str(self)))
 
-# NB : Replaced by creme_core.gui.actions.actions_registry mechanism
-#     def get_actions(self, user):  # todo: improve icon/css class management....
-#         actions = []
-#
-#         edit_url = self.get_edit_absolute_url()
-#         if edit_url:
-#             actions.append(EntityAction(edit_url,
-#                                         text=ugettext('Edit'),
-#                                         is_allowed=user.has_perm_to_change(self),
-#                                         icon='edit',
-#                                        )
-#                            )
-#
-#         delete_url = self.get_delete_absolute_url()
-#         if delete_url:
-#             actions.append(EntityAction(delete_url,
-#                                         text=ugettext('Delete'),
-#                                         is_allowed=user.has_perm_to_delete(self),
-#                                         icon='delete',
-#                                         attrs={'data-action': 'delete'},
-#                                        )
-#                           )
-#
-#         return {'default': EntityAction(self.get_absolute_url(),
-#                                         text=ugettext('See'),
-#                                         is_allowed=True,
-#                                         icon='view',
-#                                         verbose=ugettext('Go to the entity {entity}').format(entity=self),
-#                                        ),
-#                 'others':  actions,
-#                }
-
     def get_custom_fields_n_values(self):
         # TODO: in a staticmethod of CustomField ??
         cfields = CustomField.objects.filter(content_type=self.entity_type_id)
@@ -411,7 +346,6 @@ class CremeEntity(CremeModel):
     def save(self, *args, **kwargs):
         self.header_filter_search_field = self._search_field_value()[:_SEARCH_FIELD_MAX_LENGTH]
 
-        # super(CremeEntity, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
         logger.debug('CremeEntity.save(%s, %s)', args, kwargs)
 
@@ -480,7 +414,6 @@ class CremeEntity(CremeModel):
         return new_entity
 
     def _copy_properties(self, source):
-        # creme_property_create = CremeProperty.objects.create
         creme_property_create = CremeProperty.objects.safe_create
 
         for type_id in source.properties.filter(type__is_copiable=True).values_list('type', flat=True):
@@ -490,7 +423,6 @@ class CremeEntity(CremeModel):
         """@param allowed_internal: Sequence of RelationTypes pk with is_internal=True.
                                     Relationships with these types will be cloned anyway.
         """
-        # relation_create = Relation.objects.create
         relation_create = Relation.objects.safe_create
 
         query = Q(type__in=RelationType.get_compatible_ones(self.entity_type).filter(Q(is_copiable=True)))

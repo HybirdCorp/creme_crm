@@ -14,7 +14,6 @@ entity_patterns = [
     url(r'^delete/(?P<entity_id>\d+)[/]?$',     entity.delete_entity,            name='creme_core__delete_entity'),
     url(r'^delete_related/(?P<ct_id>\d+)[/]?$', entity.delete_related_to_entity, name='creme_core__delete_related_to_entity'),
     url(r'^restore/(?P<entity_id>\d+)[/]?$',    entity.restore_entity,           name='creme_core__restore_entity'),
-    # url(r'^trash[/]?$',                         entity.trash,                    name='creme_core__trash'),
     url(r'^trash[/]?$',                         entity.Trash.as_view(),          name='creme_core__trash'),
     url(r'^trash/empty[/]?$',                   entity.empty_trash,              name='creme_core__empty_trash'),
 
@@ -26,11 +25,8 @@ entity_patterns = [
     url(r'^search_n_view[/]?$',                                                entity.search_and_view,          name='creme_core__search_n_view_entities'),
     url(r'^get_info_fields/(?P<ct_id>\d+)/json[/]?$',                          entity.get_info_fields,          name='creme_core__entity_info_fields'),
 
-    # url(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.inner_edit_field,  name='creme_core__inner_edition'),
     url(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.InnerEdition.as_view(), name='creme_core__inner_edition'),
 
-    # url(r'^update/bulk/(?P<ct_id>\d+)[/]?$',                                         entity.bulk_update_field, name='creme_core__bulk_update'),
-    # url(r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',            entity.bulk_update_field, name='creme_core__bulk_update'),
     url(r'^update/bulk/(?P<ct_id>\d+)[/]?$',                              entity.BulkUpdate.as_view(), name='creme_core__bulk_update'),
     url(r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.BulkUpdate.as_view(), name='creme_core__bulk_update'),
 
@@ -43,18 +39,14 @@ entity_patterns = [
 ]
 
 relation_patterns = [
-    # url(r'^add/(?P<subject_id>\d+)[/]?$',                      relation.add_relations,  name='creme_core__create_relations'),
-    # url(r'^add/(?P<subject_id>\d+)/(?P<rtype_id>[\w-]+)[/]?$', relation.add_relations,  name='creme_core__create_relations'),
     url(r'^add/(?P<subject_id>\d+)[/]?$',                      relation.RelationsAdding.as_view(), name='creme_core__create_relations'),
     url(r'^add/(?P<subject_id>\d+)/(?P<rtype_id>[\w-]+)[/]?$', relation.RelationsAdding.as_view(), name='creme_core__create_relations'),
 
     url(r'^add_from_predicate/save[/]?$', relation.add_relations_with_same_type, name='creme_core__save_relations'),
 
-    # url(r'^add_to_entities/(?P<model_ct_id>\d+)[/]?$',
     url(r'^add_to_entities/(?P<ct_id>\d+)[/]?$',
-        # relation.add_relations_bulk,
         relation.RelationsBulkAdding.as_view(),
-        name='creme_core__create_relations_bulk'
+        name='creme_core__create_relations_bulk',
     ),
 
     url(r'^objects2link[/]?$', relation.select_relations_objects, name='creme_core__select_entities_to_link'),
@@ -70,21 +62,16 @@ relation_patterns = [
 
 property_patterns = [
     url(r'^add_to_entities/(?P<ct_id>\d+)[/]?$',
-        # creme_property.add_properties_bulk,
         creme_property.PropertiesBulkAdding.as_view(),
         name='creme_core__add_properties_bulk',
     ),
 
-    # url(r'^add/(?P<entity_id>\d+)[/]?$',         creme_property.add_to_entity,       name='creme_core__add_properties'),
     url(r'^add/(?P<entity_id>\d+)[/]?$', creme_property.PropertiesAdding.as_view(), name='creme_core__add_properties'),
     url(r'^delete_from_type[/]?$',       creme_property.delete_from_type,           name='creme_core__remove_property'),
 
     # Property type
-    # url(r'^type/add[/]?$',                                creme_property.add_type,        name='creme_core__create_ptype'),
     url(r'^type/add[/]?$',                                creme_property.PropertyTypeCreation.as_view(), name='creme_core__create_ptype'),
-    # url(r'^type/(?P<ptype_id>[\w-]+)[/]?$',               creme_property.type_detailview, name='creme_core__ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)[/]?$',               creme_property.PropertyTypeDetail.as_view(),   name='creme_core__ptype'),
-    # url(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.edit_type,       name='creme_core__edit_ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.PropertyTypeEdition.as_view(),  name='creme_core__edit_ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.delete_type,                    name='creme_core__delete_ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)/reload_bricks[/]?$', creme_property.reload_bricks,                  name='creme_core__reload_ptype_bricks'),
@@ -94,17 +81,14 @@ bricks_patterns = [
     url(r'^reload[/]?$',                               bricks.reload_basic,      name='creme_core__reload_bricks'),
     url(r'^reload/detailview/(?P<entity_id>\d+)[/]?$', bricks.reload_detailview, name='creme_core__reload_detailview_bricks'),
     url(r'^reload/home[/]?$',                          bricks.reload_home,       name='creme_core__reload_home_bricks'),
-    # url(r'^reload/portal[/]?$',                        bricks.reload_portal,     name='creme_core__reload_portal_bricks'),
 
     url(r'^set_state[/]?$', bricks.set_state, name='creme_core__set_brick_state'),
 ]
 
 entity_filter_patterns = [
-    # url(r'^add/(?P<ct_id>\d+)[/]?$',      entity_filter.add,    name='creme_core__create_efilter'),
     url(r'^add/(?P<ct_id>\d+)[/]?$',      entity_filter.EntityFilterCreation.as_view(), name='creme_core__create_efilter'),
-    # url(r'^edit/(?P<efilter_id>.+)[/]?$', entity_filter.edit,   name='creme_core__edit_efilter'),
     url(r'^edit/(?P<efilter_id>.+)[/]?$', entity_filter.EntityFilterEdition.as_view(),  name='creme_core__edit_efilter'),
-    url(r'^delete[/]?$',                  entity_filter.delete, name='creme_core__delete_efilter'),
+    url(r'^delete[/]?$',                  entity_filter.delete,                         name='creme_core__delete_efilter'),
 
     # TODO: move to relation_patterns/factorise with 'creme_core__ctypes_compatible_with_rtype'
     url(r'^rtype/(?P<rtype_id>[\w-]+)/content_types[/]?$', entity_filter.get_content_types,
@@ -115,9 +99,7 @@ entity_filter_patterns = [
 ]
 
 headerfilter_patterns = [
-    # url(r'^add/(?P<content_type_id>\d+)[/]?$',      header_filter.add,           name='creme_core__create_hfilter'),
     url(r'^add/(?P<ct_id>\d+)[/]?$',          header_filter.HeaderFilterCreation.as_view(), name='creme_core__create_hfilter'),
-    # url(r'^edit/(?P<header_filter_id>[\w-]+)[/]?$', header_filter.edit,          name='creme_core__edit_hfilter'),
     url(r'^edit/(?P<hfilter_id>[\w-]+)[/]?$', header_filter.HeaderFilterEdition.as_view(),  name='creme_core__edit_hfilter'),
     url(r'^delete[/]?$',                      header_filter.delete,                         name='creme_core__delete_hfilter'),
     url(r'^get_for_ctype[/]?$',               header_filter.get_for_ctype,                  name='creme_core__hfilters'),
@@ -133,16 +115,12 @@ enumerable_patterns = [
 ]
 
 job_patterns = [
-    # url(r'^all[/]?$',             job.list_all,            name='creme_core__jobs'),
     url(r'^all[/]?$',             job.Jobs.as_view(),      name='creme_core__jobs'),
-    # url(r'^mine[/]?$',            job.list_mine,           name='creme_core__my_jobs'),
     url(r'^mine[/]?$',            job.MyJobs.as_view(),    name='creme_core__my_jobs'),
     url(r'^info[/]?$',            job.get_info,            name='creme_core__jobs_info'),
-    # url(r'^(?P<job_id>\d+)[/]?$', job.detailview, name='creme_core__job'),
     url(r'^(?P<job_id>\d+)[/]?$', job.JobDetail.as_view(), name='creme_core__job'),
 
     url(r'^(?P<job_id>\d+)/', include([
-        # url(r'^edit[/]?$',    job.edit,                       name='creme_core__edit_job'),
         url(r'^edit[/]?$',    job.JobEdition.as_view(),       name='creme_core__edit_job'),
         url(r'^delete[/]?$',  job.delete,                     name='creme_core__delete_job'),
         url(r'^enable[/]?$',  job.enable,                     name='creme_core__enable_job'),
@@ -175,7 +153,6 @@ creme_core_patterns = [
     url(r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)[/]?$', batch_process.get_ops,       name='creme_core__batch_process_ops'),
 
     # Search
-    # url(r'^search[/]?$',           search.search,       name='creme_core__search'),
     url(r'^search[/]?$', search.Search.as_view(), name='creme_core__search'),
     url(r'^search/', include([
         url(r'^light[/]?$',        search.light_search, name='creme_core__light_search'),
@@ -184,15 +161,12 @@ creme_core_patterns = [
 
     url(r'^quickforms/', include([
         url(r'^(?P<ct_id>\d+)/(?P<count>\d)[/]?$',   quick_forms.add,             name='creme_core__quick_forms'),
-        # url(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.add_from_widget, name='creme_core__quick_form'),
         url(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.QuickCreation.as_view(), name='creme_core__quick_form'),  # TODO: change the URL
     ])),
 ]
 
 urlpatterns = [
-    # url(r'^$',            index.home,    name='creme_core__home'),
     url(r'^$',            index.Home.as_view(),   name='creme_core__home'),
-    # url(r'^my_page[/]?$', index.my_page, name='creme_core__my_page'),
     url(r'^my_page[/]?$', index.MyPage.as_view(), name='creme_core__my_page'),
 
     # TODO: To be replaced

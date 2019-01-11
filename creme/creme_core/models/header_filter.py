@@ -39,7 +39,6 @@ class HeaderFilterList(list):
     Indeed, it's a cache.
     """
     def __init__(self, content_type, user):
-        # super(HeaderFilterList, self).__init__(HeaderFilter.get_for_user(user, content_type))
         super().__init__(HeaderFilter.get_for_user(user, content_type))
         self._selected = None
 
@@ -70,7 +69,7 @@ class HeaderFilter(Model):  # CremeModel ???
     """
     id          = CharField(primary_key=True, max_length=100, editable=False)
     name        = CharField(_('Name of the view'), max_length=100)
-    user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True)
+    user        = CremeUserForeignKey(verbose_name=_('Owner user'), blank=True, null=True)
     entity_type = CTypeForeignKey(editable=False)
 
     # 'False' means: cannot be deleted (to be sure that a ContentType
@@ -78,12 +77,12 @@ class HeaderFilter(Model):  # CremeModel ???
     is_custom = BooleanField(blank=False, default=True, editable=False)
 
     # 'True' means: can only be viewed (and so edited/deleted) by its owner.
-    is_private = BooleanField(pgettext_lazy('creme_core-header_filter', u'Is private?'), default=False)
+    is_private = BooleanField(pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False)
 
     json_cells = TextField(editable=False, null=True)  # TODO: JSONField ? CellsField ?
 
-    creation_label = _(u'Create a view')
-    save_label     = _(u'Save the view')
+    creation_label = _('Create a view')
+    save_label     = _('Save the view')
 
     _cells = None
 
@@ -92,7 +91,6 @@ class HeaderFilter(Model):  # CremeModel ???
         ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
-        # super(HeaderFilter, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         # TODO: a true CellsField ??
         if self.json_cells is None:
@@ -103,7 +101,7 @@ class HeaderFilter(Model):  # CremeModel ???
 
     def can_delete(self, user):
         if not self.is_custom:
-            return (False, ugettext(u"This view can't be deleted"))
+            return (False, ugettext("This view can't be deleted"))
 
         return self.can_edit(user)
 
@@ -119,7 +117,7 @@ class HeaderFilter(Model):  # CremeModel ???
             return True, 'OK'
 
         if not user.has_perm(self.entity_type.app_label):
-            return False, ugettext(u"You are not allowed to access to this app")
+            return False, ugettext('You are not allowed to access to this app')
 
         if not self.user.is_team:
             if self.user_id == user.id:
@@ -127,7 +125,7 @@ class HeaderFilter(Model):  # CremeModel ???
         elif user.id in self.user.teammates:
             return True, 'OK'
 
-        return False, ugettext(u"You are not allowed to edit/delete this view")
+        return False, ugettext('You are not allowed to edit/delete this view')
 
     def can_view(self, user, content_type=None):
         if content_type and content_type != self.entity_type:
@@ -138,7 +136,7 @@ class HeaderFilter(Model):  # CremeModel ???
     @staticmethod
     def create(pk, name, model, is_custom=False, user=None, is_private=False, cells_desc=()):
         """Creation helper ; useful for populate.py scripts.
-        @param cells_desc List of objects where each one can other:
+        @param cells_desc: List of objects where each one can other:
             - an instance of EntityCell (one of its child class of course).
             - a tuple (class, args)
               where 'class' is child class of EntityCell, & 'args' is a dict
@@ -240,7 +238,7 @@ class HeaderFilter(Model):  # CremeModel ???
     def populate_entities(self, entities, user):
         """Fill caches of CremeEntity objects, related to the columns that will
         be displayed with this HeaderFilter.
-        @param entities QuerySet on CremeEntity (or subclass).
+        @param entities: QuerySet on CremeEntity (or subclass).
         """
         cell_groups = defaultdict(list)
 

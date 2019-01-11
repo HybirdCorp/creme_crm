@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging  # warnings
+import logging
 
 from django.conf import settings
 from django.template import Library, TemplateSyntaxError, Node as TemplateNode
@@ -69,7 +69,6 @@ class IconNode(TemplateNode):
 
 class NamedIconNode(IconNode):
     def __init__(self, name_var, **kwargs):
-        # super(NamedIconNode, self).__init__(**kwargs)
         super().__init__(**kwargs)
         self.name_var = name_var
 
@@ -79,7 +78,6 @@ class NamedIconNode(IconNode):
 
 class ContentTypeIconNode(IconNode):
     def __init__(self, ctype_var, **kwargs):
-        # super(ContentTypeIconNode, self).__init__(**kwargs)
         super().__init__(**kwargs)
         self.ctype_var = ctype_var
 
@@ -98,7 +96,6 @@ class ContentTypeIconNode(IconNode):
 
 class InstanceIconNode(IconNode):
     def __init__(self, instance_var, **kwargs):
-        # super(InstanceIconNode, self).__init__(**kwargs)
         super().__init__(**kwargs)
         self.instance_var = instance_var
 
@@ -221,17 +218,6 @@ class IconRendererNode(TemplateNode):
 
 
 # WIDGET ICON [END] ------------------------------------------------------------
-
-
-# @register.inclusion_tag('creme_core/templatetags/widgets/entity_actions.html', takes_context=True)
-# def get_entity_actions(context, entity):
-#     user = context['user']
-#
-#     context['id'] = entity.id  # todo: new context VS object.id
-#     context['actions'] = entity.get_actions(user)
-#
-#     return context
-
 
 @register.simple_tag
 def widget_hyperlink(instance):

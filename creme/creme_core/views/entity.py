@@ -21,7 +21,6 @@
 from collections import defaultdict
 from json import dumps as json_dumps
 import logging
-# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
@@ -41,7 +40,6 @@ from ..core.paginator import FlowPaginator
 from ..forms import CremeEntityForm
 from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
-# from ..gui.bulk_update import bulk_update_registry, FieldNotAllowed
 from ..gui import bulk_update  # NB: do no import <bulk_update_registry> to facilitate unit testing
 from ..models import CremeEntity, EntityCredentials, FieldsConfig, Sandbox
 from ..models.fields import UnsafeHTMLField
@@ -53,7 +51,7 @@ from ..utils.meta import ModelFieldEnumerator
 
 from . import generic
 from .decorators import jsonify, POST_only
-from .generic import base, listview  # inner_popup
+from .generic import base, listview
 from .utils import build_cancel_path
 
 
@@ -218,35 +216,6 @@ def _bulk_has_perm(entity, user):  # NB: indeed 'entity' can be a simple model..
     return user.has_perm_to_change(owner) if isinstance(owner, CremeEntity) else False
 
 
-# @login_required
-# def inner_edit_field(request, ct_id, id, field_name):
-#     user = request.user
-#     model = get_ct_or_404(ct_id).model_class()
-#     instance = get_object_or_404(model, pk=id)
-#
-#     if not _bulk_has_perm(instance, user):
-#         raise PermissionDenied(_('You are not allowed to edit this entity'))
-#
-#     try:
-#         form_class = bulk_update.bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
-#
-#         if request.method == 'POST':
-#             form = form_class(entities=[instance], user=user, data=request.POST)  # todo: rename 'entities' arg
-#
-#             if form.is_valid():
-#                 form.save()
-#         else:
-#             form = form_class(entities=[instance], user=user)
-#     except (FieldDoesNotExist, bulk_update.FieldNotAllowed):
-#         return HttpResponseBadRequest(_('The field «{}» does not exist or cannot be edited').format(field_name))
-#
-#     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-#                        {'form':  form,
-#                         'title': _('Edit «{object}»').format(object=instance),
-#                        },
-#                        is_valid=form.is_valid(),
-#                        reload=False, delegate_reload=True,
-#                       )
 class InnerEdition(base.ContentTypeRelatedMixin, generic.CremeModelEditionPopup):
     # model = ...
     # form_class = ...
@@ -285,101 +254,6 @@ class InnerEdition(base.ContentTypeRelatedMixin, generic.CremeModelEditionPopup)
         return self.get_ctype().model_class()._default_manager.all()
 
 
-# @login_required
-# def bulk_update_field(request, ct_id, field_name=None):
-#     user = request.user
-#     model = get_ct_or_404(ct_id).model_class()
-#
-#     if not issubclass(model, CremeEntity):  # todo: auxiliary too ? (see inner_edit_field())
-#         raise Http404('The model must be a CremeEntity')
-#
-#     if field_name is None:
-#         field_name = bulk_update.bulk_update_registry.get_default_field(model).name
-#
-#     try:
-#         form_class = bulk_update.bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
-#     except (FieldDoesNotExist, bulk_update.FieldNotAllowed):
-#         return HttpResponseBadRequest(ugettext('The field «{}» does not exist or cannot be edited').format(field_name))
-#
-#     meta = model._meta
-#
-#     if request.method == 'POST':
-#         entity_ids = request.POST.getlist('entities', [])
-#         entities = model.objects.filter(pk__in=entity_ids)
-#         filtered = EntityCredentials.filter(user, entities, perm=EntityCredentials.CHANGE)
-#
-#         if not filtered:
-#             raise PermissionDenied(ugettext('You are not allowed to edit these entities'))
-#
-#         form = form_class(entities=filtered, user=user, data=request.POST, is_bulk=True)
-#
-#         if form.is_valid():
-#             form.save()
-#             initial_count = len(entity_ids)
-#             success_count = len(form.bulk_cleaned_entities)
-#             invalid_count = len(form.bulk_invalid_entities)
-#             forbidden_count = initial_count - success_count - invalid_count
-#
-#             context = {'model': get_model_verbose_name(model, success_count),
-#                        'success': success_count,
-#                        'initial': initial_count,
-#                        'invalid': invalid_count,
-#                        'forbidden': forbidden_count,
-#                       }
-#
-#             # todo: modification_label/bulk_label/... in model instead (fr: masculin/féminin)
-#             if initial_count == success_count:
-#                 summary = ungettext('{success} «{model}» has been successfully modified.',
-#                                     '{success} «{model}» have been successfully modified.',
-#                                     success_count
-#                                    )
-#             else:
-#                 summary = ungettext('{success} of {initial} «{model}» has been successfully modified.',
-#                                     '{success} of {initial} «{model}» have been successfully modified.',
-#                                     success_count
-#                                    )
-#
-#                 if forbidden_count:
-#                     summary += ' ' + ungettext('{forbidden} was not editable.',
-#                                                '{forbidden} were not editable.',
-#                                                forbidden_count
-#                                               )
-#
-#                 if invalid_count:
-#                     summary += ' ' + ungettext('{invalid} has returned an error.',
-#                                                '{invalid} have returned an error.',
-#                                                invalid_count
-#                                               )
-#
-#             return render(request, 'creme_core/frags/bulk_process_report.html',
-#                           {'form':  form,
-#                            'title': _('Multiple update'),
-#                            'summary': summary.format(**context),
-#                           },
-#                          )
-#     else:
-#         form = form_class(entities=(), user=user, is_bulk=True)
-#
-#     # todo: select_label in model instead (fr: masculin/féminin)
-#     # help_message = u'<span class="bulk-selection-summary" data-msg="%s" data-msg-plural="%s"></span>' % (
-#     #                      _(u'%%s «%s» has been selected.') % meta.verbose_name,
-#     #                      _(u'%%s «%s» have been selected.') % meta.verbose_name_plural,
-#     #                 )
-#     help_message = format_html(
-#         '<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}"></span>',
-#         msg=ugettext('%s «{model}» has been selected.').format(model=meta.verbose_name),
-#         plural=ugettext('%s «{model}» have been selected.').format(model=meta.verbose_name_plural),
-#     )
-#
-#     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-#                        {'form':  form,
-#                         'title': _('Multiple update'),
-#                         # 'help_message': mark_safe(help_message),
-#                         'help_message': help_message,
-#                        },
-#                        is_valid=form.is_valid(),
-#                        reload=False, delegate_reload=True,
-#                       )
 # TODO: factorise with InnerEdition
 class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
     # model = ...
@@ -625,11 +499,6 @@ def merge(request):
                  )
 
 
-# @login_required
-# def trash(request):
-#     return render(request, 'creme_core/trash.html',
-#                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
-#                  )
 class Trash(generic.BricksView):
     template_name = 'creme_core/trash.html'
 
@@ -704,8 +573,6 @@ def empty_trash(request):
 @POST_only
 @atomic
 def restore_entity(request, entity_id):
-    # entity = get_object_or_404(CremeEntity.objects.filter(is_deleted=True), pk=entity_id) \
-    #                                               .get_real_entity()
     entity = get_object_or_404(CremeEntity.objects.select_for_update(),
                                pk=entity_id, is_deleted=True,
                               ).get_real_entity()
@@ -794,7 +661,6 @@ def delete_entities(request):
     logger.debug('delete_entities() -> ids: %s ', entity_ids)
 
     user     = request.user
-    # entities = list(CremeEntity.objects.filter(pk__in=entity_ids))
     entities = list(CremeEntity.objects.select_for_update().filter(pk__in=entity_ids))
     errors   = defaultdict(list)
 
@@ -832,14 +698,12 @@ def delete_entities(request):
 @POST_only
 @atomic
 def delete_entity(request, entity_id):
-    # entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     entity = get_object_or_404(CremeEntity.objects.select_for_update(),
                                pk=entity_id,
                               ).get_real_entity()
     error = _delete_entity(request.user, entity)
 
     if error:
-        # code, msg, args = error if len(error) == 3 else error + ({},)
         code, msg, *args = error
 
         if code == 404: raise Http404(msg)
@@ -890,7 +754,6 @@ def delete_related_to_entity(request, ct_id):
 def restrict_to_superusers(request):
     POST = request.POST
     set_sandbox = get_from_POST_or_404(POST, 'set', cast=bool_from_str_extended, default='1')
-    # entity = get_object_or_404(CremeEntity, id=get_from_POST_or_404(POST, 'id', cast=int))
     entity = get_object_or_404(
         CremeEntity.objects.select_for_update(),
         id=get_from_POST_or_404(POST, 'id', cast=int),

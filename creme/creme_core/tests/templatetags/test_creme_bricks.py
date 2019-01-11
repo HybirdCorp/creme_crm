@@ -19,7 +19,6 @@ except Exception as e:
 
 class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def setUp(self):
-        # super(CremeTestCase, self).setUp()
         super().setUp()
         self.factory = RequestFactory()
 
@@ -39,7 +38,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
 
         class FooBrick(Brick):
             id_          = Brick.generate_id('creme_core', name)
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
 
             def detailview_display(self, context):
                 return brick_str
@@ -80,7 +79,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
 
         class _FooBrick(Brick):
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
             brick_str = 'OVERLOAD ME'
 
             def detailview_display(self, context):
@@ -96,7 +95,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
 
         class FooBrick3(_FooBrick):
             id_ = _FooBrick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01_03')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
             brick_str = '<div>FOOBARBAZ #3</div>'
 
         context = RequestContext(self._build_request(),
@@ -141,7 +140,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
 
         class FooBrick(Brick):
             id_ = Brick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_end')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
             brick_str = '<div>FOO</div>'
 
             def detailview_display(self, context):

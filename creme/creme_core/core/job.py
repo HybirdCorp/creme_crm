@@ -65,7 +65,6 @@ class _JobTypeRegistry:
         job_type.execute(job)
 
     def get(self, job_type_id):
-        # return self._job_types.get(job_type_id)
         try:
             return self._job_types[job_type_id]
         except KeyError:
@@ -207,7 +206,6 @@ if settings.TESTS_ON:
 else:
     from functools import wraps
     from json import dumps as json_dump, loads as json_load
-    # import sys
     import traceback
     from time import sleep
 
@@ -294,7 +292,6 @@ else:
             if result is not None:  # None == timeout
                 # NB: result == (self.JOBS_KEY, command)
                 try:
-                    # cmd_type, data = result[1].split('-', 1)
                     cmd_type, data = result[1].decode().split('-', 1)
                     cmd = COMMANDS[cmd_type](data)
                 except Exception:
@@ -415,7 +412,6 @@ class JobManager:
                 users_jobs.appendleft(job)
             else:  # System jobs
                 if jtype.periodic != JobType.NOT_PERIODIC:
-                    # heappush(system_jobs, (self._next_wakeup(job, now_value), job))
                     heappush(system_jobs, (self._next_wakeup(job, now_value), job.id, job))
                 else:
                     logger.warning('JobManager: job "%s" is a system job and should be'
@@ -501,7 +497,6 @@ class JobManager:
                                       )
                     else:
                         if job.enabled:  # Job may have been disabled during its execution
-                            # heappush(self._system_jobs, (self._next_wakeup(job, reference_run), job))
                             heappush(self._system_jobs, (self._next_wakeup(job, reference_run), job.id, job))
 
             self._end_job(job)
@@ -526,7 +521,6 @@ class JobManager:
         job = None
 
         # Retrieve/remove the job from the heap
-        # for i, (__, old_job) in enumerate(system_jobs):
         for i, (__, ___, old_job) in enumerate(system_jobs):
             if old_job.id == job_id:
                 job = old_job
@@ -564,7 +558,6 @@ class JobManager:
             secure_wakeup = now() + timedelta(seconds=30)
             next_wakeup = min(next_wakeup, secure_wakeup)
 
-        # heappush(system_jobs, (next_wakeup, job))
         heappush(system_jobs, (next_wakeup, job.id, job))
         logger.warning('JobManager.handle_command_refresh() -> REFRESH job "%s": next wake up at %s',
                        repr(job), date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
@@ -578,7 +571,6 @@ class JobManager:
         except Job.DoesNotExist:
             logger.warning('JobManager.handle_command_start() -> not yet existing jod ID: %s', job_id)
             def_job = self._DeferredJob(job_id=job_id)
-            # heappush(self._system_jobs, (def_job.next_wakeup(now()), def_job))
             heappush(self._system_jobs, (def_job.next_wakeup(now()), job_id, def_job))
         else:
             self._push_user_job(job)
@@ -654,7 +646,6 @@ class JobManager:
                                                ' its trials (we forget it): %s', job.job_id,
                                               )
                             else:
-                                # heappush(system_jobs, (job.next_wakeup(now_value), job))
                                 heappush(system_jobs, (job.next_wakeup(now_value), job.id, job))
                                 logger.warning('JobManager: deferred job still does not exist: %s', job.job_id)
                         else:

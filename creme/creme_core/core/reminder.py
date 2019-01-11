@@ -43,11 +43,9 @@ class Reminder:
 
     @staticmethod
     def generate_id(app_name, name):
-        return u'reminder_{}-{}'.format(app_name, name)
+        return 'reminder_{}-{}'.format(app_name, name)
 
     def get_emails(self, object):
-        # return [getattr(settings, 'DEFAULT_USER_EMAIL', None)]
-
         adddresses = []
         default_addr = getattr(settings, 'DEFAULT_USER_EMAIL', None)
 
@@ -85,10 +83,10 @@ class Reminder:
         except Exception as e:
             logger.critical('Error while sending reminder emails (%s)', e)
             JobResult.objects.create(job=job,
-                                     messages=[_(u'An error occurred while sending emails related to «{model}»').format(
+                                     messages=[_('An error occurred while sending emails related to «{model}»').format(
                                                         model=self.model._meta.verbose_name,
                                                     ),
-                                               _(u'Original error: {}').format(e),
+                                               _('Original error: {}').format(e),
                                               ],
                                     )
 
@@ -137,31 +135,19 @@ class ReminderRegistry:
         """Register a class of Reminder.
         @type reminder: Class "inheriting" creme_core.core.reminder.Reminder.
         """
-        # if isinstance(reminder, Reminder):
-        #     warnings.warn('ReminderRegistry.register(): registering an instance is deprecated; '
-        #                   'register a class instead.',
-        #                   DeprecationWarning
-        #                  )
-        # else:
-        #     reminder = reminder()
-
         reminders = self._reminders
         reminder_id = reminder.id
 
         if reminder_id in reminders:
-            # logger.warning("Duplicate reminder's id or reminder registered twice : %s", reminder_id)
             raise self.RegistrationError("Duplicated reminder's id or reminder registered twice: {}".format(reminder_id))
 
-        # reminders[reminder_id] = reminder
         reminders[reminder_id] = reminder()
 
     def unregister(self, reminder):
-        # self._reminders.pop(reminder.id, None)
         if self._reminders.pop(reminder.id, None) is None:
             raise self.RegistrationError('No reminder is registered with this ID : {}'.format(reminder.id))
 
     def __iter__(self):
-        # return self._reminders.iteritems()
         return iter(self._reminders.values())
 
     def itervalues(self):

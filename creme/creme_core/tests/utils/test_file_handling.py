@@ -21,7 +21,6 @@ class FileHandlingTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(FileHandlingTestCase, cls).setUpClass()
         super().setUpClass()
 
         utils_dir_path = join(settings.MEDIA_ROOT,

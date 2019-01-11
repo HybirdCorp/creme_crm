@@ -33,7 +33,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        # super(JobViewsTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.queue = queue = JobManagerQueue.get_main_queue()
@@ -191,7 +190,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         url = job.get_edit_absolute_url()
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -229,7 +227,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                          queue.refreshed_jobs
                         )
 
-    # @skipIfNotInstalled('creme.crudity')
     def test_editview04(self):
         "Periodic: edit reference_run"
         queue = JobManagerQueue.get_main_queue()

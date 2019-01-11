@@ -3,9 +3,7 @@
 try:
     from decimal import Decimal
     from functools import partial
-    # from os.path import exists
 
-    # from django.core.files.base import ContentFile
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.deletion import ProtectedError
     from django.utils.timezone import now
@@ -144,7 +142,7 @@ class EntityTestCase(CremeTestCase):
         created = modified = now()
         entity1 = CremeEntity.objects.create(user=user)
         original_ce = CremeEntity.objects.create(created=created, modified=modified,
-                                                 is_deleted=False, user=user,  # is_actived=True
+                                                 is_deleted=False, user=user,
                                                 )
 
         create_rel = partial(Relation.objects.create, user=user,
@@ -261,7 +259,6 @@ class EntityTestCase(CremeTestCase):
     def test_clone04(self):
         "ManyToMany"
         image1 = FakeImage.objects.create(user=self.user, name='Konoha by night')
-        # image1.categories = categories = list(FakeImageCategory.objects.all())
         categories = list(FakeImageCategory.objects.all())
         self.assertTrue(categories)
         image1.categories.set(categories)
@@ -309,31 +306,10 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(ProtectedError, ce1.delete)
         self.assertRaises(ProtectedError, ce2.delete)
 
-    # def test_functionfields(self):
-    #     with self.assertNoException():
-    #         ff_mngr = CremeEntity.function_fields
-    #         all_ff = list(ff_mngr)
-    #
-    #     for funf in all_ff:
-    #         self.assertIsInstance(funf, FunctionField)
-    #
-    #         if funf.name == 'get_pretty_properties':
-    #             pp_ff = funf
-    #             break
-    #     else:
-    #         self.fail('No "get_pretty_properties" function field found')
-    #
-    #     self.assertEqual(_('Properties'), str(pp_ff.verbose_name))
-    #     self.assertTrue(pp_ff.has_filter)
-    #     self.assertFalse(pp_ff.is_hidden)
-    #     self.assertIsNone(pp_ff.choices)
-
-    # def test_prettypropertiesfield01(self):
     def test_properties_functionfield01(self):
         user = self.user
         entity = CremeEntity.objects.create(user=user)
 
-        # pp_ff = CremeEntity.function_fields.get('get_pretty_properties')
         pp_ff = function_field_registry.get(CremeEntity, 'get_pretty_properties')
         self.assertIsNotNone(pp_ff)
         self.assertIsInstance(pp_ff, FunctionField)

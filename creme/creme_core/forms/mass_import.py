@@ -77,7 +77,6 @@ def get_header(filedata, has_header):
 
     if has_header:
         try:
-            # filedata.open()
             filedata.open(mode='r')  # TODO: 'mode' given by backend ?
             header = next(backend(filedata))
         except Exception as e:
@@ -118,7 +117,6 @@ class UploadForm(CremeForm):
         return self._header
 
     def clean(self):
-        # cdata = super(UploadForm, self).clean()
         cdata = super().clean()
 
         if not self._errors:
@@ -203,7 +201,6 @@ class Extractor:
 
 class BaseExtractorWidget(Widget):
     def __init__(self, *args, **kwargs):
-        # super(BaseExtractorWidget, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.column_select = Select()
 
@@ -220,7 +217,6 @@ class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldE
     template_name = 'creme_core/forms/widgets/mass-import/extractor.html'
 
     def __init__(self, *args, **kwargs):
-        # super(ExtractorWidget, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.default_value_widget = None
         self.subfield_select = None  # TODO: rename 'subfield_choices'
@@ -228,7 +224,6 @@ class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldE
 
     def get_context(self, name, value, attrs):
         value = value or {}
-        # context = super(ExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
 
@@ -288,7 +283,6 @@ class ExtractorField(Field):
 
     # TODO: default values + properties which update widget
     def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
-        # super(ExtractorField, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.required = modelform_field.required
         modelform_field.required = False
@@ -459,7 +453,6 @@ class EntityExtractorWidget(BaseExtractorWidget):
     template_name = 'creme_core/forms/widgets/mass-import/entity-extractor.html'
 
     def __init__(self, models_info=(), *args, **kwargs):
-        # super(EntityExtractorWidget, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         # self.propose_creation = False # TODO
         self.models_info = models_info
@@ -474,7 +467,6 @@ class EntityExtractorWidget(BaseExtractorWidget):
         return '{0}_{1}_{2}_create'.format(name, *model_id)
 
     def get_context(self, name, value, attrs):
-        # context = super(EntityExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         def build_selected_value(cmd):
@@ -692,9 +684,6 @@ class RelationExtractorSelector(SelectorList):
            )
         add('column', options=self.columns, label=ugettext('equals to'))
 
-        # context = super(RelationExtractorSelector, self).get_context(name=name, attrs=attrs,
-        #                                                              value=value.get('selectorlist'),
-        #                                                             )
         context = super().get_context(name=name, attrs=attrs, value=value.get('selectorlist'))
         context['widget']['can_create_checked'] = value.get('can_create', False)
 
@@ -702,8 +691,6 @@ class RelationExtractorSelector(SelectorList):
 
     def value_from_datadict(self, data, files, name):
         return {
-            # 'selectorlist': super(RelationExtractorSelector, self)
-            #                      .value_from_datadict(data=data, files=files, name=name),
             'selectorlist': super().value_from_datadict(data=data, files=files, name=name),
             'can_create':   data.get('{}_can_create'.format(name), False),
         }
@@ -717,7 +704,6 @@ class RelationExtractorField(MultiRelationEntityField):
     }
 
     def __init__(self, columns=(), *args, **kwargs):
-        # super(RelationExtractorField, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.columns = columns
 
@@ -873,7 +859,6 @@ class CustomFieldExtractorWidget(ExtractorWidget):
 
     def get_context(self, name, value, attrs):
         value = value or {}
-        # context = super(CustomFieldExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
         context = super().get_context(name=name, value=value, attrs=attrs)
         context['widget']['can_create'] = value.get('can_create', False)
 
@@ -892,7 +877,6 @@ class CustomFieldExtractorWidget(ExtractorWidget):
 # TODO: factorise
 class CustomfieldExtractorField(Field):
     def __init__(self, choices, custom_field, user, *args, **kwargs):
-        # super(CustomfieldExtractorField, self).__init__(widget=CustomFieldExtractorWidget,
         super().__init__(widget=CustomFieldExtractorWidget,
                          label=custom_field.name,
                          *args, **kwargs
@@ -982,7 +966,6 @@ class ImportForm(CremeModelForm):
        )
 
     def __init__(self, *args, **kwargs):
-        # super(ImportForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.import_errors = []
 
@@ -1061,19 +1044,16 @@ class ImportForm(CremeModelForm):
         if error_msg:
             raise self.Error(error_msg)
 
-        # filedata.open()
-        # TODO: mode depedns on the backend ?
+        # TODO: mode depends on the backend ?
         # TODO: use "with"
         filedata.open(mode='r')
 
         lines = backend(filedata)
         if get_cleaned('has_header'):
-            # lines.next()
             next(lines)
 
         # Resuming
         for i in range(MassImportJobResult.objects.filter(job=job).count()):
-            # lines.next()
             next(lines)
 
         append_error = self.append_error
@@ -1109,7 +1089,6 @@ class ImportForm(CremeModelForm):
 
                         if found:
                             if len(found) == 1:
-                                # instance = found[0]
                                 try:
                                     instance = model_class.objects.select_for_update().get(pk=found[0].pk)
                                 except model_class.DoesNotExist:
@@ -1192,7 +1171,6 @@ class ImportForm4CremeEntity(ImportForm):
                          )
 
     def __init__(self, *args, **kwargs):
-        # super(ImportForm4CremeEntity, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         user = self.user
         fields = self.fields
@@ -1214,7 +1192,6 @@ class ImportForm4CremeEntity(ImportForm):
         self.cfields = cfields = CustomField.objects.filter(content_type=ct)
         get_col = self.header_dict.get
         for cfield in cfields:
-            # fields[_CUSTOM_NAME % cfield.id] = CustomfieldExtractorField(
             fields[_CUSTOM_NAME.format(cfield.id)] = CustomfieldExtractorField(
                                                     self.choices, cfield, user=user,
                                                     initial={'selected_column': get_col(slugify(cfield.name), 0)},
@@ -1248,7 +1225,6 @@ class ImportForm4CremeEntity(ImportForm):
         # Custom Fields -------
         for cfield in self.cfields:
             try:
-                # value, err_msg = cdata[_CUSTOM_NAME % cfield.id].extract_value(line)
                 value, err_msg = cdata[_CUSTOM_NAME.format(cfield.id)].extract_value(line)
             except ValidationError as e:
                 self.append_error(e.messages[0])
@@ -1269,30 +1245,6 @@ class ImportForm4CremeEntity(ImportForm):
             create_prop(type=prop_type)
 
         # Relationships -----
-        # # create_relation = partial(Relation.objects.create, user=user, subject_entity=instance) \
-        # #                   if not updated else \
-        # #                   partial(Relation.objects.get_or_create, subject_entity=instance,
-        # #                           defaults={'user': user},
-        # #                          )
-        # create_relation = partial(Relation.objects.get_or_create,
-        #                           subject_entity=instance,
-        #                           defaults={'user': user},
-        #                          )
-        #
-        # for rtype, entity in cdata['fixed_relations']:
-        #     try:
-        #         create_relation(type=rtype, object_entity=entity)
-        #     except Relation.MultipleObjectsReturned:
-        #         pass
-        #
-        # for (rtype, entity), err_msg in cdata['dyn_relations'].extract_value(line, user):
-        #     if err_msg:
-        #         self.append_error(err_msg)
-        #     elif entity is not None:
-        #         try:
-        #             create_relation(type=rtype, object_entity=entity)
-        #         except Relation.MultipleObjectsReturned:
-        #             pass
         relations = [
             Relation(subject_entity=instance,
                      type=rtype,

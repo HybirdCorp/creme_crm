@@ -497,7 +497,6 @@ CSS_DATE_HEADER_LISTVIEW = 'hd_date_cl_lv'
 # TODO: create a static/css/creme-minimal.css for login/logout ??
 CREME_CORE_CSS = ['main.css',
                     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.11.4.custom.css',
-                    # 'creme_core/css/fg-menu-3.0/fg.menu.css',  TODO: remove the file
                     'creme_core/css/jqplot-1.0.8/jquery.jqplot.css',
                     'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
                     'creme_core/css/chosen/chosen-0.9.15-unchosen.css',
@@ -511,11 +510,9 @@ CREME_CORE_CSS = ['main.css',
                     'creme_core/css/bricks.css',
                     'creme_core/css/home.css',
                     'creme_core/css/my_page.css',
-                    # 'creme_core/css/portal.css',  # TODO: remove the file
                     'creme_core/css/list_view.css',
                     'creme_core/css/detail_view.css',
                     'creme_core/css/search_results.css',
-                    # 'creme_core/css/navit.css',  # TODO: remove the file
                     'creme_core/css/popover.css',
 
                     'creme_config/css/creme_config.css',
@@ -572,12 +569,9 @@ CREME_LIB_JS = ['lib.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.highlighter.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.cursor.js',
                     'creme_core/js/jquery/extensions/cookie.js',
-                    # 'creme_core/js/jquery/extensions/fg-menu-3.0/fg.menu.js',  # TODO: remove the file
-                    # 'creme_core/js/jquery/extensions/fg-menu-3.0/jquery.hotkeys-0.8.js',  # TODO: remove the file
                     'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
                     'creme_core/js/jquery/extensions/json-2.2.js',
                     'creme_core/js/jquery/extensions/highlight.js',
-                    # 'creme_core/js/jquery/extensions/magnifier.js',  # TODO: remove the file
                     'creme_core/js/jquery/extensions/utils.js',
                     'creme_core/js/jquery/extensions/wait.js',
                     'creme_core/js/jquery/extensions/jquery.dragtable.js',
@@ -588,7 +582,6 @@ CREME_LIB_JS = ['lib.js',
                     'creme_core/js/jquery/extensions/jquery.bind-first.js',
                     'creme_core/js/jquery/extensions/jquery.floatthead-1.3.1._.js',
                     'creme_core/js/jquery/extensions/jquery.floatthead-1.3.1.js',
-                    # 'creme_core/js/lib/jquery.navIt.0.0.6.js',  # TODO: remove the file
                 ]
 
 CREME_CORE_JS = ['main.js',

@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json import dumps as json_dump # loads as load_json
+    from json import dumps as json_dump
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
@@ -31,16 +31,12 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         string_format_detail = '<div id={}>DETAIL</div>'.format
         string_format_home   = '<div id={}>HOME</div>'.format
-        # string_format_portal = '<div id=%s>PORTAL</div>'
 
         def detailview_display(self, context):
             return self.string_format_detail(self.id_)
 
         def home_display(self, context):
             return self.string_format_home(self.id_)
-
-        # def portal_display(self, context, ct_ids):
-        #     return self.string_format_portal % self.id_
 
     def test_set_state01(self):
         user = self.login()
@@ -112,7 +108,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             template_name = 'persons/bricks/itdoesnotexist.html'
 
             def __init__(self, instance_block_config_item):
-                # super(ContactBrick, self).__init__()
                 super().__init__()
                 self.ibci = instance_block_config_item
 
@@ -154,12 +149,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('creme_core__reload_bricks'),
                                      data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id']},
                                     )
-        # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_detail(FoobarBrick1.id_)],
                           [FoobarBrick2.id_, self.TestBrick.string_format_detail(FoobarBrick2.id_)],
                          ],
-                         # load_json(response.content)
                          response.json()
                         )
 
@@ -188,7 +181,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(reverse('creme_core__reload_bricks'), data={'brick_id': FoobarBrick1.id_})
         self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_detail(FoobarBrick1.id_)]],
-                         # load_json(response.content)
                          response.json()
                         )
 
@@ -216,7 +208,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           },
                                     )
         self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
-                         # load_json(response.content)
                          response.json()
                         )
 
@@ -241,7 +232,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                 except Exception as e:
                     error = e
 
-                # return super(FoobarBrick, self).detailview_display(context)
                 return super().detailview_display(context)
 
         brick_registry.register(FoobarBrick)
@@ -265,7 +255,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
             def detailview_display(self, context):
                 FoobarBrick.contact = context.get('object')
-                # return super(FoobarBrick, self).detailview_display(context)
                 return super().detailview_display(context)
 
         brick_registry.register(FoobarBrick)
@@ -273,10 +262,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
                                      data={'brick_id': FoobarBrick.id_},
                                     )
-        # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
-                         # load_json(response.content)
                          response.json()
                         )
         self.assertEqual(atom, FoobarBrick.contact)
@@ -292,7 +279,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
             def detailview_display(self, context):
                 FoobarBrick1.contact = context.get('object')
-                # return super(FoobarBrick1, self).detailview_display(context)
                 return super().detailview_display(context)
 
         class FoobarBrick2(self.TestBrick):
@@ -301,7 +287,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
             def detailview_display(self, context):
                 FoobarBrick2.contact = context.get('object')
-                # return super(FoobarBrick2, self).detailview_display(context)
                 return super().detailview_display(context)
 
         class FoobarBrick3(self.TestBrick):
@@ -310,7 +295,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
             def detailview_display(self, context):
                 FoobarBrick3.contact = context.get('object')
-                # return super(FoobarBrick3, self).detailview_display(context)
                 return super().detailview_display(context)
 
         brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
@@ -324,7 +308,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                           [FoobarBrick2.id_, fmt(FoobarBrick2.id_)],
                           [FoobarBrick3.id_, fmt(FoobarBrick3.id_)],
                          ],
-                         # load_json(response.content)
                          response.json()
                         )
         self.assertEqual(atom, FoobarBrick1.contact)
@@ -363,7 +346,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                      data={'brick_id': FoobarBrick.id_},
                                     )
         self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
-                         # load_json(response.content)
                          response.json()
                         )
 
@@ -377,9 +359,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                             ),
                                      data={'brick_id': 'test_bricks_reload_detailview05'},
                                     )
-        # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
-        # self.assertEqual([], load_json(response.content))
         self.assertEqual([], response.json())
 
     def test_reload_detailview06(self):
@@ -404,7 +384,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           },
                                     )
         self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
-                         # load_json(response.content)
                          response.json()
                         )
 
@@ -423,97 +402,14 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_registry.register(FoobarBrick1, FoobarBrick2)
 
         response = self.assertGET200(reverse('creme_core__reload_home_bricks'),
-                                     # data={'brick_id': FoobarBrick1.id_,
-                                     #       'brick_deps': ','.join([FoobarBrick2.id_, 'silly_id'])
-                                     #      }
                                      data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id']},
                                     )
-        # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_home(FoobarBrick1.id_)],
                           [FoobarBrick2.id_, self.TestBrick.string_format_home(FoobarBrick2.id_)],
                          ],
-                         # load_json(response.content)
                          response.json()
                         )
-
-    # def test_reload_portal01(self):
-    #     self.login()
-    #
-    #     class FoobarBrick1(self.TestBrick):
-    #         id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal01_1')
-    #         ct_ids = None
-    #
-    #         def portal_display(self, context, ct_ids):
-    #             FoobarBrick1.ct_ids = ct_ids
-    #             return super(FoobarBrick1, self).portal_display(context, ct_ids)
-    #
-    #     class FoobarBrick2(self.TestBrick):
-    #         id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal01_2')
-    #         ct_ids = None
-    #
-    #         def portal_display(self, context, ct_ids):
-    #             FoobarBrick2.ct_ids = ct_ids
-    #             return super(FoobarBrick2, self).portal_display(context, ct_ids)
-    #
-    #     brick_registry.register(FoobarBrick1, FoobarBrick2)
-    #
-    #     get_ct = ContentType.objects.get_for_model
-    #     ct_id1 = get_ct(FakeContact).id
-    #     ct_id2 = get_ct(FakeOrganisation).id
-    #
-    #     response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
-    #                                  data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id'],
-    #                                        'ct_id':    [ct_id1, ct_id2],
-    #                                        },
-    #                                 )
-    #     # self.assertEqual('text/javascript', response['Content-Type'])
-    #     self.assertEqual('application/json', response['Content-Type'])
-    #     self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_portal % FoobarBrick1.id_],
-    #                       [FoobarBrick2.id_, self.TestBrick.string_format_portal % FoobarBrick2.id_],
-    #                      ],
-    #                      # load_json(response.content)
-    #                      response.json()
-    #                     )
-    #
-    #     ct_ids = [str(ct_id1), str(ct_id2)]
-    #     self.assertEqual(ct_ids, FoobarBrick1.ct_ids)
-    #     self.assertEqual(ct_ids, FoobarBrick2.ct_ids)
-    #
-    # def test_reload_portal02(self):
-    #     "Do not have the credentials"
-    #     self.login(is_superuser=False, allowed_apps=['documents'])
-    #
-    #     class FoobarBrick1(self.TestBrick):
-    #         id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal02_1')
-    #
-    #     brick_registry.register(FoobarBrick1)
-    #
-    #     self.assertGET403(reverse('creme_core__reload_portal_bricks'),
-    #                       data={'brick_id': FoobarBrick1.id_,
-    #                             'ct_id': ContentType.objects.get_for_model(FakeContact).id,
-    #                            },
-    #                      )
-    #
-    # def test_reload_portal03(self):
-    #     "Not superuser"
-    #     model = FakeContact
-    #     self.login(is_superuser=False, allowed_apps=[model._meta.app_label])
-    #
-    #     class FoobarBlock1(self.TestBrick):
-    #         id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal03')
-    #
-    #     brick_registry.register(FoobarBlock1)
-    #
-    #     response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
-    #                                  data={'brick_id': FoobarBlock1.id_,
-    #                                        'ct_id': ContentType.objects.get_for_model(model).id,
-    #                                       },
-    #                                 )
-    #     self.assertEqual([[FoobarBlock1.id_, self.TestBrick.string_format_portal % FoobarBlock1.id_]],
-    #                      # load_json(response.content)
-    #                      response.json()
-    #                     )
 
     def test_relations_brick01(self):
         user = self.login()
@@ -598,7 +494,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           },
                                     )
 
-        # load_data = load_json(response.content)
         load_data = response.json()
         self.assertEqual(load_data[0][0], rbrick_id)
 
@@ -660,7 +555,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           },
                                     )
 
-        # load_data = load_json(response.content)
         load_data = response.json()
         self.assertEqual(load_data[0][0], rbrick_id)
 

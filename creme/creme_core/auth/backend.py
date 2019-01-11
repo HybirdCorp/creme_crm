@@ -38,9 +38,6 @@ class EntityBackend(ModelBackend):
             app_name, dot, action_name = perm.partition('.')
 
             if not action_name:
-                # if app_name == 'my_page':  # NB: for side menu
-                #     return True
-
                 return user_obj.has_perm_to_access(app_name)
 
             if action_name == 'can_admin':

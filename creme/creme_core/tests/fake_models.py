@@ -13,7 +13,6 @@ else:
     from django.urls import reverse
     from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
-    # from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
     from ..models import CremeModel, CremeEntity, Language, EntityFilter, fields as core_fields
 
     from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
@@ -321,7 +320,6 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            # return '/tests/contacts'
             return reverse('creme_core__list_fake_contacts')
 
 
@@ -336,18 +334,6 @@ else:
             verbose_name = 'Test legal form'
             verbose_name_plural = 'Test Legal forms'
             ordering = ('title',)
-
-
-    # class _GetFakeTodos(FunctionField):
-    #     name         = 'tests-get_fake_todos'
-    #     verbose_name = _('Fake Todos')
-    #     # has_filter   = False #==> cannot search
-    #     result_type  = FunctionFieldResultsList
-    #
-    #     def __call__(self, entity, user):
-    #         return FunctionFieldResultsList(FunctionFieldResult('Todo {} #{}'.format(entity, i))
-    #                                             for i in range(1, 3)
-    #                                        )
 
 
     class FakeOrganisation(CremeEntity):
@@ -381,8 +367,6 @@ else:
                                             blank=True, null=True, on_delete=models.SET_NULL,
                                             limit_choices_to=lambda: {'user__is_staff': False},
                                            )
-
-        # function_fields = CremeEntity.function_fields.new(_GetFakeTodos())
 
         search_score = 102
         creation_label = _('Create an organisation')

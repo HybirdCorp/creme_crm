@@ -4,7 +4,6 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
-    # from django.test import override_settings
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
@@ -27,7 +26,6 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        # super(SearchViewTestCase, cls).setUpClass()
         super().setUpClass()
         cls.contact_ct_id = ContentType.objects.get_for_model(FakeContact).id
 
@@ -38,7 +36,6 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @classmethod
     def tearDownClass(cls):
-        # super(SearchViewTestCase, cls).tearDownClass()
         super().tearDownClass()
 
         del QuerysetBrick.page_size
@@ -156,7 +153,6 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIn(_('Contact'), vnames)
         self.assertIn(_('Organisation'), vnames)
 
-    # @override_settings(OLD_MENU=False)
     def test_search04(self):
         "Error"
         self.login()
@@ -167,21 +163,6 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
                          self._search('ox').context['error_message']
                         )
         self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
-
-    # @override_settings(OLD_MENU=True)
-    # def test_search04_legacy(self):
-    #     "Error"
-    #     self.login()
-    #     self._setup_contacts()
-    #     self._setup_orgas()
-    #
-    #     self.assertEqual(_(u'Please enter at least %s characters') % 3,
-    #                      self._search('ox').context['error_message']
-    #                     )
-    #     self.assertEqual(_(u'Empty search…'),
-    #                      self._search().context['error_message']
-    #                     )
-    #     self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
 
     def test_search05(self):
         "No config for Contact"
@@ -321,15 +302,12 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         response = self._search('john', ContentType.objects.get_for_model(ContentType).id)
-        # self.assertEqual(404, response.status_code)
         self.assertEqual(409, response.status_code)
 
     def test_search13(self):
         "Empty page"
         self.login()
-        # self._setup_contacts()
 
-        # term = 'john'
         response = self._search(research='', ct_id='')
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, 'creme_core/search_results.html')
