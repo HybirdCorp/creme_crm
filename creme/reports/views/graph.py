@@ -171,7 +171,6 @@ def get_available_report_graph_types(request, ct_id):
 
 
 def cast_order(order):
-    # if order != 'ASC' and order != 'DESC':
     if order not in {'ASC', 'DESC'}:
         raise ValueError('Order must be in {"ASC", "DESC"}')
 
@@ -180,7 +179,6 @@ def cast_order(order):
 
 @jsonify
 # @permission_required('reports') ??
-# def fetch_graph(request, graph_id, order=None):
 def fetch_graph(request, graph_id):
     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
     x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(user=request.user, order=order)
@@ -203,8 +201,6 @@ def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):
     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
     instance_brick = get_object_or_404(InstanceBrickConfigItem, pk=instance_brick_id)
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-    # x, y = ReportGraph.get_fetcher_from_instance_block(instance_brick).fetch_4_entity(entity, order)
-    # x, y = ReportGraph.get_fetcher_from_instance_brick(instance_brick).fetch_4_entity(entity, order)
     x, y = ReportGraph.get_fetcher_from_instance_brick(instance_brick) \
                       .fetch_4_entity(entity=entity, order=order, user=request.user)
 

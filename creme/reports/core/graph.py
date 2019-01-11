@@ -19,22 +19,17 @@
 ################################################################################
 
 from datetime import timedelta, datetime
-# from json import dumps as json_encode
 import logging
 
-# from django.contrib.auth import get_user_model
-# from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.models import Min, Max, Count, FieldDoesNotExist, Q, ForeignKey
-from django.utils.translation import ugettext_lazy as _, ugettext  # pgettext_lazy
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.models import (CremeEntity, RelationType, Relation,
         CustomField, CustomFieldEnumValue)
-# from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.meta import FieldInfo
 from creme.creme_core.utils.queries import QSerializer
-# from creme.creme_core.utils.unicode_collation import collator
 
 from ..constants import *
 from ..report_aggregation_registry import field_aggregation_registry
@@ -72,7 +67,6 @@ class ListViewURLBuilder:
     def __call__(self, q_filter=None):
         fmt = self._fmt
 
-        # return fmt.format(json_encode(q_filter) if q_filter is not None else '') if fmt else None
         return fmt.format(QSerializer().dumps(Q(**q_filter)) if q_filter is not None else '') if fmt else None
 
 
@@ -154,7 +148,6 @@ class RGYCCount(ReportGraphYCalculator):
 
 class RGYCAggregation(ReportGraphYCalculator):
     def __init__(self, aggregation, aggregate_value):
-        # super(RGYCAggregation, self).__init__()
         super().__init__()
         self._aggregation = aggregation
         self._aggregate_value = aggregate_value
@@ -172,7 +165,6 @@ class RGYCAggregation(ReportGraphYCalculator):
 
 class RGYCField(RGYCAggregation):
     def __init__(self, field, aggregation):
-        # super(RGYCField, self).__init__(aggregation, aggregation.func(field.name))
         super().__init__(aggregation, aggregation.func(field.name))
         self._field = field
 
@@ -182,7 +174,6 @@ class RGYCField(RGYCAggregation):
 
 class RGYCCustomField(RGYCAggregation):
     def __init__(self, cfield, aggregation):
-        # super(RGYCCustomField, self).__init__(
         super().__init__(
             aggregation,
             aggregation.func('{}__value'.format(cfield.get_value_class().get_related_name())),
@@ -205,14 +196,11 @@ class ReportGraphHand:
         self.ordinate_error = y_calculator.error
 
     def _listview_url_builder(self):
-        # return ListViewURLBuilder(self._graph.model, self._graph.report.filter)
         return ListViewURLBuilder(self._graph.model, self._graph.linked_report.filter)
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         yield from ()
 
-    # def fetch(self, entities, order):
     def fetch(self, entities, order, user):
         """Returns the X & Y values.
         @param entities: Queryset of CremeEntities.
@@ -227,7 +215,6 @@ class ReportGraphHand:
             x_append = x_values.append
             y_append = y_values.append
 
-            # for x, y in self._fetch(entities, order):
             for x, y in self._fetch(entities, order, user):
                 x_append(x)
                 y_append(y)
@@ -265,7 +252,6 @@ class ReportGraphHand:
 
 class _RGHRegularField(ReportGraphHand):
     def __init__(self, graph):
-        # super(_RGHRegularField, self).__init__(graph)
         super().__init__(graph)
         model = graph.model
 
@@ -275,7 +261,6 @@ class _RGHRegularField(ReportGraphHand):
             field = None
             self.abscissa_error = _('the field does not exist any more.')
         else:
-            # if graph.report._fields_configs.get_4_model(model).is_field_hidden(field):
             if graph.linked_report._fields_configs.get_4_model(model).is_field_hidden(field):
                 self.abscissa_error = _('this field should be hidden.')
 
@@ -334,7 +319,6 @@ class _RGHRegularField(ReportGraphHand):
 class RGHDay(_RGHRegularField):
     verbose_name = _('By days')
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         abscissa = self._graph.abscissa
         year_key  = '{}__year'.format(abscissa)
@@ -355,7 +339,6 @@ class RGHDay(_RGHRegularField):
 class RGHMonth(_RGHRegularField):
     verbose_name = _('By months')
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         abscissa = self._graph.abscissa
         year_key  = '{}__year'.format(abscissa)
@@ -374,7 +357,6 @@ class RGHMonth(_RGHRegularField):
 class RGHYear(_RGHRegularField):
     verbose_name = _('By years')
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         abscissa = self._graph.abscissa
 
@@ -418,7 +400,6 @@ class RGHRange(_RGHRegularField):
     verbose_name = _('By X days')
 
     def __init__(self, graph):
-        # super(RGHRange, self).__init__(graph)
         super().__init__(graph)
 
         self._fetch_method = self._fetch_with_group_by
@@ -429,7 +410,6 @@ class RGHRange(_RGHRegularField):
                           )
             self._fetch_method = self._fetch_fallback
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         return self._fetch_method(entities, order)
 
@@ -527,31 +507,6 @@ class RGHForeignKey(_RGHRegularField):
 
         self._abscissa_enumerator = enumerator
 
-    # def _fetch(self, entities, order):
-    #     abscissa = self._graph.abscissa
-    #     build_url = self._listview_url_builder()
-    #     entities_filter = entities.filter
-    #     y_value_func = self._y_calculator
-    #
-    #     # # related_instances = list(entities.model._meta.get_field(abscissa).rel.to.objects.all())
-    #     # related_instances = list(entities.model._meta.get_field(abscissa).remote_field.model.objects.all())
-    #     related_model = entities.model._meta.get_field(abscissa).remote_field.model
-    #
-    #     if issubclass(related_model, get_user_model()):
-    #         related_instances = list(related_model.objects.exclude(is_staff=True))
-    #     elif issubclass(related_model, ContentType):
-    #         related_instances = list(creme_entity_content_types())
-    #         sort_key = collator.sort_key
-    #         related_instances.sort(key=lambda k: sort_key(str(k)))
-    #     else:
-    #         related_instances = list(related_model.objects.all())
-    #
-    #     if order == 'DESC':
-    #         related_instances.reverse()
-    #
-    #     for instance in related_instances:
-    #         kwargs = {abscissa: instance.id}
-    #         yield str(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
     def _fetch(self, entities, order, user):
         abscissa = self._graph.abscissa
         build_url = self._listview_url_builder()
@@ -572,7 +527,6 @@ class RGHRelation(ReportGraphHand):
     verbose_name = _('By values (of related entities)')
 
     def __init__(self, graph):
-        # super(RGHRelation, self).__init__(graph)
         super().__init__(graph)
 
         try:
@@ -583,14 +537,12 @@ class RGHRelation(ReportGraphHand):
 
         self._rtype = rtype
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         # TODO: Optimize ! (populate real entities)
         # TODO: sort alphabetically (with header_filter_search_field ?
         #       Queryset is not paginated so we can sort the "list") ?
         # TODO: make listview url for this case
         build_url = self._listview_url_builder()
-        # relations = Relation.objects.filter(type=self._rtype, subject_entity__entity_type=self._graph.report.ct)
         relations = Relation.objects.filter(type=self._rtype, subject_entity__entity_type=self._graph.linked_report.ct)
         rel_filter = relations.filter
         ce_objects_get = CremeEntity.objects.get
@@ -613,7 +565,6 @@ class RGHRelation(ReportGraphHand):
 
 class _RGHCustomField(ReportGraphHand):
     def __init__(self, graph):
-        # super(_RGHCustomField, self).__init__(graph)
         super().__init__(graph)
         abscissa = self._graph.abscissa
 
@@ -686,7 +637,6 @@ class _RGHCustomField(ReportGraphHand):
 class RGHCustomDay(_RGHCustomField):
     verbose_name = _('By days')
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         return self._get_custom_dates_values(
             entities, self._graph.abscissa, 'day',
@@ -702,7 +652,6 @@ class RGHCustomDay(_RGHCustomField):
 class RGHCustomMonth(_RGHCustomField):
     verbose_name = _('By months')
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         return self._get_custom_dates_values(
             entities, self._graph.abscissa, 'month',
@@ -717,7 +666,6 @@ class RGHCustomMonth(_RGHCustomField):
 class RGHCustomYear(_RGHCustomField):
     verbose_name = _('By years')
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         return self._get_custom_dates_values(
             entities, self._graph.abscissa, 'year',
@@ -731,7 +679,6 @@ class RGHCustomRange(_RGHCustomField):
     verbose_name = _('By X days')
 
     def __init__(self, graph):
-        # super(RGHCustomRange, self).__init__(graph)
         super().__init__(graph)
 
         self._fetch_method = self._fetch_with_group_by
@@ -742,7 +689,6 @@ class RGHCustomRange(_RGHCustomField):
                           )
             self._fetch_method = self._fetch_fallback
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         return self._fetch_method(entities, order)
 
@@ -819,7 +765,6 @@ class RGHCustomRange(_RGHCustomField):
 class RGHCustomFK(_RGHCustomField):
     verbose_name = _('By values (of custom choices)')
 
-    # def _fetch(self, entities, order):
     def _fetch(self, entities, order, user):
         entities_filter = entities.filter
         y_value_func = self._y_calculator
@@ -846,7 +791,6 @@ class GraphFetcher:
     def __init__(self, graph):
         self.graph = graph
         self.error = None
-        # self.verbose_volatile_column = pgettext_lazy('reports-volatile_choice', 'None')
         self.verbose_volatile_column = _('No volatile column')
 
     def fetch(self, user, order='ASC'):
@@ -868,7 +812,6 @@ class GraphFetcher:
 
 class RegularFieldLinkedGraphFetcher(GraphFetcher):
     def __init__(self, field_name, *args, **kwargs):
-        # super(RegularFieldLinkedGraphFetcher, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         model = self.graph.model
         self.field_name = None
@@ -883,7 +826,6 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
             self.error = _('The field is invalid.')
         else:
             if isinstance(field, ForeignKey):
-                # self.verbose_volatile_column = field.verbose_name
                 self.verbose_volatile_column = ugettext('{field} (Field)').format(field=field.verbose_name)
                 self._field_name = field_name
                 self._volatile_model = field.remote_field.model
@@ -916,7 +858,6 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
 
 class RelationLinkedGraphFetcher(GraphFetcher):
     def __init__(self, rtype_id, *args, **kwargs):
-        # super(RelationLinkedGraphFetcher, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
@@ -927,7 +868,6 @@ class RelationLinkedGraphFetcher(GraphFetcher):
             self.error = _('The relationship type is invalid.')
             self.verbose_volatile_column = '??'
         else:
-            # self.verbose_volatile_column = str(rtype)
             self.verbose_volatile_column = ugettext('{rtype} (Relationship)').format(rtype=rtype)
             self._rtype = rtype
 

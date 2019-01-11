@@ -67,12 +67,10 @@ class AbstractReportGraph(CremeEntity):
     def get_related_entity(self):
         return self.linked_report
 
-    # def fetch(self, extra_q=None, order='ASC'):
     def fetch(self, user, extra_q=None, order='ASC'):
         assert order == 'ASC' or order == 'DESC'
 
         report = self.linked_report
-        # entities = report.ct.model_class().objects.filter(is_deleted=False)
         entities = EntityCredentials.filter(
             user=user,
             queryset=report.ct.model_class().objects.filter(is_deleted=False),
@@ -84,7 +82,6 @@ class AbstractReportGraph(CremeEntity):
         if extra_q is not None:
             entities = entities.filter(extra_q)
 
-        # return self.hand.fetch(entities, order)
         return self.hand.fetch(entities=entities, order=order, user=user)
 
     @classmethod
@@ -104,7 +101,6 @@ class AbstractReportGraph(CremeEntity):
         """
         from ..core import graph as core_graph
 
-        # data = instance_block_config.data
         data = instance_brick_config.data
         volatile_column = rfield_type = None
 
@@ -118,7 +114,6 @@ class AbstractReportGraph(CremeEntity):
                                data, instance_brick_config, e,
                               )
 
-        # graph = instance_block_config.entity.get_real_entity()
         graph = instance_brick_config.entity.get_real_entity()
 
         # TODO: use a map/registry of GraphFetcher classes
@@ -152,7 +147,6 @@ class AbstractReportGraph(CremeEntity):
                           DeprecationWarning
                          )
 
-            # super(AbstractReportGraph.InstanceBlockConfigItemError, self).__init__(*args, **kwarg)
             super().__init__(*args, **kwarg)
 
     def create_instance_block_config_item(self, *args, **kwargs):

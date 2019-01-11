@@ -50,11 +50,8 @@ def skipIfCustomRGraph(test_func):
 
 
 class BaseReportsTestCase(CremeTestCase):
-    # SET_FIELD_ORDER_URL = reverse('reports__change_field_order')
-
     @classmethod
     def setUpClass(cls):
-        # super(BaseReportsTestCase, cls).setUpClass()
         super().setUpClass()
 
         get_ct = ContentType.objects.get_for_model
@@ -69,7 +66,6 @@ class BaseReportsTestCase(CremeTestCase):
         cells = [EntityCellRegularField.build(model=FakeContact, name='last_name'),
                  EntityCellRegularField.build(model=FakeContact, name='user'),
                  EntityCellRelation(model=FakeContact, rtype=RelationType.objects.get(pk=REL_SUB_HAS)),
-                 # EntityCellFunctionField(model=FakeContact, func_field=FakeContact.function_fields.get('get_pretty_properties')),
                  EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
                 ]
         cells.extend(extra_cells)

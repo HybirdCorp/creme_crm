@@ -29,11 +29,10 @@ from creme.creme_core.models import EntityFilter
 
 class ReportFilterBulkForm(BulkDefaultEditForm):
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
-        # super(ReportFilterBulkForm, self).__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
 
         filter_field = self.fields['field_value']
-        filter_field.empty_label = _(u'All')
+        filter_field.empty_label = _('All')
 
         first_ct = entities[0].ct if entities else None
         self._has_same_report_ct = all(e.ct == first_ct for e in entities)
@@ -68,22 +67,21 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
                                          ).format(count=length),
                     )
         else:
-            filter_field.help_text = _(u"Filter field can only be updated when "
-                                       u"reports target the same type of entities (e.g: only contacts)."
+            filter_field.help_text = _('Filter field can only be updated when '
+                                       'reports target the same type of entities (e.g: only contacts).'
                                       )
-            filter_field.widget = Label(empty_label=u'')
+            filter_field.widget = Label(empty_label='')
             filter_field.value = None
 
     def clean(self):
         if not self._has_same_report_ct:
             # TODO: error_messages
-            raise ValidationError(_(u"Filter field can only be updated when reports "
-                                    u"target the same type of entities (e.g: only contacts)."
+            raise ValidationError(_('Filter field can only be updated when reports '
+                                    'target the same type of entities (e.g: only contacts).'
                                    ),
                                   code='different_ctypes',
                                  )
 
-        # return super(ReportFilterBulkForm, self).clean()
         return super().clean()
 
     def _bulk_clean_entity(self, entity, values):
@@ -92,5 +90,4 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
                                   code='private',
                                  )
 
-        # return super(ReportFilterBulkForm, self)._bulk_clean_entity(entity, values)
         return super()._bulk_clean_entity(entity, values)

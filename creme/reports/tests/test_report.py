@@ -142,10 +142,6 @@ class ReportTestCase(BaseReportsTestCase):
 
         return user
 
-    # def test_portal(self):
-    #     self.login()
-    #     self.assertGET200(reverse('reports__portal'))
-
     def test_columns(self):
         self.login()
         report = self._build_orga_report()
@@ -715,49 +711,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(msg, response.context.get('empty_message'))
         self.assertContains(response, msg)
 
-    # def test_report_change_field_order01(self):
-    #     self.login()
-    #
-    #     url = self.SET_FIELD_ORDER_URL
-    #     self.assertPOST404(url)
-    #
-    #     report = self._create_report('trinita')
-    #     field  = self.get_field_or_fail(report, 'user')
-    #     response = self.client.post(url, data={'field_id':  field.id,
-    #                                            'direction': 'up',
-    #                                           }
-    #                                )
-    #     self.assertNoFormError(response)
-    #     self.assertEqual(['user', 'last_name', REL_SUB_HAS, 'get_pretty_properties'],
-    #                      [f.name for f in report.fields.order_by('order')]
-    #                     )
-
-    # def test_report_change_field_order02(self):
-    #     self.login()
-    #
-    #     report = self._create_report('trinita')
-    #     field  = self.get_field_or_fail(report, 'user')
-    #     self.assertPOST200(self.SET_FIELD_ORDER_URL,
-    #                        data={'field_id':  field.id,
-    #                              'direction': 'down',
-    #                             }
-    #                       )
-    #     self.assertEqual(['last_name', REL_SUB_HAS, 'user', 'get_pretty_properties'],
-    #                      [f.name for f in report.fields.order_by('order')]
-    #                     )
-
-    # def test_report_change_field_order03(self):
-    #     "Move 'up' the first field -> error"
-    #     self.login()
-    #
-    #     report = self._create_report('trinita')
-    #     field  = self.get_field_or_fail(report, 'last_name')
-    #     self.assertPOST403(self.SET_FIELD_ORDER_URL,
-    #                        data={'field_id':  field.id,
-    #                              'direction': 'up',
-    #                             }
-    #                       )
-
     def test_report_reorder_field01(self):
         self.login()
 
@@ -791,15 +744,12 @@ class ReportTestCase(BaseReportsTestCase):
         report = self._create_report('My report')
         url = reverse('reports__export_report_filter', args=(report.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'reports/frags/report_export_filter.html')
         self.assertTemplateUsed(response, 'reports/forms/report-export-filter.html')
 
         context = response.context
-        # self.assertEqual(_('Export «{report}»').format(report=report),
         self.assertEqual(pgettext('reports-report', 'Export «{object}»').format(object=report),
                          context.get('title')
                         )
-        # self.assertEqual(_('Export'), context.get('submit_label'))
         self.assertEqual(pgettext('reports-report', 'Export'), context.get('submit_label'))
 
         # ---
@@ -813,10 +763,6 @@ class ReportTestCase(BaseReportsTestCase):
                                            }
                                      )
         self.assertNoFormError(response)
-
-        # with self.assertNoException():
-        #     callback_url = response.context['callback_url']
-
         self.assertEqual('{url}?doc_type=csv'
                          '&date_field={date}'
                          '&date_filter_0='
@@ -825,7 +771,6 @@ class ReportTestCase(BaseReportsTestCase):
                                 url=reverse('reports__export_report', args=(report.id,)),
                                 date=date_field,
                             ),
-                         # callback_url
                          response.content.decode()
                         )
 
@@ -920,15 +865,10 @@ class ReportTestCase(BaseReportsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-
-        # with self.assertNoException():
-        #     callback_url = response.context['callback_url']
-
         self.assertEqual('{url}?doc_type={type}&date_field='.format(
                                 url=reverse('reports__export_report', args=(report.id,)),
                                 type=doc_type,
                             ),
-                         # callback_url
                          response.content.decode()
                         )
 
@@ -943,7 +883,6 @@ class ReportTestCase(BaseReportsTestCase):
                                  cells_desc=[EntityCellRegularField.build(model=FakeInvoice, name='name'),
                                              EntityCellRegularField.build(model=FakeInvoice, name='user'),
                                              EntityCellRelation(model=FakeInvoice, rtype=rt),
-                                             # EntityCellFunctionField(model=FakeInvoice, func_field=FakeInvoice.function_fields.get('get_pretty_properties')),
                                              EntityCellFunctionField.build(model=FakeInvoice, func_field_name='get_pretty_properties'),
                                             ],
                                  )
@@ -952,12 +891,6 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
         self.assertEqual('doc_type=csv', response.request['QUERY_STRING'])
-        # self.assertEqual(smart_str('"{}","{}","{}","{}"\r\n'.format(
-        #                               _('Name'), _('Owner user'), rt.predicate, _('Properties')
-        #                             )
-        #                           ),
-        #                  response.content
-        #                 )
         self.assertEqual('"{}","{}","{}","{}"\r\n'.format(
                               _('Name'), _('Owner user'), rt.predicate, _('Properties')
                             ),
@@ -973,21 +906,15 @@ class ReportTestCase(BaseReportsTestCase):
         report   = self._create_report('trinita')
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        # content = (s for s in response.content.split('\r\n') if s)
         content = (s for s in response.content.decode().split('\r\n') if s)
         self.assertEqual(smart_str('"{}","{}","{}","{}"'.format(
                                       _('Last name'), _('Owner user'), _('owns'), _('Properties')
                                     )
                                   ),
-                         # content.next()
                          next(content)
                         )
 
         user_str = str(self.user)
-        # self.assertEqual('"Ayanami","%s","","Kawaii"' % user_str,  content.next())  # Alphabetical ordering ??
-        # self.assertEqual('"Katsuragi","%s","Nerv",""' % user_str,  content.next())
-        # self.assertEqual('"Langley","%s","",""' % user_str,        content.next())
-        # self.assertRaises(StopIteration, content.next)
         self.assertEqual('"Ayanami","{}","","Kawaii"'.format(user_str),  next(content))  # Alphabetical ordering ??
         self.assertEqual('"Katsuragi","{}","Nerv",""'.format(user_str),  next(content))
         self.assertEqual('"Langley","{}","",""'.format(user_str),        next(content))
@@ -1009,7 +936,6 @@ class ReportTestCase(BaseReportsTestCase):
                                           }
                                     )
 
-        # content = [s for s in response.content.split('\r\n') if s]
         content = [s for s in response.content.decode().split('\r\n') if s]
         self.assertEqual(3, len(content))
 
@@ -1032,7 +958,6 @@ class ReportTestCase(BaseReportsTestCase):
                                           }
                                     )
 
-        # content = [s for s in response.content.split('\r\n') if s]
         content = [s for s in response.content.decode().split('\r\n') if s]
         self.assertEqual(2, len(content))
         self.assertEqual('"Baby","{}","",""'.format(user), content[1])
@@ -1081,13 +1006,9 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        # content = (s for s in response.content.split('\r\n') if s)
         content = (s for s in response.content.decode().split('\r\n') if s)
-        # self.assertEqual(smart_str('"%s"' % _('Last name')), content.next())
         self.assertEqual(smart_str('"{}"'.format(_('Last name'))), next(content))
 
-        # self.assertEqual('"Ayanami"',   content.next())
-        # self.assertEqual('"Katsuragi"', content.next())
         self.assertEqual('"Ayanami"',   next(content))
         self.assertEqual('"Katsuragi"', next(content))
 
@@ -1107,13 +1028,9 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        # content = (s for s in response.content.split('\r\n') if s)
         content = (s for s in response.content.decode().split('\r\n') if s)
-        # self.assertEqual(smart_str('"%s"' % _('Last name')), content.next())
         self.assertEqual(smart_str('"{}"'.format(_('Last name'))), next(content))
 
-        # self.assertEqual('"Ayanami"',   content.next())
-        # self.assertEqual('"Katsuragi"', content.next())
         self.assertEqual('"Ayanami"',   next(content))
         self.assertEqual('"Katsuragi"', next(content))
 
@@ -1151,9 +1068,7 @@ class ReportTestCase(BaseReportsTestCase):
         url = self._build_editfields_url(report)
         self.assertGET200(url)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Edit columns of «%s»').format(report), response.context.get('title'))
         self.assertEqual(_('Edit columns of «{object}»').format(object=report),
                          response.context.get('title')
                         )
@@ -1253,7 +1168,6 @@ class ReportTestCase(BaseReportsTestCase):
         rtype_id = FAKE_REL_SUB_EMPLOYED_BY
         rtype = self.get_object_or_fail(RelationType, pk=rtype_id)
 
-        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
         self.assertIsNotNone(funcfield)
 
@@ -1393,7 +1307,7 @@ class ReportTestCase(BaseReportsTestCase):
         column = columns[1]
         self.assertEqual(FAKE_REL_OBJ_EMPLOYED_BY, column.name)
         self.assertEqual(RFT_RELATION,        column.type)
-        self.assertEqual(report_contact  ,    column.sub_report)
+        self.assertEqual(report_contact,      column.sub_report)
         self.assertTrue(column.selected)
 
         self.assertEqual('description', columns[2].name)
@@ -1546,10 +1460,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertIsNone(rfield.hand)
         self.assertDoesNotExist(rfield)
 
-        # rfield = create_field(name='image__categories')
-        # self.assertIsNone(rfield.hand)
-        # self.assertDoesNotExist(rfield)
-
     def test_invalid_hands02(self):
         user = self.login()
 
@@ -1589,7 +1499,6 @@ class ReportTestCase(BaseReportsTestCase):
         img_report = self._build_image_report()
         url = self._build_linkreport_url(fk_img_field)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/link_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
@@ -1985,7 +1894,6 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(report=self.folder_report, name='description', order=2)
 
         self.doc_report = self._create_simple_documents_report()
-        # create_field(report=self.doc_report, name='folder__title', order=3,
         create_field(report=self.doc_report, name='linked_folder__title', order=3,
                      sub_report=self.folder_report, selected=selected,
                     )
@@ -2114,8 +2022,6 @@ class ReportTestCase(BaseReportsTestCase):
         img2 = create_img(name='Spike pix')
         img3 = create_img(name='Jet pix')
 
-        # img1.categories = [cat1, cat2]
-        # img2.categories = [cat1]
         img1.categories.set([cat1, cat2])
         img2.categories.set([cat1])
 
@@ -2250,8 +2156,6 @@ class ReportTestCase(BaseReportsTestCase):
         name2 = 'Camp#2'; camp2 = create_camp(name=name2)
 
         create_ml = partial(FakeMailingList.objects.create, user=user)
-        # camp1.mailing_lists = [create_ml(name='ML#1'), create_ml(name='ML#2')]
-        # camp2.mailing_lists = [create_ml(name='ML#3')]
         camp1.mailing_lists.set([create_ml(name='ML#1'), create_ml(name='ML#2')])
         camp2.mailing_lists.set([create_ml(name='ML#3')])
 
@@ -2295,8 +2199,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.ml2 = ml2 = create_ml(name='ML#2')
         self.ml3 = ml3 = create_ml(name='ML#3')
 
-        # self.camp1.mailing_lists = [ml1, ml2]
-        # self.camp2.mailing_lists = [ml3]
         self.camp1.mailing_lists.set([ml1, ml2])
         self.camp2.mailing_lists.set([ml3])
 
@@ -2423,8 +2325,6 @@ class ReportTestCase(BaseReportsTestCase):
         guild2 = create_guild(name='Guild of assassins')
         guild3 = create_guild(name='Guild of mercenaries')
 
-        # guild1.members = [contact1, contact2, contact3]
-        # guild2.members = [contact4]
         guild1.members.set([contact1, contact2, contact3])
         guild2.members.set([contact4])
 
@@ -2748,7 +2648,7 @@ class ReportTestCase(BaseReportsTestCase):
         create_field = partial(Field.objects.create, type=RFT_RELATION)
         create_field(report=report_orga, name=FAKE_REL_OBJ_EMPLOYED_BY, order=2,
                      selected=True, sub_report=self.report_contact,
-                     )
+                    )
 
         folder = FakeReportsFolder.objects.create(user=user, title='Ned folder')
 

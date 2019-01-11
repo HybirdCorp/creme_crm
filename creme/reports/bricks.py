@@ -19,7 +19,6 @@
 ################################################################################
 
 from collections import Counter
-# import warnings
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -110,14 +109,9 @@ class ReportGraphBrick(Brick):
     verbose_name  = "Report's graph"  # Overloaded by __init__()
     template_name = 'reports/bricks/graph.html'
 
-    # def __init__(self, instance_block_config):
     def __init__(self, instance_brick_config):
-        # super(ReportGraphBrick, self).__init__()
         super().__init__()
-        # self.verbose = instance_block_config.verbose #TODO: delete 'verbose' field ?
-        # self.instance_block_id = instance_block_config.id
         self.instance_brick_id = instance_brick_config.id
-        # self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_block(instance_block_config)
         self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(instance_brick_config)
         self.verbose_name = fetcher.verbose_name
 
@@ -145,12 +139,6 @@ class ReportGraphBrick(Brick):
                                           )
 
         return self._auxiliary_display(context=context, x=x, y=y)
-
-    # def portal_display(self, context, ct_ids):
-    #     warnings.warn('reports.bricks.ReportGraphBrick.portal_display() is deprecated.', DeprecationWarning)
-    #
-    #     # No specific things on portals so we use home display
-    #     return self.home_display(context)
 
     def home_display(self, context):
         x, y = self.fetcher.fetch(user=context['user'])
