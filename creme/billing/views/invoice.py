@@ -19,7 +19,7 @@
 ################################################################################
 
 from datetime import date
-import warnings
+# import warnings
 
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
@@ -40,77 +40,77 @@ Invoice = get_invoice_model()
 
 # Function views --------------------------------------------------------------
 
-def abstract_add_invoice(request, form=invoice_forms.InvoiceCreateForm,
-                         initial_status=constants.DEFAULT_DRAFT_INVOICE_STATUS,
-                         submit_label=Invoice.save_label,
-                        ):
-    warnings.warn('billing.views.invoice.abstract_add_invoice() is deprecated ; '
-                  'use the class-based view InvoiceCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_initial={'status': initial_status},
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_invoice(request, form=invoice_forms.InvoiceCreateForm,
+#                          initial_status=constants.DEFAULT_DRAFT_INVOICE_STATUS,
+#                          submit_label=Invoice.save_label,
+#                         ):
+#     warnings.warn('billing.views.invoice.abstract_add_invoice() is deprecated ; '
+#                   'use the class-based view InvoiceCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_initial={'status': initial_status},
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_add_related_invoice(request, target_id, form=invoice_forms.InvoiceCreateForm,
-                                 initial_status=constants.DEFAULT_DRAFT_INVOICE_STATUS,
-                                 title=_(u'Create an invoice for «%s»'),
-                                 submit_label=Invoice.save_label,
-                                ):
-    from ..views.workflow import generic_add_related
-
-    return generic_add_related(request, target_id=target_id,
-                               form=form, title=title,
-                               submit_label=submit_label,
-                               status_id=initial_status,
-                              )
-
-
-def abstract_edit_invoice(request, invoice_id, form=invoice_forms.InvoiceEditForm):
-    warnings.warn('billing.views.invoice.abstract_edit_invoice() is deprecated ; '
-                  'use the class-based view InvoiceEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, invoice_id, Invoice, form)
+# def abstract_add_related_invoice(request, target_id, form=invoice_forms.InvoiceCreateForm,
+#                                  initial_status=constants.DEFAULT_DRAFT_INVOICE_STATUS,
+#                                  title=_(u'Create an invoice for «%s»'),
+#                                  submit_label=Invoice.save_label,
+#                                 ):
+#     from ..views.workflow import generic_add_related
+#
+#     return generic_add_related(request, target_id=target_id,
+#                                form=form, title=title,
+#                                submit_label=submit_label,
+#                                status_id=initial_status,
+#                               )
 
 
-def abstract_view_invoice(request, invoice_id, template='billing/view_invoice.html'):
-    warnings.warn('billing.views.invoice.abstract_view_invoice() is deprecated ; '
-                  'use the class-based view InvoiceDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, invoice_id, Invoice,
-                               template=template,
-                              )
+# def abstract_edit_invoice(request, invoice_id, form=invoice_forms.InvoiceEditForm):
+#     warnings.warn('billing.views.invoice.abstract_edit_invoice() is deprecated ; '
+#                   'use the class-based view InvoiceEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, invoice_id, Invoice, form)
 
 
-@login_required
-@permission_required(('billing', cperm(Invoice)))
-def add(request):
-    warnings.warn('billing.views.invoice.add() is deprecated.', DeprecationWarning)
-    return abstract_add_invoice(request)
+# def abstract_view_invoice(request, invoice_id, template='billing/view_invoice.html'):
+#     warnings.warn('billing.views.invoice.abstract_view_invoice() is deprecated ; '
+#                   'use the class-based view InvoiceDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, invoice_id, Invoice,
+#                                template=template,
+#                               )
 
 
-@login_required
-@permission_required(('billing', cperm(Invoice)))
-def add_related(request, target_id):
-   return abstract_add_related_invoice(request, target_id)
+# @login_required
+# @permission_required(('billing', cperm(Invoice)))
+# def add(request):
+#     warnings.warn('billing.views.invoice.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_invoice(request)
 
 
-@login_required
-@permission_required('billing')
-def edit(request, invoice_id):
-    warnings.warn('billing.views.invoice.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_invoice(request, invoice_id)
+# @login_required
+# @permission_required(('billing', cperm(Invoice)))
+# def add_related(request, target_id):
+#    return abstract_add_related_invoice(request, target_id)
 
 
-@login_required
-@permission_required('billing')
-def detailview(request, invoice_id):
-    warnings.warn('billing.views.invoice.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_invoice(request, invoice_id)
+# @login_required
+# @permission_required('billing')
+# def edit(request, invoice_id):
+#     warnings.warn('billing.views.invoice.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_invoice(request, invoice_id)
+
+
+# @login_required
+# @permission_required('billing')
+# def detailview(request, invoice_id):
+#     warnings.warn('billing.views.invoice.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_invoice(request, invoice_id)
 
 
 @login_required

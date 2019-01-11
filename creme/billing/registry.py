@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
-import warnings
+# import warnings
 
 from django.utils.datastructures import OrderedSet
 
@@ -57,13 +57,13 @@ class AlgoRegistry:
     def algorithms(self):
         return iter(self._algos.values())
 
-    def itervalues(self):
-        warnings.warn('AlgoRegistry.itervalues() is deprecated ; '
-                      'use AlgoRegistry.algorithms instead.',
-                      DeprecationWarning
-                     )
-
-        return self.algorithms
+    # def itervalues(self):
+    #     warnings.warn('AlgoRegistry.itervalues() is deprecated ; '
+    #                   'use AlgoRegistry.algorithms instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return self.algorithms
 
 
 algo_registry = AlgoRegistry()

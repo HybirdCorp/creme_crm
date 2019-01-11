@@ -52,45 +52,45 @@ class TemplateBaseTestCase(_BillingTestCase):
         response = self.assertGET200(tpl.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_template.html')
 
-    def test_status01(self):
-        invoice_status1 = self.get_object_or_fail(InvoiceStatus, pk=3)
-        tpl = self._create_templatebase(Invoice, invoice_status1.id)
+    # def test_status01(self):
+    #     invoice_status1 = self.get_object_or_fail(InvoiceStatus, pk=3)
+    #     tpl = self._create_templatebase(Invoice, invoice_status1.id)
+    #
+    #     with self.assertNumQueries(1):
+    #         status_str = tpl.verbose_status
+    #
+    #     self.assertEqual(str(invoice_status1), status_str)
+    #
+    #     # Cache -------------------------
+    #     with self.assertNumQueries(0):
+    #         status_str = tpl.verbose_status
+    #
+    #     self.assertEqual(str(invoice_status1), status_str)
+    #
+    #     # Change status -------------------------
+    #     invoice_status2 = self.get_object_or_fail(InvoiceStatus, pk=2)
+    #     tpl.status_id = invoice_status2.id
+    #
+    #     with self.assertNumQueries(1):
+    #         status_str = tpl.verbose_status
+    #
+    #     self.assertEqual(str(invoice_status2), status_str)
+    #
+    #     # Invalid ID -------------------------
+    #     tpl.status_id = invalid_id = 1024
+    #     self.assertFalse(InvoiceStatus.objects.filter(id=invalid_id).exists())
+    #
+    #     with self.assertNumQueries(1):
+    #         status_str = tpl.verbose_status
+    #
+    #     self.assertEqual('', status_str)
 
-        with self.assertNumQueries(1):
-            status_str = tpl.verbose_status
-
-        self.assertEqual(str(invoice_status1), status_str)
-
-        # Cache -------------------------
-        with self.assertNumQueries(0):
-            status_str = tpl.verbose_status
-
-        self.assertEqual(str(invoice_status1), status_str)
-
-        # Change status -------------------------
-        invoice_status2 = self.get_object_or_fail(InvoiceStatus, pk=2)
-        tpl.status_id = invoice_status2.id
-
-        with self.assertNumQueries(1):
-            status_str = tpl.verbose_status
-
-        self.assertEqual(str(invoice_status2), status_str)
-
-        # Invalid ID -------------------------
-        tpl.status_id = invalid_id = 1024
-        self.assertFalse(InvoiceStatus.objects.filter(id=invalid_id).exists())
-
-        with self.assertNumQueries(1):
-            status_str = tpl.verbose_status
-
-        self.assertEqual('', status_str)
-
-    def test_status02(self):
-        "Other CT"
-        quote_status = self.get_object_or_fail(QuoteStatus, pk=3)
-        tpl = self._create_templatebase(Quote, quote_status.id)
-
-        self.assertEqual(str(quote_status), tpl.verbose_status)
+    # def test_status02(self):
+    #     "Other CT"
+    #     quote_status = self.get_object_or_fail(QuoteStatus, pk=3)
+    #     tpl = self._create_templatebase(Quote, quote_status.id)
+    #
+    #     self.assertEqual(str(quote_status), tpl.verbose_status)
 
     def test_status_function_field(self):
         invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)

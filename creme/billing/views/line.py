@@ -19,7 +19,7 @@
 ################################################################################
 
 from json import loads as jsonloads
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
@@ -46,50 +46,50 @@ ProductLine = billing.get_product_line_model()
 ServiceLine = billing.get_service_line_model()
 
 
-def abstract_add_multiple_product_line(request, document_id,
-                                       form=line_forms.ProductLineMultipleAddForm,
-                                       title=_('Add one or more product to «%s»'),
-                                       submit_label=_('Save the lines'),
-                                      ):
-    warnings.warn('billing.views.line.abstract_add_multiple_product_line() is deprecated ; '
-                  'use the class-based view ProductLinesCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_to_entity(request, document_id, form, title,
-                                 link_perm=True, submit_label=submit_label,
-                                )
+# def abstract_add_multiple_product_line(request, document_id,
+#                                        form=line_forms.ProductLineMultipleAddForm,
+#                                        title=_('Add one or more product to «%s»'),
+#                                        submit_label=_('Save the lines'),
+#                                       ):
+#     warnings.warn('billing.views.line.abstract_add_multiple_product_line() is deprecated ; '
+#                   'use the class-based view ProductLinesCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_to_entity(request, document_id, form, title,
+#                                  link_perm=True, submit_label=submit_label,
+#                                 )
 
 
-def abstract_add_multiple_service_line(request, document_id,
-                                       form=line_forms.ServiceLineMultipleAddForm,
-                                       title=_('Add one or more service to «%s»'),
-                                       submit_label=_('Save the lines'),
-                                      ):
-    warnings.warn('billing.views.line.abstract_add_multiple_service_line() is deprecated ; '
-                  'use the class-based view ServiceLinesCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_to_entity(request, document_id, form, title,
-                                 link_perm=True, submit_label=submit_label,
-                                )
+# def abstract_add_multiple_service_line(request, document_id,
+#                                        form=line_forms.ServiceLineMultipleAddForm,
+#                                        title=_('Add one or more service to «%s»'),
+#                                        submit_label=_('Save the lines'),
+#                                       ):
+#     warnings.warn('billing.views.line.abstract_add_multiple_service_line() is deprecated ; '
+#                   'use the class-based view ServiceLinesCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_to_entity(request, document_id, form, title,
+#                                  link_perm=True, submit_label=submit_label,
+#                                 )
 
 
-@login_required
-@permission_required('billing')
-def add_multiple_product_line(request, document_id):
-    warnings.warn('billing.views.line.add_multiple_product_line() is deprecated.',
-                  DeprecationWarning
-                 )
-    return abstract_add_multiple_product_line(request, document_id)
+# @login_required
+# @permission_required('billing')
+# def add_multiple_product_line(request, document_id):
+#     warnings.warn('billing.views.line.add_multiple_product_line() is deprecated.',
+#                   DeprecationWarning
+#                  )
+#     return abstract_add_multiple_product_line(request, document_id)
 
 
-@login_required
-@permission_required('billing')
-def add_multiple_service_line(request, document_id):
-    warnings.warn('billing.views.line.add_multiple_service_line() is deprecated.',
-                  DeprecationWarning
-                 )
-    return abstract_add_multiple_service_line(request, document_id)
+# @login_required
+# @permission_required('billing')
+# def add_multiple_service_line(request, document_id):
+#     warnings.warn('billing.views.line.add_multiple_service_line() is deprecated.',
+#                   DeprecationWarning
+#                  )
+#     return abstract_add_multiple_service_line(request, document_id)
 
 
 # TODO: LINK credentials + link-popup.html ??

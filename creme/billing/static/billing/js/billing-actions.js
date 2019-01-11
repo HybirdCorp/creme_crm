@@ -70,7 +70,8 @@ creme.billing.EXPORT_FORMATS = [
    {value: 'pdf', label: gettext("Pdf file (PDF)")}
 ];
 
-// TODO remove this after menu hat-bar refactor using action-links
+
+/*
 creme.billing.exportAs = function(url, formats) {
     console.warn('creme.billing.exportAs is deprecated; use action ExportDocumentAction instead');
     new creme.billing.ExportDocumentAction({
@@ -78,6 +79,7 @@ creme.billing.exportAs = function(url, formats) {
         formats: formats || creme.billing.EXPORT_FORMATS
     }).start();
 };
+*/
 
 // TODO remove this after menu hat-bar refactor using action-links
 creme.billing.generateInvoiceNumber = function(url) {
