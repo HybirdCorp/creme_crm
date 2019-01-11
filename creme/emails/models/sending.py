@@ -20,7 +20,6 @@
 
 from json import loads as json_load
 import logging
-# from pickle import loads
 from time import sleep
 
 from django.conf import settings
@@ -192,9 +191,7 @@ class LightWeightEmail(_Email):
         body = self.body
 
         try:
-            # return Template(sending_body).render(Context(loads(body.encode('utf-8')) if body else {}))
             return Template(sending_body).render(Context(json_load(body) if body else {}))
-        # except Exception as e:  # Pickle raises too much different exceptions... Catch'em all ?
         except Exception as e:
             logger.debug('Error in LightWeightEmail._render_body(): %s', e)
             return ''
@@ -226,7 +223,6 @@ class LightWeightEmail(_Email):
 
 class LightWeightEmailSender(EMailSender):
     def __init__(self, sending):
-        # super(LightWeightEmailSender, self).__init__(body=sending.body,
         super().__init__(body=sending.body,
                          body_html=sending.body_html,
                          signature=sending.signature,
@@ -241,7 +237,6 @@ class LightWeightEmailSender(EMailSender):
 
     def _process_bodies(self, mail):
         body = mail.body
-        # context = Context(loads(body.encode('utf-8')) if body else {})
         context = Context(json_load(body) if body else {})
 
         return self._body_template.render(context), self._body_html_template.render(context)

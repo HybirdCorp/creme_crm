@@ -22,7 +22,7 @@ import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext_lazy as _  # ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -95,17 +95,6 @@ def detailview(request, campaign_id):
 def listview(request):
     return generic.list_view(request, EmailCampaign, hf_pk=DEFAULT_HFILTER_CAMPAIGN)
 
-
-# @login_required
-# @permission_required('emails')
-# def add_ml(request, campaign_id):
-#     return generic.add_to_entity(
-#         request, campaign_id, camp_forms.CampaignAddMLForm,
-#         ugettext('New mailing lists for «%s»'),
-#         entity_class=EmailCampaign,
-#         submit_label=_('Link the mailing lists'),
-#         template='creme_core/generics/blockform/link_popup.html',
-#     )
 
 @login_required
 @permission_required('emails')

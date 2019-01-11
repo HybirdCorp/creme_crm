@@ -18,11 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-# from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -49,7 +46,6 @@ class EntityEmailBarHatBrick(SimpleBrick):
     template_name = 'emails/bricks/mail-hat-bar.html'
 
 
-# class _HTMLBodyBrick(SimpleBrick):
 class _HTMLBodyBrick(Brick):
     verbose_name  = _('HTML body')
     template_name = 'emails/bricks/html-body.html'
@@ -316,28 +312,6 @@ class LwMailsHistoryBrick(QuerysetBrick):
         ))
 
 
-# class SignaturesBrick(QuerysetBrick):
-#     id_           = QuerysetBrick.generate_id('emails', 'signatures')
-#     dependencies  = (EmailSignature,)
-#     order_by      = 'name'
-#     verbose_name  = _(u'Email signatures')
-#     template_name = 'emails/bricks/signatures.html'
-#     target_apps   = ('emails',)
-#
-#     def portal_display(self, context, ct_ids):
-#         warnings.warn('emails.bricks.SignaturesBrick is deprecated.', DeprecationWarning)
-#
-#         user = context['user']
-#
-#         if not user.has_perm('emails'):
-#             raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
-#
-#         return self._render(self.get_template_context(
-#                     context, EmailSignature.objects.filter(user=user),
-#                     has_app_perm=True,  # We've just checked it.
-#         ))
-
-
 class MySignaturesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('emails', 'my_signatures')
     dependencies  = (EmailSignature,)
@@ -369,7 +343,6 @@ if apps.is_installed('creme.crudity'):
 
         # TODO: factorise with crudity.bricks.WaitingActionsBrick ?
         def __init__(self, backend):
-            # super(_SynchronizationMailsBrick, self).__init__()
             super().__init__()
             self.backend = backend
 
@@ -380,7 +353,6 @@ if apps.is_installed('creme.crudity'):
         template_name = 'emails/bricks/synchronization.html'
 
         def detailview_display(self, context):
-            # super(WaitingSynchronizationMailsBrick, self).detailview_display(context)
             super().detailview_display(context)
             context['rtypes'] = (constants.REL_SUB_MAIL_SENDED,
                                  constants.REL_SUB_MAIL_RECEIVED,
@@ -406,7 +378,6 @@ if apps.is_installed('creme.crudity'):
         template_name = 'emails/bricks/synchronization-spam.html'
 
         def detailview_display(self, context):
-            # super(SpamSynchronizationMailsBrick, self).detailview_display(context)
             super().detailview_display(context)
 
             waiting_mails = EntityEmail.objects.filter(status=constants.MAIL_STATUS_SYNCHRONIZED_SPAM)

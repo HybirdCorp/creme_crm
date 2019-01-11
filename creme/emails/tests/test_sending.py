@@ -3,7 +3,6 @@
 try:
     from functools import partial
     from datetime import timedelta
-    # from pickle import loads
 
     from django.contrib.contenttypes.models import ContentType
     from django.core import mail as django_mail
@@ -38,10 +37,6 @@ except Exception as e:
 @skipIfCustomEmailTemplate
 @skipIfCustomMailingList
 class SendingsTestCase(_EmailsTestCase):
-    # def _load_or_fail(self, data):
-    #     with self.assertNoException():
-    #         return loads(data.encode('utf-8'))
-
     def _build_add_url(self, campaign):
         return reverse('emails__create_sending', args=(campaign.id,))
 
@@ -61,7 +56,6 @@ class SendingsTestCase(_EmailsTestCase):
         url = self._build_add_url(camp)
         response = self.assertGET200(url)
         context = response.context
-        # self.assertEqual(_('New sending for «%s»') % camp, context.get('title'))
         self.assertEqual(_('New sending for «{entity}»').format(entity=camp),
                          context.get('title')
                         )
@@ -277,8 +271,6 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(0, mail.reads)
         self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
         response = self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
-        # self.assertTemplateUsed(response, 'emails/view_email.html')
-        # self.assertTemplateUsed(response, 'emails/lw-mail-popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/detail-popup.html')
         self.assertEqual(_('Details of the email'), response.context.get('title'))
 
@@ -291,7 +283,6 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertPOST(405, detail_url)
 
         response = self.assertGET200(detail_url)
-        # self.assertTemplateUsed(response, 'emails/popup_sending.html')
         self.assertTemplateUsed(response, 'emails/view_sending.html')
         self.assertEqual(sending, response.context.get('object'))
 
@@ -354,7 +345,6 @@ class SendingsTestCase(_EmailsTestCase):
 
         html = '<p>Your last name is: {} !</p>'.format(last_name)
         self.assertEqual(html, mail.rendered_body_html)
-        # self.assertEqual(html, self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
         self.assertEqual(html.encode(), self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
 
         # View template --------------------------------------------------------

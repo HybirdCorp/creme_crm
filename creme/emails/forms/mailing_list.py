@@ -50,7 +50,6 @@ class AddContactsForm(CremeForm):
     blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        # super(AddContactsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
 
@@ -70,7 +69,6 @@ class AddOrganisationsForm(CremeForm):  # TODO: factorise
     blocks = FieldBlockManager(('general', _('Organisations recipients'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        # super(AddOrganisationsForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
 
@@ -91,7 +89,6 @@ class _AddPersonsFromFilterForm(CremeForm):
     person_model = None  # Contact/Organisation
 
     def __init__(self, entity, *args, **kwargs):
-        # super(_AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
 
@@ -144,7 +141,6 @@ class AddChildForm(CremeForm):
     blocks = FieldBlockManager(('general', _('Child mailing list'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        # super(AddChildForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.ml = entity
 

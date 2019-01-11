@@ -36,7 +36,6 @@ class EmailsConfig(CremeAppConfig):
         self.EmailTemplate = get_emailtemplate_model()
         self.EntityEmail   = get_entityemail_model()
         self.MailingList   = get_mailinglist_model()
-        # super(EmailsConfig, self).all_apps_ready()
         super().all_apps_ready()
 
         from . import signals
@@ -75,7 +74,6 @@ class EmailsConfig(CremeAppConfig):
             bricks.MailPopupBrick,
             bricks.LwMailPopupBrick,
             bricks.LwMailsHistoryBrick,
-            # bricks.SignaturesBrick,
             bricks.MySignaturesBrick,
         )
         brick_registry.register_hat(self.EntityEmail, main_brick_cls=bricks.EntityEmailBarHatBrick)
@@ -94,8 +92,6 @@ class EmailsConfig(CremeAppConfig):
         register(models.LightWeightEmail, exclude=('sender', 'recipient', 'subject', 'body'))  # TODO: idem
 
     def register_buttons(self, button_registry):
-        # from .buttons import entityemail_link_button
-        # button_registry.register(entityemail_link_button)
         from . import buttons
 
         button_registry.register(buttons.EntityEmailLinkButton)
@@ -120,29 +116,12 @@ class EmailsConfig(CremeAppConfig):
 
     def register_menu(self, creme_menu):
         from django.apps import apps
-        # from django.conf import settings
         from django.urls import reverse_lazy as reverse
 
         ECampaign = self.EmailCampaign
         MList     = self.MailingList
         ETemplate = self.EmailTemplate
 
-        # if settings.OLD_MENU:
-        #     from creme.creme_core.auth import build_creation_perm as cperm
-        #
-        #     reg_item = creme_menu.register_app('emails', '/emails/').register_item
-        #     reg_item(reverse('emails__portal'),          _(u'Portal of emails'),    'emails')
-        #     reg_item(reverse('emails__list_campaigns'),  _(u'All campaigns'),       'emails')
-        #     reg_item(reverse('emails__create_campaign'), ECampaign.creation_label,  cperm(ECampaign))
-        #     reg_item(reverse('emails__list_mlists'),     _(u'All mailing lists'),   'emails')
-        #     reg_item(reverse('emails__create_mlist'),    MList.creation_label,      cperm(MList))
-        #     reg_item(reverse('emails__list_templates'),  _(u'All email templates'), 'emails')
-        #     reg_item(reverse('emails__create_template'), ETemplate.creation_label,  cperm(ETemplate))
-        #     reg_item(reverse('emails__list_emails'),     _(u'All emails'),          'emails')
-        #
-        #     if apps.is_installed('creme.crudity'):
-        #         reg_item(reverse('emails__crudity_sync'), _(u'Synchronization of incoming emails'), 'emails')
-        # else:
         group = creme_menu.get('features') \
                           .get_or_create(creme_menu.ContainerItem, 'marketing', priority=200,
                                          defaults={'label': _('Marketing')},

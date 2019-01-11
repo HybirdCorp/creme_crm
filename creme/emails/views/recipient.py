@@ -20,32 +20,12 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
-# from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.views.generic import RelatedToEntityFormPopup
 
 from .. import get_mailinglist_model
 from ..forms import recipient as forms
 from ..models import EmailRecipient
 
-
-# @login_required
-# @permission_required('emails')
-# def add(request, ml_id):
-#     return add_to_entity(request, ml_id, forms.MailingListAddRecipientsForm,
-#                          _('New recipients for «%s»'),
-#                          entity_class=get_mailinglist_model(),
-#                          submit_label=EmailRecipient.multi_save_label,
-#                         )
-
-# @login_required
-# @permission_required('emails')
-# def add_from_csv(request, ml_id):
-#     return add_to_entity(request, ml_id, forms.MailingListAddCSVForm,
-#                          _('New recipients for «%s»'),
-#                          entity_class=get_mailinglist_model(),
-#                          submit_label=EmailRecipient.multi_save_label,
-#                         )
 
 class _RecipientsAddingBase(RelatedToEntityFormPopup):
     # model = EmailRecipient

@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import logging
-
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
 from django.forms.widgets import Textarea
@@ -35,7 +33,6 @@ from creme.documents import get_document_model
 from .. import get_emailtemplate_model
 
 
-# logger = logging.getLogger(__name__)
 Document = get_document_model()
 
 TEMPLATES_VARS = {'last_name', 'first_name', 'civility', 'name'}
@@ -91,7 +88,6 @@ class EmailTemplateAddAttachment(CremeForm):
     blocks = FieldBlockManager(('general', _('Attachments'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        # super(EmailTemplateAddAttachment, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.template = entity
 
