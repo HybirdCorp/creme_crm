@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from unicodedata import normalize
-
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.template.loader import render_to_string
@@ -42,20 +40,19 @@ def download_email_template(request, subject):
         backend = input.get_backend(subject)
 
     if backend is None:
-        raise Http404(u"This backend is not registered")
+        raise Http404('This backend is not registered')
 
-    response = HttpResponse(render_to_string("crudity/create_email_template.html",  # TODO: rename crudity/create_email_template.eml ??
+    response = HttpResponse(render_to_string('crudity/create_email_template.html',  # TODO: rename crudity/create_email_template.eml ??
                                              {'backend': backend,
                                               'contact': request.user.linked_contact,
                                               'to':      settings.CREME_GET_EMAIL,
                                              },
                                              request=request,
                                             ),
-                            content_type="application/vnd.sealed.eml",
+                            content_type='application/vnd.sealed.eml',
                            )
 
     response['Content-Disposition'] = 'attachment; filename={}.eml'.format(
-        # normalize('NFKD', str(CrudityBackend.normalize_subject(backend.subject))).encode('ascii', 'ignore')
         secure_filename(subject)
     )
 

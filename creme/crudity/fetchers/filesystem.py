@@ -34,7 +34,6 @@ class FileSystemFetcher(CrudityFetcher):
         pass
 
     def __init__(self, setting_name='CRUDITY_FILESYS_FETCHER_DIR', *args, **kwargs):
-        # super(FileSystemFetcher, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.setting_name = setting_name
 

@@ -18,13 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_list_or_404  # render
-# from django.urls import reverse
+from django.shortcuts import get_list_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -49,14 +46,6 @@ def _build_portal_bricks():
     ]
 
 
-# @login_required
-# @permission_required('crudity')
-# def portal(request):
-#     return render(request, template_name='crudity/waiting-actions.html',
-#                   context={'bricks': _build_portal_bricks(),
-#                            'bricks_reload_url': reverse('crudity__reload_actions_bricks'),
-#                           },
-#                  )
 class Portal(BricksView):
     template_name = 'crudity/waiting-actions.html'
     permissions = 'crudity'
@@ -92,12 +81,11 @@ def delete(request):
 
     if not errors:
         status = 200
-        message = _(u'Operation successfully completed')
+        message = _('Operation successfully completed')
     else:
         status = 400
         message = ','.join(errors)
 
-    # return HttpResponse(message, content_type='text/javascript', status=status)
     return HttpResponse(message, status=status)
 
 

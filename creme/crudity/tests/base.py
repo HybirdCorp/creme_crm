@@ -53,7 +53,6 @@ class ActivityFakeBackend(CrudityBackend):
 class CrudityTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(CrudityTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.FakeContactBackend = FakeContactBackend
@@ -69,7 +68,6 @@ class CrudityTestCase(CremeTestCase):
         SwallowFetcher.last_name = ''
 
     def _set_sandbox_by_user(self):
-        # sv = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None)
         sv = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER)
         sv.value = True
         sv.save()

@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Crudity 2.0\n"
+"Project-Id-Version: Creme Creme-Crudity 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 19:11+0200\n"
+"POT-Creation-Date: 2018-12-05 14:56+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,35 +20,35 @@ msgstr ""
 msgid "External data management"
 msgstr "Gestion des données externes"
 
-#: apps.py:49 backends/models.py:210
+#: apps.py:42 backends/models.py:206
 msgid "External data"
 msgstr "Données externes"
 
-#: apps.py:52 bricks.py:53 models/actions.py:45
+#: apps.py:45 bricks.py:49 models/actions.py:44
 #: templates/crudity/waiting-actions.html:4
 #: templates/crudity/waiting-actions.html:52
 msgid "Waiting actions"
 msgstr "Actions en attente"
 
-#: apps.py:57 bricks.py:97 models/history.py:38 models/history.py:39
+#: apps.py:50 bricks.py:91 models/history.py:38 models/history.py:39
 #: templates/crudity/history.html:4 templates/crudity/history.html:9
 msgid "History"
 msgstr "Historique"
 
-#: backends/models.py:214
+#: backends/models.py:210
 msgid "Imported from external data."
 msgstr "Importé depuis des données externes."
 
-#: backends/models.py:248
+#: backends/models.py:244
 #, python-brace-format
 msgid "Creation of {entity}"
 msgstr "Création de {entity}"
 
-#: bricks.py:40
+#: bricks.py:38
 msgid "Error: you are not allowed to view this block: {}"
 msgstr "Erreur: vous n'êtes pas autorisé à voir ce block : {}"
 
-#: builders/infopath.py:443 inputs/email.py:64 inputs/filesystem.py:42
+#: builders/infopath.py:421 inputs/email.py:66 inputs/filesystem.py:41
 msgid "Create"
 msgstr "Créer"
 
@@ -87,11 +87,11 @@ msgstr ""
 msgid "Email - Raw"
 msgstr "E-mail - Simple"
 
-#: inputs/email.py:195
+#: inputs/email.py:187
 msgid "Email - Infopath"
 msgstr "E-mail - Infopath"
 
-#: inputs/filesystem.py:41
+#: inputs/filesystem.py:40
 msgid "File - INI"
 msgstr "Fichier - INI"
 
@@ -104,28 +104,28 @@ msgstr "Action"
 msgid "Source"
 msgstr "Source"
 
-#: models/actions.py:38
+#: models/actions.py:37
 msgid "Type of resource"
 msgstr "Type de ressource"
 
-#: models/actions.py:39
+#: models/actions.py:38
 msgid "Subject"
 msgstr "Sujet"
 
-#: models/actions.py:40 models/history.py:34
+#: models/actions.py:39 models/history.py:34
 msgid "Owner"
 msgstr "Propriétaire"
 
-#: models/actions.py:44
+#: models/actions.py:43
 msgid "Waiting action"
 msgstr "Action en attente"
 
-#: models/actions.py:69
+#: models/actions.py:57
 msgid "You are not allowed to validate/delete the waiting action <{}>"
 msgstr ""
 "Vous n'êtes pas autorisé à valider/effacer cette action en attente <{}>"
 
-#: models/actions.py:71
+#: models/actions.py:59
 msgid "OK"
 msgstr "OK"
 
@@ -266,7 +266,7 @@ msgstr ""
 "administrateur (settings.CRUDITY_BACKENDS)."
 
 # Already in creme_core
-#: views/actions.py:88
+#: views/actions.py:84
 msgid "Operation successfully completed"
 msgstr ""
 

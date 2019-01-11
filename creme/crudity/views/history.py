@@ -18,12 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-# from django.shortcuts import render
-# from django.urls import reverse
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_ct_or_404
@@ -35,21 +31,6 @@ from .. import registry
 from ..bricks import CrudityHistoryBrick
 
 
-# @login_required
-# @permission_required('crudity')
-# def history(request):
-#     get_ct = ContentType.objects.get_for_model
-#     bricks = [CrudityHistoryBrick(get_ct(backend.model))
-#                   for backend in registry.crudity_registry.get_backends()
-#                       if backend.model
-#              ]
-#
-#     return render(request, 'crudity/history.html',
-#                   {
-#                    'bricks':            bricks,
-#                    'bricks_reload_url': reverse('crudity__reload_history_bricks'),
-#                   }
-#                  )
 class History(BricksView):
     template_name = 'crudity/history.html'
     permissions = 'crudity'

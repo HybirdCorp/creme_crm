@@ -18,9 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import ConfigParser
 import configparser
-# from io import BytesIO
 from io import StringIO
 
 from django.contrib.auth import get_user_model
@@ -30,7 +28,6 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils.secure_filename import secure_filename
 
 from .. import registry
-# from ..backends.models import CrudityBackend
 
 
 @login_required
@@ -44,9 +41,8 @@ def download_ini_template(request, subject):
         backend = input.get_backend(subject)
 
     if backend is None:
-        raise Http404(u'This backend is not registered')
+        raise Http404('This backend is not registered')
 
-    # ini = ConfigParser.RawConfigParser()
     ini = configparser.RawConfigParser()
     ini.add_section('head')
     ini.set('head', 'action', subject)
@@ -58,7 +54,6 @@ def download_ini_template(request, subject):
     for k, v in backend.body_map.items():
         ini.set('body', k, v)
 
-    # buffer = BytesIO()
     buffer = StringIO()
     ini.write(buffer)
 

@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import ConfigParser
 import configparser
 import logging
 from os import remove as remove_file
@@ -36,17 +35,15 @@ logger = logging.getLogger(__name__)
 
 
 class IniFileInput(CrudityInput):
-    name = u'ini'
+    name = 'ini'
     method = 'create'
-    verbose_name = _(u'File - INI')
-    verbose_method = _(u'Create')  # TODO: factorise + retrieve with 'method'
+    verbose_name = _('File - INI')
+    verbose_method = _('Create')  # TODO: factorise + retrieve with 'method'
     brickheader_action_templates = ('crudity/bricks/header-actions/inifile-creation-template.html',)
 
     def create(self, file_path):
         backend = None
-        # config = ConfigParser.RawConfigParser()
         config = configparser.RawConfigParser()
-        # ok = False
 
         try:
             ok = config.read(file_path)
@@ -58,7 +55,6 @@ class IniFileInput(CrudityInput):
             else:
                 try:
                     subject = config.get('head', 'action')
-                # except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
                 except (configparser.NoSectionError, configparser.NoOptionError) as e:
                     logger.warning('IniFileInput.create(): invalid file content for %s (%s)', file_path, e)
                 else:
@@ -71,7 +67,6 @@ class IniFileInput(CrudityInput):
                         for field_name in data.keys():
                             try:
                                 data[field_name] = config.get('body', field_name)
-                            # except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
                             except (configparser.NoSectionError, configparser.NoOptionError) as e:
                                 logger.warning('IniFileInput.create(): invalid data in .ini file (%s): %s', file_path, e)
 
@@ -81,7 +76,6 @@ class IniFileInput(CrudityInput):
                         if backend.is_sandbox_by_user:
                             try:
                                 username = config.get('head', 'username')
-                            # except ConfigParser.NoOptionError as e:
                             except configparser.NoOptionError as e:
                                 logger.warning('IniFileInput.create(): no "username" in [head] section of %s', file_path, e)
                             else:
@@ -100,14 +94,6 @@ class IniFileInput(CrudityInput):
                         # Create instances
                         if backend.in_sandbox:
                             # TODO: factorise with other inputs
-                            # action = WaitingAction(action=self.method,
-                            #                        ct=ContentType.objects.get_for_model(backend.model),
-                            #                        source='%s - %s' % (backend.fetcher_name, self.name),
-                            #                        subject=backend.subject,
-                            #                        user=owner,
-                            #                       )
-                            # action.set_data(data)
-                            # action.save()
                             WaitingAction.objects.create(
                                   action=self.method,
                                   ct=ContentType.objects.get_for_model(backend.model),

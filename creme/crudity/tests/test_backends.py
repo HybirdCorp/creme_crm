@@ -20,20 +20,18 @@ class BackendsTestCase(CrudityTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(BackendsTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls._original_crudity_registry = registry.crudity_registry
 
     @classmethod
     def tearDownClass(cls):
-        # super(BackendsTestCase, cls).tearDownClass()
         super().tearDownClass()
 
         registry.crudity_registry = cls._original_crudity_registry
 
-    def _get_backend(self, model_klass, password=u"", in_sandbox=True,
-                     body_map=None, subject=u"", limit_froms=()):
+    def _get_backend(self, model_klass, password='', in_sandbox=True,
+                     body_map=None, subject='', limit_froms=()):
         class SubCrudityBackend(CrudityBackend):
             model = model_klass
 
@@ -49,7 +47,7 @@ class BackendsTestCase(CrudityTestCase):
         backend = self._get_backend(FakeContact)
         self.assertFalse(backend.is_configured)
 
-        backend2 = self._get_backend(FakeContact, subject=u'contact', body_map={'user_id': 1})
+        backend2 = self._get_backend(FakeContact, subject='contact', body_map={'user_id': 1})
         self.assertTrue(backend2.is_configured)
 
     def test_check_configuration01(self):

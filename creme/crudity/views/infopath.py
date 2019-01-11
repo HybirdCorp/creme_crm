@@ -24,7 +24,6 @@ from creme.creme_core.auth.decorators import permission_required, login_required
 
 from .. import registry
 from ..backends.models import CrudityBackend
-# from ..registry import crudity_registry
 from ..builders.infopath import InfopathFormBuilder
 
 
@@ -41,6 +40,6 @@ def create_form(request, subject):
             break
 
     if backend is None:
-        raise Http404(u'This backend is not registered')
+        raise Http404('This backend is not registered')
 
     return InfopathFormBuilder(request, backend).render()

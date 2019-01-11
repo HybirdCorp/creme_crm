@@ -38,7 +38,6 @@ from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.documents import get_document_model, get_folder_model
 
 from ..bricks import WaitingActionsBrick
-# from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from ..exceptions import ImproperlyConfiguredBackend
 from ..models import History
 from ..setting_keys import sandbox_key
@@ -57,11 +56,11 @@ class CrudityBackend:
     fetcher_name = ''  # Name of the fetcher (eg: 'emails')
     input_name   = ''  # Name of the CrudityInput (eg: 'raw')  # TODO: useless with 'crud_input' attribute ?
 
-    password    = u''   # Password to check permission
+    password    = ''   # Password to check permission
     in_sandbox  = True  # Show in sandbox (if False can be shown only in history & the creation will be automatic)
     body_map    = {}    # Mapping email body's key <==> model's key, value in the dict is the default value
     limit_froms = ()    # If "recipient" doesn't the backend policy
-    subject     = u''   # Matched subject
+    subject     = ''   # Matched subject
     brick_classes = (WaitingActionsBrick,)   # Bricks classes
 
     def __init__(self, config, crud_input=None, *args, **kwargs):
@@ -84,7 +83,6 @@ class CrudityBackend:
 
         self._sandbox_by_user = None
         self._check_configuration()
-        # self.buttons = []
 
     @property
     def is_configured(self):
@@ -110,7 +108,6 @@ class CrudityBackend:
     @property
     def is_sandbox_by_user(self):
         if self._sandbox_by_user is None:
-            # self._sandbox_by_user = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER).value
             self._sandbox_by_user = SettingValue.objects.get_4_key(sandbox_key, default=False).value
 
         return self._sandbox_by_user
@@ -125,7 +122,6 @@ class CrudityBackend:
         return re.sub(r'\s', '', subject or '').upper()
 
     def create(self, action):
-        # return self._create_instance_n_history(action.get_data(), action.user, action.source, action.action)
         return self._create_instance_n_history(action.data, action.user, action.source, action.action)
 
     def _create_instance_before_save(self, instance, data):

@@ -24,7 +24,7 @@ try:
     from ..backends.models import CrudityBackend
     from ..builders.infopath import InfopathFormBuilder, InfopathFormField
     from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend,
-            Contact, Document)  # FakeFetcher  FakeInput
+            Contact, Document)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -48,20 +48,17 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(InfopathFormBuilderTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls._original_crudity_registry = registry.crudity_registry
 
     @classmethod
     def tearDownClass(cls):
-        # super(InfopathFormBuilderTestCase, cls).tearDownClass()
         super().tearDownClass()
 
         registry.crudity_registry = cls._original_crudity_registry
 
     def setUp(self):
-        # super(InfopathFormBuilderTestCase, self).setUp()
         super().setUp()
         self.request = request = RequestFactory().get('/')  # Url doesn't matter
         request.user = self.user
@@ -552,9 +549,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_view_xsl02(self):
         "Deeper with DateField"
-        # d_ns = {'xsl': '{http://www.w3.org/1999/XSL/Transform}',
-        #         'xd': '{http://schemas.microsoft.com/office/infopath/2003}',
-        #        }
         xsl = '{http://www.w3.org/1999/XSL/Transform}'
         field_name = 'birthday'
         backend = self._get_backend(ContactFakeBackend, subject='create_contact',
@@ -572,9 +566,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_view_xsl03(self):
         "Deeper with ForeignKey"
-        # d_ns = {'xsl': '{http://www.w3.org/1999/XSL/Transform}',
-        #         'xd': '{http://schemas.microsoft.com/office/infopath/2003}'
-        #        }  # TODO: factorise ??
         xsl = '{http://www.w3.org/1999/XSL/Transform}'
         xd  ='{http://schemas.microsoft.com/office/infopath/2003}'
 
@@ -657,9 +648,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         languages = Language.objects.all()
         self.assertTrue(languages)
 
-        # d_ns = {'xsl': '{http://www.w3.org/1999/XSL/Transform}',
-        #         'xd': '{http://schemas.microsoft.com/office/infopath/2003}',
-        #        }
         xsl = '{http://www.w3.org/1999/XSL/Transform}'
         xd = '{http://schemas.microsoft.com/office/infopath/2003}'
 
@@ -721,9 +709,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
         content = builder.render().content
 
-        # self.assertIn('<my:first_name></my:first_name>',            content)
-        # self.assertIn('<my:last_name></my:last_name>',              content)
-        # self.assertIn('<my:birthday xsi:nil="true"></my:birthday>', content)
         self.longMessage = False
         error_msg = 'Not found in (truncated): {}'.format(content[:100])
         self.assertIn(b'<my:first_name></my:first_name>',            content, error_msg)
@@ -732,11 +717,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_get_create_form_view01(self):
         "Backend not registered"
-        # subject = 'create_contact'
-        # self._get_backend(ContactFakeBackend, subject=subject,
-        #                   body_map={}, model=Contact
-        #                  )
-        # self.assertGET404(reverse('crudity__dl_infopath_form', args=(subject,)))
         registry.crudity_registry = crudity_registry = registry.CRUDityRegistry()
         crudity_registry.autodiscover()
         registry.crudity_registry.dispatch([
@@ -777,9 +757,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                          )
 
     @skipIf(lcabMissing, 'Lcab seems not installed')
-    # def test_get_create_form_view02(self):
     def test_get_create_form_view03(self):
-        # crudity_registry = registry.crudity_registry
         subject = 'CREATE CONTACT'
 
         registry.crudity_registry = crudity_registry = registry.CRUDityRegistry()
@@ -797,17 +775,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             },
         ])
 
-        # subject = 'create_contact'
-        # backend = self._get_backend(ContactFakeBackend, subject=subject, body_map={})
-        #
-        # crudity_registry.register_fetchers('test', [FakeFetcher()])
-        # input = FakeInput()
-        # input.method = 'create'
-        # input.name = 'infopath'
-        # input.add_backend(backend)
-        # crudity_registry.register_inputs('test', [input])
-
-        # response = self.assertGET200(reverse('crudity__dl_infopath_form', args=(subject,)))
         response = self.assertGET200(reverse('crudity__dl_infopath_form',
                                              args=(CrudityBackend.normalize_subject(subject),)
                                             )
@@ -817,7 +784,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
 class InfopathFormFieldTestCase(CrudityTestCase):
     def setUp(self):
-        # super(InfopathFormFieldTestCase, self).setUp()
         super().setUp()
         # TODO: factorise
         self.request = request = RequestFactory().get('/')  # Url doesn't matter
