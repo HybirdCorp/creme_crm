@@ -47,11 +47,13 @@ creme.activities.ExportAsICalAction = creme.component.Action.sub({
     }
 });
 
+/*
 creme.activities.exportAsICal = function(list, url) {
     console.warn('creme.activities.exportAsICal is deprecated. Use ExportAsICalAction instead.');
     var action = new creme.activities.ExportAsICalAction(list, {url: url});
     action.start();
 };
+*/
 
 $(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actions) {
     actions.register('activities-export-ical', function(url, options, data, e) {

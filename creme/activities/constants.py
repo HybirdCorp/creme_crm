@@ -54,7 +54,7 @@ STATUS_CANCELLED   = 5
 SETTING_DISPLAY_REVIEW     = 'activities-display_review_activities_blocks'
 SETTING_AUTO_ORGA_SUBJECTS = 'activities-auto_orga_subjects'
 SETTING_FORM_USERS_MSG     = 'activities-form_user_messages'
-DISPLAY_REVIEW_ACTIVITIES_BLOCKS = SETTING_DISPLAY_REVIEW  # DEPRECATED
+# DISPLAY_REVIEW_ACTIVITIES_BLOCKS = SETTING_DISPLAY_REVIEW
 
 # Floating styles
 NARROW        = 1
