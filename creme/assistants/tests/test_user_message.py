@@ -211,39 +211,39 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(4, len(messages))
         self.assertEqual(set(users), {msg.recipient for msg in messages})
 
-    def test_get_messages(self):
-        priority = UserMessagePriority.objects.create(title='Important')
-        user3    = User.objects.create_user('User3', email='user01@foobar.com',
-                                            first_name='User01', last_name='Foo',
-                                           )
-        entity1 = self.entity
-        entity2 = FakeOrganisation.objects.create(user=self.user, name='Thousand sunny')
+    # def test_get_messages(self):
+    #     priority = UserMessagePriority.objects.create(title='Important')
+    #     user3    = User.objects.create_user('User3', email='user01@foobar.com',
+    #                                         first_name='User01', last_name='Foo',
+    #                                        )
+    #     entity1 = self.entity
+    #     entity2 = FakeOrganisation.objects.create(user=self.user, name='Thousand sunny')
+    #
+    #     create_msg = self._create_usermessage
+    #     create_msg('TITLE#1', 'BODY#1', priority, [self.other_user], entity1)
+    #     create_msg('TITLE#2', 'BODY#2', priority, [user3],           entity1)
+    #     create_msg('TITLE#3', 'BODY#3', priority, [user3],           entity2)
+    #
+    #     self.assertEqual(['TITLE#2'],
+    #                      [msg.title for msg in UserMessage.get_messages(entity=entity1, user=user3)]
+    #                     )
 
-        create_msg = self._create_usermessage
-        create_msg('TITLE#1', 'BODY#1', priority, [self.other_user], entity1)
-        create_msg('TITLE#2', 'BODY#2', priority, [user3],           entity1)
-        create_msg('TITLE#3', 'BODY#3', priority, [user3],           entity2)
-
-        self.assertEqual(['TITLE#2'],
-                         [msg.title for msg in UserMessage.get_messages(entity=entity1, user=user3)]
-                        )
-
-    def test_get_messages_for_home(self):
-        priority = UserMessagePriority.objects.create(title='Important')
-        user3    = User.objects.create_user('User3', email='user01@foobar.com',
-                                            first_name='User01', last_name='Foo',
-                                           )
-        entity1 = self.entity
-        entity2 = FakeOrganisation.objects.create(user=self.user, name='Thousand sunny')
-
-        create_msg = self._create_usermessage
-        create_msg('TITLE#1', 'BODY#1', priority, [self.other_user], entity1)
-        create_msg('TITLE#2', 'BODY#2', priority, [user3],           entity1)
-        create_msg('TITLE#3', 'BODY#3', priority, [user3],           entity2)
-
-        self.assertEqual(['TITLE#2', 'TITLE#3'],
-                         [msg.title for msg in UserMessage.get_messages_for_home(user3).order_by('id')]
-                        )
+    # def test_get_messages_for_home(self):
+    #     priority = UserMessagePriority.objects.create(title='Important')
+    #     user3    = User.objects.create_user('User3', email='user01@foobar.com',
+    #                                         first_name='User01', last_name='Foo',
+    #                                        )
+    #     entity1 = self.entity
+    #     entity2 = FakeOrganisation.objects.create(user=self.user, name='Thousand sunny')
+    #
+    #     create_msg = self._create_usermessage
+    #     create_msg('TITLE#1', 'BODY#1', priority, [self.other_user], entity1)
+    #     create_msg('TITLE#2', 'BODY#2', priority, [user3],           entity1)
+    #     create_msg('TITLE#3', 'BODY#3', priority, [user3],           entity2)
+    #
+    #     self.assertEqual(['TITLE#2', 'TITLE#3'],
+    #                      [msg.title for msg in UserMessage.get_messages_for_home(user3).order_by('id')]
+    #                     )
 
     def test_delete_related01(self):
         priority = UserMessagePriority.objects.create(title='Important')

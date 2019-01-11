@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db import models
 from django.urls import reverse
@@ -65,55 +65,55 @@ class Action(creme_models.CremeModel):
     def get_edit_absolute_url(self):
         return reverse('assistants__edit_action', args=(self.id,))
 
-    @staticmethod
-    def get_actions_it(entity, today):
-        warnings.warn('Action.get_actions_it() is deprecated.', DeprecationWarning)
-        return Action.objects.filter(entity_id=entity.id, is_ok=False, deadline__gt=today) \
-                             .select_related('user')
+    # @staticmethod
+    # def get_actions_it(entity, today):
+    #     warnings.warn('Action.get_actions_it() is deprecated.', DeprecationWarning)
+    #     return Action.objects.filter(entity_id=entity.id, is_ok=False, deadline__gt=today) \
+    #                          .select_related('user')
 
-    @staticmethod
-    def get_actions_nit(entity, today):
-        warnings.warn('Action.get_actions_nit() is deprecated.', DeprecationWarning)
-        return Action.objects.filter(entity_id=entity.id, is_ok=False, deadline__lte=today) \
-                             .select_related('user')
+    # @staticmethod
+    # def get_actions_nit(entity, today):
+    #     warnings.warn('Action.get_actions_nit() is deprecated.', DeprecationWarning)
+    #     return Action.objects.filter(entity_id=entity.id, is_ok=False, deadline__lte=today) \
+    #                          .select_related('user')
 
-    @staticmethod
-    def get_actions_it_for_home(user, today):
-        warnings.warn('Action.get_actions_it_for_home() is deprecated.', DeprecationWarning)
-        return Action.objects.filter(is_ok=False,
-                                     deadline__gt=today,
-                                     user__in=[user] + user.teams,
-                                    ) \
-                             .select_related('user')
+    # @staticmethod
+    # def get_actions_it_for_home(user, today):
+    #     warnings.warn('Action.get_actions_it_for_home() is deprecated.', DeprecationWarning)
+    #     return Action.objects.filter(is_ok=False,
+    #                                  deadline__gt=today,
+    #                                  user__in=[user] + user.teams,
+    #                                 ) \
+    #                          .select_related('user')
 
-    @staticmethod
-    def get_actions_nit_for_home(user, today):
-        warnings.warn('Action.get_actions_nit_for_home() is deprecated.', DeprecationWarning)
-        return Action.objects.filter(is_ok=False,
-                                     deadline__lte=today,
-                                     user__in=[user] + user.teams,
-                                    ) \
-                             .select_related('user')
+    # @staticmethod
+    # def get_actions_nit_for_home(user, today):
+    #     warnings.warn('Action.get_actions_nit_for_home() is deprecated.', DeprecationWarning)
+    #     return Action.objects.filter(is_ok=False,
+    #                                  deadline__lte=today,
+    #                                  user__in=[user] + user.teams,
+    #                                 ) \
+    #                          .select_related('user')
 
-    @staticmethod
-    def get_actions_it_for_ctypes(ct_ids, user, today):
-        warnings.warn('Action.get_actions_it_for_ctypes() is deprecated.', DeprecationWarning)
-        return Action.objects.filter(entity_content_type__in=ct_ids,
-                                     user__in=[user] + user.teams,
-                                     is_ok=False,
-                                     deadline__gt=today,
-                                    ) \
-                             .select_related('user')
+    # @staticmethod
+    # def get_actions_it_for_ctypes(ct_ids, user, today):
+    #     warnings.warn('Action.get_actions_it_for_ctypes() is deprecated.', DeprecationWarning)
+    #     return Action.objects.filter(entity_content_type__in=ct_ids,
+    #                                  user__in=[user] + user.teams,
+    #                                  is_ok=False,
+    #                                  deadline__gt=today,
+    #                                 ) \
+    #                          .select_related('user')
 
-    @staticmethod
-    def get_actions_nit_for_ctypes(ct_ids, user, today):
-        warnings.warn('Action.get_actions_nit_for_ctypes() is deprecated.', DeprecationWarning)
-        return Action.objects.filter(entity_content_type__in=ct_ids,
-                                     user__in=[user] + user.teams,
-                                     is_ok=False,
-                                     deadline__lte=today
-                                    ) \
-                             .select_related('user')
+    # @staticmethod
+    # def get_actions_nit_for_ctypes(ct_ids, user, today):
+    #     warnings.warn('Action.get_actions_nit_for_ctypes() is deprecated.', DeprecationWarning)
+    #     return Action.objects.filter(entity_content_type__in=ct_ids,
+    #                                  user__in=[user] + user.teams,
+    #                                  is_ok=False,
+    #                                  deadline__lte=today
+    #                                 ) \
+    #                          .select_related('user')
 
     def get_related_entity(self):  # For generic views
         return self.creme_entity
