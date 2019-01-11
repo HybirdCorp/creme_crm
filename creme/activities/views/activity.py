@@ -271,7 +271,6 @@ def listview(request, type_id=None):
         kwargs['extra_q'] = Q(type=type_id)
 
     return generic.list_view(request, Activity, hf_pk=constants.DEFAULT_HFILTER_ACTIVITY,
-                             # extra_dict={'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )},
                              **kwargs
                             )
 
@@ -440,16 +439,7 @@ class ActivityEdition(generic.EntityEdition):
 
 @login_required
 @permission_required('activities')
-# def download_ical(request, ids=None):
 def download_ical(request):
-    # if ids is not None:
-    #     warnings.warn('download_ical(): the URL argument "ids" is deprecated ; '
-    #                   'use the GET parameter "id" instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     act_ids = ids.split(',')
-    # else:
-    #     act_ids = request.GET.getlist('id')
     act_ids = request.GET.getlist('id')
 
     # TODO: is_deleted=False ??

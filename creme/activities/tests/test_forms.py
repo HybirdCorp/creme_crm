@@ -17,7 +17,6 @@ __all__ = ('ActivityTypeFieldTestCase',)
 class ActivityTypeFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(ActivityTypeFieldTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls.atype = ActivityType.objects.create(id='meeting', name='Meeting',

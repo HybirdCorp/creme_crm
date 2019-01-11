@@ -51,7 +51,6 @@ class ParticipantCreateForm(CremeForm):
     participants        = MultiCreatorEntityField(label=_('Participants'), model=Contact, required=False)
 
     def __init__(self, entity, *args, **kwargs):
-        # super(ParticipantCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.activity = entity
         self.participants = set()
@@ -65,9 +64,6 @@ class ParticipantCreateForm(CremeForm):
                                          )
 
         participants_field = fields['participants']
-        # participants_field.q_filter = {'~pk__in': [c.id for c in existing],
-        #                                'is_user__isnull': True,
-        #                               }
         participants_field.q_filter = ~Q(pk__in=[c.id for c in existing]) & \
                                        Q(is_user__isnull=True)
         participants_field.force_creation = True  # TODO: in constructor ?
@@ -106,7 +102,6 @@ class ParticipantCreateForm(CremeForm):
     def clean_my_participation(self):
         my_participation = self.cleaned_data['my_participation']
 
-        # if my_participation:
         if my_participation[0]:
             user = self.user
             self.participants.add(validators.validate_linkable_entity(user.linked_contact, user))
@@ -114,7 +109,6 @@ class ParticipantCreateForm(CremeForm):
         return my_participation
 
     def clean(self):
-        # cleaned_data = super(ParticipantCreateForm, self).clean()
         cleaned_data = super().clean()
 
         if not self._errors:
@@ -134,8 +128,6 @@ class ParticipantCreateForm(CremeForm):
 
     def save(self):
         activity = self.activity
-
-        # create_relation = partial(Relation.objects.create, object_entity=activity,
         create_relation = partial(Relation.objects.safe_create, object_entity=activity,
                                   type_id=constants.REL_SUB_PART_2_ACTIVITY, user=activity.user,
                                  )
@@ -156,7 +148,6 @@ class SubjectCreateForm(CremeForm):
     subjects = MultiGenericEntityField(label=_('Subjects'))
 
     def __init__(self, entity, *args, **kwargs):
-        # super(SubjectCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.activity = entity
         self.rtype = rtype = RelationType.objects.get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
@@ -185,7 +176,6 @@ class SubjectCreateForm(CremeForm):
         return subjects
 
     def save(self):
-        # create_relation = partial(Relation.objects.create, type=self.rtype,
         create_relation = partial(Relation.objects.safe_create, type=self.rtype,
                                   object_entity=self.activity, user=self.user,
                                  )

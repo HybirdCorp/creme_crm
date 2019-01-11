@@ -19,7 +19,6 @@
 ################################################################################
 
 from itertools import chain
-# import warnings
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -66,10 +65,6 @@ class ParticipantsBrick(QuerysetBrick):
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??
         # TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
-        # contacts = {c.id: c
-        #                 for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations])
-        #                                         .select_related('user', 'is_user', 'civility')
-        #            }
         contacts = Contact.objects.filter(pk__in=[r.object_entity_id for r in relations]) \
                                   .select_related('user', 'is_user', 'civility') \
                                   .in_bulk()
@@ -131,14 +126,7 @@ class FutureActivitiesBrick(QuerysetBrick):
         else:
             return Activity.get_future_linked(entity, context['today'])
 
-    # def _get_queryset_for_ctypes(self, ct_ids, context):
-    #     warnings.warn('activities.bricks.FutureActivitiesBrick._get_queryset_for_ctypes() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
-
     def get_template_context(self, *args, **kwargs):
-        # ctxt = super(FutureActivitiesBrick, self).get_template_context(*args, **kwargs)
         ctxt = super().get_template_context(*args, **kwargs)
 
         activities = ctxt['page'].object_list
@@ -161,7 +149,6 @@ class FutureActivitiesBrick(QuerysetBrick):
                                                 )
                            )
 
-        # ctxt['display_review'] = Activity.display_review()
         ctxt['display_review'] = SettingValue.objects.get_4_key(review_key).value
 
         return ctxt
@@ -172,14 +159,6 @@ class FutureActivitiesBrick(QuerysetBrick):
                     self._get_queryset_for_entity(context['object'], context).select_related('status'),
                     rtype_id=constants.REL_SUB_LINKED_2_ACTIVITY,
         ))
-
-    # def portal_display(self, context, ct_ids):
-    #     warnings.warn('activities.bricks.FutureActivitiesBrick.portal_display() is deprecated.', DeprecationWarning)
-    #
-    #     return self._render(self.get_template_context(
-    #                 context,
-    #                 self._get_queryset_for_ctypes(ct_ids, context).select_related('status'),
-    #     ))
 
     def home_display(self, context):
         return self._render(self.get_template_context(
@@ -200,12 +179,6 @@ class PastActivitiesBrick(FutureActivitiesBrick):
             return Activity.get_past_linked_for_orga(entity, context['today'])
         else:
             return Activity.get_past_linked(entity, context['today'])
-
-    # def _get_queryset_for_ctypes(self, ct_ids, context):
-    #     warnings.warn('activities.bricks.PastActivitiesBrick._get_queryset_for_ctypes() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return Activity.get_past_linked_for_ctypes(ct_ids, context['today'])
 
 
 class UserCalendarsBrick(QuerysetBrick):

@@ -23,7 +23,6 @@ from copy import copy
 from datetime import datetime, timedelta
 import logging
 from json import dumps as jsondumps
-# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
@@ -33,7 +32,6 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.timezone import now, make_naive, get_current_timezone
-# from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -188,20 +186,8 @@ def user_calendar(request):
 @login_required
 @permission_required('activities')
 @jsonify
-# def get_users_activities(request, calendar_ids=None):
 def get_users_activities(request):
     GET = request.GET
-
-    # if calendar_ids is not None:
-    #     warnings.warn('activities.views.calendar.get_users_activities(): '
-    #                   'the URL argument "calendar_ids" is deprecated ; '
-    #                   'use the GET parameter "calendar_id" instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     calendar_ids = calendar_ids.split(',')
-    # else:
-    #     calendar_ids = GET.getlist('calendar_id')
     calendar_ids = GET.getlist('calendar_id')
 
     user = request.user
@@ -249,7 +235,6 @@ def update_activity_date(request):
 
     is_all_day = is_all_day.lower() in {'1', 'true'} if is_all_day else False
 
-    # activity = Activity.objects.get(pk=act_id)
     try:
         activity = Activity.objects.select_for_update().get(pk=act_id)
     except Activity.DoesNotExist as e:
@@ -284,26 +269,12 @@ def update_activity_date(request):
     activity.save()
 
 
-# @login_required
-# @permission_required('activities')
-# def add_user_calendar(request):
-#     return generic.add_model_with_popup(request, calendar_forms.CalendarForm,
-#                                         title=_('Create a calendar'),
-#                                         submit_label=_('Save the calendar'),
-#                                        )
 class CalendarCreation(generic.CremeModelCreationPopup):
     model = Calendar
     form_class = calendar_forms.CalendarForm
     permissions = 'activities'
 
 
-# @login_required
-# @permission_required('activities')
-# def edit_user_calendar(request, calendar_id):
-#     return generic.edit_model_with_popup(request, query_dict={'pk': calendar_id},
-#                                          model=Calendar, form_class=calendar_forms.CalendarForm,
-#                                          can_change=lambda calendar, user: calendar.user == user,  # todo: and superuser ??
-#                                         )
 class CalendarEdition(generic.CremeModelEditionPopup):
     model = Calendar
     form_class = calendar_forms.CalendarForm
@@ -336,15 +307,6 @@ def delete_user_calendar(request):
     calendar.delete()
 
 
-# @login_required
-# @permission_required('activities')
-# def link_user_calendar(request, activity_id):
-#     return generic.edit_model_with_popup(request, query_dict={'pk': activity_id},
-#                                          model=Activity,
-#                                          form_class=calendar_forms.ActivityCalendarLinkerForm,
-#                                          title_format=_('Change calendar of «%s»'),
-#                                          can_change=lambda activity, user: True,
-#                                         )
 class CalendarLinking(generic.CremeModelEditionPopup):
     model = Activity
     form_class = calendar_forms.ActivityCalendarLinkerForm

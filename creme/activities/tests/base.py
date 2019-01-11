@@ -29,7 +29,6 @@ def skipIfCustomActivity(test_func):
 class _ActivitiesTestCase(CremeTestCase):
     def login(self, is_superuser=True, is_staff=False,
               allowed_apps=('activities', 'persons'), *args, **kwargs):
-        # return super(_ActivitiesTestCase, self).login(is_superuser=is_superuser,
         return super().login(is_superuser=is_superuser,
                              is_staff=is_staff,
                              allowed_apps=allowed_apps,

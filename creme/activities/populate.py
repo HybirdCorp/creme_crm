@@ -190,11 +190,6 @@ class Populator(BasePopulator):
             create_bdl(brick_id=future_id, order=20, zone=RIGHT, model=Organisation)
             create_bdl(brick_id=past_id,   order=21, zone=RIGHT, model=Organisation)
 
-            # BlockPortalLocation.create_or_update(app_name='persons',    brick_id=future_id, order=20)
-            # BlockPortalLocation.create_or_update(app_name='persons',    brick_id=past_id,   order=21)
-
-            # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=future_id, order=20)
-            # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=past_id,   order=21)
             BrickHomeLocation.objects.create(brick_id=future_id, order=20)
             BrickHomeLocation.objects.create(brick_id=past_id, order=21)
 
@@ -203,4 +198,3 @@ class Populator(BasePopulator):
             create_button('activities-add_activity_button',  model=None, button=buttons.AddRelatedActivityButton, order=10)
             create_button('activities-add_meeting_button',   model=None, button=buttons.AddMeetingButton,         order=11)
             create_button('activities-add_phonecall_button', model=None, button=buttons.AddPhoneCallButton,       order=12)
-            # create_button('activities-add_task_button',      model=None, button=buttons.AddTaskButton,            order=13)

@@ -95,16 +95,16 @@ class RelatedExtractor:
                 length = len(contacts)
 
                 if length > MAX_RELATIONSHIPS:
-                    err_msg = _(u'Too many contacts were found for the search «{}»').format(
+                    err_msg = _('Too many contacts were found for the search «{}»').format(
                                 self._searched_contact(first_name, last_name))
                 else:
                     if length > 1:
-                        err_msg = _(u'Several contacts were found for the search «{}»').format(
+                        err_msg = _('Several contacts were found for the search «{}»').format(
                                     self._searched_contact(first_name, last_name))
 
                     extracted = contacts
             else:
-                err_msg = _(u'No linkable contact found for the search «{}»').format(
+                err_msg = _('No linkable contact found for the search «{}»').format(
                             self._searched_contact(first_name, last_name))
         elif self._create:
             extracted = [Contact.objects.create(user=user,
@@ -119,7 +119,7 @@ class RelatedExtractor:
                                                )
                         ]
         else:
-            err_msg = _(u'The participant «{}» is unfoundable').format(
+            err_msg = _('The participant «{}» is unfoundable').format(
                         self._searched_contact(first_name, last_name))
 
         return extracted, (err_msg,) if err_msg else ()
@@ -201,7 +201,6 @@ _PATTERNS = OrderedDict([('1', _pattern_CFL),
 
 class MultiColumnsParticipantsExtractor(RelatedExtractor):
     def __init__(self, first_name_index, last_name_index, create_if_unfound=False):
-        # super(MultiColumnsParticipantsExtractor, self).__init__(create_if_unfound)
         super().__init__(create_if_unfound)
         self._first_name_index = first_name_index - 1 if first_name_index else None
         self._last_name_index = last_name_index - 1
@@ -219,7 +218,6 @@ class MultiColumnsParticipantsExtractor(RelatedExtractor):
 
 class SplitColumnParticipantsExtractor(RelatedExtractor):
     def __init__(self, column_index, separator, pattern_func, create_if_unfound=False):
-        # super(SplitColumnParticipantsExtractor, self).__init__(create_if_unfound)
         super().__init__(create_if_unfound)
         self._column_index = column_index - 1
         self._separator = separator
@@ -245,13 +243,11 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
     template_name = 'activities/forms/widgets/mass-import/participants-extractor.html'
 
     def __init__(self, *args, **kwargs):
-        # super(ParticipantsExtractorWidget, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.propose_creation = False
 
     def get_context(self, name, value, attrs):
         value = value or {}
-        # context = super(ParticipantsExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
@@ -315,7 +311,6 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
 
 class ParticipantsExtractorField(Field):
     def __init__(self, choices, *args, **kwargs):
-        # super(ParticipantsExtractorField, self).__init__(widget=ParticipantsExtractorWidget, *args, **kwargs)
         super().__init__(widget=ParticipantsExtractorWidget, *args, **kwargs)
         self._user = None
         self._can_create = False
@@ -394,7 +389,6 @@ class ParticipantsExtractorField(Field):
 
 class SubjectsExtractor(RelatedExtractor):
     def __init__(self, column_index, separator, create_if_unfound=False):
-        # super(SubjectsExtractor, self).__init__(create_if_unfound)
         super().__init__(create_if_unfound)
         self._column_index = column_index - 1
         self._separator = separator
@@ -430,14 +424,14 @@ class SubjectsExtractor(RelatedExtractor):
                     length = len(linkable_extracted)
 
                     if length > MAX_RELATIONSHIPS:
-                        err_msg.append(_(u'Too many «{models}» were found for the search «{search}»').format(
+                        err_msg.append(_('Too many «{models}» were found for the search «{search}»').format(
                                             models=model._meta.verbose_name_plural,
                                             search=search,
                                         )
                                       )
                     else:
                         if length > 1:
-                            err_msg.append(_(u'Several «{models}» were found for the search «{search}»').format(
+                            err_msg.append(_('Several «{models}» were found for the search «{search}»').format(
                                                 models=model._meta.verbose_name_plural,
                                                 search=search,
                                             )
@@ -453,9 +447,9 @@ class SubjectsExtractor(RelatedExtractor):
                 if self._create:
                     extracted.append(Organisation.objects.create(user=user, name=search))
                 elif unlinkable_found:
-                    err_msg.append(_(u'No linkable entity found for the search «{}»').format(search))
+                    err_msg.append(_('No linkable entity found for the search «{}»').format(search))
                 else:
-                    err_msg.append(_(u'The subject «{}» is unfoundable').format(search))
+                    err_msg.append(_('The subject «{}» is unfoundable').format(search))
 
         return extracted, err_msg
 
@@ -464,13 +458,11 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
     template_name = 'activities/forms/widgets/mass-import/subjects-extractor.html'
 
     def __init__(self, *args, **kwargs):
-        # super(SubjectsExtractorWidget, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.propose_creation = False
 
     def get_context(self, name, value, attrs):
         value = value or {}
-        # context = super(SubjectsExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
@@ -513,7 +505,6 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
 
 class SubjectsExtractorField(Field):
     def __init__(self, choices, *args, **kwargs):
-        # super(SubjectsExtractorField, self).__init__(widget=SubjectsExtractorWidget, *args, **kwargs)
         super().__init__(widget=SubjectsExtractorWidget, *args, **kwargs)
         self._user = None
         self._can_create = False
@@ -558,31 +549,30 @@ class SubjectsExtractorField(Field):
 # Main -------------------------------------------------------------------------
 def get_massimport_form_builder(header_dict, choices):
     class ActivityMassImportForm(ImportForm4CremeEntity):
-        type_selector = ActivityTypeField(label=_(u'Type'),
+        type_selector = ActivityTypeField(label=_('Type'),
                                           types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
                                          )
 
-        my_participation    = UserParticipationField(label=_(u'Do I participate to this activity?'), empty_label=None)
+        my_participation    = UserParticipationField(label=_('Do I participate to this activity?'), empty_label=None)
 
-        participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
+        participating_users = ModelMultipleChoiceField(label=_('Other participating users'),
                                                        queryset=get_user_model().objects.filter(is_staff=False),
                                                        required=False,
                                                       )
-        participants        = ParticipantsExtractorField(choices, label=_(u'Participants'), required=False)
+        participants        = ParticipantsExtractorField(choices, label=_('Participants'), required=False)
 
-        subjects = SubjectsExtractorField(choices, label=_(u'Subjects (organisations only)'), required=False)
+        subjects = SubjectsExtractorField(choices, label=_('Subjects (organisations only)'), required=False)
 
         class Meta:
             exclude = ('type', 'sub_type', 'busy')
 
         blocks = ImportForm4CremeEntity.blocks.new(
-                            ('participants',   _(u'Participants & subjects'),
+                            ('participants',   _('Participants & subjects'),
                              ['my_participation', 'participating_users', 'participants', 'subjects']
                             ),
                         )
 
         def __init__(self, *args, **kwargs):
-            # super(ActivityMassImportForm, self).__init__(*args, **kwargs)
             super().__init__(*args, **kwargs)
             self.fields['my_participation'].initial = (True, Calendar.get_user_default_calendar(self.user))
 
@@ -604,7 +594,6 @@ def get_massimport_form_builder(header_dict, choices):
             if start:
                 null_time = time(0)
 
-                # if not start.time() and (not end or not end.time()):
                 if start.time() == null_time and (not end or end.time() == null_time):
                     instance.end = make_aware_dt(datetime.combine(start, time(hour=23, minute=59)))
                     instance.floating_type = constants.FLOATING_TIME
@@ -612,12 +601,11 @@ def get_massimport_form_builder(header_dict, choices):
                     instance.end = start + instance.type.as_timedelta()
                 elif start > instance.end:
                     instance.end = start + instance.type.as_timedelta()
-                    self.append_error(_(u'End time is before start time'))
+                    self.append_error(_('End time is before start time'))
             else:
                 instance.floating_type = constants.FLOATING
 
         def _post_instance_creation(self, instance, line, updated):
-            # super(ActivityMassImportForm, self)._post_instance_creation(instance, line, updated)
             super()._post_instance_creation(instance, line, updated)
 
             cdata = self.cleaned_data
@@ -631,18 +619,9 @@ def get_massimport_form_builder(header_dict, choices):
                                                               )
                                                        .values_list('subject_entity', flat=True)
                                       )
-            #     create_sub_rel = partial(Relation.objects.get_or_create, object_entity=instance,
-            #                              type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-            #                              defaults={'user': user},
-            #                             )
-            # else:
-            #     create_sub_rel = partial(Relation.objects.create, object_entity=instance,
-            #                              type_id=constants.REL_SUB_ACTIVITY_SUBJECT, user=user,
-            #                             )
 
             def add_participant(participant):
                 if participant.id not in participant_ids:
-                    # Relation.objects.create(
                     Relation.objects.safe_create(
                         subject_entity=participant,
                         type_id=constants.REL_SUB_PART_2_ACTIVITY,
@@ -690,16 +669,6 @@ def get_massimport_form_builder(header_dict, choices):
             for err_msg in err_messages:
                 self.append_error(err_msg)
 
-            # create_sub_rel = partial(Relation.objects.get_or_create, object_entity=instance,
-            #                          type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-            #                          defaults={'user': user},
-            #                         )
-            #
-            # for subject in subjects:
-            #     try:
-            #         create_sub_rel(subject_entity=subject)
-            #     except Relation.MultipleObjectsReturned:
-            #         pass
             Relation.objects.safe_multi_save(
                 Relation(subject_entity=subject,
                          type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
