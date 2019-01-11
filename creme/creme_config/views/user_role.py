@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 
 from django.db import DatabaseError
 from django.db.transaction import atomic
@@ -38,20 +37,14 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import user_role as role_forms
-# from .portal import _config_portal
-
 
 logger = logging.getLogger(__name__)
 
 
-# @login_required
-# def portal(request):
-#     return _config_portal(request, 'creme_config/user_role_portal.html')
 class Portal(generic.BricksView):
     template_name = 'creme_config/user_role_portal.html'
 
 
-# class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
 class RoleCreationWizard(PopupWizardMixin, SessionWizardView):
     class _CredentialsStep(role_forms.UserRoleCredentialsStep):
         step_submit_label = UserRole.save_label
@@ -75,26 +68,17 @@ class RoleCreationWizard(PopupWizardMixin, SessionWizardView):
     def dispatch(self, *args, **kwargs):
         _check_superuser(self.request.user)   # TODO: set public ?
 
-        # return super(UserRoleCreationWizard, self).dispatch(*args, **kwargs)
         return super().dispatch(*args, **kwargs)
 
     def done(self, form_list, **kwargs):
         form_iter = iter(form_list)
 
         with atomic():
-            # form_list[0].partial_save()
-            # form_list[1].save()
-            #
-            # form_list[2].save()
-            # form_list[3].save()
-            #
-            # form_list[4].save()
             next(form_iter).partial_save()
 
             for form in form_iter:
                 form.save()
 
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     def get_form_instance(self, step):
@@ -102,20 +86,17 @@ class RoleCreationWizard(PopupWizardMixin, SessionWizardView):
             return self.role
 
     def get_form_kwargs(self, step):
-        # kwargs = super(UserRoleCreationWizard, self).get_form_kwargs(step)
         kwargs = super().get_form_kwargs(step)
 
         if step != '0':
             kwargs['allowed_app_names'] = self.get_cleaned_data_for_step('0')['allowed_apps']
 
         if step == '4':
-            # kwargs['role'] = self.role
             kwargs['instance'] = self.role
 
         return kwargs
 
 
-# class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
 class RoleEditionWizard(PopupWizardMixin, SessionWizardView):
     class _ExportableCTypesStep(role_forms.UserRoleExportableCTypesStep):
         step_submit_label = _('Save the modifications')
@@ -137,31 +118,23 @@ class RoleEditionWizard(PopupWizardMixin, SessionWizardView):
         self.role = role = get_object_or_404(UserRole, pk=kwargs['role_id'])
         self.wizard_title = ugettext('Edit «{}»').format(role)
 
-        # return super(UserRoleEditionWizard, self).dispatch(*args, **kwargs)
         return super().dispatch(*args, **kwargs)
 
     def done(self, form_list, **kwargs):
         form_iter = iter(form_list)
 
         with atomic():
-            # form_list[0].partial_save()
-            # form_list[1].save()
-            #
-            # form_list[2].save()
-            # form_list[3].save()
             next(form_iter).partial_save()
 
             for form in form_iter:
                 form.save()
 
-        # return HttpResponse('', content_type='text/javascript')
         return HttpResponse()
 
     def get_form_instance(self, step):
         return self.role
 
     def get_form_kwargs(self, step):
-        # kwargs = super(UserRoleEditionWizard, self).get_form_kwargs(step)
         kwargs = super().get_form_kwargs(step)
 
         if step != '0':
@@ -170,29 +143,6 @@ class RoleEditionWizard(PopupWizardMixin, SessionWizardView):
         return kwargs
 
 
-# @login_required
-# @superuser_required
-# def add_credentials(request, role_id):
-#     role = get_object_or_404(UserRole, pk=role_id)
-#
-#     if request.method == 'POST':
-#         add_form = role_forms.AddCredentialsForm(role, user=request.user, data=request.POST)
-#
-#         if add_form.is_valid():
-#             add_form.save()
-#     else:
-#         add_form = role_forms.AddCredentialsForm(role, user=request.user)
-#
-#     return generic.inner_popup(
-#         request, 'creme_core/generics/blockform/edit_popup.html',
-#         {'form':  add_form,
-#          'title': _('Add credentials to «{role}»').format(role=role),
-#          'submit_label': _('Add the credentials'),
-#         },
-#         is_valid=add_form.is_valid(),
-#         reload=False,
-#         delegate_reload=True,
-#     )
 class BaseRoleEdition(generic.CremeModelEditionPopup):
     model = UserRole
     pk_url_kwarg = 'role_id'
@@ -208,29 +158,6 @@ class CredentialsAdding(BaseRoleEdition):
     submit_label = _('Add the credentials')
 
 
-# @login_required
-# @superuser_required
-# def edit_credentials(request, cred_id):
-#     creds = get_object_or_404(SetCredentials, pk=cred_id)
-#
-#     if request.method == 'POST':
-#         edit_form = role_forms.EditCredentialsForm(instance=creds, user=request.user, data=request.POST)
-#
-#         if edit_form.is_valid():
-#             edit_form.save()
-#     else:
-#         edit_form = role_forms.EditCredentialsForm(instance=creds, user=request.user)
-#
-#     return generic.inner_popup(
-#         request, 'creme_core/generics/blockform/edit_popup.html',
-#         {'form':  edit_form,
-#          'title': _('Edit credentials for «{role}»').format(role=creds.role),
-#          'submit_label': _('Save the modifications'),
-#         },
-#         is_valid=edit_form.is_valid(),
-#         reload=False,
-#         delegate_reload=True,
-#     )
 class CredentialsEdition(generic.CremeModelEditionPopup):
     model = SetCredentials
     form_class = role_forms.EditCredentialsForm
@@ -257,17 +184,6 @@ def delete_credentials(request):
     return HttpResponse()
 
 
-# @login_required
-# @superuser_required
-# def delete(request, role_id):
-#     role = get_object_or_404(UserRole, pk=role_id)
-#
-#     return generic.add_model_with_popup(
-#         request, role_forms.UserRoleDeleteForm,
-#         _('Delete role «{}»').format(role),
-#         initial={'role_to_delete': role},
-#         submit_label=_('Delete the role'),  # todo: deletion_label ?
-#     )
 class RoleDeletion(BaseRoleEdition):
     form_class = role_forms.UserRoleDeleteForm
     template_name = 'creme_core/generics/blockform/delete-popup.html'

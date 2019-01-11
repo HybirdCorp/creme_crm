@@ -105,11 +105,9 @@ class PropertyTypeTestCase(CremeTestCase):
         pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(FakeContact)], is_custom=True)
         url = self._build_edit_url(pt)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Edit the type «{property}»').format(property=pt),
         self.assertEqual(pgettext('creme_config-property', 'Edit the type «{object}»').format(object=pt),
                          context.get('title')
                         )
@@ -117,7 +115,7 @@ class PropertyTypeTestCase(CremeTestCase):
 
         # ---
         ct_orga = get_ct(FakeOrganisation)
-        text   = 'is very beautiful'
+        text = 'is very beautiful'
         response = self.client.post(url, data={'text':           text,
                                                'subject_ctypes': [ct_orga.id],
                                               }

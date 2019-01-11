@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.forms.fields import MultipleChoiceField, CharField
@@ -32,15 +30,14 @@ from creme.creme_core.models import FieldsConfig
 
 
 class FieldsConfigAddForm(CremeForm):
-    ctype = CTypeChoiceField(label=_(u'Related resource'),
-                             help_text=_(u'The proposed types of resource have '
-                                         u'at least a field which can be hidden.'
+    ctype = CTypeChoiceField(label=_('Related resource'),
+                             help_text=_('The proposed types of resource have '
+                                         'at least a field which can be hidden.'
                                         ),
                              widget=DynamicSelect(attrs={'autocomplete': True}),
                             )
 
     def __init__(self, *args, **kwargs):
-        # super(FieldsConfigAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
         self.ctypes = ctypes = [ct for ct in map(ContentType.objects.get_for_model,
@@ -54,9 +51,9 @@ class FieldsConfigAddForm(CremeForm):
         else:
             # TODO: remove the 'submit' button ?
             self.fields['ctype'] = CharField(
-                    label=_(u'Related resource'),
+                    label=_('Related resource'),
                     required=False, widget=Label,
-                    initial=_(u'All configurable types of resource are already configured.'),
+                    initial=_('All configurable types of resource are already configured.'),
                 )
 
     def save(self):
@@ -67,13 +64,12 @@ class FieldsConfigAddForm(CremeForm):
 
 
 class FieldsConfigEditForm(CremeModelForm):
-    hidden = MultipleChoiceField(label=_(u'Hidden fields'), choices=(), required=False)
+    hidden = MultipleChoiceField(label=_('Hidden fields'), choices=(), required=False)
 
     class Meta(CremeModelForm.Meta):
         model = FieldsConfig
 
     def __init__(self, *args, **kwargs):
-        # super(FieldsConfigEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         instance = self.instance
         hidden_f = self.fields['hidden']
@@ -88,5 +84,4 @@ class FieldsConfigEditForm(CremeModelForm):
         self.instance.descriptions = [(field_name, {HIDDEN: True})
                                         for field_name in self.cleaned_data['hidden']
                                      ]
-        # return super(FieldsConfigEditForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)

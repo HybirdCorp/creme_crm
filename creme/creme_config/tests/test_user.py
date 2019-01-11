@@ -2,7 +2,6 @@
 
 try:
     from functools import partial
-    # from json import loads as jsonloads
     from unittest import skipIf
 
     from django.conf import settings
@@ -14,7 +13,7 @@ try:
     from creme.creme_core.core.setting_key import SettingKey, UserSettingKey, user_setting_key_registry
     from creme.creme_core.models import CremeUser as User
     from creme.creme_core.models import (CremeEntity, RelationType,
-            EntityCredentials, UserRole, SetCredentials, Mutex)  # SettingValue
+            EntityCredentials, UserRole, SetCredentials, Mutex)
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -22,7 +21,7 @@ try:
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
 
-    from ..bricks import UsersBrick, TeamsBrick, BrickMypageLocationsBrick  # UserPreferredMenusBrick
+    from ..bricks import UsersBrick, TeamsBrick, BrickMypageLocationsBrick
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -89,7 +88,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         username   = 'deunan'
         first_name = 'Deunan'
-        last_name  = u'Knut'
+        last_name  = 'Knut'
         password   = 'password'
         email      = 'd.knut@eswat.ol'
         response = self.client.post(url, follow=True,
@@ -143,7 +142,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         username = 'dknut@eswat.ol'
         password = 'password'
         first_name = 'Deunan'
-        last_name = u'Knut'
+        last_name = 'Knut'
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'username':     username,
                                           'password_1':   password,
@@ -228,8 +227,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                          }
                                    )
         self.assertFormError(response, 'form', 'username',
-                             _(u'Enter a valid username. This value may contain only letters, numbers, '
-                               u'and @/./+/-/_ characters.')
+                             _('Enter a valid username. This value may contain only letters, numbers, '
+                               'and @/./+/-/_ characters.')
                             )
 
     @skipIfNotCremeUser
@@ -249,7 +248,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                 'relation':     REL_SUB_EMPLOYED_BY,
                }
         response = self.assertPOST200(url, follow=True, data=data)
-        msg = _(u'This field is required.')
+        msg = _('This field is required.')
         self.assertFormError(response, 'form', 'password_1', msg)
         self.assertFormError(response, 'form', 'password_2', msg)
 
@@ -300,11 +299,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                            }
                                      )
         self.assertFormError(response, 'form', 'username',
-                             # _(u'%(model_name)s with this %(field_label)s already exists.') % {
-                             #        'model_name':  _('User'),
-                             #        'field_label': _('Username'),
-                             #    }
-                             _(u'A user with that username already exists.')
+                             _('A user with that username already exists.')
                             )
 
     @skipIfNotCremeUser
@@ -314,8 +309,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Internal relationships are forbidden."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
-        rtype = RelationType.create(('creme_config-subject_test_badrtype', u'Bad RType',     [Contact]),
-                                    ('creme_config-object_test_badrtype',  u'Bad RType sym', [Organisation]),
+        rtype = RelationType.create(('creme_config-subject_test_badrtype', 'Bad RType',     [Contact]),
+                                    ('creme_config-object_test_badrtype',  'Bad RType sym', [Organisation]),
                                     is_internal=True,  # <==
                                    )[0]
 
@@ -356,7 +351,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = self._build_edit_url(other_user.id)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(_('Edit «{object}»').format(object=other_user),
                          response.context.get('title')
@@ -490,9 +484,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         other_user = User.objects.create(username='deunan')
         url = self._build_edit_url(other_user.id, password=True)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Change password for «%s»') % other_user, response.context.get('title'))
         self.assertEqual(_('Change password for «{object}»').format(object=other_user),
                          response.context.get('title')
                         )
@@ -535,7 +527,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'password_2': password + '42',
                                          }
                                    )
-        # self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
         self.assertFormError(response, 'form', 'password_2', _(u"The two password fields didn't match."))
 
     @skipIfNotCremeUser
@@ -548,14 +539,14 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         password = 'pass'
-        response = self.assertPOST200(url, #follow=True,
+        response = self.assertPOST200(url,
                                       data={'password_1': password,
                                             'password_2': password,
                                            }
                                      )
         self.assertFormError(response, 'form', 'password_2',
-                             ungettext(u'This password is too short. It must contain at least %(min_length)d character.',
-                                       u'This password is too short. It must contain at least %(min_length)d characters.',
+                             ungettext('This password is too short. It must contain at least %(min_length)d character.',
+                                       'This password is too short. It must contain at least %(min_length)d characters.',
                                        8
                                       ) % {'min_length': 8}
                             )
@@ -831,7 +822,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Delete «{user}» and assign his entities to user').format(user=root),
         self.assertEqual(_('Delete «{object}» and assign his entities to user').format(object=root),
                          context.get('title')
                         )
@@ -885,8 +875,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         hybird = User.objects.create(username='hybird', is_staff=True)
 
         url = self._build_delete_url(hybird)
-        # self.assertGET(400, url)
-        # self.assertPOST(400, url, {'to_user': hybird.id})
         self.assertGET(404, url)
         self.assertPOST(404, url, {'to_user': user.id})
 
@@ -900,7 +888,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(superusers))
         self.assertIn(user, superusers)
 
-        # Mutex.get_n_lock('creme_config-forms-user-transfer_user')
         Mutex.get_n_lock('creme_config-user_transfer')
 
         url = self._build_delete_url(root)
@@ -924,31 +911,14 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         response = self.assertPOST200(url)  # No data
-        self.assertFormError(response, 'form', 'to_user', _(u'This field is required.'))
+        self.assertFormError(response, 'form', 'to_user', _('This field is required.'))
         self.assertEqual(count, User.objects.count())
 
         response = self.assertPOST200(url, {'to_user': root.id})  # Cannot move entities to deleted user
         self.assertFormError(response, 'form', 'to_user',
-                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                             _('Select a valid choice. That choice is not one of the available choices.')
                             )
         self.assertStillExists(user)
-
-    # @skipIfNotCremeUser
-    # def test_user_delete_settingkey(self):
-    #     "Related SettingValues are deleted."
-    #     user = self.login()
-    #
-    #     sk = SettingKey(id='unit_test-test_user_delete_settingkey', description='',
-    #                     app_label='creme_config', type=SettingKey.BOOL,
-    #                    )  # NB: we do not ne to register it (because the SettingValue's value is not used)
-    #     sv = SettingValue.objects.create(key=sk, user=self.other_user, value_str='True')
-    #
-    #     self.assertNoFormError(self.client.post(self._build_delete_url(self.other_user),
-    #                                             {'to_user': user.id}
-    #                                            )
-    #                           )
-    #     self.assertDoesNotExist(self.other_user)
-    #     self.assertDoesNotExist(sv)
 
     @skipIfNotCremeUser
     def test_user_delete_credentials(self):
@@ -994,10 +964,6 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsInstance(get('apps_usersettings_bricks'), list)  # TODO: improve
 
         doc = self.get_html_tree(response.content)
-
-        # if settings.OLD_MENU:
-        #     self.get_brick_node(doc, UserPreferredMenusBrick.id_)
-
         self.get_brick_node(doc, BrickMypageLocationsBrick.id_)
 
     @override_settings(THEMES=[('icecream',  'Ice cream'),
@@ -1040,7 +1006,6 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
                 response = self.assertGET200(url)
 
                 with self.assertNoException():
-                    # form_str = jsonloads(response.content)['form']
                     form_str = response.json()['form']
 
                 for line in form_str.split('\n'):
@@ -1087,7 +1052,7 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_edit_user_setting_value01(self):
         user = self.user
         sk = UserSettingKey('creme_config-test_edit_user_setting_value01',
-                            description=u'Page displayed',
+                            description='Page displayed',
                             app_label='creme_core',
                             type=SettingKey.BOOL, hidden=False,
                            )
@@ -1099,7 +1064,6 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         # ---
         self._register_key(sk)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -1115,19 +1079,18 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_edit_user_setting_value02(self):
         "hidden=True => error"
         sk = UserSettingKey('creme_config-test_edit_user_setting_value02',
-                            description=u'Page displayed',
+                            description='Page displayed',
                             app_label='creme_core',
                             type=SettingKey.BOOL, hidden=True,
                            )
 
         self._register_key(sk)
-        # self.assertGET404(self._build_edit_user_svalue_url(sk))
         self.assertGET409(self._build_edit_user_svalue_url(sk))
 
     def test_edit_user_setting_value03(self):
         "Not blank + STRING"
         sk = UserSettingKey('creme_config-test_edit_user_setting_value03',
-                            description=u'API key',
+                            description='API key',
                             app_label='creme_core',
                             type=SettingKey.STRING,
                            )
@@ -1135,13 +1098,13 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         self._register_key(sk)
 
         response = self.client.post(self._build_edit_user_svalue_url(sk), data={'value': ''})
-        self.assertFormError(response, 'form', 'value', _(u'This field is required.'))
+        self.assertFormError(response, 'form', 'value', _('This field is required.'))
 
     def test_edit_user_setting_value04(self):
         "Blank + STRING"
         user = self.user
         sk = UserSettingKey('creme_config-test_edit_user_setting_value04',
-                            description=u'API key',
+                            description='API key',
                             app_label='creme_core',
                             type=SettingKey.STRING,
                             blank=True,
@@ -1165,7 +1128,7 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         "Blank + INT"
         user = self.user
         sk = UserSettingKey('creme_config-test_edit_user_setting_value05',
-                            description=u'API key',
+                            description='API key',
                             app_label='creme_core',
                             type=SettingKey.INT,
                             blank=True,

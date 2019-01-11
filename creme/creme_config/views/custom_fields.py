@@ -23,39 +23,21 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CustomField
-from creme.creme_core.utils import get_from_POST_or_404  # get_ct_or_404
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from ..forms import custom_fields as cf_forms
 
 from . import base
-# from .portal import _config_portal
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def add_ct(request):
-#     return generic.add_model_with_popup(
-#               request, cf_forms.CustomFieldsCTAddForm,
-#               _('New custom field configuration'),
-#               submit_label=_('Save the configuration'),
-#     )
 class FirstCTypeCustomFieldCreation(base.ConfigModelCreation):
     model = CustomField
     form_class = cf_forms.CustomFieldsCTAddForm
     title = _('New custom field configuration')
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def add(request, ct_id):
-#     ct = get_ct_or_404(ct_id)
-#
-#     return generic.add_model_with_popup(request, cf_forms.CustomFieldsAddForm,
-#                             ugettext('New custom field for «{model}»').format(model=ct),
-#                             initial={'ct': ct},
-#                            )
 class CustomFieldCreation(EntityCTypeRelatedMixin,
                           base.ConfigModelCreation,
                          ):
@@ -74,19 +56,10 @@ class CustomFieldCreation(EntityCTypeRelatedMixin,
         )
 
 
-# @login_required
-# def portal(request):
-#     return _config_portal(request, 'creme_config/custom_fields_portal.html')
 class Portal(BricksView):
     template_name = 'creme_config/custom_fields_portal.html'
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def edit(request, field_id):
-#     return generic.edit_model_with_popup(request, {'pk': field_id},
-#                                          CustomField, cf_forms.CustomFieldsEditForm,
-#                                         )
 class CustomFieldEdition(base.ConfigModelEdition):
     model = CustomField
     form_class = cf_forms.CustomFieldsEditForm

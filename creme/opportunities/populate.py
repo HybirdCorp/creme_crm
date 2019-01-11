@@ -45,7 +45,7 @@ Opportunity = get_opportunity_model()
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme_core', 'creme_config', 'persons', 'activities', 'products', 'billing']
+    dependencies = ['creme_core', 'persons', 'activities', 'products', 'billing']  # 'creme_config'
 
     def populate(self):
         already_populated = RelationType.objects.filter(pk=constants.REL_SUB_TARGETS).exists()

@@ -86,7 +86,6 @@ class CreatorModelChoiceField(ModelChoiceField, CreatorModelChoiceMixin):
     widget = CreatorModelChoiceWidget
 
     def __init__(self, queryset, create_action_url='', user=None, *args, **kwargs):
-        # super(CreatorModelChoiceField, self).__init__(queryset, *args, **kwargs)
         super().__init__(queryset, *args, **kwargs)
         self.creation_info(create_action_url, user)
 
@@ -95,7 +94,6 @@ class CreatorModelMultipleChoiceField(ModelMultipleChoiceField, CreatorModelChoi
     widget = UnorderedMultipleChoiceWidget
 
     def __init__(self, queryset, create_action_url='', user=None, *args, **kwargs):
-        # super(CreatorModelMultipleChoiceField, self).__init__(queryset, *args, **kwargs)
         super().__init__(queryset, *args, **kwargs)
         self.creation_info(create_action_url, user)
 

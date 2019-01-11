@@ -29,7 +29,7 @@ from django.utils.html import format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
-from creme.creme_core.models import UserRole  # Mutex
+from creme.creme_core.models import UserRole
 from creme.creme_core.models.fields import CremeUserForeignKey
 
 
@@ -57,15 +57,12 @@ class UserAddForm(CremeModelForm):
     }
 
     password_1 = CharField(label=_('Password'), strip=False, widget=PasswordInput,
-                           # help_text=password_validation.password_validators_help_text_html(),
                            help_text=lazy(_password_validators_help_text_html, str),
                           )
-    # password_1   = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
     password_2 = CharField(label=_('Confirm password'),
                            widget=PasswordInput, strip=False,
                            help_text=_('Enter the same password as before, for verification.'),
                           )
-    # password_2   = CharField(label=_(u'Confirm password'), min_length=6, widget=PasswordInput())
     role         = ModelChoiceField(label=_('Role'), required=False,
                                     queryset=UserRole.objects.all(),
                                    )
@@ -75,7 +72,6 @@ class UserAddForm(CremeModelForm):
         fields = ('username', 'last_name', 'first_name', 'email', 'role') # 'is_superuser'
 
     def __init__(self, *args, **kwargs):
-        # super(UserAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
@@ -100,20 +96,11 @@ class UserAddForm(CremeModelForm):
 
         return password2
 
-    # def clean(self):
-    #     cleaned = super(UserAddForm, self).clean()
-    #
-    #     if not self._errors and cleaned['password_1'] != cleaned['password_2']:
-    #         self.add_error('password_2', _(u'Passwords are different'))
-    #
-    #     return cleaned
-
     def save(self, *args, **kwargs):
         instance = self.instance
         instance.is_superuser = (instance.role is None)  # TODO: remove field CremeUser.is_superuser ??
         instance.set_password(self.cleaned_data['password_1'])
 
-        # return super(UserAddForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -126,7 +113,6 @@ class UserEditForm(CremeModelForm):
         fields = ('first_name', 'last_name', 'email', 'role')  # 'is_superuser'
 
     def __init__(self, *args, **kwargs):
-        # super(UserEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
@@ -138,7 +124,6 @@ class UserEditForm(CremeModelForm):
         instance.role = role = self.cleaned_data['role']
         instance.is_superuser = (role is None)
 
-        # return super(UserEditForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -146,15 +131,11 @@ class UserEditForm(CremeModelForm):
 #     attribute like us (but it correspond to our 'user2edit' one, not our 'user' one)
 class UserChangePwForm(CremeForm):
     error_messages = {
-        # 'password_mismatch': _(u'Passwords are different'),
         'password_mismatch': _("The two password fields didn't match."),
     }
 
-    # password_1 = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
-    # password_2 = CharField(label=_(u'Confirm password'), min_length=6, widget=PasswordInput())
     password_1 = CharField(label=_('Password'),
                            widget=PasswordInput, strip=False,
-                           # help_text=password_validation.password_validators_help_text_html(),
                            help_text=lazy(_password_validators_help_text_html, str),
                           )
     password_2 = CharField(label=_('Password (again)'),
@@ -164,7 +145,6 @@ class UserChangePwForm(CremeForm):
 
     def __init__(self, *args, **kwargs):
         self.user2edit = kwargs.pop('instance')
-        # super(UserChangePwForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
     def clean_password_2(self):
@@ -196,15 +176,12 @@ class TeamCreateForm(CremeModelForm):
         fields = ('username',)
 
     def __init__(self, *args, **kwargs):
-        # super(TeamCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.fields['username'].label = ugettext('Team name')
 
     def save(self, *args, **kwargs):
         team = self.instance
-
         team.is_team = True
-        # super(TeamCreateForm, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
         team.teammates = self.cleaned_data['teammates']
@@ -214,7 +191,6 @@ class TeamCreateForm(CremeModelForm):
 
 class TeamEditForm(TeamCreateForm):
     def __init__(self, *args, **kwargs):
-        # super(TeamEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.fields['teammates'].initial = self.instance.teammates
 
@@ -224,7 +200,6 @@ class UserAssignationForm(CremeForm):
                                queryset=CremeUser.objects.none(),
                               )
 
-    # def __init__(self, user, *args, **kwargs):
     def __init__(self, user, instance, *args, **kwargs):
         """Forms which assigns the fields with type CremeUserForeignKey
         referencing a given user A to another user B, then deletes A.
@@ -232,12 +207,9 @@ class UserAssignationForm(CremeForm):
         @param user: User who is logged & makes the deletion.
         @param instance: Instance of contrib.auth.get_user_model() to delete.
         """
-        # super(UserAssignationForm, self).__init__(user, *args, **kwargs)
         super().__init__(user, *args, **kwargs)
-        # self.user_to_delete = user_to_delete= self.initial['user_to_delete']
         self.user_to_delete = instance
 
-        # users = CremeUser.objects.exclude(pk=user_to_delete.pk).exclude(is_staff=True)
         users = CremeUser.objects.exclude(pk=instance.pk).exclude(is_staff=True)
         choices = defaultdict(list)
         for user in users:
@@ -250,11 +222,9 @@ class UserAssignationForm(CremeForm):
                           ]
 
     def save(self, *args, **kwargs):
-        # mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
         CremeUserForeignKey._TRANSFER_TO_USER = self.cleaned_data['to_user']
 
         try:
             self.user_to_delete.delete()
         finally:
             CremeUserForeignKey._TRANSFER_TO_USER = None
-            # mutex.release()

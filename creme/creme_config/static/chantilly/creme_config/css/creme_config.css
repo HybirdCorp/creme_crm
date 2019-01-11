@@ -21,19 +21,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 }
 
 /* Search/Blocks config */
-/*
-.search-conf-ctype,
-.blocks-conf-ctype {
-    vertical-align: top;
-}
-
-.search-conf-info ul,
-.blocks-conf-info ul {
-    list-style: outside none none;
-    margin: 0;
-    padding: 0;
-}
-*/
 
 .creme_config-configurable-model-brick th.configmodel-column-order {
     width: 50px;
@@ -284,10 +271,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 .creme_config-brickloc-detail-brick td.brickloc-config-role.brickloc-config-role-superuser {
     font-weight: 400;
 }
-
-/*.creme_config-brickloc-detail-brick .brick-content {
-    padding: 0;
-} */
 
 .creme_config-brickloc-detail-brick .brick-content .brick-list-item:last-child {
     padding-bottom: 5px;

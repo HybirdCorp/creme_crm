@@ -18,48 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
+from django.utils.translation import ugettext_lazy as _
 
-# from django.http import Http404
-# from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _  # ugettext
-
-# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import SettingValue
-from creme.creme_core.views.generic import CremeModelEditionPopup  # inner_popup
+from creme.creme_core.views.generic import CremeModelEditionPopup
 
 from ..forms.setting import SettingForm
 
 
 # TODO: move to generic_views.py ??
 
-# @login_required
-# def edit(request, svalue_id):
-#     svalue = get_object_or_404(SettingValue, pk=svalue_id)
-#     if svalue.key.hidden:
-#         raise Http404('You can not edit a SettingValue which is hidden.')
-#
-#     user = request.user
-#     user.has_perm_to_admin_or_die(svalue.key.app_label)
-#
-#     if request.method == 'POST':
-#         form = SettingForm(instance=svalue, user=user, data=request.POST)
-#
-#         if form.is_valid():
-#             form.save()
-#     else:
-#         form = SettingForm(instance=svalue, user=user)
-#
-#     return inner_popup(request,
-#                        'creme_core/generics/blockform/edit_popup.html',
-#                        {'form':  form,
-#                         'title': ugettext(u'Edit «{}»').format(svalue.key.description),
-#                        },
-#                        is_valid=form.is_valid(),
-#                        reload=False,
-#                        delegate_reload=True,
-#                       )
 class SettingValueEdition(CremeModelEditionPopup):
     model = SettingValue
     form_class = SettingForm

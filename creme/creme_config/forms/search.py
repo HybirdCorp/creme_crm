@@ -38,7 +38,6 @@ class _SearchForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.searchfields = self.cleaned_data['fields']
-        # return super(_SearchForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -50,18 +49,14 @@ class SearchAddForm(_SearchForm):
     class Meta(_SearchForm.Meta):
         exclude = ('content_type', 'field_names')
 
-    # def __init__(self, *args, **kwargs):
     def __init__(self, ctype, *args, **kwargs):
-        # super(SearchAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         instance = self.instance
-        # instance.content_type = self.initial['content_type']
         instance.content_type = ctype
         self.fields['fields'].choices = instance.get_modelfields_choices()
 
         role_f = self.fields['role']
         used_role_ids = set(SearchConfigItem.objects
-                                            # .filter(content_type=instance.content_type)
                                             .filter(content_type=ctype)
                                             .exclude(role__isnull=True, superuser=False)
                                             .values_list('role', flat=True)
@@ -83,13 +78,11 @@ class SearchAddForm(_SearchForm):
         if not role:
             self.instance.superuser = True
 
-        # return super(SearchAddForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
 class SearchEditForm(_SearchForm):
     def __init__(self, *args, **kwargs):
-        # super(SearchEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         instance = self.instance
         selected_fnames = [sf.name for sf in instance.searchfields]

@@ -4,12 +4,11 @@ try:
     from copy import deepcopy
     from functools import partial
 
-    # from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase  # skipIfNotInstalled
+    from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeAddress,
             FakeImage, FakeActivity, FakeEmailCampaign, FakeInvoiceLine)
     from creme.creme_core.bricks import (RelationsBrick, PropertiesBrick,
@@ -68,51 +67,12 @@ class HomePortalBrick(Brick):
     def home_display(self, context):
         return '<table id="{}"></table>'.format(self.id_)
 
-    # def portal_display(self, context, ct_ids):
-    #     return '<table id="{}"></table>'.format(self.id_)
-
-
-# class PortalOnlyBrick1(Brick):
-#     id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_1')
-#     verbose_name = u'Testing purpose'
-#
-#     def portal_display(self, context, ct_ids):
-#         return '<table id="{}"></table>'.format(self.id_)
-
-
-# class PortalOnlyBrick2(Brick):
-#     id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_2')
-#     verbose_name = u'Testing purpose'
-#     configurable = False  # <----
-#
-#     def portal_display(self, context, ct_ids):
-#         return '<table id="{}"></table>'.format(self.id_)
-
-
-# class PortalOnlyBrick3(Brick):
-#     id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_3')
-#     verbose_name = u'Testing purpose'
-#     target_apps  = ('persons', 'billing')
-#
-#     def portal_display(self, context, ct_ids):
-#         return '<table id="{}"></table>'.format(self.id_)
-
-
-# class PortalOnlyBrick4(Brick):
-#     id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_4')
-#     verbose_name = u'Testing purpose'
-#     target_apps  = ('billing', 'documents')
-#
-#     def portal_display(self, context, ct_ids):
-#         return '<table id="{}"></table>'.format(self.id_)
-
 
 class HomeOnlyBrick1(Brick):
     id_          = Brick.generate_id('creme_config', 'testbrickconfig_home_only_1')
     verbose_name = 'Testing purpose'
 
     # def detailview_display(self, context): return self._render(self.get_block_template_context(context))
-    # def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
 
     def home_display(self, context):
         return '<table id="{}"></table>'.format(self.id_)
@@ -124,7 +84,6 @@ class HomeOnlyBrick2(Brick):
     configurable = False  # <----
 
     # def detailview_display(self, context): return self._render(self.get_block_template_context(context))
-    # def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
 
     def home_display(self, context):
         return '<table id="{}"></table>'.format(self.id_)
@@ -134,7 +93,6 @@ class DetailviewInstanceBrick(Brick):
     id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_detail_instance')
 
     def __init__(self, instance_block_config_item):
-        # super(DetailviewInstanceBrick, self).__init__()
         super().__init__()
         self.ibci = instance_block_config_item
 
@@ -142,24 +100,11 @@ class DetailviewInstanceBrick(Brick):
         return '<table id="{id}"><thead><tr>{entity}</tr></thead></table>'.format(id=self.id_, entity=self.ibci.entity)
 
 
-# class PortalInstanceBrick(Brick):
-#     id_          = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_portal_instance')
-#     verbose_name = u'Testing purpose'
-#
-#     def __init__(self, instance_block_config_item):
-#         super(PortalInstanceBrick, self).__init__()
-#         self.ibci = instance_block_config_item
-#
-#     def portal_display(self, context, ct_ids):
-#         return '<table id="{id}"><thead><tr>{entity}</tr></thead></table>'.format(id=self.id_, entity=self.ibci.entity)
-
-
 class HomeInstanceBrick(Brick):
     id_          = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_home_instance')
     verbose_name = 'Testing purpose'
 
     def __init__(self, instance_block_config_item):
-        # super(HomeInstanceBrick, self).__init__()
         super().__init__()
         self.ibci = instance_block_config_item
 
@@ -179,12 +124,10 @@ class FakeContactHatBrick(Brick):
 
 class BricksConfigTestCase(CremeTestCase):
     DEL_DETAIL_URL = reverse('creme_config__delete_detailview_bricks')
-    # PORTAL_WIZARD_URL = reverse('creme_config__create_portal_bricks')
     CUSTOM_WIZARD_URL = reverse('creme_config__create_custom_brick')
 
     @classmethod
     def setUpClass(cls):
-        # super(BricksConfigTestCase, cls).setUpClass()
         super().setUpClass()
 
         cls._bdl_backup = list(BrickDetailviewLocation.objects.all())
@@ -202,21 +145,15 @@ class BricksConfigTestCase(CremeTestCase):
         cls.brick_registry = block_registry = deepcopy(gui_bricks.brick_registry)
         block_registry.register(CompleteBrick1, CompleteBrick2, CompleteBrick3, CompleteBrick4,
                                 HomePortalBrick,
-                                # PortalOnlyBrick1,
-                                # PortalOnlyBrick2,
-                                # PortalOnlyBrick3,
-                                # PortalOnlyBrick4,
                                 HomeOnlyBrick1,
                                 HomeOnlyBrick2,
                                )
 
         block_registry.register_4_instance(DetailviewInstanceBrick)
-        # block_registry.register_4_instance(PortalInstanceBrick, HomeInstanceBrick)
         block_registry.register_4_instance(HomeInstanceBrick)
 
     @classmethod
     def tearDownClass(cls):
-        # super(BricksConfigTestCase, cls).tearDownClass()
         super().tearDownClass()
 
         BrickDetailviewLocation.objects.all().delete()
@@ -239,8 +176,6 @@ class BricksConfigTestCase(CremeTestCase):
     def setUp(self):
         gui_bricks.brick_registry = self.brick_registry = deepcopy(self.brick_registry)
 
-        # self.login()
-
     def _build_adddetail_url(self, ct):
         return reverse('creme_config__create_detailviews_bricks', args=(ct.id,))
 
@@ -249,9 +184,6 @@ class BricksConfigTestCase(CremeTestCase):
             ct.id if ct else 0,
             'superuser' if superuser else role.id if role else 'default',
         ))
-
-    # def _build_rbrick_addctypes_url(self, rbi):
-    #     return reverse('creme_config__add_ctype_config_to_rtype_brick', args=(rbi.id,))
 
     def _build_rbrick_addctypes_wizard_url(self, rbi):
         return reverse('creme_config__add_cells_to_rtype_brick', args=(rbi.id,))
@@ -296,10 +228,6 @@ class BricksConfigTestCase(CremeTestCase):
 
         fmt = 'id="{}"'.format
         self.assertContains(response, fmt(bricks.BrickDetailviewLocationsBrick.id_))
-        # if settings.OLD_MENU:
-        #     self.assertContains(response, fmt % bricks.BlockPortalLocationsBrick.id_)
-        # else:
-        #     self.assertContains(response, fmt % bricks.BlockHomeLocationsBrick.id_)
         self.assertContains(response, fmt(bricks.BrickHomeLocationsBrick.id_))
         self.assertContains(response, fmt(bricks.BrickDefaultMypageLocationsBrick.id_))
         self.assertContains(response, fmt(bricks.RelationBricksConfigBrick.id_))
@@ -458,12 +386,10 @@ class BricksConfigTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
 
         build_url = self._build_adddetail_url
-        # self.assertGET404(build_url(get_ct(FakeAddress)))  # Not a CremeEntity
         self.assertGET409(build_url(get_ct(FakeAddress)))  # Not a CremeEntity
 
         model = FakeInvoiceLine
         self.assertIn(model, creme_registry.iter_entity_models())
-        # self.assertGET404(build_url(get_ct(model)))
         self.assertGET409(build_url(get_ct(model)))
 
     def test_add_detailview05(self):
@@ -530,7 +456,6 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = self._build_editdetail_url(ct, role, superuser)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -633,7 +558,6 @@ class BricksConfigTestCase(CremeTestCase):
         b_loc1 = create_loc(role=self.role)
         b_loc2 = create_loc(superuser=True)
 
-        # self.assertEqual(_('New organisation(s) for «{}»').format(strategy), context.get('title'))
         self._aux_test_edit_detailview(
             role=None, superuser=False,
             expected_title=_('Edit default configuration for «{model}»').format(model=ct)
@@ -843,9 +767,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.login()
         build_url = self._build_editdetail_url
         get_ct = ContentType.objects.get_for_model
-        # self.assertGET404(build_url(get_ct(FakeAddress)))
         self.assertGET409(build_url(get_ct(FakeAddress)))
-        # self.assertGET404(build_url(get_ct(FakeInvoiceLine)))
         self.assertGET409(build_url(get_ct(FakeInvoiceLine)))
 
     def test_edit_detailview09(self):
@@ -997,319 +919,9 @@ class BricksConfigTestCase(CremeTestCase):
                                                         .count()
                         )
 
-    # def test_add_portal(self):
-    #     url = reverse('creme_config__create_portal_bricks_legacy')
-    #     self.assertGET200(url)
-    #
-    #     app_name = 'persons'
-    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-    #
-    #     self.assertNoFormError(self.client.post(url, data={'app_name': app_name}))
-    #
-    #     b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
-    #     self.assertEqual(1, len(b_locs))
-    #
-    #     bpl = b_locs[-1]
-    #     self.assertEqual(1,  bpl.order)
-    #     self.assertEqual('', bpl.block_id)
-    #
-    #     response = self.client.get(url)
-    #
-    #     with self.assertNoException():
-    #         choices = response.context['form'].fields['app_name'].choices
-    #
-    #     names = {name for name, vname in choices}
-    #     self.assertNotIn(app_name,       names)
-    #     self.assertNotIn('creme_core',   names)
-    #     self.assertNotIn('creme_config', names)
-
-    # def test_edit_portal01(self):
-    #     self.assertGET404(reverse('creme_config__edit_portal_bricks', args=('persons',)))
-
-    # def test_edit_portal02(self):
-    #     app_name = 'persons'
-    #
-    #     naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
-    #
-    #     instance_brick_id = InstanceBlockConfigItem.generate_id(PortalInstanceBrick, naru, '')
-    #     InstanceBlockConfigItem.objects.create(brick_id=instance_brick_id, entity=naru, verbose='All stuffes')
-    #
-    #     brick1 = PortalOnlyBrick1
-    #     brick2 = PortalOnlyBrick2; assert not brick2.configurable
-    #     brick3 = PortalOnlyBrick3; assert app_name in brick3.target_apps
-    #     brick4 = PortalOnlyBrick4; assert app_name not in brick4.target_apps
-    #
-    #     # self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
-    #     BlockPortalLocation.objects.create(app_name=app_name, brick_id=HistoryBrick.id_, order=1)
-    #     self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
-    #
-    #     url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         blocks_field = response.context['form'].fields['blocks']
-    #
-    #     choices = blocks_field.choices
-    #     self.assertGreaterEqual(len(choices), 2)
-    #     self._find_field_index(blocks_field, brick1.id_)
-    #     self._assertNotInChoices(blocks_field, brick2.id_, 'Block is not configurable')
-    #     self._find_field_index(blocks_field, brick3.id_)
-    #     self._assertNotInChoices(blocks_field, brick4.id_, 'Block is not compatible with this app')
-    #     self._find_field_index(blocks_field, instance_brick_id)
-    #
-    #     brick_id1 = choices[0][0]
-    #     brick_id2 = choices[1][0]
-    #
-    #     index1 = self._find_field_index(blocks_field, brick_id1)
-    #     index2 = self._find_field_index(blocks_field, brick_id2)
-    #
-    #     response = self.client.post(url, data={'blocks_check_%s' % index1: 'on',
-    #                                            'blocks_value_%s' % index1: brick_id1,
-    #                                            'blocks_order_%s' % index1: 1,
-    #
-    #                                            'blocks_check_%s' % index2: 'on',
-    #                                            'blocks_value_%s' % index2: brick_id2,
-    #                                            'blocks_order_%s' % index2: 2,
-    #                                           }
-    #                                )
-    #     self.assertNoFormError(response)
-    #
-    #     b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
-    #     self.assertEqual(2, len(b_locs))
-    #     self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
-    #     self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
-
-    # def _get_blocks_4_portal(self):
-    #     bricks = [block for brick_id, block in self.brick_registry
-    #                         if hasattr(block, 'portal_display')
-    #              ]
-    #     self.assertGreaterEqual(len(bricks), 2, bricks)
-    #
-    #     return bricks
-
-    # def test_edit_portal03(self):
-    #     "Set no block -> fake blocks"
-    #     app_name = 'persons'
-    #     blocks = self._get_blocks_4_portal()
-    #
-    #     create_loc = partial(BlockPortalLocation.objects.create, app_name=app_name)
-    #     create_loc(brick_id=blocks[0].id_, order=1)
-    #     create_loc(brick_id=blocks[1].id_, order=2)
-    #
-    #     url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         blocks_field = response.context['form'].fields['blocks']
-    #
-    #     self.assertEqual([blocks[0].id_, blocks[1].id_], blocks_field.initial)
-    #
-    #     self.assertNoFormError(self.client.post(url, data={}))
-    #
-    #     b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
-    #     self.assertEqual(1, len(b_locs))
-    #
-    #     bpl = b_locs[0]
-    #     self.assertEqual(1,  bpl.order)
-    #     self.assertEqual('', bpl.brick_id)
-
-    # def test_edit_portal04(self):
-    #     "Default conf"
-    #     BlockPortalLocation.objects.filter(app_name='').delete()
-    #     url = reverse('creme_config__edit_portal_bricks', args=('default',))
-    #     self.assertGET404(url)
-    #
-    #     bricks = self._get_blocks_4_portal()
-    #     create_loc = partial(BlockPortalLocation.objects.create, app_name='')
-    #     create_loc(brick_id=bricks[0].id_, order=1)
-    #     create_loc(brick_id=bricks[1].id_, order=2)
-    #
-    #     self.assertGET200(url)
-    #
-    #     self.assertNoFormError(self.client.post(url, data={}))
-    #
-    #     b_locs = list(BlockPortalLocation.objects.filter(app_name=''))
-    #     self.assertEqual(1, len(b_locs))
-    #
-    #     bpl = b_locs[0]
-    #     self.assertEqual(1,  bpl.order)
-    #     self.assertEqual('', bpl.brick_id)
-
-    # def test_edit_portal05(self):
-    #     "Home -> use 'home_display' method"
-    #     app_name = 'creme_core'
-    #
-    #     BlockPortalLocation.create_or_update(brick_id=HistoryBrick.id_, order=8, app_name=app_name)
-    #
-    #     response = self.assertGET200(reverse('creme_config__edit_portal_bricks', args=(app_name,)))
-    #
-    #     with self.assertNoException():
-    #         blocks_field = response.context['form'].fields['blocks']
-    #
-    #     self._find_field_index(blocks_field, HomeOnlyBrick1.id_)
-
-    # def test_edit_portal06(self):
-    #     "Edit portal of unknown app"
-    #     app_name = 'unknown'
-    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name).exists())
-    #     self.assertGET404(reverse('creme_config__edit_portal_bricks', args=(app_name,)))
-
-    # def test_delete_portal(self):
-    #     app_name = 'persons'
-    #     # self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
-    #     BlockPortalLocation.objects.create(app_name=app_name, brick_id=HistoryBrick.id_, order=1)
-    #
-    #     self.assertPOST200(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
-    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-
-    # @skipIfNotInstalled('creme.persons')
-    # def test_portal_wizard_appname_step(self):
-    #     app_name = 'persons'
-    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-    #
-    #     response = self.assertGET200(self.PORTAL_WIZARD_URL)
-    #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
-    #
-    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-    #                                   {'portal_bricks_wizard-current_step': '0',
-    #                                    '0-app_name': app_name,
-    #                                   }
-    #                                  )
-    #
-    #     brick_ids = [e[0] for e in response.context['form'].fields['blocks'].choices]
-    #     self.assertIn('block_creme_core-history', brick_ids)
-    #
-    #     # last step is not submitted so nothing yet in database
-    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-
-    # def test_portal_wizard_appname_step_invalid(self):
-    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-    #                                   {'portal_bricks_wizard-current_step': '0',
-    #                                    '0-app_name': 'unregistered_app',
-    #                                   }
-    #                                  )
-    #
-    #     self.assertFormError(response, 'form', 'app_name',
-    #                          _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
-    #                                 'value': 'unregistered_app',
-    #                             }
-    #                         )
-
-    # @skipIfNotInstalled('creme.persons')
-    # def test_portal_wizard_config_step(self):
-    #     app_name = 'persons'
-    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-    #
-    #     response = self.assertGET200(self.PORTAL_WIZARD_URL)
-    #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
-    #
-    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-    #                                   {'portal_bricks_wizard-current_step': '0',
-    #                                    '0-app_name': app_name,
-    #                                   }
-    #                                  )
-    #
-    #     brick_field = response.context['form'].fields['blocks']
-    #     brick_ids = [e[0] for e in brick_field.choices]
-    #     self.assertIn('block_creme_core-history', brick_ids)
-    #
-    #     history_brick_index = self._find_field_index(brick_field, 'block_creme_core-history')
-    #
-    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-    #                                   {'portal_bricks_wizard-current_step': '1',
-    #                                    '1-blocks_check_%s' % history_brick_index: 'on',
-    #                                    '1-blocks_value_%s' % history_brick_index: 'block_creme_core-history',
-    #                                    '1-blocks_order_%s' % history_brick_index: 1,
-    #                                   }
-    #                                  )
-    #     self.assertNoFormError(response)
-    #
-    #     bricks = list(BlockPortalLocation.objects.filter(app_name=app_name)
-    #                                              .order_by('order')
-    #                                              .values_list('brick_id', 'order')
-    #                  )
-    #     self.assertEqual([('block_creme_core-history', 1)], bricks)
-
-    # @skipIfNotInstalled('creme.assistants')
-    # def test_portal_wizard_config_step_assistants(self):
-    #     app_name = 'assistants'
-    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-    #
-    #     response = self.assertGET200(self.PORTAL_WIZARD_URL)
-    #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
-    #
-    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-    #                                   {'portal_bricks_wizard-current_step': '0',
-    #                                    '0-app_name': app_name,
-    #                                   }
-    #                                  )
-    #
-    #     brick_field = response.context['form'].fields['blocks']
-    #     brick_ids = [e[0] for e in brick_field.choices]
-    #
-    #     self.assertIn('block_assistants-memos', brick_ids)
-    #     self.assertIn('block_assistants-messages', brick_ids)
-    #     self.assertIn('block_creme_core-history', brick_ids)
-    #
-    #     history_brick_index = self._find_field_index(brick_field, 'block_creme_core-history')
-    #     memos_brick_index = self._find_field_index(brick_field, 'block_assistants-memos')
-    #     messages_brick_index = self._find_field_index(brick_field, 'block_assistants-messages')
-    #
-    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-    #                                   {'portal_bricks_wizard-current_step': '1',
-    #                                    '1-blocks_check_%s' % history_brick_index: 'on',
-    #                                    '1-blocks_value_%s' % history_brick_index: 'block_creme_core-history',
-    #                                    '1-blocks_order_%s' % history_brick_index: 1,
-    #                                    '1-blocks_check_%s' % memos_brick_index: 'on',
-    #                                    '1-blocks_value_%s' % memos_brick_index: 'block_assistants-memos',
-    #                                    '1-blocks_order_%s' % memos_brick_index: 2,
-    #                                    '1-blocks_check_%s' % messages_brick_index: 'on',
-    #                                    '1-blocks_value_%s' % messages_brick_index: 'block_assistants-messages',
-    #                                    '1-blocks_order_%s' % messages_brick_index: 3,
-    #                                   }
-    #                                  )
-    #     self.assertNoFormError(response)
-    #
-    #     self.assertListEqual([('block_creme_core-history', 1),
-    #                           ('block_assistants-memos', 2),
-    #                           ('block_assistants-messages', 3),
-    #                          ],
-    #                          list(BlockPortalLocation.objects.filter(app_name=app_name)
-    #                                                          .order_by('order')
-    #                                                          .values_list('brick_id', 'order')
-    #                              )
-    #                         )
-
-    # @skipIfNotInstalled('creme.persons')
-    # def test_portal_wizard_go_back(self):
-    #     app_name = 'persons'
-    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-    #
-    #     response = self.assertGET200(self.PORTAL_WIZARD_URL)
-    #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
-    #
-    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-    #                                   {'portal_bricks_wizard-current_step': '0',
-    #                                    '0-app_name': app_name,
-    #                                   }
-    #                                  )
-    #
-    #     brick_ids = [e[0] for e in response.context['form'].fields['blocks'].choices]
-    #     self.assertIn('block_creme_core-history', brick_ids)
-    #
-    #     # Return to first step
-    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-    #                                   {'portal_bricks_wizard-current_step': '1',
-    #                                    'wizard_goto_step': '0',
-    #                                   }
-    #                                  )
-    #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
-
     def test_edit_home(self):
         self.login()
-        # app_name = 'creme_core'
 
-        # BlockPortalLocation.create_or_update(brick_id=HistoryBrick.id_, order=8, app_name=app_name)
         BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, order=8)
 
         naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
@@ -1318,7 +930,6 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = reverse('creme_config__edit_home_bricks')
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -1334,7 +945,6 @@ class BricksConfigTestCase(CremeTestCase):
         self._find_field_index(bricks_field, instance_brick_id)
 
         self._assertNotInChoices(bricks_field, RelationsBrick.id_,   'No home_display().')
-        # self._assertNotInChoices(bricks_field, PortalOnlyBrick1.id_, 'No home_display().')
         self._assertNotInChoices(bricks_field, HomeOnlyBrick2.id_,   'Brick is not configurable')
 
         choices = bricks_field.choices
@@ -1355,33 +965,18 @@ class BricksConfigTestCase(CremeTestCase):
                                     )
         self.assertNoFormError(response)
 
-        # b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
         b_locs = list(BrickHomeLocation.objects.all())
         self.assertEqual(2, len(b_locs))
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
 
-    # def test_delete_home(self):
-    #     "Can not delete home conf"
-    #     # todo: use a helper method ??
-    #     app_name = 'creme_core'
-    #     bricks = [block for brick_id, block in self.brick_registry
-    #                         if hasattr(block, 'home_display')
-    #              ]
-    #     self.assertGreaterEqual(len(bricks), 1)
-    #
-    #     BlockPortalLocation.objects.create(app_name=app_name, brick_id=bricks[0].id_, order=1)
-    #     self.assertPOST404(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
-
     def test_delete_home_location_item(self):
         self.login()
-        # app_name = 'creme_core'
         bricks = [block for brick_id, block in self.brick_registry
                             if hasattr(block, 'home_display')
                  ]
         self.assertGreaterEqual(len(bricks), 1)
 
-        # bpl = BlockPortalLocation.objects.create(app_name=app_name, brick_id=bricks[0].id_, order=1)
         bpl = BrickHomeLocation.objects.create(brick_id=bricks[0].id_, order=1)
         self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'id': bpl.id})
         self.assertDoesNotExist(bpl)
@@ -1390,7 +985,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.login()
         url = reverse('creme_config__edit_default_mypage_bricks')
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -1398,7 +992,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         with self.assertNoException():
-            # bricks_field = response.context['form'].fields['blocks']
             bricks_field = context['form'].fields['bricks']
 
         choices = bricks_field.choices
@@ -1415,16 +1008,10 @@ class BricksConfigTestCase(CremeTestCase):
 
         response = self.client.post(url,
                                     data={
-                                          # 'blocks_check_%s' % index1: 'on',
-                                          # 'blocks_value_%s' % index1: brick_id1,
-                                          # 'blocks_order_%s' % index1: 1,
                                           'bricks_check_{}'.format(index1): 'on',
                                           'bricks_value_{}'.format(index1): brick_id1,
                                           'bricks_order_{}'.format(index1): 1,
 
-                                          # 'blocks_check_%s' % index2: 'on',
-                                          # 'blocks_value_%s' % index2: brick_id2,
-                                          # 'blocks_order_%s' % index2: 2,
                                           'bricks_check_{}'.format(index2): 'on',
                                           'bricks_value_{}'.format(index2): brick_id2,
                                           'bricks_order_{}'.format(index2): 2,
@@ -1441,7 +1028,6 @@ class BricksConfigTestCase(CremeTestCase):
         user = self.login()
         url = reverse('creme_config__edit_mypage_bricks')
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -1535,86 +1121,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual('specificblock_creme_config-test-subfoo', rb_item.brick_id)
         self.assertIsNone(rb_item.get_cells(ContentType.objects.get_for_model(FakeContact)))
 
-    # def test_add_relationbrick_ctypes01(self):
-    #     rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-    #                              ('test-objfoo', 'object_predicate', [FakeContact, FakeOrganisation, FakeActivity]),
-    #                             )[0]
-    #
-    #     rb_item = RelationBlockItem.objects.create(
-    #                     block_id='specificblock_creme_config-test-subfoo',
-    #                     relation_type=rt,
-    #                 )
-    #
-    #     url = self._build_rbrick_addctypes_url(rb_item)
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         choices = response.context['form'].fields['ctypes'].ctypes
-    #
-    #     get_ct = ContentType.objects.get_for_model
-    #     self.assertIn(get_ct(FakeContact), choices)
-    #     self.assertIn(get_ct(FakeOrganisation), choices)
-    #     self.assertIn(get_ct(FakeActivity), choices)
-    #     self.assertNotIn(get_ct(FakeImage), choices)
-    #
-    #     self.assertNoFormError(self.client.post(
-    #         url,
-    #         data={'ctypes': [get_ct(m).id for m in (FakeContact, FakeOrganisation)]},
-    #     ))
-    #
-    #     rb_item = self.refresh(rb_item)
-    #     self.assertIsNone(rb_item.get_cells(get_ct(FakeActivity)))
-    #     self.assertEqual([], rb_item.get_cells(get_ct(FakeContact)))
-    #     self.assertEqual([], rb_item.get_cells(get_ct(FakeOrganisation)))
-    #
-    #     # Used CTypes should not be proposed
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         choices = response.context['form'].fields['ctypes'].ctypes
-    #
-    #     self.assertIn(get_ct(FakeActivity), choices)  # Compatible & not used
-    #     self.assertNotIn(get_ct(FakeImage), choices)  # Still not compatible
-    #     self.assertNotIn(get_ct(FakeContact), choices)  # Used
-    #     self.assertNotIn(get_ct(FakeOrganisation), choices)  # Used
-
-    # def test_add_relationbrick_ctypes02(self):
-    #     "All ContentTypes allowed"
-    #     rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-    #                              ('test-objfoo', 'object_predicate'),
-    #                             )[0]
-    #
-    #     rb_item = RelationBlockItem.objects.create(
-    #                     block_id='specificblock_creme_config-test-subfoo',
-    #                     relation_type=rt,
-    #                 )
-    #
-    #     url = self._build_rbrick_addctypes_url(rb_item)
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         choices = response.context['form'].fields['ctypes'].ctypes
-    #
-    #     get_ct = ContentType.objects.get_for_model
-    #     self.assertIn(get_ct(FakeContact), choices)
-    #     self.assertIn(get_ct(FakeOrganisation), choices)
-    #     self.assertIn(get_ct(FakeActivity), choices)
-    #
-    #     self.assertNoFormError(self.client.post(url, data={'ctypes': [get_ct(FakeContact).id]}))
-    #
-    #     rb_item = self.refresh(rb_item)
-    #     self.assertIsNone(rb_item.get_cells(get_ct(FakeOrganisation)))
-    #     self.assertEqual([], rb_item.get_cells(get_ct(FakeContact)))
-    #
-    #     # Used CTypes should not be proposed
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         choices = response.context['form'].fields['ctypes'].ctypes
-    #
-    #     self.assertNotIn(get_ct(FakeContact), choices)  # Used
-    #     self.assertIn(get_ct(FakeOrganisation), choices)  # Not used
-
     def test_add_relationbrick_ctypes_wizard01(self):
         self.login()
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
@@ -1656,7 +1162,6 @@ class BricksConfigTestCase(CremeTestCase):
 
         self.assertIn('cells', fields)
 
-        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
         field_fname = 'first_name'
         field_lname = 'last_name'
@@ -1781,7 +1286,6 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = self._build_rbrick_editctype_url(rb_item, FakeContact)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -1791,7 +1295,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         # ---
-        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
         field_fname = 'first_name'
         field_lname = 'last_name'
@@ -2040,43 +1543,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertDoesNotExist(state1)
         self.assertStillExists(state2)
 
-    # def test_add_custombrick(self):
-    #     get_ct = ContentType.objects.get_for_model
-    #     ct = get_ct(FakeContact)
-    #     self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=ct))
-    #
-    #     url = reverse('creme_config__create_custom_brick_legacy')
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         ctypes = response.context['form'].fields['ctype'].ctypes
-    #
-    #     self.assertIn(ct, ctypes)
-    #     self.assertNotIn(get_ct(FakeInvoiceLine), ctypes)
-    #
-    #     name = 'Regular info'
-    #     self.assertNoFormError(self.client.post(url,
-    #                                             data={'ctype': ct.id,
-    #                                                   'name':  name,
-    #                                                  }
-    #                                            )
-    #                           )
-    #
-    #     cbc_items = CustomBlockConfigItem.objects.filter(content_type=ct)
-    #     self.assertEqual(1, len(cbc_items))
-    #
-    #     cbc_item = cbc_items[0]
-    #     self.assertEqual(name, cbc_item.name)
-    #     self.assertEqual([], cbc_item.cells)
-    #
-    #     self.assertNoFormError(self.client.post(url,
-    #                                             data={'ctype': ct.id,
-    #                                                   'name':  'Other info',
-    #                                                  }
-    #                                            )
-    #                           )
-    #     self.assertEqual(2, CustomBlockConfigItem.objects.filter(content_type=ct).count())
-
     def test_edit_custombrick01(self):
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -2088,7 +1554,6 @@ class BricksConfigTestCase(CremeTestCase):
                                                  field_type=CustomField.INT,
                                                  content_type=ct,
                                                 )
-        # funcfield = FakeContact.function_fields.get('get_pretty_properties')
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 
         name = 'info'
@@ -2098,9 +1563,7 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = self._build_custombrick_edit_url(cbc_item)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Edit the block «%s»') % cbc_item,
         self.assertEqual(_('Edit the block «{object}»').format(object=cbc_item),
                          response.context.get('title')
                         )

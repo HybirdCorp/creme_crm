@@ -18,9 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
-# from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
@@ -29,7 +26,6 @@ from formtools.wizard.views import SessionWizardView
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils import get_from_POST_or_404
-# from creme.creme_core.views.generic import inner_popup
 from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
@@ -37,12 +33,8 @@ from creme.creme_core.views.generic.wizard import PopupWizardMixin
 from ..forms import button_menu as button_forms
 
 from .base import ConfigEdition
-# from .portal import _config_portal
 
 
-# @login_required
-# def portal(request):
-#     return _config_portal(request, 'creme_config/button_menu_portal.html')
 class Portal(BricksView):
     template_name = 'creme_config/button_menu_portal.html'
 
@@ -68,7 +60,6 @@ class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
         return HttpResponse()
 
     def get_form_kwargs(self, step):
-        # kwargs = super(ButtonMenuWizard, self).get_form_kwargs(step)
         kwargs = super().get_form_kwargs(step)
 
         if step == '1':
@@ -79,38 +70,6 @@ class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
         return kwargs
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def edit(request, ct_id):
-#     ct_id = int(ct_id) or None
-#     bmi = ButtonMenuItem.objects.filter(content_type=ct_id).order_by('order')
-#
-#     if not bmi:
-#         raise Http404  # Meh
-#
-#     if request.method == 'POST':
-#         buttons_form = button_forms.ButtonMenuEditForm(bmi, ct_id, user=request.user, data=request.POST)
-#
-#         if buttons_form.is_valid():
-#             buttons_form.save()
-#     else:
-#         buttons_form = button_forms.ButtonMenuEditForm(bmi, ct_id, user=request.user)
-#
-#     # todo: lazy interpolation ??
-#     title = ugettext('Edit configuration for «{model}»').format(model=ContentType.objects.get_for_id(ct_id)) \
-#             if ct_id else \
-#             _('Edit default configuration')
-#
-#     return inner_popup(request,
-#                        'creme_core/generics/blockform/edit_popup.html',
-#                        {'form':  buttons_form,
-#                         'title': title,
-#                         'submit_label': _('Save the modifications'),
-#                        },
-#                        is_valid=buttons_form.is_valid(),
-#                        reload=False,
-#                        delegate_reload=True,
-#                       )
 class ButtonMenuEdition(EntityCTypeRelatedMixin, ConfigEdition):
     model = ButtonMenuItem
     form_class = button_forms.ButtonMenuEditForm

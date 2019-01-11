@@ -43,7 +43,6 @@ class ButtonMenuAddForm(CremeForm):
                        )
 
     def __init__(self, *args, **kwargs):
-        # super(ButtonMenuAddForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         used_ct_ids = set(ButtonMenuItem.objects.exclude(content_type=None)
@@ -64,7 +63,6 @@ class ButtonMenuEditForm(CremeForm):
                                     )
 
     def __init__(self, button_menu_items, ct_id, button_registry=None, *args, **kwargs):
-        # super(ButtonMenuEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         self.ct = ContentType.objects.get_for_id(ct_id) if ct_id else None

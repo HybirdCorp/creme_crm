@@ -160,11 +160,9 @@ class RelationTypeTestCase(CremeTestCase):
                                 )[0]
         url = self._build_edit_url(rt)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Edit the type «{predicate}»').format(predicate=rt),
         self.assertEqual(pgettext('creme_config-relationship',
                                   'Edit the type «{object}»'
                                  ).format(object=rt),

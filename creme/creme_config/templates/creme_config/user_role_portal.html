@@ -7,7 +7,6 @@
     <a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% trans 'Roles' %}
 {% endblock %}
 
-{# {% block before_statistics %} #}
 {% block portal_bricks %}
     {% brick_import app='creme_config' name='user_roles' as roles_brick %}
     {% brick_display roles_brick %}
