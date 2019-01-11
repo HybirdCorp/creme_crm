@@ -2754,7 +2754,7 @@ class ReportTestCase(BaseReportsTestCase):
         report = self.report_orga
         create_field(report=report, name=FAKE_REL_OBJ_BILL_ISSUED, order=2,
                      selected=True, sub_report=report_invoice, type=RFT_RELATION,
-                     )
+                    )
 
         starks = self.starks; lannisters = self.lannisters
 

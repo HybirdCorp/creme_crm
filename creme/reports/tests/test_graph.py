@@ -2003,26 +2003,26 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                           ordinate='', is_count=True,
                                          )
 
-    def test_create_instance_block_config_item(self):
-        "Legacy"
-        self.login()
-        rgraph = self._create_documents_rgraph()
-
-        ibci = rgraph.create_instance_block_config_item()
-        self.assertEqual('instanceblock_reports-graph|{}-'.format(rgraph.id), ibci.brick_id)
-        self.assertEqual('', ibci.data)
-
-        volatile = _('No volatile column')
-        self.assertEqual('{} - {}'.format(rgraph.name, volatile),
-                         ReportGraphBrick(ibci).verbose_name
-                        )
-
-        # Brick verbose name should be dynamically computed
-        rgraph.name = rgraph.name.upper()
-        rgraph.save()
-        self.assertEqual('{} - {}'.format(rgraph.name, volatile),
-                         ReportGraphBrick(ibci).verbose_name
-                        )
+    # def test_create_instance_block_config_item(self):
+    #     "Legacy"
+    #     self.login()
+    #     rgraph = self._create_documents_rgraph()
+    #
+    #     ibci = rgraph.create_instance_block_config_item()
+    #     self.assertEqual('instanceblock_reports-graph|{}-'.format(rgraph.id), ibci.brick_id)
+    #     self.assertEqual('', ibci.data)
+    #
+    #     volatile = _('No volatile column')
+    #     self.assertEqual('{} - {}'.format(rgraph.name, volatile),
+    #                      ReportGraphBrick(ibci).verbose_name
+    #                     )
+    #
+    #     # Brick verbose name should be dynamically computed
+    #     rgraph.name = rgraph.name.upper()
+    #     rgraph.save()
+    #     self.assertEqual('{} - {}'.format(rgraph.name, volatile),
+    #                      ReportGraphBrick(ibci).verbose_name
+    #                     )
 
     def test_create_instance_brick_config_item01(self):
         "No link"
@@ -2280,15 +2280,15 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual([str(year)], x)
         self.assertEqual([[2, reverse('reports__list_fake_documents') + '?q_filter={}'.format(self._serialize_qfilter(created__year=year))]], y)
 
-        # Legacy ----------------
-        fetcher = ReportGraph.get_fetcher_from_instance_block(item)
-        self.assertIsNone(fetcher.error)
-
-        x, y = fetcher.fetch_4_entity(entity=folder1, user=user)
-
-        year = doc1.created.year
-        self.assertEqual([str(year)], x)
-        self.assertEqual([[2, reverse('reports__list_fake_documents') + '?q_filter={}'.format(self._serialize_qfilter(created__year=year))]], y)
+        # # Legacy ----------------
+        # fetcher = ReportGraph.get_fetcher_from_instance_block(item)
+        # self.assertIsNone(fetcher.error)
+        #
+        # x, y = fetcher.fetch_4_entity(entity=folder1, user=user)
+        #
+        # year = doc1.created.year
+        # self.assertEqual([str(year)], x)
+        # self.assertEqual([[2, reverse('reports__list_fake_documents') + '?q_filter={}'.format(self._serialize_qfilter(created__year=year))]], y)
 
     def test_add_graph_instance_brick_not_superuser01(self):
         self.login(is_superuser=False,
@@ -2360,7 +2360,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         user = self.login()
         rgraph = self._create_documents_rgraph()
 
-        ibci = rgraph.create_instance_block_config_item(volatile_field='linked_folder')
+        ibci = rgraph.create_instance_brick_config_item(volatile_field='linked_folder')
         self.assertIsNotNone(ibci)
 
         fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)

@@ -6,21 +6,21 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Reports 2.0\n"
+"Project-Id-Version: Creme Reports 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-03 16:13+0100\n"
+"POT-Creation-Date: 2018-12-05 18:18+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: actions.py:36 views/export.py:177
+#: actions.py:36 views/export.py:102
 msgctxt "reports-report"
 msgid "Export"
 msgstr "Exporter"
 
-#: actions.py:41 views/export.py:176
+#: actions.py:41 views/export.py:101
 #, python-brace-format
 msgctxt "reports-report"
 msgid "Export «{object}»"
@@ -30,39 +30,39 @@ msgstr "Exporter «{object}»"
 msgid "Reports"
 msgstr "Rapports"
 
-#: apps.py:90 apps.py:94
+#: apps.py:77 apps.py:81
 msgid "Analysis"
 msgstr "Analyse"
 
-#: bricks.py:45 templates/reports/bricks/fields.html:26
+#: bricks.py:44 templates/reports/bricks/fields.html:26
 msgid "Columns of the report"
 msgstr "Colonnes du rapport"
 
-#: bricks.py:62
+#: bricks.py:61
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
-#: constants.py:35 core/graph.py:335 core/graph.py:687
+#: constants.py:35 core/graph.py:320 core/graph.py:638
 msgid "By days"
 msgstr "Par jours"
 
-#: constants.py:36 core/graph.py:356 core/graph.py:703
+#: constants.py:36 core/graph.py:340 core/graph.py:653
 msgid "By months"
 msgstr "Par mois"
 
-#: constants.py:37 core/graph.py:375 core/graph.py:718
+#: constants.py:37 core/graph.py:358 core/graph.py:667
 msgid "By years"
 msgstr "Par années"
 
-#: constants.py:38 core/graph.py:418 core/graph.py:731
+#: constants.py:38 core/graph.py:400 core/graph.py:679
 msgid "By X days"
 msgstr "Par X jours"
 
-#: constants.py:39 core/graph.py:514
+#: constants.py:39 core/graph.py:494
 msgid "By values"
 msgstr "Par valeurs"
 
-#: constants.py:40 core/graph.py:572
+#: constants.py:40 core/graph.py:527
 msgid "By values (of related entities)"
 msgstr "Par valeurs (des fiches liées)"
 
@@ -82,56 +82,56 @@ msgstr "Par années (champ personnalisé)"
 msgid "By X days (custom field)"
 msgstr "Par X jours (champ personnalisé)"
 
-#: constants.py:45 core/graph.py:820
+#: constants.py:45 core/graph.py:766
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
 
-#: core/graph.py:129 core/graph.py:624
+#: core/graph.py:123 core/graph.py:575
 msgid "the custom field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
-#: core/graph.py:135 core/graph.py:276
+#: core/graph.py:129 core/graph.py:262
 msgid "the field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
-#: core/graph.py:152
+#: core/graph.py:146
 msgid "Count"
 msgstr "Comptage"
 
-#: core/graph.py:280
+#: core/graph.py:265
 msgid "this field should be hidden."
 msgstr "ce champ devrait être caché"
 
-#: core/graph.py:526
+#: core/graph.py:506
 msgid "this field cannot be used as abscissa."
 msgstr "ce champ ne peut pas être utilisé comme abscisse."
 
-#: core/graph.py:582
+#: core/graph.py:536
 msgid "the relationship type does not exist any more."
 msgstr "le type de relation n'existe plus."
 
-#: core/graph.py:850
+#: core/graph.py:794
 msgid "No volatile column"
 msgstr "Pas de colonne volatile"
 
-#: core/graph.py:883
+#: core/graph.py:826
 msgid "The field is invalid."
 msgstr "Le champ est invalide."
 
-#: core/graph.py:887
+#: core/graph.py:829
 #, python-brace-format
 msgid "{field} (Field)"
 msgstr "{field} (Champ)"
 
-#: core/graph.py:894
+#: core/graph.py:836
 msgid "The field is invalid (not a foreign key)."
 msgstr "Le champ est invalide (pas une clé étrangère)."
 
-#: core/graph.py:927
+#: core/graph.py:868
 msgid "The relationship type is invalid."
 msgstr "Le type de relation est invalide."
 
-#: core/graph.py:931
+#: core/graph.py:871
 #, python-brace-format
 msgid "{rtype} (Relationship)"
 msgstr "{rtype} (Relation)"
@@ -140,37 +140,37 @@ msgstr "{rtype} (Relation)"
 msgid "Regular field"
 msgstr "Champ normal"
 
-#: core/report.py:369
+#: core/report.py:361
 msgid "Custom field"
 msgstr "Champ personnalisé"
 
-#: core/report.py:387
+#: core/report.py:378
 msgid "Relationship"
 msgstr "Relation"
 
-#: core/report.py:430
+#: core/report.py:420
 msgid "Computed field"
 msgstr "Champ calculé"
 
-#: core/report.py:450
+#: core/report.py:437
 msgid "Aggregated value"
 msgstr "Valeur agrégée"
 
-#: core/report.py:501
+#: core/report.py:487
 msgid "Aggregated value (custom field)"
 msgstr "Valeur agrégée (champ personnalisé)"
 
-#: core/report.py:519
+#: core/report.py:505
 msgid "Related field"
 msgstr "Champ relatif"
 
-#: forms/bricks.py:38 templates/reports/bricks/graph.html:68
+#: forms/bricks.py:37 templates/reports/bricks/graph.html:68
 #: templates/reports/bricks/graphs.html:113
 #: templates/reports/bricks/instance-bricks-info.html:11
 msgid "Volatile column"
 msgstr "Colonne volatile"
 
-#: forms/bricks.py:40
+#: forms/bricks.py:39
 msgid ""
 "When the graph is displayed on the detail-view of an entity, only the "
 "entities linked to this entity by the following link are used to compute the "
@@ -180,38 +180,38 @@ msgstr ""
 "les fiches reliées à cette fiche par le lien ci-dessous sont utilisées pour "
 "calculer le graphique."
 
-#: forms/bricks.py:75 forms/graph.py:134 forms/graph.py:188
+#: forms/bricks.py:70 forms/graph.py:125 forms/graph.py:178
 msgid "Fields"
 msgstr "Champs"
 
-#: forms/bricks.py:78 forms/graph.py:135
+#: forms/bricks.py:73 forms/graph.py:126
 msgid "Relationships"
 msgstr "Relations"
 
-#: forms/bricks.py:81
+#: forms/bricks.py:76
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/bricks.py:83
+#: forms/bricks.py:78
 msgctxt "reports-volatile_choice"
 msgid "None"
 msgstr "Aucune"
 
-#: forms/bulk.py:36 forms/report.py:149
+#: forms/bulk.py:35 forms/report.py:143
 msgid "All"
 msgstr "Tout"
 
-#: forms/bulk.py:57 forms/bulk.py:91 forms/report.py:158
+#: forms/bulk.py:56 forms/bulk.py:89 forms/report.py:152
 msgid "The filter cannot be changed because it is private."
 msgid_plural "The filters cannot be changed because they are private."
 msgstr[0] "Le filtre ne peut pas être changé car il est privé."
 msgstr[1] "Les filtres ne peuvent pas être changés car ils sont privés."
 
-#: forms/bulk.py:63
+#: forms/bulk.py:62
 msgid "Beware !"
 msgstr "Attention !"
 
-#: forms/bulk.py:65
+#: forms/bulk.py:64
 #, python-brace-format
 msgid "The filter of {count} report cannot be changed because it is private."
 msgid_plural ""
@@ -222,7 +222,7 @@ msgstr[1] ""
 "Les filtres de {count} rapports ne peuvent pas être changés car ils sont "
 "privés."
 
-#: forms/bulk.py:71 forms/bulk.py:80
+#: forms/bulk.py:70 forms/bulk.py:79
 msgid ""
 "Filter field can only be updated when reports target the same type of "
 "entities (e.g: only contacts)."
@@ -230,44 +230,44 @@ msgstr ""
 "Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
 "type de fiche (ex: seulement les contacts)."
 
-#: forms/graph.py:67 models/graph.py:46
+#: forms/graph.py:60 models/graph.py:46
 msgid "Chart type"
 msgstr "Type de graphique"
 
-#: forms/graph.py:68 forms/graph.py:79
+#: forms/graph.py:61 forms/graph.py:72
 msgid "Field"
 msgstr "Champ"
 
-#: forms/graph.py:71 models/graph.py:43
+#: forms/graph.py:64 models/graph.py:43
 msgid "Grouping"
 msgstr "Groupage"
 
-#: forms/graph.py:74
+#: forms/graph.py:67
 msgid "Aggregate"
 msgstr "Valeur calculée"
 
-#: forms/graph.py:80
+#: forms/graph.py:73
 msgid "Entities count"
 msgstr "Comptage de fiches"
 
-#: forms/graph.py:81
+#: forms/graph.py:74
 msgid "Make a count instead of aggregate ?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
-#: forms/graph.py:86 models/graph.py:41
+#: forms/graph.py:79 models/graph.py:41
 msgid "X axis"
 msgstr "Axe X"
 
-#: forms/graph.py:87 models/graph.py:42
+#: forms/graph.py:80 models/graph.py:42
 msgid "Y axis"
 msgstr "Axe Y"
 
-#: forms/graph.py:148 forms/graph.py:189
+#: forms/graph.py:139 forms/graph.py:179
 #: templates/reports/forms/widgets/report-hands.html:37
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: forms/graph.py:182
+#: forms/graph.py:172
 msgid ""
 "If you use a field related to money, the entities should use the same "
 "currency or the result will be wrong. Concerned fields are : {}"
@@ -276,26 +276,26 @@ msgstr ""
 "utiliser la même monnaie, ou alors le résultat sera faux.  Les champs "
 "concernés sont : {}"
 
-#: forms/graph.py:193
+#: forms/graph.py:183
 msgid "No field is usable for aggregation"
 msgstr "Aucun n'est utilisable pour une agrégation"
 
-#: forms/graph.py:199
+#: forms/graph.py:189
 msgid "You must make a count because no field is usable for aggregation"
 msgstr ""
 "Vous devez effectuer un comptage parce qu'aucun champ n'est utilisable pour "
 "une agrégation"
 
-#: forms/graph.py:321 forms/graph.py:328
+#: forms/graph.py:310 forms/graph.py:317
 msgid "You have to specify a day range if you use 'by X days'"
 msgstr ""
 "Vous devez spécifier une échelle de jours si vous utilisez 'par X jours'"
 
-#: forms/graph.py:337
+#: forms/graph.py:326
 msgid "This field is required if you choose a field to aggregate."
 msgstr "Ce champ est obligatoire si vous choisissez un champ à aggréger."
 
-#: forms/graph.py:339
+#: forms/graph.py:328
 msgid ""
 "If you don't choose an ordinate field (or none available) you have to check "
 "'Make a count instead of aggregate ?'"
@@ -303,11 +303,11 @@ msgstr ""
 "Si vous ne choisissez aucun champ d'ordonnée (ou qu'aucun n'est disponible) "
 "vous devez cocher 'Effectuer un comptage à la place des valeurs calculées ?'"
 
-#: forms/report.py:92
+#: forms/report.py:89
 msgid "Existing view"
 msgstr "Vue existante"
 
-#: forms/report.py:94
+#: forms/report.py:91
 msgid ""
 "If you select a view of list, the columns of the report will be copied from "
 "it."
@@ -315,36 +315,36 @@ msgstr ""
 "Si vous sélectionnez une vue de liste, les colonnes du rapport seront "
 "copiées depuis celle-ci."
 
-#: forms/report.py:98 models/report.py:43
+#: forms/report.py:95 models/report.py:43
 msgid "Filter"
 msgstr "Filtre"
 
 # Already in creme_core
-#: forms/report.py:113 forms/report.py:117
+#: forms/report.py:109 forms/report.py:113
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 
-#: forms/report.py:164
+#: forms/report.py:158
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:287
+#: forms/report.py:269
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/report.py:349
+#: forms/report.py:326
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:350
+#: forms/report.py:327
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:351
+#: forms/report.py:328
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: forms/report.py:354
+#: forms/report.py:331
 msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."
@@ -352,7 +352,7 @@ msgstr ""
 "Si vous choisisser un Champ date et sélectionnez «Personnalisé» vous devez "
 "spécifier une date de début et/ou une date de fin."
 
-#: forms/report.py:371
+#: forms/report.py:347
 msgctxt "reports-date_filter"
 msgid "None"
 msgstr "Aucun"
@@ -387,7 +387,7 @@ msgstr "Graphique de rapport"
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/graph.py:194
+#: models/graph.py:188
 #, python-brace-format
 msgid "The instance block for «{graph}» with these parameters already exists!"
 msgstr "Le bloc d'instance pour «{graph}» avec ces paramètres existe déjà !"
@@ -416,15 +416,15 @@ msgstr "Enregistrer le rapport"
 msgid "Report"
 msgstr "Rapport"
 
-#: models/report.py:205
+#: models/report.py:204
 msgid "Name of the column"
 msgstr "Nom de la colonne"
 
-#: models/report.py:216
+#: models/report.py:215
 msgid "Column of report"
 msgstr "Colonne de rapport"
 
-#: models/report.py:217
+#: models/report.py:216
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
@@ -601,6 +601,7 @@ msgid "Delete this graph"
 msgstr "Supprimer ce graphique"
 
 #: templates/reports/bricks/graphs.html:117
+#, python-format
 msgid "%(count)s configured block"
 msgid_plural "%(count)s configured blocks"
 msgstr[0] "%(count)s bloc configuré"
@@ -692,10 +693,6 @@ msgstr "Abscisse invalide : %(error)s"
 msgid "Invalid ordinate: %(error)s"
 msgstr "Ordonnée invalide : %(error)s"
 
-#: templates/reports/frags/report_export_filter.html:7
-msgid "Save"
-msgstr ""
-
 #: templates/reports/frags/report_preview_format.html:5
 msgid "Export parameters"
 msgstr "Paramètres d'export"
@@ -737,12 +734,12 @@ msgstr "Aperçu %(verbose_name)s : %(title)s"
 msgid "deleted"
 msgstr "supprimé"
 
-#: views/bricks.py:62
+#: views/bricks.py:35
 #, python-brace-format
 msgid "Create an instance block for «{entity}»"
 msgstr "Créer un bloc d'instance pour «{entity}»"
 
-#: views/bricks.py:74
+#: views/bricks.py:47
 msgid ""
 "When you create a block, it becomes available in the blocks configuration. "
 "It can be displayed on Home, on «My Page» & on the detail-views of entities."
@@ -751,62 +748,58 @@ msgstr ""
 "blocs. Il peut être affiché sur l'Accueil, sur «Ma Page» & sur les vues "
 "détaillées des entités."
 
-#: views/export.py:120
+#: views/export.py:75
 #, python-brace-format
 msgid "You can see no «{model}»"
 msgstr "Vous ne pouvez voir aucun(e) «{model}»"
 
-#: views/export.py:122
+#: views/export.py:77
 #, python-brace-format
 msgid "No «{model}» matches the filter «{filter}»"
 msgstr "Aucun(e) «{model}» ne correspond au filtre «{filter}»"
 
-#: views/export.py:127
+#: views/export.py:82
 #, python-brace-format
 msgid "No «{model}» matches your date filter"
 msgstr "Aucun(e) «{model}» ne correspond à votre filtre temporel"
 
-#: views/export.py:129
+#: views/export.py:84
 msgid "Fix your date filter"
 msgstr "Corrigez votre filtre temporel"
-
-#: views/graph.py:47
-#, python-format
-msgid "Create a graph for «%s»"
-msgstr "Créer un graphique pour «%s»"
-
-#: views/graph.py:63
-#, python-format
-msgid "Edit a graph for «%s»"
-msgstr "Modifier un graphique pour «%s»"
 
 #: views/graph.py:163
 msgid "Choose an abscissa field"
 msgstr "Choisir un champ d'abscisse"
 
-#: views/graph.py:221
+#: views/graph.py:217
 #, python-brace-format
 msgid "Create a graph for «{entity}»"
 msgstr "Créer un graphique pour «{entity}»"
 
-#: views/graph.py:243
+#: views/graph.py:239
 #, python-brace-format
 msgid "Edit a graph for «{entity}»"
 msgstr "Modifier un graphique pour «{entity}»"
 
-#: views/report.py:178
+#: views/report.py:140
 #, python-brace-format
 msgid "Link of the column «{object}»"
 msgstr "Liaison de la colonne «{object}»"
 
-#: views/report.py:179
+#: views/report.py:141
 msgid "Link"
 msgstr "Lier"
 
-#: views/report.py:223
+#: views/report.py:170
 #, python-brace-format
 msgid "Edit columns of «{object}»"
 msgstr "Modifier les colonnes de «{object}»"
+
+#~ msgid "Create a graph for «%s»"
+#~ msgstr "Créer un graphique pour «%s»"
+
+#~ msgid "Edit a graph for «%s»"
+#~ msgstr "Modifier un graphique pour «%s»"
 
 #~ msgid "(No block currently)"
 #~ msgstr "(Pas de bloc actuellement)"

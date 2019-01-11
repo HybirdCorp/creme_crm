@@ -128,7 +128,7 @@ class ReportGraphBrick(Brick):
                     x=x, y=y,
                     error=fetcher.error,
                     volatile_column=fetcher.verbose_volatile_column,
-                    instance_block_id=self.instance_brick_id,  # DEPRECATED
+                    # instance_block_id=self.instance_brick_id,
                     instance_brick_id=self.instance_brick_id,
                     report_charts=report_chart_registry,
         ))
