@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import CremeEntity
+# from creme.creme_core.models import CremeEntity
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 
@@ -42,103 +42,103 @@ Opportunity = get_opportunity_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_opportunity(request, form=opp_forms.OpportunityCreateForm,
-                             submit_label=Opportunity.save_label,
-                            ):
-    warnings.warn('opportunities.views.opportunity.abstract_add_opportunity() is deprecated ; '
-                  'use the class-based view OpportunityCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_initial={'sales_phase': SalesPhase.objects.first()},
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_opportunity(request, form=opp_forms.OpportunityCreateForm,
+#                              submit_label=Opportunity.save_label,
+#                             ):
+#     warnings.warn('opportunities.views.opportunity.abstract_add_opportunity() is deprecated ; '
+#                   'use the class-based view OpportunityCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_initial={'sales_phase': SalesPhase.objects.first()},
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_add_related_opportunity(request, entity_id, form=opp_forms.OpportunityCreateForm,
-                                     title=_('New opportunity related to «%s»'),
-                                     submit_label=Opportunity.save_label,
-                                     inner_popup=False,
-                                    ):
-    warnings.warn('opportunities.views.opportunity.abstract_add_related_opportunity() is deprecated ; '
-                  'use the class-based views RelatedOpportunityCreation & '
-                  'RelatedOpportunityCreationPopup instead.',
-                  DeprecationWarning
-                 )
-
-    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-    user = request.user
-
-    user.has_perm_to_link_or_die(entity)
-    # We don't need the link credentials with future Opportunity because
-    # Target/emitter relationships are internal (they are mandatory
-    # and can be seen as ForeignKeys).
-
-    initial = {
-        'target':      entity,
-        'sales_phase': SalesPhase.objects.first(),
-    }
-
-    if inner_popup:
-        response = generic.add_model_with_popup(request, form,
-                                                title=title % entity.allowed_str(user),
-                                                initial=initial,
-                                                submit_label=submit_label,
-                                               )
-    else:
-        response = generic.add_entity(request, form, extra_initial=initial,
-                                      extra_template_dict={'submit_label': submit_label},
-                                     )
-
-    return response
-
-
-def abstract_edit_opportunity(request, opp_id, form=opp_forms.OpportunityEditForm):
-    warnings.warn('opportunities.views.opportunity.abstract_edit_opportunity() is deprecated ; '
-                  'use the class-based view OpportunityEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, opp_id, Opportunity, form)
+# def abstract_add_related_opportunity(request, entity_id, form=opp_forms.OpportunityCreateForm,
+#                                      title=_('New opportunity related to «%s»'),
+#                                      submit_label=Opportunity.save_label,
+#                                      inner_popup=False,
+#                                     ):
+#     warnings.warn('opportunities.views.opportunity.abstract_add_related_opportunity() is deprecated ; '
+#                   'use the class-based views RelatedOpportunityCreation & '
+#                   'RelatedOpportunityCreationPopup instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+#     user = request.user
+#
+#     user.has_perm_to_link_or_die(entity)
+#     # We don't need the link credentials with future Opportunity because
+#     # Target/emitter relationships are internal (they are mandatory
+#     # and can be seen as ForeignKeys).
+#
+#     initial = {
+#         'target':      entity,
+#         'sales_phase': SalesPhase.objects.first(),
+#     }
+#
+#     if inner_popup:
+#         response = generic.add_model_with_popup(request, form,
+#                                                 title=title % entity.allowed_str(user),
+#                                                 initial=initial,
+#                                                 submit_label=submit_label,
+#                                                )
+#     else:
+#         response = generic.add_entity(request, form, extra_initial=initial,
+#                                       extra_template_dict={'submit_label': submit_label},
+#                                      )
+#
+#     return response
 
 
-def abstract_view_opportunity(request, opp_id,
-                              template='opportunities/view_opportunity.html',
-                             ):
-    warnings.warn('opportunities.views.opportunity.abstract_view_opportunity() is deprecated ; '
-                  'use the class-based view OpportunityDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, opp_id, model=Opportunity, template=template)
+# def abstract_edit_opportunity(request, opp_id, form=opp_forms.OpportunityEditForm):
+#     warnings.warn('opportunities.views.opportunity.abstract_edit_opportunity() is deprecated ; '
+#                   'use the class-based view OpportunityEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, opp_id, Opportunity, form)
 
 
-@login_required
-@permission_required(('opportunities', cperm(Opportunity)))
-def add(request):
-    warnings.warn('opportunities.views.opportunity.add() is deprecated .', DeprecationWarning)
-    return abstract_add_opportunity(request)
+# def abstract_view_opportunity(request, opp_id,
+#                               template='opportunities/view_opportunity.html',
+#                              ):
+#     warnings.warn('opportunities.views.opportunity.abstract_view_opportunity() is deprecated ; '
+#                   'use the class-based view OpportunityDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, opp_id, model=Opportunity, template=template)
 
 
-@login_required
-@permission_required(('opportunities', cperm(Opportunity)))
-def add_to(request, ce_id, inner_popup=False):
-    warnings.warn('opportunities.views.opportunity.add_to() is deprecated .', DeprecationWarning)
-    return abstract_add_related_opportunity(request, entity_id=ce_id,
-                                            inner_popup=inner_popup,
-                                           )
+# @login_required
+# @permission_required(('opportunities', cperm(Opportunity)))
+# def add(request):
+#     warnings.warn('opportunities.views.opportunity.add() is deprecated .', DeprecationWarning)
+#     return abstract_add_opportunity(request)
 
 
-@login_required
-@permission_required('opportunities')
-def edit(request, opp_id):
-    warnings.warn('opportunities.views.opportunity.edit() is deprecated .', DeprecationWarning)
-    return abstract_edit_opportunity(request, opp_id)
+# @login_required
+# @permission_required(('opportunities', cperm(Opportunity)))
+# def add_to(request, ce_id, inner_popup=False):
+#     warnings.warn('opportunities.views.opportunity.add_to() is deprecated .', DeprecationWarning)
+#     return abstract_add_related_opportunity(request, entity_id=ce_id,
+#                                             inner_popup=inner_popup,
+#                                            )
 
 
-@login_required
-@permission_required('opportunities')
-def detailview(request, opp_id):
-    warnings.warn('opportunities.views.opportunity.detailview() is deprecated .', DeprecationWarning)
-    return abstract_view_opportunity(request, opp_id)
+# @login_required
+# @permission_required('opportunities')
+# def edit(request, opp_id):
+#     warnings.warn('opportunities.views.opportunity.edit() is deprecated .', DeprecationWarning)
+#     return abstract_edit_opportunity(request, opp_id)
+
+
+# @login_required
+# @permission_required('opportunities')
+# def detailview(request, opp_id):
+#     warnings.warn('opportunities.views.opportunity.detailview() is deprecated .', DeprecationWarning)
+#     return abstract_view_opportunity(request, opp_id)
 
 
 @login_required
