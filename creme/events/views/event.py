@@ -125,26 +125,6 @@ PRES_STATUS_MAP = {
         constants.PRES_STATUS_NOT_COME:  pgettext_lazy('events-presence_status', 'Not come'),
     }
 
-# NB : Replaced by creme_core.gui.actions.UIAction
-# def build_get_actions(event, entity):
-#     """Build bound method to overload 'get_actions()' method of CremeEntities"""
-#     def _get_actions(user):
-#         return {'default': EntityAction(entity.get_absolute_url(), ugettext(u'See'),
-#                                         user.has_perm_to_view(entity),
-#                                         icon='view',
-#                                        ),
-#                 'others':  [EntityAction(reverse('events__create_related_opportunity',
-#                                                  args=(event.id, entity.id),
-#                                                 ),
-#                                          ugettext('Create an opportunity'),
-#                                          user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event),
-#                                          icon='opportunity',
-#                                         ),
-#                            ]
-#                }
-#
-#     return _get_actions
-
 
 class RelatedContactsActionsRegistry(ActionsRegistry):
     def __init__(self, event, *args, **kwargs):
@@ -369,25 +349,6 @@ def set_presence_status(request, event_id, contact_id):
     event.set_presence_status(contact, status, user)
 
     return HttpResponse()
-
-
-# def abstract_add_related_opportunity(request, event_id, contact_id,
-#                                      form=event_forms.RelatedOpportunityCreateForm,
-#                                     ):
-#     event   = get_object_or_404(Event, pk=event_id)
-#     contact = get_object_or_404(Contact, pk=contact_id)
-#
-#     request.user.has_perm_to_link_or_die(event)
-#
-#     return generic.add_entity(request, form,
-#                               extra_initial={'event': event, 'contact': contact},
-#                              )
-
-
-# @login_required
-# @permission_required(('events', 'opportunities', cperm(Opportunity)))
-# def add_opportunity(request, event_id, contact_id):
-#     return abstract_add_related_opportunity(request, event_id, contact_id)
 
 
 # Class-based views  -----------------------------------------------------------

@@ -21,7 +21,7 @@
 from collections import defaultdict
 
 from django.db.transaction import atomic
-from django.forms import ModelChoiceField, ValidationError  # DateTimeField
+from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm, MultiRelationEntityField
@@ -31,7 +31,7 @@ from creme.creme_core.utils import find_first
 from creme.persons import get_organisation_model
 from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
 
-from creme.opportunities.forms.opportunity import OpportunityCreationForm  #OpportunityCreateForm
+from creme.opportunities.forms.opportunity import OpportunityCreationForm
 
 from .. import get_event_model
 from .. import constants
@@ -42,14 +42,13 @@ class EventForm(CremeEntityForm):
         model = get_event_model()
 
     def clean(self):
-        # cdata = super(CremeEntityForm, self).clean()
         cdata = super().clean()
 
         if not self._errors:
             end = cdata.get('end_date')
 
             if end and cdata['start_date'] > end:
-                self.add_error('end_date', ugettext(u'The end date must be after the start date.'))
+                self.add_error('end_date', ugettext('The end date must be after the start date.'))
 
         return cdata
 
@@ -69,11 +68,8 @@ class AddContactsToEventForm(CremeForm):
         'duplicates': _('Contact %(contact)s is present twice.'),
     }
 
-    # def __init__(self, *args, **kwargs):
-    #     self.event = kwargs.pop('instance')
     def __init__(self, instance, *args, **kwargs):
         self.event = instance
-        # super(AddContactsToEventForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         # TODO: factorise (_RelationsCreateForm in creme_core) ??
@@ -135,19 +131,11 @@ class AddContactsToEventForm(CremeForm):
         return event
 
 
-# class RelatedOpportunityCreateForm(OpportunityCreateForm):
 class RelatedOpportunityCreateForm(OpportunityCreationForm):
-    # def __init__(self, *args, **kwargs):
     def __init__(self, event, contact, *args, **kwargs):
-        # super(RelatedOpportunityCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-
-        # initial = self.initial
         fields = self.fields
-
-        # self.event = event = initial['event']
         self.event = event
-        # contact = initial['contact']
 
         qs = get_organisation_model().objects.filter(relations__type__in=[
                                                         REL_OBJ_EMPLOYED_BY,
@@ -172,7 +160,6 @@ class RelatedOpportunityCreateForm(OpportunityCreationForm):
 
     @atomic
     def save(self, *args, **kwargs):
-        # opp = super(RelatedOpportunityCreateForm, self).save(*args, **kwargs)
         opp = super().save(*args, **kwargs)
 
         Relation.objects.create(user=self.user, subject_entity=opp,
