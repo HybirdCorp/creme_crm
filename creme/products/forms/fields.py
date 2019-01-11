@@ -19,7 +19,6 @@
 ################################################################################
 
 from functools import partial
-# import warnings
 
 from django.db.models.query import QuerySet
 from django.forms.utils import ValidationError
@@ -34,7 +33,6 @@ from ..models import Category, SubCategory
 
 class CreatorCategorySelector(ActionButtonList):
     def __init__(self, categories=(), attrs=None, creation_url='', creation_allowed=False):
-        # super(CreatorCategorySelector, self).__init__(attrs)
         super().__init__(attrs)
         self.categories = categories
         self.creation_allowed = creation_allowed
@@ -56,7 +54,7 @@ class CreatorCategorySelector(ActionButtonList):
             url = self.creation_url + '?category=${_delegate_.category}'
 
             self.add_action('create', SubCategory.creation_label, enabled=allowed, popupUrl=url,
-                            title=_(u'Create') if allowed else _(u"Can't create"),
+                            title=_('Create') if allowed else _("Can't create"),
                             # TODO : Temporarily disable this title for UI consistency.
                             # popupTitle=SubCategory.creation_label,
                            )
@@ -64,35 +62,32 @@ class CreatorCategorySelector(ActionButtonList):
     def get_context(self, name, value, attrs):
         selector = ChainedInput(self.attrs)
         add = partial(selector.add_dselect, attrs={'auto': False})
-        add('category', options=self.categories, label=_(u'Category'))
+        add('category', options=self.categories, label=_('Category'))
         add('subcategory', options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
                                                      .resolve('products__subcategories'),
-            label=_(u'Sub-category')
+            label=_('Sub-category')
            )
 
         self.delegate = selector
         self._build_actions(attrs)
 
-        # return super(CreatorCategorySelector, self).get_context(name=name, value=value, attrs=attrs)
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class CategoryField(JSONField):
     widget = CreatorCategorySelector  # need 'categories' "attribute"
     default_error_messages = {
-        'doesnotexist':          _(u"This category doesn't exist."),
-        'categorynotallowed':    _(u'This category causes constraint error.'),
-        'subcategorynotallowed': _(u'This sub-category causes constraint error.'),
+        'doesnotexist':          _("This category doesn't exist."),
+        'categorynotallowed':    _('This category causes constraint error.'),
+        'subcategorynotallowed': _('This sub-category causes constraint error.'),
     }
     value_type = dict
 
     def __init__(self, categories=Category.objects.all(), *args, **kwargs):
-        # super(CategoryField, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.categories = categories
 
     def __deepcopy__(self, memo):
-        # result = super(CategoryField, self).__deepcopy__(memo)
         result = super().__deepcopy__(memo)
 
         # Need to force a new ChoiceModelIterator to be created.

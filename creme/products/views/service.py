@@ -20,8 +20,6 @@
 
 import warnings
 
-# from django.utils.translation import ugettext_lazy as _, ugettext
-
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
@@ -29,7 +27,6 @@ from creme.creme_core.views import generic
 from .. import get_service_model
 from ..constants import DEFAULT_HFILTER_SERVICE
 from ..forms import service as service_forms
-# from ..forms.base import AddImagesForm
 
 from .base import ImagesAddingBase
 
@@ -94,16 +91,6 @@ def detailview(request, service_id):
 def listview(request):
     return generic.list_view(request, Service, hf_pk=DEFAULT_HFILTER_SERVICE)
 
-
-# @login_required
-# @permission_required('products')
-# def add_images(request, service_id):
-#     return generic.add_to_entity(request, service_id, AddImagesForm,
-#                                  ugettext('New images for «%s»'),
-#                                  entity_class=Service,
-#                                  submit_label=_('Link the images'),
-#                                  template='creme_core/generics/blockform/link_popup.html',
-#                                 )
 
 # Class-based views  ----------------------------------------------------------
 

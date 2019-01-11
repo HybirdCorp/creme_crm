@@ -24,14 +24,11 @@ from creme.creme_core.forms.bulk import BulkForm
 
 from .. import get_product_model
 from .fields import CategoryField
-from .base import _BaseForm, _BaseEditForm # _BaseCreateForm
+from .base import _BaseForm, _BaseEditForm
 
 Product = get_product_model()
 
 
-# class ProductCreateForm(_BaseCreateForm):
-#     class Meta(_BaseCreateForm.Meta):
-#         model = Product
 class ProductCreateForm(_BaseForm):
     class Meta(_BaseForm.Meta):
         model = Product
@@ -46,14 +43,12 @@ class ProductInnerEditCategory(BulkForm):
     sub_category = CategoryField(label=_(u'Sub-category'))
 
     def __init__(self, model, field, user=None, entities=(), is_bulk=False, **kwargs):
-        # super(ProductInnerEditCategory, self).__init__(model, field, user, entities, is_bulk, **kwargs)
         super().__init__(model, field, user, entities, is_bulk, **kwargs)
 
         if not is_bulk:
             self.fields['sub_category'].initial = entities[0].sub_category
 
     def clean(self):
-        # cleaned_data = super(ProductInnerEditCategory, self).clean()
         cleaned_data = super().clean()
 
         if self.errors:

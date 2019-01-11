@@ -25,7 +25,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 class ProductsConfig(CremeAppConfig):
     name = 'creme.products'
-    verbose_name = _(u'Products and services')
+    verbose_name = _('Products and services')
     dependencies = ['creme.documents']
 
     def all_apps_ready(self):
@@ -33,7 +33,6 @@ class ProductsConfig(CremeAppConfig):
 
         self.Product = get_product_model()
         self.Service = get_service_model()
-        # super(ProductsConfig, self).all_apps_ready()
         super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
@@ -70,30 +69,16 @@ class ProductsConfig(CremeAppConfig):
         register(self.Service, get_massimport_form_builder)
 
     def register_menu(self, creme_menu):
-        # from django.conf import settings
-
         Product = self.Product
         Service = self.Service
-
-        # if settings.OLD_MENU:
-        #     from django.urls import reverse_lazy as reverse
-        #     from creme.creme_core.auth import build_creation_perm as cperm
-        #
-        #     reg_item = creme_menu.register_app('products', '/products/').register_item
-        #     reg_item(reverse('products__portal'),         _(u'Portal of products and services'), 'products')
-        #     reg_item(reverse('products__list_products'),  _(u'All products'),                    'products')
-        #     reg_item(reverse('products__create_product'), Product.creation_label,                cperm(Product))
-        #     reg_item(reverse('products__list_services'),  _(u'All services'),                    'products')
-        #     reg_item(reverse('products__create_service'), Service.creation_label,                cperm(Service))
-        # else:
         LvURLItem = creme_menu.URLItem.list_view
         creme_menu.get('features') \
                   .get_or_create(creme_menu.ContainerItem, 'management', priority=50,
-                                 defaults={'label': _(u'Management')},
+                                 defaults={'label': _('Management')},
                                 ) \
                   .add(LvURLItem('products-products', model=Product), priority=20) \
                   .add(LvURLItem('products-services', model=Service), priority=25)
         creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('management', label=_(u'Management'), priority=50) \
+                  .get_or_create_group('management', label=_('Management'), priority=50) \
                   .add_link('products-create_product', Product, priority=20) \
                   .add_link('products-create_service', Service, priority=25)

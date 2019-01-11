@@ -19,14 +19,11 @@
 ################################################################################
 
 from .. import get_service_model
-from .base import _BaseForm, _BaseEditForm  # _BaseCreateForm
+from .base import _BaseForm, _BaseEditForm
 
 Service = get_service_model()
 
 
-# class ServiceCreateForm(_BaseCreateForm):
-#     class Meta(_BaseCreateForm.Meta):
-#         model = Service
 class ServiceCreateForm(_BaseForm):
     class Meta(_BaseForm.Meta):
         model = Service
