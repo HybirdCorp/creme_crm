@@ -92,11 +92,9 @@ class QuoteTestCase(_BillingTestCase):
         source, target = self.create_orgas()
         url = reverse('billing__create_related_quote', args=(target.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Create a quote for «%s»') % target, context.get('title'))
         self.assertEqual(_('Create a quote for «{entity}»').format(entity=target),
                          context.get('title')
                         )
@@ -202,8 +200,8 @@ class QuoteTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         name = name.title()
-        currency = Currency.objects.create(name=u'Marsian dollar', local_symbol=u'M$',
-                                           international_symbol=u'MUSD', is_custom=True,
+        currency = Currency.objects.create(name='Marsian dollar', local_symbol='M$',
+                                           international_symbol='MUSD', is_custom=True,
                                           )
         status = QuoteStatus.objects.all()[1]
         response = self.client.post(url, follow=True,
@@ -269,7 +267,7 @@ class QuoteTestCase(_BillingTestCase):
 
         response = post(unlinkable_source, unlinkable_target)
         self.assertEqual(200, response.status_code)
-        msg_fmt = _(u'You are not allowed to link this entity: {}').format
+        msg_fmt = _('You are not allowed to link this entity: {}').format
         self.assertFormError(response, 'form', 'source', msg_fmt(unlinkable_source))
         self.assertFormError(response, 'form', 'target', msg_fmt(unlinkable_target))
 

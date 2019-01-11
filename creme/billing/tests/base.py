@@ -89,7 +89,6 @@ def skipIfCustomServiceLine(test_func):
 
 class _BillingTestCaseMixin:
     def login(self, is_superuser=True, allowed_apps=None, *args, **kwargs):
-        # return super(_BillingTestCaseMixin, self).login(is_superuser,
         return super().login(is_superuser,
                              allowed_apps=allowed_apps or ['billing'],
                              *args, **kwargs
@@ -101,9 +100,6 @@ class _BillingTestCaseMixin:
 
         for f in ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country'):
             self.assertEqual(getattr(address1, f), getattr(address2, f))
-
-    # def genericfield_format_entity(self, entity):
-    #     return '{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
 
     def create_invoice(self, name, source, target, currency=None, discount=Decimal(), user=None):
         user = user or self.user

@@ -32,7 +32,6 @@ class InvoiceCreateForm(BaseCreateForm):
         model = Invoice
 
     def save(self, *args, **kwargs):
-        # instance = super(InvoiceCreateForm, self).save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
         cleaned_data = self.cleaned_data
         transform_target_into_customer(cleaned_data['source'],

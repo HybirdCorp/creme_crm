@@ -43,11 +43,9 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = reverse('billing__create_product_lines', args=(invoice.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Add one or more product to «%s»') % invoice, context.get('title'))
         self.assertEqual(_('Add one or more product to «{entity}»').format(entity=invoice),
                          context.get('title')
                         )
@@ -217,11 +215,9 @@ class LineTestCase(_BillingTestCase):
         url = reverse('billing__create_service_lines', args=(invoice.id,))
         self.assertGET200(url)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Add one or more service to «%s»') % invoice, context.get('title'))
         self.assertEqual(_('Add one or more service to «{entity}»').format(entity=invoice),
                          context.get('title')
                         )
@@ -492,7 +488,6 @@ class LineTestCase(_BillingTestCase):
 
         url = self._build_add2catalog_url(product_line)
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context

@@ -101,7 +101,6 @@ class _LinesBrick(SimpleBrick):
         class _LineForm(LineEditForm):
             def __init__(self, *args, **kwargs):
                 self.empty_permitted = False
-                # super(_LineForm, self).__init__(user=context['user'], related_document=document, *args, **kwargs)
                 super().__init__(user=context['user'], related_document=document, *args, **kwargs)
 
         line_model = self.line_model
@@ -121,7 +120,7 @@ class _LinesBrick(SimpleBrick):
 
 class ProductLinesBrick(_LinesBrick):
     id_                = SimpleBrick.generate_id('billing', 'product_lines')
-    verbose_name       = _(u'Product lines')
+    verbose_name       = _('Product lines')
     template_name      = 'billing/bricks/product-lines.html'
     line_model         = ProductLine
     related_item_model = ProductLine.related_item_class()
@@ -133,7 +132,7 @@ class ProductLinesBrick(_LinesBrick):
 
 class ServiceLinesBrick(_LinesBrick):
     id_                = SimpleBrick.generate_id('billing', 'service_lines')
-    verbose_name       = _(u'Service lines')
+    verbose_name       = _('Service lines')
     template_name      = 'billing/bricks/service-lines.html'
     line_model         = ServiceLine
     related_item_model  = ServiceLine.related_item_class()
@@ -147,7 +146,7 @@ class CreditNotesBrick(PaginatedBrick):
     id_                 = PaginatedBrick.generate_id('billing', 'credit_notes')
     dependencies        = (Relation, CreditNote)
     relation_type_deps  = (constants.REL_OBJ_CREDIT_NOTE_APPLIED, )
-    verbose_name        = _(u'Related Credit Notes')
+    verbose_name        = _('Related Credit Notes')
     template_name       = 'billing/bricks/credit-notes.html'
     target_ctypes       = (Invoice, SalesOrder, Quote,)
 
@@ -159,7 +158,7 @@ class CreditNotesBrick(PaginatedBrick):
                     context,
                     billing_document.get_credit_notes(),
                     rtype_id=self.relation_type_deps[0],
-                    add_title=_(u'Create a credit note'),
+                    add_title=_('Create a credit note'),
                     hidden_fields={fname
                                        for fname in ('issuing_date', 'expiration_date', 'comment')
                                            if is_hidden(fname)
@@ -171,7 +170,7 @@ class TotalBrick(Brick):
     id_                 = SimpleBrick.generate_id('billing', 'total')
     dependencies        = (ProductLine, ServiceLine, Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     relation_type_deps  = (constants.REL_OBJ_CREDIT_NOTE_APPLIED,)
-    verbose_name        = _(u'Total')
+    verbose_name        = _('Total')
     template_name       = 'billing/bricks/total.html'
     target_ctypes       = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
 
@@ -185,7 +184,7 @@ class TotalBrick(Brick):
 class TargetBrick(SimpleBrick):
     id_           = SimpleBrick.generate_id('billing', 'target')
     dependencies  = (Invoice, CreditNote, SalesOrder, Quote, TemplateBase)
-    verbose_name  = _(u'Target and source')
+    verbose_name  = _('Target and source')
     template_name = 'billing/bricks/target.html'
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
 
@@ -194,7 +193,7 @@ class ReceivedInvoicesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('billing', 'received_invoices')
     dependencies  = (Relation, Invoice)
     relation_type_deps = (constants.REL_OBJ_BILL_RECEIVED, )
-    verbose_name  = _(u'Received invoices')
+    verbose_name  = _('Received invoices')
     template_name = 'billing/bricks/received-invoices.html'
     target_ctypes = (Contact, Organisation)
     order_by      = '-expiration_date'
@@ -214,16 +213,16 @@ class ReceivedInvoicesBrick(QuerysetBrick):
 
 class _ReceivedBillingDocumentsBrick(QuerysetBrick):
     relation_type_deps = (constants.REL_OBJ_BILL_RECEIVED, )
-    verbose_name  = _(u'Received billing documents')
+    verbose_name  = _('Received billing documents')
     template_name = 'billing/bricks/received-billing-documents.html'
     target_ctypes = (Contact, Organisation)
     order_by      = '-expiration_date'
 
     _billing_model = None  # OVERLOAD ME
-    _title         = _(u'{count} Received billing document')  # OVERLOAD ME
-    _title_plural  = _(u'{count} Received billing documents')  # OVERLOAD ME
-    _empty_title   = _(u'Received billing documents')  # OVERLOAD ME
-    _empty_msg     = _(u'No received billing document for the moment')  # OVERLOAD ME
+    _title         = _('{count} Received billing document')  # OVERLOAD ME
+    _title_plural  = _('{count} Received billing documents')  # OVERLOAD ME
+    _empty_title   = _('Received billing documents')  # OVERLOAD ME
+    _empty_msg     = _('No received billing document for the moment')  # OVERLOAD ME
 
     def detailview_display(self, context):
         person_id = context['object'].id
@@ -246,59 +245,48 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
 class ReceivedQuotesBrick(_ReceivedBillingDocumentsBrick):
     id_          = QuerysetBrick.generate_id('billing', 'received_quotes')
     dependencies = (Relation, Quote)
-    verbose_name = _(u'Received quotes')
+    verbose_name = _('Received quotes')
 
     _billing_model = Quote
-    _title         = _(u'{count} Received quote')
-    _title_plural  = _(u'{count} Received quotes')
-    _empty_title   = _(u'Received quotes')
-    _empty_msg     = _(u'No received quote for the moment')
+    _title         = _('{count} Received quote')
+    _title_plural  = _('{count} Received quotes')
+    _empty_title   = _('Received quotes')
+    _empty_msg     = _('No received quote for the moment')
 
 
 class ReceivedSalesOrdersBrick(_ReceivedBillingDocumentsBrick):
     id_          = QuerysetBrick.generate_id('billing', 'received_sales_orders')
     dependencies = (Relation, SalesOrder)
-    verbose_name = _(u'Received sales orders')
+    verbose_name = _('Received sales orders')
 
     _billing_model = SalesOrder
-    _title         = _(u'{count} Received sales order')
-    _title_plural  = _(u'{count} Received sales orders')
-    _empty_title   = _(u'Received sales orders')
-    _empty_msg     = _(u'No received sales order for the moment')
+    _title         = _('{count} Received sales order')
+    _title_plural  = _('{count} Received sales orders')
+    _empty_title   = _('Received sales orders')
+    _empty_msg     = _('No received sales order for the moment')
 
 
 class ReceivedCreditNotesBrick(_ReceivedBillingDocumentsBrick):
     id_          = QuerysetBrick.generate_id('billing', 'received_credit_notes')
     dependencies = (Relation, CreditNote)
-    verbose_name = _(u'Received credit notes')
+    verbose_name = _('Received credit notes')
 
     _billing_model = CreditNote
-    _title         = _(u'{count} Received credit note')
-    _title_plural  = _(u'{count} Received credit notes')
-    _empty_title   = _(u'Received credit notes')
-    _empty_msg     = _(u'No received credit note for the moment')
+    _title         = _('{count} Received credit note')
+    _title_plural  = _('{count} Received credit notes')
+    _empty_title   = _('Received credit notes')
+    _empty_msg     = _('No received credit note for the moment')
 
 
 class PaymentInformationBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('billing', 'payment_information')
-    verbose_name  = _(u'Payment information')
+    verbose_name  = _('Payment information')
     template_name = 'billing/bricks/orga-payment-information.html'
     target_ctypes = (Organisation, )
     order_by      = 'name'
 
     def detailview_display(self, context):
         organisation = context['object']
-        # has_to_be_displayed = True
-        #
-        # try:
-        #     if not organisation.is_managed and SettingValue.objects.get(key_id=payment_info_key.id).value:
-        #         has_to_be_displayed = False
-        # except SettingValue.DoesNotExist:
-        #     # Populate error ?
-        #     pass
-        #
-        # if not has_to_be_displayed:
-        #     return ''  # todo: in template ? empty <table> ?
 
         if not organisation.is_managed and SettingValue.objects.get_4_key(payment_info_key, default=True).value:
             return ''  # TODO: in template ? empty <table> ?
@@ -311,7 +299,7 @@ class PaymentInformationBrick(QuerysetBrick):
 
 class BillingPaymentInformationBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('billing', 'billing_payment_information')
-    verbose_name  = _(u'Default payment information')
+    verbose_name  = _('Default payment information')
     template_name = 'billing/bricks/billing-payment-information.html'
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
     dependencies  = (Relation, PaymentInformation)
@@ -349,7 +337,7 @@ class BillingPrettyAddressBrick(persons_bricks.PrettyAddressesBrick):
 
 class PersonsStatisticsBrick(Brick):
     id_           = Brick.generate_id('billing', 'persons__statistics')
-    verbose_name  = _(u'Billing statistics')
+    verbose_name  = _('Billing statistics')
     template_name = 'billing/bricks/persons-statistics.html'
     target_ctypes = (Organisation, Contact)
 

@@ -26,7 +26,7 @@ from .base import BaseEditForm, copy_or_create_address, first_managed_orga_id
 
 
 class _TemplateBaseForm(BaseEditForm):
-    status = ChoiceField(label=_(u'Status'), choices=())
+    status = ChoiceField(label=_('Status'), choices=())
 
     class Meta:
         model = get_template_base_model()
@@ -36,9 +36,8 @@ class _TemplateBaseForm(BaseEditForm):
         meta = billing_ct.model_class()._meta
         status_field = self.fields['status']
 
-        status_field.label   = ugettext(u'Status of {}').format(meta.verbose_name)
+        status_field.label   = ugettext('Status of {}').format(meta.verbose_name)
         status_field.choices = [(status.id, str(status))
-                                    # for status in meta.get_field('status').rel.to.objects.all()
                                     for status in meta.get_field('status').remote_field.model.objects.all()
                                ]
 
@@ -46,13 +45,11 @@ class _TemplateBaseForm(BaseEditForm):
 
     def save(self, *args, **kwargs):
         self.instance.status_id = self.cleaned_data['status']
-        # return super(_TemplateBaseForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
 class TemplateBaseEditForm(_TemplateBaseForm):
     def __init__(self, *args, **kwargs):
-        # super(TemplateBaseEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         instance = self.instance
@@ -63,19 +60,17 @@ class TemplateBaseEditForm(_TemplateBaseForm):
 
 class TemplateBaseCreateForm(_TemplateBaseForm):
     def __init__(self, ct, *args, **kwargs):  # 'ct' arg => see RecurrentGeneratorWizard
-        # super(TemplateBaseCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self._build_status_field(ct)
         self.instance.ct = ct
         self.fields['source'].initial = first_managed_orga_id()
 
     def save(self, *args, **kwargs):
-        # instance = super(TemplateBaseCreateForm, self).save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
 
         target = self.cleaned_data['target']
-        instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
-        instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
+        instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _('Billing address'))
+        instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _('Shipping address'))
 
         instance.save()
 

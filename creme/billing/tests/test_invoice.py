@@ -21,7 +21,7 @@ try:
 
     from ..actions import ExportInvoiceAction, GenerateNumberAction
     from ..constants import (REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED,
-            REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED, AMOUNT_PK, PERCENT_PK)  # REL_SUB_HAS_LINE
+            REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED, AMOUNT_PK, PERCENT_PK)
     from ..models import InvoiceStatus, AdditionalInformation, PaymentTerms
 
     from .base import (_BillingTestCase, _BillingTestCaseMixin, skipIfCustomInvoice,
@@ -70,13 +70,13 @@ class InvoiceTestCase(_BillingTestCase):
 
         b_addr = invoice.billing_address
         self.assertEqual(invoice,                b_addr.owner)
-        self.assertEqual(_(u'Billing address'),  b_addr.name)
-        self.assertEqual(_(u'Billing address'),  b_addr.address)
+        self.assertEqual(_('Billing address'),  b_addr.name)
+        self.assertEqual(_('Billing address'),  b_addr.address)
 
         s_addr = invoice.shipping_address
         self.assertEqual(invoice,                s_addr.owner)
-        self.assertEqual(_(u'Shipping address'), s_addr.name)
-        self.assertEqual(_(u'Shipping address'), s_addr.address)
+        self.assertEqual(_('Shipping address'), s_addr.name)
+        self.assertEqual(_('Shipping address'), s_addr.address)
 
         self.create_invoice('Invoice002', source, target, currency)
         self.assertRelationCount(1, target, REL_SUB_CUSTOMER_SUPPLIER, source)
@@ -153,8 +153,8 @@ class InvoiceTestCase(_BillingTestCase):
                                             'target':          self.formfield_value_generic_entity(target),
                                            }
                                      )
-        link_error = _(u'You are not allowed to link this entity: {}')
-        not_viewable_error = _(u'Entity #{id} (not viewable)').format
+        link_error = _('You are not allowed to link this entity: {}')
+        not_viewable_error = _('Entity #{id} (not viewable)').format
         self.assertFormError(response, 'form', 'source',
                              link_error.format(not_viewable_error(id=source.id))
                             )
@@ -167,11 +167,9 @@ class InvoiceTestCase(_BillingTestCase):
         source, target = self.create_orgas()
         url = reverse('billing__create_related_invoice', args=(target.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        # self.assertEqual(_('Create an invoice for «%s»') % target, context.get('title'))
         self.assertEqual(_('Create an invoice for «{entity}»').format(entity=target),
                          context.get('title')
                         )
@@ -462,7 +460,7 @@ class InvoiceTestCase(_BillingTestCase):
                                            }
                                      )
 
-        msg = _(u'Enter a number between 0 and 100 (it is a percentage).')
+        msg = _('Enter a number between 0 and 100 (it is a percentage).')
         self.assertFormError(post('150'), 'form', 'discount', msg)
         self.assertFormError(post('-10'), 'form', 'discount', msg)
 
@@ -501,7 +499,7 @@ class InvoiceTestCase(_BillingTestCase):
                                                 }
                                      )
         self.assertFormError(response, 'form', 'field_value',
-                             _(u'Enter a number between 0 and 100 (it is a percentage).')
+                             _('Enter a number between 0 and 100 (it is a percentage).')
                             )
 
     def test_generate_number01(self):
@@ -552,72 +550,6 @@ class InvoiceTestCase(_BillingTestCase):
 
         self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
         self.assertTrue(settings.INVOICE_NUMBER_PREFIX + '1', self.refresh(invoice).number)
-
-    # @skipIfCustomProductLine
-    # def test_product_lines_property01(self):
-    #     user = self.login()
-    #     invoice = self.create_invoice_n_orgas('Invoice001')[0]
-    #
-    #     with self.assertNumQueries(1):
-    #         length = len(invoice.product_lines)
-    #
-    #     self.assertEqual(0, length)
-    #
-    #     with self.assertNumQueries(0):
-    #         bool(invoice.product_lines)
-    #
-    #     product_line = ProductLine.objects.create(user=user, related_document=invoice,
-    #                                               on_the_fly_item='Flyyyyy',
-    #                                              )
-    #     self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, product_line)
-    #
-    #     invoice = self.refresh(invoice)
-    #     self.assertEqual([product_line], list(invoice.product_lines))
-    #
-    #     product_line.delete()
-    #     self.assertFalse(self.refresh(invoice).product_lines)
-
-    # @skipIfCustomProductLine
-    # @skipIfCustomServiceLine
-    # def test_product_lines_property02(self):
-    #     user = self.login()
-    #     invoice = self.create_invoice_n_orgas('Invoice001')[0]
-    #
-    #     kwargs = {'user': user, 'related_document': invoice}
-    #     create_pline = partial(ProductLine.objects.create, **kwargs)
-    #     product_line1 = create_pline(on_the_fly_item='Flyyy product')
-    #     product_line2 = create_pline(on_the_fly_item='Flyyy product2')
-    #     ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
-    #     self.assertEqual([product_line1, product_line2], list(self.refresh(invoice).product_lines))
-
-    # @skipIfCustomServiceLine
-    # def test_service_lines_property01(self):
-    #     user = self.login()
-    #     invoice = self.create_invoice_n_orgas('Invoice001')[0]
-    #     self.assertFalse(invoice.service_lines)
-    #
-    #     service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-    #                                               on_the_fly_item='Flyyyyy'
-    #                                              )
-    #     self.assertEqual([service_line], list(self.refresh(invoice).service_lines))
-    #
-    #     service_line.delete()
-    #     self.assertFalse(self.refresh(invoice).service_lines)
-
-    # @skipIfCustomProductLine
-    # @skipIfCustomServiceLine
-    # def test_service_lines_property02(self):
-    #     user = self.login()
-    #     invoice = self.create_invoice_n_orgas('Invoice001')[0]
-    #
-    #     kwargs = {'user': user, 'related_document': invoice}
-    #     ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
-    #
-    #     create_sline = partial(ServiceLine.objects.create, **kwargs)
-    #     service_line1 = create_sline(on_the_fly_item='Flyyy service1')
-    #     service_line2 = create_sline(on_the_fly_item='Flyyy service2')
-    #
-    #     self.assertEqual([service_line1, service_line2], list(self.refresh(invoice).service_lines))
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
@@ -733,8 +665,8 @@ class InvoiceTestCase(_BillingTestCase):
                           )
         target.save()
 
-        currency = Currency.objects.create(name=u'Marsian dollar', local_symbol=u'M$',
-                                           international_symbol=u'MUSD', is_custom=True,
+        currency = Currency.objects.create(name='Marsian dollar', local_symbol='M$',
+                                           international_symbol='MUSD', is_custom=True,
                                           )
         invoice = self.create_invoice('Invoice001', source, target, currency=currency)
         invoice.additional_info = AdditionalInformation.objects.all()[0]
@@ -867,7 +799,7 @@ class InvoiceTestCase(_BillingTestCase):
     def test_delete_currency(self):
         self.login()
 
-        currency = Currency.objects.create(name=u'Berry', local_symbol=u'B', international_symbol=u'BRY')
+        currency = Currency.objects.create(name='Berry', local_symbol='B', international_symbol='BRY')
         invoice = self.create_invoice_n_orgas('Nerv', currency=currency)[0]
 
         self.assertPOST404(reverse('creme_config__delete_instance', args=('creme_core', 'currency')),

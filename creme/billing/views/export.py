@@ -81,7 +81,7 @@ def export_as_pdf(request, base_id):
         'document_name': document_name,
     }
 
-    basename = secure_filename(u'{}_{}'.format(document_name, entity.id))
+    basename = secure_filename('{}_{}'.format(document_name, entity.id))
     tmp_dir_path = mkdtemp(prefix='creme_billing_latex')
     latex_file_path = path.join(tmp_dir_path, '{}.tex'.format(basename))
 
@@ -105,7 +105,7 @@ def export_as_pdf(request, base_id):
                         'so you can inspect the *.log file in "%s"', tmp_dir_path
                        )
         # TODO: use a better exception class ?
-        raise ConflictError(_(u'The generation of the PDF file has failed ; please contact your administrator.'))
+        raise ConflictError(_('The generation of the PDF file has failed ; please contact your administrator.'))
 
     final_path = FileCreator(dir_path=path.join(settings.MEDIA_ROOT, 'upload', 'billing'),
                              name=pdf_basename,
@@ -120,7 +120,6 @@ def export_as_pdf(request, base_id):
                                     )
 
     return HttpResponseRedirect(reverse('creme_core__dl_file',
-                                        # args=('upload/billing/' + path.basename(final_path),),
                                         args=(fileref.filedata,),
                                        )
                                )

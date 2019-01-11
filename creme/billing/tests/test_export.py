@@ -11,7 +11,6 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials, FileRef
-    # from creme.creme_core.utils.secure_filename import secure_filename
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
@@ -42,7 +41,6 @@ class ExportTestCase(_BillingTestCase):
         existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
 
         response = self.assertGET200(self._build_export_url(invoice), follow=True)
-        # self.assertEqual('pdf', response['Content-Type'])
         self.assertEqual('application/pdf', response['Content-Type'])
 
         filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
@@ -56,15 +54,6 @@ class ExportTestCase(_BillingTestCase):
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), '<{}> does not exists ?!'.format(fullpath))
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
-
-        # cdisp = response['Content-Disposition']
-        # self.assertTrue(cdisp.startswith('attachment; filename={}'.format(
-        #                                         secure_filename(u'{}_{}'.format(_(u'Invoice'), invoice.id))
-        #                                     )
-        #                                 ),
-        #                 '<{}> is not the expected value'.format(cdisp)
-        #                )
-        # self.assertTrue(cdisp.endswith('.pdf'))
         self.assertEqual('attachment; filename={}'.format(basename(fullpath)), response['Content-Disposition'])
 
     @skipIfCustomQuote
@@ -80,7 +69,6 @@ class ExportTestCase(_BillingTestCase):
             create_line(on_the_fly_item='Fly ' + price, unit_price=Decimal(price))
 
         response = self.assertGET200(self._build_export_url(quote), follow=True)
-        # self.assertEqual('pdf', response['Content-Type'])
         self.assertEqual('application/pdf', response['Content-Type'])
 
     def test_bad_ct(self):

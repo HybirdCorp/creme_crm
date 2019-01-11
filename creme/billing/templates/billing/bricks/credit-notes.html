@@ -45,7 +45,7 @@
         <td class="cnotes-number">{{credit_note.number}}</td>
         <td class="cnotes-status">{{credit_note.status}}</td>
         {% if 'comment' not in hidden_fields %}
-        <td {# id="comment{{credit_note.id}}" #} class="cnotes-comment">
+        <td class="cnotes-comment">
             <div>
             {% if credit_note.comment %}<p>{{credit_note.comment|linebreaksbr}}</p>{% else %}<span class="empty-field">—</span>{% endif %}
             {% url 'billing__edit_cnote_comment' credit_note.id as edit_comment_url %}

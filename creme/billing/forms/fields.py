@@ -25,8 +25,7 @@ from django.utils.translation import ugettext as _
 
 class BillingDiscountField(DecimalField):
     def validate(self, value):
-        # super(BillingDiscountField, self).validate(value)
         super().validate(value)
 
         if not (0 <= value <= 100):
-            raise ValidationError(_(u'Enter a number between 0 and 100 (it is a percentage).'))
+            raise ValidationError(_('Enter a number between 0 and 100 (it is a percentage).'))

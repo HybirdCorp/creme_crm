@@ -26,7 +26,6 @@ data-type-global-discount="{{object.discount}}"
             <div class="bline-container">
                 <div class="bline-buttons" id="line_content_{{form.instance.id}}">
                     <span class="bline-counter">{{forloop.counter}}</span>
-{#                    <a class="bline-button bline-button-delete" onclick="creme.billing.markDelete('{{form.prefix}}', '{{ct_id}}', '{{form.instance.id}}');"> #}
                     <a class="bline-button bline-button-delete" onclick="creme.billing.markDelete('{{form.prefix}}', '{{form.instance.id}}');">
                         {% widget_icon name='delete' size='brick-action' label=_('Flag for delete') %}
                     </a>

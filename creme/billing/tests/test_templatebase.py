@@ -97,7 +97,6 @@ class TemplateBaseTestCase(_BillingTestCase):
         tpl = self._create_templatebase(Invoice, invoice_status.id)
 
         with self.assertNoException():
-            # funf = tpl.function_fields.get('get_verbose_status')
             funf = function_field_registry.get(TemplateBase, 'get_verbose_status')
 
         self.assertIsNotNone(funf)

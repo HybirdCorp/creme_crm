@@ -36,7 +36,6 @@ from .constants import REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_ISSUED
 
 logger = logging.getLogger(__name__)
 
-# Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
 Invoice = billing.get_invoice_model()
@@ -257,15 +256,3 @@ class _TotalWonQuoteLastYear(_BaseTotalFunctionField):
     @classmethod
     def multi_func(cls):
         return get_total_won_quote_last_year_multi
-
-
-# def hook_organisation():
-#     Organisation.function_fields.add(_TotalPendingPayment(),
-#                                      _TotalWonQuoteThisYear(),
-#                                      _TotalWonQuoteLastYear()
-#                                     )
-#
-#     Contact.function_fields.add(_TotalPendingPayment(),
-#                                 _TotalWonQuoteThisYear(),
-#                                 _TotalWonQuoteLastYear()
-#                                )

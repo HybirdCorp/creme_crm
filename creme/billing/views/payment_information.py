@@ -36,14 +36,6 @@ from ..forms import payment_information as pi_forms
 from ..models import PaymentInformation
 
 
-# @login_required
-# @permission_required('billing')
-# def add(request, entity_id):
-#     return generic.add_to_entity(request, entity_id, pi_forms.PaymentInformationCreateForm,
-#                                  _('New payment information in the organisation «%s»'),
-#                                  entity_class=get_organisation_model(),
-#                                  submit_label=_('Save the payment information'),
-#                                 )
 class PaymentInformationCreation(generic.AddingInstanceToEntityPopup):
     model = PaymentInformation
     form_class = pi_forms.PaymentInformationCreateForm
@@ -53,13 +45,6 @@ class PaymentInformationCreation(generic.AddingInstanceToEntityPopup):
     title = _('New payment information in the organisation «{entity}»')
 
 
-# @login_required
-# @permission_required('billing')
-# def edit(request, payment_information_id):
-#     return generic.edit_related_to_entity(request, payment_information_id,
-#                                           PaymentInformation, pi_forms.PaymentInformationEditForm,
-#                                           _('Payment information for «%s»'),
-#                                          )
 class PaymentInformationEdition(generic.RelatedToEntityEditionPopup):
     model = PaymentInformation
     form_class = pi_forms.PaymentInformationEditForm
@@ -75,17 +60,11 @@ class PaymentInformationEdition(generic.RelatedToEntityEditionPopup):
 @atomic
 def set_default(request, payment_information_id, billing_id):
     pi = get_object_or_404(PaymentInformation, pk=payment_information_id)
-    # billing_doc = get_object_or_404(CremeEntity, pk=billing_id).get_real_entity()
     entity = get_object_or_404(CremeEntity.objects.select_for_update(), pk=billing_id)
     user = request.user
 
     real_model = entity.entity_type.model_class()
 
-    # if not isinstance(billing_doc, (billing.get_invoice_model(), billing.get_quote_model(),
-    #                                 billing.get_sales_order_model(), billing.get_credit_note_model(),
-    #                                 billing.get_template_base_model(),
-    #                                )
-    #                  ):
     if real_model not in {billing.get_invoice_model(),
                           billing.get_quote_model(),
                           billing.get_sales_order_model(),
@@ -94,7 +73,6 @@ def set_default(request, payment_information_id, billing_id):
                          }:
         raise Http404('This entity is not a billing document')
 
-    # if FieldsConfig.get_4_model(billing_doc.__class__).is_fieldname_hidden('payment_info'):
     if FieldsConfig.get_4_model(real_model).is_fieldname_hidden('payment_info'):
         raise ConflictError('The field "payment_info" is hidden.')
 

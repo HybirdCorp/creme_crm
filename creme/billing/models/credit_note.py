@@ -31,15 +31,15 @@ from .other_models import CreditNoteStatus
 
 
 class AbstractCreditNote(Base):
-    status = ForeignKey(CreditNoteStatus, verbose_name=_(u'Status of credit note'), on_delete=PROTECT)
+    status = ForeignKey(CreditNoteStatus, verbose_name=_('Status of credit note'), on_delete=PROTECT)
 
-    creation_label = _(u'Create a credit note')
-    save_label     = _(u'Save the credit note')
+    creation_label = _('Create a credit note')
+    save_label     = _('Save the credit note')
 
     class Meta(Base.Meta):
         abstract = True
-        verbose_name = _(u'Credit note')
-        verbose_name_plural = _(u'Credit notes')
+        verbose_name = _('Credit note')
+        verbose_name_plural = _('Credit notes')
 
     def get_absolute_url(self):
         return reverse('billing__view_cnote', args=(self.id,))
@@ -68,7 +68,6 @@ class AbstractCreditNote(Base):
 
         self.status_id = status_id
 
-        # return super(AbstractCreditNote, self).build(template)
         return super().build(template)
 
     def _update_linked_docs(self):
@@ -83,12 +82,10 @@ class AbstractCreditNote(Base):
             rel.object_entity.get_real_entity().save()
 
     def restore(self):
-        # super(AbstractCreditNote, self).restore()
         super().restore()
         self._update_linked_docs()
 
     def trash(self):
-        # super(AbstractCreditNote, self).trash()
         super().trash()
         self._update_linked_docs()
 

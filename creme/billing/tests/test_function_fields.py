@@ -2,7 +2,6 @@
 
 try:
     from datetime import date, timedelta
-    # from itertools import chain
     from functools import partial
 
     from django.conf import settings
@@ -11,7 +10,7 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.entity_cell import EntityCellFunctionField
-    from creme.creme_core.core.function_field import function_field_registry  # FunctionField
+    from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import FieldsConfig, SetCredentials
 
     from creme.persons.tests.base import skipIfCustomOrganisation
@@ -99,7 +98,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(invoice02, 2000, 1)
         self.assertEqual(7000, get_total_pending(target, user))
 
-        # funf = target.function_fields.get('total_pending_payment')
         funf = function_field_registry.get(Organisation, 'total_pending_payment')
         self.assertIsNotNone(funf)
 
@@ -161,7 +159,6 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         bool(Organisation.get_all_managed_by_creme())  # Fill cache
 
-        # funf = target01.function_fields.get('total_pending_payment')
         funf = function_field_registry.get(Organisation, 'total_pending_payment')
         self.assertIsNotNone(funf)
 
@@ -275,12 +272,10 @@ class FunctionFieldTestCase(_BillingTestCase):
         invoice.status = self.pending_payment_status
         invoice.save()
 
-        # self._set_manages_by_creme(source)
         self._set_managed(source)
         self.create_line(invoice, 2000, 1)
 
         bool(Organisation.get_all_managed_by_creme())  # Fill cache
-        # funf = target.function_fields.get('total_pending_payment')
         funf = function_field_registry.get(Organisation, 'total_pending_payment')
 
         with self.assertNumQueries(2):
@@ -315,7 +310,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(invoice, 2000, 1)
 
         bool(Organisation.get_all_managed_by_creme())  # Fill cache
-        # funf = target.function_fields.get('total_pending_payment')
         funf = function_field_registry.get(Organisation, 'total_pending_payment')
 
         with self.assertNumQueries(2):
@@ -382,7 +376,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote02, 300, 1)
         self.assertEqual(5300, get_total_won_quote_last_year(target, user))
 
-        # funf = target.function_fields.get('total_won_quote_last_year')
         funf = function_field_registry.get(Organisation, 'total_won_quote_last_year')
         self.assertIsNotNone(funf)
 
@@ -446,7 +439,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote03, 500,  1)  # Not used
         self.create_line(quote04, 300, 1)   # Not used
 
-        # funf = target01.function_fields.get('total_won_quote_last_year')
         funf = function_field_registry.get(Organisation, 'total_won_quote_last_year')
         self.assertIsNotNone(funf)
 
@@ -475,7 +467,6 @@ class FunctionFieldTestCase(_BillingTestCase):
                             descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
                            )
 
-        # funf = target1.function_fields.get('total_won_quote_last_year')
         funf = function_field_registry.get(Organisation, 'total_won_quote_last_year')
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
@@ -484,7 +475,6 @@ class FunctionFieldTestCase(_BillingTestCase):
             funf.populate_entities([target1, target2], user)
 
         with self.assertNumQueries(0):
-            # get_total_won_quote_last_year(target1)
             total1 = get_total_won_quote_last_year(target1, user)
             total2 = get_total_won_quote_last_year(target2, user)
 
@@ -532,7 +522,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote02, 1000, 1)
         self.assertEqual(6000, get_total_won_quote_this_year(target, user))
 
-        # funf = target.function_fields.get('total_won_quote_this_year')
         funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
         self.assertIsNotNone(funf)
 
@@ -551,7 +540,6 @@ class FunctionFieldTestCase(_BillingTestCase):
                             descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
                            )
 
-        # funf = target.function_fields.get('total_won_quote_this_year')
         funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
@@ -595,7 +583,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote03, 1000, 1)  # Not used
         self.create_line(quote04, 300, 1)  # Not used
 
-        # funf = target01.function_fields.get('total_won_quote_this_year')
         funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
         self.assertIsNotNone(funf)
 
@@ -624,7 +611,6 @@ class FunctionFieldTestCase(_BillingTestCase):
                             descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
                            )
 
-        # funf = target1.function_fields.get('total_won_quote_this_year')
         funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
@@ -645,18 +631,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         user = self.login()
         quote, source, target = self.create_quote_n_orgas('YOLO')
 
-        # with self.assertNoException():
-        #     off_mngr = Organisation.function_fields
-        #     cff_mngr = Contact.function_fields
-        #
-        # for funf in chain(off_mngr, cff_mngr):
-        #     self.assertIsInstance(funf, FunctionField)
-        #
-        #     if funf.name in {'total_pending_payment',
-        #                      'total_won_quote_this_year',
-        #                      'total_won_quote_last_year',
-        #                     }:
-        #         self.assertEqual('0', funf(target, user).for_html())
         for model in (Organisation, Contact):
             for name in ('total_pending_payment',
                          'total_won_quote_this_year',

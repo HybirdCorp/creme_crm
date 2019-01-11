@@ -38,15 +38,12 @@ class BillingConfig(CremeAppConfig):
         self.TemplateBase = billing.get_template_base_model()
         self.ProductLine  = billing.get_product_line_model()
         self.ServiceLine  = billing.get_service_line_model()
-        # super(BillingConfig, self).all_apps_ready()
         super().all_apps_ready()
 
         self.register_billing_algorithm()
         self.register_billing_lines()
 
         from . import signals
-        # from .function_fields import hook_organisation
-        # hook_organisation()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Invoice, self.Quote,
@@ -163,30 +160,11 @@ class BillingConfig(CremeAppConfig):
         reg_import_form(self.SalesOrder, get_import_form_builder)
 
     def register_menu(self, creme_menu):
-        # from django.conf import settings
-
         CreditNote = self.CreditNote
         Invoice    = self.Invoice
         Quote      = self.Quote
         SalesOrder = self.SalesOrder
 
-        # if settings.OLD_MENU:
-        #     from django.urls import reverse_lazy as reverse
-        #     from creme.creme_core.auth import build_creation_perm as cperm
-        #
-        #     reg_item = creme_menu.register_app('billing', '/billing/').register_item
-        #     reg_item(reverse('billing__portal'),             _(u'Portal of billing'),   'billing')
-        #     reg_item(reverse('billing__create_invoice'),     Invoice.creation_label,    cperm(Invoice))
-        #     reg_item(reverse('billing__list_invoices'),      _(u'All invoices'),        'billing')
-        #     reg_item(reverse('billing__create_order'),       SalesOrder.creation_label, cperm(SalesOrder))
-        #     reg_item(reverse('billing__list_orders'),        _(u'All sales orders'),    'billing')
-        #     reg_item(reverse('billing__create_quote'),       Quote.creation_label,      cperm(Quote))
-        #     reg_item(reverse('billing__list_quotes'),        _(u'All quotes'),          'billing')
-        #     reg_item(reverse('billing__create_cnote'),       CreditNote.creation_label, cperm(CreditNote))
-        #     reg_item(reverse('billing__list_cnotes'),        _(u'All credit notes'),    'billing')
-        #     reg_item(reverse('billing__list_product_lines'), _(u'All product lines'),   'billing')
-        #     reg_item(reverse('billing__list_service_lines'), _(u'All service lines'),   'billing')
-        # else:
         LvURLItem = creme_menu.URLItem.list_view
         creme_menu.get('features') \
                   .get_or_create(creme_menu.ContainerItem, 'management', priority=50,

@@ -27,12 +27,12 @@ from .other_models import QuoteStatus
 
 
 class AbstractQuote(Base):
-    status           = ForeignKey(QuoteStatus, verbose_name=_(u'Status of quote'), on_delete=PROTECT)
-    acceptation_date = DateField(_(u'Acceptation date'), blank=True, null=True) \
+    status           = ForeignKey(QuoteStatus, verbose_name=_('Status of quote'), on_delete=PROTECT)
+    acceptation_date = DateField(_('Acceptation date'), blank=True, null=True) \
                                 .set_tags(clonable=False, optional=True)
 
-    creation_label = _(u'Create a quote')
-    save_label     = _(u'Save the quote')
+    creation_label = _('Create a quote')
+    save_label     = _('Save the quote')
 
     search_score = 51
 
@@ -54,18 +54,17 @@ class AbstractQuote(Base):
         # Specific recurrent generation rules
         tpl_status_id = template.status_id
         self.status = QuoteStatus.objects.get_or_create(pk=tpl_status_id,
-                                                        defaults={'name': ugettext(u'N/A'),
+                                                        defaults={'name': ugettext('N/A'),
                                                                   'order': tpl_status_id,
                                                                  },
                                                        )[0]
 
-        # return super(AbstractQuote, self).build(template)
         return super().build(template)
 
     class Meta(Base.Meta):
         abstract = True
-        verbose_name = _(u'Quote')
-        verbose_name_plural = _(u'Quotes')
+        verbose_name = _('Quote')
+        verbose_name_plural = _('Quotes')
 
 
 class Quote(AbstractQuote):

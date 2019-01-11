@@ -55,19 +55,12 @@ class CreditNoteRelatedForm(base.CremeForm):
     credit_notes = MultiCreatorEntityField(label=_('Credit notes'), model=CreditNote)
 
     def __init__(self, entity, *args, **kwargs):
-        # super(CreditNoteRelatedForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.billing_document = entity
         existing = Relation.objects.filter(subject_entity=entity.id, type=constants.REL_OBJ_CREDIT_NOTE_APPLIED)
 
         # TODO waiting for automated change of status when a credit note is out of date by looking to expiration date
         # TODO Add another filter today <= expiration_date ??
-#         q_filter = {'~pk__in': [rel.object_entity_id for rel in existing],
-#                     'currency': entity.currency.id,
-# #                    'status': CreditNoteStatus.objects.get(pk=ISSUED_CREDIT_NOTE).id, # todo workflow status
-#                     'relations__type': constants.REL_SUB_BILL_RECEIVED,
-#                     'relations__object_entity': entity.get_real_entity().get_target().id,
-#                    }
         q_filter = ~Q(pk__in=[rel.object_entity_id for rel in existing]) & \
                     Q(currency=entity.currency.id,
                       # status=CreditNoteStatus.objects.get(pk=ISSUED_CREDIT_NOTE).id, # TODO workflow status
@@ -78,9 +71,6 @@ class CreditNoteRelatedForm(base.CremeForm):
         self.fields['credit_notes'].q_filter = q_filter
 
     def save(self):
-        # create_relation = partial(Relation.objects.create, subject_entity=self.billing_document,
-        #                           type_id=constants.REL_OBJ_CREDIT_NOTE_APPLIED, user=self.user,
-        #                          )
         create_relation = partial(
             Relation.objects.safe_create,
             subject_entity=self.billing_document,

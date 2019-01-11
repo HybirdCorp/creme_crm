@@ -420,10 +420,8 @@ class Populator(BasePopulator):
                      abscissa='status', ordinate='total_no_vat__sum',
                      type=RGT_FK, is_count=False,
                     )
-        # ibci = rgraph1.create_instance_block_config_item()
         ibci = rgraph1.create_instance_brick_config_item()
 
-        # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ibci.brick_id, order=11)
         BrickHomeLocation.objects.create(brick_id=ibci.brick_id, order=11)
 
         # Create current year and unpaid invoices report -----------------------
@@ -438,8 +436,6 @@ class Populator(BasePopulator):
                               abscissa='issuing_date', ordinate='total_no_vat__sum',
                               type=RGT_MONTH, is_count=False,
                              )
-        # ibci = rgraph.create_instance_block_config_item()
         ibci = rgraph.create_instance_brick_config_item()
 
-        # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ibci.brick_id, order=12)
         BrickHomeLocation.objects.create(brick_id=ibci.brick_id, order=12)

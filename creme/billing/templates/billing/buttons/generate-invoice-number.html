@@ -8,16 +8,3 @@
         }
     }{% endblockjsondata %}
 </a>
-{% comment %}
-{% if has_perm %}
-    <a class="menu_button menu-button-icon" onclick="creme.billing.generateInvoiceNumber('{% url 'billing__generate_invoice_number' object.id %}');">
-        {% widget_icon name='invoice' size='instance-button' label=img_title %}
-        {% trans 'Generate the number of the Invoice' %}
-    </a>
-{% else %}
-    <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
-        {% widget_icon name='invoice' size='instance-button' label=img_title %}
-        {% trans 'Generate the number of the Invoice' %}
-    </span>
-{% endif %}
-{% endcomment %}
