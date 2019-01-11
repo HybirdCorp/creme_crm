@@ -28,17 +28,17 @@ from .other_models import SalesOrderStatus
 
 
 class AbstractSalesOrder(Base):
-    status = ForeignKey(SalesOrderStatus, verbose_name=_(u'Status of salesorder'), on_delete=PROTECT)
+    status = ForeignKey(SalesOrderStatus, verbose_name=_('Status of salesorder'), on_delete=PROTECT)
 
-    creation_label = _(u'Create a salesorder')
-    save_label     = _(u'Save the salesorder')
+    creation_label = _('Create a salesorder')
+    save_label     = _('Save the salesorder')
 
     search_score = 50
 
     class Meta(Base.Meta):
         abstract = True
-        verbose_name = _(u'Salesorder')
-        verbose_name_plural = _(u'Salesorders')
+        verbose_name = _('Salesorder')
+        verbose_name_plural = _('Salesorders')
 
     def get_absolute_url(self):
         return reverse('billing__view_order', args=(self.id,))
@@ -66,7 +66,6 @@ class AbstractSalesOrder(Base):
 
         self.status_id = status_id
 
-        # return super(AbstractSalesOrder, self).build(template)
         return super().build(template)
 
 

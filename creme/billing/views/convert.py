@@ -84,7 +84,6 @@ def convert(request, document_id):
         dest.save()
 
     if request.is_ajax():
-        # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
 
     return redirect(dest)

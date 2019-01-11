@@ -163,7 +163,6 @@ class PaymentInformation(CremeModel):
         elif not PaymentInformation.objects.filter(is_default=True).exclude(pk=self.id).exists():
             self.is_default = True
 
-        # super(PaymentInformation, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
     @atomic
@@ -177,7 +176,6 @@ class PaymentInformation(CremeModel):
                 first_pi.is_default = True
                 first_pi.save()
 
-        # super(PaymentInformation, self).delete(*args, **kwargs)
         super().delete(*args, **kwargs)
 
     def get_related_entity(self):

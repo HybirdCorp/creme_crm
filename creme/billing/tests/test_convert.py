@@ -121,7 +121,6 @@ class ConvertTestCase(_BillingTestCase):
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
         get_ct = ContentType.objects.get_for_model
-        # self.role.creatable_ctypes = [get_ct(Quote), get_ct(SalesOrder)]
         self.role.creatable_ctypes.set([get_ct(Quote), get_ct(SalesOrder)])
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
@@ -142,7 +141,6 @@ class ConvertTestCase(_BillingTestCase):
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
         get_ct = ContentType.objects.get_for_model
-        # self.role.creatable_ctypes = [get_ct(Quote)]  # Not get_ct(Invoice)
         self.role.creatable_ctypes.set([get_ct(Quote)])  # Not get_ct(Invoice)
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
@@ -161,7 +159,6 @@ class ConvertTestCase(_BillingTestCase):
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
         get_ct = ContentType.objects.get_for_model
-        # self.role.creatable_ctypes = [get_ct(Quote), get_ct(Invoice)]
         self.role.creatable_ctypes.set([get_ct(Quote), get_ct(Invoice)])
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |

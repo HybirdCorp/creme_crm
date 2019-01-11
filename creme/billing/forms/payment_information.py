@@ -29,7 +29,6 @@ class PaymentInformationEditForm(CremeModelForm):
         exclude = ('organisation', )
 
     def __init__(self, entity, *args, **kwargs):
-        # super(PaymentInformationEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.entity = entity
 
@@ -37,5 +36,4 @@ class PaymentInformationEditForm(CremeModelForm):
 class PaymentInformationCreateForm(PaymentInformationEditForm):
     def save(self, *args, **kwargs):
         self.instance.organisation = self.entity
-        # return super(PaymentInformationCreateForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)

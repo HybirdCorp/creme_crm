@@ -37,8 +37,7 @@ SalesOrder = billing.get_sales_order_model()
 
 class GenerateInvoiceNumberButton(Button):
     id_           = Button.generate_id('billing', 'generate_invoice_number')
-    verbose_name  = _(u'Generate the number of the Invoice')
-    # template_name = 'billing/templatetags/button_generate_invoice_number.html'
+    verbose_name  = _('Generate the number of the Invoice')
     template_name = 'billing/buttons/generate-invoice-number.html'
 
     def get_ctypes(self):
@@ -52,7 +51,6 @@ class GenerateInvoiceNumberButton(Button):
 
 
 class _AddBillingDocumentButton(Button):
-    # template_name   = 'billing/templatetags/button_add_billing_document.html'
     template_name   = 'billing/buttons/add-billing-document.html'
     model_to_create = Base  # Overload
     url_name        = 'OVERLOADME'
@@ -73,14 +71,13 @@ class _AddBillingDocumentButton(Button):
 
         context['rtype_id'] = REL_OBJ_BILL_RECEIVED
 
-        # return super(_AddBillingDocumentButton, self).render(context)
         return super().render(context)
 
 
 class AddInvoiceButton(_AddBillingDocumentButton):
     model_to_create = Invoice
     id_          = Button.generate_id('billing', 'add_invoice')
-    verbose_name = _(u'Create a related invoice')
+    verbose_name = _('Create a related invoice')
     permission   = cperm(Invoice)
     url_name     = 'billing__create_related_invoice'
 
@@ -88,7 +85,7 @@ class AddInvoiceButton(_AddBillingDocumentButton):
 class AddSalesOrderButton(_AddBillingDocumentButton):
     model_to_create = SalesOrder
     id_             = Button.generate_id('billing', 'add_salesorder')
-    verbose_name    = _(u'Create a related salesorder')
+    verbose_name    = _('Create a related salesorder')
     permission      = cperm(SalesOrder)
     url_name        = 'billing__create_related_order'
 
@@ -96,19 +93,7 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
 class AddQuoteButton(_AddBillingDocumentButton):
     model_to_create = Quote
     id_             = Button.generate_id('billing', 'add_quote')
-    verbose_name    = _(u'Create a related quote')
+    verbose_name    = _('Create a related quote')
     permission      = cperm(Quote)
     url_name        = 'billing__create_related_quote'
 
-
-# generate_invoice_number_button = GenerateInvoiceNumberButton()
-# add_related_quote              = AddQuoteButton()
-# add_related_salesorder         = AddSalesOrderButton()
-# add_related_invoice            = AddInvoiceButton()
-#
-# button_list = (
-#         generate_invoice_number_button,
-#         add_related_quote,
-#         add_related_salesorder,
-#         add_related_invoice,
-#     )

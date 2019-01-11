@@ -55,10 +55,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
         self.assertEqual(len(ct_ids), rtype.symmetric_type.object_ctypes.filter(id__in=ct_ids).count())
 
-    # def test_portal(self):
-    #     self.login()
-    #     self.assertGET200(reverse('billing__portal'))
-
     def test_registry(self):
         registry = AlgoRegistry()
         registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))

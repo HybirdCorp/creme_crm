@@ -124,7 +124,6 @@ def listview(request):
 @decorators.POST_only
 @atomic
 def generate_number(request, invoice_id):
-    # invoice = get_object_or_404(Invoice, pk=invoice_id)
     invoice = get_object_or_404(Invoice.objects.select_for_update(), pk=invoice_id)
 
     request.user.has_perm_to_change_or_die(invoice)

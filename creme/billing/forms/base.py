@@ -51,22 +51,21 @@ def first_managed_orga_id():
 
 
 class BaseEditForm(CremeEntityForm):
-    source = CreatorEntityField(label=pgettext_lazy('billing', u'Source organisation'), model=get_organisation_model())
-    target = GenericEntityField(label=pgettext_lazy('billing', u'Target'),
+    source = CreatorEntityField(label=pgettext_lazy('billing', 'Source organisation'), model=get_organisation_model())
+    target = GenericEntityField(label=pgettext_lazy('billing', 'Target'),
                                 models=[get_organisation_model(), get_contact_model()],
                                )
 
     class Meta(CremeEntityForm.Meta):
         labels = {
-                'discount': _(u'Overall discount (in %)'),
+                'discount': _('Overall discount (in %)'),
             }
 
     blocks = CremeEntityForm.blocks.new(
-                ('orga_n_address', _(u'Organisations'), ['source', 'target']),  # TODO: rename
+                ('orga_n_address', _('Organisations'), ['source', 'target']),  # TODO: rename
             )
 
     def __init__(self, *args, **kwargs):
-        # super(BaseEditForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         self.issued_relation   = None
         self.received_relation = None
@@ -96,7 +95,6 @@ class BaseEditForm(CremeEntityForm):
 
         if not existing_relation:
             instance = self.instance
-            # Relation.objects.create(
             Relation.objects.safe_create(
                 subject_entity=instance,
                 type_id=type_id,
@@ -118,7 +116,6 @@ class BaseEditForm(CremeEntityForm):
         if source != org_payment_info:
             instance.payment_info = None
 
-        # instance = super(BaseEditForm, self).save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
 
         self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source)  # TODO: move this intelligence in models.Base.save()
@@ -136,7 +133,6 @@ class BaseEditForm(CremeEntityForm):
 
 class BaseCreateForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
-        # super(BaseCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
         self.fields['source'].initial = first_managed_orga_id()
@@ -149,11 +145,10 @@ class BaseCreateForm(BaseEditForm):
         if instance.generate_number_in_create:
             instance.generate_number(cleaned_data['source'])
 
-        # super(BaseCreateForm, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
-        instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
-        instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
+        instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _('Billing address'))
+        instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _('Shipping address'))
 
         instance.save()
 

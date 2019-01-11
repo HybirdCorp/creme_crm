@@ -42,20 +42,20 @@ logger = logging.getLogger(__name__)
 
 class Line(CremeEntity):
     # NB: not blank (no related item => name is filled)
-    on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, null=True)
+    on_the_fly_item = CharField(_('On-the-fly line'), max_length=100, null=True)
 
-    comment         = TextField(_(u'Comment'), blank=True)
-    quantity        = DecimalField(_(u'Quantity'), max_digits=10, decimal_places=2, default=DEFAULT_QUANTITY)
-    unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
-    unit            = CharField(_(u'Unit'), max_length=100, blank=True)
-    discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
+    comment         = TextField(_('Comment'), blank=True)
+    quantity        = DecimalField(_('Quantity'), max_digits=10, decimal_places=2, default=DEFAULT_QUANTITY)
+    unit_price      = DecimalField(_('Unit price'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
+    unit            = CharField(_('Unit'), max_length=100, blank=True)
+    discount        = DecimalField(_('Discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     # TODO: remove total_discount & add a choice to discount_unit (see EditForm)
     # TODO: null=False ???
-    discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, editable=False,
+    discount_unit   = PositiveIntegerField(_('Discount Unit'), blank=True, null=True, editable=False,
                                            choices=DISCOUNT_UNIT.items(), default=PERCENT_PK,
                                           )
-    total_discount  = BooleanField(_(u'Total discount ?'), editable=False, default=False)
-    vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT)  # TODO null=False
+    total_discount  = BooleanField(_('Total discount ?'), editable=False, default=False)
+    vat_value       = ForeignKey(Vat, verbose_name=_('VAT'), blank=True, null=True, on_delete=PROTECT)  # TODO null=False
 
     creation_label = _('Create a line')
 
@@ -66,8 +66,8 @@ class Line(CremeEntity):
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'billing'
-        verbose_name = _(u'Line')
-        verbose_name_plural = _(u'Lines')
+        verbose_name = _('Line')
+        verbose_name_plural = _('Lines')
         ordering = ('created',)
 
     def _pre_delete(self):
@@ -83,37 +83,36 @@ class Line(CremeEntity):
     def clean(self):
         if self.discount_unit == PERCENT_PK:
             if not (0 <= self.discount <= 100):
-                raise ValidationError(ugettext(u"If you choose % for your discount unit, "
-                                               u"your discount must be between 1 and 100%"
+                raise ValidationError(ugettext('If you choose % for your discount unit, '
+                                               'your discount must be between 1 and 100%'
                                               ),
                                       code='invalid_percentage',
                                      )
         elif self.total_discount:  # Global discount
             if self.discount > self.unit_price * self.quantity:
-                raise ValidationError(ugettext(u"Your overall discount is superior than"
-                                               u" the total line (unit price * quantity)"
+                raise ValidationError(ugettext('Your overall discount is superior than'
+                                               ' the total line (unit price * quantity)'
                                               ),
                                       code='discount_gt_total',
                                      )
         else:  # Unitary discount
             if self.discount > self.unit_price:
-                raise ValidationError(ugettext(u"Your discount is superior than the unit price"),
+                raise ValidationError(ugettext('Your discount is superior than the unit price'),
                                       code='discount_gt_unitprice',
                                      )
 
         if self.related_item:
             if self.on_the_fly_item:
-                raise ValidationError(ugettext(u"You cannot set an on the fly name "
-                                               u"to a line with a related item"
+                raise ValidationError(ugettext('You cannot set an on the fly name '
+                                               'to a line with a related item'
                                               ),
                                       code='useless_name',
                                      )
         elif not self.on_the_fly_item:
-            raise ValidationError(ugettext(u"You must define a name for an on the fly item"),
+            raise ValidationError(ugettext('You must define a name for an on the fly item'),
                                   code='required_name',
                                  )
 
-        # super(Line, self).clean()
         super().clean()
 
     def clone(self, new_related_document=None):
@@ -209,7 +208,6 @@ class Line(CremeEntity):
 
             self.user = self._related_document.user
 
-            # super(Line, self).save(*args, **kwargs)
             super().save(*args, **kwargs)
 
             create_relation = partial(Relation.objects.create, subject_entity=self, user=self.user)
@@ -218,7 +216,6 @@ class Line(CremeEntity):
             if self._related_item:
                 create_relation(type_id=REL_SUB_LINE_RELATED_ITEM, object_entity=self._related_item)
         else:
-            # super(Line, self).save(*args, **kwargs)
             super().save(*args, **kwargs)
 
         # TODO: problem, if several lines are added/edited at once, lots of useless queries (workflow engine ??)

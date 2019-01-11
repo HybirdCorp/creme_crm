@@ -29,5 +29,4 @@ class BillingDiscountField(DecimalField):
         defaults = {'form_class': FormBillingDiscountField}
         defaults.update(kwargs)
 
-        # return super(BillingDiscountField, self).formfield(**defaults)
         return super().formfield(**defaults)

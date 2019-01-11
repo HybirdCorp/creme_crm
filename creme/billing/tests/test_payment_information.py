@@ -33,7 +33,6 @@ class PaymentInformationTestCase(_BillingTestCase):
         url = self._build_add_url(organisation)
 
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New payment information in the organisation «%s»') % organisation, context.get('title'))
         self.assertEqual(_('New payment information in the organisation «{entity}»')
                             .format(entity=organisation),
                          context.get('title')
@@ -86,9 +85,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         # TODO: get_edit_absolute_url() ?
         url = reverse('billing__edit_payment_info', args=(pi.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        # self.assertEqual(_('Payment information for «%s»') % organisation, response.context.get('title'))
         self.assertEqual(_('Payment information for «{entity}»').format(entity=organisation),
                          response.context.get('title')
                         )
@@ -204,7 +201,7 @@ class PaymentInformationTestCase(_BillingTestCase):
 
     @skipIfCustomInvoice
     def test_set_null_in_invoice01(self):
-        sega = Organisation.objects.create(user=self.user, name=u'Sega')
+        sega = Organisation.objects.create(user=self.user, name='Sega')
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
 
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")

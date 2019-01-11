@@ -55,7 +55,6 @@ def edit(request, template_id):
 
 
 @login_required
-# @permission_required('recurrents')
 @permission_required('billing')
 def detailview(request, template_id):
     warnings.warn('billing.views.templatebase.detailview() is deprecated ; '

@@ -24,9 +24,8 @@ import warnings
 
 from django.urls import reverse
 from django.db.models import PositiveIntegerField
-from django.utils.translation import pgettext_lazy  # ugettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.models.fields import CTypeForeignKey
 
 from .base import Base
@@ -35,17 +34,10 @@ from .base import Base
 logger = logging.getLogger(__name__)
 
 
-# class _VerboseStatusField(FunctionField):
-#     name         = 'get_verbose_status'
-#     verbose_name = _('Status')
-
-
-
 class AbstractTemplateBase(Base):
     ct        = CTypeForeignKey(editable=False).set_tags(viewable=False)
     status_id = PositiveIntegerField(editable=False).set_tags(viewable=False)  # TODO: avoid deletion of status
 
-    # function_fields = Base.function_fields.new(_VerboseStatusField())
     creation_label = pgettext_lazy('billing', 'Create a template')
     save_label     = pgettext_lazy('billing', 'Save the template')
 

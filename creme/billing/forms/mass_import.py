@@ -57,35 +57,31 @@ def _copy_or_update_address(source, dest, attr_name, addr_name):
 def get_import_form_builder(header_dict, choices):
     class InvoiceMassImportForm(ImportForm4CremeEntity):
         source = EntityExtractorField([(Organisation, 'name')], choices,
-                                      label=pgettext_lazy('billing', u'Source organisation'),
+                                      label=pgettext_lazy('billing', 'Source organisation'),
                                      )
         target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
-                                      choices, label=pgettext_lazy('billing', u'Target'),
+                                      choices, label=pgettext_lazy('billing', 'Target'),
                                      )
 
-        override_billing_addr  = BooleanField(label=_(u'Update the billing address'), required=False,
-                                              help_text=_(u'In update mode, update the billing address from the target.')
+        override_billing_addr  = BooleanField(label=_('Update the billing address'), required=False,
+                                              help_text=_('In update mode, update the billing address from the target.')
                                              )
-        override_shipping_addr = BooleanField(label=_(u'Update the shipping address'), required=False,
-                                              help_text=_(u'In update mode, update the shipping address from the target.')
+        override_shipping_addr = BooleanField(label=_('Update the shipping address'), required=False,
+                                              help_text=_('In update mode, update the shipping address from the target.')
                                              )
 
         def _post_instance_creation(self, instance, line, updated):
-            # super(InvoiceMassImportForm, self)._post_instance_creation(instance, line, updated)
             super()._post_instance_creation(instance, line, updated)
             cdata = self.cleaned_data
             user = self.user
 
             append_error = self.append_error
             source, err_msg = cdata['source'].extract_value(line, user)
-            # append_error(line, err_msg, instance)
             append_error(err_msg)
 
             target, err_msg  = cdata['target'].extract_value(line, user)
-            # append_error(line, err_msg, instance)
             append_error(err_msg)
 
-            # create_rel = partial(Relation.objects.create, subject_entity=instance,
             create_rel = partial(Relation.objects.safe_create, subject_entity=instance,
                                  user=instance.user,
                                 )
@@ -95,8 +91,8 @@ def get_import_form_builder(header_dict, choices):
                 create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
                 create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
 
-                instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
-                instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
+                instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _('Billing address'))
+                instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _('Shipping address'))
                 instance.save()
             else:  # Update mode
                 relations = Relation.objects.filter(subject_entity=instance.pk,
@@ -121,12 +117,12 @@ def get_import_form_builder(header_dict, choices):
 
                 if cdata['override_billing_addr']:
                     b_change = _copy_or_update_address(
-                            target, instance, 'billing_address', _(u'Billing address'),
+                            target, instance, 'billing_address', _('Billing address'),
                         )
 
                 if cdata['override_shipping_addr']:
                     s_change = _copy_or_update_address(
-                            target, instance, 'shipping_address', _(u'Shipping address'),
+                            target, instance, 'shipping_address', _('Shipping address'),
                         )
 
                 if b_change or s_change:

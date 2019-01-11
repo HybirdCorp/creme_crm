@@ -19,13 +19,9 @@
 ################################################################################
 
 from collections import defaultdict
-# import logging
 import warnings
 
 from django.utils.datastructures import OrderedSet
-
-
-# logger = logging.getLogger(__name__)
 
 
 class Algo:
@@ -45,7 +41,6 @@ class AlgoRegistry:
 
         for name, algo in to_register:
             if name in algos:
-                # logger.warning("Duplicate algorithm's id or algorithm registered twice : %s", name)
                 raise self.RegistrationError("Duplicated algorithm's id or "
                                              "algorithm registered twice : {}".format(name)
                                             )

@@ -127,38 +127,6 @@ def listview_service_line(request):
     return generic.list_view(request, ServiceLine, show_actions=False)
 
 
-# @login_required
-# @permission_required('billing')
-# def add_to_catalog(request, line_id):
-#     line = get_object_or_404(CremeEntity, pk=line_id).get_real_entity()
-#
-#     try:
-#         related_item_class = line.related_item_class()
-#     except AttributeError as e:
-#         raise Http404('This entity is not a billing line') from e  # todo: ConflictError ??
-#
-#     user = request.user
-#     user.has_perm_to_create_or_die(related_item_class)
-#
-#     if request.method == 'POST':
-#         form = line_forms.AddToCatalogForm(user=user, line=line, related_item_class=related_item_class,
-#                                            data=request.POST,
-#                                           )
-#
-#         if form.is_valid():
-#             form.save()
-#     else:
-#         form = line_forms.AddToCatalogForm(user=user, line=line, related_item_class=related_item_class)
-#
-#     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-#                                {'form': form,
-#                                 'title': _('Add this on the fly item to your catalog'),
-#                                 'submit_label': _('Add to the catalog'),
-#                                },
-#                                is_valid=form.is_valid(),
-#                                reload=False,
-#                                delegate_reload=True,
-#                               )
 class AddingToCatalog(generic.RelatedToEntityFormPopup):
     # model = ...
     form_class = line_forms.AddToCatalogForm
@@ -201,7 +169,6 @@ LINE_FORMSET_PREFIX = {
 @permission_required('billing')
 @atomic
 def multi_save_lines(request, document_id):
-    # b_entity = get_object_or_404(CremeEntity, pk=document_id).get_real_entity()
     get_for_ct = ContentType.objects.get_for_model
     b_entity = get_object_or_404(
         CremeEntity.objects.select_for_update(),

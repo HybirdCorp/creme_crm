@@ -31,13 +31,13 @@ from .other_models import InvoiceStatus, SettlementTerms
 
 
 class AbstractInvoice(Base):
-    status       = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), on_delete=PROTECT)
-    payment_type = ForeignKey(SettlementTerms, verbose_name=_(u'Settlement terms'),
+    status       = ForeignKey(InvoiceStatus, verbose_name=_('Status of invoice'), on_delete=PROTECT)
+    payment_type = ForeignKey(SettlementTerms, verbose_name=_('Settlement terms'),
                               blank=True, null=True, on_delete=SET_NULL,
                              ).set_tags(optional=True)
 
-    creation_label = _(u'Create an invoice')
-    save_label     = _(u'Save the invoice')
+    creation_label = _('Create an invoice')
+    save_label     = _('Save the invoice')
 
     search_score = 52
 
@@ -45,8 +45,8 @@ class AbstractInvoice(Base):
 
     class Meta(Base.Meta):
         abstract = True
-        verbose_name = _(u'Invoice')
-        verbose_name_plural = _(u'Invoices')
+        verbose_name = _('Invoice')
+        verbose_name_plural = _('Invoices')
 
     def _get_total(self):
         lines_total, creditnotes_total = self._get_lines_total_n_creditnotes_total()
@@ -87,7 +87,6 @@ class AbstractInvoice(Base):
                 status_id = tpl_status_id
 
         self.status_id = status_id
-        # super(AbstractInvoice, self).build(template)
         super().build(template)
         transform_target_into_customer(self.get_source(), self.get_target(), self.user)
 
