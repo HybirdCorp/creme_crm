@@ -47,8 +47,8 @@ class Populator(BasePopulator):
         Document = get_document_model()
         Folder   = get_folder_model()
 
-        RelationType.create((constants.REL_SUB_RELATED_2_DOC, _(u'related to the document')),
-                            (constants.REL_OBJ_RELATED_2_DOC, _(u'document related to'),      [Document])
+        RelationType.create((constants.REL_SUB_RELATED_2_DOC, _('related to the document')),
+                            (constants.REL_OBJ_RELATED_2_DOC, _('document related to'),      [Document])
                            )
 
         # ---------------------------
@@ -59,17 +59,17 @@ class Populator(BasePopulator):
         # TODO: created by 'products' & 'persons' app ?
         create_doc_cat = DocumentCategory.objects.get_or_create
         create_doc_cat(uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
-                       defaults={'name': _(u'Product image'),
+                       defaults={'name': _('Product image'),
                                  'is_custom': False,
                                 }
                       )
         create_doc_cat(uuid=constants.UUID_DOC_CAT_IMG_ORGA,
-                       defaults={'name': _(u'Organisation logo'),
+                       defaults={'name': _('Organisation logo'),
                                  'is_custom': False,
                                 }
                       )
         create_doc_cat(uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
-                       defaults={'name': _(u'Contact photograph'),
+                       defaults={'name': _('Contact photograph'),
                                  'is_custom': False,
                                 }
                       )
@@ -87,27 +87,26 @@ class Populator(BasePopulator):
                                   'user':        user,
                                   'title':       'Creme',
                                   'category':    entities_cat,
-                                  'description': _(u'Folder containing all the documents related to entities'),
+                                  'description': _('Folder containing all the documents related to entities'),
                               }
                              )
             get_create_folder(uuid=constants.UUID_FOLDER_IMAGES,
                               defaults={
                                   'user':  user,
-                                  'title': _(u'Images'),
+                                  'title': _('Images'),
                               }
                              )
 
         # ---------------------------
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_DOCUMENT, model=Document,
-                            name=_(u'Document view'),
+                            name=_('Document view'),
                             cells_desc=[(EntityCellRegularField, {'name': 'title'}),
-                                        # (EntityCellRegularField, {'name': 'folder__title'}),
                                         (EntityCellRegularField, {'name': 'linked_folder__title'}),
                                         (EntityCellRegularField, {'name': 'mime_type'}),
                                        ]
                                 )
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_FOLDER, model=Folder,
-                            name=_(u'Folder view'),
+                            name=_('Folder view'),
                             cells_desc=[(EntityCellRegularField, {'name': 'title'}),
                                         (EntityCellRegularField, {'name': 'description'}),
                                         (EntityCellRegularField, {'name': 'category'}),
@@ -115,7 +114,7 @@ class Populator(BasePopulator):
                            )
 
         # ---------------------------
-        EntityFilter.create(constants.EFILTER_IMAGES, name=_(u'Images'), model=Document,
+        EntityFilter.create(constants.EFILTER_IMAGES, name=_('Images'), model=Document,
                             is_custom=False, user='admin',
                             conditions=[EntityFilterCondition.build_4_field(model=Document,
                                               operator=EntityFilterCondition.STARTSWITH,
@@ -127,7 +126,6 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_sci = SearchConfigItem.create_if_needed
-        # create_sci(Document, ['title', 'description', 'folder__title', 'categories__name'])
         create_sci(Document, ['title', 'description', 'linked_folder__title', 'categories__name'])
         create_sci(Folder,   ['title', 'description', 'category__name'])
 

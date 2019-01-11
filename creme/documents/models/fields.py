@@ -46,16 +46,11 @@ def _build_limit_choices_to(extra_limit_choices_to):
 class ImageEntityForeignKey(ForeignKey):
     def __init__(self, **kwargs):
         kwargs['to'] = settings.DOCUMENTS_DOCUMENT_MODEL
-
-        # limit_choices_to = kwargs.setdefault('limit_choices_to', {})
-        # limit_choices_to['mime_type__name__startswith'] = MIMETYPE_PREFIX_IMG
         kwargs['limit_choices_to'] = _build_limit_choices_to(kwargs.get('limit_choices_to'))
 
-        # super(ImageEntityForeignKey, self).__init__(**kwargs)
         super().__init__(**kwargs)
 
     def deconstruct(self):
-        # name, path, args, kwargs = super(ImageEntityForeignKey, self).deconstruct()
         name, path, args, kwargs = super().deconstruct()
         # kwargs.pop('to', None)
         #  + 'limit_choices_to' stuff
@@ -67,7 +62,6 @@ class ImageEntityForeignKey(ForeignKey):
 
         return ImageEntityField(label=self.verbose_name,
                                 required=not self.blank,
-                                # q_filter=self.rel.limit_choices_to,
                                 q_filter=self.remote_field.limit_choices_to,
                                 help_text=self.help_text,
                                )
@@ -79,16 +73,11 @@ class ImageEntityForeignKey(ForeignKey):
 class ImageEntityManyToManyField(ManyToManyField):
     def __init__(self, **kwargs):
         kwargs['to'] = settings.DOCUMENTS_DOCUMENT_MODEL
-
-        # limit_choices_to = kwargs.setdefault('limit_choices_to', {})
-        # limit_choices_to['mime_type__name__startswith'] = MIMETYPE_PREFIX_IMG
         kwargs['limit_choices_to'] = _build_limit_choices_to(kwargs.get('limit_choices_to'))
 
-        # super(ImageEntityManyToManyField, self).__init__(**kwargs)
         super().__init__(**kwargs)
 
     def deconstruct(self):
-        # name, path, args, kwargs = super(ImageEntityManyToManyField, self).deconstruct()
         name, path, args, kwargs = super().deconstruct()
         # kwargs.pop('to', None)
         #  + 'limit_choices_to' stuff
@@ -100,7 +89,6 @@ class ImageEntityManyToManyField(ManyToManyField):
 
         return MultiImageEntityField(label=self.verbose_name,
                                      required=not self.blank,
-                                     # q_filter=self.rel.limit_choices_to,
                                      q_filter=self.remote_field.limit_choices_to,
                                      help_text=self.help_text,
                                     )

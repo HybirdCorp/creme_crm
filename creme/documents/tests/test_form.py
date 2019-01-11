@@ -16,7 +16,6 @@ except Exception as e:
 
 class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
     def setUp(self):
-        # super(ImageEntityFieldTestCase, self).setUp()
         super().setUp()
         self.login()
 
@@ -29,7 +28,6 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertEqual(Document, field.model)
         self.assertEqual(Document, field.widget.model)
         self.assertTrue(field.force_creation)
-        # self.assertEqual({'mime_type__name__startswith': 'image/'}, field.q_filter)
         self.assertQEqual(Q(mime_type__name__startswith='image/'), field.q_filter)
 
         url = reverse('documents__create_image_popup')
@@ -67,17 +65,11 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         "Dict"
         field = ImageEntityField(user=self.user, q_filter={'title__icontains': 'show'})
 
-        # final_qfilter = {
-        #     'mime_type__name__startswith': 'image/',
-        #     'title__icontains':            'show',
-        # }
         final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__icontains='show')
-        # self.assertEqual(final_qfilter, field.q_filter)
         self.assertQEqual(final_qfilter, field.q_filter)
         self.assertFalse(field.force_creation)
 
         # Widget
-        # self.assertEqual(final_qfilter, field.widget.q_filter)
         self.assertQEqual(final_qfilter, field.widget.q_filter)
         self.assertFalse(field.widget.creation_url)
         self.assertTrue(field.widget.creation_allowed)
@@ -114,17 +106,11 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         field = ImageEntityField(user=self.user)
         field.q_filter = {'title__contains': 'show'}
 
-        # final_qfilter = {
-        #     'mime_type__name__startswith': 'image/',
-        #     'title__contains':             'show',
-        # }
         final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__contains='show')
-        # self.assertEqual(final_qfilter, field.q_filter)
         self.assertQEqual(final_qfilter, field.q_filter)
         self.assertFalse(field.force_creation)
 
         # Widget
-        # self.assertEqual(final_qfilter, field.widget.q_filter)
         self.assertQEqual(final_qfilter, field.widget.q_filter)
         self.assertFalse(field.widget.creation_url)
         self.assertTrue(field.widget.creation_allowed)
@@ -198,7 +184,6 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
 
 class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
     def setUp(self):
-        # super(MultiImageEntityFieldTestCase, self).setUp()
         super().setUp()
         self.login()
 
@@ -215,7 +200,6 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertEqual(Document, field.model)
         self.assertEqual(Document, field.widget.model)
         self.assertTrue(field.force_creation)
-        # self.assertEqual({'mime_type__name__startswith': 'image/'}, field.q_filter)
         self.assertQEqual(Q(mime_type__name__startswith='image/'), field.q_filter)
 
         url = reverse('documents__create_image_popup')
@@ -253,17 +237,11 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
     def test_qfilter_init(self):
         field = MultiImageEntityField(user=self.user, q_filter={'title__contains': 'show'})
 
-        # final_qfilter = {
-        #     'mime_type__name__startswith': 'image/',
-        #     'title__contains':             'show',
-        # }
         final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__contains='show')
-        # self.assertEqual(final_qfilter, field.q_filter)
         self.assertQEqual(final_qfilter, field.q_filter)
         self.assertFalse(field.force_creation)
 
         # Widget
-        # self.assertEqual(final_qfilter, field.widget.q_filter)
         self.assertQEqual(final_qfilter, field.widget.q_filter)
         self.assertFalse(field.widget.creation_url)
         self.assertTrue(field.widget.creation_allowed)
@@ -281,17 +259,11 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         field = MultiImageEntityField(user=self.user)
         field.q_filter = {'title__icontains': 'show'}
 
-        # final_qfilter = {
-        #     'mime_type__name__startswith': 'image/',
-        #     'title__icontains':            'show',
-        # }
         final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__icontains='show')
-        # self.assertEqual(final_qfilter, field.q_filter)
         self.assertQEqual(final_qfilter, field.q_filter)
         self.assertFalse(field.force_creation)
 
         # Widget
-        # self.assertEqual(final_qfilter, field.widget.q_filter)
         self.assertQEqual(final_qfilter, field.widget.q_filter)
         self.assertFalse(field.widget.creation_url)
         self.assertTrue(field.widget.creation_allowed)

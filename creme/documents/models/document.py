@@ -33,34 +33,33 @@ from .other_models import DocumentCategory, MimeType
 
 
 class AbstractDocument(CremeEntity):
-    title       = CharField(_(u'Name'), max_length=100)
-    description = TextField(_(u'Description'), blank=True).set_tags(optional=True)
-    filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
+    title       = CharField(_('Name'), max_length=100)
+    description = TextField(_('Description'), blank=True).set_tags(optional=True)
+    filedata    = FileField(_('File'), max_length=500, upload_to='upload/documents')
     linked_folder = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
-                               verbose_name=_(u'Folder'), on_delete=PROTECT,
+                               verbose_name=_('Folder'), on_delete=PROTECT,
                               )
-    mime_type   = ForeignKey(MimeType, verbose_name=_(u'MIME type'),
+    mime_type   = ForeignKey(MimeType, verbose_name=_('MIME type'),
                              editable=False, on_delete=PROTECT,
                              null=True,
                             )
-    categories  = ManyToManyField(DocumentCategory, verbose_name=_(u'Categories'),
-                                  # related_name='+',
+    categories  = ManyToManyField(DocumentCategory, verbose_name=_('Categories'),
                                   blank=True,
                                  ).set_tags(optional=True)
 
-    creation_label = _(u'Create a document')
-    save_label     = _(u'Save the document')
+    creation_label = _('Create a document')
+    save_label     = _('Save the document')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'documents'
-        verbose_name = _(u'Document')
-        verbose_name_plural = _(u'Documents')
+        verbose_name = _('Document')
+        verbose_name_plural = _('Documents')
         ordering = ('title',)
 
     def __str__(self):
-        return u'{} - {}'.format(self.linked_folder, self.title)
+        return '{} - {}'.format(self.linked_folder, self.title)
 
     def get_absolute_url(self):
         return reverse('documents__view_document', args=(self.id,))
@@ -90,12 +89,12 @@ class AbstractDocument(CremeEntity):
             return self.allowed_str(user)
 
         if self.mime_type.is_image:
-            return format_html(u'<img class="entity-summary" src="{url}" alt="{name}" title="{name}"/>',
-                               url=self.get_dl_url(),
-                               name=self.title,
-                              )
+            return format_html(
+                '<img class="entity-summary" src="{url}" alt="{name}" title="{name}"/>',
+                url=self.get_dl_url(),
+                name=self.title,
+            )
 
-        # return super(AbstractDocument, self).get_entity_summary(user)
         return super().get_entity_summary(user)
 
     def save(self, *args, **kwargs):
@@ -105,7 +104,6 @@ class AbstractDocument(CremeEntity):
             if mime_name is not None:
                 self.mime_type = MimeType.objects.get_or_create(name=mime_name)[0]
 
-        # super(AbstractDocument, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
 

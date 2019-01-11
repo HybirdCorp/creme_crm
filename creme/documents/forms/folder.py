@@ -43,7 +43,6 @@ class _FolderForm(CremeEntityForm):
         if not instance.category and instance.parent_folder:
             instance.category = instance.parent_folder.category
 
-        # return super(_FolderForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -53,12 +52,10 @@ class FolderForm(_FolderForm):
     }
 
     def __init__(self, *args, **kwargs):
-        # super(FolderForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         pk = self.instance.id
         if pk:
             # TODO: remove direct children too ??
-            # self.fields['parent_folder'].q_filter = {'~id__in': [pk]}
             self.fields['parent_folder'].q_filter = ~Q(id=pk)
 
     def clean_parent_folder(self):
@@ -77,22 +74,17 @@ class ChildFolderForm(_FolderForm):
     class Meta(_FolderForm.Meta):
         exclude = ('parent_folder',)
 
-    # def __init__(self, *args, **kwargs):
     def __init__(self, entity, *args, **kwargs):
-        # super(ChildFolderForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self.instance.parent_folder = self.initial.get('parent')
         self.instance.parent_folder = entity
 
 
 class ParentFolderBulkForm(BulkDefaultEditForm):
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
-        # super(ParentFolderBulkForm, self).__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
 
         if len(entities) == 1:
             # TODO: like above -> remove direct children too ??
-            # self.fields['field_value'].q_filter = {'~id__in': [entities[0].pk]}
             self.fields['field_value'].q_filter = ~Q(id__in=[entities[0].id])
 
     def _bulk_clean_entity(self, entity, values):
@@ -117,7 +109,6 @@ class ParentFolderBulkForm(BulkDefaultEditForm):
             if not entity.category:
                 entity.category = parent_folder.category
 
-        # return super(ParentFolderBulkForm, self)._bulk_clean_entity(entity, values)
         return super()._bulk_clean_entity(entity, values)
 
 
@@ -134,7 +125,6 @@ def get_merge_form_builder():
             if entity2.already_in_children(entity1.id):
                 entity1, entity2 = entity2, entity1
 
-            # super(FolderMergeForm, self).__init__(entity1, entity2, *args, **kwargs)
             super().__init__(entity1, entity2, *args, **kwargs)
 
             del self.fields['parent_folder']

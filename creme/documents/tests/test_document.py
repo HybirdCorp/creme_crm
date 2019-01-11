@@ -49,10 +49,6 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(FolderCategory.objects.exists())
         self.assertTrue(DocumentCategory.objects.exists())
 
-    # def test_portal(self):
-    #     self.login()
-    #     self.assertGET200(reverse('documents__portal'))
-
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'pdf'))
     def test_createview01(self):
         self.login()
@@ -67,7 +63,6 @@ class DocumentTestCase(_DocumentsTestCase):
         title = 'Test doc'
         description = 'Test description'
         content = 'Yes I am the content (DocumentTestCase.test_createview)'
-        # file_obj, file_name = self._build_filedata(content, suffix='.{}'.format(ext))
         file_obj = self._build_filedata(content, suffix='.{}'.format(ext))
         folder = Folder.objects.all()[0]
         response = self.client.post(self.ADD_DOC_URL, follow=True,
@@ -94,18 +89,14 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertRedirects(response, doc.get_absolute_url())
 
         filedata = doc.filedata
-        # self.assertEqual('upload/documents/' + file_name, filedata.name)
         self.assertEqual('upload/documents/' + file_obj.base_name, filedata.name)
-        # filedata.open()
         filedata.open('r')
         self.assertEqual([content], filedata.readlines())
         filedata.close()
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
-        # self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('text/plain', response['Content-Type'])
-        # self.assertEqual('attachment; filename=' + file_name,
         self.assertEqual('attachment; filename=' + file_obj.base_name,
                          response['Content-Disposition']
                         )
@@ -119,20 +110,16 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertNotIn(ext, settings.ALLOWED_EXTENSIONS)
 
         title = 'My doc'
-        # file_obj, file_name = self._build_filedata('Content', suffix='.' + ext)
         file_obj = self._build_filedata('Content', suffix='.' + ext)
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
-        # self.assertEqual('upload/documents/{}.txt'.format(file_name), filedata.name)
+
         self.assertEqual('upload/documents/{}.txt'.format(file_obj.base_name), filedata.name)
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
-        # self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('text/plain', response['Content-Type'])
-        # # self.assertEqual('attachment; filename=' + file_name,
-        # self.assertEqual('attachment; filename={}.txt'.format(file_name),
         self.assertEqual('attachment; filename={}.txt'.format(file_obj.base_name),
                          response['Content-Disposition']
                         )
@@ -146,20 +133,15 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertNotIn(ext, settings.ALLOWED_EXTENSIONS)
 
         title = 'My doc'
-        # file_obj, file_name = self._build_filedata('Content', suffix='.old.' + ext)
         file_obj = self._build_filedata('Content', suffix='.old.' + ext)
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
-        # self.assertEqual('upload/documents/{}.txt'.format(file_name), filedata.name)
         self.assertEqual('upload/documents/{}.txt'.format(file_obj.base_name), filedata.name)
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
-        # self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('text/plain', response['Content-Type'])
-        # # self.assertEqual('attachment; filename=' + file_name,
-        # self.assertEqual('attachment; filename={}.txt'.format(file_name),
         self.assertEqual('attachment; filename={}.txt'.format(file_obj.base_name),
                          response['Content-Disposition']
                         )
@@ -169,19 +151,15 @@ class DocumentTestCase(_DocumentsTestCase):
         self.login()
 
         title = 'My doc'
-        # file_obj, file_name = self._build_filedata('Content', suffix='')
         file_obj = self._build_filedata('Content', suffix='')
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
-        # self.assertEqual('upload/documents/{}.txt'.format(file_name), filedata.name)
         self.assertEqual('upload/documents/{}.txt'.format(file_obj.base_name), filedata.name)
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
-        # self.assertEqual('txt', response['Content-Type'])
         self.assertEqual('text/plain', response['Content-Type'])
-        # self.assertEqual('attachment; filename={}.txt'.format(file_name),
         self.assertEqual('attachment; filename={}.txt'.format(file_obj.base_name),
                          response['Content-Disposition']
                         )
@@ -191,7 +169,6 @@ class DocumentTestCase(_DocumentsTestCase):
         user = self.login()
 
         ext = settings.ALLOWED_EXTENSIONS[0]
-        # file_obj, file_name = self._build_filedata('Content', suffix='.' + ext)
         file_obj = self._build_filedata('Content', suffix='.' + ext)
 
         folder = Folder.objects.create(user=user, title='test_createview05')
@@ -220,7 +197,6 @@ class DocumentTestCase(_DocumentsTestCase):
         title       = 'Test doc'
         description = 'Test description'
         content     = 'Yes I am the content (DocumentTestCase.test_editview)'
-        # doc = self._create_doc(title, self._build_filedata(content)[0], description=description)
         doc = self._create_doc(title, self._build_filedata(content), description=description)
 
         url = doc.get_edit_absolute_url()
@@ -259,7 +235,6 @@ class DocumentTestCase(_DocumentsTestCase):
         entity = CremeEntity.objects.create(user=user)
         url = self._buid_addrelated_url(entity)
         context = self.assertGET200(url).context
-        # self.assertEqual(_('New document for «%s»') % entity, context.get('title'))
         self.assertEqual(_('New document for «{entity}»').format(entity=entity),
                          context.get('title')
                         )
@@ -274,7 +249,6 @@ class DocumentTestCase(_DocumentsTestCase):
                     'description': 'Test description',
                     'filedata': self._build_filedata(
                         'Yes I am the content (DocumentTestCase.test_add_related_document01)'
-                    # )[0],
                     ),
                 }
             )
@@ -348,7 +322,6 @@ class DocumentTestCase(_DocumentsTestCase):
                   'filedata':
                       self._build_filedata(
                           'Yes I am the content (DocumentTestCase.test_add_related_document03)'
-                      # )[0],
                       ),
             }
         )
@@ -422,7 +395,6 @@ class DocumentTestCase(_DocumentsTestCase):
                       'description': 'Test description',
                       'filedata': self._build_filedata(
                                     'Yes I am the content (DocumentTestCase.test_add_related_document05)'
-                                  # )[0],
                                   ),
                 }
         )
@@ -457,7 +429,6 @@ class DocumentTestCase(_DocumentsTestCase):
                                           'filedata':     self._build_filedata(
                                                                 'Yes I am the content '
                                                                 '(DocumentTestCase.test_add_related_document06)'
-                                                            # )[0],
                                                             ),
                                          }
                                 )
@@ -561,7 +532,6 @@ class DocumentTestCase(_DocumentsTestCase):
         user = self.login(allowed_apps=['creme_core', 'persons', 'documents'])
         other_user = self.other_user
 
-        # self.role.exportable_ctypes = [ContentType.objects.get_for_model(Contact)]
         self.role.exportable_ctypes.set([ContentType.objects.get_for_model(Contact)])
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
@@ -634,7 +604,6 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertGET200(url)
 
         content = 'Yes I am the content (DocumentQuickFormTestCase.test_create_legacy)'
-        # file_obj, file_name = self._build_filedata(content)
         file_obj = self._build_filedata(content)
         folder = Folder.objects.all()[0]
 
@@ -647,13 +616,11 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertEqual(1, len(docs))
 
         doc = docs[0]
-        # self.assertEqual('upload/documents/' + file_name, doc.filedata.name)
         self.assertEqual('upload/documents/' + file_obj.base_name, doc.filedata.name)
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.linked_folder)
 
         filedata = doc.filedata
-        # filedata.open()
         filedata.open('r')
         self.assertEqual([content], filedata.readlines())
         filedata.close()
@@ -697,9 +664,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
 
 @skipIfCustomDocument
 @skipIfCustomFolder
-# class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
 class DocumentQuickWidgetTestCase(_DocumentsTestCase):
-    # def test_add_from_widget(self):
     def test_add_csv_doc01(self):
         user = self.login()
 
@@ -708,7 +673,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         url = reverse('documents__create_document_from_widget')
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
 
         context = response.context
@@ -717,7 +681,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         # ---
         content = 'Content (DocumentQuickWidgetTestCase.test_add_csv_doc)'
-        # file_obj, file_name = self._build_filedata(content)
         file_obj= self._build_filedata(content)
         response = self.client.post(url, follow=True,
                                     data={'user':     user.pk,
@@ -731,7 +694,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         doc = docs[0]
         folder = get_csv_folder_or_create(user)
-        # self.assertEqual('upload/documents/' + file_name, doc.filedata.name)
         self.assertEqual('upload/documents/' + file_obj.base_name, doc.filedata.name)
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.linked_folder)
@@ -770,7 +732,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         url = reverse('documents__create_image_popup')
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_core/generics/form/add_innerpopup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
 
         context = response.context
@@ -818,7 +779,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         folder = Folder.objects.all()[0]
         content = '<xml>Content (DocumentQuickWidgetTestCase.test_add_image_doc02)</xml>'
-        # file_obj, file_name = self._build_filedata(content, suffix='.xml')
         file_obj = self._build_filedata(content, suffix='.xml')
         response = self.assertPOST200(reverse('documents__create_image_popup'),
                                       follow=True,

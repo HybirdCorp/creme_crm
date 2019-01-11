@@ -46,7 +46,6 @@ class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to_DocumentCreateBaseF
         model = Document
 
     def __init__(self, *args, **kwargs):
-        # super(_DocumentBaseForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
         title_f = self.fields['title']
         title_f.required = title_f.widget.is_required = False
@@ -64,7 +63,6 @@ class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to_DocumentCreateBaseF
             # TODO: truncate but keep extension if possible ?
             assign_2_charfield(instance, 'title', basename(fpath))
 
-        # return super(_DocumentBaseForm, self).save(*args, **kwargs)
         return super().save(*args, **kwargs)
 
 
@@ -85,14 +83,10 @@ _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
 
 class RelatedDocumentCreateForm(_DocumentBaseForm):
     class Meta(_DocumentBaseForm.Meta):
-        # exclude = _DocumentBaseForm.Meta.exclude + ('folder', )
         exclude = _DocumentBaseForm.Meta.exclude + ('linked_folder', )
 
-    # def __init__(self, *args, **kwargs):
     def __init__(self, entity, *args, **kwargs):
-        # super(RelatedDocumentCreateForm, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
-        # self.related_entity = self.initial['entity']
         self.related_entity = entity
         self.folder_category = None
         self.root_folder = None
@@ -101,7 +95,6 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         return validate_linkable_model(Document, self.user, owner=self.cleaned_data['user'])
 
     def clean(self):
-        # cleaned_data = super(RelatedDocumentCreateForm, self).clean()
         cleaned_data = super().clean()
 
         if not self._errors:
@@ -133,7 +126,6 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
                             category=category,
                             defaults={'user': user},
         )[0]
-        # instance.folder = get_or_create_folder(
         instance.linked_folder = get_or_create_folder(
                             title=ellipsis(u'{}_{}'.format(entity.id, entity), _TITLE_MAX_LEN),  # Meh
                             parent_folder=model_folder,
@@ -141,7 +133,6 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
                             defaults={'user': user},
         )[0]
 
-        # super(RelatedDocumentCreateForm, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
 
         Relation.objects.create(subject_entity=entity,

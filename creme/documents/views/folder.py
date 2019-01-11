@@ -52,23 +52,6 @@ def abstract_add_folder(request, form=f_forms.FolderForm,
                              )
 
 
-# def abstract_add_child_folder(request, folder_id, form=f_forms.ChildFolderForm,
-#                               title=_('New child folder for «%s»'),
-#                               submit_label=Folder.save_label,
-#                             ):
-#     parent_folder = get_object_or_404(Folder, id=folder_id)
-#     user = request.user
-#
-#     user.has_perm_to_link_or_die(parent_folder)
-#
-#     return generic.add_model_with_popup(
-#         request, form,
-#         title=title % parent_folder.allowed_str(user),
-#         initial={'parent': parent_folder},
-#         submit_label=submit_label,
-#     )
-
-
 def abstract_edit_folder(request, folder_id, form=f_forms.FolderForm):
     warnings.warn('documents.views.folder.abstract_edit_folder() is deprecated ; '
                   'use the class-based view FolderEdition instead.',
@@ -133,12 +116,6 @@ def abstract_list_folders(request, **extra_kwargs):
 def add(request):
     warnings.warn('documents.views.folder.add() is deprecated.', DeprecationWarning)
     return abstract_add_folder(request)
-
-
-# @login_required
-# @permission_required(('documents', cperm(Folder)))
-# def add_child(request, folder_id):
-#     return abstract_add_child_folder(request, folder_id)
 
 
 @login_required
