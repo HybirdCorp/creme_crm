@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
@@ -34,7 +34,7 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from creme.opportunities import get_opportunity_model
-from creme.opportunities.forms.opportunity import OpportunityCreateForm, OpportunityCreationForm
+from creme.opportunities.forms.opportunity import OpportunityCreationForm  # OpportunityCreateForm
 
 from .. import get_act_model, get_pattern_model, constants
 from ..forms import act as forms
@@ -48,153 +48,153 @@ ActObjectivePattern = get_pattern_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_act(request, form=forms.ActForm,
-                     submit_label=Act.save_label,
-                    ):
-    warnings.warn('commercial.views.act.abstract_add_act() is deprecated ; '
-                  'use the class-based view ActCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_initial={'act_type': ActType.objects.first(),
-                                             'segment':  MarketSegment.objects.first(),
-                                            },
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_act(request, form=forms.ActForm,
+#                      submit_label=Act.save_label,
+#                     ):
+#     warnings.warn('commercial.views.act.abstract_add_act() is deprecated ; '
+#                   'use the class-based view ActCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_initial={'act_type': ActType.objects.first(),
+#                                              'segment':  MarketSegment.objects.first(),
+#                                             },
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_add_objective_pattern(request, form=forms.ObjectivePatternForm,
-                                   submit_label=ActObjectivePattern.save_label,
-                                  ):
-    warnings.warn('commercial.views.act.abstract_add_objective_pattern() is deprecated ; '
-                  'use the class-based view ActObjectivePatternCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_objective_pattern(request, form=forms.ObjectivePatternForm,
+#                                    submit_label=ActObjectivePattern.save_label,
+#                                   ):
+#     warnings.warn('commercial.views.act.abstract_add_objective_pattern() is deprecated ; '
+#                   'use the class-based view ActObjectivePatternCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_act(request, act_id, form=forms.ActForm):
-    warnings.warn('commercial.views.act.abstract_edit_act() is deprecated ; '
-                  'use the class-based view ActEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, act_id, Act, form)
+# def abstract_edit_act(request, act_id, form=forms.ActForm):
+#     warnings.warn('commercial.views.act.abstract_edit_act() is deprecated ; '
+#                   'use the class-based view ActEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, act_id, Act, form)
 
 
-def abstract_edit_objective_pattern(request, objpattern_id, form=forms.ObjectivePatternForm):
-    warnings.warn('commercial.views.act.abstract_edit_objective_pattern() is deprecated ; '
-                  'use the class-based view ActObjectivePatternEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, objpattern_id, ActObjectivePattern, form)
+# def abstract_edit_objective_pattern(request, objpattern_id, form=forms.ObjectivePatternForm):
+#     warnings.warn('commercial.views.act.abstract_edit_objective_pattern() is deprecated ; '
+#                   'use the class-based view ActObjectivePatternEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, objpattern_id, ActObjectivePattern, form)
 
 
-def abstract_view_act(request, act_id,
-                      template='commercial/view_act.html',
-                     ):
-    warnings.warn('commercial.views.act.abstract_view_act() is deprecated ; '
-                  'use the class-based view ActDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, act_id, Act, template=template)
+# def abstract_view_act(request, act_id,
+#                       template='commercial/view_act.html',
+#                      ):
+#     warnings.warn('commercial.views.act.abstract_view_act() is deprecated ; '
+#                   'use the class-based view ActDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, act_id, Act, template=template)
 
 
-def abstract_view_objective_pattern(request, objpattern_id,
-                                    template='commercial/view_pattern.html',
-                                   ):
-    warnings.warn('commercial.views.act.abstract_view_objective_pattern() is deprecated ; '
-                  'use the class-based view ActObjectivePatternDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, objpattern_id, ActObjectivePattern,
-                               template=template,
-                              )
+# def abstract_view_objective_pattern(request, objpattern_id,
+#                                     template='commercial/view_pattern.html',
+#                                    ):
+#     warnings.warn('commercial.views.act.abstract_view_objective_pattern() is deprecated ; '
+#                   'use the class-based view ActObjectivePatternDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, objpattern_id, ActObjectivePattern,
+#                                template=template,
+#                               )
 
 
-def abstract_add_opportunity(request, act_id, form=OpportunityCreateForm,
-                             template='creme_core/generics/blockform/add_popup.html',
-                             title=_('Create a linked opportunity'),
-                             submit_label=Opportunity.save_label,
-                            ):
-    warnings.warn('commercial.views.act.abstract_add_opportunity() is deprecated ; '
-                  'use the class-based view RelatedOpportunityCreation instead.',
-                  DeprecationWarning
-                 )
-
-    act = get_object_or_404(Act, pk=act_id)
-    user = request.user
-
-    has_perm = user.has_perm_to_link_or_die
-    has_perm(act)
-    has_perm(Opportunity)
-
-    if request.method == 'POST':
-        form_instance = form(user=user, data=request.POST)
-
-        if form_instance.is_valid():
-            with atomic():
-                opp = form_instance.save()
-                Relation.objects.create(subject_entity=opp,
-                                        type_id=constants.REL_SUB_COMPLETE_GOAL,
-                                        object_entity=act,
-                                        user=user,
-                                       )
-    else:
-        form_instance = form(user=user)
-
-    return generic.inner_popup(request, template,
-                               {'form': form_instance,
-                                'title': title,
-                                'submit_label': submit_label,
-                               },
-                               is_valid=form_instance.is_valid(),
-                               reload=False,
-                               delegate_reload=True,
-                              )
-
-
-@login_required
-@permission_required(('commercial', cperm(Act)))
-def add(request):
-    warnings.warn('commercial.views.act.add() is deprecated.', DeprecationWarning)
-    return abstract_add_act(request)
+# def abstract_add_opportunity(request, act_id, form=OpportunityCreateForm,
+#                              template='creme_core/generics/blockform/add_popup.html',
+#                              title=_('Create a linked opportunity'),
+#                              submit_label=Opportunity.save_label,
+#                             ):
+#     warnings.warn('commercial.views.act.abstract_add_opportunity() is deprecated ; '
+#                   'use the class-based view RelatedOpportunityCreation instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     act = get_object_or_404(Act, pk=act_id)
+#     user = request.user
+#
+#     has_perm = user.has_perm_to_link_or_die
+#     has_perm(act)
+#     has_perm(Opportunity)
+#
+#     if request.method == 'POST':
+#         form_instance = form(user=user, data=request.POST)
+#
+#         if form_instance.is_valid():
+#             with atomic():
+#                 opp = form_instance.save()
+#                 Relation.objects.create(subject_entity=opp,
+#                                         type_id=constants.REL_SUB_COMPLETE_GOAL,
+#                                         object_entity=act,
+#                                         user=user,
+#                                        )
+#     else:
+#         form_instance = form(user=user)
+#
+#     return generic.inner_popup(request, template,
+#                                {'form': form_instance,
+#                                 'title': title,
+#                                 'submit_label': submit_label,
+#                                },
+#                                is_valid=form_instance.is_valid(),
+#                                reload=False,
+#                                delegate_reload=True,
+#                               )
 
 
-@login_required
-@permission_required(('commercial', cperm(ActObjectivePattern)))
-def add_objective_pattern(request):
-    warnings.warn('commercial.views.act.add_objective_pattern() is deprecated.', DeprecationWarning)
-    return abstract_add_objective_pattern(request)
+# @login_required
+# @permission_required(('commercial', cperm(Act)))
+# def add(request):
+#     warnings.warn('commercial.views.act.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_act(request)
 
 
-@login_required
-@permission_required('commercial')
-def edit(request, act_id):
-    warnings.warn('commercial.views.act.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_act(request, act_id)
+# @login_required
+# @permission_required(('commercial', cperm(ActObjectivePattern)))
+# def add_objective_pattern(request):
+#     warnings.warn('commercial.views.act.add_objective_pattern() is deprecated.', DeprecationWarning)
+#     return abstract_add_objective_pattern(request)
 
 
-@login_required
-@permission_required('commercial')
-def edit_objective_pattern(request, objpattern_id):
-    warnings.warn('commercial.views.act.edit_objective_pattern() is deprecated.', DeprecationWarning)
-    return abstract_edit_objective_pattern(request, objpattern_id)
+# @login_required
+# @permission_required('commercial')
+# def edit(request, act_id):
+#     warnings.warn('commercial.views.act.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_act(request, act_id)
 
 
-@login_required
-@permission_required('commercial')
-def detailview(request, act_id):
-    warnings.warn('commercial.views.act.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_act(request, act_id)
+# @login_required
+# @permission_required('commercial')
+# def edit_objective_pattern(request, objpattern_id):
+#     warnings.warn('commercial.views.act.edit_objective_pattern() is deprecated.', DeprecationWarning)
+#     return abstract_edit_objective_pattern(request, objpattern_id)
 
 
-@login_required
-@permission_required('commercial')
-def objective_pattern_detailview(request, objpattern_id):
-    warnings.warn('commercial.views.act.objective_pattern_detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_objective_pattern(request, objpattern_id)
+# @login_required
+# @permission_required('commercial')
+# def detailview(request, act_id):
+#     warnings.warn('commercial.views.act.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_act(request, act_id)
+
+
+# @login_required
+# @permission_required('commercial')
+# def objective_pattern_detailview(request, objpattern_id):
+#     warnings.warn('commercial.views.act.objective_pattern_detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_objective_pattern(request, objpattern_id)
 
 
 # Class-based views  ----------------------------------------------------------
@@ -283,11 +283,11 @@ def listview_objective_pattern(request):
     return generic.list_view(request, ActObjectivePattern, hf_pk=constants.DEFAULT_HFILTER_PATTERN)
 
 
-@login_required
-@permission_required(('opportunities', cperm(Opportunity)))
-def add_opportunity(request, act_id):
-    warnings.warn('commercial.views.act.add_opportunity() is deprecated.', DeprecationWarning)
-    return abstract_add_opportunity(request, act_id)
+# @login_required
+# @permission_required(('opportunities', cperm(Opportunity)))
+# def add_opportunity(request, act_id):
+#     warnings.warn('commercial.views.act.add_opportunity() is deprecated.', DeprecationWarning)
+#     return abstract_add_opportunity(request, act_id)
 
 
 class ObjectiveCreation(generic.AddingInstanceToEntityPopup):
