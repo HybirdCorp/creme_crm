@@ -19,14 +19,14 @@
 ################################################################################
 
 from math import cos, radians
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.core.setting_key import SettingKey
+# from creme.creme_core.core.setting_key import SettingKey
 from creme.creme_core.models import SettingValue
 
 from creme.persons import get_address_model
@@ -114,19 +114,19 @@ def addresses_from_persons(queryset, user):
     return addresses.filter(pk__in=address_ids.values())  # TODO: select_related('geoaddress') ??
 
 
-def get_setting(key, default=None):
-    warnings.warn('geolocation.utils.get_setting() is deprecated ; '
-                  'use SettingValue.objects.get_4_key() instead.',
-                  DeprecationWarning
-                 )
-
-    try:
-        if isinstance(key, SettingKey):
-            key = key.id
-
-        return SettingValue.objects.get(key_id=key).value
-    except SettingValue.DoesNotExist:
-        return default
+# def get_setting(key, default=None):
+#     warnings.warn('geolocation.utils.get_setting() is deprecated ; '
+#                   'use SettingValue.objects.get_4_key() instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     try:
+#         if isinstance(key, SettingKey):
+#             key = key.id
+#
+#         return SettingValue.objects.get(key_id=key).value
+#     except SettingValue.DoesNotExist:
+#         return default
 
 
 def get_radius():

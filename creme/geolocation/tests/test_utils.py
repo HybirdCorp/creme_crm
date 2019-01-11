@@ -11,8 +11,8 @@ try:
 
     from .. import constants, setting_keys
     from ..models import GeoAddress
-    from ..utils import (get_setting, get_radius, get_google_api_key, address_as_dict,
-             addresses_from_persons, location_bounding_box)
+    from ..utils import (get_radius, get_google_api_key, address_as_dict,
+             addresses_from_persons, location_bounding_box)  # get_setting
     from .base import GeoLocationBaseTestCase, Organisation, Contact, Address
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -206,21 +206,21 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                              sorted([orga_address, orga2_address], key=lambda a: a.pk)
                             )
 
-    def test_get_setting(self):
-        self.assertIsNone(get_setting('unknown'))
-        self.assertEqual(get_setting('unknown', 12), 12)
-        self.assertEqual(get_setting(setting_keys.NEIGHBOURHOOD_DISTANCE, constants.DEFAULT_SEPARATING_NEIGHBOURS),
-                         constants.DEFAULT_SEPARATING_NEIGHBOURS
-                        )
-
-        setting = SettingValue.objects.get_or_create(key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id)[0]
-
-        new_value = 12500
-        setting.value = new_value
-        setting.save()
-        self.assertEqual(get_setting(setting_keys.NEIGHBOURHOOD_DISTANCE, constants.DEFAULT_SEPARATING_NEIGHBOURS),
-                         new_value
-                        )
+    # def test_get_setting(self):
+    #     self.assertIsNone(get_setting('unknown'))
+    #     self.assertEqual(get_setting('unknown', 12), 12)
+    #     self.assertEqual(get_setting(setting_keys.NEIGHBOURHOOD_DISTANCE, constants.DEFAULT_SEPARATING_NEIGHBOURS),
+    #                      constants.DEFAULT_SEPARATING_NEIGHBOURS
+    #                     )
+    #
+    #     setting = SettingValue.objects.get_or_create(key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id)[0]
+    #
+    #     new_value = 12500
+    #     setting.value = new_value
+    #     setting.save()
+    #     self.assertEqual(get_setting(setting_keys.NEIGHBOURHOOD_DISTANCE, constants.DEFAULT_SEPARATING_NEIGHBOURS),
+    #                      new_value
+    #                     )
 
     def test_get_radius(self):
         self.assertEqual(get_radius(), constants.DEFAULT_SEPARATING_NEIGHBOURS)
