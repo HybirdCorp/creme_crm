@@ -5,9 +5,9 @@
 # > django-admin.py makemessages -l fr -i "tests/*"
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Assistants 2.0\n"
+"Project-Id-Version: Creme Assistants 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-26 14:45+0100\n"
+"POT-Creation-Date: 2018-12-05 14:46+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,30 +18,30 @@ msgstr ""
 msgid "Assistants (Todos, Memo, ...)"
 msgstr "Assistants (Todos, Mémo, ...)"
 
-#: bricks.py:106 function_fields.py:93 models/todo.py:66
+#: bricks.py:83 function_fields.py:93 models/todo.py:58
 #: templates/assistants/bricks/todos.html:7
 msgid "Todos"
 msgstr "Todos"
 
-#: bricks.py:130 function_fields.py:64 models/memo.py:64
+#: bricks.py:99 function_fields.py:64 models/memo.py:57
 #: templates/assistants/bricks/memos.html:7
 msgid "Memos"
 msgstr "Mémos"
 
-#: bricks.py:155 function_fields.py:34 models/alert.py:66
+#: bricks.py:116 function_fields.py:34 models/alert.py:58
 #: templates/assistants/bricks/alerts.html:7
 msgid "Alerts"
 msgstr "Alertes"
 
-#: bricks.py:199
+#: bricks.py:149
 msgid "Actions in time"
 msgstr "Actions dans les délais"
 
-#: bricks.py:224
+#: bricks.py:163
 msgid "Reactions not in time"
 msgstr "Réactions hors délais"
 
-#: bricks.py:248 models/user_message.py:83
+#: bricks.py:179 models/user_message.py:78
 msgid "User messages"
 msgstr "Messages utilisateur"
 
@@ -73,7 +73,7 @@ msgstr "Heure de l'échéance"
 msgid "The hour is used only if you set the deadline date."
 msgstr "L'heure n'est utilisée que si vous donnez une date d'échéance."
 
-#: forms/todo.py:66
+#: forms/todo.py:64
 msgid "The hour is required if you set a date."
 msgstr "L'heure est obligatoire si vous donnez une date."
 
@@ -89,54 +89,54 @@ msgstr ""
 "Lorsque vous sélectionnez une équipe, une message est envoyé à chacun des "
 "membres de l'équipe (pas de souci, les doublons sont éliminés)."
 
-#: models/action.py:39 models/alert.py:42 models/todo.py:41
-#: models/user_message.py:39 models/user_message.py:55
+#: models/action.py:37 models/alert.py:37 models/todo.py:36
+#: models/user_message.py:37 models/user_message.py:53
 msgid "Title"
 msgstr "Titre"
 
-#: models/action.py:40
+#: models/action.py:38
 msgid "Expected reaction has been done"
 msgstr "La réaction attendue a été faite"
 
-#: models/action.py:41
+#: models/action.py:39
 msgid "Source action"
 msgstr "Action source"
 
-#: models/action.py:42 models/memo.py:44 models/todo.py:45
-#: models/user_message.py:57
+#: models/action.py:40 models/memo.py:40 models/todo.py:40
+#: models/user_message.py:55
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/action.py:43
+#: models/action.py:41
 msgid "Target action"
 msgstr "Action cible"
 
-#: models/action.py:44 models/todo.py:46
+#: models/action.py:42 models/todo.py:41
 msgid "Deadline"
 msgstr "Échéance"
 
-#: models/action.py:45
+#: models/action.py:43
 msgid "Validation date"
 msgstr "Date de validation"
 
-#: models/action.py:46 models/alert.py:47 models/memo.py:45 models/todo.py:47
+#: models/action.py:44 models/alert.py:42 models/memo.py:41 models/todo.py:42
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
 
-#: models/action.py:59
+#: models/action.py:54
 msgid "Create an action"
 msgstr "Créer une action"
 
-#: models/action.py:60
+#: models/action.py:55
 msgid "Save the action"
 msgstr "Enregistrer l'action"
 
-#: models/action.py:64 templates/assistants/bricks/base/actions.html:7
+#: models/action.py:59 templates/assistants/bricks/base/actions.html:7
 #: templates/assistants/bricks/messages.html:29
 msgid "Action"
 msgstr "Action"
 
-#: models/action.py:65 templates/assistants/bricks/actions-on-time.html:7
+#: models/action.py:60 templates/assistants/bricks/actions-on-time.html:7
 #: templates/assistants/bricks/alerts.html:28
 #: templates/assistants/bricks/base/actions.html:23
 #: templates/assistants/bricks/memos.html:26
@@ -144,119 +144,119 @@ msgstr "Action"
 msgid "Actions"
 msgstr "Actions"
 
-#: models/alert.py:43 models/todo.py:44
+#: models/alert.py:38 models/todo.py:39
 #: templates/assistants/bricks/base/actions.html:17
 msgid "Description"
 msgstr "Description"
 
-#: models/alert.py:44 templates/assistants/bricks/alerts.html:44
+#: models/alert.py:39 templates/assistants/bricks/alerts.html:44
 #: templates/assistants/bricks/base/actions.html:40
 #: templates/assistants/bricks/todos.html:49
 msgid "Validated"
 msgstr "Validée"
 
-#: models/alert.py:45 models/todo.py:43
+#: models/alert.py:40 models/todo.py:38
 msgid "Notification sent"
 msgstr "Notification envoyéé"
 
-#: models/alert.py:46
+#: models/alert.py:41
 msgid "Trigger date"
 msgstr "Date de déclenchement de l'alerte"
 
-#: models/alert.py:60
+#: models/alert.py:52
 msgid "Create an alert"
 msgstr "Créer une alerte"
 
-#: models/alert.py:61
+#: models/alert.py:53
 msgid "Save the alert"
 msgstr "Enregistrer l'alerte"
 
-#: models/alert.py:65
+#: models/alert.py:57
 msgid "Alert"
 msgstr "Alerte"
 
-#: models/memo.py:42
+#: models/memo.py:38
 msgid "Content"
 msgstr "Contenu"
 
-#: models/memo.py:43
+#: models/memo.py:39
 msgid "Displayed on homepage"
 msgstr "Affiché en page d'accueil"
 
-#: models/memo.py:58
+#: models/memo.py:51
 msgid "Create a memo"
 msgstr "Créé un mémo"
 
-#: models/memo.py:59
+#: models/memo.py:52
 msgid "Save the memo"
 msgstr "Enregister le Mémo"
 
-#: models/memo.py:63
+#: models/memo.py:56
 msgid "Memo"
 msgstr "Mémo"
 
-#: models/todo.py:42
+#: models/todo.py:37
 msgid "Done ?"
 msgstr "Faite ?"
 
-#: models/todo.py:60
+#: models/todo.py:52
 msgid "Create a todo"
 msgstr "Créé un Todo"
 
-#: models/todo.py:61
+#: models/todo.py:53
 msgid "Save the todo"
 msgstr "Enregistrer le Todo"
 
-#: models/todo.py:65
+#: models/todo.py:57
 msgid "Todo"
 msgstr "Todo"
 
-#: models/user_message.py:42
+#: models/user_message.py:40
 msgctxt "assistants-messaqe_priority"
 msgid "Create a priority"
 msgstr "Créer une priorité"
 
-#: models/user_message.py:46
+#: models/user_message.py:44
 msgid "Priority of user message"
 msgstr "Priorité de message utilisateur"
 
-#: models/user_message.py:47
+#: models/user_message.py:45
 msgid "Priorities of user message"
 msgstr "Priorités de message utilisateur"
 
-#: models/user_message.py:56
+#: models/user_message.py:54
 msgid "Message body"
 msgstr "Corps de message"
 
-#: models/user_message.py:58
+#: models/user_message.py:56
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/user_message.py:59
+#: models/user_message.py:57
 msgid "Sender"
 msgstr "Émetteur"
 
-#: models/user_message.py:62
+#: models/user_message.py:60
 msgid "Recipient"
 msgstr "Destinataire"
 
-#: models/user_message.py:77
+#: models/user_message.py:72
 msgid "Create a message"
 msgstr "Créer un message"
 
-#: models/user_message.py:78
+#: models/user_message.py:73
 msgid "Save the message"
 msgstr "Enregister le message"
 
-#: models/user_message.py:82
+#: models/user_message.py:77
 msgid "User message"
 msgstr "Message utilisateur"
 
-#: models/user_message.py:150
+#: models/user_message.py:135
 msgid "User message from Creme: {}"
 msgstr "Message utilisateur de Creme: {}"
 
-#: models/user_message.py:151
+#: models/user_message.py:136
 #, python-brace-format
 msgid ""
 "{user} sent you the following message:\n"
@@ -265,21 +265,21 @@ msgstr ""
 "{user} vous a envoyé le message suivant:\n"
 "{body}"
 
-#: models/user_message.py:167
+#: models/user_message.py:152
 msgid "An error occurred while sending emails"
 msgstr "Une erreur s'est produite pendant l'envoi des e-mails"
 
 # Already in creme_core
-#: models/user_message.py:168
+#: models/user_message.py:153
 msgid "Original error: {}"
 msgstr ""
 
-#: reminders.py:54
+#: reminders.py:53
 #, python-brace-format
 msgid "Reminder concerning a Creme CRM alert related to {entity}"
 msgstr "Rappel concernant une alerte Crème CRM à propos de {entity}"
 
-#: reminders.py:57
+#: reminders.py:56
 #, python-brace-format
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that an alert "
@@ -296,12 +296,12 @@ msgstr ""
 "\n"
 "            qui est rattachée à la fiche : {entity}"
 
-#: reminders.py:90
+#: reminders.py:88
 #, python-brace-format
 msgid "Reminder concerning a Creme CRM todo related to {entity}"
 msgstr "Rappel concernant une todo Crème CRM à propos de {entity}"
 
-#: reminders.py:93
+#: reminders.py:91
 #, python-brace-format
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that a todo "
@@ -493,7 +493,7 @@ msgstr "Messages"
 msgid "Send a new message"
 msgstr "Envoyer un nouveau message"
 
-#: templates/assistants/bricks/messages.html:15 views/user_message.py:57
+#: templates/assistants/bricks/messages.html:15 views/user_message.py:37
 msgid "New message"
 msgstr "Nouveau message"
 
@@ -593,12 +593,12 @@ msgstr "Nouveau Todo pour «{entity}»"
 msgid "Todo for «{entity}»"
 msgstr "Todo pour «{entity}»"
 
-#: views/user_message.py:69
+#: views/user_message.py:43
 #, python-brace-format
 msgid "New message about «{entity}»"
 msgstr "Nouveau message à propos de «{entity}»"
 
-#: views/user_message.py:77
+#: views/user_message.py:51
 msgid "You are not allowed to delete this message: {}"
 msgstr "Vous n'êtes pas autorisé à supprimer ce message: {}"
 

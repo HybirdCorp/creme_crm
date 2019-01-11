@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db import models
 from django.urls import reverse
@@ -63,24 +63,24 @@ class Alert(creme_models.CremeModel):
     def get_edit_absolute_url(self):
         return reverse('assistants__edit_alert', args=(self.id,))
 
-    @staticmethod
-    def get_alerts(entity):
-        warnings.warn('Alert.get_alerts() is deprecated.', DeprecationWarning)
-        return Alert.objects.filter(is_validated=False, entity_id=entity.id).select_related('user')
+    # @staticmethod
+    # def get_alerts(entity):
+    #     warnings.warn('Alert.get_alerts() is deprecated.', DeprecationWarning)
+    #     return Alert.objects.filter(is_validated=False, entity_id=entity.id).select_related('user')
 
-    @staticmethod
-    def get_alerts_for_home(user):
-        warnings.warn('Alert.get_alerts_for_home() is deprecated.', DeprecationWarning)
-        return Alert.objects.filter(is_validated=False,
-                                    user__in=[user] + user.teams,
-                                   )\
-                            .select_related('user')
+    # @staticmethod
+    # def get_alerts_for_home(user):
+    #     warnings.warn('Alert.get_alerts_for_home() is deprecated.', DeprecationWarning)
+    #     return Alert.objects.filter(is_validated=False,
+    #                                 user__in=[user] + user.teams,
+    #                                )\
+    #                         .select_related('user')
 
-    @staticmethod
-    def get_alerts_for_ctypes(ct_ids, user):
-        warnings.warn('Alert.get_alerts_for_ctypes() is deprecated.', DeprecationWarning)
-        return Alert.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams, is_validated=False) \
-                            .select_related('user')
+    # @staticmethod
+    # def get_alerts_for_ctypes(ct_ids, user):
+    #     warnings.warn('Alert.get_alerts_for_ctypes() is deprecated.', DeprecationWarning)
+    #     return Alert.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams, is_validated=False) \
+    #                         .select_related('user')
 
     def get_related_entity(self):  # For generic views
         return self.creme_entity

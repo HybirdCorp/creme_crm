@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db import models
 from django.urls import reverse
@@ -63,24 +63,24 @@ class Memo(creme_models.CremeModel):
     def get_edit_absolute_url(self):
         return reverse('assistants__edit_memo', args=(self.id,))
 
-    @staticmethod
-    def get_memos(entity):
-        warnings.warn('Memo.get_memos() is deprecated.', DeprecationWarning)
-        return Memo.objects.filter(entity_id=entity.id).select_related('user')
+    # @staticmethod
+    # def get_memos(entity):
+    #     warnings.warn('Memo.get_memos() is deprecated.', DeprecationWarning)
+    #     return Memo.objects.filter(entity_id=entity.id).select_related('user')
 
-    @staticmethod
-    def get_memos_for_home(user):
-        warnings.warn('Memo.get_memos_for_home() is deprecated.', DeprecationWarning)
-        return Memo.objects.filter(on_homepage=True,
-                                   user__in=[user] + user.teams,
-                                  ) \
-                          .select_related('user')
+    # @staticmethod
+    # def get_memos_for_home(user):
+    #     warnings.warn('Memo.get_memos_for_home() is deprecated.', DeprecationWarning)
+    #     return Memo.objects.filter(on_homepage=True,
+    #                                user__in=[user] + user.teams,
+    #                               ) \
+    #                       .select_related('user')
 
-    @staticmethod
-    def get_memos_for_ctypes(ct_ids, user):
-        warnings.warn('Memo.get_memos_for_ctypes() is deprecated.', DeprecationWarning)
-        return Memo.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams) \
-                           .select_related('user')
+    # @staticmethod
+    # def get_memos_for_ctypes(ct_ids, user):
+    #     warnings.warn('Memo.get_memos_for_ctypes() is deprecated.', DeprecationWarning)
+    #     return Memo.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams) \
+    #                        .select_related('user')
 
     def get_related_entity(self):  # For generic views
         return self.creme_entity
