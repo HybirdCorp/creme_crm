@@ -16,7 +16,6 @@ except Exception as e:
 @skipIfCustomOrganisation
 class MapBrickTestCase(GeoLocationBaseTestCase):
     def setUp(self):
-        # super(MapBrickTestCase, self).setUp()
         super().setUp()
         self.login()
         self.brick = _MapBrick()
@@ -45,14 +44,14 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         managed_orgas = get_efilter(pk=FILTER_MANAGED_ORGA)
 
         contact_group = (self.contacts_title,
-                         [(contact_me.pk, u'{} - {}'.format(self.contacts_title, contact_me.name))]
+                         [(contact_me.pk, '{} - {}'.format(self.contacts_title, contact_me.name))]
                         )
         self.assertEqual([contact_group],
                          self.brick.get_filter_choices(user, Contact)
                         )
 
         orga_group = (self.organisations_title,
-                      [(managed_orgas.pk, u'{} - {}'.format(self.organisations_title, managed_orgas.name))]
+                      [(managed_orgas.pk, '{} - {}'.format(self.organisations_title, managed_orgas.name))]
                      )
         self.assertEqual([orga_group],
                          self.brick.get_filter_choices(user, Organisation)
@@ -78,16 +77,16 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.assertEqual(self.contacts_title, contact_group[0])
 
         contact_opt = contact_group[1]
-        self.assertIn((contact_me.pk, u'{} - {}'.format(self.contacts_title, contact_me.name)), contact_opt)
-        self.assertIn((efilter1.pk,   u'{} - {}'.format(self.contacts_title, efilter1.name)),   contact_opt)
+        self.assertIn((contact_me.pk, '{} - {}'.format(self.contacts_title, contact_me.name)), contact_opt)
+        self.assertIn((efilter1.pk,   '{} - {}'.format(self.contacts_title, efilter1.name)),   contact_opt)
 
         # -----
         orga_group = self.brick.get_filter_choices(user, Organisation)[0]
         self.assertEqual(self.organisations_title, orga_group[0])
 
         orga_opt = orga_group[1]
-        self.assertIn((managed_orgas.pk, u'{} - {}'.format(self.organisations_title, managed_orgas.name)), orga_opt)
-        self.assertIn((efilter2.pk,      u'{} - {}'.format(self.organisations_title, efilter2.name)),      orga_opt)
+        self.assertIn((managed_orgas.pk, '{} - {}'.format(self.organisations_title, managed_orgas.name)), orga_opt)
+        self.assertIn((efilter2.pk,      '{} - {}'.format(self.organisations_title, efilter2.name)),      orga_opt)
 
         # -----
         self.assertEqual([contact_group, orga_group],
@@ -105,7 +104,7 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
 
         title = self.organisations_title
         self.assertEqual([(title,
-                           [(managed_orgas.pk, u'{} - {}'.format(title, managed_orgas.name))]
+                           [(managed_orgas.pk, '{} - {}'.format(title, managed_orgas.name))]
                           )
                          ],
                          self.brick.get_filter_choices(user, Organisation)
@@ -115,5 +114,5 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.assertEqual(title, orga_group[0])
 
         orga_opt = orga_group[1]
-        self.assertIn((managed_orgas.pk, u'{} - {}'.format(title, managed_orgas.name)), orga_opt)
-        self.assertIn((efilter.pk,       u'{} - {}'.format(title, efilter.name)),       orga_opt)
+        self.assertIn((managed_orgas.pk, '{} - {}'.format(title, managed_orgas.name)), orga_opt)
+        self.assertIn((efilter.pk,       '{} - {}'.format(title, efilter.name)),       orga_opt)

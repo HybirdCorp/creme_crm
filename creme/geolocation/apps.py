@@ -25,12 +25,11 @@ from creme.creme_core.apps import CremeAppConfig
 
 class GeolocationConfig(CremeAppConfig):
     name = 'creme.geolocation'
-    verbose_name = _(u'Geolocation')
+    verbose_name = _('Geolocation')
     dependencies = ['creme.persons']
     credentials = CremeAppConfig.CRED_NONE
 
     def all_apps_ready(self):
-        # super(GeolocationConfig, self).all_apps_ready()
         super().all_apps_ready()
 
         from . import signals

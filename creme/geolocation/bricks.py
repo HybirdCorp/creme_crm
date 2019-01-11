@@ -19,7 +19,6 @@
 ################################################################################
 
 from collections import defaultdict
-# from json import dumps as encode_json
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.html import escape
@@ -57,17 +56,13 @@ class _MapBrick(Brick):
             if efilters:
                 title = str(ct.model_class()._meta.verbose_name_plural)
                 choices.append((title,
-                                [(ef.id, u'{} - {}'.format(title, ef.name)) for ef in efilters]
+                                [(ef.id, '{} - {}'.format(title, ef.name)) for ef in efilters]
                                )
                               )
 
         return choices
 
     def get_addresses_as_dict(self, entity):
-        # return [address_as_dict(address)
-        #             for address in Address.objects.filter(object_id=entity.id)
-        #                                           .select_related('geoaddress')
-        #        ]
         return [
             {k: (escape(v) if isinstance(v, str) else v)
                     for k, v in address_as_dict(address).items()
@@ -78,7 +73,7 @@ class _MapBrick(Brick):
 
 class GoogleDetailMapBrick(_MapBrick):
     id_           = Brick.generate_id('geolocation', 'detail_google_maps')
-    verbose_name  = _(u'Addresses on Google Maps ®')
+    verbose_name  = _('Addresses on Google Maps ®')
     template_name = 'geolocation/bricks/google/detail-map.html'
     target_ctypes = (Contact, Organisation)
 
@@ -88,7 +83,6 @@ class GoogleDetailMapBrick(_MapBrick):
         return self._render(self.get_template_context(
                     context,
                     addresses=addresses,
-                    # geoaddresses=encode_json(addresses),
                     geoaddresses=addresses,
                     google_api_key=get_google_api_key(),  # TODO: factorise
         ))
@@ -96,7 +90,7 @@ class GoogleDetailMapBrick(_MapBrick):
 
 class GoogleFilteredMapBrick(_MapBrick):
     id_           = Brick.generate_id('geolocation', 'filtered_google_maps')
-    verbose_name  = _(u'Filtered addresses on Google Maps ®')
+    verbose_name  = _('Filtered addresses on Google Maps ®')
     template_name = 'geolocation/bricks/google/filtered-map.html'
 
     def home_display(self, context):
@@ -112,7 +106,7 @@ class GoogleFilteredMapBrick(_MapBrick):
 class GoogleNeighboursMapBrick(_MapBrick):
     id_           = Brick.generate_id('geolocation', 'google_whoisaround')
     dependencies  = (Address, GeoAddress,)
-    verbose_name  = _(u'Neighbours on Google Maps ®')
+    verbose_name  = _('Neighbours on Google Maps ®')
     template_name = 'geolocation/bricks/google/neighbours-map.html'
     target_ctypes = (Contact, Organisation)
 
