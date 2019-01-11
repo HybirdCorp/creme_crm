@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme SMS 2.0\n"
+"Project-Id-Version: Creme SMS 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-26 18:29+0100\n"
+"POT-Creation-Date: 2018-12-05 15:15+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,29 +19,29 @@ msgstr ""
 msgid "SMS"
 msgstr "SMS"
 
-#: apps.py:88 apps.py:95
+#: apps.py:72 apps.py:79
 msgid "Marketing"
 msgstr "Marketing"
 
-#: bricks.py:49 forms/campaign.py:52
+#: bricks.py:48 forms/campaign.py:52
 #: templates/sms/bricks/messaging-lists.html:7
 msgid "Messaging lists"
 msgstr "Listes de diffusion"
 
-#: bricks.py:61 templates/sms/bricks/recipients.html:7
+#: bricks.py:60 templates/sms/bricks/recipients.html:7
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: bricks.py:77 forms/messaging_list.py:46 forms/messaging_list.py:89
+#: bricks.py:75 forms/messaging_list.py:46 forms/messaging_list.py:89
 #: models/messaging_list.py:32 templates/sms/bricks/contacts.html:7
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
 
-#: bricks.py:89
+#: bricks.py:87
 msgid "Sent messages"
 msgstr "Messages envoyés"
 
-#: bricks.py:101 models/message.py:65 templates/sms/bricks/sendings.html:20
+#: bricks.py:99 models/message.py:65 templates/sms/bricks/sendings.html:20
 msgid "Sendings"
 msgstr "Envois"
 
@@ -71,16 +71,16 @@ msgstr "Filtres"
 msgid "All"
 msgstr "Tout"
 
-#: forms/recipient.py:34 forms/recipient.py:38 forms/recipient.py:67
+#: forms/recipient.py:33 forms/recipient.py:37 forms/recipient.py:66
 #: models/recipient.py:40
 msgid "Recipients"
 msgstr "Destinataires"
 
-#: forms/recipient.py:35
+#: forms/recipient.py:34
 msgid "One phone number per line"
 msgstr "Un numéro de téléphone par ligne"
 
-#: forms/recipient.py:60
+#: forms/recipient.py:59
 msgid ""
 "A text file where each line contains digits (which can be separated by space "
 "characters).\n"
@@ -102,7 +102,7 @@ msgstr ""
 " Attention, l'en-tête compte (+ 3 caractères) et les caractères suivant "
 "comptent double: {}"
 
-#: forms/template.py:37 models/message.py:106
+#: forms/template.py:37 models/message.py:103
 msgid "Message"
 msgstr "Message"
 
@@ -225,35 +225,35 @@ msgctxt "sms"
 msgid "Save the sending"
 msgstr "Enregistrer l'envoi"
 
-#: models/message.py:64 models/message.py:96
+#: models/message.py:64 models/message.py:93
 msgid "Sending"
 msgstr "Envoi"
 
-#: models/message.py:69
+#: models/message.py:68
 #, python-brace-format
 msgctxt "sms"
 msgid "Sending of «{campaign}» on {date}"
 msgstr "Envoi de «{campaign}» du {date}"
 
-#: models/message.py:97 models/recipient.py:31
+#: models/message.py:94 models/recipient.py:31
 #: templates/sms/bricks/contacts.html:19 templates/sms/bricks/messages.html:34
 #: templates/sms/bricks/recipients.html:18
 msgid "Number"
 msgstr "Numéro"
 
-#: models/message.py:98
+#: models/message.py:95
 msgid "State"
 msgstr "État"
 
-#: models/message.py:99
+#: models/message.py:96
 msgid "Full state"
 msgstr "État détaillé"
 
-#: models/message.py:107 templates/sms/bricks/messages.html:7
+#: models/message.py:104 templates/sms/bricks/messages.html:7
 msgid "Messages"
 msgstr "Messages"
 
-#: models/message.py:115
+#: models/message.py:112
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -493,30 +493,30 @@ msgstr "Supprimer cet envoi"
 msgid "No sending for the moment"
 msgstr "Aucun envoi pour le moment"
 
-#: views/campaign.py:159
+#: views/campaign.py:149
 #, python-brace-format
 msgid "New messaging lists for «{entity}»"
 msgstr "Nouvelles listes de diffusion pour «{entity}»"
 
-#: views/campaign.py:160
+#: views/campaign.py:150
 msgid "Link the messaging lists"
 msgstr "Lier les listes de diffusion"
 
-#: views/messaging_list.py:165
+#: views/messaging_list.py:143
 #, python-brace-format
 msgid "New contacts for «{entity}»"
 msgstr "Nouveaux contacts pour «{entity}»"
 
-#: views/messaging_list.py:166
+#: views/messaging_list.py:144
 msgid "Link the contacts"
 msgstr "Lier les contacts"
 
-#: views/recipient.py:45
+#: views/recipient.py:35
 #, python-brace-format
 msgid "New recipients for «{entity}»"
 msgstr "Nouveaux destinataires pour «{entity}»"
 
-#: views/sending.py:55
+#: views/sending.py:42
 #, python-brace-format
 msgid "New sending for «{entity}»"
 msgstr "Nouvel envoi pour «{entity}»"

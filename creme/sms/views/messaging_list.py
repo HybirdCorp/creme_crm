@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
@@ -37,55 +37,55 @@ from ..forms import messaging_list as ml_forms
 MessagingList = get_messaginglist_model()
 
 
-def abstract_add_messaginglist(request, form=ml_forms.MessagingListForm,
-                               submit_label=MessagingList.save_label,
-                              ):
-    warnings.warn('sms.views.messaging_list.abstract_add_messaginglist() is deprecated ; '
-                  'use the class-based view MessagingListDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_messaginglist(request, form=ml_forms.MessagingListForm,
+#                                submit_label=MessagingList.save_label,
+#                               ):
+#     warnings.warn('sms.views.messaging_list.abstract_add_messaginglist() is deprecated ; '
+#                   'use the class-based view MessagingListDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_messaginglist(request, mlist_id, form=ml_forms.MessagingListForm):
-    warnings.warn('sms.views.messaging_list.abstract_edit_messaginglist() is deprecated ; '
-                  'use the class-based view MessagingListDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, mlist_id, MessagingList, form)
+# def abstract_edit_messaginglist(request, mlist_id, form=ml_forms.MessagingListForm):
+#     warnings.warn('sms.views.messaging_list.abstract_edit_messaginglist() is deprecated ; '
+#                   'use the class-based view MessagingListDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, mlist_id, MessagingList, form)
 
 
-def abstract_view_messaginglist(request, mlist_id,
-                                template='sms/view_messaginglist.html',
-                               ):
-    warnings.warn('sms.views.messaging_list.abstract_view_messaginglist() is deprecated ; '
-                  'use the class-based view MessagingListDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, mlist_id, MessagingList, template=template)
+# def abstract_view_messaginglist(request, mlist_id,
+#                                 template='sms/view_messaginglist.html',
+#                                ):
+#     warnings.warn('sms.views.messaging_list.abstract_view_messaginglist() is deprecated ; '
+#                   'use the class-based view MessagingListDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, mlist_id, MessagingList, template=template)
 
 
-@login_required
-@permission_required(('sms', cperm(MessagingList)))
-def add(request):
-    warnings.warn('sms.views.messaging_list.add() is deprecated.', DeprecationWarning)
-    return abstract_add_messaginglist(request)
+# @login_required
+# @permission_required(('sms', cperm(MessagingList)))
+# def add(request):
+#     warnings.warn('sms.views.messaging_list.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_messaginglist(request)
 
 
-@login_required
-@permission_required('sms')
-def edit(request, mlist_id):
-    warnings.warn('sms.views.messaging_list.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_messaginglist(request, mlist_id)
+# @login_required
+# @permission_required('sms')
+# def edit(request, mlist_id):
+#     warnings.warn('sms.views.messaging_list.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_messaginglist(request, mlist_id)
 
 
-@login_required
-@permission_required('sms')
-def detailview(request, mlist_id):
-    warnings.warn('sms.views.messaging_list.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_messaginglist(request, mlist_id)
+# @login_required
+# @permission_required('sms')
+# def detailview(request, mlist_id):
+#     warnings.warn('sms.views.messaging_list.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_messaginglist(request, mlist_id)
 
 
 @login_required
