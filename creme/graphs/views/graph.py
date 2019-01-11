@@ -111,17 +111,6 @@ def listview(request):
     return generic.list_view(request, Graph, hf_pk=DEFAULT_HFILTER_GRAPH)
 
 
-# @login_required
-# @permission_required('graphs')
-# def add_relation_types(request, graph_id):
-#     return generic.add_to_entity(
-#         request, graph_id, g_forms.AddRelationTypesForm,
-#         _('Add relation types to «%s»'),
-#         entity_class=Graph,
-#         template='creme_core/generics/blockform/link_popup.html',
-#     )
-
-
 @login_required
 @permission_required('graphs')
 def delete_relation_type(request, graph_id):

@@ -31,15 +31,6 @@ from ..forms import root_node as forms
 from ..models import RootNode
 
 
-# @login_required
-# @permission_required('graphs')
-# def add(request, graph_id):
-#     return generic.add_to_entity(
-#         request, graph_id, forms.AddRootNodesForm,
-#         _('Add root nodes to «%s»'),
-#         entity_class=get_graph_model(),
-#         template='creme_core/generics/blockform/link_popup.html',
-#     )
 class RootNodesAdding(generic.RelatedToEntityFormPopup):
     form_class = forms.AddRootNodesForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
@@ -49,13 +40,6 @@ class RootNodesAdding(generic.RelatedToEntityFormPopup):
     # submit_label = _('Add') ??
 
 
-# @login_required
-# @permission_required('graphs')
-# def edit(request, root_id):
-#     return generic.edit_related_to_entity(
-#         request, root_id, RootNode, forms.EditRootNodeForm,
-#         _('Edit root node for «%s»'),
-#     )
 class RootNodeEdition(generic.RelatedToEntityEditionPopup):
     model = RootNode
     form_class = forms.EditRootNodeForm
