@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
@@ -39,55 +39,55 @@ EmailTemplate = get_emailtemplate_model()
 # Function views --------------------------------------------------------------
 
 
-def abstract_add_template(request, form=tpl_forms.EmailTemplateForm,
-                          submit_label=EmailTemplate.save_label,
-                         ):
-    warnings.warn('emails.views.mail.abstract_add_template() is deprecated ; '
-                  'use the class-based view EmailTemplateCreation instead.',
-                  DeprecationWarning
-                 )
-    return generic.add_entity(request, form,
-                              extra_template_dict={'submit_label': submit_label},
-                             )
+# def abstract_add_template(request, form=tpl_forms.EmailTemplateForm,
+#                           submit_label=EmailTemplate.save_label,
+#                          ):
+#     warnings.warn('emails.views.mail.abstract_add_template() is deprecated ; '
+#                   'use the class-based view EmailTemplateCreation instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.add_entity(request, form,
+#                               extra_template_dict={'submit_label': submit_label},
+#                              )
 
 
-def abstract_edit_template(request, template_id, form=tpl_forms.EmailTemplateForm):
-    warnings.warn('emails.views.mail.abstract_edit_template() is deprecated ; '
-                  'use the class-based view EmailTemplateEdition instead.',
-                  DeprecationWarning
-                 )
-    return generic.edit_entity(request, template_id, EmailTemplate, form)
+# def abstract_edit_template(request, template_id, form=tpl_forms.EmailTemplateForm):
+#     warnings.warn('emails.views.mail.abstract_edit_template() is deprecated ; '
+#                   'use the class-based view EmailTemplateEdition instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.edit_entity(request, template_id, EmailTemplate, form)
 
 
-def abstract_view_template(request, template_id,
-                           template='emails/view_template.html',
-                          ):
-    warnings.warn('emails.views.mail.abstract_view_template() is deprecated ; '
-                  'use the class-based view EmailTemplateDetail instead.',
-                  DeprecationWarning
-                 )
-    return generic.view_entity(request, template_id, EmailTemplate, template=template)
+# def abstract_view_template(request, template_id,
+#                            template='emails/view_template.html',
+#                           ):
+#     warnings.warn('emails.views.mail.abstract_view_template() is deprecated ; '
+#                   'use the class-based view EmailTemplateDetail instead.',
+#                   DeprecationWarning
+#                  )
+#     return generic.view_entity(request, template_id, EmailTemplate, template=template)
 
 
-@login_required
-@permission_required(('emails', cperm(EmailTemplate)))
-def add(request):
-    warnings.warn('emails.views.mail.add() is deprecated.', DeprecationWarning)
-    return abstract_add_template(request)
+# @login_required
+# @permission_required(('emails', cperm(EmailTemplate)))
+# def add(request):
+#     warnings.warn('emails.views.mail.add() is deprecated.', DeprecationWarning)
+#     return abstract_add_template(request)
 
 
-@login_required
-@permission_required('emails')
-def edit(request, template_id):
-    warnings.warn('emails.views.mail.edit() is deprecated.', DeprecationWarning)
-    return abstract_edit_template(request, template_id)
+# @login_required
+# @permission_required('emails')
+# def edit(request, template_id):
+#     warnings.warn('emails.views.mail.edit() is deprecated.', DeprecationWarning)
+#     return abstract_edit_template(request, template_id)
 
 
-@login_required
-@permission_required('emails')
-def detailview(request, template_id):
-    warnings.warn('emails.views.mail.detailview() is deprecated.', DeprecationWarning)
-    return abstract_view_template(request, template_id)
+# @login_required
+# @permission_required('emails')
+# def detailview(request, template_id):
+#     warnings.warn('emails.views.mail.detailview() is deprecated.', DeprecationWarning)
+#     return abstract_view_template(request, template_id)
 
 
 @login_required

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -43,17 +43,17 @@ class SendingCreation(generic.AddingInstanceToEntityPopup):
     title = _('New sending for «{entity}»')
 
 
-def _get_sending(request, sending_id):
-    warnings.warn('emails.views.sending._get_sending() is deprecated.',
-                  DeprecationWarning
-                 )
-
-    sending  = get_object_or_404(EmailSending, pk=sending_id)
-    campaign = sending.campaign
-
-    request.user.has_perm_to_view_or_die(campaign)
-
-    return sending
+# def _get_sending(request, sending_id):
+#     warnings.warn('emails.views.sending._get_sending() is deprecated.',
+#                   DeprecationWarning
+#                  )
+#
+#     sending  = get_object_or_404(EmailSending, pk=sending_id)
+#     campaign = sending.campaign
+#
+#     request.user.has_perm_to_view_or_die(campaign)
+#
+#     return sending
 
 
 class SendingDetail(generic.RelatedToEntityDetail):
@@ -79,19 +79,19 @@ class SendingBody(generic.RelatedToEntityDetail):
         )
 
 
-@login_required
-@permission_required('emails')
-@jsonify
-def reload_mails_brick(request, sending_id):
-    warnings.warn('emails.views.sending.reload_mails_brick() is deprecated ; '
-                  'use reload_sending_bricks() instead.',
-                  DeprecationWarning
-                 )
-    return bricks_views.bricks_render_info(
-        request,
-        bricks=[MailsBrick()],
-        context=bricks_views.build_context(request, object=_get_sending(request, sending_id)),
-    )
+# @login_required
+# @permission_required('emails')
+# @jsonify
+# def reload_mails_brick(request, sending_id):
+#     warnings.warn('emails.views.sending.reload_mails_brick() is deprecated ; '
+#                   'use reload_sending_bricks() instead.',
+#                   DeprecationWarning
+#                  )
+#     return bricks_views.bricks_render_info(
+#         request,
+#         bricks=[MailsBrick()],
+#         context=bricks_views.build_context(request, object=_get_sending(request, sending_id)),
+#     )
 
 
 # Useful method because EmailSending is not a CremeEntity (should be ?)
