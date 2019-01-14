@@ -21,7 +21,7 @@
 from json import dumps as json_dump
 import logging
 import math
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy as reverse
@@ -739,13 +739,13 @@ class CreationFormsItem(ViewableItem):
             label=self.render_label(context),
         )
 
-    @property
-    def verbose_unicode(self):
-        warnings.warn('CreationFormsItem.verbose_unicode() is deprecated ; '
-                      'use CreationFormsItem.verbose_str() instead.',
-                      DeprecationWarning
-                     )
-        return self.verbose_str
+    # @property
+    # def verbose_unicode(self):
+    #     warnings.warn('CreationFormsItem.verbose_unicode() is deprecated ; '
+    #                   'use CreationFormsItem.verbose_str() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     return self.verbose_str
 
     @property
     def verbose_str(self):

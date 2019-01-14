@@ -23,7 +23,7 @@
 # SOFTWARE.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db import models
 from django.db.transaction import atomic
@@ -82,23 +82,23 @@ class Mutex(models.Model):
         super().save(force_insert=True, *args, **kwargs)
 
 
-def mutex_autolock(lock_name):
-    warnings.warn('creme_core.models.lock.mutex_autolock() is deprecated ; '
-                  'use MutexAutoLock as decorator instead.',
-                  DeprecationWarning
-                 )
-
-    def _autolock_aux(func):
-        def _aux(*args, **kwargs):
-            Mutex.get_n_lock(lock_name)
-
-            try:
-                return func(*args, **kwargs)
-            finally:
-                Mutex.graceful_release(lock_name)
-
-        return _aux
-    return _autolock_aux
+# def mutex_autolock(lock_name):
+#     warnings.warn('creme_core.models.lock.mutex_autolock() is deprecated ; '
+#                   'use MutexAutoLock as decorator instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     def _autolock_aux(func):
+#         def _aux(*args, **kwargs):
+#             Mutex.get_n_lock(lock_name)
+#
+#             try:
+#                 return func(*args, **kwargs)
+#             finally:
+#                 Mutex.graceful_release(lock_name)
+#
+#         return _aux
+#     return _autolock_aux
 
 
 class MutexAutoLock(ContextDecorator):

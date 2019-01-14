@@ -22,7 +22,7 @@ try:
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.core.enumerable import _EnumerableRegistry, Enumerator
     from creme.creme_core.core.function_field import (FunctionField, FunctionFieldResult,
-        FunctionFieldsManager, _FunctionFieldRegistry, function_field_registry)
+        _FunctionFieldRegistry, function_field_registry)  # FunctionFieldsManager
     from creme.creme_core.core.imprint import _ImprintManager
     from creme.creme_core.core.job import JobManager
     from creme.creme_core.core.reminder import Reminder, ReminderRegistry, reminder_registry
@@ -50,16 +50,16 @@ class BackendsTestCase(CremeTestCase):
         self.assertEqual(XLSImportBackend, registry.get_backend(XLSImportBackend.id))
         self.assertIsNone(registry.get_backend('unknown'))
 
-        self.assertEqual({CSVImportBackend, XLSImportBackend},
-                         set(registry.iterbackends())
-                        )
+        # self.assertEqual({CSVImportBackend, XLSImportBackend},
+        #                  set(registry.iterbackends())
+        #                 )
         self.assertEqual({CSVImportBackend, XLSImportBackend},
                          set(registry.backends)
                         )
 
-        self.assertEqual({CSVImportBackend.id, XLSImportBackend.id},
-                         set(registry.iterkeys())
-                        )
+        # self.assertEqual({CSVImportBackend.id, XLSImportBackend.id},
+        #                  set(registry.iterkeys())
+        #                 )
         self.assertEqual({CSVImportBackend.id, XLSImportBackend.id},
                          set(registry.extensions)
                         )
@@ -77,108 +77,108 @@ class BackendsTestCase(CremeTestCase):
 
 
 class FunctionFieldsTestCase(CremeTestCase):
-    def test_manager01(self):
-        "Constructor with no args, add() & get() methods"
-        ffm = FunctionFieldsManager()
-        self.assertFalse(list(ffm))
+    # def test_manager01(self):
+    #     "Constructor with no args, add() & get() methods"
+    #     ffm = FunctionFieldsManager()
+    #     self.assertFalse(list(ffm))
+    #
+    #     fname01 = 'name01'
+    #     fname02 = 'name02'
+    #
+    #     class TestFunctionField01(FunctionField):
+    #         name         = fname01
+    #         verbose_name = 'Verbose name 01'
+    #
+    #     class TestFunctionField02(FunctionField):
+    #         name         = fname02
+    #         verbose_name = 'Verbose name 02'
+    #
+    #     ff01 = TestFunctionField01()
+    #     ff02 = TestFunctionField02()
+    #
+    #     self.assertIsNone(ffm.get(fname01))
+    #
+    #     ffm.add(ff01, ff02)
+    #     self.assertIs(ff01, ffm.get(fname01))
+    #     self.assertIs(ff02, ffm.get(fname02))
+    #     self.assertEqual([ff01, ff02], sorted(ffm, key=lambda ff: ff.name))
 
-        fname01 = 'name01'
-        fname02 = 'name02'
+    # def test_manager02(self):
+    #     "Constructor with args"
+    #     fname01 = 'name01'
+    #     fname02 = 'name02'
+    #
+    #     class TestFunctionField01(FunctionField):
+    #         name         = fname01
+    #         verbose_name = 'Verbose name 01'
+    #
+    #     class TestFunctionField02(FunctionField):
+    #         name         = fname02
+    #         verbose_name = "Verbose name 02"
+    #
+    #     ff01 = TestFunctionField01()
+    #     ff02 = TestFunctionField02()
+    #
+    #     ffm = FunctionFieldsManager(ff01, ff02)
+    #     self.assertIs(ff01, ffm.get(fname01))
+    #     self.assertIs(ff02, ffm.get(fname02))
+    #     self.assertEqual([ff01, ff02], sorted(ffm, key=lambda ff: ff.name))
 
-        class TestFunctionField01(FunctionField):
-            name         = fname01
-            verbose_name = 'Verbose name 01'
+    # def test_manager03(self):
+    #     "new() method"
+    #     fname01 = 'name01'
+    #     fname02 = 'name02'
+    #
+    #     class TestFunctionField01(FunctionField):
+    #         name         = fname01
+    #         verbose_name = 'Verbose name 01'
+    #
+    #     class TestFunctionField02(FunctionField):
+    #         name         = fname02
+    #         verbose_name = 'Verbose name 02'
+    #
+    #     ff01 = TestFunctionField01()
+    #     ff02 = TestFunctionField02()
+    #
+    #     ffm01 = FunctionFieldsManager(ff01)
+    #     ffm02 = ffm01.new(ff02)
+    #
+    #     self.assertIs(ff01, ffm01.get(fname01))
+    #     self.assertIsNone(ffm01.get(fname02))
+    #     self.assertEqual([ff01], list(ffm01))
+    #
+    #     self.assertIs(ff01, ffm02.get(fname01))
+    #     self.assertIs(ff02, ffm02.get(fname02))
+    #     self.assertEqual([ff01, ff02], sorted(ffm02, key=lambda ff: ff.name))
 
-        class TestFunctionField02(FunctionField):
-            name         = fname02
-            verbose_name = 'Verbose name 02'
-
-        ff01 = TestFunctionField01()
-        ff02 = TestFunctionField02()
-
-        self.assertIsNone(ffm.get(fname01))
-
-        ffm.add(ff01, ff02)
-        self.assertIs(ff01, ffm.get(fname01))
-        self.assertIs(ff02, ffm.get(fname02))
-        self.assertEqual([ff01, ff02], sorted(ffm, key=lambda ff: ff.name))
-
-    def test_manager02(self):
-        "Constructor with args"
-        fname01 = 'name01'
-        fname02 = 'name02'
-
-        class TestFunctionField01(FunctionField):
-            name         = fname01
-            verbose_name = 'Verbose name 01'
-
-        class TestFunctionField02(FunctionField):
-            name         = fname02
-            verbose_name = "Verbose name 02"
-
-        ff01 = TestFunctionField01()
-        ff02 = TestFunctionField02()
-
-        ffm = FunctionFieldsManager(ff01, ff02)
-        self.assertIs(ff01, ffm.get(fname01))
-        self.assertIs(ff02, ffm.get(fname02))
-        self.assertEqual([ff01, ff02], sorted(ffm, key=lambda ff: ff.name))
-
-    def test_manager03(self):
-        "new() method"
-        fname01 = 'name01'
-        fname02 = 'name02'
-
-        class TestFunctionField01(FunctionField):
-            name         = fname01
-            verbose_name = 'Verbose name 01'
-
-        class TestFunctionField02(FunctionField):
-            name         = fname02
-            verbose_name = 'Verbose name 02'
-
-        ff01 = TestFunctionField01()
-        ff02 = TestFunctionField02()
-
-        ffm01 = FunctionFieldsManager(ff01)
-        ffm02 = ffm01.new(ff02)
-
-        self.assertIs(ff01, ffm01.get(fname01))
-        self.assertIsNone(ffm01.get(fname02))
-        self.assertEqual([ff01], list(ffm01))
-
-        self.assertIs(ff01, ffm02.get(fname01))
-        self.assertIs(ff02, ffm02.get(fname02))
-        self.assertEqual([ff01, ff02], sorted(ffm02, key=lambda ff: ff.name))
-
-    def test_manager04(self):
-        "new() method + add() on 'base instance'"
-        fname01 = 'name01'
-        fname02 = 'name02'
-
-        class TestFunctionField01(FunctionField):
-            name         = fname01
-            verbose_name = 'Verbose name 01'
-
-        class TestFunctionField02(FunctionField):
-            name         = fname02
-            verbose_name = 'Verbose name 02'
-
-        ff01 = TestFunctionField01()
-        ff02 = TestFunctionField02()
-
-        ffm01 = FunctionFieldsManager()
-        ffm02 = ffm01.new(ff02)
-
-        ffm01.add(ff01)  # <== added after new()
-
-        self.assertIs(ff01, ffm01.get(fname01))
-        self.assertIsNone(ffm01.get(fname02))
-        self.assertEqual([ff01], list(ffm01))
-
-        self.assertIs(ff02, ffm02.get(fname02))
-        self.assertIs(ff01, ffm02.get(fname01)) # ok ?
-        self.assertEqual([ff01, ff02], sorted(ffm02, key=lambda ff: ff.name))
+    # def test_manager04(self):
+    #     "new() method + add() on 'base instance'"
+    #     fname01 = 'name01'
+    #     fname02 = 'name02'
+    #
+    #     class TestFunctionField01(FunctionField):
+    #         name         = fname01
+    #         verbose_name = 'Verbose name 01'
+    #
+    #     class TestFunctionField02(FunctionField):
+    #         name         = fname02
+    #         verbose_name = 'Verbose name 02'
+    #
+    #     ff01 = TestFunctionField01()
+    #     ff02 = TestFunctionField02()
+    #
+    #     ffm01 = FunctionFieldsManager()
+    #     ffm02 = ffm01.new(ff02)
+    #
+    #     ffm01.add(ff01)  # <== added after new()
+    #
+    #     self.assertIs(ff01, ffm01.get(fname01))
+    #     self.assertIsNone(ffm01.get(fname02))
+    #     self.assertEqual([ff01], list(ffm01))
+    #
+    #     self.assertIs(ff02, ffm02.get(fname02))
+    #     self.assertIs(ff01, ffm02.get(fname01)) # ok ?
+    #     self.assertEqual([ff01, ff02], sorted(ffm02, key=lambda ff: ff.name))
 
     def test_registry01(self):
         class Klass1: pass
@@ -776,7 +776,7 @@ class ReminderTestCase(CremeTestCase):
         registry = ReminderRegistry()
 
         self.assertFalse(list(registry))
-        self.assertFalse(list(registry.itervalues()))
+        # self.assertFalse(list(registry.itervalues()))
 
     def test_register(self):
         registry = ReminderRegistry()
@@ -793,9 +793,9 @@ class ReminderTestCase(CremeTestCase):
         self.assertEqual({TestReminder1, TestReminder2},
                          {r.__class__ for r in registry}
                         )
-        self.assertEqual({TestReminder1, TestReminder2},
-                         {r.__class__ for r in registry.itervalues()}
-                        )
+        # self.assertEqual({TestReminder1, TestReminder2},
+        #                  {r.__class__ for r in registry.itervalues()}
+        #                 )
 
         # --
         registry.unregister(TestReminder1)

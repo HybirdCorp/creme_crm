@@ -39,25 +39,21 @@ def get_q_from_dict(dict, is_or=False):
     @return: A Q instance from {'attr1': 'val1', 'attr2': 'val2',...}
              If 'is_or' is True, it returns <Q(attr1=val1) | Q(attr2=val2)>
              else it returns <Q(attr1=val1) & Q(attr2=val2)>
-
-     Note : Add ~ in the attr negate the Q (DEPRECATED).
-            Example :
-                > d = {'~attr1':'val1', 'attr2':'val2',...}
-                ~Q(attr1=val1) & Q(attr2=val2)
     """
     q = Q()
 
     for k, v in dict.items():
         k = str(k)
 
-        if k.startswith('~'):
-            warnings.warn('creme_core.utils.queries.get_q_from_dict(): the "~" feature is deprecated ; '
-                          'use a django.db.models.query.Q instead.',
-                          DeprecationWarning
-                         )
-            sub_q = ~Q(**{k[1:]: v})
-        else:
-            sub_q = Q(**{k: v})
+        # if k.startswith('~'):
+        #     warnings.warn('creme_core.utils.queries.get_q_from_dict(): the "~" feature is deprecated ; '
+        #                   'use a django.db.models.query.Q instead.',
+        #                   DeprecationWarning
+        #                  )
+        #     sub_q = ~Q(**{k[1:]: v})
+        # else:
+        #     sub_q = Q(**{k: v})
+        sub_q = Q(**{k: v})
 
         if is_or:
             q |= sub_q

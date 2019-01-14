@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext_lazy as _
+# from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
@@ -48,25 +48,36 @@ def contact_listview(request):
     return generic.list_view(request, fake_models.FakeContact)
 
 
-@login_required
-@permission_required(('creme_core', 'creme_core.add_fakeorganisation'))
-def organisation_add(request):
-    return generic.add_entity(request, fake_forms.FakeOrganisationForm)
+# @login_required
+# @permission_required(('creme_core', 'creme_core.add_fakeorganisation'))
+# def organisation_add(request):
+#     return generic.add_entity(request, fake_forms.FakeOrganisationForm)
+class FakeOrganisationCreation(generic.EntityCreation):
+    model = fake_models.FakeOrganisation
+    form_class = fake_forms.FakeOrganisationForm
 
 
-@login_required
-@permission_required('creme_core')
-def organisation_edit(request, orga_id):
-    return generic.edit_entity(request, orga_id, fake_models.FakeOrganisation,
-                               fake_forms.FakeOrganisationForm,
-                              )
+# @login_required
+# @permission_required('creme_core')
+# def organisation_edit(request, orga_id):
+#     return generic.edit_entity(request, orga_id, fake_models.FakeOrganisation,
+#                                fake_forms.FakeOrganisationForm,
+#                               )
+class FakeOrganisationEdition(generic.EntityEdition):
+    model = fake_models.FakeOrganisation
+    form_class = fake_forms.FakeOrganisationForm
+    pk_url_kwarg = 'orga_id'
 
 
-@login_required
-@permission_required('creme_core')
-def organisation_detailview(request, orga_id):
-    # NB: keep legacy for tests
-    return generic.view_entity(request, orga_id, fake_models.FakeOrganisation)
+# @login_required
+# @permission_required('creme_core')
+# def organisation_detailview(request, orga_id):
+#     # NB: keep legacy for tests
+#     return generic.view_entity(request, orga_id, fake_models.FakeOrganisation)
+class FakeOrganisationDetail(generic.EntityDetail):
+    model = fake_models.FakeOrganisation
+    # template_name = 'creme_core/tests/view-fake-organisation.html'  TODO ?
+    pk_url_kwarg = 'orga_id'
 
 
 @login_required
@@ -75,13 +86,13 @@ def organisation_listview(request):
     return generic.list_view(request, fake_models.FakeOrganisation)
 
 
-@login_required
-@permission_required('creme_core')
-def address_add(request, entity_id):
-    return generic.add_to_entity(request, entity_id, fake_forms.FakeAddressForm,
-                                 'Adding address to <%s>',
-                                 submit_label=_('Save the address'),
-                                )
+# @login_required
+# @permission_required('creme_core')
+# def address_add(request, entity_id):
+#     return generic.add_to_entity(request, entity_id, fake_forms.FakeAddressForm,
+#                                  'Adding address to <%s>',
+#                                  submit_label=_('Save the address'),
+#                                 )
 
 
 class FakeAddressCreation(generic.AddingInstanceToEntityPopup):
@@ -90,14 +101,14 @@ class FakeAddressCreation(generic.AddingInstanceToEntityPopup):
     title = 'Adding address to <{entity}>'
 
 
-@login_required
-@permission_required('creme_core')
-def address_edit(request, address_id):
-    return generic.edit_related_to_entity(request, address_id,
-                                          fake_models.FakeAddress,
-                                          fake_forms.FakeAddressForm,
-                                          'Address for <%s>',
-                                         )
+# @login_required
+# @permission_required('creme_core')
+# def address_edit(request, address_id):
+#     return generic.edit_related_to_entity(request, address_id,
+#                                           fake_models.FakeAddress,
+#                                           fake_forms.FakeAddressForm,
+#                                           'Address for <%s>',
+#                                          )
 
 
 class FakeAddressEdition(generic.RelatedToEntityEditionPopup):

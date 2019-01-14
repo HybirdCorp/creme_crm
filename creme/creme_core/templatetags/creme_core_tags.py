@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from itertools import zip_longest
 from json import dumps as json_dump
@@ -102,41 +102,41 @@ def get_meta_value(obj, key, default=''):
     return default
 
 
-@register.filter(name='get_tag')
-def get_fieldtag(field, tag):
-    """eg: {% if field|get_tag:'viewable' %}"""
-    warnings.warn('"my_field|get_tag:"my_tag" is deprecated.', DeprecationWarning)
-
-    return field.get_tag(tag)
-
-
-@register.simple_tag
-def get_field_verbose_name(model_or_entity, field_name):
-    warnings.warn('{% get_field_verbose_name %} is deprecated ; '
-                  'use {% cell_4_regularfield %} from lib "creme_cells" instead.',
-                  DeprecationWarning
-                 )
-
-    from django.db.models import FieldDoesNotExist
-    from ..utils.meta import FieldInfo
-
-    try:
-        return FieldInfo(model_or_entity, field_name).verbose_name
-    except FieldDoesNotExist as e:
-        logger.debug('Exception in get_field_verbose_name(): %s', e)
-        return 'INVALID FIELD'
+# @register.filter(name='get_tag')
+# def get_fieldtag(field, tag):
+#     """eg: {% if field|get_tag:'viewable' %}"""
+#     warnings.warn('"my_field|get_tag:"my_tag" is deprecated.', DeprecationWarning)
+#
+#     return field.get_tag(tag)
 
 
-@register.simple_tag(takes_context=True)
-def get_viewable_fields(context, instance):
-    warnings.warn('{% get_viewable_fields %} is deprecated.', DeprecationWarning)
+# @register.simple_tag
+# def get_field_verbose_name(model_or_entity, field_name):
+#     warnings.warn('{% get_field_verbose_name %} is deprecated ; '
+#                   'use {% cell_4_regularfield %} from lib "creme_cells" instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     from django.db.models import FieldDoesNotExist
+#     from ..utils.meta import FieldInfo
+#
+#     try:
+#         return FieldInfo(model_or_entity, field_name).verbose_name
+#     except FieldDoesNotExist as e:
+#         logger.debug('Exception in get_field_verbose_name(): %s', e)
+#         return 'INVALID FIELD'
 
-    is_hidden = context['fields_configs'].get_4_model(instance.__class__).is_field_hidden
 
-    return [field
-                for field in instance._meta.fields
-                    if field.get_tag('viewable') and not is_hidden(field)
-           ]
+# @register.simple_tag(takes_context=True)
+# def get_viewable_fields(context, instance):
+#     warnings.warn('{% get_viewable_fields %} is deprecated.', DeprecationWarning)
+#
+#     is_hidden = context['fields_configs'].get_4_model(instance.__class__).is_field_hidden
+#
+#     return [field
+#                 for field in instance._meta.fields
+#                     if field.get_tag('viewable') and not is_hidden(field)
+#            ]
 
 
 _log_levels = {
@@ -247,11 +247,11 @@ def mod(integer, integer2):
     return integer % integer2
 
 
-@register.filter(name='xrange')
-def x_range(integer, start=0):
-    warnings.warn('The template filter "|xrange" is deprecated ; use "|range" instead.', DeprecationWarning)
-
-    return range(start, start + integer)
+# @register.filter(name='xrange')
+# def x_range(integer, start=0):
+#     warnings.warn('The template filter "|xrange" is deprecated ; use "|range" instead.', DeprecationWarning)
+#
+#     return range(start, start + integer)
 
 
 @register.filter(name='range')
@@ -287,13 +287,13 @@ def uca_sort(iterable):
     return strs
 
 
-@register.filter
-def allowed_unicode(entity, user):
-    warnings.warn('The template filter "|allowed_unicode" is deprecated ; use "|allowed_str" instead.',
-                  DeprecationWarning
-                 )
-
-    return entity.allowed_unicode(user)
+# @register.filter
+# def allowed_unicode(entity, user):
+#     warnings.warn('The template filter "|allowed_unicode" is deprecated ; use "|allowed_str" instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     return entity.allowed_unicode(user)
 
 
 # NB: really useful ? {% widget_entity_hyperlink %} seems always used instead...

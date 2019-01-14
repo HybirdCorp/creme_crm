@@ -19,7 +19,7 @@
 ################################################################################
 
 from itertools import chain
-import warnings
+# import warnings
 
 from django.contrib.auth import get_user_model
 from django.db.models.fields import FieldDoesNotExist
@@ -38,52 +38,52 @@ from creme.creme_core.utils import get_ct_or_404
 from .decorators import jsonify
 
 
-@login_required
-@jsonify
-def json_list_enumerable(request, ct_id):
-    warnings.warn('creme_core.views.enumerable.json_list_enumerable() is deprecated ; '
-                  'use ChoicesView instead.',
-                  DeprecationWarning
-                 )
-
-    from django.contrib.contenttypes.models import ContentType
-
-    from creme.creme_core.enumerators import EntityFilterEnumerator
-    from creme.creme_core.models import EntityFilter
-    from creme.creme_core.utils import build_ct_choices, creme_entity_content_types
-    from creme.creme_core.utils.unicode_collation import collator
-
-    from creme.creme_config.registry import config_registry, NotRegisteredInConfig
-
-    ct = get_ct_or_404(ct_id)
-    model = ct.model_class()
-
-    if issubclass(model, EntityFilter):
-        sort_key = collator.sort_key
-        choices = list(map(EntityFilterEnumerator.efilter_as_dict, EntityFilter.objects.all()))
-        choices.sort(key=lambda d: sort_key(d['group'] + d['label']))
-
-        return choices
-
-    if model is ContentType:
-        # NB: we are sure that entities' ContentTypes are user-friendly.
-        #     Currently, only the form for EntityFilters on reports.Report
-        #     uses it, & it needs only entities ctypes (EDIT: not true since
-        #     choices() is used instead of this deprecated view).
-        return build_ct_choices(creme_entity_content_types())
-
-    if not issubclass(model, get_user_model()):
-        app_name = ct.app_label
-
-        if not request.user.has_perm(app_name):
-            raise Http404("You are not allowed to access to the app '{}'".format(app_name))
-
-        try:
-            config_registry.get_app(app_name).get_model_conf(model=model)
-        except (KeyError, NotRegisteredInConfig) as e:
-            raise Http404('Content type is not registered in config') from e
-
-    return [(e.id, str(e)) for e in model.objects.all()]
+# @login_required
+# @jsonify
+# def json_list_enumerable(request, ct_id):
+#     warnings.warn('creme_core.views.enumerable.json_list_enumerable() is deprecated ; '
+#                   'use ChoicesView instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     from django.contrib.contenttypes.models import ContentType
+#
+#     from creme.creme_core.enumerators import EntityFilterEnumerator
+#     from creme.creme_core.models import EntityFilter
+#     from creme.creme_core.utils import build_ct_choices, creme_entity_content_types
+#     from creme.creme_core.utils.unicode_collation import collator
+#
+#     from creme.creme_config.registry import config_registry, NotRegisteredInConfig
+#
+#     ct = get_ct_or_404(ct_id)
+#     model = ct.model_class()
+#
+#     if issubclass(model, EntityFilter):
+#         sort_key = collator.sort_key
+#         choices = list(map(EntityFilterEnumerator.efilter_as_dict, EntityFilter.objects.all()))
+#         choices.sort(key=lambda d: sort_key(d['group'] + d['label']))
+#
+#         return choices
+#
+#     if model is ContentType:
+#         # NB: we are sure that entities' ContentTypes are user-friendly.
+#         #     Currently, only the form for EntityFilters on reports.Report
+#         #     uses it, & it needs only entities ctypes (EDIT: not true since
+#         #     choices() is used instead of this deprecated view).
+#         return build_ct_choices(creme_entity_content_types())
+#
+#     if not issubclass(model, get_user_model()):
+#         app_name = ct.app_label
+#
+#         if not request.user.has_perm(app_name):
+#             raise Http404("You are not allowed to access to the app '{}'".format(app_name))
+#
+#         try:
+#             config_registry.get_app(app_name).get_model_conf(model=model)
+#         except (KeyError, NotRegisteredInConfig) as e:
+#             raise Http404('Content type is not registered in config') from e
+#
+#     return [(e.id, str(e)) for e in model.objects.all()]
 
 
 # TODO: JSONView ?

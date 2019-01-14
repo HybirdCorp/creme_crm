@@ -1524,7 +1524,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         "Dict"
         self.login()
         contact = self.create_contact()
-        qfilter = {'~pk': contact.pk}
+        # qfilter = {'~pk': contact.pk}
+        qfilter = {'pk': contact.pk}
         action_url = '/persons/quickforms/from_widget/{}/'.format(contact.entity_type_id)
 
         field = CreatorEntityField(FakeContact)
@@ -1573,7 +1574,9 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         "qfilter is a dict"
         self.login()
         contact = self.create_contact()
-        field = CreatorEntityField(FakeContact, q_filter={'~pk': contact.pk})
+        contact2 = self.create_contact()
+        # field = CreatorEntityField(FakeContact, q_filter={'~pk': contact.pk})
+        field = CreatorEntityField(FakeContact, q_filter={'pk': contact2.pk})
 
         jsonified = str(contact.pk)
         self.assertEqual(jsonified, field.from_python(jsonified))
@@ -1590,7 +1593,9 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         "qfilter is a callable returning a dict"
         self.login()
         contact = self.create_contact()
-        field = CreatorEntityField(FakeContact, q_filter=lambda: {'~pk': contact.pk})
+        contact2 = self.create_contact()
+        # field = CreatorEntityField(FakeContact, q_filter=lambda: {'~pk': contact.pk})
+        field = CreatorEntityField(FakeContact, q_filter=lambda: {'pk': contact2.pk})
 
         jsonified = str(contact.pk)
         self.assertEqual(jsonified, field.from_python(jsonified))
@@ -1645,16 +1650,16 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = CreatorEntityField(FakeContact)
 
         # Set qfilter property
-        field.q_filter = ['~pk', contact.pk]
+        field.q_filter = ['pk', contact.pk]
 
         with self.assertRaises(ValueError) as error:
             field.q_filter_query()
 
-        qfilter_error = "Invalid type for q_filter (needs dict or Q): ['~pk', {}]".format(contact.id)
+        qfilter_error = "Invalid type for q_filter (needs dict or Q): ['pk', {}]".format(contact.id)
         self.assertEqual(str(error.exception), qfilter_error)
 
         # Set qfilter in constructor
-        field = CreatorEntityField(FakeContact, q_filter=['~pk', contact.pk], create_action_url=action_url)
+        field = CreatorEntityField(FakeContact, q_filter=['pk', contact.pk], create_action_url=action_url)
 
         with self.assertRaises(ValueError) as error:
             field.q_filter_query()
@@ -1675,7 +1680,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(url, field.widget.creation_url)
 
         contact = self.create_contact()
-        q_filter = {'~pk': contact.pk}
+        # q_filter = {'~pk': contact.pk}
+        q_filter = ~Q(pk=contact.pk)
         field.q_filter = q_filter
         self.assertEqual(q_filter, field.q_filter)
         self.assertEqual(q_filter, field.widget.q_filter)
@@ -1685,7 +1691,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.force_creation = True
         self.assertTrue(field.widget.creation_url)
 
-        field = CreatorEntityField(FakeContact, q_filter={'~pk': contact.pk}, required=False)
+        # field = CreatorEntityField(FakeContact, q_filter={'~pk': contact.pk}, required=False)
+        field = CreatorEntityField(FakeContact, q_filter=~Q(pk=contact.pk), required=False)
         field.user = user
         self.assertEqual('', field.widget.creation_url)
 
@@ -1828,8 +1835,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             field = CreatorEntityField(FakeContact)
 
         field.user = user
-        field.q_filter = {'~pk': contact.pk}
-        self.assertFieldValidationError(CreatorEntityField, 'doesnotexist', field.clean, str(contact.pk))
+        # field.q_filter = {'~pk': contact.pk}
+        # self.assertFieldValidationError(CreatorEntityField, 'doesnotexist', field.clean, str(contact.pk))
 
         field.q_filter = {'pk': contact.pk}
         self.assertEqual(contact, field.clean(str(contact.pk)))
@@ -1926,8 +1933,8 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_qfilter(self):
         self.login()
         contact = self.create_contact()
-        qfilter = {'~pk': contact.pk}
-        # action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+        # qfilter = {'~pk': contact.pk}
+        qfilter = {'pk': contact.pk}
         action_url = '/persons/quickforms/from_widget/{}/'.format(contact.entity_type_id)
 
         field = MultiCreatorEntityField(FakeContact)
@@ -1947,7 +1954,8 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact2 = self.create_contact()
         contact3 = self.create_contact()
 
-        field = MultiCreatorEntityField(FakeContact, q_filter={'~pk': contact1.id})
+        # field = MultiCreatorEntityField(FakeContact, q_filter={'~pk': contact1.id})
+        field = MultiCreatorEntityField(FakeContact, q_filter=~Q(pk=contact1.id))
 
         jsonified = json_dump([contact1.id, contact2.id, contact3.id])
         self.assertEqual(jsonified, field.from_python(jsonified))
@@ -1992,15 +2000,15 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         action_url = '/persons/quickforms/from_widget/{}/'.format(contact.entity_type_id)
 
         field = MultiCreatorEntityField(FakeContact)
-        field.q_filter = ['~pk', contact.pk]
+        field.q_filter = ['pk', contact.pk]
 
         with self.assertRaises(ValueError) as error:
             field.q_filter_query
 
-        qfilter_error = "Invalid type for q_filter (needs dict or Q): ['~pk', {}]".format(contact.id)
+        qfilter_error = "Invalid type for q_filter (needs dict or Q): ['pk', {}]".format(contact.id)
         self.assertEqual(str(error.exception), qfilter_error)
 
-        field = MultiCreatorEntityField(FakeContact, q_filter=['~pk', contact.pk], create_action_url=action_url)
+        field = MultiCreatorEntityField(FakeContact, q_filter=['pk', contact.pk], create_action_url=action_url)
 
         with self.assertRaises(ValueError) as error:
             field.q_filter_query
@@ -2086,7 +2094,8 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         with self.assertNumQueries(0):
             field = MultiCreatorEntityField(FakeContact)
-            field.q_filter = {'~pk': contact.pk}
+            # field.q_filter = {'~pk': contact.pk}
+            field.q_filter = ~Q(pk=contact.pk)
 
         field.user = user
         self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist',

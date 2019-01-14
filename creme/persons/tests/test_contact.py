@@ -693,136 +693,136 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         ct = ContentType.objects.get_for_model(Contact)
         return reverse('creme_core__quick_form', args=(ct.id,))
 
-    def test_quickforms01(self):  # DEPRECATED
-        "2 Contacts created"
-        user = self.login()
-
-        contact_count = Contact.objects.count()
-        orga_count = Organisation.objects.count()
-
-        models = set(quickforms_registry.iter_models())
-        self.assertIn(Contact, models)
-        self.assertIn(Organisation, models)
-
-        data = [('Faye', 'Valentine'), ('Spike', 'Spiegel')]
-
-        url = self._build_quickforms_url(len(data))
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            orga_f = response.context['formset'][0].fields['organisation']
-
-        self.assertEqual(_('If no organisation is found, a new one will be created.'),
-                         orga_f.help_text
-                        )
-        self.assertIsInstance(orga_f.widget, TextInput)
-        self.assertFalse(isinstance(orga_f.widget, Label))
-        self.assertFalse(orga_f.initial)
-
-        response = self.client.post(url, data={'form-TOTAL_FORMS':   len(data),
-                                               'form-INITIAL_FORMS': 0,
-                                               'form-MAX_NUM_FORMS': '',
-                                               'form-0-user':        user.id,
-                                               'form-0-first_name':  data[0][0],
-                                               'form-0-last_name':   data[0][1],
-                                               'form-1-user':        user.id,
-                                               'form-1-first_name':  data[1][0],
-                                               'form-1-last_name':   data[1][1],
-                                              }
-                                   )
-        self.assertNoFormError(response)
-
-        self.assertEqual(contact_count + 2, Contact.objects.count())
-        self.assertEqual(orga_count, Organisation.objects.count())
-
-        for first_name, last_name in data:
-            self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-
-    @skipIfCustomOrganisation
-    def test_quickforms02(self):  # DEPRECATED
-        "2 Contacts & 1 Organisation created"
-        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
-        count = Contact.objects.count()
-
-        create_sc = partial(SetCredentials.objects.create, role=self.role,
-                            set_type=SetCredentials.ESET_OWN,
-                           )
-        create_sc(value=EntityCredentials.VIEW)
-        create_sc(value=EntityCredentials.LINK)
-
-        orga_name = 'Bebop'
-        self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
-        existing_orga = Organisation.objects.create(user=self.other_user, name=orga_name)  # Not viewable
-
-        data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
-        response = self.client.post(self._build_quickforms_url(len(data)),
-                                    data={'form-TOTAL_FORMS':      len(data),
-                                          'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    '',
-                                          'form-0-user':           self.user.id,
-                                          'form-0-first_name':     data[0][0],
-                                          'form-0-last_name':      data[0][1],
-                                          'form-0-organisation':   data[0][2],
-                                          'form-1-user':           self.user.id,
-                                          'form-1-first_name':     data[1][0],
-                                          'form-1-last_name':      data[1][1],
-                                          'form-1-organisation':   data[1][2],
-                                         }
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(count + 2, Contact.objects.count())
-
-        orgas = Organisation.objects.filter(name=orga_name)
-        self.assertEqual(2, len(orgas))
-
-        created_orga = next(o for o in orgas if o != existing_orga)
-
-        for first_name, last_name, orga_name in data:
-            contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-            self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, created_orga)
-
-    @skipIfCustomOrganisation
-    def test_quickforms03(self):  # DEPRECATED
-        "2 Contacts created and link with an existing Organisation"
-        user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
-        count = Contact.objects.count()
-
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
-
-        orga_name = 'Bebop'
-        self.assertFalse(Organisation.objects.filter(name=orga_name))
-
-        create_orga = partial(Organisation.objects.create, name=orga_name)
-        orga1 = create_orga(user=user)
-        orga2 = create_orga(user=self.other_user)  # This one cannot be seen by user
-
-        data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
-        response = self.client.post(self._build_quickforms_url(len(data)),
-                                    data={'form-TOTAL_FORMS':      len(data),
-                                          'form-INITIAL_FORMS':    0,
-                                          'form-MAX_NUM_FORMS':    '',
-                                          'form-0-user':           user.id,
-                                          'form-0-first_name':     data[0][0],
-                                          'form-0-last_name':      data[0][1],
-                                          'form-0-organisation':   data[0][2],
-                                          'form-1-user':           user.id,
-                                          'form-1-first_name':     data[1][0],
-                                          'form-1-last_name':      data[1][1],
-                                          'form-1-organisation':   data[1][2],
-                                         }
-                                    )
-        self.assertNoFormError(response)
-
-        self.assertEqual(count + 2, Contact.objects.count())
-        self.assertEqual(2, Organisation.objects.filter(name=orga_name).count())
-
-        for first_name, last_name, orga_name in data:
-            contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-            self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
-            self.assertRelationCount(0, contact, REL_SUB_EMPLOYED_BY, orga2)
+    # def test_quickforms01(self):
+    #     "2 Contacts created"
+    #     user = self.login()
+    #
+    #     contact_count = Contact.objects.count()
+    #     orga_count = Organisation.objects.count()
+    #
+    #     models = set(quickforms_registry.iter_models())
+    #     self.assertIn(Contact, models)
+    #     self.assertIn(Organisation, models)
+    #
+    #     data = [('Faye', 'Valentine'), ('Spike', 'Spiegel')]
+    #
+    #     url = self._build_quickforms_url(len(data))
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         orga_f = response.context['formset'][0].fields['organisation']
+    #
+    #     self.assertEqual(_('If no organisation is found, a new one will be created.'),
+    #                      orga_f.help_text
+    #                     )
+    #     self.assertIsInstance(orga_f.widget, TextInput)
+    #     self.assertFalse(isinstance(orga_f.widget, Label))
+    #     self.assertFalse(orga_f.initial)
+    #
+    #     response = self.client.post(url, data={'form-TOTAL_FORMS':   len(data),
+    #                                            'form-INITIAL_FORMS': 0,
+    #                                            'form-MAX_NUM_FORMS': '',
+    #                                            'form-0-user':        user.id,
+    #                                            'form-0-first_name':  data[0][0],
+    #                                            'form-0-last_name':   data[0][1],
+    #                                            'form-1-user':        user.id,
+    #                                            'form-1-first_name':  data[1][0],
+    #                                            'form-1-last_name':   data[1][1],
+    #                                           }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     self.assertEqual(contact_count + 2, Contact.objects.count())
+    #     self.assertEqual(orga_count, Organisation.objects.count())
+    #
+    #     for first_name, last_name in data:
+    #         self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+    #
+    # @skipIfCustomOrganisation
+    # def test_quickforms02(self):
+    #     "2 Contacts & 1 Organisation created"
+    #     self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+    #     count = Contact.objects.count()
+    #
+    #     create_sc = partial(SetCredentials.objects.create, role=self.role,
+    #                         set_type=SetCredentials.ESET_OWN,
+    #                        )
+    #     create_sc(value=EntityCredentials.VIEW)
+    #     create_sc(value=EntityCredentials.LINK)
+    #
+    #     orga_name = 'Bebop'
+    #     self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
+    #     existing_orga = Organisation.objects.create(user=self.other_user, name=orga_name)  # Not viewable
+    #
+    #     data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
+    #     response = self.client.post(self._build_quickforms_url(len(data)),
+    #                                 data={'form-TOTAL_FORMS':      len(data),
+    #                                       'form-INITIAL_FORMS':    0,
+    #                                       'form-MAX_NUM_FORMS':    '',
+    #                                       'form-0-user':           self.user.id,
+    #                                       'form-0-first_name':     data[0][0],
+    #                                       'form-0-last_name':      data[0][1],
+    #                                       'form-0-organisation':   data[0][2],
+    #                                       'form-1-user':           self.user.id,
+    #                                       'form-1-first_name':     data[1][0],
+    #                                       'form-1-last_name':      data[1][1],
+    #                                       'form-1-organisation':   data[1][2],
+    #                                      }
+    #                                )
+    #     self.assertNoFormError(response)
+    #     self.assertEqual(count + 2, Contact.objects.count())
+    #
+    #     orgas = Organisation.objects.filter(name=orga_name)
+    #     self.assertEqual(2, len(orgas))
+    #
+    #     created_orga = next(o for o in orgas if o != existing_orga)
+    #
+    #     for first_name, last_name, orga_name in data:
+    #         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+    #         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, created_orga)
+    #
+    # @skipIfCustomOrganisation
+    # def test_quickforms03(self):
+    #     "2 Contacts created and link with an existing Organisation"
+    #     user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+    #     count = Contact.objects.count()
+    #
+    #     SetCredentials.objects.create(role=self.role,
+    #                                   value=EntityCredentials.VIEW | EntityCredentials.LINK,
+    #                                   set_type=SetCredentials.ESET_OWN,
+    #                                  )
+    #
+    #     orga_name = 'Bebop'
+    #     self.assertFalse(Organisation.objects.filter(name=orga_name))
+    #
+    #     create_orga = partial(Organisation.objects.create, name=orga_name)
+    #     orga1 = create_orga(user=user)
+    #     orga2 = create_orga(user=self.other_user)  # This one cannot be seen by user
+    #
+    #     data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
+    #     response = self.client.post(self._build_quickforms_url(len(data)),
+    #                                 data={'form-TOTAL_FORMS':      len(data),
+    #                                       'form-INITIAL_FORMS':    0,
+    #                                       'form-MAX_NUM_FORMS':    '',
+    #                                       'form-0-user':           user.id,
+    #                                       'form-0-first_name':     data[0][0],
+    #                                       'form-0-last_name':      data[0][1],
+    #                                       'form-0-organisation':   data[0][2],
+    #                                       'form-1-user':           user.id,
+    #                                       'form-1-first_name':     data[1][0],
+    #                                       'form-1-last_name':      data[1][1],
+    #                                       'form-1-organisation':   data[1][2],
+    #                                      }
+    #                                 )
+    #     self.assertNoFormError(response)
+    #
+    #     self.assertEqual(count + 2, Contact.objects.count())
+    #     self.assertEqual(2, Organisation.objects.filter(name=orga_name).count())
+    #
+    #     for first_name, last_name, orga_name in data:
+    #         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+    #         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
+    #         self.assertRelationCount(0, contact, REL_SUB_EMPLOYED_BY, orga2)
 
     def test_quickform01(self):
         "1 Contact"

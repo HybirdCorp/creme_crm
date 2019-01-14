@@ -18,47 +18,47 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import chain
-from json import dumps as json_dump
-import warnings
-
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
-
-
-def inner_popup(request, template, template_dict, is_valid=True, html=None,
-                callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
-    warnings.warn('creme_core.views.generic.popup.inner_popup() is deprecated ; '
-                  'use a class-based view (eg: generic.add.CremeModelCreationPopup) instead.',
-                  DeprecationWarning
-                 )
-
-    template_dict['is_inner_popup'] = True
-
-    GET = request.GET
-    POST = request.POST
-
-    tpl_persist = {persist_key: POST.getlist(persist_key) + GET.getlist(persist_key)
-                        for persist_key in chain(POST.getlist('persist'),
-                                                 GET.getlist('persist'),
-                                                )
-                  }
-    template_dict['persisted'] = tpl_persist
-    html = mark_safe(html) if html else render_to_string(template, template_dict, request=request, *args, **kwargs)
-
-    return HttpResponse(render_to_string('creme_core/generics/inner_popup.html',
-                                         {'html':            html,
-                                          'from_url':        request.path,
-                                          'is_valid':        is_valid,
-                                          'whoami':          POST.get('whoami') or GET.get('whoami'),
-                                          'callback_url':    callback_url,
-                                          'reload':          json_dump(reload),  # TODO: use '|jsonify' ?
-                                          'persisted':       tpl_persist,
-                                          'delegate_reload': delegate_reload,
-                                         },
-                                         request=request,
-                                         *args, **kwargs
-                                        ),
-                        content_type='text/html',
-                       )
+# from itertools import chain
+# from json import dumps as json_dump
+# import warnings
+#
+# from django.http import HttpResponse
+# from django.template.loader import render_to_string
+# from django.utils.safestring import mark_safe
+#
+#
+# def inner_popup(request, template, template_dict, is_valid=True, html=None,
+#                 callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
+#     warnings.warn('creme_core.views.generic.popup.inner_popup() is deprecated ; '
+#                   'use a class-based view (eg: generic.add.CremeModelCreationPopup) instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     template_dict['is_inner_popup'] = True
+#
+#     GET = request.GET
+#     POST = request.POST
+#
+#     tpl_persist = {persist_key: POST.getlist(persist_key) + GET.getlist(persist_key)
+#                         for persist_key in chain(POST.getlist('persist'),
+#                                                  GET.getlist('persist'),
+#                                                 )
+#                   }
+#     template_dict['persisted'] = tpl_persist
+#     html = mark_safe(html) if html else render_to_string(template, template_dict, request=request, *args, **kwargs)
+#
+#     return HttpResponse(render_to_string('creme_core/generics/inner_popup.html',
+#                                          {'html':            html,
+#                                           'from_url':        request.path,
+#                                           'is_valid':        is_valid,
+#                                           'whoami':          POST.get('whoami') or GET.get('whoami'),
+#                                           'callback_url':    callback_url,
+#                                           'reload':          json_dump(reload),  # TODO: use '|jsonify' ?
+#                                           'persisted':       tpl_persist,
+#                                           'delegate_reload': delegate_reload,
+#                                          },
+#                                          request=request,
+#                                          *args, **kwargs
+#                                         ),
+#                         content_type='text/html',
+#                        )

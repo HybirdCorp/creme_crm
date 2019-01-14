@@ -222,6 +222,7 @@ QUnit.test('creme.detailview.brick.detailview-restore', function(assert) {
     deepEqual(['mock/restore-redir'], this.mockRedirectCalls());
 });
 
+/*
 QUnit.test('creme.relations.addRelationTo (multiple)', function(assert) {
     creme.relations.addRelationTo('74', 'rtypes.1', '5', {
         multiple: true
@@ -246,7 +247,9 @@ QUnit.test('creme.relations.addRelationTo (multiple)', function(assert) {
         ['POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 });
+*/
 
+/*
 QUnit.test('creme.relations.addRelationTo (no select url)', function(assert) {
     $('body').removeAttr('data-select-relations-objects-url');
 
@@ -257,7 +260,9 @@ QUnit.test('creme.relations.addRelationTo (no select url)', function(assert) {
 
     deepEqual([], this.mockBackendUrlCalls('mock/relation/selector'));
 });
+*/
 
+/*
 QUnit.test('creme.relations.addRelationTo (no addto url)', function(assert) {
     $('body').removeAttr('data-save-relations-url');
 
@@ -268,5 +273,6 @@ QUnit.test('creme.relations.addRelationTo (no addto url)', function(assert) {
 
     deepEqual([], this.mockBackendUrlCalls('mock/relation/selector'));
 });
+*/
 
 }(jQuery));

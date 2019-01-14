@@ -18,16 +18,14 @@ urlpatterns = [
     url(r'^tests/contact/edit/(?P<contact_id>\d+)[/]?$', fake_views.FakeContactEdition.as_view(),  name='creme_core__edit_fake_contact'),
     url(r'^tests/contact/(?P<contact_id>\d+)[/]?$',      fake_views.FakeContactDetail.as_view(),   name='creme_core__view_fake_contact'),
 
-    # NB: keep legacy views until Creme 2.1
-    # TODO: remove tests for legacy views when these views are converted to new Class-Bases Views
-    url(r'^tests/organisations[/]?$',                      fake_views.organisation_listview,   name='creme_core__list_fake_organisations'),
-    url(r'^tests/organisation/add[/]?$',                   fake_views.organisation_add,        name='creme_core__create_fake_organisation'),
-    url(r'^tests/organisation/edit/(?P<orga_id>\d+)[/]?$', fake_views.organisation_edit,       name='creme_core__edit_fake_organisation'),
-    url(r'^tests/organisation/(?P<orga_id>\d+)[/]?$',      fake_views.organisation_detailview, name='creme_core__view_fake_organisation'),
+    url(r'^tests/organisations[/]?$',                      fake_views.organisation_listview,              name='creme_core__list_fake_organisations'),
+    url(r'^tests/organisation/add[/]?$',                   fake_views.FakeOrganisationCreation.as_view(), name='creme_core__create_fake_organisation'),
+    url(r'^tests/organisation/edit/(?P<orga_id>\d+)[/]?$', fake_views.FakeOrganisationEdition.as_view(),  name='creme_core__edit_fake_organisation'),
+    url(r'^tests/organisation/(?P<orga_id>\d+)[/]?$',      fake_views.FakeOrganisationDetail.as_view(),   name='creme_core__view_fake_organisation'),
 
-    url(r'^tests/address/legacy_add/(?P<entity_id>\d+)[/]?$',   fake_views.address_add,                   name='creme_core__create_fake_address_legacy'),
+    # url(r'^tests/address/legacy_add/(?P<entity_id>\d+)[/]?$',   fake_views.address_add,                   name='creme_core__create_fake_address_legacy'),
     url(r'^tests/address/add/(?P<entity_id>\d+)[/]?$',          fake_views.FakeAddressCreation.as_view(), name='creme_core__create_fake_address'),
-    url(r'^tests/address/legacy_edit/(?P<address_id>\d+)[/]?$', fake_views.address_edit,                  name='creme_core__edit_fake_address_legacy'),
+    # url(r'^tests/address/legacy_edit/(?P<address_id>\d+)[/]?$', fake_views.address_edit,                  name='creme_core__edit_fake_address_legacy'),
     url(r'^tests/address/edit/(?P<address_id>\d+)[/]?$',        fake_views.FakeAddressEdition.as_view(),  name='creme_core__edit_fake_address'),
 
     url(r'^tests/activities[/]?$', fake_views.activity_listview, name='creme_core__list_fake_activities'),

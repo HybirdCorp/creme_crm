@@ -21,7 +21,7 @@
 from collections import defaultdict
 import logging
 import uuid
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, UUIDField, CharField, BooleanField, ForeignKey, PROTECT
@@ -41,21 +41,21 @@ logger = logging.getLogger(__name__)
 _SEARCH_FIELD_MAX_LENGTH = 200
 
 
-class EntityAction:
-    def __init__(self, url, text, is_allowed, attrs=None, icon=None, verbose=None):
-        from django.forms.utils import flatatt
-        from django.utils.safestring import mark_safe
-
-        warnings.warn('creme_core.models.entity.EntityAction is deprecated ; '
-                      'use creme_core.gui.actions.UIAction and actions_registry mechanism instead.',
-                      DeprecationWarning
-                     )
-        self.url = url
-        self.text = text
-        self.verbose = verbose or text
-        self.attrs = mark_safe(flatatt(attrs or {}))
-        self.icon = icon
-        self.is_allowed = is_allowed
+# class EntityAction:
+#     def __init__(self, url, text, is_allowed, attrs=None, icon=None, verbose=None):
+#         from django.forms.utils import flatatt
+#         from django.utils.safestring import mark_safe
+#
+#         warnings.warn('creme_core.models.entity.EntityAction is deprecated ; '
+#                       'use creme_core.gui.actions.UIAction and actions_registry mechanism instead.',
+#                       DeprecationWarning
+#                      )
+#         self.url = url
+#         self.text = text
+#         self.verbose = verbose or text
+#         self.attrs = mark_safe(flatatt(attrs or {}))
+#         self.icon = icon
+#         self.is_allowed = is_allowed
 
 
 class CremeEntity(CremeModel):
@@ -131,12 +131,12 @@ class CremeEntity(CremeModel):
 
         return str(real_entity)
 
-    def allowed_unicode(self, user):
-        warnings.warn('CremeEntity.allowed_unicode() is deprecated ; use allowed_str() instead.',
-                      DeprecationWarning
-                     )
-
-        return self.allowed_str(user)
+    # def allowed_unicode(self, user):
+    #     warnings.warn('CremeEntity.allowed_unicode() is deprecated ; use allowed_str() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return self.allowed_str(user)
 
     def allowed_str(self, user):
         return str(self) if user.has_perm_to_view(self) else \
@@ -298,17 +298,17 @@ class CremeEntity(CremeModel):
     def get_entity_summary(self, user):
         return escape(self.allowed_str(user))
 
-    def get_entity_m2m_summary(self, user):
-        """Return a string summary useful for list (ie: <ul><li>) representation."""
-        warnings.warn("CremeEntity.get_entity_m2m_summary() method is deprecated ; "
-                      "use CremeEntity.get_entity_summary() instead",
-                      DeprecationWarning
-                     )
-
-        if not user.has_perm_to_view(self):
-            return self.allowed_str(user)
-
-        return '<a target="_blank" href="{}">{}</a>'.format(self.get_absolute_url(), escape(str(self)))
+    # def get_entity_m2m_summary(self, user):
+    #     """Return a string summary useful for list (ie: <ul><li>) representation."""
+    #     warnings.warn("CremeEntity.get_entity_m2m_summary() method is deprecated ; "
+    #                   "use CremeEntity.get_entity_summary() instead",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     if not user.has_perm_to_view(self):
+    #         return self.allowed_str(user)
+    #
+    #     return '<a target="_blank" href="{}">{}</a>'.format(self.get_absolute_url(), escape(str(self)))
 
     def get_custom_fields_n_values(self):
         # TODO: in a staticmethod of CustomField ??
