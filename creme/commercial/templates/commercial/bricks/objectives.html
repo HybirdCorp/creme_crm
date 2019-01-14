@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks commercial_tags %}
+{% load i18n creme_core_tags creme_widgets creme_bricks creme_ctype %}{# commercial_tags #}
 
 {% block brick_extra_class %}{{block.super}} commercial-objectives-brick{% endblock %}
 
@@ -41,7 +41,8 @@
                 {% with efilter=objective.filter %}
                     {{objective.get_count}} ({{ctype}}{% if efilter %} / {{efilter}}{% endif %})
 
-                    {% if not efilter and ctype|has_quickform %}
+{#                    {% if not efilter and ctype|has_quickform %} #}
+                    {% if not efilter and ctype|ctype_has_quickform %}
                         {% has_perm_to create ctype as creation_perm %}{% has_perm_to link ctype.model_class as link_perm2 %}
                         {% url 'commercial__create_entity_from_objective' objective.id as create_entity_url %}
                         {% brick_table_action id='add' url=create_entity_url label=ctype.model_class.creation_label display='both' enabled=link_perm|and_op:creation_perm|and_op:link_perm2 %}

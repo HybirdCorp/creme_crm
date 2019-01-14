@@ -81,7 +81,7 @@ def ctype_counted_instances_label(ctype, count):
         {% ctype_counted_instances_label ctype=contact_ctype count=12 as my_label %}
         <h1>{{my_label}}</h1>
     """
-    return _(u'{count} {model}').format(
+    return _('{count} {model}').format(
         count=count,
         model=get_model_verbose_name(model=ctype.model_class(), count=count),
     )
@@ -115,3 +115,9 @@ def ctype_can_be_mass_imported(ctype):
     """
     from ..gui.mass_import import import_form_registry
     return import_form_registry.is_registered(ctype)
+
+
+@register.filter
+def ctype_has_quickform(ctype):
+    from ..gui.quick_forms import quickforms_registry
+    return quickforms_registry.get_form(ctype.model_class()) is not None
