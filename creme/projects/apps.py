@@ -46,13 +46,21 @@ class ProjectsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.ProjectExtraInfoBrick,
-                                bricks.TaskExtraInfoBrick,
-                                bricks.ProjectTasksBrick,
-                                bricks.TaskResourcesBrick,
-                                bricks.TaskActivitiesBrick,
-                                bricks.ParentTasksBrick,
-                               )
+        brick_registry.register(
+            bricks.ProjectExtraInfoBrick,
+            bricks.TaskExtraInfoBrick,
+            bricks.ProjectTasksBrick,
+            bricks.TaskResourcesBrick,
+            bricks.TaskActivitiesBrick,
+            bricks.ParentTasksBrick,
+        )
+
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        register_model = config_registry.register_model
+        register_model(models.ProjectStatus, 'projectstatus')
+        register_model(models.TaskStatus,    'taskstatus')
 
     def register_icons(self, icon_registry):
         from .models import Resource

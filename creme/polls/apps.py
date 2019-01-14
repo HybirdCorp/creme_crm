@@ -59,6 +59,11 @@ class PollsConfig(CremeAppConfig):
                                      )
         bulk_update_registry.register(PollFormLine, exclude=['type'])
 
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        config_registry.register_model(models.PollType, 'poll_type')
+
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register
         reg_icon(self.PollForm,     'images/poll_%(size)s.png')

@@ -49,19 +49,20 @@ class CommercialConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.ApproachesBrick,
-                                bricks.SegmentsBrick,
-                                bricks.SegmentDescriptionsBrick,
-                                bricks.AssetsBrick,
-                                bricks.CharmsBrick,
-                                bricks.EvaluatedOrgasBrick,
-                                bricks.AssetsMatrixBrick,
-                                bricks.CharmsMatrixBrick,
-                                bricks.AssetsCharmsMatrixBrick,
-                                bricks.ActObjectivesBrick,
-                                bricks.RelatedOpportunitiesBrick,
-                                bricks.PatternComponentsBrick,
-                               )
+        brick_registry.register(
+            bricks.ApproachesBrick,
+            bricks.SegmentsBrick,
+            bricks.SegmentDescriptionsBrick,
+            bricks.AssetsBrick,
+            bricks.CharmsBrick,
+            bricks.EvaluatedOrgasBrick,
+            bricks.AssetsMatrixBrick,
+            bricks.CharmsMatrixBrick,
+            bricks.AssetsCharmsMatrixBrick,
+            bricks.ActObjectivesBrick,
+            bricks.RelatedOpportunitiesBrick,
+            bricks.PatternComponentsBrick,
+        )
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import ActObjectivePatternComponent, MarketSegmentDescription
@@ -74,6 +75,11 @@ class CommercialConfig(CremeAppConfig):
         from . import buttons
 
         button_registry.register(buttons.CompleteGoalButton)
+
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        config_registry.register_model(models.ActType, 'act_type')
 
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register

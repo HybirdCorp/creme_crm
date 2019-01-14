@@ -43,6 +43,11 @@ class EventsConfig(CremeAppConfig):
         brick_registry.register(bricks.ResutsBrick)
         brick_registry.register_hat(self.Event, main_brick_cls=bricks.EventBarHatBrick)
 
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        config_registry.register_model(models.EventType, 'event_type')
+
     def register_icons(self, icon_registry):
         icon_registry.register(self.Event, 'images/event_%(size)s.png')
 

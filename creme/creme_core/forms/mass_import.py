@@ -40,6 +40,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.documents import get_document_model
 
+from creme.creme_config.registry import config_registry, NotRegisteredInConfig
+
 from ..backends import import_backend_registry
 from ..gui.mass_import import import_form_registry
 from ..models import (CremePropertyType, CremeProperty,
@@ -309,13 +311,13 @@ class ExtractorField(Field):
         remote_field = self._modelfield.remote_field
 
         if remote_field:
-            from creme.creme_config.registry import config_registry, NotRegisteredInConfig
             model = remote_field.model
             creation_perm = False
             app_name = model._meta.app_label
 
             try:
-                config_registry.get_app(app_name).get_model_conf(model=model)
+                # config_registry.get_app(app_name).get_model_conf(model=model)
+                config_registry.get_app_registry(app_name).get_model_conf(model=model)
             except (KeyError, NotRegisteredInConfig):
                 pass
             else:

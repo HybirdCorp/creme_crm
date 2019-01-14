@@ -37,14 +37,23 @@ class GeolocationConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.GoogleDetailMapBrick,
-                                bricks.GoogleFilteredMapBrick,
-                                bricks.GoogleNeighboursMapBrick,
-                               )
+        brick_registry.register(
+            bricks.GoogleDetailMapBrick,
+            bricks.GoogleFilteredMapBrick,
+            bricks.GoogleNeighboursMapBrick,
+        )
+
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        register_model = config_registry.register_model
+        register_model(models.Town,       'town')
+        register_model(models.GeoAddress, 'geoaddress')
 
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 
-        setting_key_registry.register(setting_keys.NEIGHBOURHOOD_DISTANCE,
-                                      setting_keys.GOOGLE_API_KEY,
-                                     )
+        setting_key_registry.register(
+            setting_keys.NEIGHBOURHOOD_DISTANCE,
+            setting_keys.GOOGLE_API_KEY,
+        )

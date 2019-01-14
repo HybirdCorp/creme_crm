@@ -117,6 +117,18 @@ class BillingConfig(CremeAppConfig):
             buttons.AddInvoiceButton,
         )
 
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        register_model = config_registry.register_model
+        register_model(models.InvoiceStatus,         'invoice_status')
+        register_model(models.QuoteStatus,           'quote_status')
+        register_model(models.CreditNoteStatus,      'credit_note_status')
+        register_model(models.SalesOrderStatus,      'sales_order_status')
+        register_model(models.AdditionalInformation, 'additional_information')
+        register_model(models.PaymentTerms,          'payment_terms')
+        register_model(models.SettlementTerms,       'invoice_payment_type')
+
     def register_field_printers(self, field_printers_registry):
         from .models.fields import BillingDiscountField
 

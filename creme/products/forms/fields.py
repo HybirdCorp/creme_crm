@@ -28,6 +28,8 @@ from creme.creme_core.forms.fields import JSONField, ChoiceModelIterator
 from creme.creme_core.forms.widgets import ChainedInput, ActionButtonList
 from creme.creme_core.utils.url import TemplateURLBuilder
 
+from creme.creme_config.registry import config_registry
+
 from ..models import Category, SubCategory
 
 
@@ -146,8 +148,6 @@ class CategoryField(JSONField):
         self._update_creation_info()
 
     def _update_creation_info(self):
-        from creme.creme_config.registry import config_registry
-
         widget = self.widget
         widget.creation_url, widget.creation_allowed = config_registry.get_model_creation_info(SubCategory, self.user)
 

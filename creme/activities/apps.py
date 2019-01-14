@@ -49,13 +49,14 @@ class ActivitiesConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.ParticipantsBrick,
-                                bricks.SubjectsBrick,
-                                bricks.FutureActivitiesBrick,
-                                bricks.PastActivitiesBrick,
-                                bricks.UserCalendarsBrick,
-                                bricks.RelatedCalendarBrick,
-                               )
+        brick_registry.register(
+            bricks.ParticipantsBrick,
+            bricks.SubjectsBrick,
+            bricks.FutureActivitiesBrick,
+            bricks.PastActivitiesBrick,
+            bricks.UserCalendarsBrick,
+            bricks.RelatedCalendarBrick,
+        )
         brick_registry.register_hat(self.Activity, main_brick_cls=bricks.ActivityBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
@@ -77,6 +78,21 @@ class ActivitiesConfig(CremeAppConfig):
             buttons.AddPhoneCallButton,
             buttons.AddTaskButton,
         )
+
+    def register_creme_config(self, config_registry):
+        from . import models, bricks
+        from .forms.activity_type import ActivityTypeForm, ActivitySubTypeForm
+        from .forms.calendar import CalendarConfigForm
+
+        register_model = config_registry.register_model
+        register_model(models.ActivityType, 'activity_type').creation(form_class=ActivityTypeForm) \
+                                                            .edition(form_class=ActivityTypeForm)
+        register_model(models.ActivitySubType, 'activity_sub_type').creation(form_class=ActivitySubTypeForm) \
+                                                                   .edition(form_class=ActivitySubTypeForm)
+        register_model(models.Status, 'status')
+        register_model(models.Calendar, 'calendar').creation(form_class=CalendarConfigForm)\
+                                                   .edition(form_class=CalendarConfigForm)
+        config_registry.register_user_bricks(bricks.UserCalendarsBrick)
 
     def register_icons(self, icon_registry):
         Activity = self.Activity

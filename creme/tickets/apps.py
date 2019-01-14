@@ -48,6 +48,14 @@ class TicketsConfig(CremeAppConfig):
 
         button_registry.register(buttons.Linked2TicketButton)
 
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        register_model = config_registry.register_model
+        register_model(models.Status,    'status')
+        register_model(models.Priority,  'priority')
+        register_model(models.Criticity, 'criticity')
+
     def register_function_fields(self, function_field_registry):
         from .function_fields import ResolvingDurationField
 

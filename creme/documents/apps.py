@@ -66,6 +66,13 @@ class DocumentsConfig(CremeAppConfig):
         register(self.Folder, innerforms={'parent_folder': ParentFolderBulkForm})
         register(self.Document, exclude=['filedata'])
 
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        register_model = config_registry.register_model
+        register_model(models.FolderCategory,   'category')
+        register_model(models.DocumentCategory, 'doc_category')
+
     def register_field_printers(self, field_printers_registry):
         from creme.creme_core.gui.field_printers import print_foreignkey_html, print_many2many_html
 

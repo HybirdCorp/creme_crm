@@ -15,8 +15,12 @@
 {% endblock %}
 
 {% block brick_header_actions %}
+{% comment %}
 {% url 'creme_config__create_instance' app_name model_name as create_url %}
     {% brick_header_action id='add' url=create_url label=model.creation_label|or_op:_('New value') %}
+{% endcomment %}
+    {% config_model_creation_url model_config user=user as creation_url %}
+    {% if creation_url %}{% brick_header_action id='add' url=creation_url label=model.creation_label|or_op:_('New value') %}{% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -47,8 +51,13 @@
             <td>{% print_field object=object field=f.name %}</td>
         {% endfor %}
 
-            <td {% brick_table_data_status action %}>{% url 'creme_config__edit_instance' app_name model_name object.id as edit_url %}
+            <td {% brick_table_data_status action %}>
+{% comment %}
+                {% url 'creme_config__edit_instance' app_name model_name object.id as edit_url %}
                 {% brick_table_action id='edit' url=edit_url %}
+{% endcomment %}
+                {% config_model_edition_url model_config instance=object user=user as edit_url %}
+                {% if edit_url %}{% brick_table_action id='edit' url=edit_url %}{% endif %}
             </td>
             <td {% brick_table_data_status action %}>
                 {% brick_table_action id='delete' url=delete_url __id=object.pk enabled=object|is_custom %}

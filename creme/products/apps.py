@@ -56,6 +56,15 @@ class ProductsConfig(CremeAppConfig):
                                           }
                 )
 
+    def register_creme_config(self, config_registry):
+        from . import models
+        from .forms import category
+
+        register_model = config_registry.register_model
+        register_model(models.Category,    'category')
+        register_model(models.SubCategory, 'subcategory').creation(form_class=category.SubCategoryForm) \
+                                                         .edition(form_class=category.SubCategoryForm)
+
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register
         reg_icon(self.Product, 'images/product_%(size)s.png')
