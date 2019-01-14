@@ -38,7 +38,7 @@ from creme.persons import get_contact_model
 
 from .. import get_activity_model, constants
 from ..models import ActivityType, Calendar, ActivitySubType
-from ..utils import check_activity_collisions
+from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 from ..setting_keys import form_user_messages_key
 from .activity_type import ActivityTypeField
 from .fields import UserParticipationField
@@ -290,7 +290,8 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                                   .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
                                                                   .subject_ctypes.all()
                                         ]
-        if self.instance.is_auto_orga_subject_enabled():
+        # if self.instance.is_auto_orga_subject_enabled():
+        if is_auto_orga_subject_enabled():
             subjects_field.help_text = _('The organisations of the participants will be automatically added as subjects')
 
         fields['participating_users'].queryset = get_user_model().objects.filter(is_staff=False) \

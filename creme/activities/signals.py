@@ -28,6 +28,7 @@ from creme.persons import get_organisation_model, constants as persons_constants
 
 from .constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
 from .models import Calendar
+from .utils import is_auto_orga_subject_enabled
 
 Organisation = get_organisation_model()
 
@@ -62,7 +63,8 @@ def _set_orga_as_subject(sender, instance, **kwargs):
 
     activity = instance.object_entity.get_real_entity()
 
-    if not activity.is_auto_orga_subject_enabled():
+    # if not activity.is_auto_orga_subject_enabled():
+    if not is_auto_orga_subject_enabled():
         return
 
     user = instance.user

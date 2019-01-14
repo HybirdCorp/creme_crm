@@ -34,7 +34,7 @@ from creme.persons import get_contact_model
 
 from .. import constants
 from ..models import Calendar
-from ..utils import check_activity_collisions
+from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 from .fields import UserParticipationField
 
 
@@ -68,7 +68,8 @@ class ParticipantCreateForm(CremeForm):
                                        Q(is_user__isnull=True)
         participants_field.force_creation = True  # TODO: in constructor ?
 
-        if entity.is_auto_orga_subject_enabled():
+        # if entity.is_auto_orga_subject_enabled():
+        if is_auto_orga_subject_enabled():
             participants_field.help_text = _('The organisations of the participants will '
                                              'be automatically added as subjects'
                                             )

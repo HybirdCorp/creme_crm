@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
+import warnings
 
 from django.db.models import (PositiveIntegerField, DateTimeField, CharField,
         TextField, BooleanField, ManyToManyField, ForeignKey, PROTECT, SET_NULL)
@@ -26,11 +26,11 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, SettingValue
+from creme.creme_core.models import CremeEntity  # SettingValue
 
 from ..constants import (NARROW, CREATION_LABELS,
         REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-from ..setting_keys import auto_subjects_key
+# from ..setting_keys import auto_subjects_key
 
 from .calendar import Calendar
 from .other_models import ActivityType, ActivitySubType, Status
@@ -216,9 +216,14 @@ END:VEVENT
         if source.busy:
             self.busy = False
 
-    # TODO: move to utils ?
     def is_auto_orga_subject_enabled(self):
-        return SettingValue.objects.get_4_key(auto_subjects_key, default=False).value
+        warnings.warn('AbstractActivity.is_auto_orga_subject_enabled() is deprecated ; '
+                      'use activities.utils.is_auto_orga_subject_enabled() instead.',
+                      DeprecationWarning
+                     )
+        from creme.activities.utils import is_auto_orga_subject_enabled
+
+        return is_auto_orga_subject_enabled()
 
     # @staticmethod
     # def display_review():
