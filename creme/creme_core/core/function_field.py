@@ -93,8 +93,9 @@ class FunctionField:
         """
         return self.result_type(getattr(entity, self.name)())
 
-    @classmethod
-    def populate_entities(cls, entities, user):
+    # @classmethod
+    # def populate_entities(cls, entities, user):
+    def populate_entities(self, entities, user):
         """Optimisation used for list-views ; see HeaderFilter"""
         pass
 
