@@ -18,18 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.template import Library
 
-from creme.creme_core.gui.quick_forms import quickforms_registry
+# from creme.creme_core.gui.quick_forms import quickforms_registry
 
 
 register = Library()
 
 
-# TODO: move to creme_core
 @register.filter
 def has_quickform(ctype):
-    return quickforms_registry.get_form(ctype.model_class()) is not None
+    warnings.warn('The template filter "|has_quickform" from the lib '
+                  '"commercial_tags" is deprecated ; use "|ctype_has_quickform" '
+                  'from the lib "creme_ctype" instead.',
+                  DeprecationWarning
+                 )
+
+    # return quickforms_registry.get_form(ctype.model_class()) is not None
+    from creme.creme_core.templatetags.creme_ctype import ctype_has_quickform
+    return ctype_has_quickform(ctype)
 
 
 @register.simple_tag
