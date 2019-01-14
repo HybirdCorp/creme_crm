@@ -30,3 +30,4 @@ class MobileFavorite(models.Model):
 
     class Meta:
         app_label = 'mobile'
+        unique_together = ('entity', 'user')
