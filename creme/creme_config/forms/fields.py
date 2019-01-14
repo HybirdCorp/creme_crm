@@ -24,6 +24,8 @@ from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from .widgets import CreatorModelChoiceWidget
 
+from ..registry import config_registry
+
 
 class CreatorModelChoiceMixin:
     _create_action_url = None
@@ -45,10 +47,6 @@ class CreatorModelChoiceMixin:
                 app_name = model._meta.app_label
                 allowed = user.has_perm_to_admin(app_name)
             else:
-                # config_registry import here, in order to avoid  initialisation issues :
-                # creme_config's registration could be done before the creme_core's one is over,
-                # and so fails because not all apps are registered.
-                from ..registry import config_registry
                 url, allowed = config_registry.get_model_creation_info(model, user)
 
         return url, allowed

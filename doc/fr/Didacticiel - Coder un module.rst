@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 10-01-2019 pour la version 2.0 de Creme
+:Version: 11-01-2019 pour la version 2.1 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -1018,28 +1018,42 @@ Relancez la commande pour 'peupler' : ::
     > python manage.py creme_populate beavers
 
 
-Le formulaire de création de Beaver nous propose bien ces 2 statuts. Créez
-maintenant le fichier ``beavers/creme_config_register.py`` tel que : ::
+Le formulaire de création de Beaver nous propose bien ces 2 statuts.
 
-    # -*- coding: utf-8 -*-
+Il ne reste plus qu'à indiquer à Creme de gérer ce modèle dans sa configuration.
+Il va encore une fois falloir ajouter une méthode dans notre fichier
+``beavers/apps.py`` : ::
 
-    from . import models
+    [...]
 
-    to_register = ((models.Status, 'status'),)
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_creme_config(self, config_registry):
+            from . import models
+
+            register_model(models.Status)
 
 
-Ce fichier va être chargé par le module de configuration générale de Creme,
-*creme_config*, qui va chercher une séquence de tuple (Model, Nom) dans la
-variable ``to_register``.
 Si vous allez sur le portail de la 'Configuration générale', dans le
 'Portails des applications', la section 'Portail configuration Gestion des castors'
 est bien apparue : elle nous permet bien de créer des nouveaux ``Status``.
 
-**Allons un peu loin** : vous pouvez **précisez le formulaire** à utiliser pour
-créer/modifier les statuts en 3ème paramètre du tuple, soit (Model, Nom, Formulaire),
-si celui qui est généré automatiquement ne vous convient pas. Ça pourrait être le
-cas s'il y a une contrainte métier à respecter, mais qui n'est pas exprimable via
-les contraintes habituelles des modèles (comme ``nullable``).
+**Allons un peu loin** : vous pouvez précisez les formulaire à utiliser pour
+créer ou modifier les statuts si ceux qui sont générés automatiquement ne vous
+conviennent pas. Ça pourrait être le cas s'il y a une contrainte métier à
+respecter, mais qui n'est pas exprimable via les contraintes habituelles des
+modèles (comme ``nullable``) : ::
+
+    [...]
+
+    register_model(models.Status).creation(form_class=MyStatusCreationForm) \
+                                 .edition(form_class=MyStatusEditionForm)
+
+
+Vous pouvez aussi personnaliser les URLs de création/modification (argument
+"url_name" des méthodes ``creation()/edition()``), ainsi que le bloc qui
+gère ce modèle (méthode ``brick_class()``).
 
 **Allons un peu loin** : si vous voulez que les **utilisateurs puissent choisir l'ordre**
 des statuts (dans les formulaire, dans la recherche rapide des vue de liste etc…),

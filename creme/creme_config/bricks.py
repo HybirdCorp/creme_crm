@@ -55,14 +55,18 @@ class GenericModelBrick(QuerysetBrick):
     configurable  = False
 
     # NB: credentials are OK : we are sure to use the custom reloading view because of the specific constructor.
-    def __init__(self, app_name, model_name, model):
+    # def __init__(self, app_name, model_name, model):
+    def __init__(self, app_name, model_config):
         super().__init__()
         self.app_name = app_name
-        self.model_name = model_name
-        self.model = model
+        # self.model_name = model_name
+        # self.model = model
+        self.model_config = model_config
 
     def detailview_display(self, context):
-        model = self.model
+        # model = self.model
+        model_config = self.model_config
+        model = model_config.model
         meta = model._meta
 
         # TODO: (must declare in the template what fields can be used to sort)
@@ -93,7 +97,10 @@ class GenericModelBrick(QuerysetBrick):
                     meta=meta,
 
                     app_name=self.app_name,
-                    model_name=self.model_name,
+                    model_config=model_config,
+                    # model_name=self.model_name,
+                    # TODO: remove when deletion is managed by model_conf
+                    model_name=model_config.model_name,
 
                     model_is_reorderable=is_reorderable,
                     displayable_fields=displayable_fields,

@@ -57,6 +57,11 @@ class AssistantsConfig(CremeAppConfig):
             ffields.TodosField,
         )
 
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        config_registry.register_model(models.UserMessagePriority, 'message_priority')
+
     def register_reminders(self, reminder_registry):
         from . import reminders
 

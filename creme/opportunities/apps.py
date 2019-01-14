@@ -69,6 +69,13 @@ class OpportunitiesConfig(CremeAppConfig):
 
         button_registry.register(buttons.LinkedOpportunityButton)
 
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        register_model = config_registry.register_model
+        register_model(models.Origin,     'origin')
+        register_model(models.SalesPhase, 'sales_phase')
+
     def register_function_fields(self, function_field_registry):
         from .function_fields import TurnoverField
 

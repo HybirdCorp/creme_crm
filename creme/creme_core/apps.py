@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -382,6 +382,32 @@ class CremeCoreConfig(CremeAppConfig):
         from .models.entity import CremeEntity
 
         function_field_registry.register(CremeEntity, PropertiesField)
+
+    def register_creme_config(self, config_registry):
+        from . import models
+
+        register_model = config_registry.register_model
+        register_model(models.Language, 'language')
+        register_model(models.Currency, 'currency')
+        register_model(models.Vat,      'vat_value')
+
+        if settings.TESTS_ON:
+            from .tests import fake_models, fake_bricks
+
+            # NB: see creme.creme_config.tests.test_generics_views.GenericModelConfigTestCase
+            register_model(fake_models.FakeCivility,      'fake_civility')
+            register_model(fake_models.FakeSector,        'fake_sector')
+            register_model(fake_models.FakeImageCategory, 'fake_img_cat')
+
+            # NB: we just need another URLs for creation/edition (even if these one are stupid)
+            register_model(fake_models.FakePosition, 'fake_position') \
+                          .creation(enable_func=lambda user: False) \
+                          .edition(url_name='creme_core__edit_fake_contact')
+            register_model(fake_models.FakeLegalForm, 'fake_legalform') \
+                          .creation(url_name='creme_core__create_fake_contact') \
+                          .edition(enable_func=lambda instance, user: False)
+
+            config_registry.register_app_bricks('creme_core', fake_bricks.FakeAppPortalBrick)
 
     def register_sanboxes(self, sandbox_type_registry):
         from . import sandboxes

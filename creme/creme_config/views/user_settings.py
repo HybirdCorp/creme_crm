@@ -29,6 +29,7 @@ from creme.creme_core.core.setting_key import user_setting_key_registry
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
 
+from .. import registry
 from ..forms import user_settings as settings_forms
 from ..forms.setting import UserSettingForm
 
@@ -38,15 +39,15 @@ from ..forms.setting import UserSettingForm
 class UserSettings(generic.BricksView):
     template_name = 'creme_config/user_settings.html'
 
-    def get_context_data(self, **kwargs):
-        from ..registry import config_registry
+    config_registry = registry.config_registry
 
+    def get_context_data(self, **kwargs):
         user = self.request.user
 
         context = super().get_context_data(**kwargs)
         context['theme_form'] = settings_forms.UserThemeForm(user=user, instance=user).as_span()
         context['tz_form'] = settings_forms.UserTimeZoneForm(user=user, instance=user).as_span()
-        context['apps_usersettings_bricks'] = list(config_registry.user_bricks)
+        context['apps_usersettings_bricks'] = list(self.config_registry.user_bricks)
 
         return context
 

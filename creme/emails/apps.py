@@ -103,6 +103,11 @@ class EmailsConfig(CremeAppConfig):
         reg_fields('emails', persons.get_contact_model(),      'email')
         reg_fields('emails', persons.get_organisation_model(), 'email')
 
+    def register_creme_config(self, config_registry):
+        from . import bricks
+
+        config_registry.register_user_bricks(bricks.MySignaturesBrick)
+
     def register_icons(self, icon_registry):
         from . import models
 

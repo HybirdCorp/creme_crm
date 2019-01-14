@@ -77,6 +77,18 @@ class PersonsConfig(CremeAppConfig):
             buttons.AddLinkedContactButton,
         )
 
+    def register_creme_config(self, config_registry):
+        from . import bricks, models
+
+        register_model = config_registry.register_model
+        register_model(models.Position,  'position')
+        register_model(models.Sector,    'sector')
+        register_model(models.LegalForm, 'legal_form')
+        register_model(models.StaffSize, 'staff_size')
+        register_model(models.Civility,  'civility')
+
+        config_registry.register_portal_bricks(bricks.ManagedOrganisationsBrick)
+
     def register_field_printers(self, field_printers_registry):
         from django.contrib.auth import get_user_model
 

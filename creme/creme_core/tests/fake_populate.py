@@ -34,7 +34,7 @@ def populate():
     create_pos(title='Technician')
 
     create_sector = fake_models.FakeSector.objects.create
-    create_sector(title='Food Industry')
+    create_sector(title='Farming')
     create_sector(title='Industry')
     create_sector(title='Informatic')
 

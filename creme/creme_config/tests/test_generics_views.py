@@ -5,11 +5,11 @@ try:
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.forms import CremeModelForm
-    from creme.creme_core.gui.bricks import SimpleBrick, _BrickRegistry
+    # from creme.creme_core.forms import CremeModelForm
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_bricks import FakeAppPortalBrick
-    from creme.creme_core.tests.fake_models import FakeCivility, FakeSector, FakePosition
+    from creme.creme_core.tests.fake_models import (FakeCivility, FakeSector,
+            FakePosition, FakeLegalForm)
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
@@ -25,10 +25,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         cls._sector_backup = list(FakeSector.objects.all())
         FakeSector.objects.all().delete()
 
-        # We import here in order to not launch the automatic registration before the fake bricks are registered.
-        from .. import registry
-        cls._ConfigRegistry = registry._ConfigRegistry
-        cls.NotRegisteredInConfig = registry.NotRegisteredInConfig
+        # # We import here in order to not launch the automatic registration before the fake bricks are registered.
+        # from .. import registry
+        # cls._ConfigRegistry = registry._ConfigRegistry
+        # cls.NotRegisteredInConfig = registry.NotRegisteredInConfig
 
     @classmethod
     def tearDownClass(cls):
@@ -38,128 +38,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def setUp(self):
         self.login()
-
-    def test_registry_register_model(self):
-        class SectorForm(CremeModelForm):
-            class Meta(CremeModelForm.Meta):
-                model = FakeSector
-
-        registry = self._ConfigRegistry()
-        registry.register((FakeCivility, 'civility'),
-                          (FakeSector, 'sector', SectorForm),
-                         )
-
-        with self.assertNoException():
-            app_conf = registry.get_app('creme_core')
-
-        with self.assertNoException():
-            model_conf = app_conf.get_model_conf(model=FakeCivility)
-        self.assertEqual('civility', model_conf.name_in_url)
-        self.assertIsSubclass(model_conf.model_form, CremeModelForm)
-        self.assertEqual('Test civility', model_conf.verbose_name)
-
-        with self.assertNoException():
-            model_conf = app_conf.get_model_conf(model=FakeSector)
-        self.assertIsSubclass(model_conf.model_form, SectorForm)
-
-        self.assertEqual('sector', model_conf.name_in_url)
-
-        with self.assertRaises(ValueError):
-            registry.register((FakePosition, 'my-position'))  # Invalid char '-'
-
-    def test_registry_unregister_model01(self):
-        "Unregister after the registration"
-        registry = self._ConfigRegistry()
-        registry.register((FakeCivility, 'civility'),
-                          (FakeSector, 'sector'),
-                          (FakePosition, 'position'),
-                         )
-        registry.unregister(FakeCivility, FakePosition)
-
-        with self.assertNoException():
-            app_conf = registry.get_app('creme_core')
-
-        get_model_conf = app_conf.get_model_conf
-
-        with self.assertNoException():
-            get_model_conf(model=FakeSector)
-
-        self.assertRaises(self.NotRegisteredInConfig, get_model_conf, model=FakeCivility)
-        self.assertRaises(self.NotRegisteredInConfig, get_model_conf, model=FakePosition)
-
-    def test_registry_unregister_model02(self):
-        "Unregister before the registration"
-        registry = self._ConfigRegistry()
-        registry.unregister(FakeCivility, FakePosition)
-        registry.register((FakeCivility, 'civility'),
-                          (FakeSector, 'sector'),
-                          (FakePosition, 'position'),
-                         )
-
-        with self.assertNoException():
-            app_conf = registry.get_app('creme_core')
-
-        get_model_conf = app_conf.get_model_conf
-
-        with self.assertNoException():
-            get_model_conf(model=FakeSector)
-
-        self.assertRaises(self.NotRegisteredInConfig, get_model_conf, model=FakeCivility)
-        self.assertRaises(self.NotRegisteredInConfig, get_model_conf, model=FakePosition)
-
-    def test_registry_register_bricks(self):
-        class TestBrick1(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_bricks1')
-
-        class TestBrick2(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_bricks2')
-
-        brick_registry = _BrickRegistry()
-        brick_registry.register(TestBrick1, TestBrick2)
-
-        registry = self._ConfigRegistry(brick_registry)
-        registry.register_bricks(('creme_core', TestBrick1),
-                                 ('documents',  TestBrick2),
-                                )
-
-        with self.assertNoException():
-            app_conf = registry.get_app('creme_core')
-
-        def get_brick_ids(app_conf_registry):
-            b_ids = set()
-            for brick in app_conf_registry.bricks:
-                self.assertIsInstance(brick, SimpleBrick)
-                b_ids.add(brick.id_)
-            return b_ids
-
-        brick_ids = get_brick_ids(app_conf)
-        self.assertIn(TestBrick1.id_, brick_ids)
-        self.assertNotIn(TestBrick2, brick_ids)
-
-        with self.assertNoException():
-            app_conf = registry.get_app('documents')
-
-        brick_ids = get_brick_ids(app_conf)
-        self.assertIn(TestBrick2.id_, brick_ids)
-        self.assertNotIn(TestBrick1, brick_ids)
-
-    def test_registry_register_userbricks(self):
-        class TestUserBrick1(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_userbricks1')
-
-        class TestUserBrick2(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_userbricks2')
-
-        brick_registry = _BrickRegistry()
-        brick_registry.register(TestUserBrick1, TestUserBrick2)
-
-        registry = self._ConfigRegistry(brick_registry)
-
-        registry.register_user_bricks(TestUserBrick1, TestUserBrick2)
-        bricks = list(registry.user_bricks)
-        self.assertEqual(2, len(bricks))
-        self.assertIsInstance(bricks[0], TestUserBrick1)
-        self.assertIsInstance(bricks[1], TestUserBrick2)
 
     def test_portals(self):
         response = self.assertGET200(reverse('creme_config__app_portal', args=('creme_core',)))
@@ -214,6 +92,20 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.client.post(url, data={'title': title})
         sector = self.get_object_or_fail(FakeSector, title=title)
         self.assertEqual(count + 2, sector.order)  # order is set to max
+
+    def test_add03(self):
+        "Disabled creation (see creme.creme_core.apps.CremeCoreConfig.register_creme_config())."
+        self.assertGET409(reverse('creme_config__create_instance',
+                                  args=('creme_core', 'fake_position'),
+                                 )
+                         )
+
+    def test_add04(self):
+        "Not vanilla-URL (see creme.creme_core.apps.CremeCoreConfig.register_creme_config())."
+        self.assertGET409(reverse('creme_config__create_instance',
+                                  args=('creme_core', 'fake_legalform'),
+                                 )
+                         )
 
     def assertWidgetResponse(self, response, instance):
         self.assertEqual({'added': [[instance.id, str(instance)]],
@@ -308,6 +200,23 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         new_sector = self.refresh(sector)
         self.assertEqual(title,        new_sector.title)
         self.assertEqual(sector.order, new_sector.order)
+
+    def test_edit03(self):
+        "Edition disabled (see creme.creme_core.apps.CremeCoreConfig.register_creme_config())."
+        lf = FakeLegalForm.objects.create(title='Foundation')
+        self.assertGET409(reverse('creme_config__edit_instance',
+                                  args=('creme_core', 'fake_legalform', lf.id,)
+                                 )
+                          )
+
+    def test_edit04(self):
+        "Not vanilla-URL (see creme.creme_core.apps.CremeCoreConfig.register_creme_config())."
+        position = FakePosition.objects.first()
+
+        self.assertGET409(reverse('creme_config__edit_instance',
+                                  args=('creme_core', 'fake_position', position.id),
+                                 )
+                         )
 
     def test_delete01(self):
         civ = FakeCivility.objects.create(title='Herr')

@@ -18,6 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from importlib import import_module
+import warnings
+
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -28,6 +31,78 @@ class CremeConfigConfig(CremeAppConfig):
     verbose_name = _('General configuration')
     dependencies = ['creme.creme_core']
     credentials = CremeAppConfig.CRED_REGULAR
+
+    def all_apps_ready(self):
+        super().all_apps_ready()
+
+        from .registry import config_registry
+        self.populate_config_registry(config_registry)
+
+    def populate_config_registry(self, config_registry):
+        from creme.creme_core.apps import creme_app_configs
+
+        for app_config in creme_app_configs():
+            config_registry.get_app_registry(app_config.label, create=True)
+
+            register_creme_config = getattr(app_config, 'register_creme_config', None)
+
+            if register_creme_config is not None:
+                register_creme_config(config_registry)
+            else:
+                app_name = app_config.name
+
+                try:
+                    config_registry_mod = import_module('{}.{}'.format(app_name, 'creme_config_register'))
+                except ImportError:
+                    continue
+
+                warnings.warn('The app "{}" still uses a module "creme_config_register", '
+                              'which is deprecated ; add a method "register_creme_config()" '
+                              'in the AppConfig instead.'.format(app_name),
+                              DeprecationWarning
+                             )
+
+                from django.core import checks
+
+                from .registry import NotRegisteredInConfig
+
+                for model, model_name, *forms in getattr(config_registry_mod, 'to_register', ()):
+                    model_conf = config_registry.register_model(model, model_name)
+
+                    if forms:
+                        form = forms[0]
+                        model_conf.creation(form_class=form).edition(form_class=form)
+
+                for model in getattr(config_registry_mod, 'to_unregister', ()):
+                    app_reg = config_registry.get_app_registry(model._meta.app_label, create=True)
+
+                    try:
+                        app_reg.get_model_conf(model)
+                    except NotRegisteredInConfig:
+                        @checks.register(checks.Tags.compatibility)
+                        def check_deps(app_name=app_name, model=model, **kwargs):
+                            return [
+                                checks.Error(
+                                    'The app "{}" uses the out-of-order capability when '
+                                    'un-registering the model {} ; this capability has '
+                                    'been removed.'.format(app_name, model),
+                                    hint='Fix the order of apps in the setting INSTALLED_CREME_APPS '
+                                         'in your local_settings.py/project_settings.py (ie: the '
+                                         'un-registered model must be registered _before_). '
+                                         'Then, you should use the new registration system & call '
+                                         'the method unregister_models() on the registry.',
+                                    obj=app_name,
+                                    id='creme_config.E001',
+                                ),
+                            ]
+                    else:
+                        app_reg._unregister_model(model)
+
+                for app_label, brick_cls in getattr(config_registry_mod, 'blocks_to_register', ()):
+                    config_registry.register_app_bricks(app_label, brick_cls)
+
+                config_registry.register_user_bricks(*getattr(config_registry_mod, 'userblocks_to_register', ()))
+                config_registry.register_portal_bricks(*getattr(config_registry_mod, 'portalbricks_to_register', ()))
 
     def register_bricks(self, brick_registry):
         from . import bricks

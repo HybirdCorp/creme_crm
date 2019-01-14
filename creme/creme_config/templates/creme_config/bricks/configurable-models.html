@@ -13,7 +13,8 @@
     <tbody>
     {% for model_conf in app_config %}
         <tr>
-            <td><a href="{% url 'creme_config__model_portal' app_name model_conf.name_in_url %}">{{model_conf.verbose_name}}</a><td>
+{#            <td><a href="{% url 'creme_config__model_portal' app_name model_conf.name_in_url %}">{{model_conf.verbose_name}}</a><td> #}
+            <td><a href="{% url 'creme_config__model_portal' app_name model_conf.model_name %}">{{model_conf.verbose_name}}</a><td>
         </tr>
     {% endfor %}
     </tbody>

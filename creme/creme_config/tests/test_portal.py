@@ -5,7 +5,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.creme_config.registry import AppConfigRegistry
+    from creme.creme_config.registry import _AppConfigRegistry
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -21,7 +21,7 @@ class PortalTestCase(CremeTestCase):
 
         app_configs = get('app_configs')
         self.assertIsInstance(app_configs, list)
-        self.assertIsInstance(app_configs[0], AppConfigRegistry)
+        self.assertIsInstance(app_configs[0], _AppConfigRegistry)
         self.assertIn('creme_core', (r.name for r in app_configs))
 
         self.assertIsInstance(get('app_bricks'), list)  # TODO: test better

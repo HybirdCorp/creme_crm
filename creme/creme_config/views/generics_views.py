@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,27 +28,29 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import bricks as bricks_views, generic
 from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.order import ReorderInstances
 from creme.creme_core.views.utils import json_update_from_widget_response
 
-from ..bricks import GenericModelBrick, SettingsBrick
-
+from ..bricks import SettingsBrick  # GenericModelBrick
+from ..registry import config_registry
 
 logger = logging.getLogger(__name__)
 
 
 def _get_appconf(user, app_name):  # TODO: get_appconf_or_404() ?
-    from ..registry import config_registry
+    # from ..registry import config_registry
 
     user.has_perm_to_admin_or_die(app_name)
 
     try:
-        app_config = config_registry.get_app(app_name)
+        # app_config = config_registry.get_app(app_name)
+        app_config = config_registry.get_app_registry(app_name)
     except LookupError as e:
-        raise Http404('Unknown app') from e
+        raise Http404('Invalid app [{}]'.format(e)) from e
 
     return app_config
 
@@ -56,7 +58,8 @@ def _get_appconf(user, app_name):  # TODO: get_appconf_or_404() ?
 def _get_modelconf(app_config, model_name):  # TODO: get_modelconf_or_404() ?
     # TODO: use only ct instead of model_name ???
     for modelconf in app_config.models():
-        if modelconf.name_in_url == model_name:
+        # if modelconf.name_in_url == model_name:
+        if modelconf.model_name == model_name:
             return modelconf
 
     raise Http404('Unknown model')
@@ -97,7 +100,16 @@ class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
     submit_label = _('Save')
 
     def get_form_class(self):
-        return self.get_model_conf().model_form
+        # return self.get_model_conf().model_form
+        creator = self.get_model_conf().creator
+
+        if not creator.enable_func(user=self.request.user):
+            raise ConflictError('This model has been disabled for creation.')
+
+        if creator.url_name is not None:
+            raise ConflictError('This model does not use this creation view.')
+
+        return creator.form_class
 
     def get_title(self):
         model = self.get_model_conf().model
@@ -122,6 +134,25 @@ class FromWidgetCreation(GenericCreation):
         )
 
 
+class GenericEdition(ModelConfMixin, generic.CremeModelEditionPopup):
+    template_name = 'creme_core/generics/form/edit-popup.html'
+
+    def get_form_class(self):
+        # return self.get_model_conf().model_form
+        editor = self.get_model_conf().editor
+
+        if not editor.enable_func(instance=self.object, user=self.request.user):
+            raise ConflictError('This model has been disabled for edition.')
+
+        if editor.url_name is not None:
+            raise ConflictError('This model does not use this edition view.')
+
+        return editor.form_class
+
+    def get_queryset(self):
+        return self.get_model_conf().model._default_manager.all()
+
+
 class ModelPortal(ModelConfMixin, generic.BricksView):
     template_name = 'creme_config/generics/model-portal.html'
 
@@ -143,7 +174,7 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
                                                  start=1):
                     if order != instance.order:
                         logger.warning('Fix an order problem in model %s (%s)',
-                                       model, instance
+                                       model, instance,
                                       )
                         instance.order = order
                         instance.save(force_update=True, update_fields=('order',))
@@ -152,16 +183,18 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
         model_conf = self.get_model_conf()
 
         return [
-            GenericModelBrick(app_name=self.get_app_registry().name,
-                              model_name=model_conf.name_in_url,
-                              model=model_conf.model,
-                             ),
+            # GenericModelBrick(app_name=self.get_app_registry().name,
+            #                   model_name=model_conf.name_in_url,
+            #                   model=model_conf.model,
+            #                  ),
+            model_conf.get_brick(),
         ]
 
     def get_bricks_reload_url(self):
         return reverse('creme_config__reload_model_brick',
                        args=(self.get_app_registry().name,
-                             self.get_model_conf().name_in_url,
+                             # self.get_model_conf().name_in_url,
+                             self.get_model_conf().model_name,
                             ),
                       )
 
@@ -202,16 +235,6 @@ def delete_model(request, app_name, model_name):
     return HttpResponse()
 
 
-class GenericEdition(ModelConfMixin, generic.CremeModelEditionPopup):
-    template_name = 'creme_core/generics/form/edit-popup.html'
-
-    def get_form_class(self):
-        return self.get_model_conf().model_form
-
-    def get_queryset(self):
-        return self.get_model_conf().model._default_manager.all()
-
-
 class Reorder(ModelConfMixin, ReorderInstances):
     def get_queryset(self):
         return self.get_model_conf().model._default_manager.all()
@@ -244,14 +267,16 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
 def reload_model_brick(request, app_name, model_name):
     user = request.user
     app_registry = _get_appconf(user, app_name)
-    model = _get_modelconf(app_registry, model_name).model
+    # model = _get_modelconf(app_registry, model_name).model
+    model_config = _get_modelconf(app_registry, model_name)
 
     user.has_perm_to_admin_or_die(app_name)
 
     return bricks_views.bricks_render_info(
         request,
         context=bricks_views.build_context(request),
-        bricks=[GenericModelBrick(app_name=app_name, model_name=model_name, model=model)],
+        # bricks=[GenericModelBrick(app_name=app_name, model_name=model_name, model=model)],
+        bricks=[model_config.get_brick()],
     )
 
 

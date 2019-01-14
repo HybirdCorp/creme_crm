@@ -21,20 +21,21 @@
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views.generic import BricksView
 
+from ..registry import config_registry
+
 
 class Portal(BricksView):
     template_name = 'creme_config/portal.html'
     permissions = 'creme_config'
 
     def get_context_data(self, **kwargs):
-        from ..registry import config_registry
-
         context = super().get_context_data(**kwargs)
         context['app_bricks'] = list(config_registry.portal_bricks)
 
         sort_key = collator.sort_key
-        context['app_configs'] = sorted(config_registry.apps(),
-                                        key=(lambda app: sort_key(app.verbose_name)),
-                                       )
+        context['app_configs'] = sorted(
+            (app_reg for app_reg in config_registry.apps() if not app_reg.is_empty),
+            key=(lambda app: sort_key(app.verbose_name)),
+        )
 
         return context
