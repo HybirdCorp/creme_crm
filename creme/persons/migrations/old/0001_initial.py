@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
@@ -12,16 +13,27 @@ from creme.documents.models.fields import ImageEntityForeignKey
 class Migration(migrations.Migration):
     # replaces = [
     #     (b'persons', '0001_initial'),
-    #     (b'persons', '0020_v2_0__real_entity_fks_1'),
-    #     (b'persons', '0021_v2_0__real_entity_fks_2'),
-    #     (b'persons', '0022_v2_0__real_entity_fks_3'),
+    #     (b'persons', '0008_v1_7__charfields_not_nullable_1'),
+    #     (b'persons', '0009_v1_7__charfields_not_nullable_2'),
+    #     (b'persons', '0010_v1_7__lv_indexes'),
+    #     (b'persons', '0011_v1_7__fax_not_nullable_1'),
+    #     (b'persons', '0012_v1_7__fax_not_nullable_2'),
+    #     (b'persons', '0013_v1_7__image_to_doc_1'),
+    #     (b'persons', '0014_v1_7__image_to_doc_2'),
+    #     (b'persons', '0015_v1_7__image_to_doc_3'),
+    #     (b'persons', '0016_v1_7__image_to_doc_4'),
+    #     (b'persons', '0017_v1_7__organisation_managed_1'),
+    #     (b'persons', '0018_v1_7__organisation_managed_2'),
+    #     (b'persons', '0019_v1_7__first_persons_uuids'),
     # ]
 
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        # ('auth', '0001_initial'),
         ('creme_core', '0001_initial'),
+        # ('media_managers', '0001_initial'),
         migrations.swappable_dependency(settings.DOCUMENTS_DOCUMENT_MODEL),
     ]
 
@@ -105,10 +117,8 @@ class Migration(migrations.Migration):
                 ('department', models.CharField(max_length=100, verbose_name='Department', blank=True)),
                 ('state', models.CharField(max_length=100, verbose_name='State', blank=True)),
                 ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
-                # ('object_id', models.PositiveIntegerField(editable=False)),
-                ('object', models.ForeignKey(editable=False, on_delete=CASCADE, to='creme_core.CremeEntity', related_name='persons_addresses')),
-                # ('content_type', models.ForeignKey(related_name='object_set', editable=False, to='contenttypes.ContentType', on_delete=CASCADE)),
-                ('content_type', creme_fields.EntityCTypeForeignKey(editable=False, on_delete=CASCADE, related_name='+', to='contenttypes.ContentType')),
+                ('object_id', models.PositiveIntegerField(editable=False)),
+                ('content_type', models.ForeignKey(related_name='object_set', editable=False, to='contenttypes.ContentType', on_delete=CASCADE)),
             ],
             options={
                 'ordering': ('id',),
@@ -138,6 +148,7 @@ class Migration(migrations.Migration):
                 ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
                 ('billing_address',  models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
                 ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
+                # ('image', models.ForeignKey(on_delete=SET_NULL, verbose_name='Photograph', blank=True, to='media_managers.Image', null=True)),
                 ('image', ImageEntityForeignKey(on_delete=SET_NULL, verbose_name='Photograph', blank=True, null=True,
                                                 to=settings.DOCUMENTS_DOCUMENT_MODEL,  # TODO: remove in deconstruct ?
                                                ),
@@ -182,6 +193,7 @@ class Migration(migrations.Migration):
                 ('creation_date', models.DateField(null=True, verbose_name='Date of creation of the organisation', blank=True)),
                 ('billing_address',  models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
                 ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
+                # ('image', models.ForeignKey(on_delete=SET_NULL, verbose_name='Logo', blank=True, to='media_managers.Image', null=True)),
                 ('image', ImageEntityForeignKey(on_delete=SET_NULL, verbose_name='Logo', blank=True, null=True,
                                                 to=settings.DOCUMENTS_DOCUMENT_MODEL,
                                                )
