@@ -43,7 +43,7 @@ from ..utils import creme_entity_content_types, build_ct_choices, find_first
 from ..utils.collections import OrderedSet
 from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
-from ..utils.queries import get_q_from_dict
+# from ..utils.queries import get_q_from_dict
 from . import validators as f_validators
 from . import widgets as core_widgets
 
@@ -803,10 +803,11 @@ class CreatorEntityField(EntityCredsJSONField):
                 q_filter = q_filter()
 
             if isinstance(q_filter, dict):
-                try:
-                    q = get_q_from_dict(q_filter)
-                except Exception as e:
-                    raise ValueError('Invalid q_filter: {}'.format(q_filter)) from e
+                # try:
+                #     q = get_q_from_dict(q_filter)
+                # except Exception as e:
+                #     raise ValueError('Invalid q_filter: {}'.format(q_filter)) from e
+                q = Q(**q_filter)
             elif isinstance(q_filter, Q):
                 q = q_filter
             else:
