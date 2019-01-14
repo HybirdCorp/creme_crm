@@ -22,10 +22,11 @@ from django.db.models.query_utils import Q
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.models import Relation
+from creme.creme_core.models import Relation, SettingValue
 
 from . import get_activity_model
 from .constants import REL_SUB_PART_2_ACTIVITY, NARROW, FLOATING_TIME
+from .setting_keys import auto_subjects_key
 
 
 def get_last_day_of_a_month(date):
@@ -111,3 +112,7 @@ VERSION:2.0
 PRODID:-//CremeCRM//CremeCRM//EN
 {}
 END:VCALENDAR""".format(''.join(a.as_ical_event() for a in activities))
+
+
+def is_auto_orga_subject_enabled():
+    return SettingValue.objects.get_4_key(auto_subjects_key, default=False).value
