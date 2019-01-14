@@ -26,12 +26,13 @@ from types import GeneratorType
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
 from django.forms import widgets
 from django.urls import reverse
 from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy, pgettext
 
 from ..utils.date_range import date_range_registry
-from ..utils.queries import QSerializer, get_q_from_dict
+from ..utils.queries import QSerializer  # get_q_from_dict
 from ..utils.url import TemplateURLBuilder
 
 logger = logging.getLogger(__name__)
@@ -489,7 +490,8 @@ class EntitySelector(widgets.Widget):
             qfilter = qfilter()
 
         if isinstance(qfilter, dict):
-            qfilter = get_q_from_dict(qfilter)
+            # qfilter = get_q_from_dict(qfilter)
+            qfilter = Q(**qfilter)
 
         widget_cxt['qfilter'] = QSerializer().serialize(qfilter) if qfilter else None
         widget_cxt['input'] = widgets.HiddenInput().get_context(name=name, value=value,

@@ -33,13 +33,17 @@ from .dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 logger = logging.getLogger(__name__)
 
 
-# TODO: deprecate when the '~' feature is removed.
 def get_q_from_dict(dict, is_or=False):
     """
     @return: A Q instance from {'attr1': 'val1', 'attr2': 'val2',...}
              If 'is_or' is True, it returns <Q(attr1=val1) | Q(attr2=val2)>
              else it returns <Q(attr1=val1) & Q(attr2=val2)>
     """
+    warnings.warn('creme_core.utils.queries.get_q_from_dict() is deprecated ; '
+                  'use django.db.models.query.Q(**my_dict) instead.',
+                  DeprecationWarning
+                 )
+
     q = Q()
 
     for k, v in dict.items():
