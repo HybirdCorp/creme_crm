@@ -30,6 +30,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import bricks as bricks_views, generic
 from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.order import ReorderInstances
@@ -257,9 +258,18 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
         app_registry = self.get_app_registry()
         context['app_name'] = app_registry.name
         context['app_verbose_name'] = app_registry.verbose_name
-        context['app_config'] = list(app_registry.models())  # list-> have the length in the template
+        context['app_config'] = self.get_model_configs(app_registry)
 
         return context
+
+    def get_model_configs(self, app_registry):
+        # list-> have the length in the template
+        model_configs = list(app_registry.models())
+        sort_key = collator.sort_key
+
+        model_configs.sort(key=lambda model_conf: sort_key(str(model_conf.verbose_name)))
+
+        return model_configs
 
 
 @login_required
