@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
@@ -11,9 +12,7 @@ from creme.creme_core.models import fields as creme_fields
 class Migration(migrations.Migration):
     # replaces = [
     #     ('crudity', '0001_initial'),
-    #     ('crudity', '0005_v2_0__waction_binary_data01'),
-    #     ('crudity', '0006_v2_0__waction_binary_data02'),
-    #     ('crudity', '0007_v2_0__waction_binary_data03'),
+    #     ('crudity', '0004_v1_8_action_raw_data.py'),
     # ]
 
     initial = True
@@ -48,9 +47,10 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('action', models.CharField(max_length=100, verbose_name='Action')),
                 ('source', models.CharField(max_length=100, verbose_name='Source')),
-                # ('raw_data', models.TextField(null=True, blank=True)),
-                ('raw_data', models.BinaryField(blank=True, null=True)),
+                # ('data', models.TextField(null=True, blank=True)),
+                ('raw_data', models.TextField(null=True, blank=True)),
                 ('subject', models.CharField(max_length=100, verbose_name='Subject')),
+                # ('ct', creme_fields.CTypeForeignKey(verbose_name="Ressource's type", to='contenttypes.ContentType')),
                 ('ct', creme_fields.CTypeForeignKey(on_delete=CASCADE, to='contenttypes.ContentType', verbose_name='Type of resource')),
                 ('user', creme_fields.CremeUserForeignKey(default=None, blank=True, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Owner')),
             ],
