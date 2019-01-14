@@ -18,78 +18,78 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
-from django.core.exceptions import PermissionDenied
+# from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext as _
+# from django.utils.translation import ugettext as _
 
-from ..auth.decorators import login_required
+# from ..auth.decorators import login_required
 from ..gui.quick_forms import quickforms_registry
-from ..utils import get_ct_or_404
+# from ..utils import get_ct_or_404
 
 from . import generic
 from .generic.base import EntityCTypeRelatedMixin
 from .utils import json_update_from_widget_response
 
 
-@login_required
-def add(request, ct_id, count):
-    warnings.warn('creme_core.views.quick_forms.add() is deprecated.', DeprecationWarning)
-
-    # NB: it seems there is a problem with formsets : if the 'user' field is empty
-    #     it does not raise a Validation exception, but it causes a SQL integrity
-    #     error ; we are saved by the 'empty_label=None' of user field, but it is
-    #     not really perfect...
-
-    from django.forms.formsets import formset_factory
-
-    if count == '0':
-        raise Http404('Count must be between 1 & 9')
-
-    model = get_ct_or_404(ct_id).model_class()
-    model_name = model._meta.verbose_name
-    user = request.user
-
-    if not user.has_perm_to_create(model):
-        # TODO: manage/display error on js side (for now it just does nothing)
-        raise PermissionDenied('You are not allowed to create entity with type "{}"'.format(model_name))
-
-    base_form_class = quickforms_registry.get_form(model)
-
-    if base_form_class is None:
-        raise Http404('No form registered for model: {}'.format(model))
-
-    # We had the mandatory 'user' argument
-    class _QuickForm(base_form_class):
-        def __init__(self, *args, **kwargs):
-            super().__init__(user=user, *args, **kwargs)
-            # HACK : empty_permitted attribute allows formset to remove fields data that hasn't change from initial.
-            # This behaviour force user_id value to null when form is empty and causes an SQL integrity error.
-            # In django 1.3 empty_permitted cannot be set correctly so force it.
-            self.empty_permitted = False
-
-    qformset_class = formset_factory(_QuickForm, extra=int(count))
-
-    if request.method == 'POST':
-        qformset = qformset_class(data=request.POST, files=request.FILES or None)
-
-        if qformset.is_valid():
-            for form in qformset:
-                form.save()
-    else:
-        qformset = qformset_class()
-
-    return generic.inner_popup(
-        request, 'creme_core/generics/blockformset/add_popup.html',
-        {'formset': qformset,
-         'title':   _('Quick creation of «{model}»').format(model=model_name),
-        },
-        is_valid=qformset.is_valid(),
-        reload=False,
-        delegate_reload=True,
-    )
+# @login_required
+# def add(request, ct_id, count):
+#     warnings.warn('creme_core.views.quick_forms.add() is deprecated.', DeprecationWarning)
+#
+#     # NB: it seems there is a problem with formsets : if the 'user' field is empty
+#     #     it does not raise a Validation exception, but it causes a SQL integrity
+#     #     error ; we are saved by the 'empty_label=None' of user field, but it is
+#     #     not really perfect...
+#
+#     from django.forms.formsets import formset_factory
+#
+#     if count == '0':
+#         raise Http404('Count must be between 1 & 9')
+#
+#     model = get_ct_or_404(ct_id).model_class()
+#     model_name = model._meta.verbose_name
+#     user = request.user
+#
+#     if not user.has_perm_to_create(model):
+#         # TODO: manage/display error on js side (for now it just does nothing)
+#         raise PermissionDenied('You are not allowed to create entity with type "{}"'.format(model_name))
+#
+#     base_form_class = quickforms_registry.get_form(model)
+#
+#     if base_form_class is None:
+#         raise Http404('No form registered for model: {}'.format(model))
+#
+#     # We had the mandatory 'user' argument
+#     class _QuickForm(base_form_class):
+#         def __init__(self, *args, **kwargs):
+#             super().__init__(user=user, *args, **kwargs)
+#             # HACK : empty_permitted attribute allows formset to remove fields data that hasn't change from initial.
+#             # This behaviour force user_id value to null when form is empty and causes an SQL integrity error.
+#             # In django 1.3 empty_permitted cannot be set correctly so force it.
+#             self.empty_permitted = False
+#
+#     qformset_class = formset_factory(_QuickForm, extra=int(count))
+#
+#     if request.method == 'POST':
+#         qformset = qformset_class(data=request.POST, files=request.FILES or None)
+#
+#         if qformset.is_valid():
+#             for form in qformset:
+#                 form.save()
+#     else:
+#         qformset = qformset_class()
+#
+#     return generic.inner_popup(
+#         request, 'creme_core/generics/blockformset/add_popup.html',
+#         {'formset': qformset,
+#          'title':   _('Quick creation of «{model}»').format(model=model_name),
+#         },
+#         is_valid=qformset.is_valid(),
+#         reload=False,
+#         delegate_reload=True,
+#     )
 
 
 # TODO: manage/display error (like PermissionDenied) on JS side (for now it just does nothing)

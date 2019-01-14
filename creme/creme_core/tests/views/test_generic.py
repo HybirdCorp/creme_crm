@@ -42,52 +42,52 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
             assert 1 == len(sessions)
             self.session = sessions[0]
 
-    def test_detail_legacy01(self):
-        user = self.login()
-        self.assertFalse(LastViewedItem.get_all(self.FakeRequest(user)))
-        self.assertFalse(Imprint.objects.all())
-
-        hq = FakeOrganisation.objects.create(user=user, name='HQ')
-        response = self.assertGET200(hq.get_absolute_url())
-        self.assertTemplateUsed(response, 'creme_core/generics/view_entity.html')
-
-        # -----
-        last_items = LastViewedItem.get_all(self.FakeRequest(user))
-        self.assertEqual(1, len(last_items))
-        self.assertEqual(hq.id, last_items[0].pk)
-
-        # -----
-        imprints = Imprint.objects.all()
-        self.assertEqual(1, len(imprints))
-        self.assertEqual(imprints[0].entity.get_real_entity(), hq)
-
-        # -----
-        self.get_brick_node(self.get_html_tree(response.content), PropertiesBrick.id_)
-
-    def test_detail_legacy02(self):
-        "Object does not exist"
-        self.login()
-
-        response = self.assertGET404(reverse('creme_core__view_fake_image', args=(1024,)))
-        self.assertTemplateUsed(response, '404.html')
-
-    def test_detail_legacy03(self):
-        "Not allowed"
-        self.login(is_superuser=False)
-        hq = FakeOrganisation.objects.create(user=self.other_user, name='HQ')
-
-        response = self.assertGET403(hq.get_absolute_url())
-        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-
-    def test_detail_legacy04(self):
-        "Not logged"
-        user = self.login()
-        hq = FakeOrganisation.objects.create(user=user, name='HQ')
-
-        self.client.logout()
-        url = hq.get_absolute_url()
-        response = self.assertGET(302, url)
-        self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
+    # def test_detail_legacy01(self):
+    #     user = self.login()
+    #     self.assertFalse(LastViewedItem.get_all(self.FakeRequest(user)))
+    #     self.assertFalse(Imprint.objects.all())
+    #
+    #     hq = FakeOrganisation.objects.create(user=user, name='HQ')
+    #     response = self.assertGET200(hq.get_absolute_url())
+    #     self.assertTemplateUsed(response, 'creme_core/generics/view_entity.html')
+    #
+    #     # -----
+    #     last_items = LastViewedItem.get_all(self.FakeRequest(user))
+    #     self.assertEqual(1, len(last_items))
+    #     self.assertEqual(hq.id, last_items[0].pk)
+    #
+    #     # -----
+    #     imprints = Imprint.objects.all()
+    #     self.assertEqual(1, len(imprints))
+    #     self.assertEqual(imprints[0].entity.get_real_entity(), hq)
+    #
+    #     # -----
+    #     self.get_brick_node(self.get_html_tree(response.content), PropertiesBrick.id_)
+    #
+    # def test_detail_legacy02(self):
+    #     "Object does not exist"
+    #     self.login()
+    #
+    #     response = self.assertGET404(reverse('creme_core__view_fake_image', args=(1024,)))
+    #     self.assertTemplateUsed(response, '404.html')
+    #
+    # def test_detail_legacy03(self):
+    #     "Not allowed"
+    #     self.login(is_superuser=False)
+    #     hq = FakeOrganisation.objects.create(user=self.other_user, name='HQ')
+    #
+    #     response = self.assertGET403(hq.get_absolute_url())
+    #     self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+    #
+    # def test_detail_legacy04(self):
+    #     "Not logged"
+    #     user = self.login()
+    #     hq = FakeOrganisation.objects.create(user=user, name='HQ')
+    #
+    #     self.client.logout()
+    #     url = hq.get_absolute_url()
+    #     response = self.assertGET(302, url)
+    #     self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
 
     def test_detail01(self):
         user = self.login()
@@ -163,78 +163,78 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
 
 
 class CreationTestCase(ViewsTestCase):
-    def test_add_entity01(self):
-        user = self.login()
-
-        url = reverse('creme_core__create_fake_organisation')
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add.html')
-
-        context = response.context
-        self.assertIsInstance(context.get('form'), fake_forms.FakeOrganisationForm)
-        self.assertEqual(_('Create an organisation'), context.get('title'))
-        self.assertEqual(_('Save the organisation'),  context.get('submit_label'))
-        self.assertIsNone(context.get('cancel_url', -1))
-
-        count = FakeOrganisation.objects.count()
-        name  = 'Spectre'
-        description = 'DESCRIPTION'
-        response = self.client.post(url, follow=True,
-                                    data={'user':        user.id,
-                                          'name':        name,
-                                          'description': description,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(count + 1, FakeOrganisation.objects.count())
-
-        orga = self.get_object_or_fail(FakeOrganisation, name=name)
-        self.assertEqual(description, orga.description)
-
-        self.assertRedirects(response, orga.get_absolute_url())
-
-    def test_add_entity02(self):
-        "ValidationError + cancel_url"
-        user = self.login()
-
-        url = reverse('creme_core__create_fake_organisation')
-        lv_url = FakeOrganisation.get_lv_absolute_url()
-        response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
-        self.assertEqual(lv_url, response.context.get('cancel_url'))
-
-        response = self.client.post(url, follow=True,
-                                    data={'user': user.id,
-                                          # 'name': name,  # NB: Missing
-                                          'cancel_url': lv_url,
-                                         }
-                                   )
-        self.assertFormError(response, 'form', 'name', _('This field is required.'))
-        self.assertEqual(lv_url, response.context.get('cancel_url'))
-
-    def test_add_entity03(self):
-        "Not app credentials"
-        self.login(is_superuser=False, allowed_apps=['creme_config'])
-
-        response = self.assertGET403(reverse('creme_core__create_fake_organisation'))
-        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-
-    def test_add_entity04(self):
-        "Not creation credentials"
-        self.login(is_superuser=False, creatable_models=[FakeContact])  # Not FakeOrganisation
-
-        response = self.assertGET403(reverse('creme_core__create_fake_organisation'))
-        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-
-    def test_add_entity05(self):
-        "Not logged"
-        url = reverse('creme_core__create_fake_organisation')
-        response = self.assertGET(302, url)
-        self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
-
-    def test_add_entity06(self):
-        "Not super-user"
-        self.login(is_superuser=False, creatable_models=[FakeOrganisation])
-        self.assertGET200(reverse('creme_core__create_fake_organisation'))
+    # def test_add_entity01(self):
+    #     user = self.login()
+    #
+    #     url = reverse('creme_core__create_fake_organisation')
+    #     response = self.assertGET200(url)
+    #     self.assertTemplateUsed(response, 'creme_core/generics/blockform/add.html')
+    #
+    #     context = response.context
+    #     self.assertIsInstance(context.get('form'), fake_forms.FakeOrganisationForm)
+    #     self.assertEqual(_('Create an organisation'), context.get('title'))
+    #     self.assertEqual(_('Save the organisation'),  context.get('submit_label'))
+    #     self.assertIsNone(context.get('cancel_url', -1))
+    #
+    #     count = FakeOrganisation.objects.count()
+    #     name  = 'Spectre'
+    #     description = 'DESCRIPTION'
+    #     response = self.client.post(url, follow=True,
+    #                                 data={'user':        user.id,
+    #                                       'name':        name,
+    #                                       'description': description,
+    #                                      }
+    #                                )
+    #     self.assertNoFormError(response)
+    #     self.assertEqual(count + 1, FakeOrganisation.objects.count())
+    #
+    #     orga = self.get_object_or_fail(FakeOrganisation, name=name)
+    #     self.assertEqual(description, orga.description)
+    #
+    #     self.assertRedirects(response, orga.get_absolute_url())
+    #
+    # def test_add_entity02(self):
+    #     "ValidationError + cancel_url"
+    #     user = self.login()
+    #
+    #     url = reverse('creme_core__create_fake_organisation')
+    #     lv_url = FakeOrganisation.get_lv_absolute_url()
+    #     response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+    #     self.assertEqual(lv_url, response.context.get('cancel_url'))
+    #
+    #     response = self.client.post(url, follow=True,
+    #                                 data={'user': user.id,
+    #                                       # 'name': name,  # NB: Missing
+    #                                       'cancel_url': lv_url,
+    #                                      }
+    #                                )
+    #     self.assertFormError(response, 'form', 'name', _('This field is required.'))
+    #     self.assertEqual(lv_url, response.context.get('cancel_url'))
+    #
+    # def test_add_entity03(self):
+    #     "Not app credentials"
+    #     self.login(is_superuser=False, allowed_apps=['creme_config'])
+    #
+    #     response = self.assertGET403(reverse('creme_core__create_fake_organisation'))
+    #     self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+    #
+    # def test_add_entity04(self):
+    #     "Not creation credentials"
+    #     self.login(is_superuser=False, creatable_models=[FakeContact])  # Not FakeOrganisation
+    #
+    #     response = self.assertGET403(reverse('creme_core__create_fake_organisation'))
+    #     self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+    #
+    # def test_add_entity05(self):
+    #     "Not logged"
+    #     url = reverse('creme_core__create_fake_organisation')
+    #     response = self.assertGET(302, url)
+    #     self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
+    #
+    # def test_add_entity06(self):
+    #     "Not super-user"
+    #     self.login(is_superuser=False, creatable_models=[FakeOrganisation])
+    #     self.assertGET200(reverse('creme_core__create_fake_organisation'))
 
     def test_entity_creation01(self):
         user = self.login()
@@ -308,22 +308,22 @@ class CreationTestCase(ViewsTestCase):
         self.login(is_superuser=False, creatable_models=[FakeContact])
         self.assertGET200(reverse('creme_core__create_fake_contact'))
 
-    def test_add_to_entity(self):
-        user = self.login()
-        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-        url = reverse('creme_core__create_fake_address_legacy', args=(nerv.id,))
-
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
-
-        context = response.context
-        self.assertEqual('Adding address to <%s>' % nerv, context.get('title'))
-        self.assertEqual(_('Save the address'),           context.get('submit_label'))
-
-        city = 'Tokyo'
-        response = self.client.post(url, data={'city': city})
-        self.assertNoFormError(response)
-        self.get_object_or_fail(FakeAddress, city=city, entity=nerv.id)
+    # def test_add_to_entity(self):
+    #     user = self.login()
+    #     nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+    #     url = reverse('creme_core__create_fake_address_legacy', args=(nerv.id,))
+    #
+    #     response = self.assertGET200(url)
+    #     self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_popup.html')
+    #
+    #     context = response.context
+    #     self.assertEqual('Adding address to <%s>' % nerv, context.get('title'))
+    #     self.assertEqual(_('Save the address'),           context.get('submit_label'))
+    #
+    #     city = 'Tokyo'
+    #     response = self.client.post(url, data={'city': city})
+    #     self.assertNoFormError(response)
+    #     self.get_object_or_fail(FakeAddress, city=city, entity=nerv.id)
 
     def test_adding_to_entity(self):
         user = self.login()
@@ -344,94 +344,94 @@ class CreationTestCase(ViewsTestCase):
 
 
 class EditionTestCase(ViewsTestCase):
-    def test_edit_entity01(self):
-        user = self.login()
-        orga = FakeOrganisation.objects.create(user=user, name='Ner')
-        url = orga.get_edit_absolute_url()
-
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit.html')
-
-        context = response.context
-        self.assertIsInstance(context.get('form'), fake_forms.FakeOrganisationForm)
-        self.assertEqual(_('Save the modifications'),  context.get('submit_label'))
-        self.assertIsNone(context.get('cancel_url', -1))
-
-        name = 'Nerv'
-        description = 'DESCRIPTION'
-        response = self.client.post(url, follow=True,
-                                    data={'user':        user.id,
-                                          'name':        name,
-                                          'description': description,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        orga = self.refresh(orga)
-        self.assertEqual(name,        orga.name)
-        self.assertEqual(description, orga.description)
-
-        self.assertRedirects(response, orga.get_absolute_url())
-
-    def test_edit_entity02(self):
-        "Invalid ID"
-        self.login()
-        self.assertGET404(reverse('creme_core__edit_fake_organisation', args=(1024,)))
-
-    def test_edit_entity03(self):
-        "ValidationError + cancel_url"
-        user = self.login()
-        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
-        url = orga.get_edit_absolute_url()
-
-        lv_url = FakeOrganisation.get_lv_absolute_url()
-        response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
-        self.assertEqual(lv_url, response.context.get('cancel_url'))
-
-        response = self.client.post(url, follow=True,
-                                    data={'user': user.id,
-                                          # 'name': name,  # NB: Missing
-                                          'cancel_url': lv_url,
-                                         }
-                                   )
-        self.assertFormError(response, 'form', 'name', _('This field is required.'))
-        self.assertEqual(lv_url, response.context.get('cancel_url'))
-
-    def test_edit_entity04(self):
-        "Not app credentials"
-        self.login(is_superuser=False, allowed_apps=['creme_config'])
-
-        response = self.assertGET403(reverse('creme_core__edit_fake_organisation', args=(1024,)))
-        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-
-    def test_edit_entity05(self):
-        "Not edition credentials"
-        self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            # EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
-
-        orga = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
-
-        response = self.assertGET403(orga.get_edit_absolute_url())
-        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-
-    def test_edit_entity06(self):
-        "Not logged"
-        url = reverse('creme_core__edit_fake_organisation', args=(1024,))
-        response = self.assertGET(302, url)
-        self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
-
-    def test_edit_entity07(self):
-        "Not super-user"
-        user = self.login(is_superuser=False)
-        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
-        self.assertGET200(orga.get_edit_absolute_url())
+    # def test_edit_entity01(self):
+    #     user = self.login()
+    #     orga = FakeOrganisation.objects.create(user=user, name='Ner')
+    #     url = orga.get_edit_absolute_url()
+    #
+    #     response = self.assertGET200(url)
+    #     self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit.html')
+    #
+    #     context = response.context
+    #     self.assertIsInstance(context.get('form'), fake_forms.FakeOrganisationForm)
+    #     self.assertEqual(_('Save the modifications'),  context.get('submit_label'))
+    #     self.assertIsNone(context.get('cancel_url', -1))
+    #
+    #     name = 'Nerv'
+    #     description = 'DESCRIPTION'
+    #     response = self.client.post(url, follow=True,
+    #                                 data={'user':        user.id,
+    #                                       'name':        name,
+    #                                       'description': description,
+    #                                      }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     orga = self.refresh(orga)
+    #     self.assertEqual(name,        orga.name)
+    #     self.assertEqual(description, orga.description)
+    #
+    #     self.assertRedirects(response, orga.get_absolute_url())
+    #
+    # def test_edit_entity02(self):
+    #     "Invalid ID"
+    #     self.login()
+    #     self.assertGET404(reverse('creme_core__edit_fake_organisation', args=(1024,)))
+    #
+    # def test_edit_entity03(self):
+    #     "ValidationError + cancel_url"
+    #     user = self.login()
+    #     orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+    #     url = orga.get_edit_absolute_url()
+    #
+    #     lv_url = FakeOrganisation.get_lv_absolute_url()
+    #     response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+    #     self.assertEqual(lv_url, response.context.get('cancel_url'))
+    #
+    #     response = self.client.post(url, follow=True,
+    #                                 data={'user': user.id,
+    #                                       # 'name': name,  # NB: Missing
+    #                                       'cancel_url': lv_url,
+    #                                      }
+    #                                )
+    #     self.assertFormError(response, 'form', 'name', _('This field is required.'))
+    #     self.assertEqual(lv_url, response.context.get('cancel_url'))
+    #
+    # def test_edit_entity04(self):
+    #     "Not app credentials"
+    #     self.login(is_superuser=False, allowed_apps=['creme_config'])
+    #
+    #     response = self.assertGET403(reverse('creme_core__edit_fake_organisation', args=(1024,)))
+    #     self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+    #
+    # def test_edit_entity05(self):
+    #     "Not edition credentials"
+    #     self.login(is_superuser=False)
+    #     SetCredentials.objects.create(role=self.role,
+    #                                   value=EntityCredentials.VIEW   |
+    #                                         # EntityCredentials.CHANGE |
+    #                                         EntityCredentials.DELETE |
+    #                                         EntityCredentials.LINK   |
+    #                                         EntityCredentials.UNLINK,
+    #                                   set_type=SetCredentials.ESET_ALL
+    #                                  )
+    #
+    #     orga = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
+    #
+    #     response = self.assertGET403(orga.get_edit_absolute_url())
+    #     self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+    #
+    # def test_edit_entity06(self):
+    #     "Not logged"
+    #     url = reverse('creme_core__edit_fake_organisation', args=(1024,))
+    #     response = self.assertGET(302, url)
+    #     self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
+    #
+    # def test_edit_entity07(self):
+    #     "Not super-user"
+    #     user = self.login(is_superuser=False)
+    #     orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+    #     self.assertGET200(orga.get_edit_absolute_url())
 
     def test_entity_edition01(self):
         user = self.login()
@@ -546,58 +546,58 @@ class EditionTestCase(ViewsTestCase):
                                             )
         self.assertGET200(contact.get_edit_absolute_url())
 
-    def test_edit_related_to_entity01(self):
-        user = self.login()
-        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-        address = FakeAddress.objects.create(
-            entity=nerv,
-            value='26 angel street',
-        )
-        url = reverse('creme_core__edit_fake_address_legacy', args=(address.id,))
+    # def test_edit_related_to_entity01(self):
+    #     user = self.login()
+    #     nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+    #     address = FakeAddress.objects.create(
+    #         entity=nerv,
+    #         value='26 angel street',
+    #     )
+    #     url = reverse('creme_core__edit_fake_address_legacy', args=(address.id,))
+    #
+    #     response = self.assertGET200(url)
+    #     self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
+    #
+    #     context = response.context
+    #     self.assertEqual('Address for <%s>' % nerv,   context.get('title'))
+    #     self.assertEqual(_('Save the modifications'), context.get('submit_label'))
+    #
+    #     # ---
+    #     city = 'Tokyo'
+    #     value = address.value + ' (edited)'
+    #     response = self.client.post(url, data={'value': value, 'city': city})
+    #     self.assertNoFormError(response)
+    #
+    #     address = self.refresh(address)
+    #     self.assertEqual(nerv.id, address.entity_id)
+    #     self.assertEqual(value,   address.value)
+    #     self.assertEqual(city,     address.city)
 
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
-
-        context = response.context
-        self.assertEqual('Address for <%s>' % nerv,   context.get('title'))
-        self.assertEqual(_('Save the modifications'), context.get('submit_label'))
-
-        # ---
-        city = 'Tokyo'
-        value = address.value + ' (edited)'
-        response = self.client.post(url, data={'value': value, 'city': city})
-        self.assertNoFormError(response)
-
-        address = self.refresh(address)
-        self.assertEqual(nerv.id, address.entity_id)
-        self.assertEqual(value,   address.value)
-        self.assertEqual(city,     address.city)
-
-    def test_edit_related_to_entity02(self):
-        "Edition credentials on related entity needed."
-        user = self.login(is_superuser=False)
-
-        nerv = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
-        self.assertFalse(user.has_perm_to_change(nerv))
-
-        address = FakeAddress.objects.create(
-            entity=nerv,
-            value='26 angel street',
-        )
-        url = reverse('creme_core__edit_fake_address_legacy', args=(address.id,))
-
-        response = self.assertGET403(url)
-        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-        self.assertIn(escape(_('You are not allowed to edit this entity: {}').format(
-                                _('Entity #{id} (not viewable)').format(id=nerv.id)
-                            )),
-                      response.content.decode()
-                     )
-
-        # ---
-        nerv.user = user
-        nerv.save()
-        self.assertGET200(url)
+    # def test_edit_related_to_entity02(self):
+    #     "Edition credentials on related entity needed."
+    #     user = self.login(is_superuser=False)
+    #
+    #     nerv = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
+    #     self.assertFalse(user.has_perm_to_change(nerv))
+    #
+    #     address = FakeAddress.objects.create(
+    #         entity=nerv,
+    #         value='26 angel street',
+    #     )
+    #     url = reverse('creme_core__edit_fake_address_legacy', args=(address.id,))
+    #
+    #     response = self.assertGET403(url)
+    #     self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+    #     self.assertIn(escape(_('You are not allowed to edit this entity: {}').format(
+    #                             _('Entity #{id} (not viewable)').format(id=nerv.id)
+    #                         )),
+    #                   response.content.decode()
+    #                  )
+    #
+    #     # ---
+    #     nerv.user = user
+    #     nerv.save()
+    #     self.assertGET200(url)
 
     def test_related_to_entity_edition01(self):
         user = self.login()

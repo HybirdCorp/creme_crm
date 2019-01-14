@@ -5,7 +5,7 @@ try:
 
     from ..base import CremeTransactionTestCase
     from creme.creme_core.models.lock import (Mutex, MutexLockedException,
-        MutexNotLockedException, mutex_autolock, MutexAutoLock)
+        MutexNotLockedException, MutexAutoLock)  # mutex_autolock
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -78,36 +78,36 @@ class MutexTestCase(CremeTransactionTestCase):
         mutex.release()
         self.assertEqual(0, Mutex.objects.count())
 
-    @mutex_autolock('dummy_lock')
-    def locked_func_legacy(self, a):
-        return a
-
-    @mutex_autolock('dummy_lock')
-    def invalid_locked_func_legacy(self, a):
-        raise Exception('invalid result {}'.format(a))
-
-    def test_mutex_autolock(self):
-        self.assertEqual(self.locked_func_legacy(12), 12)
-        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
-
-    def test_mutex_autolock_already_locked(self):
-        self.assertEqual(self.locked_func_legacy(12), 12)
-        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
-
-        Mutex.get_n_lock('dummy_lock')
-        self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
-
-        with self.assertRaises(MutexLockedException):
-            self.locked_func_legacy(5)
-
-        self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
-
-    def test_mutex_autolock_unlock_on_fail(self):
-        with self.assertRaises(Exception) as context:
-            self.invalid_locked_func_legacy(5)
-
-        self.assertEqual('invalid result {}'.format(5), str(context.exception))
-        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+    # @mutex_autolock('dummy_lock')
+    # def locked_func_legacy(self, a):
+    #     return a
+    #
+    # @mutex_autolock('dummy_lock')
+    # def invalid_locked_func_legacy(self, a):
+    #     raise Exception('invalid result {}'.format(a))
+    #
+    # def test_mutex_autolock(self):
+    #     self.assertEqual(self.locked_func_legacy(12), 12)
+    #     self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+    #
+    # def test_mutex_autolock_already_locked(self):
+    #     self.assertEqual(self.locked_func_legacy(12), 12)
+    #     self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+    #
+    #     Mutex.get_n_lock('dummy_lock')
+    #     self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+    #
+    #     with self.assertRaises(MutexLockedException):
+    #         self.locked_func_legacy(5)
+    #
+    #     self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+    #
+    # def test_mutex_autolock_unlock_on_fail(self):
+    #     with self.assertRaises(Exception) as context:
+    #         self.invalid_locked_func_legacy(5)
+    #
+    #     self.assertEqual('invalid result {}'.format(5), str(context.exception))
+    #     self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
 
     @MutexAutoLock('dummy_lock')
     def locked_func(self, a):

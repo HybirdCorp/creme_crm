@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'CREME_CORE' APP (JavaScript only)
-# Copyright (C) 2017 Hybird
+# Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr -i "static/creme_core/js/tests/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 1.7\n"
+"Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-22 05:50+0200\n"
+"POT-Creation-Date: 2018-12-05 15:42+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -99,7 +99,7 @@ msgid "Chosen"
 msgstr "Choisi(s)"
 
 #: static/creme_core/js/forms.js:439
-#: static/creme_core/js/widgets/entityselector.js:36
+#: static/creme_core/js/widgets/entityselector.js:35
 msgid "Select"
 msgstr "Sélectionnez"
 
@@ -112,10 +112,10 @@ msgstr ""
 "changements n'ont pas été pris en compte)"
 
 #: static/creme_core/js/jobs.js:74 static/creme_core/js/lv_widget.js:65
-#: static/creme_core/js/lv_widget.js:347 static/creme_core/js/lv_widget.js:352
-#: static/creme_core/js/utils.js:422
+#: static/creme_core/js/lv_widget.js:348 static/creme_core/js/lv_widget.js:353
+#: static/creme_core/js/utils.js:386
 #: static/creme_core/js/widgets/ajax/backend.js:83
-#: static/creme_core/js/widgets/dialog/dialog.js:791
+#: static/creme_core/js/widgets/dialog/dialog.js:777
 msgid "Error"
 msgstr "Erreur"
 
@@ -150,7 +150,7 @@ msgstr[1] "Ne sélectionnez pas plus de %d lignes"
 
 #: static/creme_core/js/list_view.core.js:244
 #: static/creme_core/js/lv_widget.js:109 static/creme_core/js/lv_widget.js:143
-#: static/creme_core/js/lv_widget.js:177 static/creme_core/js/lv_widget.js:347
+#: static/creme_core/js/lv_widget.js:181 static/creme_core/js/lv_widget.js:348
 msgid "Please select at least one entity."
 msgstr "Veuillez sélectionner au moins une fiche."
 
@@ -168,33 +168,33 @@ msgid_plural " %d entities cannot be deleted."
 msgstr[0] "%d entité n'a pu être supprimée."
 msgstr[1] "%d entités n'ont pu être supprimées."
 
-#: static/creme_core/js/lv_widget.js:192
+#: static/creme_core/js/lv_widget.js:196
 #: static/creme_core/js/widgets/dialog/dialog.js:250
 msgid "Close"
 msgstr "Fermer"
 
-#: static/creme_core/js/lv_widget.js:240
+#: static/creme_core/js/lv_widget.js:244
 msgid "Please select 2 entities."
 msgstr "Veuillez sélectioner 2 fiches."
 
-#: static/creme_core/js/lv_widget.js:352
+#: static/creme_core/js/lv_widget.js:353
 msgid "Please select only one entity."
 msgstr "Veuillez sélectioner une seule fiche."
 
-#: static/creme_core/js/lv_widget.js:360
+#: static/creme_core/js/lv_widget.js:361
 msgid "Validate the selection"
 msgstr "Valider la sélection"
 
-#: static/creme_core/js/lv_widget.js:406 static/creme_core/js/utils.js:130
-#: static/creme_core/js/utils.js:454
+#: static/creme_core/js/lv_widget.js:407 static/creme_core/js/utils.js:100
+#: static/creme_core/js/utils.js:418
 msgid "Are you sure ?"
 msgstr "Êtes-vous sûr ?"
 
-#: static/creme_core/js/lv_widget.js:425
+#: static/creme_core/js/lv_widget.js:426
 msgid "Do you really want to clone this entity?"
 msgstr "Voulez-vous vraiment cloner cette fiche ?"
 
-#: static/creme_core/js/menu.js:326
+#: static/creme_core/js/menu.js:117
 msgid "Chose the type of entity to create"
 msgstr "Choisir le type de fiche à créer"
 
@@ -230,29 +230,29 @@ msgstr "Chargement..."
 msgid "Ok"
 msgstr "Ok"
 
-#: static/creme_core/js/utils.js:158
+#: static/creme_core/js/utils.js:132
 #: static/creme_core/js/widgets/dialog/confirm.js:51
 #: static/creme_core/js/widgets/dialog/form.js:255
 #: static/creme_core/js/widgets/dialog/select.js:63
 msgid "Cancel"
 msgstr "Annuler"
 
-#: static/creme_core/js/utils.js:199 static/creme_core/js/utils.js:470
+#: static/creme_core/js/utils.js:173 static/creme_core/js/utils.js:437
 #: static/creme_core/js/widgets/dialog/form.js:228
 #: static/creme_core/js/widgets/dialog/form.js:230
 #: static/creme_core/js/widgets/dialog/form.js:242
 msgid "Save"
 msgstr "Enregistrer"
 
-#: static/creme_core/js/utils.js:215
+#: static/creme_core/js/utils.js:189
 msgid "Error during loading the page."
 msgstr "Le chargement de la page a échoué"
 
-#: static/creme_core/js/utils.js:371
+#: static/creme_core/js/utils.js:335
 msgid "Error !"
 msgstr "Erreur !"
 
-#: static/creme_core/js/utils.js:371
+#: static/creme_core/js/utils.js:335
 msgid "The page will be reload !"
 msgstr "La page va être rechargée !"
 
@@ -339,15 +339,15 @@ msgstr "Confirmation"
 msgid "Action"
 msgstr "Action"
 
-#: static/creme_core/js/widgets/dialog/dialog.js:764
+#: static/creme_core/js/widgets/dialog/dialog.js:750
 msgid "Alert"
 msgstr "Alerte"
 
-#: static/creme_core/js/widgets/dialog/dialog.js:782
+#: static/creme_core/js/widgets/dialog/dialog.js:768
 msgid "Warning"
 msgstr "Attention"
 
-#: static/creme_core/js/widgets/dialog/frame.js:191
+#: static/creme_core/js/widgets/dialog/frame.js:257
 msgid ""
 "Reload the page or click here. If the problem persists, please contact your "
 "administrator."
@@ -359,17 +359,17 @@ msgstr ""
 msgid "Selection"
 msgstr "Sélection"
 
-#: static/creme_core/js/widgets/entityselector.js:135
+#: static/creme_core/js/widgets/entityselector.js:134
 #, javascript-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: static/creme_core/js/widgets/plot.js:114
+#: static/creme_core/js/widgets/plot.js:108
 msgid "Canvas image"
 msgstr "Capture du graphique"
 
-#: static/creme_core/js/widgets/plot.js:171
-#: static/creme_core/js/widgets/plot.js:172
+#: static/creme_core/js/widgets/plot.js:161
+#: static/creme_core/js/widgets/plot.js:162
 msgid "View as image"
 msgstr "Capturer une image du graphique"
 

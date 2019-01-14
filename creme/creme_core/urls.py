@@ -106,7 +106,7 @@ headerfilter_patterns = [
 ]
 
 enumerable_patterns = [
-    url(r'^(?P<ct_id>\d+)/json[/]?$',                  enumerable.json_list_enumerable,        name='creme_core__list_enumerable'),  # DEPRECATED
+    # url(r'^(?P<ct_id>\d+)/json[/]?$',                  enumerable.json_list_enumerable,        name='creme_core__list_enumerable'),
     url(r'^(?P<ct_id>\d+)/(?P<field>[\w]+)/json[/]?$', enumerable.ChoicesView.as_view(),       name='creme_core__enumerable_choices'),
     url(r'^custom/(?P<cf_id>\d+)/json[/]?$',           enumerable.json_list_enumerable_custom, name='creme_core__cfield_enums'),
 
@@ -160,7 +160,7 @@ creme_core_patterns = [
     ])),
 
     url(r'^quickforms/', include([
-        url(r'^(?P<ct_id>\d+)/(?P<count>\d)[/]?$',   quick_forms.add,             name='creme_core__quick_forms'),
+        # url(r'^(?P<ct_id>\d+)/(?P<count>\d)[/]?$',   quick_forms.add,             name='creme_core__quick_forms'),
         url(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.QuickCreation.as_view(), name='creme_core__quick_form'),  # TODO: change the URL
     ])),
 ]

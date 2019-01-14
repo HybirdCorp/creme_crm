@@ -172,67 +172,67 @@ s556"""
         entries = list(chunktools.iter_splitchunks(chunks, '\r\n', ChunkToolsTestCase.filter))
         self.assertListEqual(['1234', '56789012', '345', '12'], entries)
 
-    def test_iter_splitlinechunks_linesize_over_limit(self):
-        "Tests small_chunks"
-        chunks = ['040599', '6654\r', '\n0405', '99665', '3\r040', '59966', '52']
-        entries = list(chunktools.iter_splitlinechunks(chunks, ChunkToolsTestCase.filter, limit=10))
-        self.assertListEqual(['0405996654', '0405996653', '0405996652'], entries)
-
-        chunks = ['77777', '88888', '\n9999', '90000', '0555\n', '11111', '22222']
-
-        with self.assertRaises(ValueError) as error:
-            list(chunktools.iter_splitlinechunks(chunks, ChunkToolsTestCase.filter, limit=10))
-
-        self.assertEqual(str(error.exception), 'line length is over %d characters' % 10)
-
-    def test_iter_splitlinechunks_size_under_line(self):
-        "Tests small_chunks"
-        chunk_size = 5
-        data = self.DATA_RANDOM_LINESEP
-
-        entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data), ChunkToolsTestCase.filter))
-        self.assertFilteredEntries(entries)
-
-        entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data)))
-        self.assertSplitEntries(entries)
-
-    def test_iter_splitlinechunks_size_1(self):
-        chunk_size = 1
-        data = self.DATA_RANDOM_LINESEP
-
-        entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data), ChunkToolsTestCase.filter))
-        self.assertFilteredEntries(entries)
-
-        entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data)))
-        self.assertSplitEntries(entries)
-
-    def test_iter_splitlinechunks_size_over_linesize(self):
-        "Test big_chunks"
-        chunk_size = len(self.DATA_RANDOM_LINESEP) / 2
-        data = self.DATA_RANDOM_LINESEP
-
-        entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data), ChunkToolsTestCase.filter))
-        self.assertFilteredEntries(entries)
-
-        entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data)))
-        self.assertSplitEntries(entries)
-
-    def test_iter_splitlinechunks_one_chunk(self):
-        "Test with one chunk"
-        chunk_size = len(self.DATA_RANDOM_LINESEP) * 2
-        data = self.DATA_RANDOM_LINESEP
-
-        entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data), ChunkToolsTestCase.filter))
-        self.assertFilteredEntries(entries)
-
-        entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data)))
-        self.assertSplitEntries(entries)
-
-    def test_iter_splitlinechunks_no_filter(self):
-        entries = list(chunktools.iter_splitlinechunks(self.chunks(5, self.DATA_RANDOM_LINESEP), None))
-        self.assertSplitEntries(entries)
-
-    def test_iter_splitlinechunks_nbytes_key_chunk_limits(self):
-        chunks = ['1234\r', '\n5678', '\n9012\r', '345\r\n', '12']
-        entries = list(chunktools.iter_splitlinechunks(chunks, ChunkToolsTestCase.filter))
-        self.assertListEqual(['1234', '5678', '9012', '345', '12'], entries)
+    # def test_iter_splitlinechunks_linesize_over_limit(self):
+    #     "Tests small_chunks"
+    #     chunks = ['040599', '6654\r', '\n0405', '99665', '3\r040', '59966', '52']
+    #     entries = list(chunktools.iter_splitlinechunks(chunks, ChunkToolsTestCase.filter, limit=10))
+    #     self.assertListEqual(['0405996654', '0405996653', '0405996652'], entries)
+    #
+    #     chunks = ['77777', '88888', '\n9999', '90000', '0555\n', '11111', '22222']
+    #
+    #     with self.assertRaises(ValueError) as error:
+    #         list(chunktools.iter_splitlinechunks(chunks, ChunkToolsTestCase.filter, limit=10))
+    #
+    #     self.assertEqual(str(error.exception), 'line length is over %d characters' % 10)
+    #
+    # def test_iter_splitlinechunks_size_under_line(self):
+    #     "Tests small_chunks"
+    #     chunk_size = 5
+    #     data = self.DATA_RANDOM_LINESEP
+    #
+    #     entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data), ChunkToolsTestCase.filter))
+    #     self.assertFilteredEntries(entries)
+    #
+    #     entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data)))
+    #     self.assertSplitEntries(entries)
+    #
+    # def test_iter_splitlinechunks_size_1(self):
+    #     chunk_size = 1
+    #     data = self.DATA_RANDOM_LINESEP
+    #
+    #     entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data), ChunkToolsTestCase.filter))
+    #     self.assertFilteredEntries(entries)
+    #
+    #     entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data)))
+    #     self.assertSplitEntries(entries)
+    #
+    # def test_iter_splitlinechunks_size_over_linesize(self):
+    #     "Test big_chunks"
+    #     chunk_size = len(self.DATA_RANDOM_LINESEP) / 2
+    #     data = self.DATA_RANDOM_LINESEP
+    #
+    #     entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data), ChunkToolsTestCase.filter))
+    #     self.assertFilteredEntries(entries)
+    #
+    #     entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data)))
+    #     self.assertSplitEntries(entries)
+    #
+    # def test_iter_splitlinechunks_one_chunk(self):
+    #     "Test with one chunk"
+    #     chunk_size = len(self.DATA_RANDOM_LINESEP) * 2
+    #     data = self.DATA_RANDOM_LINESEP
+    #
+    #     entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data), ChunkToolsTestCase.filter))
+    #     self.assertFilteredEntries(entries)
+    #
+    #     entries = list(chunktools.iter_splitlinechunks(self.chunks(chunk_size, data)))
+    #     self.assertSplitEntries(entries)
+    #
+    # def test_iter_splitlinechunks_no_filter(self):
+    #     entries = list(chunktools.iter_splitlinechunks(self.chunks(5, self.DATA_RANDOM_LINESEP), None))
+    #     self.assertSplitEntries(entries)
+    #
+    # def test_iter_splitlinechunks_nbytes_key_chunk_limits(self):
+    #     chunks = ['1234\r', '\n5678', '\n9012\r', '345\r\n', '12']
+    #     entries = list(chunktools.iter_splitlinechunks(chunks, ChunkToolsTestCase.filter))
+    #     self.assertListEqual(['1234', '5678', '9012', '345', '12'], entries)

@@ -594,36 +594,36 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
                            }
                           )
 
-    def test_create_legacy(self):
-        user = self.login()
-
-        self.assertFalse(Document.objects.exists())
-        self.assertTrue(Folder.objects.exists())
-
-        url = reverse('creme_core__quick_forms', args=(ContentType.objects.get_for_model(Document).id, 1))
-        self.assertGET200(url)
-
-        content = 'Yes I am the content (DocumentQuickFormTestCase.test_create_legacy)'
-        file_obj = self._build_filedata(content)
-        folder = Folder.objects.all()[0]
-
-        data = self.quickform_data(1)
-        self.quickform_data_append(data, 0, user=user.pk, filedata=file_obj, folder_id=folder.id)
-
-        self.assertNoFormError(self.client.post(url, follow=True, data=data))
-
-        docs = Document.objects.all()
-        self.assertEqual(1, len(docs))
-
-        doc = docs[0]
-        self.assertEqual('upload/documents/' + file_obj.base_name, doc.filedata.name)
-        self.assertEqual('', doc.description)
-        self.assertEqual(folder, doc.linked_folder)
-
-        filedata = doc.filedata
-        filedata.open('r')
-        self.assertEqual([content], filedata.readlines())
-        filedata.close()
+    # def test_create_legacy(self):
+    #     user = self.login()
+    #
+    #     self.assertFalse(Document.objects.exists())
+    #     self.assertTrue(Folder.objects.exists())
+    #
+    #     url = reverse('creme_core__quick_forms', args=(ContentType.objects.get_for_model(Document).id, 1))
+    #     self.assertGET200(url)
+    #
+    #     content = 'Yes I am the content (DocumentQuickFormTestCase.test_create_legacy)'
+    #     file_obj = self._build_filedata(content)
+    #     folder = Folder.objects.all()[0]
+    #
+    #     data = self.quickform_data(1)
+    #     self.quickform_data_append(data, 0, user=user.pk, filedata=file_obj, folder_id=folder.id)
+    #
+    #     self.assertNoFormError(self.client.post(url, follow=True, data=data))
+    #
+    #     docs = Document.objects.all()
+    #     self.assertEqual(1, len(docs))
+    #
+    #     doc = docs[0]
+    #     self.assertEqual('upload/documents/' + file_obj.base_name, doc.filedata.name)
+    #     self.assertEqual('', doc.description)
+    #     self.assertEqual(folder, doc.linked_folder)
+    #
+    #     filedata = doc.filedata
+    #     filedata.open('r')
+    #     self.assertEqual([content], filedata.readlines())
+    #     filedata.close()
 
     def test_create(self):
         user = self.login()

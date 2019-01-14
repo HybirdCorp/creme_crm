@@ -24,7 +24,7 @@
 #
 ################################################################################
 
-import warnings
+# import warnings
 
 
 def iter_splitchunks(chunks, sep, parser=None, limit=None):
@@ -57,34 +57,34 @@ def iter_splitchunks(chunks, sep, parser=None, limit=None):
         yield last
 
 
-# NB: broken if you pass bytes instead of str after the transition py2.7 => py3
-def iter_splitlinechunks(chunks, parser=None, limit=None):
-    warnings.warn('creme_core.utils.chunktools.iter_splitlinechunks() is deprecated ; '
-                  'you can use the method django.core.files.base.File.__iter__() instead for example.',
-                  DeprecationWarning
-                 )
-
-    overflow = ''
-    endline = '\r\n'
-
-    for chunk in chunks:
-        lines = (overflow + chunk).splitlines(True)
-        overflow = lines[-1]
-
-        if limit is not None and len(lines[0].rstrip(endline)) > limit:
-            raise ValueError('line length is over {} characters'.format(limit))
-
-        entries = [l.rstrip(endline) for l in lines[:-1]]
-        entries = map(parser, entries) if parser is not None else entries
-
-        for line in entries:
-            if line:
-                yield line
-
-    last = parser(overflow) if parser is not None else overflow
-
-    if last:
-        yield last
+# # NB: broken if you pass bytes instead of str after the transition py2.7 => py3
+# def iter_splitlinechunks(chunks, parser=None, limit=None):
+#     warnings.warn('creme_core.utils.chunktools.iter_splitlinechunks() is deprecated ; '
+#                   'you can use the method django.core.files.base.File.__iter__() instead for example.',
+#                   DeprecationWarning
+#                  )
+#
+#     overflow = ''
+#     endline = '\r\n'
+#
+#     for chunk in chunks:
+#         lines = (overflow + chunk).splitlines(True)
+#         overflow = lines[-1]
+#
+#         if limit is not None and len(lines[0].rstrip(endline)) > limit:
+#             raise ValueError('line length is over {} characters'.format(limit))
+#
+#         entries = [l.rstrip(endline) for l in lines[:-1]]
+#         entries = map(parser, entries) if parser is not None else entries
+#
+#         for line in entries:
+#             if line:
+#                 yield line
+#
+#     last = parser(overflow) if parser is not None else overflow
+#
+#     if last:
+#         yield last
 
 
 def iter_as_chunk(iterable, step):

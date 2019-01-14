@@ -19,7 +19,7 @@
 ################################################################################
 
 # TODO: move to 'core/' ??
-import warnings
+# import warnings
 
 from django.conf import settings
 
@@ -65,25 +65,25 @@ class _BackendRegistry:
     def backends(self):
         return iter(self._get_backends().values())
 
-    def iterbackends(self):
-        warnings.warn('_BackendRegistry.iterbackends() is deprecated ; '
-                      'use _BackendRegistry.backends instead.',
-                      DeprecationWarning
-                     )
-
-        return self.backends
+    # def iterbackends(self):
+    #     warnings.warn('_BackendRegistry.iterbackends() is deprecated ; '
+    #                   'use _BackendRegistry.backends instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return self.backends
 
     @property
     def extensions(self):
         return self._get_backends().keys()
 
-    def iterkeys(self):
-        warnings.warn('_BackendRegistry.iterkeys() is deprecated ; '
-                      'use _BackendRegistry.extensions instead.',
-                      DeprecationWarning
-                     )
-
-        return self.extensions
+    # def iterkeys(self):
+    #     warnings.warn('_BackendRegistry.iterkeys() is deprecated ; '
+    #                   'use _BackendRegistry.extensions instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return self.extensions
 
     def get_backend(self, backend_id):
         return self._get_backends().get(backend_id)
