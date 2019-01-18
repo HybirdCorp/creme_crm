@@ -24,9 +24,11 @@ team_patterns = [
 ]
 
 user_settings_patterns = [
-    url(r'^portal[/]?$',       user_settings.UserSettings.as_view(), name='creme_config__user_settings'),
-    url(r'^set_theme[/]?$',    user_settings.set_theme,              name='creme_config__set_user_theme'),
-    url(r'^set_timezone[/]?$', user_settings.set_timezone,           name='creme_config__set_user_timezone'),
+    url(r'^portal[/]?$',       user_settings.UserSettings.as_view(),    name='creme_config__user_settings'),
+    # url(r'^set_theme[/]?$',    user_settings.set_theme,              name='creme_config__set_user_theme'),
+    url(r'^set_theme[/]?$',    user_settings.ThemeSetting.as_view(),    name='creme_config__set_user_theme'),
+    # url(r'^set_timezone[/]?$', user_settings.set_timezone,           name='creme_config__set_user_timezone'),
+    url(r'^set_timezone[/]?$', user_settings.TimeZoneSetting.as_view(), name='creme_config__set_user_timezone'),
     url(r'^edit_value/(?P<skey_id>[\w-]+)[/]?$',
         user_settings.UserSettingValueEdition.as_view(),
         name='creme_config__edit_user_setting',

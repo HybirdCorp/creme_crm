@@ -18,18 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
-from django.core.exceptions import PermissionDenied
+# from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView
 
 from creme.creme_core import forms, models
 
-from . import base, popup
+from . import base  # popup
 
 
 # def edit_entity(request, object_id, model, edit_form,
