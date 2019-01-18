@@ -219,7 +219,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_brick_action_label_placeholder(self):
         # No action_type placeholder
-        self.assertBrickActionHtml(
+        self.assertBrickActionHTML(
             "{% brick_action 'add' %}",
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
@@ -230,7 +230,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             )
 
         # action_type placeholder
-        self.assertBrickActionHtml(
+        self.assertBrickActionHTML(
             "{% brick_action 'edit' %}",
             '''<a href="" title="{label}" class="brick-action action-type-edit  " data-action="edit">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
@@ -241,7 +241,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             )
 
         # force to empty string
-        self.assertBrickActionHtml(
+        self.assertBrickActionHTML(
             "{% brick_action 'add' label='' %}",
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
@@ -262,7 +262,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                           )
         )
 
-        self.assertBrickActionHtml(
+        self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' icon='delete' help_text='This action adds something' icon_size='small' %}",
             '''<a href="" title="{help_text}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{help_text}" alt="{help_text}" width="{icon_size}px"/>
@@ -281,7 +281,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             </a>'''.format(label='Add something')
         )
 
-        self.assertBrickActionHtml(
+        self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' display='text' help_text='This action adds something' %}",
             '''<a href="" title="{help_text}" class="brick-action action-type-add  " data-action="add">
                 <span class="brick-action-title">{label}</span>
@@ -302,7 +302,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                           ),
         )
 
-        self.assertBrickActionHtml(
+        self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' display='both' help_text='This action adds something' %}",
             '''<a href="" title="{help_text}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{help_text}" alt="{help_text}" width="{icon_size}px"/>
