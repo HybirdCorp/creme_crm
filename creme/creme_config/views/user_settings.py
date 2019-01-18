@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,16 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.transaction import atomic
-from django.http import Http404
+# from django.db.transaction import atomic
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.auth.decorators import login_required
+# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.core.setting_key import user_setting_key_registry
+from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import jsonify
+# from creme.creme_core.views.decorators import jsonify
 
 from .. import registry
 from ..forms import user_settings as settings_forms
@@ -52,39 +53,76 @@ class UserSettings(generic.BricksView):
         return context
 
 
-@login_required
-@jsonify
-def _set_usersetting(request, form_cls):
-    user = request.user
+# @login_required
+# @jsonify
+# def _set_usersetting(request, form_cls):
+#     user = request.user
+#
+#     if request.method == 'POST':
+#         with atomic():
+#             form = form_cls(
+#                 instance=get_object_or_404(user.__class__
+#                                                ._default_manager
+#                                                .select_for_update(),
+#                                            pk=user.pk,
+#                                           ),
+#                 user=user,
+#                 data=request.POST,
+#             )
+#
+#             if form.is_valid():
+#                 form.save()
+#
+#                 return {}
+#     else:
+#         form = form_cls(instance=user, user=user)
+#
+#     return {'form': form.as_span()}
+# TODO: only POST ?
+# TODO: generic class view for ajax+POST ?
+class _UserFieldSetting(generic.base.CremeFormView):
+    response_class = CremeJsonResponse
 
-    if request.method == 'POST':
-        with atomic():
-            form = form_cls(
-                instance=get_object_or_404(user.__class__
-                                               ._default_manager
-                                               .select_for_update(),
-                                           pk=user.pk,
-                                          ),
-                user=user,
-                data=request.POST,
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.get_user()
+
+        return kwargs
+
+    def get_user(self):
+        request = self.request
+        user = request.user
+
+        if request.method == 'POST':
+            return get_object_or_404(
+                user.__class__._default_manager.select_for_update(),
+                pk=user.pk,
             )
+        else:
+            return user
 
-            if form.is_valid():
-                form.save()
+    def form_invalid(self, form):
+        return self.response_class({'form': form.as_span()})
 
-                return {}
-    else:
-        form = form_cls(instance=user, user=user)
+    def form_valid(self, form):
+        form.save()
+        # return self.response_class({'form': form.as_span()})
+        return HttpResponse()
 
-    return {'form': form.as_span()}
-
-
-def set_theme(request):
-    return _set_usersetting(request, settings_forms.UserThemeForm)
+    def get(self, *args, **kwargs):
+        return self.response_class({'form': self.get_form().as_span()})
 
 
-def set_timezone(request):
-    return _set_usersetting(request, settings_forms.UserTimeZoneForm)
+# def set_theme(request):
+#     return _set_usersetting(request, settings_forms.UserThemeForm)
+class ThemeSetting(_UserFieldSetting):
+    form_class = settings_forms.UserThemeForm
+
+
+# def set_timezone(request):
+#     return _set_usersetting(request, settings_forms.UserTimeZoneForm)
+class TimeZoneSetting(_UserFieldSetting):
+    form_class = settings_forms.UserTimeZoneForm
 
 
 class UserSettingValueEdition(generic.CremeEditionPopup):
