@@ -10,13 +10,18 @@ QUnit.module("creme.billing.brick.actions", new QUnitMixin(QUnitEventMixin,
         var backend = this.backend;
         backend.options.enableUriSearch = true;
 
+        this.setMockBackendGET({
+            'mock/billing/document/add': backend.response(200, ''),
+        });
+
         this.setMockBackendPOST({
             'mock/billing/saveall': backend.response(200, ''),
             'mock/billing/saveall/fail': backend.response(400, 'Unable to save lines'),
             'mock/invoice/generatenumber/12': backend.response(200, ''),
             'mock/invoice/generatenumber/12/fail': backend.response(400, 'Unable to generate invoice number'),
             'mock/quote/convert/12': backend.response(200, 'mock/quote/invoice', {'content-type': 'text/plain'}),
-            'mock/quote/convert/12/fail': backend.response(400, 'Unable to convert this quote')
+            'mock/quote/convert/12/fail': backend.response(400, 'Unable to convert this quote'),
+            'mock/billing/document/add': backend.response(200, ''),
         });
 
         this.brickActionListeners = {
@@ -478,6 +483,182 @@ QUnit.test('creme.billing.hatmenubar.convert (ok)', function(assert) {
 
     deepEqual([['POST', {type: 'invoice'}]], this.mockBackendUrlCalls('mock/quote/convert/12'));
     deepEqual(['mock/quote/invoice'], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.billing.AddDocumentAction', function(assert) {
+    this.createBrickWidget({
+        deps: ['creme_core.relation']
+    }).brick();
+
+    var action = new creme.billing.AddDocumentAction({
+        url: 'mock/billing/document/add',
+    }).on({
+        'cancel': this.mockListener('action-cancel'),
+        'done': this.mockListener('action-done')
+    });
+
+    action.start();
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/billing/document/add'));
+
+    this.assertOpenedDialog();
+    deepEqual([], this.mockListenerCalls('action-done'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    this.submitFormDialog();
+
+    this.assertClosedDialog();
+    deepEqual([['done']], this.mockListenerCalls('action-done'));
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {}]
+    ], this.mockBackendUrlCalls('mock/billing/document/add'));
+
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.billing.AddDocumentAction (deps)', function(assert) {
+    this.createBrickWidget({
+        deps: ['creme_core.relation']
+    }).brick();
+
+    this.createBrickWidget({
+        id: 'brick-for-test-A',
+        deps: ['A', 'B']
+    }).brick();
+
+    this.createBrickWidget({
+        id: 'brick-for-test-B',
+        deps: ['C']
+    }).brick();
+
+    var action = new creme.billing.AddDocumentAction({
+        url: 'mock/billing/document/add',
+        deps: ['creme_core.relation', 'C']
+    }).on({
+        'cancel': this.mockListener('action-cancel'),
+        'done': this.mockListener('action-done')
+    });
+
+    action.start();
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/billing/document/add'));
+
+    this.assertOpenedDialog();
+    deepEqual([], this.mockListenerCalls('action-done'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    this.submitFormDialog();
+
+    this.assertClosedDialog();
+    deepEqual([['done']], this.mockListenerCalls('action-done'));
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {}]
+    ], this.mockBackendUrlCalls('mock/billing/document/add'));
+
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test", "brick-for-test-B"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.billing.AddDocumentAction (cancel)', function(assert) {
+    this.createBrickWidget({
+        deps: ['creme_core.relation']
+    }).brick();
+
+    var action = new creme.billing.AddDocumentAction({
+        url: 'mock/billing/document/add',
+    }).on({
+        'cancel': this.mockListener('action-cancel'),
+        'done': this.mockListener('action-done')
+    });
+
+    action.start();
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/billing/document/add'));
+
+    this.assertOpenedDialog();
+    deepEqual([], this.mockListenerCalls('action-cancel'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    this.closeDialog();
+    this.assertClosedDialog();
+
+    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/billing/document/add'));
+
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(assert) {
+    this.createBrickWidget({
+        deps: ['creme_core.relation']
+    }).brick();
+
+    this.createBrickWidget({
+        id: 'brick-for-test-A',
+        deps: ['A', 'B']
+    }).brick();
+
+    this.createBrickWidget({
+        id: 'brick-for-test-B',
+        deps: ['creme_core.relation.rtype-C', 'model-A']
+    }).brick();
+
+    this.createBrickWidget({
+        id: 'brick-for-model-A',
+        deps: ['model-A']
+    }).brick();
+
+    var widget = this.createHatMenuBar({
+        buttons: [
+            this.createHatMenuActionButton({
+                url: 'mock/billing/document/add',
+                action: 'billing-hatmenubar-add-document',
+                data: {
+                    rtype_id: ['rtype-C'],
+                    model_id: ['model-A']
+                }
+            })
+        ]
+    });
+
+    $(widget.element).find('a.menu_button').click();
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/billing/document/add'));
+
+    this.assertOpenedDialog();
+    deepEqual([], this.mockListenerCalls('action-done'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+
+    this.submitFormDialog();
+
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {}]
+    ], this.mockBackendUrlCalls('mock/billing/document/add'));
+
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test", "brick-for-test-B", "brick-for-model-A"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 }(jQuery));
