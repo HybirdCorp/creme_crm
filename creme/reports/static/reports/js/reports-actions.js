@@ -54,10 +54,19 @@ creme.reports.ExportReportAction = creme.component.Action.sub({
 });
 
 creme.reports.exportReport = function(filterUrl) {
+    console.warn('creme.reports.exportReport is deprecated. Use ExportReportAction or <a data-action="reports-export" ...> in bricks');
     return new creme.reports.ExportReportAction({
         filterUrl: filterUrl
     }).start();
 };
+
+$(document).on('brick-setup-actions', '.brick.brick-hat-bar', function(e, brick, actions) {
+    actions.register('reports-export', function(url, options, data, e) {
+        return new creme.reports.ExportReportAction({
+            filterUrl: url
+        });
+    });
+});
 
 $(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actions) {
     actions.register('reports-export', function(url, options, data, e) {

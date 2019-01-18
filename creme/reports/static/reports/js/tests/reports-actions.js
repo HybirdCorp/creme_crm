@@ -1,3 +1,5 @@
+/* globals QUnitDetailViewMixin */
+
 (function($) {
 var MOCK_FILTERFORM_DATERANGE = '<ul class="ui-creme-widget widget-auto ui-creme-daterange" widget="ui-creme-daterange">' +
                                     '<li class="daterange-field">' +
@@ -28,19 +30,19 @@ var MOCK_FILTERFORM_CONTENT = '<form class="report-preview-header">' +
                                        MOCK_FILTERFORM_DATERANGE +
                                    '</div>' +
                                    '<input type="submit" value="Export" class="ui-creme-dialog-action"></input>' +
-                              '</form>';
+                               '</form>';
 
-QUnit.module("creme.reports.listview.actions", new QUnitMixin(QUnitEventMixin,
-                                                              QUnitAjaxMixin,
-                                                              QUnitListViewMixin,
-                                                              QUnitDialogMixin, {
+QUnit.module("creme.reports.actions", new QUnitMixin(QUnitEventMixin,
+                                                     QUnitAjaxMixin,
+                                                     QUnitBrickMixin,
+                                                     QUnitDialogMixin,
+                                                     QUnitDetailViewMixin, {
     beforeEach: function() {
         var backend = this.backend;
         backend.options.enableUriSearch = true;
 
         this.setMockBackendGET({
             'mock/reports/filterform': backend.response(200, MOCK_FILTERFORM_CONTENT),
-            'mock/reports/filterform/fail': backend.response(200, MOCK_FILTERFORM_CONTENT),
             'mock/reports/preview': backend.response(200, '')
         });
 
@@ -52,48 +54,22 @@ QUnit.module("creme.reports.listview.actions", new QUnitMixin(QUnitEventMixin,
             'mock/reports/filterform/invalid': backend.response(200, MOCK_FILTERFORM_CONTENT),
             'mock/reports/filterform/fail': backend.response(400, 'HTTP 400 - Invalid arguments')
         });
+
+        this.brickActionListeners = {
+            start: this.mockListener('action-start'),
+            cancel: this.mockListener('action-cancel'),
+            fail: this.mockListener('action-fail'),
+            done: this.mockListener('action-done')
+        };
     }
 }));
 
-QUnit.test('creme.reports.ExportReportAction (cancel)', function(assert) {
-    var action = new creme.reports.ExportReportAction({
-        title: 'Export «Report #1»',
-        filterUrl: 'mock/reports/filterform'
-    }).on(this.listviewActionListeners);
+QUnit.test('creme.reports.hatbar.actions (reports-export, ok)', function(assert) {
+    var brick = this.createBrickWidget({
+        classes: ['brick-hat-bar']
+    }).brick();
 
-    action.start();
-
-    deepEqual([
-        ['GET', {}]
-    ], this.mockBackendUrlCalls('mock/reports/filterform'));
-
-    var dialog = this.assertOpenedDialog();
-
-    equal(2, dialog.find('.ui-dialog-buttonset button').length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
-
-    dialog.find('[name="doc_type"]').val('csv');
-    dialog.find('[name="date_field"]').val('');
-
-    this.closeDialog();
-
-    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-
-    deepEqual([
-        ['GET', {}]
-    ], this.mockBackendUrlCalls('mock/reports/filterform'));
-
-    deepEqual([], this.mockRedirectCalls());
-});
-
-QUnit.test('creme.reports.ExportReportAction (csv, none)', function(assert) {
-    var action = new creme.reports.ExportReportAction({
-        title: 'Export «Report #1»',
-        filterUrl: 'mock/reports/filterform'
-    }).on(this.listviewActionListeners);
-
-    action.start();
+    brick.action('reports-export', 'mock/reports/filterform').start();
 
     deepEqual([
         ['GET', {}]
@@ -114,68 +90,16 @@ QUnit.test('creme.reports.ExportReportAction (csv, none)', function(assert) {
 
     var download_url = 'mock/reports/download?' + $.param({doc_type: 'csv', date_field: '', date_filter_0: '', date_filter_2: ''});
 
-    deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
-
     deepEqual([
         ['GET', {}],
         ['POST', {doc_type: ['csv'], date_field: [''], date_filter_0: [''], date_filter_2: ['']}]
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
-    deepEqual([download_url],
-              this.mockRedirectCalls());
+    deepEqual([download_url], this.mockRedirectCalls());
 });
 
-QUnit.test('creme.reports.ExportReportAction (xls, created, previous_year)', function(assert) {
-    var action = new creme.reports.ExportReportAction({
-        title: 'Export «Report #1»',
-        filterUrl: 'mock/reports/filterform'
-    }).on(this.listviewActionListeners);
-
-    action.start();
-
-    deepEqual([
-        ['GET', {}]
-    ], this.mockBackendUrlCalls('mock/reports/filterform'));
-
-    var dialog = this.assertOpenedDialog();
-
-    equal(2, dialog.find('.ui-dialog-buttonset button').length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
-
-    dialog.find('[name="doc_type"]').val('xls');
-    dialog.find('[name="date_field"]').val('created').change();
-    dialog.find('[name="date_filter_0"]').val('previous_year').change();
-
-    this.findDialogButtonsByLabel(gettext('Export')).click();
-
-    this.assertClosedDialog();
-
-    var download_url = 'mock/reports/download?' + $.param({doc_type: 'xls', date_field: 'created', date_filter_0: 'previous_year', date_filter_2: ''});
-
-    deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
-
-    deepEqual([
-        ['GET', {}],
-        ['POST', {doc_type: ['xls'], date_field: ['created'], date_filter_0: ['previous_year'], date_filter_2: ['']}]
-    ], this.mockBackendUrlCalls('mock/reports/filterform'));
-
-    deepEqual([download_url],
-              this.mockRedirectCalls());
-});
-
-QUnit.test('creme.reports.listview.actions (reports-export, ok)', function(assert) {
-    var list = this.createDefaultListView();
-    var registry = list.getActionBuilders();
-
-    var builder = registry.get('reports-export');
-
-    ok(Object.isFunc(builder));
-    var action = builder('mock/reports/filterform', {
-        title: 'Export «Report #1»'
-    });
-
-    action.start();
+QUnit.test('creme.reports.exportReport (deprecated)', function(assert) {
+    creme.reports.exportReport('mock/reports/filterform');
 
     deepEqual([
         ['GET', {}]
