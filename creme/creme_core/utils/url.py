@@ -33,7 +33,7 @@ class TemplateURLBuilderError(Exception):
 
 
 class TemplateURLBuilder:
-    """ Resolve URLs by their name, but some parts of the URL can be replaced by
+    r""" Resolve URLs by their name, but some parts of the URL can be replaced by
     template-like arguments ; it can be useful to build template-URL for JavaScript.
 
     Example:
