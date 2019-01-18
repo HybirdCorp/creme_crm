@@ -40,7 +40,7 @@ QUnit.test('creme.billing.ExportDocumentAction (single format)', function(assert
     this.assertClosedDialog();
 
     deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual(['mock/export/12?format=pdf'], this.mockRedirectCalls());
+    deepEqual(['/mock/export/12?format=pdf'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.billing.ExportDocumentAction (multiple formats, cancel choice)', function(assert) {
@@ -74,7 +74,7 @@ QUnit.test('creme.billing.ExportDocumentAction (multiple formats, choose one)', 
     this.acceptConfirmDialog();
 
     deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual(['mock/export/12?format=html'], this.mockRedirectCalls());
+    deepEqual(['/mock/export/12?format=html'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', function(assert) {

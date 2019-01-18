@@ -140,7 +140,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (single selection)', functio
     this.assertClosedDialog();
 
     deepEqual([
-        'mock/merge?id1=157&id2=2'
+        '/mock/merge?id1=157&id2=2'
     ], this.mockRedirectCalls());
 });
 

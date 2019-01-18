@@ -42,7 +42,7 @@ creme.activities.ExportAsICalAction = creme.component.Action.sub({
                          .open();
         } else {
             self.done();
-            creme.utils.goTo(options.url + '?' + $.param({'id': selection}));
+            creme.utils.goTo(options.url, {id: selection});
         }
     }
 });

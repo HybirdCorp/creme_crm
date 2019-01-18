@@ -35,13 +35,13 @@ QUnit.test('creme.utils.showErrorNReload', function(assert) {
     creme.utils.showErrorNReload(150);
 
     this.assertOpenedAlertDialog(gettext('Error !') + gettext("The page will be reload !"));
-    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockReloadCalls());
 
     stop(1);
 
     setTimeout(function() {
         self.assertClosedDialog();
-        deepEqual([current_url], self.mockRedirectCalls());
+        deepEqual([current_url], self.mockReloadCalls());
         start();
     }, 300);
 });
@@ -54,19 +54,43 @@ QUnit.test('creme.utils.showErrorNReload (close)', function(assert) {
     creme.utils.showErrorNReload();
 
     this.assertOpenedAlertDialog(gettext('Error !') + gettext("The page will be reload !"));
-    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockReloadCalls());
 
     this.closeDialog();
-    deepEqual([current_url], this.mockRedirectCalls());
+    deepEqual([current_url], this.mockReloadCalls());
 });
 
 QUnit.test('creme.utils.reload', function(assert) {
     var current_url = window.location.href;
 
-    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockReloadCalls());
 
     creme.utils.reload();
-    deepEqual([current_url], this.mockRedirectCalls());
+    deepEqual([current_url], this.mockReloadCalls());
+});
+
+QUnit.test('creme.utils.goTo', function(assert) {
+    creme.utils.goTo('/test');
+    creme.utils.goTo('/test', {});
+    creme.utils.goTo('/test', {foo: 1});
+    creme.utils.goTo('/test?foo=1', {bar: [2, 3]});
+    creme.utils.goTo('/test?foo=1', {foo: 5, bar: [2, 3]});
+    creme.utils.goTo('/test?bar=7&bar=8&bar=9', {foo: 1, bar: [2, 3]});
+    creme.utils.goTo('/test?bar=0#id_node', {foo: 1, plop: 2});
+    creme.utils.goTo('/test', 'a=1&b=2&b=3');
+    creme.utils.goTo('/test?bar=0#id_node', 'foo=1&bar=2&bar=3');
+
+    deepEqual([
+        '/test',
+        '/test',
+        '/test?foo=1',
+        '/test?foo=1&bar=2&bar=3',
+        '/test?foo=5&bar=2&bar=3',
+        '/test?bar=2&bar=3&foo=1',
+        '/test?bar=0&foo=1&plop=2#id_node',
+        '/test?a=1&b=2&b=3',
+        '/test?bar=2&bar=3&foo=1#id_node'
+    ], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.utils.appendInUrl', function(assert) {

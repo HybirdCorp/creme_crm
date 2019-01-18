@@ -26,14 +26,40 @@ creme.utils.openWindow = function (url, name, params) {
     window[name] = window.open(url, name, params || 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600');
 };
 
+/*
 creme.utils.reload = function (target) {
     target = target || window;
     creme.utils.goTo(target.location.href, target);
+}
+*/
+creme.utils.reload = function () {
+    // reload without adding lines to history
+    window.location.replace(target.location.href);
 };
 
+creme.utils.redirect = function(url) {
+    window.location.assign(url);
+};
+
+/*
 creme.utils.goTo = function(url, target) {
     target = target || window;
     target.location.href = url;
+}
+*/
+creme.utils.goTo = function(url, data) {
+    if (Object.isEmpty(data)) {
+        creme.utils.redirect(url);
+    } else {
+        var urlinfo = new creme.ajax.URL(url);
+
+        if (Object.isString(data)) {
+            data = creme.ajax.decodeSearchData(data);
+        }
+
+        urlinfo.searchData($.extend({}, urlinfo.searchData(), data));
+        creme.utils.redirect(urlinfo.href());
+    }
 };
 
 creme.utils.showPageLoadOverlay = function() {
@@ -306,8 +332,9 @@ creme.utils.reloadDialog = function(dial) {
               });
 };
 
-// TODO: deprecate ?
 creme.utils.appendInUrl = function(url, strToAppend) {
+    console.warn('creme.utils.appendInUrl() is deprecated; use creme.utils.goTo() or creme.ajax.URL class instead.');
+
     var index_get = url.indexOf('?');
     var get = "", anchor = "";
 

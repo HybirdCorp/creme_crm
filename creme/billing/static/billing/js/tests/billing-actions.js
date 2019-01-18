@@ -229,7 +229,7 @@ QUnit.test('creme.billing.exportAs (single format)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual(['mock/export/12?format=pdf'], this.mockRedirectCalls());
+    deepEqual(['/mock/export/12?format=pdf'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.billing.exportAs (multiple formats, choose one)', function(assert) {
@@ -240,7 +240,7 @@ QUnit.test('creme.billing.exportAs (multiple formats, choose one)', function(ass
     $('.ui-dialog select').val('html');
     this.acceptConfirmDialog();
 
-    deepEqual(['mock/export/12?format=html'], this.mockRedirectCalls());
+    deepEqual(['/mock/export/12?format=html'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.billing.hatmenubar.export', function(assert) {
@@ -250,7 +250,7 @@ QUnit.test('creme.billing.hatmenubar.export', function(assert) {
 
     brick.action('billing-export', 'mock/export/12').start();
 
-    deepEqual(['mock/export/12?format=pdf'], this.mockRedirectCalls());
+    deepEqual(['/mock/export/12?format=pdf'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.billing.hatmenubar.invoice-number (fail)', function(assert) {
@@ -288,7 +288,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (ok)', function(assert) {
     this.assertClosedDialog();
 
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
-    deepEqual([current_url], this.mockRedirectCalls());
+    deepEqual([current_url], this.mockReloadCalls());
 });
 
 QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, cancel)', function(assert) {
@@ -310,7 +310,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, cancel)', function
     this.closeDialog();
 
     deepEqual([], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
-    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockReloadCalls());
 });
 
 QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, fail)', function(assert) {
@@ -360,7 +360,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, ok)', function(ass
     this.assertClosedDialog();
 
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
-    deepEqual([current_url], this.mockRedirectCalls());
+    deepEqual([current_url], this.mockReloadCalls());
 });
 
 QUnit.test('creme.billing.generateInvoiceNumber', function(assert) {
@@ -371,7 +371,7 @@ QUnit.test('creme.billing.generateInvoiceNumber', function(assert) {
     this.assertClosedDialog();
 
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
-    deepEqual([current_url], this.mockRedirectCalls());
+    deepEqual([current_url], this.mockReloadCalls());
 });
 
 }(jQuery));

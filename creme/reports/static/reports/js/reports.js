@@ -207,11 +207,11 @@ creme.reports.PreviewController = creme.component.Component.sub({
     },
 
     redirect: function() {
-        creme.utils.goTo(this._redirectUrl + '?' + $('form', this._header).serialize());
+        creme.utils.goTo(this._redirectUrl, $('form', this._header).serialize());
     },
 
     download: function() {
-        creme.utils.goTo(this._downloadUrl + '?' + $('form', this._header).serialize());
+        creme.utils.goTo(this._downloadUrl, $('form', this._header).serialize());
     }
 });
 

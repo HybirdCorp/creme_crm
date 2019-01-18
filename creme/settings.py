@@ -615,6 +615,7 @@ CREME_CORE_JS = ['main.js',
                     'creme_core/js/widgets/utils/compare.js',
                     'creme_core/js/widgets/utils/history.js',
 
+                    'creme_core/js/widgets/ajax/url.js',
                     'creme_core/js/widgets/ajax/backend.js',
                     'creme_core/js/widgets/ajax/mockbackend.js',
                     'creme_core/js/widgets/ajax/cachebackend.js',

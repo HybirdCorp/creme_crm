@@ -28,7 +28,7 @@
             var action = creme.lv_widget.listViewAction(data.selection_url + '?' + $.param({id1: data.id}), {multiple: false});
 
             action.onDone(function(event, selections) {
-                creme.utils.goTo(url + '?' + $.param({id1: data.id, id2: selections[0]}));
+                creme.utils.goTo(url, {id1: data.id, id2: selections[0]});
             });
 
             return action;

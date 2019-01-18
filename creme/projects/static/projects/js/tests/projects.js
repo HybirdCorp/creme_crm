@@ -33,7 +33,7 @@ QUnit.test('creme.projects.hatmenubar.close (not confirmed)', function(assert) {
     this.closeDialog();
 
     deepEqual([], this.mockBackendUrlCalls('/mock/projects/12/close'));
-    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockReloadCalls());
 });
 
 QUnit.test('creme.projects.hatmenubar.close (fail)', function(assert) {
@@ -56,7 +56,7 @@ QUnit.test('creme.projects.hatmenubar.close (fail)', function(assert) {
     this.closeDialog();
 
     deepEqual([], this.mockBackendUrlCalls('mock/projects/12/close'));
-    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockReloadCalls());
 });
 
 QUnit.test('creme.projects.hatmenubar.close', function(assert) {
@@ -78,7 +78,7 @@ QUnit.test('creme.projects.hatmenubar.close', function(assert) {
 
     this.assertClosedDialog();
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/projects/12/close'));
-    deepEqual([current_url], this.mockRedirectCalls());
+    deepEqual([current_url], this.mockReloadCalls());
 });
 
 QUnit.test('creme.projects.listview.actions (projects-close, cancel)', function(assert) {

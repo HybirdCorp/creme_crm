@@ -897,7 +897,7 @@ QUnit.test('creme.dialogs.html (reloadOnClose)', function(assert) {
     this.equalHtml('<p>This is a test</p>', dialog.content());
     dialog.close();
 
-    deepEqual([current_url], this.mockRedirectCalls());
+    deepEqual([current_url], this.mockReloadCalls());
 });
 
 }(jQuery));
