@@ -130,8 +130,8 @@ _DISPLAY_VALUES = frozenset(('text', 'icon', 'both'))
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/action.html', takes_context=True)
-def brick_action(context, id, url='', label='', icon=None, icon_size='brick-action', display='icon', enabled=True,
-                 confirm=None, loading=None, **kwargs):
+def brick_action(context, id, url='', label=None, icon=None, icon_size='brick-action', display='icon', enabled=True,
+                 confirm=None, loading=None, help_text=None, **kwargs):
     """Create a Creme-action (ie: link/button related to JavaScript code) made for use in a brick
     (see  creme/creme_core/static/creme_core/js/bricks.js).
 
@@ -163,7 +163,8 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
             - refresh: reload the brick & its dependencies (internal use)
     @param url: URL (string) used by the action (creation, edition etc...).
            Most of the actions need the URL to be given (see 'id' documentation).
-    @param label: String. Default labels are available for some action IDs (see DEFAULT_ACTION_LABELS).
+    @param label: String. Default labels are available for some action IDs (see DEFAULT_ACTION_LABELS), if not,
+           the placeholder 'Information' will be used.
     @param icon: The string identifying an Icon (eg: 'add'), or an Icon instance
            (see the templatetag {% widget_icon  %} of the lib creme_widget).
            Default is None ; but when an icon is need (parameter 'display' is 'icon or 'both') but no 'icon' is given,
@@ -179,6 +180,7 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
     @param confirm: Confirmation message. A not empty message means that a confirmation popup is displayed with this message.
            Default is None.
     @param loading: Loading message.
+    @param help_text: String. Same as label if not defined
     @param kwargs:
            These keys have a precise meaning:
                 - 'type': String used to generate the CSS class "action-type-{{action_type}}" ;
@@ -196,13 +198,16 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
     if icon is None and display != 'text':
         icon = action_type
 
-    if not label:
-        label = DEFAULT_ACTION_LABELS.get(action_type, '')
+    if label is None:
+        label = DEFAULT_ACTION_LABELS.get(action_type, None) or _('Information')
+
+    if not help_text:
+        help_text = label
 
     if isinstance(icon, str):
         theme = get_current_theme_from_context(context)
         icon = get_icon_by_name(icon, theme, size_px=get_icon_size_px(theme, icon_size),
-                                label=_(u'Information') if icon == 'info' else label,
+                                label=help_text,
                                )
 
     def _clean_extra_data(data, prefix='__'):
@@ -234,9 +239,10 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
         'url':      url,
         'disabled': not enabled,
 
-        'label':   label,
-        'icon':    icon,
-        'display': display,
+        'label':     label,
+        'help_text': help_text,
+        'icon':      icon,
+        'display':   display,
 
         'action_id':   id,
         'action_type': action_type,
