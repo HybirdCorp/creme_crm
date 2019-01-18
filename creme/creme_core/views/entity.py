@@ -41,6 +41,7 @@ from ..forms import CremeEntityForm
 from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
 from ..gui import bulk_update  # NB: do no import <bulk_update_registry> to facilitate unit testing
+from ..gui.merge import merge_form_registry
 from ..models import CremeEntity, EntityCredentials, FieldsConfig, Sandbox
 from ..models.fields import UnsafeHTMLField
 from ..utils import (get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404,
@@ -52,7 +53,7 @@ from ..utils.meta import ModelFieldEnumerator
 from . import generic
 from .decorators import jsonify, POST_only
 from .generic import base, listview
-from .utils import build_cancel_path
+# from .utils import build_cancel_path
 
 
 logger = logging.getLogger(__name__)
@@ -392,6 +393,7 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         return self.get_ctype().model_class()._default_manager.all()
 
 
+# TODO: merge_form_factory as attribute in future CBV
 @login_required
 def select_entity_for_merge(request):
     entity1_id = get_from_GET_or_404(request.GET, 'id1', cast=int)
@@ -410,93 +412,205 @@ def select_entity_for_merge(request):
                                    )
 
 
-@login_required
-@atomic
-def merge(request):
-    GET = request.GET
-    entity1_id = get_from_GET_or_404(GET, 'id1', cast=int)
-    entity2_id = get_from_GET_or_404(GET, 'id2', cast=int)
+# @login_required
+# @atomic
+# def merge(request):
+#     GET = request.GET
+#     entity1_id = get_from_GET_or_404(GET, 'id1', cast=int)
+#     entity2_id = get_from_GET_or_404(GET, 'id2', cast=int)
+#
+#     if entity1_id == entity2_id:
+#         raise ConflictError('You can not merge an entity with itself.')
+#
+#     entities = CremeEntity.objects.all()
+#
+#     if request.method == 'POST':
+#         entities = entities.select_for_update()
+#
+#     entities_per_id = entities.in_bulk((entity1_id, entity2_id))
+#
+#     try:
+#         entity1 = entities_per_id[entity1_id]
+#         entity2 = entities_per_id[entity2_id]
+#     except IndexError as e:
+#         raise Http404('Entity not found: {}'.format(e)) from e
+#
+#     if entity1.entity_type_id != entity2.entity_type_id:
+#         raise ConflictError('You can not merge entities of different types.')
+#
+#     user = request.user
+#     can_view = user.has_perm_to_view_or_die
+#     can_view(entity1); user.has_perm_to_change_or_die(entity1)
+#     can_view(entity2); user.has_perm_to_delete_or_die(entity2)
+#
+#     # todo: try to swap 1 & 2
+#
+#     real_entity1 = entity1.get_real_entity()
+#     real_entity2 = entity2.get_real_entity()
+#
+#     # todo: 'merge_form_registry' as attribute in the future CBV + pass it as argument here
+#     EntitiesMergeForm = merge_form_factory(real_entity1.__class__)
+#
+#     if EntitiesMergeForm is None:
+#         raise ConflictError('This type of entity cannot be merged')
+#
+#     if request.method == 'POST':
+#         POST = request.POST
+#         merge_form = EntitiesMergeForm(user=request.user, data=POST,
+#                                        entity1=real_entity1,
+#                                        entity2=real_entity2,
+#                                       )
+#
+#         if merge_form.is_valid():
+#             merge_form.save()
+#
+#             # NB: we get the entity1 attribute (ie: not the local variable),
+#             # because the entities can be swapped in the form (but form.entity1
+#             # is always kept & form.entity2 deleted).
+#             return redirect(merge_form.entity1)
+#
+#         cancel_url = POST.get('cancel_url')
+#     else:
+#         try:
+#             merge_form = EntitiesMergeForm(user=request.user,
+#                                            entity1=real_entity1,
+#                                            entity2=real_entity2,
+#                                           )
+#         except MergeEntitiesBaseForm.CanNotMergeError as e:
+#             raise ConflictError(e) from e
+#
+#         cancel_url = build_cancel_path(request)
+#
+#     return render(request,
+#                   'creme_core/forms/merge.html',
+#                   {'form':   merge_form,
+#                    'title': ugettext('Merge «{entity1}» with «{entity2}»').format(
+#                                    entity1=real_entity1,
+#                                    entity2=real_entity2,
+#                                 ),
+#                    'help_message': _('You are going to merge two entities into a new one.\n'
+#                                      'Choose which information you want the old entities '
+#                                      'give to the new entity.\n'
+#                                      'The relationships, the properties and the other links '
+#                                      'with any of old entities will be automatically '
+#                                      'available in the new merged entity.'
+#                                     ),
+#                    'submit_label': _('Merge'),
+#                    'cancel_url': cancel_url,
+#                   }
+#                  )
+class Merge(generic.CremeFormView):
+    template_name = 'creme_core/forms/merge.html'
+    title = _('Merge «{entity1}» with «{entity2}»')
+    submit_label = _('Merge')
 
-    if entity1_id == entity2_id:
-        raise ConflictError('You can not merge an entity with itself.')
+    merge_form_registry = merge_form_registry
+    entity1_id_arg = 'id1'
+    entity2_id_arg = 'id2'
 
-    entities = CremeEntity.objects.all()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.entity1 = self.entity2 = None
 
-    if request.method == 'POST':
-        entities = entities.select_for_update()
+    def check_entity1_permissions(self, entity1, user):
+        user.has_perm_to_view_or_die(entity1)
+        user.has_perm_to_change_or_die(entity1)
 
-    entities_per_id = entities.in_bulk((entity1_id, entity2_id))
+    def check_entity2_permissions(self, entity2, user):
+        user.has_perm_to_view_or_die(entity2)
+        user.has_perm_to_delete_or_die(entity2)
 
-    try:
-        entity1 = entities_per_id[entity1_id]
-        entity2 = entities_per_id[entity2_id]
-    except IndexError as e:
-        raise Http404('Entity not found: {}'.format(e)) from e
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_message'] = _(
+            'You are going to merge two entities into a new one.\n'
+            'Choose which information you want the old entities give to the new entity.\n'
+            'The relationships, the properties and the other links with any of '
+            'old entities will be automatically available in the new merged entity.'
+        )
 
-    if entity1.entity_type_id != entity2.entity_type_id:
-        raise ConflictError('You can not merge entities of different types.')
+        return context
 
-    user = request.user
-    can_view = user.has_perm_to_view_or_die
-    can_view(entity1); user.has_perm_to_change_or_die(entity1)
-    can_view(entity2); user.has_perm_to_delete_or_die(entity2)
+    # TODO: use POST for POST request ?
+    def get_entity1_id(self, request):
+        return get_from_GET_or_404(request.GET, self.entity1_id_arg, cast=int)
 
-    # TODO: try to swap 1 & 2
+    def get_entity2_id(self, request):
+        return get_from_GET_or_404(request.GET, self.entity2_id_arg, cast=int)
 
-    real_entity1 = entity1.get_real_entity()
-    real_entity2 = entity2.get_real_entity()
+    def get_entities(self):
+        if self.entity1 is None:
+            request = self.request
 
-    # TODO: 'merge_form_registry' as attribute in the future CBV + pass it as argument here
-    EntitiesMergeForm = merge_form_factory(real_entity1.__class__)
+            entity1_id = self.get_entity1_id(request)
+            entity2_id = self.get_entity2_id(request)
 
-    if EntitiesMergeForm is None:
-        raise ConflictError('This type of entity cannot be merged')
+            if entity1_id == entity2_id:
+                raise ConflictError('You can not merge an entity with itself.')
 
-    if request.method == 'POST':
-        POST = request.POST
-        merge_form = EntitiesMergeForm(user=request.user, data=POST,
-                                       entity1=real_entity1,
-                                       entity2=real_entity2,
-                                      )
+            entities = CremeEntity.objects.all()
 
-        if merge_form.is_valid():
-            merge_form.save()
+            if request.method == 'POST':
+                entities = entities.select_for_update()
 
-            # NB: we get the entity1 attribute (ie: not the local variable),
-            # because the entities can be swapped in the form (but form.entity1
-            # is always kept & form.entity2 deleted).
-            return redirect(merge_form.entity1)
+            entities_per_id = entities.in_bulk((entity1_id, entity2_id))
 
-        cancel_url = POST.get('cancel_url')
-    else:
+            try:
+                entity1 = entities_per_id[entity1_id]
+                entity2 = entities_per_id[entity2_id]
+            except IndexError as e:
+                raise Http404('Entity not found: {}'.format(e)) from e
+
+            if entity1.entity_type_id != entity2.entity_type_id:
+                raise ConflictError('You can not merge entities of different types.')
+
+            user = request.user
+            self.check_entity1_permissions(entity1=entity1, user=user)
+            self.check_entity2_permissions(entity2=entity2, user=user)
+
+            # TODO: try to swap 1 & 2
+
+            CremeEntity.populate_real_entities([entity1, entity2])
+            self.entity1 = entity1.get_real_entity()
+            self.entity2 = entity2.get_real_entity()
+
+        return self.entity1, self.entity2
+
+    def get_form(self, *args, **kwargs):
         try:
-            merge_form = EntitiesMergeForm(user=request.user,
-                                           entity1=real_entity1,
-                                           entity2=real_entity2,
-                                          )
+            return super().get_form(*args, **kwargs)
         except MergeEntitiesBaseForm.CanNotMergeError as e:
             raise ConflictError(e) from e
 
-        cancel_url = build_cancel_path(request)
+    def get_form_class(self):
+        form_cls = merge_form_factory(model=self.get_entities()[0].__class__,
+                                      merge_form_registry=self.merge_form_registry,
+                                     )
 
-    return render(request,
-                  'creme_core/forms/merge.html',
-                  {'form':   merge_form,
-                   'title': ugettext('Merge «{entity1}» with «{entity2}»').format(
-                                   entity1=real_entity1,
-                                   entity2=real_entity2,
-                                ),
-                   'help_message': _('You are going to merge two entities into a new one.\n'
-                                     'Choose which information you want the old entities '
-                                     'give to the new entity.\n'
-                                     'The relationships, the properties and the other links '
-                                     'with any of old entities will be automatically '
-                                     'available in the new merged entity.'
-                                    ),
-                   'submit_label': _('Merge'),
-                   'cancel_url': cancel_url,
-                  }
-                 )
+        if form_cls is None:
+            raise ConflictError('This type of entity cannot be merged')
+
+        return form_cls
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['entity1'], kwargs['entity2'] = self.get_entities()
+
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+
+        # NB: we get the entity1 attribute (ie: not the attribute),
+        #     because the entities can be swapped in the form (but form.entity1
+        #     is always kept & form.entity2 deleted).
+        return redirect(form.entity1)
+
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['entity2'], data['entity1'] = self.get_entities()
+
+        return data
 
 
 class Trash(generic.BricksView):
