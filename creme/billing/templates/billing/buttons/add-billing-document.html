@@ -1,4 +1,15 @@
 {% load i18n creme_core_tags creme_widgets %}{% has_perm_to link object as link_perm %}
+<a class="menu_button menu-button-icon {% if not link_perm %}is-disabled{% endif %}" data-action="billing-hatmenubar-add-document" href="{% url url_name object.id %}">
+    {% widget_icon name='invoice' size='instance-button' label=model_vname %}
+    {{verbose_name}}
+    {% blockjsondata %}{
+        "data": {
+            "rtype_id": "{{rtype_id}}",
+            "model_id": "{{model_id}}"
+        }
+    }{% endblockjsondata %}
+</a>
+{% comment %}
 {% if link_perm %}
     <a class="menu_button menu-button-icon" onclick="creme.dialogs.form('{% url url_name object.id %}').onFormSuccess(function() {new creme.bricks.BricksReloader().dependencies(['creme_core.relation', 'creme_core.relation.{{rtype_id}}', '{{model_id}}']).action().start();}).open({width: '80%'});">
         {% widget_icon name='invoice' size='instance-button' label=model_vname %}
@@ -10,3 +21,4 @@
         {{verbose_name}}
     </span>
 {% endif %}
+{% endcomment %}

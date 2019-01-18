@@ -90,6 +90,39 @@ creme.billing.generateInvoiceNumber = function(url) {
     }).start();
 };
 
+creme.billing.AddDocumentAction = creme.component.Action.sub({
+    _init_: function(options) {
+        this._super_(creme.component.Action, '_init_', this._run, options);
+    },
+
+    _run: function(options) {
+        options = $.extend(this.options(), options || {});
+
+        var width = $(window).innerWidth();
+        var deps = options.deps || ['creme_core.relation'];
+
+        var self = this;
+        var reload = new creme.bricks.BricksReloader().dependencies(deps).action();
+
+        var dialog = new creme.dialog.FormDialogAction({
+            width: width * 0.8,
+            maxWidth: width,
+            url: options.url
+        });
+
+        dialog.onDone(function() {
+            reload.on({
+                fail: function(event, error) { self.fail(error); },
+                'done cancel': function() { self.done(); }
+            }).start();
+        }).onFail(function(event, error) {
+            self.fail(error);
+        }).onCancel(function(event) {
+            self.cancel();
+        }).start();
+    }
+});
+
 var hatmenubarActions = {
     'billing-hatmenubar-invoice-number': function(url, options, data, e) {
         return creme.utils.ajaxQuery(url, $.extend({
@@ -106,6 +139,16 @@ var hatmenubarActions = {
 
         return action.onDone(function(event, data) {
             creme.utils.goTo(data);
+        });
+    },
+    'billing-hatmenubar-add-document': function(url, options, data, e) {
+        return new creme.billing.AddDocumentAction({
+            url: url,
+            deps: [
+                'creme_core.relation',
+                'creme_core.relation.' + data.rtype_id,
+                data.model_id
+            ]
         });
     }
 };
