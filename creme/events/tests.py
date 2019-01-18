@@ -506,18 +506,23 @@ class EventsTestCase(CremeTestCase):
     def test_list_contacts(self):
         user = self.login()
 
-        event = self._create_event('Eclipse')
+        event1 = self._create_event('Eclipse')
+        event2 = self._create_event('Coronation')
 
         create_contact = partial(Contact.objects.create, user=user)
-        casca    = create_contact(first_name='Casca',    last_name='Miura')
-        judo     = create_contact(first_name='Judo',     last_name='Miura')
-        griffith = create_contact(first_name='Griffith', last_name='Miura')
+        casca     = create_contact(first_name='Casca',     last_name='Miura')
+        judo      = create_contact(first_name='Judo',      last_name='Miura')
+        griffith  = create_contact(first_name='Griffith',  last_name='Miura')
+        charlotte = create_contact(first_name='Charlotte', last_name='Miura')
 
-        self._set_presence_status(event, casca, constants.PRES_STATUS_COME)
-        self._set_invitation_status(event, judo, constants.INV_STATUS_NO_ANSWER)
-        self._set_invitation_status(event, griffith, constants.INV_STATUS_ACCEPTED)
+        self._set_presence_status(event1, casca, constants.PRES_STATUS_COME)
+        self._set_invitation_status(event1, judo, constants.INV_STATUS_NO_ANSWER)
+        self._set_invitation_status(event1, griffith, constants.INV_STATUS_ACCEPTED)
 
-        response = self.assertGET200(reverse('events__list_related_contacts', args=(event.id,)))
+        self._set_presence_status(event2, griffith,  constants.PRES_STATUS_COME)
+        self._set_presence_status(event2, charlotte, constants.PRES_STATUS_COME)
+
+        response = self.assertGET200(reverse('events__list_related_contacts', args=(event1.id,)))
 
         with self.assertNoException():
             contacts_page = response.context['entities']
