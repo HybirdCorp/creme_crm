@@ -28,25 +28,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
 
-from ... import billing
-
-
-CreditNote = billing.get_credit_note_model()
-Quote      = billing.get_quote_model()
-Invoice    = billing.get_invoice_model()
-SalesOrder = billing.get_sales_order_model()
-_CLASS_MAP = {
-    'credit_note': CreditNote,  # NB: unused
-    'invoice':     Invoice,
-    'quote':       Quote,
-    'sales_order': SalesOrder,
-}
-CONVERT_MATRIX = {
-    CreditNote: {'invoice'},
-    Invoice:    {'quote', 'sales_order'},
-    Quote:      {'sales_order', 'invoice'},
-    SalesOrder: {'invoice'},
-}
+from ..core import CLASS_MAP as _CLASS_MAP, CONVERT_MATRIX
 
 
 @decorators.login_required
@@ -84,6 +66,6 @@ def convert(request, document_id):
         dest.save()
 
     if request.is_ajax():
-        return HttpResponse()
+        return HttpResponse(dest.get_absolute_url(), content_type='text/plain')
 
     return redirect(dest)

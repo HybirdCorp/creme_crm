@@ -44,10 +44,10 @@ class QuoteTestCase(_BillingTestCase):
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
 
-        self.assertContains(response, '<form id="id_convert2invoice"')
+        self.assertContains(response, '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"')
 
         self.assertContains(response, _('Convert to Salesorder'))
-        self.assertNotContains(response, '<form id="id_convert2order"')
+        self.assertContains(response, '"type": "sales_order"')
 
     def test_detailview02(self):
         "Cannot create Invoice => convert button disabled"
@@ -65,11 +65,10 @@ class QuoteTestCase(_BillingTestCase):
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
 
-        self.assertContains(response, '<form id="id_convert2order"')
+        self.assertContains(response, '<a class="menu_button menu-button-icon is-disabled" data-action="billing-hatmenubar-convert"')
 
-        self.assertNotContains(response, '<form id="id_convert2invoice"')
         self.assertContains(response, _('Convert to Invoice'))
-
+        self.assertContains(response, '"type": "invoice"')
 
     def test_createview01(self):
         self.login()

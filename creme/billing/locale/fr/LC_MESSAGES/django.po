@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'BILLING' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 14:47+0100\n"
+"POT-Creation-Date: 2019-01-16 09:21+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,7 @@ msgstr "Télécharger en tant que PDF"
 msgid "Invoice number"
 msgstr "Numéro de Facture"
 
-#: actions.py:65 buttons.py:40
+#: actions.py:65 buttons.py:42
 #: templates/billing/buttons/generate-invoice-number.html:4
 msgid "Generate the number of the Invoice"
 msgstr "Générer le numéro de facture"
@@ -39,11 +39,11 @@ msgstr "Voulez vous vraiment générer un numéro de facture ?"
 msgid "Billing"
 msgstr "Facturation"
 
-#: apps.py:171 apps.py:180
+#: apps.py:186 apps.py:195
 msgid "Management"
 msgstr "Gestion"
 
-#: apps.py:207
+#: apps.py:222
 #, python-brace-format
 msgctxt "billing-quote_stats"
 msgid "{count} won"
@@ -51,7 +51,7 @@ msgid_plural "{count} won"
 msgstr[0] "{count} gagné"
 msgstr[1] "{count} gagnés"
 
-#: apps.py:215
+#: apps.py:230
 #, python-brace-format
 msgctxt "billing-quote_stats"
 msgid "{count} in all"
@@ -171,17 +171,31 @@ msgstr "Information de paiement par défaut"
 msgid "Billing statistics"
 msgstr "Statistiques de facturation"
 
-#: buttons.py:80
+#: buttons.py:82
 msgid "Create a related invoice"
 msgstr "Créer une facture liée"
 
-#: buttons.py:88
+#: buttons.py:90
 msgid "Create a related salesorder"
 msgstr "Créer un bon de commande lié"
 
-#: buttons.py:96
+#: buttons.py:98
 msgid "Create a related quote"
 msgstr "Créer un devis lié"
+
+#: buttons.py:127 templates/billing/frags/button_convert2invoice.html:8
+#: templates/billing/frags/button_convert2invoice.html:16
+msgid "Convert to Invoice"
+msgstr "Convertir en Facture"
+
+#: buttons.py:134 templates/billing/frags/button_convert2order.html:8
+#: templates/billing/frags/button_convert2order.html:16
+msgid "Convert to Salesorder"
+msgstr "Convertir en Bon de Commande"
+
+#: buttons.py:141
+msgid "Convert to Quote"
+msgstr "Convertir en Devis"
 
 #: constants.py:44
 msgid "Percent"
@@ -327,20 +341,20 @@ msgstr "Statut"
 msgid "Status of {}"
 msgstr "Statut de {}"
 
-#: function_fields.py:131 function_fields.py:141 function_fields.py:153
-#: function_fields.py:164
+#: function_fields.py:139 function_fields.py:149 function_fields.py:161
+#: function_fields.py:172
 msgid "Error: «Acceptation date» is hidden"
 msgstr "Erreur: «Date d'acceptation» est caché"
 
-#: function_fields.py:221 templates/billing/bricks/persons-statistics.html:25
+#: function_fields.py:244 templates/billing/bricks/persons-statistics.html:25
 msgid "Total Pending Payment"
 msgstr "Total des paiements en attente"
 
-#: function_fields.py:235 templates/billing/bricks/persons-statistics.html:21
+#: function_fields.py:258 templates/billing/bricks/persons-statistics.html:21
 msgid "Total Won Quote This Year"
 msgstr "Total des Devis remportés cette année"
 
-#: function_fields.py:249 templates/billing/bricks/persons-statistics.html:17
+#: function_fields.py:272 templates/billing/bricks/persons-statistics.html:17
 msgid "Total Won Quote Last Year"
 msgstr "Total des Devis remportés l'année dernière"
 
@@ -987,44 +1001,44 @@ msgstr ""
 "étant agrée formateur les formations pourront être prises en charge par "
 "votre OPCA"
 
-#: populate.py:285
+#: populate.py:294
 msgid "Invoice information"
 msgstr "Informations sur la facture"
 
-#: populate.py:293
+#: populate.py:302
 msgid "Credit note information"
 msgstr "Informations sur l'avoir"
 
-#: populate.py:298
+#: populate.py:307
 msgid "Quote information"
 msgstr "Informations sur le devis"
 
-#: populate.py:306
+#: populate.py:315
 msgid "Salesorder information"
 msgstr "Informations sur le bon de commande"
 
-#: populate.py:311
+#: populate.py:320
 msgctxt "billing"
 msgid "Template information"
 msgstr "Informations sur le patron de document"
 
-#: populate.py:406
+#: populate.py:415
 msgid "All invoices of the current year"
 msgstr "Toutes les factures de l'année en cours"
 
-#: populate.py:411
+#: populate.py:420
 msgid "Sum of current year invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures de l'année en cours / mois"
 
-#: populate.py:417
+#: populate.py:426
 msgid "Sum of current year invoices total without taxes / invoices status"
 msgstr "Somme des totaux HT des factures de l'année en cours / statut"
 
-#: populate.py:428
+#: populate.py:437
 msgid "Invoices unpaid of the current year"
 msgstr "Factures impayées de l'année en cours"
 
-#: populate.py:433
+#: populate.py:442
 msgid "Sum of current year and unpaid invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures impayées de l'année en cours / mois"
 
@@ -1223,20 +1237,10 @@ msgid "Totals"
 msgstr "Totaux"
 
 #: templates/billing/buttons/add-billing-document.html:8
-#: templates/billing/frags/button_convert2invoice.html:13
-#: templates/billing/frags/button_convert2order.html:13
+#: templates/billing/frags/button_convert2invoice.html:16
+#: templates/billing/frags/button_convert2order.html:16
 msgid "forbidden"
 msgstr "interdit"
-
-#: templates/billing/frags/button_convert2invoice.html:5
-#: templates/billing/frags/button_convert2invoice.html:13
-msgid "Convert to Invoice"
-msgstr "Convertir en Facture"
-
-#: templates/billing/frags/button_convert2order.html:5
-#: templates/billing/frags/button_convert2order.html:13
-msgid "Convert to Salesorder"
-msgstr "Convertir en Bon de Commande"
 
 #: templates/billing/frags/lines-errors.html:4
 #, python-format
@@ -1261,7 +1265,7 @@ msgstr "Champ <em>«%(field_name)s»</em> :"
 msgid "{} %"
 msgstr "{} %"
 
-#: views/convert.py:79
+#: views/convert.py:85
 #, python-brace-format
 msgid "{src} (converted into {dest})"
 msgstr "{src} (converti en {dest})"

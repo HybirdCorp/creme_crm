@@ -1,7 +1,6 @@
 /* global QUnitDetailViewMixin */
 
 (function($) {
-
 QUnit.module("creme.billing.brick.actions", new QUnitMixin(QUnitEventMixin,
                                                            QUnitAjaxMixin,
                                                            QUnitBrickMixin,
@@ -15,7 +14,9 @@ QUnit.module("creme.billing.brick.actions", new QUnitMixin(QUnitEventMixin,
             'mock/billing/saveall': backend.response(200, ''),
             'mock/billing/saveall/fail': backend.response(400, 'Unable to save lines'),
             'mock/invoice/generatenumber/12': backend.response(200, ''),
-            'mock/invoice/generatenumber/12/fail': backend.response(400, 'Unable to generate invoice number')
+            'mock/invoice/generatenumber/12/fail': backend.response(400, 'Unable to generate invoice number'),
+            'mock/quote/convert/12': backend.response(200, 'mock/quote/invoice', {'content-type': 'text/plain'}),
+            'mock/quote/convert/12/fail': backend.response(400, 'Unable to convert this quote')
         });
 
         this.brickActionListeners = {
@@ -124,6 +125,7 @@ QUnit.test('creme.billing.brick (billing-line-saveall, invalid response)', funct
     brick.element().find('#product_line_formset-0-product').val('Product #1').change();
 
     equal(false, creme.billing.formsHaveErrors());
+    equal(1, creme.billing.modifiedBLineForms().length);
 
     brick.action('billing-line-saveall', 'mock/billing/saveall/fail').on(this.brickActionListeners).start();
 
@@ -137,6 +139,26 @@ QUnit.test('creme.billing.brick (billing-line-saveall, invalid response)', funct
     this.closeDialog();
 
     deepEqual([['fail', 'Unable to save lines']], this.mockListenerCalls('action-fail'));
+    deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.billing.brick (billing-line-saveall, no changes)', function(assert) {
+    var brick = this.createBillingBrick({
+        lines: [
+            {inputs: [{name: 'quantity', value: 1}, {name: 'product', value: 'Product #1', validator: 'Value'}]}
+        ]
+    }).brick();
+
+    equal(false, creme.billing.formsHaveErrors());
+    equal(0, creme.billing.modifiedBLineForms().length);
+
+    brick.action('billing-line-saveall', 'mock/billing/saveall').on(this.brickActionListeners).start();
+
+    deepEqual([], this.mockBackendUrlCalls('mock/billing/saveall'));
+
+    this.assertClosedDialog();
+
+    deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
@@ -224,6 +246,46 @@ QUnit.test('creme.billing.brick (billing-line-addonfly, forbidden)', function(as
     equal(true, addonflyLink.is('.forbidden'));
 });
 
+QUnit.test('creme.billing.brick (billing-line-clearonfly)', function(assert) {
+    var brick = this.createBillingBrick({
+        buttons: [{
+                classes: ['brick-header-button action-type-add'],
+                action: 'billing-line-addonfly',
+                data: {ctype_id: 86, prefix: "product_line_formset", count: 1}
+            }, {
+                classes: ['brick-header-button action-type-delete'],
+                action: 'billing-line-clearonfly',
+                data: {ctype_id: 86, prefix: "product_line_formset", count: 1}
+            }],
+        lines: [{
+                inputs: [{name: 'quantity', value: 1}, {name: 'product', value: 'Product #1', validator: 'Value'}]
+            }, {
+                inputs: [{name: 'quantity', value: 1}, {name: 'product', value: '', validator: 'Value'}],
+                classes: ['hidden-form empty_form_${ctype} empty_form_inputs_${ctype}'.template({ctype: 86})]
+            }]
+    }).brick();
+
+    var addonflyLink = brick.element().find('[data-action="billing-line-addonfly"]');
+    var clearonflyLink = brick.element().find('[data-action="billing-line-clearonfly"]');
+
+    equal(false, creme.billing.formsHaveErrors());
+    equal(1, brick.element().find('.hidden-form').length);
+    equal(false, addonflyLink.is('.forbidden'));
+
+    addonflyLink.click();
+
+    equal(true, creme.billing.formsHaveErrors());
+    equal(0, brick.element().find('.hidden-form').length);
+    equal(true, addonflyLink.is('.forbidden'));
+
+    clearonflyLink.click();
+
+    equal(false, creme.billing.formsHaveErrors());
+    equal(1, brick.element().find('.hidden-form').length);
+    equal(false, addonflyLink.is('.forbidden'));
+});
+
+/*
 QUnit.test('creme.billing.exportAs (single format)', function(assert) {
     creme.billing.exportAs('mock/export/12');
 
@@ -242,6 +304,7 @@ QUnit.test('creme.billing.exportAs (multiple formats, choose one)', function(ass
 
     deepEqual(['/mock/export/12?format=html'], this.mockRedirectCalls());
 });
+*/
 
 QUnit.test('creme.billing.hatmenubar.export', function(assert) {
     var brick = this.createBrickWidget({
@@ -268,7 +331,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (fail)', function(assert) {
     this.assertOpenedAlertDialog('Unable to generate invoice number');
     this.closeDialog();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12/fail'));
     deepEqual([], this.mockRedirectCalls());
 });
 
@@ -334,7 +397,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, fail)', function(a
     this.assertOpenedAlertDialog('Unable to generate invoice number');
     this.closeDialog();
 
-    deepEqual([], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
+    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12/fail'));
     deepEqual([], this.mockRedirectCalls());
 });
 
@@ -372,6 +435,49 @@ QUnit.test('creme.billing.generateInvoiceNumber', function(assert) {
 
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
     deepEqual([current_url], this.mockReloadCalls());
+});
+
+QUnit.test('creme.billing.hatmenubar.convert (fail)', function(assert) {
+    var widget = this.createHatMenuBar({
+        buttons: [
+            this.createHatMenuActionButton({
+                url: 'mock/quote/convert/12/fail',
+                action: 'billing-hatmenubar-convert',
+                data: {
+                    type: 'invoice'
+                }
+            })
+        ]
+    });
+
+    $(widget.element).find('a.menu_button').click();
+
+    this.assertOpenedAlertDialog('Unable to convert this quote');
+    this.closeDialog();
+
+    deepEqual([['POST', {type: 'invoice'}]], this.mockBackendUrlCalls('mock/quote/convert/12/fail'));
+    deepEqual([], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.billing.hatmenubar.convert (ok)', function(assert) {
+    var widget = this.createHatMenuBar({
+        buttons: [
+            this.createHatMenuActionButton({
+                url: 'mock/quote/convert/12',
+                action: 'billing-hatmenubar-convert',
+                data: {
+                    type: 'invoice'
+                }
+            })
+        ]
+    });
+
+    $(widget.element).find('a.menu_button').click();
+
+    this.assertClosedDialog();
+
+    deepEqual([['POST', {type: 'invoice'}]], this.mockBackendUrlCalls('mock/quote/convert/12'));
+    deepEqual(['mock/quote/invoice'], this.mockRedirectCalls());
 });
 
 }(jQuery));

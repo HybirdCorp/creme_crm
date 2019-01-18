@@ -8,6 +8,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query_utils import Q
     from django.urls import reverse
+    from django.utils.encoding import force_text
     from django.utils.timezone import now
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -20,20 +21,34 @@ try:
     from ..models import (AdditionalInformation, PaymentInformation, PaymentTerms,
             InvoiceStatus, QuoteStatus, SalesOrderStatus)
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+    from ..core import get_models_for_conversion
     from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomInvoice,
             skipIfCustomSalesOrder, skipIfCustomProductLine, skipIfCustomServiceLine,
             Organisation, Address,
-            Invoice, Quote, SalesOrder, ProductLine, ServiceLine)
+            CreditNote, Invoice, Quote, SalesOrder, ProductLine, ServiceLine)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomOrganisation
 class ConvertTestCase(_BillingTestCase):
-    def _convert(self, status_code, src, dest_type):
-        self.assertPOST(status_code, reverse('billing__convert', args=(src.id,)),
-                        data={'type': dest_type}, follow=True
-                       )
+    def _convert(self, status_code, src, dest_type, is_ajax=False):
+        http_header = {}
+
+        if is_ajax:
+            http_header = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        return self.assertPOST(status_code, reverse('billing__convert', args=(src.id,)),
+                               data={'type': dest_type}, follow=True, **http_header
+                              )
+
+    def test_get_models_for_conversion(self):
+        self.assertEqual([], list(get_models_for_conversion('unknown')))
+
+        self.assertEqual([CreditNote, Quote, SalesOrder], list(get_models_for_conversion('invoice')))
+        self.assertEqual([], list(get_models_for_conversion('credit_note')))
+        self.assertEqual([Invoice], list(get_models_for_conversion('quote')))
+        self.assertEqual([Invoice, Quote], list(get_models_for_conversion('sales_order')))
 
     @skipIfCustomAddress
     @skipIfCustomQuote
@@ -134,6 +149,30 @@ class ConvertTestCase(_BillingTestCase):
         self._convert(200, quote, 'sales_order')
         self.assertEqual(0, Invoice.objects.count())
         self.assertEqual(1, SalesOrder.objects.count())
+
+    @skipIfCustomQuote
+    @skipIfCustomSalesOrder
+    def test_convert02_ajax(self):
+        "SalesOrder + not superuser"
+        self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
+
+        get_ct = ContentType.objects.get_for_model
+        self.role.creatable_ctypes.set([get_ct(Quote), get_ct(SalesOrder)])
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   | EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        quote = self.create_quote_n_orgas('My Quote')[0]
+
+        response = self._convert(200, quote, 'sales_order', is_ajax=True)
+        self.assertEqual(0, Invoice.objects.count())
+        self.assertEqual(1, SalesOrder.objects.count())
+
+        self.assertEqual(force_text(response.content),
+                         SalesOrder.objects.first().get_absolute_url())
 
     @skipIfCustomQuote
     def test_convert03(self):

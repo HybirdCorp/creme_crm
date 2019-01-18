@@ -90,14 +90,28 @@ creme.billing.generateInvoiceNumber = function(url) {
     }).start();
 };
 
-$(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {
-    actions.register('billing-hatmenubar-invoice-number', function(url, options, data, e) {
+var hatmenubarActions = {
+    'billing-hatmenubar-invoice-number': function(url, options, data, e) {
         return creme.utils.ajaxQuery(url, $.extend({
             action: 'post',
             warnOnFail: true,
             reloadOnSuccess: true
         }, options || {}));
-    });
+    },
+    'billing-hatmenubar-convert': function(url, options, data, e) {
+        var action = creme.utils.ajaxQuery(url, $.extend({
+            action: 'post',
+            warnOnFail: true
+        }, options || {}), data);
+
+        return action.onDone(function(event, data) {
+            creme.utils.goTo(data);
+        });
+    }
+};
+
+$(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {
+    actions.registerAll(hatmenubarActions);
 });
 
 $(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actions) {
@@ -150,16 +164,17 @@ var billingLinesActions = {
                              .open();
             } else {
                 var formsData = {};
+                var modifiedLines = creme.billing.modifiedBLineForms();
 
-                creme.billing.modifiedBLineForms().each(function() {
-                    var container = $(this);
-                    formsData[container.attr('ct_id')] = $.toJSON(creme.billing.serializeForm(container));
-                });
-
-                if (formsData.length === 0) {
+                if (modifiedLines.length === 0) {
                     console.log('Forms not modified !');
                     return this.cancel();
                 }
+
+                modifiedLines.each(function() {
+                    var container = $(this);
+                    formsData[container.attr('ct_id')] = $.toJSON(creme.billing.serializeForm(container));
+                });
 
                 creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, warnOnFailTitle: gettext('Errors report')}, formsData)
                            .onDone(function() {
@@ -189,5 +204,4 @@ $(document).on('brick-setup-actions', '.brick.billing-lines-brick', function(e, 
            .on('brick-ready', function(e, brick, options) {
                 creme.billing.initLinesBrick(brick);
             });
-
 }(jQuery));

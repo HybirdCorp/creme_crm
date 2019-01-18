@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'BILLING' APP (JavaScript)
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing(JS) 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-21 08:22+0100\n"
+"POT-Creation-Date: 2019-01-16 09:21+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,19 +28,19 @@ msgstr "Le document comptable n'a aucun format d'export."
 msgid "Pdf file (PDF)"
 msgstr "Fichier Pdf (PDF)"
 
-#: static/billing/js/billing-actions.js:131
+#: static/billing/js/billing-actions.js:162
 msgid "There are some errors in your lines."
 msgstr "Il y a des erreurs dans vos lignes."
 
-#: static/billing/js/billing-actions.js:145
+#: static/billing/js/billing-actions.js:179
 msgid "Errors report"
 msgstr "Rapport d'erreurs"
 
-#: static/billing/js/billing.js:236
+#: static/billing/js/billing.js:238
 msgid "Do you really want to restore initial values of this line ?"
 msgstr "Voulez vous vraiment réinitialiser les valeurs de cette ligne ?"
 
-#: static/billing/js/billing.js:316
+#: static/billing/js/billing.js:326
 msgid "You modified your lines."
 msgstr "Vous avez modifié vos lignes."
 
