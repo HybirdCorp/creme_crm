@@ -84,17 +84,17 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertEqual(('name',), FakeOrganisation._meta.ordering)
 
         self.assertRegex(self._get_sql(FakeOrganisation.objects.all()),
-                         'ORDER BY .creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
+                         r'ORDER BY .creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
                         )
 
         # Check that order by 'id' does not use cremeentity.id, but fakeorganisation.cremeentity_ptr_id
         self.assertRegex(self._get_sql(FakeOrganisation.objects.order_by('id')),
-                         'ORDER BY .creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                         r'ORDER BY .creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
                         )
         self.assertRegex(self._get_sql(FakeOrganisation.objects.order_by('name', 'id')),
-                         'ORDER BY '
-                         '.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?\, '
-                         '.creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                         r'ORDER BY '
+                         r'.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?\, '
+                         r'.creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
                         )
 
     def test_sort_oneorder_01(self):

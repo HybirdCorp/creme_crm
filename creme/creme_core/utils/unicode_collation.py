@@ -5,7 +5,7 @@
 # found at: https://github.com/jtauber/pyuca
 
 # Copyright (c) 2006-2013 James Tauber and contributors
-# Copyright (c) 2013 Hybird
+# Copyright (c) 2013-2019 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -78,10 +78,10 @@ class _Collator:
 
         # weights = {} #cache of (int, int, int, int) elements
         match = compile_re(r'^(?P<charList>[0-9A-F]{4,6}(?:[\s]+[0-9A-F]{4,6})*)[\s]*;[\s]*'
-                            '(?P<collElement>(?:[\s]*\[(?:[\*|\.][0-9A-F]{4,6}){3,4}\])+)[\s]*'
-                            '(?:#.*$|$)'
+                           r'(?P<collElement>(?:[\s]*\[(?:[\*|\.][0-9A-F]{4,6}){3,4}\])+)[\s]*'
+                           r'(?:#.*$|$)'
                           ).match
-        findall_ce = compile_re('\[.([^\]]+)\]?').findall  # 'ce' means 'collation element'
+        findall_ce = compile_re(r'\[.([^\]]+)\]?').findall  # 'ce' means 'collation element'
         add = self._add
 
         with open(filename) as f:
