@@ -34,7 +34,7 @@ creme.utils.reload = function (target) {
 */
 creme.utils.reload = function () {
     // reload without adding lines to history
-    window.location.replace(target.location.href);
+    window.location.replace(window.location.href);
 };
 
 creme.utils.redirect = function(url) {
