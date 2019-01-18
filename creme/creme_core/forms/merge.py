@@ -26,7 +26,7 @@ from django.forms import Field, Widget, Select, CheckboxInput
 from django.forms.models import fields_for_model, model_to_dict
 from django.utils.translation import ugettext as _
 
-from ..gui.merge import merge_form_registry
+from ..gui import merge
 from ..models import CremeEntity, CustomField, CustomFieldValue, FieldsConfig
 from ..signals import pre_merge_related
 from ..utils import replace_related_object
@@ -255,7 +255,7 @@ def mergefield_factory(modelfield):
     return MergeField(formfield, modelfield, label=modelfield.verbose_name)
 
 
-def form_factory(model):
+def form_factory(model, merge_form_registry=merge.merge_form_registry):
     # TODO: use a cache ??
     mergeform_factory = merge_form_registry.get(model)
 

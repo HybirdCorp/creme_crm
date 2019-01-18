@@ -33,7 +33,8 @@ entity_patterns = [
     url(r'^clone[/]*', entity.clone, name='creme_core__clone_entity'),
 
     url(r'^merge/select_other[/]?$', entity.select_entity_for_merge,  name='creme_core__select_entity_for_merge'),
-    url(r'^merge[/]?$',              entity.merge,                    name='creme_core__merge_entities'),
+    # url(r'^merge[/]?$',              entity.merge,                    name='creme_core__merge_entities'),
+    url(r'^merge[/]?$',              entity.Merge.as_view(),          name='creme_core__merge_entities'),
 
     url(r'^restrict_to_superusers[/]?$', entity.restrict_to_superusers, name='creme_core__restrict_entity_2_superusers'),
 ]
