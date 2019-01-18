@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from creme import persons
 from .. import billing
 from .constants import REL_OBJ_BILL_RECEIVED
 from .models import Base
+from .core import get_models_for_conversion
 
 
 Invoice    = billing.get_invoice_model()
@@ -97,3 +98,45 @@ class AddQuoteButton(_AddBillingDocumentButton):
     permission      = cperm(Quote)
     url_name        = 'billing__create_related_quote'
 
+
+class _ConvertToButton(Button):
+    template_name    = 'billing/buttons/convert-to.html'
+    target_model     = Base  # Overload
+    target_modelname = ''
+
+    def get_ctypes(self):
+        return tuple(get_models_for_conversion(self.target_modelname))
+
+    def has_perm(self, context):
+        user = context['user']
+        return (user.has_perm_to_create(self.target_model) and
+                not user.is_staff and
+                not context['object'].is_deleted
+               )
+
+    def render(self, context):
+        context['verbose_name'] = self.verbose_name
+        context['convert_to'] = self.target_modelname
+
+        return super().render(context)
+
+
+class ConvertToInvoiceButton(_ConvertToButton):
+    id_              = Button.generate_id('billing', 'convert_to_invoice')
+    verbose_name     = _('Convert to Invoice')
+    target_model     = Invoice
+    target_modelname = 'invoice'
+
+
+class ConvertToSalesOrderButton(_ConvertToButton):
+    id_              = Button.generate_id('billing', 'convert_to_salesorder')
+    verbose_name     = _('Convert to Salesorder')
+    target_model     = SalesOrder
+    target_modelname = 'sales_order'
+
+
+class ConvertToQuoteButton(_ConvertToButton):
+    id_              = Button.generate_id('billing', 'convert_to_quote')
+    verbose_name     = _('Convert to Quote')
+    target_model     = Quote
+    target_modelname = 'quote'

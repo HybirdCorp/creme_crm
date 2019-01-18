@@ -1,6 +1,8 @@
 {% extends 'billing/view_billing.html' %}
 
+{% comment %}
 {% block instance_buttons %}{# TODO: create true buttons ?? #}
     {{block.super}}
     <li>{% include 'billing/frags/button_convert2invoice.html' %}</li>
 {% endblock %}
+{% endcomment %}

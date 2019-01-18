@@ -1,0 +1,10 @@
+{% load i18n creme_core_tags creme_widgets %}
+<a class="menu_button menu-button-icon {% if not has_perm %}is-disabled{% endif %}" data-action="billing-hatmenubar-convert" href="{% url 'billing__convert' object.id %}">
+    {% widget_icon name='invoice' size='instance-button' label=verbose_name %}
+    {{verbose_name}}
+    {% blockjsondata %}{
+        "data": {
+            "type": "{{convert_to}}"
+        }
+    }{% endblockjsondata %}
+</a>

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -249,6 +249,11 @@ class Populator(BasePopulator):
             # ---------------------------
             create_bmi = ButtonMenuItem.create_if_needed
             create_bmi(pk='billing-generate_invoice_number', model=Invoice, button=buttons.GenerateInvoiceNumberButton, order=0)
+
+            create_bmi(pk='billing-convert_quote_to_invoice', model=Quote, button=buttons.ConvertToInvoiceButton, order=0)
+            create_bmi(pk='billing-convert_quote_to_salesorder', model=Quote, button=buttons.ConvertToSalesOrderButton, order=1)
+
+            create_bmi(pk='billing-convert_salesorder_to_invoice', model=SalesOrder, button=buttons.ConvertToInvoiceButton, order=0)
 
             create_bmi(pk='billing-quote_orga_button',      model=Organisation, button=buttons.AddQuoteButton,      order=100)
             create_bmi(pk='billing-salesorder_orga_button', model=Organisation, button=buttons.AddSalesOrderButton, order=101)

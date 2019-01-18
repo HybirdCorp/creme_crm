@@ -20,10 +20,37 @@
 
 from creme import billing
 
+CreditNote   = billing.get_credit_note_model()
+Quote        = billing.get_quote_model()
+Invoice      = billing.get_invoice_model()
+SalesOrder   = billing.get_sales_order_model()
+TemplateBase = billing.get_template_base_model()
+
 BILLING_MODELS = [
-    billing.get_credit_note_model(),
-    billing.get_invoice_model(),
-    billing.get_quote_model(),
-    billing.get_sales_order_model(),
-    billing.get_template_base_model(),
+    CreditNote,
+    Quote,
+    Invoice,
+    SalesOrder,
+    TemplateBase,
 ]
+
+# TODO : rework this !
+CLASS_MAP = {
+    'credit_note': CreditNote,  # NB: unused
+    'invoice':     Invoice,
+    'quote':       Quote,
+    'sales_order': SalesOrder,
+}
+
+CONVERT_MATRIX = {
+    CreditNote: {'invoice'},
+    Invoice:    {'quote', 'sales_order'},
+    Quote:      {'sales_order', 'invoice'},
+    SalesOrder: {'invoice'},
+}
+
+
+def get_models_for_conversion(name):
+    for model, conversions in CONVERT_MATRIX.items():
+        if name in conversions:
+            yield model
