@@ -36,7 +36,9 @@ creme.exports.exportAs = function(url, formats, fieldname) {
                              required: true
                          })
                         .onOk(function(event, data) {
-                            creme.utils.goTo(url + '&' + fieldname + '=' + data);
+                            var args = {};
+                            args[fieldname] = data;
+                            creme.utils.goTo(url, args);
                          })
                         .open();
 };

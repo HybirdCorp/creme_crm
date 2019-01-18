@@ -57,19 +57,20 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         }
 
         if (options.enableUriSearch) {
-            var urlInfo = creme.ajax.parseUrl(url);
+            var urlInfo = new creme.ajax.URL(url);
+            var searchData = urlInfo.searchData();
 
-            if (urlInfo.search) {
+            if (Object.isEmpty(searchData) === false) {
                 if (method === 'GET') {
-                    data = $.extend({}, urlInfo.searchData, data || {});
+                    data = $.extend({}, searchData, data || {});
                 } else {
                     data = $.extend({
-                        'URI-SEARCH': urlInfo.searchData
+                        'URI-SEARCH': searchData
                     }, data || {});
                 }
             }
 
-            url = urlInfo.pathname.replace(/^\//, '');
+            url = urlInfo.pathname().replace(/^\//, '');
         }
 
         var response = method_urls[url];

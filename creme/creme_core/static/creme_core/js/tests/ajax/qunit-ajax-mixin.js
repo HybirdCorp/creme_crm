@@ -6,12 +6,18 @@
             var self = this;
 
             this.resetMockRedirectCalls();
+            this.resetMockReloadCalls();
             this.resetMockBackendCalls();
             this.resetMockHistoryChanges();
 
-            this.__goTo = creme.utils.goTo;
-            creme.utils.goTo = function(url) {
-                self._redirectCalls.push(url);
+            this.__redirect = creme.utils.redirect;
+            creme.utils.redirect = function(url) {
+                self._redirectCalls.push(url.replace(/.*?:\/\/[^\/]*/g, ''));
+            };
+
+            this.__reload = creme.utils.reload;
+            creme.utils.reload = function() {
+                self._reloadCalls.push(window.location.href);
             };
 
             this.__historyPush = creme.history.push;
@@ -34,7 +40,8 @@
         },
 
         afterEach: function(env) {
-            creme.utils.goTo = this.__goTo;
+            creme.utils.redirect = this.__redirect;
+            creme.utils.reload = this.__reload;
             creme.history.push = this.__historyPush;
             creme.history.replace = this.__historyReplace;
 
@@ -85,6 +92,10 @@
             this._redirectCalls = [];
         },
 
+        resetMockReloadCalls: function() {
+            this._reloadCalls = [];
+        },
+
         resetMockHistoryChanges: function() {
             this._historyChanges = [];
         },
@@ -111,6 +122,10 @@
 
         mockRedirectCalls: function() {
             return this._redirectCalls;
+        },
+
+        mockReloadCalls: function() {
+            return this._reloadCalls;
         },
 
         mockHistoryChanges: function() {

@@ -29,7 +29,7 @@ creme.billing.ExportDocumentAction = creme.component.Action.sub({
 
     _download: function(url, format) {
         this.done();
-        creme.utils.goTo(url + '?' + $.param({format: format}));
+        creme.utils.goTo(url, {format: format});
     },
 
     _run: function(options) {

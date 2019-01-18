@@ -31,17 +31,17 @@
                 window.location = document.location;
             }
         } else {
-            window.location.href = e.state.url;
+            window.location.assign(e.state.url);
         }
     };
 
     creme.history.push = function(url, title) {
-        var title = title || document.title;
+        title = title || document.title;
         window.history.pushState({title: title, url: url}, title, url);
     };
 
     creme.history.replace = function(url, title) {
-        var title = title || document.title;
+        title = title || document.title;
         window.history.replaceState({title: title, url: url}, title, url);
     };
 }(jQuery));

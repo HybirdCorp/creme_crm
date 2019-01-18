@@ -612,7 +612,7 @@ QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
 
     this.assertClosedDialog();
 
-    deepEqual(['mock/entity/merge?id1=2&id2=3'], this.mockRedirectCalls());
+    deepEqual(['/mock/entity/merge?id1=2&id2=3'], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.listview.actionregistry', function(assert) {

@@ -248,7 +248,7 @@ creme.lv_widget.MergeSelectedAction = creme.component.Action.sub({
                          .open();
         } else {
             try {
-                creme.utils.goTo(options.url + '?' + $.param({id1: selection[0], id2: selection[1]}));
+                creme.utils.goTo(options.url, {id1: selection[0], id2: selection[1]});
             } catch (e) {
                 this.fail(e);
             }

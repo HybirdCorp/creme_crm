@@ -38,7 +38,7 @@ QUnit.test('creme.activities.ExportAsICalAction (ok)', function(assert) {
     action.start();
 
     deepEqual([['done']], this.mockListenerCalls('action-done'));
-    deepEqual(['mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
+    deepEqual(['/mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
 });
 
 /*
@@ -53,6 +53,6 @@ QUnit.test('creme.activities.exportAsICal', function(assert) {
 
     creme.activities.exportAsICal(list, 'mock/activities/export/ical');
 
-    deepEqual(['mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
+    deepEqual(['/mock/activities/export/ical?id=1&id=2&id=3'], this.mockRedirectCalls());
 });
 */

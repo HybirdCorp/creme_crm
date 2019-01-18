@@ -485,13 +485,13 @@ QUnit.test('creme.bricks.Brick.action (update, message + reload on success)', fu
 
     deepEqual([], this.mockListenerCalls('action-done'));
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockReloadCalls());
 
     this.closeDialog();
 
     deepEqual([['done', '']], this.mockListenerCalls('action-done'));
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/brick/update'));
-    deepEqual([current_url], this.mockRedirectCalls());
+    deepEqual([current_url], this.mockReloadCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (update, message + reload on fail)', function(assert) {
@@ -508,13 +508,13 @@ QUnit.test('creme.bricks.Brick.action (update, message + reload on fail)', funct
 
     deepEqual([], this.mockListenerCalls('action-fail'));
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
-    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockReloadCalls());
 
     this.closeDialog();
 
     deepEqual([['fail', 'HTTP - Error 500']], this.mockListenerCalls('action-fail').map(function(d) { return d.slice(0, 2); }));
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/error'));
-    deepEqual([current_url], this.mockRedirectCalls());
+    deepEqual([current_url], this.mockReloadCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (update-redirect)', function(assert) {
@@ -844,7 +844,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', func
         ['POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
-    deepEqual([current_url], this.mockRedirectCalls());
+    deepEqual([current_url], this.mockReloadCalls());
 
     deepEqual({
         'action-start': [['start']],
