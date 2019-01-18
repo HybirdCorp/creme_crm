@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from functools import partial
 
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -129,17 +130,22 @@ class PersonsConfig(CremeAppConfig):
         Organisation = self.Organisation
         URLItem = creme_menu.URLItem
         creme_menu.get('creme', 'user').add(UserContactURLItem('persons-user_contact'), priority=2)
-        creme_menu.get('features') \
-                  .get_or_create(creme_menu.ContainerItem, 'persons-directory', priority=20,
-                                 defaults={'label': _('Directory')},
-                                ) \
-                  .add(URLItem.list_view('persons-organisations', model=Organisation), priority=10) \
-                  .add(URLItem.list_view('persons-contacts',      model=Contact),      priority=20) \
-                  .add(URLItem('persons-lead_customers', url=reverse('persons__leads_customers'),
-                               label=_('My customers / prospects / suspects'), perm='persons',
-                              ),
-                       priority=30,
-                      )
+        directory = \
+            creme_menu.get('features') \
+                      .get_or_create(creme_menu.ContainerItem, 'persons-directory', priority=20,
+                                     defaults={'label': _('Directory')},
+                                    ) \
+                      .add(URLItem.list_view('persons-organisations', model=Organisation), priority=10) \
+                      .add(URLItem.list_view('persons-contacts',      model=Contact),      priority=20)
+
+        if settings.PERSONS_MENU_CUSTOMERS_ENABLED:
+            directory.add(URLItem('persons-lead_customers',
+                                  url=reverse('persons__leads_customers'),
+                                  label=_('My customers / prospects / suspects'), perm='persons',
+                                 ),
+                          priority=30,
+                         )
+
         creme_menu.get('creation', 'main_entities') \
                   .add(URLItem.creation_view('persons-create_organisation', model=Organisation), priority=10) \
                   .add(URLItem.creation_view('persons-create_contact',      model=Contact),      priority=20)

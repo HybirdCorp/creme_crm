@@ -873,6 +873,9 @@ PERSONS_ADDRESS_FORCE_NOT_CUSTOM      = False
 PERSONS_CONTACT_FORCE_NOT_CUSTOM      = False
 PERSONS_ORGANISATION_FORCE_NOT_CUSTOM = False
 
+# Display the entry "My customers / prospects / suspects" in the main menu
+PERSONS_MENU_CUSTOMERS_ENABLED = True
+
 # ASSISTANTS -------------------------------------------------------------------
 DEFAULT_TIME_ALERT_REMIND = 10
 DEFAULT_TIME_TODO_REMIND = 120
