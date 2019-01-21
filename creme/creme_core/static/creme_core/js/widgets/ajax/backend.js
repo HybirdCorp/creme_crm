@@ -231,7 +231,7 @@ creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options) {
         type:     options.method || 'GET',
         url:      url,
         data:     data !== undefined ? data : '',
-        dataType: "json",
+        dataType: options.dataType || 'json',
         success: function(data, textStatus, xhr) {
             if (Object.isFunc(success_cb)) {
                 success_cb(data, textStatus, xhr);
