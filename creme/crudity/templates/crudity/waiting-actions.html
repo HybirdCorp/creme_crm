@@ -6,6 +6,11 @@
 {% block extrahead %}
 {# TODO: the 'refresh' button should be disabled when the page it loaded, & be enabled after the first automatic refreshing #}
     <script type="text/javascript">
+        $(document).ready(function() {
+            new creme.crudity.CrudityHatController().bind($('.crudity-hat-bar')).refresh(1000);
+        });
+
+{% comment %}
         function refreshWaitingActions(refresh_url) {
             $.ajax({url: refresh_url,
                     type: 'POST',
@@ -44,19 +49,19 @@
         $(document).ready(function() {
             setTimeout(refreshWaitingActions, 500, "{% url 'crudity__refresh_actions' %}");
         });
+{% endcomment %}
     </script>
 {% endblock %}
 
 {% block content %}
-    <div class="hat-bar-container">
+    <div class="hat-bar-container crudity-hat-bar">
         <div class="hat-bar">{% trans 'Waiting actions' as title %}
             <div class="bar-icon">{% widget_icon name='email' size='brick-hat-bar' label=title %}</div>
             <div class="bar-title"><h1>{{title}}</h1></div>
             <div class="bar-actions">
                <div class='bar-action'>
-                    <a class="bar-button" onclick="refreshWaitingActions('{% url 'crudity__refresh_actions' %}');" >
-                        {% widget_icon name='refresh' size='brick-hat-bar-button' label=_('Refresh') %}
-                    </a>
+                    {% url 'crudity__refresh_actions' as refresh_actions_url %}
+                    {% brick_bar_button action='crudity-hatbar-refresh' label=_('Refresh') url=refresh_actions_url icon='refresh' %}
                </div>
             </div>
         </div>

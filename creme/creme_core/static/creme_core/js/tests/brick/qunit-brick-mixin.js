@@ -114,9 +114,12 @@
 
             var header = Array.isArray(options.header) ? options.header.join('') : options.header;
             var content = Array.isArray(options.content) ? options.content.join('') : options.content;
+            var renderAttr = function(attr) {
+                return '${0}="${1}"'.template(attr);
+            };
 
             var html = (
-                '<div class="brick ui-creme-widget ${classes}" widget="brick" id="${id}" data-brick-deps="[${deps}]">'
+                '<div class="brick ui-creme-widget ${classes}" widget="brick" id="${id}" data-brick-deps="[${deps}]" ${attributes}>'
                      + '<div class="brick-header">'
                          + '<div class="brick-title">${title}</div>'
                          + '${header}'
@@ -128,7 +131,8 @@
                      header: header,
                      title: options.title,
                      classes: options.classes.join(' '),
-                     deps: options.deps.map(quoteHtml).join(',')
+                     deps: options.deps.map(quoteHtml).join(','),
+                     attributes: Object.entries(options.attributes || {}).map(renderAttr).join(' ')
                  });
 
             return html;
