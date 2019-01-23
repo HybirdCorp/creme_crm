@@ -5,6 +5,7 @@ try:
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
+    from django.test import override_settings
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
@@ -41,6 +42,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def _build_get4ctype_url(self, ctype):
         return '{}?ct_id={}'.format(reverse('creme_core__hfilters'), ctype.id)
 
+    @override_settings(FILTERS_INITIAL_PRIVATE=False)
     def test_create01(self):
         self.login()
 
@@ -53,6 +55,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertIn(_('Create a view of list for «%(ctype)s»') % {'ctype': 'Test Mailing list'},
                       response.content.decode(),
                      )
+        self.assertIs(response.context['form'].initial.get('is_private'), False)
 
         name = 'DefaultHeaderFilter'
         response = self.client.post(url, data={'name':  name,
@@ -299,6 +302,14 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         rf_prefix = 'regular_field-'
         self.assertIn(rf_prefix + valid_fname,     choices_keys)
         self.assertNotIn(rf_prefix + hidden_fname, choices_keys)
+
+    @override_settings(FILTERS_INITIAL_PRIVATE=True)
+    def test_create09(self):
+        "Use FILTERS_INITIAL_PRIVATE"
+        self.login()
+
+        response = self.assertGET200(self._build_add_url(self.contact_ct))
+        self.assertIs(response.context['form'].initial.get('is_private'), True)
 
     def test_create_missing_lv_absolute_url(self):
         "Missing get_lv_absolute_url() classmethod"
