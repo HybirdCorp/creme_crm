@@ -7,6 +7,7 @@ try:
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
+    from django.test import override_settings
     from django.urls import reverse
     from django.utils.translation import ugettext as _, ungettext
 
@@ -35,7 +36,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def _build_get_ct_url(self, rtype):
         return reverse('creme_core__ctypes_compatible_with_rtype_as_choices', args=(rtype.id,))
 
-    def _build_get_filter_url(self, ct, all_filter=False):
+    # def _build_get_filter_url(self, ct, all_filter=False):
+    def _build_get_filter_url(self, ct):
         return reverse('creme_core__efilters') + '?ct_id={}'.format(ct.id)
 
     def _build_rfields_data(self, name, operator, value):
@@ -73,6 +75,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def _build_subfilters_data(self, rtype_id, ct_id, efilter_id):
         return json_dump([{'rtype': rtype_id, 'has': False, 'ctype': ct_id, 'filter': efilter_id}])
 
+    @override_settings(FILTERS_INITIAL_PRIVATE=False)
     def test_create01(self):
         "Check app credentials"
         self.login(is_superuser=False, allowed_apps=['documents'])
@@ -90,6 +93,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertIn(_('Create a filter for «%(ctype)s»') % {'ctype': 'Test Contact'},
                       response.content.decode(),
                      )
+        self.assertIs(response.context['form'].initial.get('is_private'), False)
 
         # TODO: test widgets instead
 #        with self.assertNoException():
@@ -477,6 +481,14 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Not an Entity type"
         self.login()
         self.assertGET409(self._build_add_url(ContentType.objects.get_for_model(RelationType)))
+
+    @override_settings(FILTERS_INITIAL_PRIVATE=True)
+    def test_create_initial_private(self):
+        "Use FILTERS_INITIAL_PRIVATE."
+        self.login()
+
+        response = self.assertGET200(self._build_add_url(self.ct_contact))
+        self.assertIs(response.context['form'].initial.get('is_private'), True)
 
     def test_create_missing_lv_absolute_url(self):
         "Missing get_lv_absolute_url() classmethod"
