@@ -737,8 +737,8 @@ class BricksConfigTestCase(CremeTestCase):
         post(modelbrick_id, _('Information on the entity (generic)'))
 
     def test_edit_detailview07(self):
-        self.login()
         "Instance block, RelationType brick"
+        self.login()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
