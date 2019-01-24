@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import collections
+from collections.abc import Sequence
 from datetime import date, datetime
 from decimal import Decimal
 from functools import lru_cache
@@ -290,7 +290,7 @@ class FlowPaginator:
                 break
 
 
-class FlowPage(collections.Sequence):
+class FlowPage(Sequence):
     def __init__(self, object_list, paginator, forward, key, key_field_info, attr_name,
                  offset, max_size, next_item, first_page):
         """Constructor.
