@@ -164,13 +164,15 @@ def find_file(name, media_dirs=None):
             return path
 
 
-# TODO: remove & use "with" instead...
+# TODO: remove & use "with" directly ?
 def read_text_file(path):
-    fp = open(path, 'r')
-    output = fp.read()
-    fp.close()
-    # return output.decode('utf8')
-    return output
+    # fp = open(path, 'r')
+    # output = fp.read()
+    # fp.close()
+    # # return output.decode('utf8')
+    # return output
+    with open(path, 'r', encoding='utf-8') as fp:
+        return fp.read()
 
 
 def load_backend(backend):
