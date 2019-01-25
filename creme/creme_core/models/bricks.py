@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -132,6 +132,9 @@ class BrickDetailviewLocation(CremeModel):
 
 
 class BrickHomeLocation(CremeModel):
+    role         = ForeignKey(UserRole, verbose_name=_('Related role'), null=True, default=None, on_delete=CASCADE)
+    # TODO: a UserRole for superusers instead ??
+    superuser    = BooleanField('related to superusers', default=False, editable=False)
     brick_id = CharField(max_length=100)
     order    = PositiveIntegerField()
 
@@ -140,9 +143,13 @@ class BrickHomeLocation(CremeModel):
         ordering = ('order',)
 
     def __repr__(self):
-        return 'BrickHomeLocation(id={id}, brick_id={brick_id}, order={order})'.format(
+        return 'BrickHomeLocation(id={id}, role={role}, brick_id={brick_id}, order={order})'.format(
                 id=self.id, brick_id=self.brick_id, order=self.order,
+                role='superuser' if self.superuser else self.role,
             )
+
+    def __str__(self):
+        return repr(self)
 
     @property
     def brick_verbose_name(self):

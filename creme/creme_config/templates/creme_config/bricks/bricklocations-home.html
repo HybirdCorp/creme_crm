@@ -4,6 +4,90 @@
 {% block brick_extra_class %}{{block.super}} creme_config-brickloc-home-brick{% endblock %}
 
 {% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configured home') plural=_('{count} Configured homes') empty=_('Block on home') icon='config' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if show_add_button %}{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_home_bricks' as add_url %}
+        {% brick_header_action id='add' url=add_url label=_('Add a home configuration for a role') enabled=admin_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Role') status='primary nowrap' %}
+    {% brick_table_column title=_('Statistics') status='primary nowrap' %}
+    {% brick_table_column title=_('Action') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_home_brick' as delete_url %}
+    {% if not page.number or page.number < 2 %}
+        <tr>
+            <td {% brick_table_data_status primary %} class="home-bricks-default">{% trans 'Default configuration' %}</td>
+            <td>
+                {% if 'default' in empty_configs %}
+                    {% trans 'No block' %}
+                {% else %}
+                    {% blocktrans count count=get_default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                {% endif %}
+            </td>
+            <td {% brick_table_data_status action %}>{% url 'creme_config__edit_home_bricks' 'default' as edit_url %}
+                {% brick_table_action id='edit' url=edit_url label=_('Edit this configuration') enabled=admin_perm %}
+            </td>
+            <td {% brick_table_data_status action %}></td>
+        </tr>
+
+        {% if superuser_count %}
+        <tr>
+            <td {% brick_table_data_status primary %} class="home-bricks-superuser">{% trans 'Superuser' %}</td>
+            <td>
+                {% if 'superuser' in empty_configs %}
+                    {% trans 'No block' %}
+                {% else %}
+                    {% blocktrans count count=superuser_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                {% endif %}
+            </td>
+            <td {% brick_table_data_status action %}>{% url 'creme_config__edit_home_bricks' 'superuser' as edit_url %}
+                {% brick_table_action id='edit' url=edit_url label=_('Edit this configuration') enabled=admin_perm %}
+            </td>
+            <td {% brick_table_data_status action %}>
+                {% brick_table_action id='delete' url=delete_url __role='superuser' label=_('Delete this configuration') enabled=admin_perm %}
+            </td>
+        </tr>
+        {% endif %}
+    {% endif %}
+
+    {% for role in page.object_list %}
+        <tr>
+            <td {% brick_table_data_status primary %} class="home-bricks-role">{{role}}</td>
+            <td>
+                {% if role.id in empty_configs %}
+                    {% trans 'No block' %}
+                {% else %}
+                    {% blocktrans count count=role.bricks_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                {% endif %}
+            </td>
+            <td {% brick_table_data_status action %}>{% url 'creme_config__edit_home_bricks' role.id as edit_url %}
+                {% brick_table_action id='edit' url=edit_url label=_('Edit this configuration') enabled=admin_perm %}
+            </td>
+            <td {% brick_table_data_status action %}>
+                {% brick_table_action id='delete' url=delete_url __role=role.id label=_('Delete this configuration') enabled=admin_perm %}
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No configuration for the moment' %}
+{% endblock %}
+
+{% comment %}
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-brickloc-home-brick{% endblock %}
+
+{% block brick_header_title %}
     {% brick_header_title title=_('{count} Block on home') plural=_('{count} Blocks on home') empty=_('Block on home') icon='config' %}
 {% endblock %}
 
@@ -32,3 +116,4 @@
 {% block brick_table_empty %}
     {% trans 'No block for the moment' %}
 {% endblock %}
+{% endcomment %}

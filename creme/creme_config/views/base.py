@@ -18,14 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.views import generic
+from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.views import generic
 
 _PERM = 'creme_core.can_admin'
 
 
 class ConfigCreation(generic.CremeFormPopup):
     permissions = _PERM
+    submit_label = _('Save the configuration')
 
 
 class ConfigModelCreation(generic.CremeModelCreationPopup):

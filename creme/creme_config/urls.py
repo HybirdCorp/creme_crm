@@ -94,8 +94,10 @@ bricks_patterns = [
     url(r'^detailview/edit/(?P<ct_id>\d+)/(?P<role>\w+)[/]?$', bricks.BrickDetailviewLocationsEdition.as_view(),  name='creme_config__edit_detailview_bricks'),
     url(r'^detailview/delete[/]?$',                            bricks.delete_detailview,                          name='creme_config__delete_detailview_bricks'),
 
-    url(r'^home/edit[/]?$',   bricks.HomeEdition.as_view(), name='creme_config__edit_home_bricks'),
-    url(r'^home/delete[/]?$', bricks.delete_home,           name='creme_config__delete_home_brick'),
+    url(r'^home/add[/]?$',                bricks.HomeCreation.as_view(), name='creme_config__create_home_bricks'),
+    # url(r'^home/edit[/]?$',   bricks.HomeEdition.as_view(),  name='creme_config__edit_home_bricks'),
+    url(r'^home/edit/(?P<role>\w+)[/]?$', bricks.HomeEdition.as_view(),  name='creme_config__edit_home_bricks'),
+    url(r'^home/delete[/]?$',             bricks.delete_home,            name='creme_config__delete_home_brick'),
 
     url(r'^mypage/edit/default[/]?$',   bricks.DefaultMyPageEdition.as_view(), name='creme_config__edit_default_mypage_bricks'),
     url(r'^mypage/edit[/]?$',           bricks.MyPageEdition.as_view(),        name='creme_config__edit_mypage_bricks'),

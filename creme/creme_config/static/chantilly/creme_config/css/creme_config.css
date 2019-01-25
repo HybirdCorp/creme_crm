@@ -348,6 +348,14 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     fill: #666;
 }
 
+/* HomeBricksConfig brick */
+
+.brick-table.creme_config-brickloc-home-brick .brick-table-content .home-bricks-default,
+.brick-table.creme_config-brickloc-home-brick .brick-table-content .home-bricks-superuser {
+    color: hsla(197,42%,20%,1);
+    font-style: italic;
+}
+
 /* RelationsBricksConfig brick */
 
 .creme_config-rtypebricks-brick td .rtypebrick-cell-item {

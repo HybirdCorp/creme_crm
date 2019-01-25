@@ -47,11 +47,12 @@ class Portal(BricksView):
 
 
 class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
-                                       base.ConfigEdition,
+                                       # base.ConfigEdition,
+                                       base.ConfigCreation,
                                       ):
     # model = BrickDetailviewLocation
     form_class = bricks_forms.BrickDetailviewLocationsAddForm
-    submit_label = _('Save the configuration')
+    # submit_label = _('Save the configuration')
 
     def check_related_ctype(self, ctype):
         super().check_related_ctype(ctype)
@@ -109,31 +110,17 @@ class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
                                         )
 
 
-class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
-                                      base.ConfigEdition,
-                                     ):
-    # model = BrickDetailviewLocation
-    form_class = bricks_forms.BrickDetailviewLocationsEditForm
-    # template_name = 'creme_core/generics/blockform/edit-popup.html'
-    submit_label = _('Save the configuration')
-    ct_id_0_accepted = True
+class RoleRelatedMixin:
+    role_url_kwarg = 'role'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.role_info = None
-
-    # TODO: factorise + remove _get_configurable_ctype()
-    def check_related_ctype(self, ctype):
-        super().check_related_ctype(ctype)
-
-        if brick_registry.is_model_invalid(ctype.model_class()):
-            raise ConflictError('This model cannot have a detail-view configuration.')
+    def check_role_info(self, role, superuser):
+        pass
 
     def get_role_info(self):
-        role_info = self.role_info
-
-        if role_info is None:
-            role = self.kwargs['role']
+        try:
+            role_info = getattr(self, 'role_info')
+        except AttributeError:
+            role = self.kwargs[self.role_url_kwarg]
 
             if role == 'default':
                 role_obj = None
@@ -150,12 +137,37 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
                 role_obj = get_object_or_404(UserRole, id=role_id)
                 superuser = False
 
-            if self.get_ctype() is None and role != 'default':
-                raise Http404('You can only edit "default" role with default config')
+            self.check_role_info(role_obj, superuser)
 
             self.role_info = role_info = (role_obj, superuser)
 
         return role_info
+
+
+class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
+                                      RoleRelatedMixin,
+                                      base.ConfigEdition,
+                                     ):
+    # model = BrickDetailviewLocation
+    form_class = bricks_forms.BrickDetailviewLocationsEditForm
+    # template_name = 'creme_core/generics/blockform/edit-popup.html'
+    submit_label = _('Save the configuration')
+    ct_id_0_accepted = True
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.role_info = None
+
+    # TODO: factorise + remove _get_configurable_ctype()
+    def check_related_ctype(self, ctype):
+        super().check_related_ctype(ctype)
+
+        if brick_registry.is_model_invalid(ctype.model_class()):
+            raise ConflictError('This model cannot have a detail-view configuration.')
+
+    def check_role_info(self, role, superuser):
+        if self.get_ctype() is None and (superuser or role):
+            raise Http404('You can only edit "default" role with default config')
 
     # TODO: factorise ?
     def get_form_kwargs(self):
@@ -185,10 +197,23 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
         return title
 
 
-class HomeEdition(base.ConfigEdition):
-    model = BrickHomeLocation
-    form_class = bricks_forms.BrickHomeLocationsForm
+class HomeCreation(base.ConfigCreation):
+    # model = BrickHomeLocation
+    form_class = bricks_forms.BrickHomeLocationsAddingForm
+    title = _('Create home configuration for a role')
+
+
+class HomeEdition(RoleRelatedMixin, base.ConfigEdition):
+    model = BrickHomeLocation  # TODO: useful ?
+    # form_class = bricks_forms.BrickHomeLocationsForm
+    form_class = bricks_forms.BrickHomeLocationsEditionForm
     title = _('Edit home configuration')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['role'], kwargs['superuser'] = self.get_role_info()
+
+        return kwargs
 
 
 class BaseMyPageEdition(base.ConfigEdition):
@@ -313,13 +338,13 @@ def delete_detailview(request):
     role_id = None
     superuser = False
 
-    role = POST.get('role')
-    if role:
-        if role == 'superuser':
+    role_str = POST.get('role')
+    if role_str:
+        if role_str == 'superuser':
             superuser = True
         else:
             try:
-                role_id = int(role)
+                role_id = int(role_str)
             except ValueError:
                 raise Http404('"role" argument must be "superuser" or an integer')
 
@@ -333,9 +358,24 @@ def delete_detailview(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_home(request):
-    get_object_or_404(BrickHomeLocation,
-                      pk=get_from_POST_or_404(request.POST, 'id'),
-                     ).delete()
+    # get_object_or_404(BrickHomeLocation,
+    #                   pk=get_from_POST_or_404(request.POST, 'id'),
+    #                  ).delete()
+
+    role_str = get_from_POST_or_404(request.POST, 'role')
+
+    role_id = None
+    superuser = False
+
+    if role_str == 'superuser':
+        superuser = True
+    else:
+        try:
+            role_id = int(role_str)
+        except ValueError:
+            raise Http404('"role" argument must be "superuser" or an integer')
+
+    BrickHomeLocation.objects.filter(role=role_id, superuser=superuser).delete()
 
     return HttpResponse()
 
