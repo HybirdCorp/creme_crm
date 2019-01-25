@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import Q
+
 from ..models import BrickHomeLocation, BrickMypageLocation
 
 from .generic.base import BricksView
@@ -31,8 +33,24 @@ class Home(BaseHome):
     template_name = 'creme_core/home.html'
 
     def get_brick_ids(self):
-        return BrickHomeLocation.objects.order_by('order') \
-                                        .values_list('brick_id', flat=True)
+        # return BrickHomeLocation.objects.order_by('order') \
+        #                                 .values_list('brick_id', flat=True)
+        user = self.request.user
+        is_superuser = user.is_superuser
+
+        role_q = Q(role=None, superuser=True) if is_superuser else \
+                 Q(role=user.role, superuser=False)
+        locs = BrickHomeLocation.objects \
+                                .filter(role_q | Q(role=None, superuser=False)) \
+                                .order_by('order')
+
+        brick_ids = [loc.brick_id for loc in locs if loc.superuser] if is_superuser else \
+                    [loc.brick_id for loc in locs if loc.role_id]
+
+        if not brick_ids:
+            brick_ids = [loc.brick_id for loc in locs]
+
+        return brick_ids
 
 
 class MyPage(BaseHome):

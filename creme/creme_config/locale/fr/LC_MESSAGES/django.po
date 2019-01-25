@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CONFIG' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 15:38+0100\n"
+"POT-Creation-Date: 2019-01-25 15:58+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,101 +16,103 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: apps.py:28 apps.py:75
+#: apps.py:31 apps.py:150
 msgid "General configuration"
 msgstr "Configuration générale"
 
-#: apps.py:69
+#: apps.py:144
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: apps.py:81 templates/creme_config/bricks_portal.html:8
+#: apps.py:156 templates/creme_config/bricks_portal.html:8
 msgid "Blocks"
 msgstr "Blocs"
 
-#: apps.py:93 templates/creme_config/bricks/custombricks-configs.html:18
+#: apps.py:168 templates/creme_config/bricks/custombricks-configs.html:18
 msgid "Fields"
 msgstr "Champs"
 
-#: apps.py:98 templates/creme_config/history_portal.html:8
+#: apps.py:173 templates/creme_config/history_portal.html:8
 msgid "History"
 msgstr "Historique"
 
-#: apps.py:103 templates/creme_config/button_menu_portal.html:8
+#: apps.py:178 templates/creme_config/button_menu_portal.html:8
 msgid "Button menu"
 msgstr "Menu bouton"
 
-#: apps.py:108
+#: apps.py:183
 msgid "Search"
 msgstr "Recherche"
 
-#: apps.py:113
+#: apps.py:188
 msgid "Roles and credentials"
 msgstr "Rôles et droits"
 
-#: apps.py:130 forms/user.py:220 templates/creme_config/bricks/users.html:7
+#: apps.py:205 forms/user.py:220 templates/creme_config/bricks/users.html:7
 #: templates/creme_config/user_portal.html:7
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: bricks.py:138
+#: bricks.py:145
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: bricks.py:151
+#: bricks.py:158
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: bricks.py:167
+#: bricks.py:174
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: bricks.py:183
+#: bricks.py:190
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:372 bricks.py:573 forms/bricks.py:218 forms/search.py:68
-#: forms/user.py:78 forms/user.py:119
+#: bricks.py:379 bricks.py:609 forms/bricks.py:219 forms/bricks.py:295
+#: forms/search.py:68 forms/user.py:78 forms/user.py:119
+#: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
 #: templates/creme_config/bricks/users.html:33
 msgid "Superuser"
 msgstr "Super-utilisateur"
 
-#: forms/bricks.py:103
+#: forms/bricks.py:104
 msgid "Header block"
 msgstr "Bloc entête"
 
-#: forms/bricks.py:104
+#: forms/bricks.py:105
 msgid "Blocks to display on top"
 msgstr "Blocs à afficher en haut"
 
-#: forms/bricks.py:105
+#: forms/bricks.py:106
 msgid "Blocks to display on left side"
 msgstr "Blocs à afficher à gauche"
 
-#: forms/bricks.py:106
+#: forms/bricks.py:107
 msgid "Blocks to display on right side"
 msgstr "Blocs à afficher à droite"
 
-#: forms/bricks.py:107
+#: forms/bricks.py:108
 msgid "Blocks to display on bottom"
 msgstr "Blocs à afficher en bas"
 
-#: forms/bricks.py:110
+#: forms/bricks.py:111
 #, python-format
 msgid "The following block should be displayed only once: «%(block)s»"
 msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s»"
 
-#: forms/bricks.py:111
+#: forms/bricks.py:112
 msgid "Your configuration is empty !"
 msgstr "Votre configuration est vide !"
 
-#: forms/bricks.py:197 forms/search.py:45 forms/user.py:66 forms/user.py:109
+#: forms/bricks.py:198 forms/bricks.py:275 forms/search.py:45 forms/user.py:66
+#: forms/user.py:109 templates/creme_config/bricks/bricklocations-home.html:17
 #: templates/creme_config/bricks/users.html:19
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/bricks.py:202 templates/creme_config/bricks_portal.html:8
+#: forms/bricks.py:203 templates/creme_config/bricks_portal.html:8
 #: templates/creme_config/button_menu_portal.html:8
 #: templates/creme_config/custom_fields_portal.html:8
 #: templates/creme_config/fields_config_portal.html:8
@@ -129,32 +131,32 @@ msgstr "Rôle"
 msgid "Configuration"
 msgstr "Configuration"
 
-#: forms/bricks.py:257
+#: forms/bricks.py:279 forms/bricks.py:311
 msgid "Blocks to display on the home"
 msgstr "Blocs à afficher sur l'accueil"
 
-#: forms/bricks.py:274
+#: forms/bricks.py:332
 msgid "Blocks to display on the «My Page» of the users"
 msgstr "Blocs à afficher sur le «Ma page» des utilisateurs"
 
-#: forms/bricks.py:316
+#: forms/bricks.py:374
 msgid "Customised resource"
 msgstr "Ressource personnalisée"
 
-#: forms/bricks.py:343
+#: forms/bricks.py:401
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/bricks.py:350
+#: forms/bricks.py:408
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/bricks.py:392 forms/button_menu.py:39 forms/custom_fields.py:75
+#: forms/bricks.py:450 forms/button_menu.py:39 forms/custom_fields.py:75
 #: forms/fields_config.py:33 forms/fields_config.py:54
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/bricks.py:423
+#: forms/bricks.py:481
 msgid "Lines"
 msgstr "Lignes"
 
@@ -541,7 +543,6 @@ msgid "Time zone: {}"
 msgstr "Fuseau horaire : {}"
 
 #: templates/creme_config/bricks/base/bricklocations-mypage.html:11
-#: templates/creme_config/bricks/bricklocations-home.html:16
 #: templates/creme_config/bricks/custombricks-configs.html:17
 #: templates/creme_config/bricks/instancebricks-configs.html:11
 #: templates/creme_config/bricks/teams.html:24
@@ -549,7 +550,7 @@ msgid "Name"
 msgstr "Nom"
 
 #: templates/creme_config/bricks/base/bricklocations-mypage.html:12
-#: templates/creme_config/bricks/bricklocations-home.html:17
+#: templates/creme_config/bricks/bricklocations-home.html:19
 #: templates/creme_config/bricks/history-config.html:23
 #: templates/creme_config/bricks/instancebricks-configs.html:13
 #: templates/creme_config/bricks/setting-values.html:13
@@ -558,7 +559,6 @@ msgid "Action"
 msgstr "Action"
 
 #: templates/creme_config/bricks/base/bricklocations-mypage.html:27
-#: templates/creme_config/bricks/bricklocations-home.html:33
 #: templates/creme_config/bricks/bricklocations-mypage-default.html:21
 msgid "No block for the moment"
 msgstr "Aucun bloc pour le moment"
@@ -582,6 +582,7 @@ msgid "{count} Configured types of resource"
 msgstr "{count} Types de ressource configurés"
 
 #: templates/creme_config/bricks/bricklocations-detailviews.html:15
+#: templates/creme_config/bricks/bricklocations-home.html:26
 #: templates/creme_config/bricks/button-menu.html:19
 #: templates/creme_config/bricks/search-config.html:33
 msgid "Default configuration"
@@ -590,6 +591,9 @@ msgstr "Configuration par défaut"
 #: templates/creme_config/bricks/bricklocations-detailviews.html:15
 #: templates/creme_config/bricks/bricklocations-detailviews.html:41
 #: templates/creme_config/bricks/bricklocations-detailviews.html:58
+#: templates/creme_config/bricks/bricklocations-home.html:31
+#: templates/creme_config/bricks/bricklocations-home.html:47
+#: templates/creme_config/bricks/bricklocations-home.html:67
 #, python-format
 msgid "%(count)s block"
 msgid_plural "%(count)s blocks"
@@ -617,27 +621,50 @@ msgstr "(utilise la configuration par défaut des blocs)"
 
 #: templates/creme_config/bricks/bricklocations-home.html:7
 #, python-brace-format
-msgid "{count} Block on home"
-msgstr "{count} Bloc sur l'accueil"
+msgid "{count} Configured home"
+msgstr "{count} Accueil configuré"
 
 #: templates/creme_config/bricks/bricklocations-home.html:7
 #, python-brace-format
-msgid "{count} Blocks on home"
-msgstr "{count} Blocs sur l'accueil"
+msgid "{count} Configured homes"
+msgstr "{count} Accueils configurés"
 
 #: templates/creme_config/bricks/bricklocations-home.html:7
 msgid "Block on home"
 msgstr "Bloc sur l'accueil"
 
 #: templates/creme_config/bricks/bricklocations-home.html:12
-#: templates/creme_config/bricks/bricklocations-mypage-default.html:12
-msgid "Edit blocks configuration"
-msgstr "Modifier la configuration de blocs"
+msgid "Add a home configuration for a role"
+msgstr "Ajouter une configuration d'accueil pour un rôle"
 
-#: templates/creme_config/bricks/bricklocations-home.html:26
-#: templates/creme_config/bricks/bricklocations-mypage-default.html:17
-msgid "Remove this block"
-msgstr "Enlever ce bloc"
+# Already in creme_core
+#: templates/creme_config/bricks/bricklocations-home.html:18
+#: templates/creme_config/bricks/property-types.html:25
+msgid "Statistics"
+msgstr ""
+
+#: templates/creme_config/bricks/bricklocations-home.html:29
+#: templates/creme_config/bricks/bricklocations-home.html:45
+#: templates/creme_config/bricks/bricklocations-home.html:65
+msgid "No block"
+msgstr "Pas de bloc"
+
+#: templates/creme_config/bricks/bricklocations-home.html:35
+#: templates/creme_config/bricks/bricklocations-home.html:51
+#: templates/creme_config/bricks/bricklocations-home.html:71
+#: templates/creme_config/bricks/button-menu.html:33
+msgid "Edit this configuration"
+msgstr "Modifier cette configuration"
+
+#: templates/creme_config/bricks/bricklocations-home.html:54
+#: templates/creme_config/bricks/bricklocations-home.html:74
+#: templates/creme_config/bricks/button-menu.html:34
+msgid "Delete this configuration"
+msgstr "Supprimer cette configuration"
+
+#: templates/creme_config/bricks/bricklocations-home.html:81
+msgid "No configuration for the moment"
+msgstr "Aucune configuration pour le moment"
 
 #: templates/creme_config/bricks/bricklocations-mypage-default.html:7
 #, python-brace-format
@@ -652,6 +679,14 @@ msgstr "{count} Blocs sur «Ma page» par défaut"
 #: templates/creme_config/bricks/bricklocations-mypage-default.html:7
 msgid "Blocks on default «My page»"
 msgstr "Blocs sur «Ma page» par défaut"
+
+#: templates/creme_config/bricks/bricklocations-mypage-default.html:12
+msgid "Edit blocks configuration"
+msgstr "Modifier la configuration de blocs"
+
+#: templates/creme_config/bricks/bricklocations-mypage-default.html:17
+msgid "Remove this block"
+msgstr "Enlever ce bloc"
 
 #: templates/creme_config/bricks/bricklocations-mypage-user.html:7
 #, python-brace-format
@@ -690,19 +725,11 @@ msgstr "Nouvelle configuration de boutons"
 msgid "No button"
 msgstr "Pas de bouton"
 
-#: templates/creme_config/bricks/button-menu.html:33
-msgid "Edit this configuration"
-msgstr "Modifier cette configuration"
-
-#: templates/creme_config/bricks/button-menu.html:34
-msgid "Delete this configuration"
-msgstr "Supprimer cette configuration"
-
-#: templates/creme_config/bricks/configurable-model.html:19
+#: templates/creme_config/bricks/configurable-model.html:23
 msgid "New value"
 msgstr "Nouvelle valeur"
 
-#: templates/creme_config/bricks/configurable-model.html:31
+#: templates/creme_config/bricks/configurable-model.html:35
 #: templates/creme_config/bricks/custombricks-configs.html:19
 #: templates/creme_config/bricks/fields-configs.html:19
 #: templates/creme_config/bricks/property-types.html:26
@@ -714,7 +741,7 @@ msgstr "Nouvelle valeur"
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/creme_config/bricks/configurable-model.html:62
+#: templates/creme_config/bricks/configurable-model.html:71
 msgid "No value for the moment"
 msgstr "Aucune valeur enregistrée pour le moment"
 
@@ -732,7 +759,7 @@ msgstr "{count} Types configurables"
 msgid "Configurable types"
 msgstr "Types configurables"
 
-#: templates/creme_config/bricks/configurable-models.html:22
+#: templates/creme_config/bricks/configurable-models.html:23
 msgid "No type requires configuration"
 msgstr "Aucun type ne nécessite de configuration"
 
@@ -772,7 +799,7 @@ msgid "Custom blocks"
 msgstr "Blocs personnalisés"
 
 #: templates/creme_config/bricks/custombricks-configs.html:12
-#: views/bricks.py:91
+#: views/bricks.py:92
 msgid "New custom block"
 msgstr "Nouveau bloc personnalisé"
 
@@ -885,11 +912,6 @@ msgstr "Types de propriété"
 #: views/creme_property_type.py:42
 msgid "New custom type of property"
 msgstr "Nouveau type de propriété personnalisé"
-
-# Already in creme_core
-#: templates/creme_config/bricks/property-types.html:25
-msgid "Statistics"
-msgstr ""
 
 #: templates/creme_config/bricks/property-types.html:35
 msgid "No related type of resource"
@@ -1449,74 +1471,78 @@ msgstr "Accueil"
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
-#: views/bricks.py:54 views/bricks.py:118 views/bricks.py:220
-#: views/button_menu.py:48 views/history.py:39
+#: views/base.py:30 views/bricks.py:154 views/bricks.py:245
+#: views/button_menu.py:48
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
-#: views/bricks.py:69
+#: views/bricks.py:70
 #, python-brace-format
 msgid "New block configuration for «{model}»"
 msgstr "Nouvelle configuration de bloc pour «{model}»"
 
-#: views/bricks.py:81 views/bricks.py:216 views/button_menu.py:44
+#: views/bricks.py:82 views/bricks.py:241 views/button_menu.py:44
 #: views/fields_config.py:63
 msgctxt "creme_config-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
 # Already in creme_core
-#: views/bricks.py:87 views/bricks.py:219 views/button_menu.py:47
+#: views/bricks.py:88 views/bricks.py:244 views/button_menu.py:47
 #: views/fields_config.py:71
 msgid "Previous step"
 msgstr ""
 
-#: views/bricks.py:88
+#: views/bricks.py:89
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: views/bricks.py:174
+#: views/bricks.py:186
 #, python-brace-format
 msgid "Edit configuration of super-users for «{model}»"
 msgstr "Modifier la configuration des super-utilisateurs pour «{model}»"
 
-#: views/bricks.py:176
+#: views/bricks.py:188
 #, python-brace-format
 msgid "Edit configuration of «{role}» for «{model}»"
 msgstr "Modifier la configuration de «{role}» pour «{model}»"
 
-#: views/bricks.py:181
+#: views/bricks.py:193
 #, python-brace-format
 msgid "Edit default configuration for «{model}»"
 msgstr "Modifier la configuration par défaut pour «{model}»"
 
-#: views/bricks.py:183 views/button_menu.py:109
+#: views/bricks.py:195 views/button_menu.py:109
 msgid "Edit default configuration"
 msgstr "Modifier la configuration par défaut"
 
-#: views/bricks.py:191
+#: views/bricks.py:203
+msgid "Create home configuration for a role"
+msgstr "Créer la configuration de l'accueil d'un rôle"
+
+#: views/bricks.py:210
 msgid "Edit home configuration"
 msgstr "Modifier la configuration de l'accueil"
 
-#: views/bricks.py:200
+#: views/bricks.py:225
 msgid "Edit default \"My page\""
 msgstr "Modifier le \"Ma page\" par défaut"
 
-#: views/bricks.py:205
+#: views/bricks.py:230
 msgid "Edit \"My page\""
 msgstr "Modifier \"Ma page\""
 
-#: views/bricks.py:236
+#: views/bricks.py:261
 #, python-brace-format
 msgid "New customised type for «{predicate}»"
 msgstr "Nouveau type personnalisé pour «{predicate}»"
 
-#: views/bricks.py:258
+#: views/bricks.py:283
 #, python-brace-format
 msgid "Edit «{model}» configuration"
 msgstr "Modifier la configuration de «{model}»"
 
-#: views/bricks.py:301
+#: views/bricks.py:326
 #, python-brace-format
 msgid "Edit the block «{object}»"
 msgstr "Modifier le bloc «{object}»"
@@ -1538,16 +1564,16 @@ msgid "New custom field for «{model}»"
 msgstr "Nouveau champ personnalisé pour «{model}»"
 
 # Already in creme_core
-#: views/generics_views.py:97
+#: views/generics_views.py:101
 msgid "Save"
 msgstr ""
 
-#: views/generics_views.py:107
+#: views/generics_views.py:120
 #, python-brace-format
 msgid "New value: {model}"
 msgstr "Nouvelle valeur : {model}"
 
-#: views/generics_views.py:194
+#: views/generics_views.py:228
 msgid "{} can not be deleted because of its dependencies."
 msgstr "{} ne peut pas être effacé à cause de ses dépendances."
 
@@ -1566,7 +1592,7 @@ msgstr "Modifier le type «{object}»"
 msgid "New search configuration for «{model}»"
 msgstr "Nouvelle configuration de recherche pour «{model}»"
 
-#: views/setting.py:36 views/user_settings.py:81
+#: views/setting.py:36 views/user_settings.py:131
 #, python-brace-format
 msgid "Edit «{key}»"
 msgstr "Modifier «{key}»"
@@ -1645,6 +1671,12 @@ msgstr "Supprimer le rôle"
 msgid "You cannot delete this role. [original error: {}]"
 msgstr "Vous ne pouvez pas supprimer ce rôle. [erreur d'origine : {}]"
 
+#~ msgid "{count} Block on home"
+#~ msgstr "{count} Bloc sur l'accueil"
+
+#~ msgid "{count} Blocks on home"
+#~ msgstr "{count} Blocs sur l'accueil"
+
 #~ msgid "Related entity"
 #~ msgstr "Fiche concernée"
 
@@ -1668,12 +1700,6 @@ msgstr "Vous ne pouvez pas supprimer ce rôle. [erreur d'origine : {}]"
 
 #~ msgid "Menu entries"
 #~ msgstr "Entrées du menu"
-
-#~ msgid "{count} Configured portal"
-#~ msgstr "{count} Portail configuré"
-
-#~ msgid "{count} Configured portals"
-#~ msgstr "{count} Portails configurés"
 
 #~ msgid "Configured portals"
 #~ msgstr "Portails configurés"

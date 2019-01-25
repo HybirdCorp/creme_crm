@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,6 +40,7 @@ from creme.creme_core.utils.unicode_collation import collator
 
 
 __all__ = ('BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm',
+           'BrickHomeLocationsAddingForm', 'BrickHomeLocationsEditionForm',
            'BrickMypageLocationsForm',
            'RTypeBrickAddForm', 'RTypeBrickItemAddCtypeForm', 'RTypeBrickItemEditCtypeForm',
            'CustomBrickConfigItemCreateForm', 'CustomBrickConfigItemEditForm',
@@ -92,7 +93,7 @@ class _BrickLocationsForm(CremeForm):
                 location = next(store_it)
                 location.brick_id = brick_id
                 location.order = order
-                location.zone  = zone  # NB: BlockPortalLocation has not 'zone' attr, but we do not care ! :)
+                location.zone  = zone  # NB: BrickHomeLocation has not 'zone' attr, but we do not care ! :)
                 location.role  = role  # NB: idem with 'role'
                 location.superuser = superuser  # NB: idem with 'superuser'
 
@@ -253,12 +254,68 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
             hat_f.initial = selected[0] if selected else hat_f.choices[0][0]
 
 
-class BrickHomeLocationsForm(_BrickLocationsForm):
+# class BrickHomeLocationsForm(_BrickLocationsForm):
+#     bricks = BrickLocationsField(label=_('Blocks to display on the home'))
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.locations = locations = BrickHomeLocation.objects.all()
+#
+#         self._build_home_locations_field(field_name='bricks', brick_locations=locations)
+#
+#     def save(self, *args, **kwargs):
+#         self._save_locations(location_model=BrickHomeLocation,
+#                              location_builder=lambda: BrickHomeLocation(),
+#                              bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
+#                              old_locations=self.locations,
+#                             )
+
+
+class BrickHomeLocationsAddingForm(_BrickLocationsForm):
+    role = ModelChoiceField(label=_('Role'),
+                            queryset=UserRole.objects.none(),
+                            empty_label=None, required=False,
+                           )
     bricks = BrickLocationsField(label=_('Blocks to display on the home'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.locations = locations = BrickHomeLocation.objects.all()
+        self._build_home_locations_field(field_name='bricks', brick_locations=())
+
+        role_f = self.fields['role']
+        used_role_ids = set(BrickHomeLocation.objects
+                                             .exclude(role__isnull=True, superuser=False)
+                                             .values_list('role', flat=True)
+                           )
+
+        # TODO: factorise ?
+        try:
+            used_role_ids.remove(None)
+        except KeyError:
+            role_f.empty_label = '*{}*'.format(ugettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
+
+        role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
+
+    def save(self, *args, **kwargs):
+        role = self.cleaned_data['role']
+
+        self._save_locations(location_model=BrickHomeLocation,
+                             location_builder=lambda: BrickHomeLocation(),
+                             bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
+                             role=role,
+                             superuser=(role is None),
+                            )
+
+
+class BrickHomeLocationsEditionForm(_BrickLocationsForm):
+    bricks = BrickLocationsField(label=_('Blocks to display on the home'))
+
+    def __init__(self, role, superuser, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.role      = role
+        self.superuser = superuser
+
+        self.locations = locations = BrickHomeLocation.objects.filter(role=role, superuser=superuser)
 
         self._build_home_locations_field(field_name='bricks', brick_locations=locations)
 
@@ -267,6 +324,7 @@ class BrickHomeLocationsForm(_BrickLocationsForm):
                              location_builder=lambda: BrickHomeLocation(),
                              bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
                              old_locations=self.locations,
+                             role=self.role, superuser=self.superuser,
                             )
 
 

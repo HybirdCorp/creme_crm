@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -409,10 +409,39 @@ class BrickHomeLocationsBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/bricklocations-home.html'
 
     def detailview_display(self, context):
-        return self._render(self.get_template_context(
-                    context,
-                    BrickHomeLocation.objects.all(),
-        ))
+        # return self._render(self.get_template_context(
+        #             context,
+        #             BrickHomeLocation.objects.all(),
+        # ))
+        superuser_count = BrickHomeLocation.objects.filter(superuser=True).count()
+
+        btc = self.get_template_context(
+            context,
+            UserRole.objects.exclude(brickhomelocation=None)
+                            .order_by('name')
+                            .annotate(bricks_count=Count('brickhomelocation')),
+            superuser_count=superuser_count,
+            empty_configs={
+                'superuser' if superuser else (role or 'default')
+                    for role, superuser in BrickHomeLocation.objects
+                                                            .filter(brick_id='')
+                                                            .values_list('role', 'superuser')
+            },
+        )
+
+        # NB: lambda => lazy
+        btc['get_default_count'] = lambda: BrickHomeLocation.objects.filter(role=None, superuser=False).count()
+
+        paginator = btc['page'].paginator
+        btc['show_add_button'] = (
+            (UserRole.objects.count() > paginator.count) and
+            superuser_count
+        )
+
+        # NB: the UserRole queryset count does not use the default & superuser configuration
+        paginator.count += 1 + min(superuser_count, 1)
+
+        return self._render(btc)
 
 
 class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):

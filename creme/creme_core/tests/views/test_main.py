@@ -9,7 +9,8 @@ try:
 
     from creme.creme_core.bricks import StatisticsBrick, HistoryBrick
     from creme.creme_core.gui.bricks import Brick
-    from creme.creme_core.models import (Language, Currency,
+    from creme.creme_core.models import (UserRole, BrickHomeLocation,
+            Language, Currency,
             FakeContact, FakeImage, FakeOrganisation)
     from creme.creme_core.views.testjs import js_testview_or_404
 
@@ -28,7 +29,7 @@ class MiscViewsTestCase(ViewsTestCase):
         super().tearDown()
         settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
 
-    def test_home(self):
+    def test_home01(self):
         self.login()
         response = self.assertGET200(reverse('creme_core__home'))
         self.assertTemplateUsed(response, 'creme_core/home.html')
@@ -47,6 +48,44 @@ class MiscViewsTestCase(ViewsTestCase):
         i1 = self.assertIndex(StatisticsBrick.id_, brick_ids)
         i2 = self.assertIndex(HistoryBrick.id_,    brick_ids)
         self.assertLess(i1, i2)
+
+    def test_home02(self):
+        "Superuser bricks configuration"
+        self.login()
+
+        brick_id = StatisticsBrick.id_
+        BrickHomeLocation.objects.create(brick_id=brick_id, superuser=True, order=1)
+
+        # Should not be used
+        BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, role=self.role, order=1)
+
+        response = self.assertGET200(reverse('creme_core__home'))
+        bricks = response.context.get('bricks')
+        self.assertEqual(len(bricks), 1)
+
+        brick = bricks[0]
+        self.assertIsInstance(brick, StatisticsBrick)
+        self.assertEqual(brick_id, brick.id_)
+
+    def test_home03(self):
+        "Superuser bricks configuration"
+        self.login(is_superuser=False)
+        role2 = UserRole.objects.create(name='Viewer')
+
+        brick_id = StatisticsBrick.id_
+        BrickHomeLocation.objects.create(brick_id=brick_id, role=self.role, order=1)
+
+        # Should not be used
+        BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, superuser=True, order=1)
+        BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, role=role2,     order=1)
+
+        response = self.assertGET200(reverse('creme_core__home'))
+        bricks = response.context.get('bricks')
+        self.assertEqual(len(bricks), 1)
+
+        brick = bricks[0]
+        self.assertIsInstance(brick, StatisticsBrick)
+        self.assertEqual(brick_id, brick.id_)
 
     def test_my_page(self):
         self.login()

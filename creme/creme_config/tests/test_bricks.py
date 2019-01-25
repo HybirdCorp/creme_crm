@@ -38,8 +38,8 @@ class _BaseCompleteBrick(Brick):
     def home_display(self, context):
         return '<table id="{}"></table>'.format(self.id_)
 
-    def portal_display(self, context, ct_ids):
-        return '<table id="{}"></table>'.format(self.id_)
+    # def portal_display(self, context, ct_ids):
+    #     return '<table id="{}"></table>'.format(self.id_)
 
 
 class CompleteBrick1(_BaseCompleteBrick):
@@ -919,16 +919,126 @@ class BricksConfigTestCase(CremeTestCase):
                                                         .count()
                         )
 
-    def test_edit_home(self):
+    def _aux_test_add_home(self, role=None, superuser=False):
+        url = reverse('creme_config__create_home_bricks')
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+
+        context = response.context
+        self.assertEqual(_('Create home configuration for a role'), context.get('title'))
+        self.assertEqual(_('Save the configuration'),  context.get('submit_label'))
+
+        with self.assertNoException():
+            bricks_field = context['form'].fields['bricks']
+
+        self._find_field_index(bricks_field, CompleteBrick1.id_)
+        self._find_field_index(bricks_field, HomeOnlyBrick1.id_)
+        self._find_field_index(bricks_field, HomePortalBrick.id_)
+
+        self._assertNotInChoices(bricks_field, RelationsBrick.id_, 'No home_display().')
+
+        choices = bricks_field.choices
+        brick_id1 = choices[0][0]
+        brick_id2 = choices[1][0]
+
+        index1 = self._find_field_index(bricks_field, brick_id1)
+        index2 = self._find_field_index(bricks_field, brick_id2)
+
+        response = self.client.post(
+            url,
+            data={
+                'role': '' if role is None else role.id,
+
+                'bricks_check_{}'.format(index1): 'on',
+                'bricks_value_{}'.format(index1): brick_id1,
+                'bricks_order_{}'.format(index1): 1,
+
+                'bricks_check_{}'.format(index2): 'on',
+                'bricks_value_{}'.format(index2): brick_id2,
+                'bricks_order_{}'.format(index2): 2,
+            },
+        )
+        self.assertNoFormError(response)
+
+        b_locs = list(BrickHomeLocation.objects.filter(role=role))
+        self.assertEqual(2, len(b_locs))
+
+        b_loc1 = self._find_location(brick_id1, b_locs)
+        self.assertEqual(1, b_loc1.order)
+        self.assertEqual(role, b_loc1.role)
+        self.assertIs(b_loc1.superuser, superuser)
+
+        self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
+
+    def test_add_home01(self):
+        "Role"
+        self.login()
+        self._aux_test_add_home(role=self.role, superuser=False)
+
+    def test_add_home02(self):
+        "Superuser"
+        self.login()
+        self._aux_test_add_home(superuser=True)
+
+    def test_add_home03(self):
+        "Used roles are not proposed anymore"
+        self.login()
+        url = reverse('creme_config__create_home_bricks')
+
+        role1 = self.role
+        role2 = UserRole.objects.create(name='Viewer')
+
+        def get_choices():
+            response = self.assertGET200(url)
+
+            with self.assertNoException():
+                return list(response.context['form'].fields['role'].choices)
+
+        choices = get_choices()
+        self.assertIn(('', '*{}*'.format(_('Superuser'))), choices)
+        self.assertIn((role1.id, role1.name), choices)
+        self.assertIn((role2.id, role2.name), choices)
+
+        # Role ------------
+        bricks = list(self.brick_registry.get_compatible_home_bricks())
+        self.assertTrue(bricks)
+
+        create_loc = partial(BrickHomeLocation.objects.create, order=1, brick_id=bricks[0].id_)
+        create_loc(role=role1)
+
+        choices = get_choices()
+        self.assertIn(('', '*{}*'.format(_('Superuser'))), choices)
+        self.assertIn((role2.id, role2.name), choices)
+        self.assertNotIn((role1.id, role1.name), choices)
+
+        # Superuser ------------
+        create_loc(superuser=True)
+
+        choices = get_choices()
+        self.assertIn((role2.id, role2.name), choices)
+        self.assertNotIn((role1.id, role1.name), choices)
+        self.assertNotIn(('', '*{}*'.format(_('Superuser'))), choices)
+
+    # def test_edit_home(self):
+    def test_edit_home01(self):
+        "Default configuration"
         self.login()
 
-        BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, order=8)
+        already_chosen_id = HistoryBrick.id_
+        BrickHomeLocation.objects.create(brick_id=already_chosen_id, order=8)
+
+        # Not already chosen because they are role configuration, not the default one
+        not_already_chosen_id1 = CompleteBrick1.id_
+        not_already_chosen_id2 = HomeOnlyBrick1.id_
+        BrickHomeLocation.objects.create(brick_id=not_already_chosen_id1, order=8, role=self.role)
+        BrickHomeLocation.objects.create(brick_id=not_already_chosen_id2, order=8, superuser=True)
 
         naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
         instance_brick_id = InstanceBrickConfigItem.generate_id(HomeInstanceBrick, naru, '')
         InstanceBrickConfigItem.objects.create(brick_id=instance_brick_id, entity=naru, verbose='All stuffes')
 
-        url = reverse('creme_config__edit_home_bricks')
+        # url = reverse('creme_config__edit_home_bricks')
+        url = reverse('creme_config__edit_home_bricks', args=('default',))
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
@@ -939,13 +1049,19 @@ class BricksConfigTestCase(CremeTestCase):
         with self.assertNoException():
             bricks_field = context['form'].fields['bricks']
 
-        self._find_field_index(bricks_field, CompleteBrick1.id_)
-        self._find_field_index(bricks_field, HomeOnlyBrick1.id_)
+        initial = bricks_field.initial
+        self.assertIn(already_chosen_id, initial)
+        self.assertNotIn(not_already_chosen_id1, initial)
+        self.assertNotIn(not_already_chosen_id2, initial)
+
+        self._find_field_index(bricks_field, already_chosen_id)
+        self._find_field_index(bricks_field, not_already_chosen_id1)
+        self._find_field_index(bricks_field, not_already_chosen_id2)
         self._find_field_index(bricks_field, HomePortalBrick.id_)
         self._find_field_index(bricks_field, instance_brick_id)
 
-        self._assertNotInChoices(bricks_field, RelationsBrick.id_,   'No home_display().')
-        self._assertNotInChoices(bricks_field, HomeOnlyBrick2.id_,   'Brick is not configurable')
+        self._assertNotInChoices(bricks_field, RelationsBrick.id_, 'No home_display().')
+        self._assertNotInChoices(bricks_field, HomeOnlyBrick2.id_, 'Brick is not configurable')
 
         choices = bricks_field.choices
         brick_id1 = choices[0][0]
@@ -961,25 +1077,198 @@ class BricksConfigTestCase(CremeTestCase):
                                                'bricks_check_{}'.format(index2): 'on',
                                                'bricks_value_{}'.format(index2): brick_id2,
                                                'bricks_order_{}'.format(index2): 2,
-                                               }
+                                              }
                                     )
         self.assertNoFormError(response)
 
-        b_locs = list(BrickHomeLocation.objects.all())
+        # b_locs = list(BrickHomeLocation.objects.all())
+        b_locs = list(BrickHomeLocation.objects.filter(role__isnull=True, superuser=False))
         self.assertEqual(2, len(b_locs))
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
 
-    def test_delete_home_location_item(self):
+        self.assertEqual(1, BrickHomeLocation.objects.filter(role=self.role).count())
+        self.assertEqual(1, BrickHomeLocation.objects.filter(superuser=True).count())
+
+    def test_edit_home02(self):
+        "Role"
         self.login()
+        role = self.role
+
+        already_chosen_id = HistoryBrick.id_
+        BrickHomeLocation.objects.create(brick_id=already_chosen_id, order=8, role=role)
+
+        # Not already chosen because it's the default configuration
+        not_already_chosen_id1 = CompleteBrick1.id_
+        BrickHomeLocation.objects.create(brick_id=not_already_chosen_id1, order=8)
+
+        # Not already chosen because it's the superuser configuration
+        not_already_chosen_id2 = HomeOnlyBrick1.id_
+        BrickHomeLocation.objects.create(brick_id=not_already_chosen_id2, order=8, superuser=True)
+
+        url = reverse('creme_config__edit_home_bricks', args=(role.id,))
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            bricks_field = response.context['form'].fields['bricks']
+
+        initial = bricks_field.initial
+        self.assertIn(already_chosen_id, initial)
+        self.assertNotIn(not_already_chosen_id1, initial)
+        self.assertNotIn(not_already_chosen_id2, initial)
+
+        self._find_field_index(bricks_field, already_chosen_id)
+        self._find_field_index(bricks_field, not_already_chosen_id1)
+        self._find_field_index(bricks_field, not_already_chosen_id2)
+
+        self._assertNotInChoices(bricks_field, RelationsBrick.id_, 'No home_display().')
+
+        choices = bricks_field.choices
+        brick_id1 = choices[0][0]
+        brick_id2 = choices[1][0]
+
+        index1 = self._find_field_index(bricks_field, brick_id1)
+        index2 = self._find_field_index(bricks_field, brick_id2)
+
+        response = self.client.post(
+            url,
+            data={
+                'bricks_check_{}'.format(index1): 'on',
+                'bricks_value_{}'.format(index1): brick_id1,
+                'bricks_order_{}'.format(index1): 1,
+
+                'bricks_check_{}'.format(index2): 'on',
+                'bricks_value_{}'.format(index2): brick_id2,
+                'bricks_order_{}'.format(index2): 2,
+            },
+        )
+        self.assertNoFormError(response)
+
+        b_locs = list(BrickHomeLocation.objects.filter(role=role, superuser=False))
+        self.assertEqual(2, len(b_locs))
+        self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
+        self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
+
+        self.assertEqual(1, BrickHomeLocation.objects.filter(role=None, superuser=False).count())
+        self.assertEqual(1, BrickHomeLocation.objects.filter(superuser=True).count())
+
+    def test_edit_home03(self):
+        "Superuser"
+        self.login()
+        role = self.role
+
+        already_chosen_id = HistoryBrick.id_
+        BrickHomeLocation.objects.create(brick_id=already_chosen_id, order=8, superuser=True)
+
+        # Not already chosen because it's the default configuration
+        not_already_chosen_id1 = CompleteBrick1.id_
+        BrickHomeLocation.objects.create(brick_id=not_already_chosen_id1, order=8)
+
+        # Not already chosen because it's a role configuration
+        not_already_chosen_id2 = HomeOnlyBrick1.id_
+        BrickHomeLocation.objects.create(brick_id=not_already_chosen_id2, order=8, role=role)
+
+        url = reverse('creme_config__edit_home_bricks', args=('superuser',))
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            bricks_field = response.context['form'].fields['bricks']
+
+        initial = bricks_field.initial
+        self.assertIn(already_chosen_id, initial)
+        self.assertNotIn(not_already_chosen_id1, initial)
+        self.assertNotIn(not_already_chosen_id2, initial)
+
+        self._find_field_index(bricks_field, already_chosen_id)
+        self._find_field_index(bricks_field, not_already_chosen_id1)
+        self._find_field_index(bricks_field, not_already_chosen_id2)
+
+        self._assertNotInChoices(bricks_field, RelationsBrick.id_, 'No home_display().')
+
+        choices = bricks_field.choices
+        brick_id1 = choices[0][0]
+        brick_id2 = choices[1][0]
+
+        index1 = self._find_field_index(bricks_field, brick_id1)
+        index2 = self._find_field_index(bricks_field, brick_id2)
+
+        response = self.client.post(
+            url,
+            data={
+                'bricks_check_{}'.format(index1): 'on',
+                'bricks_value_{}'.format(index1): brick_id1,
+                'bricks_order_{}'.format(index1): 1,
+
+                'bricks_check_{}'.format(index2): 'on',
+                'bricks_value_{}'.format(index2): brick_id2,
+                'bricks_order_{}'.format(index2): 2,
+            },
+        )
+        self.assertNoFormError(response)
+
+        b_locs = list(BrickHomeLocation.objects.filter(role=None, superuser=True))
+        self.assertEqual(2, len(b_locs))
+        self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
+        self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
+
+        self.assertEqual(1, BrickHomeLocation.objects.filter(role=None, superuser=False).count())
+        self.assertEqual(1, BrickHomeLocation.objects.filter(role=role).count())
+
+    # def test_delete_home_location_item(self):
+    #     self.login()
+    #     bricks = [block for brick_id, block in self.brick_registry
+    #                         if hasattr(block, 'home_display')
+    #              ]
+    #     self.assertGreaterEqual(len(bricks), 1)
+    #
+    #     bpl = BrickHomeLocation.objects.create(brick_id=bricks[0].id_, order=1)
+    #     self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'id': bpl.id})
+    #     self.assertDoesNotExist(bpl)
+    def test_delete_home01(self):
+        "Role"
+        self.login()
+        role = self.role
         bricks = [block for brick_id, block in self.brick_registry
                             if hasattr(block, 'home_display')
                  ]
-        self.assertGreaterEqual(len(bricks), 1)
+        self.assertGreaterEqual(len(bricks), 2)
 
-        bpl = BrickHomeLocation.objects.create(brick_id=bricks[0].id_, order=1)
-        self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'id': bpl.id})
-        self.assertDoesNotExist(bpl)
+        create_bhl = partial(BrickHomeLocation.objects.create, brick_id=bricks[0].id_, order=1)
+        bhl01 = create_bhl()
+        bhl02 = create_bhl(role=role)
+        bhl03 = create_bhl(superuser=True)
+        bhl04 = create_bhl(role=role, brick_id=bricks[1].id_, order=2)
+
+        self.assertGET404(reverse('creme_config__delete_home_brick'))
+        self.assertGET404(reverse('creme_config__delete_home_brick'), data={'role': role.id})
+        self.assertPOST404(reverse('creme_config__delete_home_brick'))
+
+        self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'role': role.id})
+        self.assertDoesNotExist(bhl02)
+        self.assertDoesNotExist(bhl04)
+        self.assertStillExists(bhl01)
+        self.assertStillExists(bhl03)
+
+    def test_delete_home02(self):
+        "Superuser"
+        self.login()
+        role = self.role
+        bricks = [block for brick_id, block in self.brick_registry
+                            if hasattr(block, 'home_display')
+                 ]
+        self.assertGreaterEqual(len(bricks), 2)
+
+        create_bhl = partial(BrickHomeLocation.objects.create, brick_id=bricks[0].id_, order=1)
+        bhl01 = create_bhl()
+        bhl02 = create_bhl(superuser=True)
+        bhl03 = create_bhl(role=role)
+        bhl04 = create_bhl(superuser=True, brick_id=bricks[1].id_, order=2)
+
+        self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'role': 'superuser'})
+        self.assertDoesNotExist(bhl02)
+        self.assertDoesNotExist(bhl04)
+        self.assertStillExists(bhl01)
+        self.assertStillExists(bhl03)
 
     def test_edit_default_mypage(self):
         self.login()
