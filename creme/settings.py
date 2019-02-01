@@ -806,6 +806,7 @@ TEST_CREME_OPT_JS = [
     ('creme.crudity',       'crudity/js/tests/crudity-actions.js'),
     ('creme.emails',        'emails/js/tests/emails-actions.js'),
     ('creme.emails',        'emails/js/tests/emails-listview.js'),
+    ('creme.events',        'events/js/tests/events-listview.js'),
     ('creme.opportunities', 'opportunities/js/tests/opportunities.js'),
     ('creme.projects',      'projects/js/tests/projects.js'),
     ('creme.reports',       'reports/js/tests/reports-listview.js'),
