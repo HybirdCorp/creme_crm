@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,36 +44,68 @@ register = Library()
 # TODO: move all templates to 'creme_core/templatetags/listview/'
 
 
-@register.inclusion_tag('creme_core/templatetags/listview_entityfilters.html', takes_context=True)
-def get_listview_entity_filters(context):
-    efilter = context['entity_filters'].selected
+# @register.inclusion_tag('creme_core/templatetags/entity-filters.html', takes_context=True)
+# def get_listview_entity_filters(context):
+#     efilter = context['entity_filters'].selected
+#
+#     if efilter:
+#         efilter_id = efilter.id
+#         user = context['user']
+#         can_edit   = efilter.can_edit(user)[0]
+#         can_delete = efilter.can_delete(user)[0]
+#     else:
+#         efilter_id = 0
+#         can_edit = can_delete = False
+#
+#     context['efilter_id'] = efilter_id
+#     context['can_edit'] = can_edit
+#     context['can_delete'] = can_delete
+#
+#     return context
+@register.inclusion_tag('creme_core/templatetags/listview/entity-filters.html')
+def listview_entity_filters(model, user, efilters, show_buttons):
+    efilter = efilters.selected
 
     if efilter:
         efilter_id = efilter.id
-        user = context['user']
         can_edit   = efilter.can_edit(user)[0]
         can_delete = efilter.can_delete(user)[0]
     else:
         efilter_id = 0
         can_edit = can_delete = False
 
-    context['efilter_id'] = efilter_id
-    context['can_edit'] = can_edit
-    context['can_delete'] = can_delete
+    return {
+        'model': model,
+        'entity_filters': efilters,
+        'efilter_id': efilter_id,
+        'can_edit': can_edit,
+        'can_delete': can_delete,
+        'show_buttons': show_buttons,
+    }
 
-    return context
 
+# @register.inclusion_tag('creme_core/templatetags/header-filters.html', takes_context=True)
+# def get_listview_headerfilters(context):
+#     hfilter = context['header_filters'].selected
+#     user = context['user']
+#
+#     context['hfilter_id'] = hfilter.id
+#     context['can_edit']   = hfilter.can_edit(user)[0]
+#     context['can_delete'] = hfilter.can_delete(user)[0]
+#
+#     return context
+@register.inclusion_tag('creme_core/templatetags/listview/header-filters.html')
+def listview_header_filters(model, user, hfilters, show_buttons):
+    hfilter = hfilters.selected
 
-@register.inclusion_tag('creme_core/templatetags/listview_headerfilters.html', takes_context=True)
-def get_listview_headerfilters(context):
-    hfilter = context['header_filters'].selected
-    user = context['user']
-
-    context['hfilter_id'] = hfilter.id
-    context['can_edit']   = hfilter.can_edit(user)[0]
-    context['can_delete'] = hfilter.can_delete(user)[0]
-
-    return context
+    return {
+        'model': model,
+        'header_filters': hfilters,
+        'hfilter_id': hfilter.id,
+        'can_edit': hfilter.can_edit(user)[0],
+        'can_delete': hfilter.can_delete(user)[0],
+        'show_buttons': show_buttons,
+    }
 
 
 class PagerRenderer:
@@ -158,7 +190,7 @@ def _build_select_search_widget(widget_ctx, search_value, choices):
 # TODO: add methods to EntityCells ? -> map of behaviours instead
 @register.inclusion_tag('creme_core/templatetags/listview_columns_header.html', takes_context=True)
 def get_listview_columns_header(context):
-    header_searches = dict(context['list_view_state'].research)
+    header_searches = dict(context['list_view_state'].research)  # TODO: context['search'] ? argument ?
 
     for cell in context['cells']:
         if not cell.has_a_filter:
@@ -231,6 +263,22 @@ def get_listview_columns_header(context):
     return context
 
 # ------------------------------------------------------------------------------
+
+
+@register.inclusion_tag('creme_core/templatetags/listview/buttons.html', takes_context=True)
+def listview_buttons(context, model, buttons):
+    request = context['request'] # TODO: argument ?
+
+    return {
+        'request': request,
+        'user': request.user,
+        'model': model,
+        'list_view_state': context['list_view_state'],
+        'buttons': ((button, button.get_context(context))
+                        for button in buttons.instances
+                   ),
+    }
+
 
 @register.simple_tag
 def listview_header_colspan(cells, is_readonly, is_single_select):

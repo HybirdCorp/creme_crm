@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,11 +25,13 @@ from functools import partial
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404  # render, redirect
-# from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse_lazy
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils import get_from_GET_or_404
 from creme.creme_core.views import generic
@@ -261,18 +263,17 @@ _TYPES_MAP = {
 #     return abstract_view_activity_popup(request, activity_id)
 
 
-@login_required
-@permission_required('activities')
-def listview(request, type_id=None):
-    kwargs = {}
-
-    if type_id:
-        # TODO: change 'add' button too ??
-        kwargs['extra_q'] = Q(type=type_id)
-
-    return generic.list_view(request, Activity, hf_pk=constants.DEFAULT_HFILTER_ACTIVITY,
-                             **kwargs
-                            )
+# @login_required
+# @permission_required('activities')
+# def listview(request, type_id=None):
+#     kwargs = {}
+#
+#     if type_id:
+#         kwargs['extra_q'] = Q(type=type_id)
+#
+#     return generic.list_view(request, Activity, hf_pk=constants.DEFAULT_HFILTER_ACTIVITY,
+#                              **kwargs
+#                             )
 
 
 # Class-based views  ----------------------------------------------------------
@@ -434,7 +435,42 @@ class ActivityEdition(generic.EntityEdition):
     pk_url_kwarg = 'activity_id'
 
 
-# Other views  ----------------------------------------------------------------
+class ActivitiesList(generic.EntitiesList):
+    model = Activity
+    default_headerfilter_id = constants.DEFAULT_HFILTER_ACTIVITY
+
+
+class TypedActivitiesList(ActivitiesList):
+    creation_label = 'Create a typed activity'
+    creation_url   = '/activities/typed_activity/create/'
+
+    def get_buttons(self):
+        class TypedActivityCreationButton(CreationButton):
+            def get_label(this, model):
+                return self.creation_label
+
+            def get_url(this, model):
+                return self.creation_url
+
+        return super().get_buttons()\
+                      .replace(old=CreationButton, new=TypedActivityCreationButton)
+
+
+class PhoneCallsList(TypedActivitiesList):
+    title = _('List of phone calls')
+    creation_label = _('Create a phone call')
+    creation_url   = reverse_lazy('activities__create_activity', args=('phonecall',))
+    internal_q = Q(type=constants.ACTIVITYTYPE_PHONECALL)
+
+
+class MeetingsList(TypedActivitiesList):
+    title = _('List of meetings')
+    creation_label = _('Create a meeting')
+    creation_url   = reverse_lazy('activities__create_activity', args=('meeting',))
+    internal_q = Q(type=constants.ACTIVITYTYPE_MEETING)
+
+
+# Other views  -----------------------------------------------------------------
 
 
 @login_required

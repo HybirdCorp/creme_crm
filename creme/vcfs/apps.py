@@ -29,6 +29,25 @@ class VCFsConfig(CremeAppConfig):
     dependencies = ['creme.persons']
     credentials = CremeAppConfig.CRED_NONE
 
+    # NB: example of list-view buttons hooking
+    # def all_apps_ready(self):
+    #     super().all_apps_ready()
+    #
+    #     from django.urls import reverse
+    #
+    #     from creme.creme_core.gui.listview import CreationButton
+    #     from creme.persons.views.contact import ContactsList
+    #
+    #     class ImportVCFButton(CreationButton):
+    #         def get_label(self, model):
+    #             return _('Import from a VCF file')
+    #
+    #         def get_url(self, model):
+    #             return reverse('vcfs__import')
+    #
+    #     # NB: not '+=' to avoid modifying EntitiesList.button_classes
+    #     ContactsList.button_classes = ContactsList.button_classes + [ImportVCFButton]
+
     def register_actions(self, actions_registry):
         from . import actions
 

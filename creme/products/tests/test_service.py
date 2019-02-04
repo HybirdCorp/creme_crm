@@ -115,7 +115,8 @@ class ServiceTestCase(_ProductsTestCase):
         response = self.assertGET200(Service.get_lv_absolute_url())
 
         with self.assertNoException():
-            services_page = response.context['entities']
+            # services_page = response.context['entities']
+            services_page = response.context['page_obj']
 
         self.assertEqual(2, services_page.paginator.count)
         self.assertEqual(set(services), set(services_page.object_list))

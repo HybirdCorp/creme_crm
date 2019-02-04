@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 # import warnings
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
 from .. import get_tickettemplate_model
@@ -63,10 +63,10 @@ TicketTemplate = get_tickettemplate_model()
 #     return abstract_view_ticket_template(request, template_id)
 
 
-@login_required
-@permission_required('tickets')
-def listview(request):
-    return generic.list_view(request, TicketTemplate, hf_pk=DEFAULT_HFILTER_TTEMPLATE)
+# @login_required
+# @permission_required('tickets')
+# def listview(request):
+#     return generic.list_view(request, TicketTemplate, hf_pk=DEFAULT_HFILTER_TTEMPLATE)
 
 
 # Class-based views  ----------------------------------------------------------
@@ -81,3 +81,8 @@ class TicketTemplateEdition(generic.EntityEdition):
     model = TicketTemplate
     form_class = TicketTemplateForm
     pk_url_kwarg = 'template_id'
+
+
+class TicketTemplatesList(generic.EntitiesList):
+    model = TicketTemplate
+    default_headerfilter_id = DEFAULT_HFILTER_TTEMPLATE

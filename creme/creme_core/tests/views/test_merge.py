@@ -44,7 +44,8 @@ class MergeViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_select_url(orga01))
 
         with self.assertNoException():
-            contacts = response.context['entities'].object_list
+            # contacts = response.context['entities'].object_list
+            contacts = response.context['page_obj'].object_list
 
         contacts = set(contacts)
         self.assertIn(orga02, contacts)

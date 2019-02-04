@@ -329,7 +329,8 @@ class QuoteTestCase(_BillingTestCase):
         response = self.assertGET200(Quote.get_lv_absolute_url())
 
         with self.assertNoException():
-            quotes_page = response.context['entities']
+            # quotes_page = response.context['entities']
+            quotes_page = response.context['page_obj']
 
         self.assertEqual(2, quotes_page.paginator.count)
         self.assertEqual({quote1, quote2}, set(quotes_page.paginator.object_list))

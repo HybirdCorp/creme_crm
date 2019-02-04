@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import RelationType
 from creme.creme_core.views import generic
@@ -35,8 +35,6 @@ from ..forms import contact as c_forms
 
 
 Contact = get_contact_model()
-
-# Function views --------------------------------------------------------------
 
 
 # def abstract_add_contact(request, form=c_forms.ContactForm,
@@ -150,13 +148,11 @@ Contact = get_contact_model()
 #     return abstract_view_contact(request, contact_id)
 
 
-@login_required
-@permission_required('persons')
-def listview(request):
-    return generic.list_view(request, Contact, hf_pk=DEFAULT_HFILTER_CONTACT)
+# @login_required
+# @permission_required('persons')
+# def listview(request):
+#     return generic.list_view(request, Contact, hf_pk=DEFAULT_HFILTER_CONTACT)
 
-
-# Class-based views  -----------------------------------------------------------
 
 class ContactCreation(generic.EntityCreation):
     model = Contact
@@ -236,3 +232,8 @@ class ContactEdition(generic.EntityEdition):
     form_class = c_forms.ContactForm
     template_name = 'persons/edit_contact_form.html'
     pk_url_kwarg = 'contact_id'
+
+
+class ContactsList(generic.EntitiesList):
+    model = Contact
+    default_headerfilter_id = DEFAULT_HFILTER_CONTACT

@@ -20,19 +20,20 @@
 
 # import warnings
 
-from django.urls import reverse
+# from django.urls import reverse
 from django.db.models import Q
 from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeProperty
-from creme.creme_core.views.generic import list_view  # add_entity
+# from creme.creme_core.views.generic import list_view, add_entity
 
 from creme.persons import get_contact_model
-from creme.persons.views.contact import ContactCreation
+from creme.persons.views import contact as contact_views
 
+from .. import gui
 from ..constants import PROP_IS_A_SALESMAN
 # from ..forms.salesman import SalesManCreateForm
 
@@ -55,16 +56,13 @@ Contact = get_contact_model()
 #                      )
 
 
-# TODO: factorise with generic list_view (list_contacts + property) ??
-#       problem: list_view can accept to filter on a property (register a filtered view in the menu etc...)
-def abstract_list_salesmen(request, title=_(u'List of salesmen')):
-    return list_view(request, Contact,
-                     extra_dict={'list_title': title,
-                                 # TODO: button registry to change the button label
-                                 'add_url': reverse('commercial__create_salesman'),
-                                },
-                     extra_q=Q(properties__type=PROP_IS_A_SALESMAN),
-                    )
+# def abstract_list_salesmen(request, title=_(u'List of salesmen')):
+#     return list_view(request, Contact,
+#                      extra_dict={'list_title': title,
+#                                  'add_url': reverse('commercial__create_salesman'),
+#                                 },
+#                      extra_q=Q(properties__type=PROP_IS_A_SALESMAN),
+#                     )
 
 
 # @login_required
@@ -74,15 +72,12 @@ def abstract_list_salesmen(request, title=_(u'List of salesmen')):
 #     return abstract_add_salesman(request)
 
 
-@login_required
-@permission_required('persons')
-def listview(request):
-    return abstract_list_salesmen(request)
+# @login_required
+# @permission_required('persons')
+# def listview(request):
+#     return abstract_list_salesmen(request)
 
-
-# Class-Based views ------------------------------------------------------------
-
-class SalesManCreation(ContactCreation):
+class SalesManCreation(contact_views.ContactCreation):
     title = _('Create a salesman')
     submit_label = _('Save the salesman')
 
@@ -92,3 +87,13 @@ class SalesManCreation(ContactCreation):
             CremeProperty.objects.create(type_id=PROP_IS_A_SALESMAN, creme_entity=self.object)
 
         return response
+
+
+class SalesMenList(contact_views.ContactsList):
+    title = _('List of salesmen')
+    internal_q = Q(properties__type=PROP_IS_A_SALESMAN)
+
+    def get_buttons(self):
+        return super().get_buttons()\
+                      .replace(old=gui.CreationButton, new=gui.SalesManCreationButton)
+

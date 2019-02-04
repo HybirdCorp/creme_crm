@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2018  Hybird
+#    Copyright (C) 2017-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,10 @@ from django.template import Library
 
 from ..auth.entity_credentials import EntityCredentials
 from ..models import CremeEntity
+from ..utils.queries import QSerializer
 
 register = Library()
+__serializer = QSerializer()
 
 
 @register.simple_tag
@@ -51,3 +53,8 @@ def query_entities_count(ctype, user):
                         ),
                     as_model=model,
                 ).count()
+
+
+@register.filter()
+def query_serialize(q):
+    return __serializer.dumps(q)

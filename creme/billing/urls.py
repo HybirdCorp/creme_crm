@@ -35,7 +35,8 @@ urlpatterns = [
 
 urlpatterns += swap_manager.add_group(
     billing.invoice_model_is_custom,
-    Swappable(url(r'^invoices[/]?$',                                    invoice.listview,                         name='billing__list_invoices')),
+    # Swappable(url(r'^invoices[/]?$',                                    invoice.listview,                         name='billing__list_invoices')),
+    Swappable(url(r'^invoices[/]?$',                                    invoice.InvoicesList.as_view(),           name='billing__list_invoices')),
     Swappable(url(r'^invoice/add[/]?$',                                 invoice.InvoiceCreation.as_view(),        name='billing__create_invoice')),
     Swappable(url(r'^invoice/add/(?P<target_id>\d+)[/]?$',              invoice.RelatedInvoiceCreation.as_view(), name='billing__create_related_invoice'),  check_args=Swappable.INT_ID),
     Swappable(url(r'^invoice/edit/(?P<invoice_id>\d+)[/]?$',            invoice.InvoiceEdition.as_view(),         name='billing__edit_invoice'),            check_args=Swappable.INT_ID),
@@ -46,7 +47,8 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     billing.quote_model_is_custom,
-    Swappable(url(r'^quotes[/]?$',                       quote.listview,                       name='billing__list_quotes')),
+    # Swappable(url(r'^quotes[/]?$',                       quote.listview,                       name='billing__list_quotes')),
+    Swappable(url(r'^quotes[/]?$',                       quote.QuotesList.as_view(),           name='billing__list_quotes')),
     Swappable(url(r'^quote/add[/]?$',                    quote.QuoteCreation.as_view(),        name='billing__create_quote')),
     Swappable(url(r'^quote/add/(?P<target_id>\d+)[/]?$', quote.RelatedQuoteCreation.as_view(), name='billing__create_related_quote'), check_args=Swappable.INT_ID),
     Swappable(url(r'^quote/edit/(?P<quote_id>\d+)[/]?$', quote.QuoteEdition.as_view(),         name='billing__edit_quote'),           check_args=Swappable.INT_ID),
@@ -57,7 +59,8 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     billing.sales_order_model_is_custom,
-    Swappable(url(r'^sales_orders[/]?$',                       sales_order.listview,                            name='billing__list_orders')),
+    # Swappable(url(r'^sales_orders[/]?$',                       sales_order.listview,                            name='billing__list_orders')),
+    Swappable(url(r'^sales_orders[/]?$',                       sales_order.SalesOrdersList.as_view(),           name='billing__list_orders')),
     Swappable(url(r'^sales_order/add[/]?$',                    sales_order.SalesOrderCreation.as_view(),        name='billing__create_order')),
     Swappable(url(r'^sales_order/add/(?P<target_id>\d+)[/]?$', sales_order.RelatedSalesOrderCreation.as_view(), name='billing__create_related_order'), check_args=Swappable.INT_ID),
     Swappable(url(r'^sales_order/edit/(?P<order_id>\d+)[/]?$', sales_order.SalesOrderEdition.as_view(),         name='billing__edit_order'),           check_args=Swappable.INT_ID),
@@ -67,7 +70,8 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     billing.credit_note_model_is_custom,
-    Swappable(url(r'^credit_notes[/]?$',                                credit_note.listview,                     name='billing__list_cnotes')),
+    # Swappable(url(r'^credit_notes[/]?$',                                credit_note.listview,                     name='billing__list_cnotes')),
+    Swappable(url(r'^credit_notes[/]?$',                                credit_note.CreditNotesList.as_view(),    name='billing__list_cnotes')),
     Swappable(url(r'^credit_note/add[/]?$',                             credit_note.CreditNoteCreation.as_view(), name='billing__create_cnote')),
     Swappable(url(r'^credit_note/edit/(?P<cnote_id>\d+)[/]?$',          credit_note.CreditNoteEdition.as_view(),  name='billing__edit_cnote'),         check_args=Swappable.INT_ID),
     Swappable(url(r'^credit_note/(?P<cnote_id>\d+)[/]?$',               credit_note.CreditNoteDetail.as_view(),   name='billing__view_cnote'),         check_args=Swappable.INT_ID),
@@ -84,7 +88,8 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     billing.template_base_model_is_custom,
-    Swappable(url(r'^templates[/]?$',                          templatebase.listview,                      name='billing__list_templates')),
+    # Swappable(url(r'^templates[/]?$',                          templatebase.listview,                      name='billing__list_templates')),
+    Swappable(url(r'^templates[/]?$',                          templatebase.TemplateBasesList.as_view(),   name='billing__list_templates')),
     Swappable(url(r'^template/edit/(?P<template_id>\d+)[/]?$', templatebase.TemplateBaseEdition.as_view(), name='billing__edit_template'), check_args=Swappable.INT_ID),
     Swappable(url(r'^template/(?P<template_id>\d+)[/]?$',      templatebase.TemplateBaseDetail.as_view(),  name='billing__view_template'), check_args=Swappable.INT_ID),
     app_name='billing',
@@ -92,14 +97,16 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     billing.product_line_model_is_custom,
-    Swappable(url(r'^product_lines[/]?$',                                line.listview_product_line,          name='billing__list_product_lines')),
+    # Swappable(url(r'^product_lines[/]?$',                                line.listview_product_line,          name='billing__list_product_lines')),
+    Swappable(url(r'^product_lines[/]?$',                                line.ProductLinesList.as_view(),     name='billing__list_product_lines')),
     Swappable(url(r'^(?P<entity_id>\d+)/product_line/add_multiple[/]?$', line.ProductLinesCreation.as_view(), name='billing__create_product_lines'), check_args=Swappable.INT_ID),
     app_name='billing',
 ).kept_patterns()
 
 urlpatterns += swap_manager.add_group(
     billing.service_line_model_is_custom,
-    Swappable(url(r'^service_lines[/]?$',                                line.listview_service_line,          name='billing__list_service_lines')),
+    # Swappable(url(r'^service_lines[/]?$',                                line.listview_service_line,          name='billing__list_service_lines')),
+    Swappable(url(r'^service_lines[/]?$',                                line.ServiceLinesList.as_view(),     name='billing__list_service_lines')),
     Swappable(url(r'^(?P<entity_id>\d+)/service_line/add_multiple[/]?$', line.ServiceLinesCreation.as_view(), name='billing__create_service_lines'), check_args=Swappable.INT_ID),
     app_name='billing',
 ).kept_patterns()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -393,23 +393,65 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         return self.get_ctype().model_class()._default_manager.all()
 
 
-# TODO: merge_form_factory as attribute in future CBV
-@login_required
-def select_entity_for_merge(request):
-    entity1_id = get_from_GET_or_404(request.GET, 'id1', cast=int)
-    entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
+# @login_required
+# def select_entity_for_merge(request):
+#     entity1_id = get_from_GET_or_404(request.GET, 'id1', cast=int)
+#     entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
+#
+#     if merge_form_factory(entity1.entity_type.model_class()) is None:
+#         raise ConflictError('This type of entity cannot be merged')
+#
+#     user = request.user
+#     user.has_perm_to_view_or_die(entity1); user.has_perm_to_change_or_die(entity1)
+#
+#     return listview.list_view_popup(request,
+#                                     model=entity1.entity_type.model_class(),  # NB: avoid retrieving real entity...
+#                                     mode=listview.MODE_SINGLE_SELECTION,
+#                                     extra_q=~Q(pk=entity1_id),
+#                                    )
+class MergeFormMixin:
+    merge_form_registry = merge_form_registry
 
-    if merge_form_factory(entity1.entity_type.model_class()) is None:
-        raise ConflictError('This type of entity cannot be merged')
+    def get_merge_form_class(self, model):
+        form_cls = merge_form_factory(model=model,
+                                      merge_form_registry=self.merge_form_registry,
+                                     )
 
-    user = request.user
-    user.has_perm_to_view_or_die(entity1); user.has_perm_to_change_or_die(entity1)
+        if form_cls is None:
+            raise ConflictError('This type of entity cannot be merged')
 
-    return listview.list_view_popup(request,
-                                    model=entity1.entity_type.model_class(),  # NB: avoid retrieving real entity...
-                                    mode=listview.MODE_SINGLE_SELECTION,
-                                    extra_q=~Q(pk=entity1_id),
-                                   )
+        return form_cls
+
+    def get_merge_form_registry(self):
+        return self.merge_form_registry
+
+
+class EntitiesToMergeSelection(base.EntityRelatedMixin,
+                               MergeFormMixin,
+                               listview.BaseEntitiesListPopup):
+    """List-view to select a second entity to merge with a given entity.
+
+    The second entity must have the same type than the first one, and cannot
+    have the same ID.
+    """
+    mode = listview.MODE_SINGLE_SELECTION  # TODO: move this constant to class attribute (EntitiesListPopup.MODE_SINGLE_SELECTION) ??
+    entity1_id_arg = 'id1'
+
+    def check_related_entity_permissions(self, entity, user):
+        self.get_merge_form_class(type(entity))  # NB: can raise exception
+
+        user.has_perm_to_view_or_die(entity)
+        super().check_related_entity_permissions(entity=entity, user=user)
+
+    def get_related_entity_id(self):
+        return get_from_GET_or_404(self.request.GET, self.entity1_id_arg, cast=int)
+
+    @property
+    def model(self):
+        return type(self.get_related_entity())
+
+    def get_internal_q(self):
+        return ~Q(pk=self.get_related_entity().id)
 
 
 # @login_required
@@ -499,12 +541,11 @@ def select_entity_for_merge(request):
 #                    'cancel_url': cancel_url,
 #                   }
 #                  )
-class Merge(generic.CremeFormView):
+class Merge(MergeFormMixin, generic.CremeFormView):
     template_name = 'creme_core/forms/merge.html'
     title = _('Merge «{entity1}» with «{entity2}»')
     submit_label = _('Merge')
 
-    merge_form_registry = merge_form_registry
     entity1_id_arg = 'id1'
     entity2_id_arg = 'id2'
 
@@ -583,14 +624,7 @@ class Merge(generic.CremeFormView):
             raise ConflictError(e) from e
 
     def get_form_class(self):
-        form_cls = merge_form_factory(model=self.get_entities()[0].__class__,
-                                      merge_form_registry=self.merge_form_registry,
-                                     )
-
-        if form_cls is None:
-            raise ConflictError('This type of entity cannot be merged')
-
-        return form_cls
+        return self.get_merge_form_class(type(self.get_entities()[0]))
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -891,24 +925,45 @@ def restrict_to_superusers(request):
     return HttpResponse()
 
 
-@login_required
-def list_view_popup(request):
-    """ Displays a list-view selector in an inner popup.
+# @login_required
+# def list_view_popup(request):
+#     """ Displays a list-view selector in an inner popup.
+#
+#     GET arguments are:
+#       - 'ct_id': the ContentType ID of the model we want. Required (if not given in the URL -- which is deprecated).
+#       - 'selection': The selection mode, which can be "single" or "multiple". Optional (default is "single").
+#     """
+#     if request.method == 'POST':
+#         POST = request.POST
+#         ct_id = get_from_POST_or_404(POST, 'ct_id', cast=int)
+#         mode  = get_from_POST_or_404(POST, 'selection', cast=listview.str_to_mode, default='single')
+#     else:
+#         GET = request.GET
+#         ct_id = get_from_GET_or_404(GET, 'ct_id', cast=int)
+#         mode  = get_from_GET_or_404(GET, 'selection', cast=listview.str_to_mode, default='single')
+#
+#     ct = get_ct_or_404(ct_id)
+#     lv_state_id = '{}#{}'.format(ct_id, request.path)
+#
+#     return listview.list_view_popup(request, model=ct.model_class(), mode=mode, lv_state_id=lv_state_id)
+# TODO: only GET ?
+class EntitiesListPopup(base.EntityCTypeRelatedMixin, listview.BaseEntitiesListPopup):
+    """ Displays a list-view selector in an inner popup, to select one or more
+    entities of a given type.
 
-    GET arguments are:
-      - 'ct_id': the ContentType ID of the model we want. Required (if not given in the URL -- which is deprecated).
-      - 'selection': The selection mode, which can be "single" or "multiple". Optional (default is "single").
+    New GET/POST parameter:
+      - 'ct_id': the ContentType's ID of the model we want. Required.
     """
-    if request.method == 'POST':
-        POST = request.POST
-        ct_id = get_from_POST_or_404(POST, 'ct_id', cast=int)
-        mode  = get_from_POST_or_404(POST, 'selection', cast=listview.str_to_mode, default='single')
-    else:
-        GET = request.GET
-        ct_id = get_from_GET_or_404(GET, 'ct_id', cast=int)
-        mode  = get_from_GET_or_404(GET, 'selection', cast=listview.str_to_mode, default='single')
+    def get_ctype_id(self):
+        request = self.request
 
-    ct = get_ct_or_404(ct_id)
-    lv_state_id = '{}#{}'.format(ct_id, request.path)
+        return get_from_POST_or_404(request.POST, self.ctype_id_url_kwarg) \
+               if request.method == 'POST' else \
+               get_from_GET_or_404(request.GET, self.ctype_id_url_kwarg)
 
-    return listview.list_view_popup(request, model=ct.model_class(), mode=mode, lv_state_id=lv_state_id)
+    @property
+    def model(self):
+        return self.get_ctype().model_class()
+
+    def get_state_id(self):
+        return '{}#{}'.format(self.get_ctype().id, super().get_state_id())

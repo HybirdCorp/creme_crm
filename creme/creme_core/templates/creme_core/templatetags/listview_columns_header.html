@@ -44,7 +44,8 @@
                         <input name="{{cell.key}}" title="{{cell.title}}" type="text" value="{% if search %}{{widget_ctx.value}}{% endif %}" />
                     {% endif %}
                 {% endif %}
-                {% if cell.type_id == 'actions' and show_actions %}<span class='lv-search-title'>{% trans 'Quick search' %}</span>{% endif %}
+{#                {% if cell.type_id == 'actions' and show_actions %}<span class='lv-search-title'>{% trans 'Quick search' %}</span>{% endif %} #}
+                {% if cell.type_id == 'actions' %}<span class='lv-search-title'>{% trans 'Quick search' %}</span>{% endif %}
             </th>
         {% endwith %}{% endwith %}
     {% endfor %}

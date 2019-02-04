@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,9 +33,9 @@ from ..core.exceptions import ConflictError
 from ..forms import relation as rel_forms
 from ..models import Relation, RelationType, CremeEntity
 
-from . import generic
 from .decorators import jsonify
-from .generic.base import EntityCTypeRelatedMixin
+from .generic import base
+from .generic.listview import BaseEntitiesListPopup
 
 
 def _fields_values(instances, getters, range, sort_getter=None, user=None):
@@ -149,7 +149,7 @@ def json_rtype_ctypes(request, rtype_id):
     return _fields_values(content_types, getters, range, sort)
 
 
-class RelationsAdding(generic.RelatedToEntityFormPopup):
+class RelationsAdding(base.RelatedToEntityFormPopup):
     form_class = rel_forms.RelationCreateForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title = _('Relationships for «{entity}»')
@@ -190,7 +190,7 @@ class RelationsAdding(generic.RelatedToEntityFormPopup):
 
 
 # TODO: Factorise with add_properties_bulk and bulk_update?
-class RelationsBulkAdding(EntityCTypeRelatedMixin, generic.CremeFormPopup):
+class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
     template_name = 'creme_core/generics/blockform/link-popup.html'
     form_class = rel_forms.MultiEntitiesRelationCreateForm
     title = _('Multiple adding of relationships')
@@ -306,51 +306,107 @@ def delete_all(request):  # TODO: deprecate ?
     return HttpResponse(message, status=status)
 
 
-@login_required
-def select_relations_objects(request):
+# @login_required
+# def select_relations_objects(request):
+#     """Display an inner popup to select entities to link as relations' objects for a given subject entity.
+#
+#     GET parameters:
+#      - rtype_id: RelationType ID of the future relations. Required.
+#      - subject_id: ID of the entity used as subject for relations. Integer. Required.
+#      - object_ct_id: ID of the ContentType of the future relations' objects. Integer. Required.
+#      - selection: 'single'/'multiple'. Optional. Default to 'single'.
+#
+#     Tip: use the JS function creme.relations.addRelationTo().
+#     """
+#     get = partial(utils.get_from_GET_or_404, request.GET)
+#     subject_id    = get('subject_id', int)
+#     rtype_id      = get('rtype_id')
+#     objects_ct_id = get('objects_ct_id', int)
+#     mode          = get('selection', cast=generic.listview.str_to_mode, default='single')
+#
+#     objects_ct = utils.get_ct_or_404(objects_ct_id)
+#
+#     subject = get_object_or_404(CremeEntity, pk=subject_id)
+#     request.user.has_perm_to_link_or_die(subject)
+#
+#     rtype = get_object_or_404(RelationType, pk=rtype_id)
+#     rtype.is_not_internal_or_die()
+#
+#     # NB: list() because the serialization of sub-QuerySet does not work with the JSON session
+#     extra_q = ~Q(pk__in=list(CremeEntity.objects
+#                                         .filter(relations__type=rtype.symmetric_type_id,
+#                                                 relations__object_entity=subject_id,
+#                                                )
+#                                         .values_list('id', flat=True)
+#                             )
+#                 )
+#
+#     prop_types = list(rtype.object_properties.all())
+#     if prop_types:
+#         extra_q &= Q(properties__type__in=prop_types)
+#
+#     return generic.list_view_popup(request,
+#                                    model=objects_ct.model_class(),
+#                                    mode=mode,
+#                                    extra_q=extra_q,
+#                                   )
+class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
+                                     base.EntityCTypeRelatedMixin,
+                                     BaseEntitiesListPopup):
     """Display an inner popup to select entities to link as relations' objects for a given subject entity.
 
-    GET parameters:
-     - rtype_id: RelationType ID of the future relations. Required.
-     - subject_id: ID of the entity used as subject for relations. Integer. Required.
-     - object_ct_id: ID of the ContentType of the future relations' objects. Integer. Required.
-     - selection: 'single'/'multiple'. Optional. Default to 'single'.
+    New GET parameters:
+     - 'rtype_id':     RelationType ID of the future relations. Required.
+     - 'subject_id':   ID of the entity used as subject for relations. Integer. Required.
+     - 'object_ct_id': ID of the ContentType of the future relations' objects. Integer. Required.
 
-    Tip: use the JS function creme.relations.addRelationTo().
+    Tip: use the JS function creme.relations.AddRelationToAction().
     """
-    get = partial(utils.get_from_GET_or_404, request.GET)
-    subject_id    = get('subject_id', int)
-    rtype_id      = get('rtype_id')
-    objects_ct_id = get('objects_ct_id', int)
-    mode          = get('selection', cast=generic.listview.str_to_mode, default='single')
+    subject_id_arg    = 'subject_id'
+    rtype_id_arg      = 'rtype_id'
+    objects_ct_id_arg = 'objects_ct_id'
 
-    objects_ct = utils.get_ct_or_404(objects_ct_id)
+    def get_ctype_id(self):
+        return utils.get_from_GET_or_404(self.request.GET, self.objects_ct_id_arg)
 
-    subject = get_object_or_404(CremeEntity, pk=subject_id)
-    request.user.has_perm_to_link_or_die(subject)
+    @property
+    def model(self):
+        return self.get_ctype().model_class()
 
-    rtype = get_object_or_404(RelationType, pk=rtype_id)
-    rtype.is_not_internal_or_die()
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_link_or_die(entity)
 
-    # TODO: filter with relation creds too ?
-    # NB: list() because the serialization of sub-QuerySet does not work with the JSON session
-    extra_q = ~Q(pk__in=list(CremeEntity.objects
-                                        .filter(relations__type=rtype.symmetric_type_id,
-                                                relations__object_entity=subject_id,
-                                               )
-                                        .values_list('id', flat=True)
-                            )
-                )
+    def get_related_entity_id(self):
+        return utils.get_from_GET_or_404(self.request.GET, self.subject_id_arg, cast=int)
 
-    prop_types = list(rtype.object_properties.all())
-    if prop_types:
-        extra_q &= Q(properties__type__in=prop_types)
+    def get_rtype(self):
+        rtype = get_object_or_404(
+            RelationType,
+            pk=utils.get_from_GET_or_404(self.request.GET, key=self.rtype_id_arg),
+        )
+        rtype.is_not_internal_or_die()
 
-    return generic.list_view_popup(request,
-                                   model=objects_ct.model_class(),
-                                   mode=mode,
-                                   extra_q=extra_q,
-                                  )
+        return rtype
+
+    def get_internal_q(self):
+        rtype = self.get_rtype()
+
+        # TODO: filter with relation creds too ?
+        # NB: list() because the serialization of sub-QuerySet does not work with the JSON session
+        extra_q = ~Q(
+            pk__in=list(CremeEntity.objects
+                                   .filter(relations__type=rtype.symmetric_type_id,
+                                           relations__object_entity=self.get_related_entity().id,
+                                          )
+                                   .values_list('id', flat=True)
+                       ),
+        )
+
+        prop_types = list(rtype.object_properties.all())
+        if prop_types:
+            extra_q &= Q(properties__type__in=prop_types)
+
+        return extra_q
 
 
 # TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?

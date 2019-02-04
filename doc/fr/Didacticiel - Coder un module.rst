@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 11-01-2019 pour la version 2.1 de Creme
+:Version: 12-01-2019 pour la version 2.1 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -327,16 +327,13 @@ Dans ``views/``, nous créons le fichier ``beaver.py`` tel que : ::
 
     # -*- coding: utf-8 -*-
 
-    from creme.creme_core.auth.decorators import login_required, permission_required
     from creme.creme_core.views import generic
 
     from creme.beavers.models import Beaver
 
 
-    @login_required
-    @permission_required('beavers')
-    def listview(request):
-        return generic.list_view(request, Beaver)
+    class BeaversList(generic.EntitiesList):
+        model = Beaver
 
 
 On doit maintenant lier cette vue à son URL. Jetons un coup d'œil au fichier
@@ -355,7 +352,7 @@ fichier ``urls.py`` dans ``beaver/`` : ::
     from .views import beaver
 
     urlpatterns = [
-        url(r'^beavers[/]?$', beaver.listview, name='beavers__list_beavers'),
+        url(r'^beavers[/]?$', beaver.BeaversList.as_view(), name='beavers__list_beavers'),
     ]
 
 Notez :

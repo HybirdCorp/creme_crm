@@ -294,7 +294,8 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         response = self.assertGET200(Ticket.get_lv_absolute_url())
 
         with self.assertNoException():
-            tickets_page = response.context['entities']
+            # tickets_page = response.context['entities']
+            tickets_page = response.context['page_obj']
 
         self.assertEqual(1, tickets_page.number)
         self.assertFalse(tickets_page.paginator.count)
@@ -313,7 +314,8 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         response = self.assertGET200(Ticket.get_lv_absolute_url())
 
         with self.assertNoException():
-            tickets_page = response.context['entities']
+            # tickets_page = response.context['entities']
+            tickets_page = response.context['page_obj']
 
         self.assertEqual(1, tickets_page.paginator.count)
 

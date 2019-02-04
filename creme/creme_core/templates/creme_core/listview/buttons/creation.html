@@ -1,0 +1,5 @@
+{% load i18n creme_core_tags creme_widgets creme_ctype %}
+{% has_perm_to create model as creation_perm %}
+<a {% if creation_perm %}class="with-icon" href="{{button.url}}"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+    {% widget_icon name='add' label=_('Create') size='listview-button' %}{{button.label}}
+</a>

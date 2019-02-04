@@ -176,7 +176,8 @@ class EventsTestCase(CremeTestCase):
         response = self.assertGET200(Event.get_lv_absolute_url())
 
         with self.assertNoException():
-            events_page = response.context['entities']
+            # events_page = response.context['entities']
+            events_page = response.context['page_obj']
 
         self.assertEqual(2, events_page.paginator.count)
         self.assertEqual({event1, event2}, set(events_page.object_list))
@@ -525,7 +526,8 @@ class EventsTestCase(CremeTestCase):
         response = self.assertGET200(reverse('events__list_related_contacts', args=(event1.id,)))
 
         with self.assertNoException():
-            contacts_page = response.context['entities']
+            # contacts_page = response.context['entities']
+            contacts_page = response.context['page_obj']
 
         self.assertEqual(3, contacts_page.paginator.count)
         self.assertEqual({casca, judo, griffith}, set(contacts_page.object_list))

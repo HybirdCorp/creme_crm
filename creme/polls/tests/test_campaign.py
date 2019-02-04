@@ -103,7 +103,8 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(PollCampaign.get_lv_absolute_url())
 
         with self.assertNoException():
-            camps_page = response.context['entities']
+            # camps_page = response.context['entities']
+            camps_page = response.context['page_obj']
 
         self.assertEqual(1, camps_page.number)
         self.assertEqual(len(camps), camps_page.paginator.count)

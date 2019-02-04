@@ -9,7 +9,7 @@ try:
     from ..fake_models import (FakeContact, FakeOrganisation, FakeActivity,
             FakeInvoice, FakeDocument, FakeSector)
     from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.gui.listview import ListViewState
+    from creme.creme_core.gui.listview import ListViewState, ListViewButton, ListViewButtonList
     from creme.creme_core.models import CremeUser
     from creme.creme_core.utils.db import get_indexed_ordering
 except Exception as e:
@@ -469,3 +469,33 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertEqual('-', lvs.sort_order)
 
     # TODO: test handle_research() + get_q_with_research()
+
+
+class ListViewButtonListTestCase(CremeTestCase):
+    class Button01(ListViewButton):
+        pass
+
+    class Button02(ListViewButton):
+        pass
+
+    class Button03(ListViewButton):
+        pass
+
+    def test_append(self):
+        blist = ListViewButtonList([self.Button01]) \
+                    .append(self.Button02) \
+                    .append(self.Button03)
+        self.assertIsInstance(blist, ListViewButtonList)
+        self.assertEqual([self.Button01, self.Button02, self.Button03], blist)
+
+    def test_replace(self):
+        blist = ListViewButtonList([self.Button01, self.Button02])
+        blist.replace(old=self.Button01, new=self.Button03)
+        self.assertEqual([self.Button03, self.Button02], blist)
+
+    def test_instances(self):
+        blist = ListViewButtonList([self.Button01, self.Button02])
+        instances = list(blist.instances)
+        self.assertEqual(2, len(instances))
+        self.assertIsInstance(instances[0], self.Button01)
+        self.assertIsInstance(instances[1], self.Button02)

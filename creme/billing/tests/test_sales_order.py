@@ -226,7 +226,8 @@ class SalesOrderTestCase(_BillingTestCase):
         response = self.assertGET200(reverse('billing__list_orders'))
 
         with self.assertNoException():
-            orders_page = response.context['entities']
+            # orders_page = response.context['entities']
+            orders_page = response.context['page_obj']
 
         self.assertEqual(2, orders_page.paginator.count)
         self.assertEqual({order1, order2}, set(orders_page.paginator.object_list))

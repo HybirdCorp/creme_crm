@@ -47,7 +47,8 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     project_model_is_custom,
-    Swappable(url(r'^projects[/]?$',                         project.listview,                  name='projects__list_projects')),
+    # Swappable(url(r'^projects[/]?$',                         project.listview,                  name='projects__list_projects')),
+    Swappable(url(r'^projects[/]?$',                         project.ProjectsList.as_view(),    name='projects__list_projects')),
     Swappable(url(r'^project/add[/]?$',                      project.ProjectCreation.as_view(), name='projects__create_project')),
     Swappable(url(r'^project/edit/(?P<project_id>\d+)[/]?$', project.ProjectEdition.as_view(),  name='projects__edit_project'), check_args=Swappable.INT_ID),
     Swappable(url(r'^project/(?P<project_id>\d+)[/]?$',      project.ProjectDetail.as_view(),   name='projects__view_project'), check_args=Swappable.INT_ID),

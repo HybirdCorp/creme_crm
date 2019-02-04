@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -99,11 +99,10 @@ Strategy = get_strategy_model()
 #     return abstract_view_strategy(request, strategy_id)
 
 
-@login_required
-@permission_required('commercial')
-def listview(request):
-    return generic.list_view(request, Strategy, hf_pk=DEFAULT_HFILTER_STRATEGY)
-
+# @login_required
+# @permission_required('commercial')
+# def listview(request):
+#     return generic.list_view(request, Strategy, hf_pk=DEFAULT_HFILTER_STRATEGY)
 
 # Class-based views  ----------------------------------------------------------
 
@@ -122,6 +121,11 @@ class StrategyEdition(generic.EntityEdition):
     model = Strategy
     form_class = forms.StrategyForm
     pk_url_kwarg = 'strategy_id'
+
+
+class StrategiesList(generic.EntitiesList):
+    model = Strategy
+    default_headerfilter_id = DEFAULT_HFILTER_STRATEGY
 
 
 class _AddToStrategy(generic.AddingInstanceToEntityPopup):

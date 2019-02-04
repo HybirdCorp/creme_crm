@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
 from .. import get_folder_model, get_document_model
@@ -90,11 +90,10 @@ Document = get_document_model()
 #     return abstract_view_document(request, object_id)
 
 
-@login_required
-@permission_required('documents')
-def listview(request):
-    return generic.list_view(request, Document, hf_pk=DEFAULT_HFILTER_DOCUMENT)
-
+# @login_required
+# @permission_required('documents')
+# def listview(request):
+#     return generic.list_view(request, Document, hf_pk=DEFAULT_HFILTER_DOCUMENT)
 
 # Class-based views  ----------------------------------------------------------
 
@@ -134,3 +133,8 @@ class DocumentEdition(generic.EntityEdition):
     model = Document
     form_class = doc_forms.DocumentEditForm
     pk_url_kwarg = 'document_id'
+
+
+class DocumentsList(generic.EntitiesList):
+    model = Document
+    default_headerfilter_id = DEFAULT_HFILTER_DOCUMENT

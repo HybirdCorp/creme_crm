@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -223,10 +223,10 @@ _CREATION_PERM = cperm(PollReply)
 #     return abstract_view_pollreply(request, preply_id)
 
 
-@login_required
-@permission_required('polls')
-def listview(request):
-    return generic.list_view(request, PollReply, hf_pk=DEFAULT_HFILTER_PREPLY)
+# @login_required
+# @permission_required('polls')
+# def listview(request):
+#     return generic.list_view(request, PollReply, hf_pk=DEFAULT_HFILTER_PREPLY)
 
 
 # TODO: do this job in template instead ??
@@ -529,3 +529,8 @@ class LineEdition(generic.EntityEditionPopup):
         update_model_instance(self.object, is_complete=not bool(tree.next_question_to_answer))
 
         return response
+
+
+class PollRepliesList(generic.EntitiesList):
+    model = PollReply
+    default_headerfilter_id = DEFAULT_HFILTER_PREPLY

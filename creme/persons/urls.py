@@ -26,7 +26,8 @@ urlpatterns = [
 
 urlpatterns += swap_manager.add_group(
     persons.contact_model_is_custom,
-    Swappable(url(r'^contacts[/]?$',                                                  contact.listview,                         name='persons__list_contacts')),
+    # Swappable(url(r'^contacts[/]?$',                                                  contact.listview,                         name='persons__list_contacts')),
+    Swappable(url(r'^contacts[/]?$',                                                  contact.ContactsList.as_view(),           name='persons__list_contacts')),
     Swappable(url(r'^contact/add[/]?$',                                               contact.ContactCreation.as_view(),        name='persons__create_contact')),
     Swappable(url(r'^contact/add_related/(?P<orga_id>\d+)[/]?$',                      contact.RelatedContactCreation.as_view(), name='persons__create_related_contact'), check_args=Swappable.INT_ID),
     Swappable(url(r'^contact/add_related/(?P<orga_id>\d+)/(?P<rtype_id>[\w-]+)[/]?$', contact.RelatedContactCreation.as_view(), name='persons__create_related_contact'), check_args=(1, 'idxxx')),
@@ -37,11 +38,13 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     persons.organisation_model_is_custom,
-    Swappable(url(r'^organisations[/]?$',                      organisation.listview,                       name='persons__list_organisations')),
-    Swappable(url(r'^organisation/add[/]?$',                   organisation.OrganisationCreation.as_view(), name='persons__create_organisation')),
-    Swappable(url(r'^organisation/edit/(?P<orga_id>\d+)[/]?$', organisation.OrganisationEdition.as_view(),  name='persons__edit_organisation'), check_args=Swappable.INT_ID),
-    Swappable(url(r'^organisation/(?P<orga_id>\d+)[/]?$',      organisation.OrganisationDetail.as_view(),   name='persons__view_organisation'), check_args=Swappable.INT_ID),
-    Swappable(url(r'^leads_customers[/]?$',                    organisation.list_my_leads_my_customers,     name='persons__leads_customers')),
+    # Swappable(url(r'^organisations[/]?$',                      organisation.listview,                       name='persons__list_organisations')),
+    Swappable(url(r'^organisations[/]?$',                      organisation.OrganisationsList.as_view(),         name='persons__list_organisations')),
+    Swappable(url(r'^organisation/add[/]?$',                   organisation.OrganisationCreation.as_view(),      name='persons__create_organisation')),
+    Swappable(url(r'^organisation/edit/(?P<orga_id>\d+)[/]?$', organisation.OrganisationEdition.as_view(),       name='persons__edit_organisation'), check_args=Swappable.INT_ID),
+    Swappable(url(r'^organisation/(?P<orga_id>\d+)[/]?$',      organisation.OrganisationDetail.as_view(),        name='persons__view_organisation'), check_args=Swappable.INT_ID),
+    # Swappable(url(r'^leads_customers[/]?$',                    organisation.list_my_leads_my_customers,     name='persons__leads_customers')),
+    Swappable(url(r'^leads_customers[/]?$',                    organisation.MyLeadsAndMyCustomersList.as_view(), name='persons__leads_customers')),
     app_name='persons',
 ).kept_patterns()
 

@@ -11,7 +11,11 @@ from .views import event
 
 
 urlpatterns = [
-    url(r'^event/(?P<event_id>\d+)/contacts[/]?$', event.list_contacts, name='events__list_related_contacts'),
+    # url(r'^event/(?P<event_id>\d+)/contacts[/]?$', event.list_contacts, name='events__list_related_contacts'),
+    url(r'^event/(?P<event_id>\d+)/contacts[/]?$',
+        event.RelatedContactsList.as_view(),
+        name='events__list_related_contacts',
+    ),
     url(r'^event/(?P<event_id>\d+)/link_contacts[/]?$',
         event.AddContactsToEvent.as_view(),
         name='events__link_contacts',
@@ -25,7 +29,8 @@ urlpatterns = [
 
 urlpatterns += swap_manager.add_group(
     event_model_is_custom,
-    Swappable(url(r'^events[/]?$',                       event.listview,                name='events__list_events')),
+    # Swappable(url(r'^events[/]?$',                       event.listview,                name='events__list_events')),
+    Swappable(url(r'^events[/]?$',                       event.EventsList.as_view(),    name='events__list_events')),
     Swappable(url(r'^event/add[/]?$',                    event.EventCreation.as_view(), name='events__create_event')),
     Swappable(url(r'^event/edit/(?P<event_id>\d+)[/]?$', event.EventEdition.as_view(),  name='events__edit_event'), check_args=Swappable.INT_ID),
     Swappable(url(r'^event/(?P<event_id>\d+)[/]?$',      event.EventDetail.as_view(),   name='events__view_event'), check_args=Swappable.INT_ID),

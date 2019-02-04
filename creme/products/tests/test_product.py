@@ -187,7 +187,8 @@ class ProductTestCase(_ProductsTestCase):
         response = self.assertGET200(Product.get_lv_absolute_url())
 
         with self.assertNoException():
-            products_page = response.context['entities']
+            # products_page = response.context['entities']
+            products_page = response.context['page_obj']
 
         self.assertEqual(2, products_page.paginator.count)
         self.assertEqual(set(products), set(products_page.object_list))

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -105,10 +105,10 @@ def dl_png(request, graph_id):
 #     return abstract_view_graph(request, graph_id)
 
 
-@login_required
-@permission_required('graphs')
-def listview(request):
-    return generic.list_view(request, Graph, hf_pk=DEFAULT_HFILTER_GRAPH)
+# @login_required
+# @permission_required('graphs')
+# def listview(request):
+#     return generic.list_view(request, Graph, hf_pk=DEFAULT_HFILTER_GRAPH)
 
 
 @login_required
@@ -141,6 +141,11 @@ class GraphEdition(generic.EntityEdition):
     model = Graph
     form_class = g_forms.GraphForm
     pk_url_kwarg = 'graph_id'
+
+
+class GraphsList(generic.EntitiesList):
+    model = Graph
+    default_headerfilter_id = DEFAULT_HFILTER_GRAPH
 
 
 class RelationTypesAdding(generic.RelatedToEntityFormPopup):

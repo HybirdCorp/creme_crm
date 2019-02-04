@@ -97,7 +97,8 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         response = self.assertGET200(EmailTemplate.get_lv_absolute_url())
 
         with self.assertNoException():
-            response.context['entities']
+            # response.context['entities']
+            response.context['page_obj']
 
     @skipIfCustomDocument
     def test_add_attachments01(self):

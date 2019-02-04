@@ -555,4 +555,4 @@ class EntityCellVolatile(EntityCell):
                         )
 
     def render_html(self, entity, user):
-        return self._render_func(entity)
+        return self._render_func(entity)  # TODO: pass user

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -268,19 +268,29 @@ class ActObjectivePatternEdition(generic.EntityEdition):
     pk_url_kwarg = 'objpattern_id'
 
 
+class ActsList(generic.EntitiesList):
+    model = Act
+    default_headerfilter_id = constants.DEFAULT_HFILTER_ACT
+
+
+class ActObjectivePatternsList(generic.EntitiesList):
+    model = ActObjectivePattern
+    default_headerfilter_id = constants.DEFAULT_HFILTER_PATTERN
+
+
 # Other views  ----------------------------------------------------------------
 
 
-@login_required
-@permission_required('commercial')
-def listview(request):
-    return generic.list_view(request, Act, hf_pk=constants.DEFAULT_HFILTER_ACT)
+# @login_required
+# @permission_required('commercial')
+# def listview(request):
+#     return generic.list_view(request, Act, hf_pk=constants.DEFAULT_HFILTER_ACT)
 
 
-@login_required
-@permission_required('commercial')
-def listview_objective_pattern(request):
-    return generic.list_view(request, ActObjectivePattern, hf_pk=constants.DEFAULT_HFILTER_PATTERN)
+# @login_required
+# @permission_required('commercial')
+# def listview_objective_pattern(request):
+#     return generic.list_view(request, ActObjectivePattern, hf_pk=constants.DEFAULT_HFILTER_PATTERN)
 
 
 # @login_required

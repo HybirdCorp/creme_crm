@@ -14,7 +14,12 @@ urlpatterns = [
 
 urlpatterns += swap_manager.add_group(
     rgenerator_model_is_custom,
-    Swappable(url(r'^generators[/]?$', recurrentgenerator.listview, name='recurrents__list_generators')),
+    # Swappable(url(r'^generators[/]?$', recurrentgenerator.listview, name='recurrents__list_generators')),
+    Swappable(url(r'^generators[/]?$',
+                  recurrentgenerator.RecurrentGeneratorsList.as_view(),
+                  name='recurrents__list_generators',
+                 ),
+             ),
     Swappable(url(r'^generator/add[/]?$',
                   recurrentgenerator.RecurrentGeneratorWizard.as_view(),
                   name='recurrents__create_generator',

@@ -19,10 +19,9 @@
 ################################################################################
 
 import logging
-# import warnings
+import warnings
 
 from itertools import zip_longest
-from json import dumps as json_dump
 from re import compile as compile_re
 from urllib.parse import urlencode, urlsplit
 
@@ -37,7 +36,6 @@ from django.utils.safestring import mark_safe
 
 from mediagenerator.generators.bundles.utils import _render_include_media
 
-from ..backends import import_backend_registry, export_backend_registry
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
 from ..utils import bool_as_html
@@ -208,6 +206,11 @@ def and_op(object1, object2):
 @register.filter
 def or_op(object1, object2):
     return object1 or object2
+
+
+@register.filter
+def not_op(obj):
+    return not obj
 
 
 @register.filter(name='bool')
@@ -569,9 +572,13 @@ class MediaNode(TemplateNode):
         return _render_include_media(context['THEME_NAME'] + bundle, variation={})
 
 
-# TODO: creme_backends module ? (wait for list-view rework to see if it's still useful)
 @register.simple_tag
 def get_export_backends():
+    warnings.warn('The templatetag {% get_export_backends %} is deprecated.', DeprecationWarning)
+
+    from json import dumps as json_dump
+    from ..backends import export_backend_registry
+
     return json_dump([[backend.id, str(backend.verbose_name)]
                         for backend in export_backend_registry.backends
                      ]
@@ -580,6 +587,11 @@ def get_export_backends():
 
 @register.simple_tag
 def get_import_backends():
+    warnings.warn('The templatetag {% get_import_backends %} is deprecated.', DeprecationWarning)
+
+    from json import dumps as json_dump
+    from ..backends import import_backend_registry
+
     return json_dump([[backend.id] for backend in import_backend_registry.backends])
 
 

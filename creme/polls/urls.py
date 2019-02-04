@@ -40,7 +40,8 @@ urlpatterns = [
 
 urlpatterns += swap_manager.add_group(
     polls.pollcampaign_model_is_custom,
-    Swappable(url(r'^campaigns[/]?$',                          campaign.listview,                       name='polls__list_campaigns')),
+    # Swappable(url(r'^campaigns[/]?$',                          campaign.listview,                       name='polls__list_campaigns')),
+    Swappable(url(r'^campaigns[/]?$',                          campaign.PollCampaignsList.as_view(),    name='polls__list_campaigns')),
     Swappable(url(r'^campaign/add[/]?$',                       campaign.PollCampaignCreation.as_view(), name='polls__create_campaign')),
     Swappable(url(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.PollCampaignEdition.as_view(),  name='polls__edit_campaign'), check_args=Swappable.INT_ID),
     Swappable(url(r'^campaign/(?P<campaign_id>\d+)[/]?$',      campaign.PollCampaignDetail.as_view(),   name='polls__view_campaign'), check_args=Swappable.INT_ID),
@@ -49,7 +50,8 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     polls.pollform_model_is_custom,
-    Swappable(url(r'^poll_forms[/]?$',                       poll_form.listview,                   name='polls__list_forms')),
+    # Swappable(url(r'^poll_forms[/]?$',                       poll_form.listview,                   name='polls__list_forms')),
+    Swappable(url(r'^poll_forms[/]?$',                       poll_form.PollFormsList.as_view(),    name='polls__list_forms')),
     Swappable(url(r'^poll_form/add[/]?$',                    poll_form.PollFormCreation.as_view(), name='polls__create_form')),
     Swappable(url(r'^poll_form/edit/(?P<pform_id>\d+)[/]?$', poll_form.PollFormEdition.as_view(),  name='polls__edit_form'), check_args=Swappable.INT_ID),
     Swappable(url(r'^poll_form/(?P<pform_id>\d+)[/]?$',      poll_form.PollFormDetail.as_view(),   name='polls__view_form'), check_args=Swappable.INT_ID),
@@ -58,7 +60,8 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     polls.pollreply_model_is_custom,
-    Swappable(url(r'^poll_replies[/]?$', poll_reply.listview, name='polls__list_replies')),
+    # Swappable(url(r'^poll_replies[/]?$', poll_reply.listview, name='polls__list_replies')),
+    Swappable(url(r'^poll_replies[/]?$', poll_reply.PollRepliesList.as_view(), name='polls__list_replies')),
 
     # TODO: change url (reply->replies or add_several ??)
     Swappable(url(r'^poll_reply/add[/]?$',
