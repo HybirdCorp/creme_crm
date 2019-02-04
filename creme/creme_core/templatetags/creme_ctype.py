@@ -28,9 +28,21 @@ from ..utils.translation import get_model_verbose_name
 register = Library()
 
 
-# TODO: {% ctype_for_model %} ?
 # TODO: {% ctype_for_instance %} ?
 # TODO: {% if object|ctype_is:my_ctype %} ?
+
+
+@register.simple_tag
+def ctype_for_model(model):
+    """Returns a instance of ContentType for a model.
+
+    @param model: Class 'inheriting django.db.models.Model'.
+    @return: A ContentType instance.
+
+        {% ctype_for_model currency_model as currency_ctype %}
+        <h1>List of {{currency_ctype}}</h1>
+    """
+    return ContentType.objects.get_for_model(model)
 
 
 # NB: not used, but here for API completeness
@@ -106,7 +118,7 @@ def ctype_can_be_merged(ctype):
 def ctype_can_be_mass_imported(ctype):
     """Indicates if some instances of a specific model can be created from a CSV/XLS/... file.
 
-    @param ctype: A ContentType instance corresponding to your model
+    @param ctype: A ContentType instance corresponding to your model.
     @return: A boolean.
 
         {% if my_entity.entity_type|ctype_can_be_mass_imported %}

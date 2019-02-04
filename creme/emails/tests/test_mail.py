@@ -653,7 +653,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.assertGET200(reverse('emails__list_emails'))
 
         with self.assertNoException():
-            emails = response.context['entities']
+            # emails = response.context['entities']
+            emails = response.context['page_obj']
 
         self.assertEqual(4, emails.object_list.count())
 

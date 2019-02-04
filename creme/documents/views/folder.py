@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.gui.listview import ListViewButton
 from creme.creme_core.views import generic
 
 from .. import get_folder_model
@@ -37,8 +38,6 @@ from ..forms import folder as f_forms
 logger = logging.getLogger(__name__)
 Folder = get_folder_model()
 
-
-# Function views --------------------------------------------------------------
 
 # def abstract_add_folder(request, form=f_forms.FolderForm,
 #                         submit_label=Folder.save_label,
@@ -70,45 +69,45 @@ Folder = get_folder_model()
 #     return generic.view_entity(request, folder_id, Folder, template=template)
 
 
-def abstract_list_folders(request, **extra_kwargs):
-    parent_id   = request.POST.get('parent_id') or request.GET.get('parent_id')
-    extra_q     = Q(parent_folder__isnull=True)
-    previous_id = None
-    folder      = None
-
-    if parent_id is not None:
-        try:
-            parent_id = int(parent_id)
-        except (ValueError, TypeError):
-            logger.warning('Folder.listview(): invalid "parent_id" parameter: %s', parent_id)
-            parent_id = None
-        else:
-            folder = get_object_or_404(Folder, pk=parent_id)
-            request.user.has_perm_to_view_or_die(folder)
-            extra_q = Q(parent_folder=folder)
-            previous_id = folder.parent_folder_id
-
-    def post_process(template_dict, request):
-        if folder is not None:
-            parents = folder.get_parents()
-            template_dict['list_title'] = _('List sub-folders of «{}»').format(folder)
-
-            if parents:
-                parents.reverse()
-                parents.append(folder)
-                template_dict['list_sub_title'] = ' > '.join(f.title for f in parents)
-
-    return generic.list_view(
-        request, Folder,
-        hf_pk=DEFAULT_HFILTER_FOLDER,
-        extra_q=extra_q,
-        extra_dict={'parent_id': parent_id or '',
-                    'extra_bt_templates': ('documents/frags/previous.html', ),
-                    'previous_id': previous_id,
-                   },
-        post_process=post_process,
-        **extra_kwargs
-    )
+# def abstract_list_folders(request, **extra_kwargs):
+#     parent_id   = request.POST.get('parent_id') or request.GET.get('parent_id')
+#     extra_q     = Q(parent_folder__isnull=True)
+#     previous_id = None
+#     folder      = None
+#
+#     if parent_id is not None:
+#         try:
+#             parent_id = int(parent_id)
+#         except (ValueError, TypeError):
+#             logger.warning('Folder.listview(): invalid "parent_id" parameter: %s', parent_id)
+#             parent_id = None
+#         else:
+#             folder = get_object_or_404(Folder, pk=parent_id)
+#             request.user.has_perm_to_view_or_die(folder)
+#             extra_q = Q(parent_folder=folder)
+#             previous_id = folder.parent_folder_id
+#
+#     def post_process(template_dict, request):
+#         if folder is not None:
+#             parents = folder.get_parents()
+#             template_dict['list_title'] = _('List sub-folders of «{}»').format(folder)
+#
+#             if parents:
+#                 parents.reverse()
+#                 parents.append(folder)
+#                 template_dict['list_sub_title'] = ' > '.join(f.title for f in parents)
+#
+#     return generic.list_view(
+#         request, Folder,
+#         hf_pk=DEFAULT_HFILTER_FOLDER,
+#         extra_q=extra_q,
+#         extra_dict={'parent_id': parent_id or '',
+#                     'extra_bt_templates': ('documents/frags/previous.html', ),
+#                     'previous_id': previous_id,
+#                    },
+#         post_process=post_process,
+#         **extra_kwargs
+#     )
 
 
 # @login_required
@@ -132,13 +131,11 @@ def abstract_list_folders(request, **extra_kwargs):
 #     return abstract_view_folder(request, folder_id)
 
 
-@login_required
-@permission_required('documents')
-def listview(request):
-    return abstract_list_folders(request)
+# @login_required
+# @permission_required('documents')
+# def listview(request):
+#     return abstract_list_folders(request)
 
-
-# Class-based views  ----------------------------------------------------------
 
 class FolderCreation(generic.EntityCreation):
     model = Folder
@@ -170,3 +167,79 @@ class FolderEdition(generic.EntityEdition):
     model = Folder
     form_class = f_forms.FolderForm
     pk_url_kwarg = 'folder_id'
+
+
+# TODO: creation => create a sub folder when their is a parent folder ?
+class FoldersList(generic.EntitiesList):
+    model = Folder
+    default_headerfilter_id = DEFAULT_HFILTER_FOLDER
+
+    child_title = _('List sub-folders of «{parent}»')
+
+    def __init__(self):
+        super().__init__()
+        self.parent_folder = False  # False means 'never retrieved'
+
+    def get_buttons(self):
+        parent = self.get_parent_folder()
+
+        if parent is None:
+            parent_id = ''
+            previous_id = ''
+        else:
+            parent_id = parent.id
+            previous_id = parent.parent_folder_id or ''
+
+        class PreviousButton(ListViewButton):
+            template_name = 'documents/lv-button-previous.html'
+
+            def get_context(self, lv_context):
+                return {
+                    'parent_id': parent_id,
+                    'previous_id': previous_id,
+                }
+
+        return super().get_buttons().append(PreviousButton)
+
+    def get_parent_folder(self):
+        parent = self.parent_folder
+
+        if parent is False:
+            # TODO: POST only for POST requests ? only GET ?
+            request = self.request
+            parent = None
+            parent_id = request.POST.get('parent_id') or request.GET.get('parent_id')
+
+            if parent_id is not None:
+                try:
+                    parent_id = int(parent_id)
+                except (ValueError, TypeError):
+                    logger.warning('Folder.listview(): invalid "parent_id" parameter: %s', parent_id)
+                else:
+                    parent = get_object_or_404(Folder, pk=parent_id)
+                    request.user.has_perm_to_view_or_die(parent)
+
+        self.parent_folder = parent
+
+        return parent
+
+    def get_sub_title(self):
+        parent = self.parent_folder
+
+        if parent is not None:
+            ancestors = parent.get_parents()
+
+            if ancestors:
+                ancestors.reverse()
+                ancestors.append(parent)
+                return ' > '.join(f.title for f in ancestors)
+
+        return ''
+
+    def get_title(self):
+        parent = self.parent_folder
+
+        return super().get_title() if parent is None else self.child_title.format(parent=parent)
+
+    def get_internal_q(self):
+        return Q(parent_folder=self.get_parent_folder())

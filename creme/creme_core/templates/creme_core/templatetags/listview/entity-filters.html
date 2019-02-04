@@ -1,4 +1,4 @@
-{% load i18n creme_widgets %}
+{% load i18n creme_widgets creme_ctype %}
 <fieldset title="{% trans 'Filter the lines of the table' %}">
     <div class="legend">
         {% trans 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
@@ -9,8 +9,8 @@
             <option value="{{efilter.id}}"{% if efilter_id == efilter.id %} selected{% endif %}>{{efilter.name}}</option>
         {% endfor %}
     </select>
-    {% if not is_popup_view %}
-        <a href="{% url 'creme_core__create_efilter' content_type_id %}">
+    {% if show_buttons %}{% ctype_for_model model as ctype %}
+        <a href="{% url 'creme_core__create_efilter' ctype.id %}">
             {% widget_icon name='add' label=_('Create a custom filter') size='listview-filter-action' %}
         </a>
         {% if can_edit %}

@@ -177,7 +177,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(PollForm.get_lv_absolute_url())
 
         with self.assertNoException():
-            pform_page = response.context['entities']
+            # pform_page = response.context['entities']
+            pform_page = response.context['page_obj']
 
         self.assertEqual(2, pform_page.paginator.count)
         self.assertEqual({pform1, pform2}, set(pform_page.object_list))

@@ -278,7 +278,8 @@ class InvoiceTestCase(_BillingTestCase):
         response = self.assertGET200(reverse('billing__list_invoices'))
 
         with self.assertNoException():
-            invoices_page = response.context['entities']
+            # invoices_page = response.context['entities']
+            invoices_page = response.context['page_obj']
 
         self.assertEqual(2, invoices_page.paginator.count)
         self.assertEqual({invoice1, invoice2}, set(invoices_page.paginator.object_list))

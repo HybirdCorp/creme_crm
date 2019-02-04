@@ -95,10 +95,10 @@ PollForm = get_pollform_model()
 #     return abstract_view_pollform(request, pform_id)
 
 
-@login_required
-@permission_required('polls')
-def listview(request):
-    return generic.list_view(request, PollForm, hf_pk=DEFAULT_HFILTER_PFORM)
+# @login_required
+# @permission_required('polls')
+# def listview(request):
+#     return generic.list_view(request, PollForm, hf_pk=DEFAULT_HFILTER_PFORM)
 
 
 class LineEdition(generic.RelatedToEntityEditionPopup):
@@ -185,6 +185,11 @@ class PollFormEdition(generic.EntityEdition):
     model = PollForm
     form_class = pf_forms.PollFormForm
     pk_url_kwarg = 'pform_id'
+
+
+class PollFormsList(generic.EntitiesList):
+    model = PollForm
+    default_headerfilter_id = DEFAULT_HFILTER_PFORM
 
 
 class _LineCreationBase(generic.AddingInstanceToEntityPopup):

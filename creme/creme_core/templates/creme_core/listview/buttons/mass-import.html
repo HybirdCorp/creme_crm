@@ -1,0 +1,6 @@
+{% load i18n creme_core_tags creme_widgets %}
+{% if button.show %}{% has_perm_to create model as creation_perm %}
+    <a {% if creation_perm %}class="with-icon" href="{% url 'creme_core__mass_import' button.content_type.id %}"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+        {% trans 'Import' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
+    </a>
+{% endif %}

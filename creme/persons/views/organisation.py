@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,9 +37,6 @@ from ..forms import organisation as orga_forms
 
 
 Organisation = get_organisation_model()
-
-# Function views --------------------------------------------------------------
-
 
 # def abstract_add_organisation(request, form=orga_forms.OrganisationForm,
 #                               template='persons/add_organisation_form.html',
@@ -99,30 +96,26 @@ Organisation = get_organisation_model()
 #     return abstract_view_organisation(request, organisation_id)
 
 
-@login_required
-@permission_required('persons')
-def listview(request):
-    return generic.list_view(request, Organisation, hf_pk=constants.DEFAULT_HFILTER_ORGA)
+# @login_required
+# @permission_required('persons')
+# def listview(request):
+#     return generic.list_view(request, Organisation, hf_pk=constants.DEFAULT_HFILTER_ORGA)
 
 
-# TODO: set the HF in the url ????
-@login_required
-@permission_required('persons')
-def list_my_leads_my_customers(request):
-    # TODO: use a constant for 'persons-hf_leadcustomer' ??
-    return generic.list_view(
-        request, Organisation, hf_pk='persons-hf_leadcustomer',
-        extra_dict={'list_title': ugettext('List of my suspects / prospects / customers')},
-        extra_q=Q(relations__type__in=(constants.REL_SUB_CUSTOMER_SUPPLIER,
-                                       constants.REL_SUB_PROSPECT,
-                                       constants.REL_SUB_SUSPECT,
-                                      ),
-                  relations__object_entity__in=[o.id for o in Organisation.get_all_managed_by_creme()],
-                 ),
-    )
+# @login_required
+# @permission_required('persons')
+# def list_my_leads_my_customers(request):
+#     return generic.list_view(
+#         request, Organisation, hf_pk='persons-hf_leadcustomer',
+#         extra_dict={'list_title': ugettext('List of my suspects / prospects / customers')},
+#         extra_q=Q(relations__type__in=(constants.REL_SUB_CUSTOMER_SUPPLIER,
+#                                        constants.REL_SUB_PROSPECT,
+#                                        constants.REL_SUB_SUSPECT,
+#                                       ),
+#                   relations__object_entity__in=[o.id for o in Organisation.get_all_managed_by_creme()],
+#                  ),
+#     )
 
-
-# Class-based views  ----------------------------------------------------------
 
 class OrganisationCreation(generic.EntityCreation):
     model = Organisation
@@ -143,7 +136,26 @@ class OrganisationEdition(generic.EntityEdition):
     pk_url_kwarg = 'orga_id'
 
 
-# Other views  ----------------------------------------------------------------
+class OrganisationsList(generic.EntitiesList):
+    model = Organisation
+    default_headerfilter_id = constants.DEFAULT_HFILTER_ORGA
+
+
+# TODO: creation button => create customers ?
+# TODO: set the HF in the url ?
+class MyLeadsAndMyCustomersList(OrganisationsList):
+    title = _('List of my suspects / prospects / customers')
+    default_headerfilter_id = constants.DEFAULT_HFILTER_ORGA_CUSTOMERS
+
+    def get_internal_q(self):
+        return Q(
+            relations__type__in=(constants.REL_SUB_CUSTOMER_SUPPLIER,
+                                 constants.REL_SUB_PROSPECT,
+                                 constants.REL_SUB_SUSPECT,
+                                ),
+            relations__object_entity__in=[o.id for o in Organisation.get_all_managed_by_creme()],
+        )
+
 
 class ManagedOrganisationsAdding(generic.CremeFormPopup):
     form_class = orga_forms.ManagedOrganisationsForm

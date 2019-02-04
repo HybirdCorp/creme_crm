@@ -1,15 +1,15 @@
-{% load i18n creme_widgets %}
+{% load i18n creme_widgets creme_ctype %}
 <fieldset title="{% trans 'Show only the desired columns' %}">
     <div class="legend">
         {% trans 'View of list' as label %}{% widget_icon name='header_filter' label=label size='listview-filter' %}{{label}}
     </div>
     <select name="hfilter" id="hfilter_list" onchange="creme.lv_widget.findList(this).list_view('getSubmit')(this);">
         {% for hfilter in header_filters %}
-            <option value="{{hfilter.id}}" {% if hfilter_id == hfilter.id %}selected{% endif %}>{{hfilter.name}}</option>
+            <option value="{{hfilter.id}}"{% if hfilter_id == hfilter.id %} selected{% endif %}>{{hfilter.name}}</option>
         {% endfor %}
     </select>
-    {% if not is_popup_view %}
-        <a href="{% url 'creme_core__create_hfilter' content_type_id %}">
+    {% if show_buttons %}{% ctype_for_model model as ctype %}
+        <a href="{% url 'creme_core__create_hfilter' ctype.id %}">
             {% widget_icon name='add' label=_('Create a custom view') size='listview-filter-action' %}
         </a>
         {% if can_edit %}

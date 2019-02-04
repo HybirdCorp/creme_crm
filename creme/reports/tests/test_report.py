@@ -522,7 +522,8 @@ class ReportTestCase(BaseReportsTestCase):
         response = self.assertGET200(Report.get_lv_absolute_url())
 
         with self.assertNoException():
-            reports_page = response.context['entities']
+            # reports_page = response.context['entities']
+            reports_page = response.context['page_obj']
 
         for report in reports:
             self.assertIn(report, reports_page.object_list)

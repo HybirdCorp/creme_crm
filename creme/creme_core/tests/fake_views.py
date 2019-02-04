@@ -2,16 +2,18 @@
 
 # from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
 from ..tests import fake_models, fake_forms
 
 
-@login_required
-@permission_required('creme_core')
-def document_listview(request):
-    return generic.list_view(request, fake_models.FakeDocument)
+# @login_required
+# @permission_required('creme_core')
+# def document_listview(request):
+#     return generic.list_view(request, fake_models.FakeDocument)
+class FakeDocumentsList(generic.EntitiesList):
+    model = fake_models.FakeDocument
 
 
 class FakeImageDetail(generic.EntityDetail):
@@ -19,10 +21,12 @@ class FakeImageDetail(generic.EntityDetail):
     pk_url_kwarg = 'image_id'
 
 
-@login_required
-@permission_required('creme_core')
-def image_listview(request):
-    return generic.list_view(request, fake_models.FakeImage)
+# @login_required
+# @permission_required('creme_core')
+# def image_listview(request):
+#     return generic.list_view(request, fake_models.FakeImage)
+class FakeImagesList(generic.EntitiesList):
+    model = fake_models.FakeImage
 
 
 class FakeContactCreation(generic.EntityCreation):
@@ -42,10 +46,12 @@ class FakeContactDetail(generic.EntityDetail):
     pk_url_kwarg = 'contact_id'
 
 
-@login_required
-@permission_required('creme_core')
-def contact_listview(request):
-    return generic.list_view(request, fake_models.FakeContact)
+# @login_required
+# @permission_required('creme_core')
+# def contact_listview(request):
+#     return generic.list_view(request, fake_models.FakeContact)
+class FakeContactsList(generic.EntitiesList):
+    model = fake_models.FakeContact
 
 
 # @login_required
@@ -80,11 +86,12 @@ class FakeOrganisationDetail(generic.EntityDetail):
     pk_url_kwarg = 'orga_id'
 
 
-@login_required
-@permission_required('creme_core')
-def organisation_listview(request):
-    return generic.list_view(request, fake_models.FakeOrganisation)
-
+# @login_required
+# @permission_required('creme_core')
+# def organisation_listview(request):
+#     return generic.list_view(request, fake_models.FakeOrganisation)
+class FakeOrganisationsList(generic.EntitiesList):
+    model = fake_models.FakeOrganisation
 
 # @login_required
 # @permission_required('creme_core')
@@ -118,16 +125,20 @@ class FakeAddressEdition(generic.RelatedToEntityEditionPopup):
     title = 'Address for <{entity}>'
 
 
-@login_required
-@permission_required('creme_core')
-def activity_listview(request):
-    return generic.list_view(request, fake_models.FakeActivity)
+# @login_required
+# @permission_required('creme_core')
+# def activity_listview(request):
+#     return generic.list_view(request, fake_models.FakeActivity)
+class FakeActivitiesList(generic.EntitiesList):
+    model = fake_models.FakeActivity
 
 
-@login_required
-@permission_required('creme_core')
-def campaign_listview(request):
-    return generic.list_view(request, fake_models.FakeEmailCampaign)
+# @login_required
+# @permission_required('creme_core')
+# def campaign_listview(request):
+#     return generic.list_view(request, fake_models.FakeEmailCampaign)
+class FakeEmailCampaignsList(generic.EntitiesList):
+    model = fake_models.FakeEmailCampaign
 
 
 class FakeInvoiceDetail(generic.EntityDetail):
@@ -135,19 +146,28 @@ class FakeInvoiceDetail(generic.EntityDetail):
     pk_url_kwarg = 'invoice_id'
 
 
-@login_required
-@permission_required('creme_core')
-def invoice_listview(request):
-    return generic.list_view(request, fake_models.FakeInvoice)
+# @login_required
+# @permission_required('creme_core')
+# def invoice_listview(request):
+#     return generic.list_view(request, fake_models.FakeInvoice)
+class FakeInvoicesList(generic.EntitiesList):
+    model = fake_models.FakeInvoice
 
 
-@login_required
-@permission_required('creme_core')
-def invoice_lines_listview(request):
-    return generic.list_view(request, fake_models.FakeInvoiceLine, show_actions=False)
+# @login_required
+# @permission_required('creme_core')
+# def invoice_lines_listview(request):
+#     return generic.list_view(request, fake_models.FakeInvoiceLine, show_actions=False)
+class FakeInvoiceLinesList(generic.EntitiesList):
+    model = fake_models.FakeInvoiceLine
+
+    def get_show_actions(self):
+        return False
 
 
-@login_required
-@permission_required('creme_core')
-def mailing_lists_listview(request):
-    return generic.list_view(request, fake_models.FakeMailingList)
+# @login_required
+# @permission_required('creme_core')
+# def mailing_lists_listview(request):
+#     return generic.list_view(request, fake_models.FakeMailingList)
+class FakeMailingListsList(generic.EntitiesList):
+    model = fake_models.FakeMailingList

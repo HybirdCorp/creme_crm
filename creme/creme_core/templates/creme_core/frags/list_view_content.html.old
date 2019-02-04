@@ -32,10 +32,10 @@
             </span>
             <div class="list-controls">
                 <div class="list-control-group list-filters">
-                    {% get_listview_entity_filters %}
+                    {% listview_entity_filters model=model user=user efilters=entity_filters show_buttons=is_popup_view|not_op %}
                 </div>
                 <div class="list-control-group list-views">
-                    {% get_listview_headerfilters %}
+                    {% listview_header_filters model=model user=user hfilters=header_filters show_buttons=is_popup_view|not_op %}
                 </div>
             </div>
         </div>

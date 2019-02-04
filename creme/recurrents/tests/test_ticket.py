@@ -252,7 +252,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         response = self.assertGET200(RecurrentGenerator.get_lv_absolute_url())
 
         with self.assertNoException():
-            gens_page = response.context['entities']
+            # gens_page = response.context['entities']
+            gens_page = response.context['page_obj']
 
         self.assertEqual(2, gens_page.paginator.count)
         self.assertEqual({gen1, gen2}, set(gens_page.object_list))

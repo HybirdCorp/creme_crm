@@ -4,7 +4,7 @@ from django.conf.urls import url, include
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from . import activity_model_is_custom, constants
+from . import activity_model_is_custom  # constants
 from .views import activity, bricks, calendar
 
 
@@ -34,9 +34,12 @@ urlpatterns = [
 
 urlpatterns += swap_manager.add_group(
     activity_model_is_custom,
-    Swappable(url(r'^activities[/]?$',  activity.listview,                                                name='activities__list_activities')),
-    Swappable(url(r'^phone_calls[/]?$', activity.listview, {'type_id': constants.ACTIVITYTYPE_PHONECALL}, name='activities__list_phone_calls')),
-    Swappable(url(r'^meetings[/]?$',    activity.listview, {'type_id': constants.ACTIVITYTYPE_MEETING},   name='activities__list_meetings')),
+    # Swappable(url(r'^activities[/]?$',  activity.listview,                                                name='activities__list_activities')),
+    # Swappable(url(r'^phone_calls[/]?$', activity.listview, {'type_id': constants.ACTIVITYTYPE_PHONECALL}, name='activities__list_phone_calls')),
+    # Swappable(url(r'^meetings[/]?$',    activity.listview, {'type_id': constants.ACTIVITYTYPE_MEETING},   name='activities__list_meetings')),
+    Swappable(url(r'^activities[/]?$',  activity.ActivitiesList.as_view(), name='activities__list_activities')),
+    Swappable(url(r'^phone_calls[/]?$', activity.PhoneCallsList.as_view(), name='activities__list_phone_calls')),
+    Swappable(url(r'^meetings[/]?$',    activity.MeetingsList.as_view(),   name='activities__list_meetings')),
 
     Swappable(url(r'^activity/add[/]?$',                            activity.ActivityCreation.as_view(),        name='activities__create_activity')),
     Swappable(url(r'^activity/add/(?P<act_type>\w+)[/]?$',          activity.ActivityCreation.as_view(),        name='activities__create_activity'),         check_args=('idxxx',)),

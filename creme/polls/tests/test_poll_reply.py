@@ -1138,7 +1138,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(PollReply.get_lv_absolute_url())
 
         with self.assertNoException():
-            preply_page = response.context['entities']
+            # preply_page = response.context['entities']
+            preply_page = response.context['page_obj']
 
         self.assertEqual(2, preply_page.paginator.count)
         self.assertEqual({preply1, preply2}, set(preply_page.object_list))

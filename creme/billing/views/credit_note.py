@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -129,10 +129,10 @@ CreditNote = billing.get_credit_note_model()
 #     return abstract_view_creditnote(request, credit_note_id)
 
 
-@login_required
-@permission_required('billing')
-def listview(request):
-    return generic.list_view(request, CreditNote, hf_pk=constants.DEFAULT_HFILTER_CNOTE)
+# @login_required
+# @permission_required('billing')
+# def listview(request):
+#     return generic.list_view(request, CreditNote, hf_pk=constants.DEFAULT_HFILTER_CNOTE)
 
 
 @login_required
@@ -197,3 +197,8 @@ class CreditNotesLinking(generic.RelatedToEntityFormPopup):
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
+
+
+class CreditNotesList(generic.EntitiesList):
+    model = CreditNote
+    default_headerfilter_id = constants.DEFAULT_HFILTER_CNOTE

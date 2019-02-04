@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -88,10 +88,10 @@ MessagingList = get_messaginglist_model()
 #     return abstract_view_messaginglist(request, mlist_id)
 
 
-@login_required
-@permission_required('sms')
-def listview(request):
-    return generic.list_view(request, MessagingList, hf_pk=DEFAULT_HFILTER_MLIST)
+# @login_required
+# @permission_required('sms')
+# def listview(request):
+#     return generic.list_view(request, MessagingList, hf_pk=DEFAULT_HFILTER_MLIST)
 
 
 @login_required
@@ -132,6 +132,11 @@ class MessagingListEdition(generic.EntityEdition):
     model = MessagingList
     form_class = ml_forms.MessagingListForm
     pk_url_kwarg = 'mlist_id'
+
+
+class MessagingListsList(generic.EntitiesList):
+    model = MessagingList
+    default_headerfilter_id = DEFAULT_HFILTER_MLIST
 
 
 class ContactsAdding(generic.AddingInstanceToEntityPopup):

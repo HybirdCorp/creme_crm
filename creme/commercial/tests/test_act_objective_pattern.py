@@ -95,7 +95,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         response = self.assertGET200(ActObjectivePattern.get_lv_absolute_url())
 
         with self.assertNoException():
-            patterns_page = response.context['entities']
+            # patterns_page = response.context['entities']
+            patterns_page = response.context['page_obj']
 
         self.assertEqual(1, patterns_page.number)
         self.assertEqual(3, patterns_page.paginator.count)

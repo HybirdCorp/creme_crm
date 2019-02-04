@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -115,16 +115,26 @@ class ServiceLinesCreation(_LinesCreation):
     title = _('Add one or more service to «{entity}»')
 
 
-@login_required
-@permission_required('billing')
-def listview_product_line(request):
-    return generic.list_view(request, ProductLine, show_actions=False)
+# @login_required
+# @permission_required('billing')
+# def listview_product_line(request):
+#     return generic.list_view(request, ProductLine, show_actions=False)
+class ProductLinesList(generic.EntitiesList):
+    model = ProductLine
+
+    def get_show_actions(self):
+        return False
 
 
-@login_required
-@permission_required('billing')
-def listview_service_line(request):
-    return generic.list_view(request, ServiceLine, show_actions=False)
+# @login_required
+# @permission_required('billing')
+# def listview_service_line(request):
+#     return generic.list_view(request, ServiceLine, show_actions=False)
+class ServiceLinesList(generic.EntitiesList):
+    model = ServiceLine
+
+    def get_show_actions(self):
+        return False
 
 
 class AddingToCatalog(generic.RelatedToEntityFormPopup):

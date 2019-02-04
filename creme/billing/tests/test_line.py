@@ -174,7 +174,8 @@ class LineTestCase(_BillingTestCase):
         response = self.assertGET200(reverse('billing__list_product_lines'))
 
         with self.assertNoException():
-            plines_page = response.context['entities']
+            # plines_page = response.context['entities']
+            plines_page = response.context['page_obj']
 
         self.assertEqual(2, plines_page.paginator.count)
 
@@ -185,7 +186,8 @@ class LineTestCase(_BillingTestCase):
         response = self.assertGET200(reverse('billing__list_service_lines'))
 
         with self.assertNoException():
-            slines_page = response.context['entities']
+            # slines_page = response.context['entities']
+            slines_page = response.context['page_obj']
 
         self.assertEqual(2, slines_page.paginator.count)
 

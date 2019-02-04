@@ -71,7 +71,8 @@ class CommercialTestCase(CremeTestCase):
         response = self.assertGET200(self.SALESMEN_URL)
 
         with self.assertNoException():
-            salesmen_page = response.context['entities']
+            # salesmen_page = response.context['entities']
+            salesmen_page = response.context['page_obj']
 
         self.assertEqual(1, salesmen_page.number)
         self.assertFalse(salesmen_page.paginator.count)
@@ -96,7 +97,8 @@ class CommercialTestCase(CremeTestCase):
         response = self.assertGET200(self.SALESMEN_URL)
 
         with self.assertNoException():
-            salesmen_page = response.context['entities']
+            # salesmen_page = response.context['entities']
+            salesmen_page = response.context['page_obj']
 
         self.assertEqual(1, salesmen_page.number)
         self.assertEqual(2, salesmen_page.paginator.count)

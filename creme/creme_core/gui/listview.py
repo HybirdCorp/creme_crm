@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,21 +20,25 @@
 
 from collections import defaultdict
 from functools import partial
-
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, DateField, ForeignKey, ManyToManyField
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 
+from .. import backends
 from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
         EntityCellFunctionField, EntityCellRelation)
 from ..models import RelationType, Relation, CustomField
 from ..utils import find_first
+from ..utils.collections import FluentList
 from ..utils.date_range import CustomRange
 from ..utils.dates import dt_from_str
 from ..utils.db import get_indexed_ordering
 from ..utils.queries import QSerializer
+
+from .mass_import import import_form_registry
 
 
 NULL_FK = 'NULL'
@@ -88,8 +92,8 @@ class ListViewState:
         self.extra_q = None
 
     def __repr__(self):
-        return u'<ListViewState(efilter_id={efilter}, hfilter_id={hfilter}, page={page},' \
-               u' rows={rows}, sort={sortorder}{sortfield}, url={url}, research={research}, extra_q={extra_q})>'.format(
+        return '<ListViewState(efilter_id={efilter}, hfilter_id={hfilter}, page={page},' \
+               ' rows={rows}, sort={sortorder}{sortfield}, url={url}, research={research}, extra_q={extra_q})>'.format(
                    efilter=self.entity_filter_id,
                    hfilter=self.header_filter_id,
                    page=self.page, rows=self.rows,
@@ -172,7 +176,27 @@ class ListViewState:
             raise NoHeaderFilterAvailable()
 
         self.header_filter_id = hf.id
+
         return hf
+
+    def set_entityfilter(self, entity_filters, filter_id, default_id=''):
+        """Select an EntityFilter & store it.
+
+        @param entity_filters: EntityFilterList instnace
+        @param filter_id: ID of the filter to select.
+               An empty string means we want to clear the selection.
+        @param default_id: ID to use if <filter_id> is not found.
+        @return: An EntityFilter instance, or None.
+        """
+        efilter = None if filter_id == '' else \
+                  entity_filters.select_by_id(filter_id,
+                                              self.entity_filter_id,
+                                              default_id,
+                                             )
+
+        self.entity_filter_id = efilter.id if efilter else None
+
+        return efilter
 
     def _build_condition(self, pattern, value):
         return {pattern.replace('creme-boolean', 'exact'): simple_value(value)}
@@ -512,3 +536,96 @@ class SmartColumnsRegistry:
 
 
 smart_columns_registry = SmartColumnsRegistry()
+
+
+# ------------------------------------------------------------------------------
+
+class ListViewButton:
+    """Base class for the buttons displayed in list-views."""
+    template_name = 'creme_core/listview/buttons/place-holder.html'  # Used to render the button of course
+
+    def get_context(self, lv_context):
+        """ Get the specific part of the context of the template.
+        This context should be inserted in the context with the key "button"
+        (see the templatetag "creme_listview.listview_buttons")
+
+        @param lv_context: Template context of the related list-view.
+        return: A dictionary.
+        """
+        return {}
+
+
+class CreationButton(ListViewButton):
+    template_name = 'creme_core/listview/buttons/creation.html'
+
+    def get_context(self, lv_context):
+        context = super().get_context(lv_context=lv_context)
+
+        model = self.get_model(lv_context=lv_context)
+        context['label'] = self.get_label(model)
+        context['url'] = self.get_url(model)
+
+        return context
+
+    def get_label(self, model):
+        return model.creation_label
+
+    def get_model(self, lv_context):
+        return lv_context['model']
+
+    def get_url(self, model):
+        return model.get_create_absolute_url()
+
+
+class MassExportButton(ListViewButton):
+    template_name = 'creme_core/listview/buttons/mass-export.html'
+
+    # TODO: try to extract it from the context ?
+    export_backend_registry = backends.export_backend_registry
+
+    def get_context(self, lv_context):
+        context = super().get_context(lv_context=lv_context)
+        context['backend_choices'] = [
+            (backend.id, backend.verbose_name)
+                for backend in self.export_backend_registry.backends
+        ]
+        context['extra_q'] = lv_context['extra_q']
+
+        return context
+
+
+class MassExportHeaderButton(MassExportButton):
+    template_name = 'creme_core/listview/buttons/mass-export-header.html'
+
+
+class MassImportButton(ListViewButton):
+    template_name = 'creme_core/listview/buttons/mass-import.html'
+
+    # TODO: try to extract them from the context ?
+    import_backend_registry = backends.import_backend_registry
+    import_form_registry = import_form_registry
+
+    def get_context(self, lv_context):
+        context = super().get_context(lv_context=lv_context)
+
+        ct = ContentType.objects.get_for_model(lv_context['model'])
+        context['show'] = (
+            self.import_form_registry.is_registered(ct) and
+            # TODO: __bool__ method instead...
+            next(self.import_backend_registry.backends, None) is not None
+        )
+        context['content_type'] = ct
+
+        return context
+
+
+class BatchProcessButton(MassExportButton):
+    template_name = 'creme_core/listview/buttons/batch-process.html'
+
+
+class ListViewButtonList(FluentList):
+    "List of classes inheriting ListViewButton."
+    @property
+    def instances(self):
+        for button_class in self:
+            yield button_class()

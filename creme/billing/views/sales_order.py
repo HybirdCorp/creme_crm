@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
 from ... import billing
@@ -121,10 +121,10 @@ Invoice = billing.get_invoice_model()
 #     return abstract_view_salesorder(request, order_id)
 
 
-@login_required
-@permission_required('billing')
-def listview(request):
-    return generic.list_view(request, SalesOrder, hf_pk=DEFAULT_HFILTER_ORDER)
+# @login_required
+# @permission_required('billing')
+# def listview(request):
+#     return generic.list_view(request, SalesOrder, hf_pk=DEFAULT_HFILTER_ORDER)
 
 
 # Class-based views  ----------------------------------------------------------
@@ -151,3 +151,8 @@ class SalesOrderEdition(generic.EntityEdition):
     model = SalesOrder
     form_class = order_forms.SalesOrderEditForm
     pk_url_kwarg = 'order_id'
+
+
+class SalesOrdersList(generic.EntitiesList):
+    model = SalesOrder
+    default_headerfilter_id = DEFAULT_HFILTER_ORDER

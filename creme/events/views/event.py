@@ -18,31 +18,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
-from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy  # ugettext
+# from django.utils.html import format_html, format_html_join
+# from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _  # pgettext_lazy, ugettext
 
 from creme.creme_core.actions import ViewAction
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.core.entity_cell import EntityCellRelation, EntityCellVolatile
-from creme.creme_core.gui.actions import ActionsRegistry, EntityAction
+from creme.creme_core.core.entity_cell import EntityCellRelation  # EntityCellVolatile
+from creme.creme_core.gui.actions import EntityAction
+from creme.creme_core.gui.listview import CreationButton, ListViewButton
 from creme.creme_core.models import RelationType
 # from creme.creme_core.models.entity import EntityAction
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
+from creme.creme_core.views.generic.base import EntityRelatedMixin
 
 from creme.persons import get_contact_model
+from creme.persons.views.contact import ContactsList
 
 from creme.opportunities import get_opportunity_model
 
-from .. import constants, get_event_model
+from .. import constants, get_event_model, gui
 from ..forms import event as event_forms
 from ..models import EventType
 
@@ -106,36 +109,10 @@ Opportunity = get_opportunity_model()
 #     return abstract_view_event(request, event_id)
 
 
-@login_required
-@permission_required('events')
-def listview(request):
-    return generic.list_view(request, Event, hf_pk=constants.DEFAULT_HFILTER_EVENT)
-
-
-INV_STATUS_MAP = {
-        constants.INV_STATUS_NOT_INVITED: _('Not invited'),
-        constants.INV_STATUS_NO_ANSWER:   _('Did not answer'),
-        constants.INV_STATUS_ACCEPTED:    _('Accepted the invitation'),
-        constants.INV_STATUS_REFUSED:     _('Refused the invitation'),
-    }
-
-PRES_STATUS_MAP = {
-        constants.PRES_STATUS_DONT_KNOW: _('N/A'),
-        constants.PRES_STATUS_COME:      pgettext_lazy('events-presence_status', 'Come'),
-        constants.PRES_STATUS_NOT_COME:  pgettext_lazy('events-presence_status', 'Not come'),
-    }
-
-
-class RelatedContactsActionsRegistry(ActionsRegistry):
-    def __init__(self, event, *args, **kwargs):
-        super(RelatedContactsActionsRegistry, self).__init__(*args, **kwargs)
-        self.event = event
-
-    def _instance_actions_kwargs(self, *args, **kwargs):
-        kwargs = super()._instance_actions_kwargs(*args, **kwargs)
-        kwargs['event'] = self.event
-
-        return kwargs
+# @login_required
+# @permission_required('events')
+# def listview(request):
+#     return generic.list_view(request, Event, hf_pk=constants.DEFAULT_HFILTER_EVENT)
 
 
 class AddRelatedOpportunityAction(EntityAction):
@@ -164,133 +141,133 @@ class AddRelatedOpportunityAction(EntityAction):
                user.has_perm_to_link(self.event)
 
 
-class ListViewPostProcessor:
-    _RTYPE_IDS = (constants.REL_SUB_IS_INVITED_TO,
-                  constants.REL_SUB_ACCEPTED_INVITATION,
-                  constants.REL_SUB_REFUSED_INVITATION,
-                  constants.REL_SUB_CAME_EVENT,
-                  constants.REL_SUB_NOT_CAME_EVENT,
-                 )
-
-    def __init__(self, event):
-        self.event = event
-        self.user = None
-
-    def __call__(self, context, request):
-        self.user = request.user
-        cells = context['header_filters'].selected.cells
-        rtypes = RelationType.objects.filter(pk__in=self._RTYPE_IDS)
-
-        # NB: add relations items to use the pre-cache system of HeaderFilter
-        #     (TODO: problem: retrieve other related events too)
-        cells.extend(EntityCellRelation(model=Contact, rtype=rtype, is_hidden=True) for rtype in rtypes)
-
-        cells.append(EntityCellVolatile(model=Contact, value='invitation_management', title=_('Invitation'), render_func=self.invitation_render))
-        cells.append(EntityCellVolatile(model=Contact, value='presence_management',   title=_('Presence'),   render_func=self.presence_render))
-
-        # TODO: in the future listview CBV a method that returns the instance of class registry
-        #       (None would have the same meaning than context['show_actions']==False)
-        if context['show_actions']:
-            actions_cell = cells[0]
-            view_action_class = next(
-                (c for c in actions_cell.registry.instance_action_classes(model=Contact)
-                    if (issubclass(c, ViewAction))
-                ),
-                None
-            )
-
-            actions_cell.registry = action_registry = RelatedContactsActionsRegistry(event=self.event)
-            action_registry.register_instance_actions(AddRelatedOpportunityAction)
-
-            if view_action_class is not None:
-                action_registry.register_instance_actions(view_action_class)
-
-    def has_relation(self, entity, rtype_id):
-        id_ = self.event.id
-        return any(id_ == relation.object_entity_id for relation in entity.get_relations(rtype_id))
-
-    def invitation_render(self, entity):
-        has_relation = self.has_relation
-        event = self.event
-        user = self.user
-
-        if not has_relation(entity, constants.REL_SUB_IS_INVITED_TO):
-            current_status = constants.INV_STATUS_NOT_INVITED
-        elif has_relation(entity, constants.REL_SUB_ACCEPTED_INVITATION):
-            current_status = constants.INV_STATUS_ACCEPTED
-        elif has_relation(entity, constants.REL_SUB_REFUSED_INVITATION):
-            current_status = constants.INV_STATUS_REFUSED
-        else:
-            current_status = constants.INV_STATUS_NO_ANSWER
-
-        has_perm = user.has_perm_to_link
-
-        return format_html(
-            """<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>""",
-            url=reverse('events__set_invitation_status', args=(event.id, entity.id)),
-            attrs='' if has_perm(event) and has_perm(entity) else mark_safe(' disabled="True"'),
-            options=format_html_join(
-                '', '<option value="{}"{}>{}</option>',
-                ((status, ' selected' if status == current_status else '', status_name)
-                     for status, status_name in INV_STATUS_MAP.items()
-                )
-            ),
-        )
-
-    def presence_render(self, entity):
-        has_relation = self.has_relation
-        event = self.event
-        user = self.user
-
-        if has_relation(entity, constants.REL_SUB_CAME_EVENT):
-            current_status = constants.PRES_STATUS_COME
-        elif has_relation(entity, constants.REL_SUB_NOT_CAME_EVENT):
-            current_status = constants.PRES_STATUS_NOT_COME
-        else:
-            current_status = constants.PRES_STATUS_DONT_KNOW
-
-        has_perm = user.has_perm_to_link
-
-        return format_html(
-            """<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>""",
-            url=reverse('events__set_presence_status', args=(event.id, entity.id)),
-            attrs='' if has_perm(event) and has_perm(entity) else mark_safe(' disabled="True"'),
-            options=format_html_join(
-                '', '<option value="{}"{}>{}</option>',
-                ((status, ' selected' if status == current_status else '', status_name)
-                     for status, status_name in PRES_STATUS_MAP.items()
-                )
-            ),
-        )
-
-_FILTER_RELATIONTYPES = (constants.REL_SUB_IS_INVITED_TO,
-                         constants.REL_SUB_ACCEPTED_INVITATION,
-                         constants.REL_SUB_REFUSED_INVITATION,
-                         constants.REL_SUB_CAME_EVENT,
-                         constants.REL_SUB_NOT_CAME_EVENT,
-                        )
-
-
-@login_required
-@permission_required('events')
-# @permission_required('persons') ????
-def list_contacts(request, event_id):
-    event = get_object_or_404(Event, pk=event_id)
-    request.user.has_perm_to_view_or_die(event)
-
-    return generic.list_view(
-        request, Contact,
-        extra_dict={
-            'list_title': _('List of contacts related to «{}»').format(event),
-            'add_url':    '',
-            'event_entity': event,  # For ID & to check perm (see 'lv_button_link_contacts.html')
-            'extra_bt_templates': ('events/lv_button_link_contacts.html',),
-        },
-        extra_q=Q(relations__type__in=_FILTER_RELATIONTYPES,
-                  relations__object_entity=event_id,
-                 ),
-        post_process=ListViewPostProcessor(event),
-    )
+# class ListViewPostProcessor:
+#     _RTYPE_IDS = (constants.REL_SUB_IS_INVITED_TO,
+#                   constants.REL_SUB_ACCEPTED_INVITATION,
+#                   constants.REL_SUB_REFUSED_INVITATION,
+#                   constants.REL_SUB_CAME_EVENT,
+#                   constants.REL_SUB_NOT_CAME_EVENT,
+#                  )
+#
+#     def __init__(self, event):
+#         self.event = event
+#         self.user = None
+#
+#     def __call__(self, context, request):
+#         self.user = request.user
+#         cells = context['header_filters'].selected.cells
+#         rtypes = RelationType.objects.filter(pk__in=self._RTYPE_IDS)
+#
+#         # NB: add relations items to use the pre-cache system of HeaderFilter
+#         #     (todo: problem: retrieve other related events too)
+#         cells.extend(EntityCellRelation(model=Contact, rtype=rtype, is_hidden=True) for rtype in rtypes)
+#
+#         cells.append(EntityCellVolatile(model=Contact, value='invitation_management', title=_('Invitation'), render_func=self.invitation_render))
+#         cells.append(EntityCellVolatile(model=Contact, value='presence_management',   title=_('Presence'),   render_func=self.presence_render))
+#
+#         # todo: in the future listview CBV a method that returns the instance of class registry
+#         #       (None would have the same meaning than context['show_actions']==False)
+#         if context['show_actions']:
+#             actions_cell = cells[0]
+#             view_action_class = next(
+#                 (c for c in actions_cell.registry.instance_action_classes(model=Contact)
+#                     if (issubclass(c, ViewAction))
+#                 ),
+#                 None
+#             )
+#
+#             actions_cell.registry = action_registry = RelatedContactsActionsRegistry(event=self.event)
+#             action_registry.register_instance_actions(AddRelatedOpportunityAction)
+#
+#             if view_action_class is not None:
+#                 action_registry.register_instance_actions(view_action_class)
+#
+#     def has_relation(self, entity, rtype_id):
+#         id_ = self.event.id
+#         return any(id_ == relation.object_entity_id for relation in entity.get_relations(rtype_id))
+#
+#     def invitation_render(self, entity):
+#         has_relation = self.has_relation
+#         event = self.event
+#         user = self.user
+#
+#         if not has_relation(entity, constants.REL_SUB_IS_INVITED_TO):
+#             current_status = constants.INV_STATUS_NOT_INVITED
+#         elif has_relation(entity, constants.REL_SUB_ACCEPTED_INVITATION):
+#             current_status = constants.INV_STATUS_ACCEPTED
+#         elif has_relation(entity, constants.REL_SUB_REFUSED_INVITATION):
+#             current_status = constants.INV_STATUS_REFUSED
+#         else:
+#             current_status = constants.INV_STATUS_NO_ANSWER
+#
+#         has_perm = user.has_perm_to_link
+#
+#         return format_html(
+#             """<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>""",
+#             url=reverse('events__set_invitation_status', args=(event.id, entity.id)),
+#             attrs='' if has_perm(event) and has_perm(entity) else mark_safe(' disabled="True"'),
+#             options=format_html_join(
+#                 '', '<option value="{}"{}>{}</option>',
+#                 ((status, ' selected' if status == current_status else '', status_name)
+#                      for status, status_name in INV_STATUS_MAP.items()
+#                 )
+#             ),
+#         )
+#
+#     def presence_render(self, entity):
+#         has_relation = self.has_relation
+#         event = self.event
+#         user = self.user
+#
+#         if has_relation(entity, constants.REL_SUB_CAME_EVENT):
+#             current_status = constants.PRES_STATUS_COME
+#         elif has_relation(entity, constants.REL_SUB_NOT_CAME_EVENT):
+#             current_status = constants.PRES_STATUS_NOT_COME
+#         else:
+#             current_status = constants.PRES_STATUS_DONT_KNOW
+#
+#         has_perm = user.has_perm_to_link
+#
+#         return format_html(
+#             """<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>""",
+#             url=reverse('events__set_presence_status', args=(event.id, entity.id)),
+#             attrs='' if has_perm(event) and has_perm(entity) else mark_safe(' disabled="True"'),
+#             options=format_html_join(
+#                 '', '<option value="{}"{}>{}</option>',
+#                 ((status, ' selected' if status == current_status else '', status_name)
+#                      for status, status_name in PRES_STATUS_MAP.items()
+#                 )
+#             ),
+#         )
+#
+# _FILTER_RELATIONTYPES = (constants.REL_SUB_IS_INVITED_TO,
+#                          constants.REL_SUB_ACCEPTED_INVITATION,
+#                          constants.REL_SUB_REFUSED_INVITATION,
+#                          constants.REL_SUB_CAME_EVENT,
+#                          constants.REL_SUB_NOT_CAME_EVENT,
+#                         )
+#
+#
+# @login_required
+# @permission_required('events')
+# # @permission_required('persons') ????
+# def list_contacts(request, event_id):
+#     event = get_object_or_404(Event, pk=event_id)
+#     request.user.has_perm_to_view_or_die(event)
+#
+#     return generic.list_view(
+#         request, Contact,
+#         extra_dict={
+#             'list_title': _('List of contacts related to «{}»').format(event),
+#             'add_url':    '',
+#             'event_entity': event,  # For ID & to check perm (see 'lv_button_link_contacts.html')
+#             'extra_bt_templates': ('events/lv_button_link_contacts.html',),
+#         },
+#         extra_q=Q(relations__type__in=_FILTER_RELATIONTYPES,
+#                   relations__object_entity=event_id,
+#                  ),
+#         post_process=ListViewPostProcessor(event),
+#     )
 
 
 # @login_required
@@ -332,7 +309,7 @@ def _get_event_n_contact(event_id, contact_id, user):
 @login_required
 @permission_required('events')
 def set_invitation_status(request, event_id, contact_id):
-    status = _get_status(request, INV_STATUS_MAP)
+    status = _get_status(request, constants.INV_STATUS_MAP)
     user = request.user
     event, contact = _get_event_n_contact(event_id, contact_id, user)
 
@@ -344,7 +321,7 @@ def set_invitation_status(request, event_id, contact_id):
 @login_required
 @permission_required('events')
 def set_presence_status(request, event_id, contact_id):
-    status = _get_status(request, PRES_STATUS_MAP)
+    status = _get_status(request, constants.PRES_STATUS_MAP)
     user = request.user
     event, contact = _get_event_n_contact(event_id, contact_id, user)
 
@@ -376,6 +353,82 @@ class EventEdition(generic.EntityEdition):
     model = Event
     form_class = event_forms.EventForm
     pk_url_kwarg = 'event_id'
+
+
+class EventsList(generic.EntitiesList):
+    model = Event
+    default_headerfilter_id = constants.DEFAULT_HFILTER_EVENT
+
+
+class RelatedContactsList(EntityRelatedMixin, ContactsList):
+    entity_id_url_kwarg = 'event_id'
+    entity_classes = Event
+
+    title = _('List of contacts related to «{event}»')
+
+    RTYPE_IDS = (
+        constants.REL_SUB_IS_INVITED_TO,
+        constants.REL_SUB_ACCEPTED_INVITATION,
+        constants.REL_SUB_REFUSED_INVITATION,
+        constants.REL_SUB_CAME_EVENT,
+        constants.REL_SUB_NOT_CAME_EVENT,
+    )
+
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_view_or_die(entity)  # NB: entity == event
+
+    def get_actions_registry(self):
+        view_action_class = next(
+            (c for c in self.actions_registry.instance_action_classes(model=Contact)
+                if (issubclass(c, ViewAction))
+            ),
+            None
+        )
+
+        registry = gui.RelatedContactsActionsRegistry(event=self.get_related_entity())
+        registry.register_instance_actions(AddRelatedOpportunityAction)
+
+        if view_action_class is not None:
+            registry.register_instance_actions(view_action_class)
+
+        return registry
+
+    def get_buttons(self):
+        class AddContactsButton(ListViewButton):
+            template_name = 'events/listview/buttons/link-contacts.html'
+
+            def get_context(this, lv_context):
+                return {
+                    'event_entity': self.get_related_entity(),
+                }
+
+        return super().get_buttons()\
+                      .replace(old=CreationButton, new=AddContactsButton)
+
+    def get_cells(self, hfilter):
+        cells = super().get_cells(hfilter=hfilter)
+
+        rtypes = RelationType.objects.filter(pk__in=self.RTYPE_IDS)
+
+        # NB: add relations items to use the pre-cache system of HeaderFilter
+        #     (TODO: problem: retrieve other related events too)
+        cells.extend(EntityCellRelation(model=Contact, rtype=rtype, is_hidden=True) for rtype in rtypes)
+
+        event = self.get_related_entity()
+        cells.append(gui.EntityCellVolatileInvitation(event=event))
+        cells.append(gui.EntityCellVolatilePresence(event=event))
+
+        return cells
+
+    def get_internal_q(self):
+        return Q(relations__type__in=self.RTYPE_IDS,
+                 relations__object_entity=self.get_related_entity().id,
+                )
+
+    def get_title_format_data(self):
+        return {
+            'event': self.get_related_entity(),
+        }
 
 
 class AddContactsToEvent(generic.EntityEdition):

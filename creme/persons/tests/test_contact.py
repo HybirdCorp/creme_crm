@@ -404,7 +404,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.assertGET200(Contact.get_lv_absolute_url())
 
         with self.assertNoException():
-            contacts_page = response.context['entities']
+            # contacts_page = response.context['entities']
+            contacts_page = response.context['page_obj']
 
         self.assertEqual(count + 2, contacts_page.paginator.count)
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -123,7 +123,7 @@ class Populator(BasePopulator):
                               EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_OBJ_MANAGES]),
                              ],
                  )
-        create_hf(pk='persons-hf_leadcustomer', model=Organisation,
+        create_hf(pk=constants.DEFAULT_HFILTER_ORGA_CUSTOMERS, model=Organisation,
                   name=_('Prospect/Suspect view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'sector'}),

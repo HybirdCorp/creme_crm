@@ -1,0 +1,2 @@
+{% block extrahead %}{% endblock %}
+{% include content_template %}

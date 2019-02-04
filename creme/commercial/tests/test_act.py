@@ -206,7 +206,8 @@ class ActTestCase(CommercialBaseTestCase):
         response = self.assertGET200(Act.get_lv_absolute_url())
 
         with self.assertNoException():
-            acts_page = response.context['entities']
+            # acts_page = response.context['entities']
+            acts_page = response.context['page_obj']
 
         self.assertEqual(1, acts_page.number)
         self.assertEqual(2, acts_page.paginator.count)

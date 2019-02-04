@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 # import warnings
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
 from .. import get_service_model
@@ -86,11 +86,10 @@ Service = get_service_model()
 #     return abstract_view_service(request, service_id)
 
 
-@login_required
-@permission_required('products')
-def listview(request):
-    return generic.list_view(request, Service, hf_pk=DEFAULT_HFILTER_SERVICE)
-
+# @login_required
+# @permission_required('products')
+# def listview(request):
+#     return generic.list_view(request, Service, hf_pk=DEFAULT_HFILTER_SERVICE)
 
 # Class-based views  ----------------------------------------------------------
 
@@ -110,6 +109,11 @@ class ServiceEdition(generic.EntityEdition):
     model = Service
     form_class = service_forms.ServiceEditForm
     pk_url_kwarg = 'service_id'
+
+
+class ServicesList(generic.EntitiesList):
+    model = Service
+    default_headerfilter_id = DEFAULT_HFILTER_SERVICE
 
 
 class ImagesAdding(ImagesAddingBase):

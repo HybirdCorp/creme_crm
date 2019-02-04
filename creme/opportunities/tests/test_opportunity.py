@@ -555,7 +555,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         response = self.assertGET200(reverse('opportunities__list_opportunities'))
 
         with self.assertNoException():
-            opps_page = response.context['entities']
+            # opps_page = response.context['entities']
+            opps_page = response.context['page_obj']
 
         self.assertEqual(2, opps_page.paginator.count)
         self.assertEqual({opp1, opp2}, set(opps_page.object_list))

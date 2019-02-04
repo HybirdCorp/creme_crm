@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -172,10 +172,10 @@ def get_lightweight_mail_body(request, mail_id):
 #     return abstract_popupview(request, mail_id)
 
 
-@login_required
-@permission_required('emails')
-def listview(request):
-    return generic.list_view(request, EntityEmail, hf_pk=constants.DEFAULT_HFILTER_EMAIL)
+# @login_required
+# @permission_required('emails')
+# def listview(request):
+#     return generic.list_view(request, EntityEmail, hf_pk=constants.DEFAULT_HFILTER_EMAIL)
 
 
 # @login_required
@@ -296,6 +296,11 @@ class EntityEmailPopup(generic.EntityDetailPopup):
         return (
             bricks.MailPopupBrick.id_,
         )
+
+
+class EntityEmailsList(generic.EntitiesList):
+    model = EntityEmail
+    default_headerfilter_id = constants.DEFAULT_HFILTER_EMAIL
 
 
 # TODO: disable the link in the template if view is not allowed

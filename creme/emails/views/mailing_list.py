@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -96,10 +96,10 @@ MailingList  = get_mailinglist_model()
 #     return abstract_view_mailinglist(request, ml_id)
 
 
-@login_required
-@permission_required('emails')
-def listview(request):
-    return generic.list_view(request, MailingList, hf_pk=DEFAULT_HFILTER_MAILINGLIST)
+# @login_required
+# @permission_required('emails')
+# def listview(request):
+#     return generic.list_view(request, MailingList, hf_pk=DEFAULT_HFILTER_MAILINGLIST)
 
 
 # TODO: Conflict error if 'email' field is hidden ?
@@ -148,6 +148,11 @@ class MailingListEdition(generic.EntityEdition):
     model = MailingList
     form_class = ml_forms.MailingListForm
     pk_url_kwarg = 'ml_id'
+
+
+class MailingListsList(generic.EntitiesList):
+    model = MailingList
+    default_headerfilter_id = DEFAULT_HFILTER_MAILINGLIST
 
 
 class _AddingToMailingList(generic.RelatedToEntityFormPopup):

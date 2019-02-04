@@ -56,6 +56,51 @@ class LimitedList:
         return repr(self._data)
 
 
+class FluentList(list):
+    "Enhanced list with fluent methods (ie: can be chained) and a new method."
+    def append(self, x):
+        super().append(x)
+        return self
+
+    def clear(self):
+        super().clear()
+        return self
+
+    def extend(self, xs):
+        super().extend(xs)
+        return self
+
+    def insert(self, index, x):
+        super().insert(index, x)
+        return self
+
+    def remove(self, x):
+        super().remove(x)
+        return self
+
+    def reverse(self):
+        super().reverse()
+        return self
+
+    def sort(self, **kwargs):
+        super().sort(**kwargs)
+        return self
+
+    def replace(self, *, old, new):
+        """Replace an element by another one (at the same place of course).
+
+        @param old: Element to remove.
+        @param new: Element to add.
+        @return: self (fluent API).
+        @raise ValueError: "old" is not found.
+        """
+        index = self.index(old)
+        self.remove(old)
+        self.insert(index, new)
+
+        return self
+
+
 class ClassKeyedMap:
     """A kind of dictionary where key must be classes (with single inheritance).
     When a value is not found, the value of the nearest parent (in the class

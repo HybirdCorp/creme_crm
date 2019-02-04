@@ -457,7 +457,8 @@ class DocumentTestCase(_DocumentsTestCase):
         response = self.assertGET200(Document.get_lv_absolute_url())
 
         with self.assertNoException():
-            docs = response.context['entities'].object_list
+            # docs = response.context['entities'].object_list
+            docs = response.context['page_obj'].object_list
 
         self.assertIn(doc1, docs)
         self.assertIn(doc2, docs)

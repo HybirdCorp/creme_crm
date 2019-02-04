@@ -15,7 +15,8 @@ urlpatterns = [
 
 urlpatterns += swap_manager.add_group(
     opportunity_model_is_custom,
-    Swappable(url(r'^opportunities[/]?$',   opportunity.listview,                      name='opportunities__list_opportunities')),
+    # Swappable(url(r'^opportunities[/]?$',   opportunity.listview,                      name='opportunities__list_opportunities')),
+    Swappable(url(r'^opportunities[/]?$',   opportunity.OpportunitiesList.as_view(),   name='opportunities__list_opportunities')),
     Swappable(url(r'^opportunity/add[/]?$', opportunity.OpportunityCreation.as_view(), name='opportunities__create_opportunity')),
     Swappable(url(r'^opportunity/add_to/(?P<person_id>\d+)[/]?$',
                   opportunity.RelatedOpportunityCreation.as_view(),

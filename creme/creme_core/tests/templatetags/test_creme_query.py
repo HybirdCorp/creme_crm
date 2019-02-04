@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.db.models.query_utils import Q
     from django.template import Template, Context
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -50,3 +51,12 @@ class CremeQueryTagsTestCase(CremeTestCase):
                                              }))
 
         self.assertEqual('1', render.strip())
+
+    def test_serialize(self):
+        with self.assertNoException():
+            template = Template(r'{% load creme_query %}'
+                                r'{{query|query_serialize|safe}}'
+                               )
+            render = template.render(Context({'query': Q(name='Foobar')}))
+
+        self.assertEqual('{"op":"AND","val":[["name","Foobar"]]}', render.strip())

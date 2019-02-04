@@ -160,7 +160,8 @@ class ListViewTestCase(ViewsTestCase):
 
     def _get_entities_set(self, response):
         with self.assertNoException():
-            entities_page = response.context['entities']
+            # entities_page = response.context['entities']
+            entities_page = response.context['page_obj']
 
         return set(entities_page.object_list)
 
@@ -172,7 +173,8 @@ class ListViewTestCase(ViewsTestCase):
 
     @staticmethod
     def _get_sql(response):
-        page = response.context['entities']
+        # page = response.context['entities']
+        page = response.context['page_obj']
         return page.paginator.object_list.query.get_compiler('default').as_sql()[0]
 
     def _build_hf(self, *args):
@@ -226,7 +228,8 @@ class ListViewTestCase(ViewsTestCase):
             ctxt = response.context
             hfilters = ctxt['header_filters']
             efilters = ctxt['entity_filters']
-            orgas_page = ctxt['entities']
+            # orgas_page = ctxt['entities']
+            orgas_page = ctxt['page_obj']
 
         self.assertIsInstance(hfilters, HeaderFilterList)
         self.assertIn(hf, hfilters)
@@ -855,37 +858,44 @@ class ListViewTestCase(ViewsTestCase):
         self.assertCountOccurrences(redtail.name, content, count=1)
         self.assertCountOccurrences(dragons.name, content, count=1)
 
-        self.assertEqual(2, response.context['entities'].paginator.count)
+        # self.assertEqual(2, response.context['entities'].paginator.count)
+        self.assertEqual(2, response.context['page_obj'].paginator.count)
 
         self._assertNoDistinct(context.captured_sql)
 
-    def test_qfilter_GET_legacy(self):
-        "Old format"
-        user = self.login()
+        # Reset the "All" filter
+        response = self.assertPOST200(self.url, data={'filter': ''})
+        content = self._get_lv_content(self._get_lv_node(response))
+        self.assertCountOccurrences(bebop.name,   content, count=1)
+        self.assertCountOccurrences(redtail.name, content, count=1)
+        self.assertCountOccurrences(dragons.name, content, count=1)
 
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        bebop   = create_orga(name='Bebop')
-        redtail = create_orga(name='Redtail')
-        dragons = create_orga(name='Red Dragons')
-
-        self._build_hf()
-
-        context = CaptureQueriesContext()
-
-        with context:
-            response = self.assertGET200(self.url, data={'q_filter': '{"name":  "Bebop" }'})
-
-        lv_node = self._get_lv_node(response)
-        inputs_content = self._get_lv_inputs_content(lv_node)
-        # self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
-        self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
-
-        content = self._get_lv_content(lv_node)
-        self.assertCountOccurrences(bebop.name, content, count=1)
-        self.assertNotIn(redtail.name, content)
-        self.assertNotIn(dragons.name, content)
-
-        self.assertEqual(1, response.context['entities'].paginator.count)
+    # def test_qfilter_GET_legacy(self):
+    #     "Old format"
+    #     user = self.login()
+    #
+    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
+    #     bebop   = create_orga(name='Bebop')
+    #     redtail = create_orga(name='Redtail')
+    #     dragons = create_orga(name='Red Dragons')
+    #
+    #     self._build_hf()
+    #
+    #     context = CaptureQueriesContext()
+    #
+    #     with context:
+    #         response = self.assertGET200(self.url, data={'q_filter': '{"name":  "Bebop" }'})
+    #
+    #     lv_node = self._get_lv_node(response)
+    #     inputs_content = self._get_lv_inputs_content(lv_node)
+    #     self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
+    #
+    #     content = self._get_lv_content(lv_node)
+    #     self.assertCountOccurrences(bebop.name, content, count=1)
+    #     self.assertNotIn(redtail.name, content)
+    #     self.assertNotIn(dragons.name, content)
+    #
+    #     self.assertEqual(1, response.context['entities'].paginator.count)
 
     def test_qfilter_GET(self):
         user = self.login()
@@ -912,33 +922,34 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        self.assertEqual(1, response.context['entities'].paginator.count)
+        # self.assertEqual(1, response.context['entities'].paginator.count)
+        self.assertEqual(1, response.context['page_obj'].paginator.count)
 
         # TODO
         # self._assertNoDistinct(context.captured_sql)
 
-    def test_qfilter_POST_legacy(self):
-        user = self.login()
-
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        bebop   = create_orga(name='Bebop')
-        redtail = create_orga(name='Redtail')
-        dragons = create_orga(name='Red Dragons')
-
-        self._build_hf()
-
-        response = self.assertPOST200(self.url, data={'q_filter': '{"name":"Bebop"}'})
-
-        lv_node = self._get_lv_node(response)
-        inputs_content = self._get_lv_inputs_content(lv_node)
-        self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
-
-        content = self._get_lv_content(lv_node)
-        self.assertCountOccurrences(bebop.name, content, count=1)
-        self.assertNotIn(redtail.name, content)
-        self.assertNotIn(dragons.name, content)
-
-        self.assertEqual(1, response.context['entities'].paginator.count)
+    # def test_qfilter_POST_legacy(self):
+    #     user = self.login()
+    #
+    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
+    #     bebop   = create_orga(name='Bebop')
+    #     redtail = create_orga(name='Redtail')
+    #     dragons = create_orga(name='Red Dragons')
+    #
+    #     self._build_hf()
+    #
+    #     response = self.assertPOST200(self.url, data={'q_filter': '{"name":"Bebop"}'})
+    #
+    #     lv_node = self._get_lv_node(response)
+    #     inputs_content = self._get_lv_inputs_content(lv_node)
+    #     self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
+    #
+    #     content = self._get_lv_content(lv_node)
+    #     self.assertCountOccurrences(bebop.name, content, count=1)
+    #     self.assertNotIn(redtail.name, content)
+    #     self.assertNotIn(dragons.name, content)
+    #
+    #     self.assertEqual(1, response.context['entities'].paginator.count)
 
     def test_qfilter_POST(self):
         user = self.login()
@@ -962,51 +973,55 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        self.assertEqual(1, response.context['entities'].paginator.count)
+        # self.assertEqual(1, response.context['entities'].paginator.count)
+        self.assertEqual(1, response.context['page_obj'].paginator.count)
 
-    def test_qfilter_invalid_json(self):
-        user = self.login()
+    # def test_qfilter_invalid_json(self):
+    #     user = self.login()
+    #
+    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
+    #     bebop   = create_orga(name='Bebop')
+    #     redtail = create_orga(name='Redtail')
+    #     dragons = create_orga(name='Red Dragons')
+    #
+    #     self._build_hf()
+    #
+    #     # Invalid json : ignore filter
+    #     response = self.assertGET200(self.url, data={'q_filter': '{"name":"Bebop"'})
+    #
+    #     content = self._get_lv_content(self._get_lv_node(response))
+    #     self.assertIn(bebop.name, content)
+    #     self.assertIn(redtail.name, content)
+    #     self.assertIn(dragons.name, content)
 
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        bebop   = create_orga(name='Bebop')
-        redtail = create_orga(name='Redtail')
-        dragons = create_orga(name='Red Dragons')
-
-        self._build_hf()
-
-        # Invalid json : ignore filter
-        response = self.assertGET200(self.url, data={'q_filter': '{"name":"Bebop"'})
-
-        content = self._get_lv_content(self._get_lv_node(response))
-        self.assertIn(bebop.name, content)
-        self.assertIn(redtail.name, content)
-        self.assertIn(dragons.name, content)
-
-    def test_qfilter_invalid_Q(self):
-        user = self.login()
-
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        bebop   = create_orga(name='Bebop')
-        redtail = create_orga(name='Redtail')
-        dragons = create_orga(name='Red Dragons')
-
-        self._build_hf()
-
-        # Invalid field : ignore filter
-        response = self.assertGET200(self.url, data={'q_filter': '{"unknown_model_field":"Bebop"}'})
-
-        content = self._get_lv_content(self._get_lv_node(response))
-        self.assertIn(bebop.name, content)
-        self.assertIn(redtail.name, content)
-        self.assertIn(dragons.name, content)
+    # TODO: with new QSerializer format ?
+    # def test_qfilter_invalid_Q(self):
+    #     user = self.login()
+    #
+    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
+    #     bebop   = create_orga(name='Bebop')
+    #     redtail = create_orga(name='Redtail')
+    #     dragons = create_orga(name='Red Dragons')
+    #
+    #     self._build_hf()
+    #
+    #     # Invalid field : ignore filter
+    #     response = self.assertGET200(self.url, data={'q_filter': '{"unknown_model_field":"Bebop"}'})
+    #
+    #     content = self._get_lv_content(self._get_lv_node(response))
+    #     self.assertIn(bebop.name, content)
+    #     self.assertIn(redtail.name, content)
+    #     self.assertIn(dragons.name, content)
 
     def test_header_buttons(self):
         self.login()
         hf = self._build_hf()
         ct_id = self.ctype.id
 
-        qdict = {'name': 'Bebop'}
-        response = self.assertGET200(self.url, data={'hfilter': hf.id, 'q_filter': json_dump(qdict)})
+        # qdict = {'name': 'Bebop'}
+        q_filter = QSerializer().dumps(Q(name='Bebop'))
+        # response = self.assertGET200(self.url, data={'hfilter': hf.id, 'q_filter': json_dump(qdict)})
+        response = self.assertGET200(self.url, data={'hfilter': hf.id, 'q_filter': q_filter})
 
         page_tree = html5lib.parse(response.content, namespaceHTMLElements=False)
         buttons_node = page_tree.find(".//div[@class='list-header-buttons clearfix']")
@@ -1015,23 +1030,27 @@ class ListViewTestCase(ViewsTestCase):
         hrefs = [button_node.attrib.get('href') for button_node in buttons_node.findall('a')]
         self.assertEqual(FakeOrganisation.get_create_absolute_url(), hrefs[0])
 
+        data_hrefs = [button_node.attrib.get('data-href') for button_node in buttons_node.findall('a')]
         dl_url = '{}?ct_id={}'.format(reverse('creme_core__dl_listview'), ct_id)
-        dl_uri = hrefs[1]
+        # dl_uri = hrefs[1]
+        dl_uri = data_hrefs[1]
         self.assertTrue(dl_uri.startswith(dl_url),
                         'URI <{}> does not starts with <{}>'.format(dl_uri, dl_url)
                        )
         self.assertIn('list_url={}'.format(self.url), dl_uri)
         self.assertIn('hfilter={}'.format(hf.id),     dl_uri)
-        self.assertIn('extra_q={}'.format(urlquote(QSerializer().dumps(Q(**qdict)))), dl_uri)
+        # self.assertIn('extra_q={}'.format(urlquote(QSerializer().dumps(Q(**qdict)))), dl_uri)
+        self.assertIn('extra_q={}'.format(urlquote(q_filter)), dl_uri)
 
-        dl_header_uri = hrefs[2]
+        # dl_header_uri = hrefs[2]
+        dl_header_uri = data_hrefs[2]
         self.assertTrue(dl_header_uri.startswith(dl_url),
                         'URI <{}> does not starts with <{}>'.format(dl_header_uri, dl_url)
                        )
         self.assertIn('header=true', dl_header_uri)
 
-        self.assertEqual(reverse('creme_core__mass_import',   args=(self.ctype.id,)), hrefs[3])
-        self.assertEqual(reverse('creme_core__batch_process', args=(ct_id,)),         hrefs[4])
+        self.assertEqual(reverse('creme_core__mass_import',   args=(ct_id,)), hrefs[3])
+        self.assertEqual(reverse('creme_core__batch_process', args=(ct_id,)), hrefs[4])
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=1000000, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=1)
     def test_search_regularfields01(self):
@@ -1064,7 +1083,8 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(swordfish.name, content)
         self.assertCountOccurrences(redtail.name, content, count=1)
         self.assertCountOccurrences(dragons.name, content, count=1)
-        self.assertEqual(2, response.context['entities'].paginator.count)
+        # self.assertEqual(2, response.context['entities'].paginator.count)
+        self.assertEqual(2, response.context['page_obj'].paginator.count)
 
         response = self.assertPOST200(url, data=build_data('', '88', clear=1))
         content = self._get_lv_content(self._get_lv_node(response))
@@ -1090,7 +1110,8 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(swordfish.name, content)
         self.assertIn(redtail.name,   content)
         self.assertIn(dragons.name,   content)
-        self.assertEqual(4, response.context['entities'].paginator.count)
+        # self.assertEqual(4, response.context['entities'].paginator.count)
+        self.assertEqual(4, response.context['page_obj'].paginator.count)
 
         db_engine = settings.DATABASES['default']['ENGINE']
         if db_engine == 'django.db.backends.mysql':
@@ -2493,7 +2514,8 @@ class ListViewTestCase(ViewsTestCase):
         # Page 1 --------------------
         response = post(page=1)
         with self.assertNoException():
-            entities_page = response.context['entities']
+            # entities_page = response.context['entities']
+            entities_page = response.context['page_obj']
 
         self.assertEqual(10, len(entities_page))
         self.assertTrue(entities_page.has_next())
@@ -2513,7 +2535,8 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 2 --------------------
         response = post(page=2)
-        entities_page = response.context['entities']
+        # entities_page = response.context['entities']
+        entities_page = response.context['page_obj']
 
         self.assertEqual(3, len(entities_page))
 
@@ -2524,11 +2547,13 @@ class ListViewTestCase(ViewsTestCase):
         # Change 'rows' parameter -------------
         rows = 25
         response = post(page=1, rows=rows)
-        self.assertEqual(rows, response.context['entities'].paginator.per_page)
+        # self.assertEqual(rows, response.context['entities'].paginator.per_page)
+        self.assertEqual(rows, response.context['page_obj'].paginator.per_page)
 
         # Check invalid page size
         response = post(page=1, rows=1000)
-        self.assertEqual(10, response.context['entities'].paginator.per_page)
+        # self.assertEqual(10, response.context['entities'].paginator.per_page)
+        self.assertEqual(10, response.context['page_obj'].paginator.per_page)
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_pagination_slow02(self):
@@ -2551,13 +2576,15 @@ class ListViewTestCase(ViewsTestCase):
 
         # Go to page 2...
         response = post(page=2)
-        entities_page = response.context['entities']
+        # entities_page = response.context['entities']
+        entities_page = response.context['page_obj']
         self.assertEqual(2, entities_page.number)
         self.assertIndex(organisations[10], list(entities_page.object_list))
 
         # ... which should be kept in session
         response = post()
-        entities_page = response.context['entities']
+        # entities_page = response.context['entities']
+        entities_page = response.context['page_obj']
         self.assertEqual(2, entities_page.number)
         self.assertIndex(organisations[10], list(entities_page.object_list))
 
@@ -2578,7 +2605,8 @@ class ListViewTestCase(ViewsTestCase):
         # Page 1 --------------------
         response = post()
         with self.assertNoException():
-            entities_page1 = response.context['entities']
+            # entities_page1 = response.context['entities']
+            entities_page1 = response.context['page_obj']
 
         self.assertEqual(10, len(entities_page1))
         self.assertTrue(entities_page1.has_next())
@@ -2601,7 +2629,8 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 2 --------------------
         response = post(entities_page1.next_page_info())
-        entities_page2 = response.context['entities']
+        # entities_page2 = response.context['entities']
+        entities_page2 = response.context['page_obj']
 
         self.assertEqual(3, len(entities_page2))
 
@@ -2643,7 +2672,8 @@ class ListViewTestCase(ViewsTestCase):
         # Page 1 --------------------
         response = post()
         with self.assertNoException():
-            entities_page1 = response.context['entities']
+            # entities_page1 = response.context['entities']
+            entities_page1 = response.context['page_obj']
 
         self.assertEqual(rows, len(entities_page1))
         self.assertTrue(entities_page1.has_next())
@@ -2663,7 +2693,8 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 2 --------------------
         response = post(entities_page1.next_page_info())
-        entities_page2 = response.context['entities']
+        # entities_page2 = response.context['entities']
+        entities_page2 = response.context['page_obj']
 
         self.assertEqual(3, len(entities_page2))
 
@@ -2711,7 +2742,8 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 1 --------------------
         response = post()
-        entities_page1 = response.context['entities']
+        # entities_page1 = response.context['entities']
+        entities_page1 = response.context['page_obj']
         entities = list(entities_page1.object_list)
         idx1 = self.assertIndex(contacts[0], entities)
         self.assertEqual(0, idx1)
@@ -2721,7 +2753,8 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 2 --------------------
         response = post(entities_page1.next_page_info())
-        entities_page2 = response.context['entities']
+        # entities_page2 = response.context['entities']
+        entities_page2 = response.context['page_obj']
 
         self.assertEqual(3, len(entities_page2))
 
@@ -2763,13 +2796,15 @@ class ListViewTestCase(ViewsTestCase):
 
         # Page 1 --------------------
         response = post()
-        entities_page1 = response.context['entities']
+        # entities_page1 = response.context['entities']
+        entities_page1 = response.context['page_obj']
         idx10 = self.assertIndex(contacts[9], list(entities_page1.object_list))
         self.assertEqual(9, idx10)
 
         # Page 2 --------------------
         response = post(entities_page1.next_page_info())
-        entities_page2 = response.context['entities']
+        # entities_page2 = response.context['entities']
+        entities_page2 = response.context['page_obj']
 
         self.assertEqual(3, len(entities_page2))
 
@@ -2803,7 +2838,8 @@ class ListViewTestCase(ViewsTestCase):
                                                 'rows': rows,
                                                }
                                          )
-            return response.context['entities']
+            # return response.context['entities']
+            return response.context['page_obj']
 
         page1 = post()
         page2_info = page1.next_page_info()
@@ -2852,7 +2888,8 @@ class ListViewTestCase(ViewsTestCase):
                                                 'rows': rows,
                                                }
                                          )
-            return response.context['entities']
+            # return response.context['entities']
+            return response.context['page_obj']
 
         page1 = post()
         paginator = page1.paginator
@@ -2883,7 +2920,8 @@ class ListViewTestCase(ViewsTestCase):
                    }
 
             response = self.assertPOST200(url, data=data)
-            return response.context['entities']
+            # return response.context['entities']
+            return response.context['page_obj']
 
         page1 = post()
 
@@ -2909,7 +2947,8 @@ class ListViewTestCase(ViewsTestCase):
                                                 'rows': 10,
                                                }
                                          )
-            return response.context['entities']
+            # return response.context['entities']
+            return response.context['page_obj']
 
         page1_slow = post()
         self.assertTrue(hasattr(page1_slow, 'number'))  # Means slow mode
@@ -2918,35 +2957,35 @@ class ListViewTestCase(ViewsTestCase):
         page1_fast = post()
         self.assertTrue(hasattr(page1_fast, 'next_page_info'))  # Means fast mode
 
-    def test_listview_popup_GET_legacy(self):
-        user = self.login()
-
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        bebop   = create_orga(name='Bebop')
-        redtail = create_orga(name='Redtail')
-        dragons = create_orga(name='Red Dragons')
-
-        self._build_hf()
-
-        context = CaptureQueriesContext()
-
-        with context:
-            response = self.assertGET200(reverse('creme_core__listview_popup'), data={
-                'ct_id': self.ctype.id,
-                'q_filter': '{"name":  "Bebop" }',  # JSON with strange format
-            })
-
-        lv_node = self._get_lv_node(response)
-        inputs_content = self._get_lv_inputs_content(lv_node)
-        # self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
-        self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
-
-        content = self._get_lv_content(lv_node)
-        self.assertCountOccurrences(bebop.name, content, count=1)
-        self.assertNotIn(redtail.name, content)
-        self.assertNotIn(dragons.name, content)
-
-        self.assertEqual(1, response.context['entities'].paginator.count)
+    # def test_listview_popup_GET_legacy(self):
+    #     user = self.login()
+    #
+    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
+    #     bebop   = create_orga(name='Bebop')
+    #     redtail = create_orga(name='Redtail')
+    #     dragons = create_orga(name='Red Dragons')
+    #
+    #     self._build_hf()
+    #
+    #     context = CaptureQueriesContext()
+    #
+    #     with context:
+    #         response = self.assertGET200(reverse('creme_core__listview_popup'), data={
+    #             'ct_id': self.ctype.id,
+    #             'q_filter': '{"name":  "Bebop" }',  # JSON with strange format
+    #         })
+    #
+    #     lv_node = self._get_lv_node(response)
+    #     inputs_content = self._get_lv_inputs_content(lv_node)
+    #     # self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
+    #     self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
+    #
+    #     content = self._get_lv_content(lv_node)
+    #     self.assertCountOccurrences(bebop.name, content, count=1)
+    #     self.assertNotIn(redtail.name, content)
+    #     self.assertNotIn(dragons.name, content)
+    #
+    #     self.assertEqual(1, response.context['entities'].paginator.count)
 
     def test_listview_popup_GET(self):
         user = self.login()
@@ -2977,36 +3016,37 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        self.assertEqual(1, response.context['entities'].paginator.count)
+        # self.assertEqual(1, response.context['entities'].paginator.count)
+        self.assertEqual(1, response.context['page_obj'].paginator.count)
 
-    def test_listview_popup_POST_legacy(self):
-        user = self.login()
-
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        bebop   = create_orga(name='Bebop')
-        redtail = create_orga(name='Redtail')
-        dragons = create_orga(name='Red Dragons')
-
-        self._build_hf()
-
-        context = CaptureQueriesContext()
-
-        with context:
-            response = self.assertPOST200(reverse('creme_core__listview_popup'), data={
-                'ct_id': self.ctype.id,
-                'q_filter': '{"name":  "Bebop" }',
-            })
-
-        lv_node = self._get_lv_node(response)
-        inputs_content = self._get_lv_inputs_content(lv_node)
-        self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
-
-        content = self._get_lv_content(lv_node)
-        self.assertCountOccurrences(bebop.name, content, count=1)
-        self.assertNotIn(redtail.name, content)
-        self.assertNotIn(dragons.name, content)
-
-        self.assertEqual(1, response.context['entities'].paginator.count)
+    # def test_listview_popup_POST_legacy(self):
+    #     user = self.login()
+    #
+    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
+    #     bebop   = create_orga(name='Bebop')
+    #     redtail = create_orga(name='Redtail')
+    #     dragons = create_orga(name='Red Dragons')
+    #
+    #     self._build_hf()
+    #
+    #     context = CaptureQueriesContext()
+    #
+    #     with context:
+    #         response = self.assertPOST200(reverse('creme_core__listview_popup'), data={
+    #             'ct_id': self.ctype.id,
+    #             'q_filter': '{"name":  "Bebop" }',
+    #         })
+    #
+    #     lv_node = self._get_lv_node(response)
+    #     inputs_content = self._get_lv_inputs_content(lv_node)
+    #     self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
+    #
+    #     content = self._get_lv_content(lv_node)
+    #     self.assertCountOccurrences(bebop.name, content, count=1)
+    #     self.assertNotIn(redtail.name, content)
+    #     self.assertNotIn(dragons.name, content)
+    #
+    #     self.assertEqual(1, response.context['entities'].paginator.count)
 
     def test_listview_popup_POST(self):
         user = self.login()
@@ -3037,4 +3077,5 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        self.assertEqual(1, response.context['entities'].paginator.count)
+        # self.assertEqual(1, response.context['entities'].paginator.count)
+        self.assertEqual(1, response.context['page_obj'].paginator.count)

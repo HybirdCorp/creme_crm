@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2018  Hybird
+#    Copyright (C) 2013-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 # import warnings
 
 # from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
 from .. import get_pollcampaign_model
@@ -85,10 +85,10 @@ PollCampaign = get_pollcampaign_model()
 #     return abstract_view_pcampaign(request, campaign_id)
 
 
-@login_required
-@permission_required('polls')
-def listview(request):
-    return generic.list_view(request, PollCampaign, hf_pk=DEFAULT_HFILTER_PCAMPAIGN)
+# @login_required
+# @permission_required('polls')
+# def listview(request):
+#     return generic.list_view(request, PollCampaign, hf_pk=DEFAULT_HFILTER_PCAMPAIGN)
 
 
 # Class-based views  ----------------------------------------------------------
@@ -108,3 +108,8 @@ class PollCampaignEdition(generic.EntityEdition):
     model = PollCampaign
     form_class = PollCampaignForm
     pk_url_kwarg = 'campaign_id'
+
+
+class PollCampaignsList(generic.EntitiesList):
+    model = PollCampaign
+    default_headerfilter_id = DEFAULT_HFILTER_PCAMPAIGN

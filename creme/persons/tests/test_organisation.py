@@ -275,7 +275,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.assertGET200(Organisation.get_lv_absolute_url())
 
         with self.assertNoException():
-            orgas_page = response.context['entities']
+            # orgas_page = response.context['entities']
+            orgas_page = response.context['page_obj']
 
         self.assertEqual(3, orgas_page.paginator.count)  # 3: our 2 orgas + default orga
 
@@ -420,7 +421,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.assertGET200(reverse('persons__leads_customers'))
 
         with self.assertNoException():
-            orgas_page = response.context['entities']
+            # orgas_page = response.context['entities']
+            orgas_page = response.context['page_obj']
 
         self.assertEqual(0, orgas_page.paginator.count)
 
@@ -440,7 +442,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         post(reverse('persons__become_suspect',  args=(fsf.id,)))
 
         response = self.client.get(reverse('persons__leads_customers'))
-        orgas_page = response.context['entities']
+        # orgas_page = response.context['entities']
+        orgas_page = response.context['page_obj']
 
         self.assertEqual(3, orgas_page.paginator.count)
 
@@ -458,7 +461,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.client.post(reverse('persons__become_customer', args=(nerv.id,)), data={'id': acme.id})
 
         response = self.client.get(reverse('persons__leads_customers'))
-        self.assertEqual(0, response.context['entities'].paginator.count)
+        # self.assertEqual(0, response.context['entities'].paginator.count)
+        self.assertEqual(0, response.context['page_obj'].paginator.count)
 
     @skipIfCustomAddress
     def test_merge01(self):

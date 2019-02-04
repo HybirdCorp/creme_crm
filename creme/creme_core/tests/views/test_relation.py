@@ -806,7 +806,8 @@ class RelationViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self.SELECTION_URL, data=data)
 
         try:
-            entities = response.context['entities']
+            # entities = response.context['entities']
+            entities = response.context['page_obj']
         except KeyError:
             self.fail(response.content)
 
@@ -835,7 +836,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                           }
                                     )
 
-        contacts = response.context['entities'].object_list
+        # contacts = response.context['entities'].object_list
+        contacts = response.context['page_obj'].object_list
         self.assertEqual(2, len(contacts))
         self.assertEqual({self.contact01, self.contact02}, set(contacts))
 
@@ -866,7 +868,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                           }
                                     )
 
-        contacts = response.context['entities'].object_list
+        # contacts = response.context['entities'].object_list
+        contacts = response.context['page_obj'].object_list
         self.assertEqual(3, len(contacts))
         self.assertEqual({self.contact01, self.contact03, contact04}, set(contacts))
 

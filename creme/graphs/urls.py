@@ -21,7 +21,8 @@ urlpatterns = [
 
 urlpatterns += swap_manager.add_group(
     graph_model_is_custom,
-    Swappable(url(r'^graphs[/]?$',                       graph.listview,                name='graphs__list_graphs')),
+    # Swappable(url(r'^graphs[/]?$',                       graph.listview,                name='graphs__list_graphs')),
+    Swappable(url(r'^graphs[/]?$',                       graph.GraphsList.as_view(),    name='graphs__list_graphs')),
     Swappable(url(r'^graph/add[/]?$',                    graph.GraphCreation.as_view(), name='graphs__create_graph')),
     Swappable(url(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.GraphEdition.as_view(),  name='graphs__edit_graph'), check_args=Swappable.INT_ID),
     Swappable(url(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.GraphDetail.as_view(),   name='graphs__view_graph'), check_args=Swappable.INT_ID),

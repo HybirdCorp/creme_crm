@@ -33,7 +33,7 @@ def menu_display(context):
     return creme_menu.render(context)
 
 
-# TODO: rename template file (menu-buttons.html)
+# TODO: rename template file (menu-buttons.html ? detailview-buttons.html ? menu/buttons.html ?)
 @register.inclusion_tag('creme_core/templatetags/menu_buttons.html', takes_context=True)
 def menu_buttons_display(context):
     entity = context['object']

@@ -42,7 +42,8 @@ urlpatterns = [
 
 urlpatterns += swap_manager.add_group(
     report_model_is_custom,
-    Swappable(url(r'^reports[/]?$',                        report.listview,                 name='reports__list_reports')),
+    # Swappable(url(r'^reports[/]?$',                        report.listview,                 name='reports__list_reports')),
+    Swappable(url(r'^reports[/]?$',                        report.ReportsList.as_view(),    name='reports__list_reports')),
     Swappable(url(r'^report/add[/]?$',                     report.ReportCreation.as_view(), name='reports__create_report')),
     Swappable(url(r'^report/edit/(?P<report_id>\d+)[/]?$', report.ReportEdition.as_view(),  name='reports__edit_report'), check_args=Swappable.INT_ID),
     Swappable(url(r'^report/(?P<report_id>\d+)[/]?$',      report.ReportDetail.as_view(),   name='reports__view_report'), check_args=Swappable.INT_ID),
@@ -65,5 +66,8 @@ if settings.TESTS_ON:
             name='reports__view_fake_folder',
            ),
 
-        url(r'^tests/documents[/]?$', fake_views.document_listview, name='reports__list_fake_documents'),
+        # url(r'^tests/documents[/]?$', fake_views.document_listview, name='reports__list_fake_documents'),
+        url(r'^tests/documents[/]?$', fake_views.FakeReportsDocumentsList.as_view(),
+            name='reports__list_fake_documents'
+           ),
     ]

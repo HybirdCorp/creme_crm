@@ -15,6 +15,25 @@ except Exception as e:
 
 
 class CremeCTypeTagsTestCase(CremeTestCase):
+    def test_ctype_for_model(self):
+        with self.assertNoException():
+            template = Template(
+                r"{% load creme_ctype %}"
+                r"{% ctype_for_model currency_model as currency_ctype %}"
+                r"<h1>{{currency_ctype}} ({{currency_ctype.id}})</h1>"
+            )
+            render = template.render(Context({
+                'currency_model': Currency,
+            }))
+
+        self.assertEqual(
+            '<h1>{vname} ({id})</h1>'.format(
+                vname=_('Currency'),
+                id=ContentType.objects.get_for_model(Currency).id,
+            ),
+            render.strip()
+        )
+
     def test_ctype_for_naturalkey(self):
         with self.assertNoException():
             template = Template(

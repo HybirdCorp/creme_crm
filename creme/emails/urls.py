@@ -60,7 +60,8 @@ urlpatterns = [
 
 urlpatterns += swap_manager.add_group(
     emails.emailcampaign_model_is_custom,
-    Swappable(url(r'^campaigns[/]?$',                          campaign.listview,                        name='emails__list_campaigns')),
+    # Swappable(url(r'^campaigns[/]?$',                          campaign.listview,                        name='emails__list_campaigns')),
+    Swappable(url(r'^campaigns[/]?$',                          campaign.EmailCampaignsList.as_view(),    name='emails__list_campaigns')),
     Swappable(url(r'^campaign/add[/]?$',                       campaign.EmailCampaignCreation.as_view(), name='emails__create_campaign')),
     Swappable(url(r'^campaign/edit/(?P<campaign_id>\d+)[/]?$', campaign.EmailCampaignEdition.as_view(),  name='emails__edit_campaign'), check_args=Swappable.INT_ID),
     Swappable(url(r'^campaign/(?P<campaign_id>\d+)[/]?$',      campaign.EmailCampaignDetail.as_view(),   name='emails__view_campaign'), check_args=Swappable.INT_ID),
@@ -69,7 +70,8 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     emails.emailtemplate_model_is_custom,
-    Swappable(url(r'^templates[/]?$',                          template.listview,                        name='emails__list_templates')),
+    # Swappable(url(r'^templates[/]?$',                          template.listview,                        name='emails__list_templates')),
+    Swappable(url(r'^templates[/]?$',                          template.EmailTemplatesList.as_view(),    name='emails__list_templates')),
     Swappable(url(r'^template/add[/]?$',                       template.EmailTemplateCreation.as_view(), name='emails__create_template')),
     Swappable(url(r'^template/edit/(?P<template_id>\d+)[/]?$', template.EmailTemplateEdition.as_view(),  name='emails__edit_template'), check_args=Swappable.INT_ID),
     Swappable(url(r'^template/(?P<template_id>\d+)[/]?$',      template.EmailTemplateDetail.as_view(),   name='emails__view_template'), check_args=Swappable.INT_ID),
@@ -78,7 +80,8 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     emails.entityemail_model_is_custom,
-    Swappable(url(r'^mails[/]?$',                                     mail.listview,                      name='emails__list_emails')),
+    # Swappable(url(r'^mails[/]?$',                                     mail.listview,                      name='emails__list_emails')),
+    Swappable(url(r'^mails[/]?$',                                     mail.EntityEmailsList.as_view(),    name='emails__list_emails')),
     Swappable(url(r'^mail/add/(?P<entity_id>\d+)[/]?$',               mail.EntityEmailCreation.as_view(), name='emails__create_email'),               check_args=Swappable.INT_ID),
     Swappable(url(r'^mail/add_from_template/(?P<entity_id>\d+)[/]?$', mail.EntityEmailWizard.as_view(),   name='emails__create_email_from_template'), check_args=Swappable.INT_ID),
     Swappable(url(r'^mail/(?P<mail_id>\d+)[/]?$',                     mail.EntityEmailDetail.as_view(),   name='emails__view_email'),                 check_args=Swappable.INT_ID),
@@ -88,7 +91,8 @@ urlpatterns += swap_manager.add_group(
 
 urlpatterns += swap_manager.add_group(
     emails.mailinglist_model_is_custom,
-    Swappable(url(r'^mailing_lists[/]?$',                    mailing_list.listview,                      name='emails__list_mlists')),
+    # Swappable(url(r'^mailing_lists[/]?$',                    mailing_list.listview,                      name='emails__list_mlists')),
+    Swappable(url(r'^mailing_lists[/]?$',                    mailing_list.MailingListsList.as_view(),    name='emails__list_mlists')),
     Swappable(url(r'^mailing_list/add[/]?$',                 mailing_list.MailingListCreation.as_view(), name='emails__create_mlist')),
     Swappable(url(r'^mailing_list/edit/(?P<ml_id>\d+)[/]?$', mailing_list.MailingListEdition.as_view(),  name='emails__edit_mlist'), check_args=Swappable.INT_ID),
     Swappable(url(r'^mailing_list/(?P<ml_id>\d+)[/]?$',      mailing_list.MailingListDetail.as_view(),   name='emails__view_mlist'), check_args=Swappable.INT_ID),

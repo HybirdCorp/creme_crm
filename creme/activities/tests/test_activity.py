@@ -1647,7 +1647,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.assertGET200(Activity.get_lv_absolute_url())
 
         with self.assertNoException():
-            activities_page = response.context['entities']
+            # activities_page = response.context['entities']
+            activities_page = response.context['page_obj']
 
         self.assertEqual(1, activities_page.number)
         self.assertEqual(2, activities_page.paginator.count)
@@ -1657,7 +1658,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.assertGET200(reverse('activities__list_phone_calls'))
 
         with self.assertNoException():
-            pcalls_page = response.context['entities']
+            # pcalls_page = response.context['entities']
+            pcalls_page = response.context['page_obj']
 
         self.assertEqual([acts[0]], list(pcalls_page.object_list))
 
@@ -1665,7 +1667,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.assertGET200(reverse('activities__list_meetings'))
 
         with self.assertNoException():
-            meetings_page = response.context['entities']
+            # meetings_page = response.context['entities']
+            meetings_page = response.context['page_obj']
 
         self.assertEqual([acts[1]], list(meetings_page.object_list))
 

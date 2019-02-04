@@ -87,7 +87,8 @@ class GraphsTestCase(CremeTestCase):
         response = self.assertGET200(Graph.get_lv_absolute_url())
 
         with self.assertNoException():
-            graphs = response.context['entities'].object_list
+            # graphs = response.context['entities'].object_list
+            graphs = response.context['page_obj'].object_list
 
         self.assertIn(graph1, graphs)
         self.assertIn(graph2, graphs)

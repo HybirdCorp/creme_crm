@@ -2,7 +2,8 @@
 
 try:
     from ..base import CremeTestCase
-    from creme.creme_core.utils.collections import LimitedList, ClassKeyedMap, OrderedSet, InheritedDataChain
+    from creme.creme_core.utils.collections import (LimitedList, FluentList,
+            ClassKeyedMap, OrderedSet, InheritedDataChain)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -27,6 +28,90 @@ class LimitedListTestCase(CremeTestCase):
         ll.append(8)
         self.assertEqual(4, len(ll))
         self.assertEqual([5, '6', 7], list(ll))
+
+
+class FluentListTestCase(CremeTestCase):
+    def test_inherited(self):
+        flist = FluentList([1, 2])
+        self.assertTrue(flist)
+        self.assertEqual(2, len(flist))
+        self.assertEqual(2, flist[1])
+
+        with self.assertRaises(ValueError):
+            flist.index(3)
+
+        flist.append(3)
+        self.assertEqual(3, len(flist))
+        self.assertEqual(2, flist.index(3))
+
+        flist.remove(2)
+        self.assertEqual([1, 3], flist)
+
+        flist.insert(1, 2)
+        self.assertEqual([1, 2, 3], flist)
+
+        flist.clear()
+        self.assertFalse(flist)
+
+    def test_append(self):
+        "Fluent way."
+        flist = FluentList([1]).append(2).append(3)
+        self.assertIsInstance(flist, FluentList)
+        self.assertEqual([1, 2, 3], flist)
+
+    def test_remove(self):
+        "Fluent way."
+        flist = FluentList([1, 2, 3]).remove(2)
+        self.assertIsInstance(flist, FluentList)
+        self.assertEqual([1, 3], flist)
+
+    def test_extend(self):
+        "Fluent way."
+        flist = FluentList(['1']).extend(['2', '3'])
+        self.assertIsInstance(flist, FluentList)
+        self.assertEqual(['1', '2', '3'], flist)
+
+    def test_insert(self):
+        "Fluent way."
+        flist = FluentList([1, 3]).insert(1, 2)
+        self.assertIsInstance(flist, FluentList)
+        self.assertEqual([1, 2, 3], flist)
+
+    def test_clear(self):
+        "Fluent way."
+        flist = FluentList([2, 1]).clear()
+        self.assertIsInstance(flist, FluentList)
+        self.assertFalse(flist)
+
+    def test_sort(self):
+        "Fluent way."
+        flist = FluentList([2, 1, 3]).sort()
+        self.assertIsInstance(flist, FluentList)
+        self.assertEqual([1, 2, 3], flist)
+
+    def test_reverse(self):
+        "Fluent way."
+        flist = FluentList([2, 1, 3]).reverse()
+        self.assertIsInstance(flist, FluentList)
+        self.assertEqual([3, 1, 2], flist)
+
+    def test_replace01(self):
+        flist = FluentList([1, 2])
+        flist.replace(old=1, new=3)
+        self.assertEqual([3, 2], flist)
+
+    def test_replace02(self):
+        "Other index."
+        flist = FluentList([1, 2])
+        flist.replace(old=2, new=3)
+        self.assertEqual([1, 3], flist)
+
+    def test_replace03(self):
+        "Not found."
+        flist = FluentList([1])
+
+        with self.assertRaises(ValueError):
+            flist.replace(old=2, new=3)
 
 
 class ClassKeyedMapTestCase(CremeTestCase):
