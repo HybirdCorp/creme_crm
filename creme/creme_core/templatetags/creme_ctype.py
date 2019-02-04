@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2018  Hybird
+#    Copyright (C) 2017-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,6 @@ def ctype_for_naturalkey(app_label, model):
     return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
 
 
-# @register.assignment_tag
 @register.simple_tag
 def ctype_for_swappable(model_setting):
     """Returns a instance of ContentType for a swappable model.
@@ -64,11 +63,10 @@ def ctype_for_swappable(model_setting):
 
 # TODO: ? (replace 'get_meta_value' which seems used only to retrieve verbose_name ?)
 # @register.assignment_tag(name='get_model_verbose_name')
-# def get_model_vname(model, count):
+# def ctype_verbose_name(model, count):
 #     return get_model_verbose_name(model, count)
 
 
-# @register.assignment_tag
 @register.simple_tag
 def ctype_counted_instances_label(ctype, count):
     """ Return a localized string, in order to display label like '1 Contact' or '3 Organisations'.
@@ -87,6 +85,7 @@ def ctype_counted_instances_label(ctype, count):
     )
 
 
+# TODO: what about the global registry ? take it from the context ?
 @register.filter
 def ctype_can_be_merged(ctype):
     """Indicates if 2 instances of a specific model can be used by the merging view of Creme.
@@ -102,6 +101,7 @@ def ctype_can_be_merged(ctype):
     return merge_form_registry.get(ctype.model_class()) is not None
 
 
+# TODO: what about the global registry ? take it from the context ?
 @register.filter
 def ctype_can_be_mass_imported(ctype):
     """Indicates if some instances of a specific model can be created from a CSV/XLS/... file.
@@ -117,6 +117,7 @@ def ctype_can_be_mass_imported(ctype):
     return import_form_registry.is_registered(ctype)
 
 
+# TODO: what about the global registry ? take it from the context ?
 @register.filter
 def ctype_has_quickform(ctype):
     from ..gui.quick_forms import quickforms_registry
