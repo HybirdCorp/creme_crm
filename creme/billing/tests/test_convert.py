@@ -45,10 +45,12 @@ class ConvertTestCase(_BillingTestCase):
     def test_get_models_for_conversion(self):
         self.assertEqual([], list(get_models_for_conversion('unknown')))
 
-        self.assertEqual([CreditNote, Quote, SalesOrder], list(get_models_for_conversion('invoice')))
+        # self.assertEqual([CreditNote, Quote, SalesOrder], list(get_models_for_conversion('invoice')))
+        self.assertEqual([Quote, SalesOrder], list(get_models_for_conversion('invoice')))
         self.assertEqual([], list(get_models_for_conversion('credit_note')))
         self.assertEqual([Invoice], list(get_models_for_conversion('quote')))
-        self.assertEqual([Invoice, Quote], list(get_models_for_conversion('sales_order')))
+        # self.assertEqual([Invoice, Quote], list(get_models_for_conversion('sales_order')))
+        self.assertEqual([Quote], list(get_models_for_conversion('sales_order')))
 
     @skipIfCustomAddress
     @skipIfCustomQuote
