@@ -31,7 +31,8 @@ It's recommended to use a database engine which supports transactions :
  - SQLite support is principally done for developers, but it remains a solution
    for small data-bases (eg: a use as mono-user app with the server running of your computer).
 
-You probably should use 'virtualenv'.
+You probably should use 'virtualenv' (for an upgrade from Creme 1.8, you should create a new
+virtual env, in order to keep the old one working).
 
 
 DEPENDENCIES:
@@ -87,10 +88,11 @@ INSTALL:
 Global remarks:
     - You should know how to install/deploy a Django application.
     - Upgrade note: if you already have a Creme installation, upgrade the version one by one
-      (eg: do not try to upgrade from 1.1 to 1.3, upgrade to 1.2 and then 1.3).
+      (eg: do not try to upgrade from 1.7 to 2.0, upgrade to 1.8 and then 2.0).
 
 Database configuration:
 For a new install, you have to create a new database & a new DB user (who is allowed to create/drop tables, indices...).
+For an upgrade from Creme 1.8, duplicate your existing DB.
 
 Settings:
 See the file creme/settings.py and set your parameters in a new file called 'creme/local_settings.py'.
@@ -123,6 +125,15 @@ The information from the section "EMAILS [internal]" of 'settings.py' should be 
 your 'local_settings.py' if you want that your users receive e-mails from Creme (ToDos, Alerts...).
 But these information can be filled/changed later.
 
+For an upgrade from Creme 1.8 :
+ - Copy the file local_settings.py of your existing install :
+   - do not forget to change NAME in order to use your duplicated DB.
+   - do not remove apps in INSTALLED_CREME_APPS now (because they are installed in your DB) ;
+     complete you installation & then un-install apps you do not want any more (see below).
+ - Copy the sub-folders (& their content of course) of the folder creme/media/upload from your
+   existing install to the one of your new install (if you did not use the app documents your may
+   have nothing to copy).
+
 Filling the DB tables:
 Run the following commands in the root directory:
     >> python manage.py migrate
@@ -150,3 +161,9 @@ For a production deployment (Apache, Nginx...), you should read https://docs.dja
 
 In order to use the job system (eg: sending emails campaign, CSV import...), run the job manager too:
     >> python manage.py creme_job_manager
+
+
+UNINSTALL APPS:
+
+When you have a working installation, & want to remove an (optional) app, use the command 'creme_uninstall' which will
+clean the DB. When it's done, you can comment the app in local_settings.py
