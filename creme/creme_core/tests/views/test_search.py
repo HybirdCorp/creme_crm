@@ -22,7 +22,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
     LIGHT_URL = reverse('creme_core__light_search')
 
     CONTACT_BRICKID = 'block_creme_core-found-creme_core-fakecontact'
-    ORGA_BRICKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
+    ORGA_BRICKID    = 'block_creme_core-found-creme_core-fakeorganisation'
 
     @classmethod
     def setUpClass(cls):
@@ -93,7 +93,6 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             models = ctxt['models']
-            # bricks = ctxt['blocks']
             bricks = ctxt['bricks']
             reload_url = ctxt['bricks_reload_url']
 
@@ -140,12 +139,12 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertGreaterEqual(len(context['bricks']), 2)
 
-        self.assertContains(response, ' id="{}'.format(self.CONTACT_BRICKID))
+        self.assertContains(response, ' id="{}-'.format(self.CONTACT_BRICKID))
         self.assertContains(response, self.alan.get_absolute_url())
         self.assertNotContains(response, self.linus.get_absolute_url())
         self.assertNotContains(response, self.linus2.get_absolute_url())
 
-        self.assertContains(response, ' id="{}'.format(self.ORGA_BRICKID))
+        self.assertContains(response, ' id="{}-'.format(self.ORGA_BRICKID))
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
@@ -198,11 +197,11 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self._search('cox')
         context = response.context
 
-        self.assertContains(response, ' id="{}'.format(self.ORGA_BRICKID))
+        self.assertContains(response, ' id="{}-'.format(self.ORGA_BRICKID))
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
-        self.assertNotContains(response, ' id="{}'.format(self.CONTACT_BRICKID))
+        self.assertNotContains(response, ' id="{}-'.format(self.CONTACT_BRICKID))
         self.assertNotContains(response, self.alan.get_absolute_url())
 
         vnames = {str(vname) for vname in context['models']}
@@ -311,6 +310,39 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self._search(research='', ct_id='')
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, 'creme_core/search_results.html')
+
+    def test_search14(self):
+        "String is split"
+        self.login()
+        self._setup_contacts()
+
+        response = self._search('linus torval', self.contact_ct_id)
+        self.assertEqual(200, response.status_code)
+
+        self.assertContains(response, self.linus.get_absolute_url())
+        self.assertNotContains(response, self.linus2.get_absolute_url())
+        self.assertNotContains(response, self.andrew.get_absolute_url())
+        self.assertNotContains(response, self.alan.get_absolute_url())
+
+    def test_search15(self):
+        "Grouped words."
+        self.login()
+
+        SearchConfigItem.create_if_needed(FakeOrganisation, ['name'])
+
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
+        orga1 = create_orga(name='Foobar Foundation')
+        orga2 = create_orga(name='Foobar Mega Foundation')
+        orga3 = create_orga(name='Mega Foobar Foundation')
+
+        response = self._search('"Foobar Foundation"',
+                                ct_id=ContentType.objects.get_for_model(FakeOrganisation).id,
+                               )
+        self.assertEqual(200, response.status_code)
+
+        self.assertContains(response, orga1.get_absolute_url())
+        self.assertContains(response, orga3.get_absolute_url())
+        self.assertNotContains(response, orga2.get_absolute_url())
 
     def test_reload_brick(self):
         self.login()

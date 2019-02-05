@@ -66,7 +66,7 @@ class FoundEntitiesBrick(QuerysetBrick):
 
     @staticmethod
     def parse_brick_id(brick_id):
-        "@return A ContentType instance if valid, else None"
+        "@return A ContentType instance if valid, else None."
         parts = brick_id.split('-')
         ctype = None
 
