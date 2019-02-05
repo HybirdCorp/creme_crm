@@ -273,6 +273,34 @@ class MiscTestCase(CremeTestCase):
                          '{"a": 12, "b": "--\\u003Ealert();\\u003Cscript/\\u003E"}'
                         )
 
+    def test_string_smart_split(self):
+        from creme.creme_core.utils.string import smart_split
+
+        self.assertEqual([], smart_split(''))
+        self.assertEqual(['foobar'], smart_split('foobar'))
+
+        self.assertEqual(['foo', 'bar'], smart_split('foo bar'))
+        self.assertEqual(['foo', 'bar', 'baz'], smart_split('foo bar baz'))
+
+        self.assertEqual(['foo bar', 'baz'], smart_split('"foo bar" baz'))
+        # TODO: self.assertEqual(['foo', 'bar', ' baz kuu'], smart_split('foo bar " baz kuu"'))  ?
+        self.assertEqual(['foo', 'bar', 'baz kuu'], smart_split('foo bar " baz kuu" '))
+
+        self.assertEqual(['baz'], smart_split('"" baz'))
+        self.assertEqual(['baz'], smart_split('" " baz'))
+
+        # Missing second "
+        self.assertEqual(['foo', 'bar', 'baz'], smart_split('foo bar" baz'))
+
+        # Special char \"
+        self.assertEqual(['foobar"'], smart_split(r'foobar\"'))
+        self.assertEqual(['"foobar'], smart_split(r'\"foobar'))
+
+        self.assertEqual(['foo "bar', 'baz'], smart_split('"foo \\"bar" baz'))
+
+        # Missing second " + special char \"
+        self.assertEqual(['foo', 'bar', '"baz'], smart_split('foo bar" \\"baz '))
+
 
 class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
     class DepSortable:
