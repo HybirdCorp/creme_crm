@@ -17,13 +17,15 @@ function mock_frame_create(url, noauto) {
 
 var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
 var MOCK_FRAME_CONTENT_LIST = '<div class="mock-content"><ul><li>Item 1</li><li>Item 2</li></ul></div>';
-var MOCK_FRAME_CONTENT_FORM = '<form action="mock/submit"><input type="text" id="firstname"/><input type="text" id="lastname"/></form>';
-var MOCK_FRAME_CONTENT_FORM_NOACTION = '<form action=""><input type="text" id="firstname"/><input type="text" id="lastname"/></form>';
+var MOCK_FRAME_CONTENT_FORM = '<form action="mock/submit"><input id="firstname" type="text"><input id="lastname" type="text"></form>';
+var MOCK_FRAME_CONTENT_FORM_NOACTION = '<form action=""><input id="firstname" type="text"><input id="lastname" type="text"></form>';
 var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + $.toJSON({value: 1, added: [1, 'John Doe']}) + '</json>';
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = $.toJSON({value: 1, added: [1, 'John Doe']});
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
 
-QUnit.module("creme.widget.frame.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, {
+QUnit.module("creme.widget.frame.js", new QUnitMixin(QUnitEventMixin,
+                                                     QUnitAjaxMixin,
+                                                     QUnitDialogMixin, {
     buildMockBackend: function() {
         return new creme.ajax.MockAjaxBackend({delay: 150, sync: true, name: 'creme.widget.frame.js'});
     },
@@ -59,13 +61,6 @@ QUnit.module("creme.widget.frame.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxM
     }
 }));
 
-function assertOverlay(element, status, active) {
-    var overlay = $('.ui-creme-overlay', element);
-    equal(overlay.length, active ? 1 : 0, 'has overlay');
-    equal(overlay.attr('status'), status, 'overlay status:' + status);
-    equal(overlay.hasClass('overlay-active'), active || false, 'overlay isactive');
-}
-
 QUnit.test('creme.widget.Frame.create (undefined)', function(assert) {
     var element = mock_frame_create();
 
@@ -73,7 +68,7 @@ QUnit.test('creme.widget.Frame.create (undefined)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, false);
+    this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length);
 });
 
@@ -84,7 +79,7 @@ QUnit.test('creme.widget.Frame.create (empty)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, false);
+    this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length);
 });
 
@@ -95,7 +90,7 @@ QUnit.test('creme.widget.Frame.create (url)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, false);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('h1', element).length);
 });
 
@@ -106,7 +101,7 @@ QUnit.test('creme.widget.Frame.create (404)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, '404', true);
+    this.assertOverlayState(element, {status: '404', active: true});
     equal(0, $('h1', element).length);
 });
 
@@ -117,7 +112,7 @@ QUnit.test('creme.widget.Frame.create (403)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, '403', true);
+    this.assertOverlayState(element, {status: '403', active: true});
     equal(0, $('h1', element).length);
 });
 
@@ -128,7 +123,7 @@ QUnit.test('creme.widget.Frame.create (500)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, '500', true);
+    this.assertOverlayState(element, {status: '500', active: true});
     equal(0, $('h1', element).length);
 });
 
@@ -143,19 +138,21 @@ QUnit.test('creme.widget.Frame.create (url, overlay not shown, async)', function
     equal(element.hasClass('widget-ready'), true);
     equal(element.creme().widget().options().overlay_delay, 100);
 
-    assertOverlay(element, undefined, false);
+    this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length, 'content');
 
     stop(2);
 
+    var self = this;
+
     setTimeout(function() {
-        assertOverlay(element, undefined, false);
+        self.assertOverlayState(element, {active: false});
         equal($('h1', element).length, 0);
         start();
     }, 90);
 
     setTimeout(function() {
-        assertOverlay(element, undefined);
+        self.assertOverlayState(element, {active: false});
         equal($('h1', element).length, 1);
         start();
     }, 150);
@@ -172,25 +169,27 @@ QUnit.test('creme.widget.Frame.create (url, overlay shown, async)', function(ass
     equal(element.hasClass('widget-ready'), true);
     equal(element.creme().widget().options().overlay_delay, 100);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length);
 
     stop(3);
 
+    var self = this;
+
     setTimeout(function() {
-        assertOverlay(element, undefined);
+        self.assertOverlayState(element, {active: false});
         equal(0, $('h1', element).length);
         start();
     }, 90);
 
     setTimeout(function() {
-        assertOverlay(element, 'wait', true);
+        self.assertOverlayState(element, {status: 'wait', active: true});
         equal(0, $('h1', element).length);
         start();
     }, 200);
 
     setTimeout(function() {
-        assertOverlay(element, undefined);
+        self.assertOverlayState(element, {active: false});
         equal(1, $('h1', element).length);
         start();
     }, 700);
@@ -207,25 +206,27 @@ QUnit.test('creme.widget.Frame.create (url, overlay shown, async, error)', funct
     equal(element.hasClass('widget-ready'), true);
     equal(element.creme().widget().options().overlay_delay, 100);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length);
 
     stop(3);
 
+    var self = this;
+
     setTimeout(function() {
-        assertOverlay(element, undefined);
+        self.assertOverlayState(element, {active: false});
         equal(0, $('h1', element).length);
         start();
     }, 90);
 
     setTimeout(function() {
-        assertOverlay(element, 'wait', true);
+        self.assertOverlayState(element, {status: 'wait', active: true});
         equal(0, $('h1', element).length);
         start();
     }, 150);
 
     setTimeout(function() {
-        assertOverlay(element, '403', true);
+        self.assertOverlayState(element, {status: '403', active: true});
         equal(0, $('h1', element).length);
         start();
     }, 600);
@@ -238,25 +239,25 @@ QUnit.test('creme.widget.Frame.fill', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().fill(MOCK_FRAME_CONTENT);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().fill(MOCK_FRAME_CONTENT);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().fill(MOCK_FRAME_CONTENT_LIST);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length);
     equal(1, $('ul', element).length);
 });
@@ -268,7 +269,7 @@ QUnit.test('creme.widget.Frame.reload (none)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
@@ -276,7 +277,7 @@ QUnit.test('creme.widget.Frame.reload (none)', function(assert) {
 
     element.creme().widget().reload();
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length);
     equal(1, $('ul', element).length);
 });
@@ -288,7 +289,7 @@ QUnit.test('creme.widget.Frame.reload (none, async)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
@@ -300,22 +301,24 @@ QUnit.test('creme.widget.Frame.reload (none, async)', function(assert) {
 
     stop(3);
 
+    var self = this;
+
     setTimeout(function() {
-        assertOverlay(element, undefined);
+        self.assertOverlayState(element, {active: false});
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
     }, 90);
 
     setTimeout(function() {
-        assertOverlay(element, 'wait', true);
+        self.assertOverlayState(element, {status: 'wait', active: true});
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
     }, 150);
 
     setTimeout(function() {
-        assertOverlay(element, undefined);
+        self.assertOverlayState(element, {active: false});
         equal(0, $('h1', element).length);
         equal(1, $('ul', element).length);
         start();
@@ -329,13 +332,13 @@ QUnit.test('creme.widget.Frame.reload (url)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().reload('mock/html2');
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length);
     equal(1, $('ul', element).length);
 });
@@ -347,13 +350,13 @@ QUnit.test('creme.widget.Frame.reload (url, data)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().reload('mock/custom', {});
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length);
     equal(element.html(), '<div>' + $.toJSON({url: 'mock/custom', method: 'GET', data: {}}) + '</div>');
 
@@ -369,7 +372,7 @@ QUnit.test('creme.widget.Frame.reload (url, async)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
@@ -380,22 +383,24 @@ QUnit.test('creme.widget.Frame.reload (url, async)', function(assert) {
 
     stop(3);
 
+    var self = this;
+
     setTimeout(function() {
-        assertOverlay(element, undefined);
+        self.assertOverlayState(element, {active: false});
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
     }, 90);
 
     setTimeout(function() {
-        assertOverlay(element, 'wait', true);
+        self.assertOverlayState(element, {status: 'wait', active: true});
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
     }, 150);
 
     setTimeout(function() {
-        assertOverlay(element, undefined);
+        self.assertOverlayState(element, {active: false});
         equal(0, $('h1', element).length);
         equal(1, $('ul', element).length);
         start();
@@ -409,13 +414,13 @@ QUnit.test('creme.widget.Frame.reload (invalid url)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().reload('mock/error');
 
-    assertOverlay(element, '500', true);
+    this.assertOverlayState(element, {status: '500', active: true});
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 });
@@ -426,7 +431,7 @@ QUnit.test('creme.widget.Frame.reload (invalid url, async)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
@@ -437,22 +442,24 @@ QUnit.test('creme.widget.Frame.reload (invalid url, async)', function(assert) {
 
     stop(3);
 
+    var self = this;
+
     setTimeout(function() {
-        assertOverlay(element, undefined);
+        self.assertOverlayState(element, {active: false});
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
     }, 90);
 
     setTimeout(function() {
-        assertOverlay(element, 'wait', true);
+        self.assertOverlayState(element, {status: 'wait', active: true});
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
     }, 150);
 
     setTimeout(function() {
-        assertOverlay(element, '404', true);
+        self.assertOverlayState(element, {status: '404', active: true});
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
@@ -466,7 +473,7 @@ QUnit.test('creme.widget.Frame.submit', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('form', element).length);
 
     var listeners = {
@@ -475,8 +482,12 @@ QUnit.test('creme.widget.Frame.submit', function(assert) {
     };
 
     element.creme().widget().submit($('form', element), listeners);
-    deepEqual(this.mockListenerCalls('success'), [
-        ['submit-done', MOCK_FRAME_CONTENT_FORM, 'ok', 'text/html']
+    deepEqual(this.mockFormSubmitCalls('success'), [
+        ['submit-done', {
+            content: MOCK_FRAME_CONTENT_FORM,
+            data: MOCK_FRAME_CONTENT_FORM,
+            type: 'text/html'
+        }, 'text/html']
     ], 'form html');
 });
 
@@ -489,7 +500,7 @@ QUnit.test('creme.widget.Frame.submit (empty action)', function(assert) {
 
     element.creme().widget().fill(MOCK_FRAME_CONTENT_FORM_NOACTION);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('form', element).length);
 
     var listeners = {
@@ -517,7 +528,7 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('form', element).length);
 
     var listeners = {
@@ -531,8 +542,12 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
     });
 
     element.creme().widget().submit($('form', element), listeners);
-    deepEqual(this.mockListenerCalls('success'), [
-        ['submit-done', $.toJSON({value: 1, added: [1, 'John Doe']}), 'ok', 'text/json']
+    deepEqual(this.mockFormSubmitCalls('success'), [
+        ['submit-done', {
+            content: $.toJSON({value: 1, added: [1, 'John Doe']}),
+            data: {value: 1, added: [1, 'John Doe']},
+            type: 'text/json'
+        }, 'text/json']
     ], 'form json');
 
     // {...} response
@@ -543,8 +558,12 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
 
     element.creme().widget().reload('mock/submit');
     element.creme().widget().submit($('form', element), listeners);
-    deepEqual(this.mockListenerCalls('success'), [
-        ['submit-done', $.toJSON({value: 1, added: [1, 'John Doe']}), 'ok', 'text/json']
+    deepEqual(this.mockFormSubmitCalls('success'), [
+        ['submit-done', {
+            content: $.toJSON({value: 1, added: [1, 'John Doe']}),
+            data: {value: 1, added: [1, 'John Doe']},
+            type: 'text/json'
+        }, 'text/json']
     ], 'form json no tag');
 
     // {invalid json} response
@@ -555,8 +574,12 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
 
     element.creme().widget().reload('mock/submit');
     element.creme().widget().submit($('form', element), listeners);
-    deepEqual(this.mockListenerCalls('success'), [
-        ['submit-done', MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID, 'ok', 'text/html']
+    deepEqual(this.mockFormSubmitCalls('success'), [
+        ['submit-done', {
+            content: MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID,
+            data: MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID,
+            type: 'text/html'
+        }, 'text/html']
     ], 'form json invalid');
 });
 
@@ -567,7 +590,7 @@ QUnit.test('creme.widget.Frame.submit (error)', function(assert) {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined);
+    this.assertOverlayState(element, {active: false});
     equal(1, $('form', element).length);
 
     var listeners = {

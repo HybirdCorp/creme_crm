@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2016  Hybird
+    Copyright (C) 2009-2019  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,33 @@
 
 creme.dialog = creme.dialog || {};
 
+var _defaultValidator = function(response, dataType) {
+    return !response.isHTML() || response.content.match(/<form[^>]*>/) === null;
+};
+
+var _innerPopupValidator = function(response, dataType) {
+    var content = response.content;
+
+    if (Object.isEmpty(content) || !response.isHTML()) {
+        return true;
+    }
+
+    if (content.match(/^<div[^>]+class="in-popup"[^>]*>/)) {
+        if (content.match(/^<div[^>]+closing="true"[^>]*>/)) {
+            return true;
+        }
+
+        return (content.match(/<form[^>]*>/) === null);
+    }
+
+    return false;
+};
+
+var _FORM_VALIDATORS = {
+    'default': _defaultValidator,
+    'innerpopup': _innerPopupValidator
+};
+
 creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     _init_: function(options) {
         var self = this;
@@ -38,14 +65,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
-
-        if (Object.isFunc(options.validator)) {
-            this.validator(options.validator);
-        } else if (options.validator === 'innerpopup') {
-            this.validator(this._compatibleValidator);
-        } else {
-            this.validator(this._defaultValidator);
-        }
+        this.validator(options.validator);
 
         var disable_buttons = function() {
             self._updateButtonState("send", false);
@@ -60,6 +80,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         };
 
         this._submitKeyCb = this._onSubmitKey.bind(this);
+        this._submitKey = options.submitOnKey ? options.submitOnKey : false;
     },
 
     validator: function(validator) {
@@ -67,37 +88,23 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             return this._validator;
         }
 
-        if (!Object.isFunc(validator)) {
-            throw new Error('validator is not a function');
+        var cleaned = Object.isString(validator) ? _FORM_VALIDATORS[validator] : validator;
+
+        if (!Object.isFunc(cleaned)) {
+            if (Object.isString(validator)) {
+                throw new Error('FormDialog validator "${validator}" is unknown'.template({validator: validator}));
+            } else {
+                throw new Error('FormDialog validator "${validator}" is not a function'.template({validator: validator}));
+            }
         }
 
-        this._validator = validator;
+        this._validator = cleaned.bind(this);
         return this;
     },
 
-    _defaultValidator: function(data, statusText, dataType) {
-        return !creme.utils.isHTMLDataType(dataType) || data.match(/<form[^>]*>/) === null;
-    },
-
-    _compatibleValidator: function(data, statusText, dataType) {
-        if (Object.isEmpty(data) || !creme.utils.isHTMLDataType(dataType)) {
-            return true;
-        }
-
-        if (data.match(/^<div[^>]+class="in-popup"[^>]*>/)) {
-            if (data.match(/^<div[^>]+closing="true"[^>]*>/)) {
-                return true;
-            }
-
-            return (data.match(/<form[^>]*>/) === null);
-        }
-
-        return false;
-    },
-
-    _validate: function(data, statusText, dataType) {
+    _validate: function(data, dataType) {
         var validator = this.validator();
-        return !Object.isFunc(validator) || validator(data, statusText, dataType);
+        return !Object.isFunc(validator) || validator(data, dataType);
     },
 
     _frameSubmitData: function(data) {
@@ -151,23 +158,21 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             $(':tabbable', content).blur();
         }
 
-        if (this.options.submitOnKey) {
-            content.on('keypress', this._submitKeyCb);
-        }
+        content.on('keypress', this._submitKeyCb);
     },
 
-    _onSubmitDone: function(event, data, statusText, dataType) {
-        if (this._validate(data, statusText, dataType)) {
+    _onSubmitDone: function(event, response, dataType) {
+        if (this._validate(response, dataType)) {
             this._destroyDialog();
-            this._events.trigger('form-success', [data, statusText, dataType], this);
-            return;
+
+            this._events.trigger('form-success', [response, dataType], this);
+        } else {
+            this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, response.content, dataType, 'submit');
+            this._updateButtonState("send", true, 'auto');
+            this._updateButtonState("cancel", true);
+
+            this._events.trigger('form-error', [response.content, dataType], this);
         }
-
-        this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, 'submit');
-        this._updateButtonState("send", true, 'auto');
-        this._updateButtonState("cancel", true);
-
-        this._events.trigger('form-error', [data, statusText, dataType], this);
     },
 
     _onSubmitFail: function(event, data, statusText) {
@@ -176,7 +181,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     },
 
     _onSubmitKey: function(e) {
-        if (e.keyCode === this.options.submitOnKey && $(e.target).is(':not(textarea)')) {
+        if (e.keyCode === this._submitKey && $(e.target).is(':not(textarea)')) {
             e.preventDefault();
             this.button('send').click();
         }
@@ -259,14 +264,18 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         return buttons;
     },
 
-    onFormSuccess: function(success) {
-        this._events.bind('form-success', success);
+    onFormSuccess: function(listeners) {
+        this._events.bind('form-success', listeners);
         return this;
     },
 
-    onFormError: function(error) {
-        this._events.bind('form-error', error);
+    onFormError: function(listeners) {
+        this._events.bind('form-error', listeners);
         return this;
+    },
+
+    submitKey: function(value) {
+        return Object.property(this, '_submitKey', value);
     }
 });
 
@@ -276,24 +285,21 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
         this._listeners = listeners || {};
     },
 
-    _onSubmit: function(event, data, statusText, dataType) {
-        if ($.matchIEVersion(7, 8, 9)) {
-            data = data.endsWith('</json>') || data.endsWith('</JSON>') ? data.substr(0, data.length - '</json>'.length) : data;
-            dataType = 'text/json';
-        }
-
-        this.done(data, dataType);
+    _onSubmit: function(event, response, dataType) {
+        this.done(response, dataType);
     },
 
     _buildPopup: function(options) {
         var self = this;
         options = $.extend(this.options(), options || {});
 
-        return new creme.dialog.FormDialog(options).onFormSuccess(this._onSubmit.bind(this))
-                                                   .onClose(function() {
-                                                        self.cancel();
-                                                    })
-                                                   .on(this._listeners);
+        var form = new creme.dialog.FormDialog(options).onFormSuccess(this._onSubmit.bind(this))
+                                                       .onClose(function() {
+                                                           self.cancel();
+                                                       })
+                                                       .on(this._listeners);
+
+        return form;
     },
 
     _openPopup: function(options) {

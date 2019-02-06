@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2017  Hybird
+    Copyright (C) 2009-2019  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -85,7 +85,7 @@ creme.dialog.Overlay = creme.component.Component.sub({
         return this;
     },
 
-    visible: function(visible) {
+    visible: function(visible) { 
         if (visible === undefined) {
             return this._overlay.hasClass('overlay-active');
         }
@@ -99,9 +99,9 @@ creme.dialog.Overlay = creme.component.Component.sub({
         this._overlay.toggleClass('overlay-active', visible);
 
         if (visible) {
-            /* IE Hack : remove overflow of container in order to prevent issues with unexpected 
+            /* IE Hack : remove overflow of container in order to prevent issues with unexpected
              * vertical scrollbars.
-             */ 
+             */
             this._targetOverflowX = this._target.css('overflow-x');
             this._targetOverflowY = this._target.css('overflow-y');
             this._targetPosition = this._target.css('position');
@@ -154,7 +154,7 @@ creme.dialog.Overlay = creme.component.Component.sub({
     },
 
     unbind: function() {
-        if (!this.isBound()) {
+        if (this.isBound() === false) {
             throw new Error('Overlay is not bound.');
         }
 
@@ -163,6 +163,10 @@ creme.dialog.Overlay = creme.component.Component.sub({
         this._target = undefined;
 
         return this;
+    },
+
+    target: function() {
+        return this._target;
     },
 
     isBound: function() {

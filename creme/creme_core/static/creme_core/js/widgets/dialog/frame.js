@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2017  Hybird
+    Copyright (C) 2009-2019  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -130,19 +130,32 @@ creme.dialog.FrameContentData = creme.component.Component.sub({
         return this._cleanedData || this.content;
     },
 
+    isPlainText: function() {
+        return this.type === 'text/plain';
+    },
+
+    isJSONOrObject: function() {
+        return ['application/json', 'text/json', 'object'].indexOf(this.type) !== -1;
+    },
+
     isHTMLOrElement: function() {
         return creme.utils.isHTMLDataType(this.type) || (this.type === 'object/jquery');
+    },
+
+    isHTML: function() {
+        return creme.utils.isHTMLDataType(this.type);
     }
 });
 
 creme.dialog.Frame = creme.component.Component.sub({
     _init_: function(options) {
         options = $.extend({
-            autoActivate: true
+            autoActivate: true,
+            overlayDelay: 200
         }, options || {});
 
         this._overlay = new creme.dialog.Overlay();
-        this._overlayDelay = 200;
+        this._overlayDelay = options.overlayDelay;
         this._contentReady = false;
 
         this._backend = options.backend || creme.ajax.defaultBackend();
@@ -327,9 +340,7 @@ creme.dialog.Frame = creme.component.Component.sub({
                                      self.fill(cleaned, 'submit');
                                  }
 
-                                 // TODO : send only the whole cleaned response which already contains parsed objects
-                                 // for text/html & text/json content-types.
-                                 events.trigger('submit-done', [cleaned.content, statusText, cleaned.type], this);
+                                 events.trigger('submit-done', [cleaned, cleaned.type], this);
                              },
                              function(response, error) {
                                  overlay.update(true, error ? error.status : 500, 0)
@@ -341,8 +352,12 @@ creme.dialog.Frame = creme.component.Component.sub({
         return this;
     },
 
+    isBound: function() {
+        return Object.isNone(this._delegate) === false;
+    },
+
     bind: function(delegate) {
-        if (this._delegate !== undefined) {
+        if (this.isBound()) {
             throw new Error('frame component is already bound');
         }
 
@@ -352,7 +367,7 @@ creme.dialog.Frame = creme.component.Component.sub({
     },
 
     unbind: function() {
-        if (this._delegate === undefined) {
+        if (this.isBound() === false) {
             throw new Error('frame component is not bound');
         }
 
@@ -362,11 +377,15 @@ creme.dialog.Frame = creme.component.Component.sub({
     },
 
     backend: function(backend) {
-        Object.property(this, '_backend', backend);
+        return Object.property(this, '_backend', backend);
     },
 
     delegate: function() {
         return this._delegate;
+    },
+
+    autoActivate: function(auto) {
+        return Object.property(this, '_autoActivate', auto);
     },
 
     overlay: function() {

@@ -132,7 +132,7 @@ QUnit.test('creme.bricks.Brick.action (form, submit)', function(assert) {
     this.submitFormDialog();
 
     equal(false, brick.isLoading());
-    deepEqual([['done', '', 'text/html']], this.mockListenerCalls('action-done'));
+    deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']], this.mockFormSubmitCalls('action-done'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
     deepEqual([], this.mockRedirectCalls());
 });
@@ -154,7 +154,7 @@ QUnit.test('creme.bricks.Brick.action (form, submit, redirect)', function(assert
     this.submitFormDialog();
 
     equal(false, brick.isLoading());
-    deepEqual([['done', 'mock/redirect', 'text/plain']], this.mockListenerCalls('action-done'));
+    deepEqual([['done', {content: 'mock/redirect', data: 'mock/redirect', type: 'text/plain'}, 'text/plain']], this.mockFormSubmitCalls('action-done'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
     deepEqual(['mock/redirect'], this.mockRedirectCalls());
 });
@@ -194,7 +194,7 @@ QUnit.test('creme.bricks.Brick.action (form-refresh, submit)', function(assert) 
     this.submitFormDialog();
 
     equal(false, brick.isLoading());
-    deepEqual([['done', '', 'text/html']], this.mockListenerCalls('action-done'));
+    deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']], this.mockFormSubmitCalls('action-done'));
 
     deepEqual([
         ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
@@ -229,7 +229,7 @@ QUnit.test('creme.bricks.Brick.action (add, submit)', function(assert) {
     this.submitFormDialog();
 
     equal(false, brick.isLoading());
-    deepEqual([['done', '', 'text/html']], this.mockListenerCalls('action-done'));
+    deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']], this.mockFormSubmitCalls('action-done'));
 
     deepEqual([
         ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
@@ -251,7 +251,7 @@ QUnit.test('creme.bricks.Brick.action (edit, submit)', function(assert) {
     this.submitFormDialog();
 
     equal(false, brick.isLoading());
-    deepEqual([['done', '', 'text/html']], this.mockListenerCalls('action-done'));
+    deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']], this.mockFormSubmitCalls('action-done'));
 
     deepEqual([
         ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
@@ -273,7 +273,7 @@ QUnit.test('creme.bricks.Brick.action (link, submit)', function(assert) {
     this.submitFormDialog();
 
     equal(false, brick.isLoading());
-    deepEqual([['done', '', 'text/html']], this.mockListenerCalls('action-done'));
+    deepEqual([['done', {content: '', data: '', type: 'text/html'}, 'text/html']], this.mockFormSubmitCalls('action-done'));
 
     deepEqual([
         ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]

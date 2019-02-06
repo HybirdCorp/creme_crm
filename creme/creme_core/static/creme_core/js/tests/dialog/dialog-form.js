@@ -5,6 +5,11 @@ var MOCK_FRAME_CONTENT_FORM = '<form action="mock/submit">' +
                                    '<input type="text" name="lastname" required></input>' +
                                    '<input type="submit" class="ui-creme-dialog-action"></input>' +
                                '</form>';
+var MOCK_FRAME_CONTENT_FORM_ERROR = '<form action="mock/error">' +
+                                         '<input type="text" name="firstname"></input>' +
+                                         '<input type="text" name="lastname" required></input>' +
+                                         '<input type="submit" class="ui-creme-dialog-action"></input>' +
+                                    '</form>';
 var MOCK_FRAME_CONTENT_FORM_REQUIRED = '<form action="mock/submit">' +
                                            '<input type="text" name="firstname" required></input>' +
                                            '<input type="text" name="lastname" required></input>' +
@@ -50,9 +55,8 @@ var MOCK_FRAME_CONTENT_FORM_JSON = '<form action="mock/submit/json">' +
                                         '<input type="submit" class="ui-creme-dialog-action"></input>' +
                                    '</form>';
 
-var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + $.toJSON({value: 1, added: [1, 'John Doe']}) + '</json>';
+var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>${data}</json>';
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_PRE = '<pre style="word-wrap: break-word; white-space: pre-wrap;">' + $.toJSON({value: 2, added: [5, 'John Pre']}) + '</pre>';
-var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = $.toJSON({value: 3, added: [-8, 'John NoTag']});
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
 
 QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
@@ -69,6 +73,7 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
             'mock/submit': backend.response(200, MOCK_FRAME_CONTENT_FORM),
             'mock/submit/json': backend.response(200, MOCK_FRAME_CONTENT_FORM_JSON),
             'mock/submit/button': backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
+            'mock/submit/fail': backend.response(200, MOCK_FRAME_CONTENT_FORM_ERROR),
             'mock/submit/required': backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
             'mock/submit/multi': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
             'mock/submit/multi/unnamed': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
@@ -80,26 +85,52 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
         this.setMockBackendPOST({
             'mock/submit/json': function(url, data, options) {
                 var responseType = data.responseType[0];
+                var responseData = data.responseData ? data.responseData[0] : "";
+
                 if (responseType === 'pre') {
                     return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_PRE);
-                } else if (responseType === 'notag') {
-                    return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG, {'content-type': 'text/json'});
+                } else if (responseType === 'jsontag') {
+                    return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON.template({data: responseData}));
                 } else if (responseType === 'invalid') {
                     return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID);
                 } else if (responseType === 'empty') {
                     return backend.response(200, '');
                 } else {
-                    return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON);
+                    return backend.response(200, responseData, {'content-type': 'text/json'});
                 }
             },
             'mock/submit': backend.response(200, MOCK_FRAME_CONTENT_FORM),
             'mock/submit/required': backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
             'mock/submit/button': backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
+            'mock/submit/fail': backend.response(400, 'Unable to submit this form'),
             'mock/submit/multi': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
             'mock/submit/multi/unnamed': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
             'mock/submit/multi/duplicates': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_DUPLICATES),
             'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
             'mock/error': backend.response(500, 'HTTP - Error 500')
+        });
+
+        this.mockPostSubmitRegistry = new creme.action.ActionBuilderRegistry();
+        this.mockPostSubmitRegistry.registerAll({
+            'redirect': function (url) {
+                 return new creme.component.Action(function() {
+                     creme.utils.goTo(url);
+                     this.done();
+                 });
+             },
+             'fail-it': function(url) {
+                 return new creme.component.Action(function() {
+                     this.fail();
+                 });
+             },
+             'raise-it': function(url) {
+                 throw new Error('invalid action !');
+             },
+             'cancel-it': function(url) {
+                 return new creme.component.Action(function() {
+                     this.cancel();
+                 });
+             }
         });
     },
 
@@ -112,32 +143,34 @@ QUnit.test('creme.dialog.FormDialog (default validator)', function(assert) {
     var options = {validator: 'default'};
     var dialog = new creme.dialog.FormDialog(options);
 
-    equal(dialog._defaultValidator, dialog.validator());
-    equal(true, dialog._validate('', 'success', 'text/html'));
-    equal(true, dialog._validate('<div></div>', 'success', 'text/html'));
+    ok(Object.isFunc(dialog.validator()));
 
-    equal(false, dialog._validate('<div><form></form></div>', 'success', 'text/html'));
-    equal(true, dialog._validate('"<div><form></form></div>"', 'success', 'text/json'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div></div>', 'text/html'), 'text/html'));
+
+    equal(false, dialog._validate(new creme.dialog.FrameContentData('<div><form></form></div>', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('"<div><form></form></div>"', 'text/json'), 'text/json'));
 });
 
 QUnit.test('creme.dialog.FormDialog (compatible validator)', function(assert) {
     var options = {validator: 'innerpopup'};
     var dialog = new creme.dialog.FormDialog(options);
 
-    equal(dialog._compatibleValidator, dialog.validator());
-    equal(true, dialog._validate('', 'success', 'text/html'));
-    equal(false, dialog._validate('<div></div>', 'success', 'text/html'));
-    equal(true, dialog._validate('<div class="in-popup"></div>', 'success', 'text/html'));
-    equal(true, dialog._validate('<div class="in-popup" closing="true"></div>', 'success', 'text/html'));
-    equal(true, dialog._validate('<div class="in-popup" reload="/" closing="true"></div>', 'success', 'text/html'));
-    equal(true, dialog._validate('<div closing="true" class="in-popup"></div>', 'success', 'text/html'));
-    equal(true, dialog._validate('<div  closing="true"  reload="/"   class="in-popup"></div>', 'success', 'text/html'));
+    ok(Object.isFunc(dialog.validator()));
 
-    equal(false, dialog._validate('<div><form></form></div>', 'success', 'text/html'));
-    equal(true, dialog._validate('<div class="in-popup" closing="true"><form></form></div>', 'success', 'text/html'), 'closing+form');
-    equal(true, dialog._validate('<div closing="true" class="in-popup"><form></form></div>', 'success', 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('', 'text/html'), 'text/html'));
+    equal(false, dialog._validate(new creme.dialog.FrameContentData('<div></div>', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup"></div>', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup" closing="true"></div>', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup" reload="/" closing="true"></div>', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div closing="true" class="in-popup"></div>', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div  closing="true"  reload="/"   class="in-popup"></div>', 'text/html'), 'text/html'));
 
-    equal(true, dialog._validate('"<div><form></form></div>"', 'success', 'text/json'));
+    equal(false, dialog._validate(new creme.dialog.FrameContentData('<div><form></form></div>', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div class="in-popup" closing="true"><form></form></div>', 'text/html'), 'text/html'), 'closing+form');
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div closing="true" class="in-popup"><form></form></div>', 'text/html'), 'text/html'));
+
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('"<div><form></form></div>"', 'text/json'), 'text/json'));
 });
 
 QUnit.test('creme.dialog.FormDialog (custom validator)', function(assert) {
@@ -147,23 +180,31 @@ QUnit.test('creme.dialog.FormDialog (custom validator)', function(assert) {
     var options = {validator: validateAll};
     var dialog = new creme.dialog.FormDialog(options);
 
-    equal(validateAll, dialog.validator());
-    equal(true, dialog._validate('', 'success', 'text/html'));
-    equal(true, dialog._validate('<div></div>', 'success', 'text/html'));
-    equal(true, dialog._validate('<div><form></form></div>', 'success', 'text/html'));
-    equal(true, dialog._validate('"<div><form></form></div>"', 'success', 'text/json'));
+    ok(Object.isFunc(dialog.validator()));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div></div>', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('<div><form></form></div>', 'text/html'), 'text/html'));
+    equal(true, dialog._validate(new creme.dialog.FrameContentData('"<div><form></form></div>"', 'text/html'), 'text/json'));
 });
 
 QUnit.test('creme.dialog.FormDialog (invalid validator)', function(assert) {
     var options = {validator: 'string'};
-    var dialog = new creme.dialog.FormDialog(options);
 
-    // if not a function, use default validator.
-    equal(dialog._defaultValidator, dialog.validator());
+    this.assertRaises(function() {
+        return new creme.dialog.FormDialog(options);
+    }, Error, 'Error: FormDialog validator "string" is unknown');
+
+    var dialog = new creme.dialog.FormDialog();
+
+    ok(Object.isFunc(dialog.validator()));
 
     this.assertRaises(function() {
         dialog.validator('string');
-    }, Error, 'Error: validator is not a function');
+    }, Error, 'Error: FormDialog validator "string" is unknown');
+
+    this.assertRaises(function() {
+        dialog.validator(12);
+    }, Error, 'Error: FormDialog validator "12" is not a function');
 });
 
 QUnit.test('creme.dialog.FormDialog (default button, empty form)', function(assert) {
@@ -266,7 +307,6 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons, duplicates)'
     dialog.close();
 });
 
-
 QUnit.test('creme.dialog.FormDialog (submit)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
 
@@ -294,6 +334,37 @@ QUnit.test('creme.dialog.FormDialog (submit)', function(assert) {
             lastname: ['Doe']
         }]
     ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+QUnit.test('creme.dialog.FormDialog (submit, invalid response)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/fail', backend: this.backend});
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    ok(dialog.button('send').is(':not([disabled])'));
+    ok(dialog.button('cancel').is(':not([disabled])'));
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/fail'));
+
+    dialog.submit();
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/fail'));
+
+    ok(dialog.button('send').is('[disabled]'));
+    ok(dialog.button('cancel').is(':not([disabled])'));
 });
 
 QUnit.test('creme.dialog.FormDialog (submit lastname required)', function(assert) {
@@ -510,7 +581,6 @@ QUnit.test('creme.dialog.FormDialog (submit + extra data)', function(assert) {
             custom: [true]
         }]
     ], this.mockBackendUrlCalls('mock/submit/button'));
-
 });
 
 QUnit.test('creme.dialog.FormDialog (click + submit)', function(assert) {
@@ -532,6 +602,85 @@ QUnit.test('creme.dialog.FormDialog (click + submit)', function(assert) {
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
     dialog.button('send').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+QUnit.test('creme.dialog.FormDialog (submitOnKey + submit)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({
+        url: 'mock/submit/button',
+        backend: this.backend
+    });
+
+    equal(13, dialog.submitKey());
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    dialog.content().trigger($.Event("keypress", {keyCode: 13}));
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+QUnit.test('creme.dialog.FormDialog (no submitOnKey)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({
+        url: 'mock/submit/button',
+        backend: this.backend,
+        submitOnKey: false
+    });
+
+    equal(false, dialog.submitKey());
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    // no submitkey
+    dialog.content().trigger($.Event("keypress", {keyCode: 13}));
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    dialog.submitKey(13);
+
+    equal(13, dialog.submitKey());
+    dialog.content().trigger($.Event("keypress", {keyCode: 13}));
 
     deepEqual([
         ['GET', {}],
@@ -719,18 +868,26 @@ QUnit.test('creme.dialog.FormDialog (<json>JSON</json> response)', function(asse
     dialog.onFormSuccess(this.mockListener('form-success'));
     dialog.open();
 
-    dialog.submit();
+    dialog.form().find('[name="responseType"]').val('jsontag');
+    dialog.submit({}, {
+        responseData: $.toJSON({value: 1, added: [1, 'John Doe']})
+    });
 
     deepEqual([
         ['GET', {}],
         ['POST', {
-            responseType: ['']
+            responseType: ['jsontag'],
+            responseData: [$.toJSON({value: 1, added: [1, 'John Doe']})]
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
     deepEqual([
-        ['form-success', $.toJSON({value: 1, added: [1, 'John Doe']}), 'ok', 'text/json']
-    ], this.mockListenerCalls('form-success'));
+        ['form-success', {
+            content: $.toJSON({value: 1, added: [1, 'John Doe']}),
+            data: {value: 1, added: [1, 'John Doe']},
+            type: 'text/json'
+        }, 'text/json']
+    ], this.mockFormSubmitCalls('form-success'));
 });
 
 QUnit.test('creme.dialog.FormDialog (<pre>JSON</pre> response)', function(assert) {
@@ -750,8 +907,12 @@ QUnit.test('creme.dialog.FormDialog (<pre>JSON</pre> response)', function(assert
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
     deepEqual([
-        ['form-success', $.toJSON({value: 2, added: [5, 'John Pre']}), 'ok', 'text/json']
-    ], this.mockListenerCalls('form-success'));
+        ['form-success', {
+            content: $.toJSON({value: 2, added: [5, 'John Pre']}),
+            data: {value: 2, added: [5, 'John Pre']},
+            type: 'text/json'
+        }, 'text/json']
+    ], this.mockFormSubmitCalls('form-success'));
 });
 
 QUnit.test('creme.dialog.FormDialog (JSON response)', function(assert) {
@@ -760,19 +921,25 @@ QUnit.test('creme.dialog.FormDialog (JSON response)', function(assert) {
     dialog.onFormSuccess(this.mockListener('form-success'));
     dialog.open();
 
-    dialog.form().find('[name="responseType"]').val('notag');
-    dialog.submit();
+    dialog.submit({}, {
+        responseData: $.toJSON({value: 3, added: [-8, 'John NoTag']})
+    });
 
     deepEqual([
         ['GET', {}],
         ['POST', {
-            responseType: ['notag']
+            responseType: [''],
+            responseData: [$.toJSON({value: 3, added: [-8, 'John NoTag']})]
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
     deepEqual([
-        ['form-success', $.toJSON({value: 3, added: [-8, 'John NoTag']}), 'ok', 'text/json']
-    ], this.mockListenerCalls('form-success'));
+        ['form-success', {
+            content: $.toJSON({value: 3, added: [-8, 'John NoTag']}),
+            data: {value: 3, added: [-8, 'John NoTag']},
+            type: 'text/json'
+        }, 'text/json']
+    ], this.mockFormSubmitCalls('form-success'));
 });
 
 QUnit.test('creme.dialog.FormDialog (invalid JSON response)', function(assert) {
@@ -792,8 +959,12 @@ QUnit.test('creme.dialog.FormDialog (invalid JSON response)', function(assert) {
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
     deepEqual([
-        ['form-success', '<json>{"value":1, added:[1, "John Doe"}</json>', 'ok', 'text/html']
-    ], this.mockListenerCalls('form-success'));
+        ['form-success', {
+            content: '<json>{"value":1, added:[1, "John Doe"}</json>',
+            data: '<json>{"value":1, added:[1, "John Doe"}</json>',
+            type: 'text/html'
+         }, 'text/html']
+    ], this.mockFormSubmitCalls('form-success'));
 });
 
 QUnit.test('creme.dialog.FormDialog (empty response)', function(assert) {
@@ -813,8 +984,8 @@ QUnit.test('creme.dialog.FormDialog (empty response)', function(assert) {
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
     deepEqual([
-        ['form-success', '', 'ok', 'text/html']
-    ], this.mockListenerCalls('form-success'));
+        ['form-success', {content: '', data: '', type: 'text/html'}, 'text/html']
+    ], this.mockFormSubmitCalls('form-success'));
 });
 
 }(jQuery));
