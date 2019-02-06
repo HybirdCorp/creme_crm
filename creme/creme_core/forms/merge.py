@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -111,7 +111,7 @@ class MergeWidget(Widget):
 
 class MergeField(Field):
     def __init__(self, modelform_field, model_field, user=None, *args, **kwargs):
-        super().__init__(self, widget=MergeWidget(modelform_field.widget), *args, **kwargs)
+        super().__init__(widget=MergeWidget(modelform_field.widget), *args, **kwargs)
 
         self.required = modelform_field.required
         self._original_field = modelform_field
