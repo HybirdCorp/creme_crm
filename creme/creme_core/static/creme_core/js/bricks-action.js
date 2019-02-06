@@ -84,10 +84,10 @@ creme.bricks.BrickActionLink = creme.action.ActionLink.sub({
     }
 });
 
-creme.bricks.BrickActionBuilders = creme.action.ActionBuilderRegistry.sub({
+creme.bricks.BrickActionBuilders = creme.action.DefaultActionBuilderRegistry.sub({
     _init_: function(brick) {
         this._brick = brick;
-        this._super_(creme.action.ActionBuilderRegistry, '_init_');
+        this._super_(creme.action.DefaultActionBuilderRegistry, '_init_');
     },
 
     _toggleStateAction: function(key, event, active_label, inactive_label) {
@@ -103,27 +103,6 @@ creme.bricks.BrickActionBuilders = creme.action.ActionBuilderRegistry.sub({
 
             this.done();
         });
-    },
-
-    _warningAction: function(message) {
-        return new creme.component.Action(function() {
-            var self = this;
-            creme.dialogs.warning(message)
-                         .onClose(function() {
-                             self.fail();
-                          })
-                         .open();
-        });
-    },
-
-    _updateAction: function(url, options, data) {
-        options = $.extend({action: 'post'}, options || {});
-
-        if (options.confirm) {
-            return creme.utils.confirmAjaxQuery(url, options, data);
-        } else {
-            return creme.utils.ajaxQuery(url, options, data);
-        }
     },
 
     _refreshBrickAction: function(url, options, data) {
@@ -145,20 +124,15 @@ creme.bricks.BrickActionBuilders = creme.action.ActionBuilderRegistry.sub({
     },
 
     _build_view: function(url, options, data) {
-        options = $.extend(this._brick._defaultDialogOptions(url, data.title), options || {});
+        options = $.extend({
+           title: data.title
+        }, this._brick._defaultDialogOptions(url), options || {});
 
         return new creme.bricks.DialogAction(options);
     },
 
     _build_redirect: function(url, options, data) {
-        var context = $.extend({}, data || {}, {
-            location: window.location.href.replace(/.*?:\/\/[^\/]*/g, '') // remove 'http://host.com'
-        });
-
-        return new creme.component.Action(function() {
-            creme.utils.goTo(creme.utils.templatize(url, context).render());
-            this.done();
-        });
+        return this._redirectAction(url, options, data);
     },
 
     _build_collapse: function(url, options, data, event) {
@@ -170,7 +144,7 @@ creme.bricks.BrickActionBuilders = creme.action.ActionBuilderRegistry.sub({
     },
 
     _build_form: function(url, options, data) {
-        options = $.extend({}, this._brick._defaultDialogOptions(url), options || {});
+        options = $.extend({}, this._brick._defaultDialogOptions(url, data.title), options || {});
         return new creme.bricks.FormDialogAction(options);
     },
 
@@ -192,11 +166,11 @@ creme.bricks.BrickActionBuilders = creme.action.ActionBuilderRegistry.sub({
 
     _build_delete: function(url, options, data) {
         options = $.extend({}, options || {}, {confirm: true});
-        return this._updateAction(url, options, data).onDone(this._refreshBrick.bind(this));
+        return this._postQueryAction(url, options, data).onDone(this._refreshBrick.bind(this));
     },
 
     _build_update: function(url, options, data) {
-        return this._updateAction(url, options, data).onDone(this._refreshBrick.bind(this));
+        return this._postQueryAction(url, options, data).onDone(this._refreshBrick.bind(this));
     },
 
     _build_refresh: function(url, options, data) {
@@ -204,7 +178,7 @@ creme.bricks.BrickActionBuilders = creme.action.ActionBuilderRegistry.sub({
     },
 
     _build_update_redirect: function(url, options, data) {
-        return this._updateAction(url, options, data).onDone(function(event, data, xhr) {
+        return this._postQueryAction(url, options, data).onDone(function(event, data, xhr) {
             creme.utils.goTo(data);
         });
     },

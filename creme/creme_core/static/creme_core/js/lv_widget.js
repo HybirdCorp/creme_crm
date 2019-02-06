@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2018  Hybird
+    Copyright (C) 2009-2019  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -366,10 +366,10 @@ creme.lv_widget.listViewAction = function(url, options, data) {
 };
 
 
-creme.lv_widget.ListViewActionBuilders = creme.action.ActionBuilderRegistry.sub({
+creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegistry.sub({
     _init_: function(list) {
         this._list = list;
-        this._super_(creme.action.ActionBuilderRegistry, '_init_');
+        this._super_(creme.action.DefaultActionBuilderRegistry, '_init_');
     },
 
     _defaultDialogOptions: function(url, title) {
@@ -388,16 +388,7 @@ creme.lv_widget.ListViewActionBuilders = creme.action.ActionBuilderRegistry.sub(
 
     _build_update: function(url, options, data, e) {
         var list = this._list;
-        var action;
-        options = $.extend({action: 'post'}, options || {});
-
-        if (options.confirm) {
-            action = creme.utils.confirmAjaxQuery(url, options, data);
-        } else {
-            action = creme.utils.ajaxQuery(url, options, data);
-        }
-
-        return action.onDone(function() {
+        return this._postQueryAction(url, options, data).onDone(function() {
             list.reload();
         });
     },
@@ -410,7 +401,6 @@ creme.lv_widget.ListViewActionBuilders = creme.action.ActionBuilderRegistry.sub(
 
     _build_form: function(url, options, data, e) {
         var list = this._list;
-
         options = $.extend(this._defaultDialogOptions(url), options || {});
 
         return new creme.dialog.FormDialogAction(options, {
@@ -422,11 +412,10 @@ creme.lv_widget.ListViewActionBuilders = creme.action.ActionBuilderRegistry.sub(
 
     _build_clone: function(url, options, data, e) {
         options = $.extend({
-            action: 'post',
             confirm: gettext('Do you really want to clone this entity?')
         }, options || {});
 
-        var action = creme.utils.confirmAjaxQuery(url, options, data);
+        var action = this._postQueryAction(url, options, data);
         action.onDone(function(event, data, xhr) {
             creme.utils.goTo(data);
         });
@@ -451,13 +440,7 @@ creme.lv_widget.ListViewActionBuilders = creme.action.ActionBuilderRegistry.sub(
     },
 
     _build_redirect: function(url, options, data) {
-        var context = {
-            location: window.location.href.replace(/.*?:\/\/[^\/]*/g, '') // remove 'http://host.com'
-        };
-
-        return new creme.component.Action(function() {
-            creme.utils.goTo(creme.utils.templatize(url, context).render());
-        });
+        return this._redirectAction(url, options, data);
     }
 });
 
