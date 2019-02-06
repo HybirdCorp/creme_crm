@@ -5,11 +5,13 @@
         createDynamicSelectTag: function(url, noauto) {
             var select = $('<select widget="ui-creme-dselect" class="ui-creme-dselect ui-creme-widget"/>');
 
-            if (url !== undefined)
+            if (url !== undefined) {
                 select.attr('url', url);
+            }
 
-            if (!noauto)
+            if (!noauto) {
                 select.addClass('widget-auto');
+            }
 
             return select;
         },
@@ -27,7 +29,10 @@
         },
 
         createEntitySelectorTag: function(options, noauto) {
-            var options = $.extend({label: "select a mock", labelURL: "mock/label/${id}"}, options);
+            options = $.extend({
+                label: "select a mock",
+                labelURL: "mock/label/${id}"
+            }, options || {});
 
             var select = creme.widget.buildTag($('<span/>'), 'ui-creme-entityselector', options, !noauto)
                              .append($('<button type="button"/>'))
@@ -97,6 +102,10 @@
 
         assertActive: function(element) {
             equal(element.hasClass('widget-active'), true, 'is widget active');
+        },
+
+        assertNotActive: function(element) {
+            equal(element.hasClass('widget-active'), false, 'is widget not active');
         },
 
         assertReady: function(element) {

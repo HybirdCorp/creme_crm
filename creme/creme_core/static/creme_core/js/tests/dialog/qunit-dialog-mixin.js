@@ -141,6 +141,37 @@
                          .map(function() {
                              return $(this).parents('button:first').get(0);
                          });
+        },
+
+        frameContentDataAsDict: function(response) {
+            var data = response.data();
+
+            return {
+                content: response.content,
+                data: Object.getPrototypeOf(data).jquery ? $('<div>').append(data).html() : data,
+                type: response.type
+            };
+        },
+
+        mockFormSubmitCalls: function(name) {
+            var frameContentDataAsDict = this.frameContentDataAsDict.bind(this);
+
+            return this.mockListenerCalls(name).map(function(e) {
+                return [e[0], frameContentDataAsDict(e[1]), e[2]];
+            });
+        },
+
+        assertOverlayState: function(element, expected) {
+            expected = $.extend({
+                status: undefined,
+                active: false
+            }, expected || {});
+
+            var overlay = $('.ui-creme-overlay', element);
+
+            equal(overlay.length, expected.active ? 1 : 0, 'has overlay');
+            equal(overlay.attr('status'), expected.status, 'overlay status:' + expected.status);
+            equal(overlay.hasClass('overlay-active'), expected.active, 'overlay isactive');
         }
     };
 

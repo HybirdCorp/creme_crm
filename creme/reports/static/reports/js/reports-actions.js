@@ -42,9 +42,9 @@ creme.reports.ExportReportAction = creme.component.Action.sub({
                      .on('frame-activated', function(event, frame) {
                          new creme.reports.PreviewController(options).bind(frame.delegate());
                       })
-                     .onFormSuccess(function(event, data, statusText, dataType) {
-                          self.done(data);
-                          creme.utils.goTo(data);
+                     .onFormSuccess(function(event, response, dataType) {
+                          self.done(response.content);
+                          creme.utils.goTo(response.content);
                       })
                      .onClose(function() {
                           self.cancel();
