@@ -53,7 +53,7 @@
              /
             {% endif %}
 {% comment %} TODO: fix this feature ? (in Py3 str is iterable ; can we have list ?)
-            {% if v|isiterable %}
+            {% if v|is_iterable %}
                 {{k}} : {{v.0|truncate:50}}
             {% else %}
                 {{k}} : {{v|truncate:50}}

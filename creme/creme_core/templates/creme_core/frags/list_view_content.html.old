@@ -68,7 +68,7 @@
                 {% trans 'Batch process' as label %}{% widget_icon name='batch_process' label=label size='listview-button' %}{{label}}
             </a>
             {% block extra_buttons %}{% endblock %}
-            {% if extra_bt_templates|isiterable %}
+            {% if extra_bt_templates|is_iterable %}
                 {% for templ in extra_bt_templates %}
                     {% include templ %}
                 {% endfor %}
