@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import loads as json_loads, dumps as json_dumps
+    from json import loads as json_load, dumps as json_dump
 
     from django.contrib.contenttypes.models import ContentType
 
@@ -249,17 +249,17 @@ class FieldsConfigTestCase(CremeTestCase):
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
                     content_type=ContentType.objects.get_for_model(FakeContact),
-                    raw_descriptions=json_dumps([(h_field, {FieldsConfig.HIDDEN: True}),
-                                                 ('invalid', {FieldsConfig.HIDDEN: True}),
-                                                 ]
-                                                ),
+                    raw_descriptions=json_dump([(h_field, {FieldsConfig.HIDDEN: True}),
+                                                ('invalid', {FieldsConfig.HIDDEN: True}),
+                                                ]
+                                               ),
                  )
 
         fconf = self.refresh(fconf)
         self.assertEqual(1, len(fconf.descriptions))
 
         fconf = self.refresh(fconf)
-        self.assertEqual(1, len(json_loads(fconf.raw_descriptions)))
+        self.assertEqual(1, len(json_load(fconf.raw_descriptions)))
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
 
     def test_ct_cache(self):

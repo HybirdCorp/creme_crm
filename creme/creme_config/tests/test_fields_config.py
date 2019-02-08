@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import loads as jsonloads
+    from json import loads as json_load
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
@@ -89,8 +89,8 @@ class FieldsConfigTestCase(CremeTestCase):
 
         fconf = self.refresh(fconf)
         self.assertEqual([['phone', {'hidden': True}], ['birthday', {'hidden': True}]],
-                         jsonloads(fconf.raw_descriptions)
-                        )  # TODO: meh
+                         json_load(fconf.raw_descriptions)
+                         )  # TODO: meh
 
         # test initial ------
         response = self.assertGET200(url)

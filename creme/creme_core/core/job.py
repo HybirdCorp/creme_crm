@@ -205,12 +205,15 @@ if settings.TESTS_ON:
             pass
 else:
     from functools import wraps
-    from json import dumps as json_dump, loads as json_load
+    # from json import dumps as json_dump, loads as json_load
+    from json import loads as json_load
     import traceback
     from time import sleep
 
     from redis import StrictRedis
     from redis.exceptions import RedisError
+
+    from creme.creme_core.utils.serializers import json_encode
 
     def _redis_errors_2_bool(f):
         @wraps(f)
@@ -280,7 +283,8 @@ else:
         @_redis_errors_2_bool
         def refresh_job(self, job, data):  # TODO: factorise
             logger.info('Job manager queue: request REFRESH "%s" (data=%s)', job, data)
-            self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}-{}'.format(CMD_REFRESH, job.id, json_dump(data)))
+            # self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}-{}'.format(CMD_REFRESH, job.id, json_dump(data)))
+            self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}-{}'.format(CMD_REFRESH, job.id, json_encode(data)))
 
         def get_command(self, timeout):
             # NB: can raise RedisError (ConnectionError, TimeoutError, other ?!)

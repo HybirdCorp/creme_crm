@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
-from json import loads as jsonloads, dumps as jsondumps
+from json import loads as json_load  # dumps as json_dump
 import logging
 
 from django.contrib.contenttypes.models import ContentType
@@ -27,9 +27,10 @@ from django.db.models import Model, CharField, TextField, BooleanField, Q
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
+from ..utils.serializers import json_encode
+
 from .fields import CremeUserForeignKey, CTypeForeignKey
 from .fields_config import FieldsConfig
-
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +184,8 @@ class HeaderFilter(Model):  # CremeModel ???
         return hf
 
     def _dump_cells(self, cells):
-        self.json_cells = jsondumps([cell.to_dict() for cell in cells])
+        # self.json_cells = json_dump([cell.to_dict() for cell in cells])
+        self.json_cells = json_encode([cell.to_dict() for cell in cells])
 
     @property
     def cells(self):
@@ -193,8 +195,8 @@ class HeaderFilter(Model):  # CremeModel ???
             from ..core.entity_cell import CELLS_MAP
 
             cells, errors = CELLS_MAP.build_cells_from_dicts(model=self.entity_type.model_class(),
-                                                             dicts=jsonloads(self.json_cells),
-                                                            )
+                                                             dicts=json_load(self.json_cells),
+                                                             )
 
             if errors:
                 logger.warning('HeaderFilter (id="%s") is saved with valid cells.', self.id)

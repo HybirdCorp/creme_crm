@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-from json import loads as jsonloads, dumps as jsondumps
+from json import loads as json_load # dumps as json_dump
 import logging
 
 from django.conf import settings
@@ -33,6 +33,8 @@ from django.utils.translation import ugettext_lazy as _
 from ..constants import (SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
         SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBRICK_ID)
 from ..utils import creme_entity_content_types
+from ..utils.serializers import json_encode
+
 from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
@@ -258,7 +260,8 @@ class RelationBrickItem(CremeModel):
         return rbi
 
     def _dump_cells_map(self):
-        self.json_cells_map = jsondumps(
+        # self.json_cells_map = json_dump(
+        self.json_cells_map = json_encode(
                 {ct_id: [cell.to_dict() for cell in cells]
                     for ct_id, cells in self._cells_map.items()
                 }
@@ -275,7 +278,7 @@ class RelationBrickItem(CremeModel):
             build = CELLS_MAP.build_cells_from_dicts
             total_errors = False
 
-            for ct_id, cells_as_dicts in jsonloads(self.json_cells_map).items():
+            for ct_id, cells_as_dicts in json_load(self.json_cells_map).items():
                 ct = get_ct(ct_id)
                 cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts)  # TODO: do it lazily ??
 
@@ -417,7 +420,8 @@ class CustomBrickConfigItem(CremeModel):
         return None if prefix != 'customblock' else cbci_id
 
     def _dump_cells(self, cells):
-        self.json_cells = jsondumps([cell.to_dict() for cell in cells])
+        # self.json_cells = json_dump([cell.to_dict() for cell in cells])
+        self.json_cells = json_encode([cell.to_dict() for cell in cells])
 
     # TODO: factorise with HeaderFilter.cells
     @property
@@ -427,9 +431,10 @@ class CustomBrickConfigItem(CremeModel):
         if cells is None:
             from ..core.entity_cell import CELLS_MAP
 
-            cells, errors = CELLS_MAP.build_cells_from_dicts(model=self.content_type.model_class(),
-                                                             dicts=jsonloads(self.json_cells),
-                                                            )
+            cells, errors = CELLS_MAP.build_cells_from_dicts(
+                model=self.content_type.model_class(),
+                dicts=json_load(self.json_cells),
+            )
 
             if errors:
                 logger.warning('CustomBrickConfigItem (id="%s") is saved with valid cells.', self.id)

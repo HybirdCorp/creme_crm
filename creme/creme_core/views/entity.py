@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
-from json import dumps as json_dumps
+# from json import dumps as json_dumps
 import logging
 
 from django.contrib.contenttypes.models import ContentType
@@ -49,6 +49,7 @@ from ..utils import (get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404,
 from ..utils.translation import get_model_verbose_name
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
+from ..utils.serializers import json_encode
 
 from . import generic
 from .decorators import jsonify, POST_only
@@ -833,10 +834,11 @@ def delete_entities(request):
         content_type = None
     else:
         status = min(errors)
-        message = json_dumps({'count': len(entity_ids),
-                              'errors': [msg for error_messages in errors.values() for msg in error_messages],
-                             }
-                            )
+        # message = json_dumps({
+        message = json_encode({
+            'count': len(entity_ids),
+            'errors': [msg for error_messages in errors.values() for msg in error_messages],
+        })
         content_type = 'application/json'
 
     return HttpResponse(message, content_type=content_type, status=status)

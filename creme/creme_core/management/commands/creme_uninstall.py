@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2018  Hybird
+#    Copyright (C) 2014-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from functools import wraps
 from itertools import chain
-from json import dumps as jsondumps, loads as jsonloads
+from json import loads as json_load  # dumps as json_dump
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -41,6 +41,7 @@ from creme.creme_core.models import (CremeEntity, RelationType, CremePropertyTyp
         RelationBrickItem, InstanceBrickConfigItem, BrickState)
 from creme.creme_core.utils import split_filter
 from creme.creme_core.utils.collections import LimitedList
+from creme.creme_core.utils.serializers import json_encode
 from creme.creme_core.signals import pre_uninstall_flush, post_uninstall_flush
 
 
@@ -196,7 +197,7 @@ def _uninstall_user_setting_values(sender, **kwargs):
     prefix = sender.label + '-'
 
     for user in get_user_model().objects.all():
-        d = jsonloads(user.json_settings)
+        d = json_load(user.json_settings)
         new_d = {}
         save = False
 
@@ -207,7 +208,8 @@ def _uninstall_user_setting_values(sender, **kwargs):
                 new_d[k] = v
 
         if save:
-            user.json_settings = jsondumps(new_d)
+            # user.json_settings = json_dump(new_d)
+            user.json_settings = json_encode(new_d)
             user.save()
 
 

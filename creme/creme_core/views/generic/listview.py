@@ -19,7 +19,7 @@
 ################################################################################
 
 # from itertools import chain
-from json import loads as json_load, dumps as json_dump
+from json import loads as json_load  # dumps as json_dump
 
 import logging
 # import warnings
@@ -45,6 +45,7 @@ from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.utils.queries import QSerializer  # get_q_from_dict
+from creme.creme_core.utils.serializers import json_encode
 
 from . import base
 
@@ -876,7 +877,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         except InvalidPage:
             page_obj = paginator.page()
 
-        state.page = json_dump(page_obj.info(), separators=(',', ':'))
+        state.page = json_encode(page_obj.info())
 
         return page_obj
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from collections import defaultdict
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from json import loads as json_load, dumps as json_dump
+from json import loads as json_load  # dumps as json_dump
 import warnings
 
 from django.apps import apps
@@ -44,6 +44,8 @@ from ..utils.collections import OrderedSet
 from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 # from ..utils.queries import get_q_from_dict
+from ..utils.serializers import json_encode
+
 from . import validators as f_validators
 from . import widgets as core_widgets
 
@@ -159,7 +161,8 @@ class JSONField(fields.CharField):
         return data
 
     def format_json(self, value):
-        return json_dump(value)
+        # return json_dump(value)
+        return json_encode(value)
 
     # TODO: can we remove this hack with the new widget api (since django 1.2) ??
     def from_python(self, value):
@@ -398,10 +401,11 @@ class GenericEntityField(EntityCredsJSONField):
 
     def _get_ctypes_options(self):
         create_url = partial(self._create_url, self._user)
-        return ((json_dump({'id': ctype.pk,
-                            'create': create_url(ctype),
-                            'create_label': str(ctype.model_class().creation_label),
-                           }),
+        # return ((json_dump({'id': ctype.pk,
+        return ((json_encode({'id': ctype.pk,
+                              'create': create_url(ctype),
+                              'create_label': str(ctype.model_class().creation_label),
+                             }),
                  str(ctype)
                 ) for ctype in self.get_ctypes())
 

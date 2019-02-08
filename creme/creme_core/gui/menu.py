@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import dumps as json_dump
+# from json import dumps as json_dump
 import logging
 import math
 # import warnings
@@ -33,6 +33,7 @@ from ..models import CremeEntity
 from ..templatetags.creme_widgets import get_icon_size_px, get_icon_by_name
 from ..utils.media import get_current_theme_from_context
 from ..utils.unicode_collation import collator
+from ..utils.serializers import json_encode
 
 
 logger = logging.getLogger(__name__)
@@ -734,7 +735,8 @@ class CreationFormsItem(ViewableItem):
         return format_html(
             '<a href="" class="anyform-menu-link" title="{title}" data-grouped-links="{links}">{icon}{label}</a>',
             title=_('Create an entity of any type'),
-            links=json_dump(self.as_grid(context['user'])),
+            # links=json_dump(self.as_grid(context['user'])),
+            links=json_encode(self.as_grid(context['user'])),
             icon=self.render_icon(context),
             label=self.render_label(context),
         )

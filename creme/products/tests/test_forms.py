@@ -20,7 +20,9 @@ except Exception as e:
 class CategoryFieldTestCase(FieldTestCase):
     @staticmethod
     def _build_value(cat_id, subcat_id):
-        return json_dump({'category': cat_id, 'subcategory': subcat_id})
+        return json_dump({'category': cat_id, 'subcategory': subcat_id},
+                         separators=(',', ':'),
+                        )
 
     @classmethod
     def setUpClass(cls):
