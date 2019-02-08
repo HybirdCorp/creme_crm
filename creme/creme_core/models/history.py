@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from datetime import date, time, datetime
 from decimal import Decimal
 from functools import partial
-from json import loads as jsonloads, JSONEncoder
+from json import loads as json_load, JSONEncoder
 import logging
 
 from django.contrib.contenttypes.models import ContentType
@@ -681,7 +681,7 @@ class HistoryLine(Model):
         return attrs
 
     def _read_attrs(self):
-        value = jsonloads(self.value)
+        value = json_load(self.value)
         self._entity_repr = value.pop(0)
         self._related_line_id = value.pop(0) if self.line_type.has_related_line else 0
         self._modifications = value

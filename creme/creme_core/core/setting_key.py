@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import dumps as jsondumps, loads as jsonloads
+# from json import dumps as jsondumps, loads as jsonloads
+from json import loads as json_load
 import logging
 
 from django.utils.translation import ugettext as _
 
 from ..utils import bool_from_str, bool_as_html
+from ..utils.serializers import json_encode
 
 
 logger = logging.getLogger(__name__)
@@ -154,7 +156,8 @@ class UserSettingValueManager:
     def __init__(self, user_class, user_id, json_settings):
         self._user_class = user_class
         self._user_id = user_id
-        self._values = jsonloads(json_settings)
+        # self._values = jsonloads(json_settings)
+        self._values = json_load(json_settings)
         self._read_only = True
 
     def __enter__(self):
@@ -171,7 +174,8 @@ class UserSettingValueManager:
             raise exc_value
 
         self._user_class.objects.filter(pk=self._user_id)\
-                                .update(json_settings=jsondumps(self._values))
+                                .update(json_settings=json_encode(self._values))
+                                # .update(json_settings=jsondumps(self._values))
 
         return True
 

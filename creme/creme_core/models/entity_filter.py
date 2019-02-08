@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from datetime import datetime
 from itertools import zip_longest
-from json import loads as jsonloads, dumps as jsondumps
+from json import loads as json_load  # dumps as json_dump
 import logging
 from re import compile as compile_re
 
@@ -41,6 +41,7 @@ from ..utils import update_model_instance
 from ..utils.date_range import date_range_registry
 from ..utils.dates import make_aware_dt, date_2_dict
 from ..utils.meta import is_date_field, FieldInfo
+from ..utils.serializers import json_encode
 from .creme_property import CremeProperty
 from .custom_field import CustomField, CustomFieldBoolean
 from .fields import CremeUserForeignKey, CTypeForeignKey
@@ -1031,11 +1032,12 @@ class EntityFilterCondition(Model):
 
     @property
     def decoded_value(self):
-        return jsonloads(self.value)
+        return json_load(self.value)
 
     @staticmethod
     def encode_value(value):
-        return jsondumps(value)
+        # return json_dump(value)
+        return json_encode(value)
 
     def _get_distinct_regularfield(self):
     # def _get_distinct_regularfield(self, all_conditions): TODO ?

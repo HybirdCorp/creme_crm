@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from collections import OrderedDict
 from datetime import date
-from json import loads as jsonloads, dumps as jsondumps
+from json import loads as json_load  # dumps as json_dump
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import (Field, IntegerField, CharField, TypedChoiceField,
@@ -31,6 +31,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.forms.fields import ChoiceOrCharField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.utils.dates import date_2_dict
+from creme.creme_core.utils.serializers import json_encode
 
 
 class PollLineType:
@@ -59,7 +60,7 @@ class PollLineType:
 
     @staticmethod
     def build_from_serialized_args(ptype, raw_args):
-        kwargs = jsonloads(raw_args) if raw_args else {}
+        kwargs = json_load(raw_args) if raw_args else {}
 
         return POLL_LINE_TYPES[ptype](**kwargs)
 
@@ -83,24 +84,27 @@ class PollLineType:
     def cleaned_serialized_args(self):
         "Return a cleaned copy of the args (to be used in Replies)."
         args = self._cleaned_args()
-        return jsondumps(args) if args else None
+        # return json_dump(args) if args else None
+        return json_encode(args) if args else None
 
     def decode_answer(self, raw_answer):
-        return self._cast_answer_4_decoding(jsonloads(raw_answer)) if raw_answer is not None else None
+        return self._cast_answer_4_decoding(json_load(raw_answer)) if raw_answer is not None else None
 
     def decode_condition(self, raw_cond_answer):
-        return self._cast_answer_4_decoding(jsonloads(raw_cond_answer))
+        return self._cast_answer_4_decoding(json_load(raw_cond_answer))
 
     @property
     def description(self):
         return self.verbose_name
 
     def encode_answer(self, raw_answer):
-        return jsondumps(self._cast_answer_4_encoding(raw_answer)) if raw_answer is not None else None
+        # return json_dump(self._cast_answer_4_encoding(raw_answer)) if raw_answer is not None else None
+        return json_encode(self._cast_answer_4_encoding(raw_answer)) if raw_answer is not None else None
 
     def encode_condition(self, cond_answer):
         """@param cond_answer Value of answer in condition."""
-        return jsondumps(cond_answer)
+        # return json_dump(cond_answer)
+        return json_encode(cond_answer)
 
     def _formfield(self, initial):
         if not self.editable:
@@ -109,9 +113,9 @@ class PollLineType:
         return Field()
 
     def formfield(self, initial_raw_answer):
-        return self._formfield(jsonloads(initial_raw_answer) if initial_raw_answer is not None
+        return self._formfield(json_load(initial_raw_answer) if initial_raw_answer is not None
                                else None
-                              )
+                               )
 
     def get_choices(self):
         """Get the choices that are proposed to the user for this question type.
@@ -128,7 +132,8 @@ class PollLineType:
 
     def serialized_args(self):
         args = self._args
-        return jsondumps(args) if args else None
+        # return json_dump(args) if args else None
+        return json_encode(args) if args else None
 
     def get_stats(self, raw_answer):
         answer = self.decode_answer(raw_answer)
@@ -336,7 +341,8 @@ class MultiEnumPollLineType(EnumPollLineType):
 
     def encode_condition(self, cond_answer):
         # TODO: cond_answer as list of choice (later with better operators)
-        return jsondumps([cond_answer])
+        # return json_dump([cond_answer])
+        return json_encode([cond_answer])
 
     def _formfield(self, initial):
         return MultipleChoiceField(choices=self._args['choices'], initial=initial,
@@ -365,7 +371,7 @@ class EnumOrStringPollLineType(EnumPollLineType):
         return answer if not index else [index]
 
     def decode_condition(self, raw_cond_answer):  # TODO; factorise better like decode_answer() ??
-        choice = jsonloads(raw_cond_answer)[0]  # [TODO: if len(cond_answer) > 1]
+        choice = json_load(raw_cond_answer)[0]  # [TODO: if len(cond_answer) > 1]
 
         return super()._cast_answer_4_decoding(choice) if choice else \
                ugettext('Other')
@@ -373,7 +379,8 @@ class EnumOrStringPollLineType(EnumPollLineType):
     def encode_condition(self, cond_answer):
         # NB: we use a (json) list, in order to encode complexier conditions later,
         #     eg: [0, 'My user string']
-        return jsondumps([cond_answer])
+        # return json_dump([cond_answer])
+        return json_encode([cond_answer])
 
     def _formfield(self, initial):
         return ChoiceOrCharField(choices=self._args['choices'], initial=initial)
@@ -388,7 +395,7 @@ class EnumOrStringPollLineType(EnumPollLineType):
 
     def is_condition_met(self, raw_answer, raw_cond_answer):
         return False if raw_answer is None else \
-               jsonloads(raw_answer)[0] == jsonloads(raw_cond_answer)[0]
+            json_load(raw_answer)[0] == json_load(raw_cond_answer)[0]
 
     def get_stats(self, raw_answer):
         answer = self.decode_answer(raw_answer)

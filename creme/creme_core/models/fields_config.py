@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-from json import loads as jsonloads, dumps as jsondumps
+from json import loads as json_load  # dumps as json_dump
 import logging
 
 from django.contrib.contenttypes.models import ContentType
@@ -28,6 +28,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..core.entity_cell import EntityCellRegularField
 from ..global_info import get_per_request_cache
+from ..utils.serializers import json_encode
+
 from .base import CremeModel
 from .fields import CTypeOneToOneField
 
@@ -153,8 +155,8 @@ class FieldsConfig(CremeModel):
                     ]
         """
         errors, desc = self._check_descriptions(self.content_type.model_class(),
-                                                jsonloads(self.raw_descriptions),
-                                               )
+                                                json_load(self.raw_descriptions),
+                                                )
 
         if errors:
             logger.warning('FieldsConfig: we save the corrected descriptions.')
@@ -165,9 +167,10 @@ class FieldsConfig(CremeModel):
 
     @descriptions.setter
     def descriptions(self, value):
-        self.raw_descriptions = jsondumps(
-                self._check_descriptions(self.content_type.model_class(), value)[1]
-            )
+        # self.raw_descriptions = json_dump(
+        self.raw_descriptions = json_encode(
+            self._check_descriptions(self.content_type.model_class(), value)[1]
+        )
 
     @property
     def errors_on_hidden(self):

@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json import loads as json_loads, dumps as json_dumps
+    from json import loads as json_load, dumps as json_dump
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
@@ -52,7 +52,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(1, len(hf.cells))
 
         with self.assertNoException():
-            deserialized = json_loads(hf.json_cells)
+            deserialized = json_load(hf.json_cells)
 
         self.assertEqual([{'type': 'regular_field', 'value': 'first_name'}],
                          deserialized
@@ -194,7 +194,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         json_data = hf.json_cells
 
         with self.assertNoException():
-            deserialized = json_loads(json_data)
+            deserialized = json_load(json_data)
 
         self.assertEqual([{'type': 'function_field', 'value': ffield_name},
                           {'type': 'regular_field',  'value': rfield_name},
@@ -214,7 +214,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         json_data = hf.json_cells
 
         with self.assertNoException():
-            deserialized = json_loads(json_data)
+            deserialized = json_load(json_data)
 
         self.assertEqual([{'type': 'regular_field',  'value': rfield_name}],
                          deserialized
@@ -222,8 +222,8 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         # ---------------------------------------------------------------------
         HeaderFilter.objects.filter(id=hf.id) \
-                            .update(json_cells=json_dumps([{'type': 'function_field'},
-                                                           {'type': 'regular_field', 'value': rfield_name},
+                            .update(json_cells=json_dump([{'type': 'function_field'},
+                                                          {'type': 'regular_field', 'value': rfield_name},
                                                           ]))
 
         hf = self.refresh(hf)
@@ -233,8 +233,8 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         # ---------------------------------------------------------------------
         HeaderFilter.objects.filter(id=hf.id) \
-                            .update(json_cells=json_dumps([{'type': 'function_field'},  # Not 'value' key
-                                                           {'type': 'regular_field', 'value': rfield_name},
+                            .update(json_cells=json_dump([{'type': 'function_field'},  # Not 'value' key
+                                                          {'type': 'regular_field', 'value': rfield_name},
                                                           ]))
         hf = self.refresh(hf)
         cells = hf.cells
@@ -243,8 +243,8 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         # ---------------------------------------------------------------------
         HeaderFilter.objects.filter(id=hf.id) \
-                            .update(json_cells=json_dumps([{},  # No 'type' key
-                                                           {'type': 'regular_field', 'value': rfield_name},
+                            .update(json_cells=json_dump([{},  # No 'type' key
+                                                          {'type': 'regular_field', 'value': rfield_name},
                                                           ]))
         hf = self.refresh(hf)
         cells = hf.cells
@@ -252,11 +252,11 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertIsInstance(cells[0], EntityCellRegularField)
 
         # ---------------------------------------------------------------------
-        HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dumps([1]))  # Not a dict
+        HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dump([1]))  # Not a dict
         self.assertEqual(0, len(self.refresh(hf).cells))
 
         # ---------------------------------------------------------------------
-        HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dumps(1))  # Not a list
+        HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dump(1))  # Not a list
         self.assertEqual(0, len(self.refresh(hf).cells))
 
     def test_populate_entities_fields01(self):
@@ -333,7 +333,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertCellEqual(cell1, new_cells[0])
 
         with self.assertNoException():
-            deserialized = json_loads(hf.json_cells)
+            deserialized = json_load(hf.json_cells)
 
         self.assertEqual([{'type': 'regular_field', 'value': 'last_name'}],
                          deserialized

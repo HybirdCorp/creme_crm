@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import loads as jsonloads, dumps as jsondumps
+# from json import loads as jsonloads, dumps as jsondumps
+from json import loads as json_load
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -31,6 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from ..core import validators
 from ..utils.date_period import date_period_registry, DatePeriod
+from ..utils.serializers import json_encode
 
 
 # TODO: add a form field ?? (validation)
@@ -71,7 +73,8 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
             return None
 
         if isinstance(value, str):
-            return date_period_registry.deserialize(jsonloads(value))
+            # return date_period_registry.deserialize(jsonloads(value))
+            return date_period_registry.deserialize(json_load(value))
 
         # DatePeriod instance
         return value
@@ -81,7 +84,8 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
             return None
 
         # 'basestring' instance
-        return date_period_registry.deserialize(jsonloads(value))
+        # return date_period_registry.deserialize(jsonloads(value))
+        return date_period_registry.deserialize(json_load(value))
 
     def get_db_prep_value(self, value, connection, prepared=False):
         if value is None:
@@ -90,7 +94,8 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
         if not isinstance(value, DatePeriod):
             raise ValueError('DatePeriodField: value must be a DatePeriod')
 
-        return jsondumps(value.as_dict())
+        # return jsondumps(value.as_dict())
+        return json_encode(value.as_dict())
 
     def formfield(self, **kwargs):
         from ..forms.fields import DatePeriodField as DatePeriodFormField  # Lazy loading

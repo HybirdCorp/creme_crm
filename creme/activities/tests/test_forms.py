@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import dumps as jsondumps
+    from json import dumps as json_dump
 
     from creme.creme_core.tests.forms.base import FieldTestCase
 
@@ -29,7 +29,9 @@ class ActivityTypeFieldTestCase(FieldTestCase):
                                                     )
 
     def _build_value(self, act_type_id, subtype_id=None):
-        return jsondumps({'type': act_type_id, 'sub_type': subtype_id})
+        return json_dump({'type': act_type_id, 'sub_type': subtype_id},
+                         separators=(',', ':'),
+                        )
 
     def test_format_object(self):
         atype = self.atype

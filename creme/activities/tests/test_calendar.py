@@ -3,7 +3,7 @@
 try:
     from datetime import timedelta, date
     from functools import partial
-    from json import dumps as jsondumps
+    from json import dumps as json_dump
 
     from django.core.exceptions import ValidationError
     from django.urls import reverse
@@ -215,9 +215,9 @@ class CalendarTestCase(_ActivitiesTestCase):
                                        other_user.first_name,
                                        other_user.last_name,
                                       )
-        self.assertEqual(jsondumps({filter_key: [{'name': cal2.name, 'id': cal2.id}]}),
+        self.assertEqual(json_dump({filter_key: [{'name': cal2.name, 'id': cal2.id}]}),
                          creme_calendars_by_user
-                        )
+                         )
         self.assertIs(creation_perm, True)
 
     @skipIfCustomActivity
