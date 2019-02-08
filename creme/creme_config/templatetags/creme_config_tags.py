@@ -24,8 +24,8 @@ from django.template import Library
 register = Library()
 
 
-# TODO: prefix 'config_'
-@register.filter(name='is_custom')
+# @register.filter(name='is_custom')
+@register.filter(name='config_is_custom')
 def is_custom(obj):
     return getattr(obj, 'is_custom', True)
 

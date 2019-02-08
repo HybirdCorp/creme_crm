@@ -60,7 +60,7 @@
                 {% if edit_url %}{% brick_table_action id='edit' url=edit_url %}{% endif %}
             </td>
             <td {% brick_table_data_status action %}>
-                {% brick_table_action id='delete' url=delete_url __id=object.pk enabled=object|is_custom %}
+                {% brick_table_action id='delete' url=delete_url __id=object.pk enabled=object|config_is_custom %}
             </td>
         </tr>
     {% endfor %}
