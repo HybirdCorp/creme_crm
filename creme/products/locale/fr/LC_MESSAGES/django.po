@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PRODUCTS' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Products 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 15:11+0100\n"
+"POT-Creation-Date: 2019-02-11 18:02+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: apps.py:77 apps.py:82
+#: apps.py:86 apps.py:91
 msgid "Management"
 msgstr "Gestion"
 
@@ -27,7 +27,7 @@ msgstr "Gestion"
 msgid "Images of product/service"
 msgstr "Images du produit/service"
 
-#: forms/base.py:32 forms/fields.py:68 forms/product.py:43 models/product.py:47
+#: forms/base.py:32 forms/fields.py:70 forms/product.py:43 models/product.py:47
 #: models/service.py:41
 msgid "Sub-category"
 msgstr "Sous-catégorie"
@@ -37,27 +37,27 @@ msgstr "Sous-catégorie"
 msgid "Images"
 msgstr "Images"
 
-#: forms/fields.py:57
+#: forms/fields.py:59
 msgid "Create"
 msgstr ""
 
-#: forms/fields.py:57
+#: forms/fields.py:59
 msgid "Can't create"
 msgstr ""
 
-#: forms/fields.py:65 models/product.py:46 models/service.py:40
+#: forms/fields.py:67 models/product.py:46 models/service.py:40
 msgid "Category"
 msgstr "Catégorie"
 
-#: forms/fields.py:80
+#: forms/fields.py:82
 msgid "This category doesn't exist."
 msgstr "Cette catégorie n'existe pas."
 
-#: forms/fields.py:81
+#: forms/fields.py:83
 msgid "This category causes constraint error."
 msgstr "Cette catégorie cause une erreur de contrainte."
 
-#: forms/fields.py:82
+#: forms/fields.py:84
 msgid "This sub-category causes constraint error."
 msgstr "Cette sous-catégorie cause une erreur de contrainte."
 
@@ -260,8 +260,8 @@ msgid "Android"
 msgstr "Android"
 
 #: populate.py:88
-msgid "Informatic"
-msgstr "Informatique"
+msgid "Electronics"
+msgstr "Materiel informatique"
 
 #: populate.py:89
 msgid "Laptops"
@@ -336,7 +336,7 @@ msgid "Teens"
 msgstr "Adolescents"
 
 #: populate.py:110 populate.py:116
-msgid "Baybies"
+msgid "Babies"
 msgstr "Bébés"
 
 #: populate.py:112

@@ -36,7 +36,7 @@ def populate():
     create_sector = fake_models.FakeSector.objects.create
     create_sector(title='Farming')
     create_sector(title='Industry')
-    create_sector(title='Informatic')
+    create_sector(title='Software')
 
     create_cat = fake_models.FakeImageCategory.objects.create
     create_cat(name='Product image')

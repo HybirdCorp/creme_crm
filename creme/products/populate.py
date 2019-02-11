@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ class Populator(BasePopulator):
         create_hf = HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_PRODUCT,
                   model=Product,
-                  name=_(u'Product view'),
+                  name=_('Product view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'images'}),
                               (EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'code'}),
@@ -55,7 +55,7 @@ class Populator(BasePopulator):
 
         create_hf(pk=constants.DEFAULT_HFILTER_SERVICE,
                   model=Service,
-                  name=_(u'Service view'),
+                  name=_('Service view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'images'}),
                               (EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'reference'}),
@@ -73,47 +73,47 @@ class Populator(BasePopulator):
             create_cat = Category.objects.create
             create_subcat = SubCategory.objects.create
 
-            jewelry = create_cat(name=_(u'Jewelry'))
-            create_subcat(name=_(u'Ring'),     category=jewelry)
-            create_subcat(name=_(u'Bracelet'), category=jewelry)
-            create_subcat(name=_(u'Necklace'), category=jewelry)
-            create_subcat(name=_(u'Earrings'), category=jewelry)
+            jewelry = create_cat(name=_('Jewelry'))
+            create_subcat(name=_('Ring'),     category=jewelry)
+            create_subcat(name=_('Bracelet'), category=jewelry)
+            create_subcat(name=_('Necklace'), category=jewelry)
+            create_subcat(name=_('Earrings'), category=jewelry)
 
-            mobile = create_cat(name=_(u'Mobile'))
-            create_subcat(name=_(u'Iphone'),     category=mobile)
-            create_subcat(name=_(u'Blackberry'), category=mobile)
-            create_subcat(name=_(u'Samsung'),    category=mobile)
-            create_subcat(name=_(u'Android'),    category=mobile)
+            mobile = create_cat(name=_('Mobile'))
+            create_subcat(name=_('Iphone'),     category=mobile)
+            create_subcat(name=_('Blackberry'), category=mobile)
+            create_subcat(name=_('Samsung'),    category=mobile)
+            create_subcat(name=_('Android'),    category=mobile)
 
-            informatic = create_cat(name=_(u'Informatic'))
-            create_subcat(name=_(u'Laptops'),  category=informatic)
-            create_subcat(name=_(u'Desktops'), category=informatic)
-            create_subcat(name=_(u'Tablet'),   category=informatic)
-            create_subcat(name=_(u'Notebook'), category=informatic)
+            electronics = create_cat(name=_('Electronics'))
+            create_subcat(name=_('Laptops'),  category=electronics)
+            create_subcat(name=_('Desktops'), category=electronics)
+            create_subcat(name=_('Tablet'),   category=electronics)
+            create_subcat(name=_('Notebook'), category=electronics)
 
-            travels = create_cat(name=_(u'Travels'))
-            create_subcat(name=_(u'Fly'),      category=travels)
-            create_subcat(name=_(u'Hotel'),    category=travels)
-            create_subcat(name=_(u'Week-end'), category=travels)
-            create_subcat(name=_(u'Rent'),     category=travels)
+            travels = create_cat(name=_('Travels'))
+            create_subcat(name=_('Fly'),      category=travels)
+            create_subcat(name=_('Hotel'),    category=travels)
+            create_subcat(name=_('Week-end'), category=travels)
+            create_subcat(name=_('Rent'),     category=travels)
 
-            vehicle = create_cat(name=_(u'Vehicle'))
-            create_subcat(name=_(u'Car'),   category=vehicle)
-            create_subcat(name=_(u'Moto'),  category=vehicle)
-            create_subcat(name=_(u'Boat'),  category=vehicle)
-            create_subcat(name=_(u'Plane'), category=vehicle)
+            vehicle = create_cat(name=_('Vehicle'))
+            create_subcat(name=_('Car'),   category=vehicle)
+            create_subcat(name=_('Moto'),  category=vehicle)
+            create_subcat(name=_('Boat'),  category=vehicle)
+            create_subcat(name=_('Plane'), category=vehicle)
 
-            games_toys = create_cat(name=_(u'Games & Toys'))
-            create_subcat(name=_(u'Boys'),    category=games_toys)
-            create_subcat(name=_(u'Girls'),   category=games_toys)
-            create_subcat(name=_(u'Teens'),   category=games_toys)
-            create_subcat(name=_(u'Baybies'), category=games_toys)
+            games_toys = create_cat(name=_('Games & Toys'))
+            create_subcat(name=_('Boys'),   category=games_toys)
+            create_subcat(name=_('Girls'),  category=games_toys)
+            create_subcat(name=_('Teens'),  category=games_toys)
+            create_subcat(name=_('Babies'), category=games_toys)
 
-            clothes = create_cat(name=_(u'Clothes'))
-            create_subcat(name=_(u'Men'),     category=clothes)
-            create_subcat(name=_(u'Women'),   category=clothes)
-            create_subcat(name=_(u'Kids'),    category=clothes)
-            create_subcat(name=_(u'Baybies'), category=clothes)
+            clothes = create_cat(name=_('Clothes'))
+            create_subcat(name=_('Men'),    category=clothes)
+            create_subcat(name=_('Women'),  category=clothes)
+            create_subcat(name=_('Kids'),   category=clothes)
+            create_subcat(name=_('Babies'), category=clothes)
 
         # ---------------------------
         if not BrickDetailviewLocation.config_exists(Product):  # NB: no straightforward way to test that this populate script has not been already run
