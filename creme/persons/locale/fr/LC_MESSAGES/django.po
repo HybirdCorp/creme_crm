@@ -1124,9 +1124,6 @@ msgstr "Vous devez avoir au moins une société gérée."
 #~ msgid "Field"
 #~ msgstr "Champ"
 
-#~ msgid "Informatic"
-#~ msgstr "Informatique"
-
 #~ msgid "Coordinates of a contact"
 #~ msgstr "Coordonnées d'un contact"
 
