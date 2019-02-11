@@ -1,6 +1,6 @@
  /*******************************************************************************
  * Creme is a free/open-source Customer Relationship Management software
- * Copyright (C) 2009-2017 Hybird
+ * Copyright (C) 2009-2019 Hybird
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -162,32 +162,79 @@ creme.component.Action = creme.component.Component.sub({
         return Object.property(this, '_options', options);
     },
 
-    listen: function(source) {
-        return this.after(source);
+    listen: function(source, options) {
+        return this.after(source, options);
     },
 
-    after: function(source) {
+    stack: function() {
+        var stack = [];
+        var source = this._source;
+
+        while (Object.isNone(source) === false) {
+            stack.push(source);
+            source = source._source;
+        }
+
+        return stack;
+    },
+
+    after: function(source, options) {
+        options = $.extend({
+            passArgs: false
+        }, options || {});
+
+        if (Object.isSubClassOf(source, creme.component.Action) === false) {
+            throw new Error('This is not an action instance', source);
+        }
+
+        if (Object.isNone(this._source) === false) {
+            throw new Error('Action is already after', this._source);
+        }
+
+        this._source = source;
+
         var self = this;
 
         source.onDone(function() {
-            self.start.apply(self, [source].concat(Array.copy(arguments).slice(1)));
+            self.start.apply(self, options.passArgs ? Array.copy(arguments).slice(1) : []);
         });
 
         source.onFail(function(event) {
             self._status = _ActionStatus.FAIL;
-            self._events.trigger('fail', [source].concat(Array.copy(arguments).slice(1)), self);
+            self._events.trigger('fail', Array.copy(arguments).slice(1), self);
         });
 
         source.onCancel(function(event) {
             self._status = _ActionStatus.CANCEL;
-            self._events.trigger('cancel', [source].concat(Array.copy(arguments).slice(1)), self);
+            self._events.trigger('cancel', Array.copy(arguments).slice(1), self);
         });
 
         return this;
     },
 
-    before: function(target) {
-        target.after(this);
+    before: function(target, options) {
+        target.after(this, options);
+        return this;
+    },
+
+    delegate: function(delegate) {
+        var self = this;
+
+        delegate.onDone(function() {
+            self._status = _ActionStatus.DONE;
+            self._events.trigger('done', Array.copy(arguments).slice(1), self);
+        });
+
+        delegate.onFail(function() {
+            self._status = _ActionStatus.FAIL;
+            self._events.trigger('fail', Array.copy(arguments).slice(1), self);
+        });
+
+        delegate.onCancel(function() {
+            self._status = _ActionStatus.CANCEL;
+            self._events.trigger('cancel', Array.copy(arguments).slice(1), self);
+        });
+
         return this;
     }
 });
