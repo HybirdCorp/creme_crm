@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,11 +41,16 @@ Opportunity = get_opportunity_model()
 
 
 class OpportunityCardHatBrick(Brick):
-    id_           = SimpleBrick._generate_hat_id('opportunities', 'opportunity_card')
-    dependencies  = [Opportunity, Organisation, Contact, Relation] + Activities4Card.dependencies\
-                                                                   + CommercialActs4Card.dependencies
-    relation_type_deps = [REL_SUB_EMPLOYED_BY] + Activities4Card.relation_type_deps\
-                                               + CommercialActs4Card.relation_type_deps
+    id_           = Brick._generate_hat_id('opportunities', 'opportunity_card')
+    dependencies  = [Opportunity,
+                     Organisation, Contact,
+                     Relation,
+                    ] + Activities4Card.dependencies \
+                      + CommercialActs4Card.dependencies
+    relation_type_deps = [REL_SUB_EMPLOYED_BY,
+                          constants.REL_OBJ_LINKED_CONTACT,
+                         ] + Activities4Card.relation_type_deps \
+                           + CommercialActs4Card.relation_type_deps
     verbose_name  = _('Card header block')
     template_name = 'opportunities/bricks/opportunity-hat-card.html'
 
