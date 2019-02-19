@@ -30,8 +30,16 @@ from django.utils.decorators import ContextDecorator
 
 class CaptureQueriesContext(DjangoCaptureQueriesContext):
     def __init__(self, connection=None):
-        super().__init__(connection if connection is not None else connections[DEFAULT_DB_ALIAS])
+        # super().__init__(connection if connection is not None else connections[DEFAULT_DB_ALIAS])
+        self.default_connection = connection is None
+        super().__init__(connection)
         self._captured_sql = None
+
+    def __enter__(self):
+        if self.default_connection:
+            self.connection = connections[DEFAULT_DB_ALIAS]
+
+        return super().__enter__()
 
     @property
     def captured_sql(self):
