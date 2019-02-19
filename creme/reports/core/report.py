@@ -37,6 +37,7 @@ from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
         RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
 from ..report_aggregation_registry import field_aggregation_registry
 
+# TODO: use Window/Frame to compute aggregate ?
 
 logger = logging.getLogger(__name__)
 

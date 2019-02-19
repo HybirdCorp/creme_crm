@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2018  Hybird
+#    Copyright (C) 2014-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from copy import copy
+from copy import deepcopy  # copy
 from datetime import datetime, time, timedelta
 from functools import partial, wraps
 import logging
@@ -685,13 +685,15 @@ def phonecall_workflow_postponed(request):
 
     if pcall is not None:
         # NB: we avoid a double save here (clone() + save()) by modifying our live copy before cloning
-        postponed = copy(pcall)
+        # postponed = copy(pcall)
+        postponed = deepcopy(pcall)  # NB: deepcopy to copy cache too (_state)
 
         _set_pcall_as_failed(pcall, request)
     else:
         pcall, me, person = _create_failed_pcall(request)
 
-        postponed = copy(pcall)  # NB: idem
+        # postponed = copy(pcall)  # NB: idem
+        postponed = deepcopy(pcall)  # NB: idem
         postponed.title = _('Call to {} from Creme Mobile').format(person)
         postponed.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING
         postponed.status = None

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -72,10 +72,12 @@ class EntityEmailBackend(CrudityBackend):
                                              )[0]
 
         mail = EntityEmail(status=MAIL_STATUS_SYNCHRONIZED_WAITING,
-                           body=email.body.encode('utf-8'),
-                           body_html=email.body_html.encode('utf-8'),
-                           sender=u', '.join(set(email.senders)),
-                           recipient=u', '.join(set(chain(email.tos, email.ccs))),
+                           # body=email.body.encode('utf-8'),
+                           body=email.body,
+                           # body_html=email.body_html.encode('utf-8'),
+                           body_html=email.body_html,
+                           sender=', '.join(set(email.senders)),
+                           recipient=', '.join(set(chain(email.tos, email.ccs))),
                            subject=email.subject,
                            user_id=current_user_id,
                           )

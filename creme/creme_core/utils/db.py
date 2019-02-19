@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016-2018 Hybird
+# Copyright (c) 2016-2019 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -199,15 +199,15 @@ def populate_related(instances, field_names):
         # Step 1: we group all FK related to the same model, in order to group queries.
         for instances, field_info, field in _iter_works(works):
             attr_name  = field.get_attname()
-            cache_name = field.get_cache_name()
+            # cache_name = field.get_cache_name()
 
-            # rel_model = field.rel.to
             rel_model = field.remote_field.model
             cached = global_cache[rel_model]
             new_ids = new_ids_per_model[rel_model]
 
             for instance in instances:
-                if not hasattr(instance, cache_name):
+                # if not hasattr(instance, cache_name):
+                if not field.is_cached(instance):
                     attr_id = getattr(instance, attr_name)
 
                     if attr_id and attr_id not in cached:
@@ -226,9 +226,8 @@ def populate_related(instances, field_names):
         for instances, field_info, field in _iter_works(works):
             fname = field.name
             attr_name  = field.get_attname()
-            cache_name = field.get_cache_name()
+            # cache_name = field.get_cache_name()
 
-            # get_cached = global_cache[field.rel.to].get
             get_cached = global_cache[field.remote_field.model].get
             related_instances = []
 
@@ -236,9 +235,16 @@ def populate_related(instances, field_names):
                 attr_id = getattr(instance, attr_name)
 
                 if attr_id:
-                    if hasattr(instance, cache_name):
-                        rel_instance = getattr(instance, fname)
-                    else:
+                    # if hasattr(instance, cache_name):
+                    #     rel_instance = getattr(instance, fname)
+                    # else:
+                    #     rel_instance = get_cached(attr_id)
+                    #     setattr(instance, fname, rel_instance)
+                    #
+                    # related_instances.append(rel_instance)
+                    try:
+                        rel_instance = field.get_cached_value(instance)
+                    except KeyError:
                         rel_instance = get_cached(attr_id)
                         setattr(instance, fname, rel_instance)
 

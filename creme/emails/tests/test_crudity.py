@@ -55,7 +55,7 @@ class EmailsCrudityTestCase(_EmailsTestCase):
             'limit_froms': (),
             'in_sandbox': True,
             'body_map': {},
-            'subject': u'*',
+            'subject': '*',
 
             'source':         'emails - raw',
             'verbose_source': 'Email - Raw',

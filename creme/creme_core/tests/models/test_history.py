@@ -196,7 +196,7 @@ about this fantastic animation studio."""
         hline = HistoryLine.objects.filter(type=TYPE_EDITION, entity=gainax).latest('date')
         modifs = hline.modifications
         self.assertIsInstance(modifs, list)
-        self.assertEqual(7, len(modifs))
+        self.assertEqual(7, len(modifs), modifs)
         self.assertIn(['phone', old_phone, phone], modifs)
         self.assertIn(['email', email], modifs)
         self.assertIn(['description'], modifs)

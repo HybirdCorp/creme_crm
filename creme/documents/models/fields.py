@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from copy import copy
 
 from django.conf import settings
 from django.db.models import ForeignKey, ManyToManyField, Q
@@ -43,6 +45,22 @@ def _build_limit_choices_to(extra_limit_choices_to):
     return limit_choices_to
 
 
+def _deconstruct_limit_choices_to(limit_choices_to):
+    deconstructed = copy(limit_choices_to)
+
+    if isinstance(limit_choices_to, dict):
+        deconstructed.pop('mime_type__name__startswith')
+    else:
+        assert isinstance(deconstructed, Q)
+
+        children = deconstructed.children
+
+        while children and children[0] == ('mime_type__name__startswith', 'image/'):
+           del children[0]
+
+    return deconstructed or None
+
+
 class ImageEntityForeignKey(ForeignKey):
     def __init__(self, **kwargs):
         kwargs['to'] = settings.DOCUMENTS_DOCUMENT_MODEL
@@ -52,8 +70,10 @@ class ImageEntityForeignKey(ForeignKey):
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        # kwargs.pop('to', None)
-        #  + 'limit_choices_to' stuff
+
+        limit_choices_to = kwargs.get('limit_choices_to')
+        if limit_choices_to is not None:
+            kwargs['limit_choices_to'] = _deconstruct_limit_choices_to(limit_choices_to)
 
         return name, path, args, kwargs
 
@@ -79,8 +99,11 @@ class ImageEntityManyToManyField(ManyToManyField):
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        # kwargs.pop('to', None)
-        #  + 'limit_choices_to' stuff
+
+        # TODO: factorise
+        limit_choices_to = kwargs.get('limit_choices_to')
+        if limit_choices_to is not None:
+            kwargs['limit_choices_to'] = _deconstruct_limit_choices_to(limit_choices_to)
 
         return name, path, args, kwargs
 

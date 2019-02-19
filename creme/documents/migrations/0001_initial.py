@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 import uuid
 
@@ -10,9 +9,9 @@ from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'documents', '0001_initial'),
-    #     (b'documents', '0014_v1_8__linked_folder_field_1'),
-    #     (b'documents', '0015_v1_8__linked_folder_field_2'),
+    #     ('documents', '0001_initial'),
+    #     ('documents', '0014_v1_8__linked_folder_field_1'),
+    #     ('documents', '0015_v1_8__linked_folder_field_2'),
     # ]
 
     initial = True
@@ -101,8 +100,7 @@ class Migration(migrations.Migration):
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
-                ('filedata', models.FileField(upload_to=b'upload/documents', max_length=500, verbose_name='File')),
-                # ('folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, on_delete=PROTECT, verbose_name='Folder')),
+                ('filedata', models.FileField(upload_to='upload/documents', max_length=500, verbose_name='File')),
                 ('linked_folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, on_delete=PROTECT, verbose_name='Folder')),
                 ('categories', models.ManyToManyField(to='documents.DocumentCategory', verbose_name='Categories', blank=True)),
                 ('mime_type', models.ForeignKey(to='documents.MimeType', null=True, on_delete=PROTECT,

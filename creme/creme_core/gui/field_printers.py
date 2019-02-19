@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -103,7 +103,8 @@ def print_integer(entity, fval, user, field):
     if field.choices:  # TODO: manage 'choices' for other types...
         fval = getattr(entity, 'get_{}_display'.format(field.name))()
 
-    return fval if fval is not None else ''
+    # return fval if fval is not None else ''
+    return str(fval) if fval is not None else ''
 
 
 def print_decimal(entity, fval, user, field):

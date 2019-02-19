@@ -1421,12 +1421,18 @@ class CTypeChoiceField(fields.Field):
     # TODO: ctypes_or_models ??
     def __init__(self, ctypes=(), empty_label='---------',
                  required=True, widget=None, label=None, initial=None,
-                 help_text=None,
+                 # help_text=None,
+                 help_text='',
                  to_field_name=None, limit_choices_to=None,  # TODO: manage ?
-                 *args, **kwargs):
+                 # *args, **kwargs):
+                 **kwargs):
         "@param ctypes: A sequence of ContentTypes or a callable which returns one."
-        super().__init__(required, widget, label, initial, help_text,
-                         *args, **kwargs
+        # super().__init__(required, widget, label, initial, help_text,
+        #                  *args, **kwargs
+        #                 )
+        super().__init__(required=required, widget=widget, label=label,
+                         initial=initial, help_text=help_text,
+                         **kwargs
                         )
         self.empty_label = empty_label
         self.ctypes = ctypes
