@@ -39,6 +39,7 @@ class Migration(migrations.Migration):
                 ('images', ImageEntityManyToManyField(help_text='Images embedded in emails (but not as attached).',
                                                       to=settings.DOCUMENTS_DOCUMENT_MODEL,
                                                       verbose_name='Images', blank=True,
+                                                      # limit_choices_to=models.Q(mime_type__name__startswith='image/'),
                                                      )
                 ),
                 ('user', models.ForeignKey(verbose_name='User', to=settings.AUTH_USER_MODEL, on_delete=CASCADE)),

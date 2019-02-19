@@ -29,6 +29,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextField,
         ForeignKey, OneToOneField, SET_NULL, CASCADE, FieldDoesNotExist)
+from django.db.models.base import ModelState
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.db.transaction import atomic
 from django.dispatch import receiver
@@ -205,6 +206,7 @@ class _HistoryLineType:
         backup = getattr(instance, '_instance_backup', None)
 
         if backup is not None:
+            backup['_state'] = ModelState()
             old_instance = instance.__class__()
             old_instance.__dict__ = backup
             excluded_fields = _EXCLUDED_FIELDS if isinstance(instance, CremeEntity) else ()
@@ -247,7 +249,8 @@ class _HistoryLineType:
 
     @staticmethod
     def _create_entity_backup(entity):
-        entity._instance_backup = entity.__dict__.copy()
+        entity._instance_backup = backup = entity.__dict__.copy()
+        del backup['_state']
 
     def _get_printer(self, field):
         return _PRINTERS.get(field.get_internal_type(), _basic_printer)

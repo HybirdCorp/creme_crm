@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
@@ -10,13 +9,13 @@ from creme.documents.models.fields import ImageEntityManyToManyField
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'products', '0001_initial'),
-    #     (b'products', '0003_v1_7__charfields_not_nullable_1'),
-    #     (b'products', '0004_v1_7__charfields_not_nullable_2'),
-    #     (b'products', '0005_v1_7__image_to_doc_1'),
-    #     (b'products', '0006_v1_7__image_to_doc_2'),
-    #     (b'products', '0007_v1_7__image_to_doc_3'),
-    #     (b'products', '0008_v1_7__image_to_doc_4'),
+    #     ('products', '0001_initial'),
+    #     ('products', '0003_v1_7__charfields_not_nullable_1'),
+    #     ('products', '0004_v1_7__charfields_not_nullable_2'),
+    #     ('products', '0005_v1_7__image_to_doc_1'),
+    #     ('products', '0006_v1_7__image_to_doc_2'),
+    #     ('products', '0007_v1_7__image_to_doc_3'),
+    #     ('products', '0008_v1_7__image_to_doc_4'),
     # ]
 
     initial = True
@@ -75,8 +74,10 @@ class Migration(migrations.Migration):
                 ('web_site', models.CharField(max_length=100, verbose_name='Web Site', blank=True)),
                 ('category', models.ForeignKey(on_delete=PROTECT, verbose_name='Category', to='products.Category')),
                 ('sub_category', models.ForeignKey(on_delete=PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
-                # ('images', models.ManyToManyField(related_name='ProductImages_set', verbose_name='Images', to='media_managers.Image', blank=True)),
-                ('images', ImageEntityManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Images', blank=True)),
+                ('images', ImageEntityManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Images', blank=True,
+                                                      # limit_choices_to=models.Q(mime_type__name__startswith='image/'),
+                                                     )
+                ),
             ],
             options={
                 'swappable': 'PRODUCTS_PRODUCT_MODEL',
@@ -103,8 +104,10 @@ class Migration(migrations.Migration):
                 ('web_site', models.CharField(max_length=100, verbose_name='Web Site', blank=True)),
                 ('category', models.ForeignKey(on_delete=PROTECT, verbose_name='Category', to='products.Category')),
                 ('sub_category', models.ForeignKey(on_delete=PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
-                # ('images', models.ManyToManyField(related_name='ServiceImages_set', verbose_name='Images', to='media_managers.Image', blank=True)),
-                ('images', ImageEntityManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Images', blank=True)),
+                ('images', ImageEntityManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Images', blank=True,
+                                                      # limit_choices_to=models.Q(mime_type__name__startswith='image/'),
+                                                     )
+                ),
             ],
             options={
                 'swappable': 'PRODUCTS_SERVICE_MODEL',

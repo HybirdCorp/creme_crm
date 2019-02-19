@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
@@ -8,9 +7,9 @@ from django.db.models.deletion import CASCADE
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'geolocation', '0001_initial'),
-    #     (b'geolocation', '0003_v1_7__charfields_not_null_1'),
-    #     (b'geolocation', '0004_v1_7__charfields_not_null_2'),
+    #     ('geolocation', '0001_initial'),
+    #     ('geolocation', '0003_v1_7__charfields_not_null_1'),
+    #     ('geolocation', '0004_v1_7__charfields_not_null_2'),
     # ]
 
     initial = True
@@ -31,7 +30,7 @@ class Migration(migrations.Migration):
                                                     choices=[(0, 'Not localized'),
                                                              (1, 'Manual location'),
                                                              (2, 'Partially matching location'),
-                                                             (3, b''),
+                                                             (3, ''),
                                                             ],
                                                    )
                 ),

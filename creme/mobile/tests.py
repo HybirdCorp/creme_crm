@@ -940,7 +940,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(NARROW,                           pcall.floating_type)
 
         start = self.create_datetime(utc=True, year=2014, month=4, day=22,
-                                     hour=16, minute=17, second=28
+                                     hour=16, minute=17, second=28,
                                     )
         self.assertEqual(start, pcall.start)
         self.assertEqual(start, pcall.end)

@@ -351,8 +351,9 @@ class GuiTestCase(CremeTestCase):
         orga2 = create_orga(name='God hand')
 
         get_csv_val = field_printers_registry.get_csv_field_value
-        self.assertEqual(capital, get_csv_val(orga1, 'capital', user))
-        self.assertEqual('',      get_csv_val(orga2, 'capital', user))
+        # self.assertEqual(capital, get_csv_val(orga1, 'capital', user))
+        self.assertEqual(str(capital), get_csv_val(orga1, 'capital', user))
+        self.assertEqual('',           get_csv_val(orga2, 'capital', user))
 
         # Decimal & integer with choices
         invoice = FakeInvoice.objects.create(user=user, name='Swords & shields')

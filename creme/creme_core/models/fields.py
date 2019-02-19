@@ -79,7 +79,8 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
         # DatePeriod instance
         return value
 
-    def from_db_value(self, value, expression, connection, context):
+    # def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         if value is None:
             return None
 
@@ -366,21 +367,10 @@ class RealEntityForeignKey:
             ct = ContentType.objects.get_for_id(ct_id) if ct_id else None
 
             fk_field = get_field(self._fk_field_name)
-            fk_cache_name = fk_field.get_cache_name()
 
-            if hasattr(instance, fk_cache_name):
-                entity = getattr(instance, fk_cache_name)
-
-                if entity is None:
-                    real_entity = None
-                else:
-                    self._ctype_or_die(ct)
-
-                    if entity.entity_type_id != ct.id:
-                        raise ValueError('The content type does not match this entity.')
-
-                    real_entity = entity.get_real_entity()
-            else:
+            try:
+                entity = fk_field.get_cached_value(instance)
+            except KeyError:
                 entity_id = getattr(instance, fk_field.get_attname())
 
                 if entity_id is None:
@@ -390,7 +380,17 @@ class RealEntityForeignKey:
 
                     real_entity = ct.model_class()._default_manager.get(id=entity_id)
 
-            setattr(instance, self.cache_attr, real_entity)
+                setattr(instance, self.cache_attr, real_entity)
+            else:
+                if entity is None:
+                    real_entity = None
+                else:
+                    self._ctype_or_die(ct)
+
+                    if entity.entity_type_id != ct.id:
+                        raise ValueError('The content type does not match this entity.')
+
+                    real_entity = entity.get_real_entity()
 
         return real_entity
 

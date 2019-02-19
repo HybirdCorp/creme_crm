@@ -26,7 +26,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.core.paginator import Paginator, InvalidPage  # EmptyPage
 from django.db.models.query_utils import Q
 from django.http import HttpResponse
 # from django.shortcuts import render
@@ -438,7 +438,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
      - Ordering: some columns can be used to order the list ; the chosen column
        is used as main order criterion, the model's meta ordering information are used
        as secondary criteria.
-     - Search: some columns can be used to serach within the entities and so filter
+     - Search: some columns can be used to search within the entities and so filter
        the list content.
 
     Other features :
@@ -849,11 +849,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         except (KeyError, ValueError, TypeError):
             page_number = state.page or 1
 
-        try:
-            page_obj = paginator.page(page_number)
-        except (EmptyPage, InvalidPage):
-            page_obj = paginator.page(paginator.num_pages)
-
+        page_obj = paginator.get_page(page_number)
         state.page = page_obj.number
 
         return page_obj

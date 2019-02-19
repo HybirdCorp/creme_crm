@@ -11,10 +11,10 @@ from creme.documents.models.fields import ImageEntityForeignKey
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'persons', '0001_initial'),
-    #     (b'persons', '0020_v2_0__real_entity_fks_1'),
-    #     (b'persons', '0021_v2_0__real_entity_fks_2'),
-    #     (b'persons', '0022_v2_0__real_entity_fks_3'),
+    #     ('persons', '0001_initial'),
+    #     ('persons', '0020_v2_0__real_entity_fks_1'),
+    #     ('persons', '0021_v2_0__real_entity_fks_2'),
+    #     ('persons', '0022_v2_0__real_entity_fks_3'),
     # ]
 
     initial = True
@@ -140,6 +140,7 @@ class Migration(migrations.Migration):
                 ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
                 ('image', ImageEntityForeignKey(on_delete=SET_NULL, verbose_name='Photograph', blank=True, null=True,
                                                 to=settings.DOCUMENTS_DOCUMENT_MODEL,  # TODO: remove in deconstruct ?
+                                                # limit_choices_to=models.Q(mime_type__name__startswith='image/'),
                                                ),
                 ),
                 ('is_user', models.ForeignKey(related_name='related_contact', on_delete=SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
@@ -184,6 +185,7 @@ class Migration(migrations.Migration):
                 ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
                 ('image', ImageEntityForeignKey(on_delete=SET_NULL, verbose_name='Logo', blank=True, null=True,
                                                 to=settings.DOCUMENTS_DOCUMENT_MODEL,
+                                                # limit_choices_to=models.Q(mime_type__name__startswith='image/'),
                                                )
                 ),
                 ('legal_form', models.ForeignKey(on_delete=SET_NULL, verbose_name='Legal form', blank=True, to='persons.LegalForm', null=True)),

@@ -44,7 +44,7 @@ DEPENDENCIES:
  - These python packages :
    (exact versions of Python packages are indicated in the file 'creme/requirements.txt')
      - Mandatory :
-         - Django 1.11
+         - Django 2.0
          - redis 2.10
          - python-dateutil 2.7
          - bleach 2.1

@@ -783,9 +783,9 @@ class ListViewTestCase(ViewsTestCase):
                                             ],
                                 )
 
-        context = CaptureQueriesContext()
-
-        with context:
+        # context = CaptureQueriesContext()
+        # with context:
+        with CaptureQueriesContext() as context:
             self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                data={'hfilter': hf.pk,
                                      'sort_field': cell1.key,
@@ -848,9 +848,9 @@ class ListViewTestCase(ViewsTestCase):
                                                  ],
                                      )
 
-        context = CaptureQueriesContext()
-
-        with context:
+        # context = CaptureQueriesContext()
+        # with context:
+        with CaptureQueriesContext() as context:
             response = self.assertPOST200(self.url, data={'filter': efilter.id})
 
         content = self._get_lv_content(self._get_lv_node(response))
@@ -907,11 +907,11 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        context = CaptureQueriesContext()
+        # context = CaptureQueriesContext()
         qfilter_json = QSerializer().dumps(Q(name='Bebop'))
 
-        with context:
-            response = self.assertGET200(self.url, data={'q_filter': qfilter_json})
+        # with context:
+        response = self.assertGET200(self.url, data={'q_filter': qfilter_json})
 
         lv_node = self._get_lv_node(response)
         inputs_content = self._get_lv_inputs_content(lv_node)
@@ -1156,9 +1156,10 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(seele,    orgas_set)
 
         # -------------------------------
-        context = CaptureQueriesContext()
-        with context:
-            response = self.assertPOST200(url, data=dict(data, **{cell.key: '0'}))
+        # context = CaptureQueriesContext()
+        # with context:
+        # with CaptureQueriesContext() as context:  TODO
+        response = self.assertPOST200(url, data=dict(data, **{cell.key: '0'}))
 
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop,    orgas_set)
@@ -2997,15 +2998,15 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        context = CaptureQueriesContext()
+        # context = CaptureQueriesContext()
         qfilter_json = QSerializer().dumps(Q(name='Bebop'))
 
-        with context:
-            response = self.assertGET200(reverse('creme_core__listview_popup'),
-                                         data={'ct_id': self.ctype.id,
-                                               'q_filter': qfilter_json,
-                                              },
-                                        )
+        # with context:
+        response = self.assertGET200(reverse('creme_core__listview_popup'),
+                                     data={'ct_id': self.ctype.id,
+                                           'q_filter': qfilter_json,
+                                          },
+                                    )
 
         lv_node = self._get_lv_node(response)
         inputs_content = self._get_lv_inputs_content(lv_node)
@@ -3058,15 +3059,15 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        context = CaptureQueriesContext()
+        # context = CaptureQueriesContext()
         qfilter_json = QSerializer().dumps(Q(name='Bebop'))
 
-        with context:
-            response = self.assertPOST200(reverse('creme_core__listview_popup'),
-                                          data={'ct_id': self.ctype.id,
-                                                'q_filter': qfilter_json,
-                                               },
-                                         )
+        # with context:
+        response = self.assertPOST200(reverse('creme_core__listview_popup'),
+                                      data={'ct_id': self.ctype.id,
+                                            'q_filter': qfilter_json,
+                                           },
+                                     )
 
         lv_node = self._get_lv_node(response)
         inputs_content = self._get_lv_inputs_content(lv_node)

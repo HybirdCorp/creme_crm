@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 12-01-2019 pour la version 2.1 de Creme
+:Version: 05-02-2019 pour la version 2.1 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -29,8 +29,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/1.11/.
-Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/1.11/intro/overview/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/2.0/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/2.0/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque Javascript JQuery_ ; il se peut que pour
@@ -347,17 +347,17 @@ fichier ``urls.py`` dans ``beaver/`` : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.conf.urls import url
+    from django.urls import re_path
 
     from .views import beaver
 
     urlpatterns = [
-        url(r'^beavers[/]?$', beaver.BeaversList.as_view(), name='beavers__list_beavers'),
+        re_path(r'^beavers[/]?$', beaver.BeaversList.as_view(), name='beavers__list_beavers'),
     ]
 
 Notez :
 
- - le dernier paramètre de ``url()``, qui permet de nommer notre URL. La
+ - le dernier paramètre de ``re_path()``, qui permet de nommer notre URL. La
    conventions Creme est de la forme 'mon_app' + '__list_' + 'mes_modeles' pour la
    vue en liste.
  - le '/' final de notre URL qui est optionel (c'est la politique des URLs
@@ -383,7 +383,7 @@ supprimera une fiche castor : ::
 
 
 **Note** : la méthode ``reverse()``, qui permet de retrouver une URL par le nom
-donné à la fonction ``url()`` utilisée dans notre ``urls.py``.
+donné à la fonction ``re_path()`` utilisée dans notre ``urls.py``.
 
 Nous pouvons maintenant accéder depuis notre navigateur à la liste des castors
 en la tapant à la main dans la barre d'adresse… enfin presque. En effet on nous
@@ -432,8 +432,8 @@ ramener les ``import`` au début, avec les autres directives ``import`` bien sû
 Rajoutons l'entrée qui référence ``beaver.BeaverCreation`` dans ``beavers/urls.py`` : ::
 
     urlpatterns = [
-        url(r'^beavers[/]?$',    beaver.listview,                 name='beavers__list_beavers'),
-        url(r'^beaver/add[/]?$', beaver.BeaverCreation.as_view(), name='beavers__create_beaver'),
+        re_path(r'^beavers[/]?$',    beaver.listview,                 name='beavers__list_beavers'),
+        re_path(r'^beaver/add[/]?$', beaver.BeaverCreation.as_view(), name='beavers__create_beaver'),
     ]
 
 
@@ -478,9 +478,9 @@ Ajoutons cette classe de vue (dans ``views/beaver.py`` donc, si vous suivez) : :
 Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette URL : ::
 
     urlpatterns = [
-        url(r'^beavers[/]?$',                   beaver.listview,                 name='beavers__list_beavers'),
-        url(r'^beaver/add[/]?$',                beaver.EntityCreation.as_view(), name='beavers__create_beaver'),
-        url(r'^beaver/(?P<beaver_id>\d+)[/]?$', beaver.BeaverDetail.as_view(),   name='beavers__view_beaver'),  # < -- NEW
+        re_path(r'^beavers[/]?$',                   beaver.listview,                 name='beavers__list_beavers'),
+        re_path(r'^beaver/add[/]?$',                beaver.EntityCreation.as_view(), name='beavers__create_beaver'),
+        re_path(r'^beaver/(?P<beaver_id>\d+)[/]?$', beaver.BeaverDetail.as_view(),   name='beavers__view_beaver'),  # < -- NEW
     ]
 
 En rafraîchissant notre page dans le navigateur, nous obtenons bien la vue
@@ -518,10 +518,10 @@ Ajoutons cette vue dans ``views/beaver.py`` : ::
 Rajoutons l'URL associée : ::
 
     urlpatterns = [
-        url(r'^beavers[/]?$',                        beaver.listview,                 name='beavers__list_beavers'),
-        url(r'^beaver/add[/]?$',                     beaver.EntityCreation.as_view(), name='beavers__create_beaver'),
-        url(r'^beaver/edit/(?P<beaver_id>\d+)[/]?$', beaver.BeaverEdition.as_view(),  name='beavers__edit_beaver'),  # < -- NEW
-        url(r'^beaver/(?P<beaver_id>\d+)[/]?$',      beaver.BeaverDetail.as_view(),   name='beavers__view_beaver'),
+        re_path(r'^beavers[/]?$',                        beaver.listview,                 name='beavers__list_beavers'),
+        re_path(r'^beaver/add[/]?$',                     beaver.EntityCreation.as_view(), name='beavers__create_beaver'),
+        re_path(r'^beaver/edit/(?P<beaver_id>\d+)[/]?$', beaver.BeaverEdition.as_view(),  name='beavers__edit_beaver'),  # < -- NEW
+        re_path(r'^beaver/(?P<beaver_id>\d+)[/]?$',      beaver.BeaverDetail.as_view(),   name='beavers__view_beaver'),
     ]
 
 
@@ -1435,10 +1435,10 @@ Dans ``beavers/urls.py`` : ::
 
     [...]
 
-        url(r'^ticket/add/(?P<beaver_id>\d+)[/]?$',
-            ticket.VeterinaryTicketCreation.as_view(),
-            name='beavers__create_ticket',
-           ),  # <- NEW
+        re_path(r'^ticket/add/(?P<beaver_id>\d+)[/]?$',
+                ticket.VeterinaryTicketCreation.as_view(),
+                name='beavers__create_ticket',
+               ),  # <- NEW
 
     [...]
 
@@ -2146,16 +2146,16 @@ Par exemple : ::
 
     urlpatterns += swap_manager.add_group(
         tickets.ticket_model_is_custom,
-        Swappable(url(r'^tickets[/]?$',                        ticket.listview,                 name='tickets__list_tickets')),
-        Swappable(url(r'^ticket/add[/]?$',                     ticket.TicketCreation.as_view(), name='tickets__create_ticket')),
-        Swappable(url(r'^ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.TicketEdition.as_view(),  name='tickets__edit_ticket'), check_args=Swappable.INT_ID),
-        Swappable(url(r'^ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(),   name='tickets__view_ticket'), check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^tickets[/]?$',                        ticket.listview,                 name='tickets__list_tickets')),
+        Swappable(re_path(r'^ticket/add[/]?$',                     ticket.TicketCreation.as_view(), name='tickets__create_ticket')),
+        Swappable(re_path(r'^ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.TicketEdition.as_view(),  name='tickets__edit_ticket'), check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(),   name='tickets__view_ticket'), check_args=Swappable.INT_ID),
         app_name='tickets',
     ).kept_patterns()
 
     [...]
 
-Ces URLs (en effet, on voit que ``url()`` est appelé, même si le code est
+Ces URLs (en effet, on voit que ``re_path()`` est appelé, même si le code est
 enveloppé dans d'autres appels) ne sont définies que lorsque le modèle ``Ticket``
 n'est pas personnalisé.
 
@@ -2171,16 +2171,16 @@ pouvons définir ``my_tickets/urls.py`` tel que : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.conf.urls import url
+    from django.urls import re_path
 
     from creme.tickets.views import ticket
 
 
     urlpatterns += [
-        url(r'^my_tickets[/]?$',                        ticket.listview,                 name='tickets__list_tickets'),
-        url(r'^my_ticket/add[/]?$',                     ticket.TicketCreation.as_view(), name='tickets__create_ticket'),
-        url(r'^my_ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.TicketEdition.as_view(),  name='tickets__edit_ticket'),
-        url(r'^my_ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(),   name='tickets__view_ticket'),
+        re_path(r'^my_tickets[/]?$',                        ticket.listview,                 name='tickets__list_tickets'),
+        re_path(r'^my_ticket/add[/]?$',                     ticket.TicketCreation.as_view(), name='tickets__create_ticket'),
+        re_path(r'^my_ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.TicketEdition.as_view(),  name='tickets__edit_ticket'),
+        re_path(r'^my_ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(),   name='tickets__view_ticket'),
     ]
 
 **Note** : l'important est de définir des URLs avec le même *name* (utilisé par
@@ -2299,8 +2299,11 @@ Par exemple, vous voulez modifier la vue de création d'un mémo. Dans
     [...]
 
     urlpatterns = [
-        url(r'^memo/', include([
-            url(r'^add/(?P<entity_id>\d+)[/]?$', memo.MemoCreation.as_view(),  name='assistants__create_memo'),
+        re_path(r'^memo/', include([
+            re_path(r'^add/(?P<entity_id>\d+)[/]?$',
+                    memo.MemoCreation.as_view(),
+                    name='assistants__create_memo',
+                   ),
             [...]
         ])),
 
@@ -2312,7 +2315,7 @@ Dans votre app (qui doit être avant ``creme.assistants.py`` dans
 ``settings.INSTALLED_CREME_APPS``, vous déclarez donc l'URL suivante : ::
 
     urlpatterns = [
-        url(r'^my_memo/add/(?P<entity_id>\d+)[/]?$', views.MyMemoCreation.as_view(), name='assistants__create_memo'),
+        re_path(r'^my_memo/add/(?P<entity_id>\d+)[/]?$', views.MyMemoCreation.as_view(), name='assistants__create_memo'),
 
         [...]
     ]
@@ -2346,14 +2349,14 @@ nous allons préciser le préfixe des URLs de cette manière : ::
 
 Puis dans ``my_assistants/urls.py`` : ::
 
-    from django.conf.urls import url
+    from django.urls import re_path
 
     from . import views
 
     urlpatterns = [
         # Notez que l'URL doit être la même que l'original.
         # Dans notre cas, plus de 'my_memo/', remplacé par un 'memo/' comme dans "assistants"
-        url(r'^memo/add/(?P<entity_id>\d+)[/]?$', views.MyMemoCreation.as_view(), name='assistants__create_memo'),
+        re_path(r'^memo/add/(?P<entity_id>\d+)[/]?$', views.MyMemoCreation.as_view(), name='assistants__create_memo'),
     ]
 
 
@@ -2376,17 +2379,17 @@ d'autres parties de ce document.
 Creme vous fournit une vue générique qui va renvoyer à l'utilisateur une page
 d'erreur : ::
 
-    from django.conf.urls import url
+    from django.urls import re_path
 
     from creme.creme_core.views.generic.placeholder import ErrorView
 
     urlpatterns = [
         # Notez que l'URL doit être la même que l'original.
         # Dans notre cas, plus de 'my_memo/', remplacé par un 'memo/' comme dans "assistants"
-        url(r'^memo/add/(?P<entity_id>\d+)[/]?$',
-            ErrorView.as_view(message='Memo are only created by ERP.'),
-            name='assistants__create_memo',
-           ),
+        re_path(r'^memo/add/(?P<entity_id>\d+)[/]?$',
+                ErrorView.as_view(message='Memo are only created by ERP.'),
+                name='assistants__create_memo',
+               ),
     ]
 
 
