@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ import logging
 # import warnings
 
 from django.db.models import ProtectedError
+from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -217,9 +218,10 @@ def delete_activity(request):
     request.user.has_perm_to_change_or_die(rel2.object_entity.get_real_entity())  # Project task
 
     try:
-        rel1.delete()
-        rel2.delete()
-        activity.delete()
+        with atomic():
+            rel1.delete()
+            rel2.delete()
+            activity.delete()
     except ProtectedError:
         logger.exception('Error when deleting an activity of project')
         status = 409
