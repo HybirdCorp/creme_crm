@@ -101,15 +101,17 @@ entity_filter_patterns = [
         name='creme_core__ctypes_compatible_with_rtype_as_choices',
        ),
 
-    re_path(r'^get_for_ctype[/]?$', entity_filter.get_for_ctype,             name='creme_core__efilters'),  # TODO: /json ?
-    re_path(r'^users/json[/]?$',    entity_filter.UserChoicesView.as_view(), name='creme_core__efilter_user_choices'),
+    # re_path(r'^get_for_ctype[/]?$', entity_filter.get_for_ctype, name='creme_core__efilters'),
+    re_path(r'^get_for_ctype[/]?$', entity_filter.EntityFilterChoices.as_view(), name='creme_core__efilters'),  # TODO: /json ?
+    re_path(r'^users/json[/]?$',    entity_filter.UserChoicesView.as_view(),     name='creme_core__efilter_user_choices'),
 ]
 
 headerfilter_patterns = [
     re_path(r'^add/(?P<ct_id>\d+)[/]?$',          header_filter.HeaderFilterCreation.as_view(), name='creme_core__create_hfilter'),
     re_path(r'^edit/(?P<hfilter_id>[\w-]+)[/]?$', header_filter.HeaderFilterEdition.as_view(),  name='creme_core__edit_hfilter'),
     re_path(r'^delete[/]?$',                      header_filter.delete,                         name='creme_core__delete_hfilter'),
-    re_path(r'^get_for_ctype[/]?$',               header_filter.get_for_ctype,                  name='creme_core__hfilters'),
+    # re_path(r'^get_for_ctype[/]?$',               header_filter.get_for_ctype,                  name='creme_core__hfilters'),
+    re_path(r'^get_for_ctype[/]?$',               header_filter.HeaderFilterChoices.as_view(),  name='creme_core__hfilters'),
 ]
 
 enumerable_patterns = [

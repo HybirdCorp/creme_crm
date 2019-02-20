@@ -173,21 +173,53 @@ def get_content_types(request, rtype_id):
     return choices
 
 
-@login_required
-@jsonify
-def get_for_ctype(request):
-    GET = request.GET
-    ct_id = utils.get_from_GET_or_404(GET, 'ct_id', int)
-    include_all = utils.get_from_GET_or_404(GET, 'all', cast=utils.bool_from_str_extended, default='0')
-    ct = utils.get_ct_or_404(ct_id)
-    user = request.user
+# @login_required
+# @jsonify
+# def get_for_ctype(request):
+#     GET = request.GET
+#     ct_id = utils.get_from_GET_or_404(GET, 'ct_id', int)
+#     include_all = utils.get_from_GET_or_404(GET, 'all', cast=utils.bool_from_str_extended, default='0')
+#     ct = utils.get_ct_or_404(ct_id)
+#     user = request.user
+#
+#     user.has_perm_to_access_or_die(ct.app_label)
+#
+#     choices = [('', ugettext('All'))] if include_all else []
+#     choices.extend(EntityFilter.get_for_user(user, ct).values_list('id', 'name'))
+#
+#     return choices
+class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
+    response_class = CremeJsonResponse
+    ctype_id_arg = 'ct_id'
+    include_all_arg = 'all'
+    all_label = _('All')  # TODO: pgettext_lazy (in other places too)
 
-    user.has_perm_to_access_or_die(ct.app_label)
+    def check_related_ctype(self, ctype):
+        self.request.user.has_perm_to_access_or_die(ctype.app_label)
 
-    choices = [('', ugettext('All'))] if include_all else []
-    choices.extend(EntityFilter.get_for_user(user, ct).values_list('id', 'name'))
+    def get_ctype_id(self):
+        return utils.get_from_GET_or_404(self.request.GET, self.ctype_id_arg, int)
 
-    return choices
+    def get_include_all(self):
+        return utils.get_from_GET_or_404(self.request.GET,
+                                         key=self.include_all_arg,
+                                         cast=utils.bool_from_str_extended,
+                                         default='0',
+                                        )
+
+    def get_choices(self):
+        choices = [('', self.all_label)] if self.get_include_all() else []
+        choices.extend(EntityFilter.get_for_user(self.request.user, self.get_ctype())
+                                   .values_list('id', 'name')
+                      )
+
+        return choices
+
+    def get(self, request, *args, **kwargs):
+        return self.response_class(
+            self.get_choices(),
+            safe=False,  # Result is not a dictionary
+        )
 
 
 class UserChoicesView(base.CheckedView):

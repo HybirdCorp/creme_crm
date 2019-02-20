@@ -28,10 +28,12 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from .. import utils
 from ..auth.decorators import login_required
 from ..forms import header_filter as hf_forms
+from ..http import CremeJsonResponse
 from ..models import HeaderFilter
 
 from . import generic, entity_filter
-from .decorators import jsonify
+from .generic import base
+# from .decorators import jsonify
 
 
 logger = logging.getLogger(__name__)
@@ -88,13 +90,33 @@ def delete(request):
     return HttpResponseRedirect(callback_url)
 
 
-@login_required
-@jsonify
-def get_for_ctype(request):
-    ct_id = utils.get_from_GET_or_404(request.GET, 'ct_id', int)
-    ct = utils.get_ct_or_404(ct_id)
-    user = request.user
+# @login_required
+# @jsonify
+# def get_for_ctype(request):
+#     ct_id = utils.get_from_GET_or_404(request.GET, 'ct_id', int)
+#     ct = utils.get_ct_or_404(ct_id)
+#     user = request.user
+#
+#     user.has_perm_to_access_or_die(ct.app_label)
+#
+#     return list(HeaderFilter.get_for_user(user, ct).values_list('id', 'name'))
+class HeaderFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
+    response_class = CremeJsonResponse
+    ctype_id_arg = 'ct_id'
 
-    user.has_perm_to_access_or_die(ct.app_label)
+    def check_related_ctype(self, ctype):
+        self.request.user.has_perm_to_access_or_die(ctype.app_label)
 
-    return list(HeaderFilter.get_for_user(user, ct).values_list('id', 'name'))
+    def get_ctype_id(self):
+        return utils.get_from_GET_or_404(self.request.GET, self.ctype_id_arg, int)
+
+    def get_choices(self):
+        return list(HeaderFilter.get_for_user(self.request.user, self.get_ctype())
+                                .values_list('id', 'name')
+                   )
+
+    def get(self, request, *args, **kwargs):
+        return self.response_class(
+            self.get_choices(),
+            safe=False,  # Result is not a dictionary
+        )
