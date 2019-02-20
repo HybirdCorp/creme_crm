@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2018  Hybird
+#    Copyright (C) 2013-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,24 +18,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import chain
+# from itertools import chain
 # import warnings
 
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.db.models.fields import FieldDoesNotExist
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext as _
-from django.views import View
+# from django.utils.decorators import method_decorator
+# from django.utils.translation import ugettext as _
+# from django.views import View
 
-from creme.creme_core.auth.decorators import login_required
+# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import CustomFieldEnumValue, CustomField
-from creme.creme_core.utils import get_ct_or_404
+# from creme.creme_core.utils import get_ct_or_404
+from creme.creme_core.views.generic import base
 
-from .decorators import jsonify
+# from .decorators import jsonify
 
 
 # @login_required
@@ -86,50 +88,70 @@ from .decorators import jsonify
 #     return [(e.id, str(e)) for e in model.objects.all()]
 
 
-# TODO: JSONView ?
-@method_decorator(login_required, name='dispatch')
-class ChoicesView(View):
-    ctype_id_url_kwarg = 'ct_id'
+# @method_decorator(login_required, name='dispatch')
+# class ChoicesView(View):
+class ChoicesView(base.ContentTypeRelatedMixin, base.CheckedView):
+    response_class = CremeJsonResponse
+    # ctype_id_url_kwarg = 'ct_id'
     field_url_kwarg = 'field'
     registry = enumerable_registry
 
-    def get_model(self):
-        model = get_ct_or_404(self.kwargs[self.ctype_id_url_kwarg]).model_class()
+    def check_related_ctype(self, ctype):
+        self.request.user.has_perm_to_access_or_die(ctype.app_label)
 
-        self.request.user.has_perm_to_access_or_die(model._meta.app_label)
-
-        return model
+    # def get_model(self):
+    #     model = get_ct_or_404(self.kwargs[self.ctype_id_url_kwarg]).model_class()
+    #
+    #     self.request.user.has_perm_to_access_or_die(model._meta.app_label)
+    #
+    #     return model
 
     def get_field_name(self):
         return self.kwargs[self.field_url_kwarg]
 
     def get_enumerator(self):
         try:
-            return self.registry.enumerator_by_fieldname(model=self.get_model(),
-                                                         field_name=self.get_field_name(),
-                                                        )
+            return self.registry.enumerator_by_fieldname(
+                # model=self.get_model(),
+                model=self.get_ctype().model_class(),
+                field_name=self.get_field_name(),
+            )
         except FieldDoesNotExist as e:
             raise Http404('This field does not exist.') from e
         except ValueError as e:
             raise ConflictError(e) from e
 
-    @method_decorator(jsonify)
+    # @method_decorator(jsonify)
     def get(self, request, *args, **kwargs):
-        return self.get_enumerator().choices(user=request.user)
+        # return self.get_enumerator().choices(user=request.user)
+        return self.response_class(
+            self.get_enumerator().choices(user=request.user),
+            safe=False,  # Result is not a dictionary
+        )
 
 
-# TODO: move to entity_filter.py ?
-@login_required
-@jsonify
-def json_list_userfilter(request):
-    return list(chain((('__currentuser__', _('Current user')),),
-                      ((e.id, str(e)) for e in get_user_model().objects.all()),
-                     )
-               )
+# @login_required
+# @jsonify
+# def json_list_userfilter(request):
+#     return list(chain((('__currentuser__', _('Current user')),),
+#                       ((e.id, str(e)) for e in get_user_model().objects.all()),
+#                      )
+#                )
 
 
-@login_required
-@jsonify
-def json_list_enumerable_custom(request, cf_id):
-    cf = get_object_or_404(CustomField, pk=cf_id)
-    return list(CustomFieldEnumValue.objects.filter(custom_field=cf).values_list('id', 'value'))
+# @login_required
+# @jsonify
+# def json_list_enumerable_custom(request, cf_id):
+#     cf = get_object_or_404(CustomField, pk=cf_id)
+#     return list(CustomFieldEnumValue.objects.filter(custom_field=cf).values_list('id', 'value'))
+class CustomFieldEnumsView(base.CheckedView):
+    response_class = CremeJsonResponse
+    ctype_id_url_kwarg = 'ct_id'
+
+    def get(self, request, *args, **kwargs):
+        cf = get_object_or_404(CustomField, pk=self.kwargs['cf_id'])
+
+        return self.response_class(
+            list(CustomFieldEnumValue.objects.filter(custom_field=cf).values_list('id', 'value')),
+            safe=False,  # Result is not a dictionary
+        )

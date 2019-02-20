@@ -101,7 +101,8 @@ entity_filter_patterns = [
         name='creme_core__ctypes_compatible_with_rtype_as_choices',
        ),
 
-    re_path(r'^get_for_ctype[/]?$', entity_filter.get_for_ctype, name='creme_core__efilters'),
+    re_path(r'^get_for_ctype[/]?$', entity_filter.get_for_ctype,             name='creme_core__efilters'),  # TODO: /json ?
+    re_path(r'^users/json[/]?$',    entity_filter.UserChoicesView.as_view(), name='creme_core__efilter_user_choices'),
 ]
 
 headerfilter_patterns = [
@@ -113,11 +114,11 @@ headerfilter_patterns = [
 
 enumerable_patterns = [
     # url(r'^(?P<ct_id>\d+)/json[/]?$',                  enumerable.json_list_enumerable,        name='creme_core__list_enumerable'),
-    re_path(r'^(?P<ct_id>\d+)/(?P<field>[\w]+)/json[/]?$', enumerable.ChoicesView.as_view(),       name='creme_core__enumerable_choices'),
-    re_path(r'^custom/(?P<cf_id>\d+)/json[/]?$',           enumerable.json_list_enumerable_custom, name='creme_core__cfield_enums'),
+    re_path(r'^(?P<ct_id>\d+)/(?P<field>[\w]+)/json[/]?$', enumerable.ChoicesView.as_view(),          name='creme_core__enumerable_choices'),
+    # re_path(r'^custom/(?P<cf_id>\d+)/json[/]?$',           enumerable.json_list_enumerable_custom, name='creme_core__cfield_enums'),
+    re_path(r'^custom/(?P<cf_id>\d+)/json[/]?$',           enumerable.CustomFieldEnumsView.as_view(), name='creme_core__cfield_enums'),
 
-    # TODO: move to entity_filter_patterns
-    re_path(r'^userfilter/json[/]?$', enumerable.json_list_userfilter, name='creme_core__efilter_user_choices'),
+    # re_path(r'^userfilter/json[/]?$', enumerable.json_list_userfilter, name='creme_core__efilter_user_choices'),
 ]
 
 job_patterns = [
