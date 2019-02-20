@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,9 @@
 ################################################################################
 
 from datetime import date
-from functools import partial
+# from functools import partial
 
+from django.db.models import Q, FilteredRelation, Count
 from django.utils.translation import ugettext_lazy as _, ungettext
 
 from creme.creme_core.models import FieldsConfig
@@ -47,19 +48,83 @@ class CurrentYearStatistics:
         if FieldsConfig.get_4_model(opp_model).is_fieldname_hidden('closing_date'):
             stats.append(str(self.invalid_message))
         else:
-            filter_opp = partial(
-                opp_model.objects.filter,
-                relations__type_id=self.relation_type_id,
-                closing_date__gte=date.today().replace(month=1, day=1),
-            )
+            # TODO: use this previous code when there is only one managed organisation ??
+            # # filter_opp = partial(
+            # #     opp_model.objects.filter,
+            # #     relations__type_id=self.relation_type_id,
+            # #     closing_date__gte=date.today().replace(month=1, day=1),
+            # # )
+            #
+            # for orga in self.orga_model.get_all_managed_by_creme():
+            #     # won_count = filter_opp(sales_phase__won=True,
+            #     #                        relations__object_entity_id=orga.id,
+            #     #                       ).count()
+            #     # lost_count = filter_opp(sales_phase__lost=True,
+            #     #                         relations__object_entity_id=orga.id,
+            #     #                        ).count()
+            #
+            #     agg = opp_model.objects \
+            #              .annotate(relations_w_orga=FilteredRelation(
+            #                             'relations',
+            #                             condition=Q(relations__object_entity_id=orga.id)
+            #                         )
+            #                       ) \
+            #              .filter(relations_w_orga__type_id=self.relation_type_id,
+            #                      closing_date__gte=date.today().replace(month=1, day=1),
+            #                     )\
+            #              .aggregate(
+            #                 won=Count('pk', filter=Q(sales_phase__won=True)),
+            #                 lost=Count('pk', filter=Q(sales_phase__lost=True)),
+            #              )
+            #     won_count = agg['won']
+            #     lost_count = agg['lost']
+            #
+            #     if won_count or lost_count:
+            #         stats.append(
+            #             self.message_format.format(
+            #                 organisation=orga,
+            #                 won_stats=ungettext('{count} won opportunity',
+            #                                     '{count} won opportunities',
+            #                                     won_count
+            #                                    ).format(count=won_count),
+            #                 lost_stats=ungettext('{count} lost opportunity',
+            #                                      '{count} lost opportunities',
+            #                                      lost_count
+            #                                     ).format(count=lost_count),
+            #             )
+            #         )
+            # TODO: query by chunks if there are lots of managed Organisation ?
+            mngd_orgas = list(self.orga_model.get_all_managed_by_creme())
+            mngd_orga_ids = [o.id for o in mngd_orgas]
 
-            for orga in self.orga_model.get_all_managed_by_creme():
-                won_count = filter_opp(sales_phase__won=True,
-                                       relations__object_entity_id=orga.id,
-                                      ).count()
-                lost_count = filter_opp(sales_phase__lost=True,
-                                        relations__object_entity_id=orga.id,
-                                       ).count()
+            agg_kwargs = {}
+            for orga_id in mngd_orga_ids:
+                agg_kwargs['won_{}'.format(orga_id)] = Count(
+                    'relations_w_orga__object_entity_id',
+                    filter=Q(relations_w_orga__object_entity=orga_id,
+                             sales_phase__won=True,
+                            ),
+                )
+                agg_kwargs['lost_{}'.format(orga_id)] = Count(
+                    'relations_w_orga__object_entity_id',
+                    filter=Q(relations_w_orga__object_entity=orga_id,
+                             sales_phase__lost=True,
+                            ),
+                )
+
+            agg = opp_model.objects \
+                           .annotate(relations_w_orga=FilteredRelation(
+                                'relations',
+                                condition=Q(relations__object_entity_id__in=mngd_orga_ids),
+                           )).filter(
+                                relations_w_orga__type_id=self.relation_type_id,
+                                closing_date__gte=date.today().replace(month=1, day=1),
+                           ).aggregate(**agg_kwargs)
+
+            for orga in mngd_orgas:
+                orga_id = orga.id
+                won_count = agg['won_{}'.format(orga_id)]
+                lost_count = agg['lost_{}'.format(orga_id)]
 
                 if won_count or lost_count:
                     stats.append(
