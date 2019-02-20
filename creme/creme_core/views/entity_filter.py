@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
 import logging
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -33,10 +35,12 @@ from .. import utils
 from ..auth.decorators import login_required
 from ..forms import entity_filter as efilter_forms
 from ..gui.listview import ListViewState
+from ..http import CremeJsonResponse
 from ..models import EntityFilter, RelationType
+
 from . import generic
 from .decorators import jsonify
-from .generic.base import EntityCTypeRelatedMixin
+from .generic import base
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +74,7 @@ class FilterMixin:
         return self.build_lv_url() or reverse('creme_core__home')
 
 
-class FilterCreationMixin(EntityCTypeRelatedMixin, FilterMixin):
+class FilterCreationMixin(base.EntityCTypeRelatedMixin, FilterMixin):
     ctype_form_kwarg = 'ctype'
 
     def get_form_kwargs(self):
@@ -184,3 +188,17 @@ def get_for_ctype(request):
     choices.extend(EntityFilter.get_for_user(user, ct).values_list('id', 'name'))
 
     return choices
+
+
+class UserChoicesView(base.CheckedView):
+    response_class = CremeJsonResponse
+    current_user_label = _('Current user')
+
+    def get(self, request, *args, **kwargs):
+        return self.response_class(
+            list(chain((('__currentuser__', self.current_user_label),),
+                       ((e.id, str(e)) for e in get_user_model().objects.all()),
+                      )
+                ),
+            safe=False,  # Result is not a dictionary
+        )

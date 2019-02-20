@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .base import (
-    CheckedTemplateView, BricksView,
+    CheckedView, CheckedTemplateView, BricksView,
     CremeFormView, CremeFormPopup,
     RelatedToEntityFormPopup,
 )

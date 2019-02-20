@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 try:
-    from django.contrib.auth import get_user_model
+    # from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
     from django.utils.translation import ugettext as _
@@ -246,7 +246,9 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
     def test_choices_no_app_credentials(self):
         self.login(is_superuser=False, allowed_apps=['creme_config'])
-        response = self.assertGET403(self._build_choices_url(models.FakeContact, 'civility'))
+        response = self.assertGET403(self._build_choices_url(models.FakeContact, 'civility'),
+                                     HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                                    )
         self.assertIn(_('You are not allowed to access to the app: {}').format(_('Core')),
                       response.content.decode()
                      )
@@ -256,14 +258,14 @@ class EnumerableViewsTestCase(ViewsTestCase):
         response = self.assertGET404(self._build_choices_url(models.FakeContact, 'unknown'))
         self.assertIn('This field does not exist.', response.content.decode())
 
-    def test_userfilter_list(self):
-        self.login()
-
-        response = self.assertGET200(reverse('creme_core__efilter_user_choices'))
-        self.assertEqual([['__currentuser__', _('Current user')]] +
-                         [[u.id, str(u)] for u in get_user_model().objects.all()],
-                         response.json()
-                        )
+    # def test_userfilter_list(self):
+    #     self.login()
+    #
+    #     response = self.assertGET200(reverse('creme_core__efilter_user_choices'))
+    #     self.assertEqual([['__currentuser__', _('Current user')]] +
+    #                      [[u.id, str(u)] for u in get_user_model().objects.all()],
+    #                      response.json()
+    #                     )
 
     def test_custom_enum_not_exists(self):
         self.login()
