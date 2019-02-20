@@ -25,6 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.entity_cell import EntityCellVolatile
 from creme.creme_core.gui.actions import ActionsRegistry
+from creme.creme_core.gui.listview import ListViewButton
 
 from creme.persons import get_contact_model
 
@@ -32,6 +33,14 @@ from . import constants
 
 
 Contact = get_contact_model()
+
+
+class EventDetailButton(ListViewButton):
+    template_name = 'events/listview/buttons/event-detail.html'
+
+
+class AddContactsButton(ListViewButton):
+    template_name = 'events/listview/buttons/link-contacts.html'
 
 
 class RelatedContactsActionsRegistry(ActionsRegistry):

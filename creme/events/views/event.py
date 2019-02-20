@@ -33,7 +33,7 @@ from creme.creme_core.actions import ViewAction
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.entity_cell import EntityCellRelation  # EntityCellVolatile
 from creme.creme_core.gui.actions import EntityAction
-from creme.creme_core.gui.listview import CreationButton, ListViewButton
+from creme.creme_core.gui import listview as lv_gui
 from creme.creme_core.models import RelationType
 # from creme.creme_core.models.entity import EntityAction
 from creme.creme_core.utils import get_from_POST_or_404
@@ -394,16 +394,16 @@ class RelatedContactsList(EntityRelatedMixin, ContactsList):
         return registry
 
     def get_buttons(self):
-        class AddContactsButton(ListViewButton):
-            template_name = 'events/listview/buttons/link-contacts.html'
-
-            def get_context(this, lv_context):
-                return {
-                    'event_entity': self.get_related_entity(),
-                }
-
+        # TODO: let BatchProcessButton when it manages the internal Q
+        # TODO: let MassImportButton when we can set a fixed relation to the event
+        # TODO: let MassExportHeaderButton when MassImportButton is here
         return super().get_buttons()\
-                      .replace(old=CreationButton, new=AddContactsButton)
+                      .update_context(event_entity=self.get_related_entity()) \
+                      .insert(0, gui.EventDetailButton) \
+                      .replace(old=lv_gui.CreationButton, new=gui.AddContactsButton) \
+                      .remove(lv_gui.BatchProcessButton) \
+                      .remove(lv_gui.MassImportButton) \
+                      .remove(lv_gui.MassExportHeaderButton)
 
     def get_cells(self, hfilter):
         cells = super().get_cells(hfilter=hfilter)
