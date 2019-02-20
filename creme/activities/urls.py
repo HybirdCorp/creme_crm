@@ -22,7 +22,8 @@ calendar_patterns = [
 urlpatterns = [
     re_path(r'^activities/ical[/]?$', activity.download_ical, name='activities__dl_ical'),
 
-    re_path(r'^type/(?P<type_id>[\w-]*)/json[/]?$', activity.get_types, name='activities__get_types'),
+    # re_path(r'^type/(?P<type_id>[\w-]*)/json[/]?$', activity.get_types, name='activities__get_types'),
+    re_path(r'^type/(?P<type_id>[\w-]*)/json[/]?$', activity.TypeChoices.as_view(), name='activities__get_types'),
 
     # Bricks
     re_path(r'^activity/(?P<activity_id>\d+)/participant/add[/]?$', bricks.ParticipantsAdding.as_view(), name='activities__add_participants'),

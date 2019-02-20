@@ -32,10 +32,12 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.gui.listview import CreationButton
+from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils import get_from_GET_or_404
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import jsonify
+from creme.creme_core.views.generic import base
+# from creme.creme_core.views.decorators import jsonify
 # from creme.creme_core.views.utils import build_cancel_path
 
 from creme.persons import get_contact_model
@@ -488,12 +490,35 @@ def download_ical(request):
     return response
 
 
-@jsonify
-@login_required
-def get_types(request, type_id):
-    if not type_id:
-        return []
+# @jsonify
+# @login_required
+# def get_types(request, type_id):
+#     if not type_id:
+#         return []
+#
+#     get_object_or_404(ActivityType, pk=type_id)
+#
+#     return list(ActivitySubType.objects.filter(type=type_id).values_list('id', 'name'))
+class TypeChoices(base.CheckedView):
+    response_class = CremeJsonResponse
+    # permissions = 'activities' TODO ?
+    type_id_url_kwarg = 'type_id'
 
-    get_object_or_404(ActivityType, pk=type_id)
+    def get_choices(self):
+        type_id = self.kwargs[self.type_id_url_kwarg]
 
-    return list(ActivitySubType.objects.filter(type=type_id).values_list('id', 'name'))
+        if not type_id:
+            return []
+
+        get_object_or_404(ActivityType, pk=type_id)
+
+        return list(ActivitySubType.objects
+                                   .filter(type=type_id)
+                                   .values_list('id', 'name')
+                   )
+
+    def get(self, request, *args, **kwargs):
+        return self.response_class(
+            self.get_choices(),
+            safe=False,  # Result is not a dictionary
+        )
