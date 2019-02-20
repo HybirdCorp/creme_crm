@@ -35,7 +35,8 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         "No parent folder"
         user = self.login()
         url = self.ADD_URL
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertEqual(_('Create a folder'), response.context.get('title'))
 
         title = 'Test folder'
         self.assertFalse(Folder.objects.filter(title=title).exists())
@@ -75,7 +76,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
                                           'title':         title,
                                           'description':   description,
                                           'parent_folder': parent.id,
-                                          'category':      other_cat.id
+                                          'category':      other_cat.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -115,12 +116,16 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         parent = create_folder(title='Parent folder', description='Parent description')
         unused = create_folder(title='Unused parent', description='Unused description')
 
-        url = reverse('documents__create_child_folder', args=(parent.id,))
+        url = reverse('documents__create_folder', args=(parent.id,))
         context = self.assertGET200(url).context
-        self.assertEqual(_('New child folder for «{entity}»').format(entity=parent),
+        self.assertEqual(_('Create a sub-folder for «{entity}»').format(entity=parent),
                          context.get('title')
                         )
         self.assertEqual(Folder.save_label, context.get('submit_label'))
+
+        with self.assertNoException():
+            fields = context['form'].fields
+        self.assertNotIn('parent_folder', fields)
 
         title = 'Child folder'
         description = 'Child description'
@@ -150,7 +155,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         )
 
         parent = Folder.objects.create(user=user, title='Parent folder')
-        url = reverse('documents__create_child_folder', args=(parent.id,))
+        url = reverse('documents__create_folder', args=(parent.id,))
         self.assertGET403(url)
 
         sc.value = EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK
@@ -169,14 +174,85 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         )
 
         parent = Folder.objects.create(user=user, title='Parent folder')
-        self.assertGET403(reverse('documents__create_child_folder', args=(parent.id,)))
+        self.assertGET403(reverse('documents__create_folder', args=(parent.id,)))
 
     def test_create_child04(self):
         "Not related to a Folder"
         user = self.login()
 
         orga = FakeOrganisation.objects.create(user=user, name='I am not a folder')
+        self.assertGET404(reverse('documents__create_folder', args=(orga.id,)))
+
+    def test_create_child_popup01(self):
+        user = self.login()
+
+        create_folder = partial(Folder.objects.create, user=user, parent_folder=None)
+        parent = create_folder(title='Parent folder', description='Parent description')
+        unused = create_folder(title='Unused parent', description='Unused description')
+
+        url = reverse('documents__create_child_folder', args=(parent.id,))
+        context = self.assertGET200(url).context
+        self.assertEqual(_('Create a sub-folder for «{entity}»').format(entity=parent),
+                         context.get('title')
+                        )
+        self.assertEqual(Folder.save_label, context.get('submit_label'))
+
+        title = 'Child folder'
+        description = 'Child description'
+        response = self.client.post(url, follow=True,
+                                    data={'user':          user.pk,
+                                          'title':         title,
+                                          'description':   description,
+                                          'parent_folder': unused.id,  # Should not be used
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        folder = self.get_object_or_fail(Folder, title=title)
+        self.assertEqual(description, folder.description)
+        self.assertEqual(parent,      folder.parent_folder)
+
+    def test_create_child_popup02(self):
+        "Link credentials needed"
+        user = self.login(is_superuser=False, allowed_apps=['documents'],
+                          creatable_models=[Folder],
+                         )
+        sc = SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
+                  EntityCredentials.UNLINK,  # not EntityCredentials.LINK
+        )
+
+        parent = Folder.objects.create(user=user, title='Parent folder')
+        url = reverse('documents__create_child_folder', args=(parent.id,))
+        self.assertGET403(url)
+
+        sc.value = EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK
+        sc.save()
+        self.assertGET200(url)
+
+    def test_create_child_popup03(self):
+        "Creation credentials needed"
+        user = self.login(is_superuser=False, allowed_apps=['documents'],
+                          # creatable_models=[Folder],
+                         )
+        SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_ALL,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        )
+
+        parent = Folder.objects.create(user=user, title='Parent folder')
+        self.assertGET403(reverse('documents__create_child_folder', args=(parent.id,)))
+
+    def test_create_child_popup04(self):
+        "Not related to a Folder"
+        user = self.login()
+
+        orga = FakeOrganisation.objects.create(user=user, name='I am not a folder')
         self.assertGET404(reverse('documents__create_child_folder', args=(orga.id,)))
+
 
     def test_editview01(self):
         user = self.login()
@@ -420,7 +496,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertNotIn(parent2, folders)
 
         # self.assertEqual(_('List sub-folders of «{}»').format(parent), title)
-        self.assertEqual(_('List sub-folders of «{parent}»').format(parent=parent), title)
+        self.assertEqual(_('List of sub-folders for «{parent}»').format(parent=parent), title)
         self.assertEqual('{} > {}'.format(grand_parent.title, parent.title),
                          sub_title
                         )

@@ -501,7 +501,10 @@ class ListViewButtonListTestCase(CremeTestCase):
 
         button01 = instances[0]
         self.assertIsInstance(button01, self.Button01)
-        self.assertEqual({}, button01.get_context({'foo': 'bar'}))
+        self.assertEqual({}, button01.get_context(
+            request=RequestFactory().get('/'),  # Url doesn't matter
+            lv_context={'foo': 'bar'}),
+        )
 
         self.assertIsInstance(instances[1], self.Button02)
 
@@ -513,6 +516,9 @@ class ListViewButtonListTestCase(CremeTestCase):
         button01 = next(blist.instances)
         self.assertIsInstance(button01, self.Button01)
 
-        context = button01.get_context({'foo': 'bar'})
+        context = button01.get_context(
+            request=RequestFactory().get('/'),  # Url doesn't matter
+            lv_context={'foo': 'bar'},
+        )
         self.assertEqual(extra_context, context)
         self.assertIsNot(extra_context, context)

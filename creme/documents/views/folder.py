@@ -23,14 +23,15 @@ import logging
 
 from django.db.models.query_utils import Q
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 # from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.gui.listview import ListViewButton
+from creme.creme_core.gui import listview as lv_gui
 from creme.creme_core.views import generic
+from creme.creme_core.views.generic import base
 
-from .. import get_folder_model
+from .. import get_folder_model, gui
 from ..constants import DEFAULT_HFILTER_FOLDER
 from ..forms import folder as f_forms
 
@@ -142,13 +143,38 @@ class FolderCreation(generic.EntityCreation):
     form_class = f_forms.FolderForm
 
 
+class ChildFolderCreation(base.EntityRelatedMixin, generic.EntityCreation):
+    model = Folder
+    form_class = f_forms.ChildFolderForm
+    entity_id_url_kwarg = 'parent_id'
+    entity_classes = Folder
+    title = _('Create a sub-folder for «{entity}»')
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        user.has_perm_to_link_or_die(Folder, owner=None)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        self.set_entity_in_form_kwargs(kwargs)
+
+        return kwargs
+
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['entity'] = self.get_related_entity().allowed_str(self.request.user)
+
+        return data
+
+
 # TODO: no CHANGE credentials for parent ?
 # TODO: link-popup.html ?
-class ChildFolderCreation(generic.AddingInstanceToEntityPopup):
+# class ChildFolderCreation(generic.AddingInstanceToEntityPopup):
+class ChildFolderCreationPopup(generic.AddingInstanceToEntityPopup):
     model = Folder
     form_class = f_forms.ChildFolderForm
     permissions = ['documents', cperm(Folder)]
-    title = _('New child folder for «{entity}»')
+    title = _('Create a sub-folder for «{entity}»')
     entity_id_url_kwarg = 'folder_id'
     entity_classes = Folder
 
@@ -169,37 +195,21 @@ class FolderEdition(generic.EntityEdition):
     pk_url_kwarg = 'folder_id'
 
 
-# TODO: creation => create a sub folder when their is a parent folder ?
 class FoldersList(generic.EntitiesList):
     model = Folder
     default_headerfilter_id = DEFAULT_HFILTER_FOLDER
 
-    child_title = _('List sub-folders of «{parent}»')
+    child_title = _('List of sub-folders for «{parent}»')
 
     def __init__(self):
         super().__init__()
         self.parent_folder = False  # False means 'never retrieved'
 
     def get_buttons(self):
-        parent = self.get_parent_folder()
-
-        if parent is None:
-            parent_id = ''
-            previous_id = ''
-        else:
-            parent_id = parent.id
-            previous_id = parent.parent_folder_id or ''
-
-        class PreviousButton(ListViewButton):
-            template_name = 'documents/lv-button-previous.html'
-
-            def get_context(self, lv_context):
-                return {
-                    'parent_id': parent_id,
-                    'previous_id': previous_id,
-                }
-
-        return super().get_buttons().append(PreviousButton)
+        return super().get_buttons()\
+                      .update_context(parent_folder=self.get_parent_folder())\
+                      .insert(0, gui.ParentFolderButton)\
+                      .replace(old=lv_gui.CreationButton, new=gui.FolderCreationButton)
 
     def get_parent_folder(self):
         parent = self.parent_folder

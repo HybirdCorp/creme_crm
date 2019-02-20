@@ -446,10 +446,10 @@ class TypedActivitiesList(ActivitiesList):
 
     def get_buttons(self):
         class TypedActivityCreationButton(CreationButton):
-            def get_label(this, model):
+            def get_label(this, request, model):
                 return self.creation_label
 
-            def get_url(this, model):
+            def get_url(this, request, model):
                 return self.creation_url
 
         return super().get_buttons()\
