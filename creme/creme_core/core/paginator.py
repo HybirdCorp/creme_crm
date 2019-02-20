@@ -201,6 +201,19 @@ class FlowPaginator:
 
         return qs
 
+    def get_page(self, page_info=None):
+        if page_info is not None and not isinstance(page_info, dict):
+            page_obj = self.page()
+        else:
+            try:
+                page_obj = self.page(page_info)
+            except LastPage:
+                page_obj = self.last_page()
+            except InvalidPage:
+                page_obj = self.page()
+
+        return page_obj
+
     def page(self, page_info=None):
         """Get the wanted page.
         @param page_info: A dictionary returned by the methods

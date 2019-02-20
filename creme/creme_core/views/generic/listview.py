@@ -866,13 +866,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             if not isinstance(page_info, dict):
                 page_info = None
 
-        try:
-            page_obj = paginator.page(page_info)
-        except LastPage:
-            page_obj = paginator.last_page()
-        except InvalidPage:
-            page_obj = paginator.page()
-
+        page_obj = paginator.get_page(page_info)
         state.page = json_encode(page_obj.info())
 
         return page_obj
