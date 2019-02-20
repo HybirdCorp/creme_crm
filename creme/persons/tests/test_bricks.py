@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import timedelta
+    from datetime import timedelta, date
     from functools import partial
     from unittest import skipIf
 
@@ -19,14 +19,29 @@ try:
         from creme.activities.models import Activity
         from creme.activities.tests.base import skipIfCustomActivity
 
-        def skipIfActivitiesisNotInstalled(test_func):
+        def skipIfActivitiesIsNotInstalled(test_func):
             return skipIf(False, 'The app "activities" is not installed')(test_func)
     else:
-        def skipIfActivitiesisNotInstalled(test_func):
+        def skipIfActivitiesIsNotInstalled(test_func):
             return skipIf(True, 'The app "activities" is not installed')(test_func)
 
         def skipIfCustomActivity(test_func):
             return skipIf(True, 'The app "activities" is not installed')(test_func)
+
+    if apps.is_installed('creme.opportunities'):
+        from creme.opportunities.models import Opportunity, SalesPhase
+        from creme.opportunities.tests.base import skipIfCustomOpportunity
+    else:
+        def skipIfCustomOpportunity(test_func):
+            return skipIf(True, 'The app "opportunities" is not installed')(test_func)
+
+    if apps.is_installed('creme.commercial'):
+        from creme.commercial.constants import REL_OBJ_COMPLETE_GOAL
+        from creme.commercial.models import Act, ActType, MarketSegment
+        from creme.commercial.tests.base import skipIfCustomAct
+    else:
+        def skipIfCustomAct(test_func):
+            return skipIf(True, 'The app "commercial" is not installed')(test_func)
 
     from .. import bricks, constants
 
@@ -102,12 +117,139 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
 
         return c
 
+    @skipIfCustomOpportunity
+    def test_contact_hat_card_brick_opp(self):
+        user = self.user
+        c = Contact.objects.create(user=user, first_name='Lawrence', last_name='?')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        emitter = create_orga(name='Lenos')
+        target_orga = create_orga(name='Yorentz')
+
+        create_opp = partial(Opportunity.objects.create, user=user,
+                             sales_phase=SalesPhase.objects.first(),
+                             emitter=emitter,
+                            )
+        opp1 = create_opp(name='Opp#01', target=c)
+        opp2 = create_opp(name='Opp#02', target=target_orga)
+        opp3 = create_opp(name='Opp#03', target=c)
+
+        response = self.assertGET200(c.get_absolute_url())
+        brick_node = self.get_brick_node(self.get_html_tree(response.content),
+                                         bricks.ContactCardHatBrick.id_,
+                                        )
+
+        self.assertInstanceLink(brick_node, opp1)
+        self.assertNoInstanceLink(brick_node, opp2)
+        self.assertInstanceLink(brick_node, opp3)
+
+    @skipIfCustomOpportunity
+    def test_orga_hat_card_brick_opp(self):
+        user = self.user
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        emitter = create_orga(name='Lenos')
+        target_orga = create_orga(name='Yorentz')
+
+        c = Contact.objects.create(user=user, first_name='Lawrence', last_name='?')
+
+        create_opp = partial(Opportunity.objects.create, user=user,
+                             sales_phase=SalesPhase.objects.first(),
+                             emitter=emitter,
+                            )
+        opp1 = create_opp(name='Opp#01', target=target_orga)
+        opp2 = create_opp(name='Opp#02', target=c)
+        opp3 = create_opp(name='Opp#03', target=target_orga)
+
+        response = self.assertGET200(target_orga.get_absolute_url())
+        brick_node = self.get_brick_node(self.get_html_tree(response.content),
+                                         bricks.OrganisationCardHatBrick.id_,
+                                        )
+
+        self.assertInstanceLink(brick_node, opp1)
+        self.assertNoInstanceLink(brick_node, opp2)
+        self.assertInstanceLink(brick_node, opp3)
+
+    @skipIfCustomAct
+    def test_contact_hat_card_brick_commercial(self):
+        user = self.user
+        c = Contact.objects.create(user=user, first_name='Lawrence', last_name='?')
+        orga = Organisation.objects.create(user=user, name='Lenos')
+
+        segment = MarketSegment.objects.first()
+
+        def create_act(name, entity):
+            act = Act.objects.create(
+                name=name, user=user, expected_sales=1000,
+                cost=50, goal='GOAL',
+                start=date(2019, 2, 22), due_date=date(2019, 2, 26),
+                act_type=ActType.objects.create(title='Show'),
+                segment=segment,
+            )
+
+            Relation.objects.create(
+                user=user, type_id=REL_OBJ_COMPLETE_GOAL,
+                subject_entity=act, object_entity=entity,
+            )
+
+            return act
+
+        act1 = create_act('Act #01', c)
+        act2 = create_act('Act #02', orga)
+        act3 = create_act('Act #02', c)
+
+        response = self.assertGET200(c.get_absolute_url())
+        brick_node = self.get_brick_node(self.get_html_tree(response.content),
+                                         bricks.ContactCardHatBrick.id_,
+                                        )
+
+        self.assertInstanceLink(brick_node, act1)
+        self.assertNoInstanceLink(brick_node, act2)
+        self.assertInstanceLink(brick_node, act3)
+
+    @skipIfCustomAct
+    def test_orga_hat_card_brick_commercial(self):
+        user = self.user
+        orga = Organisation.objects.create(user=user, name='Lenos')
+        c = Contact.objects.create(user=user, first_name='Lawrence', last_name='?')
+
+        segment = MarketSegment.objects.first()
+
+        def create_act(name, entity):
+            act = Act.objects.create(
+                name=name, user=user, expected_sales=1000,
+                cost=50, goal='GOAL',
+                start=date(2019, 2, 22), due_date=date(2019, 2, 26),
+                act_type=ActType.objects.create(title='Show'),
+                segment=segment,
+            )
+
+            Relation.objects.create(
+                user=user, type_id=REL_OBJ_COMPLETE_GOAL,
+                subject_entity=act, object_entity=entity,
+            )
+
+            return act
+
+        act1 = create_act('Act #01', orga)
+        act2 = create_act('Act #02', c)
+        act3 = create_act('Act #02', orga)
+
+        response = self.assertGET200(orga.get_absolute_url())
+        brick_node = self.get_brick_node(self.get_html_tree(response.content),
+                                         bricks.OrganisationCardHatBrick.id_,
+                                        )
+
+        self.assertInstanceLink(brick_node, act1)
+        self.assertNoInstanceLink(brick_node, act2)
+        self.assertInstanceLink(brick_node, act3)
+
     def test_addresses_brick01(self):
         c = self._create_contact_n_addresses()
 
         brick_node = self._get_address_brick_node(c)
-        self._assertAddressIn(brick_node, c.billing_address,  _(u'Billing address'))
-        self._assertAddressIn(brick_node, c.shipping_address, _(u'Shipping address'))
+        self._assertAddressIn(brick_node, c.billing_address,  _('Billing address'))
+        self._assertAddressIn(brick_node, c.shipping_address, _('Shipping address'))
 
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
@@ -117,8 +259,8 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         c = self._create_contact_n_addresses(shipping_address=False)
 
         brick_node = self._get_address_brick_node(c)
-        self._assertAddressIn(brick_node, c.billing_address, _(u'Billing address'))
-        self.assertNotIn(_(u'Shipping address'), self.get_address_titles(brick_node))
+        self._assertAddressIn(brick_node, c.billing_address, _('Billing address'))
+        self.assertNotIn(_('Shipping address'), self.get_address_titles(brick_node))
 
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertAction(brick_node, 'persons__create_shipping_address', c)
@@ -128,8 +270,8 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         c = self._create_contact_n_addresses(billing_address=False)
 
         brick_node = self._get_address_brick_node(c)
-        self._assertAddressIn(brick_node, c.shipping_address, _(u'Shipping address'))
-        self.assertNotIn(_(u'Billing address'), self.get_address_titles(brick_node))
+        self._assertAddressIn(brick_node, c.shipping_address, _('Shipping address'))
+        self.assertNotIn(_('Billing address'), self.get_address_titles(brick_node))
 
         self._assertAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
@@ -141,7 +283,7 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_node = self._get_address_brick_node(c)
         msg_node = brick_node.find("div[@class='brick-content is-empty']")
         self.assertIsNotNone(msg_node)
-        self.assertEqual(_(u'No address for the moment'), msg_node.text.strip())
+        self.assertEqual(_('No address for the moment'), msg_node.text.strip())
 
     def test_addresses_brick05(self):
         "With field config on sub-field"
@@ -152,8 +294,8 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         c = self._create_contact_n_addresses()
 
         brick_node = self._get_address_brick_node(c)
-        self._assertAddressIn(brick_node, c.billing_address,  _(u'Billing address'),  country_in=False)
-        self._assertAddressIn(brick_node, c.shipping_address, _(u'Shipping address'), country_in=False)
+        self._assertAddressIn(brick_node, c.billing_address,  _('Billing address'),  country_in=False)
+        self._assertAddressIn(brick_node, c.shipping_address, _('Shipping address'), country_in=False)
 
     def test_addresses_brick06(self):
         "With field config on 'billing_address' FK field"
@@ -164,7 +306,7 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         c = self._create_contact_n_addresses()
 
         brick_node = self._get_address_brick_node(c)
-        self._assertAddressIn(brick_node, c.shipping_address, _(u'Shipping address'))
+        self._assertAddressIn(brick_node, c.shipping_address, _('Shipping address'))
         self._assertAddressNotIn(brick_node, c.billing_address)
 
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
@@ -179,11 +321,11 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         c = self._create_contact_n_addresses()
 
         brick_node = self._get_address_brick_node(c)
-        self._assertAddressIn(brick_node, c.billing_address, _(u'Billing address'))
+        self._assertAddressIn(brick_node, c.billing_address, _('Billing address'))
         self._assertAddressNotIn(brick_node, c.shipping_address)
 
 
-@skipIfActivitiesisNotInstalled
+@skipIfActivitiesIsNotInstalled
 @skipIfCustomOrganisation
 class NeglectedOrganisationsBrickTestCase(CremeTestCase):
     def setUp(self):
@@ -397,7 +539,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
                                days_delta=10
                               )
         indicator = bricks.NeglectedContactIndicator(context={'today': now()}, contact=contact)
-        self.assertEqual(_(u'Never contacted'), indicator.label)
+        self.assertEqual(_('Never contacted'), indicator.label)
 
     def test_neglected_indicator02(self):
         "regular label for neglected"
@@ -417,7 +559,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         Relation.objects.create(user=user, subject_entity=contact, object_entity=meeting, type_id=act_constants.REL_SUB_PART_2_ACTIVITY)
 
         indicator = bricks.NeglectedContactIndicator(context={'today': now_value}, contact=contact)
-        self.assertEqual(_(u'Not contacted since 15 days'), indicator.label)
+        self.assertEqual(_('Not contacted since 15 days'), indicator.label)
 
     def test_neglected_indicator03(self):
         "Not neglected"

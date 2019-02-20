@@ -792,8 +792,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                          ('test-object_foobar',  'is loved by', [FakeContact])
                                         )[0]
 
-    def _build_selection_url(self, rtype, subject, ct):
-        return reverse('creme_core__select_entities_to_link', args=(rtype.id, subject.id, ct.id))
+    # def _build_selection_url(self, rtype, subject, ct):
+    #     return reverse('creme_core__select_entities_to_link', args=(rtype.id, subject.id, ct.id))
 
     def test_select_relations_objects01(self):
         self._aux_relation_objects_to_link_selection()
