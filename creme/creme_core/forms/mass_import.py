@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -99,7 +99,7 @@ class UploadForm(CremeForm):
     has_header = BooleanField(label=_('Header present ?'), required=False,
                               help_text=_('Does the first line of the line contain '
                                           'the header of the columns (eg: "Last name","First name") ?'
-                                         )
+                                         ),
                              )
 
     def __init__(self, *args, **kwargs):
@@ -1047,106 +1047,102 @@ class ImportForm(CremeModelForm):
             raise self.Error(error_msg)
 
         # TODO: mode depends on the backend ?
-        # TODO: use "with"
-        filedata.open(mode='r')
+        with filedata.open(mode='r') as file_:
+            lines = backend(file_)
+            if get_cleaned('has_header'):
+                next(lines)
 
-        lines = backend(filedata)
-        if get_cleaned('has_header'):
-            next(lines)
+            # Resuming
+            for i in range(MassImportJobResult.objects.filter(job=job).count()):
+                next(lines)
 
-        # Resuming
-        for i in range(MassImportJobResult.objects.filter(job=job).count()):
-            next(lines)
+            append_error = self.append_error
+            key_fields = frozenset(get_cleaned('key_fields'))
+            is_empty_value = lambda s: s is None or isinstance(s, str) and not s.strip()
 
-        append_error = self.append_error
-        key_fields = frozenset(get_cleaned('key_fields'))
-        is_empty_value = lambda s: s is None or isinstance(s, str) and not s.strip()
-
-        for i, line in enumerate(filter(None, lines), start=1):
-            job_result = MassImportJobResult(job=job, line=line)
-
-            try:
-                with atomic():
-                    instance = model_class()
-                    updated = False  # 'True' means: object has been updated, not created from scratch
-
-                    extr_values = []
-                    for fname, extractor in extractor_fields:
-                        extr_value, err_msg = extractor.extract_value(line)
-
-                        # TODO: Extractor.extract_value() should return a ExtractedValue
-                        #       instead of a tuple (an so we could remove the ugly following line...)
-                        is_empty = not extractor._column_index or is_empty_value(line[extractor._column_index - 1])
-                        extr_values.append((fname, extr_value, is_empty))
-
-                        append_error(err_msg)
-
-                    if key_fields:
-                        # We avoid using exception within 'atomic' block
-                        found = self._find_existing_instances(
-                            model=model_class,
-                            field_names=key_fields,
-                            extracted_values=extr_values,
-                        )[:2]
-
-                        if found:
-                            if len(found) == 1:
-                                try:
-                                    instance = model_class.objects.select_for_update().get(pk=found[0].pk)
-                                except model_class.DoesNotExist:
-                                    pass
-                                else:
-                                    job_result.updated = updated = True
-                            else:
-                                append_error(ugettext('Several entities corresponding to the search have been found. '
-                                                      'So a new entity have been created to avoid errors.'
-                                                     ),
-                                            )
-
-                    for fname, cleaned_value in regular_fields:
-                        setattr(instance, fname, cleaned_value)
-
-                    for fname, extr_value, is_empty in extr_values:
-                        if updated and is_empty:
-                            continue
-
-                        setattr(instance, fname, extr_value)
-
-                    self._pre_instance_save(instance, line)
-
-                    instance.full_clean()
-                    instance.save()
-
-                    self._post_instance_creation(instance, line, updated)
-
-                    for m2m in self._meta.model._meta.many_to_many:
-                        extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
-                        if extractor:
-                            # TODO: factorise
-                            extr_value, err_msg = extractor.extract_value(line)
-                            getattr(instance, m2m.name).set(extr_value)
-                            append_error(err_msg)
-
-                    job_result.entity = instance
-                    if self.import_errors:
-                        job_result.messages = self.import_errors
-                    job_result.save()
-            except Exception as e:
-                logger.exception('Exception in Mass importing')
+            for i, line in enumerate(filter(None, lines), start=1):
+                job_result = MassImportJobResult(job=job, line=line)
 
                 try:
-                    for messages in e.message_dict.values():
-                        for message in messages:
-                            append_error(str(message))
-                except:
-                    append_error(str(e))
+                    with atomic():
+                        instance = model_class()
+                        updated = False  # 'True' means: object has been updated, not created from scratch
 
-                job_result.messages = self.import_errors
-                job_result.save()
+                        extr_values = []
+                        for fname, extractor in extractor_fields:
+                            extr_value, err_msg = extractor.extract_value(line)
 
-            self.import_errors.clear()
+                            # TODO: Extractor.extract_value() should return a ExtractedValue
+                            #       instead of a tuple (an so we could remove the ugly following line...)
+                            is_empty = not extractor._column_index or is_empty_value(line[extractor._column_index - 1])
+                            extr_values.append((fname, extr_value, is_empty))
 
-        filedata.close()
+                            append_error(err_msg)
+
+                        if key_fields:
+                            # We avoid using exception within 'atomic' block
+                            found = self._find_existing_instances(
+                                model=model_class,
+                                field_names=key_fields,
+                                extracted_values=extr_values,
+                            )[:2]
+
+                            if found:
+                                if len(found) == 1:
+                                    try:
+                                        instance = model_class.objects.select_for_update().get(pk=found[0].pk)
+                                    except model_class.DoesNotExist:
+                                        pass
+                                    else:
+                                        job_result.updated = updated = True
+                                else:
+                                    append_error(ugettext('Several entities corresponding to the search have been found. '
+                                                          'So a new entity have been created to avoid errors.'
+                                                         ),
+                                                )
+
+                        for fname, cleaned_value in regular_fields:
+                            setattr(instance, fname, cleaned_value)
+
+                        for fname, extr_value, is_empty in extr_values:
+                            if updated and is_empty:
+                                continue
+
+                            setattr(instance, fname, extr_value)
+
+                        self._pre_instance_save(instance, line)
+
+                        instance.full_clean()
+                        instance.save()
+
+                        self._post_instance_creation(instance, line, updated)
+
+                        for m2m in self._meta.model._meta.many_to_many:
+                            extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
+                            if extractor:
+                                # TODO: factorise
+                                extr_value, err_msg = extractor.extract_value(line)
+                                getattr(instance, m2m.name).set(extr_value)
+                                append_error(err_msg)
+
+                        job_result.entity = instance
+                        if self.import_errors:
+                            job_result.messages = self.import_errors
+                        job_result.save()
+                except Exception as e:
+                    logger.exception('Exception in Mass importing')
+
+                    try:
+                        for messages in e.message_dict.values():
+                            for message in messages:
+                                append_error(str(message))
+                    except:
+                        append_error(str(e))
+
+                    job_result.messages = self.import_errors
+                    job_result.save()
+
+                self.import_errors.clear()
 
 
 class ImportForm4CremeEntity(ImportForm):

@@ -90,9 +90,11 @@ class DocumentTestCase(_DocumentsTestCase):
 
         filedata = doc.filedata
         self.assertEqual('upload/documents/' + file_obj.base_name, filedata.name)
-        filedata.open('r')
-        self.assertEqual([content], filedata.readlines())
-        filedata.close()
+        # filedata.open('r')
+        # self.assertEqual([content], filedata.readlines())
+        # filedata.close()
+        with filedata.open('r') as f:
+            self.assertEqual([content], f.readlines())
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
@@ -657,10 +659,12 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.linked_folder)
 
-        filedata = doc.filedata
-        filedata.open('r')
-        self.assertEqual([content], filedata.readlines())
-        filedata.close()
+        # filedata = doc.filedata
+        # filedata.open('r')
+        # self.assertEqual([content], filedata.readlines())
+        # filedata.close()
+        with doc.filedata.open('r') as f:
+            self.assertEqual([content], f.readlines())
 
 
 @skipIfCustomDocument
@@ -705,11 +709,12 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
                          response.json()
                         )
 
-        filedata = doc.filedata
-        # filedata.open()
-        filedata.open('r')
-        self.assertEqual([content], filedata.readlines())
-        filedata.close()
+        # filedata = doc.filedata
+        # filedata.open('r')
+        # self.assertEqual([content], filedata.readlines())
+        # filedata.close()
+        with doc.filedata.open('r') as f:
+            self.assertEqual([content], f.readlines())
 
     def test_add_csv_doc02(self):
         "Not super-user"
