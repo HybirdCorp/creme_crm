@@ -71,6 +71,7 @@ class Sending(CremeModel):
                )
 
     def formatstatus(self):
+        # TODO: use <Conditional aggregation> to perform only one query
         items = ((self.messages.filter(status=status).count(), status_name)
                     for status, status_name in MESSAGE_STATUS.items()
                 )
