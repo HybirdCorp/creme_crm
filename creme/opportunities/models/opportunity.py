@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-# import warnings
+import warnings
 
 from django.apps import apps
 from django.core.exceptions import ValidationError
@@ -37,7 +37,7 @@ from creme.creme_core.models.fields import BasicAutoField
 from creme.persons import get_contact_model, get_organisation_model
 from creme.persons.workflow import transform_target_into_prospect
 
-from creme.products import get_product_model, get_service_model
+# from creme.products import get_product_model, get_service_model
 
 from .. import constants
 
@@ -196,8 +196,11 @@ class AbstractOpportunity(CremeEntity):
         else:
             return (self.estimated_sales or 0) * tax
 
-    # TODO: test
     def get_products(self):
+        warnings.warn('AbstractOpportunity.get_products() is deprecated.', DeprecationWarning)
+
+        from creme.products import get_product_model
+
         return get_product_model()\
                     .objects\
                     .filter(is_deleted=False,
@@ -205,8 +208,11 @@ class AbstractOpportunity(CremeEntity):
                             relations__type=constants.REL_SUB_LINKED_PRODUCT,
                            )
 
-    # TODO: test
     def get_services(self):
+        warnings.warn('AbstractOpportunity.get_services() is deprecated.', DeprecationWarning)
+
+        from creme.products import get_service_model
+
         return get_service_model()\
                     .objects\
                     .filter(is_deleted=False,
@@ -214,8 +220,9 @@ class AbstractOpportunity(CremeEntity):
                             relations__type=constants.REL_SUB_LINKED_SERVICE,
                            )
 
-    # TODO: test
     def get_contacts(self):
+        warnings.warn('AbstractOpportunity.get_contacts() is deprecated.', DeprecationWarning)
+
         return get_contact_model()\
                     .objects\
                     .filter(is_deleted=False,
@@ -223,8 +230,9 @@ class AbstractOpportunity(CremeEntity):
                             relations__type=constants.REL_SUB_LINKED_CONTACT,
                            )
 
-    # TODO: test
     def get_responsibles(self):
+        warnings.warn('AbstractOpportunity.get_responsibles() is deprecated.', DeprecationWarning)
+
         return get_contact_model()\
                     .objects\
                     .filter(is_deleted=False,

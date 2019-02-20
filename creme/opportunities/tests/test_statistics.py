@@ -41,7 +41,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
 
         create_opp = partial(Opportunity.objects.create, user=user,
                              sales_phase=won_sp,
-                             closing_date=now()
+                             closing_date=now(),
                             )
         create_opp(name='Opp #1', emitter=emitter1, target=target)
         fmt = _('For {organisation}: {won_stats} / {lost_stats}').format
