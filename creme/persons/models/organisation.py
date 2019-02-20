@@ -120,6 +120,7 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
         return reverse('persons__list_organisations')
 
     # TODO: move in a manager ??
+    # TODO: use FilteredRelation ?
     def get_managers(self):
         return get_contact_model().objects\
                                   .filter(is_deleted=False,

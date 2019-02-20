@@ -22,7 +22,7 @@ from collections import defaultdict
 from functools import partial
 
 from django.core.exceptions import PermissionDenied
-from django.db.models.query_utils import Q
+from django.db.models.query_utils import Q, FilteredRelation
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, get_list_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
@@ -393,11 +393,21 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
 
         # TODO: filter with relation creds too ?
         # NB: list() because the serialization of sub-QuerySet does not work with the JSON session
+        # extra_q = ~Q(
+        #     pk__in=list(CremeEntity.objects
+        #                            .filter(relations__type=rtype.symmetric_type_id,
+        #                                    relations__object_entity=self.get_related_entity().id,
+        #                                   )
+        #                            .values_list('id', flat=True)
+        #                ),
+        # )
         extra_q = ~Q(
             pk__in=list(CremeEntity.objects
-                                   .filter(relations__type=rtype.symmetric_type_id,
-                                           relations__object_entity=self.get_related_entity().id,
-                                          )
+                                   .annotate(relations_w_entity=FilteredRelation(
+                                                'relations',
+                                                condition=Q(relations__object_entity=self.get_related_entity().id),
+                                            ))
+                                   .filter(relations_w_entity__type=rtype.symmetric_type_id)
                                    .values_list('id', flat=True)
                        ),
         )
@@ -452,8 +462,8 @@ def add_relations_with_same_type(request):
     len_diff = len(entity_ids) - len(entities)
 
     if len_diff != 1:  # 'subject' has been pop from entities, but not subject_id from entity_ids, so 1 and not 0
-        errors[404].append(ungettext(u"{count} entity doesn't exist or has been removed.",
-                                     u"{count} entities don't exist or have been removed.",
+        errors[404].append(ungettext("{count} entity doesn't exist or has been removed.",
+                                     "{count} entities don't exist or have been removed.",
                                      len_diff
                                     ).format(count=len_diff)
                           )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from collections import OrderedDict
 from functools import partial
 
 from django.apps import apps
+from django.db.models.query_utils import Q, FilteredRelation
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -123,12 +124,23 @@ if apps.is_installed('creme.opportunities'):
 
         @staticmethod
         def get(context, entity):
-            return EntityCredentials.filter(context['user'],
-                                            Opportunity.objects.filter(is_deleted=False,
-                                                                       relations__type=opp_constants.REL_SUB_TARGETS,
-                                                                       relations__object_entity=entity.id,
-                                                                      )
-                                           )
+            # return EntityCredentials.filter(context['user'],
+            #                                 Opportunity.objects.filter(is_deleted=False,
+            #                                                            relations__type=opp_constants.REL_SUB_TARGETS,
+            #                                                            relations__object_entity=entity.id,
+            #                                                           )
+            #                                )
+            return EntityCredentials.filter(
+                context['user'],
+                Opportunity.objects
+                           .annotate(relations_w_person=FilteredRelation(
+                                        'relations',
+                                        condition=Q(relations__object_entity=entity.id),
+                                    ))
+                           .filter(is_deleted=False,
+                                   relations_w_person__type=opp_constants.REL_SUB_TARGETS,
+                                  )
+            )
 else:
     class Opportunities4Card:
         dependencies = []
@@ -150,12 +162,23 @@ if apps.is_installed('creme.commercial'):
 
         @staticmethod
         def get(context, entity):
-            return EntityCredentials.filter(context['user'],
-                                            Act.objects.filter(is_deleted=False,
-                                                               relations__type=commercial_constants.REL_OBJ_COMPLETE_GOAL,
-                                                               relations__object_entity=entity.id,
-                                                              )
-                                           )
+            # return EntityCredentials.filter(context['user'],
+            #                                 Act.objects.filter(is_deleted=False,
+            #                                                    relations__type=commercial_constants.REL_OBJ_COMPLETE_GOAL,
+            #                                                    relations__object_entity=entity.id,
+            #                                                   )
+            #                                )
+            return EntityCredentials.filter(
+                context['user'],
+                Act.objects
+                   .annotate(relations_w_person=FilteredRelation(
+                                'relations',
+                                condition=Q(relations__object_entity=entity.id),
+                            ))
+                   .filter(is_deleted=False,
+                           relations_w_person__type=commercial_constants.REL_OBJ_COMPLETE_GOAL,
+                          )
+            )
 else:
     class CommercialActs4Card:
         dependencies = []
