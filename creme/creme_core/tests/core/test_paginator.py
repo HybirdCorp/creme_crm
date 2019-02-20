@@ -27,7 +27,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         super().setUpClass()
 
         all_names = [('Rei',     'Ichido'),
-                     (u'Gô',     'Reietsu'),
+                     ('Gô',      'Reietsu'),
                      ('Jin',     'Daima'),
                      ('Kiyoshi', 'Shusse'),
                      ('Dai',     'Monohoshi'),
@@ -1593,3 +1593,59 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         with self.assertRaises(StopIteration):
             next(it)
+
+    def test_get_page01(self):
+        "No info"
+        self._build_contacts()
+
+        contacts = FakeContact.objects.all()
+        count = len(contacts)
+        paginator = FlowPaginator(contacts, key='last_name', per_page=count, count=count)
+
+        page = paginator.get_page()
+        self.assertIs(page.has_next(), False)
+        self.assertIs(page.has_previous(), False)
+        self.assertIs(page.has_other_pages(), False)
+
+        self.assertIsNone(page.next_page_info())
+
+    def test_get_page02(self):
+        "Invalid info type"
+        self._build_contacts()
+
+        contacts = FakeContact.objects.all()
+        paginator = FlowPaginator(contacts, key='last_name', per_page=2, count=len(contacts))
+
+        with self.assertNoException():
+            page = paginator.get_page([('type', 'first')])
+
+        self.assertTrue(page.has_next())
+        self.assertFalse(page.has_previous())
+
+    def test_get_page03(self):
+        "Invalid info"
+        self._build_contacts()
+
+        contacts = FakeContact.objects.all()
+        paginator = FlowPaginator(contacts, key='last_name', per_page=2, count=len(contacts))
+        page = paginator.page()
+        info = page.next_page_info()
+
+        with self.assertNoException():
+            page = paginator.get_page(dict(info, type='invalid'))
+
+        self.assertTrue(page.has_next())
+        self.assertFalse(page.has_previous())
+
+    def test_get_page04(self):
+        "Last page"
+        self._build_contacts()
+        paginator = FlowPaginator(FakeContact.objects.all(), key='last_name', per_page=3, count=7)
+
+        page = paginator.get_page({'type': 'forward',
+                                   'key': 'last_name',
+                                   'value': 'ZZZZ',
+                                  })
+
+        self.assertFalse(page.has_next())
+        self.assertTrue(page.has_previous())
