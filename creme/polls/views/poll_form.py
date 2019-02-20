@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,9 +28,10 @@ from django.utils.translation import ugettext as _
 
 # from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import jsonify
-from creme.creme_core.views.generic.base import EntityRelatedMixin
+# from creme.creme_core.views.decorators import jsonify
+from creme.creme_core.views.generic import base
 
 from .. import get_pollform_model
 from ..constants import DEFAULT_HFILTER_PFORM
@@ -40,9 +41,6 @@ from ..utils import StatsTree, NodeStyle  # TODO: templatetag instead ?
 
 
 PollForm = get_pollform_model()
-
-# Function views --------------------------------------------------------------
-
 
 # def abstract_add_pollform(request, form=pf_forms.PollFormForm,
 #                           submit_label=PollForm.save_label,
@@ -153,21 +151,46 @@ class Statistics(generic.EntityDetail):
         return context
 
 
-@login_required
-@permission_required('polls')
-@jsonify
-def get_choices(request, line_id):
-    line = get_object_or_404(PollFormLine, pk=line_id)
-    request.user.has_perm_to_view_or_die(line.pform)
+# @login_required
+# @permission_required('polls')
+# @jsonify
+# def get_choices(request, line_id):
+#     line = get_object_or_404(PollFormLine, pk=line_id)
+#     request.user.has_perm_to_view_or_die(line.pform)
+#
+#     choices = line.poll_line_type.get_choices()
+#
+#     if choices is None:
+#         raise Http404('This line type has no choices.')
+#
+#     return choices
+class LineChoices(base.CheckedView):
+    response_class = CremeJsonResponse
+    permissions = 'polls'
+    line_id_url_kwarg = 'line_id'
 
-    choices = line.poll_line_type.get_choices()
+    def check_line(self, line):
+        self.request.user.has_perm_to_view_or_die(line.pform)
 
-    if choices is None:
-        raise Http404('This line type has no choices.')
+    def get_choices(self, line):
+        choices = line.poll_line_type.get_choices()
 
-    return choices
+        if choices is None:
+            raise Http404('This line type has no choices.')
 
-# Class-based views  ----------------------------------------------------------
+        return choices
+
+    def get_line(self):
+        line = get_object_or_404(PollFormLine, pk=self.kwargs[self.line_id_url_kwarg])
+        self.check_line(line)
+
+        return line
+
+    def get(self, request, *args, **kwargs):
+        return self.response_class(
+            self.get_choices(self.get_line()),
+            safe=False,  # Result is not a dictionary
+        )
 
 
 class PollFormCreation(generic.EntityCreation):
@@ -199,7 +222,7 @@ class _LineCreationBase(generic.AddingInstanceToEntityPopup):
     entity_classes = PollForm
 
 
-class _RelatedSectionMixin(EntityRelatedMixin):
+class _RelatedSectionMixin(base.EntityRelatedMixin):
     section_id_url_kwarg = 'section_id'
     section_form_kwarg = 'section'
 

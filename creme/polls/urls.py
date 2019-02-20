@@ -17,7 +17,8 @@ urlpatterns = [
     re_path(r'^pform_line/(?P<line_id>\d+)/edit[/]?$',            poll_form.LineEdition.as_view(),       name='polls__edit_form_line'),
     re_path(r'^pform_line/(?P<line_id>\d+)/disable[/]?$',         poll_form.disable_line,                name='polls__disable_form_line'),
     re_path(r'^pform_line/(?P<line_id>\d+)/conditions/edit[/]?$', poll_form.ConditionsEdition.as_view(), name='polls__edit_form_line_conditions'),
-    re_path(r'^pform_line/(?P<line_id>\d+)/choices[/]?$',         poll_form.get_choices,                 name='polls__form_line_choices'),
+    # re_path(r'^pform_line/(?P<line_id>\d+)/choices[/]?$',         poll_form.get_choices,                 name='polls__form_line_choices'),
+    re_path(r'^pform_line/(?P<line_id>\d+)/choices[/]?$',         poll_form.LineChoices.as_view(),       name='polls__form_line_choices'),
 
     # Form section
     re_path(r'^poll_form/(?P<pform_id>\d+)/add/section[/]?$',     poll_form.SectionCreation.as_view(),      name='polls__create_form_section'),
