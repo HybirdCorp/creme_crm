@@ -1,5 +1,5 @@
 {% load i18n creme_widgets creme_history %}
-{% history_summary object user as history_info %}
+{% history_summary entity=object user=user as history_info %}
 <div class='card-history'>
     <div class="history-title-container">
         <span class="history-title">{% trans 'Information on Creme entity' %}</span>

@@ -42,12 +42,12 @@ def has_quickform(ctype):
 
 
 @register.simple_tag
-def commercial_segments_for_category(strategy, orga, category):
+def commercial_segments_for_category(strategy, orga, category):  # TODO: keyword arguments only ?
     return strategy.get_segments_for_category(orga, category)
 
 
 @register.inclusion_tag('commercial/templatetags/widget-score.html', takes_context=True)
-def commercial_widget_asset_score(context, segment_desc, asset):
+def commercial_widget_asset_score(context, segment_desc, asset):  # TODO: keyword arguments only ?
     strategy = context['strategy']
     orga     = context['orga']
 
@@ -60,7 +60,7 @@ def commercial_widget_asset_score(context, segment_desc, asset):
 
 
 @register.inclusion_tag('commercial/templatetags/widget-score.html', takes_context=True)
-def commercial_widget_charm_score(context, segment, charm):
+def commercial_widget_charm_score(context, segment, charm):  # TODO: keyword arguments only ?
     strategy = context['strategy']
     orga     = context['orga']
 

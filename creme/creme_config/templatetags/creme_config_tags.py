@@ -31,10 +31,10 @@ def is_custom(obj):
 
 
 @register.simple_tag
-def config_model_creation_url(model_config, user):
+def config_model_creation_url(*, model_config, user):
     return model_config.creator.get_url(user=user)
 
 
 @register.simple_tag
-def config_model_edition_url(model_config, instance, user):
+def config_model_edition_url(*, model_config, instance, user):
     return model_config.editor.get_url(instance=instance, user=user)

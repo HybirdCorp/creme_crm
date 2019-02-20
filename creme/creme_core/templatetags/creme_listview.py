@@ -63,7 +63,7 @@ register = Library()
 #
 #     return context
 @register.inclusion_tag('creme_core/templatetags/listview/entity-filters.html')
-def listview_entity_filters(model, user, efilters, show_buttons):
+def listview_entity_filters(*, model, user, efilters, show_buttons):
     efilter = efilters.selected
 
     if efilter:
@@ -95,7 +95,7 @@ def listview_entity_filters(model, user, efilters, show_buttons):
 #
 #     return context
 @register.inclusion_tag('creme_core/templatetags/listview/header-filters.html')
-def listview_header_filters(model, user, hfilters, show_buttons):
+def listview_header_filters(*, model, user, hfilters, show_buttons):
     hfilter = hfilters.selected
 
     return {
@@ -266,8 +266,8 @@ def get_listview_columns_header(context):
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/buttons.html', takes_context=True)
-def listview_buttons(context, model, buttons):
-    request = context['request'] # TODO: argument ?
+def listview_buttons(context, *, model, buttons):
+    request = context['request']  # TODO: argument ?
 
     return {
         'request': request,
@@ -281,7 +281,8 @@ def listview_buttons(context, model, buttons):
 
 
 @register.simple_tag
-def listview_header_colspan(cells, is_readonly, is_single_select):
+# def listview_header_colspan(cells, is_readonly, is_single_select):
+def listview_header_colspan(*, cells, is_readonly, is_single_select):
     colspan = len(cells) if is_readonly else \
               sum(2 if cell.type_id != 'actions' else 1 for cell in cells)
 
@@ -294,7 +295,8 @@ def get_column_colspan(cell, is_readonly):
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/td-action.html')
-def listview_td_action_for_cell(cell, instance, user):
+# def listview_td_action_for_cell(cell, instance, user):
+def listview_td_action_for_cell(*, cell, instance, user):
     from creme.creme_core.views.entity import _bulk_has_perm
 
     return {
@@ -305,7 +307,8 @@ def listview_td_action_for_cell(cell, instance, user):
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/entity-actions.html')
-def listview_entity_actions(cell, instance, user):
+# def listview_entity_actions(cell, instance, user):
+def listview_entity_actions(*, cell, instance, user):
     actions = cell.instance_actions(instance=instance, user=user)
     count = len(actions)
 
@@ -319,7 +322,8 @@ def listview_entity_actions(cell, instance, user):
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/header-actions.html')
-def listview_header_actions(cell, user):
+# def listview_header_actions(cell, user):
+def listview_header_actions(*, cell, user):
     return {
         'actions': cell.bulk_actions(user),
     }

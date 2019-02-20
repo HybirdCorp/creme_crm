@@ -29,7 +29,8 @@ __serializer = QSerializer()
 
 
 @register.simple_tag
-def query_entities_count(ctype, user):
+# def query_entities_count(ctype, user):
+def query_entities_count(*, ctype, user):
     """Returns the number of viewable entities with a specific type, in a fast way.
 
     @param ctype: A ContentType instance (related to a CremeEntity model).
