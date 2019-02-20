@@ -493,9 +493,26 @@ class ListViewButtonListTestCase(CremeTestCase):
         blist.replace(old=self.Button01, new=self.Button03)
         self.assertEqual([self.Button03, self.Button02], blist)
 
-    def test_instances(self):
+    def test_instances01(self):
+        "No extra context"
         blist = ListViewButtonList([self.Button01, self.Button02])
         instances = list(blist.instances)
         self.assertEqual(2, len(instances))
-        self.assertIsInstance(instances[0], self.Button01)
+
+        button01 = instances[0]
+        self.assertIsInstance(button01, self.Button01)
+        self.assertEqual({}, button01.get_context({'foo': 'bar'}))
+
         self.assertIsInstance(instances[1], self.Button02)
+
+    def test_instances02(self):
+        "Extra context"
+        extra_context = {'extra': 'info'}
+        blist = ListViewButtonList([self.Button01]).update_context(**extra_context)
+
+        button01 = next(blist.instances)
+        self.assertIsInstance(button01, self.Button01)
+
+        context = button01.get_context({'foo': 'bar'})
+        self.assertEqual(extra_context, context)
+        self.assertIsNot(extra_context, context)

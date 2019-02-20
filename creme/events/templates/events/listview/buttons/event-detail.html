@@ -1,0 +1,5 @@
+{% load i18n creme_widgets %}
+<a class="with-icon" href="{{button.event_entity.get_absolute_url}}">
+    {% widget_icon name='previous' label=_('Back') size='listview-button' %}
+    {% blocktrans with event=button.event_entity %}Back to «{{event}}»{% endblocktrans %}
+</a>&nbsp;

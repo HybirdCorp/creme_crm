@@ -544,6 +544,15 @@ class ListViewButton:
     """Base class for the buttons displayed in list-views."""
     template_name = 'creme_core/listview/buttons/place-holder.html'  # Used to render the button of course
 
+    def __init__(self, context=None):
+        """Constructor.
+
+        @param context: A dictionary which should be passed to the template for
+               its rendering (see <get_context()>).
+               <None> (default value) means "empty dictionary".
+        """
+        self.context = context or {}
+
     def get_context(self, lv_context):
         """ Get the specific part of the context of the template.
         This context should be inserted in the context with the key "button"
@@ -552,7 +561,7 @@ class ListViewButton:
         @param lv_context: Template context of the related list-view.
         return: A dictionary.
         """
-        return {}
+        return self.context
 
 
 class CreationButton(ListViewButton):
@@ -624,8 +633,20 @@ class BatchProcessButton(MassExportButton):
 
 
 class ListViewButtonList(FluentList):
-    "List of classes inheriting ListViewButton."
+    """List of classes inheriting ListViewButton."""
+    def __init__(self, *args, **kwargs):
+        super(ListViewButtonList, self).__init__(*args, **kwargs)
+        self._context = {}
+
+    def update_context(self, **kwargs):
+        """Add information items in the context passed to the button instances."""
+        self._context.update(**kwargs)
+        return self
+
     @property
     def instances(self):
+        """Instantiate classes, passing them a copy of the context."""
+        get_context = self._context.copy
+
         for button_class in self:
-            yield button_class()
+            yield button_class(get_context())

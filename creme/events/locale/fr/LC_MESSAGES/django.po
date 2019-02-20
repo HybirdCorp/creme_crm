@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Events 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-29 19:15+0100\n"
+"POT-Creation-Date: 2019-02-15 12:37+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -250,16 +250,28 @@ msgstr "Nombre d'invitations refusées"
 msgid "Number of visitors"
 msgstr "Nombre de visiteurs"
 
-#: templates/events/lv_button_link_contacts.html:3
+#: templates/events/listview/buttons/event-detail.html:3
+msgid "Back"
+msgstr "Retour"
+
+#: templates/events/listview/buttons/event-detail.html:4
+#, python-format
+msgid "Back to «%(event)s»"
+msgstr "Retour à «%(event)s»"
+
+#: templates/events/listview/buttons/link-contacts.html:3
+#: templates/events/lv_button_link_contacts.html:6
 msgid "Forbidden"
 msgstr "Interdit"
 
 # Already in creme_core
-#: templates/events/lv_button_link_contacts.html:4
+#: templates/events/listview/buttons/link-contacts.html:4
+#: templates/events/lv_button_link_contacts.html:7
 msgid "Link"
 msgstr ""
 
-#: templates/events/lv_button_link_contacts.html:4
+#: templates/events/listview/buttons/link-contacts.html:4
+#: templates/events/lv_button_link_contacts.html:7
 msgid "Link contacts"
 msgstr "Lier des contacts"
 
@@ -272,16 +284,16 @@ msgstr "Créer une opportunité"
 msgid "List of contacts related to «{event}»"
 msgstr "Liste des contacts liés à «{event}»"
 
-#: views/event.py:439
+#: views/event.py:448
 #, python-brace-format
 msgid "Link some contacts to «{object}»"
 msgstr "Lier des contacts à «{object}»"
 
-#: views/event.py:440
+#: views/event.py:449
 msgid "Link these contacts"
 msgstr "Lier ces contacts"
 
-#: views/event.py:451
+#: views/event.py:460
 #, python-brace-format
 msgid "Create an opportunity related to «{contact}»"
 msgstr "Créer une opportunité lié à «{contact}»"
