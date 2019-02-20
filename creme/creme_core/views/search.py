@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,13 +24,14 @@ from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from .. import utils
 from ..auth.decorators import login_required
 from ..core.entity_cell import EntityCellRegularField
 from ..core.search import Searcher
 from ..gui.bricks import QuerysetBrick
+from ..http import CremeJsonResponse
 from ..models import CremeEntity, EntityCredentials
 from ..registry import creme_registry
 from ..utils.unicode_collation import collator
@@ -101,7 +102,27 @@ class FoundEntitiesBrick(QuerysetBrick):
         ))
 
 
-class Search(base.EntityCTypeRelatedMixin, base.BricksView):
+class SearcherMixin:
+    searcher_class = Searcher
+    searchable_models_registry = creme_registry
+
+    def get_raw_models(self):
+        models = list(self.searchable_models_registry.iter_entity_models())
+        models.sort(key=lambda m: m._meta.verbose_name)
+
+        return models
+
+    def get_searcher(self):
+        searcher = getattr(self, 'searcher', None)
+
+        if searcher is None:
+            self.searcher = searcher = \
+                self.searcher_class(models=self.get_raw_models(), user=self.request.user)
+
+        return searcher
+
+
+class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
     template_name = 'creme_core/search_results.html'
     ct_id_0_accepted = True
     bricks_reload_url_name = 'creme_core__reload_search_brick'
@@ -110,7 +131,6 @@ class Search(base.EntityCTypeRelatedMixin, base.BricksView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.searcher = None
         self.search_error = None
         self.search_terms = None
 
@@ -165,7 +185,7 @@ class Search(base.EntityCTypeRelatedMixin, base.BricksView):
 
         if error is None:
             self.search_error = error = (
-                _('Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
+                ugettext('Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
                 if len(self.get_search_terms()) < MIN_RESEARCH_LENGTH else
                 ''
             )
@@ -179,15 +199,6 @@ class Search(base.EntityCTypeRelatedMixin, base.BricksView):
             self.search_terms = terms = self.request.GET.get('research', '')
 
         return terms
-
-    def get_searcher(self):
-        searcher = self.searcher
-
-        if searcher is None:
-            self.searcher = searcher = \
-                self.searcher_class(models=self.get_raw_models(), user=self.request.user)
-
-        return searcher
 
 
 @login_required
@@ -212,85 +223,161 @@ def reload_brick(request):
     return bricks_render_info(request, bricks=[brick])
 
 
-@login_required
-@jsonify
-def light_search(request):
-    GET_get = request.GET.get
-    sought = GET_get('value', '')
-    # ct_id = GET_get('ct_id')  # TODO: ??
-    # limit = int(GET_get('limit', 5))  # TODO: ?? (+ error if not int + min/max)
+# @login_required
+# @jsonify
+# def light_search(request):
+#     GET_get = request.GET.get
+#     sought = GET_get('value', '')
+#     # ct_id = GET_get('ct_id')  # todo: ??
+#     # limit = int(GET_get('limit', 5))  # todo: ?? (+ error if not int + min/max)
+#     limit = 5
+#
+#     data = {}
+#
+#     if not sought:
+#         data['error'] = ugettext('Empty search…')
+#     elif len(sought) < MIN_RESEARCH_LENGTH:
+#         data['error'] = ugettext('Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
+#     else:
+#         models = []
+#         results = []
+#
+#         # if not ct_id:
+#         models.extend(creme_registry.iter_entity_models())
+#         models.sort(key=lambda m: m._meta.verbose_name)
+#         # else:
+#         #     model = get_ct_or_404(ct_id).model_class()
+#         #
+#         #     if not issubclass(model, CremeEntity):
+#         #         data['error'] = _('The model must be a CremeEntity')
+#         #     else:
+#         #         models.append(model)
+#
+#         user = request.user
+#         searcher = Searcher(models, user)
+#
+#         models = list(searcher.models)  # Remove disabled models
+#
+#         best_score = -1
+#         best_entry = None
+#
+#         for model in models:
+#             query = searcher.search(model, sought)
+#
+#             if query is None:
+#                 count = 0
+#                 query = []
+#             else:
+#                 query = EntityCredentials.filter(user, query)
+#                 count = query.count()
+#
+#                 if limit > 0:
+#                     query = query[:limit]
+#
+#             ctype = ContentType.objects.get_for_model(model)
+#
+#             if query:
+#                 entities = []
+#
+#                 for e in query:
+#                     score = e.search_score
+#                     entry = {'label': str(e), 'url': e.get_absolute_url()}  # 'score': score
+#
+#                     if score > best_score:
+#                         best_score = score
+#                         best_entry = entry
+#
+#                     entities.append(entry)
+#
+#                 results.append({'id':      ctype.id,
+#                                 'label':   str(model._meta.verbose_name),
+#                                 'count':   count,
+#                                 'results': entities,
+#                                })
+#
+#         sort_key = collator.sort_key
+#         data['results'] = sorted(results, key=lambda r: sort_key(r['label']))
+#         data['best'] = best_entry
+#
+#     return data
+class LightSearch(SearcherMixin, base.CheckedView):
+    response_class = CremeJsonResponse
+    search_terms_arg = 'value'
+    error_msg_empty = _('Empty search…')
+    error_msg_length = _('Please enter at least {count} characters')
     limit = 5
 
-    data = {
+    def build_entry(self, entity):
+        return {'label': str(entity), 'url': entity.get_absolute_url()}
+
+    def build_model_label(self, model):
+        return str(model._meta.verbose_name)
+
+    def get(self, request, *args, **kwargs):
+        terms = self.get_search_terms()
+        limit = self.get_limit()
+
+        data = {
             # 'query': {'content': sought,
             #               'ctype':   ct_id if ct_id else None,
             #               'limit':   int(limit),
             #              }
-           }
+        }
 
-    if not sought:
-        data['error'] = _('Empty search…')
-    elif len(sought) < MIN_RESEARCH_LENGTH:
-        data['error'] = _('Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
-    else:
-        models = []
-        results = []
+        if not terms:
+            data['error'] = self.error_msg_empty
+        elif len(terms) < MIN_RESEARCH_LENGTH:
+            data['error'] = self.error_msg_length.format(count=MIN_RESEARCH_LENGTH)
+        else:
+            results = []
+            user = request.user
+            searcher = self.get_searcher()
 
-        # if not ct_id:
-        models.extend(creme_registry.iter_entity_models())
-        models.sort(key=lambda m: m._meta.verbose_name)
-        # else:
-        #     model = get_ct_or_404(ct_id).model_class()
-        #
-        #     if not issubclass(model, CremeEntity):
-        #         data['error'] = _('The model must be a CremeEntity')
-        #     else:
-        #         models.append(model)
+            best_score = -1
+            best_entry = None
 
-        user = request.user
-        searcher = Searcher(models, user)
+            get_ct = ContentType.objects.get_for_model
 
-        models = list(searcher.models)  # Remove disabled models
+            for model in searcher.models:
+                query = searcher.search(model, terms)
 
-        best_score = -1
-        best_entry = None
+                if query is None:
+                    count = 0
+                    query = []
+                else:
+                    query = EntityCredentials.filter(user, query)
+                    count = query.count()
 
-        for model in models:
-            query = searcher.search(model, sought)
+                    if limit > 0:
+                        query = query[:limit]
 
-            if query is None:
-                count = 0
-                query = []
-            else:
-                query = EntityCredentials.filter(user, query)
-                count = query.count()
+                if query:
+                    entities = []
 
-                if limit > 0:
-                    query = query[:limit]
+                    for e in query:
+                        score = e.search_score
+                        entry = self.build_entry(e)
 
-            ctype = ContentType.objects.get_for_model(model)
+                        if score > best_score:
+                            best_score = score
+                            best_entry = entry
 
-            if query:
-                entities = []
+                        entities.append(entry)
 
-                for e in query:
-                    score = e.search_score
-                    entry = {'label': str(e), 'url': e.get_absolute_url()}  # 'score': score
+                    results.append({'id': get_ct(model).id,
+                                    'label': self.build_model_label(model),
+                                    'count': count,
+                                    'results': entities,
+                                   })
 
-                    if score > best_score:
-                        best_score = score
-                        best_entry = entry
+            sort_key = collator.sort_key
+            data['results'] = sorted(results, key=lambda r: sort_key(r['label']))
+            data['best'] = best_entry
 
-                    entities.append(entry)
+        return self.response_class(data)
 
-                results.append({'id':      ctype.id,
-                                'label':   str(model._meta.verbose_name),
-                                'count':   count,
-                                'results': entities,
-                               })
+    def get_limit(self):
+        return self.limit
 
-        sort_key = collator.sort_key
-        data['results'] = sorted(results, key=lambda r: sort_key(r['label']))
-        data['best'] = best_entry
-
-    return data
+    def get_search_terms(self):
+        return self.request.GET.get(self.search_terms_arg, '')

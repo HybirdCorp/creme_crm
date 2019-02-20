@@ -162,7 +162,8 @@ creme_core_patterns = [
     # Search
     re_path(r'^search[/]?$', search.Search.as_view(), name='creme_core__search'),
     re_path(r'^search/', include([
-        re_path(r'^light[/]?$',        search.light_search, name='creme_core__light_search'),
+        # re_path(r'^light[/]?$',        search.light_search, name='creme_core__light_search'),
+        re_path(r'^light[/]?$',        search.LightSearch.as_view(), name='creme_core__light_search'),
         re_path(r'^reload_brick[/]?$', search.reload_brick, name='creme_core__reload_search_brick'),
     ])),
 
