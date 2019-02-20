@@ -136,25 +136,44 @@ def get_info_fields(request, ct_id):
                                       .choices(**kwargs)
 
 
-@login_required
-def clone(request):
-    # TODO: Improve credentials ?
-    entity_id = get_from_POST_or_404(request.POST, 'id')
-    entity    = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+# @login_required
+# def clone(request):
+#     entity_id = get_from_POST_or_404(request.POST, 'id')
+#     entity    = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+#
+#     if entity.get_clone_absolute_url() != CremeEntity.get_clone_absolute_url():
+#         raise Http404(ugettext('This model does not use the generic clone view.'))
+#
+#     user = request.user
+#     user.has_perm_to_create_or_die(entity)
+#     user.has_perm_to_view_or_die(entity)
+#
+#     new_entity = entity.clone()
+#
+#     if request.is_ajax():
+#         return HttpResponse(new_entity.get_absolute_url())
+#
+#     return redirect(new_entity)
+class Clone(base.EntityRelatedMixin, base.CheckedView):
+    entity_id_arg = 'id'
 
-    if entity.get_clone_absolute_url() != CremeEntity.get_clone_absolute_url():
-        raise Http404(ugettext('This model does not use the generic clone view.'))
+    def check_related_entity_permissions(self, entity, user):
+        if entity.get_clone_absolute_url() != CremeEntity.get_clone_absolute_url():
+            raise Http404(ugettext('This model does not use the generic clone view.'))
 
-    user = request.user
-    user.has_perm_to_create_or_die(entity)
-    user.has_perm_to_view_or_die(entity)
+        user.has_perm_to_create_or_die(entity)
+        user.has_perm_to_view_or_die(entity)
 
-    new_entity = entity.clone()
+    def get_related_entity_id(self):
+        return get_from_POST_or_404(self.request.POST, self.entity_id_arg)
 
-    if request.is_ajax():
-        return HttpResponse(new_entity.get_absolute_url())
+    def post(self, request, *args, **kwargs):
+        new_entity = self.get_related_entity().clone()
 
-    return redirect(new_entity)
+        if request.is_ajax():
+            return HttpResponse(new_entity.get_absolute_url())
+
+        return redirect(new_entity)
 
 
 # @login_required

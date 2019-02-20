@@ -32,7 +32,8 @@ entity_patterns = [
     re_path(r'^update/bulk/(?P<ct_id>\d+)[/]?$',                              entity.BulkUpdate.as_view(), name='creme_core__bulk_update'),
     re_path(r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.BulkUpdate.as_view(), name='creme_core__bulk_update'),
 
-    re_path(r'^clone[/]*', entity.clone, name='creme_core__clone_entity'),
+    # re_path(r'^clone[/]*', entity.clone, name='creme_core__clone_entity'),
+    re_path(r'^clone[/]*', entity.Clone.as_view(), name='creme_core__clone_entity'),
 
     # url(r'^merge/select_other[/]?$', entity.select_entity_for_merge,  name='creme_core__select_entity_for_merge'),
     re_path(r'^merge/select_other[/]?$', entity.EntitiesToMergeSelection.as_view(), name='creme_core__select_entity_for_merge'),

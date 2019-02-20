@@ -554,55 +554,98 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_clone01(self):
         user = self.login()
         url = self.CLONE_URL
-        mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
 
-        self.assertPOST200(url, data={'id': mario.id}, follow=True)
+        first_name = 'Mario'
+        mario = FakeContact.objects.create(user=user, first_name=first_name, last_name='Bros')
+        count = FakeContact.objects.count()
+
         self.assertPOST404(url, data={})
         self.assertPOST404(url, data={'id': 0})
+        self.assertEqual(count, FakeContact.objects.count())
 
-    def test_clone02(self):
-        self.login(is_superuser=False)
-
-        mario = FakeContact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
-        self.assertPOST403(self.CLONE_URL, data={'id': mario.id}, follow=True)
-
-    def test_clone03(self):
-        self.login(is_superuser=False, creatable_models=[FakeContact])
-        self._set_all_creds_except_one(EntityCredentials.VIEW)
-
-        mario = FakeContact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
-        self.assertPOST403(self.CLONE_URL, data={'id': mario.id}, follow=True)
-
-    def test_clone04(self):
-        user = self.login(is_superuser=False, creatable_models=[FakeContact])
-        self._set_all_creds_except_one(None)
-
-        mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
-        self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
-
-    def test_clone05(self):
-        self.login()
-
-        first_name = "Mario"
-        mario = FakeContact.objects.create(user=self.other_user, first_name=first_name, last_name="Bros")
-
-        count = FakeContact.objects.count()
-        response = self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
+        # ---
+        response = self.assertPOST200(url, data={'id': mario.id}, follow=True)
         self.assertEqual(count + 1, FakeContact.objects.count())
 
         with self.assertNoException():
-            mario = FakeContact.objects.filter(first_name=first_name).order_by('created')[0]
-            oiram = FakeContact.objects.filter(first_name=first_name).order_by('created')[1]
+            mario, oiram = FakeContact.objects.filter(first_name=first_name).order_by('created')
 
         self.assertEqual(mario.last_name, oiram.last_name)
         self.assertRedirects(response, oiram.get_absolute_url())
+
+    def test_clone02(self):
+        "Not logged"
+        url = self.CLONE_URL
+
+        mario = FakeContact.objects.create(user=get_user_model().objects.first(),
+                                           first_name='Mario', last_name='Bros',
+                                          )
+
+        response = self.assertPOST200(url, data={'id': mario.id}, follow=True)
+        self.assertRedirects(
+            response,
+            '{login_url}?next={clone_url}'.format(
+                login_url=reverse(settings.LOGIN_URL),
+                clone_url=url,
+            )
+        )
+
+    def test_clone03(self):
+        "Not super user with right credentials"
+        user = self.login(is_superuser=False, creatable_models=[FakeContact])
+        self._set_all_creds_except_one(None)
+
+        mario = FakeContact.objects.create(user=user, first_name='Mario', last_name='Bros')
+        self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
+
+    def test_clone04(self):
+        "Not super user without creation credentials => error"
+        self.login(is_superuser=False)
+        self._set_all_creds_except_one(None)
+
+        mario = FakeContact.objects.create(user=self.other_user, first_name='Mario', last_name='Bros')
+        count = FakeContact.objects.count()
+        self.assertPOST403(self.CLONE_URL, data={'id': mario.id}, follow=True)
+        self.assertEqual(count, FakeContact.objects.count())
+
+    def test_clone05(self):
+        "Not super user without VIEW credentials => error"
+        self.login(is_superuser=False, creatable_models=[FakeContact])
+        self._set_all_creds_except_one(EntityCredentials.VIEW)
+
+        mario = FakeContact.objects.create(user=self.other_user, first_name='Mario', last_name='Bros')
+        count = FakeContact.objects.count()
+        self.assertPOST403(self.CLONE_URL, data={'id': mario.id}, follow=True)
+        self.assertEqual(count, FakeContact.objects.count())
 
     def test_clone06(self):
         """Not clonable entity type"""
         user = self.login()
 
         image = FakeImage.objects.create(user=user, name='Img1')
+        count = FakeImage.objects.count()
         self.assertPOST404(self.CLONE_URL, data={'id': image.id}, follow=True)
+        self.assertEqual(count, FakeImage.objects.count())
+
+    def test_clone07(self):
+        "Ajax query"
+        user = self.login()
+
+        first_name = 'Mario'
+        mario = FakeContact.objects.create(user=user, first_name=first_name, last_name='Bros')
+        count = FakeContact.objects.count()
+
+        response = self.assertPOST200(self.CLONE_URL, data={'id': mario.id},
+                                      follow=True,
+                                      HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                                     )
+        self.assertEqual(count + 1, FakeContact.objects.count())
+
+        with self.assertNoException():
+            mario, oiram = FakeContact.objects.filter(first_name=first_name).order_by('created')
+
+        self.assertEqual(mario.last_name, oiram.last_name)
+        self.assertEqual(oiram.get_absolute_url(), response.content.decode())
 
     def _assert_detailview(self, response, entity):
         self.assertEqual(200, response.status_code)
