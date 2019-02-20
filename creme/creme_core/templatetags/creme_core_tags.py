@@ -342,6 +342,7 @@ def jsondata(value, **kwargs):
     return mark_safe('<script type="application/json"{}><!-- {} --></script>'.format(attrs, escapejson(content)))
 
 
+# TODO: filter ?
 # TODO: useless ?
 @register.simple_tag
 def get_entity_summary(entity, user):

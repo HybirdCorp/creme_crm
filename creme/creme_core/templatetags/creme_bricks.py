@@ -596,7 +596,7 @@ def brick_tile(label, value, multiline=False, data_type=None):
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/tile.html')
-def brick_tile_for_cell(cell, instance, user):
+def brick_tile_for_cell(cell, instance, user):  # TODO: keywords only ?
     """Tile for tiles-brick (see creme/creme_core/templates/creme_core/bricks/base/tiles.html)
     related to an EntityCell, for a given instance.
     The tile will display the cell's title as label, the cell's value (for the instance) ;

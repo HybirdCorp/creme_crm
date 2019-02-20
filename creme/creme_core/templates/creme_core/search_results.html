@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    {% search_form user selected_ct_id research %}
+    {% search_form user=user selected_ct_id=selected_ct_id search_terms=research %}
 
     {% if research or models %}
         <div class="help_box">

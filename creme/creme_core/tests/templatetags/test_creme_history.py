@@ -21,7 +21,7 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         togame = FakeContact.objects.create(user=user, first_name='Togame', last_name='Kisakushi')
         self.assertTrue(HistoryLine.objects.filter(entity=togame.id))
 
-        summary = creme_history.history_summary(togame, user)
+        summary = creme_history.history_summary(entity=togame, user=user)
         self.assertIsInstance(summary, dict)
         self.assertEqual(2, len(summary))
 
@@ -48,7 +48,7 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         togame.save()
         self.assertEqual(2, HistoryLine.objects.filter(entity=togame.id).count())
 
-        summary = creme_history.history_summary(togame, user)
+        summary = creme_history.history_summary(entity=togame, user=user)
         self.assertIsInstance(summary, dict)
         self.assertEqual(2, len(summary))
 
@@ -74,7 +74,7 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         togame.save()
         self.assertFalse(HistoryLine.objects.filter(entity=togame.id))
 
-        summary = creme_history.history_summary(togame, user)
+        summary = creme_history.history_summary(entity=togame, user=user)
         self.assertIsInstance(summary, dict)
         self.assertEqual(2, len(summary))
 
@@ -113,7 +113,7 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         self.assertEqual(2, HistoryLine.objects.filter(entity=togame.id).count())
 
         with self.assertNumQueries(2):
-            summary = creme_history.history_summary(togame, user)
+            summary = creme_history.history_summary(entity=togame, user=user)
 
         with self.assertNumQueries(0):
             user1 = summary.get('creation').user
