@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.views.generic import TemplateView, FormView
+from django.views import generic as django_generic
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm
@@ -246,7 +246,22 @@ class EntityCTypeRelatedMixin(ContentTypeRelatedMixin):
             raise ConflictError('This model is not a entity model: {}'.format(model))
 
 
-class CheckedTemplateView(PermissionsMixin, TemplateView):
+class CheckedView(PermissionsMixin, django_generic.View):
+    """Creme version of the django's View ; it checked that the
+    user is logged & has some permission.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+
+        if not user.is_authenticated:
+            return self.handle_not_logged()
+
+        self.check_view_permissions(user=user)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class CheckedTemplateView(PermissionsMixin, django_generic.TemplateView):
     """Creme version of the django's TemplateView ; it checked that the
     user is logged & has some permission.
     """
@@ -330,7 +345,7 @@ class CremeFormView(CancellableMixin,
                     PermissionsMixin,
                     TitleMixin,
                     SubmittableMixin,
-                    FormView):
+                    django_generic.FormView):
     """ Base class for views with a simple form (ie: not a model form) in Creme.
     You'll have to override at least the attribute 'form_class' because the
     default one is just abstract place-holders.

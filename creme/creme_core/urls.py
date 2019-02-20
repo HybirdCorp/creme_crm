@@ -23,7 +23,8 @@ entity_patterns = [
     # TODO: IDs as GET arguments
     re_path(r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)[/]?$',                      entity.get_creme_entities_repr,  name='creme_core__entities_summaries'),
     re_path(r'^get_sanitized_html/(?P<entity_id>\d+)/(?P<field_name>[\w-]+)[/]?$', entity.get_sanitized_html_field, name='creme_core__sanitized_html_field'),
-    re_path(r'^search_n_view[/]?$',                                                entity.search_and_view,          name='creme_core__search_n_view_entities'),
+    # url(r'^search_n_view[/]?$',                                                entity.search_and_view,          name='creme_core__search_n_view_entities'),
+    re_path(r'^search_n_view[/]?$',                                                entity.SearchAndView.as_view(),  name='creme_core__search_n_view_entities'),
     re_path(r'^get_info_fields/(?P<ct_id>\d+)/json[/]?$',                          entity.get_info_fields,          name='creme_core__entity_info_fields'),
 
     re_path(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.InnerEdition.as_view(), name='creme_core__inner_edition'),
