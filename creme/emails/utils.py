@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,12 +62,16 @@ def get_mime_image(image_entity):
         mime_image = getattr(image_entity, _MIME_IMG_CACHE)
     except AttributeError:
         try:
-            image_file = image_entity.filedata.file
-            image_file.open()  # NB: 'with' seems not working
-            mime_image = MIMEImage(image_file.read())
-            mime_image.add_header('Content-ID','<img_{}>'.format(image_entity.id))
-            mime_image.add_header('Content-Disposition', 'inline', filename=basename(image_file.name))
-            image_file.close()
+            # image_file = image_entity.filedata.file
+            # image_file.open()  # NB: 'with' seems not working
+            # mime_image = MIMEImage(image_file.read())
+            # mime_image.add_header('Content-ID','<img_{}>'.format(image_entity.id))
+            # mime_image.add_header('Content-Disposition', 'inline', filename=basename(image_file.name))
+            # image_file.close()
+            with image_entity.filedata.open() as image_file:
+                mime_image = MIMEImage(image_file.read())
+                mime_image.add_header('Content-ID','<img_{}>'.format(image_entity.id))
+                mime_image.add_header('Content-Disposition', 'inline', filename=basename(image_file.name))
         except IOError as e:
             logger.error('Exception when reading image : %s', e)
             mime_image = None

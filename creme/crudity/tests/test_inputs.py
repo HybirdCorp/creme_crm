@@ -1151,11 +1151,13 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('A plumber', contact.description)
         self.assertTrue(contact.image)
 
-        f = contact.image.filedata
-        try:
+        # f = contact.image.filedata
+        # try:
+        #     self.assertEqual(blob, f.read())
+        # finally:
+        #     f.close()
+        with contact.image.filedata.open() as f:
             self.assertEqual(blob, f.read())
-        finally:
-            f.close()
 
     def _get_languages(self):
         languages = list(Language.objects.all())
@@ -1371,11 +1373,13 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertTrue(document.filedata)
 
         blob = decode_b64binary(img_content)[1]
-        f = document.filedata
-        try:
+        # f = document.filedata
+        # try:
+        #     self.assertEqual(blob, f.read())
+        # finally:
+        #     f.close()
+        with document.filedata.open() as f:
             self.assertEqual(blob, f.read())
-        finally:
-            f.close()
 
 
 class FileSystemInputTestCase(CrudityTestCase):
