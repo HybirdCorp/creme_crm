@@ -16,11 +16,13 @@ urlpatterns = [
 urlpatterns += swap_manager.add_group(
     documents.folder_model_is_custom,
     # Swappable(url(r'^folders[/]?$',                             folder.listview,                      name='documents__list_folders')),
-    Swappable(re_path(r'^folders[/]?$',                             folder.FoldersList.as_view(),         name='documents__list_folders')),
-    Swappable(re_path(r'^folder/add[/]?$',                          folder.FolderCreation.as_view(),      name='documents__create_folder')),
-    Swappable(re_path(r'^folder/(?P<folder_id>\d+)/add/child[/]?$', folder.ChildFolderCreation.as_view(), name='documents__create_child_folder'), check_args=Swappable.INT_ID),
-    Swappable(re_path(r'^folder/edit/(?P<folder_id>\d+)[/]?$',      folder.FolderEdition.as_view(),       name='documents__edit_folder'),         check_args=Swappable.INT_ID),
-    Swappable(re_path(r'^folder/(?P<folder_id>\d+)[/]?$',           folder.FolderDetail.as_view(),        name='documents__view_folder'),         check_args=Swappable.INT_ID),
+    Swappable(re_path(r'^folders[/]?$',                                   folder.FoldersList.as_view(),         name='documents__list_folders')),
+    Swappable(re_path(r'^folder/add[/]?$',                                folder.FolderCreation.as_view(),      name='documents__create_folder')),
+    Swappable(re_path(r'^folder/(?P<parent_id>\d+)/add/child[/]?$',       folder.ChildFolderCreation.as_view(), name='documents__create_folder'), check_args=Swappable.INT_ID),
+    # Swappable(re_path(r'^folder/(?P<folder_id>\d+)/add/child[/]?$', folder.ChildFolderCreation.as_view(), name='documents__create_child_folder'), check_args=Swappable.INT_ID),
+    Swappable(re_path(r'^folder/(?P<folder_id>\d+)/add/child/popup[/]?$', folder.ChildFolderCreationPopup.as_view(), name='documents__create_child_folder'), check_args=Swappable.INT_ID),
+    Swappable(re_path(r'^folder/edit/(?P<folder_id>\d+)[/]?$',            folder.FolderEdition.as_view(),       name='documents__edit_folder'),         check_args=Swappable.INT_ID),
+    Swappable(re_path(r'^folder/(?P<folder_id>\d+)[/]?$',                 folder.FolderDetail.as_view(),        name='documents__view_folder'),         check_args=Swappable.INT_ID),
     app_name='documents',
 ).kept_patterns()
 

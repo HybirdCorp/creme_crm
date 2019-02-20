@@ -553,11 +553,12 @@ class ListViewButton:
         """
         self.context = context or {}
 
-    def get_context(self, lv_context):
+    def get_context(self, request, lv_context):
         """ Get the specific part of the context of the template.
         This context should be inserted in the context with the key "button"
-        (see the templatetag "creme_listview.listview_buttons")
+        (see the template-tag "creme_listview.listview_buttons")
 
+        @param request: Current HTTPRequest object.
         @param lv_context: Template context of the related list-view.
         return: A dictionary.
         """
@@ -567,23 +568,27 @@ class ListViewButton:
 class CreationButton(ListViewButton):
     template_name = 'creme_core/listview/buttons/creation.html'
 
-    def get_context(self, lv_context):
-        context = super().get_context(lv_context=lv_context)
+    def get_context(self, request, lv_context):
+        context = super().get_context(request=request, lv_context=lv_context)
 
         model = self.get_model(lv_context=lv_context)
-        context['label'] = self.get_label(model)
-        context['url'] = self.get_url(model)
+        context['label'] = self.get_label(request=request, model=model)
+        context['url'] = self.get_url(request=request, model=model)
+        context['is_allowed'] = self.is_allowed(request=request, model=model)
 
         return context
 
-    def get_label(self, model):
+    def get_label(self, request, model):
         return model.creation_label
 
     def get_model(self, lv_context):
         return lv_context['model']
 
-    def get_url(self, model):
+    def get_url(self, request, model):
         return model.get_create_absolute_url()
+
+    def is_allowed(self, request, model):
+        return request.user.has_perm_to_create(model)
 
 
 class MassExportButton(ListViewButton):
@@ -592,8 +597,8 @@ class MassExportButton(ListViewButton):
     # TODO: try to extract it from the context ?
     export_backend_registry = backends.export_backend_registry
 
-    def get_context(self, lv_context):
-        context = super().get_context(lv_context=lv_context)
+    def get_context(self, request, lv_context):
+        context = super().get_context(request=request, lv_context=lv_context)
         context['backend_choices'] = [
             (backend.id, backend.verbose_name)
                 for backend in self.export_backend_registry.backends
@@ -614,8 +619,8 @@ class MassImportButton(ListViewButton):
     import_backend_registry = backends.import_backend_registry
     import_form_registry = import_form_registry
 
-    def get_context(self, lv_context):
-        context = super().get_context(lv_context=lv_context)
+    def get_context(self, request, lv_context):
+        context = super().get_context(request=request, lv_context=lv_context)
 
         ct = ContentType.objects.get_for_model(lv_context['model'])
         context['show'] = (

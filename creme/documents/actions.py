@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.urls.base import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme import documents
 from creme.creme_core.gui.actions import UIAction
@@ -38,6 +38,8 @@ class ExploreFolderAction(UIAction):
     label = _('Explore')
     icon = 'view'
 
+    help_format = _('List sub-folders of «{}»')
+
     @property
     def url(self):
         instance = self.instance
@@ -49,7 +51,7 @@ class ExploreFolderAction(UIAction):
 
     @property
     def help_text(self):
-        return ugettext('List sub-folders of «{}»').format(self.instance)
+        return self.help_format.format(self.instance)
 
 
 class DownloadAction(UIAction):
@@ -61,6 +63,8 @@ class DownloadAction(UIAction):
     label = _('Download')
     icon = 'download'
 
+    help_text = _('Download the file')
+
     @property
     def url(self):
         return reverse('creme_core__dl_file', args=(self.instance.filedata,))
@@ -69,6 +73,6 @@ class DownloadAction(UIAction):
     def is_enabled(self):
         return self.user.has_perm_to_view(self.instance)
 
-    @property
-    def help_text(self):
-        return _('Download the file')
+    # @property
+    # def help_text(self):
+    #     return _('Download the file')

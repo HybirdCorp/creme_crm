@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'DOCUMENTS' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 14:58+0100\n"
+"POT-Creation-Date: 2019-02-18 17:15+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,15 +19,15 @@ msgstr ""
 msgid "Explore"
 msgstr "Explorer"
 
-#: actions.py:52 views/folder.py:94
+#: actions.py:41
 msgid "List sub-folders of «{}»"
 msgstr "Liste des sous-dossiers de «{}»"
 
-#: actions.py:61
+#: actions.py:63
 msgid "Download"
 msgstr "Télécharger"
 
-#: actions.py:74 templates/documents/bricks/document-hat-bar.html:7
+#: actions.py:66 templates/documents/bricks/document-hat-bar.html:7
 msgid "Download the file"
 msgstr "Télécharger le fichier"
 
@@ -35,7 +35,7 @@ msgstr "Télécharger le fichier"
 msgid "Documents"
 msgstr "Documents"
 
-#: apps.py:124
+#: apps.py:131
 msgid "Tools"
 msgstr "Outils"
 
@@ -80,6 +80,11 @@ msgstr "«%(folder)s» ne peut pas être son propre parent"
 #: forms/quick.py:100
 msgid "Image file"
 msgstr "Fichier image"
+
+#: gui.py:37 views/folder.py:151 views/folder.py:177
+#, python-brace-format
+msgid "Create a sub-folder for «{entity}»"
+msgstr "Créer un sous-dossier pour «{entity}»"
 
 #: models/document.py:36 models/other_models.py:48 models/other_models.py:65
 #: templates/documents/bricks/linked-docs.html:23
@@ -299,7 +304,7 @@ msgstr "Délier à un document"
 msgid "No linked document"
 msgstr "Aucun document lié"
 
-#: templates/documents/frags/previous.html:6
+#: templates/documents/listview/buttons/parent-folder.html:4
 msgid "Previous folder"
 msgstr "Classeur parent"
 
@@ -313,15 +318,15 @@ msgstr ""
 "Classeur contenant tous les documents CSV utilisés lors des imports de "
 "données"
 
-#: views/document.py:116
+#: views/document.py:115
 #, python-brace-format
 msgid "New document for «{entity}»"
 msgstr "Ajout de document à «{entity}»"
 
-#: views/folder.py:154
+#: views/folder.py:202
 #, python-brace-format
-msgid "New child folder for «{entity}»"
-msgstr "Nouveau classeur enfant pour «{entity}»"
+msgid "List of sub-folders for «{parent}»"
+msgstr "Liste des sous-dossiers pour «{parent}»"
 
 #: views/quick_forms.py:108
 msgid "Create an image"

@@ -274,7 +274,7 @@ def listview_buttons(context, *, model, buttons):
         'user': request.user,
         'model': model,
         'list_view_state': context['list_view_state'],
-        'buttons': ((button, button.get_context(context))
+        'buttons': ((button, button.get_context(request=request, lv_context=context))
                         for button in buttons.instances
                    ),
     }

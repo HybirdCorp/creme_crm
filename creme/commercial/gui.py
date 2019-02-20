@@ -25,8 +25,8 @@ from creme.creme_core.gui.listview import CreationButton
 
 
 class SalesManCreationButton(CreationButton):
-    def get_label(self, model):
+    def get_label(self, request, model):
         return _('Create a salesman')
 
-    def get_url(self, model):
+    def get_url(self, request, model):
         return reverse('commercial__create_salesman')

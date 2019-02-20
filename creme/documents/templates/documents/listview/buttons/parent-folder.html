@@ -1,0 +1,7 @@
+{% load i18n creme_widgets %}
+{% if button.parent_folder %}
+<button class="with-icon parent-folder" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" name="parent_id" value="{{button.parent_folder.parent_folder_id|default:''}}" type="button">
+    {% trans 'Previous folder' as label %}{% widget_icon name='previous' label=label size='listview-button' %}
+    <span>{{label}}</span>
+</button>
+{% endif %}
