@@ -626,6 +626,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         onizuka.phone = phone
         onizuka.save()
+        self.assertPOST(405, url, data=data)
         self._assert_detailview(self.client.get(url, data=data, follow=True), onizuka)
 
     def test_search_and_view02(self):
@@ -739,6 +740,27 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                 'value':  '123456789',
                                },
                          )
+
+    def test_search_and_view08(self):
+        "Not logged"
+        url = self.SEARCHNVIEW_URL
+        response = self.assertGET200(
+            url, follow=True,
+            data={'models': 'creme_core-fakecontact',
+                  'fields': 'phone',
+                  'value':  '123456789',
+                 },
+        )
+        self.assertRedirects(
+            response,
+            '{login_url}?next={search_url}'
+            '%3Fmodels%3Dcreme_core-fakecontact'
+            '%26fields%3Dphone'
+            '%26value%3D123456789'.format(
+                login_url=reverse(settings.LOGIN_URL),
+                search_url=url,
+            )
+        )
 
     def test_restrict_entity_2_superusers01(self):
         user = self.login()

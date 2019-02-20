@@ -46,10 +46,10 @@ from ..models import CremeEntity, EntityCredentials, FieldsConfig, Sandbox
 from ..models.fields import UnsafeHTMLField
 from ..utils import (get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404,
         bool_from_str_extended)
-from ..utils.translation import get_model_verbose_name
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.serializers import json_encode
+from ..utils.translation import get_model_verbose_name
 
 from . import generic
 from .decorators import jsonify, POST_only
@@ -157,59 +157,143 @@ def clone(request):
     return redirect(new_entity)
 
 
-@login_required
-def search_and_view(request):
-    GET = request.GET
-    model_ids = get_from_GET_or_404(GET, 'models').split(',')
-    fields    = get_from_GET_or_404(GET, 'fields').split(',')
-    value     = get_from_GET_or_404(GET, 'value')
+# @login_required
+# def search_and_view(request):
+#     GET = request.GET
+#     model_ids = get_from_GET_or_404(GET, 'models').split(',')
+#     fields    = get_from_GET_or_404(GET, 'fields').split(',')
+#     value     = get_from_GET_or_404(GET, 'value')
+#
+#     if not value:  # Avoid useless queries
+#         raise Http404('Void "value" arg')
+#
+#     user = request.user
+#     check_app = user.has_perm_to_access_or_die
+#     models = []
+#
+#     for model_id in model_ids:
+#         try:
+#             ct = ContentType.objects.get_by_natural_key(*model_id.split('-'))
+#         except (ContentType.DoesNotExist, TypeError) as e:
+#             raise Http404('This model does not exist: {}'.format(model_id)) from e
+#
+#         check_app(ct.app_label)
+#
+#         model = ct.model_class()
+#
+#         if issubclass(model, CremeEntity):
+#             models.append(model)
+#
+#     if not models:
+#         raise Http404('No valid model')
+#
+#     fconfigs = FieldsConfig.get_4_models(models)
+#
+#     for model in models:
+#         query = Q()
+#
+#         for field_name in fields:
+#             try:
+#                 field = model._meta.get_field(field_name)
+#             except FieldDoesNotExist:
+#                 pass
+#             else:
+#                 if fconfigs[model].is_field_hidden(field):
+#                     raise ConflictError(ugettext('This field is hidden.'))
+#
+#                 query |= Q(**{field.name: value})
+#
+#         if query:  # Avoid useless query
+#             found = EntityCredentials.filter(user, model.objects.filter(query)).first()
+#
+#             if found:
+#                 return redirect(found)
+#
+#     raise Http404(ugettext('No entity corresponding to your search was found.'))
+class SearchAndView(base.CheckedView):
+    allowed_classes = CremeEntity
+    value_arg = 'value'
+    field_names_arg = 'fields'
+    model_ids_arg = 'models'
 
-    if not value:  # Avoid useless queries
-        raise Http404('Void "value" arg')
-
-    user = request.user
-    check_app = user.has_perm_to_access_or_die
-    models = []
-
-    for model_id in model_ids:
-        try:
-            ct = ContentType.objects.get_by_natural_key(*model_id.split('-'))
-        except (ContentType.DoesNotExist, TypeError) as e:
-            raise Http404('This model does not exist: {}'.format(model_id)) from e
-
-        check_app(ct.app_label)
-
-        model = ct.model_class()
-
-        if issubclass(model, CremeEntity):
-            models.append(model)
-
-    if not models:
-        raise Http404('No valid model')
-
-    fconfigs = FieldsConfig.get_4_models(models)
-
-    for model in models:
+    def build_q(self, *, model, value, field_names, fields_configs):
         query = Q()
 
-        for field_name in fields:
+        for field_name in field_names:
             try:
                 field = model._meta.get_field(field_name)
             except FieldDoesNotExist:
                 pass
             else:
-                if fconfigs[model].is_field_hidden(field):
+                if fields_configs[model].is_field_hidden(field):
                     raise ConflictError(ugettext('This field is hidden.'))
 
                 query |= Q(**{field.name: value})
 
-        if query:  # Avoid useless query
-            found = EntityCredentials.filter(user, model.objects.filter(query)).first()
+        return query
 
-            if found:
-                return redirect(found)
+    def build_response(self, entity):
+        return redirect(entity)
 
-    raise Http404(ugettext('No entity corresponding to your search was found.'))
+    def get_field_names(self):
+        return get_from_GET_or_404(self.request.GET, self.field_names_arg).split(',')
+
+    def get_model_ids(self):
+        return get_from_GET_or_404(self.request.GET, self.model_ids_arg).split(',')
+
+    def get_models(self):
+        model_ids = self.get_model_ids()
+
+        check_app = self.request.user.has_perm_to_access_or_die
+        models = []
+        get_ct = ContentType.objects.get_by_natural_key
+
+        for model_id in model_ids:
+            try:
+                ct = get_ct(*model_id.split('-'))
+            except (ContentType.DoesNotExist, TypeError) as e:
+                raise Http404('This model does not exist: {}'.format(model_id)) from e
+
+            check_app(ct.app_label)
+
+            model = ct.model_class()
+
+            if self.is_model_allowed(model):
+                models.append(model)
+
+        if not models:
+            raise Http404('No valid model')
+
+        return models
+
+    def get_value(self):
+        value = get_from_GET_or_404(self.request.GET, self.value_arg)
+
+        if not value:  # Avoid useless queries
+            raise Http404('Void "value" arg')
+
+        return value
+
+    def get(self, request, *args, **kwargs):
+        value = self.get_value()
+        field_names = self.get_field_names()
+        models = self.get_models()
+        fconfigs = FieldsConfig.get_4_models(models)
+        user = request.user
+
+        for model in models:
+            query = self.build_q(model=model, value=value, field_names=field_names, fields_configs=fconfigs)
+
+            if query:  # Avoid useless query
+                found = EntityCredentials.filter(user, model.objects.filter(query)).first()
+
+                if found:
+                    return self.build_response(found)
+
+        raise Http404(ugettext('No entity corresponding to your search was found.'))
+
+    def is_model_allowed(self, model):
+        return issubclass(model, self.allowed_classes)
 
 
 # TODO: remove when bulk_update_registry has been rework to manage different type of cells (eg: RelationType => LINK)
