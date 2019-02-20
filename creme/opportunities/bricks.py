@@ -21,6 +21,7 @@
 from datetime import timedelta
 
 from django.apps import apps
+from django.core.paginator import Paginator
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick, EntityBrick
@@ -40,7 +41,23 @@ Service = products.get_service_model()
 Opportunity = get_opportunity_model()
 
 
-class OpportunityCardHatBrick(Brick):
+class _RelatedToOpportunity:
+    def get_related_queryset(self, *, opportunity, model, rtype_id):
+        return model.objects\
+                    .filter(is_deleted=False,
+                            relations__object_entity=opportunity.id,
+                            relations__type=rtype_id,
+                           )
+
+    def get_related_contacts(self, *, opportunity, rtype_id):
+        return self.get_related_queryset(opportunity=opportunity,
+                                         model=Contact,
+                                         rtype_id=rtype_id,
+                                        ) \
+                   .select_related('civility')
+
+
+class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
     id_           = Brick._generate_hat_id('opportunities', 'opportunity_card')
     dependencies  = [Opportunity,
                      Organisation, Contact,
@@ -53,6 +70,8 @@ class OpportunityCardHatBrick(Brick):
                            + CommercialActs4Card.relation_type_deps
     verbose_name  = _('Card header block')
     template_name = 'opportunities/bricks/opportunity-hat-card.html'
+
+    displayed_contacts_number = 5
 
     def detailview_display(self, context):
         opportunity = context['object']
@@ -78,6 +97,11 @@ class OpportunityCardHatBrick(Brick):
                     is_neglected=is_neglected,
                     target=target,
                     target_is_organisation=isinstance(target, Organisation),
+                    contacts=Paginator(self.get_related_contacts(opportunity=opportunity,
+                                                                 rtype_id=constants.REL_SUB_LINKED_CONTACT,
+                                                                ),
+                                       per_page=self.displayed_contacts_number,
+                                      ).page(1),
                     activities=Activities4Card.get(context, opportunity),
                     acts=CommercialActs4Card.get(context, opportunity),
         ))
@@ -113,7 +137,7 @@ class _LinkedStuffBrick(QuerysetBrick):
         ))
 
 
-class LinkedContactsBrick(_LinkedStuffBrick):
+class LinkedContactsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     id_           = QuerysetBrick.generate_id('opportunities', 'linked_contacts')
     dependencies  = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_LINKED_CONTACT, )
@@ -121,10 +145,12 @@ class LinkedContactsBrick(_LinkedStuffBrick):
     template_name = 'opportunities/bricks/contacts.html'
 
     def _get_queryset(self, entity):
-        return entity.get_contacts().select_related('civility')
+        return self.get_related_contacts(opportunity=entity,
+                                         rtype_id=constants.REL_SUB_LINKED_CONTACT,
+                                        )
 
 
-class LinkedProductsBrick(_LinkedStuffBrick):
+class LinkedProductsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     id_           = QuerysetBrick.generate_id('opportunities', 'linked_products')
     dependencies  = (Relation, Product)
     relation_type_deps = (constants.REL_OBJ_LINKED_PRODUCT, )
@@ -133,10 +159,13 @@ class LinkedProductsBrick(_LinkedStuffBrick):
     order_by      = 'name'
 
     def _get_queryset(self, entity):
-        return entity.get_products()
+        return self.get_related_queryset(opportunity=entity,
+                                         model=Product,
+                                         rtype_id=constants.REL_SUB_LINKED_PRODUCT,
+                                        )
 
 
-class LinkedServicesBrick(_LinkedStuffBrick):
+class LinkedServicesBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     id_           = QuerysetBrick.generate_id('opportunities', 'linked_services')
     dependencies  = (Relation, Service)
     relation_type_deps = (constants.REL_OBJ_LINKED_SERVICE, )
@@ -145,10 +174,13 @@ class LinkedServicesBrick(_LinkedStuffBrick):
     order_by      = 'name'
 
     def _get_queryset(self, entity):
-        return entity.get_services()
+        return self.get_related_queryset(opportunity=entity,
+                                         model=Service,
+                                         rtype_id=constants.REL_SUB_LINKED_SERVICE,
+                                        )
 
 
-class BusinessManagersBrick(_LinkedStuffBrick):
+class BusinessManagersBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     id_           = QuerysetBrick.generate_id('opportunities', 'responsibles')
     dependencies  = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_RESPONSIBLE, )
@@ -156,7 +188,9 @@ class BusinessManagersBrick(_LinkedStuffBrick):
     template_name = 'opportunities/bricks/managers.html'
 
     def _get_queryset(self, entity):
-        return entity.get_responsibles().select_related('civility')
+        return self.get_related_contacts(opportunity=entity,
+                                         rtype_id=constants.REL_SUB_RESPONSIBLE,
+                                        )
 
 
 class TargettingOpportunitiesBrick(QuerysetBrick):
