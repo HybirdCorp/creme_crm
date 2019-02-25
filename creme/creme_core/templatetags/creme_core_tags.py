@@ -70,16 +70,21 @@ def get_by_index(sequence, index):
 
 @register.filter
 def get_value(dic, key, default=''):
-    """
-    Usage:
+    """Get a a value from its key in a dictionary-like object, with a default
+    value as fallback (ie: like dict.get())
 
-    view:
-    some_dict = {'keyA':'valueA','keyB':{'subKeyA':'subValueA','subKeyB':'subKeyB'},'keyC':'valueC'}
-    keys = ['keyA','keyC']
-    template:
-    {{ some_dict|get:"keyA" }}
-    {{ some_dict|get:"keyB"|get:"subKeyA" }}
-    {% for key in keys %}{{ some_dict|get:key }}{% endfor %}
+    Usage:
+      View (context):
+          some_dict = {'keyA': 'valueA',
+                       'keyB': {'subKeyA': 'subValueA', 'subKeyB': 'subKeyB'},
+                       'keyC': 'valueC',
+                      }
+          keys = ['keyA','keyC']
+
+      Template:
+          {{ some_dict|get_value:"keyA" }}
+          {{ some_dict|get_value:"keyB"|get_value:"subKeyA" }}
+          {% for key in keys %}{{ some_dict|get_value:key }}{% endfor %}
     """
     try:
         return dic.get(key, default)
