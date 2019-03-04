@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -81,7 +81,8 @@ class ImageFieldMixin:
 
 
 class ImageEntityField(ImageFieldMixin, forms.CreatorEntityField):
-    def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
+    # def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
+    def __init__(self, *, q_filter=None, create_action_url='', force_creation=False, **kwargs):
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
 
         if create_action_url:
@@ -95,12 +96,14 @@ class ImageEntityField(ImageFieldMixin, forms.CreatorEntityField):
                 q_filter=q_filter,
                 create_action_url=create_action_url,
                 force_creation=force_creation,
-                *args, **kwargs
+                # *args, **kwargs
+                **kwargs
             )
 
 
 class MultiImageEntityField(ImageFieldMixin, forms.MultiCreatorEntityField):
-    def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
+    # def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
+    def __init__(self, *, q_filter=None, create_action_url='', force_creation=False, **kwargs):
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
 
         if create_action_url:
@@ -114,5 +117,6 @@ class MultiImageEntityField(ImageFieldMixin, forms.MultiCreatorEntityField):
                 q_filter=q_filter,
                 create_action_url=create_action_url,
                 force_creation=force_creation,
-                *args, **kwargs
+                # *args, **kwargs
+                **kwargs
             )

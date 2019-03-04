@@ -174,7 +174,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(sectors, list(field.widget.choices))
 
     def test_create_action_url(self):
-        field = CreatorModelChoiceField(FakeSector.objects.all())
+        field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
 
         self.assertEqual('', field.create_action_url)
         self.assertEqual(('', False), field.creation_url_n_allowed)
@@ -186,7 +186,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         self.assertEqual((url, True), field.creation_url_n_allowed)
 
     def test_creation_url_n_allowed(self):
-        field = CreatorModelChoiceField(FakeSector.objects.all())
+        field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
 
         self.assertEqual(('', False), field.creation_url_n_allowed)
 
@@ -388,7 +388,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
 
     def test_create_action_url(self):
         user = self.login()
-        field = CreatorModelMultipleChoiceField(FakeSector.objects.all())
+        field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
 
         self.assertEqual('', field.create_action_url)
         self.assertEqual(('', False), field.creation_url_n_allowed)
@@ -402,7 +402,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
 
     def test_creation_url_n_allowed(self):
         user = self.login()
-        field = CreatorModelMultipleChoiceField(FakeSector.objects.all())
+        field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
 
         self.assertEqual(('', False), field.creation_url_n_allowed)
 
