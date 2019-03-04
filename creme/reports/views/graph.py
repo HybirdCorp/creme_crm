@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core import utils
-# from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth.decorators import login_required  # permission_required
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem, RelationType, CustomField
@@ -152,6 +152,7 @@ def _get_available_report_graph_types(ct, name):
 
 
 # TODO: can be factorised with ReportGraphForm (use ReportGraphHand)
+@login_required
 @jsonify
 # @permission_required('reports') ??
 def get_available_report_graph_types(request, ct_id):
@@ -177,6 +178,7 @@ def cast_order(order):
     return order
 
 
+@login_required
 @jsonify
 # @permission_required('reports') ??
 def fetch_graph(request, graph_id):
@@ -195,6 +197,7 @@ def fetch_graph(request, graph_id):
 #     return fetch_graph_from_instancebrick(request, instance_brick_id=instance_block_id, entity_id=entity_id)
 
 
+@login_required
 @jsonify
 # @permission_required('reports') ??
 def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):

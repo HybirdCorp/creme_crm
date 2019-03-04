@@ -2496,6 +2496,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                         )
 
     def test_get_available_report_graph_types02(self):
+        self.login()
         ct = self.ct_invoice
         url = self._build_graph_types_url(ct)
 
