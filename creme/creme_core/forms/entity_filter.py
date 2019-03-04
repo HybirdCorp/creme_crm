@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -459,8 +459,10 @@ class _ConditionsField(JSONField):
     value_type = list
     _model = None
 
-    def __init__(self, model=CremeEntity, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    # def __init__(self, model=CremeEntity, *args, **kwargs):
+    def __init__(self, *, model=CremeEntity, **kwargs):
+        # super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.model = model
 
     def initialize(self, ctype, conditions=None, efilter=None):
@@ -1202,8 +1204,9 @@ class PropertiesConditionsField(_ConditionsField):
 
 # TODO: factorise with _ConditionsField (mixin ?)
 class SubfiltersConditionsField(ModelMultipleChoiceField):
-    def __init__(self, model=CremeEntity, *args, **kwargs):
-        super().__init__(queryset=EntityFilter.objects.none(), *args, **kwargs)
+    # def __init__(self, model=CremeEntity, *args, **kwargs):
+    def __init__(self, *, model=CremeEntity, **kwargs):
+        super().__init__(queryset=EntityFilter.objects.none(), **kwargs)
 
     def clean(self, value):
         build = EntityFilterCondition.build_4_subfilter

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -57,8 +57,10 @@ class PollFormLineConditionsField(JSONField):
     }
     value_type = list
 
-    def __init__(self, sources=(), *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    # def __init__(self, sources=(), *args, **kwargs):
+    def __init__(self, *, sources=(), **kwargs):
+        # super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.sources = sources
 
     @property

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2018  Hybird
+#    Copyright (C) 2014-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -310,8 +310,10 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
 
 
 class ParticipantsExtractorField(Field):
-    def __init__(self, choices, *args, **kwargs):
-        super().__init__(widget=ParticipantsExtractorWidget, *args, **kwargs)
+    # def __init__(self, choices, *args, **kwargs):
+    def __init__(self, *, choices, **kwargs):
+        # super().__init__(widget=ParticipantsExtractorWidget, *args, **kwargs)
+        super().__init__(widget=ParticipantsExtractorWidget, **kwargs)
         self._user = None
         self._can_create = False
         self._allowed_indexes = {c[0] for c in choices}
@@ -504,8 +506,9 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
 
 
 class SubjectsExtractorField(Field):
-    def __init__(self, choices, *args, **kwargs):
-        super().__init__(widget=SubjectsExtractorWidget, *args, **kwargs)
+    # def __init__(self, choices, *args, **kwargs):
+    def __init__(self, *, choices, **kwargs):
+        super().__init__(widget=SubjectsExtractorWidget, **kwargs)
         self._user = None
         self._can_create = False
         self._allowed_indexes = {c[0] for c in choices}
@@ -559,9 +562,9 @@ def get_massimport_form_builder(header_dict, choices):
                                                        queryset=get_user_model().objects.filter(is_staff=False),
                                                        required=False,
                                                       )
-        participants        = ParticipantsExtractorField(choices, label=_('Participants'), required=False)
+        participants        = ParticipantsExtractorField(choices=choices, label=_('Participants'), required=False)
 
-        subjects = SubjectsExtractorField(choices, label=_('Subjects (organisations only)'), required=False)
+        subjects = SubjectsExtractorField(choices=choices, label=_('Subjects (organisations only)'), required=False)
 
         class Meta:
             exclude = ('type', 'sub_type', 'busy')

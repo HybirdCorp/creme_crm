@@ -48,9 +48,13 @@ __all__ = ('BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm'
 
 
 class BrickLocationsField(MultipleChoiceField):
-    def __init__(self, required=False, choices=(), widget=OrderedMultipleChoiceWidget, *args, **kwargs):
+    # def __init__(self, required=False, choices=(), widget=OrderedMultipleChoiceWidget, *args, **kwargs):
+    #     super().__init__(required=required, choices=choices,
+    #                      widget=widget, *args, **kwargs
+    #                     )
+    def __init__(self, *, required=False, choices=(), widget=OrderedMultipleChoiceWidget, **kwargs):
         super().__init__(required=required, choices=choices,
-                         widget=widget, *args, **kwargs
+                         widget=widget, **kwargs
                         )
 
 

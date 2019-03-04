@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -98,10 +98,12 @@ class ActivityTypeField(JSONField):
     }
     value_type = dict
 
-    def __init__(self, types=ActivityType.objects.all(), empty_label='---------', *args, **kwargs):
+    # def __init__(self, types=ActivityType.objects.all(), empty_label='---------', *args, **kwargs):
+    def __init__(self, *, types=ActivityType.objects.all(), empty_label='---------', **kwargs):
         self.empty_label = empty_label
 
-        super().__init__(*args, **kwargs)
+        # super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.types = types
 
     def __deepcopy__(self, memo):

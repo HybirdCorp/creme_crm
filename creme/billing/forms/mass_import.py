@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2018  Hybird
+#    Copyright (C) 2013-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,14 +27,14 @@ from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, EntityExt
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first, update_model_instance
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from .base import copy_or_create_address
 
 
-Contact      = get_contact_model()
-Organisation = get_organisation_model()
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 
 def _copy_or_update_address(source, dest, attr_name, addr_name):
@@ -56,11 +56,14 @@ def _copy_or_update_address(source, dest, attr_name, addr_name):
 
 def get_import_form_builder(header_dict, choices):
     class InvoiceMassImportForm(ImportForm4CremeEntity):
-        source = EntityExtractorField([(Organisation, 'name')], choices,
+        source = EntityExtractorField(models_info=[(Organisation, 'name')],
+                                      choices=choices,
                                       label=pgettext_lazy('billing', 'Source organisation'),
                                      )
-        target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
-                                      choices, label=pgettext_lazy('billing', 'Target'),
+        target = EntityExtractorField(models_info=[(Organisation, 'name'),
+                                                   (Contact, 'last_name')
+                                                  ],
+                                      choices=choices, label=pgettext_lazy('billing', 'Target'),
                                      )
 
         override_billing_addr  = BooleanField(label=_('Update the billing address'), required=False,

@@ -284,8 +284,10 @@ class ExtractorField(Field):
     }
 
     # TODO: default values + properties which update widget
-    def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    # def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
+    def __init__(self, *, choices, modelfield, modelform_field, **kwargs):
+        # super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.required = modelform_field.required
         modelform_field.required = False
 
@@ -533,12 +535,13 @@ class EntityExtractorField(Field):
     }
 
     # TODO: default values + properties which update widget
-    def __init__(self, models_info, choices, *args, **kwargs):
+    # def __init__(self, models_info, choices, *args, **kwargs):
+    def __init__(self, *, models_info, choices, **kwargs):
         """@param model_info: Sequence of tuple (Entity class, field name)
                   Field name if used to get or create class instances.
         """
-        # super(EntityExtractorField, self).__init__(*args, **kwargs)
-        super().__init__(*args, **kwargs)
+        # super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.models_info = models_info
         self.allowed_indexes = {c[0] for c in choices}
 
@@ -705,8 +708,9 @@ class RelationExtractorField(MultiRelationEntityField):
         'invalidcolunm':     _('This column is not a valid choice.'),
     }
 
-    def __init__(self, columns=(), *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    # def __init__(self, columns=(), *args, **kwargs):
+    def __init__(self, *, columns=(), **kwargs):
+        super().__init__(**kwargs)
         self.columns = columns
 
     @property
@@ -878,10 +882,12 @@ class CustomFieldExtractorWidget(ExtractorWidget):
 
 # TODO: factorise
 class CustomfieldExtractorField(Field):
-    def __init__(self, choices, custom_field, user, *args, **kwargs):
+    # def __init__(self, choices, custom_field, user, *args, **kwargs):
+    def __init__(self, *, choices, custom_field, user, **kwargs):
         super().__init__(widget=CustomFieldExtractorWidget,
                          label=custom_field.name,
-                         *args, **kwargs
+                         # *args, **kwargs
+                         **kwargs
                         )
 
         self._custom_field = custom_field
@@ -1191,9 +1197,9 @@ class ImportForm4CremeEntity(ImportForm):
         get_col = self.header_dict.get
         for cfield in cfields:
             fields[_CUSTOM_NAME.format(cfield.id)] = CustomfieldExtractorField(
-                                                    self.choices, cfield, user=user,
-                                                    initial={'selected_column': get_col(slugify(cfield.name), 0)},
-                                                )
+                choices=self.choices, custom_field=cfield, user=user,
+                initial={'selected_column': get_col(slugify(cfield.name), 0)},
+            )
 
     def clean_dyn_relations(self):  # TODO: move this validation in RelationExtractorField.clean()
         extractors = self.cleaned_data['dyn_relations']
@@ -1283,7 +1289,9 @@ def extractorfield_factory(modelfield, header_dict, choices):
             formfield.empty_label = None
             formfield.choices = options  # we force the refreshing of widget's choices
 
-    return ExtractorField(choices, modelfield, formfield,
+    return ExtractorField(choices=choices,
+                          modelfield=modelfield,
+                          modelform_field=formfield,
                           label=modelfield.verbose_name,
                           initial={'selected_column': selected_column,
                                    'default_value':   formfield.initial,
