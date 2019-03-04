@@ -737,12 +737,16 @@ class BricksConfigTestCase(CremeTestCase):
         post(modelbrick_id, _('Information on the entity (generic)'))
 
     def test_edit_detailview07(self):
-        "Instance block, RelationType brick"
+        "Instance brick, RelationType brick."
         self.login()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
-        rtype = RelationType.objects.all()[0]
+        # rtype = RelationType.objects.all()[0]
+        rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                    ('test-objfoo', 'object_predicate'),
+                                   )[0]
+
         rtype_brick_id = SpecificRelationsBrick.generate_id('test', 'foobar')
         RelationBrickItem.objects.create(brick_id=rtype_brick_id, relation_type=rtype)
 

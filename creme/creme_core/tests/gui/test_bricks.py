@@ -4,6 +4,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.backends.base import SessionBase
     from django.test import RequestFactory
+    from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
@@ -24,7 +25,7 @@ class BrickRegistryTestCase(CremeTestCase):
         RelationBrickItem.objects.all().delete()
         InstanceBrickConfigItem.objects.all().delete()
 
-    def test_get_compatible_bricks(self):
+    def test_get_compatible_bricks01(self):
         user = self.login()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
@@ -154,6 +155,45 @@ class BrickRegistryTestCase(CremeTestCase):
         brick = bricks[6]
         self.assertIsInstance(brick, SpecificRelationsBrick)
         self.assertEqual((rtype1.id,), brick.relation_type_deps)
+
+    def test_get_compatible_bricks02(self):
+        "SpecificRelationsBrick"
+        create_rtype = RelationType.create
+        rtype1 = create_rtype(('test-subject_loves', 'loves'),
+                              ('test-object_loved', 'is loved by')
+                             )[0]
+        rtype2 = create_rtype(('test-subject_hires', 'hires', [FakeOrganisation]),
+                              ('test-object_hires', 'is hired by')
+                             )[0]
+
+        create_rbi = RelationBrickItem.create
+        create_rbi(rtype1.id)
+        create_rbi(rtype2.id)
+
+        brick_registry = _BrickRegistry()
+
+        def extract_rtypes(**kwargs):
+            return [
+                brick.config_item.relation_type
+                    for brick in brick_registry.get_compatible_bricks(**kwargs)
+                        if isinstance(brick, SpecificRelationsBrick)
+        ]
+
+        # No model ----
+        rtypes = extract_rtypes()
+        self.assertGreaterEqual(2, len(rtypes))
+        self.assertIn(rtype1, rtypes)
+        self.assertNotIn(rtype2, rtypes)  # Not compatible with all kind of entity
+
+        # Compatible model ----
+        rtypes = extract_rtypes(model=FakeOrganisation)
+        self.assertIn(rtype1, rtypes)
+        self.assertIn(rtype2, rtypes)
+
+        # Incompatible model ----
+        rtypes = extract_rtypes(model=FakeContact)
+        self.assertIn(rtype1, rtypes)
+        self.assertNotIn(rtype2, rtypes)
 
     def test_get_compatible_hat_bricks01(self):
         brick_registry = _BrickRegistry()
@@ -925,3 +965,39 @@ class BrickTestCase(CremeTestCase):
             list(page.object_list)
 
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
+
+    def test_specific_relations_brick01(self):
+        predicate = 'loves'
+        rtype = RelationType.create(('test-subject_loves', predicate),
+                                    ('test-object_loved', 'is loved by')
+                                   )[0]
+        rbi = RelationBrickItem.create(rtype.id)
+
+        brick = SpecificRelationsBrick(relationbrick_item=rbi)
+        self.assertEqual((Relation,), brick.dependencies)
+        self.assertEqual((rtype.id,), brick.relation_type_deps)
+        self.assertEqual(
+            _('Relationship block: «{predicate}»').format(predicate=predicate),
+            brick.verbose_name
+        )
+        self.assertEqual((), brick.target_ctypes)
+
+    def test_specific_relations_brick02(self):
+        "ContentType constraints."
+        rtype = RelationType.create(
+            ('test-subject_loves', 'loves', [FakeOrganisation, FakeContact]),
+            ('test-object_loved', 'is loved by')
+        )[0]
+        rbi = RelationBrickItem.create(rtype.id)
+
+        brick = SpecificRelationsBrick(relationbrick_item=rbi)
+        expected_models = {FakeOrganisation, FakeContact}
+
+        with self.assertNumQueries(1):
+            models = brick.target_ctypes
+
+        self.assertIsInstance(models, tuple)
+        self.assertEqual(expected_models, set(models))
+
+        with self.assertNumQueries(0):
+            self.assertEqual(expected_models, set(brick.target_ctypes))

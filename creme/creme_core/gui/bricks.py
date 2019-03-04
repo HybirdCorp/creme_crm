@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.db.models import Model
 from django.template.loader import get_template
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..core.entity_cell import EntityCellRegularField
@@ -411,7 +412,9 @@ class SpecificRelationsBrick(QuerysetBrick):
 
         rtype = relationbrick_item.relation_type
         self.relation_type_deps = (rtype.id,)
-        self.verbose_name = ugettext('Relationship block: «{predicate}»').format(predicate=rtype.predicate)
+        self.verbose_name = ugettext(
+            'Relationship block: «{predicate}»'
+        ).format(predicate=rtype.predicate)
 
     @staticmethod
     def generate_id(app_name, name):
@@ -422,6 +425,10 @@ class SpecificRelationsBrick(QuerysetBrick):
         return id_.startswith('specificblock_')
 
     def detailview_display(self, context):
+        # TODO: check the constraints (ContentType & CremeProperties) for 'entity'
+        #       & display an message in the block (and disable the creation button)
+        #       if constraints are broken ? (beware: add CremePropertyType in dependencies)
+        #       (problem: it needs additional queries)
         entity = context['object']
         config_item = self.config_item
         relation_type = config_item.relation_type
@@ -459,6 +466,13 @@ class SpecificRelationsBrick(QuerysetBrick):
         btc['groups'] = groups
 
         return self._render(btc)
+
+    @cached_property
+    def target_ctypes(self):
+        return tuple(
+            ct.model_class()
+                for ct in self.config_item.relation_type.subject_ctypes.all()
+        )
 
 
 class CustomBrick(Brick):
@@ -830,11 +844,13 @@ class _BrickRegistry:
                and (not brick.target_ctypes or model in brick.target_ctypes):
                 yield brick
 
-        # TODO: filter compatible relation types
-        #       (problem the constraints can change after we config bricks...
-        #        => keep only if constraint are broken by existing relationships ?)
-        for rbi in RelationBrickItem.objects.all():  # TODO: select_related('relation_type') ??
-            yield SpecificRelationsBrick(rbi)
+        # for rbi in RelationBrickItem.objects.all():
+        #     yield SpecificRelationsBrick(rbi)
+        for rbi in RelationBrickItem.objects.select_related('relation_type'):
+            brick = SpecificRelationsBrick(rbi)
+
+            if not brick.target_ctypes or model in brick.target_ctypes:
+                yield brick
 
         for ibi in InstanceBrickConfigItem.objects.all():
             brick = self.get_brick_4_instance(ibi)
