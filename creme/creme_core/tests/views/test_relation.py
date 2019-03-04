@@ -6,7 +6,8 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.http import Http404
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.html import escape
+    from django.utils.translation import ugettext as _, ungettext
 
     from .base import ViewsTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeActivity, FakeImage
@@ -253,9 +254,12 @@ class RelationViewsTestCase(ViewsTestCase):
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is cool')
         ptype03 = create_ptype(str_pk='test-prop_foobar03', text='Is smart')
 
-        CremeProperty.objects.create(type=ptype02, creme_entity=subject)
+        # NB: not ptype03
+        create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
+        create_prop(type=ptype01)
+        create_prop(type=ptype02)
 
-        # Constraint OK & KO
+        # Constraint KO & OK
         create_rtype = RelationType.create
         rtype03 = create_rtype(('test-subject_foobar3', 'rules', [FakeContact], [ptype01, ptype03]),
                                ('test-object_foobar3',  'is ruled by'),
@@ -567,6 +571,69 @@ class RelationViewsTestCase(ViewsTestCase):
                                     is_internal=True,
                                    )[0]
         self.assertGET404(self._build_narrowed_add_url(subject, rtype))
+
+    def test_add_relations_narrowedtype05(self):
+        "ContentType & CremeProperty constraints on subject."
+        user = self.login()
+
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_realm', text='Is a realm')
+        ptype2 = create_ptype(str_pk='test-prop_nasty', text='Is nasty')
+
+        subject = FakeOrganisation.objects.create(user=user, name='Netherworld')
+
+        create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
+        create_prop(type=ptype1)
+        create_prop(type=ptype2)
+
+        rtype = RelationType.create(('test-subject_foobar1', 'is hiring', [FakeOrganisation], [ptype1, ptype2]),
+                                    ('test-object_foobar1',  'is hired by'),
+                                   )[0]
+        self.assertGET200(self._build_narrowed_add_url(subject, rtype))
+
+    def test_add_relations_narrowedtype06(self):
+        "Subject does not respect ContentType constraints => error."
+        user = self.login()
+        subject = FakeContact.objects.create(user=user, first_name='Laharl', last_name='Overlord')
+        rtype = RelationType.create(('test-subject_foobar1', 'is hiring', [FakeOrganisation]),
+                                    ('test-object_foobar1',  'is hired by'),
+                                   )[0]
+        response = self.assertGET409(self._build_narrowed_add_url(subject, rtype))
+        self.assertIn(
+            escape(_('This type of relationship is not compatible with «{model}».').format(
+                model='Test Contact',
+            )),
+            response.content.decode(),
+        )
+
+    def test_add_relations_narrowedtype07(self):
+        "Subject does not respect CremeProperty constraints => error."
+        user = self.login()
+
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_realm',  text='Is a realm')
+        ptype2 = create_ptype(str_pk='test-prop_gentle', text='Is gentle')
+        ptype3 = create_ptype(str_pk='test-prop_nasty',  text='Is nasty')
+
+        subject = FakeOrganisation.objects.create(user=user, name='Netherworld')
+
+        create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
+        create_prop(type=ptype1)
+        create_prop(type=ptype3)  # Not ptype2 !
+
+        rtype = RelationType.create(('test-subject_foobar1', 'is hiring', [FakeOrganisation], [ptype1, ptype2]),
+                                    ('test-object_foobar1',  'is hired by'),
+                                   )[0]
+        response = self.assertGET409(self._build_narrowed_add_url(subject, rtype))
+
+        self.assertIn(
+            ungettext(
+                'This type of relationship needs an entity with this property: {properties}.',
+                'This type of relationship needs an entity with these properties: {properties}.',
+                number=1
+            ).format(properties=ptype2),
+            response.content.decode(),
+        )
 
     def _build_bulk_add_url(self, ct_id, *subjects, **kwargs):
         url = reverse('creme_core__create_relations_bulk', args=(ct_id,))

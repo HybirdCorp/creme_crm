@@ -168,11 +168,40 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
         return kwargs
 
     def get_relation_types(self):
+        subject = self.get_related_entity()
+        subject_ctype = subject.entity_type
         rtypes = None
         rtype_id = self.kwargs.get(self.rtype_id_url_kwarg)
 
         if rtype_id:
-            get_object_or_404(RelationType, pk=rtype_id).is_not_internal_or_die()
+            rtype = get_object_or_404(RelationType, pk=rtype_id)
+            rtype.is_not_internal_or_die()
+
+            if not rtype.is_compatible(subject_ctype.id):
+                raise ConflictError(
+                    ugettext('This type of relationship is not compatible with «{model}».')
+                            .format(model=subject_ctype)
+                )
+
+            # TODO: make a method in RelationType (improve is_compatible() ?)
+            needed_property_types = list(rtype.subject_properties.all())
+            if needed_property_types:
+                subjects_prop_ids = set(subject.properties.values_list('type', flat=True))
+                missing_ptypes = [
+                    needed_ptype
+                        for needed_ptype in needed_property_types
+                            if needed_ptype.id not in subjects_prop_ids
+                ]
+
+                if missing_ptypes:
+                    raise ConflictError(
+                        ungettext(
+                            'This type of relationship needs an entity with this property: {properties}.',
+                            'This type of relationship needs an entity with these properties: {properties}.',
+                            number=len(missing_ptypes)
+                        ).format(properties=', '.join(str(ptype) for ptype in missing_ptypes))
+                    )
+
             rtypes = [rtype_id]
 
         request = self.request
@@ -183,7 +212,7 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
             if excluded_rtype_ids:
                 # Theses type are excluded to provide a better GUI, but they cannot cause business conflict
                 # (internal rtypes are always excluded), so it's not a problem to only excluded them only in GET part.
-                rtypes = RelationType.get_compatible_ones(self.get_related_entity().entity_type) \
+                rtypes = RelationType.get_compatible_ones(subject_ctype) \
                                      .exclude(id__in=excluded_rtype_ids)
 
         return rtypes

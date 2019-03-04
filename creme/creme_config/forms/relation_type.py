@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ from creme.creme_core.models import CremePropertyType, RelationType, SemiFixedRe
 
 _CTypesField = partial(MultiEntityCTypeChoiceField, required=False,
                        label=_('Type constraint'),
-                       help_text=_('No constraint means that all types are accepted'),
+                       help_text=_('No constraint means that all types are accepted.'),
                       )
 _PropertyTypesField = partial(ModelMultipleChoiceField, required=False,
                               label=_('Properties constraint'),
@@ -42,7 +42,7 @@ _PropertyTypesField = partial(ModelMultipleChoiceField, required=False,
 
 class RelationTypeCreateForm(CremeForm):
     subject_ctypes     = _CTypesField()
-    subject_properties = _PropertyTypesField()
+    subject_properties = _PropertyTypesField(help_text=_('The subject must have all the selected properties.'))
 
     subject_predicate   = CharField(label=_('Subject => object'))
     subject_is_copiable = BooleanField(label=_('Direct relationship is copiable'), initial=True, required=False,
@@ -69,12 +69,12 @@ class RelationTypeCreateForm(CremeForm):
                                      )
 
     object_ctypes      = _CTypesField()
-    object_properties  = _PropertyTypesField()
+    object_properties  = _PropertyTypesField(help_text=_('The object must have all the selected properties.'))
 
     blocks = FieldBlockManager(('subject',   _('Subject'),        ('subject_ctypes', 'subject_properties')),
                                ('predicate', _('Verb/Predicate'), ('subject_predicate', 'subject_is_copiable', 'subject_min_display',
-                                                                    'object_predicate',  'object_is_copiable',  'object_min_display',
-                                                                   )
+                                                                   'object_predicate',  'object_is_copiable',  'object_min_display',
+                                                                  )
                                ),
                                ('object',    _('Object'),         ('object_ctypes', 'object_properties')),
                               )

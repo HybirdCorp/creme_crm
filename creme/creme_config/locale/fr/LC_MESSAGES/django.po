@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-25 15:58+0100\n"
+"POT-Creation-Date: 2019-03-04 12:50+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -288,12 +288,16 @@ msgid "Type constraint"
 msgstr "Contrainte sur le type"
 
 #: forms/relation_type.py:35
-msgid "No constraint means that all types are accepted"
-msgstr "Aucune contrainte signifiera que tous les types sont acceptés"
+msgid "No constraint means that all types are accepted."
+msgstr "Aucune contrainte signifiera que tous les types sont acceptés."
 
 #: forms/relation_type.py:38
 msgid "Properties constraint"
 msgstr "Contrainte sur les propriétés"
+
+#: forms/relation_type.py:45
+msgid "The subject must have all the selected properties."
+msgstr "Le sujet doit avoir toutes les propriétés sélectionnées."
 
 #: forms/relation_type.py:47
 msgid "Subject => object"
@@ -345,6 +349,10 @@ msgid ""
 msgstr ""
 "Ne pas afficher dans le bloc «Relations» (vue détaillée de l'objet) quand "
 "c'est déjà affiché par un autre bloc"
+
+#: forms/relation_type.py:72
+msgid "The object must have all the selected properties."
+msgstr "L'objet doit avoir toutes les propriétés sélectionnées."
 
 #: forms/relation_type.py:74
 msgid "Subject"
