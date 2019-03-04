@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType
 from ..utils import entities2unicode
+
 from .base import CremeForm, FieldBlockManager
 from .fields import MultiRelationEntityField
 from .widgets import Label
@@ -53,9 +54,9 @@ class _RelationsCreateForm(CremeForm):
     def __init__(self, subjects, content_type, relations_types=None, *args, **kwargs):
         """Constructor.
         @param subjects: CremeEntity instances that will be the subjects of Relations.
-        @param content_type: Type of the sujects
+        @param content_type: Type of the subjects.
         @param relations_types: Sequence of RelationTypes ids to narrow to these types ;
-                                A empty sequence means all types compatible with the parameter 'content_type'.
+               A empty sequence means all types compatible with the parameter 'content_type'.
         """
         super().__init__(*args, **kwargs)
         self.subjects = subjects
@@ -130,8 +131,14 @@ class _RelationsCreateForm(CremeForm):
 
         for subject in subjects:
             for rtype, needed_properties in ptypes_contraints.values():
-                if needed_properties and \
-                   not any(p.type_id in needed_properties for p in subject.get_properties()):
+                # if needed_properties and \
+                #    not any(p.type_id in needed_properties for p in subject.get_properties()):
+                if not needed_properties:
+                    continue
+
+                subjects_prop_ids = {p.type_id for p in subject.get_properties()}
+
+                if any(ptype_id not in subjects_prop_ids for ptype_id in needed_properties.keys()):
                     if len(needed_properties) == 1:
                         raise ValidationError(
                                     self.error_messages['missing_property_single'],

@@ -583,12 +583,21 @@ class RelationEntityField(EntityCredsJSONField):
                                  )
 
     def _validate_properties_constraints(self, rtype, entity):
-        ptype_ids = frozenset(rtype.object_properties.values_list('id', flat=True))
+        # ptype_ids = frozenset(rtype.object_properties.values_list('id', flat=True))
+        #
+        # if ptype_ids and not any(p.type_id in ptype_ids for p in entity.get_properties()):
+        #     raise ValidationError(self.error_messages['nopropertymatch'],
+        #                           code='nopropertymatch',
+        #                          )
+        needed_ptype_ids = list(rtype.object_properties.values_list('id', flat=True))
 
-        if ptype_ids and not any(p.type_id in ptype_ids for p in entity.get_properties()):
-            raise ValidationError(self.error_messages['nopropertymatch'],
-                                  code='nopropertymatch',
-                                 )
+        if needed_ptype_ids:
+            ptype_ids = {p.type_id for p in entity.get_properties()}
+
+            if any(needed_ptype_id not in ptype_ids for needed_ptype_id in needed_ptype_ids):
+                raise ValidationError(self.error_messages['nopropertymatch'],
+                                      code='nopropertymatch',
+                                     )
 
     def _clean_rtype(self, rtype_pk):
         # Is relation type allowed
@@ -629,10 +638,11 @@ class MultiRelationEntityField(RelationEntityField):
                                   params={'rtype': rtype_pk}, code='rtypedoesnotexist',
                                  ) from e
 
-        rtype_allowed_ctypes     = frozenset(ct.pk for ct in rtype.object_ctypes.all())
-        rtype_allowed_properties = frozenset(rtype.object_properties.values_list('id', flat=True))
+        allowed_ctype_ids   = frozenset(ct.pk for ct in rtype.object_ctypes.all())
+        # TODO: use a list() instead
+        needed_property_ids = frozenset(rtype.object_properties.values_list('id', flat=True))
 
-        return rtype, rtype_allowed_ctypes, rtype_allowed_properties
+        return rtype, allowed_ctype_ids, needed_property_ids
 
     def _build_ctype_cache(self, ctype_pk):
         try:
@@ -686,14 +696,14 @@ class MultiRelationEntityField(RelationEntityField):
                                       code='rtypenotallowed',
                                      )
 
-            rtype, rtype_allowed_ctypes, rtype_allowed_properties = \
+            rtype, allowed_ctype_ids, needed_property_ids = \
                 self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
 
-            if rtype_allowed_properties:
+            if needed_property_ids:
                 need_property_validation = True
 
             # Check if content type is allowed by relation type
-            if rtype_allowed_ctypes and ctype_pk not in rtype_allowed_ctypes:
+            if allowed_ctype_ids and ctype_pk not in allowed_ctype_ids:
                 raise ValidationError(self.error_messages['ctypenotallowed'],
                                       params={'ctype':ctype_pk}, code='ctypenotallowed',
                                      )
@@ -729,14 +739,22 @@ class MultiRelationEntityField(RelationEntityField):
             CremeEntity.populate_properties(entities_cache.values())
 
         for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
-            rtype, rtype_allowed_ctypes, rtype_allowed_properties = rtypes_cache.get(rtype_pk)
+            # rtype, rtype_allowed_ctypes, rtype_allowed_properties = rtypes_cache.get(rtype_pk)
+            rtype, allowed_ctype_ids, needed_ptype_ids = rtypes_cache.get(rtype_pk)
             entity = entities_cache.get(entity_pk)
 
-            if rtype_allowed_properties and \
-               not any(p.type_id in rtype_allowed_properties for p in entity.get_properties()):
-                raise ValidationError(self.error_messages['nopropertymatch'],
-                                      code='nopropertymatch',
-                                     )
+            # if rtype_allowed_properties and \
+            #    not any(p.type_id in rtype_allowed_properties for p in entity.get_properties()):
+            #     raise ValidationError(self.error_messages['nopropertymatch'],
+            #                           code='nopropertymatch',
+            #                          )
+            if needed_ptype_ids:
+                ptype_ids = {p.type_id for p in entity.get_properties()}
+
+                if any(needed_ptype_id not in ptype_ids for needed_ptype_id in needed_ptype_ids):
+                    raise ValidationError(self.error_messages['nopropertymatch'],
+                                          code='nopropertymatch',
+                                         )
 
             relations.append((rtype, entity))
 

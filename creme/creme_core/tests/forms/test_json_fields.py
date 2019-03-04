@@ -41,15 +41,22 @@ class _JSONFieldBaseTestCase(FieldTestCase):
 
         return user
 
-    def create_contact(self, first_name='Eikichi', last_name='Onizuka', ptype=None, user=None, **kwargs):
+    # def create_contact(self, first_name='Eikichi', last_name='Onizuka', ptype=None, user=None, **kwargs):
+    def create_contact(self, first_name='Eikichi', last_name='Onizuka', ptypes=(), user=None, **kwargs):
         contact = FakeContact.objects.create(user=user or self.user,
                                              first_name=first_name,
                                              last_name=last_name,
                                              **kwargs
                                             )
 
-        if ptype:
-            CremeProperty.objects.create(type=ptype, creme_entity=contact)
+        # if ptype:
+        #     CremeProperty.objects.create(type=ptype, creme_entity=contact)
+        if ptypes:
+            if isinstance(ptypes, CremePropertyType):
+                ptypes = (ptypes,)
+
+            for ptype in ptypes:
+                CremeProperty.objects.create(type=ptype, creme_entity=contact)
 
         return contact
 
@@ -57,9 +64,16 @@ class _JSONFieldBaseTestCase(FieldTestCase):
         user = user or self.user
         return FakeOrganisation.objects.create(user=user, name=name, **kwargs)
 
-    def create_loves_rtype(self, subject_ptype=None, object_ptype=None):
-        subject_ptypes = (subject_ptype,) if subject_ptype else ()
-        object_ptypes  = (object_ptype,) if object_ptype else ()
+    # def create_loves_rtype(self, subject_ptype=None, object_ptype=None):
+    #     subject_ptypes = (subject_ptype,) if subject_ptype else ()
+    #     object_ptypes  = (object_ptype,) if object_ptype else ()
+    def create_loves_rtype(self, subject_ptypes=(), object_ptypes=()):
+        if isinstance(subject_ptypes, CremePropertyType):
+            subject_ptypes = (subject_ptypes,)
+
+        if isinstance(object_ptypes, CremePropertyType):
+            object_ptypes = (object_ptypes,)
+
         return RelationType.create(('test-subject_loves', 'is loving', (), subject_ptypes),
                                    ('test-object_loves',  'loved by',  (), object_ptypes),
                                   )
@@ -79,11 +93,11 @@ class _JSONFieldBaseTestCase(FieldTestCase):
                                    ('test-object_customer',  u'is a supplier of', [FakeContact, FakeOrganisation]),
                                   )
 
-    def create_property_types(self):
-        create_ptype = CremePropertyType.create
-        return (create_ptype(str_pk='test-prop_strong', text='Is strong'),
-                create_ptype(str_pk='test-prop_cute',   text='Is cute'),
-               )
+    # def create_property_types(self):
+    #     create_ptype = CremePropertyType.create
+    #     return (create_ptype(str_pk='test-prop_strong', text='Is strong'),
+    #             create_ptype(str_pk='test-prop_cute',   text='Is cute'),
+    #            )
 
 
 class JSONFieldTestCase(_JSONFieldBaseTestCase):
@@ -1014,9 +1028,16 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_properties_constraint_error(self):
         user = self.login()
-        subject_ptype, object_ptype = self.create_property_types()
-        rtype = self.create_loves_rtype(subject_ptype=subject_ptype, object_ptype=object_ptype)[0]
-        contact = self.create_contact()  # <= does not have the property
+        # subject_ptype, object_ptype = self.create_property_types()
+
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+
+        # rtype = self.create_loves_rtype(subject_ptype=subject_ptype, object_ptype=object_ptype)[0]
+        rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
+        contact = self.create_contact(ptypes=(ptype1, ptype3))  # <= does not have the property 'ptype2'
 
         self.assertFieldValidationError(RelationEntityField, 'nopropertymatch',
                                         RelationEntityField(allowed_rtypes=[rtype.pk], user=user).clean,
@@ -1025,9 +1046,17 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_properties_constraint(self):
         user = self.login()
-        subject_ptype, object_ptype = self.create_property_types()
-        rtype = self.create_loves_rtype(subject_ptype=subject_ptype, object_ptype=object_ptype)[0]
-        contact = self.create_contact(ptype=object_ptype)  # <= has the property
+        # subject_ptype, object_ptype = self.create_property_types()
+
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+
+        # rtype = self.create_loves_rtype(subject_ptype=subject_ptype, object_ptype=object_ptype)[0]
+        rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
+        # contact = self.create_contact(ptype=object_ptype)  # <= has the property
+        contact = self.create_contact(ptypes=(ptype1, ptype2, ptype3))  # <= has all the properties
 
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertEqual((rtype, contact),
@@ -1100,7 +1129,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         return {'rtype':  rtype_id,
                 'ctype':  str(ctype_id),
                 'entity': str(entity_id),
-            }
+               }
 
     @classmethod
     def build_data(cls, *relations):
@@ -1341,12 +1370,19 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_properties_constraint_error(self):
         user = self.login()
-        subject_ptype, object_ptype = self.create_property_types()
+        # subject_ptype, object_ptype = self.create_property_types()
 
-        rtype_constr    = self.create_loves_rtype(subject_ptype=subject_ptype, object_ptype=object_ptype)[0]
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+
+        # rtype_constr    = self.create_loves_rtype(subject_ptype=subject_ptype, object_ptype=object_ptype)[0]
+        rtype_constr    = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
         rtype_no_constr = self.create_hates_rtype()[0]
 
-        contact = self.create_contact()  # <= does not have the property
+        # contact = self.create_contact()  # <= does not have the property
+        contact = self.create_contact(ptypes=(ptype1, ptype3))  # <= does not have the property 'ptype2'
         orga = self.create_orga()
 
         field = MultiRelationEntityField(allowed_rtypes=[rtype_constr.pk, rtype_no_constr.pk], user=user)
@@ -1358,12 +1394,19 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_properties_constraint(self):
         user = self.login()
-        subject_ptype, object_ptype = self.create_property_types()
+        # subject_ptype, object_ptype = self.create_property_types()
 
-        rtype_constr    = self.create_loves_rtype(subject_ptype=subject_ptype, object_ptype=object_ptype)[0]
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+
+        # rtype_constr    = self.create_loves_rtype(subject_ptype=subject_ptype, object_ptype=object_ptype)[0]
+        rtype_constr    = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
         rtype_no_constr = self.create_hates_rtype()[0]
 
-        contact = self.create_contact(ptype=object_ptype)  # <= has the property
+        # contact = self.create_contact(ptype=object_ptype)  # <= has the property
+        contact = self.create_contact(ptypes=(ptype1, ptype3, ptype2))  # <= has all the properties
         orga = self.create_orga()
 
         field = MultiRelationEntityField(allowed_rtypes=[rtype_constr.pk, rtype_no_constr.pk])
