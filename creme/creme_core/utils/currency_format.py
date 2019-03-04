@@ -6,7 +6,7 @@
 #   The function has been modified to take the id of the wanted currency.
 #
 #    Copyright (c) 2001-2018  Python Software Foundation.
-#                  2009-2018      Hybird
+#                  2009-2019  Hybird
 #
 #    This file is released under the Python License
 #    (http://www.opensource.org/licenses/Python-2.0)
@@ -40,26 +40,50 @@ else:
         return translation.to_locale(django_code)
 
 
+def _locale_args(locale_code):
+    yield (locale_code, settings.DEFAULT_ENCODING)  # Will certainly fail on Windows (because of utf-8)
+    yield locale_code
+    yield ''
+
+
+def _get_locale_conv(category, locale_code):
+    trials = []
+
+    for locale_arg in _locale_args(locale_code):
+        try:
+            locale.setlocale(category, locale_arg)
+            return locale.localeconv()   # NB: Windows can raise UnicodeDecodeError here
+        except (locale.Error, UnicodeDecodeError) as e:
+            trials.append(locale_arg)
+
+    logger.critical('Fail to set a locale among "%s"', trials)
+
+    return None
+
+
 # TODO: use an object Formatter in order to avoid multiple queries of SettingValue VS cache (in global_info)
 def currency(val, currency_or_id=None):
     """Replace a formatted string for an amount.
     @param val: Amount as a numeric value.
     @param currency_or_id: Instance of creme_core.models.Currency, or an ID of Currency instance.
     """
-    LC_MONETARY = locale.LC_MONETARY
-    lang = standardized_locale_code(settings.LANGUAGE_CODE)
-
-    try:
-        # Will certainly fail on Windows (because of utf-8)
-        locale.setlocale(LC_MONETARY, (lang, settings.DEFAULT_ENCODING))
-    except:
-        try:
-            locale.setlocale(LC_MONETARY, lang)
-        except:
-            logger.warning('currency(): fail when setting "%s"', lang)
-            locale.setlocale(LC_MONETARY, '')
-
-    conv = locale.localeconv()
+    # LC_MONETARY = locale.LC_MONETARY
+    # lang = standardized_locale_code(settings.LANGUAGE_CODE)
+    #
+    # try:
+    #     # Will certainly fail on Windows (because of utf-8)
+    #     locale.setlocale(LC_MONETARY, (lang, settings.DEFAULT_ENCODING))
+    # except:
+    #     try:
+    #         locale.setlocale(LC_MONETARY, lang)
+    #     except:
+    #         logger.warning('currency(): fail when setting "%s"', lang)
+    #         locale.setlocale(LC_MONETARY, '')
+    #
+    # conv = locale.localeconv()
+    conv = _get_locale_conv(category=locale.LC_MONETARY,
+                            locale_code=standardized_locale_code(settings.LANGUAGE_CODE),
+                           )
     is_local_symbol = SettingValue.objects.get_4_key(currency_symbol_key).value
 
     if currency_or_id:
@@ -69,6 +93,9 @@ def currency(val, currency_or_id=None):
         smb = currency_obj.local_symbol if is_local_symbol else currency_obj.international_symbol
     else:
         smb = ''
+
+    if conv is None:
+        return '{} {}'.format(val, smb)
 
     # Check for illegal values
     digits = conv[not is_local_symbol and 'int_frac_digits' or 'frac_digits']
