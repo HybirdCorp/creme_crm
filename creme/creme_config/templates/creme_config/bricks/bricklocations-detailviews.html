@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block brick_content %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_detailview_blocks' as delete_url %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_detailview_bricks' as delete_url %}
     {% if not page.number or page.number < 2 %}
     <div class="brick-list-item brickloc-config-item brickloc-config-item-default">
         <div class="brickloc-config-group brickloc-config-summary-group">
