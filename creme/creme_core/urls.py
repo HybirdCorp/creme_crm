@@ -5,7 +5,7 @@ from django.conf import settings
 from django.urls import re_path, include
 
 from .views import (batch_process, bricks, creme_property, enumerable, entity,
-        entity_filter, file_handling, header_filter, index, job, list_view_export,
+        entity_filter, file_handling, header_filter, index, job, mass_export,  #list_view_export,
         mass_import, quick_forms, relation, search, testjs,
        )
 
@@ -151,7 +151,8 @@ creme_core_patterns = [
     # url(r'^list_view/popup[/]?$', entity.list_view_popup, name='creme_core__listview_popup'),
     re_path(r'^list_view/popup[/]?$', entity.EntitiesListPopup.as_view(), name='creme_core__listview_popup'),
 
-    re_path(r'^list_view/download[/]?$', list_view_export.dl_listview, name='creme_core__dl_listview'),
+    # re_path(r'^list_view/download[/]?$', list_view_export.dl_listview, name='creme_core__dl_listview'),
+    re_path(r'^mass_export[/]?$', mass_export.MassExport.as_view(), name='creme_core__mass_export'),
 
     re_path(r'^mass_import/', include([
         re_path(r'^(?P<ct_id>\d+)[/]?$',            mass_import.mass_import,     name='creme_core__mass_import'),

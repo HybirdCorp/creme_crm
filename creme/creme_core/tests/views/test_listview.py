@@ -1031,7 +1031,8 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(FakeOrganisation.get_create_absolute_url(), hrefs[0])
 
         data_hrefs = [button_node.attrib.get('data-href') for button_node in buttons_node.findall('a')]
-        dl_url = '{}?ct_id={}'.format(reverse('creme_core__dl_listview'), ct_id)
+        # dl_url = '{}?ct_id={}'.format(reverse('creme_core__dl_listview'), ct_id)
+        dl_url = '{}?ct_id={}'.format(reverse('creme_core__mass_export'), ct_id)
         # dl_uri = hrefs[1]
         dl_uri = data_hrefs[1]
         self.assertTrue(dl_uri.startswith(dl_url),
