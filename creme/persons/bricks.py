@@ -204,9 +204,11 @@ class ContactCardHatBrick(Brick):
     dependencies = [Contact, Organisation, Relation] + Activities4Card.dependencies\
                                                      + Opportunities4Card.dependencies\
                                                      + CommercialActs4Card.dependencies
-    relation_type_deps = [constants.REL_SUB_EMPLOYED_BY] + Activities4Card.relation_type_deps\
-                                                         + Opportunities4Card.relation_type_deps\
-                                                         + CommercialActs4Card.relation_type_deps
+    relation_type_deps = [constants.REL_SUB_EMPLOYED_BY,
+                          constants.REL_SUB_MANAGES,
+                         ] + Activities4Card.relation_type_deps \
+                           + Opportunities4Card.relation_type_deps \
+                           + CommercialActs4Card.relation_type_deps
     verbose_name  = _('Card header block')
     template_name = 'persons/bricks/contact-hat-card.html'
 
