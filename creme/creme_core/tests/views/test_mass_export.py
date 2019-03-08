@@ -42,20 +42,21 @@ except Exception:
     XlsMissing = True
 
 
-class CSVExportViewsTestCase(ViewsTestCase):
+# class CSVExportViewsTestCase(ViewsTestCase):
+class MassExportViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 
-        cls._hf_backup = list(HeaderFilter.objects.all())
-        HeaderFilter.objects.all().delete()
+        # cls._hf_backup = list(HeaderFilter.objects.all())
+        # HeaderFilter.objects.all().delete()
 
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        HeaderFilter.objects.all().delete()
-        HeaderFilter.objects.bulk_create(cls._hf_backup)
+    # @classmethod
+    # def tearDownClass(cls):
+    #     super().tearDownClass()
+    #     HeaderFilter.objects.all().delete()
+    #     HeaderFilter.objects.bulk_create(cls._hf_backup)
 
     def _build_hf_n_contacts(self):
         user = self.user
@@ -111,19 +112,21 @@ class CSVExportViewsTestCase(ViewsTestCase):
         return hf
 
     @staticmethod
-    def _build_dl_url(ct_id, doc_type='csv', header=False, list_url='', hfilter_id=None, **kwargs):
-        parameters = '?ct_id={ctid}&type={doctype}&list_url={url}{hfilter}{header}'.format(
+    def _build_dl_url(ct_id, doc_type='csv', header=False, list_url='', efilter_id=None, hfilter_id=None, **kwargs):
+        parameters = '?ct_id={ctid}&type={doctype}&list_url={url}{efilter}{hfilter}{header}'.format(
                          ctid=ct_id or '',
                          doctype=doc_type,
                          url=list_url,
                          header='&header=true' if header else '',
+                         efilter='&efilter={}'.format(efilter_id) if efilter_id is not None else '',
                          hfilter='&hfilter={}'.format(hfilter_id) if hfilter_id is not None else '',
                         )
 
         if kwargs:
             parameters += '&{}'.format(urlencode(kwargs, doseq=True))
 
-        return reverse('creme_core__dl_listview') + parameters
+        # return reverse('creme_core__dl_listview') + parameters
+        return reverse('creme_core__mass_export') + parameters
 
     def _build_contact_dl_url(self, list_url=None, hfilter_id=None, **kwargs):
         ct = self.ct
@@ -155,16 +158,18 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertGET404(self._build_dl_url(self.ct.id, list_url=lv_url))
 
         # HeaderFilter not given
-        self.assertGET404(self._build_dl_url(self.ct.id, list_url=lv_url, hfilter_id=''))
+        # self.assertGET404(self._build_dl_url(self.ct.id, list_url=lv_url, hfilter_id=''))
+        self.assertGET404(self._build_dl_url(self.ct.id, list_url=lv_url, hfilter_id=None))
 
         # Unknown HeaderFilter id
         self.assertGET404(self._build_dl_url(self.ct.id, list_url=lv_url,
                                              hfilter_id='test-hf_contact-unknown',
                                             )
-                          )
+                         )
 
         # HeaderFilter with wrong content type
-        hf = HeaderFilter.create(pk='test-hf_contact_test_invalid_hfilter', name='Contact view', model=FakeContact,
+        hf = HeaderFilter.create(pk='test-hf_contact_test_invalid_hfilter',
+                                 name='Contact view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'created'}),
                                             ],
@@ -174,6 +179,17 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                              hfilter_id=hf.id,
                                             )
                          )
+
+    def test_export_error_invalid_efilter(self):
+        self.login()
+        HeaderFilter.create(pk='test-hf_contact', name='Contact view',
+                            model=FakeContact,
+                            cells_desc=[
+                                EntityCellRegularField.build(model=FakeContact, name='last_name'),
+                                EntityCellRegularField.build(model=FakeContact, name='first_name'),
+                            ],
+                           )
+        self.assertGET404(self._build_contact_dl_url(efilter_id='test-unknown'))
 
     def test_list_view_export_header(self):
         self.login()
@@ -437,10 +453,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
         existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))
 
         url = FakeContact.get_lv_absolute_url()
-        # TODO: remove when filter ID is sent to export view as GET arg
-        self.assertPOST200(url, data={'filter': efilter.id})
+        # self.assertPOST200(url, data={'filter': efilter.id})
 
-        response = self.assertGET200(self._build_contact_dl_url(list_url=url))
+        response = self.assertGET200(self._build_contact_dl_url(list_url=url, efilter_id=efilter.id))
         result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
 

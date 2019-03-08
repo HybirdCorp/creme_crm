@@ -1,6 +1,6 @@
 {% load i18n creme_core_tags creme_widgets creme_ctype %}
 {% if button.backend_choices %}{% ctype_for_model model as ctype %}
-    <a class="with-icon" data-href="{% url 'creme_core__dl_listview' %}?ct_id={{ctype.id}}&list_url={{request.path}}&hfilter={{list_view_state.header_filter_id}}&header=true" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('data-href'), {{button.backend_choices|jsonify}}, 'type');">
+    <a class="with-icon" data-href="{% url 'creme_core__mass_export' %}?ct_id={{ctype.id}}&list_url={{request.path}}&hfilter={{list_view_state.header_filter_id}}&header=true" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('data-href'), {{button.backend_choices|jsonify}}, 'type');">
         {% trans 'Download header' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
     </a>
 {% endif %}
