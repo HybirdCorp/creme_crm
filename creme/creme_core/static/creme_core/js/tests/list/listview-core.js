@@ -3,7 +3,7 @@
 QUnit.module("creme.listview.core", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitDialogMixin, QUnitListViewMixin));
 
 QUnit.test('creme.listview.core', function(assert) {
-    var element = $(this.createListViewHtml()).appendTo(this.anchor);
+    var element = $(this.createListViewHtml()).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), false);
@@ -16,7 +16,7 @@ QUnit.test('creme.listview.core (standalone)', function(assert) {
     var element = $(this.createListViewHtml({
         tableclasses: ['listview-standalone'],
         reloadurl: 'mock/listview/reload'
-    })).appendTo(this.anchor);
+    })).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), true);
@@ -78,7 +78,7 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
 });
 
 QUnit.test('creme.listview.core (not empty)', function(assert) {
-    var element = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.anchor);
+    var element = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), false);
@@ -88,7 +88,7 @@ QUnit.test('creme.listview.core (not empty)', function(assert) {
 });
 
 QUnit.test('creme.listview.core (select)', function(assert) {
-    var element = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.anchor);
+    var element = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
     var table = element.find('table:first');
     var controller = listview.controller();
@@ -134,7 +134,7 @@ QUnit.test('creme.listview.core (select, link)', function(assert) {
             ],
             [this.createCheckCellHtml('2'), this.createIdCellHtml('2'), this.createCellHtml('regular_field-name', 'B', {sorted: true})]
         ]
-    }))).appendTo(this.anchor);
+    }))).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
     var table = element.find('table:first');
     var controller = listview.controller();
@@ -172,7 +172,7 @@ QUnit.test('creme.listview.core (select, link)', function(assert) {
 QUnit.test('creme.listview.core (select, single)', function(assert) {
     var element = $(this.createListViewHtml(this.defaultListViewHtmlOptions({
         multiple: false
-    }))).appendTo(this.anchor);
+    }))).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
     var table = element.find('table:first');
     var controller = listview.controller();
@@ -217,7 +217,7 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
 });
 
 QUnit.test('creme.listview.core (select all)', function(assert) {
-    var element = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.anchor);
+    var element = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
     var table = element.find('table:first');
     var controller = listview.controller();
@@ -257,7 +257,7 @@ QUnit.test('creme.listview.core (reload on enter)', function(assert) {
                         '</th>'
             }
         ]
-    })).appendTo(this.anchor);
+    })).appendTo(this.qunitFixture());
     var table = element.find('table:first');
     var column_searchinput = table.find('.columns_bottom .column input[type="text"]');
     var listview = creme.widget.create(element);
@@ -295,7 +295,7 @@ QUnit.test('creme.listview.core (toggle sort)', function(assert) {
             '<th class="sorted column sortable cl_lv">Name</th>',
             '<th class="column sortable cl_lv">Date</th>'
         ]
-    })).appendTo(this.anchor);
+    })).appendTo(this.qunitFixture());
     var table = element.find('table:first');
     var column_name = table.find('')
 });

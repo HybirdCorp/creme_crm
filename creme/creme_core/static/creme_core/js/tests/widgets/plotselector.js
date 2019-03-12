@@ -99,8 +99,8 @@ QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin,
         this.mockContainer = $('#mock_creme_widget_plotselector_container');
 
         if (!this.mockContainer.get(0)) {
-            $('body').append($('<div>').attr('id', 'mock_creme_widget_plotselector_container')
-                                       .css('display', 'none'));
+            this.qunitFixture().append($('<div>').attr('id', 'mock_creme_widget_plotselector_container')
+                                                 .css('display', 'none'));
         }
 
         this.mockContainer = $('#mock_creme_widget_plotselector_container');

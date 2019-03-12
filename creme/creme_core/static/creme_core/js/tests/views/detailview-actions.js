@@ -183,7 +183,9 @@ QUnit.test('creme.detailview.brick.detailview-merge (fail)', function(assert) {
     ], this.mockBackendUrlCalls('mock/merge/selection/fail'));
 
     this.assertOpenedAlertDialog(gettext('Error during loading the page.'));
+
     this.closeDialog();
+    this.assertClosedDialog();
 
     deepEqual([['fail', '']],
         this.mockListenerCalls('fail').map(function(e) {

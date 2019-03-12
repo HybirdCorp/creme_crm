@@ -16,6 +16,8 @@
         },
 
         shutdownDialogs: function() {
+            $('.chzn-drop').detach();
+
             // close all opened popover
             $('.popover').trigger('modal-close');
 

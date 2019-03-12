@@ -621,7 +621,7 @@ QUnit.test('creme.bricks.Brick.redirect', function(assert) {
 
 QUnit.test('creme.bricks.Brick.refresh (widget not ready)', function(assert) {
     var brick = new creme.bricks.Brick();
-    var element = $('<div class="brick ui-creme-widget" widget="brick"></div>').appendTo($('body'));
+    var element = $('<div class="brick ui-creme-widget" widget="brick"></div>').appendTo(this.qunitFixture());
 
     brick.refresh();
     deepEqual([], this.mockBackendCalls());
@@ -642,7 +642,7 @@ QUnit.test('creme.bricks.Brick.refresh (widget not ready)', function(assert) {
 QUnit.test('creme.bricks.Brick.refresh (no reload url)', function(assert) {
     this.setBrickAllRefreshUrl(null);
 
-    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo($('body'));
+    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
@@ -664,7 +664,7 @@ QUnit.test('creme.bricks.Brick.refresh (no reload url)', function(assert) {
 QUnit.test('creme.bricks.Brick.refresh (empty reload url)', function(assert) {
     this.setBrickAllRefreshUrl('');
 
-    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo($('body'));
+    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
@@ -684,7 +684,7 @@ QUnit.test('creme.bricks.Brick.refresh (empty reload url)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.refresh (no id)', function(assert) {
-    var element = $('<div class="brick ui-creme-widget" widget="brick"></div>').appendTo($('body'));
+    var element = $('<div class="brick ui-creme-widget" widget="brick"></div>').appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
@@ -704,7 +704,7 @@ QUnit.test('creme.bricks.Brick.refresh (no id)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.refresh', function(assert) {
-    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo($('body'));
+    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
@@ -720,8 +720,8 @@ QUnit.test('creme.bricks.Brick.refresh', function(assert) {
 QUnit.test('creme.bricks.Brick.refresh (no deps)', function(assert) {
     var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A"></div>';
     var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B"></div>';
-    var elementA = $(htmlA).appendTo($('body'));
-    var elementB = $(htmlB).appendTo($('body'));
+    var elementA = $(htmlA).appendTo(this.qunitFixture());
+    var elementB = $(htmlB).appendTo(this.qunitFixture());
     var brickA = creme.widget.create(elementA).brick();
     var brickB = creme.widget.create(elementB).brick();
 
@@ -753,8 +753,8 @@ QUnit.test('creme.bricks.Brick.refresh (no deps)', function(assert) {
 QUnit.test('creme.bricks.Brick.refresh (no deps intersection)', function(assert) {
     var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-deps="[&quot;dep1&quot;]"></div>';
     var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-deps="[&quot;dep2&quot;]"></div>';
-    var elementA = $(htmlA).appendTo($('body'));
-    var elementB = $(htmlB).appendTo($('body'));
+    var elementA = $(htmlA).appendTo(this.qunitFixture());
+    var elementB = $(htmlB).appendTo(this.qunitFixture());
     var brickA = creme.widget.create(elementA).brick();
     var brickB = creme.widget.create(elementB).brick();
 
@@ -786,8 +786,8 @@ QUnit.test('creme.bricks.Brick.refresh (no deps intersection)', function(assert)
 QUnit.test('creme.bricks.Brick.refresh (single instersection)', function(assert) {
     var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-deps="[&quot;dep1&quot;,&quot;dep3&quot;]"></div>';
     var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-deps="[&quot;dep1&quot;,&quot;dep2&quot;]"></div>';
-    var elementA = $(htmlA).appendTo($('body'));
-    var elementB = $(htmlB).appendTo($('body'));
+    var elementA = $(htmlA).appendTo(this.qunitFixture());
+    var elementB = $(htmlB).appendTo(this.qunitFixture());
     var brickA = creme.widget.create(elementA).brick();
     var brickB = creme.widget.create(elementB).brick();
 
@@ -824,9 +824,9 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
     var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-deps="[&quot;dep1&quot;]"></div>';
     var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-deps="[&quot;*&quot;]"></div>';
     var htmlC = '<div class="brick ui-creme-widget" widget="brick" id="brick-C" data-brick-deps="[&quot;dep2&quot;]"></div>';
-    var elementA = $(htmlA).appendTo($('body'));
-    var elementB = $(htmlB).appendTo($('body'));
-    var elementC = $(htmlC).appendTo($('body'));
+    var elementA = $(htmlA).appendTo(this.qunitFixture());
+    var elementB = $(htmlB).appendTo(this.qunitFixture());
+    var elementC = $(htmlC).appendTo(this.qunitFixture());
     var brickA = creme.widget.create(elementA).brick();
     var brickB = creme.widget.create(elementB).brick();
     var brickC = creme.widget.create(elementC).brick();

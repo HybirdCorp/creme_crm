@@ -3,22 +3,17 @@ QUnit.module("creme.forms.js", new QUnitMixin(QUnitEventMixin, {
         var self = this;
 
         this.resetMockFormSubmitCalls();
-        this.anchor = $('<div></div>').appendTo($('body'));
         this.form = $('<form action="mock/submit">' +
                           '<input type="text" name="firstname"></input>' +
                           '<input type="text" name="lastname" required></input>' +
                           '<input type="email" name="email"></input>' +
                           '<input type="submit" class="ui-creme-dialog-action"></input>' +
-                      '</form>').appendTo(this.anchor);
+                      '</form>').appendTo(this.qunitFixture());
 
         this.form.on('submit', function(e) {
             e.preventDefault();
             self._mockFormSubmitCalls.push($(e.target).attr('action'));
         });
-    },
-
-    afterEach: function() {
-        this.anchor.detach();
     },
 
     resetMockFormSubmitCalls: function() {

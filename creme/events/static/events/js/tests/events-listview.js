@@ -1,9 +1,9 @@
 (function($) {
 
-QUnit.module("creme.emails.listview.actions", new QUnitMixin(QUnitEventMixin,
-                                                             QUnitAjaxMixin,
-                                                             QUnitListViewMixin,
-                                                             QUnitDialogMixin, {
+QUnit.module("creme.events.listview", new QUnitMixin(QUnitEventMixin,
+                                                     QUnitAjaxMixin,
+                                                     QUnitListViewMixin,
+                                                     QUnitDialogMixin, {
     beforeEach: function() {
         var backend = this.backend;
         backend.options.enableUriSearch = true;

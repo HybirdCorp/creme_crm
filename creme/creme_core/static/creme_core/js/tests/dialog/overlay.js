@@ -1,15 +1,10 @@
 (function($) {
-
 QUnit.module("creme.overlay.js", new QUnitMixin(QUnitEventMixin,
                                                 QUnitDialogMixin, {
     beforeEach: function() {
         // The "position" is needed by Chromium to set "z-index" (or remains to "auto" value).
         // No problem Firefox.
-        this.anchor = $('<div style="position:relative;"></div>').appendTo($('body'));
-    },
-
-    afterEach: function() {
-        this.anchor.detach();
+        this.qunitFixture().attr('style', 'position: relative;');
     }
 }));
 
@@ -27,11 +22,11 @@ QUnit.test('creme.dialog.Overlay', function(assert) {
 QUnit.test('creme.dialog.Overlay.bind', function(assert) {
     var overlay = new creme.dialog.Overlay();
 
-    overlay.bind(this.anchor);
+    overlay.bind(this.qunitFixture());
 
     equal(false, overlay.visible());
     equal(true, overlay.isBound());
-    equal(this.anchor, overlay.target());
+    deepEqual(this.qunitFixture(), overlay.target());
 
     this.assertRaises(function() {
         overlay.bind($('<div>'));
@@ -41,11 +36,11 @@ QUnit.test('creme.dialog.Overlay.bind', function(assert) {
 QUnit.test('creme.dialog.Overlay.unbind', function(assert) {
     var overlay = new creme.dialog.Overlay();
 
-    overlay.bind(this.anchor);
+    overlay.bind(this.qunitFixture());
 
     equal(false, overlay.visible());
     equal(true, overlay.isBound());
-    equal(this.anchor, overlay.target());
+    deepEqual(this.qunitFixture(), overlay.target());
 
     overlay.unbind();
 
@@ -61,36 +56,36 @@ QUnit.test('creme.dialog.Overlay.unbind', function(assert) {
 QUnit.test('creme.dialog.Overlay (visible)', function(assert) {
     var overlay = new creme.dialog.Overlay();
 
-    overlay.bind(this.anchor);
+    overlay.bind(this.qunitFixture());
 
-    equal(false, overlay.visible())
-    equal(0, this.anchor.find('.ui-creme-overlay').length)
+    equal(false, overlay.visible());
+    equal(0, this.qunitFixture().find('.ui-creme-overlay').length);
 
     overlay.update(true);
 
-    equal(true, overlay.visible())
-    equal(1, this.anchor.find('.ui-creme-overlay').length)
+    equal(true, overlay.visible());
+    equal(1, this.qunitFixture().find('.ui-creme-overlay').length);
 
     overlay.update(false);
 
-    equal(false, overlay.visible())
-    equal(0, this.anchor.find('.ui-creme-overlay').length)
+    equal(false, overlay.visible());
+    equal(0, this.qunitFixture().find('.ui-creme-overlay').length);
 });
 
 QUnit.test('creme.dialog.Overlay (add|remove|toggleClasses)', function(assert) {
     var overlay = new creme.dialog.Overlay();
 
-    overlay.bind(this.anchor).update(true);
+    overlay.bind(this.qunitFixture()).update(true);
 
-    equal(true, overlay.visible())
+    equal(true, overlay.visible());
 
-    var overlayTag = this.anchor.find('.ui-creme-overlay');
+    var overlayTag = this.qunitFixture().find('.ui-creme-overlay');
 
     overlay.addClass('style-A');
     equal(true, overlayTag.is('.style-A'));
     equal(false, overlayTag.is('.style-B'));
 
-    overlay.toggleClass('style-A')
+    overlay.toggleClass('style-A');
     equal(false, overlayTag.is('.style-A'));
     equal(false, overlayTag.is('.style-B'));
 
@@ -102,5 +97,4 @@ QUnit.test('creme.dialog.Overlay (add|remove|toggleClasses)', function(assert) {
     equal(false, overlayTag.is('.style-A'));
     equal(true, overlayTag.is('.style-B'));
 });
-
 }(jQuery));

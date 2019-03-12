@@ -1,45 +1,15 @@
-QUnit.module("creme.chosen.js", {
-    setup: function() {
-        this.resetMockCalls();
-        this.anchor = $('<div style="display: none;"></div>').appendTo($('body'));
-    },
 
-    teardown: function() {
-        this.anchor.detach();
+(function($) {
+
+QUnit.module("creme.chosen.js", new QUnitMixin({
+    afterEach: function() {
         $('.chzn-drop').detach();
-    },
-
-    resetMockCalls: function() {
-        this._eventListenerCalls = {};
-    },
-
-    mockListenerCalls: function(name) {
-        if (this._eventListenerCalls[name] === undefined)
-            this._eventListenerCalls[name] = [];
-
-        return this._eventListenerCalls[name];
-    },
-
-    mockListener: function(name) {
-        var self = this;
-        return (function(name) {return function() {
-            self.mockListenerCalls(name).push(Array.copy(arguments));
-        }})(name);
-    },
-
-    assertRaises: function(block, expected, message) {
-        QUnit.assert.raises(block,
-               function(error) {
-                    ok(error instanceof expected, 'error is ' + expected);
-                    equal(message, '' + error);
-                    return true;
-               });
     },
 
     createSelect: function(options) {
         options = options || [];
 
-        var select = $('<select></select>').appendTo(this.anchor);
+        var select = $('<select></select>').appendTo(this.qunitFixture());
         var add = this.addSelectOption.bind(this);
 
         options.forEach(function(option) {
@@ -57,7 +27,7 @@ QUnit.module("creme.chosen.js", {
             selected: option.selected ? 'selected' : ''
         }));
     }
-});
+}));
 
 QUnit.test('creme.component.Chosen.activate (empty)', function() {
     var select = this.createSelect();
@@ -195,3 +165,5 @@ QUnit.test('creme.component.Chosen.deactivate (already deactivated)', function()
     equal(false, chosen.isActive());
     equal(0, select.parent().find('.chzn-single span').length);
 });
+
+}(jQuery));

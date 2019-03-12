@@ -70,7 +70,7 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
                 }
             }
 
-            url = urlInfo.pathname().replace(/^\//, '');
+            url = urlInfo.pathname().replace(window.location.pathname, '').replace(/^\//, '');
         }
 
         var response = method_urls[url];

@@ -61,6 +61,13 @@ QUnit.module("creme.reports.actions", new QUnitMixin(QUnitEventMixin,
             fail: this.mockListener('action-fail'),
             done: this.mockListener('action-done')
         };
+    },
+
+    afterEach: function() {
+        if ($('#ui-datepicker-div').length > 0) {
+            console.warn('Some jQuery.datepicker dialogs has not been cleaned up !');
+            $('#ui-datepicker-div').detach();
+        }
     }
 }));
 
@@ -69,6 +76,8 @@ QUnit.test('creme.reports.hatbar.actions (reports-export, ok)', function(assert)
         classes: ['brick-hat-bar']
     }).brick();
 
+    equal(0, $('#ui-datepicker-div').length);
+
     brick.action('reports-export', 'mock/reports/filterform').start();
 
     deepEqual([
@@ -76,6 +85,7 @@ QUnit.test('creme.reports.hatbar.actions (reports-export, ok)', function(assert)
     ], this.mockBackendUrlCalls('mock/reports/filterform'));
 
     var dialog = this.assertOpenedDialog();
+    equal(1, $('#ui-datepicker-div').length);
 
     equal(2, dialog.find('.ui-dialog-buttonset button').length);
     equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);

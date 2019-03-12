@@ -52,6 +52,13 @@ QUnit.module("creme.reports.listview.actions", new QUnitMixin(QUnitEventMixin,
             'mock/reports/filterform/invalid': backend.response(200, MOCK_FILTERFORM_CONTENT),
             'mock/reports/filterform/fail': backend.response(400, 'HTTP 400 - Invalid arguments')
         });
+    },
+
+    afterEach: function() {
+        if ($('#ui-datepicker-div').length > 0) {
+            console.warn('Some jQuery.datepicker dialogs has not been cleaned up !');
+            $('#ui-datepicker-div').detach();
+        }
     }
 }));
 

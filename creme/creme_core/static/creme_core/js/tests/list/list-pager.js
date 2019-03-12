@@ -1,20 +1,12 @@
 (function($) {
 
 QUnit.module("creme.list.pager", new QUnitMixin(QUnitEventMixin, {
-    beforeEach: function() {
-        this.anchor = $('<div></div>').appendTo($('body'));
-    },
-
-    afterEach: function(env) {
-        this.anchor.detach();
-    },
-
     createPagerElement: function(links) {
         var html = '<div>${links}</div>'.template({
             links: links || []
         });
 
-        return $(html).appendTo(this.anchor);
+        return $(html).appendTo(this.qunitFixture());
     }
 }));
 
