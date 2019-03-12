@@ -12,8 +12,6 @@
             var self = this;
             this.resetListviewReloadContent();
 
-            this.anchor = $('<div></div>').appendTo($('body'));
-
             var backend = this.backend;
 
             this.setMockBackendGET({
@@ -100,8 +98,6 @@
 
             $('.ui-dialog-content').dialog('destroy');
             creme.widget.shutdown($('body'));
-
-            this.anchor.detach();
         },
 
         createListViewHtml: function(options) {
@@ -183,7 +179,7 @@
 
         createListView: function(options) {
             var html = this.createListViewHtml(options);
-            var element = $(html).appendTo(this.anchor);
+            var element = $(html).appendTo(this.qunitFixture());
 
             creme.widget.create(element);
 

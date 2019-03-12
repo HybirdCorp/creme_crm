@@ -810,6 +810,7 @@ TEST_CREME_OPT_JS = [
     ('creme.events',        'events/js/tests/events-listview.js'),
     ('creme.opportunities', 'opportunities/js/tests/opportunities.js'),
     ('creme.projects',      'projects/js/tests/projects.js'),
+    ('creme.reports',       'reports/js/tests/reports-actions.js'),
     ('creme.reports',       'reports/js/tests/reports-listview.js'),
     ('creme.reports',       'reports/js/tests/reports-chart.js'),
     ('creme.reports',       'reports/js/tests/reports-filter.js'),

@@ -3,7 +3,7 @@
 QUnit.module("creme.lv_widget.ListViewHeader", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitDialogMixin, QUnitListViewMixin));
 
 QUnit.test('creme.lv_widget.ListViewHeader.bind', function(assert) {
-    var list = $(this.createListViewHtml()).appendTo(this.anchor);
+    var list = $(this.createListViewHtml()).appendTo(this.qunitFixture());
     var header = new creme.lv_widget.ListViewHeader();
     var table = list.find('table:first');
 
@@ -24,7 +24,7 @@ QUnit.test('creme.lv_widget.ListViewHeader.bind', function(assert) {
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader.bind (already bound)', function(assert) {
-    var list = $(this.createListViewHtml()).appendTo(this.anchor);
+    var list = $(this.createListViewHtml()).appendTo(this.qunitFixture());
     var header = new creme.lv_widget.ListViewHeader().bind(list.find('table:first'));
 
     equal(true, header.isBound());
@@ -34,28 +34,36 @@ QUnit.test('creme.lv_widget.ListViewHeader.bind (already bound)', function(asser
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader.bind (standalone)', function(assert) {
-    var list = $(this.createListViewHtml()).appendTo(this.anchor);
-    var header = new creme.lv_widget.ListViewHeader({
-        standalone: true,
-        headTop: 35
-    });
-    var table = list.find('table:first');
+    $(document).scrollTop(0);
 
-    equal(true, header._isStandalone);
-    equal(35, header._headTop);
+    // attachment to body is need for a correct scrollTop position
+    var list = $(this.createListViewHtml()).appendTo($('body'));
 
-    header.bind(table);
+    try {
+        var header = new creme.lv_widget.ListViewHeader({
+            standalone: true,
+            headTop: 35
+        });
+        var table = list.find('table:first');
 
-    equal(true, header.isBound());
-    equal(1, header._list.length);
-    equal(1, header._floatAnchor.length);
-    equal(1, $('.floated-header-anchor').length);
+        equal(true, header._isStandalone);
+        equal(35, header._headTop);
 
-    equal(false, table.is('.floated'));
+        header.bind(table);
+
+        equal(true, header.isBound());
+        equal(1, header._list.length);
+        equal(1, header._floatAnchor.length);
+        equal(1, $('.floated-header-anchor').length);
+
+        equal(false, table.is('.floated'));
+    } finally {
+        list.detach();
+    }
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader.bind (standalone, already floating)', function(assert) {
-    var list = $(this.createListViewHtml()).appendTo(this.anchor);
+    var list = $(this.createListViewHtml()).appendTo(this.qunitFixture());
     var header = new creme.lv_widget.ListViewHeader({
         standalone: true,
         headTop: 35
@@ -75,7 +83,7 @@ QUnit.test('creme.lv_widget.ListViewHeader.bind (standalone, already floating)',
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (enter first row)', function(assert) {
-    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.anchor);
+    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
     var header = new creme.lv_widget.ListViewHeader();
     var table = list.find('table:first');
 
@@ -103,7 +111,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (enter first row)', function(assert) 
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (enter first row, standalone)', function(assert) {
-    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.anchor); // 1-col + 3-rows
+    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture()); // 1-col + 3-rows
     var header = new creme.lv_widget.ListViewHeader({
         standalone: true,
         headTop: 35
@@ -134,7 +142,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (enter first row, standalone)', funct
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (leave first row)', function(assert) {
-    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.anchor);
+    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
     var header = new creme.lv_widget.ListViewHeader();
     var table = list.find('table:first');
 
@@ -154,7 +162,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (leave first row)', function(assert) 
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (leave first row, standalone)', function(assert) {
-    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.anchor); // 1-col + 3-rows
+    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture()); // 1-col + 3-rows
     var header = new creme.lv_widget.ListViewHeader({
         standalone: true,
         headTop: 35
@@ -177,7 +185,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (leave first row, standalone)', funct
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (selection change)', function(assert) {
-    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.anchor);
+    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
     var header = new creme.lv_widget.ListViewHeader();
     var table = list.find('table:first');
 
@@ -210,7 +218,7 @@ QUnit.test('creme.lv_widget.ListViewHeader (selection change)', function(assert)
 });
 
 QUnit.test('creme.lv_widget.ListViewHeader (selection change, standalone)', function(assert) {
-    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.anchor);
+    var list = $(this.createListViewHtml(this.defaultListViewHtmlOptions())).appendTo(this.qunitFixture());
     var header = new creme.lv_widget.ListViewHeader({
         standalone: true,
         headTop: 35

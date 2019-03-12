@@ -26,7 +26,7 @@
         createHatMenuBar: function(options) {
             var html = this.createHatMenuBarHtml(options);
 
-            var element = $(html).appendTo($('body'));
+            var element = $(html).appendTo(this.qunitFixture());
             return creme.widget.create(element);
         },
 

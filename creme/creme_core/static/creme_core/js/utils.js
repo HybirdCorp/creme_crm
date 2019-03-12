@@ -93,10 +93,10 @@ creme.utils.loading = function(div_id, is_loaded, params) {
 
 // TODO : deprecate it ? (only used by creme.utils.showInnerPopup)
 creme.utils.showDialog = function(text, options, div_id) {
+    div_id = Object.isEmpty(div_id) ? creme.utils.innerPopupUUID() : div_id;
     var $div = $('#' + div_id);
 
     if ($div.size() === 0) {
-        div_id = creme.utils.innerPopupUUID();
         $div = $('<div id="' + div_id + '"  style="display:none;"></div>');
         $(document.body).append($div);
     }
@@ -144,13 +144,7 @@ creme.utils.innerPopupUUID = function() {
 // NB: only used by creme.utils.innerPopupFormAction()
 creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload) {
     reload = reload || false;
-
-    var $div = $('#' + div_id);
-    if ($div.size() === 0) {
-        div_id = creme.utils.innerPopupUUID();
-        $div = $('<div id="' + div_id + '"  style="display:none;"></div>');
-        $(document.body).append($div);
-    }
+    div_id = Object.isEmpty(div_id) ? creme.utils.innerPopupUUID() : div_id;
 
     options = $.extend({
         reloadOnClose: false,

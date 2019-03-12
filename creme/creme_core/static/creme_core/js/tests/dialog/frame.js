@@ -1,4 +1,4 @@
-/* global QUnitWidgetMixin, setTimeout */
+/* global setTimeout */
 
 (function($) {
 var RED_DOT_5x5_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==';
@@ -14,8 +14,7 @@ var MOCK_FRAME_CONTENT_FORM = '<form>' +
 
 QUnit.module("creme.dialog.frame.js", new QUnitMixin(QUnitEventMixin,
                                                      QUnitAjaxMixin,
-                                                     QUnitDialogMixin,
-                                                     QUnitWidgetMixin, {
+                                                     QUnitDialogMixin, {
     buildMockBackend: function() {
         return new creme.ajax.MockAjaxBackend({delay: 0, sync: true, name: 'creme.dialog.frame.js'});
     },
@@ -41,6 +40,14 @@ QUnit.module("creme.dialog.frame.js", new QUnitMixin(QUnitEventMixin,
 
     afterEach: function() {
         creme.widget.shutdown($('body'));
+    },
+
+    assertActive: function(element) {
+        equal(element.hasClass('widget-active'), true, 'is widget active');
+    },
+
+    assertNotActive: function(element) {
+        equal(element.hasClass('widget-active'), false, 'is widget not active');
     }
 }));
 

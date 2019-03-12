@@ -36,7 +36,7 @@ QUnit.module("creme.detailview.hatmenubar", new QUnitMixin(QUnitEventMixin,
 }));
 
 QUnit.test('creme.detailview.hatmenubar (empty)', function(assert) {
-    var element = $(this.createHatMenuBarHtml()).appendTo($('body'));
+    var element = $(this.createHatMenuBarHtml()).appendTo(this.qunitFixture());
 
     element.on('hatmenubar-setup-actions', this.mockListener('hatmenubar-setup-actions'));
 

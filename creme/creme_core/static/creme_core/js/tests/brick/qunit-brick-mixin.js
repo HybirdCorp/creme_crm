@@ -21,7 +21,6 @@
             var self = this;
             this.resetBrickReloadContent();
 
-            this.anchor = $('<div></div>').appendTo($('body'));
             this.mockBrickState = {};
 
             var backend = this.backend;
@@ -70,12 +69,10 @@
         },
 
         afterEach: function(env) {
-            this.anchor.detach();
-
+            $('.popover').trigger('modal-close');
             $('.ui-dialog-content').dialog('destroy');
-            creme.widget.shutdown($('body'));
 
-            $('.brick').detach();
+            creme.widget.shutdown($('body'));
         },
 
         setBrickReloadContent: function(id, content) {
@@ -141,7 +138,7 @@
         createBrickWidget: function(options) {
             var html = this.createBrickHtml(options);
 
-            var element = $(html).appendTo($('body'));
+            var element = $(html).appendTo(this.qunitFixture());
             var widget = creme.widget.create(element);
             var brick = widget.brick();
 
@@ -186,7 +183,7 @@
         createBrickTable: function(options) {
             var html = this.createBrickTableHtml(options);
 
-            var element = $(html).appendTo($('body'));
+            var element = $(html).appendTo(this.qunitFixture());
             var widget = creme.widget.create(element);
             var brick = widget.brick();
 

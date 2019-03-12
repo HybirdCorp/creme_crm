@@ -42,7 +42,7 @@ QUnit.module("creme.bricks.actions", new QUnitMixin(QUnitEventMixin,
 }));
 
 QUnit.test('creme.bricks.Brick.action (toggle collapse)', function(assert) {
-    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo($('body'));
+    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo(this.qunitFixture());
     var brick = new creme.bricks.Brick({
                     deferredStateSaveDelay: 0
                 });
@@ -69,7 +69,7 @@ QUnit.test('creme.bricks.Brick.action (toggle collapse)', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.action (toggle content-reduced)', function(assert) {
-    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo($('body'));
+    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo(this.qunitFixture());
     var brick = new creme.bricks.Brick({
                     deferredStateSaveDelay: 0
                 });

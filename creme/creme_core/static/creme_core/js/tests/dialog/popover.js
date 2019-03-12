@@ -6,14 +6,6 @@ var RED_DOT_5x5_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQV
 
 QUnit.module("creme.popover.js", new QUnitMixin(QUnitEventMixin,
                                                 QUnitDialogMixin, {
-    beforeEach: function() {
-        this.anchor = $('<div class="popover-mock-anchor"></div>').appendTo($('body'));
-    },
-
-    afterEach: function() {
-        this.anchor.detach();
-    },
-
     assertPopoverDirection: function(popover, direction) {
         ok(popover._dialog.is('.popover.' + direction), 'popover direction is ' + direction);
         equal(direction, popover.direction());
@@ -22,7 +14,7 @@ QUnit.module("creme.popover.js", new QUnitMixin(QUnitEventMixin,
 
 QUnit.test('creme.dialog.Popover (open)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
@@ -35,7 +27,7 @@ QUnit.test('creme.dialog.Popover (open)', function(assert) {
     popover.open(anchor);
 
     equal(true, popover.isOpened());
-    this.equalOuterHtml('<div class="popover-mock-anchor"></div>', popover.anchor());
+    this.equalOuterHtml('<div id="qunit-fixture-popover"></div>', popover.anchor());
     deepEqual([['opened']], this.mockListenerCalls('opened'));
     deepEqual([], this.mockListenerCalls('closed'));
 
@@ -48,7 +40,7 @@ QUnit.test('creme.dialog.Popover (open)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (toggle)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
@@ -75,7 +67,7 @@ QUnit.test('creme.dialog.Popover (toggle)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (title)', function(assert) {
     var popover = new creme.dialog.Popover({title: 'A'});
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.open(anchor);
     this.assertPopoverTitle('A');
@@ -88,7 +80,7 @@ QUnit.test('creme.dialog.Popover (title)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (direction)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = $('<div></div>').appendTo($('body'));
+    var anchor = this.qunitFixture('popover');
 
     popover.open(anchor);
     this.assertPopoverDirection(popover, 'bottom');
@@ -122,7 +114,7 @@ QUnit.test('creme.dialog.Popover (direction)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (addClass + direction)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = $('<div></div>').appendTo($('body'));
+    var anchor = this.qunitFixture('popover');
 
     popover.addClass('special-popover');
     popover.open(anchor);
@@ -144,7 +136,7 @@ QUnit.test('creme.dialog.Popover (addClass + direction)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (remove/toggleClass)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = $('<div></div>').appendTo($('body'));
+    var anchor = this.qunitFixture('popover');
 
     popover.addClass('special-popover');
     popover.open(anchor);
@@ -163,7 +155,7 @@ QUnit.test('creme.dialog.Popover (remove/toggleClass)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (fill)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.open(anchor);
     popover.fill('<p>this is another sample</p>');
@@ -175,7 +167,7 @@ QUnit.test('creme.dialog.Popover (fill)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (fill)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.fill('<p>this is a sample</p>');
     popover.open(anchor);
@@ -190,7 +182,7 @@ QUnit.test('creme.dialog.Popover (fill)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (fill, function)', function(assert) {
     var popover = new creme.dialog.Popover({title: 'A'});
-    var anchor = $('<div></div>').appendTo($('body'));
+    var anchor = this.qunitFixture('popover');
 
     popover.open(anchor);
     popover.fill(function(options) {
@@ -202,7 +194,7 @@ QUnit.test('creme.dialog.Popover (fill, function)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (on/one/off events)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
     var opened_cb = this.mockListener('opened');
 
     popover.on('opened', opened_cb);
@@ -235,7 +227,7 @@ QUnit.test('creme.dialog.Popover (on/one/off events)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (closeIfOut)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
@@ -244,7 +236,7 @@ QUnit.test('creme.dialog.Popover (closeIfOut)', function(assert) {
 
     popover.open(anchor);
     equal(true, popover.isOpened());
-    this.equalOuterHtml('<div class="popover-mock-anchor"></div>', popover.anchor());
+    this.equalOuterHtml('<div id="qunit-fixture-popover"></div>', popover.anchor());
 
     deepEqual([['opened']], this.mockListenerCalls('opened'));
     deepEqual([], this.mockListenerCalls('closed'));
@@ -262,7 +254,7 @@ QUnit.test('creme.dialog.Popover (closeIfOut, disabled)', function(assert) {
         closeIfOut: false
     });
 
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
@@ -271,7 +263,7 @@ QUnit.test('creme.dialog.Popover (closeIfOut, disabled)', function(assert) {
 
     popover.open(anchor);
     equal(true, popover.isOpened());
-    this.equalOuterHtml('<div class="popover-mock-anchor"></div>', popover.anchor());
+    this.equalOuterHtml('<div id="qunit-fixture-popover"></div>', popover.anchor());
 
     deepEqual([['opened']], this.mockListenerCalls('opened'));
     deepEqual([], this.mockListenerCalls('closed'));
@@ -285,7 +277,7 @@ QUnit.test('creme.dialog.Popover (closeIfOut, disabled)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (trigger modal close)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
@@ -315,7 +307,7 @@ QUnit.test('creme.dialog.Popover (modal)', function(assert) {
     popover2.on('opened', this.mockListener('opened2'));
     popover2.on('closed', this.mockListener('closed2'));
 
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     ok(popover.options().modal);
     ok(popover2.options().modal);
@@ -350,7 +342,7 @@ QUnit.test('creme.dialog.Popover (not modal)', function(assert) {
     popover2.on('opened', this.mockListener('opened2'));
     popover2.on('closed', this.mockListener('closed2'));
 
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.open(anchor);
     equal(true, popover.isOpened());
@@ -373,7 +365,7 @@ QUnit.test('creme.dialog.Popover (not modal)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (close with arguments)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.on('closed', this.mockListener('closed'));
 
@@ -387,7 +379,7 @@ QUnit.test('creme.dialog.Popover (close with arguments)', function(assert) {
 
 QUnit.test('creme.dialog.Popover (open/close cycles)', function(assert) {
     var popover = new creme.dialog.Popover();
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
 
     popover.on('opened', this.mockListener('opened'));
     popover.on('closed', this.mockListener('closed'));
@@ -473,7 +465,7 @@ QUnit.test('creme.dialog.ImagePopover (title)', function(assert) {
 });
 
 QUnit.test('creme.dialog.ImagePopover (close on click)', function(assert) {
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
     var popover = new creme.dialog.ImagePopover();
 
     popover.fillImage($('<img src="nowhere" />'));
@@ -494,7 +486,7 @@ QUnit.test('creme.dialog.ImagePopover (close on click)', function(assert) {
 });
 
 QUnit.test('creme.dialog.ImagePopover (close on click, disabled)', function(assert) {
-    var anchor = this.anchor;
+    var anchor = this.qunitFixture('popover');
     var popover = new creme.dialog.ImagePopover({
         closeOnClick: false
     });

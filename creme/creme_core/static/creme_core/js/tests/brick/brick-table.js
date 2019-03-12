@@ -11,7 +11,7 @@ QUnit.module("creme.bricks.table", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixi
 
 QUnit.test('creme.bricks.Brick.table (bind/unbind)', function(assert) {
     var brick = new creme.bricks.Brick();
-    var element = $('<div class="brick ui-creme-widget" widget="brick" id="${id}"></div>').appendTo($('body'));
+    var element = $('<div class="brick ui-creme-widget" widget="brick" id="${id}"></div>').appendTo(this.qunitFixture());
 
     brick.bind(element);
 
