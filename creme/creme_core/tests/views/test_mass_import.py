@@ -14,7 +14,7 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
 
-    from .base import ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTestCaseMixin, skipIfNoXLSLib
+    from .base import ViewsTestCase, MassImportBaseTestCaseMixin, BrickTestCaseMixin, skipIfNoXLSLib
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.bricks import MassImportJobErrorsBrick, JobErrorsBrick
@@ -41,7 +41,7 @@ except Exception:
 
 @skipIfCustomDocument
 @skipIfCustomFolder
-class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTestCaseMixin):
+class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickTestCaseMixin):
     lv_import_data = {
             'step': 1,
             # 'document':   doc.id,
@@ -393,13 +393,13 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self.login()
         self.assertGET404(self._build_import_url(FakeEmailCampaign))
 
-    def test_csv_import01(self):
+    def test_mass_import01(self):
         return self._test_import01(self._build_csv_doc)
 
-    def test_csv_import02(self):
+    def test_mass_import02(self):
         return self._test_import02(self._build_csv_doc)
 
-    def test_csv_import03(self):
+    def test_mass_import03(self):
         return self._test_import03(self._build_csv_doc)
 
     @skipIfNoXLSLib
@@ -414,7 +414,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
     def test_xls_import03(self):
         return self._test_import03(self._build_xls_doc)
 
-    def test_csv_import04(self): 
+    def test_mass_import04(self):
         "Other separator"
         user = self.login()
         contact_ids = list(FakeContact.objects.values_list('id', flat=True))
@@ -503,7 +503,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
     def _get_cf_values(self, cf, entity):
         return self.get_object_or_fail(cf.get_value_class(), custom_field=cf, entity=entity)
 
-    def test_csv_import_customfields01(self): 
+    def test_mass_import_customfields01(self):
         "CustomField.INT, STR & FLOAT, update, cast error"
         user = self.login()
 
@@ -581,7 +581,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                         )
         self.assertEqual(ryomou, jr_error.entity.get_real_entity())
 
-    def test_csv_import_customfields02(self): 
+    def test_mass_import_customfields02(self):
         "CustomField.ENUM/MULTI_ENUM (no creation of choice)"
         user = self.login()
         contact_ids = list(FakeContact.objects.values_list('id', flat=True))
@@ -657,7 +657,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                         )
         self.assertEqual(kanu, jr_error.entity.get_real_entity())
 
-    def test_csv_import_customfields03(self): 
+    def test_mass_import_customfields03(self):
         "CustomField.ENUM (creation of choice if not found)"
         user = self.login()
         contact_ids = list(FakeContact.objects.values_list('id', flat=True))
@@ -720,7 +720,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         self._assertNoResultError(self._get_job_results(job))
 
-    def test_csv_import_customfields04(self):
+    def test_mass_import_customfields04(self):
         "CustomField.ENUM/MULTI_ENUM: creation credentials"
         self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
                    creatable_models=[FakeContact, Document],
@@ -778,7 +778,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                 value='spear',
                                )
 
-    def test_csv_import_customfields05(self): 
+    def test_mass_import_customfields05(self):
         "Default value"
         user = self.login()
         contact_ids = list(FakeContact.objects.values_list('id', flat=True))

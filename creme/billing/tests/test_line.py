@@ -458,7 +458,7 @@ class LineTestCase(_BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_csv_import(self):
+    def test_mass_import(self):
         self.login()
         self.assertGET404(self._build_import_url(ServiceLine))
         self.assertGET404(self._build_import_url(ProductLine))

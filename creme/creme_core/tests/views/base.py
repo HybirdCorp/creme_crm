@@ -103,8 +103,8 @@ class BrickTestCaseMixin:
         return value_node
 
 
-# TODO: rename (MassImportBaseTestCaseMixin)
-class CSVImportBaseTestCaseMixin:
+# class CSVImportBaseTestCaseMixin:
+class MassImportBaseTestCaseMixin:
     def _assertNoResultError(self, results):
         for r in results:
             if r.messages:

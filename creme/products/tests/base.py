@@ -10,7 +10,7 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials
-    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 
     from creme.documents import get_document_model
     from creme.documents.tests.base import _DocumentsTestCase
@@ -31,7 +31,7 @@ def skipIfCustomService(test_func):
     return skipIf(skip_service_tests, 'Custom Service model in use')(test_func)
 
 
-class _ProductsTestCase(_DocumentsTestCase, CSVImportBaseTestCaseMixin):
+class _ProductsTestCase(_DocumentsTestCase, MassImportBaseTestCaseMixin):
     def _cat_field(self, category, sub_category):
         return json_dump({'category': category.id, 'subcategory': sub_category.id})
 

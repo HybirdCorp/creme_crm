@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 
     from ..base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
             Contact, Address)
@@ -12,7 +12,7 @@ except Exception as e:
 
 
 @skipIfCustomContact
-class ContactMassImportTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
+class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
     IMPORT_DATA = {
         'step': 1,
         # 'document': doc.id, 'user': self.user.id,

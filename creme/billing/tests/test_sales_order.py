@@ -247,11 +247,11 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertDeleteStatusKO(status, 'sales_order_status', order)
 
     @skipIfCustomAddress
-    def test_csv_import(self):
+    def test_mass_import(self):
         self.login()
         self._aux_test_csv_import(SalesOrder, SalesOrderStatus)
 
     @skipIfCustomAddress
-    def test_csv_import_update(self):
+    def test_mass_import_update(self):
         self.login()
         self._aux_test_csv_import_update(SalesOrder, SalesOrderStatus)

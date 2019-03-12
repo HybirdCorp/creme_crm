@@ -14,7 +14,7 @@ try:
     from django.utils.timezone import now
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import RelationType, HeaderFilter
     from creme.creme_core.templatetags.creme_date import timedelta_pprint
@@ -46,7 +46,7 @@ def skipIfCustomTicketTemplate(test_func):
 
 
 @skipIfCustomTicket
-class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
+class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
     def test_populate(self):
         for pk, name in BASE_STATUS:
             try:
@@ -428,7 +428,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
         self.assertEqual(criticity, ticket.criticity)
 
-    def test_csv_import(self):
+    def test_mass_import(self):
         user = self.login()
 
         count = Ticket.objects.count()
