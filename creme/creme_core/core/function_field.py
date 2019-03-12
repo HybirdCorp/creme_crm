@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 # import warnings
 
-from django.db.models.query_utils import Q
+# from django.db.models.query_utils import Q
 from django.utils.formats import number_format
 from django.utils.html import escape, format_html, format_html_join
 
@@ -76,16 +76,21 @@ class FunctionField:
     """
     name         = ''  # Name of the attr if the related model class
     verbose_name = ''  # Verbose name (used by HeaderFilter)
-    has_filter   = False  # See EntityCell.has_a_filter
+    # has_filter   = False
     is_hidden    = False  # See EntityCell.is_hidden
-    choices      = None  # Choices for list_view filtering.
-                         # Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
+    # choices      = None
     result_type  = FunctionFieldResult  # TODO: what about FunctionFieldResultsList([FunctionFieldDecimal(...), ...])
                                         #         ==> FunctionFieldResultsList or FunctionFieldDecimal ??
 
-    @classmethod
-    def filter_in_result(cls, search_string):
-        return Q()
+    # Builder for the search-field (used to quick-search in list-views) ; in can be :
+    #  - None (no quick-search for this FunctionField) (default value).
+    #  - A class of field (should inherit <creme_core.forms.listview.ListViewSearchField>).
+    #  - A class of field-registry (should inherit <creme_core.gui.listview.search.AbstractListViewSearchFieldRegistry>).
+    search_field_builder = None
+
+    # @classmethod
+    # def filter_in_result(cls, search_string):
+    #     return Q()
 
     def __call__(self, entity, user):
         """"@return An instance of FunctionField object

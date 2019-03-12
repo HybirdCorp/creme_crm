@@ -402,10 +402,13 @@ else:
         name  = models.CharField(_('Name'), max_length=100, unique=True)
         order = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
 
+        def __str__(self):
+            return self.name
+
         class Meta:
             app_label = 'creme_core'
-            verbose_name = u"Test Type of activity"
-            verbose_name_plural = u"Test Types of activity"
+            verbose_name = 'Test Type of activity'
+            verbose_name_plural = 'Test Types of activity'
             ordering = ('name',)
 
 

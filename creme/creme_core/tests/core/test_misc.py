@@ -665,7 +665,8 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(name,            cell.value)
         self.assertEqual(str(funfield.verbose_name), cell.title)
         self.assertEqual('function_field-{}'.format(funfield.name), cell.key)
-        self.assertIs(cell.has_a_filter, True)  # TODO: test with a non-filterable FunctionField
+        # self.assertIs(cell.has_a_filter, True)
+        self.assertIs(cell.has_a_filter, False)  # TMP: will be deleted
         self.assertIs(cell.editable,     False)
         self.assertIs(cell.sortable,     False)
         self.assertIs(cell.is_hidden,    False)

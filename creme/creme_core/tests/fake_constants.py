@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from collections import OrderedDict
+
 from django.utils.translation import ugettext_lazy as _
 
 FAKE_REL_SUB_EMPLOYED_BY = 'creme_core-subject_fake_employed_by'
@@ -13,6 +15,7 @@ FAKE_REL_OBJ_BILL_RECEIVED = 'creme_core-object_fake_bill_received'
 
 FAKE_PERCENT_UNIT = 1
 FAKE_AMOUNT_UNIT  = 2
-FAKE_DISCOUNT_UNIT = {FAKE_PERCENT_UNIT: _('Percent'),
-                      FAKE_AMOUNT_UNIT:  _('Amount'),
-                     }
+FAKE_DISCOUNT_UNIT = OrderedDict([
+    (FAKE_PERCENT_UNIT, _('Percent')),
+    (FAKE_AMOUNT_UNIT,  _('Amount')),
+])

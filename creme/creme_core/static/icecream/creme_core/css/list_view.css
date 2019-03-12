@@ -372,8 +372,8 @@
     border-left: 1px solid rgba(84, 130, 149, 0.3);
 }
 
-.list_view .columns_bottom th.search input,
-.list_view .columns_top th.search input {
+.list_view .columns_bottom th.search input /*,
+.list_view .columns_top th.search input */ {
     background-color: #e6e6e6;
 }
 

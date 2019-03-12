@@ -213,9 +213,9 @@
 }
 
 .list_view .columns_bottom th.search input,
-.list_view .columns_bottom th.search select,
+.list_view .columns_bottom th.search select /*,
 .list_view .columns_top th.search input,
-.list_view .columns_top th.search select {
+.list_view .columns_top th.search select */ {
     background-color: #FCD3CF;
     color: #C05C50;
     border: 1px solid #D87D72;

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 import logging
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, IntegrityError
@@ -395,9 +396,9 @@ class Relation(CremeModel):
         """
         CremeEntity.populate_real_entities([relation.object_entity for relation in relations])
 
-    # TODO: remove 'model' ; rename other args... (move to EntityCellRelation ??)
     @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):
+        warnings.warn('Relation.filter_in() is deprecated.', DeprecationWarning)
         return Q(relations__type=filter_predicate,
                  relations__object_entity__header_filter_search_field__icontains=value_for_filter,
                 )

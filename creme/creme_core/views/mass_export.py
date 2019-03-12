@@ -26,7 +26,8 @@ from django.shortcuts import get_object_or_404
 
 from ..backends import export_backend_registry
 from ..core.paginator import FlowPaginator
-from ..gui.listview import ListViewState
+from ..forms.listview import ListViewSearchForm
+from ..gui.listview import ListViewState, search_field_registry
 from ..models import EntityFilter, EntityCredentials, HeaderFilter
 from ..models.history import _HLTEntityExport
 from ..utils import get_from_GET_or_404, bool_from_str_extended
@@ -48,6 +49,9 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
     entityfilter_id_arg = 'efilter'
 
     page_size = 1024
+
+    search_field_registry = search_field_registry
+    search_form_class     = ListViewSearchForm
 
     def check_related_ctype(self, ctype):
         super().check_related_ctype(ctype=ctype)
@@ -101,6 +105,25 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
                              per_page=self.page_size,
                             )
 
+    def get_search_field_registry(self):
+        return self.search_field_registry
+
+    def get_search_form_class(self):
+        return self.search_form_class
+
+    def get_search_form(self, cells, state):
+        form_cls = self.get_search_form_class()
+        form = form_cls(
+            field_registry=self.get_search_field_registry(),
+            cells=cells,
+            user=self.request.user,
+            data=state.search,
+        )
+
+        form.full_clean()
+
+        return form
+
     def get(self, request, *args, **kwargs):
         GET = request.GET
         user = request.user
@@ -122,29 +145,37 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
         writerow([smart_str(cell.title) for cell in cells])  # Doesn't accept generator expression... ;(
 
         if not header_only:
-            current_lvs.handle_research(request.GET, cells, merge=True)
             ordering = current_lvs.set_sort(model, cells,
                                             current_lvs.sort_field,
                                             current_lvs.sort_order,
-                                            )
+                                           )
 
             entities_qs = model.objects.filter(is_deleted=False)
             use_distinct = False
 
+            # ----
             efilter = self.get_entity_filter()
             if efilter is not None:
                 entities_qs = efilter.filter(entities_qs)
 
+            # ----
             extra_q = GET.get('extra_q')
             if extra_q is not None:
                 entities_qs = entities_qs.filter(QSerializer().loads(extra_q))
                 use_distinct = True  # TODO: test + only if needed
 
-            lv_state_q = current_lvs.get_q_with_research(model, cells)
-            if lv_state_q:
-                entities_qs = entities_qs.filter(lv_state_q)
-                use_distinct = True  # TODO: test + only if needed
+            # ----
+            search_form = self.get_search_form(cells=cells, state=current_lvs)
+            search_q = search_form.search_q
+            if search_q:
+                try:
+                    entities_qs = entities_qs.filter(search_q)
+                except Exception as e:
+                    logger.exception('Error when building the search queryset with Q=%s (%s).', search_q, e)
+                else:
+                    use_distinct = True  # TODO: test + only if needed
 
+            # ----
             entities_qs = EntityCredentials.filter(user, entities_qs)
 
             if use_distinct:
