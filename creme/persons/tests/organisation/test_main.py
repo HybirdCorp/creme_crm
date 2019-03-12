@@ -1,0 +1,577 @@
+# -*- coding: utf-8 -*-
+
+try:
+    from functools import partial
+
+    from django.urls import reverse
+    from django.utils.translation import ugettext as _
+
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig
+
+    from creme.persons import constants
+    from creme.persons.models import StaffSize, Sector, LegalForm
+
+    from ..base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
+            skipIfCustomOrganisation, Organisation, Address, Contact)
+except Exception as e:
+    print('Error in <{}>: {}'.format(__name__, e))
+
+
+@skipIfCustomOrganisation
+class OrganisationTestCase(_BaseTestCase):
+    def test_empty_fields(self):
+        user = self.login()
+
+        with self.assertNoException():
+            orga = Organisation.objects.create(user=user, name='Nerv')
+
+        self.assertEqual('', orga.description)
+
+        self.assertEqual('', orga.phone)
+        self.assertEqual('', orga.fax)
+        self.assertEqual('', orga.email)
+        self.assertEqual('', orga.url_site)
+
+        self.assertEqual('', orga.annual_revenue)
+
+        self.assertEqual('', orga.siren)
+        self.assertEqual('', orga.naf)
+        self.assertEqual('', orga.siret)
+        self.assertEqual('', orga.rcs)
+
+        self.assertEqual('', orga.tvaintra)
+
+    def test_populated_orga_uuid(self):
+        first_orga = Organisation.objects.order_by('id').first()
+        self.assertIsNotNone(first_orga)
+        self.assertTrue(first_orga.is_managed)
+        self.assertEqual(constants.UUID_FIRST_ORGA, str(first_orga.uuid))
+
+    def test_staff_size(self):
+        count = StaffSize.objects.count()
+
+        create_size = StaffSize.objects.create
+        size1 = create_size(size='4 and a dog')
+        size2 = create_size(size='1 wolf & 1 cub')
+        self.assertEqual(count + 1, size1.order)
+        self.assertEqual(count + 2, size2.order)
+
+    def test_createview01(self):
+        user = self.login()
+
+        url = reverse('persons__create_organisation')
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'persons/add_organisation_form.html')
+
+        count = Organisation.objects.count()
+        name  = 'Spectre'
+        description = 'DESCRIPTION'
+        response = self.client.post(url, follow=True,
+                                    data={'user':        user.pk,
+                                          'name':        name,
+                                          'description': description,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(count + 1, Organisation.objects.count())
+
+        orga = self.get_object_or_fail(Organisation, name=name)
+        self.assertEqual(description, orga.description)
+        self.assertIsNone(orga.billing_address)
+        self.assertIsNone(orga.shipping_address)
+
+        self.assertRedirects(response, orga.get_absolute_url())
+
+    @skipIfCustomAddress
+    def test_createview02(self):
+        "With addresses"
+        user = self.login()
+
+        name = 'Bebop'
+
+        b_address = 'Mars gate'
+        b_po_box = 'Mars1233546'
+        b_zipcode = '9874541'
+        b_city = 'Redsand'
+        b_department = 'Great crater'
+        b_state = 'State#3'
+        b_country = 'Terran federation'
+
+        s_address = 'Mars gate (bis)'
+        response = self.client.post(reverse('persons__create_organisation'), follow=True,
+                                    data={'user': user.pk,
+                                          'name': name,
+
+                                          'billing_address-address':    b_address,
+                                          'billing_address-po_box':     b_po_box,
+                                          'billing_address-zipcode':    b_zipcode,
+                                          'billing_address-city':       b_city,
+                                          'billing_address-department': b_department,
+                                          'billing_address-state':      b_state,
+                                          'billing_address-country':    b_country,
+
+                                          'shipping_address-address': s_address,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        orga = self.get_object_or_fail(Organisation, name=name)
+
+        billing_address = orga.billing_address
+        self.assertIsNotNone(billing_address)
+        self.assertEqual(b_address,    billing_address.address)
+        self.assertEqual(b_po_box,     billing_address.po_box)
+        self.assertEqual(b_zipcode,    billing_address.zipcode)
+        self.assertEqual(b_city,       billing_address.city)
+        self.assertEqual(b_department, billing_address.department)
+        self.assertEqual(b_state,      billing_address.state)
+        self.assertEqual(b_country,    billing_address.country)
+
+        self.assertEqual(s_address, orga.shipping_address.address)
+
+        self.assertContains(response, b_address)
+        self.assertContains(response, s_address)
+
+    @skipIfCustomAddress
+    def test_createview03(self):
+        "FieldsConfig on Address sub-fields"
+        user = self.login()
+        FieldsConfig.create(Address,
+                            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        response = self.assertGET200(reverse('persons__create_organisation'))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertIn('name', fields)
+        self.assertIn('billing_address-address', fields)
+        self.assertNotIn('billing_address-po_box',  fields)
+
+        name = 'Bebop'
+
+        b_address = 'Mars gate'
+        b_po_box = 'Mars1233546'
+        b_zipcode = '9874541'
+        b_city = 'Redsand'
+        b_department = 'Great crater'
+        b_state = 'State#3'
+        b_country = 'Terran federation'
+
+        response = self.client.post(reverse('persons__create_organisation'), follow=True,
+                                    data={'user': user.pk,
+                                          'name': name,
+
+                                          'billing_address-address':    b_address,
+                                          'billing_address-po_box':     b_po_box,  # <== should not be used
+                                          'billing_address-zipcode':    b_zipcode,
+                                          'billing_address-city':       b_city,
+                                          'billing_address-department': b_department,
+                                          'billing_address-state':      b_state,
+                                          'billing_address-country':    b_country,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        orga = self.get_object_or_fail(Organisation, name=name)
+        billing_address = orga.billing_address
+        self.assertIsNotNone(billing_address)
+        self.assertEqual(b_address,    billing_address.address)
+        self.assertEqual(b_zipcode,    billing_address.zipcode)
+        self.assertEqual(b_city,       billing_address.city)
+        self.assertEqual(b_department, billing_address.department)
+        self.assertEqual(b_state,      billing_address.state)
+        self.assertEqual(b_country,    billing_address.country)
+
+        self.assertFalse(billing_address.po_box)
+
+    @skipIfCustomAddress
+    def test_createview04(self):
+        "FieldsConfig on 'billing_address' FK field"
+        self.login()
+        FieldsConfig.create(Organisation,
+                            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        response = self.assertGET200(reverse('persons__create_organisation'))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertIn('name', fields)
+        self.assertNotIn('billing_address-address', fields)
+        self.assertNotIn('billing_address-po_box',  fields)
+
+    @skipIfCustomAddress
+    def test_editview01(self):
+        user = self.login()
+
+        name = 'Bebop'
+        orga = Organisation.objects.create(user=user, name=name)
+        url = orga.get_edit_absolute_url()
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'persons/edit_organisation_form.html')
+
+        name += '_edited'
+        zipcode = '123456'
+        response = self.client.post(url, follow=True,
+                                    data={'user':                    user.pk,
+                                          'name':                    name,
+                                          'billing_address-zipcode': zipcode,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertRedirects(response, orga.get_absolute_url())
+
+        edited_orga = self.refresh(orga)
+        self.assertEqual(name, edited_orga.name)
+        self.assertIsNotNone(edited_orga.billing_address)
+        self.assertEqual(zipcode, edited_orga.billing_address.zipcode)
+
+    def test_listview(self):
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        nerv = create_orga(name='Nerv')
+        acme = create_orga(name='Acme')
+
+        response = self.assertGET200(Organisation.get_lv_absolute_url())
+
+        with self.assertNoException():
+            # orgas_page = response.context['entities']
+            orgas_page = response.context['page_obj']
+
+        self.assertEqual(3, orgas_page.paginator.count)  # 3: our 2 orgas + default orga
+
+        orgas_set = set(orgas_page.object_list)
+        self.assertIn(nerv, orgas_set)
+        self.assertIn(acme, orgas_set)
+
+    @skipIfCustomAddress
+    def test_clone(self):
+        "Addresses are problematic"
+        user = self.login()
+
+        bebop = Organisation.objects.create(user=user, name='Bebop')
+
+        create_address = partial(Address.objects.create, address='XXX',
+                                 city='Red city', state='North', zipcode='111',
+                                 country='Mars', department='Dome #12',
+                                 owner=bebop,
+                                )
+        bebop.billing_address  = create_address(name='Hideout #1')
+        bebop.shipping_address = create_address(name='Hideout #2')
+        bebop.save()
+
+        for i in range(3, 5):
+            create_address(name='Hideout #{}'.format(i))
+
+        cloned = bebop.clone()
+
+        self.assertEqual(bebop.name, cloned.name)
+
+        self.assertEqual(bebop.id, bebop.billing_address.object_id)
+        self.assertEqual(bebop.id, bebop.shipping_address.object_id)
+
+        self.assertEqual(cloned.id, cloned.billing_address.object_id)
+        self.assertEqual(cloned.id, cloned.shipping_address.object_id)
+
+        addresses   = list(Address.objects.filter(object_id=bebop.id))
+        c_addresses = list(Address.objects.filter(object_id=cloned.id))
+        self.assertEqual(4, len(addresses))
+        self.assertEqual(4, len(c_addresses))
+
+        addresses_map   = {a.name: a for a in addresses}
+        c_addresses_map = {a.name: a for a in c_addresses}
+        self.assertEqual(4, len(addresses_map))
+        self.assertEqual(4, len(c_addresses_map))
+
+        for ident, address in addresses_map.items():
+            address2 = c_addresses_map.get(ident)
+            self.assertIsNotNone(address2, ident)
+            self.assertAddressOnlyContentEqual(address, address2)
+
+    def _build_managed_orga(self, user=None, name='Bebop'):
+        return Organisation.objects.create(user=user or self.user, name=name, is_managed=True)
+
+    def test_get_all_managed_by_creme(self):
+        user = self.login()
+
+        mng_orga1 = self._build_managed_orga()
+        mng_orga2 = self._build_managed_orga(name='NERV')
+        orga = Organisation.objects.create(user=user, name='Seele')
+
+        with self.assertNumQueries(1):
+            qs1 = Organisation.get_all_managed_by_creme()
+            mng_orgas = set(qs1)
+
+        self.assertIn(mng_orga1, mng_orgas)
+        self.assertIn(mng_orga2, mng_orgas)
+        self.assertNotIn(orga,   mng_orgas)
+
+        # Test request-cache
+        with self.assertNumQueries(0):
+            qs2 = Organisation.get_all_managed_by_creme()
+            list(qs2)
+
+        self.assertEqual(id(qs1), id(qs2))
+
+    def _become_test(self, url_name, relation_type_id):
+        user = self.login()
+
+        mng_orga = self._build_managed_orga()
+        customer = Contact.objects.create(user=user, first_name='Jet', last_name='Black')
+
+        url = reverse(url_name, args=(customer.id,))
+        data = {'id': mng_orga.id}
+        self.assertPOST200(url, data=data, follow=True)
+        self.get_object_or_fail(Relation, subject_entity=customer, object_entity=mng_orga, type=relation_type_id)
+
+        # POST twice
+        self.assertPOST200(url, data=data, follow=True)
+        self.assertRelationCount(1, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id)
+
+    def test_become_customer01(self):
+        self._become_test('persons__become_customer', constants.REL_SUB_CUSTOMER_SUPPLIER)
+
+    @skipIfCustomContact
+    def test_become_customer02(self):
+        "Credentials errors"
+        user = self.login(is_superuser=False)
+
+        create_creds = partial(SetCredentials.objects.create, role=self.role)
+        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                           EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not 'LINK'
+                     set_type=SetCredentials.ESET_ALL
+                    )
+        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                           EntityCredentials.DELETE | EntityCredentials.LINK | EntityCredentials.UNLINK,
+                     set_type=SetCredentials.ESET_OWN
+                    )
+
+        mng_orga01 = self._build_managed_orga()
+        customer01 = Contact.objects.create(user=self.other_user, first_name='Jet', last_name='Black')  # Can not link it
+        self.assertPOST403(reverse('persons__become_customer', args=(customer01.id,)),
+                           data={'id': mng_orga01.id}, follow=True
+                          )
+        self.assertEqual(0, Relation.objects.filter(subject_entity=customer01.id).count())
+
+        mng_orga02 = self._build_managed_orga(user=self.other_user)  # Can not link it
+        customer02 = Contact.objects.create(user=user, first_name='Vicious', last_name='??')
+        self.assertPOST403(reverse('persons__become_customer', args=(customer02.id,)),
+                           data={'id': mng_orga02.id}, follow=True
+                          )
+        self.assertEqual(0, Relation.objects.filter(subject_entity=customer02.id).count())
+
+    def test_become_prospect(self):
+        self._become_test('persons__become_prospect', constants.REL_SUB_PROSPECT)
+
+    def test_become_suspect(self):
+        self._become_test('persons__become_suspect', constants.REL_SUB_SUSPECT)
+
+    def test_become_inactive_customer(self):
+        self._become_test('persons__become_inactive_customer', constants.REL_SUB_INACTIVE)
+
+    def test_become_supplier(self):
+        self._become_test('persons__become_supplier', constants.REL_OBJ_CUSTOMER_SUPPLIER)
+
+    def test_leads_customers01(self):
+        user = self.login()
+
+        self._build_managed_orga()
+        Organisation.objects.create(user=user, name='Nerv')
+
+        response = self.assertGET200(reverse('persons__leads_customers'))
+
+        with self.assertNoException():
+            # orgas_page = response.context['entities']
+            orgas_page = response.context['page_obj']
+
+        self.assertEqual(0, orgas_page.paginator.count)
+
+    def test_leads_customers02(self):
+        user = self.login()
+
+        mng_orga = self._build_managed_orga()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        nerv = create_orga(name='Nerv')
+        acme = create_orga(name='Acme')
+        fsf  = create_orga(name='FSF')
+
+        post = partial(self.client.post, data={'id': mng_orga.id})
+        post(reverse('persons__become_customer', args=(nerv.id,)))
+        post(reverse('persons__become_prospect', args=(acme.id,)))
+        post(reverse('persons__become_suspect',  args=(fsf.id,)))
+
+        response = self.client.get(reverse('persons__leads_customers'))
+        # orgas_page = response.context['entities']
+        orgas_page = response.context['page_obj']
+
+        self.assertEqual(3, orgas_page.paginator.count)
+
+        orgas_set = set(orgas_page.object_list)
+        self.assertIn(nerv, orgas_set)
+        self.assertIn(acme, orgas_set)
+        self.assertIn(fsf,  orgas_set)
+
+    def test_leads_customers03(self):
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        nerv = create_orga(name='Nerv')
+        acme = create_orga(name='Acme')
+        self.client.post(reverse('persons__become_customer', args=(nerv.id,)), data={'id': acme.id})
+
+        response = self.client.get(reverse('persons__leads_customers'))
+        # self.assertEqual(0, response.context['entities'].paginator.count)
+        self.assertEqual(0, response.context['page_obj'].paginator.count)
+
+    def test_delete01(self):
+        user = self.login()
+        orga01 = Organisation.objects.create(user=user, name='Nerv')
+        url = orga01.get_delete_absolute_url()
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            orga01 = self.refresh(orga01)
+
+        self.assertIs(orga01.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertDoesNotExist(orga01)
+
+    def test_delete02(self):
+        "Cannot delete the last managed organisation."
+        self.login()
+
+        managed_orgas = Organisation.objects.filter(is_managed=True)
+        self.assertEqual(1, len(managed_orgas))
+
+        managed_orga = managed_orgas[0]
+        self.assertPOST403(managed_orga.get_delete_absolute_url())  # follow=True
+        self.assertStillExists(managed_orga)
+
+    def test_delete03(self):
+        "A managed organisation ac be deleted if it's not the last one."
+        user = self.login()
+
+        managed_orga = Organisation.objects.create(user=user, name='Nerv', is_managed=True)
+        url = managed_orga.get_delete_absolute_url()
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            managed_orga = self.refresh(managed_orga)
+
+        self.assertIs(managed_orga.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertDoesNotExist(managed_orga)
+
+    def test_delete_sector(self):
+        "Set to null"
+        user = self.login()
+        hunting = Sector.objects.create(title='Bounty hunting')
+        bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
+
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'sector')),
+                           data={'id': hunting.pk}
+                          )
+        self.assertDoesNotExist(hunting)
+
+        bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        self.assertIsNone(bebop.sector)
+
+    def test_delete_legal_form(self):
+        "Set to null"
+        user = self.login()
+        band = LegalForm.objects.create(title='Bounty hunting band')
+        bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
+
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'legal_form')),
+                           data={'id': band.pk}
+                          )
+        self.assertDoesNotExist(band)
+
+        bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        self.assertIsNone(bebop.legal_form)
+
+    def test_delete_staff_size(self):
+        "Set to null"
+        user = self.login()
+        size = StaffSize.objects.create(size='4 and a dog')
+        bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
+
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'staff_size')),
+                           data={'id': size.pk}
+                          )
+        self.assertDoesNotExist(size)
+
+        bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        self.assertIsNone(bebop.staff_size)
+
+    def test_set_orga_as_managed01(self):
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='Bebop')
+        orga2 = create_orga(name='Swordfish')
+        orga3 = create_orga(name='RedTail')
+
+        url = reverse('persons__orga_set_managed')
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+
+        context = response.context
+        self.assertEqual(_('Add some managed organisations'), context.get('title'))
+        self.assertEqual(_('Save the modifications'),         context.get('submit_label'))
+
+        # ---
+        response = self.client.post(url, data={'organisations': self.formfield_value_multi_creator_entity(orga1, orga2)})
+        self.assertNoFormError(response)
+
+        self.assertTrue(self.refresh(orga1).is_managed)
+        self.assertTrue(self.refresh(orga2).is_managed)
+        self.assertFalse(self.refresh(orga3).is_managed)
+
+        # Managed Organisations are excluded
+        response = self.assertPOST200(url, data={'organisations': '[{}]'.format(orga1.id)})
+        self.assertFormError(response, 'form', 'organisations', _('This entity does not exist.'))
+
+    def test_set_orga_as_managed02(self):
+        "Not super-user."
+        self.login(is_superuser=False,
+                   allowed_apps=['creme_core', 'persons'],
+                   admin_4_apps=['creme_core'],
+                  )
+        self.assertGET200(reverse('persons__orga_set_managed'))
+
+    def test_set_orga_as_managed03(self):
+        "Admin permission needed."
+        self.login(is_superuser=False,
+                   allowed_apps=['creme_core', 'persons'],
+                   # admin_4_apps=['creme_core'],
+                  )
+        self.assertGET403(reverse('persons__orga_set_managed'))
+
+    def test_set_orga_as_not_managed(self):
+        self.login()
+
+        mngd_orgas = Organisation.objects.filter(is_managed=True)
+        self.assertEqual(1, len(mngd_orgas))
+
+        orga1 = mngd_orgas[0]
+        orga2 = self._build_managed_orga()
+
+        url = reverse('persons__orga_unset_managed')
+        data = {'id': orga2.id}
+        self.assertGET404(url)
+        self.assertGET404(url, data=data)
+
+        self.assertPOST200(url, data=data)
+        self.assertFalse(self.refresh(orga2).is_managed)
+
+        self.assertPOST409(url, data={'id': orga1.id})  # At least 1 managed organisation
+        self.assertTrue(self.refresh(orga1).is_managed)
