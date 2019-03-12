@@ -44,7 +44,7 @@ def ready():
     )
 
     function_field_registry.register(CremeEntity,     fake_function_fields.FakeTodosField)
-    function_field_registry.register(FakeInvoiceLine, fake_function_fields.GreatDiscountField)
+    # function_field_registry.register(FakeInvoiceLine, fake_function_fields.GreatDiscountField)
 
     imprint_manager.register(FakeOrganisation, hours=2)
     imprint_manager.register(FakeContact, minutes=60)

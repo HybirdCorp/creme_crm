@@ -18,15 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 # from itertools import chain
 from json import loads as json_load  # dumps as json_dump
-
 import logging
 # import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.paginator import Paginator, InvalidPage  # EmptyPage
+from django.core.paginator import Paginator  # InvalidPage, EmptyPage
 from django.db.models.query_utils import Q
 from django.http import HttpResponse
 # from django.shortcuts import render
@@ -37,7 +37,8 @@ from django.views.generic.list import ListView
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellActions
-from creme.creme_core.core.paginator import FlowPaginator, LastPage
+from creme.creme_core.core.paginator import FlowPaginator  # LastPage
+from creme.creme_core.forms.listview import ListViewSearchForm
 from creme.creme_core.gui import listview as lv_gui
 from creme.creme_core.gui.actions import actions_registry
 from creme.creme_core.models import CremeEntity
@@ -474,6 +475,9 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     is_popup_view = False
     actions_registry = actions_registry
 
+    search_field_registry = lv_gui.search_field_registry
+    search_form_class     = ListViewSearchForm
+
     default_headerfilter_id = None
     default_entityfilter_id = None
 
@@ -504,7 +508,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         self.cells = None
 
         self.extra_q = None
-        self.search = None
+        self.search_form = None
 
         self.queryset = None  # We hide voluntarily the class attribute which SHOULD not be used.
         self.count = None
@@ -530,7 +534,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             'requested': requested_extra_q,
             'total': internal_extra_q & requested_extra_q,
         }
-        self.search = self.get_search()
+        self.search_form = self.get_search_form()
 
         unordered_queryset, self.count = self.get_unordered_queryset_n_count()
         self.fast_mode = self.get_fast_mode()
@@ -631,7 +635,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         context['entity_filters'] = self.entity_filters
 
         context['extra_q'] = self.extra_q
-        context['search'] = self.search
+        context['search_form'] = self.search_form
 
         # NB: cannot set it within the template because the reloading case needs it too
         context['is_popup_view'] = self.is_popup_view
@@ -642,6 +646,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         context['page_sizes'] = settings.PAGE_SIZES
 
         # TODO: pass the bulk_update_registry in a list-view context (see listview_td_action_for_cell)
+        # TODO: regroup registries ??
 
         return context
 
@@ -770,17 +775,25 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
                 filtered = True
                 use_distinct = True
 
-        state.extra_q = extra_q   # TODO: only if valid ?
+        state.extra_q = extra_q   # TODO: only if valid ? no write in state HERE ?
 
         # ----
-        # TODO: method in ListViewState that returns the improved queryset ?
-        lv_state_q = state.get_q_with_research(self.model, self.cells)
-        try:
-            qs = qs.filter(lv_state_q)
-        except Exception as e:
-            logger.exception('Error when building the search queryset with Q=%s (%s).', lv_state_q, e)
-        else:
-            if lv_state_q:
+        # lv_state_q = state.get_q_with_research(self.model, self.cells)
+        # try:
+        #     qs = qs.filter(lv_state_q)
+        # except Exception as e:
+        #     logger.exception('Error when building the search queryset with Q=%s (%s).', lv_state_q, e)
+        # else:
+        #     if lv_state_q:
+        #         filtered = True
+        #         use_distinct = True
+        search_q = self.search_form.search_q
+        if search_q:
+            try:
+                qs = qs.filter(search_q)
+            except Exception as e:
+                logger.exception('Error when building the search queryset with Q=%s (%s).', search_q, e)
+            else:
                 filtered = True
                 use_distinct = True
 
@@ -797,27 +810,50 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         model = self.model
         count = qs.count() if filtered else \
                 EntityCredentials.filter_entities(
-                        user,
-                        CremeEntity.objects.filter(
-                             is_deleted=False,
-                             entity_type=ContentType.objects.get_for_model(model),
-                            ),
-                        as_model=model,
-                    ).count()
+                    user,
+                    CremeEntity.objects.filter(
+                        is_deleted=False,
+                        entity_type=ContentType.objects.get_for_model(model),
+                    ),
+                    as_model=model,
+                ).count()
 
         return qs, count
 
-    # TODO: rework search API of ListViewState ; it's currently ugly
-    def get_search(self):
+    def get_search_field_registry(self):
+        return self.search_field_registry
+
+    def get_search_form(self):
         arguments = self.arguments
         state = self.state
 
-        if arguments.get(self.search_arg, '') == 'clear':
-            state.clear_research()
-        else:
-            state.handle_research(arguments, self.cells, merge=self.transient)
+        form_builder = partial(
+            self.get_search_form_class(),
+            field_registry=self.get_search_field_registry(),
+            cells=self.cells,
+            user=self.request.user,
+        )
 
-        return dict(state.research)  # TODO: rename
+        if arguments.get(self.search_arg, '') == 'clear':
+            form = form_builder(data={})
+            form.full_clean()
+        else:
+            form = form_builder(data=arguments)
+            form.full_clean()
+
+            if not form.filtered_data:  # TODO: unit test
+                stored_search = state.search
+
+                if stored_search:  # TODO: unit test
+                    form = form_builder(data=stored_search)
+                    form.full_clean()
+
+        state.search = form.filtered_data
+
+        return form
+
+    def get_search_form_class(self):
+        return self.search_form_class
 
     def get_show_actions(self):
         return not self.is_popup_view

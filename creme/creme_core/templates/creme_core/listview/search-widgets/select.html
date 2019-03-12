@@ -1,0 +1,11 @@
+{% load i18n %}<select name="{{widget.name}}" {# title="{{cell.title}}" #} >
+{% with NULL_FK=widget.NULL_FK %}
+{% for group_name, group_choices in widget.choices %}
+    {% if group_name %}<optgroup label="{{group_name}}">{% endif %}
+    {% for choice in group_choices %}
+    <option value="{{choice.value}}"{% if choice.selected %} selected{% endif %}{% if choice.value == NULL_FK %} class="search-nullfk"{% endif %}>{{choice.text}}</option>
+    {% endfor %}
+    {% if group_name %}</optgroup>{% endif %}
+{% endfor %}
+{% endwith %}
+</select>

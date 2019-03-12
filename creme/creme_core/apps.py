@@ -180,10 +180,11 @@ class CremeAppConfig(AppConfig):
             self.register_quickforms(quick_forms.quickforms_registry)
             self.register_reminders(reminder.reminder_registry)
             self.register_sanboxes(sandbox.sandbox_type_registry)
+            self.register_search_fields(listview.search_field_registry)
             self.register_setting_keys(setting_key.setting_key_registry)
             self.register_statistics(statistics.statistics_registry)
-            self.register_user_setting_keys(setting_key.user_setting_key_registry)
             self.register_smart_columns(listview.smart_columns_registry)
+            self.register_user_setting_keys(setting_key.user_setting_key_registry)
 
     def register_entity_models(self, creme_registry):
         pass
@@ -234,6 +235,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_sanboxes(self, sandbox_type_registry):
+        pass
+
+    def register_search_fields(self, search_field_registry):
         pass
 
     def register_setting_keys(self, setting_key_registry):

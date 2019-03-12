@@ -1,0 +1,12 @@
+{% load i18n %}<div class="lv-search-daterange" {% include 'django/forms/widgets/attrs.html' %}>
+    <div class="date-start">
+        <label for="{{widget.id_start}}">{% trans 'Start' %}</label>
+        <input name="{{widget.name}}-start" id="{{widget.id_start}}" data-format="{{widget.date_format}}" {# title="{{cell.title}}" type="date" #}
+               value="{{widget.value_start}}"/>
+    </div>
+    <div class="date-end">
+        <label for="{{widget.id_end}}">{% trans 'End' %}</label>
+        <input name="{{widget.name}}-end" id="{{widget.id_end}}" data-format="{{widget.date_format}}" {# title="{{cell.title}}" type="date" #}
+               value="{{widget.value_end}}"/>
+    </div>
+</div>

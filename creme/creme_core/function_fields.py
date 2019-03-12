@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,23 +18,45 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from .core.function_field import FunctionField, FunctionFieldLink, FunctionFieldResultsList
-from .models import CremeEntity
+from .models import CremeEntity, CremePropertyType
+from .forms.listview import BaseChoiceField
+
+
+class PropertiesSearchField(BaseChoiceField):
+    def _build_choices(self, null_label=_('* no property *')):
+        choices = super()._build_choices(null_label=null_label)
+        choices.extend(
+            {'value': ptype.id, 'label': str(ptype)}
+                for ptype in CremePropertyType.get_compatible_ones(
+                    ct=ContentType.objects.get_for_model(self.cell.model)
+                )
+        )
+
+        return choices
+
+    def _get_q_for_choice(self, choice_value):
+        return Q(properties__type=choice_value)
+
+    def _get_q_for_null_choice(self):
+        return Q(properties__isnull=True)
 
 
 class PropertiesField(FunctionField):
     name         = 'get_pretty_properties'
     verbose_name = _('Properties')
-    has_filter   = True  # ==> quick search in ListView
+    # has_filter   = True
     result_type  = FunctionFieldResultsList
+    search_field_builder = PropertiesSearchField
 
-    @classmethod
-    def filter_in_result(cls, search_string):
-        # Should we make a separated query to retrieve first the searched types ?
-        return Q(properties__type__text__icontains=search_string)
+    # @classmethod
+    # def filter_in_result(cls, search_string):
+    #     # Should we make a separated query to retrieve first the searched types ?
+    #     return Q(properties__type__text__icontains=search_string)
 
     def __call__(self, entity, user):
         return FunctionFieldResultsList(

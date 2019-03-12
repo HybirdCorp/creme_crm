@@ -5,12 +5,12 @@ try:
 
     from django.test import RequestFactory
 
-    from ..base import CremeTestCase
-    from ..fake_models import (FakeContact, FakeOrganisation, FakeActivity,
-            FakeInvoice, FakeDocument, FakeSector)
     from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.gui.listview import ListViewState, ListViewButton, ListViewButtonList
-    from creme.creme_core.models import CremeUser
+    from creme.creme_core.gui.listview import ListViewState
+    from creme.creme_core.models import (CremeUser,
+            FakeContact, FakeOrganisation, FakeInvoice,
+            FakeActivity, FakeDocument, FakeSector)
+    from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.utils.db import get_indexed_ordering
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -34,7 +34,8 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertIsNone(lvs.rows)
         self.assertIsNone(lvs.sort_order)
         self.assertIsNone(lvs.sort_field)
-        self.assertEqual((), lvs.research)
+        # self.assertEqual((), lvs.research)
+        self.assertEqual({}, lvs.search)
         self.assertIsNone(lvs.extra_q)
 
     def _build_request(self):
@@ -467,58 +468,3 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertEqual(('-' + field_name1, field_name2, '-cremeentity_ptr_id'), ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('-', lvs.sort_order)
-
-    # TODO: test handle_research() + get_q_with_research()
-
-
-class ListViewButtonListTestCase(CremeTestCase):
-    class Button01(ListViewButton):
-        pass
-
-    class Button02(ListViewButton):
-        pass
-
-    class Button03(ListViewButton):
-        pass
-
-    def test_append(self):
-        blist = ListViewButtonList([self.Button01]) \
-                    .append(self.Button02) \
-                    .append(self.Button03)
-        self.assertIsInstance(blist, ListViewButtonList)
-        self.assertEqual([self.Button01, self.Button02, self.Button03], blist)
-
-    def test_replace(self):
-        blist = ListViewButtonList([self.Button01, self.Button02])
-        blist.replace(old=self.Button01, new=self.Button03)
-        self.assertEqual([self.Button03, self.Button02], blist)
-
-    def test_instances01(self):
-        "No extra context"
-        blist = ListViewButtonList([self.Button01, self.Button02])
-        instances = list(blist.instances)
-        self.assertEqual(2, len(instances))
-
-        button01 = instances[0]
-        self.assertIsInstance(button01, self.Button01)
-        self.assertEqual({}, button01.get_context(
-            request=RequestFactory().get('/'),  # Url doesn't matter
-            lv_context={'foo': 'bar'}),
-        )
-
-        self.assertIsInstance(instances[1], self.Button02)
-
-    def test_instances02(self):
-        "Extra context"
-        extra_context = {'extra': 'info'}
-        blist = ListViewButtonList([self.Button01]).update_context(**extra_context)
-
-        button01 = next(blist.instances)
-        self.assertIsInstance(button01, self.Button01)
-
-        context = button01.get_context(
-            request=RequestFactory().get('/'),  # Url doesn't matter
-            lv_context={'foo': 'bar'},
-        )
-        self.assertEqual(extra_context, context)
-        self.assertIsNot(extra_context, context)

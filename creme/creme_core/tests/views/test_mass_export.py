@@ -652,9 +652,10 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         # Set the current list view state, with the quick search
         response = self.assertPOST200(FakeContact.get_lv_absolute_url(),
-                                      data={'_search': 1,
-                                            'regular_field-phone': '123',
-                                           }
+                                      # data={'_search': 1,
+                                      #       'regular_field-phone': '123',
+                                      #      }
+                                      data={'search-regular_field-phone': '123'},
                                      )
         content = self._get_lv_content(response)
         self.assertCountOccurrences(spike.last_name, content, count=1)
@@ -691,11 +692,12 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         # Set the current list view state, with the ordering
         self.assertPOST200(FakeContact.get_lv_absolute_url(),
-                           data={'_search': 1,
-                                 'regular_field-phone': '123',
+                           # data={'_search': 1,
+                           #       'regular_field-phone': '123',
+                           data={'search-regular_field-phone': '123',
                                  'sort_field': 'regular_field-last_name',
                                  'sort_order': '-',
-                                }
+                                },
                           )
 
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
@@ -733,7 +735,8 @@ class MassExportViewsTestCase(ViewsTestCase):
         # Set the current list view state, with the quick search
         lv_url = FakeEmailCampaign.get_lv_absolute_url()
         response = self.assertPOST200(lv_url,
-                                      data={'regular_field-mailing_lists': 'staff'}
+                                      # data={'regular_field-mailing_lists': 'staff'}
+                                      data={'search-regular_field-mailing_lists': 'staff'}
                                      )
         content = self._get_lv_content(response)
 

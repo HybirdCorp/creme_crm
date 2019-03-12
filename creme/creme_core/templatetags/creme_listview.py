@@ -18,30 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
+# from collections import defaultdict
 import logging
 
-from django.conf import settings
-from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
+# from django.conf import settings
+# from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
 from django.template import Library
 from django.template.loader import get_template
-from django.utils.translation import ugettext as _
+# from django.utils.translation import ugettext as _
 
-from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
-        EntityCellFunctionField, EntityCellRelation)
-from ..core.enumerable import enumerable_registry, Enumerator
+# from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
+#         EntityCellFunctionField, EntityCellRelation)
+# from ..core.enumerable import enumerable_registry, Enumerator
 from ..core.paginator import FlowPaginator
 from ..gui.bulk_update import bulk_update_registry
-from ..gui.listview import NULL_FK
+# from ..gui.listview import NULL_FK
 from ..gui.pager import PagerContext
-from ..models import CustomField
+# from ..models import CustomField
 
 
 logger = logging.getLogger(__name__)
 register = Library()
-
-# TODO: prefix all templatetags with 'listview_'
-# TODO: move all templates to 'creme_core/templatetags/listview/'
 
 
 # @register.inclusion_tag('creme_core/templatetags/entity-filters.html', takes_context=True)
@@ -140,129 +137,120 @@ def listview_pager(page):
     return renderer_class().render(page)
 
 
-# get_listview_columns_header --------------------------------------------------
-
-def _build_bool_search_widget(widget_ctx, search_value):
-    # TODO : Hack or not ? / Remember selected value ?
-    selected_value = search_value[0] if search_value else None
-    widget_ctx['type'] = 'checkbox'
-    widget_ctx['values'] = [{'value':    '1',
-                             'text':     _('Yes'),
-                             'selected': 'selected' if selected_value == '1' else ''
-                            },
-                            {'value':    '0',
-                             'text':     _('No'),
-                             'selected': 'selected' if selected_value == '0' else ''
-                            }
-                           ]
+# def _build_bool_search_widget(widget_ctx, search_value):
+#     selected_value = search_value[0] if search_value else None
+#     widget_ctx['type'] = 'checkbox'
+#     widget_ctx['values'] = [{'value':    '1',
+#                              'text':     _('Yes'),
+#                              'selected': 'selected' if selected_value == '1' else ''
+#                             },
+#                             {'value':    '0',
+#                              'text':     _('No'),
+#                              'selected': 'selected' if selected_value == '0' else ''
+#                             }
+#                            ]
 
 
-def _build_date_search_widget(widget_ctx, search_value):
-    # TODO: Needs datetime validation
-    widget_ctx['type'] = 'datefield'
-
-    date_format = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
-    if date_format:
-        widget_ctx['format'] = date_format
-
-    if search_value:
-        widget_ctx['values'] = {'start': search_value[0], 'end': search_value[-1]}
-
-
-def _build_select_search_widget(widget_ctx, search_value, choices):
-    selected_value = search_value[0] if search_value else None  # meh
-    widget_ctx['type'] = 'select'
-    groups = defaultdict(list)
-
-    for choice in choices:
-        value = str(choice['value'])
-        groups[choice.get('group')].append(
-            # TODO: use "help" ? (need to display entirely pour widget, not a regular <select>)
-            {'value': value,
-             'text': choice['label'],
-             'selected': selected_value == value,
-            }
-        )
-
-    widget_ctx['values'] = list(groups.items())
+# def _build_date_search_widget(widget_ctx, search_value):
+#     widget_ctx['type'] = 'datefield'
+#
+#     date_format = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+#     if date_format:
+#         widget_ctx['format'] = date_format
+#
+#     if search_value:
+#         widget_ctx['values'] = {'start': search_value[0], 'end': search_value[-1]}
 
 
-# TODO: add methods to EntityCells ? -> map of behaviours instead
-@register.inclusion_tag('creme_core/templatetags/listview_columns_header.html', takes_context=True)
-def get_listview_columns_header(context):
-    header_searches = dict(context['list_view_state'].research)  # TODO: context['search'] ? argument ?
+# def _build_select_search_widget(widget_ctx, search_value, choices):
+#     selected_value = search_value[0] if search_value else None  # meh
+#     widget_ctx['type'] = 'select'
+#     groups = defaultdict(list)
+#
+#     for choice in choices:
+#         value = str(choice['value'])
+#         groups[choice.get('group')].append(
+#             {'value': value,
+#              'text': choice['label'],
+#              'selected': selected_value == value,
+#             }
+#         )
+#
+#     widget_ctx['values'] = list(groups.items())
 
-    for cell in context['cells']:
-        if not cell.has_a_filter:
-            continue
 
-        search_value = header_searches.get(cell.key, '')
-        widget_ctx = {'value': search_value, 'type': 'text'}
-
-        if isinstance(cell, EntityCellRegularField):
-            field = cell.field_info[-1]
-
-            if isinstance(field, (ForeignKey, ManyToManyField)):  # TODO: hasattr(field, 'rel') ?
-                # TODO: generalise the system of 'header_filter_search_field' ??
-                if cell.filter_string.endswith('__header_filter_search_field__icontains'):
-                    if search_value:
-                        widget_ctx['value'] = search_value[0]
-                else:
-                    try:
-                        enumerator = enumerable_registry.enumerator_by_field(field)
-                    except ValueError:
-                        continue
-                    else:
-                        choices = enumerator.choices(context['user'])
-
-                        if field.null or field.many_to_many:
-                            choices.insert(0, {'value': NULL_FK, 'label': _('* is empty *')})
-
-                        _build_select_search_widget(widget_ctx, search_value, choices)
-            elif field.choices:
-                _build_select_search_widget(widget_ctx, search_value,
-                                            Enumerator.convert_choices(field.choices)
-                                           )
-            elif isinstance(field, BooleanField):
-                _build_bool_search_widget(widget_ctx, search_value)
-            elif isinstance(field, DateField):
-                _build_date_search_widget(widget_ctx, search_value)
-            elif search_value:
-                widget_ctx['value'] = search_value[0]
-        elif isinstance(cell, EntityCellFunctionField):
-            choices = cell.function_field.choices
-            if choices is not None:
-                _build_select_search_widget(widget_ctx, search_value,
-                                            Enumerator.convert_choices(choices)
-                                           )
-            elif search_value:
-                widget_ctx['value'] = search_value[0]
-        elif isinstance(cell, EntityCellRelation):
-            if search_value:
-                widget_ctx['value'] = search_value[0]
-        elif isinstance(cell, EntityCellCustomField):
-            cf = cell.custom_field
-            field_type = cf.field_type
-
-            if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-                choices = [{'value': NULL_FK, 'label': _('* is empty *')}]
-                choices.extend(Enumerator.convert_choices(cf.customfieldenumvalue_set.values_list('id', 'value')))
-
-                _build_select_search_widget(widget_ctx, search_value, choices)
-            elif field_type == CustomField.DATETIME:
-                _build_date_search_widget(widget_ctx, search_value)
-            elif field_type == CustomField.BOOL:
-                _build_bool_search_widget(widget_ctx, search_value)
-            elif search_value:
-                widget_ctx['value'] = search_value[0]
-
-        cell.widget_ctx = widget_ctx
-
-    context['NULL_FK'] = NULL_FK
-
-    return context
-
-# ------------------------------------------------------------------------------
+# @register.inclusion_tag('creme_core/templatetags/listview_columns_header.html', takes_context=True)
+# def get_listview_columns_header(context):
+#     header_searches = dict(context['list_view_state'].research)
+#
+#     for cell in context['cells']:
+#         if not cell.has_a_filter:
+#             continue
+#
+#         search_value = header_searches.get(cell.key, '')
+#         widget_ctx = {'value': search_value, 'type': 'text'}
+#
+#         if isinstance(cell, EntityCellRegularField):
+#             field = cell.field_info[-1]
+#
+#             if isinstance(field, (ForeignKey, ManyToManyField)):
+#                 if cell.filter_string.endswith('__header_filter_search_field__icontains'):
+#                     if search_value:
+#                         widget_ctx['value'] = search_value[0]
+#                 else:
+#                     try:
+#                         enumerator = enumerable_registry.enumerator_by_field(field)
+#                     except ValueError:
+#                         continue
+#                     else:
+#                         choices = enumerator.choices(context['user'])
+#
+#                         if field.null or field.many_to_many:
+#                             choices.insert(0, {'value': NULL_FK, 'label': _('* is empty *')})
+#
+#                         _build_select_search_widget(widget_ctx, search_value, choices)
+#             elif field.choices:
+#                 _build_select_search_widget(widget_ctx, search_value,
+#                                             Enumerator.convert_choices(field.choices)
+#                                            )
+#             elif isinstance(field, BooleanField):
+#                 _build_bool_search_widget(widget_ctx, search_value)
+#             elif isinstance(field, DateField):
+#                 _build_date_search_widget(widget_ctx, search_value)
+#             elif search_value:
+#                 widget_ctx['value'] = search_value[0]
+#         elif isinstance(cell, EntityCellFunctionField):
+#             choices = cell.function_field.choices
+#             if choices is not None:
+#                 _build_select_search_widget(widget_ctx, search_value,
+#                                             Enumerator.convert_choices(choices)
+#                                            )
+#             elif search_value:
+#                 widget_ctx['value'] = search_value[0]
+#         elif isinstance(cell, EntityCellRelation):
+#             if search_value:
+#                 widget_ctx['value'] = search_value[0]
+#         elif isinstance(cell, EntityCellCustomField):
+#             cf = cell.custom_field
+#             field_type = cf.field_type
+#
+#             if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
+#                 choices = [{'value': NULL_FK, 'label': _('* is empty *')}]
+#                 choices.extend(Enumerator.convert_choices(cf.customfieldenumvalue_set.values_list('id', 'value')))
+#
+#                 _build_select_search_widget(widget_ctx, search_value, choices)
+#             elif field_type == CustomField.DATETIME:
+#                 _build_date_search_widget(widget_ctx, search_value)
+#             elif field_type == CustomField.BOOL:
+#                 _build_bool_search_widget(widget_ctx, search_value)
+#             elif search_value:
+#                 widget_ctx['value'] = search_value[0]
+#
+#         cell.widget_ctx = widget_ctx
+#
+#     context['NULL_FK'] = NULL_FK
+#
+#     return context
 
 
 @register.inclusion_tag('creme_core/templatetags/listview/buttons.html', takes_context=True)

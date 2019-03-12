@@ -42,7 +42,7 @@
                 {% widget_icon name='search' label=label size='listview-button' %}
                 <span>{{label}}</span>
             </button>
-            <button class="clear-search button-right" value="1" type="button" {% if not search %}disabled="true"{% else %}onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this, {search: 'clear'});"{% endif %}>
+            <button class="clear-search button-right" value="1" type="button" {% if not search_form.search_q %}disabled="true"{% else %}onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this, {search: 'clear'});"{% endif %}>
                 {% trans 'Clear search' %}
             </button>
         </div>
@@ -85,7 +85,23 @@
                 {% endif %}
             {% endfor %}
         </tr>
-        {% get_listview_columns_header %}
+        <tr id="list_thead_search" class="columns_bottom">
+            {% if not o2m %}<th class="choices">&nbsp;</th>{% endif %}
+            {% for cell in cells %}
+                {% if cell.is_hidden %}
+                    <th style="display:none;"></th>
+                {% elif cell.type_id == 'actions' %}
+                    <th class="actions" colspan="{{cell|listview_column_colspan:is_popup_view}}">
+                        <span class='lv-search-title'>{% trans 'Quick search' %}</span>
+                    </th>
+                {% else %}
+                    <th class="column {{cell.header_listview_css_class}} {{cell.listview_css_class}}{% if search_form.cleaned_data|get_by_index:cell.key %} search{% endif %}{% if cell.key == list_view_state.sort_field %} sorted{% endif %}"{# {{widget.type}} {% if cell.sortable %} sortable{% endif %} #}
+                        colspan="{{cell|listview_column_colspan:is_popup_view}}">
+                        {{search_form|get_by_index:cell.key}}
+                    </th>
+                {% endif %}
+            {% endfor %}
+        </tr>
     </thead>
     <tbody>
         {% for entity in page_obj.object_list %}
