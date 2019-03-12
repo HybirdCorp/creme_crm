@@ -16,6 +16,16 @@
         });
     };
 
+    window.QUnit.skipIf = function(condition, name, callable) {
+        var skipIt = Object.isFunc(condition) ? condition() : Boolean(condition);
+
+        if (skipIt) {
+            QUnit.skip(name, callable);
+        } else {
+            QUnit.test(name, callable);
+        }
+    };
+
     QUnitMixin.prototype = {
         beforeEach: function() {
             var self = this;

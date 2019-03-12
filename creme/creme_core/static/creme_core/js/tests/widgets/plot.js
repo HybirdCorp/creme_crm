@@ -6,6 +6,8 @@ var MOCK_PLOT_CONTENT_JSON_INVALID = '{"options": {, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_EMPTY_DATA = '{"options": {}, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_DEFAULT = '{"options": {}, "data":[[[1, 2],[3, 4],[5, 12]]]}';
 
+var IS_CHROMIUM_NOT_HEADLESS = $.browser.chrome && Object.isNone(navigator.webdriver);
+
 QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
                                                     QUnitEventMixin,
                                                     QUnitPlotMixin,
@@ -90,9 +92,9 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
         this.plotContainer = $('#mock_creme_widget_plot_container');
 
         if (!this.plotContainer.get(0)) {
-            $('body').append($('<div>').attr('id', 'mock_creme_widget_plot_container')
-                                       .css('width', 0)
-                                       .css('height', 0));
+            this.qunitFixture().append($('<div>').attr('id', 'mock_creme_widget_plot_container')
+                                                 .css('width', 0)
+                                                 .css('height', 0));
         }
 
         this.plotContainer = $('#mock_creme_widget_plot_container');
@@ -242,7 +244,7 @@ QUnit.test('creme.widget.Plot.draw (valid)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.test('creme.widget.Plot.draw (valid, raster)', function(assert) {
+QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.draw (valid, raster)', function(assert) {
     var self = this;
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element, {plotmode: 'raster'});
@@ -371,7 +373,7 @@ QUnit.test('creme.widget.Plot.redraw (valid, options)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.test('creme.widget.Plot.capture (svg)', function(assert) {
+QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.capture (svg)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
     var widget = creme.widget.create(element, {});
 
@@ -381,7 +383,7 @@ QUnit.test('creme.widget.Plot.capture (svg)', function(assert) {
     equal(1, widget.capture().length);
 });
 
-QUnit.test('creme.widget.Plot.capture (raster)', function(assert) {
+QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.capture (raster)', function(assert) {
     var self = this;
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
 
@@ -403,7 +405,7 @@ QUnit.test('creme.widget.Plot.capture (raster)', function(assert) {
     });
 });
 
-QUnit.test('creme.widget.Plot.capture (raster image in popup)', function(assert) {
+QUnit.skipIf(IS_CHROMIUM_NOT_HEADLESS, 'creme.widget.Plot.capture (raster image in popup)', function(assert) {
     var self = this;
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
     creme.widget.create(element, {savable: true});
@@ -693,4 +695,5 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess invalid handler)', function
 
     this.assertNoPlot(this, element, 'Error: no such plot event handler "unknown"');
 });
+
 }(jQuery));
