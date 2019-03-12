@@ -6,7 +6,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import skipIfNotInstalled
-    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (SetCredentials, RelationType, Relation,
             CremePropertyType, CremeProperty)
@@ -31,7 +31,7 @@ Document = get_document_model()
 
 @skipIfCustomDocument
 @skipIfCustomActivity
-class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin):
+class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixin):
     lv_import_data = {
             'step': 1,
             'title_colselect': 1,

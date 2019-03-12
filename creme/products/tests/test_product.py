@@ -531,7 +531,7 @@ class ProductTestCase(_ProductsTestCase):
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Aynami')
         self.assertPOST404(reverse('products__remove_image', args=(rei.id,)), data={'id': img_2.id})
 
-    def test_csv_import01(self):
+    def test_mass_import01(self):
         "Categories not in CSV"
         user = self.login()
 
@@ -613,7 +613,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(len(lines), len(results))
         self._assertNoResultError(results)
 
-    def test_csv_import02(self):
+    def test_mass_import02(self):
         "Categories in CSV ; no creation"
         user = self.login()
         count = Product.objects.count()
@@ -739,7 +739,7 @@ class ProductTestCase(_ProductsTestCase):
                          jr_errors[2].messages
                         )
 
-    def test_csv_import03(self):
+    def test_mass_import03(self):
         "Categories in CSV ; creation of Category/SubCategory"
         user = self.login()
         count = Product.objects.count()
@@ -835,7 +835,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(len(lines), len(results))
         self._assertNoResultError(results)
 
-    def test_csv_import04(self):
+    def test_mass_import04(self):
         "Categories in CSV ; want to create Category but not it is allowed"
         user = self.login(is_superuser=False, allowed_apps=['products', 'documents'],
                           creatable_models=[Product, get_document_model()],

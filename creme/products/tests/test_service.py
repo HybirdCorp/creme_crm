@@ -224,7 +224,7 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertPOST200(url, data=data, follow=True)
         self.assertEqual([img_2], list(service.images.all()))
 
-    def test_csv_import(self):
+    def test_mass_import(self):
         "Categories in CSV ; creation of Category/SubCategory"
         user = self.login()
         count = Service.objects.count()

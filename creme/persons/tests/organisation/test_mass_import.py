@@ -6,7 +6,7 @@ try:
     from django.urls import reverse
     from django.utils.translation import ugettext as _, ungettext
 
-    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import Relation, SetCredentials, FieldsConfig
 
@@ -20,7 +20,7 @@ except Exception as e:
 
 
 @skipIfCustomOrganisation
-class OrganisationMassImportTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
+class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
     IMPORT_DATA = {
         'step':     1,
         # 'document': doc.id, 'user': self.user.id,

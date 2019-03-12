@@ -366,7 +366,7 @@ class QuoteTestCase(_BillingTestCase):
         self.assertDeleteStatusKO(status, 'quote_status', quote)
 
     @skipIfCustomAddress
-    def test_csv_import(self):
+    def test_mass_import(self):
         self.login()
         self._aux_test_csv_import(Quote, QuoteStatus)
 

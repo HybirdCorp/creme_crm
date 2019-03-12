@@ -828,12 +828,12 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertIsNone(invoice.additional_info)
 
     @skipIfCustomAddress
-    def test_csv_import(self):
+    def test_mass_import(self):
         self.login()
         self._aux_test_csv_import(Invoice, InvoiceStatus)
 
     @skipIfCustomAddress
-    def test_csv_import_update01(self):
+    def test_mass_import_update01(self):
         self.login()
         self._aux_test_csv_import_update(Invoice, InvoiceStatus,
                                          override_billing_addr=False,
@@ -841,7 +841,7 @@ class InvoiceTestCase(_BillingTestCase):
                                         )
 
     @skipIfCustomAddress
-    def test_csv_import_update02(self):
+    def test_mass_import_update02(self):
         self.login()
         self._aux_test_csv_import_update(Invoice, InvoiceStatus,
                                          override_billing_addr=True,
@@ -849,7 +849,7 @@ class InvoiceTestCase(_BillingTestCase):
                                         )
 
     @skipIfCustomAddress
-    def test_csv_import_update03(self):
+    def test_mass_import_update03(self):
         self.login()
         self._aux_test_csv_import_update(Invoice, InvoiceStatus,
                                          target_billing_address=False,
@@ -857,7 +857,7 @@ class InvoiceTestCase(_BillingTestCase):
                                         )
 
     @skipIfCustomAddress
-    def test_csv_import_update04(self):
+    def test_mass_import_update04(self):
         self.login()
         self._aux_test_csv_import(Invoice, InvoiceStatus, update=True)
 

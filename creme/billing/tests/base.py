@@ -19,7 +19,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
     from creme.creme_core.models import Relation, Currency
 
     from creme.persons import get_address_model, get_contact_model, get_organisation_model
@@ -227,7 +227,7 @@ class _BillingTestCaseMixin:
         orga.save()
 
 
-class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCaseMixin):
+class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestCaseMixin):
     def _aux_test_csv_import(self, model, status_model, update=False):
         count = model.objects.count()
         create_orga = partial(Organisation.objects.create, user=self.user)

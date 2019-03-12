@@ -6,7 +6,7 @@ try:
     from django.test.utils import override_settings
     from django.utils.translation import ugettext as _, ungettext
 
-    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import DEFAULT_CURRENCY_PK
@@ -25,7 +25,7 @@ except Exception as e:
 
 
 @skipIfCustomOpportunity
-class MassImportTestCase(OpportunitiesBaseTestCase, CSVImportBaseTestCaseMixin):
+class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin):
     lvimport_data = {
         'step': 1,
         # 'document': doc.id,
@@ -64,7 +64,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, CSVImportBaseTestCaseMixin):
     }
 
     @skipIfCustomContact
-    def test_csv_import01(self):
+    def test_mass_import01(self):
         user = self.login()
 
         count = Opportunity.objects.count()
@@ -170,7 +170,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, CSVImportBaseTestCaseMixin):
         opp5 = self.get_object_or_fail(Opportunity, name='Opp05')
         self.assertEqual(sp5, opp5.sales_phase)
 
-    def test_csv_import02(self):
+    def test_mass_import02(self):
         "SalesPhase creation forbidden by the user"
         user = self.login()
 
@@ -232,7 +232,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, CSVImportBaseTestCaseMixin):
                          job.stats
                         )
 
-    def test_csv_import03(self):
+    def test_mass_import03(self):
         "SalesPhase is required"
         user = self.login()
 
@@ -266,7 +266,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, CSVImportBaseTestCaseMixin):
                              _('This field is required.')
                             )
 
-    def test_csv_import04(self):
+    def test_mass_import04(self):
         "Creation of Organisation/Contact is not wanted"
         user = self.login()
 
@@ -317,7 +317,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, CSVImportBaseTestCaseMixin):
         # self.assertEqual(0, form.imported_objects_count)
 
     @override_settings(MAX_JOBS_PER_USER=2)
-    def test_csv_import05(self):
+    def test_mass_import05(self):
         "Creation credentials for Organisation & SalesPhase are forbidden."
         self.login(is_superuser=False,
                    allowed_apps=['persons', 'documents', 'opportunities'],
@@ -377,7 +377,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertNoFormError(response)
 
     @skipIfCustomOrganisation
-    def test_csv_import06(self):
+    def test_mass_import06(self):
         "Update"
         user = self.login()
 
