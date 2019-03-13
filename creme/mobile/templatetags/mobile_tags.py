@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2017  Hybird
+#    Copyright (C) 2014-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 import re
+import warnings
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -65,15 +66,19 @@ def document_class(request):
     return 'all'
 
 
+# DEPRECATED
 _EMPLOYERS_RTYPE_IDS = (persons_constants.REL_OBJ_EMPLOYED_BY,
                         persons_constants.REL_OBJ_MANAGES,
                        )
 
 
-# TODO: improve Contact.get_employers() ? Add a method Contact.get_managed_orga() ?
-# TODO: pre-populate ?
-@register.filter  # TODO: factorise with field_printers ?
+@register.filter
 def employers(contact):
+    warnings.warn('The template filter "|employers" is deprecated ; '
+                  'use ".get_employers" instead.',
+                  DeprecationWarning
+                 )
+
     return Organisation.objects.filter(relations__type__in=_EMPLOYERS_RTYPE_IDS,
                                        relations__object_entity=contact.id,
                                       )
@@ -94,7 +99,7 @@ _BUTTONS = {
     START_STOP_BUTTONS: 'mobile/frags/buttons_start_stop.html',
     'done':             'mobile/frags/button_done.html',
     NO_BUTTON:          '',
-  }
+}
 
 
 @register.inclusion_tag('mobile/templatetags/activity_card.html', takes_context=True)

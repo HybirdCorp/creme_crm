@@ -17,7 +17,8 @@ try:
     from creme.documents.tests.base import skipIfCustomDocument
 
     from creme.persons.models import Position, Civility, Sector
-    from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY, UUID_FIRST_CONTACT
+    from creme.persons.constants import (REL_OBJ_EMPLOYED_BY, REL_SUB_MANAGES,
+            REL_SUB_EMPLOYED_BY, UUID_FIRST_CONTACT)
 
     from ..base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation, Contact, Organisation, Address, Document)
@@ -785,3 +786,28 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(str(eswat),
                          field_printers_registry.get_html_field_value(deunan, 'user', user)
                         )
+
+    @skipIfCustomOrganisation
+    def test_get_employers(self):
+        user = self.login()
+
+        create_contact = partial(Contact.objects.create, user=user)
+        deunan   = create_contact(first_name='Deunan',   last_name='Knut')
+        briareos = create_contact(first_name='Briareos', last_name='Hecatonchires')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        eswat   = create_orga(name='ESWAT')
+        olympus = create_orga(name='Olympus')
+        deleted = create_orga(name='Deleted', is_deleted=True)
+        club    = create_orga(name='Cyborg club')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=deunan,   type_id=REL_SUB_EMPLOYED_BY, object_entity=eswat)
+        create_rel(subject_entity=deunan,   type_id=REL_SUB_MANAGES,     object_entity=olympus)
+        create_rel(subject_entity=deunan,   type_id=REL_SUB_EMPLOYED_BY, object_entity=deleted)
+        create_rel(subject_entity=briareos, type_id=REL_SUB_EMPLOYED_BY, object_entity=club)
+
+        self.assertEqual(
+            [eswat, olympus],
+            list(deunan.get_employers())
+        )
