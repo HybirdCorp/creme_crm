@@ -155,8 +155,8 @@ class CremeAppConfig(AppConfig):
 
     def all_apps_ready(self):
         if not self.MIGRATION_MODE:
-            if hasattr(self, 'register_creme_app'):
-                logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
+            # if hasattr(self, 'register_creme_app'):
+            #     logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
 
             from .core import enumerable, function_field, imprint, reminder, sandbox, setting_key
             from .gui import (actions, bricks, bulk_update, button_menu, fields_config, field_printers, icons,
