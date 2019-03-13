@@ -6,8 +6,10 @@ from django.urls import re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
+from creme.persons import contact_model_is_custom
+
 from . import opportunity_model_is_custom
-from .views import opportunity
+from .views import opportunity, contact
 
 
 urlpatterns = [
@@ -33,6 +35,16 @@ urlpatterns += swap_manager.add_group(
              ),
     Swappable(re_path(r'^opportunity/edit/(?P<opp_id>\d+)[/]?$', opportunity.OpportunityEdition.as_view(), name='opportunities__edit_opportunity'), check_args=Swappable.INT_ID),
     Swappable(re_path(r'^opportunity/(?P<opp_id>\d+)[/]?$',      opportunity.OpportunityDetail.as_view(),  name='opportunities__view_opportunity'), check_args=Swappable.INT_ID),
+    app_name='opportunities',
+).kept_patterns()
+
+urlpatterns += swap_manager.add_group(
+    contact_model_is_custom,
+    Swappable(re_path(r'^opportunity/(?P<opp_id>\d+)/add_contact[/]?$',
+                      contact.RelatedContactCreation.as_view(),
+                      name='opportunities__create_related_contact',
+                     )
+             ),
     app_name='opportunities',
 ).kept_patterns()
 
