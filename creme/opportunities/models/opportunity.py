@@ -265,13 +265,13 @@ class AbstractOpportunity(CremeEntity):
         return self._opp_target
 
     @target.setter
-    def target(self, organisation):
+    def target(self, person):
         if self.pk:  # Edition:
             old_target = self.target
-            if old_target != organisation:
-                self._opp_target = organisation
+            if old_target != person:
+                self._opp_target = person
         else:
-            self._opp_target = organisation
+            self._opp_target = person
 
     @atomic
     def save(self, *args, **kwargs):

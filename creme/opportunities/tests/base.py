@@ -36,8 +36,8 @@ class OpportunitiesBaseTestCase(CremeTestCase):
 
         return target, emitter
 
-    def _create_opportunity_n_organisations(self, name='Opp'):
-        target, emitter = self._create_target_n_emitter()
+    def _create_opportunity_n_organisations(self, name='Opp', managed=True, contact=False):
+        target, emitter = self._create_target_n_emitter(managed=managed, contact=contact)
         opp = Opportunity.objects.create(user=self.user, name=name,
                                          sales_phase=SalesPhase.objects.all()[0],
                                          emitter=emitter, target=target,

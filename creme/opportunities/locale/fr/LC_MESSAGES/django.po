@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'OPPORTUNITIES' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 15:07+0100\n"
+"POT-Creation-Date: 2019-03-13 16:49+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -21,55 +21,55 @@ msgstr ""
 msgid "Opportunities"
 msgstr "Opportunités"
 
-#: apps.py:90 apps.py:97 templates/opportunities/view_opportunity.html:7
+#: apps.py:97 apps.py:104 templates/opportunities/view_opportunity.html:7
 msgid "Commercial"
 msgstr "Commercial"
 
-#: bricks.py:49
+#: bricks.py:80
 msgid "Card header block"
 msgstr "Bloc «carte de visite»"
 
-#: bricks.py:82
+#: bricks.py:120
 msgid "Information on the opportunity"
 msgstr "Informations sur l'opportunité"
 
-#: bricks.py:115
+#: bricks.py:153
 msgid "Linked Contacts"
 msgstr "Contacts liés"
 
-#: bricks.py:126
+#: bricks.py:166
 msgid "Linked Products"
 msgstr "Produits liés"
 
-#: bricks.py:138
+#: bricks.py:181
 msgid "Linked Services"
 msgstr "Services liés"
 
-#: bricks.py:150 templates/opportunities/bricks/managers.html:7
+#: bricks.py:196 templates/opportunities/bricks/managers.html:7
 msgid "Business managers"
 msgstr "Responsables"
 
-#: bricks.py:161
+#: bricks.py:209
 msgid "Opportunities which target the organisation / contact"
 msgstr "Opportunités qui ciblent la société / le contact"
 
-#: bricks.py:190
+#: bricks.py:238
 msgid "Total"
 msgstr "Total"
 
-#: bricks.py:199 templates/opportunities/bricks/target.html:8
+#: bricks.py:247 templates/opportunities/bricks/target.html:8
 msgid "Target and source"
 msgstr "Cible et source"
 
-#: bricks.py:241
+#: bricks.py:289
 msgid "Quotes linked to the opportunity"
 msgstr "Devis liés à l'opportunité"
 
-#: bricks.py:257
+#: bricks.py:305
 msgid "Salesorders linked to the opportunity"
 msgstr "Bons de commande liés à l'opportunité"
 
-#: bricks.py:273
+#: bricks.py:321
 msgid "Invoices linked to the opportunity"
 msgstr "Factures liées à l'opportunité"
 
@@ -78,11 +78,15 @@ msgstr "Factures liées à l'opportunité"
 msgid "Create a linked opportunity"
 msgstr "Créer une opportunité liée"
 
-#: forms/mass_import.py:35 templates/opportunities/bricks/target.html:10
+#: forms/contact.py:51
+msgid "Is employed by «{}»?"
+msgstr "Est salarié chez «{}» ?"
+
+#: forms/mass_import.py:37 templates/opportunities/bricks/target.html:10
 msgid "Target"
 msgstr "Cible"
 
-#: forms/mass_import.py:37 forms/opportunity.py:109
+#: forms/mass_import.py:39 forms/opportunity.py:109
 msgid "Concerned organisation"
 msgstr "Société concernée"
 
@@ -103,7 +107,7 @@ msgstr "Erreur: «CA estimé» est caché"
 msgid "Error: «% of chance to win» is hidden"
 msgstr "Erreur: «% de chance d'obtention»"
 
-#: models/opportunity.py:46 templates/opportunities/bricks/contacts.html:16
+#: models/opportunity.py:46 templates/opportunities/bricks/contacts.html:20
 #: templates/opportunities/bricks/managers.html:16
 #: templates/opportunities/bricks/opportunities.html:23
 msgid "Name"
@@ -394,11 +398,11 @@ msgstr ""
 "Utiliser le devis courant lié à une opportunité pour avoir une estimation du "
 "chiffre d'affaire de celle-ci ?"
 
-#: statistics.py:32
+#: statistics.py:33
 msgid "Opportunities (current year)"
 msgstr "Opportunités (année courante)"
 
-#: statistics.py:34
+#: statistics.py:35
 msgid ""
 "The field «Actual closing date» is hidden ; these statistics are not "
 "available."
@@ -406,19 +410,19 @@ msgstr ""
 "Le champ «Date de signature réelle» est caché ; ces statistiques ne sont pas "
 "disponibles."
 
-#: statistics.py:37
+#: statistics.py:38
 #, python-brace-format
 msgid "For {organisation}: {won_stats} / {lost_stats}"
 msgstr "Pour {organisation} : {won_stats} / {lost_stats}"
 
-#: statistics.py:68
+#: statistics.py:133
 #, python-brace-format
 msgid "{count} won opportunity"
 msgid_plural "{count} won opportunities"
 msgstr[0] "{count} opportunité gagnée"
 msgstr[1] "{count} opportunités gagnées"
 
-#: statistics.py:72
+#: statistics.py:137
 #, python-brace-format
 msgid "{count} lost opportunity"
 msgid_plural "{count} lost opportunities"
@@ -439,11 +443,16 @@ msgstr "{count} Contacts liés à cette opportunité"
 msgid "Contacts linked to this opportunity"
 msgstr "Contacts liés à cette opportunité"
 
-#: templates/opportunities/bricks/contacts.html:12
+# Already in 'persons'
+#: templates/opportunities/bricks/contacts.html:15
+msgid "Create a contact"
+msgstr ""
+
+#: templates/opportunities/bricks/contacts.html:16
 msgid "Link to contacts"
 msgstr "Lier à des contacts"
 
-#: templates/opportunities/bricks/contacts.html:17
+#: templates/opportunities/bricks/contacts.html:21
 #: templates/opportunities/bricks/invoices.html:20
 #: templates/opportunities/bricks/managers.html:17
 #: templates/opportunities/bricks/products.html:17
@@ -453,12 +462,12 @@ msgstr "Lier à des contacts"
 msgid "Unlink"
 msgstr "Délier"
 
-#: templates/opportunities/bricks/contacts.html:27
+#: templates/opportunities/bricks/contacts.html:31
 #: templates/opportunities/bricks/managers.html:26
 msgid "Unlink this contact"
 msgstr "Délier ce contact"
 
-#: templates/opportunities/bricks/contacts.html:34
+#: templates/opportunities/bricks/contacts.html:38
 msgid "No linked contact for the moment"
 msgstr "Aucun contact lié pour le moment"
 
@@ -577,11 +586,11 @@ msgctxt "opportunities"
 msgid "Details"
 msgstr "Détails"
 
-#: templates/opportunities/bricks/opportunity-hat-card.html:77
+#: templates/opportunities/bricks/opportunity-hat-card.html:95
 msgid "Linked contacts"
 msgstr "Contacts liés"
 
-#: templates/opportunities/bricks/opportunity-hat-card.html:79
+#: templates/opportunities/bricks/opportunity-hat-card.html:97
 #, python-format
 msgid "%(count)s Linked contact"
 msgid_plural "%(count)s Linked contacts"
@@ -764,6 +773,11 @@ msgstr[1] "%(count)s opportunités"
 #, python-brace-format
 msgid "{number} ({opportunity})"
 msgstr "{number} ({opportunity})"
+
+#: views/contact.py:38
+#, python-brace-format
+msgid "Create a contact linked to «{opportunity}»"
+msgstr "Créer un contact lié à «{opportunity}»"
 
 #: views/opportunity.py:192
 #, python-brace-format

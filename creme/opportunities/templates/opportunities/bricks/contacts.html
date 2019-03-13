@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks %}
+{% load i18n creme_core_tags creme_widgets creme_bricks creme_ctype %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-contacts-brick{% endblock %}
 
@@ -9,6 +9,10 @@
 
 {% block brick_header_actions %}
     {% has_perm_to link object as link_perm %}
+    {% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as ct_contact %}
+    {% has_perm_to create ct_contact as creation_perm %}
+    {% url 'opportunities__create_related_contact' object.id as creation_url %}
+    {% brick_header_action id='add' url=creation_url label=_('Create a contact') enabled=creation_perm|and_op:link_perm %}
     {% brick_header_action id='add-relationships' label=_('Link to contacts') icon='link' enabled=link_perm __subject_id=object.id __rtype_id=predicate_id __ctype_id=objects_ctype.id __multiple=True %}
 {% endblock %}
 
