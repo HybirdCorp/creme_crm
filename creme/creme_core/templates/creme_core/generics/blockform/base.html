@@ -35,6 +35,7 @@
                 {{hidden}}
             {% endif %}
         {% endfor %}
+{% comment %}
         <div style="display: none; visibility: hidden;">
             {% for persist_key, persist_values in persisted.items %}
                 {% for persist_value in persist_values %}
@@ -43,6 +44,7 @@
                 {% endfor %}
             {% endfor %}
         </div>
+{% endcomment %}
         {% if form.non_field_errors %}
             <table class="table_detail_view ui-corner-all">
                 <thead>
