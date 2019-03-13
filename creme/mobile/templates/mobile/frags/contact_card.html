@@ -1,7 +1,8 @@
 {% load i18n creme_core_tags mobile_tags %}{% has_perm_to view contact as view_perm %}
 {% if view_perm %}
   {% prepare_fields contact 'email' 'billing_address' 'position' 'phone' 'mobile' %}
-  {% with email=contact.email address=contact.billing_address position=contact.position organisations=contact|employers %}
+{#  {% with email=contact.email address=contact.billing_address position=contact.position organisations=contact|employers %} #}
+  {% with email=contact.email address=contact.billing_address position=contact.position organisations=contact.get_employers %}
   {% with has_address=address|bool %}
   {% with more_info=email|or_op:has_address|or_op:position|or_op:organisations %}
   <div class='{{card_classes|default:'card card-contact'}} {% if more_info %}with-more-info{% endif %}' data-person-id='{{contact.id}}'>

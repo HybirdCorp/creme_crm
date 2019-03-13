@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,8 +34,8 @@ from creme.creme_core.utils import update_model_instance
 
 from creme.documents.models.fields import ImageEntityForeignKey
 
-from ..import get_contact_model, get_organisation_model
-from ..constants import REL_OBJ_EMPLOYED_BY
+from ..import constants, get_contact_model, get_organisation_model
+# from ..constants import REL_OBJ_EMPLOYED_BY
 from .base import PersonWithAddressesMixin
 from . import other_models
 
@@ -112,8 +112,8 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
         if self.first_name:
             return ugettext('{first_name} {last_name}').format(
-                            first_name=self.first_name,
-                            last_name=self.last_name,
+                        first_name=self.first_name,
+                        last_name=self.last_name,
             )
 
         return self.last_name or ''
@@ -132,10 +132,9 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
             if not self.email:
                 raise ValidationError(ugettext('This Contact is related to a user and must have an e-mail address.'))
 
-    def get_employers(self):
-        return get_organisation_model().objects.filter(relations__type=REL_OBJ_EMPLOYED_BY,
-                                                       relations__object_entity=self.id,
-                                                      )
+    def delete(self, *args, **kwargs):
+        self._check_deletion()  # Should not be useful (trashing should be blocked too)
+        super().delete(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('persons__view_contact', args=(self.id,))
@@ -151,9 +150,17 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     def get_lv_absolute_url():
         return reverse('persons__list_contacts')
 
-    def delete(self, *args, **kwargs):
-        self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        super().delete(*args, **kwargs)
+    # TODO: move in a manager ??
+    # TODO: use FilteredRelation ?
+    def get_employers(self):
+        # return get_organisation_model().objects.filter(relations__type=REL_OBJ_EMPLOYED_BY,
+        #                                                relations__object_entity=self.id,
+        #                                               )
+        return get_organisation_model().objects.filter(
+            is_deleted=False,
+            relations__type__in=(constants.REL_OBJ_EMPLOYED_BY, constants.REL_OBJ_MANAGES),
+            relations__object_entity=self.id,
+        )
 
     def _post_save_clone(self, source):
         self._aux_post_save_clone(source)
