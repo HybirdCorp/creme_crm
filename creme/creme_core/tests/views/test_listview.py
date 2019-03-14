@@ -816,7 +816,8 @@ class ListViewTestCase(ViewsTestCase):
                          r'.creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?, '
                          r'.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
                          r'.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?, '
-                         r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
+                         # r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
+                         r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?  LIMIT'
                         )
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=2)
@@ -826,7 +827,8 @@ class ListViewTestCase(ViewsTestCase):
         self.assertRegex(sql,
                          r'ORDER BY'
                          r' .creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?,'
-                         r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
+                         # r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
+                         r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?  LIMIT'
                         )
 
     def test_efilter01(self):

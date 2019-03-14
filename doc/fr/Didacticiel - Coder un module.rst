@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 05-02-2019 pour la version 2.1 de Creme
+:Version: 13-03-2019 pour la version 2.1 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -29,8 +29,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/2.0/.
-Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/2.0/intro/overview/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/2.1/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/2.1/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque Javascript JQuery_ ; il se peut que pour

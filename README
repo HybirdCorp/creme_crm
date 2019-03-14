@@ -44,7 +44,7 @@ DEPENDENCIES:
  - These python packages :
    (exact versions of Python packages are indicated in the file 'creme/requirements.txt')
      - Mandatory :
-         - Django 2.0
+         - Django 2.1
          - redis 2.10
          - python-dateutil 2.7
          - bleach 2.1
@@ -92,7 +92,7 @@ Global remarks:
 
 Database configuration:
 For a new install, you have to create a new database & a new DB user (who is allowed to create/drop tables, indices...).
-For an upgrade from Creme 1.8, duplicate your existing DB.
+For an upgrade from Creme 2.0, duplicate your existing DB.
 
 Settings:
 See the file creme/settings.py and set your parameters in a new file called 'creme/local_settings.py'.
