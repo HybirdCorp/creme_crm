@@ -23,11 +23,6 @@
 (function($) {
 "use strict";
 
-var __WRAPPED_JSON_RESPONSE_PATTERNS = [
-    '^[\s]*<json>(.*)</json>[\s]*$',
-    '^[\s]*<pre[^>]*>(.*)</pre>[\s]*$'
-];
-
 var __json = new creme.utils.JSON();
 
 
@@ -51,23 +46,39 @@ creme.dialog.FrameContentData = creme.component.Component.sub({
                     cleaned = {content: String(content), type: dataType}; break;
                 case 'html':
                 case 'text/html':
-                    cleaned = this._cleanHTML(content, dataType); break;
+                    cleaned = this._cleanPRE(content);
+
+                    // ok... not html, just plain text with <pre></pre>
+                    if (cleaned.type === 'text/plain') {
+                        // guess if it is json after all
+                        try {
+                            cleaned = this._cleanJSON(cleaned.content, dataType);
+                        } catch (e) {}
+                    } else {
+                        cleaned = this._cleanHTML(content, dataType);
+                    }
+
+                    break;
                 case 'text/json':
                 case 'text/javascript':
                 case 'application/json':
                 case 'application/javascript':
+                    cleaned = this._cleanPRE(content, 'text/plain');
+
                     try {
-                        cleaned = this._cleanJSON(content, dataType);
-                    } catch (e) {
-                        cleaned = {content: content, type: 'text/plain'};
-                    }
+                        cleaned = this._cleanJSON(cleaned.content, dataType);
+                    } catch (e) {}
 
                     break;
                 default:
+                    cleaned = this._cleanPRE(content);
+
                     try {
-                        cleaned = this._cleanJSON(content);
+                        cleaned = this._cleanJSON(cleaned.content);
                     } catch (e) {
-                        cleaned = this._cleanHTML(content);
+                        if (!cleaned.type) {
+                            cleaned = this._cleanHTML(cleaned.content);
+                        }
                     }
 
                     console.warn('[frame] unrecognized content-type "%s"... guessed as "%s"'.format(dataType, cleaned.type));
@@ -85,6 +96,17 @@ creme.dialog.FrameContentData = creme.component.Component.sub({
         this._cleanedData = cleaned.data;
     },
 
+    _cleanPRE: function(content, dataType) {
+        // some browsers (like firefox) wrap empty/invalid html text with <pre> tag
+        var matches = content.match(new RegExp('^[\s]*<pre[^>]*>(.*)</pre>[\s]*$'));
+
+        if (matches !== null && matches.length === 2) {
+            return {content: matches[1], type: 'text/plain'};
+        }
+
+        return {content: content, type: dataType};
+    },
+
     _cleanJSON: function(content, dataType) {
         try {
             return {content: content, data: __json.decode(content), type: 'text/json'};
@@ -97,22 +119,28 @@ creme.dialog.FrameContentData = creme.component.Component.sub({
         }
     },
 
-    _cleanHTML: function(content, dataType) {
-        for (var i in __WRAPPED_JSON_RESPONSE_PATTERNS) {
-            var pattern = new RegExp(__WRAPPED_JSON_RESPONSE_PATTERNS[i], 'i');
+    _cleanWrappedJSON: function(content, dataType) {
+        var matches = content.match(new RegExp('^[\s]*<json>(.*)</json>[\s]*$', 'i'));
 
-            var matches = content.match(pattern);
-            var jsonData = (matches !== null && matches.length === 2) ? matches[1] : undefined;
-
-            if (jsonData) {
-                try {
-                    return this._cleanJSON(jsonData);
-                } catch (e) {
-                    break;
-                }
-            }
+        if (matches !== null && matches.length === 2) {
+            try {
+                return this._cleanJSON(matches[1]);
+            } catch (e) {}
         }
 
+        return {content: content, type: dataType};
+    },
+
+    _cleanHTML: function(content, dataType) {
+        // Handle <json> tag (IE)
+        var cleaned = this._cleanWrappedJSON(content, dataType);
+
+        // if discovered another datatype ... like text/json.. return result.
+        if (cleaned.type === 'text/json') {
+            return cleaned;
+        }
+
+        // Convert to DOM element or assume it is plain text.
         try {
             // upgrade to Jquery 1.9x : html content without starting '<' is no longer supported.
             //                          use $.trim() for trailing space or returns.

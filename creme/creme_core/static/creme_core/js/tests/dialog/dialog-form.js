@@ -915,6 +915,60 @@ QUnit.test('creme.dialog.FormDialog (<pre>JSON</pre> response)', function(assert
     ], this.mockFormSubmitCalls('form-success'));
 });
 
+QUnit.test('creme.dialog.FormDialog (<pre></pre> response)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
+
+    dialog.onFormSuccess(this.mockListener('form-success'));
+    dialog.open();
+
+    dialog.submit({}, {
+        responseData: '<pre></pre>'
+    });
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            responseType: [''],
+            responseData: ['<pre></pre>']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/json'));
+
+    deepEqual([
+        ['form-success', {
+            content: '',
+            data: '',
+            type: 'text/plain'
+         }, 'text/plain']
+    ], this.mockFormSubmitCalls('form-success'));
+});
+
+QUnit.test('creme.dialog.FormDialog (<pre>url</pre> response)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
+
+    dialog.onFormSuccess(this.mockListener('form-success'));
+    dialog.open();
+
+    dialog.submit({}, {
+        responseData: '<pre>/mock/redirect</pre>'
+    });
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            responseType: [''],
+            responseData: ['<pre>/mock/redirect</pre>']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/json'));
+
+    deepEqual([
+        ['form-success', {
+            content: '/mock/redirect',
+            data: '/mock/redirect',
+            type: 'text/plain'
+         }, 'text/plain']
+    ], this.mockFormSubmitCalls('form-success'));
+});
+
 QUnit.test('creme.dialog.FormDialog (JSON response)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
 
