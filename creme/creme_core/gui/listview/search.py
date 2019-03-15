@@ -35,8 +35,10 @@ class AbstractListViewSearchFieldRegistry:
     Classically the root registry is a ListViewSearchFieldRegistry which has a child
     for each type of cell (regular-field, custom-field...).
 
-    The interface of this class is only the method 'get_field()' ; other methods
-    are internal helpers for child classes.
+    The interface of this class is :
+     - mainly the method 'get_field()'.
+     - the method 'pretty()' for debugging purposes.
+     - other methods are internal helpers for child classes.
 
     Nomenclature:
      - A "builder" is an object which can instantiate a ListViewSearchField ; so it can be:
@@ -52,6 +54,14 @@ class AbstractListViewSearchFieldRegistry:
         @return: An instance of <ListViewSearchField>.
         """
         return self._build_field(builder=None, cell=cell, user=user, **kwargs)
+
+    def pretty(self, indent=0):
+        """Get a pretty string to analyze registered items.
+
+        @param indent: Indentation level.
+        @return: A string.
+        """
+        return ' ' * indent + '{}:'.format(type(self).__name__)
 
     @staticmethod
     def _instantiate_builder(sfield_builder):
@@ -82,6 +92,12 @@ class AbstractListViewSearchFieldRegistry:
             builder = get_field
 
         return builder(cell=cell, user=user, **kwargs)
+
+    @staticmethod
+    def _pretty_builder(builder, indent):
+        pretty = getattr(builder, 'pretty', None)
+
+        return ' ' * indent + str(builder) if pretty is None else pretty(indent=indent)
 
 
 class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
@@ -236,6 +252,36 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
             **kwargs
         )
 
+    def pretty(self, indent=0):
+        indent_str = ' ' * indent
+        res = '{indent}{name}:\n{indent}  Choice:\n{choice}\n{indent}  Field types:'.format(
+            indent=indent_str,
+            name=type(self).__name__,
+            choice=self._pretty_builder(self._choice_builder, indent=indent + 4),
+        )
+
+        for field_type, builder in self._builders_4_modelfieldtypes.items():
+            res += '\n{}    [{}.{}]:\n{}'.format(
+                indent_str,
+                field_type.__module__,
+                field_type.__name__,
+                self._pretty_builder(builder, indent=indent + 6),
+            )
+
+        res += '\n{}  Fields:'.format(indent_str)
+        modelfields = self._builders_4_modelfields
+        if modelfields:
+            for field, builder in self._builders_4_modelfields.items():
+                res += '\n{}    [{}]:\n{}'.format(
+                    indent_str,
+                    field,
+                    self._pretty_builder(builder, indent=indent + 6),
+                )
+        else:
+            res += '\n{}    (empty)'.format(indent_str)
+
+        return res
+
     def register_choice_builder(self, sfield_builder):
         self._choice_builder = self._instantiate_builder(sfield_builder)
 
@@ -278,6 +324,17 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         (CustomField.MULTI_ENUM, lv_form.CustomChoiceField),
     )
 
+    # TODO: use an enum.IntEnum in CustomField
+    __TYPES_ALIASES = {
+        CustomField.INT:        'CustomField.INT',
+        CustomField.FLOAT:      'CustomField.FLOAT',
+        CustomField.BOOL:       'CustomField.BOOL',
+        CustomField.STR:        'CustomField.STR',
+        CustomField.DATETIME:   'CustomField.DATETIME',
+        CustomField.ENUM:       'CustomField.ENUM',
+        CustomField.MULTI_ENUM: 'CustomField.MULTI_ENUM',
+    }
+
     def __init__(self, to_register=DEFAULT_FIELDS):
         self._builders = {}
 
@@ -293,6 +350,19 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
             cell=cell, user=user,
             **kwargs
         )
+
+    def pretty(self, indent=0):
+        indent_str = ' ' * indent
+        res = '{}{}:'.format(indent_str, type(self).__name__)
+
+        for cfield_type, builder in self._builders.items():
+            res += '\n{}  [{}]:\n{}'.format(
+                indent_str,
+                self.__TYPES_ALIASES[cfield_type],
+                self._pretty_builder(builder, indent=indent + 4),
+            )
+
+        return res
 
     def register(self, *, type, sfield_builder):
         self._builders[type] = self._instantiate_builder(sfield_builder)
@@ -324,6 +394,23 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
             cell=cell, user=user,
             **kwargs
         )
+
+    def pretty(self, indent=0):
+        indent_str = ' ' * indent
+        res = '{}{}:'.format(indent_str, type(self).__name__)
+        builders = self._builders
+
+        if builders:
+            for ffield_id, builder in builders.items():
+                res += '\n{}  ["{}"]:\n{}'.format(
+                    indent_str,
+                    ffield_id,
+                    self._pretty_builder(builder, indent=indent + 4),
+                )
+        else:
+            res += '\n{}  (empty)'.format(indent_str)
+
+        return res
 
     def register(self, *, ffield, sfield_builder):
         self._builders[ffield.name] = self._instantiate_builder(sfield_builder)
@@ -359,6 +446,23 @@ class RelationSearchRegistry(AbstractListViewSearchFieldRegistry):
             **kwargs
         )
 
+    def pretty(self, indent=0):
+        indent_str = ' ' * indent
+        res = '{indent}{name}:\n{indent}  Default:\n{default}'.format(
+            indent=indent_str,
+            name=type(self).__name__,
+            default=self._pretty_builder(self._default_builder, indent=indent + 4),
+        )
+
+        for rtype_id, builder in self._builders.items():
+            res += '\n{}  ["{}"]:\n{}'.format(
+                indent_str,
+                rtype_id,
+                self._pretty_builder(builder, indent=indent + 4),
+            )
+
+        return res
+
     def register(self, *, rtype_id, sfield_builder):
         self._builders[rtype_id] = self._instantiate_builder(sfield_builder)
 
@@ -383,6 +487,14 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
         # (entity_cell.EntityCellVolatile.type_id, ...),
     )
 
+    # TODO: in creme_core.core.entity_cell ?
+    __CELL_IDS_ALIASES = {
+        entity_cell.EntityCellRegularField.type_id:  'EntityCellRegularField.type_id',
+        entity_cell.EntityCellCustomField.type_id:   'EntityCellCustomField.type_id',
+        entity_cell.EntityCellFunctionField.type_id: 'EntityCellFunctionField.type_id',
+        entity_cell.EntityCellRelation.type_id:      'EntityCellRelation.type_id',
+    }
+
     def __init__(self, to_register=DEFAULT_REGISTRIES):
         self._registries = {}
 
@@ -391,6 +503,20 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
 
     def __getitem__(self, cell_type_id):
         return self._registries[cell_type_id]
+
+    def pretty(self, indent=0):
+        indent_str = ' ' * indent
+        res = indent_str + '{}:'.format(type(self).__name__)
+
+        get_alias = self.__CELL_IDS_ALIASES.get
+        for cell_id, registry in self._registries.items():
+            res += '\n{}  [{}]:\n{}'.format(
+                indent_str,
+                get_alias(cell_id, cell_id),
+                registry.pretty(indent=indent + 4),
+            )
+
+        return res
 
     def get_field(self, *, cell, user, **kwargs):
         registry = self._registries.get(cell.type_id)

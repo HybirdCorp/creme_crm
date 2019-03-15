@@ -831,4 +831,5 @@ class Menu(ItemList):
             ),
         )
 
+
 creme_menu = Menu()
