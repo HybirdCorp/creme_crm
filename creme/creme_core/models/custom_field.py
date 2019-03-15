@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,6 +41,7 @@ __all__ = ('CustomField', 'CustomFieldValue',
 
 
 class CustomField(CremeModel):
+    # TODO: use an enum.IntEnum ? (see creme_core.gui.listview.search.CustomFieldSearchRegistry)
     INT         = 1
     FLOAT       = 2
     BOOL        = 3
@@ -53,7 +54,7 @@ class CustomField(CremeModel):
     name          = CharField(_('Field name'), max_length=100)
     content_type  = CTypeForeignKey(verbose_name=_('Related type'))
     field_type    = PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
-    # default_value = CharField(_('Valeur par defaut'), max_length=100, blank=True, null=True)
+    # default_value = CharField(_('Default value'), max_length=100, blank=True, null=True)
     # extra_args    = CharField(max_length=500, blank=True, null=True)
     # required      = BooleanField(defaut=False) ????
 

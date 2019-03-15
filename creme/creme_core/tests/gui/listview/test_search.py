@@ -1000,3 +1000,10 @@ class ListViewSearchTestCase(CremeTestCase):
 
         with self.assertNoException():
             registry[EntityCellRegularField.type_id].builder_4_model_field_type(ForeignKey)
+
+    def test_cell_registry_pretty(self):
+        registry = lv_search.ListViewSearchFieldRegistry()
+
+        # NB: just test it don't crash. We could do better...
+        with self.assertNoException():
+            registry.pretty()
