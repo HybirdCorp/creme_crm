@@ -16,24 +16,38 @@ except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
-class MetaTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls._lang = translation.get_language()
-        cls._translation_deactivated = False
+class MiscTestCase(CremeTestCase):
+    def test_is_date_field(self):
+        entity = CremeEntity()
+        get_field = entity._meta.get_field
+        self.assertTrue(meta.is_date_field(get_field('created')))
+        self.assertFalse(meta.is_date_field(get_field('user')))
 
-    def tearDown(self):
-        super().tearDown()
+    def test_orderedfield_asc(self):
+        ofield1 = meta.OrderedField('name')
+        self.assertEqual('name', str(ofield1))
+        self.assertEqual('name', ofield1.field_name)
+        self.assertTrue(ofield1.order.asc)
 
-        if self._translation_deactivated:
-            translation.activate(self._lang)
-            self._translation_deactivated = False
+        ofield2 = ofield1.reversed()
+        self.assertIsInstance(ofield2, meta.OrderedField)
+        self.assertIsNot(ofield1, ofield2)
+        self.assertEqual('-name', str(ofield2))
+        self.assertEqual('name', ofield2.field_name)
+        self.assertTrue(ofield2.order.desc)
 
-    def _deactivate_translation(self):  # TODO: decorator ?? in CremeTestCase ?
-        translation.deactivate_all()
-        self._translation_deactivated = True
+    def test_orderedfield_desc(self):
+        ofield1 = meta.OrderedField('-date')
+        self.assertEqual('-date', str(ofield1))
+        self.assertEqual('date', ofield1.field_name)
+        self.assertTrue(ofield1.order.desc)
 
+        ofield2 = ofield1.reversed()
+        self.assertEqual('date', str(ofield2))
+        self.assertTrue(ofield2.order.asc)
+
+
+class FieldInfoTestCase(CremeTestCase):
     def test_field_info01(self):
         "Simple field"
         fi = meta.FieldInfo(FakeContact, 'first_name')
@@ -220,11 +234,24 @@ class MetaTestCase(CremeTestCase):
 
     # TODO: test mtom1__mtom2
 
-    def test_is_date_field(self):
-        entity = CremeEntity()
-        get_field = entity._meta.get_field
-        self.assertTrue(meta.is_date_field(get_field('created')))
-        self.assertFalse(meta.is_date_field(get_field('user')))
+
+class ModelFieldEnumeratorTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._lang = translation.get_language()
+        cls._translation_deactivated = False
+
+    def tearDown(self):
+        super().tearDown()
+
+        if self._translation_deactivated:
+            translation.activate(self._lang)
+            self._translation_deactivated = False
+
+    def _deactivate_translation(self):  # TODO: decorator ?? in CremeTestCase ?
+        translation.deactivate_all()
+        self._translation_deactivated = True
 
     def test_field_enumerator01(self):
         self._deactivate_translation()
@@ -445,3 +472,76 @@ class MetaTestCase(CremeTestCase):
                          },
                          choices, choices
                         )
+
+
+class OrderTestCase(CremeTestCase):
+    def test_asc(self):
+        self.assertIs(meta.Order().asc,      True)
+        self.assertIs(meta.Order(True).asc,  True)
+        self.assertIs(meta.Order(False).asc, False)
+
+    def test_desc(self):
+        self.assertIs(meta.Order().desc,      False)
+        self.assertIs(meta.Order(False).desc, True)
+
+    def test_str(self):
+        self.assertEqual('ASC', str(meta.Order()))
+        self.assertEqual('DESC', str(meta.Order(False)))
+
+    def test_prefix(self):
+        self.assertEqual('', meta.Order().prefix)
+        self.assertEqual('-', meta.Order(False).prefix)
+
+    def test_from_string01(self):
+        order1 = meta.Order.from_string('ASC')
+        self.assertIsInstance(order1, meta.Order)
+        self.assertEqual('ASC', str(order1))
+
+        order2 = meta.Order.from_string('DESC')
+        self.assertEqual('DESC', str(order2))
+
+    def test_from_string02(self):
+        from_string = meta.Order.from_string
+
+        with self.assertRaises(ValueError):
+            from_string('INVALID')
+
+        with self.assertRaises(ValueError):
+            from_string('')
+
+        with self.assertRaises(ValueError):
+            from_string('', required=True)
+
+        with self.assertRaises(ValueError):
+            from_string(None)
+
+    def test_from_string_not_required(self):
+        order1 = meta.Order.from_string('', required=False)
+        self.assertIsInstance(order1, meta.Order)
+        self.assertEqual('ASC', str(order1))
+
+        order2 = meta.Order.from_string(None, required=False)
+        self.assertEqual('ASC', str(order2))
+
+    def test_reverse(self):
+        order1 = meta.Order(True)
+        order1.reverse()
+        self.assertFalse(order1.asc)
+
+        order2 = meta.Order(False)
+        order2.reverse()
+        self.assertTrue(order2.asc)
+
+    def test_reversed(self):
+        order1 = meta.Order(True)
+        order2 = order1.reversed()
+        self.assertIsInstance(order2, meta.Order)
+        self.assertIsNot(order1, order2)
+        self.assertTrue(order1.asc)
+        self.assertFalse(order2.asc)
+
+        self.assertTrue(meta.Order(False).reversed().asc)
+
+    # TODO
+    # def test_equal(self, other):
+    #     pass

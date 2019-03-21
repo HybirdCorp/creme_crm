@@ -30,9 +30,10 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..core.entity_cell import EntityCellRegularField
+from ..core.sorter import cell_sorter_registry
 from ..models import (Relation, RelationBrickItem, CremeEntity,
         InstanceBrickConfigItem, CustomBrickConfigItem, BrickState)
-
+from ..utils.meta import OrderedField
 
 logger = logging.getLogger(__name__)
 
@@ -324,15 +325,18 @@ class QuerysetBrick(PaginatedBrick):
     # BEWARE: if you want to use columns with the 'sort' feature (see the templatetags lib 'creme_bricks':
     #  {% brick_table_column_for_field %} & {% brick_table_column_for_cell %}), you have to set this attribute.
     order_by = ''
+    cell_sorter_registry = cell_sorter_registry
 
     def _is_order_valid(self, model, order):
-        fname = order[1:] if order.startswith('-') else order
+        # fname = order[1:] if order.startswith('-') else order
+        fname = OrderedField(order).field_name
         cell = EntityCellRegularField.build(model=model, name=fname)
 
         if cell is None:
             return False
 
-        if not cell.sortable:
+        # if not cell.sortable:
+        if not self.cell_sorter_registry.get_field_name(cell):
             logger.warning('QuerysetBrick: the field "{}" is not sortable.'.format(fname))
             return False
 
@@ -359,7 +363,7 @@ class QuerysetBrick(PaginatedBrick):
         )
 
     def get_template_context(self, context, queryset, **extra_kwargs):
-        """@param queryset: Set of objects to display in the block."""
+        """@param queryset: Set of objects to display in the brick."""
         return PaginatedBrick.get_template_context(self, context, objects=queryset, **extra_kwargs)
 
 

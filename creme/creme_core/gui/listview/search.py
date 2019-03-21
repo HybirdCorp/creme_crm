@@ -212,6 +212,8 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         (models.ManyToManyField, RegularRelatedFieldSearchRegistry),
         # (models.OneToOneField, RegularRelatedFieldSearchRegistry), TODO
 
+        # (models.IPAddressField, ...)  # TODO: what about ?
+
         # TODO: needs JSONField management in the RDBMS...
         # (fields.DurationField, ),
         # (fields.DatePeriodField, ),

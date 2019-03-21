@@ -347,9 +347,11 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        def post(first, second, sort_order='', sort_field='regular_field-name', **kwargs):
+        # def post(first, second, sort_order='', sort_field='regular_field-name', **kwargs):
+        def post(first, second, sort_order='', sort_key='regular_field-name', **kwargs):
             response = self.assertPOST200(self.url,
-                                          data={'sort_field': sort_field,
+                                          # data={'sort_field': sort_field,
+                                          data={'sort_key': sort_key,
                                                 'sort_order': sort_order,
                                                },
                                           **kwargs
@@ -361,18 +363,34 @@ class ListViewTestCase(ViewsTestCase):
             self.assertLess(first_idx, second_idx)
 
         post(bebop, swordfish)
-        post(swordfish, bebop, '-')
-        post(bebop, swordfish, '*')  # Invalid value
-        post(bebop, swordfish, sort_field='unknown')  # Invalid value
+        # post(swordfish, bebop, '-')
+        post(swordfish, bebop, 'DESC')
+        # post(bebop, swordfish, '*')  # Invalid value
+        # post(bebop, swordfish, sort_field='unknown')  # Invalid value
+        post(bebop, swordfish, sort_key='unknown')  # Invalid value
 
         # ajax POST request
         post(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        post(swordfish, bebop, '-', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        # post(swordfish, bebop, '-', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        post(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         state = ListViewState.get_state(self.client, url=self.url)
         self.assertIsNotNone(state)
-        self.assertEqual('regular_field-name', state.sort_field)
-        self.assertEqual('-', state.sort_order)
+        # self.assertEqual('regular_field-name', state.sort_field)
+        self.assertEqual('regular_field-name', state.sort_cell_key)
+        # self.assertEqual('-', state.sort_order)
+        self.assertEqual('DESC', state.sort_order)
+
+    def test_ordering_regularfield_invalid_order(self):
+        self.login()
+        self._build_hf()
+
+        with self.assertRaises(ValueError):
+            self.client.post(self.url,
+                             data={'sort_key':   'regular_field-name',
+                                   'sort_order': 'invalid',
+                                  },
+                            )
 
     def test_ordering_regularfield_GET(self):
         user = self.login()
@@ -383,9 +401,11 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        def get(first, second, sort_order='', sort_field='regular_field-name', **kwargs):
+        # def get(first, second, sort_order='', sort_field='regular_field-name', **kwargs):
+        def get(first, second, sort_order='ASC', sort_key='regular_field-name', **kwargs):
             response = self.assertGET200(self.url,
-                                         data={'sort_field': sort_field,
+                                         # data={'sort_field': sort_field,
+                                         data={'sort_key': sort_key,
                                                'sort_order': sort_order,
                                               },
                                          **kwargs
@@ -396,16 +416,19 @@ class ListViewTestCase(ViewsTestCase):
             self.assertLess(first_idx, second_idx)
 
         get(bebop, swordfish)
-        get(swordfish, bebop, '-')
-        get(bebop, swordfish, '*')  # Invalid value
-        get(bebop, swordfish, sort_field='unknown')  # Invalid value
+        # get(swordfish, bebop, '-')
+        get(swordfish, bebop, 'DESC')
+        # get(bebop, swordfish, '*')  # Invalid value
+        # get(bebop, swordfish, sort_field='unknown')  # Invalid value
+        get(bebop, swordfish, sort_key='unknown')  # Invalid value
 
         state = ListViewState.get_state(self.client, url=self.url)
         self.assertIsNone(state)
 
         # ajax GET request
         get(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        get(swordfish, bebop, '-', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        # get(swordfish, bebop, '-', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        get(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         # state is not saved or update by GET requests.
         state = ListViewState.get_state(self.client, url=self.url)
@@ -420,9 +443,11 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        def post(first, second, sort_order='', sort_field='regular_field-name', **kwargs):
+        # def post(first, second, sort_order='', sort_field='regular_field-name', **kwargs):
+        def post(first, second, sort_order='ASC', sort_key='regular_field-name', **kwargs):
             response = self.assertPOST200(self.url,
-                                          data={'sort_field': sort_field,
+                                          # data={'sort_field': sort_field,
+                                          data={'sort_key': sort_key,
                                                 'sort_order': sort_order,
                                                 'transient': '1',
                                                },
@@ -434,16 +459,19 @@ class ListViewTestCase(ViewsTestCase):
             self.assertLess(first_idx, second_idx)
 
         post(bebop, swordfish)
-        post(swordfish, bebop, '-')
-        post(bebop, swordfish, '*')  # Invalid value
-        post(bebop, swordfish, sort_field='unknown')  # Invalid value
+        # post(swordfish, bebop, '-')
+        post(swordfish, bebop, 'DESC')
+        # post(bebop, swordfish, '*')  # Invalid value
+        # post(bebop, swordfish, sort_field='unknown')  # Invalid value
+        post(bebop, swordfish, sort_key='unknown')  # Invalid value
 
         state = ListViewState.get_state(self.client, url=self.url)
         self.assertIsNone(state)
 
         # ajax GET request
         post(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        post(swordfish, bebop, '-', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        # post(swordfish, bebop, '-', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        post(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         # state is not saved or update by GET requests.
         state = ListViewState.get_state(self.client, url=self.url)
@@ -514,14 +542,18 @@ class ListViewTestCase(ViewsTestCase):
 
         # ---------------------------------------------------------------------
         # FK on CremeEntity we just check that it does not crash
-        self.assertPOST200(url, data={'sort_field': 'regular_field-image'})
+        # self.assertPOST200(url, data={'sort_field': 'regular_field-image'})
+        self.assertPOST200(url, data={'sort_key': 'regular_field-image'})
 
         # ---------------------------------------------------------------------
 
-        def post(field_name, reverse, *contacts):
+        # def post(field_name, reverse, *contacts):
+        def post(sort_key, reverse, *contacts):
             response = self.assertPOST200(url,
-                                          data={'sort_field': field_name,
-                                                'sort_order': '-' if reverse else '',
+                                          # data={'sort_field': field_name,
+                                          data={'sort_key': sort_key,
+                                                # 'sort_order': '-' if reverse else '',
+                                                'sort_order': 'DESC' if reverse else 'ASC',
                                                }
                                          )
             content = self._get_lv_content(self._get_lv_node(response))
@@ -541,7 +573,7 @@ class ListViewTestCase(ViewsTestCase):
         post('regular_field-civility__title', True, spike, faye)
 
     def test_ordering_unsortable_fields(self):
-        "Un-sortable fields: ManyToMany, FunctionFields"
+        "Un-sortable fields: ManyToMany, FunctionFields."
         user = self.login()
 
         # Bug on ORM with M2M happens only if there is at least one entity
@@ -558,8 +590,10 @@ class ListViewTestCase(ViewsTestCase):
 
         url = FakeEmailCampaign.get_lv_absolute_url()
         # We just check that it does not crash
-        self.assertPOST200(url, data={'sort_field': 'regular_field-' + fname})
-        self.assertPOST200(url, data={'sort_field': 'function_field-' + func_field_name})
+        # self.assertPOST200(url, data={'sort_field': 'regular_field-' + fname})
+        self.assertPOST200(url, data={'sort_key': 'regular_field-' + fname})
+        # self.assertPOST200(url, data={'sort_field': 'function_field-' + func_field_name})
+        self.assertPOST200(url, data={'sort_key': 'function_field-' + func_field_name})
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
     def test_ordering_regularfield_fastmode(self):
@@ -582,11 +616,14 @@ class ListViewTestCase(ViewsTestCase):
 
         with self.assertNoException():
             lvs = response.context['list_view_state']
-            sort_field = lvs.sort_field
+            # sort_field = lvs.sort_field
+            sort_cell_key = lvs.sort_cell_key
             sort_order = lvs.sort_order
 
-        self.assertEqual('regular_field-start', sort_field)
-        self.assertEqual('-',  sort_order)
+        # self.assertEqual('regular_field-start', sort_field)
+        self.assertEqual('regular_field-start', sort_cell_key)
+        # self.assertEqual('-',  sort_order)
+        self.assertEqual('DESC',  sort_order)
 
         self.assertRegex(self._get_sql(response),
                          r'ORDER BY '
@@ -613,8 +650,10 @@ class ListViewTestCase(ViewsTestCase):
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         listview_state = response.context['list_view_state']
-        self.assertEqual('regular_field-last_name', listview_state.sort_field)
-        self.assertEqual('', listview_state.sort_order)
+        # self.assertEqual('regular_field-last_name', listview_state.sort_field)
+        self.assertEqual('regular_field-last_name', listview_state.sort_cell_key)
+        # self.assertEqual('', listview_state.sort_order)
+        self.assertEqual('ASC', listview_state.sort_order)
 
         self.assertRegex(self._get_sql(response),
                          r'ORDER BY '
@@ -633,8 +672,8 @@ class ListViewTestCase(ViewsTestCase):
         self.assertLess(mister.id, miss.id)
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        spike = create_contact(first_name='Spike',  last_name='Spiegel',   civility=mister)
-        faye = create_contact(first_name='Faye',   last_name='Valentine', civility=miss)
+        spike = create_contact(first_name='Spike', last_name='Spiegel', civility=mister)
+        faye = create_contact(first_name='Faye', last_name='Valentine', civility=miss)
         ed = create_contact(first_name='Edward', last_name='Wong')
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
@@ -650,36 +689,43 @@ class ListViewTestCase(ViewsTestCase):
         contacts = FakeContact.objects.filter(pk__in=(spike, faye, ed))
         url = FakeContact.get_lv_absolute_url()
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 'sort_field': cell_civ.key,
+                                                 # 'sort_field': cell_civ.key,
+                                                 'sort_key': cell_civ.key,
                                                  'sort_order': '',
-                                                }
+                                                },
                                      )
 
         entries = contacts.order_by('civility', 'last_name', 'first_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 'sort_field': cell_civ.key,
-                                                 'sort_order': '-',
-                                                }
+                                                 # 'sort_field': cell_civ.key,
+                                                 'sort_key': cell_civ.key,
+                                                 # 'sort_order': '-',
+                                                 'sort_order': 'DESC',
+                                                },
                                      )
 
         entries = contacts.order_by('-civility', 'last_name', 'first_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 'sort_field': cell_fname.key,
-                                                 'sort_order': '',
-                                                }
+                                                 # 'sort_field': cell_fname.key,
+                                                 'sort_key': cell_fname.key,
+                                                 # 'sort_order': '',
+                                                 'sort_order': 'ASC',
+                                                },
                                      )
 
         entries = contacts.order_by('first_name', 'last_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 'sort_field': cell_fname.key,
-                                                 'sort_order': '-',
-                                                }
+                                                 # 'sort_field': cell_fname.key,
+                                                 'sort_key': cell_fname.key,
+                                                 # 'sort_order': '-',
+                                                 'sort_order': 'DESC',
+                                                },
                                      )
 
         entries = contacts.order_by('-first_name', 'last_name')
@@ -713,16 +759,19 @@ class ListViewTestCase(ViewsTestCase):
         url = FakeContact.get_lv_absolute_url()
         # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
         response = self.assertPOST200(url, {'hfilter':    hf.id,
-                                            'sort_field': cell.key,
-                                            'sort_order': '',
+                                            # 'sort_field': cell.key,
+                                            'sort_key': cell.key,
+                                            # 'sort_order': '',
                                            })
 
         entries = FakeContact.objects.order_by('address_id', 'last_name', 'first_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         listview_state = response.context['list_view_state']
-        self.assertEqual(cell.key, listview_state.sort_field)
-        self.assertEqual('', listview_state.sort_order)
+        # self.assertEqual(cell.key, listview_state.sort_field)
+        self.assertEqual(cell.key, listview_state.sort_cell_key)
+        # self.assertEqual('', listview_state.sort_order)
+        self.assertEqual('ASC', listview_state.sort_order)
         self.assertRegex(self._get_sql(response),
                          r'ORDER BY '
                          r'.creme_core_fakecontact.\..address_id. ASC( NULLS FIRST)?\, '
@@ -758,7 +807,8 @@ class ListViewTestCase(ViewsTestCase):
 
         url = FakeOrganisation.get_lv_absolute_url()
         response = self.assertPOST200(url, {'hfilter': hf.pk,
-                                            'sort_field': cfield_cell.key,
+                                            # 'sort_field': cfield_cell.key,
+                                            'sort_key': cfield_cell.key,
                                             'sort_order': '',
                                            }
                                      )
@@ -789,7 +839,8 @@ class ListViewTestCase(ViewsTestCase):
         with CaptureQueriesContext() as context:
             self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                data={'hfilter': hf.pk,
-                                     'sort_field': cell1.key,
+                                     # 'sort_field': cell1.key,
+                                     'sort_key': cell1.key,
                                      'sort_order': '',
                                     }
                                )
@@ -1721,7 +1772,7 @@ class ListViewTestCase(ViewsTestCase):
                                           data={'hfilter': hf.id,
                                                 # cell_m2m.key: searched,
                                                 'search-' + cell_m2m.key: searched,
-                                               }
+                                               },
                                          )
             return self._get_lv_content(self._get_lv_node(response))
 
@@ -1771,7 +1822,7 @@ class ListViewTestCase(ViewsTestCase):
                                           data={'hfilter': hf.id,
                                                 # cell_m2m.key: searched,
                                                 'search-' + cell_m2m.key: searched,
-                                               }
+                                               },
                                          )
             return self._get_lv_content(self._get_lv_node(response))
 
@@ -1817,7 +1868,7 @@ class ListViewTestCase(ViewsTestCase):
         data = {
             'hfilter': hf.id,
             'search-regular_field-name': '',
-            'search-' + cell.key: 'Spiege'
+            'search-' + cell.key: 'Spiege',
         }
         response = self.assertPOST200(url, data=data)
         content = self._get_lv_content(self._get_lv_node(response))
@@ -1874,7 +1925,7 @@ class ListViewTestCase(ViewsTestCase):
                                             # cell2.key: 'Jet',
                                             'search-' + cell1.key: 'Jet',
                                             'search-' + cell2.key: 'Jet',
-                                           }
+                                           },
                                      )
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(bebop.name, content)
@@ -1919,7 +1970,7 @@ class ListViewTestCase(ViewsTestCase):
                                                       # cell.key: '4',
                                                       'search-regular_field-name': '',
                                                       'search-' + cell.key: '4',
-                                                     }
+                                                     },
                                      )
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(bebop.name,        content)
@@ -1962,7 +2013,7 @@ class ListViewTestCase(ViewsTestCase):
                                                       'search-regular_field-name': '',
                                                       'search-' + cell1.key: '4',
                                                       'search-' + cell2.key: '#05',
-                                                     }
+                                                     },
                                      )
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop,     orgas_set)
@@ -2125,7 +2176,7 @@ class ListViewTestCase(ViewsTestCase):
                                                       # cell.key: can_walk.id,
                                                       'search-regular_field-name': '',
                                                       'search-' + cell.key: can_walk.id,
-                                                     }
+                                                     },
                                      )
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop,   orgas_set)
@@ -2138,7 +2189,7 @@ class ListViewTestCase(ViewsTestCase):
                                                       # cell.key: 'NULL',
                                                       'search-regular_field-name': '',
                                                       'search-' + cell.key: 'NULL',
-                                                     }
+                                                     },
                                      )
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop,    orgas_set)
@@ -2515,7 +2566,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(eva01,  orgas_set)
 
     def test_search_functionfield02(self):
-        "Can not search on this FunctionField"
+        "Can not search on this FunctionField."
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2616,7 +2667,7 @@ class ListViewTestCase(ViewsTestCase):
             return self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       'page':    page,
                                                       'rows':    rows,
-                                                     }
+                                                     },
                                      )
 
         # Page 1 --------------------
@@ -2707,7 +2758,7 @@ class ListViewTestCase(ViewsTestCase):
             return self.assertPOST200(self.url,
                                       data={'hfilter': hf.id,
                                             'page': json_dump(page_info) if page_info else '',
-                                           }
+                                           },
                                      )
 
         # Page 1 --------------------
@@ -2774,7 +2825,7 @@ class ListViewTestCase(ViewsTestCase):
                                       data={'hfilter': hf.id,
                                             'page': json_dump(page_info) if page_info else '',
                                             'rows': rows,
-                                           }
+                                           },
                                      )
 
         # Page 1 --------------------
@@ -2836,16 +2887,17 @@ class ListViewTestCase(ViewsTestCase):
         cell2 = build_cell(name=ordering_fname)
         hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
                                  cells_desc=[build_cell(name='last_name'), cell2],
-                                 )
+                                )
 
         def post(page_info=None):
             return self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
-                                            'sort_field': cell2.key,
-                                            'sort_order': '',  # TODO: '-'
+                                            # 'sort_field': cell2.key,
+                                            'sort_key': cell2.key,
+                                            'sort_order': '',  # TODO: 'DESC'
                                             'page': json_dump(page_info) if page_info else '',
                                             'rows': rows,
-                                           }
+                                           },
                                       )
 
         # Page 1 --------------------
@@ -2899,7 +2951,7 @@ class ListViewTestCase(ViewsTestCase):
                                       data={'hfilter': hf.id,
                                             'page': json_dump(page_info) if page_info else '',
                                             'rows': rows,
-                                           }
+                                           },
                                      )
 
         # Page 1 --------------------
@@ -2944,7 +2996,7 @@ class ListViewTestCase(ViewsTestCase):
                                           data={'hfilter': hf.id,
                                                 'page': page_info,
                                                 'rows': rows,
-                                               }
+                                               },
                                          )
             # return response.context['entities']
             return response.context['page_obj']
@@ -2981,7 +3033,7 @@ class ListViewTestCase(ViewsTestCase):
 
         create_contact = partial(FakeContact.objects.create, user=user)
         for i in range(expected_count - count):
-            create_contact(first_name='Gally', last_name='Tuned#%02i' % i)
+            create_contact(first_name='Gally', last_name='Tuned#{:02}'.format(i))
 
         hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
@@ -2994,7 +3046,7 @@ class ListViewTestCase(ViewsTestCase):
                                           data={'hfilter': hf.id,
                                                 'page': page_info,
                                                 'rows': rows,
-                                               }
+                                               },
                                          )
             # return response.context['entities']
             return response.context['page_obj']
@@ -3053,7 +3105,7 @@ class ListViewTestCase(ViewsTestCase):
             response = self.assertPOST200(url,
                                           data={'hfilter': hf.id,
                                                 'rows': 10,
-                                               }
+                                               },
                                          )
             # return response.context['entities']
             return response.context['page_obj']

@@ -36,6 +36,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.views.generic.list import ListView
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core import sorter
 from creme.creme_core.core.entity_cell import EntityCellActions
 from creme.creme_core.core.paginator import FlowPaginator  # LastPage
 from creme.creme_core.forms.listview import ListViewSearchForm
@@ -45,6 +46,7 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404
+from creme.creme_core.utils.meta import Order
 from creme.creme_core.utils.queries import QSerializer  # get_q_from_dict
 from creme.creme_core.utils.serializers import json_encode
 
@@ -466,7 +468,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     selection_arg = 'selection'
     page_arg = 'page'
     page_size_arg = 'rows'
-    sort_field_arg = 'sort_field'
+    sort_cellkey_arg = 'sort_key'
     sort_order_arg = 'sort_order'
     requested_q_arg = 'q_filter'
     search_arg = 'search'
@@ -474,6 +476,11 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     is_popup_view = False
     actions_registry = actions_registry
+
+    state_class = lv_gui.ListViewState
+
+    cell_sorter_registry = sorter.cell_sorter_registry
+    query_sorter_class   = sorter.QuerySorter
 
     search_field_registry = lv_gui.search_field_registry
     search_form_class     = ListViewSearchForm
@@ -647,6 +654,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         # TODO: pass the bulk_update_registry in a list-view context (see listview_td_action_for_cell)
         # TODO: regroup registries ??
+        context['cell_sorter_registry'] = self.get_cell_sorter_registry()
 
         return context
 
@@ -701,15 +709,37 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
                     cast=str_to_mode, default=self.default_selection_mode,
                    )
 
+    def get_cell_sorter_registry(self):
+        return self.cell_sorter_registry
+
+    def get_query_sorter_class(self):
+        return self.query_sorter_class
+
+    def get_query_sorter(self):
+        cls = self.get_query_sorter_class()
+
+        return cls(self.get_cell_sorter_registry())
+
     def get_ordering(self):
         state = self.state
         get = self.arguments.get
+        sort_info = self.get_query_sorter()\
+                        .get(model=self.model,
+                             cells=self.cells,
+                             cell_key=get(self.sort_cellkey_arg,
+                                          state.sort_cell_key,
+                                         ),
+                             order=Order.from_string(get(self.sort_order_arg,
+                                                         state.sort_order,
+                                                        ),
+                                                     required=False,
+                                                    ),
+                             fast_mode=self.fast_mode,
+                            )
+        state.sort_cell_key = sort_info.main_cell_key
+        state.sort_order    = str(sort_info.main_order)
 
-        return state.set_sort(self.model, self.cells,
-                              cell_key=get(self.sort_field_arg, state.sort_field),
-                              order=get(self.sort_order_arg, state.sort_order),
-                              fast_mode=self.fast_mode,
-                             )
+        return sort_info.field_names
 
     def get_paginate_by(self, queryset):
         PAGE_SIZES = settings.PAGE_SIZES
@@ -858,11 +888,15 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     def get_show_actions(self):
         return not self.is_popup_view
 
+    def get_state_class(self):
+        return self.state_class
+
     def get_state_id(self):
         return self.request.path
 
     def get_state(self):
-        return lv_gui.ListViewState.get_or_create_state(self.request, url=self.get_state_id())
+        return self.get_state_class()\
+                   .get_or_create_state(self.request, url=self.get_state_id())  # TODO: rename "url" => "id" ?
 
     def get_sub_title(self):
         return ''

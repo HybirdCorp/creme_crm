@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2018 Hybird
+# Copyright (c) 2009-2019 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 from functools import partial
 from itertools import chain
 
+from django.core.validators import EMPTY_VALUES
 from django.db.models import FieldDoesNotExist, DateField
 
 from .unicode_collation import collator
@@ -160,7 +161,7 @@ def is_date_field(field):
     return isinstance(field, DateField)
 
 
-# ModelFieldEnumerator -------------------------------------------------------
+# ModelFieldEnumerator ---------------------------------------------------------
 class _FilterModelFieldQuery:
     # TODO: use a constants in fields_tags ?? set() ?
     _TAGS = ('viewable', 'clonable', 'enumerable', 'optional')
@@ -284,3 +285,93 @@ class ModelFieldEnumerator:
         sortable_choices.sort(key=lambda c: c[0])  # Sort with our previously computed key
 
         return [c[1] for c in sortable_choices]  # Extract choices
+
+
+# OrderedField -----------------------------------------------------------------
+
+class Order:
+    "Represents DB order: ASC or DESC."
+    __slots__ = ('asc', )
+
+    def __init__(self, asc=True):
+        """Constructor.
+
+         @param asc: Boolean. True==ASC / False==DESC .
+        """
+        self.asc = asc
+
+    def __str__(self):
+        return 'ASC' if self.asc else 'DESC'
+
+    @property
+    def desc(self):
+        return not self.asc
+
+    @classmethod
+    def from_string(cls, value, required=True):
+        """Build an Order instance from a string.
+
+        @param value: String in ('ASC', 'DESC').
+        @param required: Boolean. (default:True). If False, empty values are
+               accepted for the "value" argument.
+        @return: An Order instance.
+        @raise ValueError: invalid "value" argument.
+        """
+        if value == 'ASC':
+            asc = True
+        elif value == 'DESC':
+            asc = False
+        else:
+            if required or value not in EMPTY_VALUES:
+                raise ValueError('Order value must be ASC or DESC (value={})'.format(value))
+
+            asc = True
+
+        return cls(asc)
+
+    @property
+    def prefix(self):
+        """Get the string prefix to use before field name in some places
+        like order_by() methods.
+        """
+        return '' if self.asc else '-'
+
+    def reverse(self):
+        "Reverse the order (in-place)."
+        self.asc = not self.asc
+
+    def reversed(self):
+        "Get a reversed instance of Order."
+        return self.__class__(not self.asc)
+
+
+class OrderedField:
+    """Represents a model-field name with an optional order prefix "-"
+    (like in <MyModel._meta.ordering> or in <MyModel.objects.order_by()>).
+    """
+    def __init__(self, ord_field_str):
+        """Constructor.
+
+        @param ord_field_str: String ; something like 'name' or '-creation_date'.
+        """
+        self._raw = ord_field_str
+
+        if ord_field_str.startswith('-'):
+            self.field_name = ord_field_str[1:]
+            asc = False
+        else:
+            self.field_name = ord_field_str
+            asc = True
+
+        self.order = Order(asc)
+
+    def __str__(self):
+        return self._raw
+
+    # TODO: def reverse ?
+
+    def reversed(self):
+        """Returns the _OrderedField instance corresponding to the same field
+        but with a reversed order.
+        """
+        return self.__class__(self.order.reversed().prefix + self.field_name)

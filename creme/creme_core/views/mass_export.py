@@ -21,16 +21,18 @@
 import logging
 
 from django.http import Http404
-from django.utils.encoding import smart_str
 from django.shortcuts import get_object_or_404
+from django.utils.encoding import smart_str
 
 from ..backends import export_backend_registry
+from ..core import sorter
 from ..core.paginator import FlowPaginator
 from ..forms.listview import ListViewSearchForm
 from ..gui.listview import ListViewState, search_field_registry
 from ..models import EntityFilter, EntityCredentials, HeaderFilter
 from ..models.history import _HLTEntityExport
 from ..utils import get_from_GET_or_404, bool_from_str_extended
+from ..utils.meta import Order
 from ..utils.queries import QSerializer
 
 from .generic import base
@@ -47,8 +49,13 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
     header_only_arg = 'header'
     headerfilter_id_arg = 'hfilter'
     entityfilter_id_arg = 'efilter'
+    sort_cellkey_arg = 'sort_key'
+    sort_order_arg = 'sort_order'
 
     page_size = 1024
+
+    cell_sorter_registry = sorter.cell_sorter_registry
+    query_sorter_class   = sorter.QuerySorter
 
     search_field_registry = search_field_registry
     search_form_class     = ListViewSearchForm
@@ -124,6 +131,30 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
         return form
 
+    def get_cell_sorter_registry(self):
+        return self.cell_sorter_registry
+
+    def get_query_sorter_class(self):
+        return self.query_sorter_class
+
+    def get_query_sorter(self):
+        cls = self.get_query_sorter_class()
+
+        return cls(self.get_cell_sorter_registry())
+
+    def get_ordering(self, *, model, cells):
+        get = self.request.GET.get
+        sort_info = self.get_query_sorter()\
+                        .get(model=model,
+                             cells=cells,
+                             cell_key=get(self.sort_cellkey_arg),
+                             order=Order.from_string(get(self.sort_order_arg),
+                                                     required=False,
+                                                    ),
+                            )
+
+        return sort_info.field_names
+
     def get(self, request, *args, **kwargs):
         GET = request.GET
         user = request.user
@@ -145,10 +176,7 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
         writerow([smart_str(cell.title) for cell in cells])  # Doesn't accept generator expression... ;(
 
         if not header_only:
-            ordering = current_lvs.set_sort(model, cells,
-                                            current_lvs.sort_field,
-                                            current_lvs.sort_order,
-                                           )
+            ordering = self.get_ordering(model=model, cells=cells)
 
             entities_qs = model.objects.filter(is_deleted=False)
             use_distinct = False
@@ -159,7 +187,7 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
                 entities_qs = efilter.filter(entities_qs)
 
             # ----
-            extra_q = GET.get('extra_q')
+            extra_q = GET.get('extra_q')  # TODO: attribute
             if extra_q is not None:
                 entities_qs = entities_qs.filter(QSerializer().loads(extra_q))
                 use_distinct = True  # TODO: test + only if needed

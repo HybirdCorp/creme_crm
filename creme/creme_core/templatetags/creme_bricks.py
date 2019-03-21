@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from django.utils.safestring import mark_safe, SafeData
 from django.utils.translation import ugettext as _, ugettext_lazy
 
 from ..core.entity_cell import EntityCellRegularField
+from ..core.sorter import cell_sorter_registry
 from ..gui.bricks import Brick, brick_registry, BricksManager
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.pager import PagerContext
@@ -110,7 +111,7 @@ def brick_header_title(context, title, plural=None, empty=None, icon='info', cou
         # TODO: cache ?
         theme = get_current_theme_from_context(context)
         icon = get_icon_by_name(icon, theme, size_px=get_icon_size_px(theme, size='brick-header'),
-                                label=_(u'Information') if icon == 'info' else rendered_title,
+                                label=_('Information') if icon == 'info' else rendered_title,
                                )
 
     return {
@@ -122,8 +123,8 @@ def brick_header_title(context, title, plural=None, empty=None, icon='info', cou
 
 
 DEFAULT_ACTION_LABELS = {
-    'edit':   ugettext_lazy(u'Edit'),
-    'delete': ugettext_lazy(u'Delete'),
+    'edit':   ugettext_lazy('Edit'),
+    'delete': ugettext_lazy('Delete'),
 }
 
 _DISPLAY_VALUES = frozenset(('text', 'icon', 'both'))
@@ -342,7 +343,7 @@ def _brick_menu_state_action(context, action_id, current_state, in_label, out_la
 def brick_menu_collapse_action(context, state):
     return _brick_menu_state_action(context, action_id='collapse',
                                     current_state=state.is_open,
-                                    in_label=_(u'Collapse block'), out_label=_(u'Expand block'),
+                                    in_label=_('Collapse block'), out_label=_('Expand block'),
                                    )
 
 
@@ -350,7 +351,7 @@ def brick_menu_collapse_action(context, state):
 def brick_menu_reduce_action(context, state):
     return _brick_menu_state_action(context, action_id='reduce-content',
                                     current_state=state.show_empty_fields,
-                                    in_label=_(u'Hide empty fields'), out_label=_(u'Show empty fields'),
+                                    in_label=_('Hide empty fields'), out_label=_('Show empty fields'),
                                    )
 
 
@@ -404,7 +405,9 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
     verbose_name = title or cell.title
 
     # TODO: only if the brick manages sorting (QuerysetBrick) ??
-    if cell.sortable:
+    # TODO: take the registry from the context ? the arguments ?
+    # if cell.sortable:
+    if cell_sorter_registry.get_field_name(cell):
         current_sort = context.get('order_by')
 
         if current_sort:
@@ -415,11 +418,12 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
             sort_data = {
                 'sorted': field_name == current_field,
                 'field': field_name,
-                'order': 'desc' if current_is_desc else 'asc',
+                'order': 'desc' if current_is_desc else 'asc',  # TODO: use utils.meta.Order
             }
-            help = _(u'Sort «{model}» by «{field}»').format(model=cell.model._meta.verbose_name_plural,
-                                                            field=verbose_name,
-                                                           )
+            help = _('Sort «{model}» by «{field}»').format(
+                model=cell.model._meta.verbose_name_plural,
+                field=verbose_name,
+            )
 
     if 'data_type' not in attrs:
         data_type = cell.data_type
@@ -433,7 +437,10 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
         'help':       help,
         'sort_by':    sort_data,
         'status':     status.split(' ') if status else (),
-        'attributes': mark_safe(' '.join('{}="{}"'.format(k.replace('_', '-'), v) for k, v in attrs.items())),
+        'attributes': mark_safe(' '.join('{}="{}"'.format(k.replace('_', '-'), v)
+                                            for k, v in attrs.items()
+                                        )
+                               ),
     }
 
 

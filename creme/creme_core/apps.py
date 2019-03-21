@@ -158,7 +158,7 @@ class CremeAppConfig(AppConfig):
             # if hasattr(self, 'register_creme_app'):
             #     logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
 
-            from .core import enumerable, function_field, imprint, reminder, sandbox, setting_key
+            from .core import enumerable, function_field, imprint, reminder, sandbox, setting_key, sorter
             from .gui import (actions, bricks, bulk_update, button_menu, fields_config, field_printers, icons,
                       listview, mass_import, menu, merge, quick_forms, statistics)
 
@@ -168,6 +168,7 @@ class CremeAppConfig(AppConfig):
             self.register_bricks(bricks.brick_registry)
             self.register_bulk_update(bulk_update.bulk_update_registry)
             self.register_buttons(button_menu.button_registry)
+            self.register_cell_sorters(sorter.cell_sorter_registry)
             self.register_enumerable(enumerable.enumerable_registry)
             self.register_fields_config(fields_config.fields_config_registry)
             self.register_field_printers(field_printers.field_printers_registry)
@@ -199,6 +200,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_buttons(self, button_registry):
+        pass
+
+    def register_cell_sorters(self, cell_sorter_registry):
         pass
 
     def register_enumerable(self, enumerable_registry):

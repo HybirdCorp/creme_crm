@@ -256,6 +256,7 @@ creme.lv_widget.MergeSelectedAction = creme.component.Action.sub({
     }
 });
 
+/*
 creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, input, callback) {
     var $sort_field = $(sort_field);
     var $sort_order = $(sort_order);
@@ -271,6 +272,27 @@ creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, in
     }
 
     $sort_field.val(new_sort_field);
+
+    if (Object.isFunc(callback)) {
+        callback(input);
+    }
+};
+*/
+creme.lv_widget.handleSort = function(sort_key, sort_order, new_sort_key, input, callback) {
+    var $sort_key = $(sort_key);
+    var $sort_order = $(sort_order);
+
+    if ($sort_key.val() === new_sort_key) {
+        if ($sort_order.val() === 'ASC') {
+            $sort_order.val('DESC');
+        } else {
+            $sort_order.val('ASC');
+        }
+    } else {
+        $sort_order.val('ASC');
+    }
+
+    $sort_key.val(new_sort_key);
 
     if (Object.isFunc(callback)) {
         callback(input);
