@@ -19,7 +19,7 @@
 ################################################################################
 
 # from collections import defaultdict
-from functools import partial
+# from functools import partial
 import logging
 
 # from django.db.models import Q, DateField, ForeignKey, ManyToManyField
@@ -28,12 +28,12 @@ import logging
 
 # from creme.creme_core.core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
 #         EntityCellFunctionField, EntityCellRelation)
-from creme.creme_core.core.entity_cell import EntityCellRegularField
+# from creme.creme_core.core.entity_cell import EntityCellRegularField
 # from creme.creme_core.models import Relation, CustomField
 # from creme.creme_core.utils import find_first
 # from creme.creme_core.utils.date_range import CustomRange
 # from creme.creme_core.utils.dates import dt_from_str
-from creme.creme_core.utils.db import get_indexed_ordering
+# from creme.creme_core.utils.db import get_indexed_ordering
 from creme.creme_core.utils.queries import QSerializer
 
 # NULL_FK = 'NULL'
@@ -53,27 +53,25 @@ class NoHeaderFilterAvailable(Exception):
 
 
 class ListViewState:
-    # TODO: in utils.meta + use instead of <.startswith('-')>
-    class _OrderedField:
-        def __init__(self, ord_field_str):
-            "@param ord_field_str: something like 'name' or '-creation_date'"
-            self._raw = ord_field_str
+    # class _OrderedField:
+    #     def __init__(self, ord_field_str):
+    #         "@param ord_field_str: something like 'name' or '-creation_date'"
+    #         self._raw = ord_field_str
+    #
+    #         if ord_field_str.startswith('-'):
+    #             self.field_name = ord_field_str[1:]
+    #             self.order = '-'
+    #         else:
+    #             self.field_name = ord_field_str
+    #             self.order = ''
+    #
+    #     def __str__(self):
+    #         return self._raw
+    #
+    #     def reverse(self):
+    #         "Returns the _OrderedField instance corresponding to the same field but with reversed order."
+    #         return self.__class__(self.field_name if self.order else '-' + self.field_name)
 
-            if ord_field_str.startswith('-'):
-                self.field_name = ord_field_str[1:]
-                self.order = '-'
-            else:
-                self.field_name = ord_field_str
-                self.order = ''
-
-        def __str__(self):
-            return self._raw
-
-        def reverse(self):
-            "Returns the _OrderedField instance corresponding to the same field but with reversed order."
-            return self.__class__(self.field_name if self.order else '-' + self.field_name)
-
-    # TODO: 'model' mandatory + remove 'model' argument in methods ? (need smarter (de)serialization)
     def __init__(self, **kwargs):
         get_arg = kwargs.get
         self.entity_filter_id = get_arg('filter')
@@ -81,25 +79,29 @@ class ListViewState:
         self.page = get_arg('page')
         self.rows = get_arg('rows')
         self.sort_order = get_arg('sort_order')
-        self.sort_field = get_arg('sort_field')  # TODO: rename 'sort_cell_key'
+        # self.sort_field = get_arg('sort_field')
+        self.sort_cell_key = get_arg('sort_cell_key')
         self.url = get_arg('url')
         # self.research = ()
         self.search = {}
         self.extra_q = None
 
     def __repr__(self):
-        return '<ListViewState(efilter_id={efilter}, hfilter_id={hfilter}, page={page},' \
-               ' rows={rows}, sort={sortorder}{sortfield}, url={url},' \
-               ' search={search}, extra_q={extra_q})>'.format(
+        return ('<ListViewState(efilter_id={efilter}, hfilter_id={hfilter}, page={page},'
+                # ' rows={rows}, sort={sortorder}{sortfield}, url={url},'
+                ' rows={rows}, sort={sortorder}{sortkey}, url={url},'
+                # ' research={research}, extra_q={extra_q})>'.format(
+                ' search={search}, extra_q={extra_q})>'.format(
             efilter=self.entity_filter_id,
             hfilter=self.header_filter_id,
             page=self.page, rows=self.rows,
-            sortorder=self.sort_order, sortfield=self.sort_field,
+            # sortorder=self.sort_order, sortfield=self.sort_field,
+            sortorder=self.sort_order, sortkey=self.sort_cell_key,
             url=self.url,
             # research=self.research,
             search=self.search,
             extra_q=self.extra_q,
-        )
+        ))
 
     def register_in_session(self, request):
         serialized = dict(self.__dict__)
@@ -321,130 +323,124 @@ class ListViewState:
     #
     #     return query
 
-    # TODO: move to RegularFieldEntityCell (check cell.sortable ; here it's already checked before the call)
-    #       VS a sort-system which allows to be customised (like the future Listview (+bricks ?) search system)
-    @classmethod
-    def _get_regular_sortfield(cls, cell):
-        # Compatibility
-        if cell.filter_string.endswith('__header_filter_search_field__icontains'):
-            return cell.value + '__header_filter_search_field'
+    # @classmethod
+    # def _get_regular_sortfield(cls, cell):
+    #     # Compatibility
+    #     if cell.filter_string.endswith('__header_filter_search_field__icontains'):
+    #         return cell.value + '__header_filter_search_field'
+    #
+    #     # Related field without subfield
+    #     last_field = cell.field_info[-1]
+    #
+    #     if last_field.is_relation:
+    #         # NB: already checked (cell.sortable == True)
+    #         # assert not last_field.many_to_many
+    #         # assert not last_field.one_to_many
+    #         # NB: many_to_one == ForeignKey
+    #
+    #         subfield_model = last_field.remote_field.model
+    #         subfield_ordering = subfield_model._meta.ordering
+    #
+    #         if not subfield_ordering:
+    #             logger.critical('ListViewState: related field model %s should have Meta.ordering set'
+    #                             ' (we use "id" as fallback)', subfield_model,
+    #                            )
+    #
+    #             return cell.value + '_id'
+    #
+    #         return '{}__{}'.format(cell.value, subfield_ordering[0])
+    #
+    #     return cell.value
 
-        # Related field without subfield
-        last_field = cell.field_info[-1]
+    # @classmethod
+    # def _get_sortfield(cls, cells_dict, cell_key):
+    #     if cell_key is None:
+    #         return None
+    #
+    #     cell = cells_dict.get(cell_key)
+    #
+    #     if cell is None:
+    #         logger.warning('ListViewState: no such sortable column "%s"', cell_key)
+    #         return None
+    #
+    #     if isinstance(cell, EntityCellRegularField):
+    #         return cls._get_regular_sortfield(cell)
+    #     else:
+    #         logger.warning('ListViewState: can not sort with column "%s" '
+    #                        '(only sort of regular field is implemented)',
+    #                        cell_key,
+    #                       )
 
-        if last_field.is_relation:
-            # NB: already checked (cell.sortable == True)
-            # assert not last_field.many_to_many
-            # assert not last_field.one_to_many
-            # NB: many_to_one == ForeignKey
+    # @classmethod
+    # def _get_default_sort(cls, model, ordering):
+    #     if not ordering:
+    #         return None, ''
+    #
+    #     ofield = cls._OrderedField(ordering[0])
+    #
+    #     return EntityCellRegularField.build(model, ofield.field_name).key, ofield.order
 
-            subfield_model = last_field.remote_field.model
-            subfield_ordering = subfield_model._meta.ordering
-
-            if not subfield_ordering:
-                logger.critical('ListViewState: related field model %s should have Meta.ordering set'
-                                ' (we use "id" as fallback)', subfield_model,
-                               )
-
-                return cell.value + '_id'
-
-            return '{}__{}'.format(cell.value, subfield_ordering[0])
-
-        return cell.value
-
-    @classmethod
-    def _get_sortfield(cls, cells_dict, cell_key):
-        if cell_key is None:
-            return None
-
-        cell = cells_dict.get(cell_key)
-
-        if cell is None:
-            logger.warning('ListViewState: no such sortable column "%s"', cell_key)
-            return None
-
-        # TODO: move to EntityCell
-        if isinstance(cell, EntityCellRegularField):
-            return cls._get_regular_sortfield(cell)
-        else:
-            logger.warning('ListViewState: can not sort with column "%s" '
-                           '(only sort of regular field is implemented)',
-                           cell_key,
-                          )
-
-    @classmethod
-    def _get_default_sort(cls, model, ordering):
-        if not ordering:
-            return None, ''
-
-        ofield = cls._OrderedField(ordering[0])
-
-        return EntityCellRegularField.build(model, ofield.field_name).key, ofield.order
-
-    # TODO: factorise with :
-    #       - template_tags_creme_listview.get_listview_columns_header
-    #       - EntityCell builders
-    def set_sort(self, model, cells, cell_key, order, fast_mode=False):
-        """Set the cell-keys which will be used to order the list-view.
-        @param model: CremeEntity subclass.
-        @param: cells: Sequence of EntityCells (columns of the list-view)
-        @param: cell_key: Key of the ordering cell (string).
-        @param order: string '' or '-'(reverse order).
-        @param fast_mode: Boolean (True means "There are lots of entities, use a faster/simpler ordering").
-        @return Tuple of field names, which can be given (with * operator) to QuerySet.order_by().
-        """
-        cells_dict = {c.key: c for c in cells if c.sortable}
-        OField = self._OrderedField
-
-        build_cell = partial(EntityCellRegularField.build, model=model)
-        ordering = [ofield_str
-                        for ofield_str in model._meta.ordering
-                            if build_cell(name=OField(ofield_str).field_name).key in cells_dict
-                   ]
-
-        # Extra field that is used to internally create the final query ; the
-        # sort order is toggled by comparing sorting field and column name
-        # (if it's the same '' <-> '-'), so we can not merge this extra field
-        # in sort_field, or the toggling will never happen
-        # (cell.name == sort_field # ==> cell.name != sort_field +'XXX')
-        sort_field = self._get_sortfield(cells_dict, cell_key)
-        sort_order = order if order == '-' else ''
-
-        if sort_field:
-            for ordered_field_str in (sort_field, '-' + sort_field):
-                if ordered_field_str in ordering:
-                    ordering.remove(ordered_field_str)
-                    ordering.insert(0, sort_field)
-
-                    if sort_order == '-':
-                        ordering = [str(OField(o).reverse()) for o in ordering]
-
-                    break
-            else:
-                ordering.insert(0, sort_order + sort_field)
-        else:
-            cell_key, sort_order = self._get_default_sort(model, ordering)
-
-        self.sort_field = cell_key
-        self.sort_order = sort_order
-
-        # NB: we order by 'id' ('cremeentity_ptr_id') in order to be sure that successive queries
-        #     give consistent contents. (if you order by 'name' & there are some duplicated names,
-        #     the order by directive can be respected, but the order of the duplicates in the
-        #     queries results be different -- so the paginated contents are not consistent).
-        last_order = sort_order + 'cremeentity_ptr_id'
-
-        if ordering:
-            ind_ordering = get_indexed_ordering(model, ordering + ['*', last_order])
-            if ind_ordering is not None:
-                return ind_ordering
-
-            if fast_mode:
-                first_order = ordering[0]
-                ind_ordering = get_indexed_ordering(model, [first_order, '*', last_order])
-
-                return (first_order, last_order) if ind_ordering is None else ind_ordering
-
-            return tuple(ordering + [last_order])
-
-        return (last_order, )
+    # def set_sort(self, model, cells, cell_key, order, fast_mode=False):
+    #     """Set the cell-keys which will be used to order the list-view.
+    #     @param model: CremeEntity subclass.
+    #     @param: cells: Sequence of EntityCells (columns of the list-view)
+    #     @param: cell_key: Key of the ordering cell (string).
+    #     @param order: string '' or '-'(reverse order).
+    #     @param fast_mode: Boolean (True means "There are lots of entities, use a faster/simpler ordering").
+    #     @return Tuple of field names, which can be given (with * operator) to QuerySet.order_by().
+    #     """
+    #     cells_dict = {c.key: c for c in cells if c.sortable}
+    #     OField = self._OrderedField
+    #
+    #     build_cell = partial(EntityCellRegularField.build, model=model)
+    #     ordering = [ofield_str
+    #                     for ofield_str in model._meta.ordering
+    #                         if build_cell(name=OField(ofield_str).field_name).key in cells_dict
+    #                ]
+    #
+    #     # Extra field that is used to internally create the final query ; the
+    #     # sort order is toggled by comparing sorting field and column name
+    #     # (if it's the same '' <-> '-'), so we can not merge this extra field
+    #     # in sort_field, or the toggling will never happen
+    #     # (cell.name == sort_field # ==> cell.name != sort_field +'XXX')
+    #     sort_field = self._get_sortfield(cells_dict, cell_key)
+    #     sort_order = order if order == '-' else ''
+    #
+    #     if sort_field:
+    #         for ordered_field_str in (sort_field, '-' + sort_field):
+    #             if ordered_field_str in ordering:
+    #                 ordering.remove(ordered_field_str)
+    #                 ordering.insert(0, sort_field)
+    #
+    #                 if sort_order == '-':
+    #                     ordering = [str(OField(o).reverse()) for o in ordering]
+    #
+    #                 break
+    #         else:
+    #             ordering.insert(0, sort_order + sort_field)
+    #     else:
+    #         cell_key, sort_order = self._get_default_sort(model, ordering)
+    #
+    #     self.sort_field = cell_key
+    #     self.sort_order = sort_order
+    #
+    #     # NB: we order by 'id' ('cremeentity_ptr_id') in order to be sure that successive queries
+    #     #     give consistent contents. (if you order by 'name' & there are some duplicated names,
+    #     #     the order by directive can be respected, but the order of the duplicates in the
+    #     #     queries results be different -- so the paginated contents are not consistent).
+    #     last_order = sort_order + 'cremeentity_ptr_id'
+    #
+    #     if ordering:
+    #         ind_ordering = get_indexed_ordering(model, ordering + ['*', last_order])
+    #         if ind_ordering is not None:
+    #             return ind_ordering
+    #
+    #         if fast_mode:
+    #             first_order = ordering[0]
+    #             ind_ordering = get_indexed_ordering(model, [first_order, '*', last_order])
+    #
+    #             return (first_order, last_order) if ind_ordering is None else ind_ordering
+    #
+    #         return tuple(ordering + [last_order])
+    #
+    #     return (last_order, )

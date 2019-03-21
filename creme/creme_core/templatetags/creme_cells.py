@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2018  Hybird
+#    Copyright (C) 2017-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,9 +46,10 @@ class RFieldCellNode(TemplateNode):
 
         if cell is None:
             # TODO: in EntityCellRegularField.build ??
-            raise ValueError('{{% cell_4_regularfield %}}: the field seems invalid '
-                             '(model={model}, field={field})'.format(model=model, field=field_name)
-                            )
+            raise ValueError(
+                '{{% cell_4_regularfield %}}: the field seems invalid '
+                '(model={model}, field={field})'.format(model=model, field=field_name)
+            )
 
         asvar_name = self.asvar_name
 
@@ -118,9 +119,10 @@ def do_cell_4_regularfield(parser, token):
 
     if length != 3:
         if length != 5:
-            raise TemplateSyntaxError('"{}" takes 2 arguments (ctype/instance=... & field=...), '
-                                      '& then optionally "as my_var".'.format(bits[0])
-                                     )
+            raise TemplateSyntaxError(
+                '"{}" takes 2 arguments (ctype/instance=... & field=...), '
+                '& then optionally "as my_var".'.format(bits[0])
+            )
 
         if bits[3] != 'as':
             raise TemplateSyntaxError('Keyword "as" of "cell_4_regularfield" tag is missing.')
@@ -147,7 +149,10 @@ def do_cell_4_regularfield(parser, token):
 
     sa_name, sa_value = match.groups()
     if sa_name != 'field':
-        raise TemplateSyntaxError('Invalid second argument of "cell_4_regularfield" tag ; it must be "field".')
+        raise TemplateSyntaxError(
+            'Invalid second argument of "cell_4_regularfield" tag ;'
+            ' it must be "field".'
+        )
 
     return rf_cell_node_cls(field_var=parser.compile_filter(sa_value),
                             asvar_name=asvar_name,
@@ -236,7 +241,9 @@ class CellRenderNode(TemplateNode):
 
         method_name = self.RENDER_METHODS.get(output)
         if method_name is None:
-            raise ValueError('{{% cell_render %}}: invalid output "{}" (must be in ["html", "csv"])'.format(output))
+            raise ValueError('{{% cell_render %}}: invalid output "{}" '
+                             '(must be in ["html", "csv"])'.format(output)
+                            )
 
         try:
             render = getattr(cell, method_name)(entity=self.instance_var.resolve(context),
@@ -251,3 +258,16 @@ class CellRenderNode(TemplateNode):
             return ''
         else:
             return render
+
+
+# Other ------------------------------------------------------------------------
+
+@register.filter
+def cell_is_sortable(cell, cell_sorter_registry):
+    """Can we order_by() a Query from a cell with <creme_core.core.sorter.QuerySorter>.
+
+    @param cell: Instance of EntityCell.
+    @param cell_sorter_registry: Instance of <creme_core.core.sorter.CellSorterRegistry>.
+    @return: Boolean.
+    """
+    return bool(cell_sorter_registry.get_field_name(cell))

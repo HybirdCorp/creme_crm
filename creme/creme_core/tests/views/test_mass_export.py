@@ -226,7 +226,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url())
 
-        # TODO: sort the relations/properties by they verbose_name ??
+        # TODO: sort the relations/properties by their verbose_name ??
         result = response.content.splitlines()
         it = (force_text(line) for line in result)
         self.assertEqual(next(it), ','.join('"{}"'.format(hfi.title) for hfi in hf.cells))
@@ -246,9 +246,9 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(1, len(hlines))
 
         hline = hlines[0]
-        self.assertEqual(self.ct,      hline.entity_ctype)
-        self.assertEqual(user,         hline.entity_owner)
-        self.assertEqual(TYPE_EXPORT,  hline.type)
+        self.assertEqual(self.ct,     hline.entity_ctype)
+        self.assertEqual(user,        hline.entity_owner)
+        self.assertEqual(TYPE_EXPORT, hline.type)
 
         count = len(result) - 1
         self.assertEqual([count, hf.name],
@@ -271,7 +271,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url(doc_type='scsv'))
 
-        # TODO: sort the relations/properties by they verbose_name ??
+        # TODO: sort the relations/properties by their verbose_name ??
         it = (force_text(line) for line in response.content.splitlines())
         self.assertEqual(next(it), ';'.join('"{}"'.format(hfi.title) for hfi in cells))
         self.assertEqual(next(it), '"";"Black";"Jet";"Bebop";""')
@@ -361,12 +361,13 @@ class MassExportViewsTestCase(ViewsTestCase):
         create_contact(first_name='Jet',   last_name='Black',   image=jet_face)
         create_contact(first_name='Faye',  last_name='Valentine')
 
-        hf = HeaderFilter.create(pk='test-hf_contact_test_export06', name='Contact view', model=FakeContact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'image'}),
-                                             (EntityCellRegularField, {'name': 'image__description'}),
-                                            ],
-                                )
+        hf = HeaderFilter.create(
+            pk='test-hf_contact_test_export06', name='Contact view', model=FakeContact,
+            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                        (EntityCellRegularField, {'name': 'image'}),
+                        (EntityCellRegularField, {'name': 'image__description'}),
+                       ],
+        )
 
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
         it = (force_text(line) for line in response.content.splitlines()); next(it)
@@ -390,17 +391,19 @@ class MassExportViewsTestCase(ViewsTestCase):
         camp1.mailing_lists.set([create_ml(name='ML#1'), create_ml(name='ML#2')])
         camp2.mailing_lists.set([create_ml(name='ML#3')])
 
-        hf = HeaderFilter.create(pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                             (EntityCellRegularField, {'name': 'mailing_lists__name'}),
-                                            ],
-                                )
+        hf = HeaderFilter.create(
+            pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
+            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                        (EntityCellRegularField, {'name': 'mailing_lists__name'}),
+                       ],
+        )
 
-        response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeEmailCampaign).id,
-                                                        list_url=FakeEmailCampaign.get_lv_absolute_url(),
-                                                        hfilter_id=hf.id,
-                                                       ),
-                                    )
+        response = self.assertGET200(
+            self._build_dl_url(ContentType.objects.get_for_model(FakeEmailCampaign).id,
+                               list_url=FakeEmailCampaign.get_lv_absolute_url(),
+                               hfilter_id=hf.id,
+                              ),
+        )
         result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(4, len(result))
 
@@ -533,13 +536,14 @@ class MassExportViewsTestCase(ViewsTestCase):
                                  model=FakeOrganisation, cells_desc=cells,
                                 )
 
-        response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeOrganisation).id,
-                                                        doc_type='xls',
-                                                        list_url=FakeOrganisation.get_lv_absolute_url(),
-                                                        hfilter_id=hf.id,
-                                                       ),
-                                     follow=True,
-                                    )
+        response = self.assertGET200(
+            self._build_dl_url(ContentType.objects.get_for_model(FakeOrganisation).id,
+                               doc_type='xls',
+                               list_url=FakeOrganisation.get_lv_absolute_url(),
+                               hfilter_id=hf.id,
+                              ),
+            follow=True,
+        )
 
         it = iter(XlrdReader(None, file_contents=response.content))
         self.assertEqual(next(it), [hfi.title for hfi in cells])
@@ -559,16 +563,17 @@ class MassExportViewsTestCase(ViewsTestCase):
         build = partial(EntityCellRegularField.build, model=FakeOrganisation)
         hf = HeaderFilter.create(pk='test-hf_orga', name='Organisation view',
                                  model=FakeOrganisation,
-                                cells_desc=[build(name='name'), build(name='capital')],
+                                 cells_desc=[build(name='name'), build(name='capital')],
                                 )
 
         lv_url = FakeOrganisation.get_lv_absolute_url()
-        response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeOrganisation).id,
-                                                        list_url=lv_url,
-                                                        hfilter_id=hf.id,
-                                                       ),
-                                     follow=True,
-                                    )
+        response = self.assertGET200(
+            self._build_dl_url(ContentType.objects.get_for_model(FakeOrganisation).id,
+                               list_url=lv_url,
+                               hfilter_id=hf.id,
+                              ),
+            follow=True,
+        )
 
         lines = {force_text(line) for line in response.content.splitlines()}
         self.assertIn('"Bebop","1000"', lines)
@@ -595,12 +600,13 @@ class MassExportViewsTestCase(ViewsTestCase):
                                             ],
                                 )
 
-        response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeInvoiceLine).id,
-                                                        list_url=FakeInvoiceLine.get_lv_absolute_url(),
-                                                        hfilter_id=hf.id,
-                                                       ),
-                                     follow=True,
-                                    )
+        response = self.assertGET200(
+            self._build_dl_url(ContentType.objects.get_for_model(FakeInvoiceLine).id,
+                               list_url=FakeInvoiceLine.get_lv_absolute_url(),
+                               hfilter_id=hf.id,
+                              ),
+            follow=True,
+        )
 
         lines = {force_text(line) for line in response.content.splitlines()}
         self.assertIn('"Bebop","{}"'.format(_('Percent')),    lines)
@@ -677,30 +683,35 @@ class MassExportViewsTestCase(ViewsTestCase):
     def test_sorting(self):
         user = self.login()
 
-        hf = HeaderFilter.create(pk='test-hf_contact_test_sorting', name='Contact view',
-                                 model=FakeContact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'phone'}),
-                                             (EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'first_name'}),
-                                            ],
-                                )
+        hf = HeaderFilter.create(
+            pk='test-hf_contact_test_sorting', name='Contact view',
+            model=FakeContact,
+            cells_desc=[(EntityCellRegularField, {'name': 'phone'}),
+                        (EntityCellRegularField, {'name': 'last_name'}),
+                        (EntityCellRegularField, {'name': 'first_name'}),
+                       ],
+        )
 
         create_contact = partial(FakeContact.objects.create, user=user)
         create_contact(first_name='Spike', last_name='Spiegel',   phone='123233')
         create_contact(first_name='Jet',   last_name='Black',     phone='123455')
         create_contact(first_name='Faye',  last_name='Valentine', phone='678678')
 
-        # Set the current list view state, with the ordering
+        # Set the current list view state, with the search
         self.assertPOST200(FakeContact.get_lv_absolute_url(),
                            # data={'_search': 1,
                            #       'regular_field-phone': '123',
                            data={'search-regular_field-phone': '123',
-                                 'sort_field': 'regular_field-last_name',
-                                 'sort_order': '-',
+                                 # 'sort_field': 'regular_field-last_name',
+                                 # 'sort_order': '-',
                                 },
                           )
 
-        response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
+        response = self.assertGET200(self._build_contact_dl_url(
+            hfilter_id=hf.id,
+            sort_key='regular_field-last_name',
+            sort_order='DESC',
+        ))
 
         it = (force_text(line) for line in response.content.splitlines())
         next(it)  # Header

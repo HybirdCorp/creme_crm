@@ -88,6 +88,11 @@ class FunctionField:
     #  - A class of field-registry (should inherit <creme_core.gui.listview.search.AbstractListViewSearchFieldRegistry>).
     search_field_builder = None
 
+    # Class inheriting <creme_core.core.sorter.AbstractCellSorter>. Used to
+    # order a QuerySet with the function field as sorting key.
+    # <None> means no sorting.
+    sorter_class = None
+
     # @classmethod
     # def filter_in_result(cls, search_string):
     #     return Q()
@@ -101,7 +106,7 @@ class FunctionField:
     # @classmethod
     # def populate_entities(cls, entities, user):
     def populate_entities(self, entities, user):
-        """Optimisation used for list-views ; see HeaderFilter"""
+        """Optimisation used for list-views ; see HeaderFilter."""
         pass
 
 

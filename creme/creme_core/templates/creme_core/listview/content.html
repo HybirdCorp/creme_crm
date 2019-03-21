@@ -54,7 +54,7 @@
     <thead>
         <tr style="display:none;">
             <th colspan="{{colspan}}">{% ctype_for_model model as ctype %}
-                <input value="{{list_view_state.sort_field}}"        id="sort_field"    type="hidden" name="sort_field" />
+                <input value="{{list_view_state.sort_cell_key}}"     id="sort_key"      type="hidden" name="sort_key" />
                 <input value="{{list_view_state.sort_order}}"        id="sort_order"    type="hidden" name="sort_order" />
                 <input value=""                                      id="selected_rows" type="hidden" />
                 <input value="{{o2m}}"                               id="o2m"           type="hidden" />
@@ -72,13 +72,13 @@
                     <th class="actions">{% listview_header_actions cell=cell user=user %}</th>
                 {% else %}{# NB: TMP - this header currently adds the css class cell.listview_css_class until semantic information is provided in the template context #}
                     {# TODO: should this header also add the cell.header_listview_css_class ? #}
-                    <th class="{% if cell.key == list_view_state.sort_field %}sorted {% if list_view_state.sort_order == '-' %} reverse{% endif %}{% endif %} column{% if cell.key in search %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv {{cell.listview_css_class}}"
+                    <th info="{{cell.key}}#{{list_view_state.sort_cell_key}}" class="column{% if cell.key == list_view_state.sort_cell_key %} sorted{% if list_view_state.sort_order == 'DESC' %} reverse{% endif %}{% endif %}{% if cell|cell_is_sortable:cell_sorter_registry %} sortable{% endif %} cl_lv {{cell.listview_css_class}}"
                         colspan="{{cell|listview_column_colspan:is_popup_view}}">
-                        <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.lv_widget.handleSort('#sort_field', '#sort_order', '{{cell.key}}', this, creme.lv_widget.findList(this).list_view('getSubmit'));"{% else %}disabled="true"{% endif %}>
+                        <button type="button" {% if cell|cell_is_sortable:cell_sorter_registry %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.lv_widget.handleSort('#sort_key', '#sort_order', '{{cell.key}}', this, creme.lv_widget.findList(this).list_view('getSubmit'));"{% else %}disabled="true"{% endif %}>
                             <div>
-                                <span class="lv-sort-toggle-flag ui-icon {% if list_view_state.sort_order == '-' %}ui-icon-triangle-1-s{% else %}ui-icon-triangle-1-n{% endif %}">&nbsp;</span>
+                                <span class="lv-sort-toggle-flag ui-icon {% if list_view_state.sort_order == 'DESC' %}ui-icon-triangle-1-s{% else %}ui-icon-triangle-1-n{% endif %}">&nbsp;</span>
                                 <span class="lv-sort-toggle-title">{{cell.title}}</span>
-                                <span class="lv-sort-toggle-flag ui-icon {% if list_view_state.sort_order == '-' %}ui-icon-triangle-1-s{% else %}ui-icon-triangle-1-n{% endif %}">&nbsp;</span>
+                                <span class="lv-sort-toggle-flag ui-icon {% if list_view_state.sort_order == 'DESC' %}ui-icon-triangle-1-s{% else %}ui-icon-triangle-1-n{% endif %}">&nbsp;</span>
                             </div>
                         </button>
                     </th>
@@ -95,7 +95,7 @@
                         <span class='lv-search-title'>{% trans 'Quick search' %}</span>
                     </th>
                 {% else %}
-                    <th class="column {{cell.header_listview_css_class}} {{cell.listview_css_class}}{% if search_form.cleaned_data|get_by_index:cell.key %} search{% endif %}{% if cell.key == list_view_state.sort_field %} sorted{% endif %}"{# {{widget.type}} {% if cell.sortable %} sortable{% endif %} #}
+                    <th class="column {{cell.header_listview_css_class}} {{cell.listview_css_class}}{% if search_form.cleaned_data|get_by_index:cell.key %} search{% endif %}{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %}"{# {{widget.type}} {% if cell|cell_is_sortable:cell_sorter_registry %} sortable{% endif %} #}
                         colspan="{{cell|listview_column_colspan:is_popup_view}}">
                         {{search_form|get_by_index:cell.key}}
                     </th>
@@ -114,7 +114,7 @@
                     {% if cell.type_id == 'actions' %}
                         <td class="list_view_actions actions">{% listview_entity_actions cell=cell instance=entity user=user %}</td>
                     {% else %}
-                        <td class="lv-cell lv-cell-content {% if cell.key == list_view_state.sort_field %}sorted{% endif %} column cl_lv {{cell.listview_css_class}}" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
+                        <td class="lv-cell lv-cell-content{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} column cl_lv {{cell.listview_css_class}}" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
                             {% cell_render cell=cell instance=entity user=user as cell_content %}
                             {% with data_type=cell.data_type %}
                             <div class="lv-cell-value{% if cell.is_multiline %} lv-cell-multiline-value{% endif %}{% if not cell_content %} lv-cell-empty-value{% endif %}" {% if data_type %}data-type="{{data_type}}"{% endif %}>
@@ -123,7 +123,7 @@
                             {% endwith %}
                         </td>
                         {% if not is_popup_view %}
-                        <td class="lv-cell lv-cell-action {% if cell.key == list_view_state.sort_field %}sorted{% endif %} column cl_lv" {% if cell.is_hidden %}style="display:none;"{% endif %}>
+                        <td class="lv-cell lv-cell-action{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} column cl_lv" {% if cell.is_hidden %}style="display:none;"{% endif %}>
                             {% listview_td_action_for_cell cell=cell instance=entity user=user %}
                         </td>
                         {% endif %}

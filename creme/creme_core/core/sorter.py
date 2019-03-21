@@ -1,0 +1,392 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2009-2019  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+from functools import partial
+import logging
+
+from django.db import models
+
+from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
+from creme.creme_core.models import CremeEntity, fields
+from creme.creme_core.utils.collections import ClassKeyedMap
+from creme.creme_core.utils.db import get_indexed_ordering
+from creme.creme_core.utils.meta import OrderedField, Order
+
+logger = logging.getLogger(__name__)
+
+
+class QuerySortInfo:
+    """Information on how to sort (ie: order_by()) a Query(Set).
+
+    It contains 3 attributes:
+        - main_cell_key: the key of the EntityCell used as main ordering "field" (string).
+        - main_order: instance of <creme_core.utils.meta.Order>. Order of the main ordering field.
+        - field_names: tuple of strings. Can be used as order_by() arguments.
+    """
+    def __init__(self, cell_key, order, field_names=()):
+        self.main_cell_key = cell_key
+        self.main_order = order
+        self.field_names = field_names
+
+
+class AbstractCellSorter:
+    """Abstract base class for QuerySorter.
+
+    A QuerySorter returns the name of the DB-column to use for ordering a Query
+    for a given EntityCell.
+    """
+    def get_field_name(self, cell):
+        """Get the name of the column for a given cell.
+
+        @param cell: Instance of EntityCell.
+        @return: A string (name of a DB-column) or None (meaning "no sort").
+        """
+        raise NotImplementedError
+
+
+class VoidSorter(AbstractCellSorter):
+    """Class of sorter which performs no sort."""
+    def get_field_name(self, cell):
+        return None
+
+
+class RegularFieldSorter(AbstractCellSorter):
+    """Class of sorter for EntityCellRegularFields.
+    Not adapted for RelatedField (ForeignKey etc...) ; see ForeignKeySorterRegistry.
+    """
+    def get_field_name(self, cell):
+        return cell.value
+
+
+class EntityForeignKeySorter(AbstractCellSorter):
+    """Class of sorter for EntityCellRegularFields which field is a
+    ForeignKey to CremeEntity.
+    """
+    def get_field_name(self, cell):
+        return cell.value + '__header_filter_search_field'
+
+
+class ForeignKeySorterRegistry(AbstractCellSorter):
+    """Class of sorter for EntityCellRegularFields which field is a ForeignKey.
+    Sub-sorters can be registered to customise the behaviour for specific
+    related models.
+    """
+    DEFAULT_MODELS = (
+        (CremeEntity, EntityForeignKeySorter),
+    )
+
+    def __init__(self, models_to_register=DEFAULT_MODELS):
+        self._sorters = ClassKeyedMap(default=None)
+
+        for model, sorter_cls in models_to_register:
+            self.register(model=model, sorter_cls=sorter_cls)
+
+    def get_field_name(self, cell):
+        subfield_model = cell.field_info[-1].remote_field.model
+        sub_sorter = self._sorters[subfield_model]
+
+        if sub_sorter is not None:
+            field_name = sub_sorter.get_field_name(cell=cell)
+        else:
+            subfield_ordering = subfield_model._meta.ordering
+
+            if subfield_ordering:
+                field_name = '{}__{}'.format(cell.value, subfield_ordering[0])
+            else:
+                logger.critical(
+                    'ForeignKeySorter: related field model %s should '
+                    'have Meta.ordering set (we use "id" as fallback)',
+                    subfield_model,
+                )
+
+                # TODO: manage models with PK not named "id"
+                field_name = cell.value + '_id'
+
+        return field_name
+
+    def register(self, *, model, sorter_cls):
+        self._sorters[model] = sorter_cls()
+
+        return self
+
+    def sorter(self, model):
+        return self._sorters[model]
+
+
+class RegularFieldSorterRegistry(AbstractCellSorter):
+    """Class of sorter for all types of EntityCellRegularField.
+
+    Sub-sorters can be registered to customise the behaviour for specific
+    model-fields & model-field classes.
+    """
+    DEFAULT_SORTERS = (
+        (models.AutoField,    RegularFieldSorter),
+
+        (models.BooleanField, RegularFieldSorter),
+
+        (models.DecimalField, RegularFieldSorter),
+        (models.FloatField,   RegularFieldSorter),
+        (models.IntegerField, RegularFieldSorter),
+
+        (models.CharField,    RegularFieldSorter),
+        (models.TextField,    RegularFieldSorter),
+
+        (models.DateField,    RegularFieldSorter),
+        (models.TimeField,    RegularFieldSorter),
+
+        (models.ForeignKey, ForeignKeySorterRegistry),
+
+        # No sorting
+        #  models.ManyToManyField
+        #  models.OneToOneField
+        (models.CommaSeparatedIntegerField, VoidSorter),
+        #  models.FilePathField
+        #  models.BinaryField
+        #  models.UUIDField
+        #  (fields.DurationField, VoidSorter),  TODO ?
+        (fields.DatePeriodField, VoidSorter),  # TODO: needs JSONField management in the RDBMS...
+
+        # TODO: what about ?
+        # (models.DurationField, ...)
+        # (models.IPAddressField, ...)
+        # (models.GenericIPAddressField, ...)
+        # (models.SlugField, ...)
+        # (models.URLField, ...)
+    )
+
+    def __init__(self, to_register=DEFAULT_SORTERS):
+        self._sorters_4_modelfields = {}
+        self._sorters_4_modelfieldtypes = ClassKeyedMap(default=None)
+
+        for model_field_cls, sorter_cls in to_register:
+            self.register_model_field_type(type=model_field_cls, sorter_cls=sorter_cls)
+
+    def get_field_name(self, cell):
+        field = cell.field_info[-1]
+        sorter = self._sorters_4_modelfields.get(field) or \
+                 self._sorters_4_modelfieldtypes[type(field)]
+
+        return None if sorter is None else sorter.get_field_name(cell=cell)
+
+    def register_model_field(self, *, model, field_name, sorter_cls):
+        field = model._meta.get_field(field_name)
+        self._sorters_4_modelfields[field] = sorter_cls()
+
+        # TODO ?
+        # if self._enums_4_fields.setdefault(field, enumerator_class) is not enumerator_class:
+        #     raise self.RegistrationError(
+        #         '_EnumerableRegistry: this field is already registered: {model}.{field}'.format(
+        #             model=model.__name__, field=field_name,
+        #         )
+        #     )
+
+        return self
+
+    def register_model_field_type(self, *, type, sorter_cls):
+        self._sorters_4_modelfieldtypes[type] = sorter_cls()
+
+        return self
+
+    def sorter_4_model_field(self, *, model, field_name):
+        field = model._meta.get_field(field_name)
+        return self._sorters_4_modelfields.get(field)
+
+    def sorter_4_model_field_type(self, model_field):
+        return self._sorters_4_modelfieldtypes[model_field]
+
+
+class FunctionFieldSorterRegistry(AbstractCellSorter):
+    """Class of sorter for all types of EntityCellFunctionField.
+
+    By default it performs no sort, but sub-sorters can be registered to
+    customise the behaviour for specific FunctionFields.
+    """
+    def __init__(self, to_register=()):
+        self._sorters = {}
+
+        for ffield, sorter_cls in to_register:
+            self.register(ffield=ffield, sorter_cls=sorter_cls)
+
+    def get_field_name(self, cell):
+        ffield = cell.function_field
+        sorter = self._sorters.get(ffield.name)
+
+        if sorter is None:
+            sorter_cls = ffield.sorter_class
+
+            if sorter_cls is not None:
+                sorter = sorter_cls()
+
+        return None if sorter is None else sorter.get_field_name(cell=cell)
+
+    def register(self, *, ffield, sorter_cls):
+        self._sorters[ffield.name] = sorter_cls()
+
+        return self
+
+    def sorter(self, ffield):
+        return self._sorters.get(ffield.name)
+
+
+class CellSorterRegistry(AbstractCellSorter):
+    """Class of sorter with registered sub-sorters by kind of EntityCell."""
+    DEFAULT_REGISTRIES = (
+        (EntityCellRegularField.type_id,  RegularFieldSorterRegistry),
+        (EntityCellFunctionField.type_id, FunctionFieldSorterRegistry),
+        #  NB: mess with JOIN if search at the same time
+        #   (EntityCellCustomField.type_id,   ...),
+        #   (EntityCellRelation.type_id,   ...),
+        # NB: not useful because volatile cells cannot be retrieved by HeaderFilter.cells()
+        #   (EntityCellVolatile.type_id, ...),
+    )
+
+    def __init__(self, to_register=DEFAULT_REGISTRIES):
+        self._registries = {}
+
+        for cell_id, registry_class in to_register:
+            self.register(cell_id=cell_id, registry_class=registry_class)
+
+    def __getitem__(self, cell_type_id):
+        return self._registries[cell_type_id]
+
+    def get_field_name(self, cell):
+        try:
+            field_name = self._registries[cell.type_id].get_field_name(cell)
+        except KeyError:
+            logger.warning('QuerySorterRegistry: can not sort with cell "%s".', cell)
+
+            field_name = None
+
+        return field_name
+
+    def register(self, *, cell_id, registry_class):
+        self._registries[cell_id] = registry_class()
+
+        return self
+
+
+class QuerySorter:
+    """Builds a QuerySortInfo (see the main method get()."""
+    def __init__(self, cell_sorter_registry=None):
+        """Constructor
+
+        @param cell_sorter_registry: Instance of CellSorterRegistry ; by default
+               a new one if instantiated.
+        """
+        self._registry = cell_sorter_registry or CellSorterRegistry()
+
+    def _get_field_name(self, cells_dict, cell_key):
+        if cell_key is None:
+            return None
+
+        cell = cells_dict.get(cell_key)
+
+        if cell is None:
+            logger.warning('QuerySorterBuilder: no such sortable column "%s"', cell_key)
+            return None
+
+        return self._registry.get_field_name(cell)
+
+    @classmethod
+    def _default_key_n_order(cls, model, ordering):
+        if not ordering:
+            return None, Order()
+
+        ofield = OrderedField(ordering[0])
+
+        return EntityCellRegularField.build(model, ofield.field_name).key, ofield.order
+
+    def get(self, model, cells, cell_key, order=None, fast_mode=False):
+        """Get a QuerySortInfo instance for a model & a main ordering cell,
+        using the natural ordering of this model & the DB-indices.
+
+        @param model: CremeEntity subclass.
+        @param: cells: Sequence of displayed EntityCells (eg: columns of the list-view) ;
+                If the natural ordering fields of the model are not present within the
+                cells, they are not used in the result (excepted if it allows to use a
+                DB-index).
+        @param: cell_key: Key of the main (ie: first) ordering cell (string).
+        @param order: <creme_core.utils.meta.Order> instance (or None, meaning "ASC order").
+        @param fast_mode: Boolean ; <True> means "There are lots of entities, use
+               a faster/simpler ordering".
+        @return: A QuerySortInfo instance.
+        """
+        if order is None:
+            order = Order()
+
+        cells_dict = {c.key: c for c in cells}
+
+        build_cell = partial(EntityCellRegularField.build, model=model)
+        ordering = [
+            ofield_str
+                for ofield_str in model._meta.ordering
+                    if build_cell(name=OrderedField(ofield_str).field_name).key in cells_dict
+        ]
+
+        # Name of the model-field used to perform the "ORDER BY" instruction.
+        sort_field = self._get_field_name(cells_dict, cell_key)
+
+        if sort_field:
+            for ordered_field_str in (sort_field, '-' + sort_field):
+                if ordered_field_str in ordering:
+                    ordering.remove(ordered_field_str)
+                    ordering.insert(0, sort_field)
+
+                    if order.desc:
+                        ordering = [str(OrderedField(o).reversed()) for o in ordering]
+
+                    break
+            else:
+                ordering.insert(0, order.prefix + sort_field)
+        else:
+            cell_key, order = self._default_key_n_order(model, ordering)
+
+        query_sorter = QuerySortInfo(cell_key=cell_key, order=order)
+
+        # TODO: if not CremeEntity...
+        # NB: we order by 'id' ('cremeentity_ptr_id') in order to be sure that successive queries
+        #     give consistent contents. (if you order by 'name' & there are some duplicated names,
+        #     the order by directive can be respected, but the order of the duplicates in the
+        #     queries results be different -- so the paginated contents are not consistent).
+        last_field = order.prefix + 'cremeentity_ptr_id'
+
+        if ordering:
+            ind_ordering = get_indexed_ordering(model, ordering + ['*', last_field])
+
+            if ind_ordering is not None:
+                query_sorter.field_names = ind_ordering
+            elif fast_mode:
+                first_order = ordering[0]
+                ind_ordering = get_indexed_ordering(model, [first_order, '*', last_field])
+
+                query_sorter.field_names = (first_order, last_field) if ind_ordering is None else ind_ordering
+            else:
+                query_sorter.field_names = tuple(ordering + [last_field])
+        else:
+            query_sorter.field_names = (last_field,)
+
+        return query_sorter
+
+    @property
+    def registry(self):
+        return self._registry
+
+
+cell_sorter_registry = CellSorterRegistry()

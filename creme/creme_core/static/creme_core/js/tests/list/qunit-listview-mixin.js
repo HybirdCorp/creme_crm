@@ -102,6 +102,10 @@
 
         createListViewHtml: function(options) {
             var defaultStatus = {
+                /* TODO: (genglert) in rea list-views
+                    - "sort_field" has been renamed "sort_key"
+                    - the value of "sort_order" is "ASC" or "DESC"
+                */
                 sort_field: 'regular_field-name',
                 sort_order: '',
                 selected_rows: '',
