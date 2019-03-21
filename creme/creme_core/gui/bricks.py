@@ -55,7 +55,7 @@ class _BrickContext:
         return instance
 
     def update(self, template_context):
-        """Overload me (see _PaginatedBrickContext, _QuerysetBrickContext)"""
+        """Overload me (see _PaginatedBrickContext, _QuerysetBrickContext)."""
         return False
 
 

@@ -315,7 +315,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         cell1 = EntityCellRegularField.build(model=FakeContact, name='last_name')
 
         cell2 = EntityCellRegularField.build(model=FakeContact, name='first_name')
-        cell2.value = 'invalid'  # filter_string='invalid__icontains'
+        cell2.value = 'invalid'
 
         hf = HeaderFilter.create(pk='test-hf', name='Contact view',
                                  model=FakeContact, cells_desc=[cell1, cell2],
@@ -350,7 +350,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         cell1 = EntityCellRegularField.build(model=FakeContact, name='last_name')
 
         cell2 = EntityCellRegularField.build(model=FakeContact, name='user__username')
-        cell2.value = 'user__invalid'  # filter_string='__icontains'
+        cell2.value = 'user__invalid'
 
         hf = HeaderFilter.create(pk='test-hf', name='Contact view', model=FakeContact,
                                  cells_desc=[cell1, cell2],
