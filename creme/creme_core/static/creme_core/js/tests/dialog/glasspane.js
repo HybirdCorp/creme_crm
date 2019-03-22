@@ -47,7 +47,7 @@ QUnit.test('creme.dialog.GlassPane (already opened)', function(assert) {
     deepEqual([], this.mockListenerCalls('closed'));
 });
 
-QUnit.test('creme.dialog.GlassPane (anchor z-index)', function(assert) {
+QUnit.skipIf(QUnit.browsers.isChrome(), 'creme.dialog.GlassPane (anchor z-index) - firefox', function(assert) {
     var glasspane = new creme.dialog.GlassPane();
     glasspane.on('opened', this.mockListener('opened'));
     glasspane.on('closed', this.mockListener('closed'));
@@ -57,6 +57,18 @@ QUnit.test('creme.dialog.GlassPane (anchor z-index)', function(assert) {
     glasspane.open(this.qunitFixture());
     equal(true, glasspane.isOpened());
     equal(999, glasspane.pane().css('z-index'));
+});
+
+QUnit.skipIf(QUnit.browsers.isFirefox(), 'creme.dialog.GlassPane (anchor z-index) - chrome', function(assert) {
+    var glasspane = new creme.dialog.GlassPane();
+    glasspane.on('opened', this.mockListener('opened'));
+    glasspane.on('closed', this.mockListener('closed'));
+
+    this.qunitFixture().css('z-index', 1000);
+
+    glasspane.open(this.qunitFixture());
+    equal(true, glasspane.isOpened());
+    equal('auto', glasspane.pane().css('z-index'));
 });
 
 QUnit.test('creme.dialog.GlassPane (z-index zero)', function(assert) {
