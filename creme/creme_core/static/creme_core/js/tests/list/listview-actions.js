@@ -95,8 +95,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (error)', function(assert) {
     ], this.mockBackendUrlCalls('mock/entity/delete/fail'));
     deepEqual([
         ['POST', {
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             selected_rows: ['1,2'],
             q_filter: ['{}'],
             ct_id: ['67'],
@@ -144,8 +144,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (not allowed)', function(assert)
     ], this.mockBackendUrlCalls('mock/entity/delete/nothing'));
     deepEqual([
         ['POST', {
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             selected_rows: ['1,2'],
             q_filter: ['{}'],
             ct_id: ['67'],
@@ -189,8 +189,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (partially allowed)', function(a
     ], this.mockBackendUrlCalls('mock/entity/delete/firstonly'));
     deepEqual([
         ['POST', {
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             selected_rows: ['1,2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],
@@ -222,8 +222,8 @@ QUnit.test('creme.listview.DeleteSelectedAction (ok)', function(assert) {
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([
         ['POST', {
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             selected_rows: ['1,2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],
@@ -352,8 +352,8 @@ QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([
         ['POST', {
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             selected_rows: ['2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],
@@ -481,8 +481,8 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([
         ['POST', {
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             selected_rows: ['2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],
@@ -525,8 +525,8 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([
         ['POST', {
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             selected_rows: ['2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],

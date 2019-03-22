@@ -102,8 +102,8 @@ QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', functi
             q_filter: ['{}'],
             selected_rows: [''],
             selection: 'multiple',
-            sort_field: ['regular_field-name'],
-            sort_order: ['']
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC']
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });

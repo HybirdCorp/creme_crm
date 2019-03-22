@@ -35,8 +35,8 @@ QUnit.test('creme.listview.core (standalone)', function(assert) {
             q_filter: ['{}'],
             selected_rows: [''],
             selection: 'multiple',
-            sort_field: ['regular_field-name'],
-            sort_order: ['']
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC']
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
@@ -70,8 +70,8 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
             q_filter: ['{}'],
             selected_rows: [''],
             selection: 'multiple',
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             whoami: '448712'
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
@@ -278,8 +278,8 @@ QUnit.test('creme.listview.core (reload on enter)', function(assert) {
             q_filter: ['{}'],
             selected_rows: [''],
             selection: 'multiple',
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             'regular_field-name': ['C']
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));

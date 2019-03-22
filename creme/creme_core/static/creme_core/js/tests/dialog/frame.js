@@ -164,8 +164,8 @@ QUnit.test('creme.dialog.FrameContentData (json, text/json)', function(assert) {
     equal('text/plain', data.type);
 
     data = new creme.dialog.FrameContentData('<pre>{"a": 12, "b": [1,</pre>', 'text/json');
-    equal('<pre>{"a": 12, "b": [1,</pre>', data.content);
-    equal('<pre>{"a": 12, "b": [1,</pre>', data.data());
+    equal('{"a": 12, "b": [1,', data.content);
+    equal('{"a": 12, "b": [1,', data.data());
     equal(false, data.isJSONOrObject());
     equal(false, data.isHTMLOrElement());
     equal('text/plain', data.type);
