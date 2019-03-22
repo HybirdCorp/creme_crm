@@ -6,7 +6,8 @@ var MOCK_PLOT_CONTENT_JSON_INVALID = '{"options": {, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_EMPTY_DATA = '{"options": {}, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_DEFAULT = '{"options": {}, "data":[[[1, 2],[3, 4],[5, 12]]]}';
 
-var IS_CHROMIUM_NOT_HEADLESS = $.browser.chrome && Object.isNone(navigator.webdriver);
+var IS_CHROMIUM_NOT_HEADLESS = QUnit.browsers.isChrome() && !QUnit.browsers.isHeadless();
+
 
 QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
                                                     QUnitEventMixin,
