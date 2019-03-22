@@ -102,8 +102,8 @@ QUnit.test('creme.emails.ResendEMailsAction (error)', function(assert) {
     ], this.mockBackendUrlCalls('mock/emails/resend/fail'));
     deepEqual([
         ['POST', {
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             selected_rows: ['1,2'],
             q_filter: ['{}'],
             ct_id: ['67'],
@@ -135,8 +135,8 @@ QUnit.test('creme.emails.ResendEMailsAction (ok)', function(assert) {
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([
         ['POST', {
-            sort_field: ['regular_field-name'],
-            sort_order: [''],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
             selected_rows: ['1,2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],

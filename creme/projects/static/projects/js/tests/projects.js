@@ -123,8 +123,8 @@ QUnit.test('creme.projects.listview.actions (projects-close, ok)', function(asse
             q_filter: ['{}'],
             selected_rows: [''],
             selection: 'multiple',
-            sort_field: ['regular_field-name'],
-            sort_order: ['']
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC']
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
