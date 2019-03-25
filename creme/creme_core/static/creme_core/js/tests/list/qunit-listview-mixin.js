@@ -100,6 +100,21 @@
             creme.widget.shutdown($('body'));
         },
 
+        createActionHtml: function(options) {
+            return (
+                '<a href="${url}" data-action="${action}" class="${classes}">'
+                  + '<script type="application/json"><!-- ${data} --></script>'
+              + '</a>').template({
+                classes: (options.classes || []).join(' '),
+                url: options.url || '',
+                action: options.action || '',
+                data: $.toJSON({
+                    data: options.data || {},
+                    options: options.options || {}
+                })
+            });
+        },
+
         createListViewHtml: function(options) {
             var defaultStatus = {
                 /* TODO: (genglert) in rea list-views
@@ -121,6 +136,7 @@
                 columns: [],
                 rows: [],
                 actions: [],
+                hatbarbuttons: [],
                 status: {}
             }, options || {});
 
@@ -142,9 +158,33 @@
                 }).join('');
             };
 
+            var createActionHtml = this.createActionHtml.bind(this);
+
+            var renderHatBarButton = function(button) {
+                if (Object.isString(button)) {
+                    return button;
+                }
+
+                return createActionHtml($.extend({
+                    classes: ['with-icon']
+                }, button));
+            };
+
+            var renderPopupMenuAction = function(button) {
+                if (Object.isString(button)) {
+                    return button;
+                }
+
+                return '<div class="listview-action">' + createActionHtml(button) + '</div>';
+            };
+
             return (
                 '<form class="ui-creme-widget widget-auto ui-creme-listview ${widgetclasses}" widget="ui-creme-listview" ${multiple} ${reloadurl}>'
-                   + '<div class="list-header-container sticky-container sticky-container-standalone"></div>'
+                   + '<div class="list-header-container sticky-container sticky-container-standalone">'
+                       + '<div class="list-header sticks-horizontally">'
+                           + '<div class="list-header-buttons clearfix">${hatbarbuttons}</div>'
+                       + '</div>'
+                   + '</div>'
                    + '<table id="${id}" class="list_view listview listview-selection-multiple ${tableclasses}" data-total-count="${rowcount}">'
                        + '<thead>'
                            + '<tr><th>${formdata}</th></tr>'
@@ -170,10 +210,11 @@
                    id: options.id,
                    multiple: options.multiple ? 'multiple' : '',
                    reloadurl: options.reloadurl ? 'reload-url="' + options.reloadurl + '"' : '',
+                   hatbarbuttons: options.hatbarbuttons.map(renderHatBarButton).join(''),
                    widgetclasses: options.widgetclasses.join(' '),
                    tableclasses: options.tableclasses.join(' '),
                    formdata: renderStatus($.extend({}, defaultStatus, options.status)),
-                   headeractions: options.actions.join(''),
+                   headeractions: options.actions.map(renderPopupMenuAction).join(''),
                    columns: options.columns.map(renderColumnTitle).join(''),
                    searches: options.columns.map(renderColumnSearch).join(''),
                    rows: options.rows.map(renderRow).join(''),
@@ -241,6 +282,28 @@
                     name: options.name,
                     sorted: options.sorted ? 'sorted' : '',
                     search: options.search || ''
+                });
+        },
+
+        createActionCellHtml: function(options) {
+            var createActionHtml = this.createActionHtml.bind(this);
+
+            var renderAction = function(button) {
+                return '<div class="listview-action ${isdefault}">${action}</div>'.template({
+                    isdefault: button.isdefault ? 'default-row-action' : '',
+                    action: createActionHtml(button)
+                });
+            };
+
+            return (
+                '<td class="list_view_actions actions">'
+                   + '<ul class="row-actions-list">'
+                     + '<li class="row-actions-trigger">'
+                       + '<div class="listview-actions-container">${actions}</div>'
+                     + '</li>'
+                   + '</ul>'
+              + '</td>').template({
+                    actions: (options.actions || []).map(renderAction).join('')
                 });
         },
 

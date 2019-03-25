@@ -302,12 +302,8 @@
 
                 this.enableActions = function() {
                     self.find('a[data-action]').each(function() {
-                        var link = new creme.action.ActionLink();
-                        link.on('action-link-start', function(event, url, options, data, e) {
-                                 $(e.target).parents('.popover:first').trigger('modal-close');
-                             })
-                            .builders(me._actionBuilders)
-                            .bind($(this));
+                        var link = new creme.lv_widget.ListViewActionLink(me);
+                        link.bind($(this));
                     });
 
                     self.find('.row-actions-trigger').map(function() {

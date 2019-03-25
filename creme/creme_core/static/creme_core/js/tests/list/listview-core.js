@@ -12,14 +12,14 @@ QUnit.module("creme.listview.core", new QUnitMixin(QUnitEventMixin,
                         name: 'regular_field-name', sorted: true
                     }),
                     search: this.createColumnSearchHtml('Name', {
-                        name: 'regular_field-name', search: '', sorted: true
+                        name: 'search-regular_field-name', search: '', sorted: true
                     })
                 }, {
                     title: this.createColumnTitleHtml('Phone', {
                         name: 'regular_field-phone', sortable: true
                     }),
                     search: this.createColumnSearchHtml('Phone', {
-                        name: 'regular_field-phone', search: ''
+                        name: 'search-regular_field-phone', search: ''
                     })
                 }
             ],
@@ -311,7 +311,7 @@ QUnit.test('creme.listview.core (filter on <input> enter)', function(assert) {
         columns: [this.createCheckAllColumnHtml(), {
                 title: '<th class="sorted column sortable cl_lv">Name</th>',
                 search: '<th class="sorted column sortable text">' +
-                            '<input name="regular_field-name" title="Name" type="text" value="C">' +
+                            '<input name="search-regular_field-name" title="Name" type="text" value="C">' +
                         '</th>'
             }
         ]
@@ -338,7 +338,7 @@ QUnit.test('creme.listview.core (filter on <input> enter)', function(assert) {
             selection: 'multiple',
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
-            'regular_field-name': ['C']
+            'search-regular_field-name': ['C']
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
@@ -350,7 +350,7 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
         columns: [this.createCheckAllColumnHtml(), {
                 title: '<th class="sorted column sortable cl_lv">Name</th>',
                 search: '<th class="sorted column sortable text">' +
-                            '<select name="regular_field-name" title="Name">' +
+                            '<select name="search-regular_field-name" title="Name">' +
                                  '<option value="opt-A">A</option>' +
                                  '<option value="opt-B" selected>B</option>' +
                                  '<option value="opt-C">C</option>' +
@@ -381,7 +381,7 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
             selection: 'multiple',
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
-            'regular_field-name': ['opt-B']
+            'search-regular_field-name': ['opt-B']
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
@@ -409,8 +409,8 @@ QUnit.test('creme.listview.core (toggle sort)', function(assert) {
             selection: 'multiple',
             sort_key: ['regular_field-name'],
             sort_order: ['DESC'],
-            'regular_field-name': [''],
-            'regular_field-phone': ['']
+            'search-regular_field-name': [''],
+            'search-regular_field-phone': ['']
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
@@ -474,8 +474,75 @@ QUnit.test('creme.listview.core (sort another column)', function(assert) {
             selection: 'multiple',
             sort_key: ['regular_field-phone'],
             sort_order: ['ASC'],
-            'regular_field-name': [''],
-            'regular_field-phone': ['']
+            'search-regular_field-name': [''],
+            'search-regular_field-phone': ['']
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.core (hatbar buttons, unknow action)', function(assert) {
+    var element = $(this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        hatbarbuttons: [
+            {action: 'invalid'}
+        ],
+        reloadurl: 'mock/listview/reload',
+        columns: [this.createCheckAllColumnHtml(), {
+                title: '<th class="sorted column sortable cl_lv">Name</th>',
+                search: '<th class="sorted column sortable text">' +
+                            '<input name="regular_field-name" title="Name" type="text" value="C">' +
+                        '</th>'
+            }
+        ]
+    })).appendTo(this.qunitFixture());
+
+    var listview = creme.widget.create(element);
+    var button = element.find('.list-header-buttons a[data-action]');
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+
+    equal(1, button.length);
+    equal(true, button.is('.is-disabled'));
+});
+
+QUnit.test('creme.listview.core (hatbar buttons, submit-lv-state)', function(assert) {
+    var element = $(this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        hatbarbuttons: [
+            {action: 'submit-lv-state', data: {custom_state: 12}}
+        ],
+        reloadurl: 'mock/listview/reload',
+        columns: [this.createCheckAllColumnHtml(), {
+                title: '<th class="sorted column sortable cl_lv">Name</th>',
+                search: '<th class="sorted column sortable text">' +
+                            '<input name="search-regular_field-name" title="Name" type="text" value="C">' +
+                        '</th>'
+            }
+        ]
+    })).appendTo(this.qunitFixture());
+
+    var listview = creme.widget.create(element);
+    var button = element.find('.list-header-buttons a[data-action]');
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+
+    equal(1, button.length);
+    equal(false, button.is('.is-disabled'));
+
+    button.click();
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            selected_rows: [''],
+            selection: 'multiple',
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            'search-regular_field-name': ['C'],
+            custom_state: 12
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });

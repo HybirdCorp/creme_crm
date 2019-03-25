@@ -387,6 +387,18 @@ creme.lv_widget.listViewAction = function(url, options, data) {
            }, data);
 };
 
+creme.lv_widget.ListViewActionLink = creme.action.ActionLink.sub({
+    _init_: function(list, options) {
+        this._super_(creme.action.ActionLink, '_init_', options);
+        this._list = list;
+
+        this.on('action-link-start', function(event, url, options, data, e) {
+            $(e.target).parents('.popover:first').trigger('modal-close');
+        });
+
+        this.builders(list.getActionBuilders());
+    }
+});
 
 creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegistry.sub({
     _init_: function(list) {
@@ -459,6 +471,15 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
 
     _build_merge_selection: function(url, options, data, e) {
         return new creme.lv_widget.MergeSelectedAction(this._list, {url: url});
+    },
+
+    _build_submit_lv_state: function(url, options, data, e) {
+        var listview = this._list;
+
+        return new creme.component.Action(function() {
+            listview.getSubmit(this)($(e.target), data);
+            this.done();
+        });
     },
 
     _build_redirect: function(url, options, data) {

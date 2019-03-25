@@ -147,9 +147,11 @@
     color: #1a1a1a;
 }
 
+.list-header-buttons a.is-disabled,
 .list-header-buttons a:disabled,
 .list-header-buttons button:disabled {
     opacity: 0.5;
+    cursor: default;
 }
 
 /* Listview page header buttons - end */
