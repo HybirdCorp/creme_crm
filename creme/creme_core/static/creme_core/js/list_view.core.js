@@ -239,12 +239,30 @@
                     return (this.countEntities() !== 0);
                 };
 
+                /* TODO : never used. remove it ? */
                 this.ensureSelection = function() {
                     if (!this.hasSelection()) {
                         creme.dialogs.warning(gettext("Please select at least one entity."));
                         return false;
                     }
                     return true;
+                };
+
+                this.enableSortButtons = function() {
+                    self.find('.columns_top .column.sortable')
+                        .each(function() {
+                            var column = $(this);
+                            var column_key = column.attr('data-column-key');
+                            var sort_key = self.find('input[name="sort_key"]');
+                            var sort_order = self.find('input[name="sort_order"]');
+
+                            column.on('click', 'button:not(:disabled)', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                creme.lv_widget.handleSort(sort_key, sort_order, column_key, this, me.getSubmit());
+                            });
+                        });
                 };
 
                 /* global creme_media_url */
@@ -435,6 +453,7 @@
 
                 this.enableEvents = function() {
                     this.enableRowSelection();
+                    this.enableSortButtons();
                     this.enableFilters();
                     this.enableActions();
                     // TODO: add inner edit launch event here
