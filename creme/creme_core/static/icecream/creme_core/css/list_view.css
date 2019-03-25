@@ -329,6 +329,14 @@
     padding: 1px 2px;
 }
 
+.list_view .columns_top .column button:focus {
+    outline: none !important;
+}
+
+.list_view .columns_top .column button::-moz-focus-inner {
+    border: 0;
+}
+
 .list_view .columns_top .column button[disabled] {
     border: 0px;
     color: #22439f;

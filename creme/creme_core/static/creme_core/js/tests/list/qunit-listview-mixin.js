@@ -213,6 +213,37 @@
             return '<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="Select All"></center></th>';
         },
 
+        createColumnTitleHtml: function(label, options) {
+            options = options || {};
+            var is_sorted = options.sorted;
+            var is_sortable = options.sortable || is_sorted;
+
+            return (
+                '<th data-column-key="${name}" class="column cl_lv ${sortable} ${sorted}">'
+                    + '<button type="button" title="" ${disabled}>${label}</button>'
+                + '</th>').template({
+                    label: label,
+                    name: options.name,
+                    sortable: is_sortable ? 'sortable' : '',
+                    sorted: is_sorted ? 'sorted' : '',
+                    disabled: options.disabled ? 'disabled' : ''
+                });
+        },
+
+        createColumnSearchHtml: function(label, options) {
+            options = options || {};
+
+            return (
+                '<th class="column hd_cl_lv ${sorted}">'
+                    + '<input name="${name}" title="${label}" type="text" value="${search}">'
+                + '</th>').template({
+                    label: label,
+                    name: options.name,
+                    sorted: options.sorted ? 'sorted' : '',
+                    search: options.search || ''
+                });
+        },
+
         defaultListViewHtmlOptions: function(options) {
             return $.extend({
                 columns: [this.createCheckAllColumnHtml(), '<th class="sorted column sortable cl_lv">Name</th>'],
