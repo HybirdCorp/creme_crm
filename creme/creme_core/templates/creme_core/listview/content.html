@@ -37,6 +37,16 @@
           {% if not is_popup_view %}
               {% listview_buttons model=model buttons=buttons %}
           {% endif %}
+           <a class="with-icon do-search button-right" data-action="submit-lv-state">
+                {% trans 'Search' context 'creme_core-verb' as label %}
+                {{label}}
+                {% widget_icon name='search' label=label size='listview-button' %}
+            </a>
+            <a class="clear-search button-right {% if not search_form.search_q %}is-disabled{% endif %}" data-action="submit-lv-state">
+                {% blockjsondata %}{"data": {"search": "clear"}}{% endblockjsondata %}
+                {% trans 'Clear search'%}
+            </a>
+{% comment %}
             <button class="with-icon do-search button-right" value="0" type="button" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);">
                 {% trans 'Search' context 'creme_core-verb' as label %}
                 {% widget_icon name='search' label=label size='listview-button' %}
@@ -45,6 +55,7 @@
             <button class="clear-search button-right" value="1" type="button" {% if not search_form.search_q %}disabled="true"{% else %}onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this, {search: 'clear'});"{% endif %}>
                 {% trans 'Clear search' %}
             </button>
+{% endcomment %}
         </div>
     </div>
 </div>

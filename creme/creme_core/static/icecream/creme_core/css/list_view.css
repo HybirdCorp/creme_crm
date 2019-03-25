@@ -218,6 +218,7 @@
     height: 15px;
 }
 
+/*
 .list-header-buttons button.clear-search {
     height: auto;
     padding: 7px 20px;
@@ -226,10 +227,13 @@
 .list-header-buttons button.do-search {
     top: 0;
 }
+*/
 
+.list-header-buttons a.is-disabled,
 .list-header-buttons a:disabled,
 .list-header-buttons button:disabled {
     opacity: 0.5;
+    cursor: default;
 }
 
 /* Listview page header buttons - [end] */

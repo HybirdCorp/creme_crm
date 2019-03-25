@@ -1,6 +1,30 @@
 (function($) {
 
-QUnit.module("creme.listview.actions", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitDialogMixin, QUnitListViewMixin));
+QUnit.module("creme.listview.actions", new QUnitMixin(QUnitEventMixin,
+                                                      QUnitAjaxMixin,
+                                                      QUnitDialogMixin,
+                                                      QUnitListViewMixin, {
+    beforeEach: function() {
+        var backend = this.backend;
+
+        this.setMockBackendGET({
+        });
+
+        this.setMockBackendPOST({
+            'mock/entity/update': backend.response(200, ''),
+            'mock/entity/clone': backend.response(200, 'mock/entity/clone/redirection')
+        });
+    },
+
+    createSingleRowActionsListView: function(options) {
+        return this.createListView({
+            columns: [this.createCheckAllColumnHtml()],
+            rows: [
+                [this.createCheckCellHtml('1'), this.createIdCellHtml('1'), this.createActionCellHtml({actions: options.rowactions || []})]
+            ]
+        });
+    }
+}));
 
 QUnit.test('creme.listview.DeleteSelectedAction (no selection)', function(assert) {
     var list = this.createListView();
@@ -627,10 +651,192 @@ QUnit.test('creme.listview.actionregistry', function(assert) {
     ok(registry.has('form'));
     ok(registry.has('redirect'));
 
+    ok(registry.has('submit-lv-state'));
     ok(registry.has('edit-selection'));
     ok(registry.has('delete-selection'));
     ok(registry.has('addto-selection'));
     ok(registry.has('merge-selection'));
+});
+
+QUnit.test('creme.listview.row-action (update)', function(assert) {
+    var list = this.createSingleRowActionsListView({
+        rowactions: [{action: 'update', url: "mock/entity/update", data: {a: 12}}]
+    });
+
+    this.assertClosedPopover();
+    $('.row-actions-trigger', list).click();
+
+    var popover = this.assertOpenedPopover();
+    $('.listview-actions-container [data-action]', popover).click();
+
+    this.assertClosedPopover();
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['POST', {a: 12}]
+    ], this.mockBackendUrlCalls('mock/entity/update'));
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            selected_rows: [''],
+            selection: 'multiple',
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC']
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.row-action (delete, canceled)', function(assert) {
+    var list = this.createSingleRowActionsListView({
+        rowactions: [{action: 'delete', url: "mock/entity/delete", data: {id: 12}}]
+    });
+
+    this.assertClosedPopover();
+    $('.row-actions-trigger', list).click();
+
+    var popover = this.assertOpenedPopover();
+    $('.listview-actions-container [data-action]', popover).click();
+
+    this.assertClosedPopover();
+
+    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.closeDialog();
+
+    deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.row-action (delete)', function(assert) {
+    var list = this.createSingleRowActionsListView({
+        rowactions: [{action: 'delete', url: "mock/entity/delete", data: {id: 12}}]
+    });
+
+    this.assertClosedPopover();
+    $('.row-actions-trigger', list).click();
+
+    var popover = this.assertOpenedPopover();
+    $('.listview-actions-container [data-action]', popover).click();
+
+    this.assertClosedPopover();
+
+    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.acceptConfirmDialog();
+
+    deepEqual([
+        ['POST', {id: 12}]
+    ], this.mockBackendUrlCalls('mock/entity/delete'));
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            selected_rows: [''],
+            selection: 'multiple',
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC']
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.row-action (clone, canceled)', function(assert) {
+    var list = this.createSingleRowActionsListView({
+        rowactions: [{action: 'clone', url: "mock/entity/clone", data: {id: 12}}]
+    });
+
+    this.assertClosedPopover();
+    $('.row-actions-trigger', list).click();
+
+    var popover = this.assertOpenedPopover();
+    $('.listview-actions-container [data-action]', popover).click();
+
+    this.assertClosedPopover();
+
+    this.assertOpenedConfirmDialog(gettext('Do you really want to clone this entity?'));
+    this.closeDialog();
+
+    deepEqual([], this.mockBackendUrlCalls('mock/entity/clone'));
+    deepEqual([], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.listview.row-action (clone)', function(assert) {
+    var list = this.createSingleRowActionsListView({
+        rowactions: [{action: 'clone', url: "mock/entity/clone", data: {id: 12}}]
+    });
+
+    this.assertClosedPopover();
+    $('.row-actions-trigger', list).click();
+
+    var popover = this.assertOpenedPopover();
+    $('.listview-actions-container [data-action]', popover).click();
+
+    this.assertClosedPopover();
+
+    this.assertOpenedConfirmDialog(gettext('Do you really want to clone this entity?'));
+    this.acceptConfirmDialog();
+
+    deepEqual([
+        ['POST', {id: 12}]
+    ], this.mockBackendUrlCalls('mock/entity/clone'));
+    deepEqual(['mock/entity/clone/redirection'], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.listview.row-action (form)', function(assert) {
+    var list = this.createSingleRowActionsListView({
+        rowactions: [{action: 'form', url: "mock/entity/edit"}]
+    });
+
+    this.assertClosedPopover();
+    $('.row-actions-trigger', list).click();
+
+    var popover = this.assertOpenedPopover();
+    $('.listview-actions-container [data-action]', popover).click();
+
+    this.assertClosedPopover();
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/entity/edit'));
+
+    var dialog = this.assertOpenedDialog();
+    dialog.find('[name="edit"]').val('12');
+
+    this.submitFormDialog();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {edit: ["12"]}]
+    ], this.mockBackendUrlCalls('mock/entity/edit'));
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            selected_rows: [''],
+            selection: 'multiple',
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC']
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.row-action (redirect)', function(assert) {
+    var list = this.createSingleRowActionsListView({
+        rowactions: [{action: 'redirect', url: "${location}?redirect#hatbar"}]
+    });
+
+    this.assertClosedPopover();
+    $('.row-actions-trigger', list).click();
+
+    var popover = this.assertOpenedPopover();
+    $('.listview-actions-container [data-action]', popover).click();
+
+    this.assertClosedPopover();
+
+    deepEqual([
+        (new creme.ajax.URL(window.location.href).relativeUrl() + '?redirect#hatbar')
+    ], this.mockRedirectCalls());
 });
 
 }(jQuery));
