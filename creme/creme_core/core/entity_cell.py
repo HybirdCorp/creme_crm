@@ -77,10 +77,13 @@ class EntityCellsRegistry:
 
         return cls
 
+    def __getitem__(self, type_id):
+        return self._cell_classes[type_id]
+
     def build_cells_from_dicts(self, model, dicts):
         """Build some EntityCells instance from an iterable of dictionaries.
 
-        @param model: django.db.model.Model realted to the cells.
+        @param model: Class inheriting <django.db.model.Model> related to the cells.
         @param dicts: Iterable of dictionaries ; see 'EntityCell.to_dict()'.
         @return: tuple(list_of_cells, errors) ; 'errors' is a boolean.
         """

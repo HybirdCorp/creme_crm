@@ -97,7 +97,11 @@ class AbstractListViewSearchFieldRegistry:
     def _pretty_builder(builder, indent):
         pretty = getattr(builder, 'pretty', None)
 
-        return ' ' * indent + str(builder) if pretty is None else pretty(indent=indent)
+        return '{indent}{module}.{cls}'.format(
+            indent=' ' * indent,
+            module=builder.__module__,
+            cls=builder.__name__,
+        ) if pretty is None else pretty(indent=indent)
 
 
 class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
@@ -150,6 +154,54 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
             cell=cell, user=user,
             **kwargs
         )
+
+    def pretty(self, indent=0):
+        indent_str = ' ' * indent
+        res = '{indent}{name}:\n{indent}  Default:\n{default}\n{indent}  Field types:'.format(
+            indent=indent_str,
+            name=type(self).__name__,
+            default=self._pretty_builder(self._default_builder, indent=indent + 4),
+        )
+
+        fieldtypes = self._builders_4_modelfieldtypes
+        if fieldtypes:
+            for field_type, builder in fieldtypes.items():
+                res += '\n{}    [{}.{}]:\n{}'.format(
+                    indent_str,
+                    field_type.__module__,
+                    field_type.__name__,
+                    self._pretty_builder(builder, indent=indent + 6),
+                )
+        else:
+            res += '\n{}    (empty)'.format(indent_str)
+
+        res += '\n{}  Fields:'.format(indent_str)
+        modelfields = self._builders_4_modelfields
+        if modelfields:
+            for field, builder in modelfields.items():
+                res += '\n{}    [{}]:\n{}'.format(
+                    indent_str,
+                    field,
+                    self._pretty_builder(builder, indent=indent + 6),
+                )
+        else:
+            res += '\n{}    (empty)'.format(indent_str)
+
+        res += '\n{}  Models:'.format(indent_str)
+
+        models = self._builders_4_models
+        if models:
+            for model, builder in models.items():
+                res += '\n{indent}    [{module}.{cls}]:\n{builder}'.format(
+                    indent=indent_str,
+                    module=model.__module__,
+                    cls=model.__name__,
+                    builder=self._pretty_builder(builder, indent=indent + 6),
+                )
+        else:
+            res += '\n{}    (empty)'.format(indent_str)
+
+        return res
 
     def register_default(self, sfield_builder):
         self._default_builder = self._instantiate_builder(sfield_builder)
@@ -273,7 +325,7 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         res += '\n{}  Fields:'.format(indent_str)
         modelfields = self._builders_4_modelfields
         if modelfields:
-            for field, builder in self._builders_4_modelfields.items():
+            for field, builder in modelfields.items():
                 res += '\n{}    [{}]:\n{}'.format(
                     indent_str,
                     field,
@@ -489,14 +541,6 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
         # (entity_cell.EntityCellVolatile.type_id, ...),
     )
 
-    # TODO: in creme_core.core.entity_cell ?
-    __CELL_IDS_ALIASES = {
-        entity_cell.EntityCellRegularField.type_id:  'EntityCellRegularField.type_id',
-        entity_cell.EntityCellCustomField.type_id:   'EntityCellCustomField.type_id',
-        entity_cell.EntityCellFunctionField.type_id: 'EntityCellFunctionField.type_id',
-        entity_cell.EntityCellRelation.type_id:      'EntityCellRelation.type_id',
-    }
-
     def __init__(self, to_register=DEFAULT_REGISTRIES):
         self._registries = {}
 
@@ -510,12 +554,20 @@ class ListViewSearchFieldRegistry(AbstractListViewSearchFieldRegistry):
         indent_str = ' ' * indent
         res = indent_str + '{}:'.format(type(self).__name__)
 
-        get_alias = self.__CELL_IDS_ALIASES.get
+        def get_alias(cell_id):
+            try:
+                cell_cls = entity_cell.CELLS_MAP[cell_id]
+            except KeyError:
+                return '??'
+
+            return '{}.type_id'.format(cell_cls.__name__)
+
         for cell_id, registry in self._registries.items():
-            res += '\n{}  [{}]:\n{}'.format(
-                indent_str,
-                get_alias(cell_id, cell_id),
-                registry.pretty(indent=indent + 4),
+            res += '\n{indent}  [{alias}="{id}"]:\n{registry}'.format(
+                indent=indent_str,
+                alias=get_alias(cell_id),
+                id=cell_id,
+                registry=registry.pretty(indent=indent + 4),
             )
 
         return res
