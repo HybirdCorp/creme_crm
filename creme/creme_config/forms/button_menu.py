@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,9 +37,9 @@ _PREFIX = 'creme_config-userbmi'
 class ButtonMenuAddForm(CremeForm):
     ctype = EntityCTypeChoiceField(
                         label=_('Related resource'),
-                        help_text=_('The buttons related to this type of resource '
-                                    'will be chosen by editing the configuration'
-                                   ),
+                        # help_text=_('The buttons related to this type of resource '
+                        #             'will be chosen by editing the configuration'
+                        #            ),
                        )
 
     def __init__(self, *args, **kwargs):
