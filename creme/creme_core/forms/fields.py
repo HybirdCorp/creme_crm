@@ -1516,6 +1516,9 @@ class CTypeChoiceField(fields.Field):
     def _build_ctype_choices(self, ctypes):
         return build_ct_choices(ctypes)
 
+    def prepare_value(self, value):
+        return value.id if isinstance(value, ContentType) else super().prepare_value(value)
+
     def to_python(self, value):
         if value in self.empty_values:
             return None
@@ -1554,6 +1557,13 @@ class MultiCTypeChoiceField(CTypeChoiceField):
 
     def _build_empty_choice(self, choices):
         return choices
+
+    def prepare_value(self, value):
+        prepare_value = super().prepare_value
+
+        return [prepare_value(v) for v in value] \
+               if hasattr(value, '__iter__') else \
+               prepare_value(value)
 
     def to_python(self, value):
         ctypes = []

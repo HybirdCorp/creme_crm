@@ -341,6 +341,18 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
                                         clean, self.ct3.id,
                                        )
 
+    def test_prepare_value(self):
+        ct1 = self.ct1
+        ct2 = self.ct2
+        prepare_value = CTypeChoiceField(ctypes=[ct1, ct2]).prepare_value
+        self.assertIsNone(prepare_value(None))
+
+        self.assertEqual(ct1.id, prepare_value(ct1.id))
+        self.assertEqual(ct2.id, prepare_value(ct2.id))
+
+        self.assertEqual(ct1.id, prepare_value(ct1))
+        self.assertEqual(ct2.id, prepare_value(ct2))
+
 
 class _EntityCTypeChoiceFieldTestCase(FieldTestCase):
     @classmethod
@@ -454,6 +466,19 @@ class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         self.assertFieldValidationError(MultiCTypeChoiceField, 'invalid_choice',
                                         clean, ['not an int'],
                                        )
+
+    def test_prepare_value(self):
+        ct1 = self.ct1
+        ct2 = self.ct2
+        prepare_value = MultiCTypeChoiceField(ctypes=[ct1, ct2]).prepare_value
+        self.assertIsNone(prepare_value(None))
+
+        # TODO ?
+        # self.assertEqual(ct1.id, prepare_value(ct1.id))
+        # self.assertEqual(ct2.id, prepare_value(ct2.id))
+
+        self.assertEqual([ct1.id, ct2.id], prepare_value([ct1.id, ct2.id]))
+        self.assertEqual([ct1.id, ct2.id], prepare_value([ct1, ct2]))
 
 
 class MultiEntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
