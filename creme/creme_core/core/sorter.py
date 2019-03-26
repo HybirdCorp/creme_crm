@@ -23,7 +23,8 @@ import logging
 
 from django.db import models
 
-from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
+from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+    EntityCellFunctionField, CELLS_MAP)
 from creme.creme_core.models import CremeEntity, fields
 from creme.creme_core.utils.collections import ClassKeyedMap
 from creme.creme_core.utils.db import get_indexed_ordering
@@ -59,6 +60,14 @@ class AbstractCellSorter:
         @return: A string (name of a DB-column) or None (meaning "no sort").
         """
         raise NotImplementedError
+
+    def pretty(self, indent=0):
+        """Get a pretty string to analyze registered items.
+
+        @param indent: Indentation level.
+        @return: A string.
+        """
+        return ' ' * indent + '{}'.format(type(self).__name__)
 
 
 class VoidSorter(AbstractCellSorter):
@@ -120,6 +129,27 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
                 field_name = cell.value + '_id'
 
         return field_name
+
+    def pretty(self, indent=0):
+        indent_str = ' ' * indent
+        res = '{indent}{name}:\n{indent}  Models:'.format(
+            indent=indent_str,
+            name=type(self).__name__,
+        )
+
+        sorters = self._sorters
+        if sorters:
+            for model, sorter in sorters.items():
+                res += '\n{indent}    [{module}.{cls}]:\n{sorter}'.format(
+                    indent=indent_str,
+                    module=model.__module__,
+                    cls=model.__name__,
+                    sorter=sorter.pretty(indent=indent + 6),
+                )
+        else:
+            res += '\n{}    (empty)'.format(indent_str)
+
+        return res
 
     def register(self, *, model, sorter_cls):
         self._sorters[model] = sorter_cls()
@@ -184,6 +214,35 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
                  self._sorters_4_modelfieldtypes[type(field)]
 
         return None if sorter is None else sorter.get_field_name(cell=cell)
+
+    def pretty(self, indent=0):
+        indent_str = ' ' * indent
+        res = '{indent}{name}:\n{indent}  Field types:'.format(
+            indent=indent_str,
+            name=type(self).__name__,
+        )
+
+        for field_type, sorter in self._sorters_4_modelfieldtypes.items():
+            res += '\n{}    [{}.{}]:\n{}'.format(
+                indent_str,
+                field_type.__module__,
+                field_type.__name__,
+                sorter.pretty(indent=indent + 6),
+            )
+
+        res += '\n{}  Fields:'.format(indent_str)
+        modelfields = self._sorters_4_modelfields
+        if modelfields:
+            for field, sorter in modelfields.items():
+                res += '\n{}    [{}]:\n{}'.format(
+                    indent_str,
+                    field,
+                    sorter.pretty(indent=indent + 6),
+                )
+        else:
+            res += '\n{}    (empty)'.format(indent_str)
+
+        return res
 
     def register_model_field(self, *, model, field_name, sorter_cls):
         field = model._meta.get_field(field_name)
@@ -275,6 +334,29 @@ class CellSorterRegistry(AbstractCellSorter):
             field_name = None
 
         return field_name
+
+    # TODO: factorise with ListViewSearchFieldRegistry
+    def pretty(self, indent=0):
+        indent_str = ' ' * indent
+        res = indent_str + '{}:'.format(type(self).__name__)
+
+        def get_alias(cell_id):
+            try:
+                cell_cls = CELLS_MAP[cell_id]
+            except KeyError:
+                return '??'
+
+            return '{}.type_id'.format(cell_cls.__name__)
+
+        for cell_id, registry in self._registries.items():
+            res += '\n{indent}  [{alias}="{id}"]:\n{registry}'.format(
+                indent=indent_str,
+                alias=get_alias(cell_id),
+                id=cell_id,
+                registry=registry.pretty(indent=indent + 4),
+            )
+
+        return res
 
     def register(self, *, cell_id, registry_class):
         self._registries[cell_id] = registry_class()

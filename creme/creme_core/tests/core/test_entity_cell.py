@@ -9,8 +9,8 @@ try:
 
     from ..base import CremeTestCase
 
-    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.core.entity_cell import (CELLS_MAP, EntityCellsRegistry,
+            EntityCellRegularField, EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.core.function_field import (FunctionField,
             FunctionFieldResult, function_field_registry)
     from creme.creme_core.models import (RelationType,
@@ -25,6 +25,62 @@ class EntityCellTestCase(CremeTestCase):
         super().setUpClass()
 
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
+
+    def test_registry01(self):
+        "Global singleton."
+        self.assertEqual(EntityCellRegularField,  CELLS_MAP[EntityCellRegularField.type_id])
+        self.assertEqual(EntityCellCustomField,   CELLS_MAP[EntityCellCustomField.type_id])
+        self.assertEqual(EntityCellFunctionField, CELLS_MAP[EntityCellFunctionField.type_id])
+        self.assertEqual(EntityCellRelation,      CELLS_MAP[EntityCellRelation.type_id])
+
+    def test_registry02(self):
+        "Register."
+        registry = EntityCellsRegistry()
+
+        with self.assertRaises(KeyError):
+            __ = registry[EntityCellRegularField.type_id]
+
+        registry(EntityCellRegularField)
+        self.assertEqual(EntityCellRegularField, registry[EntityCellRegularField.type_id])
+
+    def test_registry_build_cells_from_dicts01(self):
+        "No error."
+        cells, errors = CELLS_MAP.build_cells_from_dicts(
+            model=FakeContact,
+            dicts=[
+                {'type': EntityCellRegularField.type_id,  'value': 'first_name'},
+                {'type': EntityCellFunctionField.type_id, 'value': 'get_pretty_properties'},
+            ],
+        )
+        self.assertIs(errors, False)
+        self.assertEqual(2, len(cells))
+
+        cell1 = cells[0]
+        self.assertIsInstance(cell1, EntityCellRegularField)
+        self.assertEqual(FakeContact,  cell1.model)
+        self.assertEqual('first_name', cell1.value)
+
+        cell2 = cells[1]
+        self.assertIsInstance(cell2, EntityCellFunctionField)
+        self.assertEqual(FakeContact,             cell2.model)
+        self.assertEqual('get_pretty_properties', cell2.value)
+
+    def test_registry_build_cells_from_dicts02(self):
+        "Error."
+        cells, errors = CELLS_MAP.build_cells_from_dicts(
+            model=FakeDocument,
+            dicts=[
+                {'type': EntityCellRegularField.type_id,  'value': 'invalid'},
+                {'type': EntityCellFunctionField.type_id, 'value': 'get_pretty_properties'},
+            ],
+        )
+        self.assertIs(errors, True)
+        self.assertEqual(1, len(cells))
+
+        cell = cells[0]
+        self.assertIsInstance(cell, EntityCellFunctionField)
+        self.assertEqual(FakeDocument,            cell.model)
+        self.assertEqual('get_pretty_properties', cell.value)
 
     def test_build_4_field01(self):
         field_name = 'first_name'

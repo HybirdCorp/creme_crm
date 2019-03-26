@@ -43,6 +43,49 @@ class QuerySorterTestCase(CremeTestCase):
                          r'.creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
                         )
 
+    def test_pretty(self):
+        registry = CellSorterRegistry()
+        ps = registry.pretty()
+        self.assertIsInstance(ps, str)
+        self.assertIn(
+"""CellSorterRegistry:
+  [EntityCellRegularField.type_id="regular_field"]:
+    RegularFieldSorterRegistry:
+      Field types:
+        [django.db.models.fields.AutoField]:
+          RegularFieldSorter
+        [django.db.models.fields.BooleanField]:
+          RegularFieldSorter
+        [django.db.models.fields.DecimalField]:
+          RegularFieldSorter
+        [django.db.models.fields.FloatField]:
+          RegularFieldSorter
+        [django.db.models.fields.IntegerField]:
+          RegularFieldSorter
+        [django.db.models.fields.CharField]:
+          RegularFieldSorter
+        [django.db.models.fields.TextField]:
+          RegularFieldSorter
+        [django.db.models.fields.DateField]:
+          RegularFieldSorter
+        [django.db.models.fields.TimeField]:
+          RegularFieldSorter
+        [django.db.models.fields.related.ForeignKey]:
+          ForeignKeySorterRegistry:
+            Models:
+              [creme.creme_core.models.entity.CremeEntity]:
+                EntityForeignKeySorter
+        [django.db.models.fields.CommaSeparatedIntegerField]:
+          VoidSorter
+        [creme.creme_core.models.fields.DatePeriodField]:
+          VoidSorter
+      Fields:
+        (empty)
+  [EntityCellFunctionField.type_id="function_field"]:
+    FunctionFieldSorterRegistry""",
+            ps
+        )
+
     def test_regularfield_default_oneorder_01(self):
         "Ordering: natural ordering key."
         sorter = QuerySorter(CellSorterRegistry())
