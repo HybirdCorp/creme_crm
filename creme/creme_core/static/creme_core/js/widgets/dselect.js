@@ -250,7 +250,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
             return model.indexOf(item) === -1;
         };
 
-        this._model.patch({
+        model.patch({
             add:    this._modelConverter(data.added).filter(duplicates),
             remove: this._modelConverter(data.removed)
         });
