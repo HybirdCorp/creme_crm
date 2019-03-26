@@ -2,7 +2,7 @@
 
 {% with form=wizard.form steps=wizard.steps %}
     {% block title %}
-        <div class="hat-bar-container">
+        <div class="hat-bar-container ui-creme-dialog-titlebar">
             <div class="hat-bar">
                 {% if icon_name %}<div class="bar-icon">{% widget_icon name=icon_name size='brick-hat-bar' label=icon_label|or_op:title %}</div>{% endif %}
                 <div class="bar-title"><h1>{% blocktrans with current_step=steps.step1 step_count=steps.count %}{{title}}: step {{current_step}} of {{step_count}}{% endblocktrans %}</h1></div>
