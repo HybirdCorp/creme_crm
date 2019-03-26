@@ -19,16 +19,18 @@
 ################################################################################
 
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
+from django.shortcuts import get_object_or_404  # render
+# from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from formtools.wizard.views import SessionWizardView
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth import decorators
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import fields_config as fconf_forms
@@ -36,11 +38,13 @@ from ..forms import fields_config as fconf_forms
 from .base import ConfigModelEdition
 
 
-@login_required
-def portal(request):
-    return render(request, 'creme_config/fields_config_portal.html',
-                  context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
-                 )
+# @login_required
+# def portal(request):
+#     return render(request, 'creme_config/fields_config_portal.html',
+#                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
+#                  )
+class Portal(BricksView):
+    template_name = 'creme_config/fields_config_portal.html'
 
 
 class FieldsConfigEdition(ConfigModelEdition):
@@ -49,8 +53,8 @@ class FieldsConfigEdition(ConfigModelEdition):
     pk_url_kwarg = 'fconf_id'
 
 
-@login_required
-@permission_required('creme_core.can_admin')
+@decorators.login_required
+@decorators.permission_required('creme_core.can_admin')
 def delete(request):
     get_object_or_404(FieldsConfig, pk=get_from_POST_or_404(request.POST, 'id')).delete()
 
