@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,8 +41,8 @@ def filtered_entity_ctypes(app_labels):  # TODO: move to creme_core.utils ??
             yield get_ct(model)
 
 
-def EmptyMultipleChoiceField(required=False, *args, **kwargs):
-    return MultipleChoiceField(required=required, choices=(), *args, **kwargs)
+# def EmptyMultipleChoiceField(required=False, *args, **kwargs):
+#     return MultipleChoiceField(required=required, choices=(), *args, **kwargs)
 
 
 class EditCredentialsForm(CremeModelForm):
@@ -185,12 +185,20 @@ class UserRoleAppsStep(_UserRoleWizardFormStep):
 
 
 class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
-    admin_4_apps = EmptyMultipleChoiceField(label=_('Administrated applications'),
-                                            help_text=_('These applications can be configured. '
-                                                        'For example, the concerned users can create new choices '
-                                                        'available in forms (eg: position for contacts).'
-                                                       )
-                                           )
+    # admin_4_apps = EmptyMultipleChoiceField(label=_('Administrated applications'),
+    #                                         help_text=_('These applications can be configured. '
+    #                                                     'For example, the concerned users can create new choices '
+    #                                                     'available in forms (eg: position for contacts).'
+    #                                                    )
+    #                                        )
+    admin_4_apps = MultipleChoiceField(
+                        required=False, choices=(),
+                        label=_('Administrated applications'),
+                        help_text=_('These applications can be configured. '
+                                    'For example, the concerned users can create new choices '
+                                    'available in forms (eg: position for contacts).'
+                                   )
+                   )
 
     class Meta(_UserRoleWizardFormStep.Meta):
         fields = ('admin_4_apps',)
