@@ -329,7 +329,7 @@ class CellSorterRegistry(AbstractCellSorter):
         try:
             field_name = self._registries[cell.type_id].get_field_name(cell)
         except KeyError:
-            logger.warning('QuerySorterRegistry: can not sort with cell "%s".', cell)
+            # logger.warning('QuerySorterRegistry: can not sort with cell "%s".', cell)
 
             field_name = None
 
