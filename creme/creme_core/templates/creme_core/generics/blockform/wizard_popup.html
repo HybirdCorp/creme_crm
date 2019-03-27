@@ -1,5 +1,7 @@
 {% load i18n creme_core_tags creme_widgets %}
 
+{% log 'The template file "creme_core/generics/blockform/wizard_popup.html" is deprecated ; use "base-wizard.html" instead.' level='WARN' %}
+
 {% with form=wizard.form steps=wizard.steps %}
     {% block title %}
         <div class="hat-bar-container ui-creme-dialog-titlebar">

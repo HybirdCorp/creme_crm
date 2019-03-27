@@ -68,9 +68,11 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         # Step 1
         response = self.assertGET200(url)
+        context1 = response.context
+        self.assertEqual(_('Next step'), context1.get('submit_label'))
 
         with self.assertNoException():
-            app_labels = {c[0] for c in response.context['form'].fields['allowed_apps'].choices}
+            app_labels = {c[0] for c in context1['form'].fields['allowed_apps'].choices}
 
         self.assertIn(apps[0], app_labels)
         self.assertIn(apps[1], app_labels)
@@ -81,7 +83,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                     {step_key: '0',
                                      '0-name': name,
                                      '0-allowed_apps': apps,
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -96,7 +98,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(url,
                                     {step_key: '1',
                                      '1-admin_4_apps': adm_apps,
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -117,7 +119,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(url,
                                     {step_key: '2',
                                      '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -134,13 +136,16 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(url,
                                     {step_key: '3',
                                      '3-exportable_ctypes': [ct_contact.id],
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
         # Step 5
+        context5 = response.context
+        self.assertEqual(_('Save the role'), context5.get('submit_label'))
+
         with self.assertNoException():
-            cred_ctypes = set(response.context['form'].fields['ctype'].ctypes)
+            cred_ctypes = set(context5['form'].fields['ctype'].ctypes)
 
         self.assertIn(ct_contact, cred_ctypes)
         self.assertIn(get_ct(Organisation), cred_ctypes)
@@ -155,7 +160,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
                                      '4-set_type': set_type,
                                      '4-ctype':    ct_contact.id,
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -211,7 +216,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                                'can_unlink': False,
                                                'set_type':   set_type,
                                                'ctype':      '',
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
 
@@ -258,7 +263,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'can_unlink': False,
                                           'set_type':   set_type,
                                           'ctype':      ct_contact.id,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -287,7 +292,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                       'can_unlink': False,
                                       'set_type':   SetCredentials.ESET_ALL,
                                       'ctype':      0,
-                                     }
+                                     },
                           )
 
     @skipIfNotInstalled('creme.persons')
@@ -332,7 +337,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'can_unlink': False,
                                           'set_type':   SetCredentials.ESET_OWN,
                                           'ctype':      ct_contact.id,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -359,7 +364,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role.save()
 
         create_creds = partial(SetCredentials.objects.create, role=role, 
-                               set_type=SetCredentials.ESET_ALL
+                               set_type=SetCredentials.ESET_ALL,
                               )
         sc1 = create_creds(value=EntityCredentials.VIEW)
         sc2 = create_creds(value=EntityCredentials.CHANGE)
@@ -400,9 +405,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         # Step 1
         response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-wizard-popup.html')
+
+        context1 = response.context
+        self.assertEqual(_('Next step'), context1.get('submit_label'))
 
         with self.assertNoException():
-            app_labels = {c[0] for c in response.context['form'].fields['allowed_apps'].choices}
+            app_labels = {c[0] for c in context1['form'].fields['allowed_apps'].choices}
 
         self.assertIn(apps[0], app_labels)
         self.assertIn(apps[1], app_labels)
@@ -413,7 +422,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                     {step_key: '0',
                                      '0-name': name,
                                      '0-allowed_apps': apps,
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -428,7 +437,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(url,
                                     {step_key: '1',
                                      '1-admin_4_apps': adm_apps,
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -449,13 +458,16 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(url,
                                     {step_key: '2',
                                      '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
         # Step 4
+        context4 = response.context
+        self.assertEqual(_('Save the modifications'), context4.get('submit_label'))
+
         with self.assertNoException():
-            exp_ctypes = response.context['form'].fields['exportable_ctypes'].ctypes
+            exp_ctypes = context4['form'].fields['exportable_ctypes'].ctypes
 
         self.assertIn(ct_contact, exp_ctypes)
         self.assertIn(get_ct(Organisation), exp_ctypes)
@@ -466,7 +478,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(url,
                                     {step_key: '3',
                                      '3-exportable_ctypes': [ct_contact.id],
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -480,14 +492,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, role.credentials.count())
 
     def test_edition_wizard02(self):
-        "Not super-user"
+        "Not super-user."
         self.login_not_as_superuser()
 
         role = UserRole.objects.create(name='CEO')
         self.assertGET403(self._build_wizard_edit_url(role))
 
     def test_delete01(self):
-        "Not superuser -> error"
+        "Not superuser -> error."
         self.login_not_as_superuser()
 
         url = self._build_del_role_url(self.role)

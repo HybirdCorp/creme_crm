@@ -72,7 +72,7 @@ property_type_patterns = [
 fields_config_patterns = [
     # re_path(r'^portal[/]?$',                 fields_config.portal,                        name='creme_config__fields'),
     re_path(r'^portal[/]?$',                 fields_config.Portal.as_view(),              name='creme_config__fields'),
-    re_path(r'^wizard[/]?$',                 fields_config.FieldConfigWizard.as_view(),   name='creme_config__create_fields_config'),
+    re_path(r'^wizard[/]?$',                 fields_config.FieldsConfigWizard.as_view(),  name='creme_config__create_fields_config'),
     re_path(r'^edit/(?P<fconf_id>\d+)[/]?$', fields_config.FieldsConfigEdition.as_view(), name='creme_config__edit_fields_config'),
     re_path(r'^delete[/]?$',                 fields_config.delete,                        name='creme_config__delete_fields_config'),
 ]

@@ -1074,15 +1074,18 @@ class BricksConfigTestCase(CremeTestCase):
         index1 = self._find_field_index(bricks_field, brick_id1)
         index2 = self._find_field_index(bricks_field, brick_id2)
 
-        response = self.client.post(url, data={'bricks_check_{}'.format(index1): 'on',
-                                               'bricks_value_{}'.format(index1): brick_id1,
-                                               'bricks_order_{}'.format(index1): 1,
+        response = self.client.post(
+            url,
+            data={
+                'bricks_check_{}'.format(index1): 'on',
+                'bricks_value_{}'.format(index1): brick_id1,
+                'bricks_order_{}'.format(index1): 1,
 
-                                               'bricks_check_{}'.format(index2): 'on',
-                                               'bricks_value_{}'.format(index2): brick_id2,
-                                               'bricks_order_{}'.format(index2): 2,
-                                              }
-                                    )
+                'bricks_check_{}'.format(index2): 'on',
+                'bricks_value_{}'.format(index2): brick_id2,
+                'bricks_order_{}'.format(index2): 2,
+            },
+        )
         self.assertNoFormError(response)
 
         # b_locs = list(BrickHomeLocation.objects.all())
@@ -1157,7 +1160,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(1, BrickHomeLocation.objects.filter(superuser=True).count())
 
     def test_edit_home03(self):
-        "Superuser"
+        "Superuser."
         self.login()
         role = self.role
 
@@ -1229,7 +1232,7 @@ class BricksConfigTestCase(CremeTestCase):
     #     self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'id': bpl.id})
     #     self.assertDoesNotExist(bpl)
     def test_delete_home01(self):
-        "Role"
+        "Role."
         self.login()
         role = self.role
         bricks = [block for brick_id, block in self.brick_registry
@@ -1299,17 +1302,18 @@ class BricksConfigTestCase(CremeTestCase):
         index1 = self._find_field_index(bricks_field, brick_id1)
         index2 = self._find_field_index(bricks_field, brick_id2)
 
-        response = self.client.post(url,
-                                    data={
-                                          'bricks_check_{}'.format(index1): 'on',
-                                          'bricks_value_{}'.format(index1): brick_id1,
-                                          'bricks_order_{}'.format(index1): 1,
+        response = self.client.post(
+            url,
+            data={
+                'bricks_check_{}'.format(index1): 'on',
+                'bricks_value_{}'.format(index1): brick_id1,
+                'bricks_order_{}'.format(index1): 1,
 
-                                          'bricks_check_{}'.format(index2): 'on',
-                                          'bricks_value_{}'.format(index2): brick_id2,
-                                          'bricks_order_{}'.format(index2): 2,
-                                         }
-                                   )
+                'bricks_check_{}'.format(index2): 'on',
+                'bricks_value_{}'.format(index2): brick_id2,
+                'bricks_order_{}'.format(index2): 2,
+            }
+        )
         self.assertNoFormError(response)
 
         b_locs = list(BrickMypageLocation.objects.filter(user=None))
@@ -1333,9 +1337,12 @@ class BricksConfigTestCase(CremeTestCase):
 
         choices = bricks_field.choices
         self.assertGreaterEqual(len(choices), 2)
-        self.assertEqual(list(BrickMypageLocation.objects.filter(user=None).values_list('brick_id', flat=True)),
-                         bricks_field.initial
-                        )
+        self.assertEqual(
+            list(BrickMypageLocation.objects.filter(user=None)
+                                            .values_list('brick_id', flat=True)
+                ),
+            bricks_field.initial
+        )
 
         brick_id1 = choices[0][0]
         brick_id2 = choices[1][0]
@@ -1343,16 +1350,18 @@ class BricksConfigTestCase(CremeTestCase):
         index1 = self._find_field_index(bricks_field, brick_id1)
         index2 = self._find_field_index(bricks_field, brick_id2)
 
-        response = self.client.post(url,
-                                    data={'bricks_check_{}'.format(index1): 'on',
-                                          'bricks_value_{}'.format(index1): brick_id1,
-                                          'bricks_order_{}'.format(index1): 1,
+        response = self.client.post(
+            url,
+            data={
+                'bricks_check_{}'.format(index1): 'on',
+                'bricks_value_{}'.format(index1): brick_id1,
+                'bricks_order_{}'.format(index1): 1,
 
-                                          'bricks_check_{}'.format(index2): 'on',
-                                          'bricks_value_{}'.format(index2): brick_id2,
-                                          'bricks_order_{}'.format(index2): 2,
-                                         }
-                                   )
+                'bricks_check_{}'.format(index2): 'on',
+                'bricks_value_{}'.format(index2): brick_id2,
+                'bricks_order_{}'.format(index2): 2,
+            }
+        )
         self.assertNoFormError(response)
 
         b_locs = list(BrickMypageLocation.objects.filter(user=user))
@@ -1361,21 +1370,25 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
 
     def test_edit_mypage02(self):
-        "Not super-user"
+        "Not super-user."
         self.login(is_superuser=False)
         self.assertGET200(reverse('creme_config__edit_mypage_bricks'))
 
     def test_delete_default_mypage01(self):
         self.login()
         loc = BrickMypageLocation.objects.create(user=None, brick_id=HistoryBrick.id_, order=1)
-        self.assertPOST200(reverse('creme_config__delete_default_mypage_bricks'), data={'id': loc.id})
+        self.assertPOST200(reverse('creme_config__delete_default_mypage_bricks'),
+                           data={'id': loc.id},
+                          )
         self.assertDoesNotExist(loc)
 
     def test_delete_default_mypage02(self):
         "'user' must be 'None'"
         user = self.login()
         loc = BrickMypageLocation.objects.create(user=user, brick_id=HistoryBrick.id_, order=1)
-        self.assertPOST404(reverse('creme_config__delete_default_mypage_bricks'), data={'id': loc.id})
+        self.assertPOST404(reverse('creme_config__delete_default_mypage_bricks'),
+                           data={'id': loc.id},
+                          )
         self.assertStillExists(loc)
 
     def test_delete_mypage01(self):
@@ -1416,20 +1429,26 @@ class BricksConfigTestCase(CremeTestCase):
 
     def test_add_relationbrick_ctypes_wizard01(self):
         self.login()
-        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                 ('test-objfoo', 'object_predicate', [FakeContact, FakeOrganisation, FakeActivity]),
-                                 )[0]
+        rt = RelationType.create(
+            ('test-subfoo', 'Subject predicate'),
+            ('test-objfoo', 'Object predicate', [FakeContact, FakeOrganisation, FakeActivity]),
+        )[0]
 
         rb_item = RelationBrickItem.objects.create(
-                        brick_id='specificblock_creme_config-test-subfoo',
-                        relation_type=rt,
-                    )
+            brick_id='specificblock_creme_config-test-subfoo',
+            relation_type=rt,
+        )
 
         url = self._build_rbrick_addctypes_wizard_url(rb_item)
         response = self.assertGET200(url)
+        context = response.context
+        self.assertEqual(
+            _('New customised type for «{predicate}»').format(predicate=rt.predicate),
+            context.get('title')
+        )
 
         with self.assertNoException():
-            choices = response.context['form'].fields['ctype'].ctypes
+            choices = context['form'].fields['ctype'].ctypes
 
         get_ct = ContentType.objects.get_for_model
         ct_contact  = get_ct(FakeContact)
@@ -1440,18 +1459,24 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertIn(ct_activity,          choices)
         self.assertNotIn(ct_image,          choices)
 
-        response = self.assertPOST200(url,
-                                      {'relation_c_type_brick_wizard-current_step': '0',
-                                       '0-ctype': ct_contact.pk,
-                                      }
-                                     )
+        response = self.assertPOST200(
+            url,
+            data={'relation_c_type_brick_wizard-current_step': '0',
+                  '0-ctype': ct_contact.pk,
+                 },
+        )
 
         # Last step is not submitted so nothing yet in database
         rb_item = self.refresh(rb_item)
         self.assertIsNone(rb_item.get_cells(ct_contact))
+        context = response.context
+        self.assertEqual(
+            _('New customised type for «{predicate}»').format(predicate=rt.predicate),
+            context.get('title')
+        )
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = context['form'].fields
 
         self.assertIn('cells', fields)
 
@@ -1459,15 +1484,15 @@ class BricksConfigTestCase(CremeTestCase):
         field_fname = 'first_name'
         field_lname = 'last_name'
         response = self.client.post(
-                url,
-                data={'relation_c_type_brick_wizard-current_step': '1',
-                      '1-cells': 'regular_field-{rfield1},regular_field-{rfield2},function_field-{ffield}'.format(
-                                         rfield1=field_fname,
-                                         rfield2=field_lname,
-                                         ffield=funcfield.name,
-                                    ),
-                     },
-            )
+            url,
+            data={'relation_c_type_brick_wizard-current_step': '1',
+                  '1-cells': 'regular_field-{rfield1},regular_field-{rfield2},function_field-{ffield}'.format(
+                                     rfield1=field_fname,
+                                     rfield2=field_lname,
+                                     ffield=funcfield.name,
+                                ),
+                 },
+        )
         self.assertNoFormError(response)
 
         rb_item = self.refresh(rb_item)
@@ -1500,9 +1525,10 @@ class BricksConfigTestCase(CremeTestCase):
     def test_add_relationbrick_ctypes_wizard02(self):
         "ContentType constraint"
         self.login()
-        rtype = RelationType.create(('test-subfoo', 'subject_predicate', [FakeContact]),
-                                    ('test-objfoo', 'object_predicate',  [FakeOrganisation]),
-                                    )[0]
+        rtype = RelationType.create(
+            ('test-subfoo', 'subject_predicate', [FakeContact]),
+            ('test-objfoo', 'object_predicate',  [FakeOrganisation]),
+        )[0]
         rb_item = RelationBrickItem.objects.create(
                         brick_id='specificblock_creme_config-test-subfoo',
                         relation_type=rtype,
@@ -1520,41 +1546,46 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNotIn(ct_contact,        choices)
         self.assertNotIn(get_ct(FakeActivity), choices)
 
-        response = self.client.post(url,
-                                    {'relation_c_type_brick_wizard-current_step': '0',
-                                     '0-ctype': ct_contact.pk,
-                                    }
-                                   )
-        self.assertFormError(response, 'form', 'ctype',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        response = self.client.post(
+            url,
+            data={'relation_c_type_brick_wizard-current_step': '0',
+                  '0-ctype': ct_contact.pk,
+                 },
+        )
+        self.assertFormError(
+            response, 'form', 'ctype',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
 
     def test_add_relationbrick_ctypes_wizard03(self):
         "Go back"
         self.login()
-        rtype = RelationType.create(('test-subfoo', 'subject_predicate', [FakeOrganisation]),
-                                    ('test-objfoo', 'object_predicate',  [FakeContact]),
-                                    )[0]
+        rtype = RelationType.create(
+            ('test-subfoo', 'subject_predicate', [FakeOrganisation]),
+            ('test-objfoo', 'object_predicate',  [FakeContact]),
+        )[0]
         rb_item = RelationBrickItem.objects.create(
-                        brick_id='specificblock_creme_config-test-subfoo',
-                        relation_type=rtype,
-                    )
+            brick_id='specificblock_creme_config-test-subfoo',
+            relation_type=rtype,
+        )
 
         url = self._build_rbrick_addctypes_wizard_url(rb_item)
 
         ct_contact  = ContentType.objects.get_for_model(FakeContact)
-        self.assertPOST200(url,
-                           {'relation_c_type_brick_wizard-current_step': '0',
-                            '0-ctype': ct_contact.pk,
-                           }
-                          )
+        self.assertPOST200(
+            url,
+            data={'relation_c_type_brick_wizard-current_step': '0',
+                  '0-ctype': ct_contact.pk,
+                 },
+        )
 
         # Return to first step
-        response = self.assertPOST200(url,
-                                      {'relation_c_type_brick_wizard-current_step': '1',
-                                       'wizard_goto_step': '0',
-                                      }
-                                     )
+        response = self.assertPOST200(
+            url,
+            data={'relation_c_type_brick_wizard-current_step': '1',
+                  'wizard_goto_step': '0',
+                 },
+        )
 
         with self.assertNoException():
             choices = response.context['form'].fields['ctype'].ctypes
@@ -1598,7 +1629,7 @@ class BricksConfigTestCase(CremeTestCase):
                                 rfield2=field_lname,
                                 ffield=funcfield.name,
                             ),
-                 }
+                 },
            )
         )
 
@@ -1621,11 +1652,11 @@ class BricksConfigTestCase(CremeTestCase):
         "Validation errors with URLField & ForeignKey"
         self.login()
         rb_item = RelationBrickItem(
-                brick_id='specificblock_creme_config-test-subfoo',
-                relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
-                                                  ('test-objfoo', 'object_predicate'),
-                                                 )[0],
-            )
+            brick_id='specificblock_creme_config-test-subfoo',
+            relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
+                                              ('test-objfoo', 'object_predicate'),
+                                             )[0],
+        )
         rb_item.set_cells(ContentType.objects.get_for_model(FakeContact), ())
         rb_item.save()
 
@@ -1641,9 +1672,10 @@ class BricksConfigTestCase(CremeTestCase):
                      }
             )
             if error:
-                self.assertFormError(response, 'form', 'cells',
-                                     _('This type of field can not be the first column.')
-                                    )
+                self.assertFormError(
+                    response, 'form', 'cells',
+                    _('This type of field can not be the first column.')
+                )
             else:
                 self.assertNoFormError(response)
 
@@ -1658,11 +1690,11 @@ class BricksConfigTestCase(CremeTestCase):
         "Validation errors with M2M"
         self.login()
         rb_item = RelationBrickItem(
-                brick_id='specificblock_creme_config-test-subfoo',
-                relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
-                                                  ('test-objfoo', 'object_predicate'),
-                                                 )[0],
-            )
+            brick_id='specificblock_creme_config-test-subfoo',
+            relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
+                                              ('test-objfoo', 'object_predicate'),
+                                             )[0],
+        )
         rb_item.set_cells(ContentType.objects.get_for_model(FakeEmailCampaign), ())
         rb_item.save()
 
@@ -1677,9 +1709,10 @@ class BricksConfigTestCase(CremeTestCase):
                                 ),
                      }
             )
-            self.assertFormError(response, 'form', 'cells',
-                                 _('This type of field can not be the first column.')
-                                )
+            self.assertFormError(
+                response, 'form', 'cells',
+                _('This type of field can not be the first column.')
+            )
 
         post('mailing_lists')
         post('mailing_lists__name')
@@ -1704,7 +1737,7 @@ class BricksConfigTestCase(CremeTestCase):
                                 rtype=rt2.id,
                                 rfield='name',
                             ),
-                 }
+                 },
         )
         self.assertFormError(response, 'form', 'cells',
                              _('This type of field can not be the first column.')
@@ -1722,11 +1755,12 @@ class BricksConfigTestCase(CremeTestCase):
         valid_fname = 'last_name'
         hidden_fname1 = 'phone'
         hidden_fname2 = 'birthday'
-        FieldsConfig.create(FakeContact,
-                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-                                         ],
-                            )
+        FieldsConfig.create(
+            FakeContact,
+            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
 
         rb_item = RelationBrickItem(
                         brick_id='specificblock_creme_config-test-subfoo',
@@ -1738,14 +1772,14 @@ class BricksConfigTestCase(CremeTestCase):
 
         url = self._build_rbrick_editctype_url(rb_item, FakeContact)
         response = self.assertPOST200(
-                        url,
-                        data={'cells': 'regular_field-{rfield1},regular_field-{rfield2},regular_field-{rfield3}'.format(
-                                            rfield1=valid_fname,
-                                            rfield2=hidden_fname1,
-                                            rfield3=hidden_fname2,
-                                        ),
-                             }
-                    )
+            url,
+            data={'cells': 'regular_field-{rfield1},regular_field-{rfield2},regular_field-{rfield3}'.format(
+                                rfield1=valid_fname,
+                                rfield2=hidden_fname1,
+                                rfield3=hidden_fname2,
+                            ),
+                 },
+        )
         self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
 
         self.assertNoFormError(self.client.post(
@@ -1766,11 +1800,11 @@ class BricksConfigTestCase(CremeTestCase):
         ct = get_ct(FakeContact)
 
         rb_item = RelationBrickItem(
-                brick_id='specificblock_creme_config-test-subfoo',
-                relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
-                                                  ('test-objfoo', 'object_predicate'),
-                                                 )[0],
-            )
+            brick_id='specificblock_creme_config-test-subfoo',
+            relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
+                                              ('test-objfoo', 'object_predicate'),
+                                             )[0],
+        )
         rb_item.set_cells(ct, [EntityCellRegularField.build(FakeContact, 'first_name')])
         rb_item.save()
 
@@ -1803,9 +1837,9 @@ class BricksConfigTestCase(CremeTestCase):
         naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
         ibi = InstanceBrickConfigItem.objects.create(
-                    brick_id=InstanceBrickConfigItem.generate_id(DetailviewInstanceBrick, naru, ''),
-                    entity=naru, verbose='All stuffes',
-                )
+            brick_id=InstanceBrickConfigItem.generate_id(DetailviewInstanceBrick, naru, ''),
+            entity=naru, verbose='All stuffes',
+        )
 
         create_bdl = partial(BrickDetailviewLocation.create_if_needed,
                              zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
@@ -1876,7 +1910,7 @@ class BricksConfigTestCase(CremeTestCase):
                                 rtype=loves.id,
                                 ffield=funcfield.name,
                             ),
-                 }
+                 },
            )
         )
 
@@ -1917,11 +1951,16 @@ class BricksConfigTestCase(CremeTestCase):
         hidden_subfname = 'zipcode'
 
         create_fconf = FieldsConfig.create
-        create_fconf(FakeContact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True}),
-                                                (hidden_fkname, {FieldsConfig.HIDDEN: True}),
-                                                ]
-                     )
-        create_fconf(FakeAddress, descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})])
+        create_fconf(
+            FakeContact,
+            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True}),
+                          (hidden_fkname, {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
+        create_fconf(
+            FakeAddress,
+            descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})],
+        )
 
         cbc_item = CustomBrickConfigItem.objects.create(id='tests-contacts1',
                                                         name='Contact info',
@@ -1940,14 +1979,14 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNotIn('regular_field-' + hidden_fname, choices_keys)
 
         response = self.assertPOST200(
-                        url, follow=True,
-                        data={'name':  cbc_item.name,
-                              'cells': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
-                                            rfield1=valid_fname,
-                                            rfield2=hidden_fname,
-                                        ),
-                             },
-                    )
+            url, follow=True,
+            data={'name':  cbc_item.name,
+                  'cells': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                rfield1=valid_fname,
+                                rfield2=hidden_fname,
+                            ),
+                 },
+        )
         self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
 
         # ---------------------------
@@ -1959,14 +1998,14 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNotIn('regular_field-' + prefix + hidden_subfname, address_choices_keys)
 
         response = self.assertPOST200(
-                        url, follow=True,
-                        data={'name':  cbc_item.name,
-                              'cells': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
-                                            rfield1=valid_fname,
-                                            rfield2=prefix + hidden_subfname,
-                                        ),
-                             },
-                    )
+            url, follow=True,
+            data={'name':  cbc_item.name,
+                  'cells': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                rfield1=valid_fname,
+                                rfield2=prefix + hidden_subfname,
+                            ),
+                 },
+        )
         self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
 
         # ----------------------------
@@ -1989,25 +2028,29 @@ class BricksConfigTestCase(CremeTestCase):
         hidden_subfname2 = 'country'
 
         create_fconf = FieldsConfig.create
-        create_fconf(FakeContact, descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                                                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-                                                ('image',       {FieldsConfig.HIDDEN: True}),
-                                               ],
-                    )
-        create_fconf(FakeAddress, descriptions=[(hidden_subfname1, {FieldsConfig.HIDDEN: True}),
-                                                (hidden_subfname2, {FieldsConfig.HIDDEN: True}),
-                                               ],
-                    )
+        create_fconf(
+            FakeContact,
+            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                          ('image',       {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
+        create_fconf(
+            FakeAddress,
+            descriptions=[(hidden_subfname1, {FieldsConfig.HIDDEN: True}),
+                          (hidden_subfname2, {FieldsConfig.HIDDEN: True}),
+                         ],
+        )
 
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-                        id='tests-contacts1', name='Contact info', content_type=ct,
-                        cells=[build_cell(FakeContact, valid_fname),
-                               build_cell(FakeContact, hidden_fname1),
-                               build_cell(FakeContact, addr_prefix + hidden_subfname1),
-                               build_cell(FakeContact, hidden_fkname),
-                              ],
-                    )
+            id='tests-contacts1', name='Contact info', content_type=ct,
+            cells=[build_cell(FakeContact, valid_fname),
+                   build_cell(FakeContact, hidden_fname1),
+                   build_cell(FakeContact, addr_prefix + hidden_subfname1),
+                   build_cell(FakeContact, hidden_fkname),
+                  ],
+        )
 
         url = self._build_custombrick_edit_url(cbc_item)
         response = self.assertGET200(url)
@@ -2032,17 +2075,17 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertIn(rf_prefix + 'image',       choices_keys) # we need it because we have a subfield
 
         response = self.client.post(
-                        url, follow=True,
-                        data={'name':  cbc_item.name,
-                              'cells': ','.join(rf_prefix + fname
-                                                    for fname in (valid_fname,
-                                                                  hidden_fname1,
-                                                                  addr_prefix + hidden_subfname1,
-                                                                  hidden_fkname,
-                                                                 )
-                                               ),
-                             },
-                    )
+            url, follow=True,
+            data={'name':  cbc_item.name,
+                  'cells': ','.join(rf_prefix + fname
+                                        for fname in (valid_fname,
+                                                      hidden_fname1,
+                                                      addr_prefix + hidden_subfname1,
+                                                      hidden_fkname,
+                                                     )
+                                   ),
+                 },
+        )
         self.assertNoFormError(response)
         self.assertEqual(4, len(self.refresh(cbc_item).cells))
 
@@ -2050,10 +2093,11 @@ class BricksConfigTestCase(CremeTestCase):
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
         cbci = CustomBrickConfigItem.objects.create(content_type=ct, name='Info')
-        loc = BrickDetailviewLocation.create_if_needed(brick_id=cbci.generate_id(), order=5,
-                                                       model=FakeContact,
-                                                       zone=BrickDetailviewLocation.RIGHT,
-                                                      )
+        loc = BrickDetailviewLocation.create_if_needed(
+            brick_id=cbci.generate_id(), order=5,
+            model=FakeContact,
+            zone=BrickDetailviewLocation.RIGHT,
+        )
 
         self.assertPOST200(reverse('creme_config__delete_custom_brick'), data={'id': cbci.id})
         self.assertDoesNotExist(cbci)
@@ -2105,9 +2149,10 @@ class BricksConfigTestCase(CremeTestCase):
                                       }
                                      )
 
-        self.assertFormError(response, 'form', 'ctype',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        self.assertFormError(
+            response, 'form', 'ctype',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
 
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
@@ -2128,7 +2173,7 @@ class BricksConfigTestCase(CremeTestCase):
                                       {'custom_brick_wizard-current_step': '0',
                                        '0-ctype': contact_ct.pk,
                                        '0-name': 'foobar',
-                                      }
+                                      },
                                      )
         cells_widget = response.context['form'].fields['cells'].widget
         customfield_ids = [e[0] for e in cells_widget.custom_fields]
@@ -2138,25 +2183,29 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertIn('regular_field-first_name', regularfield_ids)
         self.assertIn('regular_field-birthday', regularfield_ids)
 
-        response = self.assertPOST200(self.CUSTOM_WIZARD_URL,
-                                      {'custom_brick_wizard-current_step': '1',
-                                       '1-cells': '{},{}'.format('regular_field-first_name',
-                                                                 'custom_field-{}'.format(contact_customfield.id),
-                                                                ),
-                                      }
-                                     )
+        response = self.assertPOST200(
+            self.CUSTOM_WIZARD_URL,
+            data={'custom_brick_wizard-current_step': '1',
+                  '1-cells': '{},{}'.format(
+                      'regular_field-first_name',
+                      'custom_field-{}'.format(contact_customfield.id),
+                    ),
+                 },
+        )
         self.assertNoFormError(response)
 
         cbci = self.get_object_or_fail(CustomBrickConfigItem, content_type=contact_ct)
         cells = [(c.__class__, c.key, c.value) for c in cbci.cells]
 
-        self.assertListEqual([(EntityCellRegularField, 'regular_field-first_name', 'first_name'),
-                              (EntityCellCustomField,
-                               'custom_field-{}'.format(contact_customfield.id),
-                               str(contact_customfield.id)
-                              ),
-                             ], cells
-                            )
+        self.assertListEqual(
+            [(EntityCellRegularField, 'regular_field-first_name', 'first_name'),
+             (EntityCellCustomField,
+              'custom_field-{}'.format(contact_customfield.id),
+              str(contact_customfield.id)
+             ),
+            ],
+            cells
+        )
 
     def test_custombrick_wizard_go_back(self):
         self.login()

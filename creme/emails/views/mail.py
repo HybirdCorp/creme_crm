@@ -20,13 +20,13 @@
 
 # import warnings
 
-from django.db.transaction import atomic
+# from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import Template, Context
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
-from formtools.wizard.views import SessionWizardView
+# from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -36,7 +36,7 @@ from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.base import EntityRelatedMixin
-from creme.creme_core.views.generic.wizard import PopupWizardMixin
+# from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from .. import get_entityemail_model, bricks, constants
 from ..forms import mail as mail_forms
@@ -52,7 +52,7 @@ EntityEmail = get_entityemail_model()
 @login_required
 @permission_required('emails')
 def get_lightweight_mail_body(request, mail_id):
-    """Used to show an html document in an iframe """
+    """Used to show an html document in an iframe."""
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
     request.user.has_perm_to_view_or_die(email.sending.campaign)
 
@@ -220,37 +220,44 @@ class EntityEmailCreation(generic.AddingInstanceToEntityPopup):
         user.has_perm_to_link_or_die(entity)
 
 
-class EntityEmailWizard(EntityRelatedMixin, PopupWizardMixin, SessionWizardView):
-    class _EmailCreationFormStep(mail_forms.EntityEmailForm):
-        step_submit_label = _('Send the email')
+# class EntityEmailWizard(EntityRelatedMixin, PopupWizardMixin, SessionWizardView):
+class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
+    # class _EmailCreationFormStep(mail_forms.EntityEmailForm):
+    #     step_submit_label = _('Send the email')
 
+    model = EntityEmail
     form_list = [
         mail_forms.TemplateSelectionFormStep,
-        _EmailCreationFormStep,
+        # _EmailCreationFormStep,
+        mail_forms.EntityEmailForm,
     ]
-    template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
-    permission = cperm(EntityEmail)
-    # permissions = ['emails', cperm(EntityEmail)]  TODO
+    # template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
+    # permission = cperm(EntityEmail)
+    title = _('Sending an email to «{entity}»')
+    submit_label = _('Send the email')
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
         user.has_perm_to_link_or_die(entity)
 
-    def done(self, form_list, **kwargs):
-        with atomic():
-            for form in form_list:
-                form.save()
+    # def done(self, form_list, **kwargs):
+    #     with atomic():
+    #         for form in form_list:
+    #             form.save()
+    #
+    #     return HttpResponse()
 
-        return HttpResponse()
+    def done_save(self, form_list):
+        for form in form_list:
+            form.save()
 
-    # TODO: add a method get_title() in base view ?
-    def get_context_data(self, form, **kwargs):
-        context = super().get_context_data(form=form, **kwargs)
-        context['title'] = ugettext('Sending an email to «{}»').format(
-                                self.get_related_entity(),
-        )
-
-        return context
+    # def get_context_data(self, form, **kwargs):
+    #     context = super().get_context_data(form=form, **kwargs)
+    #     context['title'] = ugettext('Sending an email to «{}»').format(
+    #                             self.get_related_entity(),
+    #     )
+    #
+    #     return context
 
     def get_form_initial(self, step):
         initial = super().get_form_initial(step=step)
@@ -271,7 +278,7 @@ class EntityEmailWizard(EntityRelatedMixin, PopupWizardMixin, SessionWizardView)
 
         return initial
 
-    def get_form_kwargs(self, step):
+    def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step)
         entity = self.get_related_entity()
 
@@ -279,6 +286,12 @@ class EntityEmailWizard(EntityRelatedMixin, PopupWizardMixin, SessionWizardView)
             kwargs['entity'] = entity
 
         return kwargs
+
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['entity'] = self.get_related_entity()
+
+        return data
 
 
 class EntityEmailDetail(generic.EntityDetail):

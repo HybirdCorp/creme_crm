@@ -90,7 +90,7 @@ class FieldsConfigTestCase(CremeTestCase):
         fconf = self.refresh(fconf)
         self.assertEqual([['phone', {'hidden': True}], ['birthday', {'hidden': True}]],
                          json_load(fconf.raw_descriptions)
-                         )  # TODO: meh
+                        )  # TODO: meh
 
         # test initial ------
         response = self.assertGET200(url)
@@ -131,9 +131,10 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
         response = self.client.post(self.WIZARD_URL,
-                                    {'field_config_wizard-current_step': '0',
+                                    # {'field_config_wizard-current_step': '0',
+                                    {'fields_config_wizard-current_step': '0',
                                      '0-ctype': ctype.pk,
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -150,13 +151,15 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
         response = self.client.post(self.WIZARD_URL,
-                                    {'field_config_wizard-current_step': '0',
+                                    # {'field_config_wizard-current_step': '0',
+                                    {'fields_config_wizard-current_step': '0',
                                      '0-ctype': 'unknown',
-                                    }
+                                    },
                                    )
-        self.assertFormError(response, 'form', 'ctype',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        self.assertFormError(
+            response, 'form', 'ctype',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
     def test_wizard_config_step(self):
@@ -169,9 +172,10 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
         response = self.assertPOST200(self.WIZARD_URL,
-                                      {'field_config_wizard-current_step': '0',
+                                      # {'field_config_wizard-current_step': '0',
+                                      {'fields_config_wizard-current_step': '0',
                                        '0-ctype': ctype.pk,
-                                      }
+                                      },
                                      )
 
         ctype_fieldnames = {e[0] for e in response.context['form'].fields['hidden'].choices}
@@ -181,9 +185,10 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
         response = self.client.post(self.WIZARD_URL,
-                                    {'field_config_wizard-current_step': '1',
+                                    # {'field_config_wizard-current_step': '1',
+                                    {'fields_config_wizard-current_step': '1',
                                      '1-hidden': ['phone', 'birthday'],
-                                    }
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -204,17 +209,19 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
         self.assertPOST200(self.WIZARD_URL,
-                           {'field_config_wizard-current_step': '0',
+                           # {'field_config_wizard-current_step': '0',
+                           {'fields_config_wizard-current_step': '0',
                             '0-ctype': ctype.pk,
-                           }
+                           },
                           )
 
         # return to first step
         response = self.assertPOST200(self.WIZARD_URL,
-                                      {'field_config_wizard-current_step': '1',
+                                      # {'field_config_wizard-current_step': '1',
+                                      {'fields_config_wizard-current_step': '1',
                                        'wizard_goto_step': '0',
                                        '1-hidden': ['phone', 'last_name'],
-                                      }
+                                      },
                                      )
         self.assertNoFormError(response)
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)

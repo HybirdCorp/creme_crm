@@ -1,5 +1,7 @@
 {% extends 'creme_core/base.html' %}
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
+
+{% log 'The template file "creme_core/generics/blockform/add_wizard.html" is deprecated ; use "add-wizard.html" instead.' level='WARN' %}
 
 {% block page_title %}{{title}} - {% endblock %}
 

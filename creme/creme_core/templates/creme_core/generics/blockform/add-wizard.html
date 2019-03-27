@@ -1,0 +1,8 @@
+{% extends 'creme_core/base.html' %}
+{% load i18n %}
+
+{% block page_title %}{{title}} - {% endblock %}
+
+{% block content %}
+    {% include 'creme_core/generics/blockform/base-wizard.html' with icon_name='add' icon_label=_('Add') %}
+{% endblock %}

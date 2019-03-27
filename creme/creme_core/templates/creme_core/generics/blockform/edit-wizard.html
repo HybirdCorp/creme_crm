@@ -1,0 +1,20 @@
+{% extends 'creme_core/base.html' %}
+{% load i18n %}
+
+{% block page_title %}
+    {% if object %}
+        {% blocktrans %}Edit «{{object}}»{% endblocktrans %}
+    {% else %}
+        {% trans 'Edit' %}
+    {% endif %} -
+{% endblock %}
+
+{% block content %}
+    {% with icon_name='edit' icon_label=_('Edit') submit_label=submit_label|default:_('Save the modifications') %}
+        {% if not title %}{% blocktrans asvar form_title %}Edit «{{object}}»{% endblocktrans %}
+            {% include 'creme_core/generics/blockform/base.html' with title=form_title %}
+        {% else %}
+            {% include 'creme_core/generics/blockform/base-wizard.html' %}
+        {% endif %}
+    {% endwith %}
+{% endblock %}

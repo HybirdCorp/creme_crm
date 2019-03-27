@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,20 +21,20 @@
 import logging
 
 from django.db import DatabaseError
-from django.db.transaction import atomic
+# from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _, ugettext
+# from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
-from formtools.wizard.views import SessionWizardView
+# from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth.decorators import login_required, superuser_required, _check_superuser
 from creme.creme_core.models import UserRole, SetCredentials, lock
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views import generic
-from creme.creme_core.views.generic.wizard import PopupWizardMixin
+from creme.creme_core.views.decorators import POST_only
+# from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import user_role as role_forms
 
@@ -45,47 +45,60 @@ class Portal(generic.BricksView):
     template_name = 'creme_config/user_role_portal.html'
 
 
-class RoleCreationWizard(PopupWizardMixin, SessionWizardView):
-    class _CredentialsStep(role_forms.UserRoleCredentialsStep):
-        step_submit_label = UserRole.save_label
+# class RoleCreationWizard(PopupWizardMixin, SessionWizardView):
+class RoleCreationWizard(generic.CremeModelCreationWizardPopup):
+    # class _CredentialsStep(role_forms.UserRoleCredentialsStep):
+    #     step_submit_label = UserRole.save_label
 
     form_list = (
         role_forms.UserRoleAppsStep,
         role_forms.UserRoleAdminAppsStep,
         role_forms.UserRoleCreatableCTypesStep,
         role_forms.UserRoleExportableCTypesStep,
-        _CredentialsStep,
+        # _CredentialsStep,
+        role_forms.UserRoleCredentialsStep,
     )
-    template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
-    wizard_title = UserRole.creation_label
-    # permission = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
+    # template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
+    # wizard_title = UserRole.creation_label
+    model = UserRole
+    # permissions = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
 
     def __init__(self, *args, **kwargs):
-        SessionWizardView.__init__(self, **kwargs)
+        # SessionWizardView.__init__(self, **kwargs)
+        super().__init__(*args, **kwargs)
         self.role = UserRole()
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        _check_superuser(self.request.user)   # TODO: set public ?
+    # @method_decorator(login_required)
+    # def dispatch(self, *args, **kwargs):
+    #     _check_superuser(self.request.user)
+    #
+    #     return super().dispatch(*args, **kwargs)
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)  # TODO: set public ?
 
-        return super().dispatch(*args, **kwargs)
-
-    def done(self, form_list, **kwargs):
+    # def done(self, form_list, **kwargs):
+    #     form_iter = iter(form_list)
+    #
+    #     with atomic():
+    #         next(form_iter).partial_save()
+    #
+    #         for form in form_iter:
+    #             form.save()
+    #
+    #     return HttpResponse()
+    def done_save(self, form_list):
         form_iter = iter(form_list)
+        next(form_iter).partial_save()
 
-        with atomic():
-            next(form_iter).partial_save()
-
-            for form in form_iter:
-                form.save()
-
-        return HttpResponse()
+        for form in form_iter:
+            form.save()
 
     def get_form_instance(self, step):
         if step in {'0', '1', '2', '3'}:
             return self.role
 
-    def get_form_kwargs(self, step):
+    def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step)
 
         if step != '0':
@@ -97,42 +110,57 @@ class RoleCreationWizard(PopupWizardMixin, SessionWizardView):
         return kwargs
 
 
-class RoleEditionWizard(PopupWizardMixin, SessionWizardView):
-    class _ExportableCTypesStep(role_forms.UserRoleExportableCTypesStep):
-        step_submit_label = _('Save the modifications')
+# class RoleEditionWizard(PopupWizardMixin, SessionWizardView):
+class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
+    model = UserRole
+    pk_url_kwarg = 'role_id'
 
-    form_list = (role_forms.UserRoleAppsStep,
-                 role_forms.UserRoleAdminAppsStep,
-                 role_forms.UserRoleCreatableCTypesStep,
-                 _ExportableCTypesStep,
-                 )
+    # class _ExportableCTypesStep(role_forms.UserRoleExportableCTypesStep):
+    #     step_submit_label = _('Save the modifications')
 
-    template_name = 'creme_core/generics/blockform/edit_wizard_popup.html'
-    wizard_title = 'Edit role'  # Overloaded in dispatch()
+    form_list = (
+        role_forms.UserRoleAppsStep,
+        role_forms.UserRoleAdminAppsStep,
+        role_forms.UserRoleCreatableCTypesStep,
+        # _ExportableCTypesStep,
+        role_forms.UserRoleExportableCTypesStep,
+    )
+
+    # template_name = 'creme_core/generics/blockform/edit_wizard_popup.html'
+    # wizard_title = 'Edit role'  # Overloaded in dispatch()
     # permission = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        _check_superuser(self.request.user)  # TODO: set public ?
+    # @method_decorator(login_required)
+    # def dispatch(self, *args, **kwargs):
+    #     _check_superuser(self.request.user)
+    #
+    #     self.role = role = get_object_or_404(UserRole, pk=kwargs['role_id'])
+    #     self.wizard_title = ugettext('Edit «{}»').format(role)
+    #
+    #     return super().dispatch(*args, **kwargs)
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)  # TODO: set public ?
 
-        self.role = role = get_object_or_404(UserRole, pk=kwargs['role_id'])
-        self.wizard_title = ugettext('Edit «{}»').format(role)
-
-        return super().dispatch(*args, **kwargs)
-
-    def done(self, form_list, **kwargs):
+    # def done(self, form_list, **kwargs):
+    #     form_iter = iter(form_list)
+    #
+    #     with atomic():
+    #         next(form_iter).partial_save()
+    #
+    #         for form in form_iter:
+    #             form.save()
+    #
+    #     return HttpResponse()
+    def done_save(self, form_list):
         form_iter = iter(form_list)
+        next(form_iter).partial_save()
 
-        with atomic():
-            next(form_iter).partial_save()
+        for form in form_iter:
+            form.save()
 
-            for form in form_iter:
-                form.save()
-
-        return HttpResponse()
-
-    def get_form_instance(self, step):
-        return self.role
+    # def get_form_instance(self, step):
+    #     return self.role
 
     def get_form_kwargs(self, step):
         kwargs = super().get_form_kwargs(step)

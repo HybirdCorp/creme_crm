@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'EMAILS' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 15:00+0100\n"
+"POT-Creation-Date: 2019-03-25 23:22+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -31,11 +31,11 @@ msgstr "Ré-envoyer les e-mails"
 msgid "Emails"
 msgstr "E-mails"
 
-#: apps.py:127 apps.py:137
+#: apps.py:132 apps.py:142
 msgid "Marketing"
 msgstr "Marketing"
 
-#: apps.py:144
+#: apps.py:149
 msgid "Synchronization of incoming emails"
 msgstr "Synchronisation des e-mails externes"
 
@@ -132,11 +132,11 @@ msgstr "Envoyer les fiches e-mail"
 msgid "{username}'s files received by email"
 msgstr "Fichiers de {username} reçus par e-mail"
 
-#: crudity_register.py:93
+#: crudity_register.py:95
 msgid "Received with the mail {}"
 msgstr "Reçu avec l'e-mail {}"
 
-#: crudity_register.py:108
+#: crudity_register.py:110
 #, python-brace-format
 msgid "Creation of {entity}"
 msgstr "Création de {entity}"
@@ -388,7 +388,7 @@ msgstr "Créer un e-mail"
 msgid "Save the email"
 msgstr "Enregister l'e-mail"
 
-#: models/mail.py:92 views/mail.py:225
+#: models/mail.py:92 views/mail.py:237
 msgid "Send the email"
 msgstr "Envoyer l'e-mail"
 
@@ -1136,12 +1136,12 @@ msgstr ""
 msgid "Back to the campaign"
 msgstr "Retour à la campagne"
 
-#: views/campaign.py:138
+#: views/campaign.py:143
 #, python-brace-format
 msgid "New mailing lists for «{entity}»"
 msgstr "Nouvelles listes de diffusion pour «{entity}»"
 
-#: views/campaign.py:139
+#: views/campaign.py:144
 msgid "Link the mailing lists"
 msgstr "Lier les listes de diffusion"
 
@@ -1149,43 +1149,39 @@ msgstr "Lier les listes de diffusion"
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
-#: views/mail.py:216
+#: views/mail.py:216 views/mail.py:236
 #, python-brace-format
 msgid "Sending an email to «{entity}»"
 msgstr "Envoi d'un e-mail à «{entity}»"
 
-#: views/mail.py:249
-msgid "Sending an email to «{}»"
-msgstr "Envoi d'un e-mail à «{}»"
-
-#: views/mail.py:293 views/mail.py:306
+#: views/mail.py:306 views/mail.py:324
 msgid "Details of the email"
 msgstr "Détails de l'e-mail"
 
-#: views/mailing_list.py:163
+#: views/mailing_list.py:168
 #, python-brace-format
 msgid "New contacts for «{entity}»"
 msgstr "Nouveaux contacts pour «{entity}»"
 
-#: views/mailing_list.py:164
+#: views/mailing_list.py:169
 msgid "Link the contacts"
 msgstr "Lier les contacts"
 
-#: views/mailing_list.py:175
+#: views/mailing_list.py:180
 #, python-brace-format
 msgid "New organisations for «{entity}»"
 msgstr "Nouvelles sociétés pour «{entity}»"
 
-#: views/mailing_list.py:176
+#: views/mailing_list.py:181
 msgid "Link the organisations"
 msgstr "Lier les sociétés"
 
-#: views/mailing_list.py:186
+#: views/mailing_list.py:191
 #, python-brace-format
 msgid "New child list for «{entity}»"
 msgstr "Nouvelles listes filles pour «{entity}»"
 
-#: views/mailing_list.py:187
+#: views/mailing_list.py:192
 msgid "Link the mailing list"
 msgstr "Lier la liste de diffusion"
 
@@ -1215,6 +1211,9 @@ msgstr "Nouveaux fichiers joints pour «{entity}»"
 #: views/template.py:138
 msgid "Add the attachments"
 msgstr "Ajouter les fichiers joints"
+
+#~ msgid "Sending an email to «{}»"
+#~ msgstr "Envoi d'un e-mail à «{}»"
 
 #~ msgid "Sending an email to «%s»"
 #~ msgstr "Envoi d'un e-mail à «%s»"
