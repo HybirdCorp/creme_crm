@@ -1,0 +1,104 @@
+{% load i18n creme_core_tags creme_widgets %}
+
+{% with form=wizard.form steps=wizard.steps %}
+    {% block title %}
+        <div class="hat-bar-container ui-creme-dialog-titlebar">
+            <div class="hat-bar">
+                <div class="bar-icon">{% widget_icon name=icon_name size='brick-hat-bar' label=icon_label|or_op:title %}</div>
+                <div class="bar-title"><h1>{% blocktrans with current_step=steps.step1 step_count=steps.count %}{{title}}: step {{current_step}} of {{step_count}}{% endblocktrans %}</h1></div>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% if help_message %}
+        <div class="help_box">{{help_message|linebreaksbr}}</div>
+    {% endif%}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            if (!$('span.required-mark').first().length) {
+               $('.required-help').attr('style', 'display:none');
+            }
+
+        {% if not is_inner_popup %}
+            creme.forms.initialize($('#wizard_form form'));
+        {% endif %}
+        });
+    </script>
+
+    <p class="required-help">{% trans 'Fields marked with * are required.' %}</p>
+
+    <div id="wizard_form">
+        <form action="" method="POST">{% csrf_token %}
+            {{form.media}}
+            {{wizard.management_form}}
+
+{% comment %} TODO
+            {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
+{% endcomment %}
+
+            {% for hidden in form.hidden_fields %}
+                {% if hidden.errors %}
+                    <p>{{hidden.label}}&nbsp;:&nbsp;{{hidden.errors}}{{hidden}}</p>
+                {% else %}
+                    {{hidden}}
+                {% endif %}
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+                <table class="table_detail_view ui-corner-all">
+                    <thead>
+                        <tr>
+                            <th valign="middle">{% trans 'Global errors' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="collapsable">
+                        <tr>
+                            <td class="non_field_errors">{{form.non_field_errors}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+
+            {% block main_content %}
+                {% if form.forms %}{# TODO: improve this case #}
+                    {{form.management_form}}
+                    {% for subform in form.forms %}
+                        {{subform.as_p}}
+                    {% endfor %}
+                {% else %}
+                    {% for form_block in form.get_blocks %}
+                        {% include 'creme_core/generics/blockform/content.html' %}
+                    {% endfor %}
+                {% endif %}
+            {% endblock %}
+
+            {% block submit_buttons %}
+                <div class="submit_buttons">
+                {% if not is_inner_popup %}
+                    {% if steps.prev %}
+                        {% if steps.count > 2 %}
+                            <button name="wizard_goto_step" type="submit" value="{{steps.first}}" data-no-validate>{{first_label|default:_('First step')}}</button>
+                        {% endif %}
+                        <button name="wizard_goto_step" type="submit" value="{{steps.prev}}" data-no-validate>{{prev_label|default:_('Previous step')}}</button>
+                    {% endif %}
+                    <input type="submit" name="submit" value="{% if steps.current != steps.last %}{% trans 'Next step' %}{% else %}{{submit_label|default:_('Save')}}{% endif %}" />
+{# TODO ?               {% if cancel_url %}<a href="{{cancel_url}}" >{% trans 'Cancel' %}</a>{% endif %} #}
+                {% else %}
+                    {% if steps.prev %}
+                        {% if steps.count > 2 %}
+                            {% if steps.step1 > 2 %}
+                                <button name="wizard_goto_step" type="submit" value="{{steps.first}}" class="ui-creme-dialog-action" data-no-validate>{{first_label|default:_('First step')}}</button>
+                            {% endif %}
+                            <button name="wizard_goto_step" type="submit" value="{{steps.prev}}" class="ui-creme-dialog-action" data-no-validate>{{prev_label|default:_('Previous step')}}</button>
+                        {% else %}
+                            <button name="wizard_goto_step" type="submit" value="{{steps.prev}}" class="ui-creme-dialog-action" data-no-validate data-dialog-action-order="-1">{{prev_label|default:_('Previous step')}}</button>
+                        {% endif %}
+                    {% endif %}
+                    <input type="submit" name="send" class="ui-creme-dialog-action" value="{% if steps.current != steps.last %}{{submit_label|default:_('Next step')}}{% else %}{{submit_label|default:_('Save')}}{% endif %}" />
+                {% endif %}
+                </div>
+            {% endblock %}
+        </form>
+    </div>
+{% endwith %}

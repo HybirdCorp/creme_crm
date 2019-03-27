@@ -175,7 +175,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
     @skipIfNotInstalled('creme.billing')
     def test_create_credentials01(self):
-        "Creation credentials for generated models"
+        "Creation credentials for generated models."
         user = self.login(is_superuser=False, allowed_apps=['persons', 'recurrents'],
                           creatable_models=[RecurrentGenerator, Quote],  # Not Invoice
                          )
@@ -194,7 +194,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
                                           '0-first_generation': '08-07-2014 11:00',
                                           '0-periodicity_0':    'weeks',
                                           '0-periodicity_1':    '3',
-                                         }
+                                         },
                                    )
 
         response = post(Invoice)
@@ -205,9 +205,10 @@ class RecurrentsBillingTestCase(CremeTestCase):
         with self.assertNoException(): 
             errors = response.context['wizard']['form'].errors
 
-        self.assertEqual({'ct': [_('Select a valid choice. That choice is not one of the available choices.')]},
-                         errors
-                        )
+        self.assertEqual(
+            {'ct': [_('Select a valid choice. That choice is not one of the available choices.')]},
+            errors
+        )
 
         response = post(Quote)
         self.assertNoWizardFormError(response)

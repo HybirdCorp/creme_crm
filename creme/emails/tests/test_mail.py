@@ -539,7 +539,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         url = self._build_send_from_template_url(contact)
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_wizard_popup.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_wizard_popup.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-wizard-popup.html')
 
         context = response.context
         title = _('Sending an email to «{entity}»').format(entity=contact)
@@ -591,7 +592,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                           '1-body': ini_get('body'),
                                           '1-body_html': ini_get('body_html'),
                                           '1-signature': signature.id,
-                                          },
+                                         },
                                    )
         self.assertNoFormError(response)
         email = self.get_object_or_fail(EntityEmail, recipient=recipient)
@@ -636,7 +637,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         user = self.login(is_superuser=False)
         SetCredentials.objects.create(
             role=user.role,
-            value=EntityCredentials.VIEW,   # EntityCredentials.LINK
+            value=EntityCredentials.VIEW,  # EntityCredentials.LINK
             set_type=SetCredentials.ESET_ALL,
         )
 
@@ -819,7 +820,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(job, jobs[0][0])
 
     def test_refresh_job02(self):
-        "Mail is restored + do not have to be send => do not refresh the job"
+        "Mail is restored + do not have to be send => do not refresh the job."
         self.login()
 
         email = self._create_email(MAIL_STATUS_SENDINGERROR)

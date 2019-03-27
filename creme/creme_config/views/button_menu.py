@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,45 +21,52 @@
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
-from formtools.wizard.views import SessionWizardView
+# from formtools.wizard.views import SessionWizardView
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth import decorators
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import BricksView
+from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
-from creme.creme_core.views.generic.wizard import PopupWizardMixin
+# from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import button_menu as button_forms
 
 from .base import ConfigEdition
 
 
-class Portal(BricksView):
+class Portal(generic.BricksView):
     template_name = 'creme_config/button_menu_portal.html'
 
 
-class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
+# class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
+class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
     class _ResourceStep(button_forms.ButtonMenuAddForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
-    class _ConfigStep(button_forms.ButtonMenuEditForm):
-        step_prev_label = _('Previous step')
-        step_submit_label = _('Save the configuration')
+    # class _ConfigStep(button_forms.ButtonMenuEditForm):
+    #     step_prev_label = _('Previous step')
+    #     step_submit_label = _('Save the configuration')
 
-    form_list = (_ResourceStep, _ConfigStep)
-    wizard_title = _('New buttons configuration')
-    template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
-    permission = 'creme_core.can_admin'
+    form_list = (
+        _ResourceStep,
+        # _ConfigStep,
+        button_forms.ButtonMenuEditForm,
+    )
+    # wizard_title = _('New buttons configuration')
+    title = _('New buttons configuration')
+    submit_label = _('Save the configuration')
+    # template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
+    # permission = 'creme_core.can_admin'
+    permissions = 'creme_core.can_admin'
 
-    def done(self, form_list, **kwargs):
-        # form_list[1].save()
-        _resource_form, config_form = form_list
-        config_form.save()
+    # def done(self, form_list, **kwargs):
+    #     _resource_form, config_form = form_list
+    #     config_form.save()
+    #
+    #     return HttpResponse()
 
-        return HttpResponse()
-
-    def get_form_kwargs(self, step):
+    def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step)
 
         if step == '1':
@@ -109,8 +116,8 @@ class ButtonMenuEdition(EntityCTypeRelatedMixin, ConfigEdition):
                ugettext('Edit default configuration')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
+@decorators.login_required
+@decorators.permission_required('creme_core.can_admin')
 def delete(request):
     ct_id = get_from_POST_or_404(request.POST, 'id')
     ButtonMenuItem.objects.filter(content_type=ct_id).delete()

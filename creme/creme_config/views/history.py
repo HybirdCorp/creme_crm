@@ -22,7 +22,7 @@ from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth import decorators
 from creme.creme_core.models import HistoryConfigItem
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import BricksView
@@ -42,8 +42,8 @@ class Portal(BricksView):
     template_name = 'creme_config/history_portal.html'
 
 
-@login_required
-@permission_required('creme_core.can_admin')
+@decorators.login_required
+@decorators.permission_required('creme_core.can_admin')
 def delete(request):
     get_object_or_404(HistoryConfigItem, pk=get_from_POST_or_404(request.POST, 'id')).delete()
 

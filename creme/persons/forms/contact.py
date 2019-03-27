@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, ModelChoiceField
@@ -39,8 +39,8 @@ Organisation = persons.get_organisation_model()
 
 class ContactForm(_BasePersonForm):
     blocks = _BasePersonForm.blocks.new(
-                ('details', _('Contact details'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']),
-            )
+        ('details', _('Contact details'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']),
+    )
 
     class Meta(_BasePersonForm.Meta):
         model = Contact

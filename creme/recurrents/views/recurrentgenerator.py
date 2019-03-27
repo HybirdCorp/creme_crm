@@ -20,14 +20,14 @@
 
 # import warnings
 
-from django.db.transaction import atomic
-from django.shortcuts import redirect
-from django.utils.decorators import method_decorator
+# from django.db.transaction import atomic
+# from django.shortcuts import redirect
+# from django.utils.decorators import method_decorator
 
-from formtools.wizard.views import SessionWizardView
+# from formtools.wizard.views import SessionWizardView
 
-from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 
 from .. import get_rgenerator_model
@@ -38,33 +38,39 @@ from ..forms import recurrentgenerator as generator_forms
 RecurrentGenerator = get_rgenerator_model()
 
 
-class RecurrentGeneratorWizard(SessionWizardView):
+# class RecurrentGeneratorWizard(SessionWizardView):
+class RecurrentGeneratorWizard(generic.EntityCreationWizard):
     # NB: in deed, the second form is just a place holder ;
     #     it will be dynamically replaced by a form from 'recurrent_registry' (see get_form().
     form_list = [generator_forms.RecurrentGeneratorCreateForm] * 2
-    template_name = 'creme_core/generics/blockform/add_wizard.html'
+    # template_name = 'creme_core/generics/blockform/add_wizard.html'
+    model = RecurrentGenerator
 
-    @method_decorator(login_required)
-    @method_decorator(permission_required('recurrents'))
-    @method_decorator(permission_required(cperm(RecurrentGenerator)))
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    # @method_decorator(login_required)
+    # @method_decorator(permission_required('recurrents'))
+    # @method_decorator(permission_required(cperm(RecurrentGenerator)))
+    # def dispatch(self, *args, **kwargs):
+    #     return super().dispatch(*args, **kwargs)
 
-    def done(self, form_list, **kwargs):
+    # def done(self, form_list, **kwargs):
+    #     generator_form, resource_form = form_list
+    #
+    #     with atomic():
+    #         generator_form.instance.template = resource_form.save()
+    #         generator_form.save()
+    #
+    #     return redirect(resource_form.instance)
+    def done_save(self, form_list):
         generator_form, resource_form = form_list
+        generator_form.instance.template = resource_form.save()
+        generator_form.save()
 
-        with atomic():
-            generator_form.instance.template = resource_form.save()
-            generator_form.save()
-
-        return redirect(resource_form.instance)
-
-    def get_context_data(self, form, **kwargs):
-        context = super().get_context_data(form=form, **kwargs)
-        context['title'] = RecurrentGenerator.creation_label
-        context['submit_label'] = RecurrentGenerator.save_label
-
-        return context
+    # def get_context_data(self, form, **kwargs):
+    #     context = super().get_context_data(form=form, **kwargs)
+    #     context['title'] = RecurrentGenerator.creation_label
+    #     context['submit_label'] = RecurrentGenerator.save_label
+    #
+    #     return context
 
     def get_form(self, step=None, data=None, files=None):
         from ..registry import recurrent_registry
@@ -76,7 +82,7 @@ class RecurrentGeneratorWizard(SessionWizardView):
             step = self.steps.current
 
         if step == '1':
-            prev_data =  self.get_cleaned_data_for_step('0')
+            prev_data = self.get_cleaned_data_for_step('0')
 
             ctype = prev_data['ct']
             form_class = recurrent_registry.get_form_of_template(ctype)
@@ -94,8 +100,8 @@ class RecurrentGeneratorWizard(SessionWizardView):
 
         return form
 
-    def get_form_kwargs(self, step):
-        return {'user': self.request.user}
+    # def get_form_kwargs(self, step=None):
+    #     return {'user': self.request.user}
 
 
 # def abstract_edit_rgenerator(request, generator_id, form=generator_forms.RecurrentGeneratorEditForm):

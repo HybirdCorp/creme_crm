@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,10 @@ class ConfigCreation(generic.CremeFormPopup):
 
 
 class ConfigModelCreation(generic.CremeModelCreationPopup):
+    permissions = _PERM
+
+
+class ConfigModelCreationWizard(generic.CremeModelCreationWizardPopup):
     permissions = _PERM
 
 

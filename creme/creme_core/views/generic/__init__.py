@@ -27,3 +27,9 @@ from .edit import (
 from .listview import EntitiesList  # list_view list_view_popup
 # from .portal import app_portal
 # from .popup import inner_popup
+from .wizard import (
+    CremeModelCreationWizard, EntityCreationWizard,
+    CremeModelCreationWizardPopup, EntityCreationWizardPopup,
+    CremeModelEditionWizard, EntityEditionWizard,
+    CremeModelEditionWizardPopup, EntityEditionWizardPopup,
+)

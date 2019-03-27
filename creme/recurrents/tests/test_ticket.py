@@ -96,7 +96,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                           '0-first_generation': '11-06-2014 09:00',
                                           '0-periodicity_0':    'days',
                                           '0-periodicity_1':    '4',
-                                         }
+                                         },
                                     )
         self.assertNoWizardFormError(response)
 
@@ -106,7 +106,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
             count = steps.count
             current = steps.current
 
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_wizard.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_wizard.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-wizard.html')
         self.assertEqual(2, count)
         self.assertEqual('1', current)
 
@@ -130,6 +131,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
 
         gen = self.get_object_or_fail(RecurrentGenerator, name=name)
         tpl = self.get_object_or_fail(TicketTemplate, title=title)
+        self.assertRedirects(response, tpl.get_absolute_url())
 
         self.assertEqual(user,    gen.user)
         self.assertEqual(self.ct, gen.ct)
