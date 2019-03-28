@@ -16,9 +16,8 @@
         {% url 'emails__create_email_from_template' object.id as creation_from_tpl_url %}
         {% brick_header_action id='add' url=creation_from_tpl_url label=_('Send a email (with a template)') enabled=create_linked_perm %}
 
-        {% url 'creme_core__create_relations_bulk' object.entity_type_id as link_url %}
-        {% url_join link_url ids=object.id persist='ids' rtype=rtype_ids as link_uri %}
-        {% brick_header_action id='link' url=link_uri label=_('Link to an existing email') enabled=link_perm %}
+        {% url 'emails__link_emails' object.id as link_url %}
+        {% brick_header_action id='link' url=link_url label=_('Link to emails') enabled=link_perm %}
     {% endwith %}
 {% endblock %}
 

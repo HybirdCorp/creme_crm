@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,8 @@ class _AlternativeErrorMiddleware(MiddlewareMixin):
     error = None
     status = 400
     template = None
-    log_ajax = False
+    # log_ajax = False
+    log_ajax = True
 
     def process_exception(self, request, exception):
         if self.error is None or isinstance(exception, self.error):
@@ -73,4 +74,4 @@ class Beautiful409Middleware(_AlternativeErrorMiddleware):
 
 class Ajax500Middleware(_AlternativeErrorMiddleware):
     status = 500
-    log_ajax = True
+    # log_ajax = True

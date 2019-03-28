@@ -16,7 +16,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     from creme.creme_core.gui import actions
-    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig, Job
+    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig, Job, FakeInvoice
     from creme.creme_core.forms.widgets import Label
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
@@ -27,8 +27,10 @@ try:
             Contact, Organisation, Document, Folder, EntityEmail, EmailTemplate)
 
     from ..actions import EntityEmailResendAction, BulkEntityEmailResendAction
-    from ..constants import (MAIL_STATUS_NOTSENT, MAIL_STATUS_SENT,
-            MAIL_STATUS_SENDINGERROR, REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
+    from ..constants import (MAIL_STATUS_NOTSENT, MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR,
+            REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
+            REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED,
+            REL_OBJ_RELATED_TO)
     from ..creme_jobs import entity_emails_send_type
     from ..models import EmailSignature
 except Exception as e:
@@ -59,8 +61,22 @@ class EntityEmailTestCase(_EmailsTestCase):
     def _build_send_from_template_url(self, entity):
         return reverse('emails__create_email_from_template', args=(entity.id,))
 
+    def _build_link_emails_url(self, entity):
+        return reverse('emails__link_emails', args=(entity.id,))
+
     def _get_job(self):
         return self.get_object_or_fail(Job, type_id=entity_emails_send_type.id)
+
+    def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html=''):
+        user = self.user
+        return EntityEmail.objects.create(user=user,
+                                          sender=user.linked_contact.email,
+                                          recipient='vincent.law@immigrates.rmd',
+                                          subject='Under arrest',
+                                          body='Freeze !',
+                                          status=status,
+                                          body_html=body_html,
+                                         )
 
     def _send_mails(self, job=None):
         entity_emails_send_type.execute(job or self._get_job())
@@ -647,6 +663,56 @@ class EntityEmailTestCase(_EmailsTestCase):
         )
         self.assertGET403(self._build_send_from_template_url(contact))
 
+    def test_link_to_emails01(self):
+        "Contact."
+        self.login()
+        contact = self.other_user.linked_contact
+        email1 = self._create_email()
+        email2 = self._create_email()
+
+        url = self._build_link_emails_url(contact)
+        response = self.assertGET200(url)
+
+        context = response.context
+        self.assertEqual(_('Link «{entity}» to emails').format(entity=contact),
+                         context.get('title')
+                        )
+        self.assertEqual(_('Save the relationships'), context.get('submit_label'))
+
+        with self.assertNoException():
+            allowed_rtypes = context['form'].fields['relations'].allowed_rtypes
+
+        self.assertEqual(
+            {REL_OBJ_MAIL_SENDED, REL_OBJ_MAIL_RECEIVED, REL_OBJ_RELATED_TO},
+            {rtype.id for rtype in allowed_rtypes},
+        )
+
+        response = self.client.post(
+            url,
+            data={'relations': self.formfield_value_multi_relation_entity(
+                        (REL_OBJ_MAIL_RECEIVED, email1),
+                        (REL_OBJ_RELATED_TO,    email2),
+                    ),
+                 },
+        )
+        self.assertNoFormError(response)
+        self.assertEqual(2, contact.relations.count())
+        self.assertRelationCount(1, contact, REL_OBJ_MAIL_RECEIVED, email1)
+        self.assertRelationCount(1, contact, REL_OBJ_RELATED_TO,    email2)
+
+    def test_link_to_emails02(self):
+        "Invoice => only one relation type proposed."
+        user = self.login()
+        invoice = FakeInvoice.objects.create(user=user, name='Swords & shields')
+        response = self.assertGET200(self._build_link_emails_url(invoice))
+
+        with self.assertNoException():
+            allowed_rtypes = response.context['form'].fields['relations'].allowed_rtypes
+
+        self.assertEqual([REL_OBJ_RELATED_TO],
+                         [rtype.id for rtype in allowed_rtypes],
+                        )
+
     def test_listview01(self):
         self.login()
         self._create_emails()
@@ -695,17 +761,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertIsNone(resend_action.action_data)
         self.assertTrue(resend_action.is_enabled)
         self.assertTrue(resend_action.is_visible)
-
-    def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html=''):
-        user = self.user
-        return EntityEmail.objects.create(user=user,
-                                          sender=user.linked_contact.email,
-                                          recipient='vincent.law@immigrates.rmd',
-                                          subject='Under arrest',
-                                          body='Freeze !',
-                                          status=status,
-                                          body_html=body_html,
-                                         )
 
     def test_get_sanitized_html_field01(self):
         "Empty body"

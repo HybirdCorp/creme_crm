@@ -24,30 +24,32 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import Template, Context
-from django.utils.translation import ugettext_lazy as _  # ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 # from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
 # from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import RelationType
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 # from creme.creme_core.views.generic.wizard import PopupWizardMixin
+from creme.creme_core.views.relation import RelationsAdding
 
 from .. import get_entityemail_model, bricks, constants
 from ..forms import mail as mail_forms
 from ..forms.template import TEMPLATES_VARS
 from ..models import LightWeightEmail
 
-
 EntityEmail = get_entityemail_model()
 
-# Function views --------------------------------------------------------------
 
+# Function views --------------------------------------------------------------
 
 @login_required
 @permission_required('emails')
@@ -314,6 +316,41 @@ class EntityEmailPopup(generic.EntityDetailPopup):
 class EntityEmailsList(generic.EntitiesList):
     model = EntityEmail
     default_headerfilter_id = constants.DEFAULT_HFILTER_EMAIL
+
+
+class EntityEmailLinking(RelationsAdding):
+    title = _('Link «{entity}» to emails')
+
+    def get_relation_types(self):
+        subject = self.get_related_entity()
+        subject_ctype = subject.entity_type
+        rtypes = []
+        subjects_prop_ids = None  # TODO: lazy object
+
+        for rtype in RelationType.objects.filter(id__in=bricks.MailsHistoryBrick
+                                                              .relation_type_deps):
+            if not rtype.is_compatible(subject_ctype.id):
+                continue
+
+            # TODO: unit test
+            # TODO: factorise with RelationsAdding
+            needed_property_types = list(rtype.subject_properties.all())
+            if needed_property_types:
+                if subjects_prop_ids is None:
+                    subjects_prop_ids = set(subject.properties.values_list('type', flat=True))
+
+                if any(needed_ptype.id not in subjects_prop_ids
+                        for needed_ptype in needed_property_types
+                      ):
+                    continue
+
+            rtypes.append(rtype.id)
+
+        # TODO: unit test
+        if not rtypes:
+            raise ConflictError(ugettext('No type of relationship is compatible.'))
+
+        return rtypes
 
 
 # TODO: disable the link in the template if view is not allowed
