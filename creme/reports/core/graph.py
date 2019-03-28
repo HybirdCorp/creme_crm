@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2018  Hybird
+#    Copyright (C) 2013-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from creme.creme_core.models import (CremeEntity, RelationType, Relation,
         CustomField, CustomFieldEnumValue)
 from creme.creme_core.utils.meta import FieldInfo
 from creme.creme_core.utils.queries import QSerializer
+from creme.creme_core.views.generic import EntitiesList
 
 from ..constants import *
 from ..report_aggregation_registry import field_aggregation_registry
@@ -53,14 +54,26 @@ def _db_grouping_format():
 
 # TODO: move to creme_core ?
 class ListViewURLBuilder:
+    entity_filter_id_arg = EntitiesList.entity_filter_id_arg
+    requested_q_arg      = EntitiesList.requested_q_arg
+
     def __init__(self, model, filter=None):
         fmt = getattr(model, 'get_lv_absolute_url', None)
 
         if fmt:
-            fmt = model.get_lv_absolute_url() + r'?q_filter={}'
+            # fmt = model.get_lv_absolute_url() + r'?q_filter={}'
+            fmt = '{url}?{arg}={value}'.format(
+                url=model.get_lv_absolute_url(),
+                arg=self.requested_q_arg,
+                value='{}',
+            )
 
             if filter:
-                fmt += '&filter=' + filter.id
+                # fmt += '&filter=' + filter.id
+                fmt += '&{arg}={value}'.format(
+                    arg=self.entity_filter_id_arg,
+                    value=filter.id,
+                )
 
         self._fmt = fmt
 
