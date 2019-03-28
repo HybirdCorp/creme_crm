@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'EMAILS' APP (JavaScript only)
-# Copyright (C) 2017 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Emails 1.7\n"
+"Project-Id-Version: Creme Emails 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 18:39+0100\n"
+"POT-Creation-Date: 2019-03-28 14:31+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,11 +16,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-# Already in creme_core
 #: static/emails/js/emails.js:31 static/emails/js/emails.js:46
 #: static/emails/js/emails.js:90 static/emails/js/emails.js:100
 msgid "Process done"
-msgstr ""
+msgstr "Opération effectuée"
 
 # Already in creme_core
 #: static/emails/js/emails.js:75

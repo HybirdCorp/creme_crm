@@ -47,9 +47,10 @@ urlpatterns = [
     re_path(r'^template/(?P<template_id>\d+)/attachment/delete[/]?$', template.delete_attachment,           name='emails__remove_attachment_from_template'),
 
     # Mails history bricks
-    re_path(r'^mails_history/(?P<mail_id>\w+)[/]?$', mail.LightWeightEmailPopup.as_view(), name='emails__view_lw_mail'),
-    re_path(r'^mail/get_body/(?P<mail_id>\w+)[/]?$', mail.get_lightweight_mail_body,       name='emails__lw_mail_body'),
+    re_path(r'^mails_history/(?P<mail_id>\w+)[/]?$', mail.LightWeightEmailPopup.as_view(), name='emails__view_lw_mail'),  # TODO: improve URL (lw_mail...)
+    re_path(r'^mail/get_body/(?P<mail_id>\w+)[/]?$', mail.get_lightweight_mail_body,       name='emails__lw_mail_body'),  # TODO: idem
     re_path(r'^mail/resend[/]?$',                    mail.resend_mails,                    name='emails__resend_emails'),
+    re_path(r'^mail/link/(?P<subject_id>\w+)[/]?$',  mail.EntityEmailLinking.as_view(),    name='emails__link_emails'),
 
     # Signature
     re_path(r'^signature/', include([
