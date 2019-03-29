@@ -7,7 +7,7 @@
 
 {% block brick_header_actions %}
 {% url 'creme_core__delete_entities' as del_multi_url %}
-    {% brick_header_action id='emailsync-delete' url=del_multi_url type='delete' icon='cancel' __selector='.row-selector:checked' %}
+    {% brick_header_action id='emailsync-delete' url=del_multi_url type='delete' icon='cancel' %}
 {% endblock %}
 
 {% block brick_table_columns %}

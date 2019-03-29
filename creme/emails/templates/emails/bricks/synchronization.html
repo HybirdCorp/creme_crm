@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% url 'creme_core__create_relations_bulk' objects_ctype.id rtypes as link_url %}{% url 'emails__crudity_validated' as validate_url %}{% url 'emails__crudity_spam' as spam_url %}
+{% url 'creme_core__create_relations_bulk' objects_ctype.id as link_url %}{% url 'emails__crudity_validated' as validate_url %}{% url 'emails__crudity_spam' as spam_url %}
     {% brick_header_action id='emailsync-link'   url=link_url     __rtypes=rtypes type='link' label=_('Link to') %}
     {% brick_header_action id='emailsync-action' url=validate_url type='add'  label=_('Mark as treated') icon='ok' %}
     {% brick_header_action id='emailsync-action' url=spam_url     icon='spam' label=_('Mark as spam') %}
@@ -18,15 +18,14 @@
 {% endblock %}
 
 {% block mail_sync_actions %}
-{% templatize '.row-selector[value={{mail.id}}]' as selector %}
-    <td {% brick_table_data_status action %}>
-        {% brick_table_action id='emailsync-link' __email_ctype=objects_ctype.id __rtypes=rtypes __selector=selector label=_('Link to') icon='link' %}
+    <td {% brick_table_data_status action %}>{% url 'creme_core__create_relations_bulk' objects_ctype.id as link_url %}
+        {% brick_table_action id='emailsync-link' url=link_url __rtypes=rtypes __id=mail.id label=_('Link to') icon='link' %}
     </td>
     <td {% brick_table_data_status action %}>{% url 'emails__crudity_validated' as validated_url %}
-        {% brick_table_action id='emailsync-action' url=validated_url __selector=selector label=_('Mark as treated') icon='ok' %}
+        {% brick_table_action id='emailsync-action' url=validated_url __id=mail.id label=_('Mark as treated') icon='ok' %}
     </td>
     <td {% brick_table_data_status action %}>{% url 'emails__crudity_spam' as spam_url %}
-        {% brick_table_action id='emailsync-action' url=spam_url label=_('Mark as spam') __selector=selector icon='spam' %}
+        {% brick_table_action id='emailsync-action' url=spam_url label=_('Mark as spam') __id=mail.id icon='spam' %}
     </td>
     {{block.super}}
 {% endblock %}

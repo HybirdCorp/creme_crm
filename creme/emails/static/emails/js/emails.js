@@ -25,66 +25,6 @@
 
 creme.emails = {};
 
-var emailSyncActions = {
-    'emailsync-link': function(url, options, data, e) {
-        var values = this._selectedRowValues().filter(Object.isNotEmpty);
-
-        if (values.length === 0) {
-            return this._warningAction(gettext('Please select at least one entity.'));
-        }
-
-        url += '?' + $.param({persist: 'id', ids: values, rtype: data.rtypes});
-
-        return this._build_form_refresh(url, options, data, e);
-    },
-
-    'emailsync-action': function(url, options, data, e) {
-        var values = this._selectedRowValues().filter(Object.isNotEmpty);
-
-        if (values.length === 0) {
-            return this._warningAction(gettext('Nothing is selected.'));
-        }
-
-        return this._build_update(url, {messageOnSuccess: gettext('Process done')}, {ids: values}, e);
-    },
-
-    'emailsync-delete': function(url, options, data, e) {
-        var values = this._selectedRowValues().filter(Object.isNotEmpty);
-
-        if (values.length === 0) {
-            return this._warningAction(gettext('Nothing is selected.'));
-        }
-
-        return this._build_update(url, {messageOnSuccess: gettext('Process done')}, {ids: values.join(',')}, e);
-    }
-};
-
-$(document).on('brick-setup-actions', '.brick.emails-emailsync-brick', function(e, brick, actions) {
-    actions.registerAll(emailSyncActions);
-});
-
-var emailActions = {
-    'email-toggle-images': function(url, options, data, e) {
-        var iframe = this._brick.element().find('iframe[data-html-field]');
-        var link = document.createElement('a'); link.href = iframe.attr('src');
-        var visible = link.search.indexOf('external_img=on') !== -1;
-        var nexturl = link.pathname + (visible ? '' : '?external_img=on');
-        var title = $(e.target).find('.brick-action-title');
-
-        if (title.length) {
-            title.text(visible ? data.inlabel : data.outlabel);
-        } else {
-            $(e.target).text(visible ? data.inlabel : data.outlabel);
-        }
-
-        iframe.attr('src', nexturl);
-    }
-};
-
-$(document).on('brick-setup-actions', '.brick.emails-email-brick', function(e, brick, actions) {
-    actions.registerAll(emailActions);
-});
-
 creme.emails.LinkEMailToAction = creme.component.Action.sub({
     _init_: function(options) {
         this._super_(creme.component.Action, '_init_', this._run, options);
@@ -112,8 +52,78 @@ creme.emails.LinkEMailToAction = creme.component.Action.sub({
                .onClose(function() {
                    self.cancel();
                })
-               .open({width: 800});
+               .open({width: 1024});
     }
+});
+
+var _emailSyncSelection = function(registry, data) {
+    if (Object.isEmpty(data.id)) {
+        return registry._selectedRowValues().filter(Object.isNotEmpty);
+    } else {
+        return [data.id];
+    }
+};
+
+var emailSyncActions = {
+    'emailsync-link': function(url, options, data, e) {
+        var ids = _emailSyncSelection(this, data);
+
+        if (Object.isEmpty(ids)) {
+            return this._warningAction(gettext('Please select at least one entity.'));
+        }
+
+        return new creme.emails.LinkEMailToAction({
+            url: url,
+            rtypes: data.rtypes,
+            ids: ids
+        });
+    },
+
+    'emailsync-action': function(url, options, data, e) {
+        var ids = _emailSyncSelection(this, data);
+
+        if (Object.isEmpty(ids)) {
+            return this._warningAction(gettext('Nothing is selected.'));
+        }
+
+        return this._build_update(url, {}, {ids: ids}, e);
+    },
+
+    'emailsync-delete': function(url, options, data, e) {
+        var ids = _emailSyncSelection(this, data);
+
+        if (Object.isEmpty(ids)) {
+            return this._warningAction(gettext('Nothing is selected.'));
+        }
+
+        return this._build_delete(url, {}, {ids: ids.join(',')}, e);
+    }
+};
+
+$(document).on('brick-setup-actions', '.brick.emails-emailsync-brick', function(e, brick, actions) {
+    actions.registerAll(emailSyncActions);
+});
+
+var emailActions = {
+    'email-toggle-images': function(url, options, data, e) {
+        var iframe = this._brick.element().find('iframe[data-html-field]');
+        var link = document.createElement('a'); link.href = iframe.attr('src');
+        var visible = link.search.indexOf('external_img=on') !== -1;
+        var nexturl = link.pathname + (visible ? '' : '?external_img=on');
+        var title = $(e.target).find('.brick-action-title');
+
+        if (title.length) {
+            title.text(visible ? data.inlabel : data.outlabel);
+        } else {
+            $(e.target).text(visible ? data.inlabel : data.outlabel);
+        }
+
+        iframe.attr('src', nexturl);
+    }
+};
+
+$(document).on('brick-setup-actions', '.brick.emails-email-brick', function(e, brick, actions) {
+    actions.registerAll(emailActions);
 });
 
 $(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {
