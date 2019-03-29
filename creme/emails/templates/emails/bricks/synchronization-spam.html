@@ -16,8 +16,8 @@
 {% endblock %}
 
 {% block mail_sync_actions %}
-    <td {% brick_table_data_status action %}>{% url 'emails__crudity_waiting' as waiting_url %}{% templatize '.row-selector[value={{mail.id}}]' as selector %}
-        {% brick_table_action id='emailsync-action' url=waiting_url __selector=selector label=_('Mark as «to be treated»') icon='email' %}
+    <td {% brick_table_data_status action %}>{% url 'emails__crudity_waiting' as waiting_url %}
+        {% brick_table_action id='emailsync-action' url=waiting_url __id=mail.id label=_('Mark as «to be treated»') icon='email' %}
     </td>
     {{block.super}}
 {% endblock %}
