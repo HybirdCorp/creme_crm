@@ -6,6 +6,7 @@ try:
     from django.test.client import RequestFactory
     from django.utils.translation import ugettext
 
+    from creme.creme_core.constants import MODELBRICK_ID
     from creme.creme_core.gui.bricks import brick_registry, Brick
     from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
     from creme.creme_core.utils.media import get_current_theme
@@ -68,7 +69,8 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             render = template.render(RequestContext(self._build_request(), {'object': motoko}))
 
         document = self.get_html_tree(render)
-        brick_node = self.get_brick_node(document, brick_registry._generate_modelbrick_id(FakeContact))
+        # brick_node = self.get_brick_node(document, brick_registry._generate_modelbrick_id(FakeContact))
+        brick_node = self.get_brick_node(document, MODELBRICK_ID)
 
         content_node = brick_node.find('.//div[@class="brick-content "]')
         self.assertIsNotNone(content_node)

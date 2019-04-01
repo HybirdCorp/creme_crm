@@ -9,6 +9,7 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.bricks import RelationsBrick
+    from creme.creme_core.constants import MODELBRICK_ID
     from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.gui.bricks import (brick_registry, Brick,
             InstanceBrickConfigItem, _BrickRegistry, BricksManager)
@@ -596,7 +597,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           first_name='Naru', phone='1122334455',
                                          )
 
-        content_node = self._get_contact_brick_content(naru, brick_id='modelblock_creme_core-fakecontact')
+        # content_node = self._get_contact_brick_content(naru, brick_id='modelblock_creme_core-fakecontact')
+        content_node = self._get_contact_brick_content(naru, brick_id=MODELBRICK_ID)
         self.assertEqual(naru.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
         self.assertIn(naru.phone, self.get_brick_tile(content_node, 'regular_field-phone').text)
 
@@ -611,7 +613,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           first_name='Naru', phone='1122334455',
                                          )
 
-        content_node = self._get_contact_brick_content(naru, brick_id='modelblock_creme_core-fakecontact')
+        # content_node = self._get_contact_brick_content(naru, brick_id='modelblock_creme_core-fakecontact')
+        content_node = self._get_contact_brick_content(naru, brick_id=MODELBRICK_ID)
         self.assertEqual(naru.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
         self._assertNoBrickTile(content_node, 'regular_field-phone')
 

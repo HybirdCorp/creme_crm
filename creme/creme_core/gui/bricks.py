@@ -31,6 +31,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..core.entity_cell import EntityCellRegularField
 from ..core.sorter import cell_sorter_registry
+from ..constants import MODELBRICK_ID
 from ..models import (Relation, RelationBrickItem, CremeEntity,
         InstanceBrickConfigItem, CustomBrickConfigItem, BrickState)
 from ..utils.meta import OrderedField
@@ -368,6 +369,7 @@ class QuerysetBrick(PaginatedBrick):
 
 
 class EntityBrick(Brick):
+    id_ = MODELBRICK_ID
     verbose_name  = _('Information on the entity (generic)')
     template_name = 'creme_core/bricks/generic/entity.html'
 
@@ -645,7 +647,11 @@ class _BrickRegistry:
             add(model)
 
     def register_4_model(self, model, brick_cls):  # TODO: had an 'overload' arg ??
-        assert brick_cls.id_ is None
+        # assert brick_cls.id_ is None
+        if brick_cls.id_ != MODELBRICK_ID:
+            logger.warning('register_4_model(): <%s> should have an id_== MODELBRICK_ID', brick_cls)
+            brick_cls.id_ = MODELBRICK_ID
+        # assert brick_cls.id_ == MODELBRICK_ID  TODO
 
         # NB: the key is the class, not the ContentType.id because it can cause
         # some inconsistencies in DB problem in unit tests (contenttypes cache bug with tests ??)
@@ -682,10 +688,10 @@ class _BrickRegistry:
 
             brick_classes[brick_id] = brick_cls
 
-    @staticmethod
-    def _generate_modelbrick_id(model):
-        meta = model._meta
-        return 'modelblock_{}-{}'.format(meta.app_label, meta.model_name)
+    # @staticmethod
+    # def _generate_modelbrick_id(model):
+    #     meta = model._meta
+    #     return 'modelblock_{}-{}'.format(meta.app_label, meta.model_name)
 
     def __getitem__(self, brick_id):
         return self._brick_classes[brick_id]
@@ -759,10 +765,17 @@ class _BrickRegistry:
                 yield CustomBrick(id_, cbci)
                 continue
 
-            if id_.startswith('modelblock_'):  # TODO: constant ?
-                yield self.get_brick_4_object(ContentType.objects
-                                                         .get_by_natural_key(*id_[len('modelblock_'):].split('-'))
-                                             )
+            # if id_.startswith('modelblock_'):
+            #     yield self.get_brick_4_object(ContentType.objects
+            #                                              .get_by_natural_key(*id_[len('modelblock_'):].split('-'))
+            #                                  )
+            #     continue
+            if id_ == MODELBRICK_ID:
+                if entity is None:
+                    logger.warning('Model brick without entity ?!')
+                else:
+                    yield self.get_brick_4_object(entity)
+
                 continue
 
             if id_.startswith(Brick.GENERIC_HAT_BRICK_ID):
@@ -814,7 +827,7 @@ class _BrickRegistry:
                 # TODO: warning ??
                 brick.verbose_name = _('Information on the entity')
 
-        brick.id_ = self._generate_modelbrick_id(model)
+        # brick.id_ = self._generate_modelbrick_id(model)
 
         return brick
 
@@ -868,6 +881,8 @@ class _BrickRegistry:
 
             for cbci in CustomBrickConfigItem.objects.filter(content_type=ContentType.objects.get_for_model(model)):
                 yield CustomBrick(cbci.generate_id(), cbci)
+        else:
+            yield EntityBrick()
 
     def get_compatible_hat_bricks(self, model):
         yield self.get_generic_hat_brick(model)

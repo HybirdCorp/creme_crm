@@ -8,9 +8,10 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
+    from creme.creme_core.constants import MODELBRICK_ID
     from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
     from creme.creme_core.gui.bricks import (Brick, SimpleBrick, QuerysetBrick,
-            SpecificRelationsBrick, CustomBrick, _BrickRegistry, BricksManager)
+            EntityBrick, SpecificRelationsBrick, CustomBrick, _BrickRegistry, BricksManager)
     from creme.creme_core.models import (Relation, RelationType,
             InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem)
     from creme.creme_core.views.bricks import build_context
@@ -157,7 +158,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual((rtype1.id,), brick.relation_type_deps)
 
     def test_get_compatible_bricks02(self):
-        "SpecificRelationsBrick"
+        "SpecificRelationsBrick."
         create_rtype = RelationType.create
         rtype1 = create_rtype(('test-subject_loves', 'loves'),
                               ('test-object_loved', 'is loved by')
@@ -194,6 +195,25 @@ class BrickRegistryTestCase(CremeTestCase):
         rtypes = extract_rtypes(model=FakeContact)
         self.assertIn(rtype1, rtypes)
         self.assertNotIn(rtype2, rtypes)
+
+    def test_get_compatible_bricks03(self):
+        "No custom model brick."
+        brick_registry = _BrickRegistry()
+
+        def extract_model_brick(**kwargs):
+            return [
+                brick
+                    for brick in brick_registry.get_compatible_bricks(**kwargs)
+                        if isinstance(brick, EntityBrick)
+        ]
+
+        # No model ----
+        bricks1 = extract_model_brick()
+        self.assertEqual(1, len(bricks1), bricks1)
+
+        # Model ----
+        bricks2 = extract_model_brick(model=FakeOrganisation)
+        self.assertEqual(1, len(bricks2), bricks2)
 
     def test_get_compatible_hat_bricks01(self):
         brick_registry = _BrickRegistry()
@@ -353,7 +373,30 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertIsInstance(bricks[0], Brick)
 
     def test_get_bricks02(self):
-        "Specific relation blocks, custom blocks"
+        "Model brick."
+        user = self.login()
+
+        class ContactBrick(EntityBrick):
+            template_name = 'persons/bricks/my_contact.html'
+
+        brick_registry = _BrickRegistry()
+        brick_registry.register_4_model(FakeContact, ContactBrick)
+
+        # No entity
+        self.assertFalse(list(brick_registry.get_bricks([MODELBRICK_ID])))
+
+        # No registered model brick
+        orga = FakeOrganisation.objects.create(user=user, name='Hawk')
+        orga_brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=orga))
+        self.assertIsInstance(orga_brick, EntityBrick)
+
+        # No registered model brick
+        contact = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
+        contact_brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=contact))
+        self.assertIsInstance(contact_brick, EntityBrick)
+
+    def test_get_bricks03(self):
+        "Specific relation bricks, custom bricks."
         class QuuxBrick1(SimpleBrick):
             id_          = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_2')
             verbose_name = 'Testing purpose #1'
@@ -385,7 +428,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual([FakeOrganisation], custom_brick.dependencies)
         self.assertEqual(cbci.name,          custom_brick.verbose_name)
 
-    def test_get_bricks03(self):
+    def test_get_bricks04(self):
         "Hat brick"
         user = self.login()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
@@ -425,32 +468,49 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertIsInstance(bricks[0], FakeContactBasicHatBrick)
 
     def test_brick_4_model01(self):
-        block_registry = _BrickRegistry()
+        brick_registry = _BrickRegistry()
 
-        brick = block_registry.get_brick_4_object(FakeOrganisation)
-        self.assertEqual('modelblock_creme_core-fakeorganisation', brick.id_)
+        brick = brick_registry.get_brick_4_object(FakeOrganisation)
+        # self.assertEqual('modelblock_creme_core-fakeorganisation', brick.id_)
+        self.assertEqual(MODELBRICK_ID, brick.id_)
         self.assertEqual((FakeOrganisation,), brick.dependencies)
 
     def test_brick_4_model02(self):
-        block_registry = _BrickRegistry()
+        brick_registry = _BrickRegistry()
 
         user = self.login()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
-        brick = block_registry.get_brick_4_object(casca)
-        self.assertEqual('modelblock_creme_core-fakecontact', brick.id_)
+        brick = brick_registry.get_brick_4_object(casca)
+        # self.assertEqual('modelblock_creme_core-fakecontact', brick.id_)
+        self.assertEqual(brick.__class__, EntityBrick)
+        self.assertEqual(MODELBRICK_ID, brick.id_)
         self.assertEqual((FakeContact,), brick.dependencies)
 
     def test_brick_4_model03(self):
-        class ContactBrick(SimpleBrick):
-            template_name = 'persons/templatetags/block_contact.html'
+        class ContactBrick(EntityBrick):
+            template_name = 'persons/bricks/my_contact.html'
 
-        block_registry = _BrickRegistry()
-        block_registry.register_4_model(FakeContact, ContactBrick)
+        brick_registry = _BrickRegistry()
+        brick_registry.register_4_model(FakeContact, ContactBrick)
 
-        brick = block_registry.get_brick_4_object(FakeContact)
+        brick = brick_registry.get_brick_4_object(FakeContact)
         self.assertIsInstance(brick, ContactBrick)
-        self.assertEqual('modelblock_creme_core-fakecontact', brick.id_)
+        # self.assertEqual('modelblock_creme_core-fakecontact', brick.id_)
+        self.assertEqual(MODELBRICK_ID, brick.id_)
+        self.assertEqual((FakeContact,), brick.dependencies)
+
+    def test_brick_4_model04(self):
+        "Custom brick does not inherit EntityBrick."
+        class ContactBrick(SimpleBrick):
+            template_name = 'persons/bricks/my_contact.html'
+
+        brick_registry = _BrickRegistry()
+        brick_registry.register_4_model(FakeContact, ContactBrick)
+
+        brick = brick_registry.get_brick_4_object(FakeContact)
+        self.assertIsInstance(brick, ContactBrick)
+        self.assertEqual(MODELBRICK_ID, brick.id_)
         self.assertEqual((FakeContact,), brick.dependencies)
 
     def test_brick_4_instance01(self):
@@ -465,6 +525,7 @@ class BrickRegistryTestCase(CremeTestCase):
             template_name = 'persons/bricks/itdoesnotexist.html'
 
             def __init__(self, instance_block_config_item):
+                super().__init__()
                 self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
@@ -530,9 +591,9 @@ class BrickRegistryTestCase(CremeTestCase):
         class ContactBrick(BaseBrick): pass
         class OrgaBrick(BaseBrick): pass
 
-        block_registry = _BrickRegistry()
-        block_registry.register_4_instance(ContactBrick)
-        self.assertRaises(_BrickRegistry.RegistrationError, block_registry.register_4_instance, OrgaBrick)
+        brick_registry = _BrickRegistry()
+        brick_registry.register_4_instance(ContactBrick)
+        self.assertRaises(_BrickRegistry.RegistrationError, brick_registry.register_4_instance, OrgaBrick)
 
     # TODO different keys
 

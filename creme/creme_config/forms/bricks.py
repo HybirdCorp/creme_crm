@@ -119,7 +119,7 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
     _ZONES = (('top',    BrickDetailviewLocation.TOP),
               ('left',   BrickDetailviewLocation.LEFT),
               ('right',  BrickDetailviewLocation.RIGHT),
-              ('bottom', BrickDetailviewLocation.BOTTOM)
+              ('bottom', BrickDetailviewLocation.BOTTOM),
              )
 
     def __init__(self, ctype=None, *args, **kwargs):
