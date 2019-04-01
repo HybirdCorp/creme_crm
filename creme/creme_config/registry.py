@@ -332,7 +332,7 @@ class _AppConfigRegistry:
 
     @property
     def is_empty(self):
-        """Is the configuration portla of the app empty."""
+        """Is the configuration portal of the app empty."""
         return not bool(
             self._models or
             self._brick_ids or

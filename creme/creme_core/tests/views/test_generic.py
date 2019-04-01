@@ -11,6 +11,7 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.bricks import PropertiesBrick
+    from creme.creme_core.constants import MODELBRICK_ID
     from creme.creme_core.gui.last_viewed import LastViewedItem
     from creme.creme_core.models import (SetCredentials, Imprint,
             FakeOrganisation, FakeContact, FakeAddress)
@@ -112,7 +113,9 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(imprints[0].entity.get_real_entity(), fox)
 
         # -----
-        self.get_brick_node(self.get_html_tree(response.content), PropertiesBrick.id_)
+        tree = self.get_html_tree(response.content)
+        self.get_brick_node(tree, PropertiesBrick.id_)
+        self.get_brick_node(tree, MODELBRICK_ID)
 
     def test_detail02(self):
         "Object does not exist"
