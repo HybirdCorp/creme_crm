@@ -69,9 +69,10 @@ class Calendar(CremeModel):
         return COLOR_POOL[Calendar.objects.count() % len(COLOR_POOL)]
 
     @staticmethod
-    def _create_default_calendar(user):
+    def _create_default_calendar(user, *, is_public=False):
         cal = Calendar(name=ugettext("{user}'s calendar").format(user=user),
                        user=user, is_default=True, is_custom=False,
+                       is_public=is_public,
                        color=Calendar.new_color(),
                       )
         cal._enable_default_checking = False

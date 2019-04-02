@@ -898,6 +898,14 @@ REPORTS_GRAPH_FORCE_NOT_CUSTOM  = False
 ACTIVITIES_ACTIVITY_MODEL = 'activities.Activity'
 ACTIVITIES_ACTIVITY_FORCE_NOT_CUSTOM = False
 
+# Create automatically the default calendar of a user when the user is created ?
+#  - True => yes & the default calendar is public.
+#  - False => yes & the default calendar is private.
+#  - None => no automatic creation (it's created when the user go to the calendar view).
+# Note: the command "python manager.py activities_create_default_calendars"
+#       creates the "missing" calendars for the existing users.
+ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC = True
+
 # GRAPHS -----------------------------------------------------------------------
 GRAPHS_GRAPH_MODEL = 'graphs.Graph'
 GRAPHS_GRAPH_FORCE_NOT_CUSTOM = False
