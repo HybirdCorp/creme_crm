@@ -108,13 +108,11 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     """Class of ListViewSearchFieldRegistry specialized for cells representing
     ForeignKeys & ManyToManyFields.
 
-    The returned search-field can be customised depending on (from greater priority to lesser):
-      - A model-field (eg: the FK-field "author" of your model <Book>).
-      - The class of the model-field (eg: fields which have class inheriting ForeignKey).
-      - The model class referenced by the ForeignKey/ManyToManyField
-        (eg: for ForeignKey(MyAuxiliaryModel, ...) )
-
-    The default field can be customised too (if none of the previous cases has been met).
+    The returned search-field can be customised depending on the model class
+    referenced by the ForeignKey/ManyToManyField/...
+    (eg: for ForeignKey(MyAuxiliaryModel, ...) )
+    The default field can be customised too (used when the related model has
+    no specific search-field).
     """
     DEFAULT_MODELS = (
         (CremeEntity, lv_form.EntityRelatedField),
@@ -122,20 +120,11 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
     def __init__(self, default=lv_form.RegularRelatedField,
                  models_to_register=DEFAULT_MODELS):
-        self._builders_4_modelfields = {}
-        self._builders_4_modelfieldtypes = ClassKeyedMap(default=None)
         self._builders_4_models = ClassKeyedMap(default=None)
         self.register_default(default)
 
         for model, builder in models_to_register:
             self.register_related_model(model=model, sfield_builder=builder)
-
-    def builder_4_model_field(self, *, model, field_name):
-        field = model._meta.get_field(field_name)
-        return self._builders_4_modelfields.get(field)
-
-    def builder_4_model_field_type(self, model_field):
-        return self._builders_4_modelfieldtypes[model_field]
 
     def builder_4_related_model(self, model):
         return self._builders_4_models[model]
@@ -147,9 +136,7 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     def get_field(self, *, cell, user, **kwargs):
         model_field = cell.field_info[-1]
         return self._build_field(
-            builder=self._builders_4_modelfields.get(model_field) or
-                    self._builders_4_modelfieldtypes[type(model_field)] or
-                    self._builders_4_models[model_field.remote_field.model] or
+            builder=self._builders_4_models[model_field.remote_field.model] or
                     self._default_builder,
             cell=cell, user=user,
             **kwargs
@@ -157,37 +144,11 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
     def pretty(self, indent=0):
         indent_str = ' ' * indent
-        res = '{indent}{name}:\n{indent}  Default:\n{default}\n{indent}  Field types:'.format(
+        res = '{indent}{name}:\n{indent}  Default:\n{default}\n{indent}  Models:'.format(
             indent=indent_str,
             name=type(self).__name__,
             default=self._pretty_builder(self._default_builder, indent=indent + 4),
         )
-
-        fieldtypes = self._builders_4_modelfieldtypes
-        if fieldtypes:
-            for field_type, builder in fieldtypes.items():
-                res += '\n{}    [{}.{}]:\n{}'.format(
-                    indent_str,
-                    field_type.__module__,
-                    field_type.__name__,
-                    self._pretty_builder(builder, indent=indent + 6),
-                )
-        else:
-            res += '\n{}    (empty)'.format(indent_str)
-
-        res += '\n{}  Fields:'.format(indent_str)
-        modelfields = self._builders_4_modelfields
-        if modelfields:
-            for field, builder in modelfields.items():
-                res += '\n{}    [{}]:\n{}'.format(
-                    indent_str,
-                    field,
-                    self._pretty_builder(builder, indent=indent + 6),
-                )
-        else:
-            res += '\n{}    (empty)'.format(indent_str)
-
-        res += '\n{}  Models:'.format(indent_str)
 
         models = self._builders_4_models
         if models:
@@ -208,10 +169,8 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return self
 
-    def register_model_field(self, *, model, field_name, sfield_builder):
-        field = model._meta.get_field(field_name)
-
-        self._builders_4_modelfields[field] = self._instantiate_builder(sfield_builder)
+    def register_related_model(self, *, model, sfield_builder):
+        self._builders_4_models[model] = self._instantiate_builder(sfield_builder)
 
         # TODO ?
         # if self._enums_4_fields.setdefault(field, enumerator_class) is not enumerator_class:
@@ -220,16 +179,6 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         #             model=model.__name__, field=field_name,
         #         )
         #     )
-
-        return self
-
-    def register_model_field_type(self, *, type, sfield_builder):
-        self._builders_4_modelfieldtypes[type] = self._instantiate_builder(sfield_builder)
-
-        return self
-
-    def register_related_model(self, *, model, sfield_builder):
-        self._builders_4_models[model] = self._instantiate_builder(sfield_builder)
 
         return self
 
