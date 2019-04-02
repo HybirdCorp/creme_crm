@@ -29,9 +29,9 @@ from django.template.loader import get_template
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from ..constants import MODELBRICK_ID
 from ..core.entity_cell import EntityCellRegularField
 from ..core.sorter import cell_sorter_registry
-from ..constants import MODELBRICK_ID
 from ..models import (Relation, RelationBrickItem, CremeEntity,
         InstanceBrickConfigItem, CustomBrickConfigItem, BrickState)
 from ..utils.meta import OrderedField

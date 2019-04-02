@@ -3,26 +3,30 @@
 try:
     from datetime import timedelta, date
     from functools import partial
-    from json import dumps as json_dump
+    # from json import dumps as json_dump
+    from json import loads as json_load
 
     from django.core.exceptions import ValidationError
+    from django.core.management import call_command
     from django.urls import reverse
+    from django.test.utils import override_settings
     from django.utils.encoding import force_text
     from django.utils.html import escape
     from django.utils.timezone import make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, SetCredentials
+    from creme.creme_core.models import Relation, SetCredentials, CremeUser
 
     from .base import _ActivitiesTestCase, skipIfCustomActivity
+
     from .. import get_activity_model
+    from ..management.commands.activities_create_default_calendars import Command as CalCommand
     from ..models import Calendar
     from ..constants import *
     from ..utils import get_last_day_of_a_month
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
-
 
 Activity = get_activity_model()
 
@@ -53,8 +57,10 @@ class CalendarTestCase(_ActivitiesTestCase):
                               data=data,
                              )
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_user_default_calendar01(self):
         user = self.login()
+        self.assertFalse(Calendar.objects.filter(user=user))
 
         with self.assertNumQueries(3):
             def_cal = Calendar.get_user_default_calendar(user)
@@ -66,8 +72,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         def_cal2 = self.assertUserHasDefaultCalendar(user)
         self.assertEqual(def_cal, def_cal2)
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_user_default_calendar02(self):
-        "Default already exists"
+        "Default already exists."
         user = self.login()
 
         cal1 = Calendar.objects.create(is_default=True, user=user)
@@ -77,6 +84,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertEqual(cal1, def_cal)
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_user_default_calendar03(self):
         "There are several default calendars"
         user = self.login()
@@ -90,6 +98,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(cal1, Calendar.get_user_default_calendar(user))
         self.assertFalse(self.refresh(cal2).is_default)
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_user_default_calendar04(self):
         "No default Calendar in existing ones."
         user = self.login()
@@ -105,6 +114,41 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(cal, def_cal)
         self.assertTrue(def_cal.is_default)
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
+    def test_user_default_calendar_auto01(self):
+        user = self.login()
+
+        calendar = self.get_object_or_fail(Calendar, user=user)
+        self.assertEqual(_("{user}'s calendar").format(user=user),
+                         calendar.name,
+                        )
+        self.assertTrue(calendar.is_default)
+        self.assertFalse(calendar.is_custom)
+        self.assertTrue(calendar.is_public)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
+    def test_user_default_calendar_auto02(self):
+        "Private calendar."
+        user = self.login()
+
+        calendar = self.get_object_or_fail(Calendar, user=user)
+        self.assertEqual(_("{user}'s calendar").format(user=user),
+                         calendar.name,
+                        )
+        self.assertTrue(calendar.is_default)
+        self.assertFalse(calendar.is_custom)
+        self.assertFalse(calendar.is_public)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
+    def test_user_default_calendar_auto03(self):
+        "Staff user => no calendar."
+        user = CremeUser.objects.create(username='altena', email='altena@noir.jp',
+                                        first_name='Altena', last_name='??',
+                                        is_staff=True,
+                                       )
+        self.assertFalse(Calendar.objects.filter(user=user))
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_get_user_calendars01(self):
         user = self.login()
 
@@ -153,6 +197,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(user.username, user_name)
 
     @skipIfCustomActivity
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_user_calendar02(self):
         user = self.login()
         other_user = self.other_user
@@ -189,7 +234,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         act5.calendars.add(cal1)
 
         response = self.assertPOST200(self.CALENDAR_URL,
-                                      data={'selected_calendars': [cal1.id, cal2.id, cal3.id]}
+                                      data={'selected_calendars': [cal1.id, cal2.id, cal3.id]},
                                      )
 
         with self.assertNoException():
@@ -201,7 +246,8 @@ class CalendarTestCase(_ActivitiesTestCase):
             event_url = ctxt['events_url']
             others_calendars = ctxt['others_calendars']
             n_others_calendars = ctxt['n_others_calendars']
-            creme_calendars_by_user = ctxt['creme_calendars_by_user']
+            # creme_calendars_by_user = ctxt['creme_calendars_by_user']
+            calendars_by_user_json = ctxt['creme_calendars_by_user']
             creation_perm = ctxt['creation_perm']
 
         self.assertEqual(user.username, user_name)
@@ -209,15 +255,33 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual({act1, act2, act4}, set(floating_acts))
         self.assertEqual({cal1}, set(my_cals))
         self.assertEqual(reverse('activities__calendars_activities'), event_url)
-        self.assertEqual({other_user: [cal2]}, others_calendars)
-        self.assertEqual(1, n_others_calendars)
-        filter_key = '{} {} {}'.format(other_user.username,
-                                       other_user.first_name,
-                                       other_user.last_name,
-                                      )
-        self.assertEqual(json_dump({filter_key: [{'name': cal2.name, 'id': cal2.id}]}),
-                         creme_calendars_by_user
-                         )
+
+        # self.assertEqual({other_user: [cal2]}, others_calendars)
+        self.assertIsInstance(others_calendars, dict)
+        self.assertEqual([cal2], others_calendars.get(other_user))
+
+        # self.assertEqual(1, n_others_calendars)
+        self.assertEqual(2, n_others_calendars)
+
+        # filter_key = '{} {} {}'.format(other_user.username,
+        #                                other_user.first_name,
+        #                                other_user.last_name,
+        #                               )
+        # self.assertEqual(json_dump({filter_key: [{'name': cal2.name, 'id': cal2.id}]}),
+        #                  creme_calendars_by_user
+        #                 )
+        with self.assertNoException():
+            calendars_by_user = json_load(calendars_by_user_json)
+        self.assertIsInstance(calendars_by_user, dict)
+        self.assertEqual([{'name': cal2.name, 'id': cal2.id}],
+                         calendars_by_user.get(
+                             '{} {} {}'.format(other_user.username,
+                                               other_user.first_name,
+                                               other_user.last_name,
+                                              )
+                            )
+                        )
+
         self.assertIs(creation_perm, True)
 
     @skipIfCustomActivity
@@ -248,6 +312,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertEqual([act2], list(floating_acts))
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_add_user_calendar01(self):
         user = self.login()
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
@@ -297,7 +362,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertFalse(self.refresh(cal1).is_default)
 
     def test_add_user_calendar03(self):
-        "Not allowed"
+        "Not allowed."
         self.login(is_superuser=False, allowed_apps=['persons'])
         self.assertGET403(self.ADD_URL)
 
@@ -324,7 +389,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(color, cal.color)
 
     def test_edit_user_calendar02(self):
-        "Edit calendar of another user"
+        "Edit calendar of another user."
         self.login()
         cal = Calendar.get_user_default_calendar(self.other_user)
         self.assertGET403(reverse('activities__edit_calendar', args=(cal.id,)))
@@ -336,7 +401,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertGET200(reverse('activities__edit_calendar', args=(cal.id,)))
 
     def test_edit_user_calendar04(self):
-        "App credentials needed"
+        "App credentials needed."
         user = self.login(is_superuser=False, allowed_apps=['persons'])  # 'activities'
         cal = Calendar.get_user_default_calendar(user)
         self.assertGET403(reverse('activities__edit_calendar', args=(cal.id,)))
@@ -594,6 +659,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(act4.id, data[3]['id'])
 
     @skipIfCustomActivity
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
     def test_get_users_activities03(self):
         "2 Users, 2 Calendars, Unavailability"
         user = self.login()
@@ -730,6 +796,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(hour=0),             act.start)
         self.assertEqual(create_dt(hour=23, minute=59), act.end)
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_config01(self):
         user = self.login()
 
@@ -744,7 +811,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertNoFormError(self.client.post(url, data={'name': name,
                                                            'user': user.id,
                                                            'color': color,
-                                                          }
+                                                          },
                                                )
                               )
 
@@ -891,3 +958,73 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(date(year=2015, month=2, day=28),
                          get_last_day_of_a_month(date(year=2015, month=2, day=17))
                         )
+
+    def _aux_test_command_create_default_calendar_creation(self, is_public):
+        create_user = CremeUser.objects.create
+
+        with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None):
+            user1 = create_user(username='kirika', email='kirika@noir.jp',
+                                first_name='Kirika', last_name='Yumura',
+                               )
+            user2 = create_user(username='mireille', email='mireille@noir.jp',
+                                first_name='Mireille', last_name='Bouquet',
+                               )
+            user3 = create_user(username='altena', email='altena@noir.jp',
+                                first_name='Altena', last_name='??',
+                                is_staff=True,
+                               )
+
+        self.assertFalse(Calendar.objects.filter(user__in=[user1, user2, user3]))
+
+        with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=is_public):
+            user4 = create_user(username='Chloe', email='chloe@noir.jp',
+                                first_name='Chloé', last_name='??',
+                               )
+        cal4_1 = self.get_object_or_fail(Calendar, is_default=True, user=user4)
+        cal4_2 = Calendar.objects.create(
+            name='Private calendar of Chloé',
+            is_default=False, user=user4, is_public=False,
+        )
+
+        with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=is_public):
+            call_command(CalCommand(), verbosity=0)
+
+        cal1 = self.get_object_or_fail(Calendar, is_default=True, user=user1)
+        self.assertEqual(is_public, cal1.is_public)
+
+        cal2 = self.get_object_or_fail(Calendar, is_default=True, user=user2)
+        self.assertEqual(is_public, cal2.is_public)
+
+        self.assertFalse(Calendar.objects.filter(user=user3))
+
+        self.assertEqual(
+            {cal4_1, cal4_2},
+            set(Calendar.objects.filter(user=user4))
+        )
+
+    def test_command_create_default_calendar01(self):
+        self._aux_test_command_create_default_calendar_creation(is_public=True)
+
+    def test_command_create_default_calendar02(self):
+        self._aux_test_command_create_default_calendar_creation(is_public=False)
+
+    def _aux_test_command_create_default_calendar_nocreation(self, is_public):
+        create_user = CremeUser.objects.create
+
+        with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None):
+            user = create_user(username='kirika', email='kirika@noir.jp',
+                               first_name='Kirika', last_name='Yumura',
+                              )
+
+        self.assertFalse(Calendar.objects.filter(user=user))
+
+        with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=is_public):
+            call_command(CalCommand(), verbosity=0)
+
+        self.assertFalse(Calendar.objects.filter(user=user))
+
+    def test_command_create_default_calendar03(self):
+        self._aux_test_command_create_default_calendar_nocreation(is_public=None)
+
+    def test_command_create_default_calendar04(self):
+        self._aux_test_command_create_default_calendar_nocreation(is_public='invalid')

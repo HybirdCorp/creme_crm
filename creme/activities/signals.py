@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.conf import settings
 from django.db.models import signals
 from django.dispatch import receiver
@@ -30,6 +32,7 @@ from .constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY, REL_SUB
 from .models import Calendar
 from .utils import is_auto_orga_subject_enabled
 
+logger = logging.getLogger(__name__)
 Organisation = get_organisation_model()
 
 
@@ -83,6 +86,22 @@ def _set_orga_as_subject(sender, instance, **kwargs):
                                          )
                                   .exclude(is_deleted=False, is_managed=True)
     )
+
+
+@receiver(signals.post_save, sender=settings.AUTH_USER_MODEL)
+def _create_default_calendar(sender, instance, created, **kwargs):
+    if created and not instance.is_staff:
+        is_public = settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC
+
+        if is_public is None:
+            pass
+        elif isinstance(is_public, bool):
+            Calendar._create_default_calendar(user=instance, is_public=is_public)
+        else:
+            logger.critical(
+                'settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC must be True/False/None.'
+                'The default calendar for the user <%s> is not created.', instance
+            )
 
 
 @receiver(signals.pre_delete, sender=settings.AUTH_USER_MODEL)
