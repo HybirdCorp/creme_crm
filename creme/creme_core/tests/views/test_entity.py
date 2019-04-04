@@ -1336,27 +1336,30 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_bool.id))
 
         # Bool
-        response = self.client.post(url, data={'field_value': True,
-                                               'entities': [mario.pk, luigi.pk]
-                                              }
+        # response = self.client.post(url, data={'field_value': True,
+        response = self.client.post(url, data={'field_value': 'true',
+                                               'entities': [mario.pk, luigi.pk],
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(True, self.get_cf_values(cf_bool, self.refresh(mario)).value)
         self.assertEqual(True, self.get_cf_values(cf_bool, self.refresh(luigi)).value)
 
         # Bool false
-        response = self.client.post(url, data={'field_value': False,
-                                               'entities': [mario.pk, luigi.pk]
-                                              }
+        # response = self.client.post(url, data={'field_value': False,
+        response = self.client.post(url, data={'field_value': 'false',
+                                               'entities': [mario.pk, luigi.pk],
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(False, self.get_cf_values(cf_bool, self.refresh(mario)).value)
         self.assertEqual(False, self.get_cf_values(cf_bool, self.refresh(luigi)).value)
 
         # Bool empty
-        response = self.client.post(url, data={'field_value': None,
-                                               'entities': [mario.pk, luigi.pk]
-                                              }
+        # response = self.client.post(url, data={'field_value': None,
+        response = self.client.post(url, data={'field_value': 'unknown',
+                                               'entities': [mario.pk, luigi.pk],
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertRaises(CustomFieldBoolean.DoesNotExist, self.get_cf_values, cf_bool, self.refresh(mario))

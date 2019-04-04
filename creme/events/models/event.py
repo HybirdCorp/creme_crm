@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -112,6 +112,7 @@ class AbstractEvent(CremeEntity):
                                                       )
                                                .annotate(relations_count=models.Count('relation'))
                                                .values_list('id', 'relations_count')
+                                               .order_by()  # NB: do not use Meta.ordering (can be removed with django 3.1)
                           )
         get_count = types_count.get
 
