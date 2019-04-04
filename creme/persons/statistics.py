@@ -35,7 +35,8 @@ class _RelationsStatistics:
         data = self.orga_model.get_all_managed_by_creme() \
                               .filter(relations__type=self.relation_type_id) \
                               .annotate(related_count=Count('relations')) \
-                              .values('name', 'related_count')
+                              .values('name', 'related_count') \
+                              .order_by('name')
 
         if data:
             msg = str(self.message_format)

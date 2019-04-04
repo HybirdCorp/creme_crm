@@ -169,10 +169,11 @@ class MergeViewsTestCase(ViewsTestCase):
                                           'description_2':      orga02.description,
                                           'description_merged': description,  # <======
 
-                                          'email_1':      orga01.email,
+                                          # 'email_1':      orga01.email,
+                                          'email_1':      '',
                                           'email_2':      orga02.email,
                                           'email_merged': orga02.email,  # <======
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertRedirects(response, orga01.get_absolute_url())

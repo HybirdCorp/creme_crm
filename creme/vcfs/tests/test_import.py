@@ -814,8 +814,10 @@ END:VCARD""".format(name=name,
                 'first_name': fields['first_name'].initial,
                 'last_name':  fields['last_name'].initial,
 
-                'create_or_attach_orga': False,
-                'organisation':          fields['organisation'].initial,
+                # 'create_or_attach_orga': False,
+                'create_or_attach_orga': '',
+                # 'organisation':          fields['organisation'].initial,
+                'organisation':          '',
                 'relation':              REL_SUB_EMPLOYED_BY,
 
                 'work_name':     fields['work_name'].initial,
@@ -831,12 +833,18 @@ END:VCARD""".format(name=name,
                 'workaddr_code':     fields['workaddr_code'].initial,
                 'workaddr_region':   fields['workaddr_region'].initial,
 
-                'update_work_name':     True,
-                'update_work_phone':    True,
-                'update_work_email':    True,
-                'update_work_fax':      True,
-                'update_work_url_site': True,
-                'update_work_address':  True,
+                # 'update_work_name':     True,
+                # 'update_work_phone':    True,
+                # 'update_work_email':    True,
+                # 'update_work_fax':      True,
+                # 'update_work_url_site': True,
+                # 'update_work_address':  True,
+                'update_work_name':     'on',
+                'update_work_phone':    'on',
+                'update_work_email':    'on',
+                'update_work_fax':      'on',
+                'update_work_url_site': 'on',
+                'update_work_address':  'on',
                }
         response = self._post_step1(errors=True, data=data)
         validation_text = _('Create organisation not checked')
@@ -849,7 +857,8 @@ END:VCARD""".format(name=name,
         self.assertEqual(contact_count, Contact.objects.count())
 
         # --------
-        data['create_or_attach_orga'] = True
+        # data['create_or_attach_orga'] = True
+        data['create_or_attach_orga'] = 'on'
         data['organisation'] = orga.id
         data['relation'] = REL_SUB_EMPLOYED_BY
 
