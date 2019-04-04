@@ -56,7 +56,7 @@ _DOCUMENT_CLASSES = [
 
 @register.simple_tag
 def document_class(request):
-    agent = request.META.get('HTTP_USER_AGENT')
+    agent = request.META.get('HTTP_USER_AGENT')  # TODO: request.headers['User-Agent'] ??
 
     if agent is not None:
         for regex, class_name in _DOCUMENT_CLASSES:

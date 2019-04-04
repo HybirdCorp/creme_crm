@@ -36,7 +36,7 @@ from ..utils.serializers import json_encode
 
 
 # TODO: add a form field ?? (validation)
-# TODO: fix the max_length value ?,
+# TODO: fix the max_length value ?
 class PhoneField(CharField):
     pass
 

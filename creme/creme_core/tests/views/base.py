@@ -77,7 +77,7 @@ class BrickTestCaseMixin:
     def assertNoBrick(self, tree, brick_id):
         self.assertIsNone(tree.find(".//div[@id='{}']".format(brick_id)),
                           'The brick id="%s" has been unexpectedly found.' % brick_id
-                          )
+                         )
 
     def assertInstanceLink(self, brick_node, entity):
         link_node = brick_node.find(".//a[@href='{}']".format(entity.get_absolute_url()))

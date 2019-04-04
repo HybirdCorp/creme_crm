@@ -201,6 +201,7 @@ class CSVPopulator:
         with transaction.atomic():
             model.objects.bulk_create(created)
 
+            # TODO: bulk_update() ?
             for entry in updated:
                 entry.save(force_update=True)
 
