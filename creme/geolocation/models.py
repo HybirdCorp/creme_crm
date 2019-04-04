@@ -104,6 +104,7 @@ class GeoAddress(Model):
             create = []
             update = []
 
+            # TODO: regroup queries ?
             for address in addresses:
                 try:
                     geoaddress = address.geoaddress
@@ -121,6 +122,7 @@ class GeoAddress(Model):
             GeoAddress.objects.bulk_create(create)
 
             # TODO: only if has changed
+            # TODO: bulk_update() ?
             with atomic():
                 for geoaddress in update:
                     geoaddress.save(force_update=True)
