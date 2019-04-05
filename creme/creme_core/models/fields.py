@@ -151,8 +151,14 @@ class CTypeForeignKey(ForeignKey):
         return ContentType.objects.get_for_id(ct_id) if ct_id else None
 
     def __set__(self, instance, value):
-        # TODO: accept model directly + get_for_model() ??
-        setattr(instance, self.attname, value.id if value else value)
+        if not value:
+            ct_id = None
+        elif isinstance(value, ContentType):
+            ct_id = value.id
+        else:
+            ct_id = ContentType.objects.get_for_model(value).id
+
+        setattr(instance, self.attname, ct_id)
 
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
@@ -209,8 +215,14 @@ class CTypeOneToOneField(OneToOneField):
         return ContentType.objects.get_for_id(ct_id) if ct_id else None
 
     def __set__(self, instance, value):
-        # TODO: accept model directly + get_for_model() ??
-        setattr(instance, self.attname, value.id if value else value)
+        if not value:
+            ct_id = None
+        elif isinstance(value, ContentType):
+            ct_id = value.id
+        else:
+            ct_id = ContentType.objects.get_for_model(value).id
+
+        setattr(instance, self.attname, ct_id)
 
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
