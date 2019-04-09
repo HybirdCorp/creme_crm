@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-26 20:11+0100\n"
+"POT-Creation-Date: 2019-04-09 12:07+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -418,21 +418,21 @@ msgstr "Choisissez un utilisateur auquel transférer"
 msgid "Teams"
 msgstr "Équipes"
 
-#: forms/user_role.py:49 forms/user_role.py:254
-msgid "Can view"
-msgstr "Peut voir"
+#: forms/user_role.py:49
+msgid "View"
+msgstr "Voir"
 
 #: forms/user_role.py:50
-msgid "Can change"
-msgstr "Peut changer"
+msgid "Change"
+msgstr "Changer"
 
-#: forms/user_role.py:51
-msgid "Can delete"
-msgstr "Peut supprimer"
+#: forms/user_role.py:51 templates/creme_config/bricks/user-roles.html:57
+msgid "Delete"
+msgstr "Supprimer"
 
 #: forms/user_role.py:52
-msgid "Can link"
-msgstr "Peut lier"
+msgid "Link"
+msgstr "Lier"
 
 #: forms/user_role.py:53
 msgid ""
@@ -443,8 +443,8 @@ msgstr ""
 "entre elles"
 
 #: forms/user_role.py:57
-msgid "Can unlink"
-msgstr "Peut délier"
+msgid "Unlink"
+msgstr "Délier"
 
 #: forms/user_role.py:58
 msgid ""
@@ -467,29 +467,68 @@ msgctxt "content_type"
 msgid "None"
 msgstr "Aucun"
 
-#: forms/user_role.py:124
+#: forms/user_role.py:73
+msgid "Allow or forbid?"
+msgstr "Autoriser ou interdire ?"
+
+#: forms/user_role.py:74
+msgid ""
+"Notice that actions which are forbidden & allowed at the same time are "
+"considered as forbidden when final permissions are computed."
+msgstr ""
+"Remarquez que les actions qui sont à la fois interdites et autorisées sont "
+"considérées comme interdites quand les permissions finales sont calculées."
+
+#: forms/user_role.py:77
+msgid "the users are allowed to perform the selected actions"
+msgstr "les utilisateurs sont autorisés à effectuer les actions sélectionnées"
+
+#: forms/user_role.py:78
+msgid "the users are NOT allowed to perform the selected actions"
+msgstr ""
+"les utilisateurs NE sont PAS autorisés à effectuer les actions sélectionnées"
+
+# Already in creme_core
+#: forms/user_role.py:84
+msgid "General information"
+msgstr ""
+
+#: forms/user_role.py:85
+#: templates/creme_config/bricks/configurable-model.html:35
+#: templates/creme_config/bricks/custombricks-configs.html:19
+#: templates/creme_config/bricks/fields-configs.html:19
+#: templates/creme_config/bricks/property-types.html:26
+#: templates/creme_config/bricks/relation-types.html:26
+#: templates/creme_config/bricks/semi-fixed-relation-types.html:19
+#: templates/creme_config/bricks/teams.html:26
+#: templates/creme_config/bricks/user-roles.html:29
+#: templates/creme_config/bricks/users.html:29
+msgid "Actions"
+msgstr "Actions"
+
+#: forms/user_role.py:143
 msgid "Choose a role to transfer to"
 msgstr "Choisissez un rôle auquel transférer"
 
-#: forms/user_role.py:128
+#: forms/user_role.py:147
 msgid "Information"
 msgstr "Informations"
 
-#: forms/user_role.py:129
+#: forms/user_role.py:148
 msgid "This role is not used by any user, you can delete it safely."
 msgstr ""
 "Ce rôle n'est utilisé par aucun utilisateur, vous pouvez le supprimer en "
 "toute sécurité."
 
-#: forms/user_role.py:168 templates/creme_config/bricks/user-roles.html:24
+#: forms/user_role.py:187 templates/creme_config/bricks/user-roles.html:24
 msgid "Allowed applications"
 msgstr "Applications autorisées"
 
-#: forms/user_role.py:188 templates/creme_config/bricks/user-roles.html:25
+#: forms/user_role.py:215 templates/creme_config/bricks/user-roles.html:25
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
-#: forms/user_role.py:189
+#: forms/user_role.py:216
 msgid ""
 "These applications can be configured. For example, the concerned users can "
 "create new choices available in forms (eg: position for contacts)."
@@ -498,15 +537,15 @@ msgstr ""
 "concernés peuvent créer de nouveaux choix disponibles dans les formulaires "
 "(ex: la fonction pour les contacts)."
 
-#: forms/user_role.py:215
+#: forms/user_role.py:242
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: forms/user_role.py:230
+#: forms/user_role.py:257
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
-#: forms/user_role.py:231
+#: forms/user_role.py:258
 msgid ""
 "This types of entities can be downloaded as CSV/XLS files (in the "
 "corresponding list-views)."
@@ -514,11 +553,11 @@ msgstr ""
 "Ces types de fiches peuvent être téléchargés en tant que fichiers CSV/XLS "
 "(dans les vues en liste correspondantes)."
 
-#: forms/user_role.py:249
+#: forms/user_role.py:276
 msgid "First credentials"
 msgstr "Premiers droits"
 
-#: forms/user_role.py:256
+#: forms/user_role.py:284
 msgid "Yes"
 msgstr "Oui"
 
@@ -728,18 +767,6 @@ msgstr "Pas de bouton"
 #: templates/creme_config/bricks/configurable-model.html:23
 msgid "New value"
 msgstr "Nouvelle valeur"
-
-#: templates/creme_config/bricks/configurable-model.html:35
-#: templates/creme_config/bricks/custombricks-configs.html:19
-#: templates/creme_config/bricks/fields-configs.html:19
-#: templates/creme_config/bricks/property-types.html:26
-#: templates/creme_config/bricks/relation-types.html:26
-#: templates/creme_config/bricks/semi-fixed-relation-types.html:19
-#: templates/creme_config/bricks/teams.html:26
-#: templates/creme_config/bricks/user-roles.html:29
-#: templates/creme_config/bricks/users.html:29
-msgid "Actions"
-msgstr "Actions"
 
 #: templates/creme_config/bricks/configurable-model.html:71
 msgid "No value for the moment"
@@ -1217,7 +1244,7 @@ msgid ""
 "It limits what the concerned users can see, edit, delete…"
 msgstr ""
 "Les utilisateurs qui ne sont pas super-utilisateurs doivent avoir un rôle.\n"
-"Il limite ce que les utilisateurs concernés puevent voir, modifier, "
+"Il limite ce que les utilisateurs concernés peuvent voir, modifier, "
 "supprimer…"
 
 #: templates/creme_config/bricks/user-roles.html:26
@@ -1263,10 +1290,6 @@ msgstr "Nouveaux droits"
 #: templates/creme_config/bricks/user-roles.html:54
 msgid "Edit this role"
 msgstr "Modifier ce rôle"
-
-#: templates/creme_config/bricks/user-roles.html:57
-msgid "Delete"
-msgstr "Supprimer"
 
 #: templates/creme_config/bricks/user-roles.html:64
 msgid "No role for the moment"
@@ -1656,6 +1679,15 @@ msgstr "Supprimer le rôle"
 msgid "You cannot delete this role. [original error: {}]"
 msgstr "Vous ne pouvez pas supprimer ce rôle. [erreur d'origine : {}]"
 
+#~ msgid "Can view"
+#~ msgstr "Peut voir"
+
+#~ msgid "Can delete"
+#~ msgstr "Peut supprimer"
+
+#~ msgid "Can unlink"
+#~ msgstr "Peut délier"
+
 #~ msgid ""
 #~ "The buttons related to this type of resource will be chosen by editing "
 #~ "the configuration"
@@ -1917,9 +1949,6 @@ msgstr "Vous ne pouvez pas supprimer ce rôle. [erreur d'origine : {}]"
 
 #~ msgid "Login"
 #~ msgstr "Nom d'utilisateur"
-
-#~ msgid "Generic information"
-#~ msgstr "Information générale"
 
 #~ msgid "Key"
 #~ msgstr "Clé"

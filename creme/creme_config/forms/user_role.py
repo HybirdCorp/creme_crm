@@ -46,15 +46,15 @@ def filtered_entity_ctypes(app_labels):  # TODO: move to creme_core.utils ??
 
 
 class EditCredentialsForm(CremeModelForm):
-    can_view   = BooleanField(label=_('Can view'),   required=False)
-    can_change = BooleanField(label=_('Can change'), required=False)
-    can_delete = BooleanField(label=_('Can delete'), required=False)
-    can_link   = BooleanField(label=_('Can link'),   required=False,
+    can_view   = BooleanField(label=_('View'),   required=False)
+    can_change = BooleanField(label=_('Change'), required=False)
+    can_delete = BooleanField(label=_('Delete'), required=False)
+    can_link   = BooleanField(label=_('Link'),   required=False,
                               help_text=_('You must have the permission to link on 2 entities'
                                           ' to create a relationship between them.'
                                          ),
                              )
-    can_unlink = BooleanField(label=_('Can unlink'), required=False,
+    can_unlink = BooleanField(label=_('Unlink'), required=False,
                               help_text=_('You must have the permission to unlink on 2 entities'
                                           ' to delete a relationship between them.'
                                          ),
@@ -68,6 +68,22 @@ class EditCredentialsForm(CremeModelForm):
                                         required=False,
                                         empty_label=pgettext('content_type', 'None'),
                                        )
+    # Notice that we do not use 0/1 because it is linked to a boolean field,
+    # so the value given to the widget for the selected choice is 'True' or 'False'...
+    forbidden = ChoiceField(label=_('Allow or forbid?'),
+                            help_text=_('Notice that actions which are forbidden & allowed at '
+                                        'the same time are considered as forbidden when final '
+                                        'permissions are computed.'),
+                            choices=(('False', _('the users are allowed to perform the selected actions')),
+                                     ('True',  _('the users are NOT allowed to perform the selected actions')),
+                                    ),
+                            widget=CremeRadioSelect,
+                           )
+
+    blocks = FieldBlockManager(
+        ('general', _('General information'), '*'),
+        ('actions', _('Actions'), ['can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink']),
+    )
 
     class Meta:
         model = SetCredentials
@@ -104,7 +120,9 @@ class AddCredentialsForm(EditCredentialsForm):
     def __init__(self, instance, *args, **kwargs):
         self.role = instance
         super().__init__(*args, **kwargs)
-        self.fields['set_type'].initial = SetCredentials.ESET_ALL
+        fields = self.fields
+        fields['set_type'].initial = SetCredentials.ESET_ALL
+        fields['forbidden'].initial = 'False'
 
     def _get_allowed_apps(self):
         return self.role.allowed_apps
@@ -260,10 +278,11 @@ class UserRoleCredentialsStep(AddCredentialsForm):
     def __init__(self, allowed_app_names, *args, **kwargs):
         self.allowed_app_names = allowed_app_names
         super().__init__(*args, **kwargs)
-        self.fields['can_view'] = CharField(label=_('Can view'),
-                                            required=False, widget=Label,
-                                            initial=_('Yes'),
-                                           )
+        fields = self.fields
+        fields['can_view'] = CharField(label=fields['can_view'].label,
+                                       required=False, widget=Label,
+                                       initial=_('Yes'),
+                                      )
 
     def _get_allowed_apps(self):
         return self.allowed_app_names

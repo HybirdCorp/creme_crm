@@ -41,7 +41,7 @@ It limits what the concerned users can see, edit, delete…{% endblocktrans %}
         <td class="role-creds">
             <ul>
             {% for sc in role.credentials.all %}{% url 'creme_config__edit_role_credentials' sc.id as edit_creds_url %}
-                <li>
+                <li class="{% if sc.forbidden %}role-creds-forbidden{% else %}role-creds-allowed{% endif %}">
                     {{sc}}
                     {% brick_action id='edit'   url=edit_creds_url          label=_('Edit these credentials')   enabled=admin_perm %}
                     {% brick_action id='delete' url=rm_creds_url __id=sc.id label=_('Delete these credentials') enabled=admin_perm %}

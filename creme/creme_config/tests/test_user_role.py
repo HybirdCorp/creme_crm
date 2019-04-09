@@ -160,6 +160,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
                                      '4-set_type': set_type,
                                      '4-ctype':    ct_contact.id,
+                                     '4-forbidden': 'False',
                                     },
                                    )
         self.assertNoFormError(response)
@@ -178,9 +179,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE, creds.value)
         self.assertEqual(set_type, creds.set_type)
         self.assertEqual(ct_contact, creds.ctype)
+        self.assertFalse(creds.forbidden)
 
     def test_creation_wizard02(self):
-        "Not super-user"
+        "Not super-user."
         self.login_not_as_superuser()
         self.assertGET403(self.WIZARD_URL)
 
@@ -216,6 +218,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                                'can_unlink': False,
                                                'set_type':   set_type,
                                                'ctype':      '',
+                                               'forbidden': 'False',
                                               },
                                    )
         self.assertNoFormError(response)
@@ -227,6 +230,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(EntityCredentials.VIEW, creds.value)
         self.assertEqual(set_type, creds.set_type)
         self.assertIsNone(creds.ctype)
+        self.assertFalse(creds.forbidden)
 
         contact = self.refresh(contact)  # Refresh cache
         other_user = self.refresh(other_user)
@@ -234,7 +238,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotInstalled('creme.persons')
     def test_add_credentials02(self):
-        "Specific CType + ESET_OWN"
+        "Specific CType + ESET_OWN."
         self.login()
 
         role = UserRole(name='CEO')
@@ -263,6 +267,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'can_unlink': False,
                                           'set_type':   set_type,
                                           'ctype':      ct_contact.id,
+                                          'forbidden': 'False',
                                          },
                                    )
         self.assertNoFormError(response)
@@ -276,7 +281,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(ct_contact.id,           creds.ctype_id)
 
     def test_add_credentials03(self):
-        "Not super-user => error"
+        "Not super-user => error."
         self.login_not_as_superuser()
 
         role = UserRole(name='CEO')
@@ -292,8 +297,43 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                       'can_unlink': False,
                                       'set_type':   SetCredentials.ESET_ALL,
                                       'ctype':      0,
+                                      'forbidden': 'False',
                                      },
                           )
+
+    @skipIfNotInstalled('creme.persons')
+    def test_add_credentials04(self):
+        "Forbidden."
+        self.login()
+
+        role = UserRole(name='CEO')
+        role.allowed_apps = ['persons']
+        role.save()
+
+        ct_contact = ContentType.objects.get_for_model(Contact)
+
+        set_type = SetCredentials.ESET_OWN
+        response = self.client.post(self._build_add_creds_url(role),
+                                    data={'can_view':   True,
+                                          'can_change': True,
+                                          'can_delete': False,
+                                          'can_link':   False,
+                                          'can_unlink': False,
+                                          'set_type':   set_type,
+                                          'ctype':      ct_contact.id,
+                                          'forbidden':  'True',
+                                         },
+                                   )
+        self.assertNoFormError(response)
+
+        setcreds = role.credentials.all()
+        self.assertEqual(1, len(setcreds))
+
+        creds = setcreds[0]
+        self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE, creds.value)
+        self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
+        self.assertEqual(ct_contact.id,           creds.ctype_id)
+        self.assertTrue(creds.forbidden)
 
     @skipIfNotInstalled('creme.persons')
     def test_edit_credentials01(self):
@@ -337,6 +377,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'can_unlink': False,
                                           'set_type':   SetCredentials.ESET_OWN,
                                           'ctype':      ct_contact.id,
+                                          'forbidden':  'True',
                                          },
                                    )
         self.assertNoFormError(response)
@@ -345,6 +386,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE, creds.value)
         self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
         self.assertEqual(ct_contact .id,          creds.ctype_id)
+        self.assertTrue(creds.forbidden)
 
     def test_edit_credentials02(self):
         "Not super-user => error"

@@ -680,8 +680,201 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(qs, perm=EntityCredentials.CHANGE))
         self.assertFalse(efilter(FakeOrganisation.objects.filter(pk=orga.id),
                                  perm=EntityCredentials.VIEW,
-                                 )
+                                )
                         )
+
+    def test_role_forbidden01(self):
+        "ESET_ALL."
+        user = self.user
+        VIEW = EntityCredentials.VIEW
+        ESET_ALL = SetCredentials.ESET_ALL
+
+        creds1 = SetCredentials(value=VIEW, set_type=ESET_ALL)
+        self.assertIs(creds1.forbidden, False)
+
+        self._create_role(
+            'Coder', ['creme_core'], users=[user],
+            set_creds=[
+                creds1,
+                SetCredentials(value=VIEW, set_type=ESET_ALL,
+                               ctype=FakeOrganisation, forbidden=True,
+                              ),
+            ],
+        )
+
+        contact1 = self.contact1
+        self.assertTrue(user.has_perm_to_view(contact1))
+
+        contact2 = self.contact2
+        self.assertTrue(user.has_perm_to_view(contact2))
+
+        orga = FakeOrganisation.objects.create(user=user, name='Yoshioka')
+        self.assertFalse(user.has_perm_to_view(orga))
+
+        invoice = FakeInvoice.objects.create(user=user, name='Swords & shields')
+        self.assertTrue(user.has_perm_to_view(invoice))
+
+        # Filtering ------------------------------------------------------------
+        efilter = partial(EntityCredentials.filter, user)
+        self.assertListEqual(
+            [contact1.id, contact2.id],
+            self._ids_list(efilter(self._build_contact_qs(), perm=VIEW))
+        )
+        self.assertFalse(efilter(FakeOrganisation.objects.filter(pk=orga.id),
+                                 perm=VIEW,
+                                )
+                        )
+
+        self.assertListEqual(
+            [contact1.id, contact2.id, invoice.id],
+            self._ids_list(EntityCredentials.filter_entities(
+                user=user, perm=VIEW,
+                queryset=CremeEntity.objects.filter(id__in=[
+                    contact1.id, contact2.id, orga.id, invoice.id,
+                ]).order_by('id'),
+            ))
+        )
+
+    def test_role_forbidden02(self):
+        "ESET_OWN forbidden + ESET_ALL allowed."
+        user = self.user
+        other = self.other_user
+
+        team = CremeUser.objects.create(username='Teamee', is_team=True)
+        team.teammates = [user, other]
+
+        VIEW = EntityCredentials.VIEW
+        self._create_role(
+            'Coder', ['creme_core'], users=[user],
+            set_creds=[
+                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_ALL,
+                               ctype=FakeOrganisation,
+                               ),
+                SetCredentials(value=VIEW, set_type=SetCredentials.ESET_OWN,
+                               forbidden=True,
+                              ),
+            ],
+        )
+
+        contact1 = self.contact1
+        self.assertFalse(user.has_perm_to_view(contact1))
+
+        contact2 = self.contact2
+        self.assertFalse(user.has_perm_to_view(contact2))
+
+        create_orga = FakeOrganisation.objects.create
+        orga1 = create_orga(user=other, name='Yoshioka')
+        self.assertTrue(user.has_perm_to_view(orga1))
+
+        orga2 = create_orga(user=user, name='Miyamoto')
+        self.assertFalse(user.has_perm_to_view(orga2))
+
+        orga3 = create_orga(user=team, name='Sasaki')
+        self.assertFalse(user.has_perm_to_view(orga3))
+
+        # Filtering ------------------------------------------------------------
+        efilter = partial(EntityCredentials.filter, user)
+        self.assertFalse(efilter(self._build_contact_qs(), perm=VIEW))
+        self.assertEqual(
+            [orga1.id],
+            self._ids_list(efilter(
+                FakeOrganisation.objects.filter(pk__in=[orga1.id, orga2.id, orga3.id]),
+                perm=VIEW,
+            ))
+        )
+
+        self.assertListEqual(
+            [orga1.id],
+            self._ids_list(EntityCredentials.filter_entities(
+                user=user, perm=VIEW,
+                queryset=CremeEntity.objects.filter(id__in=[
+                    contact1.id, contact2.id, orga1.id, orga2.id, orga3.id,
+                ]).order_by('id'),
+            ))
+        )
+
+    def test_role_forbidden03(self):
+        "ESET_OWN forbidden & allowed."
+        user = self.user
+
+        VIEW = EntityCredentials.VIEW
+        ESET_OWN = SetCredentials.ESET_OWN
+
+        self._create_role(
+            'Coder', ['creme_core'], users=[user],
+            set_creds=[
+                SetCredentials(value=VIEW, set_type=ESET_OWN),
+                SetCredentials(value=VIEW, set_type=ESET_OWN, forbidden=True),
+            ],
+        )
+
+        contact1 = self.contact1
+        self.assertFalse(user.has_perm_to_view(self.contact1))
+
+        contact2 = self.contact2
+        self.assertFalse(user.has_perm_to_view(self.contact2))
+
+        self.assertFalse(EntityCredentials.filter(user, self._build_contact_qs(), perm=VIEW))
+        self.assertFalse(EntityCredentials.filter_entities(
+                user=user, perm=VIEW,
+                queryset=CremeEntity.objects.filter(id__in=[contact1.id, contact2.id]),
+            )
+        )
+
+    def test_role_forbidden04(self):
+        "Permission on model (LINK on future instances) - ESET_ALL forbidden."
+        user = self.user
+        LINK = EntityCredentials.LINK
+
+        self._create_role(
+            'Coder', ['creme_core'], users=[user],
+            set_creds=[
+                SetCredentials(value=LINK, set_type=SetCredentials.ESET_OWN),
+                SetCredentials(value=LINK, set_type=SetCredentials.ESET_ALL,
+                               ctype=FakeOrganisation,
+                               forbidden=True
+                              ),
+            ],
+        )
+        self.assertTrue(user.has_perm_to_link(FakeContact, owner=None))
+        self.assertFalse(user.has_perm_to_link(FakeOrganisation, owner=None))
+
+        self.assertTrue(user.has_perm_to_link(FakeContact, owner=user))
+        self.assertFalse(user.has_perm_to_link(FakeOrganisation, owner=user))
+
+        other = self.other_user
+        self.assertFalse(user.has_perm_to_link(FakeContact, owner=other))
+        self.assertFalse(user.has_perm_to_link(FakeOrganisation, owner=other))
+
+    def test_role_forbidden05(self):
+        "Permission on model (LINK on future instances) - ESET_OWN forbidden."
+        user = self.user
+        LINK = EntityCredentials.LINK
+
+        self._create_role(
+            'Coder', ['creme_core'], users=[user],
+            set_creds=[
+                SetCredentials(value=LINK, set_type=SetCredentials.ESET_ALL),
+                SetCredentials(value=LINK, set_type=SetCredentials.ESET_OWN,
+                               ctype=FakeOrganisation,
+                               forbidden=True
+                              ),
+            ],
+        )
+        self.assertTrue(user.has_perm_to_link(FakeContact, owner=user))
+        self.assertFalse(user.has_perm_to_link(FakeOrganisation, owner=user))
+
+        self.assertTrue(user.has_perm_to_link(FakeContact, owner=None))
+        self.assertTrue(user.has_perm_to_link(FakeOrganisation, owner=None))
+
+        other = self.other_user
+        self.assertTrue(user.has_perm_to_link(FakeContact, owner=other))
+        self.assertTrue(user.has_perm_to_link(FakeOrganisation, owner=other))
+
+        team = CremeUser.objects.create(username='Teamee', is_team=True)
+        team.teammates = [user, other]
+        self.assertTrue(user.has_perm_to_link(FakeContact, owner=team))
+        self.assertFalse(user.has_perm_to_link(FakeOrganisation, owner=team))
 
     def test_creation_creds01(self):
         user = self.user
