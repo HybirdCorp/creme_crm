@@ -9,7 +9,7 @@
 
 {% block brick_header_actions %}
     {% has_perm_to link object as link_perm %}{% url 'billing__link_to_cnotes' object.id as creation_url %}
-    {% brick_header_action id='add' url=creation_url label=_('Link to existing credit notes') enabled=link_perm %}
+    {% brick_header_action id='link' url=creation_url label=_('Link to existing credit notes') enabled=link_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
