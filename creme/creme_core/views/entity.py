@@ -964,14 +964,16 @@ def delete_entity(request, entity_id):
 
         raise PermissionDenied(msg, args)
 
-    if request.is_ajax():
-        return HttpResponse()
+    url = (entity.get_lv_absolute_url()                   if hasattr(entity, 'get_lv_absolute_url') else
+           entity.get_related_entity().get_absolute_url() if hasattr(entity, 'get_related_entity') else
+           reverse('creme_core__home'))
 
-    return HttpResponseRedirect(
-        entity.get_lv_absolute_url()                   if hasattr(entity, 'get_lv_absolute_url') else
-        entity.get_related_entity().get_absolute_url() if hasattr(entity, 'get_related_entity') else
-        reverse('creme_core__home')
-    )
+    if request.is_ajax():
+        # NB: we redirect because this view can be used from the detail-view
+        #     (if it's a definitive deletion, we MUST go to a new page anyway)
+        return HttpResponse(url, content_type='text/plain')
+
+    return HttpResponseRedirect(url)
 
 
 @login_required
