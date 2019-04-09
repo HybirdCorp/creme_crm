@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -142,7 +142,7 @@ class EntityCredentials:
         """Filter a Queryset of CremeEntities by the credentials of a given user.
         Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
 
-        @param queryset: A get_user_model() instance.
+        @param queryset: A django.contrib.auth.get_user_model() instance.
         @param queryset: A Queryset with model=CremeEntity (better if not yet retrieved).
         @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
         @param as_model: A model inheriting CremeEntity, or None. If a model is given, all the
@@ -163,8 +163,9 @@ class EntityCredentials:
             role = user.role
             assert role is not None
 
-            queryset = role.filter_entities(user=user, perm=perm, as_model=as_model,
-                                            queryset=queryset.filter(cls._build_sandbox_Q(user)),
-                                           )
+            queryset = role.filter_entities(
+                user=user, perm=perm, as_model=as_model,
+                queryset=queryset.filter(cls._build_sandbox_Q(user)),
+            )
 
         return queryset

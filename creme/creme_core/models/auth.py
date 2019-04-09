@@ -41,6 +41,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from ..auth.entity_credentials import EntityCredentials
 from ..utils import split_filter
 from ..utils.unicode_collation import collator
+
 from .fields import CTypeForeignKey
 
 
@@ -78,26 +79,30 @@ class UserRole(Model):
     @property
     def admin_4_apps(self):
         if self._admin_4_apps is None:
-            self._admin_4_apps = {app_name for app_name in self.raw_admin_4_apps.split('\n') if app_name}
+            self._admin_4_apps = {
+                app_name for app_name in self.raw_admin_4_apps.split('\n') if app_name
+            }
 
         return self._admin_4_apps
 
     @admin_4_apps.setter
     def admin_4_apps(self, apps):
-        """@param apps: Sequence of app labels (strings)"""
+        """@param apps: Sequence of app labels (strings)."""
         self._admin_4_apps = set(apps)
         self.raw_admin_4_apps = '\n'.join(apps)
 
     @property
     def allowed_apps(self):
         if self._allowed_apps is None:
-            self._allowed_apps = {app_name for app_name in self.raw_allowed_apps.split('\n') if app_name}
+            self._allowed_apps = {
+                app_name for app_name in self.raw_allowed_apps.split('\n') if app_name
+            }
 
         return self._allowed_apps
 
     @allowed_apps.setter
     def allowed_apps(self, apps):
-        """@param apps Sequence of app labels (strings)"""
+        """@param apps: Sequence of app labels (strings)."""
         self._allowed_apps = set(apps)
         self.raw_allowed_apps = '\n'.join(apps)
 
@@ -171,7 +176,7 @@ class UserRole(Model):
         @param user: User instance ; user that try to do something.
         @param model: Class inheriting CremeEntity
         @param owner: User instance ; owner of the not-yet-existing instance of 'model'
-                      None means any user that would allows the action (if it exists of course)
+                      None means any user that would allows the action (if it exists of course).
         @param perm: See EntityCredentials.{VIEW, CHANGE, ...}
         """
         return SetCredentials._can_do(self._get_setcredentials(), user, model, owner, perm)
@@ -188,7 +193,7 @@ class UserRole(Model):
         return setcredentials
 
     def get_perms(self, user, entity):
-        """@return (can_view, can_change, can_delete, can_link, can_unlink) 5 boolean tuple"""
+        """@return (can_view, can_change, can_delete, can_link, can_unlink) 5 boolean tuple."""
         real_entity_class = entity.entity_type.model_class()
 
         if self.is_app_allowed_or_administrable(real_entity_class._meta.app_label):
@@ -255,11 +260,12 @@ class UserRole(Model):
 
 
 class SetCredentials(Model):
-    role     = ForeignKey(UserRole, related_name='credentials', on_delete=CASCADE, editable=False)
-    value    = PositiveSmallIntegerField()  # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
-    set_type = PositiveIntegerField()  # See SetCredentials.ESET_* TODO: choices ?
-    ctype    = CTypeForeignKey(null=True, blank=True)  # TODO: EntityCTypeForeignKey ?
+    role      = ForeignKey(UserRole, related_name='credentials', on_delete=CASCADE, editable=False)
+    value     = PositiveSmallIntegerField()  # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
+    set_type  = PositiveIntegerField()  # See SetCredentials.ESET_* TODO: choices ?
+    ctype     = CTypeForeignKey(null=True, blank=True)  # TODO: EntityCTypeForeignKey ?
     # entity  = ForeignKey(CremeEntity, null=True) ??
+    forbidden = BooleanField(default=False)
 
     # 'ESET' means 'Entities SET'
     ESET_ALL = 1  # => all entities
@@ -274,17 +280,20 @@ class SetCredentials(Model):
 
     def __str__(self):
         value = self.value
+        forbidden = self.forbidden
         perms = []
         append = perms.append
 
-        if value & EntityCredentials.VIEW:   append(ugettext('View'))
-        if value & EntityCredentials.CHANGE: append(ugettext('Change'))
-        if value & EntityCredentials.DELETE: append(ugettext('Delete'))
-        if value & EntityCredentials.LINK:   append(ugettext('Link'))
-        if value & EntityCredentials.UNLINK: append(ugettext('Unlink'))
+        if value & EntityCredentials.VIEW:   append(ugettext('view'))
+        if value & EntityCredentials.CHANGE: append(ugettext('change'))
+        if value & EntityCredentials.DELETE: append(ugettext('delete'))
+        if value & EntityCredentials.LINK:   append(ugettext('link'))
+        if value & EntityCredentials.UNLINK: append(ugettext('unlink'))
 
         if not perms:
-            append(ugettext('Nothing allowed'))
+            append(ugettext('nothing forbidden') if forbidden else
+                   ugettext('nothing allowed')
+                  )
 
         args = {'set':   SetCredentials.ESETS_MAP[self.set_type],
                 'perms': ', '.join(perms),
@@ -292,14 +301,16 @@ class SetCredentials(Model):
 
         if self.ctype:
             args['type'] = self.ctype
-            format_str = ugettext('For {set} of type “{type}”: {perms}')
+            format_str = ugettext('For {set} of type “{type}” forbidden to: {perms}') if forbidden else \
+                         ugettext('For {set} of type “{type}” allowed to: {perms}')
         else:
-            format_str = ugettext('For {set}: {perms}')
+            format_str = ugettext('For {set} forbidden to: {perms}') if forbidden else \
+                         ugettext('For {set} allowed to: {perms}')
 
         return format_str.format(**args)
 
     def _get_perms(self, user, entity):
-        """@return An integer with binary flags for permissions"""
+        """@return An integer with binary flags for permissions."""
         ctype_id = self.ctype_id
 
         if not ctype_id or ctype_id == entity.entity_type_id:
@@ -315,50 +326,78 @@ class SetCredentials(Model):
     @staticmethod
     def get_perms(sc_sequence, user, entity):
         """@param sc_sequence: Sequence of SetCredentials instances."""
-        return reduce(or_op, (sc._get_perms(user, entity) for sc in sc_sequence), EntityCredentials.NONE)
+        perms = reduce(
+            or_op,
+            (sc._get_perms(user, entity) for sc in sc_sequence if not sc.forbidden),
+            EntityCredentials.NONE
+        )
 
-    @staticmethod
-    def _can_do(sc_sequence, user, model, owner=None, perm=EntityCredentials.VIEW):
-        allowed_ctype_ids = (None, ContentType.objects.get_for_model(model).id) #TODO: factorise
+        for sc in sc_sequence:
+            if sc.forbidden:
+                perms &= ~sc._get_perms(user, entity)
 
-        if owner is None:  # None means: all users who are allowed to do the action
-            filtered_sc_sequence = sc_sequence
+        return perms
+
+    @classmethod
+    def _can_do(cls, sc_sequence, user, model, owner=None, perm=EntityCredentials.VIEW):
+        if owner is None:
+            def user_is_concerned(sc):
+                return not sc.forbidden
         else:
-            ESET_OWN = SetCredentials.ESET_OWN
+            def user_is_concerned(sc):
+                return user.id in owner.teammates if owner.is_team else user == owner
 
-            def generator():
-                for sc in sc_sequence:
-                    if sc.set_type == ESET_OWN:
-                        if owner.is_team:
-                            if user.id not in owner.teammates:
-                                continue
-                        elif user != owner:
-                            continue
+        ESET_ALL = cls.ESET_ALL
+        allowed_ctype_ids = (None, ContentType.objects.get_for_model(model).id)  # TODO: factorise
+        allowed_found = False
 
-                    yield sc
+        for sc in sc_sequence:
+            if sc.ctype_id in allowed_ctype_ids and sc.value & perm and (
+               sc.set_type == ESET_ALL or user_is_concerned(sc)):
+                if sc.forbidden:
+                    return False
+                else:
+                    allowed_found = True
 
-            filtered_sc_sequence = generator()
-
-        return any(sc.ctype_id in allowed_ctype_ids and sc.value & perm
-                        for sc in filtered_sc_sequence
-                  )
+        return allowed_found
 
     @classmethod
     def _aux_filter(cls, model, sc_sequence, user, queryset, perm):
         allowed_ctype_ids = (None, ContentType.objects.get_for_model(model).id)
-        ESET_ALL = SetCredentials.ESET_ALL
+        ESET_ALL = cls.ESET_ALL
 
-        # NB: we sort to get ESET_ALL creds before ESET_OWN ones (more priority)
-        for sc in sorted(sc_sequence, key=lambda sc: sc.set_type):
-            if sc.ctype_id in allowed_ctype_ids and sc.value & perm:
-                if sc.set_type == ESET_ALL:
-                    return queryset  # No additional filtering needed
+        forbidden, allowed = split_filter(
+            lambda sc: sc.forbidden,
+            # NB: we sort to get ESET_ALL creds before ESET_OWN ones (more priority)
+            sorted((sc for sc in sc_sequence
+                        if sc.ctype_id in allowed_ctype_ids and sc.value & perm
+                   ),
+                   key=lambda sc: sc.set_type
+                  )
+        )
+
+        if allowed:
+            if forbidden:
+                if forbidden[0].set_type == ESET_ALL:
+                    filtered_qs = queryset.none()
+                else:  # SetCredentials.ESET_OWN (this case is probably not really useful...)
+                    if allowed[0].set_type == ESET_ALL:
+                        teams = user.teams
+                        filtered_qs = queryset.exclude(user__in=[user] + teams) if teams else \
+                                      queryset.exclude(user=user)
+                    else:  # SetCredentials.ESET_OWN
+                        filtered_qs = queryset.none()
+            else:
+                if allowed[0].set_type == ESET_ALL:
+                    filtered_qs = queryset  # No additional filtering needed
                 else:  # SetCredentials.ESET_OWN
                     teams = user.teams
-                    return queryset.filter(user__in=[user] + teams) if teams else \
-                           queryset.filter(user=user)
+                    filtered_qs = queryset.filter(user__in=[user] + teams) if teams else \
+                                  queryset.filter(user=user)
+        else:
+            filtered_qs = queryset.none()
 
-        return queryset.none()
+        return filtered_qs
 
     @classmethod
     def filter(cls, sc_sequence, user, queryset, perm):
@@ -404,49 +443,58 @@ class SetCredentials(Model):
             return cls._aux_filter(as_model, sc_sequence, user, queryset, perm)
 
         get_for_model = ContentType.objects.get_for_model
-        ct_ids = {get_for_model(model).id for model in models}
+        ESET_ALL = cls.ESET_ALL
+        ESET_OWN = cls.ESET_OWN
+        ct_ids_all_allowed = []
+        ct_ids_own_allowed = []
+        ct_ids_own_forbidden = []
 
-        ESET_ALL = SetCredentials.ESET_ALL
-        sc_all, sc_owner = split_filter(predicate=(lambda sc: sc.set_type == ESET_ALL),
-                                        iterable=(sc for sc in sc_sequence if sc.value & perm),
-                                       )
+        for model in models:
+            ct_id = get_for_model(model).id
+            allowed_ctype_ids = (None, ct_id)
 
-        def extract_ct_ids(sc_instances):
-            extracted_ct_ids = []
+            # TODO: factorise ?
+            forbidden, allowed = split_filter(
+                lambda sc: sc.forbidden,
+                # NB: we sort to get ESET_ALL creds before ESET_OWN ones (more priority)
+                sorted((sc for sc in sc_sequence
+                        if sc.ctype_id in allowed_ctype_ids and sc.value & perm
+                        ),
+                       key=lambda sc: sc.set_type
+                      )
+            )
 
-            for sc in sc_instances:
-                ct_id = sc.ctype_id
+            if allowed:
+                if forbidden:
+                    if forbidden[0].set_type == ESET_OWN and allowed[0].set_type == ESET_ALL:
+                        ct_ids_own_forbidden.append(ct_id)
+                else:
+                    if allowed[0].set_type == ESET_ALL:
+                        ct_ids_all_allowed.append(ct_id)  # No additional filtering needed
+                    else:  # ESET_OWN
+                        ct_ids_own_allowed.append(ct_id)
 
-                if ct_id is None:
-                    extracted_ct_ids.extend(ct_ids)
-                    ct_ids.clear()
-                    break
-
-                if ct_id in ct_ids:
-                    extracted_ct_ids.append(ct_id)
-                    ct_ids.remove(ct_id)
-
-            return extracted_ct_ids
-
-        ctype_ids_all = extract_ct_ids(sc_all)
-        ctype_ids_owner = extract_ct_ids(sc_owner)
-
-        if not ctype_ids_all and not ctype_ids_owner:
+        if not ct_ids_all_allowed and not ct_ids_own_allowed and not ct_ids_own_forbidden:
             queryset = queryset.none()
         else:
-            q = Q(entity_type_id__in=ctype_ids_all) if ctype_ids_all else Q()
+            q = Q(entity_type_id__in=ct_ids_all_allowed) if ct_ids_all_allowed else Q()
 
-            if ctype_ids_owner:
+            if ct_ids_own_allowed or ct_ids_own_forbidden:
                 teams = user.teams
-                kwargs = {'user__in': [user] + teams} if teams else {'user': user}
-                q |= Q(entity_type_id__in=ctype_ids_owner, **kwargs)
+                user_kwargs = {'user__in': [user] + teams} if teams else {'user': user}
+
+                if ct_ids_own_allowed:
+                    q |= Q(entity_type_id__in=ct_ids_own_allowed, **user_kwargs)
+
+                if ct_ids_own_forbidden:
+                    q |= Q(entity_type_id__in=ct_ids_own_forbidden) & ~Q(**user_kwargs)
 
             queryset = queryset.filter(q)
 
         return queryset
 
     def set_value(self, can_view, can_change, can_delete, can_link, can_unlink):
-        """Set the 'value' attribute from 5 booleans"""
+        """Set the 'value' attribute from 5 booleans."""
         value = EntityCredentials.NONE
 
         if can_view:   value |= EntityCredentials.VIEW

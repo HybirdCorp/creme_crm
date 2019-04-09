@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-26 20:12+0100\n"
+"POT-Creation-Date: 2019-04-09 12:14+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -35,8 +35,7 @@ msgstr ""
 msgid "Edit"
 msgstr "Modifier"
 
-#: actions.py:48 models/auth.py:281
-#: templates/creme_core/bricks/base/hat-card.html:111
+#: actions.py:48 templates/creme_core/bricks/base/hat-card.html:111
 #: templates/creme_core/bricks/generic/hat-bar.html:47
 #: templates/creme_core/generics/blockform/delete-popup.html:4
 #: templatetags/creme_bricks.py:127
@@ -87,7 +86,7 @@ msgstr "Cœur"
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:303 models/auth.py:568 models/job.py:83
+#: apps.py:303 models/auth.py:617 models/job.py:83
 #: templates/creme_core/bricks/imprints.html:17
 #: templates/creme_core/bricks/job.html:59
 msgid "User"
@@ -182,7 +181,7 @@ msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 msgid "Properties"
 msgstr "Propriétés"
 
-#: bricks.py:60 forms/relation.py:36 gui/bricks.py:408 models/relation.py:347
+#: bricks.py:60 forms/relation.py:36 gui/bricks.py:410 models/relation.py:347
 #: templates/creme_core/bricks/relations.html:7
 #: templates/creme_core/forms/widgets/entity-cells.html:83
 msgid "Relationships"
@@ -1169,29 +1168,29 @@ msgstr "{dateperiod_value}{dateperiod_type}"
 msgid "* no property *"
 msgstr "* pas de propriété *"
 
-#: gui/bricks.py:371
+#: gui/bricks.py:373
 msgid "Information on the entity (generic)"
 msgstr "Information sur la fiche (générique)"
 
-#: gui/bricks.py:393
+#: gui/bricks.py:395
 #, python-brace-format
 msgid "Information «{model}»"
 msgstr "Informations «{model}»"
 
-#: gui/bricks.py:420
+#: gui/bricks.py:422
 #, python-brace-format
 msgid "Relationship block: «{predicate}»"
 msgstr "Bloc de relation: «{predicate}»"
 
-#: gui/bricks.py:710
+#: gui/bricks.py:716
 msgid "Unknown type of block (bad uninstall ?)"
 msgstr "Type de bloc inconnu (mauvaise désinstallation ?)"
 
-#: gui/bricks.py:815
+#: gui/bricks.py:828
 msgid "Information on the entity"
 msgstr "Informations sur la fiche"
 
-#: gui/bricks.py:835
+#: gui/bricks.py:848
 msgid "Title bar"
 msgstr "Barre de titre"
 
@@ -1276,204 +1275,221 @@ msgstr "À la première page"
 msgid "Next page"
 msgstr "Page suivante"
 
-#: models/auth.py:51 models/bricks.py:386 models/entity_filter.py:112
+#: models/auth.py:52 models/bricks.py:393 models/entity_filter.py:112
 #: models/i18n.py:28 templates/creme_core/bricks/relations.html:17
 #: templates/creme_core/bricks/trash.html:17
 msgid "Name"
 msgstr "Nom"
 
-#: models/auth.py:53
+#: models/auth.py:55
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: models/auth.py:54
+#: models/auth.py:56
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
-#: models/auth.py:58
+#: models/auth.py:60
 msgid "Create a role"
 msgstr "Créer un rôle"
 
-#: models/auth.py:59
+#: models/auth.py:61
 msgid "Save the role"
 msgstr "Enregistrer le rôle"
 
-#: models/auth.py:63 models/auth.py:533
+#: models/auth.py:65 models/auth.py:582
 msgid "Role"
 msgstr "Rôle"
 
-#: models/auth.py:64
+#: models/auth.py:66
 msgid "Roles"
 msgstr "Rôles"
 
-#: models/auth.py:267
+#: models/auth.py:274
 msgid "all entities"
 msgstr "toutes les fiches"
 
-#: models/auth.py:268
+#: models/auth.py:275
 msgid "user's own entities"
 msgstr "ses propres fiches"
 
-#: models/auth.py:279
-msgid "View"
-msgstr "Voir"
+#: models/auth.py:287
+msgid "view"
+msgstr "voir"
 
-#: models/auth.py:280
-msgid "Change"
-msgstr "Modifier"
+#: models/auth.py:288
+msgid "change"
+msgstr "modifier"
 
-#: models/auth.py:282 templates/creme_core/generics/blockform/link-popup.html:4
-#: templates/creme_core/generics/blockform/link.html:7
-msgid "Link"
-msgstr "Lier"
+#: models/auth.py:289
+msgid "delete"
+msgstr "supprimer"
 
-#: models/auth.py:283
-msgid "Unlink"
-msgstr "Délier"
+#: models/auth.py:290
+msgid "link"
+msgstr "délier"
 
-#: models/auth.py:286
-msgid "Nothing allowed"
-msgstr "Rien d'autorisé"
+#: models/auth.py:291
+msgid "unlink"
+msgstr "délier"
 
 #: models/auth.py:294
-#, python-brace-format
-msgid "For {set} of type “{type}”: {perms}"
-msgstr "Pour {set} du type “{type}”: {perms}"
+msgid "nothing forbidden"
+msgstr "rien d'interdit"
 
-#: models/auth.py:296
-#, python-brace-format
-msgid "For {set}: {perms}"
-msgstr "Pour {set}: {perms}"
+#: models/auth.py:295
+msgid "nothing allowed"
+msgstr "rien d'autorisé"
 
-#: models/auth.py:500
+#: models/auth.py:304
+#, python-brace-format
+msgid "For {set} of type “{type}” forbidden to: {perms}"
+msgstr "Pour {set} du type “{type}” interdit de : {perms}"
+
+#: models/auth.py:305
+#, python-brace-format
+msgid "For {set} of type “{type}” allowed to: {perms}"
+msgstr "Pour {set} du type “{type}” autorisé à : {perms}"
+
+#: models/auth.py:307
+#, python-brace-format
+msgid "For {set} forbidden to: {perms}"
+msgstr "Pour {set} interdit de : {perms}"
+
+#: models/auth.py:308
+#, python-brace-format
+msgid "For {set} allowed to: {perms}"
+msgstr "Pour {set} autorisé à : {perms}"
+
+#: models/auth.py:549
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: models/auth.py:501
+#: models/auth.py:550
 msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
 msgstr ""
 "Requis. 30 caractères maximum. Uniquement des lettres, nombres et les "
 "caractères « @ », « . », « + », « - » et « _ »."
 
 # Already in django.auth
-#: models/auth.py:505
+#: models/auth.py:554
 msgid ""
 "Enter a valid username. This value may contain only letters, numbers, and "
 "@/./+/-/_ characters."
 msgstr ""
 
 # Already in django.auth
-#: models/auth.py:512
+#: models/auth.py:561
 msgid "A user with that username already exists."
 msgstr ""
 
-#: models/auth.py:515
+#: models/auth.py:564
 msgid "Last name"
 msgstr "Nom"
 
-#: models/auth.py:516
+#: models/auth.py:565
 msgid "First name"
 msgstr "Prénom"
 
-#: models/auth.py:518
+#: models/auth.py:567
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/auth.py:520
+#: models/auth.py:569
 msgid "Date joined"
 msgstr "Date d'inscription"
 
-#: models/auth.py:521
+#: models/auth.py:570
 msgid "Active?"
 msgstr "Actif ?"
 
-#: models/auth.py:527
+#: models/auth.py:576
 msgid "Is staff?"
 msgstr "Est administrateur ?"
 
-#: models/auth.py:530
+#: models/auth.py:579
 msgid "Is a superuser?"
 msgstr "Est un super-utilisateur ?"
 
-#: models/auth.py:537
+#: models/auth.py:586
 msgid "Is a team?"
 msgstr "Est une équipe ?"
 
-#: models/auth.py:538
+#: models/auth.py:587
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: models/auth.py:542
+#: models/auth.py:591
 msgid "Time zone"
 msgstr "Fuseau horaire"
 
-#: models/auth.py:545
+#: models/auth.py:594
 msgid "Theme"
 msgstr "Thème"
 
-#: models/auth.py:558
+#: models/auth.py:607
 msgid "Create a user"
 msgstr "Créer un utilisateur"
 
-#: models/auth.py:559
+#: models/auth.py:608
 msgid "Save the user"
 msgstr "Enregistrer l'utilisateur"
 
-#: models/auth.py:569
+#: models/auth.py:618
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: models/auth.py:577
+#: models/auth.py:626
 #, python-brace-format
 msgid "{user} (team)"
 msgstr "{user} (équipe)"
 
-#: models/auth.py:584
+#: models/auth.py:633
 #, python-brace-format
 msgid "{first_name} {last_name}."
 msgstr "{first_name} {last_name}."
 
-#: models/auth.py:701
+#: models/auth.py:750
 msgid "Invalid app \"{}\""
 msgstr "App invalide \"{}\""
 
-#: models/auth.py:705
+#: models/auth.py:754
 msgid "You are not allowed to access to the app: {}"
 msgstr "Vous n'avez pas accés à cette application: {}"
 
-#: models/auth.py:715
+#: models/auth.py:764
 msgid "You are not allowed to configure this app: {}"
 msgstr "Vous n'êtes pas autorisé à configurer cette app: {}"
 
-#: models/auth.py:732
+#: models/auth.py:781
 msgid "You are not allowed to edit this entity: {}"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: {}"
 
-#: models/auth.py:746
+#: models/auth.py:795
 msgid "You are not allowed to create: {}"
 msgstr "Vous n'avez pas la permission de créer : {}"
 
-#: models/auth.py:759 views/entity.py:860
+#: models/auth.py:808 views/entity.py:860
 msgid "You are not allowed to delete this entity: {}"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: {}"
 
-#: models/auth.py:773
+#: models/auth.py:822
 msgid "You are not allowed to export: {}"
 msgstr "Vous n'avez pas la permission d'exporter: {}"
 
-#: models/auth.py:803
+#: models/auth.py:852
 msgid "You are not allowed to link this entity: {}"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: {}"
 
-#: models/auth.py:807
+#: models/auth.py:856
 msgid "You are not allowed to link: {}"
 msgstr "Vous n'avez pas la permission de lier: {}"
 
-#: models/auth.py:819
+#: models/auth.py:868
 msgid "You are not allowed to unlink this entity: {}"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: {}"
 
-#: models/auth.py:830
+#: models/auth.py:879
 msgid "You are not allowed to view this entity: {}"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 
@@ -1490,40 +1506,40 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: models/bricks.py:56 models/bricks.py:385 models/button_menu.py:32
+#: models/bricks.py:56 models/bricks.py:392 models/button_menu.py:32
 #: models/custom_field.py:55
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/bricks.py:57 models/bricks.py:137 models/search.py:61
+#: models/bricks.py:57 models/bricks.py:144 models/search.py:61
 msgid "Related role"
 msgstr "Rôle associé"
 
-#: models/bricks.py:212 models/bricks.py:317 models/bricks.py:463
+#: models/bricks.py:219 models/bricks.py:324 models/bricks.py:470
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/bricks.py:213
+#: models/bricks.py:220
 msgid "Related type of relationship"
 msgstr "Type de relation associé"
 
-#: models/bricks.py:216
+#: models/bricks.py:223
 msgid "Create a type of block"
 msgstr "Créer un type de bloc"
 
-#: models/bricks.py:217 models/bricks.py:323
+#: models/bricks.py:224 models/bricks.py:330
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: models/bricks.py:318
+#: models/bricks.py:325
 msgid "Block related entity"
 msgstr "Fiche associée au bloc"
 
-#: models/bricks.py:320
+#: models/bricks.py:327
 msgid "Verbose"
 msgstr "Verbeux"
 
-#: models/bricks.py:322
+#: models/bricks.py:329
 msgid "Create a block"
 msgstr "Créer un bloc"
 
@@ -2994,6 +3010,11 @@ msgstr "Modifier «%(object)s»"
 msgid "Save the modifications"
 msgstr "Enregistrer les modifications"
 
+#: templates/creme_core/generics/blockform/link-popup.html:4
+#: templates/creme_core/generics/blockform/link.html:7
+msgid "Link"
+msgstr "Lier"
+
 #: templates/creme_core/header/menu-base.html:20
 #: templates/creme_core/header/menu-base.html:23
 msgid "Search"
@@ -3601,6 +3622,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 msgid "Empty search…"
 msgstr "Recherche vide…"
 
+#~ msgid "View"
+#~ msgstr "Voir"
+
 #~ msgid "Go to the list"
 #~ msgstr "Aller à la liste"
 
@@ -3621,9 +3645,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "Edit «{}»"
 #~ msgstr "Modifier «{}»"
-
-#~ msgid "forbidden"
-#~ msgstr "interdit"
 
 #~ msgid "The field «{}» does not exist or cannot be edited"
 #~ msgstr "Le champ «{}» n'existe pas ou ne peut être modifié."
@@ -3658,9 +3679,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "Preferred menu:"
 #~ msgstr "Menus rapides:"
-
-#~ msgid "deleted"
-#~ msgstr "supprimé"
 
 #~ msgid "Merge two entities"
 #~ msgstr "Fusionner deux fiches"

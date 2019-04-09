@@ -21,7 +21,7 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     font-weight: bolder;
 }
 
-/* Search/Blocks config */
+/* Search/Bricks config */
 
 .creme_config-configurable-model-brick th.configmodel-column-order {
     width: 50px;
@@ -71,6 +71,14 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 .creme_config-roles-brick .brick-role-creds > ul img {
     vertical-align: middle;
     display: inline-block;
+}
+
+.creme_config-roles-brick .role-creds li.role-creds-allowed {
+    background: #bef9b8;
+}
+
+.creme_config-roles-brick .role-creds li.role-creds-forbidden {
+    background: #ffbdbb;
 }
 
 /* Search brick */
