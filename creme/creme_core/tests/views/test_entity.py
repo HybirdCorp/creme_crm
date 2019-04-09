@@ -269,16 +269,40 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertStillExists(entity02)
 
     def test_delete_entity06(self):
-        "is_deleted=False -> trash (AJAX version)"
+        "is_deleted=False -> trash (AJAX version)."
         user = self.login()
 
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
-        self.assertPOST200(self._build_delete_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.assertPOST200(self._build_delete_url(entity),
+                                      HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                                     )
 
         with self.assertNoException():
             entity = self.refresh(entity)
 
         self.assertIs(entity.is_deleted, True)
+
+        self.assertEqual('text/plain', response['Content-Type'])
+        self.assertEqual(FakeOrganisation.get_lv_absolute_url().encode(),
+                         response.content
+                        )
+
+    def test_delete_entity07(self):
+        "is_deleted=True -> real deletion(AJAX version)."
+        user = self.login()
+
+        # To get a get_lv_absolute_url() method
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
+
+        response = self.assertPOST200(self._build_delete_url(entity),
+                                      HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                                     )
+        self.assertDoesNotExist(entity)
+
+        self.assertEqual('text/plain', response['Content-Type'])
+        self.assertEqual(FakeOrganisation.get_lv_absolute_url().encode(),
+                         response.content
+                        )
 
     def test_delete_entities01(self):
         "NB: for the deletion of auxiliary entities => see billing app"
