@@ -71,7 +71,8 @@ class EditCredentialsForm(CremeModelForm):
 
     class Meta:
         model = SetCredentials
-        exclude = ('role', 'value')  # fields ??
+        # exclude = ('role', 'value')  # fields ??
+        exclude = ('value', )  # fields ??
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

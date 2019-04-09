@@ -50,6 +50,7 @@ logger = logging.getLogger(__name__)
 class UserRole(Model):
     name              = CharField(_('Name'), max_length=100, unique=True)
     # superior         = ForeignKey('self', verbose_name=_('Superior'), null=True) #related_name='subordinates'
+    # TODO: CTypeManyToManyField ?
     creatable_ctypes  = ManyToManyField(ContentType, verbose_name=_('Creatable resources'),  related_name='roles_allowing_creation') # null=True,
     exportable_ctypes = ManyToManyField(ContentType, verbose_name=_('Exportable resources'), related_name='roles_allowing_export')   # null=True,
     raw_allowed_apps  = TextField(default='')  # Use 'allowed_apps' property
@@ -254,10 +255,10 @@ class UserRole(Model):
 
 
 class SetCredentials(Model):
-    role     = ForeignKey(UserRole, related_name='credentials', on_delete=CASCADE)
+    role     = ForeignKey(UserRole, related_name='credentials', on_delete=CASCADE, editable=False)
     value    = PositiveSmallIntegerField()  # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
     set_type = PositiveIntegerField()  # See SetCredentials.ESET_* TODO: choices ?
-    ctype    = CTypeForeignKey(null=True, blank=True)
+    ctype    = CTypeForeignKey(null=True, blank=True)  # TODO: EntityCTypeForeignKey ?
     # entity  = ForeignKey(CremeEntity, null=True) ??
 
     # 'ESET' means 'Entities SET'
