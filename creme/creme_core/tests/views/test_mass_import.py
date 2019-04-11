@@ -22,7 +22,8 @@ try:
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
             RelationType, Relation, FieldsConfig, CustomField, CustomFieldEnumValue,
             Job, MassImportJobResult, SetCredentials,
-            FakeContact, FakeOrganisation, FakeAddress, FakePosition, FakeSector, FakeEmailCampaign)
+            FakeContact, FakeOrganisation, FakeAddress, FakeCivility, FakePosition, FakeSector,
+            FakeEmailCampaign)
     from creme.creme_core.utils import update_model_instance
 
     from creme.documents.models import Document
@@ -1184,7 +1185,60 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         results = self._get_job_results(job)
         self.assertEqual(1, len(results))
 
-    # def test_import_with_updateXX(self): TODO: test search on FK ? exclude them ??
+    def test_import_with_update05(self):
+        "Update key uses a FK."
+        user = self.login()
+
+        civ1, civ2 = FakeCivility.objects.all()[:2]
+
+        last_name = 'Ayanami'
+        create_contact = partial(FakeContact.objects.create, user=user, last_name=last_name)
+        contact1 = create_contact(civility=civ1)
+        contact2 = create_contact(civility=civ2)
+
+        count = FakeContact.objects.count()
+
+        email = 'ayanami@nerv.jp'
+
+        url = self._build_import_url(FakeContact)
+        doc = self._build_csv_doc([(last_name, civ2.title, email)])
+
+        # Check key fields
+        response = self.client.post(url, data={'step': 0, 'document': doc.id})
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            key_choices = {c[0] for c in response.context['form'].fields['key_fields'].choices}
+
+        self.assertIn('civility', key_choices)
+        self.assertNotIn('civility__title',    key_choices)
+        self.assertNotIn('civility__shortcut', key_choices)
+        self.assertNotIn('address', key_choices)  # Not enumerable
+        self.assertNotIn('address__city', key_choices)  # Idem
+        self.assertNotIn('languages', key_choices)  # M2M
+
+        # Final POST
+        response = self.client.post(url, follow=True,
+                                    data=dict(self.lv_import_data, document=doc.id,
+                                              user=user.id,
+                                              key_fields=['last_name', 'civility'],
+
+                                              first_name_colselect=0,
+                                              last_name_colselect=1,
+
+                                              civility_colselect=2,
+                                              civility_subfield='title',
+
+                                              email_colselect=3,
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+
+        self._execute_job(response)
+        self.assertEqual(count, FakeContact.objects.count())
+
+        self.assertFalse(self.refresh(contact1).email)
+        self.assertEqual(email, self.refresh(contact2).email)
 
     def test_fields_config(self):
         user = self.login()
