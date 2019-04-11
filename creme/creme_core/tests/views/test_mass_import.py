@@ -913,7 +913,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertGET403(self._build_import_url(FakeContact))
 
     def test_credentials02(self):
-        "Creation credentials for 'auxiliary' models"
+        "Creation credentials for 'auxiliary' models."
         self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
                    creatable_models=[FakeContact, FakeOrganisation, Document],
                   )
@@ -1239,6 +1239,28 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         self.assertFalse(self.refresh(contact1).email)
         self.assertEqual(email, self.refresh(contact2).email)
+
+    def test_validate_subfield(self):
+        user = self.login()
+
+        doc = self._build_csv_doc([('Rei', 'Ayanami', 'Pilot')])
+        response = self.assertPOST200(
+            self._build_import_url(FakeContact), follow=True,
+            data=dict(self.lv_import_data,
+                      document=doc.id,
+                      user=user.id,
+
+                      position_colselect=3,
+                      position_subfield='invalid',  # <=
+
+                      phone_subfield='wtf',  # <= should not crash...
+                     ),
+        )
+        self.assertFormError(
+            response, 'form', 'position',
+            _('Select a valid choice. "{value}" is not one of the'
+              ' available sub-field.').format(value='invalid')
+        )
 
     def test_fields_config(self):
         user = self.login()

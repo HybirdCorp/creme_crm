@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-09 12:14+0200\n"
+"POT-Creation-Date: 2019-04-10 19:44+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -176,7 +176,7 @@ msgstr "Fichier XLSX"
 msgid "XLSX file extension introduced by Microsoft Excel 2007."
 msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 
-#: bricks.py:43 forms/mass_import.py:1158 function_fields.py:51
+#: bricks.py:43 forms/mass_import.py:1182 function_fields.py:51
 #: models/creme_property.py:209 templates/creme_core/bricks/properties.html:7
 msgid "Properties"
 msgstr "Propriétés"
@@ -490,7 +490,7 @@ msgstr "Privé ({})"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:263 forms/mass_import.py:1155 models/entity.py:69
+#: forms/base.py:263 forms/mass_import.py:1179 models/entity.py:69
 #: models/entity_filter.py:113 models/header_filter.py:73
 #: models/relation.py:335
 msgid "Owner user"
@@ -815,7 +815,7 @@ msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
 
-#: forms/header_filter.py:131 forms/mass_import.py:283 forms/mass_import.py:533
+#: forms/header_filter.py:131 forms/mass_import.py:283 forms/mass_import.py:544
 msgid "Enter a valid value."
 msgstr "Saisissez une valeur valide."
 
@@ -896,7 +896,15 @@ msgstr ""
 "Erreur lors de l'extraction de valeur: a essayé de retrouver "
 "«{value}» (colonne {column}) sur {model}. Erreur brute: [{raw_error}]"
 
-#: forms/mass_import.py:417
+#: forms/mass_import.py:284
+#, python-brace-format
+msgid ""
+"Select a valid choice. \"{value}\" is not one of the available sub-field."
+msgstr ""
+"Sélectionnez un choix valide. \"{value}\" n'est pas un des sous-champs "
+"disponibles."
+
+#: forms/mass_import.py:428
 #, python-brace-format
 msgid ""
 "Error while extracting value [{raw_error}]: tried to retrieve and then build "
@@ -905,7 +913,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur ({raw_error}) : a essayé de retrouver "
 "et puis de construire «{value}» sur {model}"
 
-#: forms/mass_import.py:426
+#: forms/mass_import.py:437
 #, python-brace-format
 msgid ""
 "Error while extracting value [{raw_error}]: tried to retrieve «{value}» on "
@@ -914,12 +922,12 @@ msgstr ""
 "Erreur lors de l'extraction de valeur ({raw_error}) : a essayé de retrouver "
 "«{value}» sur {model}"
 
-#: forms/mass_import.py:534 forms/mass_import.py:1174
+#: forms/mass_import.py:545 forms/mass_import.py:1198
 #, python-format
 msgid "You are not allowed to create: %(model)s"
 msgstr "Vous n'avez pas la permission de créer : %(model)s"
 
-#: forms/mass_import.py:614
+#: forms/mass_import.py:625
 #, python-brace-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve {field}"
@@ -929,7 +937,7 @@ msgstr ""
 "essayé de retrouver {field}=«{value}» (colonne {column}) sur {model}. Erreur "
 "brute: [{raw_error}]"
 
-#: forms/mass_import.py:632
+#: forms/mass_import.py:643
 #, python-brace-format
 msgid ""
 "Error while extracting value: tried to build {model} with data={data} "
@@ -938,7 +946,7 @@ msgstr ""
 "Erreur lors de l'extraction  de valeur: a essayé de construire {model} avec "
 "données={data} (colonne {column}) ➔ erreurs={errors}"
 
-#: forms/mass_import.py:641
+#: forms/mass_import.py:652
 #, python-brace-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve {field}"
@@ -947,27 +955,27 @@ msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver {field}=«{value}» (column {column}) sur {model}"
 
-#: forms/mass_import.py:680
+#: forms/mass_import.py:691
 msgid "The entity"
 msgstr "La fiche"
 
-#: forms/mass_import.py:688
+#: forms/mass_import.py:699
 msgid "which field"
 msgstr "quel champs"
 
-#: forms/mass_import.py:690
+#: forms/mass_import.py:701
 msgid "equals to"
 msgstr "Est égal à"
 
-#: forms/mass_import.py:707
+#: forms/mass_import.py:718
 msgid "This field doesn't exist in this ContentType."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/mass_import.py:708
+#: forms/mass_import.py:719
 msgid "This column is not a valid choice."
 msgstr "Cette colonne n'est pas un choix valide'."
 
-#: forms/mass_import.py:844
+#: forms/mass_import.py:855
 #, python-brace-format
 msgid ""
 "Error while extracting value: tried to retrieve the choice «{value}» (column "
@@ -976,11 +984,11 @@ msgstr ""
 "Erreur lors de l'extraction de valeur: a essayé de retrouver le choix "
 "«{value}» (colonne {column}). Erreur brute: [{raw_error}]"
 
-#: forms/mass_import.py:953
+#: forms/mass_import.py:964
 msgid "Key fields"
 msgstr "Champs clé"
 
-#: forms/mass_import.py:956
+#: forms/mass_import.py:967
 msgid ""
 "Select at least one field if you want to use the \"update\" mode. If an "
 "entity already exists with the same field values, it will be simply updated "
@@ -994,23 +1002,23 @@ msgstr ""
 "Mais si plusieurs fiches sont trouvées, une nouvelle fiche sera créée (pour "
 "éviter les erreurs)."
 
-#: forms/mass_import.py:964
+#: forms/mass_import.py:975
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/mass_import.py:965
+#: forms/mass_import.py:976
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/mass_import.py:972
+#: forms/mass_import.py:983
 msgid "Update mode"
 msgstr "Mode mise-à-jour"
 
-#: forms/mass_import.py:973 forms/mass_import.py:1168
+#: forms/mass_import.py:984 forms/mass_import.py:1192
 msgid "Field values"
 msgstr "Valeurs de champ"
 
-#: forms/mass_import.py:1105
+#: forms/mass_import.py:1129
 msgid ""
 "Several entities corresponding to the search have been found. So a new "
 "entity have been created to avoid errors."
@@ -1018,36 +1026,36 @@ msgstr ""
 "Plusieurs fiches correspondant à la recherche ont été trouvées. Donc une "
 "nouvelle fiche a été créée pour éviter les erreurs."
 
-#: forms/mass_import.py:1161
+#: forms/mass_import.py:1185
 msgid "Fixed relationships"
 msgstr "Relations fixes"
 
-#: forms/mass_import.py:1164
+#: forms/mass_import.py:1188
 msgid "Relationships from the file"
 msgstr "Relations depuis le fichier"
 
-#: forms/mass_import.py:1167
+#: forms/mass_import.py:1191
 msgid "General"
 msgstr "Général"
 
-#: forms/mass_import.py:1169
+#: forms/mass_import.py:1193
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/mass_import.py:1170
+#: forms/mass_import.py:1194
 msgid "Associated relationships"
 msgstr "Relations associées"
 
-#: forms/mass_import.py:1306
+#: forms/mass_import.py:1330
 msgid "Not in the file"
 msgstr "Pas dans le fichier"
 
-#: forms/mass_import.py:1310
+#: forms/mass_import.py:1334
 #, python-brace-format
 msgid "Column {index} - {name}"
 msgstr "Colonne {index} - {name}"
 
-#: forms/mass_import.py:1317
+#: forms/mass_import.py:1341
 msgid "Column {}"
 msgstr "Colonne {}"
 
