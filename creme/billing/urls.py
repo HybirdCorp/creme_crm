@@ -28,7 +28,8 @@ urlpatterns = [
         ),
     ])),
 
-    re_path(r'^(?P<document_id>\d+)/convert[/]?$', convert.convert, name='billing__convert'),
+    # re_path(r'^(?P<document_id>\d+)/convert[/]?$', convert.convert, name='billing__convert'),
+    re_path(r'^(?P<src_id>\d+)/convert[/]?$', convert.Conversion.as_view(), name='billing__convert'),
 
     re_path(r'^line/(?P<line_id>\d+)/add_to_catalog[/]*',  line.AddingToCatalog.as_view(), name='billing__add_to_catalog'),
     re_path(r'^(?P<document_id>\d+)/multi_save_lines[/]*', line.multi_save_lines,          name='billing__multi_save_lines'),

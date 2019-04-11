@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,54 +18,109 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django import http
 from django.db.transaction import atomic
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext as _
+# from django.http import HttpResponse
+# from django.shortcuts import redirect, get_object_or_404
+# from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.auth import decorators
+# from creme.creme_core.auth import decorators
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import CremeEntity
+# from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views import generic
 
 from ..core import CLASS_MAP as _CLASS_MAP, CONVERT_MATRIX
 
 
-@decorators.login_required
-@decorators.permission_required('billing')
-def convert(request, document_id):
-    src = get_object_or_404(CremeEntity, pk=document_id).get_real_entity()
-    user = request.user
+# @decorators.login_required
+# @decorators.permission_required('billing')
+# def convert(request, document_id):
+#     src = get_object_or_404(CremeEntity, pk=document_id).get_real_entity()
+#     user = request.user
+#
+#     allowed_dests = CONVERT_MATRIX.get(src.__class__)
+#     if not allowed_dests:
+#         raise ConflictError('This entity cannot be converted to a(nother) billing document.')
+#
+#     user.has_perm_to_view_or_die(src)
+#
+#     if src.is_deleted:
+#         raise ConflictError('This entity cannot be converted because it is deleted.')
+#
+#     dest_class_id = get_from_POST_or_404(request.POST, 'type')
+#     if dest_class_id not in allowed_dests:
+#         raise ConflictError('Invalid destination type '
+#                             '[allowed destinations for this type: {}]'.format(allowed_dests)
+#                            )
+#
+#     dest_class = _CLASS_MAP[dest_class_id]
+#     user.has_perm_to_create_or_die(dest_class)
+#
+#     with atomic():
+#         dest = dest_class()
+#         dest.build(src)
+#         dest.name = _('{src} (converted into {dest})').format(
+#                             src=src.name,
+#                             dest=dest._meta.verbose_name,
+#                         )
+#         dest.generate_number()
+#         dest.save()
+#
+#     if request.is_ajax():
+#         return HttpResponse(dest.get_absolute_url(), content_type='text/plain')
+#
+#     return redirect(dest)
+class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
+    permissions = 'billing'
+    entity_id_url_kwarg = 'src_id'
+    dest_type_arg = 'type'
 
-    allowed_dests = CONVERT_MATRIX.get(src.__class__)
-    if not allowed_dests:
-        raise ConflictError('This entity cannot be converted to a(nother) billing document.')
+    dest_title = _('{src} (converted into {dest})')
 
-    user.has_perm_to_view_or_die(src)
+    def check_related_entity_permissions(self, entity, user):
+        user.has_perm_to_view_or_die(entity)
 
-    if src.is_deleted:
-        raise ConflictError('This entity cannot be converted because it is deleted.')
+        # TODO: move to EntityRelatedMixin ??
+        if entity.is_deleted:
+            raise ConflictError('This entity cannot be converted because it is deleted.')
 
-    dest_class_id = get_from_POST_or_404(request.POST, 'type')
-    if dest_class_id not in allowed_dests:
-        raise ConflictError('Invalid destination type '
-                            '[allowed destinations for this type: {}]'.format(allowed_dests)
-                           )
+    def get_destination_model(self, src):
+        request = self.request
 
-    dest_class = _CLASS_MAP[dest_class_id]
-    user.has_perm_to_create_or_die(dest_class)
+        allowed_dests = CONVERT_MATRIX.get(src.__class__)
+        if not allowed_dests:
+            raise ConflictError('This entity cannot be converted to a(nother) billing document.')
 
-    with atomic():
-        dest = dest_class()
-        dest.build(src)
-        dest.name = _(u'{src} (converted into {dest})').format(
-                            src=src.name,
-                            dest=dest._meta.verbose_name,
-                        )
-        dest.generate_number()
-        dest.save()
+        dest_class_id = get_from_POST_or_404(request.POST, self.dest_type_arg)
+        if dest_class_id not in allowed_dests:
+            raise ConflictError('Invalid destination type '
+                                '[allowed destinations for this type: {}]'.format(allowed_dests)
+                               )
 
-    if request.is_ajax():
-        return HttpResponse(dest.get_absolute_url(), content_type='text/plain')
+        dest_class = _CLASS_MAP[dest_class_id]
 
-    return redirect(dest)
+        request.user.has_perm_to_create_or_die(dest_class)
+
+        return dest_class
+
+    def post(self, *args, **kwargs):
+        src = self.get_related_entity()
+        dest_class = self.get_destination_model(src)
+
+        with atomic():
+            dest = dest_class()
+            dest.build(src)
+            dest.name = self.dest_title.format(
+                src=src.name,
+                dest=dest._meta.verbose_name,
+            )
+            dest.generate_number()
+            dest.save()
+
+        url = dest.get_absolute_url()
+
+        return http.HttpResponse(url, content_type='text/plain') \
+               if self.request.is_ajax() else \
+               http.HttpResponseRedirect(url)
