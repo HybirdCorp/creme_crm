@@ -281,6 +281,7 @@ class ExtractorField(Field):
     widget = ExtractorWidget
     default_error_messages = {
         'invalid': _('Enter a valid value.'),
+        'invalid_subfield': _('Select a valid choice. "{value}" is not one of the available sub-field.'),
     }
 
     # TODO: default values + properties which update widget
@@ -294,6 +295,7 @@ class ExtractorField(Field):
         self._modelfield = modelfield
         self._user = None
         self._can_create = False  # If True and field is a FK/M2M -> the referenced model can be created
+        self._subfield_choices = None
 
         widget = self.widget
 
@@ -333,7 +335,7 @@ class ExtractorField(Field):
                                                     .choices()
 
             widget = self.widget
-            widget.subfield_select = sf_choices
+            self._subfield_choices = widget.subfield_select = sf_choices
             widget.propose_creation = self._can_create = creation_perm and (len(sf_choices) == 1)
 
     def clean(self, value):
@@ -356,14 +358,23 @@ class ExtractorField(Field):
 
         extractor = Extractor(col_index, def_value, self._original_field.clean)
 
-        subfield_search = value['subfield_search']
-        if subfield_search:
-            modelfield = self._modelfield
-            extractor.set_subfield_search(subfield_search, modelfield.remote_field.model,
-                                          multiple=isinstance(modelfield, ManyToManyField),
-                                          # TODO: improve widget to disable creation check instead of hide it.
-                                          create_if_unfound=subfield_create,
+        subfield_choices = self._subfield_choices
+        if subfield_choices:
+            subfield_search = value['subfield_search']
+
+            if subfield_search:
+                if not any(subfield_search == choice[0] for choice in subfield_choices):
+                    raise ValidationError(self.error_messages['invalid_subfield']
+                                              .format(value=subfield_search),
+                                          code='invalid_subfield'
                                          )
+
+                modelfield = self._modelfield
+                extractor.set_subfield_search(subfield_search, modelfield.remote_field.model,
+                                              multiple=isinstance(modelfield, ManyToManyField),
+                                              # TODO: improve widget to disable creation check instead of hide it.
+                                              create_if_unfound=subfield_create,
+                                             )
 
         return extractor
 
