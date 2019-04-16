@@ -45,9 +45,15 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Wears strange gloves')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Wears strange glasses')
-        ptype03 = create_ptype(str_pk='test-prop_foobar03', text='Wears strange hats')
+        ptype03 = create_ptype(str_pk='test-prop_foobar03', text='Wears strange hats',
+                               subject_ctypes=[FakeContact],
+                              )
+        ptype04 = create_ptype(str_pk='test-prop_foobar04', text='Is a fundation',
+                               subject_ctypes=[FakeOrganisation],
+                              )
 
-        entity = CremeEntity.objects.create(user=user)
+        # entity = CremeEntity.objects.create(user=user)
+        entity = FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
         self.assertFalse(entity.properties.all())
 
         url = reverse('creme_core__add_properties', args=(entity.id,))
@@ -67,6 +73,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         i3 = self.assertIndex((ptype03.id, ptype03.text), choices)
         self.assertLess(i1, i2)
         self.assertLess(i2, i3)
+
+        self.assertNotIn((ptype04.id, ptype04.text), choices)
 
         self.assertNoFormError(self.client.post(url, data={'types': [ptype01.id, ptype02.id]}))
 
