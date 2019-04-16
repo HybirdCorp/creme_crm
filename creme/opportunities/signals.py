@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@ if apps.is_installed('creme.billing'):
     from creme.creme_core.models import SettingValue, Relation
 
     from creme.billing import get_quote_model
+    from creme.opportunities.constants import REL_SUB_LINKED_QUOTE
 
     from .constants import REL_SUB_CURRENT_DOC
     from .setting_keys import quote_key
@@ -52,11 +53,8 @@ if apps.is_installed('creme.billing'):
     @receiver(post_save, sender=Quote)
     def _handle_current_quote_change(sender, instance, created, **kwargs):
         if not created and use_current_quote():
-            relations = instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True)
-
-            if relations:  # TODO: useless
-                for r in relations:
-                    update_sales(r.object_entity.get_real_entity())
+            for r in instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True):
+                update_sales(r.object_entity.get_real_entity())
 
     @receiver((post_save, post_delete), sender=Relation)
     def _handle_current_quote_set(sender, instance, **kwargs):
@@ -65,3 +63,13 @@ if apps.is_installed('creme.billing'):
 
             if isinstance(doc, Quote) and use_current_quote():
                 update_sales(instance.object_entity.get_real_entity())
+
+    @receiver(post_delete, sender=Relation)
+    def _handle_linked_quote_deletion(sender, instance, **kwargs):
+        if instance.type_id == REL_SUB_LINKED_QUOTE:
+            for relation in Relation.objects.filter(
+                    subject_entity=instance.subject_entity_id,
+                    type_id=REL_SUB_CURRENT_DOC,
+                    object_entity=instance.object_entity_id,
+                   ):
+                relation.delete()

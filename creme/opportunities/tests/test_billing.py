@@ -367,3 +367,45 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         for query_info in context.captured_queries:
             self.assertNotIn(key_id, query_info['sql'])
+
+    @skipIfCustomOrganisation
+    def test_current_quote_7(self):
+        "Delete the relationship REL_SUB_LINKED_QUOTE => REL_SUB_CURRENT_DOC is deleted too."
+        user = self.login()
+        self._set_quote_config(True)
+
+        opp1, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        self.client.post(self._build_gendoc_url(opp1))
+
+        opp2 = Opportunity.objects.create(
+            user=user, name='Opp#2',
+            sales_phase=opp1.sales_phase,
+            emitter=emitter, target=target,
+        )
+        self.client.post(self._build_gendoc_url(opp2))
+
+        linked_rel1 = self.get_object_or_fail(Relation,
+                                             subject_entity=opp1.id,
+                                             type=constants.REL_OBJ_LINKED_QUOTE,
+                                            )
+        quote1 = linked_rel1.object_entity.get_real_entity()
+        self.assertRelationCount(1, quote1, constants.REL_SUB_CURRENT_DOC, opp1)
+
+        ServiceLine.objects.create(user=user, related_document=quote1,
+                                   on_the_fly_item='Stuff', unit_price=Decimal('42'),
+                                  )
+        self.assertEqual(42, self.refresh(quote1).total_no_vat)
+        self.assertEqual(42, self.refresh(opp1).estimated_sales)
+
+        linked_rel2 = self.get_object_or_fail(Relation,
+                                              subject_entity=opp2.id,
+                                              type=constants.REL_OBJ_LINKED_QUOTE,
+                                             )
+        quote2 = linked_rel2.object_entity.get_real_entity()
+        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC, opp2)
+
+        linked_rel1.delete()
+        self.assertRelationCount(0, quote1, constants.REL_SUB_CURRENT_DOC, opp1)
+        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC, opp2)  # Not deleted
+
+        self.assertFalse(self.refresh(opp1).estimated_sales)  # estimated_sales refreshed
