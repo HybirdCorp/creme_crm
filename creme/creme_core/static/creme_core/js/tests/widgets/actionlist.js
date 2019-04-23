@@ -737,6 +737,79 @@ QUnit.test('creme.widgets.actionlist.action (doAction, button)', function(assert
     deepEqual([], this.mockListenerCalls('one-actionlist-cancel'));
 });
 
+QUnit.test('creme.widgets.actionlist.action (doAction, disabled buttons)', function(assert) {
+    var delegate = this.createDynamicSelectTag(undefined, true);
+    this.appendOptionTag(delegate, 'a', 1);
+    this.appendOptionTag(delegate, 'b', 5);
+    this.appendOptionTag(delegate, 'c', 3);
+
+    var element = this.createActionListTag({
+        delegate: delegate,
+        buttons: [
+            {name: 'create', attrs: {popupUrl: 'mock/create/popup', disabled: true}},
+            {name: 'reset', attrs: {action: 'reset', disabled: true}}
+        ]
+    }).on({
+        actionListSuccess: this.mockListener('actionlist-success'),
+        actionListCanceled: this.mockListener('actionlist-cancel')
+    });
+
+    var widget = creme.widget.create(element, {backend: this.backend});
+
+    equal(widget.actionButtons().length, 2, 'action count');
+    equal(widget.actionButton('create').is('[disabled]'), true);
+    equal(widget.actionButton('reset').is('[disabled]'), true);
+
+    this.assertClosedDialog();
+
+    equal(3, delegate.find('option').length);
+    equal('1', delegate.val());
+
+    deepEqual([], this.mockListenerJQueryCalls('actionlist-success'));
+    deepEqual([], this.mockListenerJQueryCalls('actionlist-cancel'));
+
+    widget.doAction('create', {
+        done: this.mockListener('one-actionlist-success'),
+        cancel: this.mockListener('one-actionlist-cancel')
+    });
+
+    this.assertOpenedDialog();
+    this.submitFormDialog({
+        value: 42,
+        name: 'other'
+    });
+
+    this.assertClosedDialog();
+
+    equal(4, delegate.find('option').length);
+    equal('42', delegate.val());
+
+    deepEqual([
+        ['actionListSuccess', [{value: '42', added: [['42', 'other']]}]]
+    ], this.mockListenerJQueryCalls('actionlist-success'));
+    deepEqual([], this.mockListenerJQueryCalls('actionlist-cancel'));
+
+    deepEqual([
+        ['done', {value: '42', added: [['42', 'other']]}]
+    ], this.mockListenerCalls('one-actionlist-success'));
+    deepEqual([], this.mockListenerCalls('one-actionlist-cancel'));
+
+    widget.doAction('reset');
+    equal(4, delegate.find('option').length);
+    equal('1', delegate.val());
+
+    deepEqual([
+        ['actionListSuccess', [{value: '42', added: [['42', 'other']]}]],
+        ['actionListSuccess', [{value: ''}]]
+    ], this.mockListenerJQueryCalls('actionlist-success'));
+    deepEqual([], this.mockListenerJQueryCalls('actionlist-cancel'));
+
+    deepEqual([
+        ['done', {value: '42', added: [['42', 'other']]}]
+    ], this.mockListenerCalls('one-actionlist-success'));
+    deepEqual([], this.mockListenerCalls('one-actionlist-cancel'));
+});
+
 QUnit.test('creme.widgets.actionlist.action (doAction, delegate)', function(assert) {
     var delegate = this.createDynamicSelectTag(undefined, true);
     this.appendOptionTag(delegate, 'a', 1);
