@@ -20,7 +20,7 @@
 
 "use strict";
 
-creme.widget.ActionButton = creme.component.Action.sub({
+creme.widget.SelectorAction = creme.component.Action.sub({
     _init_: function(delegate, button, options) {
         this._super_(creme.component.Action, '_init_', this._run, options);
         this._delegate = delegate;
@@ -54,34 +54,33 @@ creme.widget.ActionButton = creme.component.Action.sub({
     }
 });
 
-creme.widget.ResetActionButton = creme.widget.ActionButton.sub({
+creme.widget.ResetSelectorAction = creme.widget.SelectorAction.sub({
     _init_: function(delegate, button, options) {
-        this._super_(creme.widget.ActionButton, '_init_', delegate, button, options);
+        this._super_(creme.widget.SelectorAction, '_init_', delegate, button, options);
     },
 
     _run: function(options) {
-        var button_options = creme.widget.parseopt(this._button, {value: ''});
-        this.done({value: button_options.value}, 'success');
+        var buttonOptions = creme.widget.parseopt(this._button, {value: ''});
+        this.done({value: buttonOptions.value}, 'success');
     }
 });
 
-creme.widget.CreateActionButton = creme.widget.ActionButton.sub({
+creme.widget.CreateSelectorAction = creme.widget.SelectorAction.sub({
     _init_: function(delegate, button, options) {
-        this._super_(creme.widget.ActionButton, '_init_', delegate, button, options);
+        this._super_(creme.widget.SelectorAction, '_init_', delegate, button, options);
     },
 
     _dialogOptions: function() {
         var options = creme.widget.parseopt(this._button, {
-                                                popupResizable: true,
-                                                popupDraggable: true,
-                                                popupWidth: window.screen.width / 2,
-                                                popupHeight: 356,
-                                                popupUrl: '',
-                                                popupTitle: ''
-                                            });
+            popupResizable: true,
+            popupDraggable: true,
+            popupWidth: window.screen.width / 2,
+            popupHeight: 356,
+            popupUrl: '',
+            popupTitle: ''
+        });
 
         var delegate = this._delegate;
-
         var context = Object.isFunc(delegate.context) ? {_delegate_: delegate.context()} : {};
         context = $.extend(context, this._context);
 
@@ -119,6 +118,24 @@ creme.widget.CreateActionButton = creme.widget.ActionButton.sub({
     }
 });
 
+creme.widget.SelectorActionBuilderRegistry = creme.action.DefaultActionBuilderRegistry.sub({
+    _init_: function(selector) {
+        this._selector = selector;
+        this._super_(creme.action.DefaultActionBuilderRegistry, '_init_');
+    },
+
+    _build_popup: function(url, options, data) {
+        return new creme.widget.CreateSelectorAction(this._selector, options.button).context(data || {});
+    },
+
+    _build_reset: function(url, options, data) {
+        return new creme.widget.ResetSelectorAction(this._selector, options.button).context(data || {});
+    }
+});
+
+// var button_options = creme.widget.parseopt(this._button, {value: ''});
+
+
 creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist', {
     options: {
         backend: undefined,
@@ -131,15 +148,16 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         this._selector = creme.widget.create(self.selector(element), {disabled: !self._enabled, backend: options.backend});
         this._dependencies = Array.isArray(options.dependencies) ? options.dependencies : (options.dependencies ? options.dependencies.split(' ') : []);
         this._context = {};
+        this._actionBuilders = new creme.widget.SelectorActionBuilderRegistry(this._selector);
 
         if (!this._enabled) {
             element.attr('disabled', '');
             self.actionButtons(element).attr('disabled', '');
         }
 
-        self.actionButtons(element).click(function() {
-            self._handleAction(element, $(this));
-            return false;
+        self.actionButtons(element).click(function(e) {
+            e.preventDefault();
+            self._onButtonActionClick(element, $(this));
         });
 
         $(element).bind('action', function(e, name, listeners) {
@@ -163,7 +181,7 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         var button = this.actionButton(element, name);
 
         if (button.length === 1) {
-            this._handleAction(element, button, listeners);
+            this._doAction(element, button, listeners);
         } else {
             this._selector.element.triggerHandler('action', [name, listeners]);
         }
@@ -231,10 +249,9 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
 
     _updateActionButtons: function(element) {
         var self = this;
-        var context = this._context;
 
         this.actionButtons(element).each(function() {
-            var action = self._buildAction(element, $(this)).context(context);
+            var action = self._buildAction(element, $(this));
 
             if (Object.isFunc(action.updateButtonState)) {
                 action.updateButtonState();
@@ -243,30 +260,23 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
     },
 
     _buildAction: function(element, button) {
+        // TODO : rename "popup" to "create"
         var actiontype = creme.widget.parseopt(button, {action: 'popup'}).action;
-        var builder = this['_action_' + actiontype];
-        var action;
+        var builder = this._actionBuilders.get(actiontype);
 
         if (Object.isFunc(builder)) {
-            action = builder(this._selector, button);
-            action.context(this._context);
+            return builder('', {button: button}, this._context);
         } else {
-            action = new creme.component.Action(function() {
+            return new creme.component.Action(function() {
                 this.cancel();
             });
         }
-
-        return action;
     },
 
-    _handleAction: function(element, button, listeners) {
-        var action = this._buildAction(element, button);
-
+    _doAction: function(element, button, listeners) {
         listeners = listeners || {};
 
-        if (this.isDisabled() || button.is('[disabled]')) {
-            return;
-        }
+        var action = this._buildAction(element, button);
 
         action.onDone(function(event, data) {
                    element.trigger('actionListSuccess', data);
@@ -280,12 +290,12 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         return action;
     },
 
-    _action_reset: function(selector, button) {
-        return new creme.widget.ResetActionButton(selector, button);
-    },
+    _onButtonActionClick: function(element, button) {
+        if (this.isDisabled() || button.is('[disabled]')) {
+            return;
+        }
 
-    _action_popup: function(selector, button) {
-        return new creme.widget.CreateActionButton(selector, button);
+        this._doAction(element, button);
     }
 });
 
