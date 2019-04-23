@@ -120,6 +120,16 @@
             });
         },
 
+        assertBackendUrlErrors: function(expected, calls) {
+            deepEqual(expected, calls.map(function(e) {
+                var data = e[1], xhr = e[2];
+                return [e[0], data, {
+                    status: xhr.status,
+                    message: xhr.message
+                }];
+            }));
+        },
+
         mockRedirectCalls: function() {
             return this._redirectCalls;
         },

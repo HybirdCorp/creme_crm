@@ -1,10 +1,6 @@
-QUnit.module("creme.ajax.backend.js", {
-    setup: function() {
-    },
+(function($) {
 
-    teardown: function() {
-    }
-});
+QUnit.module("creme.ajax.backend.js", new QUnitMixin());
 
 QUnit.test('creme.ajax.localizedErrorMessage (unknown)', function(assert) {
     equal(gettext('Error'), creme.ajax.localizedErrorMessage());
@@ -58,3 +54,5 @@ QUnit.test('creme.ajax.localizedErrorMessage (500)', function(assert) {
     equal(gettext('Internal Error'), creme.ajax.localizedErrorMessage('500'));
     equal(gettext('Internal Error'), creme.ajax.localizedErrorMessage({status: 500}));
 });
+
+}(jQuery));

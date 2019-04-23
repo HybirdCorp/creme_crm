@@ -1,3 +1,5 @@
+/* globals setTimeout */
+
 (function($) {
 
 QUnit.module("creme.ajax.query.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMixin, {
@@ -38,21 +40,6 @@ QUnit.module("creme.ajax.query.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMix
             return this.backend.response(200, $.toJSON({url: url, method: action, data: data, options: options}));
         } else {
             return this.backend.response(200, $.toJSON({url: url, method: action, data: data}));
-        }
-    },
-
-    assertMockQueryErrorCalls: function(expected, calls) {
-        equal(expected.length, calls.length, 'length');
-
-        for (var i = 0; i < calls.length; ++i) {
-            var call = calls[i];
-            var expect = expected[i];
-
-            equal(call[0], expect[0], 'event');
-            equal(call[1], expect[1], 'data');
-            equal(call[2].type, 'request');
-            equal(call[2].status, expect[2], 'status');
-            equal(call[2].message, expect[1], 'xhr message');
         }
     }
 }));
@@ -106,9 +93,13 @@ QUnit.test('creme.ajax.Query.get (empty url)', function(assert) {
     query.get();
 
     deepEqual([], this.mockListenerCalls('success'));
-    deepEqual([['cancel']], this.mockListenerCalls('cancel'));
-    deepEqual([], this.mockListenerCalls('error'));
-    deepEqual(this.mockListenerCalls('cancel'), this.mockListenerCalls('complete'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    this.assertBackendUrlErrors([
+            ['fail', Error('Unable to send request with empty url'), {
+                status: 400, message: 'Unable to send request with empty url'
+            }]
+        ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
 
 QUnit.test('creme.ajax.Query.get (url)', function(assert) {
@@ -247,6 +238,70 @@ QUnit.test('creme.ajax.Query.get (url, merge backend options)', function(assert)
     deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
 });
 
+QUnit.test('creme.ajax.Query.get (async)', function(assert) {
+    var query = new creme.ajax.Query({backend: {sync: false, delay: 300}}, this.backend);
+    query.onCancel(this.mockListener('cancel'));
+    query.onComplete(this.mockListener('complete'));
+
+    query.url('mock/options/1').get();
+
+    stop(1);
+    equal(true, query.isRunning());
+
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([], this.mockListenerCalls('complete'));
+
+    var self = this;
+
+    setTimeout(function() {
+        deepEqual([], self.mockListenerCalls('cancel'));
+        deepEqual([
+            ['done', ['a']]
+        ], self.mockListenerCalls('complete'));
+        start();
+    }, 400);
+});
+
+QUnit.test('creme.ajax.Query.get (async, canceled)', function(assert) {
+    var query = new creme.ajax.Query({backend: {sync: false, delay: 300}}, this.backend);
+    query.onCancel(this.mockListener('cancel'));
+    query.onComplete(this.mockListener('complete'));
+
+    query.url('mock/options/1');
+    equal(false, query.isRunning());
+    equal(false, query.isCancelable());
+    equal(false, query.isStatusCancel());
+
+    this.assertRaises(function() {
+        query.cancel();
+    }, Error, 'Error: unable to cancel this query');
+
+    query.get();
+
+    equal(true, query.isRunning());
+    equal(true, query.isCancelable());
+    equal(false, query.isStatusCancel());
+
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([], this.mockListenerCalls('complete'));
+
+    query.cancel();
+
+    equal(false, query.isRunning());
+    equal(false, query.isCancelable());
+    equal(true, query.isStatusCancel());
+
+    stop(1);
+
+    var self = this;
+
+    setTimeout(function() {
+        deepEqual([['cancel']], self.mockListenerCalls('cancel'));
+        deepEqual([['cancel']], self.mockListenerCalls('complete'));
+        start();
+    }, 400);
+});
+
 QUnit.test('creme.ajax.Query.get (fail)', function(assert) {
     var query = new creme.ajax.Query({}, this.backend);
     query.onDone(this.mockListener('success'));
@@ -258,8 +313,8 @@ QUnit.test('creme.ajax.Query.get (fail)', function(assert) {
 
     deepEqual([], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
-    this.assertMockQueryErrorCalls([
-            ['fail', '', 404]
+    this.assertBackendUrlErrors([
+            ['fail', '', {status: 404, message: ''}]
         ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 
@@ -267,9 +322,9 @@ QUnit.test('creme.ajax.Query.get (fail)', function(assert) {
 
     deepEqual([], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
-    this.assertMockQueryErrorCalls([
-            ['fail', '', 404],
-            ['fail', 'HTTP - Error 403', 403]
+    this.assertBackendUrlErrors([
+            ['fail', '', {status: 404, message: ''}],
+            ['fail', 'HTTP - Error 403', {status: 403, message: 'HTTP - Error 403'}]
         ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 
@@ -277,10 +332,10 @@ QUnit.test('creme.ajax.Query.get (fail)', function(assert) {
 
     deepEqual([], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
-    this.assertMockQueryErrorCalls([
-            ['fail', '', 404],
-            ['fail', 'HTTP - Error 403', 403],
-            ['fail', 'HTTP - Error 500', 500]
+    this.assertBackendUrlErrors([
+            ['fail', '', {status: 404, message: ''}],
+            ['fail', 'HTTP - Error 403', {status: 403, message: 'HTTP - Error 403'}],
+            ['fail', 'HTTP - Error 500', {status: 500, message: 'HTTP - Error 500'}]
         ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
@@ -347,9 +402,13 @@ QUnit.test('creme.ajax.Query.post (empty url)', function(assert) {
     query.post();
 
     deepEqual([], this.mockListenerCalls('success'));
-    deepEqual([['cancel']], this.mockListenerCalls('cancel'));
-    deepEqual([], this.mockListenerCalls('error'));
-    deepEqual(this.mockListenerCalls('cancel'), this.mockListenerCalls('complete'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    this.assertBackendUrlErrors([
+            ['fail', Error('Unable to send request with empty url'),
+                {status: 400, message: 'Unable to send request with empty url'}
+            ]
+        ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
 
 QUnit.test('creme.ajax.Query.post (url)', function(assert) {
@@ -390,8 +449,8 @@ QUnit.test('creme.ajax.Query.post (fail)', function(assert) {
 
     deepEqual([], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
-    this.assertMockQueryErrorCalls([
-            ['fail', '', 404]
+    this.assertBackendUrlErrors([
+            ['fail', '', {status: 404, message: ''}]
         ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 
@@ -399,9 +458,9 @@ QUnit.test('creme.ajax.Query.post (fail)', function(assert) {
 
     deepEqual([], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
-    this.assertMockQueryErrorCalls([
-            ['fail', '', 404],
-            ['fail', 'HTTP - Error 403', 403]
+    this.assertBackendUrlErrors([
+            ['fail', '', {status: 404, message: ''}],
+            ['fail', 'HTTP - Error 403', {status: 403, message: 'HTTP - Error 403'}]
         ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 
@@ -409,10 +468,10 @@ QUnit.test('creme.ajax.Query.post (fail)', function(assert) {
 
     deepEqual([], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
-    this.assertMockQueryErrorCalls([
-            ['fail', '', 404],
-            ['fail', 'HTTP - Error 403', 403],
-            ['fail', 'HTTP - Error 500', 500]
+    this.assertBackendUrlErrors([
+            ['fail', '', {status: 404, message: ''}],
+            ['fail', 'HTTP - Error 403', {status: 403, message: 'HTTP - Error 403'}],
+            ['fail', 'HTTP - Error 500', {status: 500, message: 'HTTP - Error 500'}]
         ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
@@ -451,6 +510,27 @@ QUnit.test('creme.ajax.query (post)', function(assert) {
     deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
 });
 
+QUnit.test('creme.ajax.query (invalid backend)', function(assert) {
+    var query = creme.ajax.query('mock/custom', {action: 'UNKNOWN'}, {});
+    query.backend(null);
+
+    query.onDone(this.mockListener('success'));
+    query.onCancel(this.mockListener('cancel'));
+    query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
+
+    query.start();
+
+    deepEqual([], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    this.assertBackendUrlErrors([
+            ['fail', Error('Missing ajax backend'), {
+                status: 400, message: 'Missing ajax backend'
+            }]
+        ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
+});
+
 QUnit.test('creme.ajax.query (unknown action)', function(assert) {
     var query = creme.ajax.query('mock/custom', {action: 'UNKNOWN'}, {}, this.backend);
     query.onDone(this.mockListener('success'));
@@ -462,9 +542,30 @@ QUnit.test('creme.ajax.query (unknown action)', function(assert) {
 
     deepEqual([], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
-    deepEqual([
-               ['fail', Error('no such backend action "unknown"')]
-              ], this.mockListenerCalls('error'));
+    this.assertBackendUrlErrors([
+            ['fail', Error('Missing ajax backend action "unknown"'), {
+                status: 400, message: 'Missing ajax backend action "unknown"'
+            }]
+        ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
+});
+
+QUnit.test('creme.ajax.query (empty url)', function(assert) {
+    var query = creme.ajax.query(undefined, {}, {}, this.backend);
+    query.onDone(this.mockListener('success'));
+    query.onCancel(this.mockListener('cancel'));
+    query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
+
+    query.start();
+
+    deepEqual([], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    this.assertBackendUrlErrors([
+            ['fail', Error('Unable to send request with empty url'), {
+                status: 400, message: 'Unable to send request with empty url'
+            }]
+        ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
 
