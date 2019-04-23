@@ -13,7 +13,16 @@ QUnit.module("creme.emails.brick.actions", new QUnitMixin(QUnitEventMixin,
         backend.options.enableUriSearch = true;
 
         this.setMockBackendGET({
-            'mock/emails/sync/link': backend.response(200, ''),
+            'mock/emails/sync/link': function(url, data, options) {
+                var html = ('<form action="${url}?${params}">'
+                               + '<input type="submit" />'
+                          + '</form>').template({
+                              url: url,
+                              params: $.param(data)
+                          });
+
+                return backend.response(200, html);
+            },
             'mock/emails/linkto': backend.response(200, '<form></form>')
         });
 
@@ -46,7 +55,7 @@ QUnit.module("creme.emails.brick.actions", new QUnitMixin(QUnitEventMixin,
     }
 }));
 
-QUnit.test('creme.emails.brick.emailsync-link (empty selector)', function(assert) {
+QUnit.test('creme.emails.brick.emailsync-link (multi, empty selector)', function(assert) {
     var brick = this.createEmailBrickTable({
         classes: ['emails-emailsync-brick']
     }).brick();
@@ -69,9 +78,10 @@ QUnit.test('creme.emails.brick.emailsync-link (empty selector)', function(assert
     deepEqual([], this.mockBackendCalls());
 });
 
-QUnit.test('creme.emails.brick.emailsync-link', function(assert) {
+QUnit.test('creme.emails.brick.emailsync-link (multi)', function(assert) {
     var brick = this.createEmailBrickTable({
-        classes: ['emails-emailsync-brick']
+        classes: ['emails-emailsync-brick'],
+        deps: ['creme_core.relation.rtype.1']
     }).brick();
     var selections = brick.table().selections();
 
@@ -84,13 +94,13 @@ QUnit.test('creme.emails.brick.emailsync-link', function(assert) {
     equal(2, selections.selected().length);
 
     brick.action('emailsync-link', 'mock/emails/sync/link', {}, {
-        rtypes: 'rtype.1,rtype.2'
+        rtypes: ['rtype.1', 'rtype.2']
     }).start();
 
     equal(false, brick.isLoading());
 
     deepEqual([
-        ['GET', {persist: 'id', ids: ['2', '3'], rtype: 'rtype.1,rtype.2'}]
+        ['GET', {ids: ['2', '3'], rtype: ['rtype.1', 'rtype.2']}]
     ], this.mockBackendUrlCalls('mock/emails/sync/link'));
 
     this.assertOpenedDialog();
@@ -98,8 +108,12 @@ QUnit.test('creme.emails.brick.emailsync-link', function(assert) {
     this.assertClosedDialog();
 
     deepEqual([
-        ['GET', {persist: 'id', ids: ['2', '3'], rtype: 'rtype.1,rtype.2'}],
-        ['POST', {'URI-SEARCH': {persist: 'id', ids: ['2', '3'], rtype: 'rtype.1,rtype.2'}}]
+        ['GET', {ids: ['2', '3'], rtype: ['rtype.1', 'rtype.2']}],
+        ['POST', {
+            'URI-SEARCH': {ids: ['2', '3'], rtype: ['rtype.1', 'rtype.2']},
+            ids: ['2', '3'],
+            rtype: ['rtype.1', 'rtype.2']
+        }]
     ], this.mockBackendUrlCalls('mock/emails/sync/link'));
 
     deepEqual([
@@ -107,13 +121,55 @@ QUnit.test('creme.emails.brick.emailsync-link', function(assert) {
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
-QUnit.test('creme.emails.brick.emailsync-link (link)', function(assert) {
+QUnit.test('creme.emails.brick.emailsync-link (single)', function(assert) {
     var brick = this.createEmailBrickTable({
         classes: ['emails-emailsync-brick'],
+        deps: ['creme_core.relation.rtype.1']
+    }).brick();
+    var selections = brick.table().selections();
+
+    this.assertBrickTableItems([], selections.selected());
+
+    equal(false, brick.isLoading());
+    this.assertClosedDialog();
+
+    brick.action('emailsync-link', 'mock/emails/sync/link', {}, {
+        rtypes: ['rtype.1', 'rtype.2'],
+        id: 13
+    }).start();
+
+    equal(false, brick.isLoading());
+
+    deepEqual([
+        ['GET', {ids: [13], rtype: ['rtype.1', 'rtype.2']}]
+    ], this.mockBackendUrlCalls('mock/emails/sync/link'));
+
+    this.assertOpenedDialog();
+    this.submitFormDialog();
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {ids: [13], rtype: ['rtype.1', 'rtype.2']}],
+        ['POST', {
+            'URI-SEARCH': {ids: "13", rtype: ['rtype.1', 'rtype.2']},
+            ids: [13],
+            rtype: ['rtype.1', 'rtype.2']
+        }]
+    ], this.mockBackendUrlCalls('mock/emails/sync/link'));
+
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.emails.brick.emailsync-link (multi, link)', function(assert) {
+    var brick = this.createEmailBrickTable({
+        classes: ['emails-emailsync-brick'],
+        deps: ['creme_core.relation.rtype.1'],
         header: [
-            '<a data-action="emailsync-link" href="mock/emails/sync/link" __rtypes="rtype.1,rtype.2">'
+            '<a data-action="emailsync-link" href="mock/emails/sync/link">'
                + '<script type="application/json" class="brick-action-data"><!--'
-                   + '{"data": {"rtypes": "rtype.1,rtype.2"}}'
+                   + '{"data": {"rtypes": ["rtype.1", "rtype.2"]}}'
                + '--></script>'
           + '</a>'
         ]
@@ -136,7 +192,7 @@ QUnit.test('creme.emails.brick.emailsync-link (link)', function(assert) {
     equal(false, brick.isLoading());
 
     deepEqual([
-        ['GET', {persist: 'id', ids: ['2', '3'], rtype: 'rtype.1,rtype.2'}]
+        ['GET', {ids: ['2', '3'], rtype: ['rtype.1', 'rtype.2']}]
     ], this.mockBackendUrlCalls('mock/emails/sync/link'));
 
     this.assertOpenedDialog();
@@ -144,8 +200,65 @@ QUnit.test('creme.emails.brick.emailsync-link (link)', function(assert) {
     this.assertClosedDialog();
 
     deepEqual([
-        ['GET', {persist: 'id', ids: ['2', '3'], rtype: 'rtype.1,rtype.2'}],
-        ['POST', {'URI-SEARCH': {persist: 'id', ids: ['2', '3'], rtype: 'rtype.1,rtype.2'}}]
+        ['GET', {ids: ['2', '3'], rtype: ['rtype.1', 'rtype.2']}],
+        ['POST', {
+            'URI-SEARCH': {ids: ['2', '3'], rtype: ['rtype.1', 'rtype.2']},
+            ids: ['2', '3'],
+            rtype: ['rtype.1', 'rtype.2']
+        }]
+    ], this.mockBackendUrlCalls('mock/emails/sync/link'));
+
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.emails.brick.emailsync-link (row, link)', function(assert) {
+    var brick = this.createEmailBrickTable({
+        classes: ['emails-emailsync-brick'],
+        deps: ['creme_core.relation.rtype.1'],
+        rows: [
+            '<tr>'
+              + '<td data-selectable-selector-column><input value="1" type="check"></input></td>'
+              + '<td data-type="date">2017-05-08</td>'
+              + '<td>'
+                  + '<a data-action="emailsync-link" href="mock/emails/sync/link">'
+                      + '<script type="application/json" class="brick-action-data"><!--'
+                          + '{"data": {"rtypes": ["rtype.1", "rtype.2"], "id": 137}}'
+                      + '--></script>'
+                  + '</a>'
+              + '</td>'
+          + '</tr>'
+        ]
+    }).brick();
+
+    var element = brick.element();
+    var selections = brick.table().selections();
+
+    this.assertBrickTableItems([], selections.selected());
+
+    equal(false, brick.isLoading());
+    this.assertClosedDialog();
+
+    $('a[data-action="emailsync-link"]', element).click();
+
+    equal(false, brick.isLoading());
+
+    deepEqual([
+        ['GET', {ids: [137], rtype: ['rtype.1', 'rtype.2']}]
+    ], this.mockBackendUrlCalls('mock/emails/sync/link'));
+
+    this.assertOpenedDialog();
+    this.submitFormDialog();
+    this.assertClosedDialog();
+
+    deepEqual([
+        ['GET', {ids: [137], rtype: ['rtype.1', 'rtype.2']}],
+        ['POST', {
+            'URI-SEARCH': {ids: "137", rtype: ['rtype.1', 'rtype.2']},
+            ids: [137],
+            rtype: ['rtype.1', 'rtype.2']
+        }]
     ], this.mockBackendUrlCalls('mock/emails/sync/link'));
 
     deepEqual([
@@ -155,7 +268,8 @@ QUnit.test('creme.emails.brick.emailsync-link (link)', function(assert) {
 
 QUnit.test('creme.emails.brick.emailsync-action (empty selector)', function(assert) {
     var brick = this.createEmailBrickTable({
-        classes: ['emails-emailsync-brick']
+        classes: ['emails-emailsync-brick'],
+        deps: ['creme_core.relation.rtype.1']
     }).brick();
     var selections = brick.table().selections();
 
@@ -176,7 +290,8 @@ QUnit.test('creme.emails.brick.emailsync-action (empty selector)', function(asse
 
 QUnit.test('creme.emails.brick.emailsync-action', function(assert) {
     var brick = this.createEmailBrickTable({
-        classes: ['emails-emailsync-brick']
+        classes: ['emails-emailsync-brick'],
+        deps: ['creme_core.relation.rtype.1']
     }).brick();
     var selections = brick.table().selections();
 
@@ -194,9 +309,6 @@ QUnit.test('creme.emails.brick.emailsync-action', function(assert) {
     deepEqual([
         ['POST', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/emails/sync/action'));
-
-    this.assertOpenedDialog(gettext('Process done'));
-    this.closeDialog();
 
     deepEqual([
         ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
@@ -257,9 +369,6 @@ QUnit.test('creme.emails.brick.emailsync-action (link)', function(assert) {
         ['POST', {ids: ['2', '3']}]
     ], this.mockBackendUrlCalls('mock/emails/sync/action'));
 
-    this.assertOpenedDialog(gettext('Process done'));
-    this.closeDialog();
-
     deepEqual([
         ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
@@ -286,7 +395,8 @@ QUnit.test('creme.emails.brick.emailsync-delete (empty selection)', function(ass
     deepEqual([], this.mockBackendCalls());
 });
 
-QUnit.test('creme.emails.brick.emailsync-delete', function(assert) {
+
+QUnit.test('creme.emails.brick.emailsync-delete (canceled)', function(assert) {
     var brick = this.createEmailBrickTable({
         classes: ['emails-emailsync-brick']
     }).brick();
@@ -303,12 +413,67 @@ QUnit.test('creme.emails.brick.emailsync-delete', function(assert) {
     brick.action('emailsync-delete', 'mock/emails/sync/delete').start();
 
     equal(false, brick.isLoading());
+
+    this.assertOpenedConfirmDialog();
+    this.closeDialog();
+
+    deepEqual([], this.mockBackendCalls());
+});
+
+QUnit.test('creme.emails.brick.emailsync-delete', function(assert) {
+    var brick = this.createEmailBrickTable({
+        classes: ['emails-emailsync-brick']
+    }).brick();
+    var selections = brick.table().selections();
+
+    this.assertBrickTableItems([], selections.selected());
+
+    equal(false, brick.isLoading());
+    this.assertClosedDialog();
+
+    this.toggleBrickTableRows(brick, ['1', '2']);
+    equal(2, selections.selected().length);
+
+    brick.action('emailsync-delete', 'mock/emails/sync/delete').start();
+
+    this.assertOpenedConfirmDialog();
+    this.acceptConfirmDialog();
+
+    equal(false, brick.isLoading());
     deepEqual([
         ['POST', {ids: '2,3'}]
     ], this.mockBackendUrlCalls('mock/emails/sync/delete'));
 
-    this.assertOpenedDialog(gettext('Process done'));
-    this.closeDialog();
+    deepEqual([
+        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+});
+
+QUnit.test('creme.emails.brick.emailsync-delete (single)', function(assert) {
+    var brick = this.createEmailBrickTable({
+        classes: ['emails-emailsync-brick']
+    }).brick();
+    var selections = brick.table().selections();
+
+    this.assertBrickTableItems([], selections.selected());
+
+    equal(false, brick.isLoading());
+    this.assertClosedDialog();
+
+    this.toggleBrickTableRows(brick, ['1', '2']);
+    equal(2, selections.selected().length);
+
+    brick.action('emailsync-delete', 'mock/emails/sync/delete', {}, {
+        id: 13
+    }).start();
+
+    this.assertOpenedConfirmDialog();
+    this.acceptConfirmDialog();
+
+    equal(false, brick.isLoading());
+    deepEqual([
+        ['POST', {ids: '13'}]
+    ], this.mockBackendUrlCalls('mock/emails/sync/delete'));
 
     deepEqual([
         ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
@@ -330,6 +495,9 @@ QUnit.test('creme.emails.brick.emailsync-delete (fail)', function(assert) {
     equal(2, selections.selected().length);
 
     brick.action('emailsync-delete', 'mock/emails/sync/delete/fail').start();
+
+    this.assertOpenedConfirmDialog();
+    this.acceptConfirmDialog();
 
     equal(false, brick.isLoading());
     deepEqual([
@@ -364,13 +532,13 @@ QUnit.test('creme.emails.brick.emailsync-delete (link)', function(assert) {
 
     link.click();
 
+    this.assertOpenedConfirmDialog();
+    this.acceptConfirmDialog();
+
     equal(false, brick.isLoading());
     deepEqual([
         ['POST', {ids: '2,3'}]
     ], this.mockBackendUrlCalls('mock/emails/sync/delete'));
-
-    this.assertOpenedDialog(gettext('Process done'));
-    this.closeDialog();
 
     deepEqual([
         ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
