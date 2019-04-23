@@ -80,7 +80,7 @@ creme.ajax.Query = creme.component.Action.sub({
     },
 
     _send: function(options) {
-        options = $.extend({}, this.options(), options || {});
+        options = $.extend(true, {}, this.options(), options || {});
 
         var data = $.extend({}, this.data() || {}, options.data || {});
         var action = (options.action || 'get').toLowerCase();
