@@ -70,17 +70,7 @@ creme.model.AjaxArray = creme.model.Array.sub({
         return Object.property(this, '_url', url);
     },
 
-    fetch: function(data, options, listeners) {
-        var query = this.backend().query();
-
-        query.one(this._queryListeners)
-             .one(listeners || {})
-             .url(this._url);
-
-        if (this._converter) {
-            query.converter(this._converter);
-        }
-
+    cancelFetch: function() {
         if (this._running) {
             if (this._running.isRunning()) {
                 this._running.cancel();
@@ -88,9 +78,33 @@ creme.model.AjaxArray = creme.model.Array.sub({
 
             delete this._running;
         }
+    },
+
+    fetch: function(data, options, listeners) {
+        var url = this.url();
+        var query;
+
+        if (Object.isNone(url)) {
+            query = new creme.component.Action(function() {
+                this.cancel();
+            });
+        } else {
+            query = this.backend().query({action: 'get'})
+                                  .data(data || {})
+                                  .url(url);
+
+            if (this._converter) {
+                query.converter(this._converter);
+            }
+        }
+
+        this.cancelFetch();
 
         this._running = query;
-        query.get(data, options);
+        query.one(this._queryListeners)
+             .one(listeners || {})
+             .start(options);
+
         return this;
     }
 });

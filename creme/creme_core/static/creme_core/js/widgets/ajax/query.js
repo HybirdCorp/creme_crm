@@ -27,16 +27,19 @@ creme.ajax.Query = creme.component.Action.sub({
         this._backend = backend || creme.ajax.defaultBackend();
         this._converter = function(data) { return data; };
         this._data = {};
+        this._cancellable = false;
 
-        this._onsuccess_cb = $.proxy(this._onBackendSuccess, this);
-        this._onerror_cb = $.proxy(this._onBackendError, this);
+        this._successCb = this._onBackendSuccess.bind(this);
+        this._errorCb = this._onBackendError.bind(this);
     },
 
     _onBackendSuccess: function(data, textStatus) {
-        try {
-            this.done(this._converter(data));
-        } catch (e) {
-            this.fail(data, e);
+        if (this.isRunning()) {
+            try {
+                this.done(this._converter(data));
+            } catch (e) {
+                this.fail(data, e);
+            }
         }
     },
 
@@ -55,6 +58,18 @@ creme.ajax.Query = creme.component.Action.sub({
 
         this._converter = converter;
         return this;
+    },
+
+    isCancelable: function() {
+        return this.isRunning() && this._cancelable;
+    },
+
+    cancel: function() {
+        if (this.isCancelable() === false) {
+            throw new Error('unable to cancel this query');
+        }
+
+        return this._super_(creme.component.Action, 'cancel');
     },
 
     backend: function(backend) {
@@ -84,18 +99,29 @@ creme.ajax.Query = creme.component.Action.sub({
 
         var data = $.extend({}, this.data() || {}, options.data || {});
         var action = (options.action || 'get').toLowerCase();
-        var backend_options = options.backend || {};
+        var backendOptions = options.backend || {};
         var url = this.url() || '';
 
-        if (Object.isNone(this._backend) || !url) {
-            return this.cancel();
+        try {
+            if (Object.isNone(this._backend)) {
+                throw new Error('Missing ajax backend');
+            }
+
+            if (!Object.isFunc(this._backend[action])) {
+                throw new Error('Missing ajax backend action "%s"'.format(action));
+            }
+
+            if (Object.isEmpty(url)) {
+                throw new Error('Unable to send request with empty url');
+            }
+
+            this._cancelable = (action === 'get');
+            this._backend[action](url, data, this._successCb, this._errorCb, backendOptions);
+        } catch (e) {
+            var message = e.message || String(e);
+            this.fail(e, new creme.ajax.AjaxResponse(400, message));
         }
 
-        if (!Object.isFunc(this._backend[action])) {
-            throw new Error('no such backend action "%s"'.format(action));
-        }
-
-        this._backend[action](url, data, this._onsuccess_cb, this._onerror_cb, backend_options);
         return this;
     },
 
@@ -110,6 +136,6 @@ creme.ajax.Query = creme.component.Action.sub({
 
 creme.ajax.query = function(url, options, data, backend) {
     options = options || {};
-    return new creme.ajax.Query(options, backend).url(url).data(data || {});
+    return new creme.ajax.Query(options, backend).url(url || '').data(data || {});
 };
 }(jQuery));

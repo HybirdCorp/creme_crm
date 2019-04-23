@@ -85,7 +85,7 @@ creme.ajax.localizedErrorMessage = function(xhr) {
 
 // mock XHR object (thanks to jquery.form author)
 creme.ajax.XHR = function(options) {
-    return $.extend({
+    $.extend(this, {
         aborted:      0,
         responseText: '',
         responseXML:  null,
@@ -100,12 +100,10 @@ creme.ajax.XHR = function(options) {
 };
 
 creme.ajax.AjaxResponse = function(status, data, xhr) {
-    return {
-        type:    "request",
-        status:  status,
-        message: data,
-        request: xhr || new creme.ajax.XHR({responseText: data, status: status})
-    };
+    this.type = "request";
+    this.status =  status;
+    this.message = data;
+    this.request = xhr || new creme.ajax.XHR({responseText: data, status: status});
 };
 
 // Code from https://docs.djangoproject.com/en/1.7/ref/contrib/csrf/#ajax

@@ -657,8 +657,12 @@ QUnit.test('creme.bricks.Brick.refresh (no reload url)', function(assert) {
 
     deepEqual([], this.mockBackendCalls());
     deepEqual([], this.mockListenerCalls('refresh-done'));
-    deepEqual([['cancel']], this.mockListenerCalls('refresh-cancel'));  // request failure
-    deepEqual([], this.mockListenerCalls('refresh-error'));
+    deepEqual([], this.mockListenerCalls('refresh-cancel'));
+    deepEqual([
+        ['fail', Error('Unable to send request with empty url'),
+            new creme.ajax.AjaxResponse(400, 'Unable to send request with empty url')
+        ]
+    ], this.mockListenerCalls('refresh-error'));  // request failure
 });
 
 QUnit.test('creme.bricks.Brick.refresh (empty reload url)', function(assert) {
@@ -679,8 +683,12 @@ QUnit.test('creme.bricks.Brick.refresh (empty reload url)', function(assert) {
 
     deepEqual([], this.mockBackendCalls());
     deepEqual([], this.mockListenerCalls('refresh-done'));
-    deepEqual([['cancel']], this.mockListenerCalls('refresh-cancel'));  // request failure
-    deepEqual([], this.mockListenerCalls('refresh-error'));
+    deepEqual([], this.mockListenerCalls('refresh-cancel'));
+    deepEqual([
+        ['fail', Error('Unable to send request with empty url'),
+            new creme.ajax.AjaxResponse(400, 'Unable to send request with empty url')
+        ]
+    ], this.mockListenerCalls('refresh-error'));  // request failure
 });
 
 QUnit.test('creme.bricks.Brick.refresh (no id)', function(assert) {
