@@ -116,7 +116,7 @@
             return calls.map(function(e) {
                 var method = e[1], data = e[2];
                 data = (data instanceof jQuery) ? data.html() : data;
-                return [method, data];
+                return url ? [method, data] : [e[0], method, data];
             });
         },
 

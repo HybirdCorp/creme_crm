@@ -73,7 +73,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(
     this.closeDialog();
 
     deepEqual([
-        ['GET', {id1: '157', whoami: '1000'}]
+        ['mock/merge/selection', 'GET', {id1: '157', whoami: '1000'}]
     ], this.mockBackendUrlCalls());
 });
 
@@ -110,7 +110,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
     this.closeDialog();
 
     deepEqual([
-        ['GET', {id1: '157', whoami: '1000'}]
+        ['mock/merge/selection', 'GET', {id1: '157', whoami: '1000'}]
     ], this.mockBackendUrlCalls());
 });
 

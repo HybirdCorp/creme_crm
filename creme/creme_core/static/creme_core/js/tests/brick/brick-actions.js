@@ -701,7 +701,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', functi
     this.closeDialog();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual({
@@ -739,7 +739,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selec
     this.closeDialog();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual([], this.mockRedirectCalls());
@@ -772,8 +772,8 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(ass
     this.assertClosedDialog();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
-        ['POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['mock/relation/add', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual([], this.mockRedirectCalls());
@@ -806,8 +806,8 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', functi
     this.assertClosedDialog();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
-        ['POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['mock/relation/add/fail', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual([], this.mockRedirectCalls());
@@ -840,8 +840,8 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', func
     this.assertClosedDialog();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
-        ['POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['mock/relation/add', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual([current_url], this.mockReloadCalls());
@@ -876,8 +876,8 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload, fail)'
     this.assertClosedDialog();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
-        ['POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['mock/relation/add/fail', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual([], this.mockRedirectCalls());
@@ -909,8 +909,8 @@ QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(a
     this.assertClosedDialog();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
-        ['POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['mock/relation/add', 'POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual({
