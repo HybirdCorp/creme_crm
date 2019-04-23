@@ -97,8 +97,8 @@ QUnit.test('creme.detailview.hatmenubar (addrelationships)', function(assert) {
     this.assertClosedDialog();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', whoami: '1000'}],
-        ['POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', whoami: '1000'}],
+        ['mock/relation/add', 'POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 });
 
