@@ -12,9 +12,9 @@
 {% block content %}
     {% with icon_name='edit' icon_label=_('Edit') submit_label=submit_label|default:_('Save the modifications') %}
         {% if not title %}{% blocktrans asvar form_title %}Edit «{{object}}»{% endblocktrans %}
-            {% include 'creme_core/generics/blockform/base.html' with title=form_title %}
+            {% include 'creme_core/generics/form/base.html' with title=form_title %}
         {% else %}
-            {% include 'creme_core/generics/blockform/base.html' %}
+            {% include 'creme_core/generics/form/base.html' %}
         {% endif %}
     {% endwith %}
 {% endblock %}
