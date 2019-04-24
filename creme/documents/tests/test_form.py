@@ -5,6 +5,7 @@ try:
 
     from django.db.models.query_utils import Q
     from django.urls import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.forms.base import FieldTestCase
 
@@ -20,7 +21,7 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.login()
 
     def test_init01(self):
-        "Not required"
+        "Not required."
         with self.assertNumQueries(0):
             field = ImageEntityField(required=False)
 
@@ -40,7 +41,7 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertTrue(field.widget.creation_allowed)
 
     def test_clean01(self):
-        "Not required"
+        "Not required."
         field = ImageEntityField(required=False)
         field.user = self.user
         self.assertIsNone(field.clean(''))
@@ -52,7 +53,7 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertIsNone(field.clean(str(doc.id)))
 
     def test_clean02(self):
-        "Required"
+        "Required."
         field = ImageEntityField(user=self.user)
 
         self.assertTrue(field.required)
@@ -62,7 +63,7 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, str(doc.id))
 
     def test_qfilter_init01(self):
-        "Dict"
+        "Dict."
         field = ImageEntityField(user=self.user, q_filter={'title__icontains': 'show'})
 
         final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__icontains='show')
@@ -102,7 +103,7 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertEqual(img2, field.clean(str(img2.id)))
 
     def test_qfilter_property01(self):
-        "Dict"
+        "Dict."
         field = ImageEntityField(user=self.user)
         field.q_filter = {'title__contains': 'show'}
 
@@ -123,7 +124,7 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertEqual(img2, field.clean(str(img2.id)))
 
     def test_qfilter_property02(self):
-        "Q"
+        "Q."
         field = ImageEntityField(user=self.user)
         field.q_filter = Q(title__contains='show')
 
@@ -180,6 +181,7 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         field.user = self.user
         self.assertEqual(creation_url, field.widget.creation_url)
         self.assertTrue(field.widget.creation_allowed)
+        self.assertEqual(_('Create an image'), field.widget.creation_label)
 
 
 class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
@@ -192,7 +194,7 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         return json_dump([doc.id for doc in docs])
 
     def test_init01(self):
-        "Not required"
+        "Not required."
         with self.assertNumQueries(0):
             field = MultiImageEntityField(required=False)
 
@@ -212,7 +214,7 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertTrue(field.widget.creation_allowed)
 
     def test_clean01(self):
-        "Not required"
+        "Not required."
         field = MultiImageEntityField(required=False)
         field.user = self.user
         self.assertEqual([], field.clean('[]'))
@@ -225,7 +227,7 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertFieldValidationError(MultiImageEntityField, 'doesnotexist', field.clean, self._build_value(doc))
 
     def test_clean02(self):
-        "Required"
+        "Required."
         field = MultiImageEntityField(user=self.user)
 
         self.assertTrue(field.required)
@@ -255,7 +257,7 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertEqual([img2, img3], field.clean(self._build_value(img2, img3)))
 
     def test_qfilter_property01(self):
-        "Dict"
+        "Dict."
         field = MultiImageEntityField(user=self.user)
         field.q_filter = {'title__icontains': 'show'}
 
@@ -276,7 +278,7 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertEqual([img2], field.clean(self._build_value(img2)))
 
     def test_qfilter_property02(self):
-        "Q"
+        "Q."
         field = MultiImageEntityField(user=self.user)
         field.q_filter = Q(title__icontains='show')
 
@@ -333,3 +335,4 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         field.user = self.user
         self.assertEqual(creation_url, field.widget.creation_url)
         self.assertTrue(field.widget.creation_allowed)
+        self.assertEqual(_('Create an image'), field.widget.creation_label)

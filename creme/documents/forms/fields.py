@@ -20,6 +20,7 @@
 
 from django.db.models.query_utils import Q
 from django.urls import reverse_lazy
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core import forms
 from creme.creme_core.utils.queries import QSerializer  # get_q_from_dict
@@ -82,7 +83,11 @@ class ImageFieldMixin:
 
 class ImageEntityField(ImageFieldMixin, forms.CreatorEntityField):
     # def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
-    def __init__(self, *, q_filter=None, create_action_url='', force_creation=False, **kwargs):
+    def __init__(self, *, q_filter=None,
+                 create_action_url='',
+                 create_action_label=_('Create an image'),
+                 force_creation=False,
+                 **kwargs):
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
 
         if create_action_url:
@@ -92,18 +97,23 @@ class ImageEntityField(ImageFieldMixin, forms.CreatorEntityField):
             create_action_url = self._image_creation_url
 
         super().__init__(
-                model=get_document_model(),
-                q_filter=q_filter,
-                create_action_url=create_action_url,
-                force_creation=force_creation,
-                # *args, **kwargs
-                **kwargs
-            )
+            model=get_document_model(),
+            q_filter=q_filter,
+            create_action_url=create_action_url,
+            create_action_label=create_action_label,
+            force_creation=force_creation,
+            # *args, **kwargs
+            **kwargs
+        )
 
 
 class MultiImageEntityField(ImageFieldMixin, forms.MultiCreatorEntityField):
     # def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
-    def __init__(self, *, q_filter=None, create_action_url='', force_creation=False, **kwargs):
+    def __init__(self, *, q_filter=None,
+                 create_action_url='',
+                 create_action_label=_('Create an image'),
+                 force_creation=False,
+                 **kwargs):
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
 
         if create_action_url:
@@ -113,10 +123,11 @@ class MultiImageEntityField(ImageFieldMixin, forms.MultiCreatorEntityField):
             create_action_url = self._image_creation_url
 
         super().__init__(
-                model=get_document_model(),
-                q_filter=q_filter,
-                create_action_url=create_action_url,
-                force_creation=force_creation,
-                # *args, **kwargs
-                **kwargs
-            )
+            model=get_document_model(),
+            q_filter=q_filter,
+            create_action_url=create_action_url,
+            create_action_label=create_action_label,
+            force_creation=force_creation,
+            # *args, **kwargs
+            **kwargs
+        )

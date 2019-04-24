@@ -1802,12 +1802,25 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
 
         field = CreatorEntityField(model=FakeContact)
-        self.assertEqual(reverse('creme_core__quick_form', args=(ContentType.objects.get_for_model(FakeContact).pk,)),
+        self.assertEqual(reverse('creme_core__quick_form',
+                                 args=(ContentType.objects.get_for_model(FakeContact).pk,)
+                                ),
                          field.create_action_url
                         )
 
+        self.assertIsNone(field.create_action_label)
+        self.assertIsNone(field.widget.creation_label)
+
         field.create_action_url = url = '/persons/quickforms/from_widget/contact/add/'
         self.assertEqual(url, field.create_action_url)
+
+    def test_create_action_label(self):
+        self.login()
+
+        label = 'Create an agent'
+        field = CreatorEntityField(model=FakeContact, create_action_label=label)
+        self.assertEqual(label, field.create_action_label)
+        self.assertEqual(label, field.widget.creation_label)
 
     def test_clean_empty_required(self):
         clean = CreatorEntityField(model=FakeContact, required=True).clean
