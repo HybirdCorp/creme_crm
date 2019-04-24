@@ -376,21 +376,22 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         "Filter/exclude : multiple conditions + field true attributes"
         self._deactivate_translation()
 
-        expected = [('birthday',    _('Birthday')),
-                    ('civility',    _('Civility')),
-                    ('description', _('Description')),
-                    ('email',       _('Email address')),
-                    ('first_name',  _('First name')),
-                    ('is_a_nerd',   _('Is a Nerd')),
-                    ('last_name',   _('Last name')),
-                    ('sector',      _('Line of business')),
-                    ('mobile',      _('Mobile')),
-                    ('user',        _('Owner user')),
-                    ('phone',       _('Phone number')),
-                    ('image',       _('Photograph')),
-                    ('position',    _('Position')),
-                    ('languages',   _('Spoken language(s)')),
-                    ('url_site',    _('Web Site')),
+        expected = [('birthday',     _('Birthday')),
+                    ('civility',     _('Civility')),
+                    ('description',  _('Description')),
+                    ('email',        _('Email address')),
+                    ('first_name',   _('First name')),
+                    ('is_a_nerd',    _('Is a Nerd')),
+                    ('last_name',    _('Last name')),
+                    ('sector',       _('Line of business')),
+                    ('loves_comics', _('Loves comics')),
+                    ('mobile',       _('Mobile')),
+                    ('user',         _('Owner user')),
+                    ('phone',        _('Phone number')),
+                    ('image',        _('Photograph')),
+                    ('position',     _('Position')),
+                    ('languages',    _('Spoken language(s)')),
+                    ('url_site',     _('Web Site')),
                    ]
         choices = meta.ModelFieldEnumerator(FakeContact, only_leafs=False) \
                       .filter(editable=True, viewable=True).choices()

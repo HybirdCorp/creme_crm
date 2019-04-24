@@ -54,12 +54,25 @@ class TextLVSWidget(ListViewSearchWidget):
     template_name = 'creme_core/listview/search-widgets/text.html'
 
 
+# TODO: inherit SelectLVSWidget ?
 class BooleanLVSWidget(ListViewSearchWidget):
     """Search-widget to enter a boolean value."""
     template_name = 'creme_core/listview/search-widgets/boolean.html'
 
+    def __init__(self, *, null=False, **kwargs):
+        super().__init__(**kwargs)
+        self.null = null
+
     def format_value(self, value):
-        return '' if value is None else int(value)
+        return '' if value is None else NULL if value == NULL else int(value)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        w_ctxt = context['widget']
+        w_ctxt['null'] = self.null
+        w_ctxt['NULL_FK'] = NULL
+
+        return context
 
     def value_from_datadict(self, data, files, name):
         try:
@@ -72,6 +85,9 @@ class BooleanLVSWidget(ListViewSearchWidget):
 
             if str_value == '0':
                 return False
+
+            if str_value == NULL and self.null:
+                return NULL
 
 
 # TODO: extends ChoiceWidget ?
@@ -211,8 +227,24 @@ class RegularCharField(ListViewSearchField):
 class RegularBooleanField(ListViewSearchField):
     widget = BooleanLVSWidget
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.null = self.widget.null = self.cell.field_info[-1].null
+
     def to_python(self, value):
-        return Q() if value is None else Q(**{self.cell.value: value})
+        if value is None:
+            return Q()
+
+        if value == NULL:
+            if not self.null:
+                # TODO: error ?!
+                return Q()
+
+            final_value = None
+        else:
+            final_value = value
+
+        return Q(**{self.cell.value: final_value})
 
 
 class RegularChoiceField(BaseChoiceField):

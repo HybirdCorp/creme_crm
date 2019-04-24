@@ -16,16 +16,16 @@ from creme.creme_core.models import fields as creme_fields
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'creme_core', '0001_initial'),
-    #     (b'creme_core', '0043_v2_0__rm_abstract_entity'),
-    #     (b'creme_core', '0044_v2_0__rm_pref_menu_item'),
-    #     (b'creme_core', '0045_v2_0__rm_portalbrick_app_name_1'),
-    #     (b'creme_core', '0046_v2_0__rm_portalbrick_app_name_2'),
-    #     (b'creme_core', '0047_v2_0__rename_bricks_models'),
-    #     (b'creme_core', '0048_v2_0__relation_type_not_null'),
-    #     (b'creme_core', '0049_v2_0__relations_uniqueness_1'),
-    #     (b'creme_core', '0050_v2_0__relations_uniqueness_2'),
-    #     (b'creme_core', '0051_v2_0__set_version'),
+    #     ('creme_core', '0001_initial'),
+    #     ('creme_core', '0043_v2_0__rm_abstract_entity'),
+    #     ('creme_core', '0044_v2_0__rm_pref_menu_item'),
+    #     ('creme_core', '0045_v2_0__rm_portalbrick_app_name_1'),
+    #     ('creme_core', '0046_v2_0__rm_portalbrick_app_name_2'),
+    #     ('creme_core', '0047_v2_0__rename_bricks_models'),
+    #     ('creme_core', '0048_v2_0__relation_type_not_null'),
+    #     ('creme_core', '0049_v2_0__relations_uniqueness_1'),
+    #     ('creme_core', '0050_v2_0__relations_uniqueness_2'),
+    #     ('creme_core', '0051_v2_0__set_version'),
     # ]
 
     initial = True
@@ -888,6 +888,7 @@ class Migration(migrations.Migration):
                     ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
                     ('first_name', models.CharField(max_length=100, null=True, verbose_name='First name', blank=True)),
                     ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd')),
+                    ('loves_comics', models.BooleanField(default=None, null=True, blank=True, verbose_name='Loves comics')),
                     ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('phone', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Phone number', blank=True)),
                     ('mobile', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Mobile', blank=True)),
