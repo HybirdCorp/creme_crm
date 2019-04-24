@@ -118,8 +118,8 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
     </div>
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
 </div>'''.format(
-            check_all=_(u'Check all'),
-            check_none=_(u'Check none'),
+            check_all=_('Check all'),
+            check_none=_('Check none'),
         )
         self.assertHTMLEqual(html, select.render('A', (3, 4,)))
 
@@ -143,9 +143,9 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
     <div class="checklist-footer"><a class="checklist-toggle-less">{viewless_lbl}</a></div>
 </div>'''.format(
             name=name,
-            check_all=_(u'Check all'),
-            check_none=_(u'Check none'),
-            viewless_lbl=_(u'More'),
+            check_all=_('Check all'),
+            check_none=_('Check none'),
+            viewless_lbl=_('More'),
         )
         self.assertHTMLEqual(html, select.render(name, ()))
 
@@ -642,7 +642,9 @@ class EntityCreatorWidgetTestCase(FieldTestCase):
     maxDiff = None
 
     def _build_reset_action(self, enabled=True, value=''):
-        return ('reset', _('Clear'), enabled, {'action': 'reset', 'title': _('Clear'), 'value': value})
+        return ('reset', _('Clear'), enabled,
+                {'action': 'reset', 'title': _('Clear'), 'value': value},
+               )
 
     def _build_create_action(self, label, title, url='', enabled=True):
         return ('create', label, enabled, {'title': title, 'popupUrl': url})
@@ -719,10 +721,12 @@ class EntityCreatorWidgetTestCase(FieldTestCase):
         self.assertHTMLEqual(html, widget.render('field', ''))
 
     def test_render01(self):
-        "Empty"
+        "Empty."
         ct_id = ContentType.objects.get_for_model(FakeContact).id
         creation_url = reverse('creme_core__quick_form', args=(ct_id,))
         widget = EntityCreatorWidget(FakeContact, creation_url=creation_url, creation_allowed=False)
+        self.assertIsNone(widget.creation_label)
+
         html = '''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
     <li class="delegate">
         <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
@@ -755,13 +759,19 @@ class EntityCreatorWidgetTestCase(FieldTestCase):
         self.assertHTMLEqual(html, widget.render('field', ''))
 
     def test_render02(self):
-        "Initialized"
+        "Initialized, creation_label."
         user = self.login()
         contact = FakeContact.objects.create(last_name='Doe', first_name='John', user=user)
         ct_id = contact.entity_type_id
 
         creation_url = reverse('creme_core__quick_form', args=(ct_id,))
-        widget = EntityCreatorWidget(FakeContact, creation_url=creation_url, creation_allowed=False)
+        creation_label = 'Create a agent'
+        widget = EntityCreatorWidget(FakeContact,
+                                     creation_url=creation_url,
+                                     creation_allowed=False,
+                                     creation_label=creation_label,
+                                    )
+        self.assertEqual(creation_label, widget.creation_label)
         widget.from_python = lambda value: value.id
 
         html = '''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
@@ -790,7 +800,7 @@ class EntityCreatorWidgetTestCase(FieldTestCase):
             reset_title=_('Clear'),
             reset_label=_('Clear'),
             create_title=_("Can't create"),
-            create_label=FakeContact.creation_label,
+            create_label=creation_label,
             create_url=creation_url,
             value=contact.id,
         )

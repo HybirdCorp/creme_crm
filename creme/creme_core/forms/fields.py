@@ -782,6 +782,7 @@ class CreatorEntityField(EntityCredsJSONField):
     # def __init__(self, model=None, q_filter=None,
     def __init__(self, *, model=None, q_filter=None,
                  create_action_url='',
+                 create_action_label=None,
                  # user=None, force_creation=False, *args, **kwargs
                  user=None, force_creation=False, **kwargs
                 ):
@@ -791,6 +792,7 @@ class CreatorEntityField(EntityCredsJSONField):
         self._model = widget.model = model
         self._q_filter = widget.q_filter = q_filter
         self._create_action_url = widget.creation_url = create_action_url
+        self.create_action_label = create_action_label
         self._force_creation = force_creation
         self.user = user
 
@@ -849,6 +851,14 @@ class CreatorEntityField(EntityCredsJSONField):
                 raise ValueError('Invalid type for q_filter (needs dict or Q): {}'.format(q_filter))
 
         return q
+
+    @property
+    def create_action_label(self):
+        return self._create_action_label
+
+    @create_action_label.setter
+    def create_action_label(self, label):
+        self._create_action_label = self.widget.creation_label = label
 
     @property
     def create_action_url(self):

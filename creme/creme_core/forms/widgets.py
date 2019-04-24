@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -69,7 +69,7 @@ class EnhancedSelectOptions:
     option_template_name = 'creme_core/forms/widgets/enhanced-option.html'
 
     class Choice:
-        def __init__(self, value, disabled=False, help=u''):
+        def __init__(self, value, disabled=False, help=''):
             self.value = value
             self.disabled = disabled
             self.help = help
@@ -274,7 +274,7 @@ class DateRangeSelect(widgets.Widget):
         self.choices = choices
 
     def range_choices(self):
-        choices = [('', pgettext_lazy('creme_core-date_range', u'Customized'))]
+        choices = [('', pgettext_lazy('creme_core-date_range', 'Customized'))]
         choices.extend(date_range_registry.choices())
         return choices
 
@@ -299,7 +299,7 @@ class DateRangeSelect(widgets.Widget):
 
 class NullableDateRangeSelect(DateRangeSelect):
     def range_choices(self):
-        choices = [('', pgettext_lazy('creme_core-date_range', u'Customized'))]
+        choices = [('', pgettext_lazy('creme_core-date_range', 'Customized'))]
         choices.extend(date_range_registry.choices(exclude_empty=False))
         return choices
 
@@ -404,7 +404,7 @@ class SelectorList(widgets.TextInput):
         super().__init__(attrs)
         self.selector = selector
         self.enabled = enabled
-        self.actions = [self.Action('add', ugettext_lazy(u'Add'))]
+        self.actions = [self.Action('add', ugettext_lazy('Add'))]
         self.from_python = None  # TODO: remove this hack ?
 
     def add_action(self, name, label, enabled=True, **kwargs):
@@ -527,13 +527,13 @@ class CTEntitySelector(ChainedInput):
                                   )
 
         if not self.is_required and not multiple:
-            clear_label = _(u'Clear')
+            clear_label = _('Clear')
             actions.add_action('reset', clear_label, title=clear_label,
                                action='reset', value='',
                               )
 
         if self.creator:
-            actions.add_action(name='create', label=_(u'Add'),
+            actions.add_action(name='create', label=_('Add'),
                                popupUrl='${ctype.create}', popupTitle='${ctype.create_label}',
                               )
 
@@ -615,12 +615,14 @@ class MultiRelationSelector(SelectorList):
 class EntityCreatorWidget(ActionButtonList):
     # template_name = ... TODO in order to override from apps ?
 
-    def __init__(self, model=None, q_filter=None, attrs=None, creation_url='', creation_allowed=False):
+    def __init__(self, model=None, q_filter=None, attrs=None, creation_url='',
+                 creation_allowed=False, creation_label=None):
         super().__init__(delegate=None, attrs=attrs)
         self.model = model
         self.q_filter = q_filter
         self.creation_url = creation_url
         self.creation_allowed = creation_allowed
+        self.creation_label = creation_label
 
     def _is_disabled(self, attrs):
         if attrs is not None:
@@ -635,15 +637,18 @@ class EntityCreatorWidget(ActionButtonList):
 
         if not is_disabled:
             if not self.is_required:
-                clear_label = _(u'Clear')
+                clear_label = _('Clear')
                 self.add_action('reset', clear_label, title=clear_label, action='reset', value='')
 
             url = self.creation_url
 
             if url:
                 allowed = self.creation_allowed
-                self.add_action('create', model.creation_label, enabled=allowed, popupUrl=url,
-                                title=_(u'Create') if allowed else _(u"Can't create"),
+                self.add_action(name='create',
+                                label=self.creation_label or model.creation_label,
+                                enabled=allowed,
+                                popupUrl=url,
+                                title=_('Create') if allowed else _("Can't create"),
                                )
 
     def get_context(self, name, value, attrs):
@@ -668,17 +673,20 @@ class EntityCreatorWidget(ActionButtonList):
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
+# TODO: unit tests ?
 # TODO: factorise with EntityCreatorWidget ?
 class MultiEntityCreatorWidget(SelectorList):
     # template_name = ... TODO in order to override from apps ?
 
-    def __init__(self, model=None, q_filter=None, attrs=None, creation_url='', creation_allowed=False):
+    def __init__(self, model=None, q_filter=None, attrs=None, creation_url='',
+                 creation_allowed=False, creation_label=None):
         attrs = attrs or {'clonelast': False}
         super().__init__(None, attrs=attrs)
         self.model = model
         self.q_filter = q_filter
         self.creation_url = creation_url
         self.creation_allowed = creation_allowed
+        self.creation_label = creation_label
 
     def get_context(self, name, value, attrs):
         model = self.model
@@ -688,7 +696,7 @@ class MultiEntityCreatorWidget(SelectorList):
             delegate = Label(empty_label='Model is not set')
         else:
             self.clear_actions()  # TODO: indicate that we do not want actions in __init__
-            self.add_action('add', getattr(model, 'selection_label', pgettext('creme_core-verb', u'Select')))
+            self.add_action('add', getattr(model, 'selection_label', pgettext('creme_core-verb', 'Select')))
 
             delegate = EntitySelector(str(ContentType.objects.get_for_model(model).id),
                                       {'auto':       False,
@@ -705,8 +713,11 @@ class MultiEntityCreatorWidget(SelectorList):
             url = self.creation_url
             if url:
                 allowed = self.creation_allowed
-                add_action('create', model.creation_label, enabled=allowed, popupUrl=url,
-                           title=_(u'Create') if allowed else _(u"Can't create")
+                add_action(name='create',
+                           label=self.creation_label or model.creation_label,
+                           enabled=allowed,
+                           popupUrl=url,
+                           title=_('Create') if allowed else _("Can't create"),
                           )
 
         button_list.delegate = delegate
@@ -924,7 +935,7 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
 
     def __init__(self, attrs=None, choices=(),
                  columntype='', filtertype=None, viewless=20,
-                 creation_url='', creation_allowed=False, creation_label=ugettext_lazy(u'Create')):
+                 creation_url='', creation_allowed=False, creation_label=ugettext_lazy('Create')):
         """Constructor.
         @param attrs: See SelectMultiple.attrs.
         @param choices: See SelectMultiple.choices.
@@ -1124,7 +1135,7 @@ class DatePeriodWidget(widgets.MultiWidget):
 
         # TODO: do we need a system for localized settings (like python in locale/ ) ?
         try:
-            localized_order = _(u'{dateperiod_value}{dateperiod_type}').format(
+            localized_order = _('{dateperiod_value}{dateperiod_type}').format(
                 dateperiod_type='0',
                 dateperiod_value='1',
             )
