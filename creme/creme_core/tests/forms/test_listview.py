@@ -42,12 +42,14 @@ class SearchWidgetsTestCase(CremeTestCase):
             widget.render(name=name, value=value)
         )
 
-    def test_checkboxwidget(self):
+    def test_booleanwidget01(self):
         widget = lv_form.BooleanLVSWidget()
+        self.assertIs(widget.null, False)
         name = 'foo'
         get_value = partial(widget.value_from_datadict, name=name, files=None)
         self.assertEqual(None,  get_value(data={}))
         self.assertEqual(None,  get_value(data={name: ''}))
+        self.assertEqual(None,  get_value(data={name: 'NULL'}))
         self.assertEqual(True,  get_value(data={name: '1'}))
         self.assertEqual(False, get_value(data={name: '0'}))
 
@@ -63,6 +65,35 @@ class SearchWidgetsTestCase(CremeTestCase):
                 no=_('No'),
             ),
             widget.render(name=name, value='1')
+        )
+
+    def test_booleanwidget02(self):
+        widget1 = lv_form.BooleanLVSWidget(null=False)
+        self.assertFalse(widget1.null)
+
+        widget2 = lv_form.BooleanLVSWidget(null=True)
+        self.assertTrue(widget2.null)
+        name = 'foobar'
+        get_value = partial(widget2.value_from_datadict, name=name, files=None)
+        self.assertEqual(None,   get_value(data={}))
+        self.assertEqual('NULL', get_value(data={name: 'NULL'}))
+        self.assertEqual(True,   get_value(data={name: '1'}))
+        self.assertEqual(False,  get_value(data={name: '0'}))
+
+        self.assertHTMLEqual(
+            '<select name="{name}">'
+               '<option value="">{all}</option>'
+               '<option value="NULL" selected>{null}</option>'
+               '<option value="1">{yes}</option>'
+               '<option value="0">{no}</option>'
+            '</select>'.format(
+                name=name,
+                all=_('All'),
+                null=_('N/A'),
+                yes=_('Yes'),
+                no=_('No'),
+            ),
+            widget2.render(name=name, value='NULL')
         )
 
     def test_selectwidget01(self):
@@ -210,7 +241,7 @@ class SearchFieldsTestCase(CremeTestCase):
         value = 'foo'
         self.assertEqual(Q(sector__title__contains=value), to_python(value=value))
 
-    def test_regular_booleanfield(self):
+    def test_regular_booleanfield01(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
         field = lv_form.RegularBooleanField(cell=cell, user=self.user)
 
@@ -218,6 +249,24 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(),                to_python(value=None))
         self.assertEqual(Q(is_a_nerd=True),  to_python(value=True))
         self.assertEqual(Q(is_a_nerd=False), to_python(value=False))
+        self.assertEqual(Q(),                to_python(value='NULL'))
+
+        self.assertFalse(field.null)
+        self.assertFalse(field.widget.null)
+
+    def test_regular_booleanfield02(self):
+        "Nullable."
+        cell = EntityCellRegularField.build(model=FakeContact, name='loves_comics')
+        field = lv_form.RegularBooleanField(cell=cell, user=self.user)
+
+        to_python = field.to_python
+        self.assertEqual(Q(),                   to_python(value=None))
+        self.assertEqual(Q(loves_comics=True),  to_python(value=True))
+        self.assertEqual(Q(loves_comics=False), to_python(value=False))
+        self.assertEqual(Q(loves_comics=None),  to_python(value='NULL'))
+
+        self.assertTrue(field.null)
+        self.assertTrue(field.widget.null)
 
     def test_regular_datefield(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='created')

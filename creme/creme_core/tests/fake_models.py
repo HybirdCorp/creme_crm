@@ -253,6 +253,7 @@ else:
                                        blank=True, null=True,
                                       ).set_tags(optional=True)
         is_a_nerd   = models.BooleanField(_('Is a Nerd'), default=False)
+        loves_comics = models.BooleanField(_('Loves comics'), default=None, null=True, blank=True)
         description = models.TextField(_('Description'), blank=True, null=True) \
                             .set_tags(optional=True)
         phone       = core_fields.PhoneField(_('Phone number'), max_length=100,

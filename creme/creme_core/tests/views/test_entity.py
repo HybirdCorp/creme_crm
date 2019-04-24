@@ -529,7 +529,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         names = ['created', 'modified', 'first_name', 'last_name', 'description',
                  'phone', 'mobile', 'email', 'birthday', 'url_site',
-                 'is_a_nerd',
+                 'is_a_nerd', 'loves_comics',
                 ]
         self.assertFalse(set(names).symmetric_difference({name for name, vname in json_data}))
         self.assertEqual(len(names), len(json_data))
@@ -564,12 +564,12 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         FieldsConfig.create(FakeContact,
                             descriptions=[('birthday', {FieldsConfig.HIDDEN: True})],
-                            )
+                           )
 
         response = self.assertGET200(self._build_test_get_info_fields_url(FakeContact))
         json_data = response.json()
         names = ['created', 'modified', 'first_name', 'last_name', 'description',
-                 'phone', 'mobile', 'email', 'url_site', 'is_a_nerd',
+                 'phone', 'mobile', 'email', 'url_site', 'is_a_nerd', 'loves_comics',
                  # 'birthday', #<===
                 ]
         self.assertFalse(set(names).symmetric_difference({name for name, vname in json_data}))

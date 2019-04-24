@@ -64,6 +64,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
             'image_colselect':       0,
 
             'is_a_nerd_colselect':    0,
+            'loves_comics_colselect': 0,
             'languages_colselect':    0,
 
             # 'property_types',
