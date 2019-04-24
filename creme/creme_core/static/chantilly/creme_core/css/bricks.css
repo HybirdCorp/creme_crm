@@ -42,11 +42,13 @@ Those templates need to be cleaned up */
     margin-bottom: 0;
 }
 
+/*
 table.table_detail_view + .brick,
 table.table_detail_view + table.table_detail_view {
     margin-top: 15px;
     margin-bottom: 0;
 }
+*/
 
 .brick.is-empty {
     display: none;

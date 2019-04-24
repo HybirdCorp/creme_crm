@@ -7,7 +7,7 @@
     border-spacing: 0px;
 
     /*margin-left: 5px; problem with address blocks in contact form */
-    margin-bottom: 10px;
+    /* margin-bottom: 10px; */
 
     border: 1px solid #ccc;
     border-radius: 0; /* disable rounded corners forced by .ui-corner-all hardcoded in the html templates */
@@ -17,6 +17,14 @@
     -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.15);
        -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.15);
             box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+table.table_detail_view + .brick,
+table.table_detail_view:not(.dual_column) + table.table_detail_view:not(.dual_column),
+table.table_detail_view + div.dual_column-container,
+div.dual_column-container + table.table_detail_view {
+    margin-top: 15px;
+    margin-bottom: 0;
 }
 
 .table_detail_view > tbody > tr > th {
@@ -163,10 +171,12 @@ th_info {
     float: right;
 }
 
+/*
 .table_detail_view.dual_column.last:after {
     clear: both;
     content: "";
 }
+*/
 
 table.collapsed .collapsable {
     display: none;
