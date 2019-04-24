@@ -111,7 +111,7 @@ class AbstractOpportunity(CremeEntity):
                                      .set_tags(optional=True)
 
     creation_label = _('Create an opportunity')
-    submit_label   = _('Save the opportunity')
+    save_label     = _('Save the opportunity')
 
     search_score = 100
 
