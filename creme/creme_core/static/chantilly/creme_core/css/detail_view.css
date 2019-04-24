@@ -4,15 +4,17 @@
 */
 
 .detailview .column,
+.content-form-view .column,
 .inner-popup-content .column {
     float:left;
     margin-left:0px;
 }
 
 .detailview .column.last,
+.content-form-view .column.last,
 .inner-popup-content .column.last {
     float: right;
-    margin-right:0px;
+    margin-right: 0px;
 }
 
 /*
@@ -25,6 +27,10 @@
 .detailview .west,
 .detailview .south,
 .detailview .east,
+.content-form-view .north,
+.content-form-view .west,
+.content-form-view .south,
+.content-form-view .east,
 .inner-popup-content .north,
 .inner-popup-content .west,
 .inner-popup-content .south,
@@ -35,17 +41,20 @@
 }
 
 /* .north:not(:empty) { */
-.detailview .north:not(:empty) {
+.detailview .north:not(:empty),
+.content-form-view .north:not(:empty) {
     margin-bottom: 15px;
 }
 
 /* .south:not(:empty) { */
-.detailview .south:not(:empty) {
+.detailview .south:not(:empty),
+.content-form-view .south:not(:empty) {
     margin-top: 15px;
 }
 
 /*.east.column.last { */
-.detailview .east.column.last {
+.detailview .east.column.last,
+.content-form-view .east.column.last {
     padding-left: 13px;
 }
 
@@ -55,6 +64,8 @@
         Since the 2 columns are floated on opposite sides, shortening their width by x will create a 2x margin between them */
 .detailview .east,
 .detailview .west,
+.content-form-view .east,
+.content-form-view .west,
 .inner-popup-content .east,
 .inner-popup-content .west {
     width: 49.9%;
@@ -62,12 +73,15 @@
 }
 
 .detailview .clear,
+.content-form-view .clear,
 .inner-popup-content .clear {
     clear: both;
 }
 
 .detailview .north,
 .detailview .south,
+.content-form-view .north,
+.content-form-view .south,
 .inner-popup-content .north,
 .inner-popup-content .south {
     width:99.9%;
