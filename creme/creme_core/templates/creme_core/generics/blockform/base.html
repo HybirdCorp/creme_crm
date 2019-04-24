@@ -68,7 +68,7 @@
 
         {% block submit_buttons %}
             {% if not is_inner_popup %}
-                <div class="spacer"></div>
+{#                <div class="spacer"></div> #}
                 <div class="submit_buttons">
                     <input type="submit" value="{{submit_label|default:_('Save')}}" />
                     {% if cancel_url %}<a href="{{cancel_url}}" >{% trans 'Cancel' %}</a>{% endif %}
