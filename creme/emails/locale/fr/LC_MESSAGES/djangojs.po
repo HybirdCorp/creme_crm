@@ -2,13 +2,13 @@
 # Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -d djangojs -l fr
+# > django-admin.py makemessages -d djangojs -l fr -i "static/emails/js/tests/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Emails 2.0\n"
+"Project-Id-Version: Creme Emails 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-28 14:31+0100\n"
+"POT-Creation-Date: 2019-04-23 14:03+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,16 +16,25 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/emails/js/emails.js:31 static/emails/js/emails.js:46
-#: static/emails/js/emails.js:90 static/emails/js/emails.js:100
-msgid "Process done"
-msgstr "Opération effectuée"
-
 # Already in creme_core
-#: static/emails/js/emails.js:75
+#: static/emails/js/emails.js:72 static/emails/js/tests/emails-actions.js:75
 msgid "Please select at least one entity."
 msgstr ""
 
-#: static/emails/js/emails.js:87 static/emails/js/emails.js:97
+#: static/emails/js/emails.js:86 static/emails/js/emails.js:96
+#: static/emails/js/tests/emails-actions.js:285
+#: static/emails/js/tests/emails-actions.js:392
 msgid "Nothing is selected."
 msgstr "Rien n'est sélectionné."
+
+# Already in creme_core
+#: static/emails/js/emails.js:149
+msgid "Error"
+msgstr ""
+
+#: static/emails/js/emails.js:172 static/emails/js/tests/emails-listview.js:31
+msgid "Please select at least one e-mail."
+msgstr "Veuillez sélectionner au moins un e-mail."
+
+#~ msgid "Process done"
+#~ msgstr "Opération effectuée"
