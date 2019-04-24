@@ -3,6 +3,8 @@
 
 {% block page_title %}{{title}} - {% endblock %}
 
+{% block content_extra_class %}content-form-view content-form-view-linking{% endblock %}
+
 {% block content %}
     {% include 'creme_core/generics/blockform/base.html' with icon_name='link' icon_label=_('Link') %}
 {% endblock %}

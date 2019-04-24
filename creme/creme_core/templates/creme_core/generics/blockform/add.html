@@ -3,6 +3,8 @@
 
 {% block page_title %}{{title}} - {% endblock %}
 
+{% block content_extra_class %}content-form-view content-form-view-creation{% endblock %}
+
 {% block content %}
     {% include 'creme_core/generics/blockform/base.html' with icon_name='add' icon_label=_('Add') %}
 {% endblock %}

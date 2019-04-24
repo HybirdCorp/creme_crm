@@ -9,6 +9,8 @@
     {% endif %} - 
 {% endblock %}
 
+{% block content_extra_class %}content-form-view content-form-view-edition{% endblock %}
+
 {% block content %}
     {% with icon_name='edit' icon_label=_('Edit') submit_label=submit_label|default:_('Save the modifications') %}
         {% if not title %}{% blocktrans asvar form_title %}Edit «{{object}}»{% endblocktrans %}
