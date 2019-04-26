@@ -1,7 +1,8 @@
+{% if widget.value.help is not None %}
 {% with echoice=widget.value %}
-{% if echoice.disabled is not None %}{# TODO |hasattr:'help' ?? #}
-<option value="{{echoice.value}}"{% if echoice.disabled %} disabled{% endif %} help="{{echoice.help}}"{% include 'django/forms/widgets/attrs.html' %}>{{widget.label}}</option>
+<option value="{{echoice.value}}" help="{{echoice.help}}"{% include "django/forms/widgets/attrs.html" %}{% if echoice.disabled %} disabled{% endif %}{% if echoice.readonly %} readonly{% endif %}>{{widget.label}}</option>
+{% endwith %}
 {% else %}
 {% include 'django/forms/widgets/select_option.html' %}
 {% endif %}
-{% endwith %}
+

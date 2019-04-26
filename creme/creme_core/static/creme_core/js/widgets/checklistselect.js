@@ -31,24 +31,23 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         var self = this;
 
         this._converter = options.datatype === 'json' ? creme.utils.JSON.decoder({}) : null;
-        this._lessCount = options.less || 10;
-        this._less = options.less > 0 || element.is('[less]');
+        this.less(element, options.less || element.is('[less]'));
 
         this.disabled(element, creme.object.isTrue(options.disabled) || element.is('[disabled]'));
 
         this._initializeController(element, options);
 
-        $('.checklist-create', element).click(function(e) {
+        $('.checklist-create:not([disabled])', element).click(function(e) {
             e.preventDefault();
-            if (!self._disabled) self.createItem(element, $(this));
+            self._createItem(element, $(this));
         });
 
-        $(element).delegate('.checklist-check-all:not([disabled])', 'click', function() {
-            if (!self._disabled) self.selectAll(element);
+        $(element).on('click', '.checklist-check-all:not([disabled])', function() {
+            self.selectAll(element);
         });
 
-        $(element).delegate('.checklist-check-none:not([disabled])', 'click', function() {
-            if (!self._disabled) self.unselectAll(element);
+        $(element).on('click', '.checklist-check-none:not([disabled])', function() {
+            self.unselectAll(element);
         });
 
         $('.checklist-filter', element).bind('propertychange keyup input paste', function() {
@@ -56,15 +55,15 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         });
 
         $('.checklist-toggle-less', element).click(function() {
-            self.less(element, !self.less(element));
+            self.toggleShowLess(element);
         });
 
-        $(element).delegate('.checkbox-field:not(.hidden):not(.disabled) input[type="checkbox"]', 'change', function(e) {
+        $(element).on('change', '.checkbox-field:not(.hidden):not([disabled]) input[type="checkbox"]', function(e) {
             var checkbox = $(this);
             self._selections.toggle(parseInt(checkbox.attr('checklist-index')), checkbox.prop('checked'));
         });
 
-        $(element).delegate('.checkbox-field:not(.hidden):not(.disabled) .checkbox-label', 'click', function(e) {
+        $(element).on('click', '.checkbox-field:not(.hidden):not([disabled]) .checkbox-label', function(e) {
             e.stopPropagation();
             var checkbox = $(this).parent().find('input[type="checkbox"]');
             self._selections.toggle(parseInt(checkbox.attr('checklist-index')), !checkbox.prop('checked'));
@@ -142,42 +141,45 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     },
 
     _updateViewLessCounter: function(element) {
-        var less = this._less;
+        var iscollapsed = this._lessCollapsed;
         var content = this.content(element);
-        var items = $('.checkbox-field:not(.hidden).more input[type="checkbox"]', content);
-        var more_count = items.length;
+        var moreItems = $('.checkbox-field:not(.hidden).more input[type="checkbox"]', content);
+        var moreCount = moreItems.length;
+        var messages = [];
 
-        if (less) {
-            var messages = [];
-            var more_selection_count = items.filter(':checked').length;
+        // items are collapsed
+        if (iscollapsed) {
+            var moreSelectedCount = moreItems.filter(':checked').length;
 
-            messages.push(ngettext('%d hidden item', '%d hidden items', more_count).format(more_count));
-
-            if (more_selection_count > 0) {
-                messages.push(ngettext('(with %d selection)', '(with %d selections)', more_selection_count).format(more_selection_count));
+            if (moreCount > 0) {
+                messages.push(ngettext('%d hidden item', '%d hidden items', moreCount).format(moreCount));
             }
 
-            $('.checklist-toggle-less', element).html(messages.join(' '));
-        } else {
-            $('.checklist-toggle-less', element).html(ngettext('Collapse %d item', 'Collapse %d items', more_count).format(more_count));
+            if (moreSelectedCount > 0) {
+                messages.push(ngettext('(with %d selection)', '(with %d selections)', moreSelectedCount).format(moreSelectedCount));
+            }
+        } else if (moreCount > 0) {
+            messages.push(ngettext('Collapse %d item', 'Collapse %d items', moreCount).format(moreCount));
         }
+
+        $('.checklist-toggle-less', element).html(messages.join(' '));
     },
 
     _updateViewLess: function(element) {
         var limit = this._lessCount;
-        var less = this._less;
+        var iscollapsed = this._lessCollapsed;
 
         var content = this.content(element);
         var isfiltered = content.is('.filtered:not(.search)');
-        var items = isfiltered ? $('.checkbox-field.hilighted', content) : $('.checkbox-field', content);
+        var items = isfiltered ? $('.checkbox-field:not(.hidden)', content) : $('.checkbox-field', content);
         var isactive = items.length > limit;
 
-        content.toggleClass('less', less);
+        content.toggleClass('less', iscollapsed);
         $('.checklist-toggle-less', element).toggleClass('is-active', isactive);
 
         if (isactive) {
             items.each(function(index) {
-                $(this).toggleClass('more', index > limit);
+                $(this).toggleClass('more', index >= limit);
             });
         } else {
             items.removeClass('more');
@@ -215,7 +217,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
         selections.model(model)
                   .selectionFilter(function(item, index) {
-                      return !item.disabled && item.visible;
+                      return !item.disabled && item.visible && !item.readonly;
                    })
                   .on('change', function() {
                       self._updateDelegate(element);
@@ -270,13 +272,31 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         // this._layout.columns(3).resizable(true).bind(content).layout();
     },
 
+    toggleShowLess: function(element, state) {
+        if (this._less) {
+            this._lessCollapsed = Object.isNone(state) ? !this._lessCollapsed : state;
+            this._updateViewLess(element);
+        }
+
+        return this;
+    },
+
+    isLessCollapsed: function(element) {
+        return this._less && this._lessCollapsed;
+    },
+
+    lessCount: function(element) {
+        return this._lessCount;
+    },
+
     less: function(element, less) {
         if (less === undefined) {
             return this._less;
         }
 
-        this._less = less;
-        this._updateViewLess(element);
+        this._lessCount = less || 10;
+        this._less = less > 0 || less;
+        this.toggleShowLess(element, this._less);
 
         return this;
     },
@@ -351,8 +371,8 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         });
     },
 
-    createItem: function(element, link) {
-        if (this._disabled || link.is('[disabled]')) {
+    _createItem: function(element, link) {
+        if (this._disabled) {
             return this;
         }
 
@@ -360,8 +380,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         var model = this._model;
 
         action.onDone(function(event, data) {
-                          data = creme.utils.JSON.clean(data);
-                          var choices = creme.model.ChoiceGroupRenderer.choicesFromTuples(data.added || []);
+                          var choices = creme.model.ChoiceGroupRenderer.choicesFromTuples(data.data().added || []);
 
                           model.patch({
                               add: choices
@@ -384,12 +403,18 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     },
 
     selectAll: function(element) {
-        this._selections.selectAll();
+        if (!this._disabled) {
+            this._selections.selectAll();
+        }
+
         return this;
     },
 
     unselectAll: function(element) {
-        this._selections.unselectAll();
+        if (!this._disabled) {
+            this._selections.unselectAll();
+        }
+
         return this;
     }
 });

@@ -69,9 +69,10 @@ class EnhancedSelectOptions:
     option_template_name = 'creme_core/forms/widgets/enhanced-option.html'
 
     class Choice:
-        def __init__(self, value, disabled=False, help=''):
+        def __init__(self, value, disabled=False, help='', readonly=False):
             self.value = value
             self.disabled = disabled
+            self.readonly = readonly
             self.help = help
 
         def __str__(self):
