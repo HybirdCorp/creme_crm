@@ -69,6 +69,7 @@ creme.model.ChoiceRenderer.parse = function(element, converter) {
             label:    option.html(),
             value:    Object.isFunc(converter) ? converter(option_value) : option_value,
             disabled: option.is('[disabled]'),
+            readonly: option.is('[readonly]'),
             selected: values.indexOf(option_value) !== -1,
             visible:  true,
             help:     option.attr('help'),
@@ -205,6 +206,7 @@ creme.model.ChoiceGroupRenderer.parse = function(element, converter) {
             label:    option.html(),
             value:    Object.isFunc(converter) ? converter(option_value) : option_value,
             disabled: option.is('[disabled]'),
+            readonly: option.is('[readonly]'),
             selected: values.indexOf(option_value) !== -1,
             visible:  true,
             help:     option.attr('help'),
@@ -271,17 +273,18 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
 
         var context = {
             tag: this._itemtag,
-            disabled: disabled ? 'disabled' : '',
+            disabled: disabled || data.readonly ? 'disabled' : '',
             value: value,
             index: index,
             checked: data.selected ? 'checked' : '',
             label: data.label || '',
             help: data.help || '',
             hidden: !data.visible ? 'hidden' : '',
+            readonly: data.readonly ? 'readonly' : '',
             tags: (data.tags || []).join(' ')
         };
 
-        var item = $(('<${tag} class="checkbox-field ${hidden}" tags="${tags}" checklist-index="${index}" ${disabled}>' +
+        var item = $(('<${tag} class="checkbox-field ${hidden}" tags="${tags}" checklist-index="${index}" ${disabled} ${readonly}>' +
                          '<input type="checkbox" value="${value}" checklist-index="${index}" ${disabled} ${checked}/>' +
                          '<div class="checkbox-label">' +
                              '<span class="checkbox-label-text" ${disabled}>${label}</span>' +
@@ -349,6 +352,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
             label:    label.html(),
             value:    Object.isFunc(converter) ? converter(value) : value,
             disabled: input.is('[disabled]') || target.is('[disabled]'),
+            readonly: target.is('[readonly]'),
             selected: input.is(':checked'),
             help:     help.html(),
             tags:     input.is('[tags]') ? input.attr('tags').split(' ') : [],

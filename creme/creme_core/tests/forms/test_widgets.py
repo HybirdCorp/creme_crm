@@ -73,9 +73,10 @@ class DynamicSelectTestCase(FieldTestCase):
                             )
 
         Choice = DynamicSelect.Choice
-        select = DynamicSelect(options=[(Choice(1, True, 'disabled'), 'A'),
-                                        (Choice(2, False, 'item B'), 'B'),
-                                        (Choice(3, False, 'item C'), 'C'),
+        select = DynamicSelect(options=[(Choice(1, disabled=True, help='disabled'), 'A'),
+                                        (Choice(2, help='item B'), 'B'),
+                                        (Choice(3, help='item C'), 'C'),
+                                        (Choice(4, readonly=True, help='readonly'), 'D'),
                                        ],
                               )
         self.assertHTMLEqual('<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" '
@@ -83,6 +84,7 @@ class DynamicSelectTestCase(FieldTestCase):
                                '<option value="1" disabled help="disabled">A</option>'
                                '<option value="2" selected help="item B">B</option>'
                                '<option value="3" help="item C">C</option>'
+                               '<option value="4" readonly help="readonly">D</option>'
                              '</select>',
                              select.render('test', 2)
                             )
@@ -436,7 +438,8 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         Choice = UnorderedMultipleChoiceWidget.Choice
         select = UnorderedMultipleChoiceWidget(
             choices=[(Choice(value=1, disabled=True, help='is disabled'), 'Choice #1'),
-                     (Choice(value=2, disabled=False),                    'Choice #2'),
+                     (Choice(value=2),                                    'Choice #2'),
+                     (Choice(value=3, readonly=True, help='is readonly'), 'Choice #3'),
                     ],
             viewless=False,
         )
@@ -445,11 +448,12 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1" disabled help="is disabled">Choice #1</option>
         <option value="2" help="">Choice #2</option>
+        <option value="3" readonly help="is readonly">Choice #3</option>
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
-        <a type="button" class="checklist-check-all hidden">{check_all}</a>
-        <a type="button" class="checklist-check-none hidden">{check_none}</a>
+        <a type="button" class="checklist-check-all">{check_all}</a>
+        <a type="button" class="checklist-check-none">{check_none}</a>
     </div>
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
 </div>'''.format(
