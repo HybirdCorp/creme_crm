@@ -1169,7 +1169,7 @@ class PropertiesConditionsField(_ConditionsField):
         self.widget.ptypes = CallableChoiceIterator(lambda: [(pt.id, pt) for pt in self._get_ptypes()])
 
     def _get_ptypes(self):
-        return CremePropertyType.get_compatible_ones(ContentType.objects.get_for_model(self._model))
+        return CremePropertyType.objects.compatible(self._model)
 
     def _value_to_jsonifiable(self, value):
         return [{'ptype': condition.name,

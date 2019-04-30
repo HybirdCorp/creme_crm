@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 # import warnings
 
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.forms import ModelMultipleChoiceField, CharField
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -57,14 +56,11 @@ class AddPropertiesForm(_AddPropertiesForm):
         self.entity = entity
         super().__init__(*args, **kwargs)
 
-        # TODO: move queryset to a CremePropertyType method ??
         excluded = CremeProperty.objects.filter(creme_entity=entity.id) \
                                         .values_list('type', flat=True)
-        self.fields['types'].queryset = \
-            CremePropertyType.objects.filter(Q(subject_ctypes=entity.entity_type_id) |
-                                             Q(subject_ctypes__isnull=True)
-                                            ) \
-                                     .exclude(pk__in=excluded)
+        self.fields['types'].queryset = CremePropertyType.objects\
+                                                         .compatible(type(entity))\
+                                                         .exclude(pk__in=excluded)
 
     def save(self):
         create = CremeProperty.objects.safe_create
@@ -80,9 +76,8 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         super().__init__(*args, **kwargs)
         self.entities = entities
         fields = self.fields
-        ct = ContentType.objects.get_for_model(model)
 
-        fields['types'].queryset = CremePropertyType.get_compatible_ones(ct)  # TODO: Sort?
+        fields['types'].queryset = CremePropertyType.objects.compatible(model)  # TODO: Sort?
         fields['entities_lbl'].initial = entities2unicode(entities, self.user) \
                                          if entities else \
                                          ugettext('NONE !')

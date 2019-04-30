@@ -1203,9 +1203,7 @@ class ImportForm4CremeEntity(ImportForm):
         user = self.user
         fields = self.fields
         ct = ContentType.objects.get_for_model(self._meta.model)
-        fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) |
-                                                                             Q(subject_ctypes__isnull=True)
-                                                                            )
+        fields['property_types'].queryset = CremePropertyType.objects.compatible(ct)
 
         rtypes = RelationType.get_compatible_ones(ct)
         fields['fixed_relations'].allowed_rtypes = rtypes
