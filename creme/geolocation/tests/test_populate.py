@@ -326,7 +326,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
                                          address='13 rue du yahourt',
                                          po_box='',
                                          zipcode='01630',
-                                         city=u'Péron',
+                                         city='Péron',
                                          department='01',
                                          state='',
                                          country='FRANCE',

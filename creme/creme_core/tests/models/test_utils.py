@@ -28,7 +28,7 @@ class ModelUtilsTestCase(CremeTestCase):
         self.assertEqual(41, len(val))
 
         assign_2_charfield(adr, 'country', val)
-        self.assertEqual(u'A country with a very very very long na…',
+        self.assertEqual('A country with a very very very long na…',
                          adr.country,
                         )
 

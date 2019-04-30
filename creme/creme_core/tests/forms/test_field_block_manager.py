@@ -82,7 +82,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         user = self.login()
 
         block_id = 'particulars'
-        block_vname = u'Particulars'
+        block_vname = 'Particulars'
 
         class TestFakeContactForm(FakeContactForm):
             class Meta(FakeContactForm.Meta):

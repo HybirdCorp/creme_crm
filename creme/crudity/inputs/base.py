@@ -22,11 +22,11 @@ from ..backends.gui import TemplateBrickHeaderAction
 
 
 class CrudityInput:
-    name   = u''
-    method = u''
+    name   = ''
+    method = ''
 
-    verbose_name   = u''
-    verbose_method = u''
+    verbose_name   = ''
+    verbose_method = ''
 
     brickheader_action_templates = ()
 

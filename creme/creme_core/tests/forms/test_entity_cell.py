@@ -57,10 +57,10 @@ class EntityCellsFieldTestCase(FieldTestCase):
 
     def test_ok02(self):
         "All types of columns"
-        loves = RelationType.create(('test-subject_love', u'Is loving'),
-                                    ('test-object_love',  u'Is loved by')
+        loves = RelationType.create(('test-subject_love', 'Is loving'),
+                                    ('test-object_love',  'Is loved by')
                                    )[0]
-        customfield = CustomField.objects.create(name=u'Size (cm)',
+        customfield = CustomField.objects.create(name='Size (cm)',
                                                  field_type=CustomField.INT,
                                                  content_type=self.ct_contact,
                                                 )

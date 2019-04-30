@@ -326,12 +326,12 @@ class _CremeTestCase:
             try:
                 index = actual.index(elt)
             except ValueError:
-                self.fail(self._formatMessage(msg, u'Element not found in the superset : "{}"'.format(elt)))
+                self.fail(self._formatMessage(msg, 'Element not found in the superset : "{}"'.format(elt)))
 
             if index <= old_index:
                 self.fail(self._formatMessage(msg,
-                                              u'Order is different in the superset '
-                                              u'(problem with element : "{}")'.format(elt)
+                                              'Order is different in the superset '
+                                              '(problem with element : "{}")'.format(elt)
                                              )
                          )
 

@@ -80,7 +80,7 @@ class EntityCredentials:
         self._value = value
 
     def __str__(self):
-        return u'EntityCredentials(value="{}")'.format(self._value)
+        return 'EntityCredentials(value="{}")'.format(self._value)
 
     def can_change(self):
         return self.has_perm(CHANGE_PERM)

@@ -334,8 +334,8 @@ about this fantastic animation studio."""
         hline = hlines[-1]
         self.assertEqual(gainax.id,    hline.entity.id)
         self.assertEqual(TYPE_EDITION, hline.type)
-        self.assertEqual([['capital',        old_capital,   None],
-                          [u'creation_date', '1928-05-03', None],
+        self.assertEqual([['capital',        old_capital, None],
+                          ['creation_date', '1928-05-03', None],
                          ],
                          hline.modifications
                         )

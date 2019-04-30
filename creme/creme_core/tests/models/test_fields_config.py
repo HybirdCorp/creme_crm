@@ -197,15 +197,15 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn('mobile', fields)
 
         # last_name = u'Senjōgahara' MySQL does not like this....
-        last_name = u'Senjougahara'
-        first_name = u'Hitagi'
+        last_name = 'Senjougahara'
+        first_name = 'Hitagi'
         response = self.client.post(url, follow=True,
                                     data={'user':       user.id,
                                           'last_name':  last_name,
                                           'first_name': first_name,
                                           'phone':      '112233',
                                           'mobile':     '445566',
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 

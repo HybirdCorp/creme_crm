@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,18 +21,17 @@
 from django import template
 from django.template.defaultfilters import truncatewords
 
-
 register = template.Library()
 
 
 # TODO: in creme_core ?? use u'…' (like in utils.ellipsis) ??
-@register.filter(name="truncate")
+@register.filter(name='truncate')
 def truncate(word, truncate_at):
     words = truncatewords(word, truncate_at)
     word = str(word)
     truncated = word[:truncate_at]
 
     if len(words.split()) == 1 and not len(truncated) == len(word):
-        words = u'{}...'.format(truncated)
+        words = '{}...'.format(truncated)
 
     return words

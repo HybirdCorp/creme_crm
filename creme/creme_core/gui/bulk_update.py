@@ -126,13 +126,13 @@ class _BulkUpdateRegistry:
                 field = self.regular_fields.get(name)
 
                 if field and not self.is_updatable(field):
-                    raise FieldNotAllowed(u'The field {}.{} is not editable'.format(
+                    raise FieldNotAllowed('The field {}.{} is not editable'.format(
                                                 self._model._meta.verbose_name, name
                                             )
                                          )
 
             if field is None:
-                raise FieldDoesNotExist(u"The field {}.{} doesn't exist".format(
+                raise FieldDoesNotExist("The field {}.{} doesn't exist".format(
                                                 self._model._meta.verbose_name, name
                                             )
                                        )
@@ -143,13 +143,13 @@ class _BulkUpdateRegistry:
             field = self.regular_fields.get(name)
 
             if field is None:
-                raise FieldDoesNotExist(u"The field {}.{} doesn't exist".format(
+                raise FieldDoesNotExist("The field {}.{} doesn't exist".format(
                                                 self._model._meta.verbose_name, name
                                             )
                                        )
 
             if not self.is_expandable(field):
-                raise FieldNotAllowed(u'The field {}.{} is not expandable'.format(
+                raise FieldNotAllowed('The field {}.{} is not expandable'.format(
                                             self._model._meta.verbose_name, name
                                         )
                                      )
