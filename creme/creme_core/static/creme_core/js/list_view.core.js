@@ -191,10 +191,10 @@
             o2m:                false,
             serializer:         'input[name][type!="submit"], select[name]',
             submitHandler:      null, // Use handleSubmit in it to easy list view's management
-            kd_submitHandler:   null, // Same as submitHandler but for key down events,
             reload_url:         null,
             historyHandler:     null,
-            actionBuilders:     null
+            actionBuilders:     null,
+            submitOnKey:        $.ui.keyCode.ENTER
         };
 
         var _noop = function() {};
@@ -202,8 +202,8 @@
         var publicMethods = ["countEntities", "getSelectedEntities",
                              "getSelectedEntities",
                              "option", "serializeState", "ensureSelection",
-                             "getSubmit", "getKdSubmit",
-                             "setSubmit", "setKdSubmit",
+                             "getSubmit",
+                             "setSubmit",
                              "setReloadUrl", "getReloadUrl", "isLoading", "getActionBuilders"];
 
         if (isMethodCall && $.inArray(options, publicMethods) > -1) {
@@ -224,7 +224,6 @@
                 me.beforeSubmit     = (Object.isFunc(opts.beforeSubmit))     ? opts.beforeSubmit     : false;
                 me.afterSubmit      = (Object.isFunc(opts.afterSubmit))      ? opts.afterSubmit      : false;
                 me.submitHandler    = (Object.isFunc(opts.submitHandler))    ? opts.submitHandler    : false;
-                me.kd_submitHandler = (Object.isFunc(opts.kd_submitHandler)) ? opts.kd_submitHandler : false;
                 me.historyHandler   = (Object.isFunc(opts.historyHandler))   ? opts.historyHandler   : false;
                 me.is_loading = false;
 
@@ -261,23 +260,9 @@
                     }
                 };
 
-                this.setKdSubmit = function(fn) {
-                    if (Object.isFunc(fn)) {
-                        me.kd_submitHandler = fn;
-                    }
-                };
-
                 this.getSubmit = function() {
                     if (me.submitHandler) {
                         return me.submitHandler;
-                    } else {
-                        return _noop; // Null handler
-                    }
-                };
-
-                this.getKdSubmit = function() {
-                    if (me.kd_submitHandler) {
-                        return me.kd_submitHandler;
                     } else {
                         return _noop; // Null handler
                     }
@@ -345,11 +330,17 @@
                     /* TODO: (genglert) we need a better system to initialize search widget, where each widget
                              manage it's initialization, so an external app can easily add its own widgets.
                     */
+                    var handleSubmitKey = function(e) {
+                        if (e.which === opts.submitOnKey) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            me.getSubmit()(e.target);
+                        }
+                    };
+
                     self.find('.columns_bottom .column input[type="text"]')
-                        .bind('keydown', function(event) {
-                             event.stopPropagation();
-                             me.getKdSubmit()(event, this);
-                         });
+                        .bind('keydown', handleSubmitKey);
 
                     self.find('.columns_bottom .column select')
                         .bind('change', function(event) {
@@ -360,11 +351,7 @@
 //                    var date_inputs = self.find('.columns_bottom .column.datefield input');
                     var date_inputs = self.find('.columns_bottom .column .lv-search-daterange input');
 
-                    date_inputs.bind('keydown', function(event) {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    me.getKdSubmit()(event, this);
-                               });
+                    date_inputs.bind('keydown', handleSubmitKey);
 
                     date_inputs.each(function() {
                        $(this).datepicker({
