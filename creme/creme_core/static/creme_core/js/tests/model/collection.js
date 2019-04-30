@@ -1,41 +1,6 @@
-QUnit.module("creme.model.collection.js", {
-    setup: function() {
-        this.resetMockCalls();
-    },
+(function($) {
 
-    teardown: function() {
-    },
-
-    resetMockCalls: function() {
-        this._eventListenerCalls = {};
-    },
-
-    mockListenerCalls: function(name)
-    {
-        if (this._eventListenerCalls[name] === undefined)
-            this._eventListenerCalls[name] = [];
-
-        return this._eventListenerCalls[name];
-    },
-
-    mockListener: function(name)
-    {
-        var self = this;
-        return (function(name) {return function() {
-            self.mockListenerCalls(name).push(Array.copy(arguments));
-        }})(name);
-    }
-});
-
-function assertRaises(block, expected, message)
-{
-    QUnit.assert.raises(block,
-           function(error) {
-                ok(error instanceof expected, 'error is ' + expected);
-                equal(message, '' + error);
-                return true;
-           });
-}
+QUnit.module("creme.model.collection.js", new QUnitMixin(QUnitEventMixin));
 
 QUnit.test('creme.model.Collection', function(assert) {
     var _Collection = creme.model.Collection.sub({
@@ -270,8 +235,8 @@ QUnit.test('creme.model.Array.insert (out of bound)', function(assert) {
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
-    assertRaises(function() {model.insert('a', 10);}, Error, 'Error: index out of bound');
-    assertRaises(function() {model.insert('b', -1);}, Error, 'Error: index out of bound');
+    this.assertRaises(function() { model.insert('a', 10); }, Error, 'Error: index out of bound');
+    this.assertRaises(function() { model.insert('b', -1); }, Error, 'Error: index out of bound');
 
     deepEqual([], this.mockListenerCalls('added'));
 });
@@ -338,8 +303,6 @@ QUnit.test('creme.model.Array.each', function(assert) {
 
 QUnit.test('creme.model.Array.map', function(assert) {
     var model = new creme.model.Array();
-    var total = 0;
-    var count = 0;
     var addidx = function(e, index) {
         return e + index;
     };
@@ -368,11 +331,9 @@ QUnit.test('creme.model.Array.indexOf', function(assert) {
 
 QUnit.test('creme.model.Array.indexOf (comparator)', function(assert) {
     var comparator = function(a, b) {
-        if (Array.isArray(b) === false)
-            return a[0] - b;
+        if (Array.isArray(b) === false) { return a[0] - b; }
 
-        if (a[0] !== b[0])
-            return a[0] - b[0];
+        if (a[0] !== b[0]) { return a[0] - b[0]; }
 
         return a[1] < b[1] ? -1 : (a[1] > b[1] ? 1 : 0);
     };
@@ -431,11 +392,9 @@ QUnit.test('creme.model.Array.indicesOf', function(assert) {
 
 QUnit.test('creme.model.Array.indicesOf (comparator)', function(assert) {
     var comparator = function(a, b) {
-        if (Array.isArray(b) === false)
-            return a[0] - b;
+        if (Array.isArray(b) === false) { return a[0] - b; }
 
-        if (a[0] !== b[0])
-            return a[0] - b[0];
+        if (a[0] !== b[0]) { return a[0] - b[0]; }
 
         return a[1] < b[1] ? -1 : (a[1] > b[1] ? 1 : 0);
     };
@@ -467,7 +426,7 @@ QUnit.test('creme.model.Array.indicesOf (comparator)', function(assert) {
     equal(3, model.indicesOf(8));
     equal(3, model.indicesOf([[8, 'd']]));
     equal(-1, model.indicesOf([[8, 'h']]));
-    
+
     deepEqual([0, 1], model.indicesOf([[1, 'a'], [1, 'b']]));
     deepEqual([2, 3, 4], model.indicesOf([[2, 'c'], [8, 'd'], [12, 12]]));
     deepEqual([0, 3], model.indicesOf([[1, 'a'], [8, 'd']]));
@@ -546,8 +505,8 @@ QUnit.test('creme.model.Array.removeAt', function(assert) {
     model.bind('remove', this.mockListener('removed'));
     deepEqual([], this.mockListenerCalls('removed'));
 
-    assertRaises(function() {model.removeAt(-1);}, Error, 'Error: index out of bound');
-    assertRaises(function() {model.removeAt(10);}, Error, 'Error: index out of bound');
+    this.assertRaises(function() { model.removeAt(-1); }, Error, 'Error: index out of bound');
+    this.assertRaises(function() { model.removeAt(10); }, Error, 'Error: index out of bound');
 
     deepEqual([], this.mockListenerCalls('removed'));
 
@@ -634,7 +593,7 @@ QUnit.test('creme.model.Array.reset (add)', function(assert) {
                ['update', ['a', 'b', 'c'], 0, 2, ['x', 'y', 'z'], 'reset']
               ], this.mockListenerCalls('updated'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     model = new creme.model.Array(['x', 'y', 'z']);
     model.bind('remove', this.mockListener('removed'));
@@ -652,7 +611,7 @@ QUnit.test('creme.model.Array.reset (add)', function(assert) {
                ['update', ['a', 'b', 'c'], 0, 2, ['x', 'y', 'z'], 'reset']
               ], this.mockListenerCalls('updated'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     model = new creme.model.Array(['x']);
     model.bind('remove', this.mockListener('removed'));
@@ -688,7 +647,7 @@ QUnit.test('creme.model.Array.reset (remove)', function(assert) {
                ['update', ['a'], 0, 0, ['x'], 'reset']
               ], this.mockListenerCalls('updated'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     model = new creme.model.Array(['x', 'y', 'z']);
     model.bind('remove', this.mockListener('removed'));
@@ -726,11 +685,11 @@ QUnit.test('creme.model.Array.set (out of bound)', function(assert) {
     model.bind('add', this.mockListener('added'));
     model.bind('update', this.mockListener('updated'));
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         model.set('a', -1);
     }, Error, 'Error: index out of bound');
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         model.set('a', 4);
     }, Error, 'Error: index out of bound');
 
@@ -751,7 +710,7 @@ QUnit.test('creme.model.Array.patch (array)', function(assert) {
     deepEqual(['a', 'b', 'c'], model.all());
     deepEqual([['add', ['a', 'b', 'c'], 0, 2, 'reset'], ['reset']], this.mockListenerCalls('model'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     model.patch(['x', 'y', 'z', 'w']);
 
     deepEqual(['x', 'y', 'z', 'w'], model.all());
@@ -767,7 +726,7 @@ QUnit.test('creme.model.Array.patch (diff, add)', function(assert) {
     deepEqual([], this.mockListenerCalls('model'));
     deepEqual([], model.all());
 
-    model.patch({add:['x', 'y']});
+    model.patch({add: ['x', 'y']});
 
     deepEqual(['x', 'y'], model.all());
     deepEqual([['add', ['x', 'y'], 0, 1, 'insert']], this.mockListenerCalls('model'));
@@ -780,7 +739,7 @@ QUnit.test('creme.model.Array.patch (diff, remove)', function(assert) {
     deepEqual([], this.mockListenerCalls('model'));
     deepEqual(['a', 'b', 'c'], model.all());
 
-    model.patch({remove:['b', 'c']});
+    model.patch({remove: ['b', 'c']});
 
     deepEqual(['a'], model.all());
     deepEqual([['remove', ['b'], 1, 1, 'remove'],
@@ -794,7 +753,7 @@ QUnit.test('creme.model.Array.patch (diff, update)', function(assert) {
     deepEqual([], this.mockListenerCalls('model'));
     deepEqual(['a', 'b', 'c'], model.all());
 
-    model.patch({update:[['y', 0], ['k', 2]]});
+    model.patch({update: [['y', 0], ['k', 2]]});
 
     deepEqual(['y', 'b', 'k'], model.all());
     deepEqual([['update', ['y'], 0, 0, ['a'], 'set'],
@@ -832,7 +791,7 @@ QUnit.test('creme.model.Array.sort', function(assert) {
     deepEqual([], this.mockListenerCalls('added'));
     deepEqual([['sort']], this.mockListenerCalls('sorted'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     model.sort();
 
     deepEqual([0, 1, 3, 4, 5, 7], model.all());
@@ -844,8 +803,8 @@ QUnit.test('creme.model.Array.sort', function(assert) {
 });
 
 QUnit.test('creme.model.Array.sort (comparator)', function(assert) {
-    var desc = function(a, b) {return b - a;};
-    var asc = function(a, b) {return a - b;};
+    var desc = function(a, b) { return b - a; };
+    var asc = function(a, b) { return a - b; };
 
     var model = new creme.model.Array([1, 4, 5, 3, 7, 0]);
     model.bind('add', this.mockListener('added'));
@@ -861,7 +820,7 @@ QUnit.test('creme.model.Array.sort (comparator)', function(assert) {
     deepEqual([], this.mockListenerCalls('added'));
     deepEqual([['sort']], this.mockListenerCalls('sorted'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     model.sort(desc);
 
     deepEqual([7, 5, 4, 3, 1, 0], model.all());
@@ -872,7 +831,7 @@ QUnit.test('creme.model.Array.sort (comparator)', function(assert) {
     deepEqual([['sort']], this.mockListenerCalls('sorted'));
 
     model.reset([1, 4, 5, 3, 7, 0]);
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     model.comparator(desc).sort();
 
@@ -884,7 +843,7 @@ QUnit.test('creme.model.Array.sort (comparator)', function(assert) {
     deepEqual([['sort']], this.mockListenerCalls('sorted'));
 
     model.reset([1, 4, 5, 3, 7, 0]);
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     model.comparator(desc).sort(asc);
 
@@ -976,7 +935,7 @@ QUnit.test('creme.model.Delegate (remove)', function(assert) {
     deepEqual([], this.mockListenerCalls('added'));
     deepEqual([], this.mockListenerCalls('updated'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     model.removeAt(0);
 
     deepEqual(['z'], delegate.all());
@@ -1012,7 +971,7 @@ QUnit.test('creme.model.Delegate (replace delegate)', function(assert) {
               ], this.mockListenerCalls('added'));
     deepEqual([], this.mockListenerCalls('updated'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     // replace delegate model by modelB
     delegate.delegate(modelB);
@@ -1028,7 +987,7 @@ QUnit.test('creme.model.Delegate (replace delegate)', function(assert) {
               ], this.mockListenerCalls('added'));
     deepEqual([], this.mockListenerCalls('updated'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     // remove delegate model
     delegate.delegate(null);
@@ -1045,7 +1004,7 @@ QUnit.test('creme.model.Delegate (replace delegate)', function(assert) {
 
 QUnit.test('creme.model.Filter (update)', function(assert) {
     var model = new creme.model.Array([1, 2, 3, 4, 5]);
-    var pairs = new creme.model.Filter(model, function(item) {return (item % 2) === 0;});
+    var pairs = new creme.model.Filter(model, function(item) { return (item % 2) === 0; });
     pairs.bind('remove', this.mockListener('removed'));
     pairs.bind('add', this.mockListener('added'));
     pairs.bind('update', this.mockListener('updated'));
@@ -1070,7 +1029,7 @@ QUnit.test('creme.model.Filter (update)', function(assert) {
                ['update', [2, 16], 0, 1, [2, 4], 'reset']
               ], this.mockListenerCalls('updated'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     model.set(15, 2);
 
     deepEqual([1, 2, 15, 4, 5], model.all());
@@ -1087,7 +1046,7 @@ QUnit.test('creme.model.Filter (update)', function(assert) {
 
 QUnit.test('creme.model.Filter (add)', function(assert) {
     var model = new creme.model.Array([1, 2, 3, 4, 5]);
-    var pairs = new creme.model.Filter(model, function(item) {return (item % 2) === 0;});
+    var pairs = new creme.model.Filter(model, function(item) { return (item % 2) === 0; });
     pairs.bind('remove', this.mockListener('removed'));
     pairs.bind('add', this.mockListener('added'));
     pairs.bind('update', this.mockListener('updated'));
@@ -1111,7 +1070,7 @@ QUnit.test('creme.model.Filter (add)', function(assert) {
 
 QUnit.test('creme.model.Filter (remove)', function(assert) {
     var model = new creme.model.Array([1, 2, 3, 4, 5]);
-    var pairs = new creme.model.Filter(model, function(item) {return (item % 2) === 0;});
+    var pairs = new creme.model.Filter(model, function(item) { return (item % 2) === 0; });
     pairs.bind('remove', this.mockListener('removed'));
     pairs.bind('add', this.mockListener('added'));
     pairs.bind('update', this.mockListener('updated'));
@@ -1129,8 +1088,8 @@ QUnit.test('creme.model.Filter (remove)', function(assert) {
     deepEqual([
                ['update', [2, 4], 0, 1, [2, 4], 'reset']
               ], this.mockListenerCalls('updated'));
-    
-    this.resetMockCalls();
+
+    this.resetMockListenerCalls();
 
     model.removeAt(2);
 
@@ -1166,11 +1125,11 @@ QUnit.test('creme.model.Filter (no filter)', function(assert) {
     deepEqual([1, 2, 4, 5, 16, 18], model.all());
     deepEqual([1, 2, 4, 5, 16, 18], nofilter.all());
 
-    nofilter.filter(function(item) {return (item % 2) === 0;});
+    nofilter.filter(function(item) { return (item % 2) === 0; });
 
     deepEqual([1, 2, 4, 5, 16, 18], model.all());
     deepEqual([2, 4, 16, 18], nofilter.all());
-    
+
     nofilter.filter(null);
 
     deepEqual([1, 2, 4, 5, 16, 18], model.all());
@@ -1238,4 +1197,6 @@ QUnit.test('creme.model.Filter (string filter)', function(assert) {
 
     deepEqual([1, 2, 4, 5, 16, 18], model.all());
     deepEqual([2, 4, 16, 18], filter.all());
-})
+});
+
+}(jQuery));
