@@ -108,13 +108,20 @@ class SignaturesTestCase(_EmailsTestCase):
         "Dependencies problem"
         user = self.login()
 
-        signature = EmailSignature.objects.create(user=user, name="Spike's one", body='See U space cowboy')
-        template  = EmailTemplate.objects.create(user=user, name='name', signature=signature,
-                                                 subject='Hello', body='Do you know the real folk blues ?',
-                                                )
+        signature = EmailSignature.objects.create(
+            user=user, name="Spike's one", body='See U space cowboy',
+        )
+        template = EmailTemplate.objects.create(
+            user=user, name='name', signature=signature,
+            subject='Hello', body='Do you know the real folk blues ?',
+        )
+        email = self._create_email(signature=signature)
 
         self.assertEqual(200, self._delete(signature).status_code)
         self.assertDoesNotExist(signature)
 
-        template = self.get_object_or_fail(EmailTemplate, pk=template.id)
+        template = self.assertStillExists(template)
         self.assertIsNone(template.signature)
+
+        email = self.assertStillExists(email)
+        self.assertIsNone(email.signature)

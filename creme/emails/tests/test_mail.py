@@ -67,17 +67,6 @@ class EntityEmailTestCase(_EmailsTestCase):
     def _get_job(self):
         return self.get_object_or_fail(Job, type_id=entity_emails_send_type.id)
 
-    def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html=''):
-        user = self.user
-        return EntityEmail.objects.create(user=user,
-                                          sender=user.linked_contact.email,
-                                          recipient='vincent.law@immigrates.rmd',
-                                          subject='Under arrest',
-                                          body='Freeze !',
-                                          status=status,
-                                          body_html=body_html,
-                                         )
-
     def _send_mails(self, job=None):
         entity_emails_send_type.execute(job or self._get_job())
 
