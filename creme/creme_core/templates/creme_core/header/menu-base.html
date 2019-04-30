@@ -39,18 +39,7 @@
     <script type="text/javascript">
     {% block script %}
         $(function () {
-            creme.menu.bindEvents();
-
-            $('.quickform-menu-link').on('click', function(e) {
-                e.preventDefault();
-                creme.menu.openQuickForm($(this));
-            });
-
-            $('.anyform-menu-link').on('click', function(e) {
-                e.preventDefault();
-                creme.menu.openCreateAnyDialog(e.target);
-            });
-
+            new creme.menu.MenuController().bind($('.header-menu'));
             new creme.search.SearchBox({
                 searchUrl: '{% url 'creme_core__light_search' %}',
                 advancedSearchUrl: '{% url 'creme_core__search' %}',
