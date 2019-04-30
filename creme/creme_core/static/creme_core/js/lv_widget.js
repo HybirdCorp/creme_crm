@@ -342,17 +342,7 @@ creme.lv_widget.initialize = function(options, listview) {
     listview.list_view({
         o2m:              options.multiple ? 0 : 1,
         historyHandler:   history_handler,
-        submitHandler:    submit_handler,
-        kd_submitHandler: function (e, input, extra_data) {
-            e = (window.event) ? window.event : e;
-            var key = (window.event) ? e.keyCode : e.which;
-
-            if (key === 13) {
-                listview.list_view('getSubmit')(input, extra_data);
-            }
-
-            return true;
-        }
+        submitHandler:    submit_handler
     });
 
     listview.list_view('setReloadUrl', submit_url);
