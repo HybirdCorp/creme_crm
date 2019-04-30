@@ -51,7 +51,10 @@
                 creme.menu.openCreateAnyDialog(e.target);
             });
 
-            new creme.search.SearchBox('.search-box', '{% url 'creme_core__light_search' %}', '{% url 'creme_core__search' %}');
+            new creme.search.SearchBox({
+                searchUrl: '{% url 'creme_core__light_search' %}',
+                advancedSearchUrl: '{% url 'creme_core__search' %}',
+            }).bind($('.search-box'));
         })
     {% endblock %}
     </script>

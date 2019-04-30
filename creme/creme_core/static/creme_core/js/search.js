@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2015-2018  Hybird
+    Copyright (C) 2015-2019  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -21,234 +21,293 @@
  *            creme.utils.js
  */
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.search = creme.search || {};
 
-creme.search.SearchBox = function(element, searchUrl, advancedSearchUrl) {
-    this.$element = $(element);
+var _json = new creme.utils.JSON();
 
-    this.$input = this.$element.find('input');
-    this.$input.bind('focus', this._onShow.bind(this));
-    this.$input.bind('input', creme.utils.debounce(this._onInput.bind(this), 200));
-    this.$input.bind('keydown', this._onKeyDown.bind(this));
-
-    this.$resultsRoot = this.$element.find('.inline-search-results');
-
-    this.$icon = this.$element.find('.search-box-icon');
-
-    this.$allResultsGroup = this.$element.find('.all-search-results');
-    this.$allResultsLink  = this.$allResultsGroup.find('a');
-
-    this.glasspane = new creme.dialog.GlassPane(/*{debug: true}*/);
-    this.glasspane.on('click', this._onHide.bind(this));
-
-    this.state = 'default';
-    this.searchUrl = searchUrl;
-    this.advancedSearchUrl = advancedSearchUrl;
+var KeyCodes = {
+    UP: 38,
+    DOWN: 40,
+    ENTER: 13,
+    ESCAPE: 27
 };
 
-creme.search.SearchBox.prototype = {
+creme.search.SearchBox = creme.component.Component.sub({
+    _init_: function(options) {
+        options = $.extend({
+            minSearchLength: 3,
+            debounceDelay: 200
+        }, options || {});
+
+        this._glasspane = new creme.dialog.GlassPane(/* {debug: true} */);
+        this._glasspane.pane().on('click', this._onHide.bind(this));
+
+        if (Object.isEmpty(options.searchUrl)) {
+            throw new Error('searchUrl is required');
+        }
+
+        if (Object.isEmpty(options.advancedSearchUrl)) {
+            throw new Error('advancedSearchUrl is required');
+        }
+
+        this._state = 'default';
+        this._timestamp = null;
+
+        this.debounceDelay = options.debounceDelay;
+        this.minSearchLength = options.minSearchLength;
+        this.searchUrl = options.searchUrl;
+        this.advancedSearchUrl = options.advancedSearchUrl;
+    },
+
+    isBound: function() {
+        return Object.isNone(this._element) === false;
+    },
+
+    isLoading: function() {
+        return this._state === 'loading';
+    },
+
+    bind: function(element) {
+        if (this.isBound()) {
+            throw Error('SearchBox is already bound');
+        }
+
+        this._element = element;
+
+        this._input = element.find('input');
+        this._input.bind('focus', this._onShow.bind(this))
+                   .bind('input paste', this.debounceDelay ? creme.utils.debounce(this._onInput.bind(this), this.debounceDelay) : this._onInput.bind(this))
+                   .bind('keydown', this._onKeyDown.bind(this));
+
+        this._resultsRoot = element.find('.inline-search-results');
+
+        this._icon = element.find('.search-box-icon');
+
+        this._allResultsGroup = element.find('.all-search-results');
+        this._allResultsLink  = this._allResultsGroup.find('a');
+
+        return this;
+    },
+
+    isOpened: function() {
+        return this._glasspane.isOpened();
+    },
+
     _onShow: function(e) {
-        this.glasspane.open($('.header-menu'));
-        this.$resultsRoot.addClass('showing');
+        this._glasspane.open($('.header-menu'));
+        this._resultsRoot.addClass('showing');
     },
 
     _onHide: function(e) {
-        this.$input.blur();
-        this.$resultsRoot.removeClass('showing');
-        this.glasspane.close();
+        this._cancelSearch();
+
+        this._input.blur();
+        this._resultsRoot.removeClass('showing');
+        this._glasspane.close();
     },
 
     _onKeyDown: function(e) {
-        if (e.keyCode == 27) { // Escape
-            this._onHide();
+        if (this.isLoading()) {
+            return;
         }
 
-        if (this.state != 'loaded')
-            return;
-
-        if (e.keyCode != 38 && e.keyCode != 40 && e.keyCode != 13)
-            return;
+        switch (e.keyCode) {
+            case KeyCodes.ESCAPE:
+                this._onHide();
+                break;
+            case KeyCodes.ENTER:
+                this._goToSelection();
+                break;
+            case KeyCodes.UP:
+                this._setSelectedResult((this.selected - 1) % this.linksCount);
+                break;
+            case KeyCodes.DOWN:
+                this._setSelectedResult((this.selected + 1) % this.linksCount);
+                break;
+            default:
+                return;
+        }
 
         e.preventDefault();
-
-        if (e.keyCode == 38) { // Up
-            var selected = (this.selected - 1) % this.linksCount;
-            if (selected >= 0)
-                this._setSelectedResult(selected);
-        }
-        else if (e.keyCode == 40) { // Down
-            var selected = (this.selected + 1) % this.linksCount;
-            if (selected >= 0)
-                this._setSelectedResult(selected);
-        }
-        else if (e.keyCode == 13) { // Enter
-            this._goToSelection();
-        }
     },
 
     _onInput: function(e) {
-        var query = this.$input.val().trim();
-        var isEmpty = query == '';
+        var query = (this._input.val() || '').trim();
+        var isValidQuery = query.length >= this.minSearchLength;
 
-        if (this.state == 'default') {
-            if (isEmpty == false) {
-                this._switchToLoading(query);
-            }
-        }
-        else if (this.state == 'loading') {
-            if (isEmpty) {
-                this._switchToDefault();
-            } else {
-                this._switchToLoading(query);
-            }
-        }
-        else if (this.state == 'loaded') {
-            if (isEmpty) {
-                this._switchToDefault();
-            } else if (this.query != query) {
-                this._switchToLoading(query);
-            }
+        if (isValidQuery === false) {
+            this._cancelSearch();
+        } else if (this.isLoading() === false) {
+            this._startSearch(query);
         }
     },
 
-    _switchToLoading: function(query) {
-        // TODO: possibly move this to onInput ? in any case, check the state transitions are correct even in this error case
-        if (query.length < 3) return;
+    _updateResultState: function(results) {
+        results = results || {};
 
-        this.$icon.removeClass('default').addClass('loading');
+        this._allResultsGroup.siblings().remove();
 
-        this.$allResultsLink.text(gettext('Loading…'));
+        if (results.count > 0) {
+            this._allResultsGroup.after(results.items);
 
-        this._resetSelection();
-        this.$allResultsGroup.siblings().remove(); // TODO: let the old results visible ?
+            var url = new creme.ajax.URL(this.advancedSearchUrl).searchData({research: results.query});
 
-        this._asynchronousRequest(query, new Date().getTime());
-        this.state = 'loading';
-    },
+            this._allResultsLink.attr('href', url);
+            this._allResultsLink.text(gettext('All results (%s)').format(results.count));
 
-    // TODO: there are probably ways to do a stronger code (timestamp etc...)
-    _asynchronousRequest: function(query, timestamp) {
-        this.timestamp = timestamp; // Record last request time to compare with the local timestamp parameter
-
-        var searchUri = this.searchUrl + '?value=' + encodeURIComponent(query);
-        $.getJSON(searchUri, function(data) {
-            var results = [];
-
-            var resultCount = 0;
-            for (var idx in data.results)
-                resultCount += data.results[idx].count;
-
-            if (resultCount > 0) {
-                if (resultCount > 1) {
-                    var best = data.best;
-                    var bestResult = ("<div class='search-results-group best-results-group'>" +
-                                          "<span class='search-results-group-title'>%s</span>" +
-                                          "<ul class='search-results'>" +
-                                              "<li class='search-result'><a href='%s'>%s</a></li>" +
-                                          "</ul>" +
-                                      "</div>").format(gettext('Best result'),
-                                                       best.url,
-                                                       $('<div>').text(best.label).html()  // NB: HTML escaping
-                                                      );
-
-                    results.push(bestResult);
-                }
-
-                // CTs
-                for (var idx in data.results) {
-                    var ct = data.results[idx];
-
-                    var ctResultsUrl = this.advancedSearchUrl + "?ct_id=" + ct.id + "&research=" + encodeURIComponent(query);
-                    var ctResults = ct.results.map(function(ctResult) {
-                        return "<li class='search-result'><a href='%s'>%s</a></li>".format(ctResult.url, $('<div>').text(ctResult.label).html());
-                    });
-
-                    var ctGroupTitle = ct.label;
-                    var ctGroup = ("<div class='search-results-group'>" +
-                                       "<span class='search-results-group-title'><a href='%s'>%s</a></span>" +
-                                       "<ul class='search-results'>%s</ul>" +
-                                   "</div>").format(ctResultsUrl,
-                                                    ctGroupTitle,
-                                                    ctResults.join('\n')
-                                                   );
-
-                    results.push(ctGroup);
-                }
-            }
-
-            this._onResultsReceived(query, timestamp, results, resultCount);
-        }.bind(this));
-    },
-
-    _switchToDefault: function() {
-        this.$icon.removeClass('loading').addClass('default');
-
-        this.$allResultsLink.text(gettext('Advanced search'));
-        this.$allResultsLink.attr('href', this.advancedSearchUrl);
-
-        this._resetSelection();
-        this.$allResultsGroup.siblings().remove(); // TODO: let the old results visible ?
-
-        this.state = 'default';
-        this.timestamp = null; // Reset timestamp marker so that possible in-flight asynchronous responses are ignored when received
-    },
-
-    _switchToLoaded: function() {
-        this.$icon.removeClass('loading').addClass('default');
-        this.state = 'loaded';
-    },
-
-    _onResultsReceived: function(query, timestamp, results, resultCount) {
-    //   console.log ('received results from query ' + query + ' sent at ' + timestamp + ' - last known request timestamp: ' + this.timestamp);
-
-        // Filter results from older queries, and results from in-flight queries for unwanted requests
-        if (this.timestamp == null || timestamp < this.timestamp)
-            return;
-
-        this.resultCount = resultCount;
-
-        if (results) {
-            this.$allResultsGroup.after(results);
-
-            this.$results = this.$resultsRoot.find('.search-result');
-            this.linksCount = this.$results.size();
-        }
-
-        if (this.resultCount > 0) {
-            this.$allResultsLink.attr('href', this.advancedSearchUrl + '?research=' + encodeURIComponent(query));
-            this.$allResultsLink.text(gettext('All results (%s)').format(this.resultCount));
             this._setSelectedResult(1);
-        }
-        else {
-            this.$allResultsLink.attr('href', '');
-            this.$allResultsLink.text(gettext('No result'));
+        } else {
+            this._allResultsLink.attr('href', '');
+            this._allResultsLink.text(gettext('No result'));
         }
 
-        this._switchToLoaded();
+        this.linksCount = this._resultsRoot.find('.search-result').size();
+        this.resultCount = results.count;
+    },
+
+    _updateState: function(isLoading, results) {
+        this._icon.toggleClass('default', !isLoading)
+                  .toggleClass('loading', isLoading);
+
+        this._state = isLoading ? 'loading' : 'default';
+
+        if (isLoading) {
+            this._allResultsLink.text(gettext('Loading…'));
+
+            this._resetSelection();
+        } else if (Object.isNone(results)) {
+            this._allResultsLink.text(gettext('Advanced search'));
+            this._allResultsLink.attr('href', this.advancedSearchUrl);
+
+            this._resetSelection();
+        } else {
+            this._updateResultState(results);
+        }
+    },
+
+    _cancelSearch: function() {
+        this._timestamp = null;
+        this._updateState(false);
+    },
+
+    _startSearch: function(query) {
+        var self = this;
+        var timestamp = new Date().getTime();
+        var queryOptions = {
+            backend: {
+                sync: false
+            }
+        };
+
+        creme.ajax.query(this.searchUrl, queryOptions, {value: query})
+                  .onStart(function() {
+                       self._updateState(true);
+                       self._timestamp = timestamp;
+                   })
+                  .onFail(function() {
+                      self._updateState(false);
+                   })
+                  .onDone(function(event, responseData) {
+                      try {
+                          var data = self._renderResults(_json.decode(responseData), query);
+
+                          if (self._timestamp !== null && timestamp >= self._timestamp) {
+                              self._updateState(false, data);
+                          }
+                      } catch (e) {
+                          console.error(e);
+                          self._updateState(false);
+                      }
+                   })
+                  .get();
+    },
+
+    _renderResults: function(data, query) {
+        var results = [];
+        var idx = -1;
+
+        var resultCount = 0;
+
+        for (idx in data.results) {
+            resultCount += data.results[idx].count;
+        }
+
+        if (resultCount > 0) {
+            if (resultCount > 1) {
+                var best = data.best;
+                var bestResult = ("<div class='search-results-group best-results-group'>" +
+                                      "<span class='search-results-group-title'>${title}</span>" +
+                                      "<ul class='search-results'>" +
+                                          "<li class='search-result'><a href='${url}'>${label}</a></li>" +
+                                      "</ul>" +
+                                  "</div>").template({
+                                      title: gettext('Best result'),
+                                      url: best.url,
+                                      label: $('<div>').text(best.label).html()  // NB: HTML escaping
+                                  });
+
+                results.push(bestResult);
+            }
+
+            var searchUrl = new creme.ajax.URL(this.advancedSearchUrl);
+
+            // CTs
+            for (idx in data.results) {
+                var ct = data.results[idx];
+
+                var ctResultsUrl = searchUrl.searchData({ct_id: ct.id, research: query}).toString();
+                var ctResults = ct.results.map(function(ctResult) {
+                    return "<li class='search-result'><a href='${url}'>${label}</a></li>".template({
+                        url: ctResult.url,
+                        label: $('<div>').text(ctResult.label).html()
+                    });
+                });
+
+                var ctGroupTitle = ct.label;
+                var ctGroup = ("<div class='search-results-group'>" +
+                                   "<span class='search-results-group-title'><a href='${url}'>${title}</a></span>" +
+                                   "<ul class='search-results'>${results}</ul>" +
+                               "</div>").template({
+                                   url: ctResultsUrl,
+                                   title: ctGroupTitle,
+                                   results: ctResults.join('\n')
+                               });
+
+                results.push(ctGroup);
+            }
+        }
+
+        return {
+            query: query,
+            count: resultCount,
+            items: results
+        };
     },
 
     _resetSelection: function() {
-        this.$resultsRoot.find('.search-result-selected').removeClass('search-result-selected');
+        this._resultsRoot.find('.search-result-selected').removeClass('search-result-selected');
     },
 
     _setSelectedResult: function(selected) {
         this._resetSelection();
 
         this.selected = selected;
-        this.$selected = this.$results.eq(selected).addClass('search-result-selected');
+        this._selected = this._resultsRoot.find('.search-result')
+                                          .eq(selected)
+                                          .addClass('search-result-selected');
 
-        if (this.$selected.length > 0)
-            this.$selected[0].scrollIntoView();
+        if (this._selected.length > 0) { this._selected[0].scrollIntoView(); }
     },
 
     _goToSelection: function() {
         if (this.resultCount > 0) {
-            var result = this.$selected.find('a');
+            var result = this._selected.find('a');
 
-            window.location.href = result.attr('href');
+            creme.utils.goTo(result.attr('href'));
         }
     }
-};
+});
 }(jQuery));
