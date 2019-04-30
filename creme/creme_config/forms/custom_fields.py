@@ -41,6 +41,12 @@ class CustomFieldsBaseForm(CremeModelForm):
                                        ),
                            )
 
+    error_messages = {
+        'empty_list': _('The choices list must not be empty '
+                        'if you choose the type "Choice list".'
+                       ),
+    }
+
     class Meta(CremeModelForm.Meta):
         model = CustomField
 
@@ -49,9 +55,7 @@ class CustomFieldsBaseForm(CremeModelForm):
 
         if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM) \
            and not cdata['enum_values'].strip():
-            raise ValidationError(gettext('The choices list must not be empty '
-                                          'if you choose the type "Choice list".'
-                                         ),
+            raise ValidationError(self.error_messages['empty_list'],
                                   code='empty_list',
                                  )
 
@@ -88,6 +92,10 @@ class CustomFieldsCTAddForm(CustomFieldsBaseForm):
 
 
 class CustomFieldsAddForm(CustomFieldsBaseForm):
+    error_messages = {
+        'duplicated_name': _('There is already a custom field with this name.'),
+    }
+
     class Meta(CustomFieldsBaseForm.Meta):
         exclude = ('content_type',)
 
@@ -99,7 +107,9 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
         name = self.cleaned_data['name']
 
         if CustomField.objects.filter(content_type=self.ct, name=name).exists():
-            raise ValidationError(gettext('There is already a custom field with this name.'))
+            raise ValidationError(self.error_messages['duplicated_name'],
+                                  code='duplicated_name',
+                                 )
 
         return name
 
@@ -109,6 +119,11 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
 
 
 class CustomFieldsEditForm(CremeModelForm):
+    # TODO: factorise
+    error_messages = {
+        'duplicated_name': _('There is already a custom field with this name.'),
+    }
+
     class Meta:
         model = CustomField
         fields = ('name',)
@@ -138,7 +153,9 @@ class CustomFieldsEditForm(CremeModelForm):
         if CustomField.objects.filter(content_type=instance.content_type, name=name)\
                               .exclude(id=instance.id)\
                               .exists():
-            raise ValidationError(gettext('There is already a custom field with this name.'))
+            raise ValidationError(self.error_messages['duplicated_name'],
+                                  code='duplicated_name',
+                                 )
 
         return name
 

@@ -181,6 +181,13 @@ class LineEditForm(core_forms.CremeModelWithUserForm):
 class AddToCatalogForm(core_forms.CremeForm):
     sub_category = CategoryField(label=_('Sub-category'), required=False)
 
+    error_messages = {
+        'forbidden_creation': _('You are not allowed to create this entity'),
+        'not_on_the_fly': _('You are not allowed to add this item '
+                            'to the catalog because it is not on the fly'
+                           ),
+    }
+
     def __init__(self, user, line, related_item_class, *args, **kwargs):
         super().__init__(user, *args, **kwargs)
         self.line = line
@@ -188,14 +195,12 @@ class AddToCatalogForm(core_forms.CremeForm):
 
     def clean(self):
         if not self.user.has_perm_to_create(self.related_item_class):
-            raise ValidationError(gettext('You are not allowed to create this entity'),
+            raise ValidationError(self.error_messages['forbidden_creation'],
                                   code='forbidden_creation',
                                  )
 
         if not self.line.on_the_fly_item:
-            raise ValidationError(gettext('You are not allowed to add this item '
-                                          'to the catalog because it is not on the fly'
-                                         ),
+            raise ValidationError(self.error_messages['not_on_the_fly'],
                                   code='not_on_the_fly',
                                  )
 

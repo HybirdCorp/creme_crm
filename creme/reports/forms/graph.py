@@ -294,6 +294,7 @@ class ReportGraphForm(CremeEntityForm):
         abscissa_group_by = cleaned_data['abscissa_group_by']
 
         # TODO: use a better system to check compatible Field types (use ReportGraphHands)
+        # TODO: use a self.error_messages
         if abscissa_group_by == RGT_FK:
             self._clean_field(model, abscissa_name, field_types=(ForeignKey,))
         elif abscissa_group_by == RGT_CUSTOM_FK:
