@@ -11,9 +11,11 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+    from creme.creme_core.forms.widgets import Label
     from creme.creme_core.models import (RelationType, Relation,
             EntityFilter, EntityFilterCondition, SetCredentials, FakeOrganisation)
 
+    from creme.persons.constants import FILTER_MANAGED_ORGA
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.opportunities.models import SalesPhase
@@ -596,10 +598,24 @@ class ActTestCase(CommercialBaseTestCase):
                                                 filter=priv_efilter,
                                                )
 
+        url = objective.get_edit_absolute_url()
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            label_f = fields['ec_label']
+
+        self.assertNotIn('entity_counting', fields)
+        self.assertIsInstance(label_f.widget, Label)
+        self.assertEqual(
+            _('The filter cannot be changed because it is private.'),
+            label_f.initial
+        )
+
         name = 'New name'
         pub_efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
         counter_goal = 4
-        response = self.client.post(objective.get_edit_absolute_url(),
+        response = self.client.post(url,
                                     data={'name':            name,
                                           # Should not be used
                                           'entity_counting': self.formfield_value_filtered_entity_type(
@@ -615,6 +631,35 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(name,         objective.name)
         self.assertEqual(counter_goal, objective.counter_goal)
         self.assertEqual(priv_efilter, objective.filter)  # <===
+
+    def test_edit_objective03(self):
+        "Not super-user + not custom filter => can be used."
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'commercial'],
+                   creatable_models=[Act],
+                  )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        sys_efilter = self.get_object_or_fail(EntityFilter, pk=FILTER_MANAGED_ORGA)
+
+        act = self.create_act()
+        objective = ActObjective.objects.create(
+            act=act, name='OBJ#1', counter_goal=3,
+            ctype=sys_efilter.entity_type,
+            filter=sys_efilter,
+        )
+
+        response = self.assertGET200(objective.get_edit_absolute_url())
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertNotIn('ec_label', fields)
+        self.assertIn('entity_counting', fields)
 
     def test_delete_objective(self):
         self.login()
