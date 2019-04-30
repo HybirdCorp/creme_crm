@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,9 +21,9 @@
 import logging
 
 from django.conf import settings
-from django.db import IntegrityError
 from django.db import models
 from django.db.transaction import atomic
+from django.db.utils import IntegrityError
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -81,7 +81,9 @@ class AbstractEntityEmail(_Email, CremeEntity):
                                   )
     body_html   = UnsafeHTMLField(_('Body (HTML)'))
     signature   = models.ForeignKey(EmailSignature, verbose_name=_('Signature'),
-                                    blank=True, null=True, on_delete=models.CASCADE,
+                                    blank=True, null=True,
+                                    # on_delete=models.CASCADE,
+                                    on_delete=models.SET_NULL,
                                    )  # TODO: merge with body ????
     attachments = models.ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL,
                                          verbose_name=_('Attachments'), blank=True,

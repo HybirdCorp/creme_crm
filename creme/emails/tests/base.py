@@ -13,15 +13,13 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.documents import get_document_model, get_folder_model
-
-    from creme.persons import get_contact_model, get_organisation_model
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
+    from creme import documents, persons
 
     from .. import (emailcampaign_model_is_custom, emailtemplate_model_is_custom,
             entityemail_model_is_custom, mailinglist_model_is_custom,
             get_emailcampaign_model, get_entityemail_model,
             get_emailtemplate_model, get_mailinglist_model)
+    from ..constants import MAIL_STATUS_NOTSENT
 
     skip_emailcampaign_tests = emailcampaign_model_is_custom()
     skip_emailtemplate_tests = emailtemplate_model_is_custom()
@@ -36,11 +34,11 @@ except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
-Folder   = get_folder_model()
-Document = get_document_model()
+Folder   = documents.get_folder_model()
+Document = documents.get_document_model()
 
-Contact       = get_contact_model()
-Organisation  = get_organisation_model()
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 
 def skipIfCustomEmailCampaign(test_func):
@@ -63,9 +61,25 @@ class _EmailsTestCase(CremeTestCase):
     def _build_create_entitymail_url(self, entity):
         return reverse('emails__create_email', args=(entity.id,))
 
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
+    def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html='', signature=None):
+        user = self.user
+        return EntityEmail.objects.create(user=user,
+                                          sender=user.linked_contact.email,
+                                          recipient='vincent.law@immigrates.rmd',
+                                          subject='Under arrest',
+                                          body='Freeze !',
+                                          status=status,
+                                          body_html=body_html,
+                                          signature=signature,
+                                         )
+
     def _create_emails(self):
+        if persons.contact_model_is_custom():
+            self.fail('Cannot use _EmailsTestCase._create_emails() with custom Contact model.')
+
+        if persons.organisation_model_is_custom():
+            self.fail('Cannot use _EmailsTestCase._create_emails() with custom Organisation model.')
+
         user = self.user
 
         create_c = partial(Contact.objects.create, user=user)
