@@ -26,6 +26,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm
 from creme.creme_core.forms.fields import FilteredEntityTypeField
 from creme.creme_core.forms.widgets import Label
+from creme.creme_core.models import EntityFilter
 
 from .. import get_act_model, get_pattern_model
 from ..models import ActObjective, ActObjectivePatternComponent
@@ -60,7 +61,10 @@ class ObjectiveForm(CremeModelForm):
             fields = self.fields
             efilter = instance.filter
 
-            if efilter and not efilter.can_view(self.user)[0]:
+            # TODO: add a method EntityFilter.can_list(self.user) to avoid a query
+            # if efilter and not efilter.can_view(self.user)[0]:
+            if efilter and not EntityFilter.get_for_user(self.user, content_type=instance.ctype)\
+                                           .filter(id=efilter.id).exists():
                 fields['ec_label'] = CharField(label=fields['entity_counting'].label,
                                                required=False, widget=Label,
                                                initial=_('The filter cannot be changed because it is private.'),
