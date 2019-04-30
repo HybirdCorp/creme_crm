@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2013-2014  Hybird
+    Copyright (C) 2013-2019  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,30 +16,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.entity_cell = creme.entity_cell || {};
 
-creme.entity_cell.EntityCellsWidget = function(div_id, samples) {
-    var div = this.div = $('#' + div_id);
-    this.store = div.find('input.inner_value');
-    this.samples = $(samples);
+creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
+    _init_: function(options) {
+        options = $.extend({
+            samples: []
+        }, options || {});
 
-    this.column_titles = {};
-    this.columns = [];
-    this.header_labels;
-//     this.header_filters;
-    this.underlays = {};
+        this.column_titles = {};
+        this.columns = [];
+        this.underlays = {};
+        this.samples = Array.copy(options.samples);
+    },
 
-    this.init();
-};
+    isBound: function() {
+        return Object.isNone(this.div) === false;
+    },
 
-creme.entity_cell.EntityCellsWidget.prototype = {
-    init: function() {
+    bind: function(element) {
+        if (this.isBound()) {
+            throw new Error('EntityCellsWidget is already bound');
+        }
+
+        this.div = $(element);
+        this.store = this.div.find('input.inner_value');
+
         this._initSelectorCheck();
         this._initSelectorFilters();
         this._initSelectorUnderlays();
         this._initPreviewTable();
+
+        return this;
     },
 
     updateStore: function() {
@@ -51,17 +62,18 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         var length = this.columns.length;
         var preview_title;
 
-        if (length == 0)
+        if (length === 0) {
             preview_title = gettext('Preview');
-        else if (length == 1)
+        } else if (length === 1) {
             preview_title = gettext('Preview of the column');
-        else
-            //TODO: ngettext ??
+        } else {
+            // TODO: ngettext ??
             preview_title = gettext('Preview and order of the %s columns').format(length);
+        }
 
         div.find('.preview_title').text(preview_title);
-        div.find('.help_instructions').text(length == 0 ? gettext('The preview is empty. Select some fields and relationships to add some columns.')
-                                                        : gettext('Drag and drop the columns to order them.')
+        div.find('.help_instructions').text(length > 0 ? gettext('Drag and drop the columns to order them.')
+                                                       : gettext('The preview is empty. Select some fields and relationships to add some columns.')
                                            );
     },
 
@@ -69,13 +81,13 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         var underlay_info;
         var sep_index = column.indexOf('__');
 
-        //TODO: should we populate all underlays models (so subfield would mean -> always search in underlays cache)
-        if (sep_index != -1) { //this is a sub-field
+        // TODO: should we populate all underlays models (so subfield would mean -> always search in underlays cache)
+        if (sep_index !== -1) { // this is a sub-field
             var selector;
             var fk_fieldname = column.slice(0, sep_index);
             var underlay = this.underlays[fk_fieldname];
 
-            if (!underlay) { //the underlay model is not in the cache
+            if (!underlay) { // the underlay model is not in the cache
                 selector = this.div.find('.selector_list .selector[data-column=' + fk_fieldname + ']');
                 underlay = selector.find('.underlay-container');
             } else {
@@ -134,10 +146,11 @@ creme.entity_cell.EntityCellsWidget.prototype = {
             for (var i = 0; i < samples.length; ++i) {
                 var text = samples[i][column];
 
-                if (text === '')
+                if (text === '') {
                     text = '—';
-                else if (text === undefined)
+                } else if (text === undefined) {
                     text = '[…]';
+                }
 
                 $('<td>').attr('data-column', column).html(text).appendTo(lists[i]);
             }
@@ -152,15 +165,18 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 
         // manage subfield count
         var underlay_info = this.findUnderlayInfo(column);
-        if (underlay_info) { //column is a subfield
+
+        if (underlay_info) { // column is a subfield
             var checkboxes = underlay_info.content.find('input[type=checkbox]');
             var selected_checkboxes = checkboxes.filter(':checked');
 
             underlay_info.selector.find('.selected_count').remove();
-            if (selected_checkboxes.length)
+
+            if (selected_checkboxes.length) {
                 $('<span>').addClass('selected_count')
                            .text(' (' + selected_checkboxes.length + ' / ' + checkboxes.length + ')')
                            .appendTo(underlay_info.selector);
+            }
         }
 
         this.updateStore();
@@ -179,25 +195,31 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         var firstItemOfNextLine = false;
 
         selector.nextAll('.selector').each(function(i, e) {
-            if (firstItemOfNextLine)
+            if (firstItemOfNextLine) {
                 return;
+            }
 
             var elem = $(e);
 
-            if (elem.position().top != selectorY)
+            if (elem.position().top !== selectorY) {
                 firstItemOfNextLine = elem;
+            }
         });
 
-        return firstItemOfNextLine ? firstItemOfNextLine.prevAll('.selector').first() // last selector before next line
-                                   //we select only the direct children to avoid sub field (that are not in the line)
-                                   : selector.parent('.selector_list').find('> .selector').last(); // last selector of last line
+        if (firstItemOfNextLine) { // last selector before next line
+            return firstItemOfNextLine.prevAll('.selector').first();
+        } else { // we select only the direct children to avoid sub field (that are not in the line)
+            return selector.parent('.selector_list').find('> .selector').last(); // last selector of last line
+        }
     },
 
     placeUnderlay: function(underlay, lastItemOfLine) {
         underlay.insertAfter(lastItemOfLine);
 
-        if (!underlay.__underlay_height)
+        if (!underlay.__underlay_height) {
             underlay.__underlay_height = underlay.height();
+        }
+
         underlay.css('max-height', underlay.__underlay_height);
 
 //        TODO: uncomment after updating to an horizontal menu, to support full-width underlays
@@ -209,20 +231,20 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 //     TODO: uncomment when secondary_relationships
 //     onSubSelectorContentTypeChanged: function (target) {
 //         var root = target.parents('.underlay-content');
-// 
+//
 //         root.find('.selector:not(.'+ target.val() + ') input[type=checkbox]:checked')
 //             .attr('checked', false)
 //             .change();
-// 
+//
 //         var field = root.parents ('.underlay').attr ('data-column');
-// 
+//
 //         root.parents('.selector_list')
 //             .find('.selector[data-column=' + field + '] .selected_count')
 //             .remove();
-// 
+//
 //         var valid_fields = root.find('.selector:.'+ target.val())
 //                                .css('display', 'block');
-// 
+//
 //         root.find('.selector:not(.'+ target.val() + ')')
 //             .css ('display', 'none');
 //         target.parents('.selector_title')
@@ -234,7 +256,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         var self = this;
         var div = this.div;
         var column_titles = this.column_titles;
-        var header_labels = this.header_labels = div.find('.preview_table_header .sortable_header');
+        this.header_labels = div.find('.preview_table_header .sortable_header');
 //         var header_filters = this.header_filters = div.find('.preview_table_header .filterable_header');
 
         div.find('.selector_list .selector[data-column]').each(function (i, e) {
@@ -244,8 +266,9 @@ creme.entity_cell.EntityCellsWidget.prototype = {
             var textSource = links.length ? links : el;
             var text = textSource.text();
 
-            if (el.parent().is('.underlay_selector_list'))
+            if (el.parent().is('.underlay_selector_list')) {
                 text = column_titles[el.parents('.selector').attr('data-column')] + ' — ' + text;
+            }
 
             column_titles[el.attr('data-column')] = text.trim();
 
@@ -255,7 +278,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
                 e.preventDefault();
                 e.stopPropagation();
                 input.prop('checked', !input.prop('checked')).change();
-            })
+            });
         });
 
         div.find('.selector_list input[type=checkbox]').bind('change', function (event) {
@@ -268,29 +291,14 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         if (value) {
             var to_check = value.split(',');
 
-            this.store.attr('value', ''); //reset the value, that will be recreated by calls to onColumnChanged()
+            // reset the value, that will be recreated by calls to onColumnChanged()
+            this.store.attr('value', '');
 
-            // build a list of that will contains the checkboxes in the right order
-            var checkboxes = [];
-            for (var i in to_check) {
-                checkboxes.push(undefined);
-            }
-
-            div.find('.selector_list input[type=checkbox]').each(function(i, e) {
-                var index = to_check.indexOf(e.parentElement.getAttribute('data-column'));
-
-                if (index != -1) {
-                    checkboxes[index] = e;
-                }
-            });
-
-            for (var i in checkboxes) {
-                var checkbox = checkboxes[i];
-
-                if (checkbox) {
+            div.find('.selector_list input[type=checkbox]').each(function(i, checkbox) {
+                if (to_check.indexOf(checkbox.parentElement.getAttribute('data-column')) !== -1) {
                     $(checkbox).prop('checked', true).change();
                 }
-            }
+            });
         } else {
             this.updatePreview();
         }
@@ -306,24 +314,29 @@ creme.entity_cell.EntityCellsWidget.prototype = {
                .prop('checked', false)
                .change();
 
-            for (var column in underlays)
+            for (var column in underlays) {
                underlays[column].find('.selector input[type=checkbox]:checked')
                                 .prop('checked', false)
                                 .change();
+            }
         });
 
         var self = this;
 
         // find the root to attach the dragged column ghost image, a popup 'content' node or document.body
         var parent = this.div.parents('.ui-dialog-content').first();
-        if (parent.length == 0)
-          parent = $(document.body);
-      
+        if (parent.length === 0) {
+            parent = $(document.body);
+        }
+
         div.find('.preview_table')
-           .dragtable({dataHeader: 'data-column',
-                       appendTarget: parent,
-                       change: function(event) {self.onDragChange(event);}                       
-                      });
+           .dragtable({
+               dataHeader: 'data-column',
+               appendTarget: parent,
+               change: function(event) {
+                   self.onDragChange(event);
+               }
+           });
     },
 
     _initSelectorFilters: function() {
@@ -339,16 +352,17 @@ creme.entity_cell.EntityCellsWidget.prototype = {
             elem.bind('propertychange keyup input paste', function() {
                 var val = elem.val();
 
-                if (elem.data('oldVal') == val)
+                if (elem.data('oldVal') === val) {
                    return;
+                }
 
                 elem.data('oldVal', val);
 
                 val = val.toLowerCase();
 
                 // TODO: split-up field/relationships to be cleaned
-                if (type == 'relationships') {
-                    if (val == '') {
+                if (type === 'relationships') {
+                    if (val === '') {
 //                         TODO: when secondary_relationships
 //                         $('.secondary_relationship').css ('display', 'none');
 //                         $('.relationship_selectors .selector_list .selector:not(.secondary_relationship)').css ('display', 'inline-block');
@@ -363,7 +377,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
                             var item = $(element);
                             var text = item.text().toLowerCase();
 
-                            if (text.indexOf(val) == -1) {
+                            if (text.indexOf(val) === -1) {
                                 item.css('display', 'none');
                             } else {
                                 item.css('display', 'inline-block');
@@ -374,7 +388,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
                         });
 
                         div.find('.relationship_selectors .filter_result')
-                           .text(gettext('%s result(s) on %s').format(matches_count, total_count)); //TODO: keyword format
+                           .text(gettext('%s result(s) on %s').format(matches_count, total_count)); // TODO: keyword format
                     }
                 } else {
                     div.find('.field_selectors .selector_list .selector').each(function(i, element) {
@@ -382,7 +396,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
                        var text = item.text().toLowerCase();
 
                        // TODO: probably better to add a css class defining the style of a matching item compared to one that doesn't match
-                       item.css('opacity', text.indexOf(val) == -1 ? 0.4 : 1);
+                       item.css('opacity', text.indexOf(val) === -1 ? 0.4 : 1);
 
      //                  var is_basic_field = item.parents ('.basic_field_selectors').length > 0;
      //                  item.css ('display', text.indexOf (val) == -1 ? 'none' : is_basic_field ? 'block' : 'inline-block');
@@ -394,7 +408,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 //         TODO: uncomment when secondary_relationships
 //         $('.relationship_filter_all').click (function (e) {
 //             e.preventDefault();
-// 
+//
 //             var display = $('.secondary_relationship').css ('display');
 //             $('.secondary_relationship').css ('display', display == 'none' ? 'inline-block' : 'none');
 //         });
@@ -410,7 +424,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         if (!underlay) {
             underlays[column] = underlay = $('<div>').attr('data-column', column)
                                                      .addClass('underlay')
-//TODO: uncomment after updating to an horizontal menu, to support full-width underlays
+// TODO: uncomment after updating to an horizontal menu, to support full-width underlays
 //                                                   .css('width', $(window).width())
                                                      .data('underlay_selector', selector)
                                                      .append(selector.find('.underlay-container'));
@@ -419,7 +433,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         var lastItemOfLine = this.findLastItemOfLine(selector);
         var container = selector.parents('.selector_list').find('.underlay'); // only 1 underlay per list
 
-        if (container.length == 0)  {
+        if (container.length === 0) {
             this.placeUnderlay(underlay, lastItemOfLine);
 
             // underlay opening: sliding in animation
@@ -436,12 +450,12 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 //            });
 
             underlay.find('.underlay-content').animate({opacity: 1}, 400);
-            underlay.children().delay (100).animate({opacity: 1}, 400);
+            underlay.children().delay(100).animate({opacity: 1}, 400);
             underlay.animate({'max-height': targetHeight}, 300, function() {
                 // TODO: uncomment after updating to an horizontal menu, to support full-width underlays
                 // underlay.css('width', $(window).width());
             });
-        } else if (container.attr('data-column') == column) {
+        } else if (container.attr('data-column') === column) {
             // underlay closing: sliding out animation
 
             // animation version 1
@@ -449,7 +463,6 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 //            container.animate ({'max-height': 0}, 300, function (e) {
 //                container.detach();
 //            });
-
             container.find('.underlay-content').animate({opacity: 0}, 150);
             container.children().delay(130).animate({opacity: 0}, 150);
             container.animate({'max-height': 0}, 300, function(e) {
@@ -494,7 +507,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
             e.preventDefault();
 
             var column = $(this).parents('.underlay:first').attr('data-column');
-            var target = div.find('.selector[data-column="' + column + '"] .sub_selector_toggle')
+            var target = div.find('.selector[data-column="' + column + '"] .sub_selector_toggle');
 
             self._toggleSelectorUnderlay(target);
         });
@@ -508,8 +521,9 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 //         div.find('.underlay-content .content_type_toggle').change(function(e) {
 //             self.onSubSelectorContentTypeChanged($(e.target));
 //         });
-// 
+//
 //         div.find('.underlay-content .content_type_toggle').change();
     }
-};
+});
+
 }(jQuery));

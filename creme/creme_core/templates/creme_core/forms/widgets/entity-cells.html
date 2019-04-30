@@ -171,7 +171,9 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            new creme.entity_cell.EntityCellsWidget('{{widget.attrs.id}}', {{widget.samples|jsonify|safe}});
+            new creme.entity_cell.EntityCellsWidget({
+                samples: {{widget.samples|jsonify|safe}}
+            }).bind($('#{{widget.attrs.id}}'));
         });
     </script>
 </div>
