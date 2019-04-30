@@ -307,11 +307,9 @@ creme.lv_widget.initialize = function(options, listview) {
 
     if (id) {
         submit_handler = function(input, extra_data) {
-            extra_data = id ? $.extend({whoami: id}, extra_data) : extra_data;
             var submit_options = {
                     action: submit_url,
                     success: function(event, data, status) {
-                        data = id ? data + '<input type="hidden" name="whoami" value="' + id + '"/>' : data;
                         creme.widget.destroy(listview);
                         listview.html(data);
                         creme.widget.create(listview);
@@ -657,7 +655,6 @@ creme.lv_widget.ListViewHeader = creme.component.Component.sub({
 creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
     options: {
         multiple:     false,
-        whoami:       '',
         'reload-url': ''
     },
 

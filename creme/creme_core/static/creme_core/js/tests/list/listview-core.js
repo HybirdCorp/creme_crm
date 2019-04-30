@@ -107,8 +107,7 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
             selected_rows: [''],
             selection: 'multiple',
             sort_key: ['regular_field-name'],
-            sort_order: ['ASC'],
-            whoami: '448712'
+            sort_order: ['ASC']
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
