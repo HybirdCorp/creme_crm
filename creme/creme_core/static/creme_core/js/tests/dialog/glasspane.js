@@ -5,6 +5,16 @@ QUnit.module("creme.glasspane.js", new QUnitMixin(QUnitEventMixin, {
         // The "position" is needed by Chromium to set "z-index" (or remains to "auto" value).
         // No problem Firefox.
         this.qunitFixture().attr('style', 'position: relative;');
+
+        this.glassPaneListeners = {
+            opened: this.mockListener('opened'),
+            closed: this.mockListener('closed')
+        };
+
+        this.glassPaneJqueryListeners = {
+            'glasspane-opened': this.mockListener('glasspane-opened'),
+            'glasspane-closed': this.mockListener('glasspane-closed')
+        };
     },
 
     afterEach: function() {
@@ -14,30 +24,36 @@ QUnit.module("creme.glasspane.js", new QUnitMixin(QUnitEventMixin, {
 
 QUnit.test('creme.dialog.GlassPane (open)', function(assert) {
     var glasspane = new creme.dialog.GlassPane();
-    glasspane.on('opened', this.mockListener('opened'));
-    glasspane.on('closed', this.mockListener('closed'));
+    glasspane.on(this.glassPaneListeners);
+    glasspane.pane().on(this.glassPaneJqueryListeners);
 
     equal(false, glasspane.isOpened());
     deepEqual([], this.mockListenerCalls('opened'));
     deepEqual([], this.mockListenerCalls('closed'));
+    deepEqual([], this.mockListenerJQueryCalls('glasspane-opened'));
+    deepEqual([], this.mockListenerJQueryCalls('glasspane-closed'));
 
     glasspane.open(this.qunitFixture());
 
     equal(true, glasspane.isOpened());
     deepEqual([['opened']], this.mockListenerCalls('opened'));
     deepEqual([], this.mockListenerCalls('closed'));
+    deepEqual([['glasspane-opened', [glasspane]]], this.mockListenerJQueryCalls('glasspane-opened'));
+    deepEqual([], this.mockListenerJQueryCalls('glasspane-closed'));
 });
 
 QUnit.test('creme.dialog.GlassPane (already opened)', function(assert) {
     var glasspane = new creme.dialog.GlassPane();
-    glasspane.on('opened', this.mockListener('opened'));
-    glasspane.on('closed', this.mockListener('closed'));
+    glasspane.on(this.glassPaneListeners);
+    glasspane.pane().on(this.glassPaneJqueryListeners);
 
     glasspane.open(this.qunitFixture());
 
     equal(true, glasspane.isOpened());
     deepEqual([['opened']], this.mockListenerCalls('opened'));
     deepEqual([], this.mockListenerCalls('closed'));
+    deepEqual([['glasspane-opened', [glasspane]]], this.mockListenerJQueryCalls('glasspane-opened'));
+    deepEqual([], this.mockListenerJQueryCalls('glasspane-closed'));
 
     this.assertRaises(function() {
         glasspane.open(this.qunitFixture());
@@ -45,12 +61,40 @@ QUnit.test('creme.dialog.GlassPane (already opened)', function(assert) {
 
     deepEqual([['opened']], this.mockListenerCalls('opened'));
     deepEqual([], this.mockListenerCalls('closed'));
+    deepEqual([['glasspane-opened', [glasspane]]], this.mockListenerJQueryCalls('glasspane-opened'));
+    deepEqual([], this.mockListenerJQueryCalls('glasspane-closed'));
+});
+
+QUnit.test('creme.dialog.GlassPane (close)', function(assert) {
+    var glasspane = new creme.dialog.GlassPane();
+    glasspane.on(this.glassPaneListeners);
+    glasspane.pane().on(this.glassPaneJqueryListeners);
+
+    glasspane.open(this.qunitFixture());
+
+    equal(true, glasspane.isOpened());
+    deepEqual([['opened']], this.mockListenerCalls('opened'));
+    deepEqual([], this.mockListenerCalls('closed'));
+    deepEqual([['glasspane-opened', [glasspane]]], this.mockListenerJQueryCalls('glasspane-opened'));
+    deepEqual([], this.mockListenerJQueryCalls('glasspane-closed'));
+
+    glasspane.close();
+
+    deepEqual([['opened']], this.mockListenerCalls('opened'));
+    deepEqual([['closed']], this.mockListenerCalls('closed'));
+    deepEqual([['glasspane-opened', [glasspane]]], this.mockListenerJQueryCalls('glasspane-opened'));
+    deepEqual([['glasspane-closed', [glasspane]]], this.mockListenerJQueryCalls('glasspane-closed'));
+
+    glasspane.close().close();
+
+    deepEqual([['opened']], this.mockListenerCalls('opened'));
+    deepEqual([['closed']], this.mockListenerCalls('closed'));
+    deepEqual([['glasspane-opened', [glasspane]]], this.mockListenerJQueryCalls('glasspane-opened'));
+    deepEqual([['glasspane-closed', [glasspane]]], this.mockListenerJQueryCalls('glasspane-closed'));
 });
 
 QUnit.skipIf(QUnit.browsers.isChrome(), 'creme.dialog.GlassPane (anchor z-index) - firefox', function(assert) {
     var glasspane = new creme.dialog.GlassPane();
-    glasspane.on('opened', this.mockListener('opened'));
-    glasspane.on('closed', this.mockListener('closed'));
 
     this.qunitFixture().css('z-index', 1000);
 
@@ -61,8 +105,6 @@ QUnit.skipIf(QUnit.browsers.isChrome(), 'creme.dialog.GlassPane (anchor z-index)
 
 QUnit.skipIf(QUnit.browsers.isFirefox(), 'creme.dialog.GlassPane (anchor z-index) - chrome', function(assert) {
     var glasspane = new creme.dialog.GlassPane();
-    glasspane.on('opened', this.mockListener('opened'));
-    glasspane.on('closed', this.mockListener('closed'));
 
     this.qunitFixture().css('z-index', 1000);
 
@@ -73,8 +115,6 @@ QUnit.skipIf(QUnit.browsers.isFirefox(), 'creme.dialog.GlassPane (anchor z-index
 
 QUnit.test('creme.dialog.GlassPane (z-index zero)', function(assert) {
     var glasspane = new creme.dialog.GlassPane();
-    glasspane.on('opened', this.mockListener('opened'));
-    glasspane.on('closed', this.mockListener('closed'));
 
     this.qunitFixture().css('z-index', 0);
 
@@ -85,8 +125,6 @@ QUnit.test('creme.dialog.GlassPane (z-index zero)', function(assert) {
 
 QUnit.test('creme.dialog.GlassPane (add/remove/toggle Class)', function(assert) {
     var glasspane = new creme.dialog.GlassPane();
-    glasspane.on('opened', this.mockListener('opened'));
-    glasspane.on('closed', this.mockListener('closed'));
 
     glasspane.open(this.qunitFixture());
     equal(true, glasspane.isOpened());
