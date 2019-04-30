@@ -33,7 +33,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (no selection)', function(assert
     }).on(this.listviewActionListeners);
 
     equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntitiesAsArray());
+    deepEqual([], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -61,7 +61,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (not confirmed)', function(asser
     $(list).find('#selected_rows').val('2,3');
 
     equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -89,7 +89,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (error)', function(assert) {
     $(list).find('#selected_rows').val('1,2');
 
     equal(2, list.countEntities());
-    deepEqual(['1', '2'], list.getSelectedEntitiesAsArray());
+    deepEqual(['1', '2'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -137,7 +137,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (not allowed)', function(assert)
     $(list).find('#selected_rows').val('1,2');
 
     equal(2, list.countEntities());
-    deepEqual(['1', '2'], list.getSelectedEntitiesAsArray());
+    deepEqual(['1', '2'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -186,7 +186,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (partially allowed)', function(a
     $(list).find('#selected_rows').val('1,2,3');
 
     equal(3, list.countEntities());
-    deepEqual(['1', '2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['1', '2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -231,7 +231,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (ok)', function(assert) {
     $(list).find('#selected_rows').val('1,2,3');
 
     equal(3, list.countEntities());
-    deepEqual(['1', '2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['1', '2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -262,7 +262,7 @@ QUnit.test('creme.listview.AddToSelectedAction (no selection)', function(assert)
     }).on(this.listviewActionListeners);
 
     equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntitiesAsArray());
+    deepEqual([], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -285,7 +285,7 @@ QUnit.test('creme.listview.AddToSelectedAction (cancel)', function(assert) {
     $(list).find('#selected_rows').val('2,3');
 
     equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -317,7 +317,7 @@ QUnit.test('creme.listview.AddToSelectedAction (submit fail + cancel)', function
     $(list).find('#selected_rows').val('2,3');
 
     equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -350,7 +350,7 @@ QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
     $(list).find('#selected_rows').val('2,3');
 
     equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -392,7 +392,7 @@ QUnit.test('creme.listview.EditSelectedAction (no selection)', function(assert) 
     }).on(this.listviewActionListeners);
 
     equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntitiesAsArray());
+    deepEqual([], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -415,7 +415,7 @@ QUnit.test('creme.listview.EditSelectedAction (cancel)', function(assert) {
     $(list).find('#selected_rows').val('2,3');
 
     equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -443,7 +443,7 @@ QUnit.test('creme.listview.EditSelectedAction (submit => form error => close)', 
     $(list).find('#selected_rows').val('2,3');
 
     equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -474,7 +474,7 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
     $(list).find('#selected_rows').val('2,3');
 
     equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -523,7 +523,7 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
     $(list).find('#selected_rows').val('2,3');
 
     equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -565,7 +565,7 @@ QUnit.test('creme.listview.MergeSelectedAction (no selection)', function(assert)
     }).on(this.listviewActionListeners);
 
     equal(0, list.countEntities());
-    deepEqual([], list.getSelectedEntitiesAsArray());
+    deepEqual([], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -587,7 +587,7 @@ QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(as
     $(list).find('#selected_rows').val('2');
 
     equal(1, list.countEntities());
-    deepEqual(['2'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -605,7 +605,7 @@ QUnit.test('creme.listview.MergeSelectedAction (invalid selection)', function(as
     $(list).find('#selected_rows').val('1,2,3');
 
     equal(3, list.countEntities());
-    deepEqual(['1', '2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['1', '2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
@@ -628,7 +628,7 @@ QUnit.test('creme.listview.MergeSelectedAction (ok)', function(assert) {
     $(list).find('#selected_rows').val('2,3');
 
     equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.assertClosedDialog();
 
