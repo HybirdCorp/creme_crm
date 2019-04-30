@@ -679,7 +679,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', functi
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -701,7 +701,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', functi
     this.closeDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual({
@@ -720,7 +720,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selec
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -739,7 +739,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selec
     this.closeDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual([], this.mockRedirectCalls());
@@ -760,7 +760,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(ass
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -772,7 +772,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(ass
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
         ['mock/relation/add', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
@@ -794,7 +794,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', functi
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -806,7 +806,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', functi
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
         ['mock/relation/add/fail', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
@@ -828,7 +828,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', func
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -840,7 +840,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', func
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
         ['mock/relation/add', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
@@ -864,7 +864,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload, fail)'
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -876,7 +876,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload, fail)'
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
         ['mock/relation/add/fail', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
@@ -895,7 +895,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(a
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -909,7 +909,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(a
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
         ['mock/relation/add', 'POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 

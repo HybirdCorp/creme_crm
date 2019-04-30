@@ -55,7 +55,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(
     }).start();
 
     deepEqual([
-        ['GET', {id1: '157', whoami: '1000'}]
+        ['GET', {id1: '157'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -73,7 +73,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(
     this.closeDialog();
 
     deepEqual([
-        ['mock/merge/selection', 'GET', {id1: '157', whoami: '1000'}]
+        ['mock/merge/selection', 'GET', {id1: '157'}]
     ], this.mockBackendUrlCalls());
 });
 
@@ -89,7 +89,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
     }).start();
 
     deepEqual([
-        ['GET', {id1: '157', whoami: '1000'}]
+        ['GET', {id1: '157'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -110,7 +110,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
     this.closeDialog();
 
     deepEqual([
-        ['mock/merge/selection', 'GET', {id1: '157', whoami: '1000'}]
+        ['mock/merge/selection', 'GET', {id1: '157'}]
     ], this.mockBackendUrlCalls());
 });
 
@@ -126,7 +126,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (single selection)', functio
     }).start();
 
     deepEqual([
-        ['GET', {id1: '157', whoami: '1000'}]
+        ['GET', {id1: '157'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -156,7 +156,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (cancel)', function(assert) 
     }).on('cancel', this.mockListener('cancel')).start();
 
     deepEqual([
-        ['GET', {id1: '157', whoami: '1000'}]
+        ['GET', {id1: '157'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
     this.assertOpenedListViewDialog();
@@ -179,7 +179,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (fail)', function(assert) {
     }).on('fail', this.mockListener('fail')).start();
 
     deepEqual([
-        ['GET', {id1: '157', whoami: '1000'}]
+        ['GET', {id1: '157'}]
     ], this.mockBackendUrlCalls('mock/merge/selection/fail'));
 
     this.assertOpenedAlertDialog(gettext('Error during loading the page.'));
@@ -231,7 +231,7 @@ QUnit.test('creme.relations.addRelationTo (multiple)', function(assert) {
     });
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
     var list = this.assertOpenedListViewDialog().data('list_view');
@@ -245,7 +245,7 @@ QUnit.test('creme.relations.addRelationTo (multiple)', function(assert) {
     this.assertClosedDialog();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', whoami: '1000'}],
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
         ['POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 });

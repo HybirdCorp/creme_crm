@@ -4,7 +4,7 @@
 
 {# TODO : replace it by a div after complete refactor of button/link bindings #}
 <form class="ui-creme-widget widget-auto ui-creme-listview" widget="ui-creme-listview"
-      {% if whoami %}whoami="{{whoami}}"{% endif %} {% if not o2m %}multiple{% endif %}
+      {% if not o2m %}multiple{% endif %}
       {% if is_popup_view %}reload-url="{% url 'creme_core__listview_popup' %}"{% endif %}>
 
 {% listview_header_colspan cells=cells is_readonly=is_popup_view is_single_select=o2m as colspan %}

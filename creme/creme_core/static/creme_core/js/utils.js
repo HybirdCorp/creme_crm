@@ -213,7 +213,7 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload
                      .open();
     });
 
-    query.get($.extend({whoami: div_id}, ajax_options.data));
+    query.get(ajax_options.data);
     return div_id;
 };
 
@@ -227,8 +227,6 @@ creme.utils.handleDialogSubmit = function(dialog) {
     var post_url = $('[name=inner_header_from_url]', dialog).val();
 
     var data = $form.serialize();
-    if (data.length > 0) data += "&";
-    data += "whoami=" + div_id;
 
     $.ajax({
           type: $form.attr('method'),
@@ -241,8 +239,6 @@ creme.utils.handleDialogSubmit = function(dialog) {
               var is_closing = data.startsWith('<div class="in-popup" closing="true"');
 
               if (!is_closing) {
-                  data += '<input type="hidden" name="whoami" value="' + div_id + '"/>';
-
                   creme.widget.shutdown(dialog);
                   $('[name=inner_body]', '#' + div_id).html(data);
                   creme.widget.ready(dialog);
@@ -316,14 +312,11 @@ creme.utils.reloadDialog = function(dial) {
     }
 
     var reload_url = $(dial).find('[name=inner_header_from_url]').val();
-    var div_id     = $(dial).find('[name=whoami]').val();
 
     creme.ajax.query(reload_url)
               .onDone(function(event, data) {
                   $(dial).html(data);
-              }).get({
-                  whoami: div_id
-              });
+              }).get();
 };
 
 creme.utils.appendInUrl = function(url, strToAppend) {

@@ -97,10 +97,12 @@
         </li>
         <li class="listview-test">
             <span class="title">Contacts (filtered)&nbsp;</span>
-            <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{&quot;first_name&quot;:&quot;Fulbert&quot;}">single</a>&nbsp;|
-            <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{&quot;first_name&quot;:&quot;Fulbert&quot;}" multiple>multiple&nbsp;|</a>
-            <a class="listview-open view"   ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{&quot;first_name&quot;:&quot;Fulbert&quot;}">view</a>
+            {% with qfilter='{&quot;op&quot;: &quot;EQ&quot;, &quot;val&quot;: [[&quot;first_name&quot;, &quot;Fulbert&quot;]]}'  %}
+            <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{{qfilter}}">single</a>&nbsp;|
+            <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{{qfilter}}" multiple>multiple&nbsp;|</a>
+            <a class="listview-open view"   ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{{qfilter}}">view</a>
             <input id="contacts-filtered" type="text" disabled><span class="ui-icon ui-icon-close" target="contacts-filtered"></span>
+            {% endwith %}
         </li>
     </ul>
 {% endblock %}

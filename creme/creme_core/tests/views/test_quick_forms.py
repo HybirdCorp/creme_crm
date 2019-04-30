@@ -18,7 +18,6 @@ class QuickFormTestCase(CremeTestCase):
                 'form-MAX_NUM_FORMS':  '',
                 'form-TOTAL_FORMS':    str(count),
                 'csrfmiddlewaretoken': '08b8b225c536b4fd25d16f5ed8be3839',
-                'whoami':              '1335517612234535305',
                }
 
     def quickform_data_append_contact(self, data, id, first_name='', last_name='', email='', organisation='', phone=''):

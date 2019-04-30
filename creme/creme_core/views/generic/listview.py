@@ -974,12 +974,3 @@ class BaseEntitiesListPopup(EntitiesList):
         # TODO: title ('ERROR' ?)
         # TODO: remove the second button (selection button)
         return HttpResponse(ugettext('The desired list does not have any view, please create one.'))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # TODO: remove (remove in JS too)
-        request = self.request
-        context['whoami'] = request.POST.get('whoami') or request.GET.get('whoami')
-
-        return context
