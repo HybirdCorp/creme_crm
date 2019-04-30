@@ -211,6 +211,32 @@ class _CremeTestCase:
 
             raise self.failureException('An exception <{}> occurred: {}'.format(e.__class__.__name__, e)) from e
 
+    def assertFormInstanceErrors(self, form, *errors):
+        form_errors = form.errors
+        field_names = set()
+
+        for field_name, message in errors:
+            if field_name not in form_errors:
+                self.fail('The error "{field}" has not been found in the form (fields: {fields})'.format(
+                    field=field_name,
+                    fields=list(form_errors.keys()),
+                ))
+
+            field_errors = form_errors[field_name]
+            if message not in field_errors:
+                self.fail('The error "{message}" has not been found in the field errors ({errors})'.format(
+                    message=message,
+                    errors=field_errors,
+                ))
+
+            field_names.add(field_name)
+
+        remaining_errors = set(form_errors.keys()) - field_names
+        if remaining_errors:
+            self.fail('Unexpected errors have been found in the form: {}'.format(
+                        [(name, form_errors[name]) for name in remaining_errors]
+                     ))
+
     # TODO: add an argument 'field' like assertNoFormsetError()
     def assertNoFormError(self, response, status=200, form='form'):
         status_code = response.status_code
