@@ -50,7 +50,7 @@
         // TODO : This method enable action links based on a validation check,
         // we should improve api to use this feature in other cases (like hatbar buttons)
         _updateState: function() {
-            var count = (this._listview.getSelectedEntitiesAsArray() || []).length;
+            var count = (this._listview.getSelectedEntities() || []).length;
 
             this._dialog.content().find('a[data-row-min], a[data-row-max]').each(function() {
                 var min = parseInt($(this).attr('data-row-min'));
@@ -104,22 +104,91 @@
         }
     });
 
+    var ListViewSelectionController = creme.component.Component.sub({
+        _init_: function(listview, options) {
+            options = $.extend({
+                multiple: false
+            }, options || {});
+
+            this._listview = listview;
+            this.multiple(options.multiple);
+        },
+
+        store: function() {
+            return this._listview.find('#selected_rows');
+        },
+
+        _updateStore: function() {
+            var data = this.selectables().filter('.selected')
+                                         .find('[name="entity_id"]')
+                                         .map(function() { return this.value; })
+                                         .get().join(',');
+
+            this.store().val(data);
+        },
+
+        multiple: function(multiple) {
+            return Object.property(this, '_multiple', multiple);
+        },
+
+        selected: function() {
+            var value = this.store().val();
+            return (value !== "") ? value.split(',') : [];
+        },
+
+        count: function() {
+            return this.selected().length;
+        },
+
+        selectables: function() {
+            return this._listview.find('tr.selectable');
+        },
+
+        _updateSelection: function(rows, state) {
+            rows.each(function() {
+                var row = $(this);
+
+                row.toggleClass('selected', state);
+                row.find('[name="select_one"]').prop("checked", row.is('.selected'));
+            });
+
+            this._updateStore();
+
+            rows.each(function() {
+                var row = $(this);
+                row.trigger('row-selection-changed', {selected: row.is('.selected')});
+            });
+
+            return this;
+        },
+
+        toggle: function(rows, state) {
+            if (!this.multiple()) {
+                if (rows.length > 1 && state !== false) {
+                    throw new Error('Unable to toggle/select more than one row at once');
+                }
+
+                this._updateSelection(this.selectables().not(rows), false);
+            }
+
+            return this._updateSelection(rows, state);
+        },
+
+        toggleAll: function(state) {
+            return this.toggle(this.selectables(), state);
+        }
+    });
+
     $.fn.list_view = function(options) {
         var isMethodCall = Object.isString(options);
         var args = Array.prototype.slice.call(arguments, 1);
 
         $.fn.list_view.defaults = {
             user_page:          '#user_page',
-            selected_rows:      '#selected_rows',
-            selectable_class:   'selectable',
-            selected_class:     'selected',
             id_container:       '[name="entity_id"]',
-            checkbox_selector:  '[name="select_one"]',
-            all_boxes_selector: '[name="select_all"]',
             beforeSubmit:       null,
             afterSubmit:        null,
             o2m:                false,
-            entity_separator:   ',',
             serializer:         'input[name][type!="submit"], select[name]',
             submitHandler:      null, // Use handleSubmit in it to easy list view's management
             kd_submitHandler:   null, // Same as submitHandler but for key down events,
@@ -131,8 +200,8 @@
         var _noop = function() {};
 
         var publicMethods = ["countEntities", "getSelectedEntities",
-                             "getSelectedEntitiesAsArray",
-                             "option", "serializeMe", "ensureSelection",
+                             "getSelectedEntities",
+                             "option", "serializeState", "ensureSelection",
                              "getSubmit", "getKdSubmit",
                              "setSubmit", "setKdSubmit",
                              "setReloadUrl", "getReloadUrl", "isLoading", "getActionBuilders"];
@@ -147,7 +216,6 @@
             // Constructor
             if (!isMethodCall) {
                 var opts = $.extend($.fn.list_view.defaults, options);
-                var selected_ids = [];
                 var self = $(this);
                 var me = this;
 
@@ -161,6 +229,8 @@
                 me.is_loading = false;
 
                 this._actionBuilders = new creme.lv_widget.ListViewActionBuilders(this);
+                this._selections = new ListViewSelectionController(self, {multiple: !opts.o2m});
+
                 self.trigger('listview-setup-actions', [this._actionBuilders]);
 
                 /* **************** Getters & Setters **************** */
@@ -169,16 +239,11 @@
                 };
 
                 this.getSelectedEntities = function() {
-                    return $(opts.selected_rows, self).val();
-                };
-
-                this.getSelectedEntitiesAsArray = function() {
-                    var selected = this.getSelectedEntities();
-                    return (selected !== "") ? selected.split(opts.entity_separator) : [];
+                    return me._selections.selected();
                 };
 
                 this.countEntities = function() {
-                    return this.getSelectedEntitiesAsArray().length;
+                    return me._selections.count();
                 };
 
                 this.option = function(key, value) {
@@ -240,6 +305,7 @@
                 };
 
                 /* TODO : never used. remove it ? */
+                /*
                 this.ensureSelection = function() {
                     if (!this.hasSelection()) {
                         creme.dialogs.warning(gettext("Please select at least one entity."));
@@ -247,21 +313,30 @@
                     }
                     return true;
                 };
+                */
+
+                this.toggleSort = function(next, target) {
+                    var prevColumn = me.getState('sort_key');
+
+                    if (prevColumn === next) {
+                        var prevOrder = me.getState('sort_order', 'ASC');
+                        me.setState('sort_order', prevOrder === 'ASC' ? 'DESC' : 'ASC');
+                    } else {
+                        me.setState('sort_key', next);
+                        me.setState('sort_order', 'ASC');
+                    }
+
+                    me.getSubmit()(target);
+                };
 
                 this.enableSortButtons = function() {
-                    self.find('.columns_top .column.sortable')
-                        .each(function() {
-                            var column = $(this);
-                            var column_key = column.attr('data-column-key');
-                            var sort_key = self.find('input[name="sort_key"]');
-                            var sort_order = self.find('input[name="sort_order"]');
+                    self.find('.columns_top .column.sortable button:not(:disabled)')
+                        .click(function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
 
-                            column.on('click', 'button:not(:disabled)', function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-
-                                creme.lv_widget.handleSort(sort_key, sort_order, column_key, this, me.getSubmit());
-                            });
+                            var column = $(this).parent('.column:first');
+                            me.toggleSort(column.attr('data-column-key'), this);
                         });
                 };
 
@@ -324,53 +399,23 @@
 
                 /* **************** Row selection part **************** */
                 this.enableRowSelection = function() {
-                    self.on('click', '.' + opts.selectable_class,
-                        function(e) {
-                            var $target = $(e.target);
+                    self.on('click', 'tr.selectable', function(e) {
+                        var $target = $(e.target);
 
-                            // Ignore clicks on links, they should not select the row
-                            var isClickFromLink = $target.is('a') || $target.parents('a').first().length === 1;
-                            if (isClickFromLink) {
-                                return;
-                            }
-
-                            var entity_id = $(this).find(opts.id_container).val();
-                            var entity_id_index = $.inArray(entity_id, selected_ids);  // selected_ids.indexOf(entity_id);
-
-                            if (!$(this).hasClass(opts.selected_class)) {
-                                if (entity_id_index === -1) {
-                                    if (opts.o2m) {
-                                        selected_ids = [];
-                                        self.find('.' + opts.selected_class).removeClass(opts.selected_class);
-                                    }
-                                    selected_ids.push(entity_id);
-                                    $(opts.selected_rows, self).val(selected_ids.join(opts.entity_separator));
-                                }
-
-                                if (!$(this).hasClass(opts.selected_class)) {
-                                    $(this).addClass(opts.selected_class);
-                                }
-
-                                if (!opts.o2m) {
-                                    $(this).find(opts.checkbox_selector).check();
-                                }
-                                $(this).trigger('row-selection-changed', {selected: true});
-                            } else {
-                                self.find(opts.all_boxes_selector).uncheck();
-                                if (entity_id_index !== -1) {
-                                    selected_ids.splice(entity_id_index, 1);
-                                }
-                                $(opts.selected_rows, self).val(selected_ids.join(opts.entity_separator));
-                                if ($(this).hasClass(opts.selected_class)) {
-                                    $(this).removeClass(opts.selected_class);
-                                }
-                                if (!opts.o2m) {
-                                    $(this).find(opts.checkbox_selector).uncheck();
-                                }
-                                $(this).trigger('row-selection-changed', {selected: false});
-                            }
+                        // Ignore clicks on links, they should not select the row
+                        var isClickFromLink = $target.is('a') || $target.parents('a').first().length === 1;
+                        if (isClickFromLink) {
+                            return;
                         }
-                    );
+
+                        me._selections.toggle($(this));
+                    });
+                };
+
+                this.enableCheckAllBoxes = function() {
+                    self.find('[name="select_all"]').bind('click', function(e) {
+                        me._selections.toggleAll($(this).prop('checked'));
+                    });
                 };
 
                 // Firefox keeps the checked state of inputs on simple page reloads
@@ -378,74 +423,15 @@
                 //          2) force all checkboxes to be unchecked by default. Either in js here, or
                 //             possibly in HTML (maybe by using lone inputs instead of having them in a <form>)
                 this.clearRowSelection = function() {
-                    $(opts.selected_rows, self).val('');
-                    $(opts.selected_rows, self).trigger('row-selection-changed', {selected: false});
-
-                    self.find('.' + opts.selectable_class + ' .choices input[type="checkbox"],' +
-                              opts.all_boxes_selector)
-                        .prop('checked', false);
+                    me._selections.toggleAll(false);
                 };
                 /* **************************************************** */
 
                 /* **************** Check all boxes part **************** */
-                this.enableCheckAllBoxes = function() {
-                    self.find(opts.all_boxes_selector)
-                    .bind('click',
-                        function(e) {
-                            var entities = self.find('.' + opts.selectable_class);
-
-                            if ($(this).is(':checked')) {
-                                entities.each(function() {
-                                    var entity_id = $(this).find(opts.id_container).val();
-                                    var entity_id_index = $.inArray(entity_id, selected_ids); // selected_ids.indexOf(entity_id);
-
-                                    if (entity_id_index === -1) {
-                                        selected_ids.push(entity_id);
-                                    }
-
-                                    if (!$(this).hasClass(opts.selected_class)) {
-                                        $(this).addClass(opts.selected_class);
-                                    }
-
-                                    if (!opts.o2m) {
-                                        $(this).find(opts.checkbox_selector).check();
-                                    }
-                                    $(this).trigger('row-selection-changed', {selected: true});
-                                });
-                                $(opts.selected_rows, self).val(selected_ids.join(opts.entity_separator));
-                            } else {
-                                entities.each(function() {
-                                    if ($(this).hasClass(opts.selected_class)) {
-                                        $(this).removeClass(opts.selected_class);
-                                    }
-
-                                    if (!opts.o2m) {
-                                        $(this).find(opts.checkbox_selector).uncheck();
-                                    }
-                                    $(this).trigger('row-selection-changed', {selected: false});
-                                });
-                                selected_ids = [];
-                                $(opts.selected_rows, self).val('');
-                            }
-                        }
-                    );
-                };
 
                 /* **************************************************** */
 
                 /* **************** Submit part **************** */
-
-                // Remove this part in ajax lv for handling multi-page selection,
-                // if that you want implement the "coloration" selection on submit
-                this.flushSelected = function() {
-                    $(opts.selected_rows, self).val('');
-                    selected_ids = [];
-                };
-
-                this.disableEvents = function() {
-                    self.off('click', '.' + opts.selectable_class);
-                    if (!opts.o2m) self.find(opts.all_boxes_selector).unbind('click');
-                };
 
                 this.enableEvents = function() {
                     this.enableRowSelection();
@@ -454,6 +440,31 @@
                     this.enableActions();
                     // TODO: add inner edit launch event here
                     if (!opts.o2m) this.enableCheckAllBoxes();
+                };
+
+                this.getState = function(key, defaults) {
+                    var value = self.find('input[name="' + key + '"]').val();
+                    return Object.isNone(value) ? defaults : value;
+                };
+
+                this.setState = function(key, value) {
+                    self.find('input[name="' + key + '"]').val(value);
+                };
+
+                this.serializeState = function() {
+                    var data = {};
+
+                    self.find(opts.serializer).serializeArray().forEach(function(e) {
+                        me.addParameter(data, e.name, e.value);
+                    });
+
+                    data['page'] = data['page'] || $(opts.user_page, self).val();
+                    data['selection'] = opts.o2m ? 'single' : 'multiple';
+
+                    delete data['entity_id'];
+                    delete data['inner_header_from_url'];
+
+                    return data;
                 };
 
                 this.addParameter = function(data, key, value, unique) {
@@ -472,24 +483,8 @@
                     }
                 };
 
-                this.serializeMe = function() {
-                    var data = {};
-
-                    self.find(opts.serializer).serializeArray().forEach(function(e) {
-                        me.addParameter(data, e.name, e.value);
-                    });
-
-                    data['page'] = data['page'] || $(opts.user_page, self).val();
-                    data['selection'] = opts.o2m ? 'single' : 'multiple';
-
-                    delete data['entity_id'];
-                    delete data['inner_header_from_url'];
-
-                    return data;
-                };
-
                 this.handleSubmit = function(options, target, extra_data) {
-                    if (me.is_loading) {
+                    if (me.isLoading()) {
                         return;
                     }
 
@@ -500,14 +495,13 @@
                     }, options || {});
 
                     var next_url = me.reload_url || window.location.pathname;
-                    var parameters = $.extend(this.serializeMe(), extra_data || {});
+                    var parameters = $.extend(this.serializeState(), extra_data || {});
                     me.setParameter(parameters, $(target).attr('name'), $(target).val());
 
                     var beforeComplete = options.beforeComplete;
                     var beforeCompleteWrapper = function(request, status) {
                         // Calling our beforeComplete callback
                         me.is_loading = false;
-                        me.enableEvents();
 
                         // Then user callback
                         if (Object.isFunc(beforeComplete)) {
@@ -521,32 +515,28 @@
                         }
                     };
 
-                    me.disableEvents();
-                    me.is_loading = true;
-
                     creme.utils.ajaxQuery(next_url, {
                                               action: 'POST',
                                               warnOnFail: false,
                                               waitingOverlay: true
                                           }, parameters)
+                               .onStart(function() {
+                                    me.is_loading = true;
+                                })
                                .onDone(options.success)
                                .onFail(options.error)
                                .onComplete(function(event, data, status) {
-                                   beforeCompleteWrapper(data, status);
-                                   complete(data, status);
+                                    beforeCompleteWrapper(data, status);
+                                    complete(data, status);
                                 })
                                .onComplete(options.complete)
                                .start();
 
-                    this.flushSelected();
-                };
-
-                this.init = function() {
                     this.clearRowSelection();
-                    this.enableEvents();
                 };
 
-                this.init();
+                this.clearRowSelection();
+                this.enableEvents();
             } else {
                 if (Object.isFunc(this[options])) {
                     this[options].apply(this, args);

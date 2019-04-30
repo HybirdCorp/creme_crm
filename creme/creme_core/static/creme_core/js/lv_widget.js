@@ -49,7 +49,7 @@ creme.lv_widget.selectedLines = function(list) {
         return [];
     }
 
-    return list.list_view('getSelectedEntitiesAsArray');
+    return list.list_view('getSelectedEntities');
 };
 
 creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
@@ -278,6 +278,7 @@ creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, in
     }
 };
 */
+/*
 creme.lv_widget.handleSort = function(sort_key, sort_order, new_sort_key, input, callback) {
     var $sort_key = $(sort_key);
     var $sort_order = $(sort_order);
@@ -298,6 +299,7 @@ creme.lv_widget.handleSort = function(sort_key, sort_order, new_sort_key, input,
         callback(input);
     }
 };
+*/
 
 creme.lv_widget.initialize = function(options, listview) {
     var submit_handler, history_handler;

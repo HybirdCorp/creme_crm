@@ -684,7 +684,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', functi
 
     var list = this.assertOpenedListViewDialog().data('list_view');
 
-    deepEqual([], list.getSelectedEntitiesAsArray());
+    deepEqual([], list.getSelectedEntities());
 
     this.submitListViewSelectionDialog(list);
 
@@ -726,7 +726,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selec
     var list = this.assertOpenedListViewDialog().data('list_view');
 
     this.setListviewSelection(list, ['2', '3']);
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.submitListViewSelectionDialog(list);
 
@@ -766,7 +766,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(ass
     var list = this.assertOpenedListViewDialog().data('list_view');
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2'], list.getSelectedEntities());
 
     this.submitListViewSelectionDialog(list);
     this.assertClosedDialog();
@@ -800,7 +800,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', functi
     var list = this.assertOpenedListViewDialog().data('list_view');
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2'], list.getSelectedEntities());
 
     this.submitListViewSelectionDialog(list);
     this.assertClosedDialog();
@@ -834,7 +834,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', func
     var list = this.assertOpenedListViewDialog().data('list_view');
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2'], list.getSelectedEntities());
 
     this.submitListViewSelectionDialog(list);
     this.assertClosedDialog();
@@ -870,7 +870,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload, fail)'
     var list = this.assertOpenedListViewDialog().data('list_view');
 
     this.setListviewSelection(list, ['2']);
-    deepEqual(['2'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2'], list.getSelectedEntities());
 
     this.submitListViewSelectionDialog(list);
     this.assertClosedDialog();
@@ -903,7 +903,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(a
     this.setListviewSelection(list, ['2', '3']);
 
     equal(2, list.countEntities());
-    deepEqual(['2', '3'], list.getSelectedEntitiesAsArray());
+    deepEqual(['2', '3'], list.getSelectedEntities());
 
     this.submitListViewSelectionDialog(list);
     this.assertClosedDialog();

@@ -136,7 +136,7 @@ QUnit.test('creme.listview.core (select)', function(assert) {
     equal(listview.isStandalone(), false);
     equal(listview.count(), 3);
 
-    deepEqual(controller.getSelectedEntitiesAsArray(), []);
+    deepEqual(controller.getSelectedEntities(), []);
     equal(controller.isLoading(), false);
     equal(controller.hasSelection(), false);
 
@@ -150,7 +150,7 @@ QUnit.test('creme.listview.core (select)', function(assert) {
     equal(true, $(lines[0]).is('.selected'));
     equal(true, $(lines[1]).is('.selected'));
     equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), ['1', '2']);
+    deepEqual(controller.getSelectedEntities(), ['1', '2']);
     equal(controller.hasSelection(), true);
 
     $(lines[2]).trigger($.Event('click'));
@@ -158,7 +158,7 @@ QUnit.test('creme.listview.core (select)', function(assert) {
     equal(true, $(lines[0]).is('.selected'));
     equal(true, $(lines[1]).is('.selected'));
     equal(true, $(lines[2]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), ['1', '2', '3']);
+    deepEqual(controller.getSelectedEntities(), ['1', '2', '3']);
     equal(controller.hasSelection(), true);
 
     $(lines[1]).trigger($.Event('click'));
@@ -166,7 +166,7 @@ QUnit.test('creme.listview.core (select)', function(assert) {
     equal(true, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
     equal(true, $(lines[2]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), ['1', '3']);
+    deepEqual(controller.getSelectedEntities(), ['1', '3']);
     equal(controller.hasSelection(), true);
 });
 
@@ -189,35 +189,35 @@ QUnit.test('creme.listview.core (select, link)', function(assert) {
 
     equal(listview.isStandalone(), false);
     equal(listview.count(), 2);
-    deepEqual(controller.getSelectedEntitiesAsArray(), []);
+    deepEqual(controller.getSelectedEntities(), []);
     equal(controller.hasSelection(), false);
 
     $(lines[0]).trigger($.Event('click'));
 
     equal(true, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), ['1']);
+    deepEqual(controller.getSelectedEntities(), ['1']);
     equal(controller.hasSelection(), true);
 
     $(lines[0]).find('a').trigger($.Event('click'));
 
     equal(true, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), ['1']);
+    deepEqual(controller.getSelectedEntities(), ['1']);
     equal(controller.hasSelection(), true);
 
     $(lines[0]).find('.outside-link').trigger($.Event('click'));
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), []);
+    deepEqual(controller.getSelectedEntities(), []);
     equal(controller.hasSelection(), false);
 
     $(lines[0]).find('.inside-link').trigger($.Event('click'));
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), []);
+    deepEqual(controller.getSelectedEntities(), []);
     equal(controller.hasSelection(), false);
 });
 
@@ -232,7 +232,7 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
 
     equal(listview.isStandalone(), false);
     equal(listview.count(), 3);
-    deepEqual(controller.getSelectedEntitiesAsArray(), []);
+    deepEqual(controller.getSelectedEntities(), []);
     equal(controller.hasSelection(), false);
 
     equal(false, $(lines[0]).is('.selected'));
@@ -245,7 +245,7 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
     equal(false, $(lines[0]).is('.selected'));
     equal(true, $(lines[1]).is('.selected'));
     equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), ['2']);
+    deepEqual(controller.getSelectedEntities(), ['2']);
     equal(controller.hasSelection(), true);
 
     $(lines[2]).trigger($.Event('click'));
@@ -253,7 +253,7 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
     equal(true, $(lines[2]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), ['3']);
+    deepEqual(controller.getSelectedEntities(), ['3']);
     equal(controller.hasSelection(), true);
 
     $(lines[1]).trigger($.Event('click'));
@@ -261,7 +261,7 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
     equal(false, $(lines[0]).is('.selected'));
     equal(true, $(lines[1]).is('.selected'));
     equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), ['2']);
+    deepEqual(controller.getSelectedEntities(), ['2']);
     equal(controller.hasSelection(), true);
 
     $(lines[1]).trigger($.Event('click'));
@@ -269,7 +269,7 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
     equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), []);
+    deepEqual(controller.getSelectedEntities(), []);
     equal(controller.hasSelection(), false);
 });
 
@@ -282,7 +282,7 @@ QUnit.test('creme.listview.core (select all)', function(assert) {
 
     equal(listview.isStandalone(), false);
     equal(listview.count(), 3);
-    deepEqual(controller.getSelectedEntitiesAsArray(), []);
+    deepEqual(controller.getSelectedEntities(), []);
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
@@ -293,14 +293,14 @@ QUnit.test('creme.listview.core (select all)', function(assert) {
     equal(true, $(lines[0]).is('.selected'));
     equal(true, $(lines[1]).is('.selected'));
     equal(true, $(lines[2]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), ['1', '2', '3']);
+    deepEqual(controller.getSelectedEntities(), ['1', '2', '3']);
 
     table.find('[name="select_all"]').trigger($.Event('click'));
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
     equal(false, $(lines[2]).is('.selected'));
-    deepEqual(controller.getSelectedEntitiesAsArray(), []);
+    deepEqual(controller.getSelectedEntities(), []);
 });
 
 QUnit.test('creme.listview.core (filter on <input> enter)', function(assert) {
