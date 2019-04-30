@@ -1,5 +1,4 @@
 (function($) {
-
 QUnit.module("creme.model.renderer.js", new QUnitMixin({
     assertItems: function(element, expected) {
         var items = $('li', element);
@@ -979,5 +978,4 @@ QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples ({value: value, la
                         {group: 'group2',  value: null,   label: 'null',  help: undefined, disabled: false, selected: false, visible: true},
                         {group: 'group2',  value: null,   label: 'empty', help: undefined, disabled: false, selected: false, visible: true}]);
 });
-
 }(jQuery));
