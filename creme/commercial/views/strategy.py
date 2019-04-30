@@ -24,7 +24,7 @@ from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.views import bricks
 # from creme.creme_core.auth import build_creation_perm as cperm
@@ -250,7 +250,7 @@ class BaseEvaluatedOrganisationView(generic.BricksView):
             try:
                 self.organisation = orga = strategy.evaluated_orgas.get(id=orga_id)
             except get_organisation_model().DoesNotExist:
-                raise Http404(ugettext(
+                raise Http404(gettext(
                     'This organisation «{orga}» is not (no more ?) evaluated by '
                     'the strategy «{strategy}»').format(
                     orga=orga_id, strategy=strategy,

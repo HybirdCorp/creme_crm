@@ -28,7 +28,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
         PositiveIntegerField, OneToOneField, ForeignKey, SET, CASCADE, Max)
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from ..core import validators
 from ..utils.date_period import date_period_registry, DatePeriod

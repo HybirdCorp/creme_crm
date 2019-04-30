@@ -7,7 +7,7 @@ try:
 
     from django.conf import settings
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials, FileRef
@@ -48,7 +48,7 @@ class ExportTestCase(_BillingTestCase):
 
         fileref = filerefs[0]
         self.assertTrue(fileref.temporary)
-        self.assertEqual(u'{}_{}.pdf'.format(_(u'Invoice'), invoice.id), fileref.basename)
+        self.assertEqual('{}_{}.pdf'.format(_('Invoice'), invoice.id), fileref.basename)
         # self.assertEqual(user, fileref.user) TODO
 
         fullpath = fileref.filedata.path

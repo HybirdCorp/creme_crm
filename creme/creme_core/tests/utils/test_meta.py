@@ -6,7 +6,7 @@ try:
     from django.contrib.auth import get_user_model
     from django.db import models
     from django.utils import translation
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from ..base import CremeTestCase
     from creme.creme_core.models import (CremePropertyType, CremeProperty, CremeEntity, Language,

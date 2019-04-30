@@ -7,7 +7,7 @@ try:
 
     from django.urls import reverse
     from django.forms.widgets import Select
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth import EntityCredentials
     from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
@@ -49,7 +49,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                             e.__class__.__name__, e)
                      )
 
-        self.assertEqual(u'{} - {}'.format(line_number or fline.order, fline.question),
+        self.assertEqual('{} - {}'.format(line_number or fline.order, fline.question),
                          question_f.initial
                         )
 

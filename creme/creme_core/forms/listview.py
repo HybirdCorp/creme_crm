@@ -27,7 +27,7 @@ from django.db.models.query_utils import Q
 from django.forms import Field, Widget
 from django.utils.functional import cached_property
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core import enumerable
 from creme.creme_core.forms.base import CremeForm

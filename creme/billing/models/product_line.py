@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.products import get_product_model
 
@@ -27,21 +27,21 @@ from .line import Line
 
 
 class AbstractProductLine(Line):
-    creation_label = _(u'Create a product line')
+    creation_label = _('Create a product line')
 
     class Meta(Line.Meta):
         abstract = True
-        verbose_name = _(u'Product line')
-        verbose_name_plural = _(u'Product lines')
+        verbose_name = _('Product line')
+        verbose_name_plural = _('Product lines')
 
     def __str__(self):
         if self.on_the_fly_item:
-            return ugettext(u'On the fly product «{}»').format(self.on_the_fly_item)
+            return gettext('On the fly product «{}»').format(self.on_the_fly_item)
 
         if self.id:
-            return ugettext(u'Related to product «{}»').format(self.related_item)
+            return gettext('Related to product «{}»').format(self.related_item)
 
-        return u'Unsaved product line'
+        return 'Unsaved product line'
 
     @staticmethod
     def get_lv_absolute_url():

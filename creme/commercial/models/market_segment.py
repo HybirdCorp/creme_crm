@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.db.models import CharField, ForeignKey, CASCADE
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.models import CremeModel, CremePropertyType
 
@@ -50,7 +50,7 @@ class MarketSegment(CremeModel):
 
     @staticmethod
     def generate_property_text(segment_name):
-        return ugettext('is in the segment «{}»').format(segment_name)
+        return gettext('is in the segment «{}»').format(segment_name)
 
     def save(self, *args, **kwargs):
         if self.property_type is None:

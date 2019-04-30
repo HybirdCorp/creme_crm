@@ -27,7 +27,7 @@ from django.db.transaction import atomic
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
         DateField, PROTECT, SET_NULL,  BooleanField)
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import (CremeEntity, CremeModel, Relation,
@@ -63,7 +63,7 @@ class SalesPhase(CremeModel):
         super().clean()
 
         if self.won and self.lost:
-            raise ValidationError(ugettext('A phase can not be won and lost at the same time.'))
+            raise ValidationError(gettext('A phase can not be won and lost at the same time.'))
 
 
 class Origin(CremeModel):
@@ -133,10 +133,10 @@ class AbstractOpportunity(CremeEntity):
     def _clean_emitter_n_target(self):
         if not self.pk:  # Creation
             if not self._opp_emitter:
-                raise ValidationError(ugettext('Emitter is required.'))
+                raise ValidationError(gettext('Emitter is required.'))
 
             if not self._opp_target:
-                raise ValidationError(ugettext('Target is required.'))
+                raise ValidationError(gettext('Target is required.'))
 
     def _pre_delete(self):
         for relation in self.relations.filter(type__in=(constants.REL_SUB_TARGETS, constants.REL_OBJ_EMIT_ORGA)):

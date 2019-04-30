@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django import template
-from django.utils.translation import ungettext
+from django.utils.translation import ngettext
 
 register = template.Library()
 
@@ -29,16 +29,16 @@ def timedelta_pprint(timedelta_):
     days = timedelta_.days
 
     if days > 0:
-        return ungettext('{number} day', '{number} days', days).format(number=days)
+        return ngettext('{number} day', '{number} days', days).format(number=days)
 
     hours, hour_remain = divmod(timedelta_.seconds, 3600)
 
     if hours > 0:
-        return ungettext('{number} hour', '{number} hours', hours).format(number=hours)
+        return ngettext('{number} hour', '{number} hours', hours).format(number=hours)
 
     minutes, seconds = divmod(hour_remain, 60)
 
     if minutes > 0:
-        return ungettext('{number} minute', '{number} minutes', minutes).format(number=minutes)
+        return ngettext('{number} minute', '{number} minutes', minutes).format(number=minutes)
 
-    return ungettext('{number} second', '{number} seconds', seconds).format(number=seconds)
+    return ngettext('{number} second', '{number} seconds', seconds).format(number=seconds)

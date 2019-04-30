@@ -20,7 +20,7 @@
 
 from django.db.models.query_utils import Q
 from django.urls import reverse_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core import forms
 from creme.creme_core.utils.queries import QSerializer  # get_q_from_dict

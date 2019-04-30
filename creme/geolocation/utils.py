@@ -23,7 +23,7 @@ from math import cos, radians
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 # from creme.creme_core.core.setting_key import SettingKey

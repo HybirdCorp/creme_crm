@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,19 +20,19 @@
 
 from django.conf import settings
 from django.db.models import Model, ForeignKey, SET_NULL
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from ..import get_address_model
 
 
 class PersonWithAddressesMixin(Model):
     billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
-                                  verbose_name=_(u'Billing address'),
+                                  verbose_name=_('Billing address'),
                                   null=True, on_delete=SET_NULL,
                                   editable=False, related_name='+',
                                  ).set_tags(enumerable=False, optional=True)  # NB: "clonable=False" is useless
     shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
-                                  verbose_name=_(u'Shipping address'),
+                                  verbose_name=_('Shipping address'),
                                   null=True, on_delete=SET_NULL,
                                   editable=False, related_name='+',
                                  ).set_tags(enumerable=False, optional=True)

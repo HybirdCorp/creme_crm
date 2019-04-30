@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018  Hybird
+#    Copyright (C) 2018-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from dateutil.relativedelta import relativedelta
 
 from django.utils.formats import number_format
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _, ungettext_lazy
+from django.utils.translation import gettext_lazy as _, ngettext_lazy
 
 from . import constants
 
@@ -32,16 +32,16 @@ class AveragePerMonthStatistics:
     items = [
         {'type_id': constants.ACTIVITYTYPE_MEETING,
          'empty': _('No meeting since one year'),
-         'messages': ungettext_lazy('{count} meeting per month',
-                                    '{count} meetings per month',
-                                   ),
+         'messages': ngettext_lazy('{count} meeting per month',
+                                   '{count} meetings per month',
+                                  ),
          'months': 12,
         },
         {'type_id': constants.ACTIVITYTYPE_PHONECALL,
          'empty': _('No phone call since one year'),
-         'messages': ungettext_lazy('{count} phone call per month',
-                                    '{count} phone calls per month',
-                                   ),
+         'messages': ngettext_lazy('{count} phone call per month',
+                                   '{count} phone calls per month',
+                                  ),
          'months': 12,
         },
     ]

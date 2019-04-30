@@ -7,7 +7,7 @@ try:
     from django.http import Http404
     from django.urls import reverse
     from django.utils.html import escape
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from .base import ViewsTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeActivity, FakeImage
@@ -628,7 +628,7 @@ class RelationViewsTestCase(ViewsTestCase):
         response = self.assertGET409(self._build_narrowed_add_url(subject, rtype))
 
         self.assertIn(
-            ungettext(
+            ngettext(
                 'This type of relationship needs an entity with this property: {properties}.',
                 'This type of relationship needs an entity with these properties: {properties}.',
                 number=1

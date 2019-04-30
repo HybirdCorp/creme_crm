@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Ma
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.timezone import now, localtime
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import CremeEntity, Currency
@@ -32,34 +32,34 @@ from .projectstatus import ProjectStatus
 
 
 class AbstractProject(CremeEntity):
-    name                = CharField(_(u'Name of the project'), max_length=100)
-    description         = TextField(_(u'Description'), blank=True)\
-                                   .set_tags(optional=True)
-    status              = ForeignKey(ProjectStatus, verbose_name=_(u'Status'), on_delete=PROTECT)
-    start_date          = DateTimeField(_(u'Estimated start'), blank=True, null=True)\
-                                       .set_tags(optional=True)
-    end_date            = DateTimeField(_(u'Estimated end'), blank=True, null=True)\
-                                       .set_tags(optional=True)
-    effective_end_date  = DateTimeField(_(u'Effective end date'), blank=True, null=True)\
-                                       .set_tags(optional=True)
-    currency            = ForeignKey(Currency, verbose_name=_(u'Currency'),
-                                     related_name='+',
-                                     default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
-                                    )
+    name               = CharField(_('Name of the project'), max_length=100)
+    description        = TextField(_('Description'), blank=True)\
+                                  .set_tags(optional=True)
+    status             = ForeignKey(ProjectStatus, verbose_name=_('Status'), on_delete=PROTECT)
+    start_date         = DateTimeField(_('Estimated start'), blank=True, null=True)\
+                                      .set_tags(optional=True)
+    end_date           = DateTimeField(_('Estimated end'), blank=True, null=True)\
+                                      .set_tags(optional=True)
+    effective_end_date = DateTimeField(_('Effective end date'), blank=True, null=True)\
+                                      .set_tags(optional=True)
+    currency           = ForeignKey(Currency, verbose_name=_('Currency'),
+                                    related_name='+',
+                                    default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
+                                   )
 
     tasks_list = None
 
     allowed_related = CremeEntity.allowed_related | {'tasks_set'}
 
-    creation_label = _(u'Create a project')
-    save_label     = _(u'Save the project')
+    creation_label = _('Create a project')
+    save_label     = _('Save the project')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'projects'
-        verbose_name = _(u'Project')
-        verbose_name_plural = _(u'Projects')
+        verbose_name = _('Project')
+        verbose_name_plural = _('Projects')
         ordering = ('name',)
 
     def __str__(self) :
@@ -94,7 +94,7 @@ class AbstractProject(CremeEntity):
 
         # TODO: refactor if start/end can not be null
         if self.start_date and self.end_date and self.start_date >= self.end_date:
-            raise ValidationError(ugettext(u'Start ({start}) must be before end ({end}).').format(
+            raise ValidationError(gettext('Start ({start}) must be before end ({end}).').format(
                                    start=date_format(localtime(self.start_date), 'DATE_FORMAT'),
                                    end=date_format(localtime(self.end_date), 'DATE_FORMAT'),
                                   )

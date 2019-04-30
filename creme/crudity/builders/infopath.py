@@ -34,7 +34,7 @@ from django.http import HttpResponse
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import fields
 from creme.creme_core.utils.meta import is_date_field

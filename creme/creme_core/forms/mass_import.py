@@ -36,7 +36,7 @@ from django.forms.widgets import Widget, Select, HiddenInput
 from django.template.defaultfilters import slugify
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.documents import get_document_model
 
@@ -63,8 +63,8 @@ def get_backend(filedata):
     pathname, extension = splitext(filename)
     backend = import_backend_registry.get_backend(extension.replace('.', ''))
 
-    error_msg = ugettext('Error reading document, unsupported file type: {file}.')\
-                        .format(file=filename) if backend is None else None
+    error_msg = gettext('Error reading document, unsupported file type: {file}.')\
+                       .format(file=filename) if backend is None else None
 
     return backend, error_msg
 
@@ -83,7 +83,7 @@ def get_header(filedata, has_header):
             header = next(backend(filedata))
         except Exception as e:
             logger.exception('Error when reading doc header in clean()')
-            raise ValidationError(ugettext('Error reading document: {error}.').format(error=e)) from e
+            raise ValidationError(gettext('Error reading document: {error}.').format(error=e)) from e
         finally:
             filedata.close()
 
@@ -173,22 +173,22 @@ class Extractor:
 
                                 value = creator.instance
                             else:
-                                err_msg = ugettext('Error while extracting value: tried to retrieve '
-                                                   'and then build «{value}» (column {column}) on {model}. '
-                                                   'Raw error: [{raw_error}]').format(
-                                                        raw_error=e,
-                                                        column=self._column_index,
-                                                        value=line_value,
-                                                        model=self._fk_model._meta.verbose_name,
+                                err_msg = gettext('Error while extracting value: tried to retrieve '
+                                                  'and then build «{value}» (column {column}) on {model}. '
+                                                  'Raw error: [{raw_error}]').format(
+                                    raw_error=e,
+                                    column=self._column_index,
+                                    value=line_value,
+                                    model=self._fk_model._meta.verbose_name,
                                 )
                         else:
-                            err_msg = ugettext('Error while extracting value: tried to retrieve '
-                                               '«{value}» (column {column}) on {model}. '
-                                               'Raw error: [{raw_error}]').format(
-                                                    raw_error=e,
-                                                    column=self._column_index,
-                                                    value=line_value,
-                                                    model=self._fk_model._meta.verbose_name,
+                            err_msg = gettext('Error while extracting value: tried to retrieve '
+                                              '«{value}» (column {column}) on {model}. '
+                                              'Raw error: [{raw_error}]').format(
+                                raw_error=e,
+                                column=self._column_index,
+                                value=line_value,
+                                model=self._fk_model._meta.verbose_name,
                             )
                 else:
                     try:
@@ -622,14 +622,14 @@ class RelationExtractor:
             try:
                 object_entity = EntityCredentials.filter(user, model.objects.filter(**data)).first()
             except Exception as e:
-                err_msg = ugettext('Error while extracting value to build a Relation: '
-                                   'tried to retrieve {field}=«{value}» (column {column}) on {model}. '
-                                   'Raw error: [{raw_error}]').format(
-                                        raw_error=e,
-                                        column=self._column_index,
-                                        field=self._subfield_search,
-                                        value=value,
-                                        model=model._meta.verbose_name,
+                err_msg = gettext('Error while extracting value to build a Relation: '
+                                  'tried to retrieve {field}=«{value}» (column {column}) on {model}. '
+                                  'Raw error: [{raw_error}]').format(
+                    raw_error=e,
+                    column=self._column_index,
+                    field=self._subfield_search,
+                    value=value,
+                    model=model._meta.verbose_name,
                 )
             else:
                 if object_entity is None:
@@ -640,22 +640,22 @@ class RelationExtractor:
                         if creator.is_valid():
                             object_entity = creator.save()
                         else:
-                            err_msg = ugettext('Error while extracting value: '
-                                               'tried to build {model} with data={data} '
-                                               '(column {column}) ➔ errors={errors}').format(
-                                                    model=model._meta.verbose_name,
-                                                    column=self._column_index,
-                                                    data=data,
-                                                    errors=creator.errors,
+                            err_msg = gettext('Error while extracting value: '
+                                              'tried to build {model} with data={data} '
+                                              '(column {column}) ➔ errors={errors}').format(
+                                model=model._meta.verbose_name,
+                                column=self._column_index,
+                                data=data,
+                                errors=creator.errors,
                             )
                     else:
-                        err_msg = ugettext('Error while extracting value to build a Relation: '
-                                           'tried to retrieve {field}=«{value}» '
-                                           '(column {column}) on {model}').format(
-                                                field=self._subfield_search,
-                                                column=self._column_index,
-                                                value=value,
-                                                model=model._meta.verbose_name,
+                        err_msg = gettext('Error while extracting value to build a Relation: '
+                                          'tried to retrieve {field}=«{value}» '
+                                          '(column {column}) on {model}').format(
+                            field=self._subfield_search,
+                            column=self._column_index,
+                            value=value,
+                            model=model._meta.verbose_name,
                         )
 
         return (self._rtype, object_entity), err_msg
@@ -688,7 +688,7 @@ class RelationExtractorSelector(SelectorList):
 
         # TODO: use GET args instead of using TemplateURLBuilders ?
         add = partial(chained_input.add_dselect, attrs={'auto': False, 'autocomplete': True})
-        add('rtype', options=self.relation_types, label=ugettext('The entity'))
+        add('rtype', options=self.relation_types, label=gettext('The entity'))
         add('ctype',
             options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))
                                       .resolve('creme_core__ctypes_compatible_with_rtype')
@@ -696,9 +696,9 @@ class RelationExtractorSelector(SelectorList):
         add('searchfield',
             options=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${ctype}'))
                                       .resolve('creme_core__entity_info_fields'),
-            label=ugettext('which field'),
+            label=gettext('which field'),
            )
-        add('column', options=self.columns, label=ugettext('equals to'))
+        add('column', options=self.columns, label=gettext('equals to'))
 
         context = super().get_context(name=name, attrs=attrs, value=value.get('selectorlist'))
         context['widget']['can_create_checked'] = value.get('can_create', False)
@@ -852,12 +852,12 @@ class CustomFieldExtractor:
                                 err_msg
                                )
                     else:
-                        err_msg = ugettext('Error while extracting value: tried to retrieve '
-                                           'the choice «{value}» (column {column}). '
-                                           'Raw error: [{raw_error}]').format(
-                                                raw_error=e,
-                                                column=self._column_index,
-                                                value=value,
+                        err_msg = gettext('Error while extracting value: tried to retrieve '
+                                          'the choice «{value}» (column {column}). '
+                                          'Raw error: [{raw_error}]').format(
+                            raw_error=e,
+                            column=self._column_index,
+                            value=value,
                         )
 
                     value = None
@@ -1126,10 +1126,10 @@ class ImportForm(CremeModelForm):
                                     else:
                                         job_result.updated = updated = True
                                 else:
-                                    append_error(ugettext('Several entities corresponding to the search have been found. '
-                                                          'So a new entity have been created to avoid errors.'
-                                                         ),
-                                                )
+                                    append_error(gettext(
+                                        'Several entities corresponding to the search have been found. '
+                                        'So a new entity have been created to avoid errors.'
+                                    ))
 
                         for fname, cleaned_value in regular_fields:
                             setattr(instance, fname, cleaned_value)
@@ -1329,14 +1329,14 @@ def form_factory(ct, header):
     header_dict = {}
 
     if header:
-        fstring = ugettext('Column {index} - {name}')
+        fstring = gettext('Column {index} - {name}')
 
         for i, col_name in enumerate(header):
             i += 1
             choices.append((i, fstring.format(index=i, name=col_name)))
             header_dict[slugify(col_name)] = i
     else:
-        fstring = ugettext('Column {}')
+        fstring = gettext('Column {}')
         choices.extend((i, fstring.format(i)) for i in range(1, 21))
 
     model_class = ct.model_class()

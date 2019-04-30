@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from collections import defaultdict
 import datetime
 import logging
 
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal
@@ -136,7 +136,7 @@ def get_total_pending_multi(entities, user):
 
 def get_total_won_quote_last_year(entity, user):
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
-        return ugettext('Error: «Acceptation date» is hidden')
+        return gettext('Error: «Acceptation date» is hidden')
 
     return sum_totals_no_vat(Quote, entity, user,
                              status__won=True,
@@ -146,7 +146,7 @@ def get_total_won_quote_last_year(entity, user):
 
 def get_total_won_quote_last_year_multi(entities, user):
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
-        msg = ugettext('Error: «Acceptation date» is hidden')
+        msg = gettext('Error: «Acceptation date» is hidden')
         return ((entity, msg) for entity in entities)
 
     return sum_totals_no_vat_multi(Quote, entities, user,
@@ -158,7 +158,7 @@ def get_total_won_quote_last_year_multi(entities, user):
 def get_total_won_quote_this_year(entity, user):
     # TODO: factorise (decorator in creme_core ?)
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
-        return ugettext('Error: «Acceptation date» is hidden')
+        return gettext('Error: «Acceptation date» is hidden')
 
     return sum_totals_no_vat(Quote, entity, user,
                              status__won=True,
@@ -169,7 +169,7 @@ def get_total_won_quote_this_year(entity, user):
 def get_total_won_quote_this_year_multi(entities, user):
     # TODO: factorise
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
-        msg = ugettext('Error: «Acceptation date» is hidden')
+        msg = gettext('Error: «Acceptation date» is hidden')
         return ((entity, msg) for entity in entities)
 
     return sum_totals_no_vat_multi(Quote, entities, user,

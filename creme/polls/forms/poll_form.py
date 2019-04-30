@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from itertools import chain, zip_longest
 from django.core.exceptions import ValidationError
 from django.forms.fields import IntegerField, CharField, TypedChoiceField
 from django.forms.widgets import Textarea
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm
 from creme.creme_core.forms.fields import ListEditionField
@@ -99,18 +99,18 @@ class _PollFormLineForm(CremeModelForm):
 # TODO: get the fields from PollLineTypes objects ???
 class PollFormLineCreateForm(_PollFormLineForm):
     type        = TypedChoiceField(label=_('Type'), choices=PollLineType.choices(),
-                                   coerce=int, initial=PollLineType.STRING
+                                   coerce=int, initial=PollLineType.STRING,
                                   )
     lower_bound = IntegerField(label=_('Lower bound'), required=False,
-                               help_text=_('For integer type only.')
+                               help_text=_('For integer type only.'),
                               )
     upper_bound = IntegerField(label=_('Upper bound'), required=False,
-                               help_text=_('For integer type only.')
+                               help_text=_('For integer type only.'),
                               )
     choices     = CharField(widget=Textarea(), label=_('Available choices'), required=False,
                             help_text=_('Give the possible choices (one per line) '
                                         'if you choose the type "Choice list".'
-                                       )
+                                       ),
                            )
 
     def __init__(self, section=None, *args, **kwargs):
@@ -148,17 +148,19 @@ class PollFormLineCreateForm(_PollFormLineForm):
         if section_lines:
             section_lines.reverse()
 
-            choices = [(0, ugettext('Start of section'))]
-            msg_fmt = ugettext('Before: «{question}» (#{number})')  # TODO: cached_ugettext ??
+            choices = [(0, gettext('Start of section'))]
+            msg_fmt = gettext('Before: «{question}» (#{number})')  # TODO: cached_gettext ??
 
-            choices.extend((i, msg_fmt.format(question=node.question, number=node.number))
-                                for i, node in enumerate(section_lines[1:], start=1)
-                          )
-            choices.append((len(section_lines), ugettext('End of section')))
+            choices.extend(
+                (i, msg_fmt.format(question=node.question, number=node.number))
+                    for i, node in enumerate(section_lines[1:], start=1)
+            )
+            choices.append((len(section_lines), gettext('End of section')))
 
-            self.fields['index'] = TypedChoiceField(label=ugettext('Order'), coerce=int,
-                                                    choices=choices, initial=len(choices) - 1
-                                                   )
+            self.fields['index'] = TypedChoiceField(
+                label=gettext('Order'), coerce=int,
+                choices=choices, initial=len(choices) - 1,
+            )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -227,14 +229,16 @@ class PollFormLineEditForm(_PollFormLineForm):
         if choices is not None:
             fields = self.fields
             self.initial_choices = choices
-            fields['old_choices'] = ListEditionField(content=[c[1] for c in choices],
-                                                     label=ugettext('Existing choices'),
-                                                     help_text=ugettext('Uncheck the choices you want to delete.'),
-                                                    )
-            fields['new_choices'] = CharField(widget=Textarea(), required=False,
-                                              label=ugettext('New choices of the list'),
-                                              help_text=ugettext('Give the new possible choices (one per line).')
-                                             )
+            fields['old_choices'] = ListEditionField(
+                content=[c[1] for c in choices],
+                label=gettext('Existing choices'),
+                help_text=gettext('Uncheck the choices you want to delete.'),
+            )
+            fields['new_choices'] = CharField(
+                widget=Textarea(), required=False,
+                label=gettext('New choices of the list'),
+                help_text=gettext('Give the new possible choices (one per line).')
+            )
 
     def clean_old_choices(self):
         old_choices = self.cleaned_data['old_choices']

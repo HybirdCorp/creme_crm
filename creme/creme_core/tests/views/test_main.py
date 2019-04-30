@@ -5,7 +5,7 @@ try:
     from django.http import Http404
     from django.test.client import RequestFactory
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.bricks import StatisticsBrick, HistoryBrick
     from creme.creme_core.gui.bricks import Brick
@@ -152,7 +152,7 @@ class MiscViewsTestCase(ViewsTestCase):
     def test_404_middleware(self):
         self.login()
         response = self.assertGET404('/test_http_response?status=404')
-        self.assertContains(response, _(u'The page you have requested is not found.'), status_code=404)
+        self.assertContains(response, _('The page you have requested is not found.'), status_code=404)
 
         response = self.assertGET404('/test_http_response?status=404', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertContains(response, 'Tests: no such result or unknown url', status_code=404)
@@ -340,7 +340,7 @@ class CurrencyTestCase(ViewsTestCase):
                                     data={'name':                 name,
                                           'local_symbol':         local_symbol,
                                           'international_symbol': international_symbol,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -351,9 +351,11 @@ class CurrencyTestCase(ViewsTestCase):
 
     def test_delete(self):
         currency = Currency.objects.create(name='Berry', local_symbol='B',
-                                           international_symbol='BRY'
+                                           international_symbol='BRY',
                                           )
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('creme_core', 'currency')),
+        self.assertPOST200(reverse('creme_config__delete_instance',
+                                   args=('creme_core', 'currency'),
+                                  ),
                            data={'id': currency.id}
                           )
         self.assertDoesNotExist(currency)

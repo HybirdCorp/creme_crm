@@ -11,7 +11,7 @@ try:
     from django.core.exceptions import ValidationError
     from django.db.models import Max
     from django.urls import reverse
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from .base import ViewsTestCase, BrickTestCaseMixin
 
@@ -338,10 +338,10 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                      )
 
         self.assertDictEqual({'count': 2,
-                              'errors': [ungettext(u"{count} entity doesn't exist or has been removed.",
-                                                   u"{count} entities don't exist or have been removed.",
-                                                   1
-                                                  ).format(count=1)]
+                              'errors': [ngettext("{count} entity doesn't exist or has been removed.",
+                                                  "{count} entities don't exist or have been removed.",
+                                                  1
+                                                 ).format(count=1)]
                              },
                              response.json()
                             )
@@ -993,10 +993,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         context = response.context
         self.assertEqual(_('Multiple update'), context.get('title'))
         self.assertEqual(
-            ungettext('{success} «{model}» has been successfully modified.',
-                      '{success} «{model}» have been successfully modified.',
-                      1
-                      ).format(
+            ngettext('{success} «{model}» has been successfully modified.',
+                     '{success} «{model}» have been successfully modified.',
+                     1
+                    ).format(
                 success=1,
                 model='Test Contact',
             ),
@@ -1194,18 +1194,18 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         self.assertEqual(
             '{} {}'.format(
-                ungettext('{success} of {initial} «{model}» has been successfully modified.',
-                          '{success} of {initial} «{model}» have been successfully modified.',
-                          1
-                         ).format(
+                ngettext('{success} of {initial} «{model}» has been successfully modified.',
+                         '{success} of {initial} «{model}» have been successfully modified.',
+                         1
+                        ).format(
                     success=1,
                     initial=2,
                     model='Test Contact',
                 ),
-                ungettext('{forbidden} was not editable.',
-                          '{forbidden} were not editable.',
-                          1
-                         ).format(forbidden=1)
+                ngettext('{forbidden} was not editable.',
+                         '{forbidden} were not editable.',
+                         1
+                        ).format(forbidden=1)
             ),
             response.context.get('summary')
         )

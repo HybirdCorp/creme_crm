@@ -22,7 +22,7 @@ from collections import defaultdict
 
 from django.forms import Field, ValidationError
 from django.forms.widgets import Select
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms.fields import ChoiceModelIterator
 from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, BaseExtractorWidget
@@ -63,7 +63,7 @@ class CategoriesExtractor:
                             category = Category.objects.create(name=cat_name)
                             cat_created = True
                         else:
-                            raise self._FatalError(ugettext(u'The category «{}» does not exist').format(cat_name))
+                            raise self._FatalError(gettext('The category «{}» does not exist').format(cat_name))
 
             # Sub-category
             subcat_index = self._subcat_index
@@ -81,11 +81,11 @@ class CategoriesExtractor:
                         if self._create:
                             sub_category = SubCategory.objects.create(name=subcat_name, category=category)
                         else:
-                            raise self._FatalError(ugettext(u'The sub-category «{}» does not exist').format(subcat_name))
+                            raise self._FatalError(gettext('The sub-category «{}» does not exist').format(subcat_name))
 
             # Error checking
             if sub_category.category_id != category.id:
-                error_msg = ugettext(u'The category «{cat}» and the sub-category «{sub_cat}» are not matching.').format(
+                error_msg = gettext('The category «{cat}» and the sub-category «{sub_cat}» are not matching.').format(
                     cat=category,
                     sub_cat=sub_category,
                 )
@@ -195,8 +195,8 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
 class CategoriesExtractorField(Field):
     widget = CategoriesExtractorWidget
     default_error_messages = {
-        'invalid_sub_cat': _(u'Select a valid sub-category.'),
-        'empty_sub_cat':   _(u'Select a column for the sub-category if you select a column for the category.'),
+        'invalid_sub_cat': _('Select a valid sub-category.'),
+        'empty_sub_cat':   _('Select a column for the sub-category if you select a column for the category.'),
     }
 
     # def __init__(self, choices, categories, *args, **kwargs):

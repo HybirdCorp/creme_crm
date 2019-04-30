@@ -5,7 +5,7 @@ try:
 
     from django.db.models.query_utils import Q
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.forms.base import FieldTestCase
 

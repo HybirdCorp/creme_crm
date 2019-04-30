@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,24 +19,24 @@
 ################################################################################
 
 from django.db.models import TextField, CharField, ForeignKey, CASCADE
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeModel, CremeEntity
-from creme.creme_core.models.fields import CreationDateTimeField, CremeUserForeignKey
+from creme.creme_core.models import fields
 
 
 class History(CremeModel):
-    entity      = ForeignKey(CremeEntity, verbose_name=_(u'Entity'), blank=False, null=False, on_delete=CASCADE)
-    created     = CreationDateTimeField(_(u'Creation date'))
-    action      = CharField(_(u'Action'), max_length=100)  # Action (i.e: create, update...)
-    source      = CharField(_(u'Source'), max_length=100)  # Source (i.e: email raw, email from infopath, sms raw...)
-    description = TextField(_(u'Description'), blank=True, null=True)
-    user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True, default=None)  # Case of sandboxes are by user
+    entity      = ForeignKey(CremeEntity, verbose_name=_('Entity'), blank=False, null=False, on_delete=CASCADE)
+    created     = fields.CreationDateTimeField(_('Creation date'))
+    action      = CharField(_('Action'), max_length=100)  # Action (i.e: create, update...)
+    source      = CharField(_('Source'), max_length=100)  # Source (i.e: email raw, email from infopath, sms raw...)
+    description = TextField(_('Description'), blank=True, null=True)
+    user        = fields.CremeUserForeignKey(verbose_name=_('Owner'), blank=True, null=True, default=None)  # Case of sandboxes are by user
 
     class Meta:
         app_label = 'crudity'
-        verbose_name = _(u'History')
-        verbose_name_plural = _(u'History')
+        verbose_name = _('History')
+        verbose_name_plural = _('History')
 
     def get_entity(self):
         entity = self.entity
@@ -48,4 +48,4 @@ class History(CremeModel):
 
     def __str__(self):
         e = self.get_entity()
-        return u'History of "{}"'.format(e) if e else u'History'
+        return 'History of "{}"'.format(e) if e else 'History'

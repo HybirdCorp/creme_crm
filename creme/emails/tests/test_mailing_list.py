@@ -6,7 +6,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             FieldsConfig, FakeOrganisation)
@@ -74,7 +74,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         with self.assertNoException():
             # response.context['entities']
-            response.context['page_obj']
+            __ = response.context['page_obj']
 
     def test_ml_and_campaign(self):
         user = self.user

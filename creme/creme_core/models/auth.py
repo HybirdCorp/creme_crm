@@ -36,14 +36,13 @@ from django.db.models import (Model, UUIDField, CharField, TextField, BooleanFie
         PositiveSmallIntegerField, PositiveIntegerField, EmailField,
         DateTimeField, ForeignKey, ManyToManyField, PROTECT, CASCADE, Q)
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from ..auth.entity_credentials import EntityCredentials
 from ..utils import split_filter
 from ..utils.unicode_collation import collator
 
 from .fields import CTypeForeignKey
-
 
 logger = logging.getLogger(__name__)
 
@@ -284,15 +283,15 @@ class SetCredentials(Model):
         perms = []
         append = perms.append
 
-        if value & EntityCredentials.VIEW:   append(ugettext('view'))
-        if value & EntityCredentials.CHANGE: append(ugettext('change'))
-        if value & EntityCredentials.DELETE: append(ugettext('delete'))
-        if value & EntityCredentials.LINK:   append(ugettext('link'))
-        if value & EntityCredentials.UNLINK: append(ugettext('unlink'))
+        if value & EntityCredentials.VIEW:   append(gettext('view'))
+        if value & EntityCredentials.CHANGE: append(gettext('change'))
+        if value & EntityCredentials.DELETE: append(gettext('delete'))
+        if value & EntityCredentials.LINK:   append(gettext('link'))
+        if value & EntityCredentials.UNLINK: append(gettext('unlink'))
 
         if not perms:
-            append(ugettext('nothing forbidden') if forbidden else
-                   ugettext('nothing allowed')
+            append(gettext('nothing forbidden') if forbidden else
+                   gettext('nothing allowed')
                   )
 
         args = {'set':   SetCredentials.ESETS_MAP[self.set_type],
@@ -301,11 +300,11 @@ class SetCredentials(Model):
 
         if self.ctype:
             args['type'] = self.ctype
-            format_str = ugettext('For {set} of type “{type}” forbidden to: {perms}') if forbidden else \
-                         ugettext('For {set} of type “{type}” allowed to: {perms}')
+            format_str = gettext('For {set} of type “{type}” forbidden to: {perms}') if forbidden else \
+                         gettext('For {set} of type “{type}” allowed to: {perms}')
         else:
-            format_str = ugettext('For {set} forbidden to: {perms}') if forbidden else \
-                         ugettext('For {set} allowed to: {perms}')
+            format_str = gettext('For {set} forbidden to: {perms}') if forbidden else \
+                         gettext('For {set} allowed to: {perms}')
 
         return format_str.format(**args)
 
@@ -623,16 +622,16 @@ class CremeUser(AbstractBaseUser):
 
     def get_full_name(self):
         if self.is_team:
-            return ugettext('{user} (team)').format(user=self.username)
+            return gettext('{user} (team)').format(user=self.username)
 
         # TODO: we could also check related contact to find first_name, last_name
         first_name = self.first_name
         last_name  = self.last_name
 
         if first_name and last_name:
-            return ugettext('{first_name} {last_name}.').format(
-                        first_name=first_name,
-                        last_name=last_name[0],
+            return gettext('{first_name} {last_name}.').format(
+                first_name=first_name,
+                last_name=last_name[0],
             )
         else:
             return self.username
@@ -648,10 +647,11 @@ class CremeUser(AbstractBaseUser):
 
         if settings is None:
             from ..core.setting_key import UserSettingValueManager
-            settings = self._settings = UserSettingValueManager(user_class=self.__class__,
-                                                                user_id=self.id,
-                                                                json_settings=self.json_settings,
-                                                               )
+            settings = self._settings = UserSettingValueManager(
+                user_class=self.__class__,
+                user_id=self.id,
+                json_settings=self.json_settings,
+            )
 
         return settings
 
@@ -747,24 +747,26 @@ class CremeUser(AbstractBaseUser):
         try:
             return apps.get_app_config(app_label).verbose_name
         except LookupError:
-            return ugettext('Invalid app "{}"').format(app_label)
+            return gettext('Invalid app "{}"').format(app_label)
 
     def has_perm_to_access_or_die(self, app_label):
         if not self.has_perm_to_access(app_label):
-            raise PermissionDenied(ugettext('You are not allowed to access to the app: {}').format(
-                                        self._get_app_verbose_name(app_label)
-                                    )
-                                  )
+            raise PermissionDenied(
+                gettext('You are not allowed to access to the app: {}').format(
+                    self._get_app_verbose_name(app_label),
+                )
+            )
 
     def has_perm_to_admin(self, app_name):  # TODO: rename "app_label"
         return self.is_superuser or self.role.is_app_administrable(app_name)
 
     def has_perm_to_admin_or_die(self, app_name):  # TODO: rename 'app_label'
         if not self.has_perm_to_admin(app_name):
-            raise PermissionDenied(ugettext('You are not allowed to configure this app: {}').format(
-                                        self._get_app_verbose_name(app_name)
-                                    )
-                                  )
+            raise PermissionDenied(
+                gettext('You are not allowed to configure this app: {}').format(
+                    self._get_app_verbose_name(app_name),
+                )
+            )
 
     def has_perm_to_change(self, entity):
         if entity.is_deleted:
@@ -778,10 +780,11 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_change_or_die(self, entity):
         if not self.has_perm_to_change(entity):
-            raise PermissionDenied(ugettext('You are not allowed to edit this entity: {}').format(
-                                        entity.allowed_str(self)
-                                    )
-                                  )
+            raise PermissionDenied(
+                gettext('You are not allowed to edit this entity: {}').format(
+                    entity.allowed_str(self),
+                )
+            )
 
     def has_perm_to_create(self, model_or_entity):
         """Helper for has_perm() method.
@@ -792,10 +795,11 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_create_or_die(self, model_or_entity):
         if not self.has_perm_to_create(model_or_entity):
-            raise PermissionDenied(ugettext('You are not allowed to create: {}').format(
-                                        model_or_entity._meta.verbose_name
-                                    )
-                                  )
+            raise PermissionDenied(
+                gettext('You are not allowed to create: {}').format(
+                    model_or_entity._meta.verbose_name,
+                )
+            )
 
     def has_perm_to_delete(self, entity):
         if hasattr(entity.entity_type.model_class(), 'get_related_entity'):  # TODO: factorise
@@ -805,10 +809,11 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_delete_or_die(self, entity):
         if not self.has_perm_to_delete(entity):
-            raise PermissionDenied(ugettext('You are not allowed to delete this entity: {}').format(
-                                        entity.allowed_str(self)
-                                    )
-                                  )
+            raise PermissionDenied(
+                gettext('You are not allowed to delete this entity: {}').format(
+                    entity.allowed_str(self),
+                )
+            )
 
     def has_perm_to_export(self, model_or_entity):  # TODO: factorise with has_perm_to_create() ??
         """Helper for has_perm() method.
@@ -819,10 +824,11 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_export_or_die(self, model_or_entity):
         if not self.has_perm_to_export(model_or_entity):
-            raise PermissionDenied(ugettext('You are not allowed to export: {}').format(
-                                        model_or_entity._meta.verbose_name
-                                    )
-                                  )
+            raise PermissionDenied(
+                gettext('You are not allowed to export: {}').format(
+                    model_or_entity._meta.verbose_name
+                )
+            )
 
     def has_perm_to_link(self, entity_or_model, owner=None):
         """Can the user link a future entity of a given class ?
@@ -849,13 +855,13 @@ class CremeUser(AbstractBaseUser):
 
         if not self.has_perm_to_link(entity_or_model, owner):
             if isinstance(entity_or_model, CremeEntity):
-                msg = ugettext('You are not allowed to link this entity: {}').format(
-                                        entity_or_model.allowed_str(self)
-                                    )
+                msg = gettext('You are not allowed to link this entity: {}').format(
+                    entity_or_model.allowed_str(self)
+                )
             else:
-                msg = ugettext('You are not allowed to link: {}').format(
-                                    entity_or_model._meta.verbose_name
-                                )
+                msg = gettext('You are not allowed to link: {}').format(
+                    entity_or_model._meta.verbose_name
+                )
 
             raise PermissionDenied(msg)
 
@@ -865,10 +871,11 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_unlink_or_die(self, entity):
         if not self.has_perm_to_unlink(entity):
-            raise PermissionDenied(ugettext('You are not allowed to unlink this entity: {}').format(
-                                        entity.allowed_str(self)
-                                    )
-                                  )
+            raise PermissionDenied(
+                gettext('You are not allowed to unlink this entity: {}').format(
+                    entity.allowed_str(self),
+                )
+            )
 
     def has_perm_to_view(self, entity):
         # TODO: what about related_entity ?
@@ -876,10 +883,11 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_view_or_die(self, entity):
         if not self.has_perm_to_view(entity):
-            raise PermissionDenied(ugettext('You are not allowed to view this entity: {}').format(
-                                        entity.allowed_str(self)
-                                    )
-                                  )
+            raise PermissionDenied(
+                gettext('You are not allowed to view this entity: {}').format(
+                    entity.allowed_str(self),
+                )
+            )
 
 
 get_user_field = CremeUser._meta.get_field

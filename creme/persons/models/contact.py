@@ -25,7 +25,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
         DateField, EmailField, URLField, SET_NULL)
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.models import CremeEntity, Language
@@ -104,33 +104,38 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         civ = self.civility
 
         if civ and civ.shortcut:
-            return ugettext('{civility} {first_name} {last_name}').format(
-                        civility=civ.shortcut,
-                        first_name=self.first_name,
-                        last_name=self.last_name,
+            return gettext('{civility} {first_name} {last_name}').format(
+                civility=civ.shortcut,
+                first_name=self.first_name,
+                last_name=self.last_name,
             )
 
         if self.first_name:
-            return ugettext('{first_name} {last_name}').format(
-                        first_name=self.first_name,
-                        last_name=self.last_name,
+            return gettext('{first_name} {last_name}').format(
+                first_name=self.first_name,
+                last_name=self.last_name,
             )
 
         return self.last_name or ''
 
     def _check_deletion(self):
         if self.is_user is not None:
-            raise SpecificProtectedError(ugettext('A user is associated with this contact.'),
-                                         [self]
-                                        )
+            raise SpecificProtectedError(
+                gettext('A user is associated with this contact.'),
+                [self]
+            )
 
     def clean(self):
         if self.is_user_id:
             if not self.first_name:
-                raise ValidationError(ugettext('This Contact is related to a user and must have a first name.'))
+                raise ValidationError(
+                    gettext('This Contact is related to a user and must have a first name.')
+                )
 
             if not self.email:
-                raise ValidationError(ugettext('This Contact is related to a user and must have an e-mail address.'))
+                raise ValidationError(
+                    gettext('This Contact is related to a user and must have an e-mail address.')
+                )
 
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)

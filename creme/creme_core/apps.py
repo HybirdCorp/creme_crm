@@ -24,7 +24,7 @@ from sys import argv
 from django.apps import AppConfig, apps
 from django.core import checks
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .checks import Tags, check_uninstalled_apps  # NB: it registers other checks too
 from .registry import creme_registry
@@ -300,7 +300,7 @@ class CremeCoreConfig(CremeAppConfig):
         creme_menu.add(ContainerItem('creme', label='Creme')
                           .add(URLItem('home', url=reverse('creme_core__home'), label=_('Home')), priority=10)
                           .add(TrashItem('trash'), priority=20)  # TODO: icon ?
-                          .add(ItemGroup('user', label=_(u'User'))
+                          .add(ItemGroup('user', label=_('User'))
                                   .add(URLItem('my_page', url=reverse('creme_core__my_page'), label=_('My page')),
                                        priority=10,
                                       )
@@ -313,7 +313,7 @@ class CremeCoreConfig(CremeAppConfig):
                        priority=10,
                       ) \
                   .add(ItemGroup('features')
-                            .add(ContainerItem('tools', label=_(u'Tools'))
+                            .add(ContainerItem('tools', label=_('Tools'))
                                     .add(URLItem('creme_core-jobs', url=reverse('creme_core__jobs'),
                                                  label=_('Jobs'), perm=lambda user: user.is_superuser  # TODO: '*superuser*'' ?
                                                 ),

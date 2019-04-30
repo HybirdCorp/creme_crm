@@ -32,7 +32,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.timezone import now, make_naive, get_current_timezone
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -297,7 +297,7 @@ def delete_user_calendar(request):
 
     # TODO: factorise calendar credentials functions ?
     if not calendar.is_custom or (not user.is_superuser and calendar.user_id != user.id):
-        raise PermissionDenied(ugettext('You are not allowed to delete this calendar.'))
+        raise PermissionDenied(gettext('You are not allowed to delete this calendar.'))
 
     # Attach all existing activities to the default calendar
     default_calendar = Calendar.get_user_default_calendar(user)

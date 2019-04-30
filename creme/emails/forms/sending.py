@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from json import dumps as json_dump
 from django.forms import IntegerField, EmailField, DateTimeField, ValidationError
 from django.template.base import Template, VariableNode
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import CremeModelForm, CreatorEntityField
@@ -51,7 +51,9 @@ class SendingCreateForm(CremeModelForm):
         'forbidden': _('You are not allowed to modify the sender address, please contact your administrator.'),
     }
 
-    blocks = CremeModelForm.blocks.new(('sending_date', _('Sending date'), ['type', 'sending_date', 'hour', 'minute']))
+    blocks = CremeModelForm.blocks.new(
+        ('sending_date', _('Sending date'), ['type', 'sending_date', 'hour', 'minute']),
+    )
 
     class Meta:
         model   = EmailSending
@@ -71,9 +73,11 @@ class SendingCreateForm(CremeModelForm):
 
         if not sender_setting.value:
             if not can_admin_emails:
-                sender_field.initial = _(u"No sender email address has been configured, please contact your administrator.")
+                sender_field.initial = _('No sender email address has been configured, '
+                                         'please contact your administrator.'
+                                        )
         else:
-            sender_field.help_text = _(u"Only an administrator can modify the sender address.")
+            sender_field.help_text = _('Only an administrator can modify the sender address.')
             sender_field.initial = sender_setting.value
 
         self.sender_setting = sender_setting

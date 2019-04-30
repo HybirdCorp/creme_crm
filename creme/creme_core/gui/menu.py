@@ -26,7 +26,7 @@ import math
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, format_html_join, mark_safe
-from django.utils.translation import ugettext as _, ungettext, ugettext_lazy
+from django.utils.translation import gettext as _, ngettext, gettext_lazy
 
 from ..auth import build_creation_perm as cperm
 from ..models import CremeEntity
@@ -520,7 +520,7 @@ class TrashItem(URLItem):
             '</a>',
                 url=self.url,
                 label=_('Trash'),
-                count=ungettext('{count} entity', '{count} entities', count).format(count=count),
+                count=ngettext('{count} entity', '{count} entities', count).format(count=count),
         )
 
 
@@ -541,7 +541,7 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
                    if context['user'].has_perm_to_create(self.model) else \
                    format_html('<span class="ui-creme-navigation-text-entry forbidden">{}</span>', self.label)
 
-    def __init__(self, id, registry, label=ugettext_lazy('Quick creation')):
+    def __init__(self, id, registry, label=gettext_lazy('Quick creation')):
         """@param registry: QuickFormsRegistry instance (indeed, we only need a iter_models() method)."""
         super().__init__(id=id, label=label)
         self._registry = registry

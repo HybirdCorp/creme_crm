@@ -21,7 +21,7 @@
 from django.conf import settings
 from django.db.models import CharField, ManyToManyField
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
@@ -29,18 +29,20 @@ from .recipient import EmailRecipient
 
 
 class AbstractEmailCampaign(CremeEntity):
-    name          = CharField(_(u'Name of the campaign'), max_length=100)
-    mailing_lists = ManyToManyField(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Related mailing lists'), blank=True)
+    name          = CharField(_('Name of the campaign'), max_length=100)
+    mailing_lists = ManyToManyField(settings.EMAILS_MLIST_MODEL, blank=True,
+                                    verbose_name=_('Related mailing lists'),
+                                   )
 
-    creation_label = _(u'Create an emailing campaign')
-    save_label     = _(u'Save the emailing campaign')
+    creation_label = _('Create an emailing campaign')
+    save_label     = _('Save the emailing campaign')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'emails'
-        verbose_name = _(u'Emailing campaign')
-        verbose_name_plural = _(u'Emailing campaigns')
+        verbose_name = _('Emailing campaign')
+        verbose_name_plural = _('Emailing campaigns')
         ordering = ('name',)
 
     def __str__(self):

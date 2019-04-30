@@ -6,7 +6,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from ..fake_models import (FakeContact, FakeCivility, FakePosition,
             FakeOrganisation, FakeImage, FakeInvoice, FakeInvoiceLine)
@@ -139,7 +139,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                          },
                                      ))[0]
         self.assertEqual(err.messages[0],
-                         str([_(u'Select a valid choice. That choice is not one of the available choices.')])
+                         str([_('Select a valid choice. That choice is not one of the available choices.')])
                         )
 
     def test_clean_invalid_many2many_id(self):
@@ -571,12 +571,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         # ------
         data[1]['name'] = hidden_fname
         err = self.assertFieldRaises(ValidationError, clean, self.build_data(*data))[0]
-        self.assertEqual(_(u'This field is invalid with this model.'), err.messages[0])
+        self.assertEqual(_('This field is invalid with this model.'), err.messages[0])
 
         # ------
         data[1]['name'] = 'image__' + hidden_fname
         err = self.assertFieldRaises(ValidationError, clean, self.build_data(*data))[0]
-        self.assertEqual(_(u'This field is invalid with this model.'), err.messages[0])
+        self.assertEqual(_('This field is invalid with this model.'), err.messages[0])
 
     def test_fields_config02(self):
         "FK hidden => sub-fields hidden"
@@ -590,7 +590,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                         'value':    'selfie',
                                      },
                                     ))[0]
-        self.assertEqual(_(u'This field is invalid with this model.'), err.messages[0])
+        self.assertEqual(_('This field is invalid with this model.'), err.messages[0])
 
     def test_fields_config03(self):
         "Field is already used => still proposed"
@@ -872,7 +872,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 
         # --------------
         err = self.assertFieldRaises(ValidationError, field.clean, build_data(hidden_fname))[0]
-        self.assertEqual(_(u'This field is not a date field for this model.'),
+        self.assertEqual(_('This field is not a date field for this model.'),
                          err.messages[0]
                         )
 
@@ -904,7 +904,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         err = self.assertFieldRaises(ValidationError, clean,
                                      build_data('linked_invoice__' + hidden_fname)
                                     )[0]
-        self.assertEqual(_(u'This field is not a date field for this model.'),
+        self.assertEqual(_('This field is not a date field for this model.'),
                          err.messages[0]
                         )
 
@@ -922,7 +922,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                        },
                       ]),
         )[0]
-        self.assertEqual(_(u'This field is not a date field for this model.'),
+        self.assertEqual(_('This field is not a date field for this model.'),
                          err.messages[0]
                         )
 
@@ -1085,9 +1085,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         self.assertEqual([{'field': {'id': self.cfield_bool.id, 'type': 'boolean__null'},
                            'operator': {'id': EQUALS,
-                                         'types': self._get_allowed_types(EQUALS),
+                                        'types': self._get_allowed_types(EQUALS),
                                        },
-                           'value': u'false',
+                           'value': 'false',
                           }
                          ], data)
 
@@ -1099,7 +1099,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                            'operator': {'id': EQUALS,
                                         'types': self._get_allowed_types(EQUALS),
                                        },
-                           'value': u'false',
+                           'value': 'false',
                           }
                          ], data)
 
@@ -1583,12 +1583,14 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
 class RelationsConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
         create = RelationType.create
-        self.rtype01, self.rtype02 = create(('test-subject_love', u'Is loving', (FakeContact,)),
-                                            ('test-object_love',  u'Is loved by')
-                                           )
-        self.rtype03, self.srtype04 = create(('test-subject_belong', u'(orga) belongs to (orga)', (FakeOrganisation,)),
-                                             ('test-object_belong',  u'(orga) has (orga)',        (FakeOrganisation,))
-                                            )
+        self.rtype01, self.rtype02 = create(
+            ('test-subject_love', 'Is loving', (FakeContact,)),
+            ('test-object_love',  'Is loved by')
+        )
+        self.rtype03, self.srtype04 = create(
+            ('test-subject_belong', '(orga) belongs to (orga)', (FakeOrganisation,)),
+            ('test-object_belong',  '(orga) has (orga)',        (FakeOrganisation,))
+        )
 
     def test_clean_empty_required(self):
         clean = RelationsConditionsField(required=True).clean
@@ -1780,12 +1782,14 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
         create = RelationType.create
-        self.rtype01, self.rtype02 = create(('test-subject_love', u'Is loving', (FakeContact,)),
-                                            ('test-object_love',  u'Is loved by')
-                                           )
-        self.rtype03, self.srtype04 = create(('test-subject_belong', u'(orga) belongs to (orga)', (FakeOrganisation,)),
-                                             ('test-object_belong',  u'(orga) has (orga)',        (FakeOrganisation,))
-                                            )
+        self.rtype01, self.rtype02 = create(
+            ('test-subject_love', 'Is loving', (FakeContact,)),
+            ('test-object_love',  'Is loved by')
+        )
+        self.rtype03, self.srtype04 = create(
+            ('test-subject_belong', '(orga) belongs to (orga)', (FakeOrganisation,)),
+            ('test-object_belong',  '(orga) has (orga)',        (FakeOrganisation,))
+        )
 
         self.sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter 01', model=FakeContact, is_custom=True)
         self.sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter 02', model=FakeOrganisation, is_custom=True)

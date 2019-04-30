@@ -25,7 +25,7 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, CharField, TextField, BooleanField, Q
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from ..utils.serializers import json_encode
 
@@ -102,7 +102,7 @@ class HeaderFilter(Model):  # CremeModel ???
 
     def can_delete(self, user):
         if not self.is_custom:
-            return (False, ugettext("This view can't be deleted"))
+            return (False, gettext("This view can't be deleted"))
 
         return self.can_edit(user)
 
@@ -118,7 +118,7 @@ class HeaderFilter(Model):  # CremeModel ???
             return True, 'OK'
 
         if not user.has_perm(self.entity_type.app_label):
-            return False, ugettext('You are not allowed to access to this app')
+            return False, gettext('You are not allowed to access to this app')
 
         if not self.user.is_team:
             if self.user_id == user.id:
@@ -126,7 +126,7 @@ class HeaderFilter(Model):  # CremeModel ???
         elif user.id in self.user.teammates:
             return True, 'OK'
 
-        return False, ugettext('You are not allowed to edit/delete this view')
+        return False, gettext('You are not allowed to edit/delete this view')
 
     def can_view(self, user, content_type=None):
         if content_type and content_type != self.entity_type:
@@ -175,11 +175,12 @@ class HeaderFilter(Model):  # CremeModel ???
                     if cell is not None:
                         cells.append(cell)
 
-            hf = HeaderFilter.objects.create(pk=pk, name=name, user=user,
-                                             is_custom=is_custom, is_private=is_private,
-                                             entity_type=ContentType.objects.get_for_model(model),
-                                             cells=cells,
-                                            )
+            hf = HeaderFilter.objects.create(
+                pk=pk, name=name, user=user,
+                is_custom=is_custom, is_private=is_private,
+                entity_type=ContentType.objects.get_for_model(model),
+                cells=cells,
+            )
 
         return hf
 
@@ -194,9 +195,10 @@ class HeaderFilter(Model):  # CremeModel ???
         if cells is None:
             from ..core.entity_cell import CELLS_MAP
 
-            cells, errors = CELLS_MAP.build_cells_from_dicts(model=self.entity_type.model_class(),
-                                                             dicts=json_load(self.json_cells),
-                                                             )
+            cells, errors = CELLS_MAP.build_cells_from_dicts(
+                model=self.entity_type.model_class(),
+                dicts=json_load(self.json_cells),
+            )
 
             if errors:
                 logger.warning('HeaderFilter (id="%s") is saved with valid cells.', self.id)

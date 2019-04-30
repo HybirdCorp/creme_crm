@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from ..fake_forms import FakeContactForm
     from ..base import CremeTestCase
@@ -13,7 +13,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
     def test_iter(self):
         user = self.login()
 
-        block_vname = u'Particulars'
+        block_vname = 'Particulars'
 
         class TestFakeContactForm(FakeContactForm):
             blocks = FakeContactForm.blocks.new(('particulars', block_vname,
@@ -30,7 +30,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         block1 = blocks[0]
         self.assertIsInstance(block1, tuple)
         self.assertEqual(2, len(block1))
-        self.assertEqual(_(u'General information'), str(block1[0]))
+        self.assertEqual(_('General information'), str(block1[0]))
 
         fields = block1[1]
         self.assertIsInstance(fields, list)
@@ -54,7 +54,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         user = self.login()
 
         block_id = 'particulars'
-        block_vname = u'Particulars'
+        block_vname = 'Particulars'
 
         class TestFakeContactForm(FakeContactForm):
             blocks = FakeContactForm.blocks.new((block_id, block_vname,
@@ -67,7 +67,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         with self.assertNoException():
             general_block = blocks_group['general']
 
-        self.assertEqual(_(u'General information'), str(general_block[0]))
+        self.assertEqual(_('General information'), str(general_block[0]))
 
         with self.assertNoException():
             p_block = blocks_group[block_id]

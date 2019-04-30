@@ -28,7 +28,7 @@ from django.db.models import (CharField, TextField, ForeignKey, OneToOneField,
         PositiveIntegerField, PositiveSmallIntegerField, BooleanField, CASCADE)
 from django.db.models.signals import post_save
 from django.db.transaction import atomic
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from ..constants import (SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
         SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBRICK_ID)
@@ -42,7 +42,6 @@ from .fields import CTypeForeignKey
 from .fields_config import FieldsConfig
 from .relation import RelationType
 from .setting_value import SettingValue
-
 
 __all__ = (
     'BrickDetailviewLocation', 'BrickHomeLocation', 'BrickMypageLocation',

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2018  Hybird
+#    Copyright (C) 2017-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from functools import reduce
 from operator import or_
 
 from django.db.models.query_utils import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import PaginatedBrick
@@ -32,7 +32,7 @@ from creme.creme_core.models.fields import PhoneField
 
 class CallersBrick(PaginatedBrick):
     id_           = PaginatedBrick.generate_id('cti', 'callers')
-    verbose_name  = u'Potential callers'
+    verbose_name  = 'Potential callers'
     template_name = 'cti/bricks/callers.html'
     configurable  = False
     page_size     = 128
@@ -59,7 +59,7 @@ class CallersBrick(PaginatedBrick):
                 callers.extend(filter_viewable(user, model.objects.exclude(is_deleted=True).filter(reduce(or_, queries))))
 
         if all_fields_hidden:
-            raise ConflictError(_(u'All phone fields are hidden ; please contact your administrator.'))
+            raise ConflictError(_('All phone fields are hidden ; please contact your administrator.'))
 
         can_create = user.has_perm_to_create
 

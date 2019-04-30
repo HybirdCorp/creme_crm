@@ -6,7 +6,7 @@ try:
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.models import FieldsConfig, FakeContact

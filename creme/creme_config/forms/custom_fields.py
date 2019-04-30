@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.forms import TypedChoiceField, CharField, ValidationError
 from django.forms.widgets import Textarea
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField, ListEditionField
@@ -49,9 +49,9 @@ class CustomFieldsBaseForm(CremeModelForm):
 
         if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM) \
            and not cdata['enum_values'].strip():
-            raise ValidationError(ugettext('The choices list must not be empty '
-                                           'if you choose the type "Choice list".'
-                                          ),
+            raise ValidationError(gettext('The choices list must not be empty '
+                                          'if you choose the type "Choice list".'
+                                         ),
                                   code='empty_list',
                                  )
 
@@ -99,7 +99,7 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
         name = self.cleaned_data['name']
 
         if CustomField.objects.filter(content_type=self.ct, name=name).exists():
-            raise ValidationError(ugettext('There is already a custom field with this name.'))
+            raise ValidationError(gettext('There is already a custom field with this name.'))
 
         return name
 
@@ -120,14 +120,16 @@ class CustomFieldsEditForm(CremeModelForm):
             self._enum_values = CustomFieldEnumValue.objects.filter(custom_field=self.instance)
 
             fields = self.fields
-            fields['old_choices'] = ListEditionField(content=[enum.value for enum in self._enum_values],
-                                                     label=ugettext('Existing choices of the list'),
-                                                     help_text=ugettext('Uncheck the choices you want to delete.'),
-                                                    )
-            fields['new_choices'] = CharField(widget=Textarea(), required=False,
-                                              label=ugettext('New choices of the list'),
-                                              help_text=ugettext('Give the new possible choices (one per line).'),
-                                             )
+            fields['old_choices'] = ListEditionField(
+                content=[enum.value for enum in self._enum_values],
+                label=gettext('Existing choices of the list'),
+                help_text=gettext('Uncheck the choices you want to delete.'),
+            )
+            fields['new_choices'] = CharField(
+                widget=Textarea(), required=False,
+                label=gettext('New choices of the list'),
+                help_text=gettext('Give the new possible choices (one per line).'),
+            )
 
     def clean_name(self):
         name = self.cleaned_data['name']
@@ -136,7 +138,7 @@ class CustomFieldsEditForm(CremeModelForm):
         if CustomField.objects.filter(content_type=instance.content_type, name=name)\
                               .exclude(id=instance.id)\
                               .exists():
-            raise ValidationError(ugettext('There is already a custom field with this name.'))
+            raise ValidationError(gettext('There is already a custom field with this name.'))
 
         return name
 

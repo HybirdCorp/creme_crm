@@ -31,7 +31,7 @@ from django.core.files.base import ContentFile
 from django.db.transaction import atomic
 from django.forms import (IntegerField,FileField, ModelChoiceField, CharField,
         EmailField, URLField, BooleanField, HiddenInput)
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import (CremeForm, CremeEntityForm,
         CreatorEntityField, CremeModelWithUserForm)
@@ -489,10 +489,10 @@ class VcfImportForm(CremeModelWithUserForm):
             if img_path:
                 return Document.objects.create(
                     user=cleaned_data['user'],
-                    title=ugettext('Image of {contact}').format(contact=contact),
+                    title=gettext('Image of {contact}').format(contact=contact),
                     filedata=img_path,
                     linked_folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
-                    description=ugettext('Imported by VCFs'),
+                    description=gettext('Imported by VCFs'),
                 )
 
     def _create_orga(self, contact):

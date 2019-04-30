@@ -5,7 +5,7 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import Relation
@@ -174,7 +174,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         status = quote.status
         self.assertIsNotNone(status)
         self.assertEqual(pk,    status.id)
-        self.assertEqual(_(u'N/A'), status.name)
+        self.assertEqual(_('N/A'), status.name)
 
     @skipIfCustomSalesOrder
     def test_create_order01(self):

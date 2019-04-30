@@ -21,7 +21,7 @@
 from functools import partial
 
 from django.forms.fields import BooleanField
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, EntityExtractorField
 from creme.creme_core.models import Relation

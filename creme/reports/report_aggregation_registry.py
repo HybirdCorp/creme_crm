@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 # import warnings
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CustomField
 
@@ -68,7 +68,7 @@ class FieldAggregationRegistry:
 
 
 field_aggregation_registry = FieldAggregationRegistry()
-field_aggregation_registry.register('avg', FieldAggregation('avg', models.Avg, '{}__avg', _(u'Average')))
-field_aggregation_registry.register('min', FieldAggregation('min', models.Min, '{}__min', _(u'Minimum')))
-field_aggregation_registry.register('max', FieldAggregation('max', models.Max, '{}__max', _(u'Maximum')))
-field_aggregation_registry.register('sum', FieldAggregation('sum', models.Sum, '{}__sum', _(u'Sum')))
+field_aggregation_registry.register('avg', FieldAggregation('avg', models.Avg, '{}__avg', _('Average')))
+field_aggregation_registry.register('min', FieldAggregation('min', models.Min, '{}__min', _('Minimum')))
+field_aggregation_registry.register('max', FieldAggregation('max', models.Max, '{}__max', _('Maximum')))
+field_aggregation_registry.register('sum', FieldAggregation('sum', models.Sum, '{}__sum', _('Sum')))

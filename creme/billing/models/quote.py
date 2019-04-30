@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.db.models import ForeignKey, DateField, PROTECT
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from .base import Base
 from .other_models import QuoteStatus
@@ -53,11 +53,12 @@ class AbstractQuote(Base):
     def build(self, template):
         # Specific recurrent generation rules
         tpl_status_id = template.status_id
-        self.status = QuoteStatus.objects.get_or_create(pk=tpl_status_id,
-                                                        defaults={'name': ugettext('N/A'),
-                                                                  'order': tpl_status_id,
-                                                                 },
-                                                       )[0]
+        self.status = QuoteStatus.objects.get_or_create(
+            pk=tpl_status_id,
+            defaults={'name': gettext('N/A'),
+                      'order': tpl_status_id,
+                     },
+        )[0]
 
         return super().build(template)
 

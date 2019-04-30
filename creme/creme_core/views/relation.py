@@ -25,7 +25,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q, FilteredRelation
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, get_list_or_404, redirect
-from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
+from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from .. import utils
 from ..auth.decorators import login_required
@@ -179,8 +179,8 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
 
             if not rtype.is_compatible(subject_ctype.id):
                 raise ConflictError(
-                    ugettext('This type of relationship is not compatible with «{model}».')
-                            .format(model=subject_ctype)
+                    gettext('This type of relationship is not compatible with «{model}».')
+                           .format(model=subject_ctype)
                 )
 
             # TODO: make a method in RelationType (improve is_compatible() ?)
@@ -195,7 +195,7 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
 
                 if missing_ptypes:
                     raise ConflictError(
-                        ungettext(
+                        ngettext(
                             'This type of relationship needs an entity with this property: {properties}.',
                             'This type of relationship needs an entity with these properties: {properties}.',
                             number=len(missing_ptypes)
@@ -321,13 +321,13 @@ def delete_all(request):  # TODO: deprecate ?
         if user.has_perm_to_unlink(relation.object_entity):
             relation.delete()
         else:
-            errors[403].append(ugettext('{entity} : <b>Permission denied</b>')
-                                       .format(entity=relation.object_entity)
+            errors[403].append(gettext('{entity} : <b>Permission denied</b>')
+                                      .format(entity=relation.object_entity)
                               )
 
     if not errors:
         status = 200
-        message = ugettext('Operation successfully completed')
+        message = gettext('Operation successfully completed')
     else:
         status = min(errors)
         message = ','.join(msg for error_messages in errors.values() for msg in error_messages)
@@ -491,11 +491,12 @@ def add_relations_with_same_type(request):
     len_diff = len(entity_ids) - len(entities)
 
     if len_diff != 1:  # 'subject' has been pop from entities, but not subject_id from entity_ids, so 1 and not 0
-        errors[404].append(ungettext("{count} entity doesn't exist or has been removed.",
-                                     "{count} entities don't exist or have been removed.",
-                                     len_diff
-                                    ).format(count=len_diff)
-                          )
+        errors[404].append(
+            ngettext("{count} entity doesn't exist or has been removed.",
+                     "{count} entities don't exist or have been removed.",
+                     len_diff
+                    ).format(count=len_diff),
+        )
 
     # TODO: move in a RelationType method ??
     subject_ctypes = frozenset(int(ct_id) for ct_id in rtype.subject_ctypes.values_list('id', flat=True))
@@ -518,17 +519,17 @@ def add_relations_with_same_type(request):
     create_relation = Relation.objects.safe_create
     for entity in entities:
         if not check_ctype(entity):
-            errors[409].append(ugettext('Incompatible type for object entity with id={}').format(entity.id))
+            errors[409].append(gettext('Incompatible type for object entity with id={}').format(entity.id))
         elif not check_properties(entity):
-            errors[409].append(ugettext('Missing compatible property for object entity with id={}').format(entity.id))
+            errors[409].append(gettext('Missing compatible property for object entity with id={}').format(entity.id))
         elif not user.has_perm_to_link(entity):
-            errors[403].append(ugettext('Permission denied to entity with id={}').format(entity.id))
+            errors[403].append(gettext('Permission denied to entity with id={}').format(entity.id))
         else:
             create_relation(subject_entity=subject, type=rtype, object_entity=entity, user=user)
 
     if not errors:
         status = 200
-        message = ugettext('Operation successfully completed')
+        message = gettext('Operation successfully completed')
     else:
         status = min(errors)
         message = ','.join(msg for error_messages in errors.values() for msg in error_messages)

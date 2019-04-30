@@ -13,7 +13,7 @@ try:
     from django.test.utils import override_settings
     from django.urls import reverse
     from django.utils.timezone import now, localtime
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.bricks import JobErrorsBrick
     from creme.creme_core.core.function_field import function_field_registry

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.forms.fields import CharField
 from django.forms.widgets import Textarea
 from django.template.base import Template, VariableNode
 from django.utils.functional import lazy
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager, MultiCreatorEntityField
 from creme.creme_core.forms.widgets import TinyMCEEditor
@@ -37,7 +37,7 @@ Document = get_document_model()
 
 TEMPLATES_VARS = {'last_name', 'first_name', 'civility', 'name'}
 _TEMPLATES_VARS_4_HELP = ' '.join('{{%s}}' % var for var in TEMPLATES_VARS)
-_help_text = lazy((lambda: ugettext('You can use variables: {}').format(_TEMPLATES_VARS_4_HELP)), str)
+_help_text = lazy((lambda: gettext('You can use variables: {}').format(_TEMPLATES_VARS_4_HELP)), str)
 
 
 class EmailTemplateForm(CremeEntityForm):

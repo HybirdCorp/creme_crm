@@ -9,7 +9,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.test import override_settings
     from django.urls import reverse
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from creme.creme_core.tests.views.base import ViewsTestCase
     from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeCivility,
@@ -464,7 +464,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                      )
         self.assertFormError(
             response, 'form', None,
-            ungettext(
+            ngettext(
                 'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
                 ' So this private sub-filter cannot be chosen: {}',
                 'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
@@ -701,12 +701,13 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = post('')
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', None,
-                             ungettext('Your filter must be private in order to use this private sub-filter: {}',
-                                       'Your filter must be private in order to use these private sub-filters: {}',
-                                       2
-                                      ).format('{}, {}'.format(subfilter2.name, subfilter1.name))
-                            )
+        self.assertFormError(
+            response, 'form', None,
+             ngettext('Your filter must be private in order to use this private sub-filter: {}',
+                      'Your filter must be private in order to use these private sub-filters: {}',
+                      2
+                     ).format('{}, {}'.format(subfilter2.name, subfilter1.name))
+        )
 
         response = post('on')
         self.assertNoFormError(response)
@@ -769,7 +770,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertFormError(
             response, 'form', None,
-            ungettext(
+            ngettext(
                 'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
                 ' So this private sub-filter cannot be chosen: {}',
                 'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'

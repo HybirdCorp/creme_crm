@@ -23,7 +23,7 @@ from datetime import timedelta
 from django.apps import apps
 from django.core.paginator import Paginator
 from django.db.models.query_utils import Q, FilteredRelation
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick, EntityBrick
 from creme.creme_core.models import Relation

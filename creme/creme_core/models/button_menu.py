@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, PositiveIntegerField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 from django.contrib.contenttypes.models import ContentType
 
 from .base import CremeModel
@@ -29,20 +29,20 @@ from .fields import CTypeForeignKey
 class ButtonMenuItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100)  # TODO: pk string still useful ???
     # 'null' means: all ContentTypes are accepted.
-    content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True)
-    button_id    = CharField(_(u"Button ID"), max_length=100, blank=False, null=False)
-    order        = PositiveIntegerField(_(u"Priority"))
+    content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
+    button_id    = CharField(_('Button ID'), max_length=100, blank=False, null=False)
+    order        = PositiveIntegerField(_('Priority'))
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Button to display')
-        verbose_name_plural = _(u'Buttons to display')
+        verbose_name = _('Button to display')
+        verbose_name_plural = _('Buttons to display')
 
     def __str__(self):
         from creme.creme_core.gui.button_menu import button_registry
 
         button = button_registry.get_button(self.button_id)
-        return str(button.verbose_name) if button else ugettext('Deprecated button')
+        return str(button.verbose_name) if button else gettext('Deprecated button')
 
     @staticmethod
     def create_if_needed(pk, model, button, order):  # TODO: rename 'button_class'
@@ -51,9 +51,10 @@ class ButtonMenuItem(CremeModel):
         """
         # TODO: remove pkstring & use ('content_type', 'button_id') as PK
         return ButtonMenuItem.objects.get_or_create(
-                    pk=pk,
-                    defaults={'content_type': ContentType.objects.get_for_model(model) if model else None,
-                              'button_id':    button.id_,
-                              'order':        order,
-                             }
-                   )[0]
+            pk=pk,
+            defaults={
+                'content_type': ContentType.objects.get_for_model(model) if model else None,
+                'button_id':    button.id_,
+                'order':        order,
+            },
+       )[0]

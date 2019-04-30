@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 FAKE_REL_SUB_EMPLOYED_BY = 'creme_core-subject_fake_employed_by'
 FAKE_REL_OBJ_EMPLOYED_BY = 'creme_core-object_fake_employed_by'

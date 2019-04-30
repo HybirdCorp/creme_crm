@@ -27,7 +27,7 @@ from django.utils.formats import date_format, number_format
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
-from django.utils.translation import ungettext, ugettext as _
+from django.utils.translation import ngettext, gettext as _
 
 from ..models import CremeEntity, fields
 from ..templatetags.creme_widgets import widget_entity_hyperlink, widget_urlize
@@ -242,11 +242,11 @@ def print_duration(entity, fval, user, field):
 
     return '{hour} {hour_label} {minute} {minute_label} {second} {second_label}'.format(
         hour=h,
-        hour_label=ungettext('hour', 'hours', h),
+        hour_label=ngettext('hour', 'hours', h),
         minute=m,
-        minute_label=ungettext('minute', 'minutes', m),
+        minute_label=ngettext('minute', 'minutes', m),
         second=s,
-        second_label=ungettext('second', 'seconds', s)
+        second_label=ngettext('second', 'seconds', s)
     )
 
 

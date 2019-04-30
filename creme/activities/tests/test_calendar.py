@@ -13,7 +13,7 @@ try:
     from django.utils.encoding import force_text
     from django.utils.html import escape
     from django.utils.timezone import make_naive, get_current_timezone
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import Relation, SetCredentials, CremeUser

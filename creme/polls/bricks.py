@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
+from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick
 
@@ -41,7 +41,7 @@ class PollFormBarHatBrick(SimpleBrick):
 class PollFormLinesBrick(Brick):
     id_           = Brick.generate_id('polls', 'pollform_lines')
     dependencies  = (PollFormLine,)
-    verbose_name  = _(u'Form lines')
+    verbose_name  = _('Form lines')
     template_name = 'polls/bricks/pform-lines.html'
     target_ctypes = (PollForm,)
 
@@ -56,17 +56,17 @@ class PollFormLinesBrick(Brick):
             else:
                 question_count += 1
 
-        question_label = lambda: ungettext(u'{count} Question', u'{count} Questions', question_count).format(count=question_count)
-        section_label  = lambda: ungettext(u'{count} Section', u'{count} Sections', section_count).format(section_count)
+        question_label = lambda: ngettext('{count} Question', '{count} Questions', question_count).format(count=question_count)
+        section_label  = lambda: ngettext('{count} Section', '{count} Sections', section_count).format(section_count)
 
         if section_count and question_count:
-            return ugettext(u'{questions} and {sections}').format(questions=question_label(), sections=section_label())
+            return gettext('{questions} and {sections}').format(questions=question_label(), sections=section_label())
         elif section_count:
             return section_label()
         elif question_count:
             return question_label()
 
-        return ugettext(u'Questions')
+        return gettext('Questions')
 
     def detailview_display(self, context):
         pform = context['object']
@@ -85,7 +85,7 @@ class PollFormLinesBrick(Brick):
 class PollReplyLinesBrick(Brick):
     id_           = Brick.generate_id('polls', 'pollreply_lines')
     dependencies  = (PollReplyLine,)
-    verbose_name  = _(u'Reply lines')
+    verbose_name  = _('Reply lines')
     template_name = 'polls/bricks/preply-lines.html'
     target_ctypes = (PollReply,)
 
@@ -106,7 +106,7 @@ class PollRepliesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('polls', 'poll_replies')
     dependencies  = (PollReply, PollFormLine)  # PollFormLine : the 'New' button appears only
                                                #  if there is at least one line.
-    verbose_name  = _(u'Form replies')
+    verbose_name  = _('Form replies')
     template_name = 'polls/bricks/preplies.html'
     target_ctypes = (PollForm,)
 
@@ -123,7 +123,7 @@ class PollRepliesBrick(QuerysetBrick):
 
 class _RelatedRepliesBrick(QuerysetBrick):
     dependencies = (PollReply,)
-    verbose_name = _(u'Related form replies')
+    verbose_name = _('Related form replies')
 
     def _get_replies(self, pk):
         raise NotImplementedError

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from os.path import basename
 
 from django.conf import settings
 from django.forms import ImageField
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.backends import import_backend_registry
 from creme.creme_core.forms.base import CremeModelWithUserForm
@@ -85,10 +85,11 @@ class DocumentWidgetQuickForm(DocumentQuickForm):
 class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
     def __init__(self, user=None, *args, **kwargs):
         super().__init__(user=user, *args, **kwargs)
-        self.fields['filedata'].widget.attrs = {'accept': ','.join('.' + ext
-                                                                       for ext in import_backend_registry.extensions
-                                                                  ),
-                                               }
+        self.fields['filedata'].widget.attrs = {
+            'accept': ','.join('.' + ext
+                                   for ext in import_backend_registry.extensions
+                              ),
+        }
 
     def clean(self):
         self.folder = get_csv_folder_or_create(self.user)
@@ -97,7 +98,7 @@ class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
 
 # TODO: factorise
 class ImageQuickForm(CremeModelWithUserForm):
-    image = ImageField(label=_(u'Image file'), max_length=Document._meta.get_field('filedata').max_length)
+    image = ImageField(label=_('Image file'), max_length=Document._meta.get_field('filedata').max_length)
 
     class Meta:
         model = Document

@@ -9,7 +9,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.template import Template, Context
     from django.urls import reverse
-    from django.utils.translation import ugettext_lazy, ugettext
+    from django.utils.translation import gettext_lazy, gettext
 
     from ..base import CremeTestCase
 
@@ -260,14 +260,14 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self._assertJsonifyFilter(
             {'a': 12,
              'b': 0.47,
-             'c': str(ugettext('User')),
+             'c': gettext('User'),
              'd': '2018-01-12',
              'e': '08:12:25.012Z',
              'f': '2018-01-12T08:12:25.012Z',
             },
             {'a': 12,
              'b': Decimal('0.47'),
-             'c': ugettext_lazy('User'),
+             'c': gettext_lazy('User'),
              'd': now.date(),
              'e': now.time().replace(tzinfo=timezone.utc),
              'f': now,
@@ -329,8 +329,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                   {'b': Decimal("0.47")}
                                  )
         self._assertJsonscriptTag(
-            r'<script type="application/json"><!-- ' + escapejson('{"c":"%s"}' % ugettext('User')) + r' --></script>',
-            {'c': ugettext_lazy('User')}
+            r'<script type="application/json"><!-- ' + escapejson('{"c":"%s"}' % gettext('User')) + r' --></script>',
+            {'c': gettext_lazy('User')}
         )
 
         self._assertJsonscriptTag(

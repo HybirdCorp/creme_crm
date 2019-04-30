@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import logging
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -33,7 +33,6 @@ from creme.creme_core.utils import create_if_needed
 
 from . import get_document_model, get_folder_model, folder_model_is_custom, constants, bricks
 from .models import FolderCategory, DocumentCategory
-
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +46,10 @@ class Populator(BasePopulator):
         Document = get_document_model()
         Folder   = get_folder_model()
 
-        RelationType.create((constants.REL_SUB_RELATED_2_DOC, _('related to the document')),
-                            (constants.REL_OBJ_RELATED_2_DOC, _('document related to'),      [Document])
-                           )
+        RelationType.create(
+            (constants.REL_SUB_RELATED_2_DOC, _('related to the document')),
+            (constants.REL_OBJ_RELATED_2_DOC, _('document related to'),      [Document])
+        )
 
         # ---------------------------
         # TODO: pk string (or UUID) (+ move DOCUMENTS_FROM_EMAILS in 'emails' app) ??

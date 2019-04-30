@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import ModelChoiceField
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, EntityExtractorField
 

@@ -23,7 +23,7 @@ from django.db.transaction import atomic
 # from django.http import HttpResponse
 # from django.shortcuts import redirect, get_object_or_404
 # from django.utils.translation import ugettext as _
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth import decorators
 from creme.creme_core.core.exceptions import ConflictError

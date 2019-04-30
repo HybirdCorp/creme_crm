@@ -29,7 +29,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from .. import utils
 from ..auth.decorators import login_required
@@ -143,13 +143,13 @@ def delete(request):
         except EntityFilter.DependenciesError as e:
             return_msg = str(e)
         except ProtectedError as e:
-            return_msg = ugettext('«{}» can not be deleted because of its dependencies.').format(efilter)
+            return_msg = gettext('«{}» can not be deleted because of its dependencies.').format(efilter)
             return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
                                            {'objects': e.args[1][:25], 'user': request.user},
                                            request=request,
                                           )
         else:
-            return_msg = ugettext('Filter successfully deleted')
+            return_msg = gettext('Filter successfully deleted')
             status = 200
     else:
         return_msg = msg
@@ -167,7 +167,7 @@ def get_content_types(request, rtype_id):
     content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all() or \
                     utils.creme_entity_content_types()
 
-    choices = [(0, ugettext('All'))]
+    choices = [(0, gettext('All'))]
     choices.extend((ct.id, str(ct)) for ct in content_types)
 
     return choices

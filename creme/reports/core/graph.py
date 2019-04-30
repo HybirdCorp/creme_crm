@@ -23,7 +23,7 @@ import logging
 
 from django.db import connection
 from django.db.models import Min, Max, Count, FieldDoesNotExist, Q, ForeignKey
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.models import (CremeEntity, RelationType, Relation,
@@ -839,7 +839,7 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
             self.error = _('The field is invalid.')
         else:
             if isinstance(field, ForeignKey):
-                self.verbose_volatile_column = ugettext('{field} (Field)').format(field=field.verbose_name)
+                self.verbose_volatile_column = gettext('{field} (Field)').format(field=field.verbose_name)
                 self._field_name = field_name
                 self._volatile_model = field.remote_field.model
             else:
@@ -881,7 +881,7 @@ class RelationLinkedGraphFetcher(GraphFetcher):
             self.error = _('The relationship type is invalid.')
             self.verbose_volatile_column = '??'
         else:
-            self.verbose_volatile_column = ugettext('{rtype} (Relationship)').format(rtype=rtype)
+            self.verbose_volatile_column = gettext('{rtype} (Relationship)').format(rtype=rtype)
             self._rtype = rtype
 
     def _aux_fetch_4_entity(self, entity, order, user):

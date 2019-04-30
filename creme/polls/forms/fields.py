@@ -21,7 +21,7 @@
 from functools import partial
 
 from django.forms.utils import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms.fields import JSONField
 from creme.creme_core.forms.widgets import SelectorList, ChainedInput
@@ -52,8 +52,8 @@ class PollFormLineConditionsWidget(SelectorList):
 class PollFormLineConditionsField(JSONField):
     widget = PollFormLineConditionsWidget
     default_error_messages = {
-        'invalidsource': _(u'This source is invalid.'),
-        'invalidchoice': _(u'This choice is invalid.'),
+        'invalidsource': _('This source is invalid.'),
+        'invalidchoice': _('This choice is invalid.'),
     }
     value_type = list
 

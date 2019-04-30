@@ -27,7 +27,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
 from django.forms import Field, ModelMultipleChoiceField, ValidationError
 from django.forms.widgets import Select
-from django.utils.translation import ugettext as _, ugettext_lazy
+from django.utils.translation import gettext as _, gettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, BaseExtractorWidget
@@ -137,7 +137,7 @@ def _contact_pattern(verbose_name):
 # NB: 'C' means Civility
 #     'F' means First name
 #     'L' means Last name
-@_contact_pattern(ugettext_lazy('Civility FirstName LastName'))
+@_contact_pattern(gettext_lazy('Civility FirstName LastName'))
 def _pattern_CFL(contact_as_str):
     names     = contact_as_str.split(None, 2)
     last_name =  names[-1].strip()
@@ -152,7 +152,7 @@ def _pattern_CFL(contact_as_str):
     return civ, first_name, last_name
 
 
-@_contact_pattern(ugettext_lazy('Civility LastName FirstName'))
+@_contact_pattern(gettext_lazy('Civility LastName FirstName'))
 def _pattern_CLF(contact_as_str):
     names = contact_as_str.split()
     length = len(names)
@@ -173,7 +173,7 @@ def _pattern_CLF(contact_as_str):
     return civ, first_name, last_name
 
 
-@_contact_pattern(ugettext_lazy('FirstName LastName'))
+@_contact_pattern(gettext_lazy('FirstName LastName'))
 def _pattern_FL(contact_as_str):
     names      = contact_as_str.split(None, 1)
     last_name  = names[-1].strip()
@@ -182,7 +182,7 @@ def _pattern_FL(contact_as_str):
     return None, first_name, last_name
 
 
-@_contact_pattern(ugettext_lazy('LastName FirstName'))
+@_contact_pattern(gettext_lazy('LastName FirstName'))
 def _pattern_LF(contact_as_str):
     names      = contact_as_str.rsplit(None, 1)
     last_name  = names[0].strip()

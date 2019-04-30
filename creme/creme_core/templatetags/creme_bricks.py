@@ -23,7 +23,7 @@ import logging
 from django.template import Library, TemplateSyntaxError
 from django.template.base import TextNode
 from django.utils.safestring import mark_safe, SafeData
-from django.utils.translation import ugettext as _, ugettext_lazy
+from django.utils.translation import gettext as _, gettext_lazy
 
 from ..core.entity_cell import EntityCellRegularField
 from ..core.sorter import cell_sorter_registry
@@ -123,8 +123,8 @@ def brick_header_title(context, title, plural=None, empty=None, icon='info', cou
 
 
 DEFAULT_ACTION_LABELS = {
-    'edit':   ugettext_lazy('Edit'),
-    'delete': ugettext_lazy('Delete'),
+    'edit':   gettext_lazy('Edit'),
+    'delete': gettext_lazy('Delete'),
 }
 
 _DISPLAY_VALUES = frozenset(('text', 'icon', 'both'))

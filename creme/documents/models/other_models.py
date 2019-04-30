@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import uuid
 
 from django.db.models import CharField, BooleanField, UUIDField
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 
@@ -29,15 +29,15 @@ from ..constants import MIMETYPE_PREFIX_IMG
 
 
 class FolderCategory(CremeModel):
-    name      = CharField(_(u'Category name'), max_length=100, unique=True)
+    name      = CharField(_('Category name'), max_length=100, unique=True)
     is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = pgettext_lazy('documents-folder_category', u'Create a category')
+    creation_label = pgettext_lazy('documents-folder_category', 'Create a category')
 
     class Meta:
         app_label = 'documents'
-        verbose_name = _(u'Folder category')
-        verbose_name_plural = _(u'Folder categories')
+        verbose_name = _('Folder category')
+        verbose_name_plural = _('Folder categories')
         ordering = ('name',)
 
     def __str__(self):
@@ -45,16 +45,16 @@ class FolderCategory(CremeModel):
 
 
 class DocumentCategory(CremeModel):
-    name      = CharField(_(u'Name'), max_length=100, unique=True)
+    name      = CharField(_('Name'), max_length=100, unique=True)
     uuid      = UUIDField(unique=True, default=uuid.uuid4, editable=False).set_tags(viewable=False)
     is_custom = BooleanField(default=True).set_tags(viewable=False)
 
-    creation_label = pgettext_lazy('documents-doc_category', u'Create a category')
+    creation_label = pgettext_lazy('documents-doc_category', 'Create a category')
 
     class Meta:
         app_label = 'documents'
-        verbose_name = _(u'Document category')
-        verbose_name_plural = _(u'Document categories')
+        verbose_name = _('Document category')
+        verbose_name_plural = _('Document categories')
         ordering = ('name',)
 
     def __str__(self):
@@ -62,12 +62,12 @@ class DocumentCategory(CremeModel):
 
 
 class MimeType(CremeModel):
-    name = CharField(_(u'Name'), max_length=100, unique=True)
+    name = CharField(_('Name'), max_length=100, unique=True)
 
     class Meta:
         app_label = 'documents'
-        verbose_name = _(u'MIME type')
-        verbose_name_plural = _(u'MIME types')
+        verbose_name = _('MIME type')
+        verbose_name_plural = _('MIME types')
         ordering = ('name',)
 
     def __str__(self):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.db import DatabaseError
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.auth.decorators import login_required, superuser_required, _check_superuser
 from creme.creme_core.core.exceptions import ConflictError
@@ -110,7 +110,7 @@ class UserDeletion(BaseUserEdition):
 
     def get_object(self, *args, **kwargs):
         if int(self.kwargs[self.pk_url_kwarg]) == self.request.user.id:
-            raise ConflictError(ugettext("You can't delete the current user."))
+            raise ConflictError(gettext("You can't delete the current user."))
 
         return super(UserDeletion, self).get_object(*args, **kwargs)
 
@@ -136,12 +136,12 @@ def deactivate(request, user_id):
     user = request.user
 
     if int(user_id) == user.id:
-        raise ConflictError(ugettext("You can't deactivate the current user."))
+        raise ConflictError(gettext("You can't deactivate the current user."))
 
     user_to_deactivate = get_object_or_404(get_user_model().objects.select_for_update(), id=user_id)
 
     if user_to_deactivate.is_staff and not user.is_staff:
-        return HttpResponse(ugettext("You can't deactivate a staff user."), status=400)
+        return HttpResponse(gettext("You can't deactivate a staff user."), status=400)
 
     if user_to_deactivate.is_active:
         user_to_deactivate.is_active = False
@@ -158,7 +158,7 @@ def activate(request, user_id):
     user_to_activate = get_object_or_404(get_user_model().objects.select_for_update(), id=user_id)
 
     if user_to_activate.is_staff and not request.user.is_staff:
-        return HttpResponse(ugettext("You can't activate a staff user."), status=400)
+        return HttpResponse(gettext("You can't activate a staff user."), status=400)
 
     if not user_to_activate.is_active:
         user_to_activate.is_active = True

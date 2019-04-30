@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,24 +20,26 @@
 
 from django.conf import settings
 from django.db.models import ForeignKey, CharField, CASCADE
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeModel
 
 
 class Recipient(CremeModel):
     """ A model that stores a phone number not linked to a Contact"""
-    messaging_list = ForeignKey(settings.SMS_MLIST_MODEL, verbose_name=_(u'Related messaging list'), on_delete=CASCADE)
-    phone          = CharField(_(u'Number'), max_length=100, blank=True)
+    messaging_list = ForeignKey(settings.SMS_MLIST_MODEL, on_delete=CASCADE,
+                                verbose_name=_('Related messaging list'),
+                               )
+    phone          = CharField(_('Number'), max_length=100, blank=True)
 
-    creation_label   = _(u'Add a recipient')
-    save_label       = _(u'Save the recipient')
-    multi_save_label = _(u'Save the recipients')
+    creation_label   = _('Add a recipient')
+    save_label       = _('Save the recipient')
+    multi_save_label = _('Save the recipients')
 
     class Meta:
         app_label = 'sms'
-        verbose_name = _(u'Recipient')
-        verbose_name_plural = _(u'Recipients')
+        verbose_name = _('Recipient')
+        verbose_name_plural = _('Recipients')
         # ordering = ('phone',) TODO ??
 
     def __str__(self):

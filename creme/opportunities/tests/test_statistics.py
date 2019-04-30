@@ -6,7 +6,7 @@ try:
     from dateutil.relativedelta import relativedelta
 
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from creme.creme_core.models import FieldsConfig
 
@@ -46,14 +46,14 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         create_opp(name='Opp #1', emitter=emitter1, target=target)
         fmt = _('For {organisation}: {won_stats} / {lost_stats}').format
         self.assertEqual([fmt(organisation=emitter1,
-                              won_stats=ungettext('{count} won opportunity',
-                                                  '{count} won opportunities',
-                                                  1
-                                                 ).format(count=1),
-                              lost_stats=ungettext('{count} lost opportunity',
-                                                   '{count} lost opportunities',
-                                                   0
-                                                  ).format(count=0),
+                              won_stats=ngettext('{count} won opportunity',
+                                                 '{count} won opportunities',
+                                                 1
+                                                ).format(count=1),
+                              lost_stats=ngettext('{count} lost opportunity',
+                                                  '{count} lost opportunities',
+                                                  0
+                                                 ).format(count=0),
                              ),
                          ],
                          statf()
@@ -61,28 +61,28 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
 
         create_opp(name='Opp #2', emitter=emitter1, target=target)
         msg_emitter1 = fmt(organisation=emitter1,
-                           won_stats=ungettext('{count} won opportunity',
-                                               '{count} won opportunities',
-                                               2
-                                              ).format(count=2),
-                           lost_stats=ungettext('{count} lost opportunity',
-                                                '{count} lost opportunities',
-                                                0
-                                               ).format(count=0),
+                           won_stats=ngettext('{count} won opportunity',
+                                              '{count} won opportunities',
+                                              2
+                                             ).format(count=2),
+                           lost_stats=ngettext('{count} lost opportunity',
+                                               '{count} lost opportunities',
+                                               0
+                                              ).format(count=0),
                           )
         self.assertEqual([msg_emitter1], statf())
 
         create_opp(name='Opp #3', emitter=emitter2, target=target)
         self.assertEqual([msg_emitter1,
                           fmt(organisation=emitter2,
-                              won_stats=ungettext('{count} won opportunity',
-                                                  '{count} won opportunities',
-                                                  1
-                                                 ).format(count=1),
-                              lost_stats=ungettext('{count} lost opportunity',
-                                                   '{count} lost opportunities',
-                                                   0
-                                                  ).format(count=0),
+                              won_stats=ngettext('{count} won opportunity',
+                                                 '{count} won opportunities',
+                                                 1
+                                                ).format(count=1),
+                              lost_stats=ngettext('{count} lost opportunity',
+                                                  '{count} lost opportunities',
+                                                  0
+                                                 ).format(count=0),
                              )
                          ],
                          statf()
@@ -115,14 +115,14 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(
             [_('For {organisation}: {won_stats} / {lost_stats}').format(
                   organisation=emitter,
-                  won_stats=ungettext('{count} won opportunity',
-                                      '{count} won opportunities',
-                                      2
-                                     ).format(count=2),
-                  lost_stats=ungettext('{count} lost opportunity',
-                                       '{count} lost opportunities',
-                                       3
-                                      ).format(count=3),
+                  won_stats=ngettext('{count} won opportunity',
+                                     '{count} won opportunities',
+                                     2
+                                    ).format(count=2),
+                  lost_stats=ngettext('{count} lost opportunity',
+                                      '{count} lost opportunities',
+                                      3
+                                     ).format(count=3),
                  ),
             ],
             CurrentYearStatistics(opp_model=Opportunity, orga_model=Organisation)()
@@ -156,14 +156,14 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(
             [_('For {organisation}: {won_stats} / {lost_stats}').format(
                   organisation=emitter,
-                  won_stats=ungettext('{count} won opportunity',
-                                      '{count} won opportunities',
-                                      1
-                                     ).format(count=1),
-                  lost_stats=ungettext('{count} lost opportunity',
-                                       '{count} lost opportunities',
-                                       2
-                                      ).format(count=2),
+                  won_stats=ngettext('{count} won opportunity',
+                                     '{count} won opportunities',
+                                     1
+                                    ).format(count=1),
+                  lost_stats=ngettext('{count} lost opportunity',
+                                      '{count} lost opportunities',
+                                      2
+                                     ).format(count=2),
                  ),
             ],
             CurrentYearStatistics(Opportunity, Organisation)()

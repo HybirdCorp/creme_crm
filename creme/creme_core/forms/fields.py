@@ -32,7 +32,7 @@ from django.db.models.query import QuerySet, Q
 from django.forms import fields, widgets, ValidationError, ModelChoiceField
 from django.urls import reverse
 from django.utils.encoding import smart_text
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from ..auth.entity_credentials import EntityCredentials
 from ..constants import REL_SUB_HAS

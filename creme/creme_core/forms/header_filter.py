@@ -24,7 +24,7 @@ import logging
 from django.db.transaction import atomic
 from django.forms.fields import EMPTY_VALUES, Field, ValidationError
 from django.forms.widgets import Widget
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from ..core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)

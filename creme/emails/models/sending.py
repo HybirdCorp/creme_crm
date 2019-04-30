@@ -32,7 +32,7 @@ from django.template import Template, Context
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, CremeEntity
 
@@ -125,13 +125,13 @@ class EmailSending(CremeModel):
         try:
             sender = LightWeightEmailSender(sending=self)
         except ImageFromHTMLError as e:
-            send_mail(ugettext('[CremeCRM] Campaign email sending error.'),
-                      ugettext("Emails in the sending of the campaign «{campaign}» on {date} weren't sent "
-                               "because the image «{image}» is no longer available in the template.").format(
+            send_mail(gettext('[CremeCRM] Campaign email sending error.'),
+                      gettext("Emails in the sending of the campaign «{campaign}» on {date} weren't sent "
+                              "because the image «{image}» is no longer available in the template.").format(
                             campaign=self.campaign,
                             date=self.sending_date,
                             image=e.filename,
-                        ),
+                      ),
                       settings.EMAIL_HOST_USER,
                       [self.campaign.user.email or settings.DEFAULT_USER_EMAIL],
                       fail_silently=False,

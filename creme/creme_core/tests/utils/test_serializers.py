@@ -5,7 +5,7 @@ try:
     from datetime import date, time, datetime, timezone
     from decimal import Decimal
 
-    from django.utils.translation import ugettext, ugettext_lazy
+    from django.utils.translation import gettext, gettext_lazy
 
     from creme.creme_core.utils.serializers import json_encode
 
@@ -109,8 +109,9 @@ class SerializerTestCase(CremeTestCase):
                         )
 
     def test_encode_lazy(self):
-        self.assertEqual('"{}"'.format(str(ugettext('User'))),
-                         json_encode(ugettext_lazy('User')))
+        self.assertEqual('"{}"'.format(gettext('User')),
+                         json_encode(gettext_lazy('User'))
+                        )
 
     def test_encode_generator(self):
         self.assertEqual('[0,1,2]', json_encode(x for x in range(3)))

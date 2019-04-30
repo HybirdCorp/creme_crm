@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.models import ButtonMenuItem, FakeContact, FakeOrganisation
     from creme.creme_core.gui.button_menu import Button, button_registry

@@ -24,7 +24,7 @@ from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from .. import utils
 from ..auth.decorators import login_required
@@ -39,7 +39,6 @@ from ..utils.unicode_collation import collator
 from .bricks import bricks_render_info
 from .decorators import jsonify
 from .generic import base
-
 
 MIN_RESEARCH_LENGTH = 3
 
@@ -185,7 +184,7 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
 
         if error is None:
             self.search_error = error = (
-                ugettext('Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
+                gettext('Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
                 if len(self.get_search_terms()) < MIN_RESEARCH_LENGTH else
                 ''
             )

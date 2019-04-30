@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
 from django.forms import ModelMultipleChoiceField
-from django.utils.translation import ugettext_lazy as _, ungettext
+from django.utils.translation import gettext_lazy as _, ngettext
 
 from creme.creme_core.forms import CremeForm, MultiCreatorEntityField, MultiGenericEntityField, validators
 from creme.creme_core.models import RelationType, Relation
@@ -35,6 +35,7 @@ from creme.persons import get_contact_model
 from .. import constants
 from ..models import Calendar
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
+
 from .fields import UserParticipationField
 
 
@@ -167,12 +168,13 @@ class SubjectCreateForm(CremeForm):
         duplicates = [subject for subject in subjects if subject.id in already_subjects]
 
         if duplicates:
-            raise ValidationError(ungettext('This entity is already a subject: %(duplicates)s',
-                                            'These entities are already subjects: %(duplicates)s',
-                                            len(duplicates)
-                                           ),
-                                  params={'duplicates': ', '.join(str(e) for e in duplicates)},
-                                 )
+            raise ValidationError(
+                ngettext('This entity is already a subject: %(duplicates)s',
+                         'These entities are already subjects: %(duplicates)s',
+                         len(duplicates)
+                        ),
+                params={'duplicates': ', '.join(str(e) for e in duplicates)},
+            )
 
         return subjects
 

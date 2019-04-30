@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.db.models.query_utils import Q
 from django.forms.utils import ValidationError
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
@@ -93,14 +93,14 @@ class ParentFolderBulkForm(BulkDefaultEditForm):
         if parent_folder:
             if parent_folder == entity:
                 # TODO: self.error_messages ?
-                raise ValidationError(ugettext('«%(folder)s» cannot be its own parent') % {
+                raise ValidationError(gettext('«%(folder)s» cannot be its own parent') % {
                                             'folder': entity,
                                         },
                                       code='itself',
                                      )
 
             if entity.already_in_children(parent_folder.id):
-                raise ValidationError(ugettext('This folder is one of the child folders of «%(folder)s»') % {
+                raise ValidationError(gettext('This folder is one of the child folders of «%(folder)s»') % {
                                             'folder': entity,
                                         },
                                       code='loop',

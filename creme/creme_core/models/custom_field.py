@@ -27,17 +27,18 @@ from django.db.models import (UUIDField, ForeignKey, CharField, PositiveSmallInt
 from django import forms
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 
 from .base import CremeModel
 from .entity import CremeEntity
 from .fields import CTypeForeignKey
 
-
-__all__ = ('CustomField', 'CustomFieldValue',
-           'CustomFieldInteger', 'CustomFieldFloat', 'CustomFieldBoolean',
-           'CustomFieldString', 'CustomFieldDateTime',
-           'CustomFieldEnumValue', 'CustomFieldEnum', 'CustomFieldMultiEnum')
+__all__ = (
+    'CustomField', 'CustomFieldValue',
+    'CustomFieldInteger', 'CustomFieldFloat', 'CustomFieldBoolean',
+    'CustomFieldString', 'CustomFieldDateTime',
+    'CustomFieldEnumValue', 'CustomFieldEnum', 'CustomFieldMultiEnum',
+)
 
 
 class CustomField(CremeModel):
@@ -272,7 +273,7 @@ class CustomFieldBoolean(CustomFieldValue):
         app_label = 'creme_core'
 
     def __str__(self):
-        return ugettext('Yes') if self.value else ugettext('No')
+        return gettext('Yes') if self.value else gettext('No')
 
     @staticmethod
     def _get_formfield(**kwargs):

@@ -12,7 +12,7 @@ try:
     from django.urls import reverse
     from django.utils.encoding import smart_text
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from .base import ViewsTestCase, MassImportBaseTestCaseMixin, BrickTestCaseMixin, skipIfNoXLSLib
 
@@ -182,26 +182,26 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self._assertNoResultError(results)
         self.assertIs(results[0].updated, False)
 
-        self.assertEqual([ungettext('{count} «{model}» has been created.',
-                                    '{count} «{model}» have been created.',
-                                    lines_count
-                                   ).format(count=lines_count,
-                                            model='Test Contacts',
-                                           ),
-                          ungettext('{count} line in the file.',
-                                    '{count} lines in the file.',
-                                    lines_count,
-                                   ).format(count=lines_count),
+        self.assertEqual([ngettext('{count} «{model}» has been created.',
+                                   '{count} «{model}» have been created.',
+                                   lines_count
+                                  ).format(count=lines_count,
+                                           model='Test Contacts',
+                                          ),
+                          ngettext('{count} line in the file.',
+                                   '{count} lines in the file.',
+                                   lines_count,
+                                  ).format(count=lines_count),
                          ],
                          job.stats
                         )
 
         progress = job.progress
         self.assertIsNone(progress.percentage)
-        self.assertEqual(ungettext('{count} line has been processed.',
-                                   '{count} lines have been processed.',
-                                   lines_count
-                                  ).format(count=lines_count),
+        self.assertEqual(ngettext('{count} line has been processed.',
+                                  '{count} lines have been processed.',
+                                  lines_count
+                                 ).format(count=lines_count),
                          progress.label
                         )
 
@@ -339,14 +339,14 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         results = self._get_job_results(job)
         self.assertEqual(lines_count, len(results))
-        self.assertEqual([ungettext('{count} «{model}» has been created.',
-                                    '{count} «{model}» have been created.',
-                                    lines_count
-                                  ).format(count=lines_count, model='Test Contacts'),
-                          ungettext('{count} line in the file.',
-                                    '{count} lines in the file.',
-                                    lines_count,
-                                   ).format(count=lines_count),
+        self.assertEqual([ngettext('{count} «{model}» has been created.',
+                                   '{count} «{model}» have been created.',
+                                   lines_count
+                                 ).format(count=lines_count, model='Test Contacts'),
+                          ngettext('{count} line in the file.',
+                                   '{count} lines in the file.',
+                                   lines_count,
+                                  ).format(count=lines_count),
                          ],
                          job.stats
                         )
@@ -525,7 +525,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                           last_name=lines[1][1],
                                          )
         cf_int.get_value_class()(custom_field=cf_dec, entity=kanu).set_value_n_save(Decimal('56'))
-        cf_str.get_value_class()(custom_field=cf_str, entity=kanu).set_value_n_save(u"Kan")
+        cf_str.get_value_class()(custom_field=cf_str, entity=kanu).set_value_n_save('Kan')
 
         contact_ids = list(FakeContact.objects.values_list('id', flat=True))
 
@@ -1047,18 +1047,18 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         jresult = self.get_object_or_fail(MassImportJobResult, job=job, entity=rei)
         self.assertTrue(jresult.updated)
 
-        self.assertEqual([ungettext('{count} «{model}» has been created.',
-                                    '{count} «{model}» have been created.',
-                                    1
-                                   ).format(count=1, model='Test Contact'),
-                          ungettext('{count} «{model}» has been updated.',
-                                    '{count} «{model}» have been updated.',
-                                    1
-                                   ).format(count=1, model='Test Contact'),
-                          ungettext('{count} line in the file.',
-                                    '{count} lines in the file.',
-                                    2
-                                   ).format(count=2),
+        self.assertEqual([ngettext('{count} «{model}» has been created.',
+                                   '{count} «{model}» have been created.',
+                                   1
+                                  ).format(count=1, model='Test Contact'),
+                          ngettext('{count} «{model}» has been updated.',
+                                   '{count} «{model}» have been updated.',
+                                   1
+                                  ).format(count=1, model='Test Contact'),
+                          ngettext('{count} line in the file.',
+                                   '{count} lines in the file.',
+                                   2
+                                  ).format(count=2),
                          ],
                          job.stats
                         )

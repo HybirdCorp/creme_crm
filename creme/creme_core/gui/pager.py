@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 
 class PagerLink:
@@ -34,7 +34,7 @@ class PagerLink:
         self.is_current = is_current
 
         if help is None:
-            self.help = _(u'To page {}').format(page) if page else ''
+            self.help = _('To page {}').format(page) if page else ''
         else:
             self.help = help
 
@@ -58,7 +58,7 @@ class PagerLink:
         return self.group == self.CHOOSE
 
     def __str__(self):
-        return u'PagerLink(label={label}, help={help}, group={group}, enabled={enabled}, page={page})'.format(
+        return 'PagerLink(label={label}, help={help}, group={group}, enabled={enabled}, page={page})'.format(
             label=self.label, help=self.help, group=self.group, enabled=self.enabled, page=self.page,
         )
 
@@ -102,7 +102,7 @@ class PagerContext:
         if page_count < 1:
             return []
 
-        links = [PagerLink(page_previous, label=_(u'Previous page'), group=PagerLink.PREVIOUS, enabled=page_previous is not None)]
+        links = [PagerLink(page_previous, label=_('Previous page'), group=PagerLink.PREVIOUS, enabled=page_previous is not None)]
 
         if page_count < self.SHOW_ALL_PAGES_LIMIT:
             links.extend(
@@ -112,23 +112,23 @@ class PagerContext:
             links.extend(
                 PagerLink(index, is_current=is_current(index)) for index in range(1, page_next + 1)
             )
-            links.append(PagerLink(page_next + 1, help=_(u'To another page'), group=PagerLink.CHOOSE))
-            links.append(PagerLink(page_count, help=_(u'To last page')))
+            links.append(PagerLink(page_next + 1, help=_('To another page'), group=PagerLink.CHOOSE))
+            links.append(PagerLink(page_count, help=_('To last page')))
         elif page_current >= page_count - self.SHOW_FIRST_PAGE_LIMIT:
-            links.append(PagerLink(1, help=_(u'To first page')))
-            links.append(PagerLink(page_previous - 1, help=_(u'To another page'), group=PagerLink.CHOOSE))
+            links.append(PagerLink(1, help=_('To first page')))
+            links.append(PagerLink(page_previous - 1, help=_('To another page'), group=PagerLink.CHOOSE))
             links.extend(
                 PagerLink(index, is_current=is_current(index)) for index in range(page_previous, page_count + 1)
             )
         else:
-            links.append(PagerLink(1, help=_(u'To first page')))
-            links.append(PagerLink(page_previous - 1, help=_(u'To another page'), group=PagerLink.CHOOSE))
+            links.append(PagerLink(1, help=_('To first page')))
+            links.append(PagerLink(page_previous - 1, help=_('To another page'), group=PagerLink.CHOOSE))
             links.extend(
                 PagerLink(index, is_current=is_current(index)) for index in range(page_previous, page_next + 1)
             )
-            links.append(PagerLink(page_next + 1, help=_(u'To another page'), group=PagerLink.CHOOSE))
-            links.append(PagerLink(page_count, help=_(u'To last page')))
+            links.append(PagerLink(page_next + 1, help=_('To another page'), group=PagerLink.CHOOSE))
+            links.append(PagerLink(page_count, help=_('To last page')))
 
-        links.append(PagerLink(page_next, label=_(u'Next page'), group=PagerLink.NEXT, enabled=page_next is not None))
+        links.append(PagerLink(page_next, label=_('Next page'), group=PagerLink.NEXT, enabled=page_next is not None))
 
         return links

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 
 REL_SUB_MAIL_RECEIVED = 'email-subject_mail_received'
@@ -25,12 +25,12 @@ MAIL_STATUS_SYNCHRONIZED_SPAM    = 5
 MAIL_STATUS_SYNCHRONIZED_WAITING = 6
 
 MAIL_STATUS = {  # TODO: rename MAIL_STATUSES ?
-    MAIL_STATUS_SENT:                 pgettext_lazy('emails', u'Sent'),
-    MAIL_STATUS_NOTSENT:              pgettext_lazy('emails', u'Not sent'),
-    MAIL_STATUS_SENDINGERROR:         _(u'Sending error'),
-    MAIL_STATUS_SYNCHRONIZED:         pgettext_lazy('emails', u'Synchronized'),
-    MAIL_STATUS_SYNCHRONIZED_SPAM:    _(u'Synchronized - Marked as SPAM'),
-    MAIL_STATUS_SYNCHRONIZED_WAITING: _(u'Synchronized - Untreated'),
+    MAIL_STATUS_SENT:                 pgettext_lazy('emails', 'Sent'),
+    MAIL_STATUS_NOTSENT:              pgettext_lazy('emails', 'Not sent'),
+    MAIL_STATUS_SENDINGERROR:         _('Sending error'),
+    MAIL_STATUS_SYNCHRONIZED:         pgettext_lazy('emails', 'Synchronized'),
+    MAIL_STATUS_SYNCHRONIZED_SPAM:    _('Synchronized - Marked as SPAM'),
+    MAIL_STATUS_SYNCHRONIZED_WAITING: _('Synchronized - Untreated'),
 }
 
 MAIL_SYNC_STATUSES = {

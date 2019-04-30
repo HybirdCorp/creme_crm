@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from datetime import timedelta
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.creme_jobs.base import JobType
 
@@ -34,7 +34,7 @@ EntityEmail = get_entityemail_model()
 
 class _EntityEmailsSendType(JobType):
     id           = JobType.generate_id('emails', 'entity_emails_send')
-    verbose_name = _(u'Send entity emails')
+    verbose_name = _('Send entity emails')
     periodic     = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):

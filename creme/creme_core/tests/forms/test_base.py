@@ -6,7 +6,7 @@ try:
     from django import forms
     from django.contrib.contenttypes.models import ContentType
     from django.forms.boundfield import BoundField
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.forms import CremeForm, CremeModelForm
     from creme.creme_core.models import (CustomField, CustomFieldInteger, FieldsConfig,

@@ -4,7 +4,7 @@ try:
     from django.contrib.sessions.backends.base import SessionBase
     from django.template import Template, Context, RequestContext
     from django.test.client import RequestFactory
-    from django.utils.translation import ugettext
+    from django.utils.translation import gettext
 
     from creme.creme_core.constants import MODELBRICK_ID
     from creme.creme_core.gui.bricks import brick_registry, Brick
@@ -225,7 +225,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             "{% brick_action 'add' %}",
             '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label=ugettext('Information'),
+            </a>'''.format(label=gettext('Information'),
                            icon_url=self._get_icon('add', 'brick-action').url,
                            icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                           )
@@ -236,7 +236,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             "{% brick_action 'edit' %}",
             '''<a href="" title="{label}" class="brick-action action-type-edit  " data-action="edit">
                 <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
-            </a>'''.format(label=ugettext('Edit'),
+            </a>'''.format(label=gettext('Edit'),
                            icon_url=self._get_icon('edit', 'brick-action').url,
                            icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                           )

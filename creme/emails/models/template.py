@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.conf import settings
 from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, SET_NULL
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import UnsafeHTMLField
@@ -30,22 +30,24 @@ from .signature import EmailSignature
 
 
 class AbstractEmailTemplate(CremeEntity):
-    name        = CharField(_(u'Name'), max_length=100)
-    subject     = CharField(_(u'Subject'), max_length=100)
-    body        = TextField(_(u'Body'))
-    body_html   = UnsafeHTMLField(_(u'Body (HTML)'))
-    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True, on_delete=SET_NULL)
-    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'))
+    name        = CharField(_('Name'), max_length=100)
+    subject     = CharField(_('Subject'), max_length=100)
+    body        = TextField(_('Body'))
+    body_html   = UnsafeHTMLField(_('Body (HTML)'))
+    signature   = ForeignKey(EmailSignature, verbose_name=_('Signature'),
+                             blank=True, null=True, on_delete=SET_NULL,
+                            )
+    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_('Attachments'))
 
-    creation_label = _(u'Create an email template')
-    save_label     = _(u'Save the email template')
+    creation_label = _('Create an email template')
+    save_label     = _('Save the email template')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'emails'
-        verbose_name = _(u'Email template')
-        verbose_name_plural = _(u'Email templates')
+        verbose_name = _('Email template')
+        verbose_name_plural = _('Email templates')
         ordering = ('name',)
 
     def __str__(self):

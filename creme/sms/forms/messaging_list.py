@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelChoiceField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField
@@ -29,7 +29,6 @@ from creme.creme_core.models import EntityFilter
 from creme.persons import get_contact_model
 
 from .. import get_messaginglist_model
-
 
 Contact = get_contact_model()
 
@@ -41,9 +40,9 @@ class MessagingListForm(CremeEntityForm):
 
 
 class AddContactsForm(CremeForm):
-    recipients = MultiCreatorEntityField(label=_(u'Contacts'), required=False, model=Contact) # other filter (name + email)??
+    recipients = MultiCreatorEntityField(label=_('Contacts'), required=False, model=Contact) # other filter (name + email)??
 
-    blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
+    blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,7 +57,9 @@ class AddContactsForm(CremeForm):
 
 
 class AddPersonsFromFilterForm(CremeForm):  # private class ???
-    filters = ModelChoiceField(label=_(u'Filters'), queryset=EntityFilter.objects.none(), empty_label=_(u'All'), required=False)
+    filters = ModelChoiceField(label=_('Filters'), queryset=EntityFilter.objects.none(),
+                               empty_label=_('All'), required=False,
+                              )
 
     person_model = None  # Contact/Organisation
 
@@ -86,7 +87,7 @@ class AddPersonsFromFilterForm(CremeForm):  # private class ???
 
 
 class AddContactsFromFilterForm(AddPersonsFromFilterForm):
-    blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
+    blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
 
     person_model = Contact
 

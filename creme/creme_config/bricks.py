@@ -26,7 +26,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core import setting_key
 from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick, brick_registry
@@ -376,7 +376,7 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
                 role_ids.add(role_id)
 
         role_names = dict(UserRole.objects.filter(id__in=role_ids).values_list('id', 'name'))
-        superusers_label = ugettext('Superuser')  # TODO: cached_lazy_ugettext
+        superusers_label = gettext('Superuser')  # TODO: cached_lazy_gettext
 
         for ctw in ctypes_wrappers:
             count_per_role = block_counts[ctw.ctype.id]
@@ -606,7 +606,7 @@ class SearchConfigBrick(PaginatedBrick):
                                    .select_related('role'):
             sci_map[sci.content_type_id].append(sci)
 
-        superusers_label = ugettext('Superuser')
+        superusers_label = gettext('Superuser')
 
         for ctw in ctypes_wrappers:
             ctype = ctw.ctype

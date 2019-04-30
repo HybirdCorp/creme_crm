@@ -25,7 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.forms import ModelChoiceField
 from django.forms.fields import CallableChoiceIterator
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from ..core.batch_process import batch_operator_manager, BatchAction
 from ..creme_jobs.batch_process import batch_process_type

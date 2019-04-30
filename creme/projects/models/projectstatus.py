@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, TextField
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import BasicAutoField, ColorField
@@ -31,13 +31,13 @@ class ProjectStatus(CremeModel):
     description = TextField(_('Description'))
     order       = BasicAutoField(_('Order'))  # Used by creme_config
 
-    creation_label = pgettext_lazy('projects-project_status', u'Create a status')
+    creation_label = pgettext_lazy('projects-project_status', 'Create a status')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'projects'
-        verbose_name = pgettext_lazy('projects-singular', u'Status of project')
-        verbose_name_plural = pgettext_lazy('projects-plural', u'Status of project')
+        verbose_name = pgettext_lazy('projects-singular', 'Status of project')
+        verbose_name_plural = pgettext_lazy('projects-plural', 'Status of project')
         ordering = ('order',)

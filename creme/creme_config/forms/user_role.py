@@ -20,7 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
+from django.utils.translation import gettext_lazy as _, gettext, pgettext
 
 from creme.creme_core.apps import creme_app_configs, extended_app_configs, CremeAppConfig
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -140,15 +140,17 @@ class UserRoleDeleteForm(CremeForm):
         self.using_users = users = CremeUser.objects.filter(role=instance)
 
         if users:
-            self.fields['to_role'] = ModelChoiceField(label=ugettext('Choose a role to transfer to'),
-                                                      queryset=UserRole.objects.exclude(id=instance.id),
-                                                     )
+            self.fields['to_role'] = ModelChoiceField(
+                label=gettext('Choose a role to transfer to'),
+                queryset=UserRole.objects.exclude(id=instance.id),
+            )
         else:
-            self.fields['info'] = CharField(label=ugettext('Information'), required=False, widget=Label,
-                                            initial=ugettext('This role is not used by any user,'
-                                                             ' you can delete it safely.'
-                                                            ),
-                                           )
+            self.fields['info'] = CharField(
+                label=gettext('Information'), required=False, widget=Label,
+                initial=gettext('This role is not used by any user,'
+                                ' you can delete it safely.'
+                               ),
+            )
 
     def save(self, *args, **kwargs):
         to_role = self.cleaned_data.get('to_role')

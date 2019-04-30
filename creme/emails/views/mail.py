@@ -24,7 +24,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import Template, Context
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 # from formtools.wizard.views import SessionWizardView
 
@@ -348,7 +348,7 @@ class EntityEmailLinking(RelationsAdding):
 
         # TODO: unit test
         if not rtypes:
-            raise ConflictError(ugettext('No type of relationship is compatible.'))
+            raise ConflictError(gettext('No type of relationship is compatible.'))
 
         return rtypes
 

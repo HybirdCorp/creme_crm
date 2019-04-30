@@ -3,7 +3,7 @@
 try:
     from json import dumps as json_dump
 
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from .base import FieldTestCase
     from ..fake_models import FakeContact
@@ -90,7 +90,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
                                                         operator='suffix',
                                                         value='',
                                                        ),
-                                        message_args={'error': _(u"The operator '{}' needs a value.").format(_('Suffix'))},
+                                        message_args={'error': _("The operator '{}' needs a value.").format(_('Suffix'))},
                                        )
 
     def test_value_typeerror(self):

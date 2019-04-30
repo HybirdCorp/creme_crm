@@ -24,7 +24,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import TextField, FieldDoesNotExist
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from ..core.entity_cell import EntityCellRegularField
 from ..global_info import get_per_request_cache
@@ -101,7 +101,7 @@ class FieldsConfig(CremeModel):
             return False
 
     def __str__(self):
-        return ugettext('Configuration of {model}').format(model=self.content_type)
+        return gettext('Configuration of {model}').format(model=self.content_type)
 
     @staticmethod
     def _check_descriptions(model, descriptions):
@@ -183,8 +183,8 @@ class FieldsConfig(CremeModel):
         get_apps = partial(fields_config_registry.get_needing_apps,
                            model=self.content_type.model_class(),
                           )
-        # TODO: cached_lazy_ugettext
-        fmt = ugettext('Warning: the app «{app}» need the field «{field}».').format
+        # TODO: cached_lazy_gettext
+        fmt = gettext('Warning: the app «{app}» need the field «{field}».').format
 
         return [fmt(app=app.verbose_name, field=field.verbose_name)
                     for field in self.hidden_fields
@@ -211,8 +211,8 @@ class FieldsConfig(CremeModel):
     @classmethod
     def filter_cells(cls, model, cells):
         """Yields not hidden cells.
-        @param model Class inheriting django.db.models.Model.
-        @param cells Iterable of EntityCell instances.
+        @param model: Class inheriting django.db.models.Model.
+        @param cells: Iterable of EntityCell instances.
         """
         fconfigs = cls.LocalCache()
 

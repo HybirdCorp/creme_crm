@@ -23,7 +23,7 @@ from itertools import chain
 from os.path import basename
 
 from django.db.transaction import atomic
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.models import Relation
 from creme.creme_core.views.file_handling import handle_uploaded_file
@@ -63,13 +63,14 @@ class EntityEmailBackend(CrudityBackend):
         current_user_id = current_user.id
 
         # TODO: only if at least one attachment
-        folder = Folder.objects.get_or_create(title=_("{username}'s files received by email").format(
-                                                            username=current_user.username,
-                                                        ),
-                                              category=FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS),
-                                              parent_folder=None,
-                                              defaults={'user': current_user},
-                                             )[0]
+        folder = Folder.objects.get_or_create(
+            title=_("{username}'s files received by email").format(
+                      username=current_user.username,
+            ),
+            category=FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS),
+            parent_folder=None,
+            defaults={'user': current_user},
+        )[0]
 
         mail = EntityEmail(status=MAIL_STATUS_SYNCHRONIZED_WAITING,
                            # body=email.body.encode('utf-8'),

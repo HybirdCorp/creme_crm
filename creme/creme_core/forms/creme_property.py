@@ -22,7 +22,7 @@
 
 from django.db.models import Q
 from django.forms import ModelMultipleChoiceField, CharField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from ..models import CremePropertyType, CremeProperty
 from ..utils import entities2unicode
@@ -80,11 +80,11 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         fields['types'].queryset = CremePropertyType.objects.compatible(model)  # TODO: Sort?
         fields['entities_lbl'].initial = entities2unicode(entities, self.user) \
                                          if entities else \
-                                         ugettext('NONE !')
+                                         gettext('NONE !')
 
         if forbidden_entities:
             fields['bad_entities_lbl'] = CharField(
-                label=ugettext('Uneditable entities'),
+                label=gettext('Uneditable entities'),
                 widget=Label, required=False,
                 initial=entities2unicode(forbidden_entities, self.user),
             )

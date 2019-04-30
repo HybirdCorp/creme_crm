@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import (CharField, DecimalField, BooleanField, TextField,
         PositiveIntegerField, ForeignKey, PROTECT)
 from django.db.transaction import atomic
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.models import CremeEntity, Relation, Vat
 
@@ -83,33 +83,33 @@ class Line(CremeEntity):
     def clean(self):
         if self.discount_unit == PERCENT_PK:
             if not (0 <= self.discount <= 100):
-                raise ValidationError(ugettext('If you choose % for your discount unit, '
-                                               'your discount must be between 1 and 100%'
-                                              ),
+                raise ValidationError(gettext('If you choose % for your discount unit, '
+                                              'your discount must be between 1 and 100%'
+                                             ),
                                       code='invalid_percentage',
                                      )
         elif self.total_discount:  # Global discount
             if self.discount > self.unit_price * self.quantity:
-                raise ValidationError(ugettext('Your overall discount is superior than'
+                raise ValidationError(gettext('Your overall discount is superior than'
                                                ' the total line (unit price * quantity)'
                                               ),
                                       code='discount_gt_total',
                                      )
         else:  # Unitary discount
             if self.discount > self.unit_price:
-                raise ValidationError(ugettext('Your discount is superior than the unit price'),
+                raise ValidationError(gettext('Your discount is superior than the unit price'),
                                       code='discount_gt_unitprice',
                                      )
 
         if self.related_item:
             if self.on_the_fly_item:
-                raise ValidationError(ugettext('You cannot set an on the fly name '
-                                               'to a line with a related item'
-                                              ),
+                raise ValidationError(gettext('You cannot set an on the fly name '
+                                              'to a line with a related item'
+                                             ),
                                       code='useless_name',
                                      )
         elif not self.on_the_fly_item:
-            raise ValidationError(ugettext('You must define a name for an on the fly item'),
+            raise ValidationError(gettext('You must define a name for an on the fly item'),
                                   code='required_name',
                                  )
 

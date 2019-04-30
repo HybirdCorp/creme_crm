@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.models import Relation
     from creme.creme_core.tests.base import CremeTestCase

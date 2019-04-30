@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.merge import MergeEntitiesBaseForm, mergefield_factory
 from creme.creme_core.models import FieldsConfig
@@ -141,8 +141,8 @@ def get_merge_form_builder(model, base_form_class=_PersonMergeForm):
     shipping_address_fnames = add_fields('shipping_address', _SHIP_PREFIX)
 
     attrs['blocks'] = MergeEntitiesBaseForm.blocks.new(
-                            ('billing_address',  _('Billing address'),  billing_address_fnames),
-                            ('shipping_address', _('Shipping address'), shipping_address_fnames),
-                        )
+        ('billing_address',  _('Billing address'),  billing_address_fnames),
+        ('shipping_address', _('Shipping address'), shipping_address_fnames),
+    )
 
     return type('PersonMergeForm', (base_form_class,), attrs)

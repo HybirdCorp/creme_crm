@@ -12,7 +12,7 @@ try:
     from django.utils.encoding import force_text
     from django.utils.formats import date_format
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import REL_SUB_HAS
@@ -2010,10 +2010,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         # Avoid duplicates
         response = self.assertPOST200(url, data=data)
         self.assertFormError(response, 'form', 'subjects',
-                             ungettext('This entity is already a subject: %(duplicates)s',
-                                       'These entities are already subjects: %(duplicates)s',
-                                       1
-                                      ) % {'duplicates': orga}
+                             ngettext('This entity is already a subject: %(duplicates)s',
+                                      'These entities are already subjects: %(duplicates)s',
+                                      1
+                                     ) % {'duplicates': orga}
                             )
 
     def test_add_subjects02(self):

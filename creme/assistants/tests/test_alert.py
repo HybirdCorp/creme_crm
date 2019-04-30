@@ -11,7 +11,7 @@ try:
     from django.test.utils import override_settings
     from django.urls import reverse
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
@@ -34,7 +34,7 @@ class AlertTestCase(AssistantsTestCase):
                                           'title':        title,
                                           'description':  description,
                                           'trigger_date': trigger_date,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -106,7 +106,7 @@ class AlertTestCase(AssistantsTestCase):
                                                'description':  description,
                                                'trigger_date': '2011-10-30',
                                                'trigger_time': '15:12:00',
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
 
@@ -131,14 +131,18 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(1, Alert.objects.count())
 
         ct = ContentType.objects.get_for_model(Alert)
-        self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': alert.id})
+        self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+                         data={'id': alert.id},
+                        )
         self.assertEqual(0, Alert.objects.count())
 
     def test_validate(self):
         alert = self._create_alert()
         self.assertFalse(alert.is_validated)
 
-        response = self.assertPOST200(reverse('assistants__validate_alert', args=(alert.id,)), follow=True)
+        response = self.assertPOST200(reverse('assistants__validate_alert', args=(alert.id,)),
+                                      follow=True,
+                                     )
         self.assertRedirects(response, self.entity.get_absolute_url())
 
         self.assertTrue(self.refresh(alert).is_validated)

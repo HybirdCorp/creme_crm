@@ -5,7 +5,7 @@ try:
 
     from django.urls import reverse
     from django.utils.html import escape
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_config.registry import config_registry
 
@@ -38,11 +38,15 @@ class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
         widget = CreatorCategorySelector(categories=categories, creation_url=creation_url, creation_allowed=True)
         widget._build_actions({})
 
-        self.assertEqual([
-            self._build_create_action(SubCategory.creation_label, _(u'Create'),
-                                      url=creation_url + '?category=${_delegate_.category}',
-                                      enabled=True),
-        ], widget.actions)
+        self.assertListEqual(
+            [self._build_create_action(
+                SubCategory.creation_label, _('Create'),
+                url=creation_url + '?category=${_delegate_.category}',
+                enabled=True,
+             ),
+            ],
+            widget.actions
+        )
 
     def test_actions_creation_not_allowed(self):
         user = self.login()
@@ -52,11 +56,15 @@ class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
         widget = CreatorCategorySelector(categories=categories, creation_url=creation_url, creation_allowed=False)
         widget._build_actions({})
 
-        self.assertEqual([
-            self._build_create_action(SubCategory.creation_label, _(u"Can't create"),
-                                      url=creation_url + '?category=${_delegate_.category}',
-                                      enabled=False),
-        ], widget.actions)
+        self.assertListEqual(
+            [self._build_create_action(
+                SubCategory.creation_label, _("Can't create"),
+                url=creation_url + '?category=${_delegate_.category}',
+                enabled=False,
+             ),
+            ],
+            widget.actions
+        )
 
     def test_actions_disabled(self):
         user = self.login()
@@ -66,9 +74,14 @@ class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
         widget = CreatorCategorySelector(categories=categories, creation_url=creation_url, creation_allowed=True)
         widget._build_actions({})
 
-        self.assertEqual([
-            self._build_create_action(SubCategory.creation_label, _(u'Create'), creation_url + '?category=${_delegate_.category}'),
-        ], widget.actions)
+        self.assertEqual(
+            [self._build_create_action(
+                SubCategory.creation_label, _('Create'),
+                creation_url + '?category=${_delegate_.category}',
+             ),
+            ],
+            widget.actions
+        )
 
         widget._build_actions({'readonly': True})
         self.assertEqual([], widget.actions)
@@ -86,7 +99,7 @@ class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
         widget = CreatorCategorySelector(categories=categories, creation_url=creation_url, creation_allowed=True)
         value = json_dump({'category': 1, 'subcategory': 1})
 
-        html = u'''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
+        html = '''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
     <li class="delegate">
         <div class="ui-creme-widget widget-auto ui-creme-chainedselect" widget="ui-creme-chainedselect">
             <input class="ui-creme-input ui-creme-chainedselect" name="sub_category" type="hidden" value="{value}" />
@@ -112,14 +125,19 @@ class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
     </li>
 </ul>'''.format(
             value=escape(value),
-            categories=format_html_join(u'', u'<option value="{}">{}</option>', Category.objects.values_list('id', 'name')),
-            categories_label=_(u'Category'),
-            sub_categories_label=_(u'Sub-category'),
+            categories=format_html_join('', '<option value="{}">{}</option>', Category.objects.values_list('id', 'name')),
+            categories_label=_('Category'),
+            sub_categories_label=_('Sub-category'),
             choices_url=reverse('products__subcategories', args=('1234',)).replace('1234', '${category}'),
-            create_title=_(u'Create'),
+            create_title=_('Create'),
             create_label=SubCategory.creation_label,
             create_url=creation_url + '?category=${_delegate_.category}',
         )
 
         self.maxDiff = None
-        self.assertHTMLEqual(html, widget.render('sub_category', value, attrs={'reset': False, 'direction': ChainedInput.VERTICAL}))
+        self.assertHTMLEqual(
+            html,
+            widget.render('sub_category', value,
+                          attrs={'reset': False, 'direction': ChainedInput.VERTICAL},
+                         )
+        )

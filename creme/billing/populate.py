@@ -22,7 +22,7 @@ import logging
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext as _, pgettext
+from django.utils.translation import gettext as _, pgettext
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import (EntityCellRegularField,

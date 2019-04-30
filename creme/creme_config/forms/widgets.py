@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms.widgets import Select
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms.widgets import ActionButtonList, DynamicSelect
 
@@ -48,7 +48,7 @@ class CreatorModelChoiceWidget(Select):
                 allowed = self.creation_allowed
                 label = str(self.creation_label)
                 button_list.add_action('create', label, enabled=allowed, popupUrl=url,
-                                       title=label if allowed else ugettext(u'Cannot create'),
+                                       title=label if allowed else gettext('Cannot create'),
                                       )
 
                 context = button_list.get_context(name=name, value=value, attrs=attrs)

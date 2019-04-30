@@ -24,7 +24,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.transaction import atomic
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic.detail import SingleObjectMixin
 
 from formtools.wizard.views import SessionWizardView

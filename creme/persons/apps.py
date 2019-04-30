@@ -21,7 +21,7 @@
 from functools import partial
 
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
 

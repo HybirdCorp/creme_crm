@@ -10,7 +10,7 @@ try:
     from django.db.models import QuerySet
     from django.db.models.deletion import ProtectedError
     from django.test.utils import override_settings
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from ..base import CremeTestCase
 

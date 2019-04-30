@@ -5,7 +5,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from .base import ViewsTestCase, BrickTestCaseMixin
 
@@ -84,11 +84,12 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         # ----------------------------------------------------------------------
         response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]})  # One new and one old property
-        self.assertFormError(response, 'form', 'types',
-                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                                    'value': ptype01.id,
-                                }
-                            )
+        self.assertFormError(
+            response, 'form', 'types',
+            _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                   'value': ptype01.id,
+               }
+        )
 
     def test_properties_brick(self):
         user = self.login()

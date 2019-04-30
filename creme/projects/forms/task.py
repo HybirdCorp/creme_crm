@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from functools import partial
 
 from django.db.models.query_utils import Q
 from django.forms import BooleanField, ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm, CremeEntityForm, CreatorEntityField, MultiCreatorEntityField
@@ -37,7 +37,6 @@ from creme.activities.utils import check_activity_collisions
 from .. import get_task_model
 from ..constants import REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE
 from ..models import Resource
-
 
 ProjectTask = get_task_model()
 
@@ -163,7 +162,7 @@ class RelatedActivityEditForm(CremeEntityForm):
                                                  object_entity=pk,
                                                 )
             except Relation.DoesNotExist as e:
-                raise ConflictError('This Activity is not related to a projet task') from e
+                raise ConflictError('This Activity is not related to a project task') from e
 
             self.old_participant = self.old_relation.subject_entity.get_real_entity()
             resource_f.initial = Resource.objects.get(task=task,

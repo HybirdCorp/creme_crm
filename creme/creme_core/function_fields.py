@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .core.function_field import FunctionField, FunctionFieldLink, FunctionFieldResultsList
 from .forms.listview import BaseChoiceField

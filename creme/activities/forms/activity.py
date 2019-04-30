@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.forms import ModelChoiceField, ModelMultipleChoiceField, DateTimeField, TimeField, ValidationError
 from django.utils.timezone import localtime
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import (validators, CremeEntityForm,
     MultiCreatorEntityField, MultiGenericEntityField, DatePeriodField)
@@ -382,12 +382,13 @@ class ActivityCreateForm(_ActivityCreateForm):
     def _create_alert(activity, trigger_date):
         from creme.assistants.models import Alert
 
-        Alert.objects.create(user=activity.user,
-                             trigger_date=trigger_date,
-                             creme_entity=activity,
-                             title=ugettext('Alert of activity'),
-                             description=ugettext('Alert related to {activity}').format(activity=activity),
-                            )
+        Alert.objects.create(
+            user=activity.user,
+            trigger_date=trigger_date,
+            creme_entity=activity,
+            title=gettext('Alert of activity'),
+            description=gettext('Alert related to {activity}').format(activity=activity),
+        )
 
     def _generate_alerts(self):
         get = self.cleaned_data.get
@@ -410,8 +411,8 @@ class ActivityCreateForm(_ActivityCreateForm):
             from creme.assistants.constants import PRIO_NOT_IMP_PK
 
             activity = self.instance
-            title = ugettext('[Creme] Activity created: {activity}').format(activity=activity)
-            body = ugettext("""A new activity has been created: {activity}.
+            title = gettext('[Creme] Activity created: {activity}').format(activity=activity)
+            body = gettext("""A new activity has been created: {activity}.
     Description: {description}.
     Start: {start}.
     End: {end}.
@@ -419,8 +420,8 @@ class ActivityCreateForm(_ActivityCreateForm):
     Participants: {participants}.""").format(
                     activity=activity,
                     description=activity.description,
-                    start=activity.start or ugettext('not specified'),
-                    end=activity.end or ugettext('not specified'),
+                    start=activity.start or gettext('not specified'),
+                    end=activity.end or gettext('not specified'),
                     subjects=' / '.join(str(e) for e in cdata['subjects']),
                     participants=' / '.join(str(c) for c in self.participants),
             )

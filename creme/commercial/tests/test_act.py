@@ -7,7 +7,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
     from django.utils.html import escape
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import DEFAULT_CURRENCY_PK
@@ -99,7 +99,7 @@ class ActTestCase(CommercialBaseTestCase):
                                             'segment':        segment.id,
                                            }
                                      )
-        self.assertFormError(response, 'form', None, _(u"Due date can't be before start."))
+        self.assertFormError(response, 'form', None, _("Due date can't be before start."))
         self.assertFalse(Act.objects.all())
 
     def test_create03(self):
@@ -189,7 +189,7 @@ class ActTestCase(CommercialBaseTestCase):
                                             'segment':         segment.id,
                                            }
                                      )
-        self.assertFormError(response, 'form', None, [_(u"Due date can't be before start.")])
+        self.assertFormError(response, 'form', None, [_("Due date can't be before start.")])
         self.assertEqual(date(year=2011, month=12, day=26), self.refresh(act).due_date)
 
     def test_listview(self):

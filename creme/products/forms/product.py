@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.bulk import BulkForm
 
@@ -40,7 +40,7 @@ class ProductEditForm(_BaseEditForm):
 
 
 class ProductInnerEditCategory(BulkForm):
-    sub_category = CategoryField(label=_(u'Sub-category'))
+    sub_category = CategoryField(label=_('Sub-category'))
 
     def __init__(self, model, field, user=None, entities=(), is_bulk=False, **kwargs):
         super().__init__(model, field, user, entities, is_bulk, **kwargs)
@@ -57,7 +57,7 @@ class ProductInnerEditCategory(BulkForm):
         sub_category = cleaned_data['sub_category']
 
         self._bulk_clean({'category': sub_category.category,
-                          'sub_category': sub_category
+                          'sub_category': sub_category,
                          }
                         )
 

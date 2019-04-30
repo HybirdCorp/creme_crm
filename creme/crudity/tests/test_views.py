@@ -10,7 +10,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.test.utils import override_settings
     from django.urls import reverse
-    from django.utils.translation import ungettext
+    from django.utils.translation import ngettext
 
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     from creme.creme_core.models import Job, JobResult, FakeContact, FakeImage
@@ -488,7 +488,11 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
         jresults = JobResult.objects.filter(job=job)
         self.assertEqual(1, len(jresults))
-        self.assertEqual([ungettext('There is {count} change', 'There are {count} changes', 1).format(count=1)],
+        self.assertEqual([ngettext('There is {count} change',
+                                   'There are {count} changes',
+                                   1
+                                  ).format(count=1),
+                         ],
                          jresults[0].messages
                         )
 
@@ -545,7 +549,11 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
         jresults = JobResult.objects.filter(job=job)
         self.assertEqual(1, len(jresults))
-        self.assertEqual([ungettext('There is {count} change', 'There are {count} changes', 1).format(count=1)],
+        self.assertEqual([ngettext('There is {count} change',
+                                   'There are {count} changes',
+                                   1
+                                  ).format(count=1),
+                         ],
                          jresults[0].messages
                         )
 

@@ -32,7 +32,7 @@ from django.http import HttpResponse
 # from django.shortcuts import render
 # from django.template import Template, Context
 # from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 from django.views.generic.list import ListView
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -973,4 +973,4 @@ class BaseEntitiesListPopup(EntitiesList):
     def handle_no_header_filter(self, request):
         # TODO: title ('ERROR' ?)
         # TODO: remove the second button (selection button)
-        return HttpResponse(ugettext('The desired list does not have any view, please create one.'))
+        return HttpResponse(gettext('The desired list does not have any view, please create one.'))

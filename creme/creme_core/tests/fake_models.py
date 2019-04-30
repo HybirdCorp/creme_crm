@@ -11,7 +11,7 @@ else:
     from django.db import models
     from django.db.models.query_utils import Q
     from django.urls import reverse
-    from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+    from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
     from ..models import CremeModel, CremeEntity, Language, EntityFilter, fields as core_fields
 
@@ -307,7 +307,7 @@ else:
 
         def clean(self):
             if self.is_user_id and not self.first_name:
-                raise ValidationError(ugettext('This Contact is related to a user and must have a first name.'))
+                raise ValidationError(gettext('This Contact is related to a user and must have a first name.'))
 
         def get_absolute_url(self):
             return reverse('creme_core__view_fake_contact', args=(self.id,))

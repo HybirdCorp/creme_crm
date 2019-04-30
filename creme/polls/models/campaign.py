@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2018  Hybird
+#    Copyright (C) 2013-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.db.models import (CharField, TextField, DateField,
         PositiveIntegerField, ForeignKey, PROTECT)
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity
 
@@ -29,24 +29,24 @@ from creme.commercial.models import MarketSegment
 
 
 class AbstractPollCampaign(CremeEntity):
-    name           = CharField(_(u'Name'), max_length=100)
-    goal           = TextField(_(u'Goal of the campaign'), blank=True)
-    start          = DateField(_(u'Start'), null=True, blank=True)
-    due_date       = DateField(_(u'Due date'), null=True, blank=True)
-    segment        = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'),
+    name           = CharField(_('Name'), max_length=100)
+    goal           = TextField(_('Goal of the campaign'), blank=True)
+    start          = DateField(_('Start'), null=True, blank=True)
+    due_date       = DateField(_('Due date'), null=True, blank=True)
+    segment        = ForeignKey(MarketSegment, verbose_name=_('Related segment'),
                                 null=True, blank=True, on_delete=PROTECT,
                                )
     expected_count = PositiveIntegerField(_('Expected replies number'), default=1)
 
-    creation_label = pgettext_lazy('polls', u'Create a campaign')
-    save_label     = pgettext_lazy('polls', u'Save the campaign of polls')
+    creation_label = pgettext_lazy('polls', 'Create a campaign')
+    save_label     = pgettext_lazy('polls', 'Save the campaign of polls')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'polls'
-        verbose_name = _(u'Campaign of polls')
-        verbose_name_plural = _(u'Campaigns of polls')
+        verbose_name = _('Campaign of polls')
+        verbose_name_plural = _('Campaigns of polls')
         ordering = ('name',)
 
     def __str__(self):

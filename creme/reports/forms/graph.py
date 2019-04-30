@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.forms.fields import ChoiceField, BooleanField
 from django.forms.utils import ValidationError
 from django.forms.widgets import Select, CheckboxInput
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms.base import CremeEntityForm
 from creme.creme_core.forms.fields import AjaxChoiceField
@@ -168,7 +168,7 @@ class ReportGraphForm(CremeEntityForm):
             money_fields = [field for field in aggfields if isinstance(field, MoneyField)]
             if money_fields:
                 # TODO: lazy lazily-translated-string interpolation
-                aggregate_field_f.help_text = ugettext(
+                aggregate_field_f.help_text = gettext(
                         'If you use a field related to money, the entities should use the same '
                         'currency or the result will be wrong. Concerned fields are : {}'
                     ).format(', '.join(str(field.verbose_name) for field in money_fields))
@@ -325,9 +325,9 @@ class ReportGraphForm(CremeEntityForm):
             if not field_aggregation_registry.get(get_data('aggregate')):
                 self.add_error('aggregate', _('This field is required if you choose a field to aggregate.'))
         elif not get_data('is_count'):
-            raise ValidationError(ugettext("If you don't choose an ordinate field (or none available) "
-                                           "you have to check 'Make a count instead of aggregate ?'"
-                                          )
+            raise ValidationError(gettext("If you don't choose an ordinate field (or none available) "
+                                          "you have to check 'Make a count instead of aggregate ?'"
+                                         )
                                  )
 
         return cleaned_data

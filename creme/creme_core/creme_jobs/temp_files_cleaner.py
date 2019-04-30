@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from os.path import exists
 
 from django.db.models import ProtectedError
 from django.utils.timezone import now
-from django.utils.translation import ugettext as _, ugettext_lazy
+from django.utils.translation import gettext as _, gettext_lazy
 
 from ..models import FileRef, JobResult
 from ..utils.date_period import date_period_registry
@@ -37,19 +37,19 @@ logger = logging.getLogger(__name__)
 
 class _TempFilesCleanerType(JobType):
     id           = JobType.generate_id('creme_core', 'temp_files_cleaner')
-    verbose_name = ugettext_lazy(u'Temporary files cleaner')
+    verbose_name = gettext_lazy('Temporary files cleaner')
     periodic     = JobType.PERIODIC
 
     def _execute(self, job):
         delay = self.get_delay(job)
 
         if delay is None:
-            JobResult.objects.create(job=job,
-                                     messages=[_(u"The configured delay is invalid. "
-                                                 u"Edit the job's configuration to fix it."
-                                                ),
-                                              ],
-                                    )
+            JobResult.objects.create(
+                job=job,
+                messages=[
+                    _("The configured delay is invalid. Edit the job's configuration to fix it."),
+                ],
+            )
         else:
             for temp_file in FileRef.objects.filter(temporary=True, created__lt=now() - delay.as_timedelta()):
                 full_path = temp_file.filedata.path
@@ -58,13 +58,15 @@ class _TempFilesCleanerType(JobType):
                     try:
                         delete_file(full_path)
                     except Exception as e:
-                        JobResult.objects.create(job=job,
-                                                 messages=[_(u'An error occurred while deleting the '
-                                                             u'temporary file «{}»'
-                                                            ).format(full_path),
-                                                           _(u'Original error: {}').format(e),
-                                                          ],
-                                                )
+                        JobResult.objects.create(
+                            job=job,
+                            messages=[
+                                _('An error occurred while deleting the temporary file «{}»').format(
+                                    full_path
+                                ),
+                                _('Original error: {}').format(e),
+                            ],
+                        )
                         continue
                 else:
                     logger.warning('_TempFilesCleanerType: the file %s has already been deleted.', full_path)
@@ -72,24 +74,28 @@ class _TempFilesCleanerType(JobType):
                 try:
                     temp_file.delete()
                 except ProtectedError as e:
-                    logger.warning('The FileRef(id=%s) cannot be deleted because of its dependencies: %s',
-                                temp_file.id, e.args[1],
-                               )
-                    JobResult.objects.create(job=job,
-                                             messages=[_(u'The temporary file with id={} cannot be '
-                                                         u'deleted because of its dependencies.'
-                                                        ).format(temp_file.id),
-                                                      ],
-                                            )
+                    logger.warning(
+                        'The FileRef(id=%s) cannot be deleted because of its dependencies: %s',
+                        temp_file.id, e.args[1],
+                    )
+                    JobResult.objects.create(
+                        job=job,
+                        messages=[_('The temporary file with id={} cannot be '
+                                    'deleted because of its dependencies.'
+                                   ).format(temp_file.id),
+                                 ],
+                    )
                 except Exception as e:
                     logger.exception('Error when trying to delete the FileRef(id=%s)', temp_file.id)
-                    JobResult.objects.create(job=job,
-                                             messages=[_(u'The temporary file with id={} cannot be '
-                                                         u'deleted because of an unexpected error.'
-                                                        ).format(temp_file.id),
-                                                       _(u'Original error: {}').format(e),
-                                                      ],
-                                            )
+                    JobResult.objects.create(
+                        job=job,
+                        messages=[
+                            _('The temporary file with id={} cannot be '
+                              'deleted because of an unexpected error.'
+                             ).format(temp_file.id),
+                            _('Original error: {}').format(e),
+                        ],
+                    )
 
     @staticmethod
     def get_delay(job):
@@ -103,7 +109,7 @@ class _TempFilesCleanerType(JobType):
             logger.exception('Error in _TempFilesCleanerType.get_delay()')
 
     def get_description(self, job):
-        return [_(u'Remove old temporary files')]  # TODO: + delay ?
+        return [_('Remove old temporary files')]  # TODO: + delay ?
 
     def get_config_form_class(self, job):
         from ..forms.temp_files_cleaner import TempFilesCleanerJobForm
