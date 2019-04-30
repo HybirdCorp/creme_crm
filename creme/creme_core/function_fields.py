@@ -18,13 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from .core.function_field import FunctionField, FunctionFieldLink, FunctionFieldResultsList
-from .models import CremeEntity, CremePropertyType
 from .forms.listview import BaseChoiceField
+from .models import CremeEntity, CremePropertyType
 
 
 class PropertiesSearchField(BaseChoiceField):
@@ -32,9 +31,7 @@ class PropertiesSearchField(BaseChoiceField):
         choices = super()._build_choices(null_label=null_label)
         choices.extend(
             {'value': ptype.id, 'label': str(ptype)}
-                for ptype in CremePropertyType.get_compatible_ones(
-                    ct=ContentType.objects.get_for_model(self.cell.model)
-                )
+                for ptype in CremePropertyType.objects.compatible(self.cell.model)
         )
 
         return choices

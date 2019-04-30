@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, IntegrityError
@@ -34,6 +35,14 @@ from .base import CremeModel
 from .entity import CremeEntity
 
 logger = logging.getLogger(__name__)
+
+
+class CremePropertyTypeManager(models.Manager):
+    def compatible(self, ct_or_model):
+        ct = ct_or_model if isinstance(ct_or_model, ContentType) else \
+             ContentType.objects.get_for_model(ct_or_model)
+
+        return self.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
 
 # TODO: factorise with RelationManager ?
@@ -137,6 +146,8 @@ class CremePropertyType(CremeModel):
     # If True, the properties with this type can be copied (ie: when cloning or converting an entity).
     is_copiable    = models.BooleanField(_('Is copiable'), default=True)
 
+    objects = CremePropertyTypeManager()
+
     creation_label = _('Create a type of property')
     save_label     = _('Save the type of property')
 
@@ -166,6 +177,9 @@ class CremePropertyType(CremeModel):
     def get_lv_absolute_url():
         return reverse('creme_config__ptypes')
 
+    # TODO: move to manager ? + split into 2 methods (create & update_or_create) ?
+    #       avoid retrieving the instance again in CremePropertyTypeEditForm.save()
+    #       (use a True model-form + improve CremePropertyType.save() ?) ?
     @staticmethod
     def create(str_pk, text, subject_ctypes=(), is_custom=False, generate_pk=False, is_copiable=True):
         """Helps the creation of new CremePropertyType.
@@ -194,6 +208,10 @@ class CremePropertyType(CremeModel):
 
     @staticmethod
     def get_compatible_ones(ct):
+        warnings.warn('CremePropertyType.get_compatible_ones() is deprecated ; '
+                      'use CremePropertyType.objects.compatible() instead.',
+                      DeprecationWarning
+                     )
         return CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
 

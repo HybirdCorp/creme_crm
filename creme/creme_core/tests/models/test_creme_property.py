@@ -1,12 +1,114 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.contrib.contenttypes.models import ContentType
     from django.db import IntegrityError
+    from django.db.models.query import QuerySet
 
     from ..base import CremeTestCase
-    from creme.creme_core.models import CremeEntity, CremePropertyType, CremeProperty
+
+    from creme.creme_core.models import (CremeEntity, CremePropertyType, CremeProperty,
+            FakeContact, FakeOrganisation)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
+
+
+class CremePropertyTypeTestCase(CremeTestCase):
+    def test_create01(self):
+        pk = 'test-prop_foobar'
+        text = 'is delicious'
+
+        ptype = CremePropertyType.create(str_pk=pk, text=text)
+
+        self.assertIsInstance(ptype, CremePropertyType)
+        self.assertEqual(pk, ptype.id)
+        self.assertEqual(text, ptype.text)
+        self.assertFalse(ptype.is_custom)
+        self.assertTrue(ptype.is_copiable)
+        self.assertFalse(ptype.subject_ctypes.all())
+
+    def test_create02(self):
+        "ContentTypes."
+        pk = 'test-prop_foo'
+        text = 'is wonderful'
+
+        get_ct = ContentType.objects.get_for_model
+        orga_ct = get_ct(FakeOrganisation)
+        ptype = CremePropertyType.create(
+            str_pk=pk, text=text,
+            is_copiable=False,
+            is_custom=True,
+            subject_ctypes=[FakeContact, orga_ct],
+        )
+
+        self.assertTrue(ptype.is_custom)
+        self.assertFalse(ptype.is_copiable)
+        self.assertSetEqual({get_ct(FakeContact), orga_ct},
+                            set(ptype.subject_ctypes.all())
+                           )
+
+    def test_create03(self):
+        "Update existing."
+        pk = 'test-prop_foobar'
+        CremePropertyType.create(str_pk=pk, text='is delicious',
+                                 subject_ctypes=[FakeOrganisation],
+                                )
+
+        text = 'is very delicious'
+        ptype = CremePropertyType.create(str_pk=pk, text=text,
+                                         is_copiable=False,
+                                         is_custom=True,
+                                         subject_ctypes=[FakeContact],
+                                        )
+
+        self.assertEqual(text, ptype.text)
+        self.assertTrue(ptype.is_custom)
+        self.assertFalse(ptype.is_copiable)
+        self.assertListEqual([FakeContact],
+                             list(ct.model_class() for ct in ptype.subject_ctypes.all())
+                            )
+
+    def test_create04(self):
+        "Generate pk."
+        pk = 'test-prop_foobar'
+        CremePropertyType.create(str_pk=pk, text='is delicious')
+
+        text = 'is wonderful'
+        ptype = CremePropertyType.create(str_pk=pk, text=text, generate_pk=True)
+        self.assertEqual(pk + '1', ptype.id)
+        self.assertEqual(text, ptype.text)
+
+    def test_manager_compatible(self):
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
+        ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
+        ptype3 = create_ptype(str_pk='test-prop_wonderful', text='is wonderful',
+                              subject_ctypes=[FakeContact],
+                             )
+
+        # ---
+        ptypes1 = CremePropertyType.objects.compatible(FakeContact)
+        self.assertIsInstance(ptypes1, QuerySet)
+        self.assertEqual(CremePropertyType, ptypes1.model)
+
+        ptype_ids1 = {pt.id for pt in ptypes1}
+        self.assertIn(ptype1.id, ptype_ids1)
+        self.assertIn(ptype2.id, ptype_ids1)
+        self.assertIn(ptype3.id, ptype_ids1)
+
+        self.assertQuerysetSQLEqual(
+            ptypes1,
+            CremePropertyType.objects.compatible(
+                ContentType.objects.get_for_model(FakeContact)
+            )
+        )
+
+        # ---
+        ptypes2 = CremePropertyType.objects.compatible(FakeOrganisation)
+        ptype_ids2 = {pt.id for pt in ptypes2}
+        self.assertIn(ptype1.id, ptype_ids2)
+        self.assertIn(ptype2.id, ptype_ids2)
+        self.assertNotIn(ptype3.id, ptype_ids2)
 
 
 class CremePropertyTestCase(CremeTestCase):
