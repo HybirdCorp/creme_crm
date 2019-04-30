@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.mail import get_connection
 from django.core.mail.message import EmailMessage
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.creme_jobs.base import JobType
 from creme.creme_core.models import JobResult
@@ -35,7 +35,7 @@ from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
 class _ComApproachesEmailsSendType(JobType):
     id           = JobType.generate_id('commercial', 'com_approaches_emails_send')
-    verbose_name = _(u'Send emails for commercials approaches')
+    verbose_name = _('Send emails for commercials approaches')
     periodic     = JobType.PERIODIC  # It would be too difficult/inefficient to
                                      # compute the next wake up, so it is not PSEUDO_PERIODIC.
 
@@ -98,15 +98,16 @@ class _ComApproachesEmailsSendType(JobType):
                                   ).exists():
                     continue
 
-                emails.append(EmailMessage(ugettext(u"[CremeCRM] The organisation «{}» seems neglected").format(orga),
-                                           ugettext(u"It seems you haven't created a commercial approach for "
-                                                    u"the organisation «{orga}» since {delay} days.").format(
-                                               orga=orga,
-                                               delay=delay,
-                                           ),
-                                           EMAIL_SENDER, [orga.user.email],
-                                          )
-                             )
+                emails.append(
+                    EmailMessage(
+                        gettext('[CremeCRM] The organisation «{}» seems neglected').format(orga),
+                        gettext("It seems you haven't created a commercial approach for "
+                                "the organisation «{orga}» since {delay} days.").format(
+                                   orga=orga,
+                                   delay=delay,
+                        ),
+                        EMAIL_SENDER, [orga.user.email],
+                ))
 
         # TODO: factorise jobs which send emails
         if emails:
@@ -114,18 +115,20 @@ class _ComApproachesEmailsSendType(JobType):
                 with get_connection() as connection:
                     connection.send_messages(emails)
             except Exception as e:
-                JobResult.objects.create(job=job,
-                                         messages=[ugettext(u'An error has occurred while sending emails'),
-                                                   ugettext(u'Original error: {}').format(e),
-                                                  ],
-                                        )
+                JobResult.objects.create(
+                    job=job,
+                    messages=[
+                        gettext('An error has occurred while sending emails'),
+                        gettext('Original error: {}').format(e),
+                    ],
+                )
 
     def get_description(self, job):
-        return [ugettext(u"For each customer organisation, an email is sent to its owner (ie: a Creme user), "
-                         u"if there is no commercial approach since {} days linked to: "
-                         u"the organisation, one of its managers/employees, "
-                         u"or an Opportunity which targets this organisation."
-                        ).format(self.list_target_orga[0][1]),
+        return [gettext("For each customer organisation, an email is sent to its owner (ie: a Creme user), "
+                        "if there is no commercial approach since {} days linked to: "
+                        "the organisation, one of its managers/employees, "
+                        "or an Opportunity which targets this organisation."
+                       ).format(self.list_target_orga[0][1]),
                ]
 
 

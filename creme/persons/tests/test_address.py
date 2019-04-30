@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -28,7 +28,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     def _build_add_url(self, entity):
         return reverse('persons__create_address', args=(entity.id,))
 
-    def _create_address(self, orga, name, address='', po_box='', city='', state='', zipcode='', country='', department=''):
+    def _create_address(self, orga, name, address='', po_box='', city='',
+                        state='', zipcode='', country='', department=''):
         response = self.client.post(self._build_add_url(orga),
                                     data={'name':       name,
                                           'address':    address,

@@ -5,7 +5,7 @@ try:
 
     from django.conf import settings
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui import actions

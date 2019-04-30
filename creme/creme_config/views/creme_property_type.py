@@ -20,7 +20,7 @@
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.auth import decorators
 from creme.creme_core.models import CremePropertyType

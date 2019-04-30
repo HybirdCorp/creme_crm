@@ -24,7 +24,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.forms import CharField, IntegerField, ModelChoiceField, BooleanField
 from django.http import Http404
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import (CremeForm, CremeEntityForm,
@@ -120,7 +120,7 @@ class PollRepliesCreateForm(CremeForm):
         lines = pform.lines.filter(disabled=False)
 
         if not lines:
-            raise exception_class(ugettext('The form must contain one line at least.'))
+            raise exception_class(gettext('The form must contain one line at least.'))
 
         self.pform = pform
         self.pform_lines = lines
@@ -213,7 +213,7 @@ class PollReplyFillForm(CremeForm):
         if number:
             # TODO: use NodeStyle ??
             question.initial = '{} - {}'.format(number, line_node.question)
-            fields['not_applicable'] = BooleanField(label=ugettext('Not applicable'),
+            fields['not_applicable'] = BooleanField(label=gettext('Not applicable'),
                                                     required=False,
                                                     initial=not line_node.applicable,
                                                    )
@@ -233,7 +233,7 @@ class PollReplyFillForm(CremeForm):
 
         if not errors and not cdata.get('not_applicable', False) and \
            self.line_node.poll_line_type.editable and cdata.get('answer') is None:
-            errors['answer'] = self.error_class([ugettext('The answer is required.')])
+            errors['answer'] = self.error_class([gettext('The answer is required.')])
 
         return cdata
 

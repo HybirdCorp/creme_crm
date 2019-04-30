@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import logging
 
 from django.apps import apps
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -47,8 +47,10 @@ class Populator(BasePopulator):
         Ticket = get_ticket_model()
         TicketTemplate = get_tickettemplate_model()
 
-        RelationType.create((constants.REL_SUB_LINKED_2_TICKET, _('is linked to the ticket')),
-                            (constants.REL_OBJ_LINKED_2_TICKET, _('(ticket) linked to the entity'), [Ticket]))
+        RelationType.create(
+            (constants.REL_SUB_LINKED_2_TICKET, _('is linked to the ticket')),
+            (constants.REL_OBJ_LINKED_2_TICKET, _('(ticket) linked to the entity'), [Ticket]),
+        )
 
         if apps.is_installed('creme.activities'):
             logger.info('Activities app is installed => a Ticket can be the subject of an Activity')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.core.validators import validate_email
 from django.forms import ValidationError, FileField
 from django.utils.encoding import smart_text
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiEmailField
@@ -67,7 +67,10 @@ class MailingListAddRecipientsForm(CremeForm):
     def save(self):
         ml = self.ml
         recipients = self.cleaned_data['recipients']
-        existing   = frozenset(EmailRecipient.objects.filter(ml=ml, address__in=recipients).values_list('address', flat=True))
+        existing   = frozenset(
+            EmailRecipient.objects.filter(ml=ml, address__in=recipients)
+                                  .values_list('address', flat=True)
+        )
 
         create = EmailRecipient.objects.create
 

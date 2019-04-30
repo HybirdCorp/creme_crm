@@ -10,7 +10,7 @@ try:
 
     from django.conf import settings
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
@@ -150,8 +150,8 @@ class GraphsTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # Tests an encoding error, pygraphviz supports unicode...
-        rtype = RelationType.create(('test-subject_hate', u'déteste'),
-                                    ('test-object_hate',  u'est détesté par')
+        rtype = RelationType.create(('test-subject_hate', 'déteste'),
+                                    ('test-object_hate',  'est détesté par')
                                    )[0]
         Relation.objects.create(user=user,
                                 subject_entity=contact,
@@ -185,7 +185,7 @@ class GraphsTestCase(CremeTestCase):
 
         fileref = filerefs[0]
         self.assertTrue(fileref.temporary)
-        self.assertEqual(u'graph_{}.png'.format(graph.id), fileref.basename)
+        self.assertEqual('graph_{}.png'.format(graph.id), fileref.basename)
         # self.assertEqual(user, fileref.user) TODO
 
         fullpath = fileref.filedata.path

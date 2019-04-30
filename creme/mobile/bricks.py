@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2018  Hybird
+#    Copyright (C) 2014-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.bricks import QuerysetBrick
 
@@ -35,7 +35,7 @@ Organisation = persons.get_organisation_model()
 class FavoritePersonsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('mobile', 'favorite_persons')
     dependencies  = (MobileFavorite,)
-    verbose_name  = _(u'Favorite Contacts & Organisations (for mobile)')
+    verbose_name  = _('Favorite Contacts & Organisations (for mobile)')
     template_name = 'mobile/bricks/favorite.html'
     target_ctypes = (Contact, Organisation)
 

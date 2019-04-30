@@ -3,7 +3,7 @@
 try:
     from django.contrib.auth import get_user
     from django.core.exceptions import ValidationError
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from ..base import CremeTestCase
 
@@ -74,7 +74,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as e:
             validators.validate_viewable_entity(a, user)
 
-        self.assertEqual(e.exception.message, _(u'Not authenticated user is not allowed to view entities'))
+        self.assertEqual(e.exception.message, _('Not authenticated user is not allowed to view entities'))
         self.assertEqual(e.exception.code, 'viewnotallowed')
 
     def test_validate_viewable_entity_notallowed_other(self):
@@ -186,7 +186,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as e:
             validators.validate_editable_entity(a, user)
 
-        self.assertEqual(e.exception.message, _(u'Not authenticated user is not allowed to edit entities'))
+        self.assertEqual(e.exception.message, _('Not authenticated user is not allowed to edit entities'))
         self.assertEqual(e.exception.code, 'changenotallowed')
 
     def test_validate_editable_entity_notallowed_other(self):
@@ -286,7 +286,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as e:
             validators.validate_linkable_entity(a, user)
 
-        self.assertEqual(e.exception.message, _(u'Not authenticated user is not allowed to link entities'))
+        self.assertEqual(e.exception.message, _('Not authenticated user is not allowed to link entities'))
         self.assertEqual(e.exception.code, 'linknotallowed')
 
     def test_validate_linkable_entity_notallowed_other(self):
@@ -342,7 +342,7 @@ class CredsValidatorTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as e:
             validators.validate_linkable_entities([a, b], user)
 
-        self.assertEqual(e.exception.message, _(u'Not authenticated user is not allowed to link entities'))
+        self.assertEqual(e.exception.message, _('Not authenticated user is not allowed to link entities'))
         self.assertEqual(e.exception.code, 'linknotallowed')
 
     def test_validate_linkable_entities_notallowed_other(self):
@@ -391,7 +391,7 @@ class CredsValidatorTestCase(CremeTestCase):
             validators.validate_linkable_model(FakeContact, user, user)
 
         self.assertEqual(e.exception.message,
-                         _(u'Not authenticated user is not allowed to link «{model}»').format(
+                         _('Not authenticated user is not allowed to link «{model}»').format(
                              model=FakeContact._meta.verbose_name_plural
                          )
                         )

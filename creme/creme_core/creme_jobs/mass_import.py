@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict
-from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
+from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from ..forms.mass_import import get_header, form_factory
 from ..models import MassImportJobResult
@@ -32,13 +32,12 @@ from .base import JobType, JobProgress
 
 from creme.documents import get_document_model
 
-
 logger = logging.getLogger(__name__)
 
 
 class _MassImportType(JobType):
     id           = JobType.generate_id('creme_core', 'mass_import')
-    verbose_name = _(u'Mass import')
+    verbose_name = _('Mass import')
 
     def _build_POST(self, job_data):
         return QueryDict(job_data['POST'].encode('utf8'))
@@ -58,17 +57,17 @@ class _MassImportType(JobType):
         form = form_class(user=job.user, data=POST)
 
         if not form.is_valid():
-            raise self.Error(ugettext(u'Invalid data [{}]').format(form.errors.as_text()))  # TODO: unit test
+            raise self.Error(gettext('Invalid data [{}]').format(form.errors.as_text()))  # TODO: unit test
 
         form.process(job)
 
     def progress(self, job):
         count = MassImportJobResult.objects.filter(job=job).count()
         return JobProgress(percentage=None,
-                           label=ungettext(u'{count} line has been processed.',
-                                           u'{count} lines have been processed.',
-                                           count
-                                          ).format(count=count)
+                           label=ngettext('{count} line has been processed.',
+                                          '{count} lines have been processed.',
+                                          count
+                                         ).format(count=count)
                           )
 
     @property
@@ -79,11 +78,12 @@ class _MassImportType(JobType):
     def get_description(self, job):
         try:
             job_data = job.data
-            desc = [ugettext(u'Import «{model}» from {doc}').format(
-                        model=self._get_ctype(job_data).model_class()._meta.verbose_name,
-                        doc=self._get_document(self._build_POST(job_data)),
-                    )
-                   ]
+            desc = [
+                gettext('Import «{model}» from {doc}').format(
+                    model=self._get_ctype(job_data).model_class()._meta.verbose_name,
+                    doc=self._get_document(self._build_POST(job_data)),
+                ),
+           ]
         except Exception:  # TODO: unit test
             logger.exception('Error in _MassImportType.get_description')
             desc = ['?']
@@ -103,31 +103,33 @@ class _MassImportType(JobType):
         model = self._get_ctype(job.data).model_class()
 
         if created_count:
-            stats.append(ungettext(u'{count} «{model}» has been created.',
-                                   u'{count} «{model}» have been created.',
-                                   created_count
-                                  ).format(count=created_count,
-                                           model=get_model_verbose_name(model, created_count),
-                                          )
-                        )
+            stats.append(
+                ngettext('{count} «{model}» has been created.',
+                         '{count} «{model}» have been created.',
+                         created_count
+                        ).format(count=created_count,
+                                 model=get_model_verbose_name(model, created_count),
+                                )
+            )
         elif updated_count != lines_count:
-            stats.append(ugettext(u'No «{model}» has been created.').format(model=model._meta.verbose_name))
+            stats.append(gettext('No «{model}» has been created.').format(model=model._meta.verbose_name))
 
         if updated_count:
-            stats.append(ungettext(u'{count} «{model}» has been updated.',
-                                   u'{count} «{model}» have been updated.',
-                                   updated_count
-                                  ).format(count=updated_count,
-                                           model=get_model_verbose_name(model, updated_count),
-                                          )
-                        )
+            stats.append(
+                ngettext('{count} «{model}» has been updated.',
+                         '{count} «{model}» have been updated.',
+                         updated_count
+                        ).format(count=updated_count,
+                                 model=get_model_verbose_name(model, updated_count),
+                                )
+            )
         elif created_count != lines_count:
-            stats.append(ugettext(u'No «{model}» has been updated.').format(model=model._meta.verbose_name))
+            stats.append(gettext('No «{model}» has been updated.').format(model=model._meta.verbose_name))
 
-        stats.append(ungettext(u'{count} line in the file.',
-                               u'{count} lines in the file.',
-                               lines_count,
-                              ).format(count=lines_count)
+        stats.append(ngettext('{count} line in the file.',
+                              '{count} lines in the file.',
+                              lines_count,
+                             ).format(count=lines_count)
                     )
 
         return stats

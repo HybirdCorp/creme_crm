@@ -27,7 +27,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
+from django.utils.translation import gettext_lazy as _, gettext, pgettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -245,11 +245,11 @@ def _format_previous_answered_question(preply_id, line, style):
         '<b>{title}</b><br>'
         '{label} : {number} {question}<br>'
         '{answer_str} : {answer} <a class="add" href="{url}">{icon}</a>',
-        title=ugettext('Reminder of the previous answered question :'),
-        label=ugettext('Question'),
+        title=gettext('Reminder of the previous answered question :'),
+        label=gettext('Question'),
         number='{} -'.format(number) if number != 'None' else '',
         question=line.question,
-        answer_str=ugettext('Answer'),
+        answer_str=gettext('Answer'),
         answer=answer,
         url=reverse('polls__edit_reply_line_wizard', args=(preply_id, line.id)),
         icon=get_icon_by_name('edit', theme=theme, label=_('Edit'),
@@ -312,7 +312,7 @@ def edit_line_wizard(request, preply_id, line_id):
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'title':        ugettext('Answers of the form : {}').format(preply),
+                  {'title':        gettext('Answers of the form : {}').format(preply),
                    'form':         form,
                    'help_message': previous_answer,
                    'cancel_url':   preply.get_absolute_url(),
@@ -330,7 +330,7 @@ def fill(request, preply_id):
     user.has_perm_to_change_or_die(preply)
 
     if preply.is_complete:
-        raise Http404(ugettext('All questions have been answered.'))
+        raise Http404(gettext('All questions have been answered.'))
 
     tree = ReplySectionTree(preply)
     line_node = tree.next_question_to_answer
@@ -367,7 +367,7 @@ def fill(request, preply_id):
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'title':        ugettext('Answers of the form : {}').format(preply),
+                  {'title':        gettext('Answers of the form : {}').format(preply),
                    'form':         form,
                    'help_message': previous_answer,
                    'cancel_url':   preply.get_absolute_url(),

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from math import ceil
 
 from django.forms import ModelChoiceField, IntegerField, CharField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm
 from creme.creme_core.forms.fields import FilteredEntityTypeField
@@ -97,7 +97,7 @@ class ObjectivesFromPatternForm(CremeForm):
         create_objective = ActObjective.objects.create
         won_opps = int(ceil(float(act.expected_sales) / float(pattern.average_sales)))
 
-        create_objective(act=act, name=ugettext('Number of won opportunities'), counter_goal=won_opps)
+        create_objective(act=act, name=gettext('Number of won opportunities'), counter_goal=won_opps)
 
         def create_objectives_from_components(comps, parent_goal):
             for comp in comps:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ import logging
 from django.conf import settings
 from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey, CASCADE
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
+from django.utils.translation import gettext_lazy as _, pgettext_lazy, gettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem
@@ -185,8 +185,8 @@ class AbstractReportGraph(CremeEntity):
 
         if InstanceBrickConfigItem.objects.filter(brick_id=brick_id).exists():
             raise self.InstanceBrickConfigItemError(
-                        ugettext('The instance block for «{graph}» with these parameters already exists!').format(graph=self)
-                    )
+                gettext('The instance block for «{graph}» with these parameters already exists!').format(graph=self)
+            )
 
         ibci = InstanceBrickConfigItem(entity=self, brick_id=brick_id, data=key)
 

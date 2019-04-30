@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, BooleanField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import CremeUserForeignKey, ColorField
@@ -70,7 +70,7 @@ class Calendar(CremeModel):
 
     @staticmethod
     def _create_default_calendar(user, *, is_public=False):
-        cal = Calendar(name=ugettext("{user}'s calendar").format(user=user),
+        cal = Calendar(name=gettext("{user}'s calendar").format(user=user),
                        user=user, is_default=True, is_custom=False,
                        is_public=is_public,
                        color=Calendar.new_color(),

@@ -2,7 +2,7 @@
 
 try:
     from django.core.paginator import Paginator
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.gui.pager import PagerContext, PagerLink
     from creme.creme_core.tests.base import CremeTestCase
@@ -31,9 +31,9 @@ class PagerContextTestCase(CremeTestCase):
 
         # <previous|1|next>
         self.assertPagerLinks([
-            PagerLink(None, label=_(u'Previous page'), group='previous', enabled=False),
-            PagerLink(1, label=u'1', is_current=True),
-            PagerLink(None, label=_(u'Next page'), group='next', enabled=False)
+            PagerLink(None, label=_('Previous page'), group='previous', enabled=False),
+            PagerLink(1, label='1', is_current=True),
+            PagerLink(None, label=_('Next page'), group='next', enabled=False)
         ], pager.links)
 
     def test_single_page(self):
@@ -51,9 +51,9 @@ class PagerContextTestCase(CremeTestCase):
 
         # <previous|1|next>
         self.assertPagerLinks([
-            PagerLink(None, label=_(u'Previous page'), group='previous', enabled=False),
-            PagerLink(1, label=u'1', is_current=True),
-            PagerLink(None, label=_(u'Next page'), group='next', enabled=False)
+            PagerLink(None, label=_('Previous page'), group='previous', enabled=False),
+            PagerLink(1, label='1', is_current=True),
+            PagerLink(None, label=_('Next page'), group='next', enabled=False)
         ], pager.links)
 
     def test_firstpage_under_show_all_limit(self):
@@ -71,11 +71,11 @@ class PagerContextTestCase(CremeTestCase):
 
         # <previous|1|2|3|next>
         self.assertPagerLinks([
-            PagerLink(None, label=_(u'Previous page'), group='previous', enabled=False),
-            PagerLink(1, label=u'1', is_current=True),
-            PagerLink(2, label=u'2'),
-            PagerLink(3, label=u'3'),
-            PagerLink(2, label=_(u'Next page'), group='next')
+            PagerLink(None, label=_('Previous page'), group='previous', enabled=False),
+            PagerLink(1, label='1', is_current=True),
+            PagerLink(2, label='2'),
+            PagerLink(3, label='3'),
+            PagerLink(2, label=_('Next page'), group='next')
         ], pager.links)
 
     def test_under_show_all_limit(self):
@@ -93,11 +93,11 @@ class PagerContextTestCase(CremeTestCase):
 
         # <previous|1|2|3|next>
         self.assertPagerLinks([
-            PagerLink(1, label=_(u'Previous page'), group='previous'),
-            PagerLink(1, label=u'1'),
-            PagerLink(2, label=u'2', is_current=True),
-            PagerLink(3, label=u'3'),
-            PagerLink(3, label=_(u'Next page'), group='next')
+            PagerLink(1, label=_('Previous page'), group='previous'),
+            PagerLink(1, label='1'),
+            PagerLink(2, label='2', is_current=True),
+            PagerLink(3, label='3'),
+            PagerLink(3, label=_('Next page'), group='next')
         ], pager.links)
 
     def test_lastpage_under_show_all_limit(self):
@@ -115,11 +115,11 @@ class PagerContextTestCase(CremeTestCase):
 
         # <previous|1|2|3|next>
         self.assertPagerLinks([
-            PagerLink(2, label=_(u'Previous page'), group='previous'),
-            PagerLink(1, label=u'1'),
-            PagerLink(2, label=u'2'),
-            PagerLink(3, label=u'3', is_current=True),
-            PagerLink(None, label=_(u'Next page'), group='next', enabled=False)
+            PagerLink(2, label=_('Previous page'), group='previous'),
+            PagerLink(1, label='1'),
+            PagerLink(2, label='2'),
+            PagerLink(3, label='3', is_current=True),
+            PagerLink(None, label=_('Next page'), group='next', enabled=False)
         ], pager.links)
 
     def test_under_show_first_limit(self):
@@ -137,14 +137,14 @@ class PagerContextTestCase(CremeTestCase):
 
         # <previous|1|2|3|4|...|10|next>
         self.assertPagerLinks([
-            PagerLink(2, label=_(u'Previous page'), group='previous'),
-            PagerLink(1, label=u'1'),
-            PagerLink(2, label=u'2'),
-            PagerLink(3, label=u'3', is_current=True),
-            PagerLink(4, label=u'4'),
-            PagerLink(5, help=_(u'To another page'), group='choose'),
-            PagerLink(10, help=_(u'To last page')),
-            PagerLink(4, label=_(u'Next page'), group='next')
+            PagerLink(2, label=_('Previous page'), group='previous'),
+            PagerLink(1, label='1'),
+            PagerLink(2, label='2'),
+            PagerLink(3, label='3', is_current=True),
+            PagerLink(4, label='4'),
+            PagerLink(5, help=_('To another page'), group='choose'),
+            PagerLink(10, help=_('To last page')),
+            PagerLink(4, label=_('Next page'), group='next')
         ], pager.links)
 
     def test_under_show_last_limit(self):
@@ -162,14 +162,14 @@ class PagerContextTestCase(CremeTestCase):
 
         # <previous|1|...|7|8|9|10|next>
         self.assertPagerLinks([
-            PagerLink(7, label=_(u'Previous page'), group='previous'),
-            PagerLink(1, help=_(u'To first page')),
-            PagerLink(6, help=_(u'To another page'), group='choose'),
-            PagerLink(7, label=u'7'),
-            PagerLink(8, label=u'8', is_current=True),
-            PagerLink(9, label=u'9'),
-            PagerLink(10, label=u'10'),
-            PagerLink(9, label=_(u'Next page'), group='next')
+            PagerLink(7, label=_('Previous page'), group='previous'),
+            PagerLink(1, help=_('To first page')),
+            PagerLink(6, help=_('To another page'), group='choose'),
+            PagerLink(7, label='7'),
+            PagerLink(8, label='8', is_current=True),
+            PagerLink(9, label='9'),
+            PagerLink(10, label='10'),
+            PagerLink(9, label=_('Next page'), group='next')
         ], pager.links)
 
 
@@ -188,15 +188,15 @@ class PagerContextTestCase(CremeTestCase):
 
         # <previous|1|...|4|5|6|...|10|next>
         self.assertPagerLinks([
-            PagerLink(4, label=_(u'Previous page'), group='previous'),
-            PagerLink(1, help=_(u'To first page')),
-            PagerLink(3, help=_(u'To another page'), group='choose'),
-            PagerLink(4, label=u'4'),
-            PagerLink(5, label=u'5', is_current=True),
-            PagerLink(6, label=u'6'),
-            PagerLink(7, help=_(u'To another page'), group='choose'),
-            PagerLink(10, help=_(u'To last page')),
-            PagerLink(6, label=_(u'Next page'), group='next')
+            PagerLink(4, label=_('Previous page'), group='previous'),
+            PagerLink(1, help=_('To first page')),
+            PagerLink(3, help=_('To another page'), group='choose'),
+            PagerLink(4, label='4'),
+            PagerLink(5, label='5', is_current=True),
+            PagerLink(6, label='6'),
+            PagerLink(7, help=_('To another page'), group='choose'),
+            PagerLink(10, help=_('To last page')),
+            PagerLink(6, label=_('Next page'), group='next')
         ], pager.links)
 
     def test_middle_page_huge_count(self):
@@ -214,14 +214,14 @@ class PagerContextTestCase(CremeTestCase):
 
         # <previous|1|...|49|50|51|...|100|next>
         self.assertPagerLinks([
-            PagerLink(49, label=_(u'Previous page'), group='previous'),
-            PagerLink(1, help=_(u'To first page')),
-            PagerLink(48, help=_(u'To another page'), group='choose'),
-            PagerLink(49, label=u'49'),
-            PagerLink(50, label=u'50', is_current=True),
-            PagerLink(51, label=u'51'),
-            PagerLink(52, help=_(u'To another page'), group='choose'),
-            PagerLink(100, help=_(u'To last page')),
-            PagerLink(51, label=_(u'Next page'), group='next')
+            PagerLink(49, label=_('Previous page'), group='previous'),
+            PagerLink(1, help=_('To first page')),
+            PagerLink(48, help=_('To another page'), group='choose'),
+            PagerLink(49, label='49'),
+            PagerLink(50, label='50', is_current=True),
+            PagerLink(51, label='51'),
+            PagerLink(52, help=_('To another page'), group='choose'),
+            PagerLink(100, help=_('To last page')),
+            PagerLink(51, label=_('Next page'), group='next')
         ], pager.links)
 

@@ -30,7 +30,7 @@ from django.shortcuts import get_object_or_404
 from django.template import loader
 from django.urls import reverse
 from django.utils.encoding import smart_str
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.auth import decorators as auth_dec
 from creme.creme_core.core.exceptions import ConflictError

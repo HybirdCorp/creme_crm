@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import BasicAutoField
@@ -27,16 +27,16 @@ from creme.creme_core.models.fields import BasicAutoField
 
 class Criticity(CremeModel):
     """Criticality of a ticket: critical, not important etc..."""
-    name  = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
+    name  = CharField(_('Name'), max_length=100, blank=False, null=False, unique=True)
     order = BasicAutoField(_('Order'))  # Used by creme_config
 
-    creation_label = pgettext_lazy('tickets-criticality', u'Create a criticality')
+    creation_label = pgettext_lazy('tickets-criticality', 'Create a criticality')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'tickets'
-        verbose_name = _(u'Ticket criticality')
-        verbose_name_plural = _(u'Ticket criticalities')
+        verbose_name = _('Ticket criticality')
+        verbose_name_plural = _('Ticket criticalities')
         ordering = ('order',)

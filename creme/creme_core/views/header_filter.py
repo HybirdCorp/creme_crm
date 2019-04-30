@@ -23,7 +23,7 @@ import logging
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from .. import utils
 from ..auth.decorators import login_required
@@ -78,7 +78,7 @@ def delete(request):
     if allowed:
         hf.delete()
 
-        return_msg = ugettext('View successfully deleted')
+        return_msg = gettext('View successfully deleted')
         status = 200
     else:
         return_msg = msg

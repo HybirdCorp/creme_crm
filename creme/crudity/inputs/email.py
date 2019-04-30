@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from xml.etree import ElementTree as ET
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist, FileField, ForeignKey
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.documents import get_document_model
 
@@ -246,7 +246,7 @@ class CreateInfopathInput(CreateEmailInput):
         data = backend.body_map.copy()
         for node in xml:
             try:
-                tag = re.search(r'[{].*[}](?P<tag>[-_\d\s\w]+)', node.tag).groupdict()['tag'] #TODO: compile
+                tag = re.search(r'[{].*[}](?P<tag>[-_\d\s\w]+)', node.tag).groupdict()['tag']  # TODO: compile
             except AttributeError:
                 continue
 

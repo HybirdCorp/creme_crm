@@ -24,7 +24,7 @@ from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
 from django.forms import Field, Widget, Select, CheckboxInput
 from django.forms.models import fields_for_model, model_to_dict
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from ..gui import merge
 from ..models import CremeEntity, CustomField, CustomFieldValue, FieldsConfig
@@ -157,7 +157,7 @@ class MergeEntitiesBaseForm(CremeForm):
 
         for name, field in fields.items():
             if name == 'entities_labels':
-                field.initial = (str(entity1), str(entity2), _(u'Merged entity'))
+                field.initial = (str(entity1), str(entity2), _('Merged entity'))
             else:
                 initial = [entity1_initial[name], entity2_initial[name]]
                 # We try to initialize with preferred one, but we use the other if it is empty.

@@ -5,7 +5,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import CremePropertyType, SetCredentials
@@ -36,7 +36,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
                                  'segment_desc_id': segment_desc.id,
                                  'orga_id':         orga.id,
                                  'score':           score,
-                                }
+                                },
                           )
 
     def _set_charm_score(self, strategy, orga, charm, segment_desc, score):
@@ -45,7 +45,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
                                  'segment_desc_id': segment_desc.id,
                                  'orga_id':         orga.id,
                                  'score':           score,
-                                }
+                                },
                           )
 
     def test_strategy_create(self):

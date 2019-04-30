@@ -3,7 +3,7 @@
 
 from sys import argv
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 DEBUG = False
 JAVASCRIPT_DEBUG = DEBUG

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,12 +26,11 @@ from django.forms.utils import ValidationError
 from django.forms.widgets import PasswordInput
 from django.utils.functional import lazy
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.models import UserRole
 from creme.creme_core.models.fields import CremeUserForeignKey
-
 
 CremeUser = get_user_model()
 
@@ -75,7 +74,7 @@ class UserAddForm(CremeModelForm):
         super().__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
-        self.fields['role'].empty_label = '*{}*'.format(ugettext('Superuser'))
+        self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
 
     # Copied from django.contrib.auth.forms.UserCreationForm
     def clean_password_2(self):
@@ -116,7 +115,7 @@ class UserEditForm(CremeModelForm):
         super().__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
-        self.fields['role'].empty_label = '*{}*'.format(ugettext('Superuser'))
+        self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -177,7 +176,7 @@ class TeamCreateForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].label = ugettext('Team name')
+        self.fields['username'].label = gettext('Team name')
 
     def save(self, *args, **kwargs):
         team = self.instance
@@ -217,8 +216,8 @@ class UserAssignationForm(CremeForm):
 
         to_user = self.fields['to_user']
         to_user.queryset = users
-        to_user.choices = [(ugettext('Users'), choices[False]),
-                           (ugettext('Teams'), choices[True]),
+        to_user.choices = [(gettext('Users'), choices[False]),
+                           (gettext('Teams'), choices[True]),
                           ]
 
     def save(self, *args, **kwargs):

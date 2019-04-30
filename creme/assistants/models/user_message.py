@@ -25,7 +25,7 @@ import logging
 from django.db import models
 from django.db.transaction import atomic
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, CremeEntity, JobResult, fields as creme_fields
 
@@ -132,8 +132,8 @@ class UserMessage(CremeModel):
         if not usermessages:
             return
 
-        subject_format = ugettext('User message from Creme: {}')
-        body_format    = ugettext('{user} sent you the following message:\n{body}')
+        subject_format = gettext('User message from Creme: {}')
+        body_format    = gettext('{user} sent you the following message:\n{body}')
         EMAIL_SENDER   = settings.EMAIL_SENDER
 
         messages = [EmailMessage(subject_format.format(msg.title),
@@ -148,11 +148,13 @@ class UserMessage(CremeModel):
                 connection.send_messages(messages)
         except Exception as e:
             logger.critical('Error while sending user-messages emails (%s)', e)
-            JobResult.objects.create(job=job,
-                                     messages=[ugettext('An error occurred while sending emails'),
-                                               ugettext('Original error: {}').format(e),
-                                              ],
-                                    )
+            JobResult.objects.create(
+                job=job,
+                messages=[
+                    gettext('An error occurred while sending emails'),
+                    gettext('Original error: {}').format(e),
+                ],
+            )
 
         cls.objects.filter(pk__in=[m.id for m in usermessages]) \
                    .update(email_sent=True)

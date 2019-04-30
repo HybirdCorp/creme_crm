@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,10 +25,9 @@ from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
 from django.db.transaction import atomic
 from django.utils.timezone import now
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from ..models import DateReminder, JobResult
-
 
 logger = logging.getLogger(__name__)
 FIRST_REMINDER = 1
@@ -82,13 +81,15 @@ class Reminder:
                 connection.send_messages(messages)
         except Exception as e:
             logger.critical('Error while sending reminder emails (%s)', e)
-            JobResult.objects.create(job=job,
-                                     messages=[_('An error occurred while sending emails related to «{model}»').format(
-                                                        model=self.model._meta.verbose_name,
-                                                    ),
-                                               _('Original error: {}').format(e),
-                                              ],
-                                    )
+            JobResult.objects.create(
+                job=job,
+                messages=[
+                    _('An error occurred while sending emails related to «{model}»').format(
+                        model=self.model._meta.verbose_name,
+                    ),
+                    _('Original error: {}').format(e),
+                ],
+            )
 
             return False
 

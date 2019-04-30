@@ -5,7 +5,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
     from creme.creme_core.models import EntityFilter
@@ -305,7 +305,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                               }
                                    )
         self.assertFormError(response, 'form', 'success_rate',
-                             _(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
+                             _('Ensure this value is greater than or equal to %(limit_value)s.') % {
                                     'limit_value': 1,
                                 }
                             )
@@ -315,7 +315,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                               }
                                    )
         self.assertFormError(response, 'form', 'success_rate',
-                             _(u'Ensure this value is less than or equal to %(limit_value)s.') % {
+                             _('Ensure this value is less than or equal to %(limit_value)s.') % {
                                     'limit_value': 100,
                                 }
                             )

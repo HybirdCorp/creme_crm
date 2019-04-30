@@ -29,7 +29,7 @@ from django.db.models import (Model, CharField, TextField, DateTimeField,
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.timezone import now
-from django.utils.translation import get_language, ugettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 
 from ..utils.date_period import HoursPeriod, date_period_registry
 from ..utils.dates import round_hour, dt_to_ISO8601, dt_from_ISO8601

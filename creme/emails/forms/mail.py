@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ from django.core.validators import validate_email
 from django.db.transaction import atomic
 from django.forms.fields import EmailField, BooleanField, CharField  # IntegerField
 # from django.forms.widgets import HiddenInput
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
@@ -102,9 +102,9 @@ class EntityEmailForm(CremeEntityForm):
                 self.fields[name] = CharField(
                         label=self.fields[name].label,
                         required=False, widget=Label,
-                        initial=ugettext('Beware: the field «Email address» is hidden ;'
-                                         ' please contact your administrator.'
-                                        ),
+                        initial=gettext('Beware: the field «Email address» is hidden ;'
+                                        ' please contact your administrator.'
+                                       ),
                     )
 
         finalize_recipient_field('c_recipients', Contact)
@@ -124,7 +124,7 @@ class EntityEmailForm(CremeEntityForm):
                 bad_entities.append(entity)
 
         if bad_entities:
-            msg_format = ugettext('The email address for {} is invalid')
+            msg_format = gettext('The email address for {} is invalid')
             user = self.user
 
             for entity in bad_entities:

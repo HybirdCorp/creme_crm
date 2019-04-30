@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from datetime import datetime
 
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from ..core.reminder import reminder_registry
 from .base import JobType
@@ -28,7 +28,7 @@ from .base import JobType
 
 class _ReminderType(JobType):
     id           = JobType.generate_id('creme_core', 'reminder')
-    verbose_name = _(u'Reminders')
+    verbose_name = _('Reminders')
     periodic     = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):
@@ -36,7 +36,7 @@ class _ReminderType(JobType):
             reminder.execute(job)
 
     def get_description(self, job):
-        return [ugettext(u'Execute all reminders')]
+        return [gettext('Execute all reminders')]
 
     def next_wakeup(self, job, now_value):  # We have to implement it because it is a PSEUDO_PERIODIC JobType
         total_wakeup = None

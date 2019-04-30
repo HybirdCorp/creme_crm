@@ -23,7 +23,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, ModelChoiceField
 from django.forms.widgets import TextInput
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.forms.widgets import Label
@@ -92,13 +92,13 @@ class RelatedContactForm(ContactForm):
         self.relation_type = rtype
 
         if self.relation_type:
-            relation_field = CharField(label=ugettext('Relation type'),
+            relation_field = CharField(label=gettext('Relation type'),
                                        widget=TextInput(attrs={'readonly': 'readonly'}),
                                        initial=self.relation_type,  # TODO: required=False ??
                                       )
         else:
             get_ct = ContentType.objects.get_for_model
-            relation_field = ModelChoiceField(label=ugettext('Status in the organisation'),
+            relation_field = ModelChoiceField(label=gettext('Status in the organisation'),
                                               # TODO: factorise (see User form hooking)
                                               queryset=RelationType.objects.filter(
                                                             subject_ctypes=get_ct(Contact),

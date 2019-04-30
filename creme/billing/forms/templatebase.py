@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import ChoiceField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from .. import get_template_base_model
 from .base import BaseEditForm, copy_or_create_address, first_managed_orga_id
@@ -36,7 +36,7 @@ class _TemplateBaseForm(BaseEditForm):
         meta = billing_ct.model_class()._meta
         status_field = self.fields['status']
 
-        status_field.label   = ugettext('Status of {}').format(meta.verbose_name)
+        status_field.label   = gettext('Status of {}').format(meta.verbose_name)
         status_field.choices = [(status.id, str(status))
                                     for status in meta.get_field('status').remote_field.model.objects.all()
                                ]

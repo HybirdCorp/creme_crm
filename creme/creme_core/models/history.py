@@ -35,7 +35,7 @@ from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime  # make_naive, utc
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from ..global_info import get_global_info, set_global_info
 from ..signals import pre_merge_related
@@ -135,10 +135,10 @@ def _fk_printer(field, val, user):
 
 # TODO: ClassKeyedMap ?
 _PRINTERS = {
-        'BooleanField': (lambda field, val, user: ugettext('Yes') if val else ugettext('No')),
-        'NullBooleanField': (lambda field, val, user: ugettext('Yes') if val else
-                                                      ugettext('No') if val is False else
-                                                      ugettext('N/A')
+        'BooleanField': (lambda field, val, user: gettext('Yes') if val else gettext('No')),
+        'NullBooleanField': (lambda field, val, user: gettext('Yes') if val else
+                                                      gettext('No') if val is False else
+                                                      gettext('N/A')
                             ),
 
         'ForeignKey': _fk_printer,
@@ -263,24 +263,24 @@ class _HistoryLineType:
             try:
                 field = get_field(field_name)
             except FieldDoesNotExist:
-                vmodif = ugettext('Set field “{field}”').format(field=field_name)
+                vmodif = gettext('Set field “{field}”').format(field=field_name)
             else:
                 field_vname = field.verbose_name
                 length = len(modif)
 
                 if length == 1:
-                    vmodif = ugettext('Set field “{field}”').format(field=field_vname)
+                    vmodif = gettext('Set field “{field}”').format(field=field_vname)
                 elif length == 2:
-                    vmodif = ugettext('Set field “{field}” to “{value}”').format(
-                                        field=field_vname,
-                                        value=self._get_printer(field)(field, modif[1], user),
+                    vmodif = gettext('Set field “{field}” to “{value}”').format(
+                        field=field_vname,
+                        value=self._get_printer(field)(field, modif[1], user),
                     )
                 else:  # length == 3
                     printer = self._get_printer(field)
-                    vmodif = ugettext('Set field “{field}” from “{oldvalue}” to “{value}”').format(
-                                        field=field_vname,
-                                        oldvalue=printer(field, modif[1], user),
-                                        value=printer(field, modif[2], user),
+                    vmodif = gettext('Set field “{field}” from “{oldvalue}” to “{value}”').format(
+                        field=field_vname,
+                        oldvalue=printer(field, modif[1], user),
+                        value=printer(field, modif[2], user),
                     )
 
             yield vmodif
@@ -475,9 +475,9 @@ class _HLTAuxCreation(_HistoryLineType):
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, aux_id, str_obj = modifications  # TODO: use aux_id to display an up-to-date value ??
 
-        yield ugettext('Add <{type}>: “{value}”').format(
-                        type=self._model_info(ct_id)[1],
-                        value=str_obj,
+        yield gettext('Add <{type}>: “{value}”').format(
+            type=self._model_info(ct_id)[1],
+            value=str_obj,
         )
 
 
@@ -503,9 +503,9 @@ class _HLTAuxEdition(_HLTAuxCreation):
         ct_id, aux_id, str_obj = modifications[0]  # TODO: idem (see _HLTAuxCreation)
         model_class, verbose_name = self._model_info(ct_id)
 
-        yield ugettext('Edit <{type}>: “{value}”').format(
-                        type=verbose_name,
-                        value=str_obj,
+        yield gettext('Edit <{type}>: “{value}”').format(
+            type=verbose_name,
+            value=str_obj,
         )
 
         for m in self._verbose_modifications_4_fields(model_class, modifications[1:], user):
@@ -523,9 +523,9 @@ class _HLTAuxDeletion(_HLTAuxCreation):
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, str_obj = modifications
 
-        yield ugettext('Delete <{type}>: “{value}”').format(
-                        type=self._model_info(ct_id)[1],
-                        value=str_obj,
+        yield gettext('Delete <{type}>: “{value}”').format(
+            type=self._model_info(ct_id)[1],
+            value=str_obj,
         )
 
 
@@ -557,11 +557,11 @@ class _HLTEntityExport(_HistoryLineType):
     def verbose_modifications(self, modifications, entity_ctype, user):
         count = modifications[0]
 
-        yield ugettext('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
-                count=count,
-                model=get_model_verbose_name(entity_ctype.model_class(), count),
-                view=modifications[1],
-                filter=modifications[2] if len(modifications) >= 3 else ugettext('All'),
+        yield gettext('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+            count=count,
+            model=get_model_verbose_name(entity_ctype.model_class(), count),
+            view=modifications[1],
+            filter=modifications[2] if len(modifications) >= 3 else gettext('All'),
         )
 
 

@@ -31,7 +31,7 @@ import traceback
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from ..signals import pre_replace_related
 

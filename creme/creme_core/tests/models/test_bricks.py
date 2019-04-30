@@ -6,7 +6,7 @@ try:
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
@@ -380,7 +380,7 @@ class BrickTestCase(CremeTestCase):
         self.assertFalse(isinstance(brick, TestInstanceBlock))  # Because the class is not registered
         self.assertEqual('??', brick.verbose_name)
 
-        errors = [_(u'Unknown type of block (bad uninstall ?)')]
+        errors = [_('Unknown type of block (bad uninstall ?)')]
         self.assertEqual(errors, getattr(brick, 'errors', None))
         self.assertEqual(errors, ibi.errors)
 

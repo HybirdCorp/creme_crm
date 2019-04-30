@@ -20,7 +20,7 @@
 
 from itertools import chain
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation, SettingValue
 from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick
@@ -49,7 +49,7 @@ class ParticipantsBrick(QuerysetBrick):
     #     auto-subjects (see SETTING_AUTO_ORGA_SUBJECTS) is enabled.
     dependencies  = (Relation, Contact, Calendar, Organisation)
     relation_type_deps = (constants.REL_OBJ_PART_2_ACTIVITY,)
-    verbose_name  = _(u'Participants')
+    verbose_name  = _('Participants')
     template_name = 'activities//bricks/participants.html'
     order_by      = 'id'  # For consistent ordering between 2 queries (for pages)
 
@@ -87,7 +87,7 @@ class SubjectsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('activities', 'subjects')
     dependencies  = (Relation, Organisation)  # See ParticipantsBlock.dependencies
     relation_type_deps = (constants.REL_OBJ_ACTIVITY_SUBJECT,)
-    verbose_name  = _(u'Subjects')
+    verbose_name  = _('Subjects')
     template_name = 'activities/bricks/subjects.html'
     target_ctypes = (Activity, )
     order_by      = 'id'  # For consistent ordering between 2 queries (for pages)
@@ -112,7 +112,7 @@ class FutureActivitiesBrick(QuerysetBrick):
                           constants.REL_SUB_ACTIVITY_SUBJECT,
                           constants.REL_SUB_PART_2_ACTIVITY,
                          )
-    verbose_name  = _(u'Future activities')
+    verbose_name  = _('Future activities')
     template_name = 'activities/bricks/future-activities.html'
 
     _RTYPES_2_POP = (constants.REL_OBJ_PART_2_ACTIVITY,
@@ -171,7 +171,7 @@ class FutureActivitiesBrick(QuerysetBrick):
 
 class PastActivitiesBrick(FutureActivitiesBrick):
     id_           = QuerysetBrick.generate_id('activities', 'past_activities')
-    verbose_name  = _(u'Past activities')
+    verbose_name  = _('Past activities')
     template_name = 'activities/bricks/past-activities.html'
 
     def _get_queryset_for_entity(self, entity, context):
@@ -184,7 +184,7 @@ class PastActivitiesBrick(FutureActivitiesBrick):
 class UserCalendarsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('activities', 'user_calendars')
     dependencies  = (Calendar, )
-    verbose_name  = u'My calendars'
+    verbose_name  = 'My calendars'
     template_name = 'activities/bricks/user-calendars.html'
     configurable  = False
     order_by      = 'name'
@@ -205,7 +205,7 @@ class UserCalendarsBrick(QuerysetBrick):
 class RelatedCalendarBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('activities', 'related_calendar')
     dependencies  = (Calendar, )
-    verbose_name  = _(u'On my calendars')
+    verbose_name  = _('On my calendars')
     template_name = 'activities/bricks/related-calendars.html'
     order_by      = 'name'
 

@@ -12,7 +12,7 @@ try:
     from django.contrib.auth import get_user_model
     from django.urls import reverse
     from django.utils.timezone import now, localtime
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.models import Relation

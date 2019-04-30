@@ -10,7 +10,7 @@ try:
     from django.test.utils import override_settings
     from django.urls import reverse
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from .base import ViewsTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -157,10 +157,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertIsNone(job.error)
 
         orga_count = FakeOrganisation.objects.count()
-        self.assertEqual([ungettext('{count} entity has been successfully modified.',
-                                    '{count} entities have been successfully modified.',
-                                    orga_count
-                                   ).format(count=orga_count),
+        self.assertEqual([ngettext('{count} entity has been successfully modified.',
+                                   '{count} entities have been successfully modified.',
+                                   orga_count
+                                  ).format(count=orga_count),
                          ],
                          job.stats
                         )
@@ -347,20 +347,20 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.get_object_or_fail(EntityJobResult, job=job, entity=orga02)
         self.assertFalse(EntityJobResult.objects.filter(job=job, entity=orga01))
-        self.assertEqual([ungettext('{count} entity has been successfully modified.',
-                                    '{count} entities have been successfully modified.',
-                                    2
-                                   ).format(count=2),
+        self.assertEqual([ngettext('{count} entity has been successfully modified.',
+                                   '{count} entities have been successfully modified.',
+                                   2
+                                  ).format(count=2),
                          ],
                          job.stats
                         )
 
         progress = job.progress
         self.assertIsNone(progress.percentage)
-        self.assertEqual(ungettext('{count} entity has been processed.',
-                                   '{count} entities have been processed.',
-                                   2
-                                  ).format(count=2),
+        self.assertEqual(ngettext('{count} entity has been processed.',
+                                  '{count} entities have been processed.',
+                                  2
+                                 ).format(count=2),
                          progress.label
                         )
 
@@ -517,10 +517,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                          jresult.messages
                         )
 
-        self.assertEqual([ungettext('{count} entity has been successfully modified.',
-                                    '{count} entities have been successfully modified.',
-                                    1
-                                   ).format(count=1),
+        self.assertEqual([ngettext('{count} entity has been successfully modified.',
+                                   '{count} entities have been successfully modified.',
+                                   1
+                                  ).format(count=1),
                          ],
                          job.stats
                         )

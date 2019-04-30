@@ -3,7 +3,7 @@ try:
     # from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from .base import ViewsTestCase
     from creme.creme_core import models
@@ -18,7 +18,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
     def _build_choices_url(self, model, field_name):
         return reverse('creme_core__enumerable_choices',
-                       args=(ContentType.objects.get_for_model(model).id, field_name)
+                       args=(ContentType.objects.get_for_model(model).id, field_name),
                       )
 
     # def test_list_enum_model_not_registered(self):

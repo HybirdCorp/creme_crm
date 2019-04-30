@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.encoding import smart_str
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from ..auth.decorators import login_required
 from ..backends import export_backend_registry
@@ -36,7 +36,6 @@ from ..gui.mass_import import import_form_registry
 from ..models import Job, MassImportJobResult
 from ..utils import get_ct_or_404, get_from_POST_or_404
 from .utils import build_cancel_path
-
 
 # django wizard doesn't manage to inject its input in the 2nd form
 # + we can't upload file with wizard (even if it is a documents.Document for now)
@@ -75,7 +74,7 @@ def mass_import(request, ct_id):
                                   initial={'step':       1,
                                            'document':   cleaned_data['document'].id,
                                            'has_header': cleaned_data['has_header'],
-                                          }
+                                          },
                                  )
             else:
                 submit_label = _('Import this file')
@@ -93,7 +92,7 @@ def mass_import(request, ct_id):
                                          type=mass_import_type,
                                          data={'ctype': ct.id,
                                                'POST':  POST.urlencode(),
-                                              }
+                                              },
                                         )
                 return redirect(job)
 
@@ -108,7 +107,7 @@ def mass_import(request, ct_id):
                    'title':        _('Import «{model}» from data file').format(model=model._meta.verbose_name_plural),
                    'cancel_url':   cancel_url,
                    'submit_label': submit_label,
-                  }
+                  },
                  )
 
 

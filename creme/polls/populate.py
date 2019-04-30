@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import logging
 
 from django.apps import apps
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -51,19 +51,19 @@ class Populator(BasePopulator):
 
         create_hf = HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_PFORM,
-                  model=PollForm, name=_(u'Form view'),
+                  model=PollForm, name=_('Form view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                              ],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_PREPLY,
-                  model=PollReply, name=_(u'Reply view'),
+                  model=PollReply, name=_('Reply view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'pform'}),
                               (EntityCellRegularField, {'name': 'person'}),
                              ],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_PCAMPAIGN,
-                  model=PollCampaign, name=_(u'Campaign view'),
+                  model=PollCampaign, name=_('Campaign view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'due_date'}),
                               (EntityCellRegularField, {'name': 'segment'}),
@@ -78,9 +78,9 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not PollType.objects.exists():  # NB: no straightforward way to test that this populate script has not been already run
-            create_if_needed(PollType, {'pk': 1}, name=_(u'Survey'))
-            create_if_needed(PollType, {'pk': 2}, name=_(u'Monitoring'))
-            create_if_needed(PollType, {'pk': 3}, name=_(u'Assessment'))
+            create_if_needed(PollType, {'pk': 1}, name=_('Survey'))
+            create_if_needed(PollType, {'pk': 2}, name=_('Monitoring'))
+            create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
 
         # ---------------------------
         if not BrickDetailviewLocation.config_exists(PollForm): # NB: no straightforward way to test that this populate script has not been already run

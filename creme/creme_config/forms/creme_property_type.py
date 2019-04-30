@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import CharField, BooleanField, ValidationError
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.models import CremePropertyType
 from creme.creme_core.forms import CremeForm, MultiEntityCTypeChoiceField
@@ -45,7 +45,7 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
         text = self.cleaned_data['text']
 
         if CremePropertyType.objects.filter(text=text).exists():  # TODO: unique constraint in model too ??
-            raise ValidationError(ugettext("A property type with this name already exists"),
+            raise ValidationError(gettext("A property type with this name already exists"),
                                   code='duplicated_name',
                                  )
 

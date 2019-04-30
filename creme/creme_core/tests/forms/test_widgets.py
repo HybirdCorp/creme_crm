@@ -10,7 +10,7 @@ try:
     from django.forms.widgets import Select
     from django.urls import reverse
     from django.utils.html import escape
-    from django.utils.translation import ugettext as _, pgettext
+    from django.utils.translation import gettext as _, pgettext
     from django.test.testcases import assert_and_parse_html
 
     from ..fake_models import FakeContact

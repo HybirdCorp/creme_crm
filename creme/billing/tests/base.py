@@ -16,7 +16,7 @@ try:
 
     from django.conf import settings
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
@@ -178,8 +178,8 @@ class _BillingTestCaseMixin:
 
     def create_service(self):
         cat, subcat = self.create_cat_n_subcat()
-        return Service.objects.create(user=self.user, name=u"Mushroom hunting",
-                                      unit_price=Decimal("6"),
+        return Service.objects.create(user=self.user, name='Mushroom hunting',
+                                      unit_price=Decimal('6'),
                                       category=cat, sub_category=subcat
                                      )
 
@@ -317,7 +317,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
                 # 'dyn_relations',
                }
         response = self.assertPOST200(url, data=data)
-        self.assertFormError(response, 'form', 'source', _(u'Enter a valid value.'))
+        self.assertFormError(response, 'form', 'source', _('Enter a valid value.'))
 
         response = self.assertPOST200(url,
                                       data=dict(data,
@@ -329,7 +329,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
                                                 target_persons_contact_create=True,
                                                )
                                      )
-        self.assertFormError(response, 'form', 'source', _(u'This field is required.'))
+        self.assertFormError(response, 'form', 'source', _('This field is required.'))
 
         response = self.client.post(url, follow=True,
                                     data=dict(data,

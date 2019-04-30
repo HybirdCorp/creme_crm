@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 REL_SUB_LINKED_2_ACTIVITY = 'activities-subject_linked_2_activity'
 REL_OBJ_LINKED_2_ACTIVITY = 'activities-object_linked_2_activity'

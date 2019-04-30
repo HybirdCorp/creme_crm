@@ -10,7 +10,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query_utils import Q
     from django.urls import reverse
-    from django.utils.translation import ugettext as _, pgettext
+    from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (RelationType, Relation,

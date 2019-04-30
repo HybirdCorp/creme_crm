@@ -23,7 +23,7 @@ from itertools import chain
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
 from django.forms import MultipleChoiceField, ChoiceField, ModelChoiceField, ValidationError
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
@@ -39,12 +39,13 @@ from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
 
 
-__all__ = ('BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm',
-           'BrickHomeLocationsAddingForm', 'BrickHomeLocationsEditionForm',
-           'BrickMypageLocationsForm',
-           'RTypeBrickAddForm', 'RTypeBrickItemAddCtypeForm', 'RTypeBrickItemEditCtypeForm',
-           'CustomBrickConfigItemCreateForm', 'CustomBrickConfigItemEditForm',
-          )
+__all__ = (
+    'BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm',
+    'BrickHomeLocationsAddingForm', 'BrickHomeLocationsEditionForm',
+    'BrickMypageLocationsForm',
+    'RTypeBrickAddForm', 'RTypeBrickItemAddCtypeForm', 'RTypeBrickItemEditCtypeForm',
+    'CustomBrickConfigItemCreateForm', 'CustomBrickConfigItemEditForm',
+)
 
 
 class BrickLocationsField(MultipleChoiceField):
@@ -220,7 +221,7 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = '*{}*'.format(ugettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = '*{}*'.format(gettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 
@@ -296,7 +297,7 @@ class BrickHomeLocationsAddingForm(_BrickLocationsForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = '*{}*'.format(ugettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = '*{}*'.format(gettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 

@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Field, FieldDoesNotExist, BooleanField, DateField
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from ..models import CremeEntity, RelationType, CustomField
 from ..models import fields as core_fields

@@ -5,7 +5,7 @@ try:
     from functools import partial
 
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials
@@ -277,7 +277,7 @@ class ProductTestCase(_ProductsTestCase):
         product = Product.objects.create(user=user, name='Eva00',
                                          description='A fake god',
                                          unit_price=Decimal('1.23'), code=42,
-                                         category=sub_cat.category, sub_category=sub_cat
+                                         category=sub_cat.category, sub_category=sub_cat,
                                         )
 
         url = self.build_inneredit_url(product, 'category')

@@ -22,7 +22,7 @@ from functools import partial
 
 from django.core.exceptions import ValidationError
 from django.forms import CharField, ModelMultipleChoiceField, BooleanField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import (CremeForm, CremeModelForm,
@@ -50,7 +50,7 @@ class RelationTypeCreateForm(CremeForm):
                                                    'when the subject entity is cloned?'
                                                   ),
                                       )
-    subject_min_display = BooleanField(label=_(u"Display once on the subject's page"), required=False,
+    subject_min_display = BooleanField(label=_("Display once on the subject's page"), required=False,
                                        help_text=_('Do not display in the «Relationships» block (detail-view of '
                                                    'subject) when it is already displayed by another block.'
                                                   ),
@@ -62,7 +62,7 @@ class RelationTypeCreateForm(CremeForm):
                                                   'when the object entity is cloned?'
                                                  ),
                                      )
-    object_min_display = BooleanField(label=_(u"Display once on the subject's page"), required=False,
+    object_min_display = BooleanField(label=_("Display once on the subject's page"), required=False,
                                       help_text=_('Do not display in the «Relationships» block (detail-view of '
                                                   'object) when it is already displayed by another block.'
                                                  ),

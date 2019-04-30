@@ -6,7 +6,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth import EntityCredentials
     from creme.creme_core.models import (Relation, Currency, FieldsConfig,
@@ -279,7 +279,7 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post(url, follow=True, data={'credit_notes': '[{}]'.format(credit_note.id)})
-        self.assertFormError(response, 'form', 'credit_notes', _(u'This entity does not exist.'))
+        self.assertFormError(response, 'form', 'credit_notes', _('This entity does not exist.'))
 
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)
@@ -319,7 +319,7 @@ class CreditNoteTestCase(_BillingTestCase):
         response = self.client.post(url, follow=True,
                                     data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
                                    )
-        self.assertFormError(response, 'form', 'credit_notes', _(u'This entity does not exist.'))
+        self.assertFormError(response, 'form', 'credit_notes', _('This entity does not exist.'))
 
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 250)
@@ -350,7 +350,7 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post(url, follow=True, data={'credit_notes': '[{}]'.format(credit_note.id)})
-        self.assertFormError(response, 'form', 'credit_notes', _(u'This entity does not exist.'))
+        self.assertFormError(response, 'form', 'credit_notes', _('This entity does not exist.'))
 
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)

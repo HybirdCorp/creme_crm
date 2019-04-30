@@ -28,7 +28,7 @@ from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.http import Http404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from ..signals import pre_merge_related
 
@@ -196,7 +196,7 @@ class RelationType(CremeModel):
 
     def __str__(self):
         sym_type = self.symmetric_type
-        symmetric_pred = ugettext('No relationship') if sym_type is None else sym_type.predicate
+        symmetric_pred = gettext('No relationship') if sym_type is None else sym_type.predicate
         return '{} — {}'.format(self.predicate, symmetric_pred)  # NB: — == "\xE2\x80\x94" == &mdash;
 
     def add_subject_ctypes(self, *models):
@@ -243,29 +243,33 @@ class RelationType(CremeModel):
         if not generate_pk:
             update_or_create = RelationType.objects.update_or_create
             defaults = {'is_custom': is_custom, 'is_internal': is_internal}
-            sub_relation_type = update_or_create(id=pk_subject,
-                                                 defaults=dict(defaults,
-                                                               predicate=pred_subject,
-                                                               is_copiable=is_copiable[0],
-                                                               minimal_display=minimal_display[0],
-                                                              )
-                                                )[0]
-            obj_relation_type = update_or_create(id=pk_object,
-                                                 defaults=dict(defaults,
-                                                               predicate=pred_object,
-                                                               is_copiable=is_copiable[1],
-                                                               minimal_display=minimal_display[1],
-                                                              )
-                                                )[0]
+            sub_relation_type = update_or_create(
+                id=pk_subject,
+                defaults=dict(defaults,
+                              predicate=pred_subject,
+                              is_copiable=is_copiable[0],
+                              minimal_display=minimal_display[0],
+                             )
+            )[0]
+            obj_relation_type = update_or_create(
+                id=pk_object,
+                defaults=dict(defaults,
+                              predicate=pred_object,
+                              is_copiable=is_copiable[1],
+                              minimal_display=minimal_display[1],
+                             )
+            )[0]
         else:
             from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
-            sub_relation_type = RelationType(predicate=pred_subject, is_custom=is_custom, is_internal=is_internal,
-                                             is_copiable=is_copiable[0], minimal_display=minimal_display[0],
-                                            )
-            obj_relation_type = RelationType(predicate=pred_object,  is_custom=is_custom, is_internal=is_internal,
-                                             is_copiable=is_copiable[1], minimal_display=minimal_display[1],
-                                            )
+            sub_relation_type = RelationType(
+                predicate=pred_subject, is_custom=is_custom, is_internal=is_internal,
+                is_copiable=is_copiable[0], minimal_display=minimal_display[0],
+            )
+            obj_relation_type = RelationType(
+                predicate=pred_object,  is_custom=is_custom, is_internal=is_internal,
+                is_copiable=is_copiable[1], minimal_display=minimal_display[1],
+            )
 
             generate_string_id_and_save(RelationType, [sub_relation_type], pk_subject)
             generate_string_id_and_save(RelationType, [obj_relation_type], pk_object)
@@ -314,7 +318,9 @@ class RelationType(CremeModel):
     def is_not_internal_or_die(self):
         if self.is_internal:
             # TODO: 409 ?
-            raise Http404(ugettext("You can't add/delete the relationships with this type (internal type)"))
+            raise Http404(gettext(
+                "You can't add/delete the relationships with this type (internal type)"
+            ))
 
 
 class Relation(CremeModel):

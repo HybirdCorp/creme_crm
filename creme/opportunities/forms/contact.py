@@ -20,7 +20,7 @@
 
 from django.forms.fields import BooleanField
 from django.db.transaction import atomic
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.base import CremeModelWithUserForm
 from creme.creme_core.models import Relation

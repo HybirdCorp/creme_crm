@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 NOT_STARTED_PK  = 1
 IN_PROGRESS_PK  = 2
@@ -18,11 +18,11 @@ class TaskStatusDesc:
 
 
 TASK_STATUS = {
-    NOT_STARTED_PK: TaskStatusDesc(_(u'Not started'), _(u'The task as not started yet')),
-    IN_PROGRESS_PK: TaskStatusDesc(_(u'In progress'), _(u'The task is in progress')),
-    CANCELED_PK:    TaskStatusDesc(_(u'Canceled'),    _(u'The task has been canceled')),
-    RESTARTED_PK:   TaskStatusDesc(_(u'Restarted'),   _(u'The task has been restarted')),
-    COMPLETED_PK:   TaskStatusDesc(_(u'Completed'),   _(u'The task is finished')),
+    NOT_STARTED_PK: TaskStatusDesc(_('Not started'), _('The task as not started yet')),
+    IN_PROGRESS_PK: TaskStatusDesc(_('In progress'), _('The task is in progress')),
+    CANCELED_PK:    TaskStatusDesc(_('Canceled'),    _('The task has been canceled')),
+    RESTARTED_PK:   TaskStatusDesc(_('Restarted'),   _('The task has been restarted')),
+    COMPLETED_PK:   TaskStatusDesc(_('Completed'),   _('The task is finished')),
 }
 
 REL_SUB_PROJECT_MANAGER = 'projects-subject_project_manager'

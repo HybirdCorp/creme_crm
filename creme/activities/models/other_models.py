@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from datetime import timedelta
 
 from django.db.models import CharField, IntegerField, TextField, ForeignKey, BooleanField, CASCADE
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import DurationField
@@ -31,21 +31,21 @@ from creme.creme_core.models.fields import DurationField
 class ActivityType(CremeModel):
     id                    = CharField(primary_key=True, max_length=100, editable=False)\
                                      .set_tags(viewable=False)
-    name                  = CharField(_(u'Name'), max_length=100)
-    default_day_duration  = IntegerField(_(u'Default day duration')).set_tags(viewable=False)
-    default_hour_duration = DurationField(_(u'Default hour duration'), max_length=15)\
+    name                  = CharField(_('Name'), max_length=100)
+    default_day_duration  = IntegerField(_('Default day duration')).set_tags(viewable=False)
+    default_hour_duration = DurationField(_('Default hour duration'), max_length=15)\
                                          .set_tags(viewable=False)
     is_custom             = BooleanField(default=True, editable=False).set_tags(viewable=False) # Used by creme_config
 
-    creation_label = pgettext_lazy('activities-type', u'Create a type')
+    creation_label = pgettext_lazy('activities-type', 'Create a type')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u'Type of activity')
-        verbose_name_plural = _(u'Types of activity')
+        verbose_name = _('Type of activity')
+        verbose_name_plural = _('Types of activity')
         ordering = ('name',)
 
     def as_timedelta(self):
@@ -59,35 +59,35 @@ class ActivityType(CremeModel):
 class ActivitySubType(CremeModel):
     id        = CharField(primary_key=True, max_length=100, editable=False)\
                          .set_tags(viewable=False)
-    name      = CharField(_(u'Name'), max_length=100)
-    type      = ForeignKey(ActivityType, verbose_name=_(u'Type of activity'), on_delete=CASCADE)\
+    name      = CharField(_('Name'), max_length=100)
+    type      = ForeignKey(ActivityType, verbose_name=_('Type of activity'), on_delete=CASCADE)\
                           .set_tags(viewable=False)
     is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = pgettext_lazy('activities-type', u'Create a sub-type')
+    creation_label = pgettext_lazy('activities-type', 'Create a sub-type')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u'Sub-type of activity')
-        verbose_name_plural = _(u'Sub-types of activity')
+        verbose_name = _('Sub-type of activity')
+        verbose_name_plural = _('Sub-types of activity')
         ordering = ('name',)
 
 
 class Status(CremeModel):
-    name        = CharField(_(u'Name'), max_length=100)
-    description = TextField(_(u'Description'))
+    name        = CharField(_('Name'), max_length=100)
+    description = TextField(_('Description'))
     is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = pgettext_lazy('activities-status', u'Create a status')
+    creation_label = pgettext_lazy('activities-status', 'Create a status')
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'activities'
-        verbose_name = pgettext_lazy('activities-singular', u'Status of activity')
-        verbose_name_plural = pgettext_lazy('activities-plural', u'Status of activity')
+        verbose_name = pgettext_lazy('activities-singular', 'Status of activity')
+        verbose_name_plural = pgettext_lazy('activities-plural', 'Status of activity')
         ordering = ('name',)

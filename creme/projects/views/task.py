@@ -25,7 +25,7 @@ from django.db.models import ProtectedError
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -225,12 +225,12 @@ def delete_activity(request):
     except ProtectedError:
         logger.exception('Error when deleting an activity of project')
         status = 409
-        msg = ugettext('Can not be deleted because of its dependencies.')
+        msg = gettext('Can not be deleted because of its dependencies.')
     except Exception as e:
         status = 400
-        msg = ugettext('The deletion caused an unexpected error [{}].').format(e)
+        msg = gettext('The deletion caused an unexpected error [{}].').format(e)
     else:
-        msg = ugettext('Operation successfully completed')
+        msg = gettext('Operation successfully completed')
         status = 200
 
     return HttpResponse(msg, status=status)

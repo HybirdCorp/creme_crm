@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from datetime import datetime, time
 
 from django.forms import TypedChoiceField
 from django.utils.timezone import localtime
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeModelWithUserForm
 from creme.creme_core.forms.widgets import CalendarWidget
@@ -32,11 +32,12 @@ from ..models import ToDo
 
 
 class ToDoForm(CremeModelWithUserForm):
-    deadline_hour = TypedChoiceField(label=_('Deadline hour'), coerce=int,
-                                     choices=[(i, '%ih' % i) for i in range(0, 24)],
-                                     required=False, empty_value=None, initial=8,
-                                     help_text=_('The hour is used only if you set the deadline date.'),
-                                    )
+    deadline_hour = TypedChoiceField(
+        label=_('Deadline hour'), coerce=int,
+        choices=[(i, '%ih' % i) for i in range(0, 24)],
+        required=False, empty_value=None, initial=8,
+        help_text=_('The hour is used only if you set the deadline date.'),
+    )
 
     class Meta(CremeModelWithUserForm.Meta):
         model = ToDo

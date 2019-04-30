@@ -7,7 +7,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from .base import ViewsTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
@@ -110,8 +110,8 @@ class MergeViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Gen-shi-ken', description='A great club.', email='genshiken@univ.jp')
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        contact01 = create_contact(first_name='Chika',       last_name='Ogiue')
-        contact02 = create_contact(first_name=u'Souichirou', last_name='Tanaka')
+        contact01 = create_contact(first_name='Chika',      last_name='Ogiue')
+        contact02 = create_contact(first_name='Souichirou', last_name='Tanaka')
 
         # contact01 linked with the 2 organisations -> after merge, we expect only one relation, not 2
         # contact02 should be linked to the merged entity
@@ -310,7 +310,7 @@ class MergeViewsTestCase(ViewsTestCase):
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka', image=image2)
 
         language1, language2 = Language.objects.all()[:2]
-        language3 = Language.objects.create(name=u'Klingon', code='KLN')
+        language3 = Language.objects.create(name='Klingon', code='KLN')
 
         contact01.languages.set([language1])
         contact02.languages.set([language1, language2])
@@ -421,8 +421,8 @@ class MergeViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Gen-shi-ken', description='A great club.', email='genshiken@univ.jp')
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        contact01 = create_contact(first_name='Chika',       last_name='Ogiue')
-        contact02 = create_contact(first_name=u'Souichirou', last_name='Tanaka')
+        contact01 = create_contact(first_name='Chika',      last_name='Ogiue')
+        contact02 = create_contact(first_name='Souichirou', last_name='Tanaka')
 
         create_rel = partial(Relation.objects.create, user=user, type=rtype)
         rel1 = create_rel(subject_entity=contact01, object_entity=orga01)
@@ -593,8 +593,8 @@ class MergeViewsTestCase(ViewsTestCase):
                                             'name_merged': '',  # <======
                                            }
                                      )
-        self.assertFormError(response, 'form', 'user', _(u'This field is required.'))
-        self.assertFormError(response, 'form', 'name', _(u'This field is required.'))
+        self.assertFormError(response, 'form', 'user', _('This field is required.'))
+        self.assertFormError(response, 'form', 'name', _('This field is required.'))
 
     def test_error03(self):
         "Try to merge an entity with itself (by forging the URL)"

@@ -9,7 +9,7 @@ try:
     from django.test.utils import override_settings
     from django.urls import reverse
     from django.utils.timezone import now, make_naive, get_current_timezone
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue

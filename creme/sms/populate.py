@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import logging
 
 from django.apps import apps
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -30,7 +30,6 @@ from creme.creme_core.models import SearchConfigItem, HeaderFilter, BrickDetailv
 
 from creme import sms
 from . import bricks, constants
-
 
 logger = logging.getLogger(__name__)
 
@@ -46,17 +45,17 @@ class Populator(BasePopulator):
         create_hf = HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_MLIST,
                   model=MessagingList,
-                  name=_(u'Messaging list view'),
+                  name=_('Messaging list view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_SMSCAMPAIGN,
                   model=SMSCampaign,
-                  name=_(u'Campaign view'),
+                  name=_('Campaign view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_MTEMPLATE,
                   model=MessageTemplate,
-                  name=_(u'Message template view'),
+                  name=_('Message template view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
 

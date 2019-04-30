@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from datetime import datetime
 
 from xlwt import Workbook, XFStyle
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from . import prefixed_truncate
 
@@ -34,7 +34,7 @@ class XlwtWriter:
         self.ws = wb.add_sheet("sheet 1")
         self.date_format = XFStyle()
         self.date_format.num_format_str = 'dd/mm/yyyy'  # TODO: convert from settings.DATE_FORMAT
-        self.truncate_prefix = _(u'(truncated cell)')  # TODO: cached_gettext
+        self.truncate_prefix = _('(truncated cell)')  # TODO: cached_gettext
 
     def writerow(self, line):
         write = self.ws.write

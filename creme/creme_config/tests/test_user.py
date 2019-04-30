@@ -8,7 +8,7 @@ try:
     from django.test.utils import override_settings
     from django.urls import reverse
     from django.utils import timezone as django_tz
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from creme.creme_core.core.setting_key import SettingKey, UserSettingKey, user_setting_key_registry
     from creme.creme_core.models import CremeUser as User
@@ -269,7 +269,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                                ),
                                      )
         # self.assertFormError(response, 'form', 'password_2', _('Passwords are different'))
-        self.assertFormError(response, 'form', 'password_2', _(u"The two password fields didn't match."))
+        self.assertFormError(response, 'form', 'password_2',
+                             _("The two password fields didn't match."),
+                            )
 
         response = self.assertPOST200(url, follow=True,
                                       data=dict(data,
@@ -277,7 +279,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                                 password_2='123',
                                                ),
                                      )
-        self.assertFormError(response, 'form', 'password_2', _(u"This password is entirely numeric."))
+        self.assertFormError(response, 'form', 'password_2',
+                             _('This password is entirely numeric.'),
+                            )
 
     @skipIfNotCremeUser
     # def test_create08(self):
@@ -527,7 +531,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'password_2': password + '42',
                                          }
                                    )
-        self.assertFormError(response, 'form', 'password_2', _(u"The two password fields didn't match."))
+        self.assertFormError(response, 'form', 'password_2', _("The two password fields didn't match."))
 
     @skipIfNotCremeUser
     @override_settings(AUTH_PASSWORD_VALIDATORS=[{'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},])
@@ -544,12 +548,13 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                             'password_2': password,
                                            }
                                      )
-        self.assertFormError(response, 'form', 'password_2',
-                             ungettext('This password is too short. It must contain at least %(min_length)d character.',
-                                       'This password is too short. It must contain at least %(min_length)d characters.',
-                                       8
-                                      ) % {'min_length': 8}
-                            )
+        self.assertFormError(
+            response, 'form', 'password_2',
+            ngettext('This password is too short. It must contain at least %(min_length)d character.',
+                     'This password is too short. It must contain at least %(min_length)d characters.',
+                     8
+                    ) % {'min_length': 8}
+            )
 
     @skipIfNotCremeUser
     def test_user_activation01(self):

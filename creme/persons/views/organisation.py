@@ -24,7 +24,7 @@ from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 # from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -180,6 +180,6 @@ def unset_managed(request):
                 orga.is_managed = False
                 orga.save()
             else:
-                raise ConflictError(ugettext('You must have at least one managed organisation.'))
+                raise ConflictError(gettext('You must have at least one managed organisation.'))
 
     return HttpResponse()

@@ -22,7 +22,7 @@ from functools import partial
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField, CallableChoiceIterator
-from django.utils.translation import ugettext_lazy as _, ungettext
+from django.utils.translation import gettext_lazy as _, ngettext
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
@@ -197,13 +197,14 @@ class BulkEditTypeForm(BulkDefaultEditForm):
                 self._mixed_indispo = True
                 # TODO: remove when old view entity.bulk_edit_field() has been removed
                 self.fields['beware'] = CharField(
-                        label=_('Beware !'),
-                        required=False, widget=Label,
-                        initial=ungettext('The type of {count} activity cannot be changed because it is an indisponibility.',
-                                          'The type of {count} activities cannot be changed because they are indisponibilities.',
-                                          indispo_count
-                                         ).format(count=indispo_count),
-                    )
+                    label=_('Beware !'),
+                    required=False, widget=Label,
+                    initial=ngettext(
+                        'The type of {count} activity cannot be changed because it is an indisponibility.',
+                        'The type of {count} activities cannot be changed because they are indisponibilities.',
+                        indispo_count
+                    ).format(count=indispo_count),
+                )
 
         if not is_bulk:
             first = entities[0]

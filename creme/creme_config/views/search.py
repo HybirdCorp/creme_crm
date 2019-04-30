@@ -20,7 +20,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.auth import decorators
 from creme.creme_core.core.exceptions import ConflictError

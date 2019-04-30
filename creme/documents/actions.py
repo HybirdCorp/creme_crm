@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.urls.base import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme import documents
 from creme.creme_core.gui.actions import UIAction

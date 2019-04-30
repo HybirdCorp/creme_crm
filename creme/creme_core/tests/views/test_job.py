@@ -10,7 +10,7 @@ try:
     from django.utils.encoding import smart_text
     from django.utils.formats import date_format
     from django.utils.timezone import localtime, now
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from ..fake_models import FakeOrganisation
 
@@ -552,11 +552,11 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                             'status': Job.STATUS_WAIT,
                             'ack_errors': 0,
                             'progress': {
-                                'label': ungettext('{count} entity has been processed.',
-                                                   '{count} entities have been processed.',
-                                                   0
-                                                  ).format(count=0),
-                                'percentage': None
+                                'label': ngettext('{count} entity has been processed.',
+                                                  '{count} entities have been processed.',
+                                                  0
+                                                 ).format(count=0),
+                                'percentage': None,
                             },
                           }
                          },
@@ -569,10 +569,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                             'status': Job.STATUS_OK,
                             'ack_errors': 0,
                             'progress': {
-                                'label': ungettext('{count} entity has been processed.',
-                                                   '{count} entities have been processed.',
-                                                   0
-                                                  ).format(count=0),
+                                'label': ngettext('{count} entity has been processed.',
+                                                  '{count} entities have been processed.',
+                                                  0
+                                                 ).format(count=0),
                                 'percentage': None,
                             },
                           }
@@ -604,9 +604,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         content = response.json()
         self.assertEqual(3, len(content))
 
-        label = ungettext('{count} entity has been processed.',
-                          '{count} entities have been processed.',
-                          0).format(count=0)
+        label = ngettext('{count} entity has been processed.',
+                         '{count} entities have been processed.',
+                         0).format(count=0)
         self.assertEqual({'status': Job.STATUS_WAIT,
                           'ack_errors': 0,
                           'progress': {
@@ -650,10 +650,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                             'status': Job.STATUS_WAIT,
                             'ack_errors': 1,
                             'progress': {
-                                'label': ungettext('{count} entity has been processed.',
-                                                   '{count} entities have been processed.',
-                                                   0
-                                                  ).format(count=0),
+                                'label': ngettext('{count} entity has been processed.',
+                                                  '{count} entities have been processed.',
+                                                  0
+                                                 ).format(count=0),
                                 'percentage': None,
                             },
                           },

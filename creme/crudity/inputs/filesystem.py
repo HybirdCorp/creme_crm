@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2018  Hybird
+#    Copyright (C) 2017-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from os import remove as remove_file
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from ..backends.models import CrudityBackend
 from ..models import WaitingAction
@@ -77,16 +77,20 @@ class IniFileInput(CrudityInput):
                             try:
                                 username = config.get('head', 'username')
                             except configparser.NoOptionError as e:
-                                logger.warning('IniFileInput.create(): no "username" in [head] section of %s', file_path, e)
+                                logger.warning(
+                                    'IniFileInput.create(): no "username" in [head] section of %s',
+                                    file_path, e,
+                                )
                             else:
                                 query_data = {CremeUser.USERNAME_FIELD: username}
 
                                 try:
                                     owner = CremeUser.objects.get(**query_data)
                                 except CremeUser.DoesNotExist:
-                                    logger.warning('IniFileInput.create(): no user ([head] section) corresponds to %s (%s)',
-                                                query_data, file_path,
-                                               )
+                                    logger.warning(
+                                        'IniFileInput.create(): no user ([head] section) corresponds to %s (%s)',
+                                        query_data, file_path,
+                                    )
 
                         if owner is None:
                             owner = CremeUser.objects.get_admin()
@@ -104,10 +108,11 @@ class IniFileInput(CrudityInput):
                             )
                         else:
                             # TODO: should be a public method
-                            backend._create_instance_n_history(data,
-                                                               user=owner,
-                                                               source='{} - {}'.format(backend.fetcher_name, self.name),
-                                                              )
+                            backend._create_instance_n_history(
+                                data,
+                                user=owner,
+                                source='{} - {}'.format(backend.fetcher_name, self.name),
+                            )
 
                         # Cleaning
                         remove_file(file_path)

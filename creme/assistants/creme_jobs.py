@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016  Hybird
+#    Copyright (C) 2016-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.creme_jobs.base import JobType
 
@@ -27,7 +27,7 @@ from .models import UserMessage
 
 class _UserMessagesSendType(JobType):
     id           = JobType.generate_id('assistants', 'usermessages_send')
-    verbose_name = _(u'Send usermessages emails')
+    verbose_name = _('Send usermessages emails')
     periodic     = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):

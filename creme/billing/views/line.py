@@ -26,7 +26,7 @@ from django.db.transaction import atomic
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError

@@ -14,7 +14,7 @@ try:
     from django.http import Http404
     from django.urls import reverse
     from django.utils.timezone import is_naive, is_aware, override as override_tz, make_aware
-    from django.utils.translation import ugettext_lazy
+    from django.utils.translation import gettext_lazy
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeCivility
@@ -148,8 +148,8 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('aé‡ae15', safe_unicode('aé‡ae15'))
 
         # Custom encoding list
-        self.assertEqual(u'a\ufffdae15', safe_unicode(b'a\xe9\x87ae15', ['utf-8']))
-        self.assertEqual('aé‡ae15',      safe_unicode(b'a\xe9\x87ae15', ('cp1252',)))
+        self.assertEqual('a\ufffdae15', safe_unicode(b'a\xe9\x87ae15', ['utf-8']))
+        self.assertEqual('aé‡ae15',     safe_unicode(b'a\xe9\x87ae15', ('cp1252',)))
 
     def test_safe_unicode_object(self):
         class no_unicode_object:
@@ -157,7 +157,7 @@ class MiscTestCase(CremeTestCase):
 
         class unicode_object:
             def __str__(self):
-                return u'aé‡ae15'
+                return 'aé‡ae15'
 
         # class false_unicode_object:
         #     def __init__(self, text):
@@ -188,7 +188,7 @@ class MiscTestCase(CremeTestCase):
 
     def test_ellipsis(self):
         self.assertEqual('123456789', ellipsis('123456789', 9))
-        self.assertEqual(u'1234567…', ellipsis('123456789', 8))
+        self.assertEqual('1234567…',  ellipsis('123456789', 8))
 
     def test_ellipsis_multi(self):
         self.assertEqual(['a', 'b'],
@@ -197,13 +197,13 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(['123456789', 'b'],
                          ellipsis_multi(['123456789', 'b'], 10)
                         )
-        self.assertEqual([u'1234567…', 'b'],
+        self.assertEqual(['1234567…', 'b'],
                          ellipsis_multi(['123456789', 'b'], 9)
                         )
-        self.assertEqual([u'1234…', '12', '12'],
+        self.assertEqual(['1234…', '12', '12'],
                          ellipsis_multi(['123456', '12', '12'], 9)
                         )
-        self.assertEqual([u'12…', '12', u'123…'],  # [u'123…', '12', u'12…'] would be better...
+        self.assertEqual(['12…', '12', '123…'],  # [u'123…', '12', u'12…'] would be better...
                          ellipsis_multi(['123456', '12', '12345'], 9)
                         )
 
@@ -216,7 +216,7 @@ class MiscTestCase(CremeTestCase):
             prefixed_truncate(s, '(My prefix)', 10)  # Prefix is too short for this length
 
         self.assertEqual('(My unlocated prefix)Supercalif',
-                         prefixed_truncate(s, ugettext_lazy('(My unlocated prefix)'), 31)
+                         prefixed_truncate(s, gettext_lazy('(My unlocated prefix)'), 31)
                         )
 
     def test_log_exception(self):
@@ -253,10 +253,10 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('My_cool_movie.mov', secure_filename('My cool movie.mov'))
         self.assertEqual('etc_passwd',        secure_filename('../../../etc/passwd'))
         self.assertEqual('i_contain_cool_umlauts.txt',
-                         secure_filename(u'i contain cool \xfcml\xe4uts.txt')
+                         secure_filename('i contain cool \xfcml\xe4uts.txt')
                         )
         self.assertEqual('i_contain_weird_characters.txt',
-                         secure_filename(u'i contain weird châräctérs.txt')
+                         secure_filename('i contain weird châräctérs.txt')
                         )
 
         with self.assertNoException():
@@ -515,15 +515,15 @@ class UnicodeCollationTestCase(CremeTestCase):
         from creme.creme_core.utils.unicode_collation import collator
 
         sort = partial(sorted, key=collator.sort_key)
-        words = ['Caff', 'Cafe', 'Cafard', u'Café']
-        self.assertEqual(['Cafard', 'Cafe', 'Caff', u'Café'], sorted(words))  # Standard sort
-        self.assertEqual(['Cafard', 'Cafe', u'Café', 'Caff'], sort(words))
+        words = ['Caff', 'Cafe', 'Cafard', 'Café']
+        self.assertEqual(['Cafard', 'Cafe', 'Caff', 'Café'], sorted(words))  # Standard sort
+        self.assertEqual(['Cafard', 'Cafe', 'Café', 'Caff'], sort(words))
 
-        self.assertEqual(['La', u'Là', u'Lä', 'Las', 'Le'],
-                         sort(['La', u'Là', 'Le', u'Lä', 'Las'])
+        self.assertEqual(['La', 'Là', 'Lä', 'Las', 'Le'],
+                         sort(['La', 'Là', 'Le', 'Lä', 'Las'])
                         )
-        self.assertEqual(['gloves', u'ĝloves', 'hats', 'shoes'],
-                         sort(['hats', 'gloves', 'shoes', u'ĝloves']),
+        self.assertEqual(['gloves', 'ĝloves', 'hats', 'shoes'],
+                         sort(['hats', 'gloves', 'shoes', 'ĝloves']),
                         )
 
     # NB: keep this comment (until we use the real 'pyuca' lib)

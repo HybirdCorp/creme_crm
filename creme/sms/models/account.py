@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, IntegerField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeModel
 
@@ -28,14 +28,14 @@ from ..webservice.backend import WSException
 
 
 class SMSAccount(CremeModel):
-    name      = CharField(_(u'Name'), max_length=200, null=True)
-    credit    = IntegerField(_(u'Credit'), null=True)
-    groupname = CharField(_(u'Group'), max_length=200, null=True)
+    name      = CharField(_('Name'), max_length=200, null=True)
+    credit    = IntegerField(_('Credit'), null=True)
+    groupname = CharField(_('Group'), max_length=200, null=True)
 
     class Meta:
-        app_label = "sms"
-        verbose_name = _(u'SMS account')
-        verbose_name_plural = _(u'SMS accounts')
+        app_label = 'sms'
+        verbose_name = _('SMS account')
+        verbose_name_plural = _('SMS accounts')
 
     def __str__(self):
         return self.name

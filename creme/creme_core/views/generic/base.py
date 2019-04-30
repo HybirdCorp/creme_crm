@@ -28,7 +28,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 from django.views import generic as django_generic
 
 from creme.creme_core.core.exceptions import ConflictError
@@ -83,7 +83,7 @@ class PermissionsMixin:
                       user.has_perms(permissions)
 
             if not allowed:
-                raise PermissionDenied(ugettext('You are not allowed to access this view.'))
+                raise PermissionDenied(gettext('You are not allowed to access this view.'))
 
     def handle_not_logged(self):
         return HttpResponseRedirect(self.get_login_uri())

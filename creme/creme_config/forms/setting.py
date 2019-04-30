@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.forms import IntegerField, BooleanField, CharField, EmailField
 from django.forms.widgets import Textarea
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core.setting_key import SettingKey
 from creme.creme_core.forms import CremeForm, CremeModelForm
@@ -38,7 +38,7 @@ _FIELDS = {
 
 
 class SettingForm(CremeModelForm):
-    value = CharField(label=_(u'Value'))
+    value = CharField(label=_('Value'))
 
     class Meta:
         model = SettingValue
@@ -52,7 +52,7 @@ class SettingForm(CremeModelForm):
         field_class = _FIELDS.get(svalue.key.type)
 
         if field_class:
-            fields['value'] = field_class(label=ugettext(u'Value'))
+            fields['value'] = field_class(label=gettext('Value'))
 
         value_f = fields['value']
         value_f.initial = svalue.value
@@ -68,7 +68,7 @@ class SettingForm(CremeModelForm):
 
 
 class UserSettingForm(CremeForm):
-    value = CharField(label=_(u'Value'))
+    value = CharField(label=_('Value'))
 
     def __init__(self, skey, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,7 +77,7 @@ class UserSettingForm(CremeForm):
         field_class = _FIELDS.get(skey.type)
 
         if field_class:
-            fields['value'] = field_class(label=ugettext(u'Value'))
+            fields['value'] = field_class(label=gettext('Value'))
 
         value_f = fields['value']
 

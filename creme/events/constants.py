@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 REL_SUB_IS_INVITED_TO = 'events-subject_is_invited_to'
 REL_OBJ_IS_INVITED_TO = 'events-object_is_invited_to'

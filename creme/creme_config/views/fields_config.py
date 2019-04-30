@@ -22,7 +22,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404  # render
 # from django.urls import reverse
 # from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
-from django.utils.translation import ugettext as _, pgettext_lazy
+from django.utils.translation import gettext as _, pgettext_lazy
 
 # from formtools.wizard.views import SessionWizardView
 

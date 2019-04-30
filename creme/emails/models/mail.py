@@ -25,7 +25,7 @@ from django.db import models
 from django.db.transaction import atomic
 from django.db.utils import IntegrityError
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.models.fields import UnsafeHTMLField
@@ -115,11 +115,11 @@ class AbstractEntityEmail(_Email, CremeEntity):
                 return
 
     def __str__(self):
-        return ugettext('EMail <from: {sender}> <to: {to}> <status: {status}>').format(
-                                sender=self.sender,
-                                to=self.recipient,
-                                status=self.get_status_display(),
-                            )
+        return gettext('EMail <from: {sender}> <to: {to}> <status: {status}>').format(
+            sender=self.sender,
+            to=self.recipient,
+            status=self.get_status_display(),
+        )
 
     def get_absolute_url(self):
         return reverse('emails__view_email', args=(self.pk,))

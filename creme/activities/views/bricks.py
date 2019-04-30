@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django import shortcuts, http
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation, CremeEntity
@@ -85,7 +85,7 @@ def unlink_activity(request):
     entities = list(CremeEntity.objects.filter(pk__in=[activity_id, entity_id]))
 
     if len(entities) != 2:
-        raise http.Http404(ugettext('One entity does not exist any more.'))
+        raise http.Http404(gettext('One entity does not exist any more.'))
 
     has_perm = request.user.has_perm_to_unlink_or_die
 

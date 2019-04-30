@@ -27,7 +27,7 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.db.models import Model
 from django.template.loader import get_template
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from ..constants import MODELBRICK_ID
 from ..core.entity_cell import EntityCellRegularField
@@ -392,7 +392,7 @@ class EntityBrick(Brick):
                ]
 
     def _get_title(self, entity, context):
-        return ugettext('Information «{model}»').format(model=entity.__class__._meta.verbose_name)
+        return gettext('Information «{model}»').format(model=type(entity)._meta.verbose_name)
 
     def detailview_display(self, context):
         entity = context['object']
@@ -418,7 +418,7 @@ class SpecificRelationsBrick(QuerysetBrick):
 
         rtype = relationbrick_item.relation_type
         self.relation_type_deps = (rtype.id,)
-        self.verbose_name = ugettext(
+        self.verbose_name = gettext(
             'Relationship block: «{predicate}»'
         ).format(predicate=rtype.predicate)
 

@@ -12,7 +12,7 @@ try:
     from django.utils.formats import date_format, number_format
     from django.utils.html import escape
     from django.utils.timezone import localtime
-    from django.utils.translation import ugettext as _, pgettext
+    from django.utils.translation import gettext as _, pgettext
 
     from ..base import CremeTestCase
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_DISCOUNT_UNIT

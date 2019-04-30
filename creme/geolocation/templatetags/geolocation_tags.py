@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2018  Hybird
+#    Copyright (C) 2014-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.template import Library
-from django.utils.translation import ungettext
+from django.utils.translation import ngettext
 
 register = Library()
 
@@ -27,7 +27,7 @@ register = Library()
 @register.filter
 def geolocation_distance(value):
     if value < 1000:
-        return ungettext('{distance} meter', '{distance} meters', value).format(distance=value)
+        return ngettext('{distance} meter', '{distance} meters', value).format(distance=value)
 
     value = value / 1000.0
-    return ungettext('{distance:.1f} Km', '{distance:.1f} Km', value).format(distance=value)
+    return ngettext('{distance:.1f} Km', '{distance:.1f} Km', value).format(distance=value)

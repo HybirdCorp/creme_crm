@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _, pgettext
+    from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_core.models import (RelationType, CremePropertyType,
             SemiFixedRelationType, FakeContact, FakeOrganisation)
@@ -39,12 +39,15 @@ class RelationTypeTestCase(CremeTestCase):
         count = RelationType.objects.count()
         subject_pred = 'loves'
         object_pred  = 'is loved by'
-        response = self.client.post(url, data={'subject_predicate': subject_pred,
-                                               'object_predicate':  object_pred,
+        response = self.client.post(
+            url,
+            data={
+                'subject_predicate': subject_pred,
+                'object_predicate':  object_pred,
 
-                                               'subject_is_copiable': 'on',
-                                              }
-                                   )
+                'subject_is_copiable': 'on',
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertEqual(count + 2, RelationType.objects.count())  # 2 freshly created

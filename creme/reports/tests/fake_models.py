@@ -7,7 +7,7 @@ if not settings.TESTS_ON:
 else:
     from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, PROTECT
     from django.urls import reverse
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.models import CremeEntity
     from creme.creme_core.tests.fake_models import FakeContact
@@ -16,9 +16,9 @@ else:
 
 
     class FakeReportsFolder(CremeEntity):
-        title       = CharField(_(u'Title'), max_length=100, unique=True)
-        description = TextField(_(u'Description'), null=True, blank=True)
-        parent      = ForeignKey('self', verbose_name=_(u'Parent folder'),
+        title       = CharField(_('Title'), max_length=100, unique=True)
+        description = TextField(_('Description'), null=True, blank=True)
+        parent      = ForeignKey('self', verbose_name=_('Parent folder'),
                                  on_delete=PROTECT, null=True,
                                 )
 
@@ -27,8 +27,8 @@ else:
         class Meta:
             app_label = 'reports'
             manager_inheritance_from_future = True
-            verbose_name = u'Test (reports) Folder'
-            verbose_name_plural = u'Test (reports) Folders'
+            verbose_name = 'Test (reports) Folder'
+            verbose_name_plural = 'Test (reports) Folders'
             ordering = ('title',)
 
         def __str__(self):
@@ -39,16 +39,16 @@ else:
 
 
     class FakeReportsDocument(CremeEntity):
-        title       = CharField(_(u'Title'), max_length=100)
-        description = TextField(_(u'Description'), blank=True, null=True)
+        title       = CharField(_('Title'), max_length=100)
+        description = TextField(_('Description'), blank=True, null=True)
 #        filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-        linked_folder = ForeignKey(FakeReportsFolder, verbose_name=_(u'Folder'), on_delete=PROTECT)
+        linked_folder = ForeignKey(FakeReportsFolder, verbose_name=_('Folder'), on_delete=PROTECT)
 
         class Meta:
             app_label = 'reports'
             manager_inheritance_from_future = True
-            verbose_name = u'Test (reports) Document'
-            verbose_name_plural = u'Test (reports) Documents'
+            verbose_name = 'Test (reports) Document'
+            verbose_name_plural = 'Test (reports) Documents'
             ordering = ('title',)
 
         def __str__(self):
@@ -66,14 +66,14 @@ else:
 
 
     class Guild(CremeEntity):
-        name    = CharField(_(u'Name'), max_length=100)
-        members = ManyToManyField(FakeContact, verbose_name=_(u'Members'))
+        name    = CharField(_('Name'), max_length=100)
+        members = ManyToManyField(FakeContact, verbose_name=_('Members'))
 
         class Meta:
             app_label = 'reports'
             manager_inheritance_from_future = True
-            verbose_name = u'Book'
-            verbose_name_plural = u'Books'
+            verbose_name = 'Book'
+            verbose_name_plural = 'Books'
             ordering = ('name',)
 
         def __str__(self):

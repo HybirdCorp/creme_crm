@@ -21,7 +21,7 @@
 from django.conf import settings
 from django.db.models import ForeignKey, PositiveIntegerField, CASCADE
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
@@ -31,22 +31,22 @@ from creme.creme_core.models import CremeEntity
 class Resource(CremeEntity):
     # TODO: set a editable (& use automatic formfield()) + not bulk_editable ?
     linked_contact = ForeignKey(settings.PERSONS_CONTACT_MODEL, on_delete=CASCADE,
-                                verbose_name=_(u'Contact'), editable=False,
+                                verbose_name=_('Contact'), editable=False,
                                )
-    hourly_cost    = PositiveIntegerField(_(u'Hourly cost'), default=0)
-    task           = ForeignKey(settings.PROJECTS_TASK_MODEL, verbose_name=_(u'Task'),
+    hourly_cost    = PositiveIntegerField(_('Hourly cost'), default=0)
+    task           = ForeignKey(settings.PROJECTS_TASK_MODEL, verbose_name=_('Task'),
                                 related_name='resources_set',  # TODO: rename 'resources'
                                 editable=False, on_delete=CASCADE,
                                )
 
-    creation_label = _(u'Create a resource')
-    save_label     = _(u'Save the resource')
+    creation_label = _('Create a resource')
+    save_label     = _('Save the resource')
 
     class Meta:
         app_label = 'projects'
         manager_inheritance_from_future = True
-        verbose_name = _(u'Resource of project')
-        verbose_name_plural = _(u'Resources of project')
+        verbose_name = _('Resource of project')
+        verbose_name_plural = _('Resources of project')
         # TODO: unique_together (linked_contact, task)
 
     def __str__(self):

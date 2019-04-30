@@ -9,7 +9,7 @@ try:
     from django.db.models.query import QuerySet
     from django.urls import reverse
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.models import CremeEntity, FakeOrganisation, FakeMailingList

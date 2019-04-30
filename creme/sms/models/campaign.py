@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.conf import settings
 from django.db.models import CharField, ManyToManyField
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
@@ -29,8 +29,8 @@ from .recipient import Recipient
 
 
 class AbstractSMSCampaign(CremeEntity):
-    name  = CharField(_(u'Name of the campaign'), max_length=100)
-    lists = ManyToManyField(settings.SMS_MLIST_MODEL, verbose_name=_(u'Related messaging lists'), blank=True)
+    name  = CharField(_('Name of the campaign'), max_length=100)
+    lists = ManyToManyField(settings.SMS_MLIST_MODEL, verbose_name=_('Related messaging lists'), blank=True)
 
     # TODO: pgettext (BUT beware because PreferredMenuItem does not manage context currently...)
     creation_label = _('Create a campaign')
@@ -40,8 +40,8 @@ class AbstractSMSCampaign(CremeEntity):
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'sms'
-        verbose_name = _(u'SMS campaign')
-        verbose_name_plural = _(u'SMS campaigns')
+        verbose_name = _('SMS campaign')
+        verbose_name_plural = _('SMS campaigns')
         ordering = ('name',)
 
     def __str__(self):

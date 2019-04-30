@@ -4,7 +4,7 @@ try:
     from functools import partial
 
     from django.urls import reverse
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -103,16 +103,16 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         self.assertEqual(city2,                 shipping_address.city)
 
         self.assertEqual(
-            [ungettext('{count} «{model}» has been created.',
-                       '{count} «{model}» have been created.',
-                       lines_count
-                      ).format(count=lines_count,
+            [ngettext('{count} «{model}» has been created.',
+                      '{count} «{model}» have been created.',
+                      lines_count
+                     ).format(count=lines_count,
                                model=_('Organisations'),
                               ),
-             ungettext('{count} line in the file.',
-                       '{count} lines in the file.',
-                       lines_count
-                      ).format(count=lines_count),
+             ngettext('{count} line in the file.',
+                      '{count} lines in the file.',
+                      lines_count
+                     ).format(count=lines_count),
             ],
             job.stats
         )

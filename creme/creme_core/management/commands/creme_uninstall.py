@@ -174,7 +174,7 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
                              u'sub-filter by the following filter(s): {parents}'.format(
                                     name=efilter.name,
                                     id=efilter.id,
-                                    parents=u', '.join(u'<"{}" (id="{}")>'.format(p.name, p.id)
+                                    parents=', '.join('<"{}" (id="{}")>'.format(p.name, p.id)
                                                   for p in parents.values()
                                              ),
                                 ),

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import logging
 
 from django.apps import apps
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -53,18 +53,21 @@ class Populator(BasePopulator):
         ProjectTask = get_task_model()
 
         create_rtype = RelationType.create
-        create_rtype((constants.REL_SUB_PROJECT_MANAGER, _('is one of the leaders of this project'), [Contact]),
-                     (constants.REL_OBJ_PROJECT_MANAGER, _('has as leader'),                         [Project]),
-                    )
-        create_rtype((constants.REL_SUB_LINKED_2_PTASK, _('is related to the task of project'), [Activity]),
-                     (constants.REL_OBJ_LINKED_2_PTASK, _('includes the activity'),             [ProjectTask]),
-                     is_internal=True,
-                     minimal_display=(False, True),
-                    )
-        create_rtype((constants.REL_SUB_PART_AS_RESOURCE, _('is a resource of'),  [Contact]),
-                     (constants.REL_OBJ_PART_AS_RESOURCE, _('has as a resource'), [Activity]),
-                     is_internal=True,
-                    )
+        create_rtype(
+            (constants.REL_SUB_PROJECT_MANAGER, _('is one of the leaders of this project'), [Contact]),
+            (constants.REL_OBJ_PROJECT_MANAGER, _('has as leader'),                         [Project]),
+        )
+        create_rtype(
+            (constants.REL_SUB_LINKED_2_PTASK, _('is related to the task of project'), [Activity]),
+            (constants.REL_OBJ_LINKED_2_PTASK, _('includes the activity'),             [ProjectTask]),
+            is_internal=True,
+            minimal_display=(False, True),
+        )
+        create_rtype(
+            (constants.REL_SUB_PART_AS_RESOURCE, _('is a resource of'),  [Contact]),
+            (constants.REL_OBJ_PART_AS_RESOURCE, _('has as a resource'), [Activity]),
+            is_internal=True,
+        )
 
         # ---------------------------
         for pk, statusdesc in constants.TASK_STATUS.items():

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -37,7 +37,7 @@ class Populator(BasePopulator):
 
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_RGENERATOR,
                             model=RecurrentGenerator,
-                            name=_(u'Generator view'),
+                            name=_('Generator view'),
                             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                            )
 

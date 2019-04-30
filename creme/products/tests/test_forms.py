@@ -4,7 +4,7 @@ try:
     from functools import partial
     from json import dumps as json_dump
 
-    from django.utils.translation import ugettext as _, pgettext
+    from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_config.registry import config_registry
 
@@ -130,8 +130,12 @@ class CategoryFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data(self):
         clean = CategoryField(required=False).clean
-        self.assertFieldValidationError(CategoryField, 'invalidformat', clean, '{"category":"notanumber","subcategory":"1"}')
-        self.assertFieldValidationError(CategoryField, 'invalidformat', clean, '{"category":"12","category":"notanumber"}')
+        self.assertFieldValidationError(CategoryField, 'invalidformat', clean,
+                                        '{"category":"notanumber","subcategory":"1"}'
+                                       )
+        self.assertFieldValidationError(CategoryField, 'invalidformat', clean,
+                                        '{"category":"12","category":"notanumber"}'
+                                       )
 
     def test_clean_incomplete_data_required(self):
         clean = CategoryField().clean

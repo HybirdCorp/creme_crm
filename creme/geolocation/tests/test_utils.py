@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.global_info import clear_global_info
     from creme.creme_core.models import SettingValue
@@ -25,12 +25,12 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         user = self.login()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
-        address = self.create_address(orga, zipcode='13012', town=u'Marseille', geoloc=(43.299991, 5.364832))
+        address = self.create_address(orga, zipcode='13012', town='Marseille', geoloc=(43.299991, 5.364832))
 
         self.assertDictEqual(dict(id=address.pk,
-                                  content=u'13 rue du yahourt 13012 Marseille 13',
-                                  title=u'13 rue du yahourt',
-                                  owner=u'Orga 1',
+                                  content='13 rue du yahourt 13012 Marseille 13',
+                                  title='13 rue du yahourt',
+                                  owner='Orga 1',
                                   is_shipping=False,
                                   is_billing=False,
                                   is_complete=True,
@@ -54,9 +54,9 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         address = self.create_billing_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
 
         self.assertDictEqual(dict(id=address.pk,
-                                  content=u'',
-                                  title=_(u'Billing address'),
-                                  owner=u'Orga 1',
+                                  content='',
+                                  title=_('Billing address'),
+                                  owner='Orga 1',
                                   is_shipping=False,
                                   is_billing=True,
                                   is_complete=True,
@@ -74,9 +74,9 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         address = self.create_shipping_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
 
         self.assertDictEqual(dict(id=address.pk,
-                                  content=u'',
-                                  title=_(u'Shipping address'),
-                                  owner=u'Orga 1',
+                                  content='',
+                                  title=_('Shipping address'),
+                                  owner='Orga 1',
                                   is_shipping=True,
                                   is_complete=True,
                                   is_billing=False,
@@ -100,9 +100,9 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         address = self.create_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
 
         self.assertDictEqual(dict(id=address.pk,
-                                  content=u'',
-                                  title=u'',
-                                  owner=u'Orga 1',
+                                  content='',
+                                  title='',
+                                  owner='Orga 1',
                                   is_shipping=False,
                                   is_billing=False,
                                   is_complete=True,
@@ -132,9 +132,9 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
             address.geoaddress
 
         self.assertDictEqual(dict(id=address.pk,
-                                  content=u'',
-                                  title=u'',
-                                  owner=u'Orga 1',
+                                  content='',
+                                  title='',
+                                  owner='Orga 1',
                                   is_shipping=False,
                                   is_billing=False,
                                   is_complete=False,
@@ -164,9 +164,9 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
             address.geoaddress
 
         self.assertDictEqual(dict(id=address.pk,
-                                  content=u'',
-                                  title=u'',
-                                  owner=u'Orga 1',
+                                  content='',
+                                  title='',
+                                  owner='Orga 1',
                                   is_shipping=False,
                                   is_billing=False,
                                   is_complete=False,
@@ -190,14 +190,14 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         orga2   = Organisation.objects.create(name='Orga 2', user=user)
         contact = Contact.objects.create(last_name='Contact 1', user=user)
 
-        orga_address = self.create_billing_address(orga, zipcode='13012', town=u'Marseille')
-        self.create_shipping_address(orga, zipcode='01190', town=u'Ozan')
-        self.create_address(orga, zipcode='01630', town=u'Péron')
+        orga_address = self.create_billing_address(orga, zipcode='13012', town='Marseille')
+        self.create_shipping_address(orga, zipcode='01190', town='Ozan')
+        self.create_address(orga, zipcode='01630', town='Péron')
 
-        orga2_address = self.create_shipping_address(orga2, zipcode='01190', town=u'Ozan')
-        self.create_address(orga2, zipcode='01630', town=u'Péron')
+        orga2_address = self.create_shipping_address(orga2, zipcode='01190', town='Ozan')
+        self.create_address(orga2, zipcode='01630', town='Péron')
 
-        contact_address = self.create_address(contact, zipcode='01630', town=u'Péron')
+        contact_address = self.create_address(contact, zipcode='01630', town='Péron')
         self.assertListEqual(list(addresses_from_persons(Contact.objects.all(), user)),
                              [contact_address]
                             )

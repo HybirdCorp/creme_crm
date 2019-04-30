@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import logging
 
 from django.apps import apps
 from django.conf import settings
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -54,38 +54,38 @@ class Populator(BasePopulator):
         Contact = persons.get_contact_model()
         Organisation = persons.get_organisation_model()
 
-        RelationType.create((constants.REL_SUB_SOLD_BY,       _(u'has sold')),
-                            (constants.REL_OBJ_SOLD_BY,       _(u'has been sold by')))
-        RelationType.create((constants.REL_SUB_COMPLETE_GOAL, _(u'completes a goal of the commercial action')),
-                            (constants.REL_OBJ_COMPLETE_GOAL, _(u'is completed thanks to'), [Act]))
+        RelationType.create((constants.REL_SUB_SOLD_BY,       _('has sold')),
+                            (constants.REL_OBJ_SOLD_BY,       _('has been sold by')))
+        RelationType.create((constants.REL_SUB_COMPLETE_GOAL, _('completes a goal of the commercial action')),
+                            (constants.REL_OBJ_COMPLETE_GOAL, _('is completed thanks to'), [Act]))
 
         # ---------------------------
-        CremePropertyType.create(constants.PROP_IS_A_SALESMAN, _(u'is a salesman'), [Contact])
+        CremePropertyType.create(constants.PROP_IS_A_SALESMAN, _('is a salesman'), [Contact])
 
         # ---------------------------
         MarketSegment.objects.get_or_create(property_type=None,
-                                            defaults={'name': _(u'All the organisations')},
+                                            defaults={'name': _('All the organisations')},
                                            )
 
         # ---------------------------
-        for i, title in enumerate([_(u'Phone calls'), _(u'Show'), _(u'Demo')], start=1):
+        for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
             create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
 
         # ---------------------------
         create_hf = HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_ACT, model=Act,
-                  name=_(u'Com Action view'),
+                  name=_('Com Action view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'expected_sales'}),
                               (EntityCellRegularField, {'name': 'due_date'}),
                              ],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_STRATEGY, model=Strategy,
-                  name=_(u"Strategy view"),
+                  name=_('Strategy view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_PATTERN, model=ActObjectivePattern,
-                  name=_(u"Objective pattern view"),
+                  name=_('Objective pattern view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'segment'}),
                              ]

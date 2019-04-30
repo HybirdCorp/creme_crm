@@ -23,7 +23,7 @@ from functools import partial
 
 from django.apps import apps
 from django.db.models.query_utils import Q, FilteredRelation
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField

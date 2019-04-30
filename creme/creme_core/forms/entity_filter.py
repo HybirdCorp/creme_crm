@@ -32,7 +32,7 @@ from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, ValidationError
 from django.forms.fields import CallableChoiceIterator
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.formats import date_format
 
 from ..models import (CremeEntity, EntityFilter, EntityFilterCondition,

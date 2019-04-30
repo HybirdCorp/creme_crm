@@ -20,20 +20,21 @@
 
 from PIL import ImageFile as PILImageFile
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from . import get_folder_model
 
 
 def get_csv_folder_or_create(user):
     return get_folder_model().objects.get_or_create(
-                title=_(u'CSV Documents'),
-                defaults={'description':   _(u'Folder containing all the CSV documents used when importing data'),
-                          'parent_folder': None,
-                          'category':      None,
-                          'user':          user,
-                         },
-            )[0]
+        title=_('CSV Documents'),
+        defaults={
+            'description':   _('Folder containing all the CSV documents used when importing data'),
+            'parent_folder': None,
+            'category':      None,
+            'user':          user,
+        },
+    )[0]
 
 
 def get_image_format(data):

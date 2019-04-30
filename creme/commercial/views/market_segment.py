@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import logging
 
 from django.db import DatabaseError
 from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views import generic
@@ -67,7 +67,7 @@ class SegmentDeletion(generic.CremeModelEditionPopup):
         super().check_view_permissions(user=user)
 
         if MarketSegment.objects.count() < 2:
-            raise ConflictError(ugettext("You can't delete the last segment."))
+            raise ConflictError(gettext("You can't delete the last segment."))
 
     def post(self, *args, **kwargs):
         try:
@@ -76,6 +76,6 @@ class SegmentDeletion(generic.CremeModelEditionPopup):
             logger.exception('Error in MarketSegment deletion view')
 
             return HttpResponse(
-                ugettext('You cannot delete this segment [original error: {}].').format(e),
+                gettext('You cannot delete this segment [original error: {}].').format(e),
                 status=400,
             )

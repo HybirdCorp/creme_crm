@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2018  Hybird
+#    Copyright (C) 2014-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,12 +23,12 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY  # SECONDLY
 
-from django.utils.translation import ugettext_lazy as _, ungettext
+from django.utils.translation import gettext_lazy as _, ngettext
 
 
 class DatePeriod:
     name = 'base_date_period'  # Overload
-    verbose_name = u'Date period'  # Overload
+    verbose_name = 'Date period'  # Overload
 
     def __str__(self):
         return str(self.verbose_name)
@@ -90,7 +90,7 @@ class MinutesPeriod(SimpleValueDatePeriod):
     frequency = MINUTELY
 
     def _ungettext(self, value):
-        return ungettext('{number} minute', '{number} minutes', value)
+        return ngettext('{number} minute', '{number} minutes', value)
 
 
 class HoursPeriod(SimpleValueDatePeriod):
@@ -99,7 +99,7 @@ class HoursPeriod(SimpleValueDatePeriod):
     frequency = HOURLY
 
     def _ungettext(self, value):
-        return ungettext('{number} hour', '{number} hours', value)
+        return ngettext('{number} hour', '{number} hours', value)
 
 
 class DaysPeriod(SimpleValueDatePeriod):
@@ -108,7 +108,7 @@ class DaysPeriod(SimpleValueDatePeriod):
     frequency = DAILY
 
     def _ungettext(self, value):
-        return ungettext('{number} day', '{number} days', value)
+        return ngettext('{number} day', '{number} days', value)
 
 
 class WeeksPeriod(SimpleValueDatePeriod):
@@ -117,7 +117,7 @@ class WeeksPeriod(SimpleValueDatePeriod):
     frequency = WEEKLY
 
     def _ungettext(self, value):
-        return ungettext('{number} week', '{number} weeks', value)
+        return ngettext('{number} week', '{number} weeks', value)
 
 
 class MonthsPeriod(SimpleValueDatePeriod):
@@ -126,7 +126,7 @@ class MonthsPeriod(SimpleValueDatePeriod):
     frequency = MONTHLY
 
     def _ungettext(self, value):
-        return ungettext('{number} month', '{number} months', value)
+        return ngettext('{number} month', '{number} months', value)
 
 
 class YearsPeriod(SimpleValueDatePeriod):
@@ -135,7 +135,7 @@ class YearsPeriod(SimpleValueDatePeriod):
     frequency = YEARLY
 
     def _ungettext(self, value):
-        return ungettext('{number} year', '{number} years', value)
+        return ngettext('{number} year', '{number} years', value)
 
 
 class DatePeriodRegistry:
@@ -177,7 +177,9 @@ class DatePeriodRegistry:
             name = period.name
 
             if name in periods_map:
-                raise self.RegistrationError("Duplicate date period's id or period registered twice : {}".format(name))
+                raise self.RegistrationError(
+                    "Duplicate date period's id or period registered twice : {}".format(name)
+                )
 
             periods_map[name] = period
 

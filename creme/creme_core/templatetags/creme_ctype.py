@@ -20,7 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.template import Library
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from .. import get_concrete_model
 from ..utils.translation import get_model_verbose_name

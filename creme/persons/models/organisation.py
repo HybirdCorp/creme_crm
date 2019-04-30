@@ -21,7 +21,7 @@
 from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerField,
         BooleanField, DateField, EmailField, URLField, SET_NULL)
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.global_info import cached_per_request  # get_per_request_cache
@@ -97,9 +97,10 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     def _check_deletion(self):
         if self.is_managed and self.__class__.objects.filter(is_managed=True).count() == 1:
-            raise SpecificProtectedError(ugettext('The last managed organisation cannot be deleted.'),
-                                         [self]
-                                        )
+            raise SpecificProtectedError(
+                gettext('The last managed organisation cannot be deleted.'),
+                [self]
+            )
 
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)

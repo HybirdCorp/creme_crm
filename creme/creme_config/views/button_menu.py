@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import Http404, HttpResponse
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 # from formtools.wizard.views import SessionWizardView
 
@@ -111,9 +111,9 @@ class ButtonMenuEdition(EntityCTypeRelatedMixin, ConfigEdition):
     def get_title(self):
         ctype = self.get_ctype()
 
-        return ugettext('Edit configuration for «{model}»').format(model=ctype) \
+        return gettext('Edit configuration for «{model}»').format(model=ctype) \
                if ctype else \
-               ugettext('Edit default configuration')
+               gettext('Edit default configuration')
 
 
 @decorators.login_required

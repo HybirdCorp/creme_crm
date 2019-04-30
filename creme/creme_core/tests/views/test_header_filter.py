@@ -7,7 +7,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.test import override_settings
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
     from creme.creme_core.tests.views.base import ViewsTestCase

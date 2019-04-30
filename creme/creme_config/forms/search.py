@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import ModelChoiceField, MultipleChoiceField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
@@ -65,7 +65,7 @@ class SearchAddForm(_SearchForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = '*{}*'.format(ugettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = '*{}*'.format(gettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 

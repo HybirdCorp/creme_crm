@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,14 +24,13 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import TextField, ForeignKey, BooleanField, Q, FieldDoesNotExist, CASCADE
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from ..utils import find_first
 from ..utils.meta import FieldInfo, ModelFieldEnumerator
 from .auth import UserRole
 from .base import CremeModel
 from .fields import EntityCTypeForeignKey, DatePeriodField
-
 
 logger = logging.getLogger(__name__)
 
@@ -80,16 +79,20 @@ class SearchConfigItem(CremeModel):
 
     def __str__(self):
         if self.superuser:
-            return ugettext('Search configuration of super-users for «{model}»').format(model=self.content_type)
+            return gettext('Search configuration of super-users for «{model}»').format(
+                model=self.content_type,
+            )
 
         role = self.role
 
         if role is None:
-            return ugettext('Default search configuration for «{model}»').format(model=self.content_type)
+            return gettext('Default search configuration for «{model}»').format(
+                model=self.content_type,
+            )
 
-        return ugettext('Search configuration of «{role}» for «{model}»').format(
-                    role=role,
-                    model=self.content_type,
+        return gettext('Search configuration of «{role}» for «{model}»').format(
+            role=role,
+            model=self.content_type,
         )
 
     @property
@@ -121,14 +124,17 @@ class SearchConfigItem(CremeModel):
             except FieldDoesNotExist as e:
                 logger.warning('%s => SearchField removed', e)
             else:
-                sfields.append(SearchField(field_name=field_name, field_verbose_name=field_info.verbose_name))
+                sfields.append(
+                    SearchField(field_name=field_name, field_verbose_name=field_info.verbose_name)
+                )
 
         self.field_names = ','.join(sf.name for sf in sfields) or None
 
         if not sfields:  # field_names is empty => use all compatible fields
-            sfields.extend(SearchField(field_name=field_name, field_verbose_name=verbose_name)
-                                for field_name, verbose_name in self._get_modelfields_choices(model)
-                          )
+            sfields.extend(
+                SearchField(field_name=field_name, field_verbose_name=verbose_name)
+                    for field_name, verbose_name in self._get_modelfields_choices(model)
+          )
             self._all_fields = True
         else:
             self._all_fields = False

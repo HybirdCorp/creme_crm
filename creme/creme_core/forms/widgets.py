@@ -29,7 +29,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.forms import widgets
 from django.urls import reverse
-from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy, pgettext
+from django.utils.translation import gettext as _, gettext_lazy, pgettext_lazy, pgettext
 
 from ..utils.date_range import date_range_registry
 from ..utils.queries import QSerializer  # get_q_from_dict
@@ -405,7 +405,7 @@ class SelectorList(widgets.TextInput):
         super().__init__(attrs)
         self.selector = selector
         self.enabled = enabled
-        self.actions = [self.Action('add', ugettext_lazy('Add'))]
+        self.actions = [self.Action('add', gettext_lazy('Add'))]
         self.from_python = None  # TODO: remove this hack ?
 
     def add_action(self, name, label, enabled=True, **kwargs):
@@ -936,7 +936,7 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
 
     def __init__(self, attrs=None, choices=(),
                  columntype='', filtertype=None, viewless=20,
-                 creation_url='', creation_allowed=False, creation_label=ugettext_lazy('Create')):
+                 creation_url='', creation_allowed=False, creation_label=gettext_lazy('Create')):
         """Constructor.
         @param attrs: See SelectMultiple.attrs.
         @param choices: See SelectMultiple.choices.

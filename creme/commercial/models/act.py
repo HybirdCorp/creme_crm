@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import (CharField, TextField, PositiveIntegerField,
         DateField, BooleanField, ForeignKey, PROTECT, CASCADE)
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, EntityFilter
 from creme.creme_core.models.fields import CTypeForeignKey
@@ -86,7 +86,7 @@ class AbstractAct(CremeEntity):
         due_date = self.due_date
 
         if not due_date or not start or due_date < start:
-            raise ValidationError(ugettext(u"Due date can't be before start."),
+            raise ValidationError(gettext("Due date can't be before start."),
                                   code='duedate_before_start',
                                  )
 

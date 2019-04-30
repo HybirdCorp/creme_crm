@@ -7,7 +7,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.deletion import ProtectedError
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from ..base import CremeTestCase
     from ..fake_models import (FakeContact, FakeOrganisation, FakeCivility, FakeSector,
@@ -185,11 +185,11 @@ class EntityTestCase(CremeTestCase):
 
         naruto = FakeContact.objects.create(user=user, civility=civility,
                                             first_name='Naruto', last_name='Uzumaki',
-                                            description=u"Ninja", birthday=now(),
-                                            phone='123456', mobile=u"+81 0 0 0 00 01",
+                                            description='Ninja', birthday=now(),
+                                            phone='123456', mobile='+81 0 0 0 00 01',
                                             email='naruto.uzumaki@konoha.jp',
                                             image=image,
-                                            )
+                                           )
         naruto.language = [language]
 
         CremeProperty.objects.create(type=self.ptype01, creme_entity=naruto)

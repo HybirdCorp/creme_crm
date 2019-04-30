@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core import function_field
 from creme.creme_core.models import FieldsConfig
@@ -33,9 +33,9 @@ class TurnoverField(function_field.FunctionField):
         is_hidden = FieldsConfig.get_4_model(entity.__class__).is_fieldname_hidden
 
         if is_hidden('estimated_sales'):
-            value = ugettext('Error: «Estimated sales» is hidden')
+            value = gettext('Error: «Estimated sales» is hidden')
         elif is_hidden('chance_to_win'):
-            value = ugettext(r'Error: «% of chance to win» is hidden')
+            value = gettext(r'Error: «% of chance to win» is hidden')
         else:
             value = (entity.estimated_sales or 0) * (entity.chance_to_win or 0) / 100.0
 

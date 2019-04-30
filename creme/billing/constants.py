@@ -2,7 +2,7 @@
 
 from decimal import Decimal, ROUND_HALF_UP  # ROUND_UP ROUND_DOWN ROUND_HALF_EVEN
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 DEFAULT_DECIMAL = Decimal()

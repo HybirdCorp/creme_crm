@@ -3,7 +3,7 @@
 try:
     from django.apps import apps
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     # from creme.creme_core.forms import CremeModelForm
     from creme.creme_core.tests.base import CremeTestCase

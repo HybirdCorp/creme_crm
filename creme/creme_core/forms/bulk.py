@@ -29,7 +29,7 @@ from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.widgets import Select
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from ..gui import bulk_update
 from ..models import custom_field
@@ -83,7 +83,7 @@ class BulkForm(CremeForm):
 
             self.fields['_bulk_fieldname'] = ChoiceField(
                 choices=self._bulk_model_choices(model, entities),
-                label=_(u'Field to update'),
+                label=_('Field to update'),
                 initial=self._bulk_field_url(model, fieldname, entities),
                 widget=BulkFieldSelectWidget,
                 required=False,
@@ -125,7 +125,7 @@ class BulkForm(CremeForm):
                                   )
 
         if custom_fields:
-            choices.append((ugettext(u'Custom fields'),
+            choices.append((gettext('Custom fields'),
                             [(build_url(fieldname=_CUSTOMFIELD_FORMAT.format(field.id)), field.name)
                                 for field in custom_fields
                             ]
@@ -184,7 +184,11 @@ class BulkForm(CremeForm):
 
         if instance is None:
             # TODO: code + _bulk_error_messages + params
-            raise ValidationError(ugettext(u'The field «{}» is empty').format(self.model_parent_field.verbose_name))
+            raise ValidationError(
+                gettext('The field «{}» is empty').format(
+                    self.model_parent_field.verbose_name
+                )
+            )
 
         return self._bulk_clean_entity(instance, values)
 

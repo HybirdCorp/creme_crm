@@ -21,7 +21,7 @@
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 # from formtools.wizard.views import SessionWizardView
 
@@ -67,7 +67,7 @@ class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
         return kwargs
 
     def get_title(self):
-        return ugettext('New block configuration for «{model}»').format(
+        return gettext('New block configuration for «{model}»').format(
             model=self.get_ctype(),
         )
 
@@ -195,14 +195,14 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
 
         if ct is not None:
             if superuser:
-                title = ugettext('Edit configuration of super-users for «{model}»').format(model=ct)
+                title = gettext('Edit configuration of super-users for «{model}»').format(model=ct)
             elif role is not None:
-                title = ugettext('Edit configuration of «{role}» for «{model}»').format(
+                title = gettext('Edit configuration of «{role}» for «{model}»').format(
                     role=role,
                     model=ct,
                 )
             else:
-                title = ugettext('Edit default configuration for «{model}»').format(model=ct)
+                title = gettext('Edit default configuration for «{model}»').format(model=ct)
         else:
             title = _('Edit default configuration')
 

@@ -31,7 +31,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpRespons
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
+from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from .. import constants
 from ..auth.decorators import login_required, superuser_required
@@ -75,7 +75,7 @@ def get_creme_entities_repr(request, entities_ids):
     return [{'id': e_id,
              'text': entity.get_real_entity().get_entity_summary(user)
                      if has_perm(entity) else
-                     ugettext('Entity #{id} (not viewable)').format(id=e_id)
+                     gettext('Entity #{id} (not viewable)').format(id=e_id)
             } for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
                 if entity is not None
            ]
@@ -127,7 +127,7 @@ def get_info_fields(request, ct_id):
         required_field = required_fields[0]
         kwargs['printer'] = lambda field: str(field.verbose_name) \
                                           if field.name != required_field else \
-                                          ugettext('{field} [CREATION]').format(field=field.verbose_name)
+                                          gettext('{field} [CREATION]').format(field=field.verbose_name)
 
     is_hidden = FieldsConfig.get_4_model(model).is_field_hidden
 
@@ -159,7 +159,7 @@ class Clone(base.EntityRelatedMixin, base.CheckedView):
 
     def check_related_entity_permissions(self, entity, user):
         if entity.get_clone_absolute_url() != CremeEntity.get_clone_absolute_url():
-            raise Http404(ugettext('This model does not use the generic clone view.'))
+            raise Http404(gettext('This model does not use the generic clone view.'))
 
         user.has_perm_to_create_or_die(entity)
         user.has_perm_to_view_or_die(entity)
@@ -245,7 +245,7 @@ class SearchAndView(base.CheckedView):
                 pass
             else:
                 if fields_configs[model].is_field_hidden(field):
-                    raise ConflictError(ugettext('This field is hidden.'))
+                    raise ConflictError(gettext('This field is hidden.'))
 
                 query |= Q(**{field.name: value})
 
@@ -309,7 +309,7 @@ class SearchAndView(base.CheckedView):
                 if found:
                     return self.build_response(found)
 
-        raise Http404(ugettext('No entity corresponding to your search was found.'))
+        raise Http404(gettext('No entity corresponding to your search was found.'))
 
     def is_model_allowed(self, model):
         return issubclass(model, self.allowed_classes)
@@ -333,7 +333,7 @@ class InnerEdition(base.ContentTypeRelatedMixin, generic.CremeModelEditionPopup)
         super().check_instance_permissions(instance=instance, user=user)
 
         if not _bulk_has_perm(instance, user):
-            raise PermissionDenied(ugettext('You are not allowed to edit this entity'))
+            raise PermissionDenied(gettext('You are not allowed to edit this entity'))
 
     def dispatch(self, *args, **kwargs):
         try:
@@ -382,10 +382,10 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         # TODO: select_label in model instead (fr: masculin/féminin)
         context['help_message'] = format_html(
             '<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}"></span>',
-            msg=ugettext('{count} «{model}» has been selected.')
-                        .format(count='%s', model=meta.verbose_name),
-            plural=ugettext('{count} «{model}» have been selected.')
-                           .format(count='%s', model=meta.verbose_name_plural),
+            msg=gettext('{count} «{model}» has been selected.')
+                       .format(count='%s', model=meta.verbose_name),
+            plural=gettext('{count} «{model}» have been selected.')
+                          .format(count='%s', model=meta.verbose_name_plural),
         )
 
         return context
@@ -426,29 +426,29 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
 
         # TODO: modification_label/bulk_label/... in model instead (fr: masculin/féminin)
         if initial_count == success_count:
-            summary = ungettext(
+            summary = ngettext(
                 '{success} «{model}» has been successfully modified.',
                 '{success} «{model}» have been successfully modified.',
                 success_count
             )
         else:
-            summary = ungettext(
+            summary = ngettext(
                 '{success} of {initial} «{model}» has been successfully modified.',
                 '{success} of {initial} «{model}» have been successfully modified.',
                 success_count
             )
 
             if forbidden_count:
-                summary += ' ' + ungettext('{forbidden} was not editable.',
-                                           '{forbidden} were not editable.',
-                                           forbidden_count
-                                          )
+                summary += ' ' + ngettext('{forbidden} was not editable.',
+                                          '{forbidden} were not editable.',
+                                          forbidden_count
+                                         )
 
             if invalid_count:
-                summary += ' ' + ungettext('{invalid} has returned an error.',
-                                           '{invalid} have returned an error.',
-                                           invalid_count
-                                          )
+                summary += ' ' + ngettext('{invalid} has returned an error.',
+                                          '{invalid} have returned an error.',
+                                          invalid_count
+                                         )
 
         return summary.format(**context)
 
@@ -789,17 +789,19 @@ def empty_trash(request):
                 try:
                     entity.delete()
                 except ProtectedError:
-                    errors.append(ugettext('«{entity}» can not be deleted because of its dependencies.').format(
-                                        entity=entity.allowed_str(user)
-                                    )
-                                 )
+                    errors.append(
+                        gettext('«{entity}» can not be deleted because of its dependencies.').format(
+                            entity=entity.allowed_str(user)
+                        )
+                    )
                 except Exception as e:
                     logger.exception('Error when trying to empty the trash')
-                    errors.append(ugettext('«{entity}» deletion caused an unexpected error [{error}].').format(
-                                        entity=entity.allowed_str(user),
-                                        error=e,
-                                    )
-                                 )
+                    errors.append(
+                        gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
+                            entity=entity.allowed_str(user),
+                            error=e,
+                        )
+                    )
                 else:
                     progress = True
 
@@ -809,12 +811,12 @@ def empty_trash(request):
     # TODO: factorise ??
     if not errors:
         status = 200
-        message = ugettext('Operation successfully completed')
+        message = gettext('Operation successfully completed')
     else:
         status = 409
         message = format_html(
             '{}<ul>{}</ul>',
-            ugettext('The following entities cannot be deleted'),
+            gettext('The following entities cannot be deleted'),
             format_html_join('', '<li>{}</li>', ((msg,) for msg in errors)),
         )
 
@@ -830,7 +832,7 @@ def restore_entity(request, entity_id):
                               ).get_real_entity()
 
     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-        raise Http404(ugettext('This model does not use the generic deletion view.'))
+        raise Http404(gettext('This model does not use the generic deletion view.'))
 
     if hasattr(entity, 'get_related_entity'):
         raise Http404('Can not restore an auxiliary entity')  # See trash_entity()
@@ -847,7 +849,7 @@ def restore_entity(request, entity_id):
 def _delete_entity(user, entity):
     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
         return (404,
-                ugettext('«{entity}» does not use the generic deletion view.').format(
+                gettext('«{entity}» does not use the generic deletion view.').format(
                         entity=entity.allowed_str(user),
                     )
                )
@@ -857,15 +859,15 @@ def _delete_entity(user, entity):
 
         if related is None:
             logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity.id)
-            return 403, ugettext('You are not allowed to delete this entity: {}').format(entity.allowed_str(user))
+            return 403, gettext('You are not allowed to delete this entity: {}').format(entity.allowed_str(user))
 
         if not user.has_perm_to_change(related):
-            return 403, ugettext('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
+            return 403, gettext('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
 
         trash = False
     else:
         if not user.has_perm_to_delete(entity):
-            return 403, ugettext('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
+            return 403, gettext('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
 
         trash = not entity.is_deleted
 
@@ -877,13 +879,13 @@ def _delete_entity(user, entity):
     except SpecificProtectedError as e:
         return (400,
                 '{} {}'.format(
-                    ugettext('«{entity}» can not be deleted.').format(entity=entity.allowed_str(user)),
+                    gettext('«{entity}» can not be deleted.').format(entity=entity.allowed_str(user)),
                     e.args[0],
                   ),
                )
     except ProtectedError as e:
         return (400,
-                ugettext('«{entity}» can not be deleted because of its dependencies.').format(
+                gettext('«{entity}» can not be deleted because of its dependencies.').format(
                         entity=entity.allowed_str(user),
                     ),
                 {'protected_objects': e.args[1]},
@@ -891,7 +893,7 @@ def _delete_entity(user, entity):
     except Exception as e:
         logger.exception('Error when trying to empty the trash')
         return (400,
-                ugettext('«{entity}» deletion caused an unexpected error [{error}].').format(
+                gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
                         entity=entity.allowed_str(user),
                         error=e,
                     )
@@ -908,7 +910,7 @@ def delete_entities(request):
         return HttpResponse('Bad POST argument', status=400)
 
     if not entity_ids:
-        return HttpResponse(ugettext('No selected entities'), status=400)
+        return HttpResponse(gettext('No selected entities'), status=400)
 
     logger.debug('delete_entities() -> ids: %s ', entity_ids)
 
@@ -918,10 +920,10 @@ def delete_entities(request):
 
     len_diff = len(entity_ids) - len(entities)
     if len_diff:
-        errors[404].append(ungettext("{count} entity doesn't exist or has been removed.",
-                                     "{count} entities don't exist or have been removed.",
-                                     len_diff
-                                    ).format(count=len_diff)
+        errors[404].append(ngettext("{count} entity doesn't exist or has been removed.",
+                                    "{count} entities don't exist or have been removed.",
+                                    len_diff
+                                   ).format(count=len_diff)
                           )
 
     CremeEntity.populate_real_entities(entities)
@@ -933,7 +935,7 @@ def delete_entities(request):
 
     if not errors:
         status = 200
-        message = ugettext('Operation successfully completed')
+        message = gettext('Operation successfully completed')
         content_type = None
     else:
         status = min(errors)

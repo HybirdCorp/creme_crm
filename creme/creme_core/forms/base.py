@@ -24,10 +24,9 @@ import logging
 from django.contrib.auth import get_user_model
 from django.db.models.fields import FieldDoesNotExist
 from django.forms import Form, ModelForm, ModelChoiceField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from ..models import CremeEntity, CustomFieldValue, FieldsConfig
-
 
 __all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm',
            'CremeModelWithUserForm', 'CremeEntityForm',

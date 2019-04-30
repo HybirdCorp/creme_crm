@@ -22,7 +22,7 @@ from datetime import date
 # from functools import partial
 
 from django.db.models import Q, FilteredRelation, Count
-from django.utils.translation import ugettext_lazy as _, ungettext
+from django.utils.translation import gettext_lazy as _, ngettext
 
 from creme.creme_core.models import FieldsConfig
 
@@ -130,14 +130,14 @@ class CurrentYearStatistics:
                     stats.append(
                         self.message_format.format(
                             organisation=orga,
-                            won_stats=ungettext('{count} won opportunity',
-                                                '{count} won opportunities',
-                                                won_count
-                                               ).format(count=won_count),
-                            lost_stats=ungettext('{count} lost opportunity',
-                                                 '{count} lost opportunities',
-                                                 lost_count
-                                                ).format(count=lost_count),
+                            won_stats=ngettext('{count} won opportunity',
+                                               '{count} won opportunities',
+                                               won_count
+                                              ).format(count=won_count),
+                            lost_stats=ngettext('{count} lost opportunity',
+                                                '{count} lost opportunities',
+                                                lost_count
+                                               ).format(count=lost_count),
                         )
                     )
 

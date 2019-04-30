@@ -4,7 +4,7 @@ try:
     from functools import partial
     import json
 
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.core.setting_key import (SettingKey, UserSettingKey,

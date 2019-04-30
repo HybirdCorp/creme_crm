@@ -23,7 +23,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 # from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -87,7 +87,7 @@ def dl_png(request, graph_id):
         return graph.generate_png(user)
     except Graph.GraphException:
         return render(request, 'graphs/graph_error.html',
-                      {'error_message': ugettext('This graph is too big!')},
+                      {'error_message': gettext('This graph is too big!')},
                      )
 
 

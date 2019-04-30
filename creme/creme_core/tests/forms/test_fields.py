@@ -5,7 +5,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.forms import IntegerField, ChoiceField
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from .base import FieldTestCase
     from ..fake_models import FakeContact, FakeOrganisation
@@ -131,7 +131,7 @@ class DateRangeFieldTestCase(FieldTestCase):
 
     def test_start_before_end(self):
         self.assertFieldValidationError(DateRangeField, 'customized_invalid',
-                                        DateRangeField().clean, [u"", u"2011-05-16", u"2011-05-15"]
+                                        DateRangeField().clean, ['', '2011-05-16', '2011-05-15']
                                        )
 
     def test_ok01(self):

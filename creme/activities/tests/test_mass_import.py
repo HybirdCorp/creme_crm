@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import skipIfNotInstalled
     from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
@@ -294,7 +294,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                                      )
 
         unfoundable  = 'Behemoth'
-        unfoundable2 = u"En'Ô"
+        unfoundable2 = "En'Ô"
         self.assertFalse(Contact.objects.filter(last_name__in=(unfoundable, unfoundable2)).exists())
 
         title1 = 'Meeting#1'

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 DEFAULT_HFILTER_REPORT = 'reports-hf'
@@ -32,15 +32,15 @@ RGT_CUSTOM_RANGE    = 14
 RGT_CUSTOM_FK       = 15
 
 GROUP_TYPES = {
-    RGT_DAY:            _(u'By days'),
-    RGT_MONTH:          _(u'By months'),
-    RGT_YEAR:           _(u'By years'),
-    RGT_RANGE:          _(u'By X days'),
-    RGT_FK:             _(u'By values'),
-    RGT_RELATION:       _(u'By values (of related entities)'),
-    RGT_CUSTOM_DAY:     _(u'By days (custom field)'),
-    RGT_CUSTOM_MONTH:   _(u'By months (custom field)'),
-    RGT_CUSTOM_YEAR:    _(u'By years (custom field)'),
-    RGT_CUSTOM_RANGE:   _(u'By X days (custom field)'),
-    RGT_CUSTOM_FK:      _(u'By values (of custom choices)'),
+    RGT_DAY:            _('By days'),
+    RGT_MONTH:          _('By months'),
+    RGT_YEAR:           _('By years'),
+    RGT_RANGE:          _('By X days'),
+    RGT_FK:             _('By values'),
+    RGT_RELATION:       _('By values (of related entities)'),
+    RGT_CUSTOM_DAY:     _('By days (custom field)'),
+    RGT_CUSTOM_MONTH:   _('By months (custom field)'),
+    RGT_CUSTOM_YEAR:    _('By years (custom field)'),
+    RGT_CUSTOM_RANGE:   _('By X days (custom field)'),
+    RGT_CUSTOM_FK:      _('By values (of custom choices)'),
 }

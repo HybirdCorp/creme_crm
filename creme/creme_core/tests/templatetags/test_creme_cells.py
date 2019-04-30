@@ -5,7 +5,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.template import Template, Context
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.models import Currency, FakeContact
@@ -86,7 +86,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
             )
             render = template.render(Context({'helen': ripley}))
 
-        self.assertEqual(_(u'First name'), render.strip())
+        self.assertEqual(_('First name'), render.strip())
 
     def test_cell_4_regularfield05(self):
         "Errors."

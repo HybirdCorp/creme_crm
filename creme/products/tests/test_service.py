@@ -5,7 +5,7 @@ try:
     from functools import partial
 
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.documents import get_document_model, get_folder_model
 

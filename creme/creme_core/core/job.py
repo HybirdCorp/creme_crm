@@ -28,7 +28,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.utils.formats import date_format
 from django.utils.timezone import now, localtime
-from django.utils.translation import ugettext_lazy as _, ugettext, activate
+from django.utils.translation import gettext_lazy as _, gettext, activate
 
 from ..creme_jobs.base import JobType
 from ..global_info import set_global_info
@@ -107,11 +107,11 @@ class _BaseJobManagerQueue:
 
     @classmethod
     def _queue_error(cls, msg):
-        return ugettext('There is a connection error with the job manager.\n'
-                        'Please contact your administrator.\n'
-                        '[Original error from «{queue}»:\n{message}]').format(
-                            queue=cls.verbose_name,
-                            message=msg,
+        return gettext('There is a connection error with the job manager.\n'
+                       'Please contact your administrator.\n'
+                       '[Original error from «{queue}»:\n{message}]').format(
+            queue=cls.verbose_name,
+            message=msg,
         )
 
     def clear(self):

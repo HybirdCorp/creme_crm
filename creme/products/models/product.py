@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.urls import reverse
 from django.db.models import CharField, IntegerField, DecimalField, ForeignKey, PROTECT  # ManyToManyField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
@@ -30,34 +30,34 @@ from . import other_models
 
 
 class AbstractProduct(CremeEntity):
-    name              = CharField(_(u'Name'), max_length=100)
-    code              = IntegerField(_(u'Code'), default=0)
-    description       = CharField(_(u'Description'), max_length=200)
-    unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
-    unit              = CharField(_(u'Unit'), max_length=100, blank=True).set_tags(optional=True)
-    quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True) \
+    name              = CharField(_('Name'), max_length=100)
+    code              = IntegerField(_('Code'), default=0)
+    description       = CharField(_('Description'), max_length=200)
+    unit_price        = DecimalField(_('Unit price'), max_digits=8, decimal_places=2)
+    unit              = CharField(_('Unit'), max_length=100, blank=True).set_tags(optional=True)
+    quantity_per_unit = IntegerField(_('Quantity/Unit'), blank=True, null=True) \
                                     .set_tags(optional=True)
-    weight            = DecimalField(_(u'Weight'), max_digits=8, decimal_places=2,
+    weight            = DecimalField(_('Weight'), max_digits=8, decimal_places=2,
                                      blank=True, null=True,
                                     ).set_tags(optional=True)
-    stock             = IntegerField(_(u'Quantity/Stock'), blank=True, null=True) \
+    stock             = IntegerField(_('Quantity/Stock'), blank=True, null=True) \
                                     .set_tags(optional=True)
-    web_site          = CharField(_(u'Web Site'), max_length=100, blank=True).set_tags(optional=True)
-    category          = ForeignKey(other_models.Category, verbose_name=_(u'Category'), on_delete=PROTECT)
-    sub_category      = ForeignKey(other_models.SubCategory, verbose_name=_(u'Sub-category'),
+    web_site          = CharField(_('Web Site'), max_length=100, blank=True).set_tags(optional=True)
+    category          = ForeignKey(other_models.Category, verbose_name=_('Category'), on_delete=PROTECT)
+    sub_category      = ForeignKey(other_models.SubCategory, verbose_name=_('Sub-category'),
                                    on_delete=PROTECT,
                                   )
-    images            = ImageEntityManyToManyField(verbose_name=_(u'Images'), blank=True)
+    images            = ImageEntityManyToManyField(verbose_name=_('Images'), blank=True)
 
-    creation_label = _(u'Create a product')
-    save_label     = _(u'Save the product')
+    creation_label = _('Create a product')
+    save_label     = _('Save the product')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'products'
-        verbose_name = _(u'Product')
-        verbose_name_plural = _(u'Products')
+        verbose_name = _('Product')
+        verbose_name_plural = _('Products')
         ordering = ('name',)
 
     def __str__(self):

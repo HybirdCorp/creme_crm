@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2018  Hybird
+#    Copyright (C) 2016-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,13 +25,12 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.db.transaction import atomic
-from django.utils.translation import ugettext_lazy as _, ungettext, ugettext
+from django.utils.translation import gettext_lazy as _, ngettext, gettext
 
 from ..core.batch_process import BatchAction
 from ..core.paginator import FlowPaginator
 from ..models import EntityFilter, EntityCredentials, EntityJobResult
 from .base import JobType, JobProgress
-
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +52,7 @@ class _BatchProcessType(JobType):
                 efilter = EntityFilter.objects.get(id=efilter_id)
             except EntityFilter.DoesNotExist as e:
                 if raise_exception:
-                    raise self.Error(ugettext('The filter does not exist anymore')) from e
+                    raise self.Error(gettext('The filter does not exist anymore')) from e
 
         return efilter
 
@@ -128,12 +127,13 @@ class _BatchProcessType(JobType):
 
     def progress(self, job):
         count = EntityJobResult.objects.filter(job=job).count()
-        return JobProgress(percentage=None,
-                           label=ungettext('{count} entity has been processed.',
-                                           '{count} entities have been processed.',
-                                           count
-                                          ).format(count=count)
-                          )
+        return JobProgress(
+            percentage=None,
+            label=ngettext('{count} entity has been processed.',
+                           '{count} entities have been processed.',
+                           count
+                          ).format(count=count),
+        )
 
     @property
     def results_bricks(self):
@@ -144,11 +144,11 @@ class _BatchProcessType(JobType):
         try:
             job_data = job.data
             model = self._get_model(job_data)
-            desc = [ugettext('Entity type: {}').format(model._meta.verbose_name)]
+            desc = [gettext('Entity type: {}').format(model._meta.verbose_name)]
 
             efilter = self._get_efilter(job_data, raise_exception=False)
             if efilter is not None:
-                desc.append(ugettext('Filter: {}').format(efilter))
+                desc.append(gettext('Filter: {}').format(efilter))
 
             desc.extend(str(ba) for ba in self._get_actions(model, job_data))
         except Exception:  # TODO: unit test
@@ -160,10 +160,10 @@ class _BatchProcessType(JobType):
     def get_stats(self, job):
         count = EntityJobResult.objects.filter(job=job, raw_messages__isnull=True).count()
 
-        return [ungettext('{count} entity has been successfully modified.',
-                          '{count} entities have been successfully modified.',
-                          count
-                         ).format(count=count),
+        return [ngettext('{count} entity has been successfully modified.',
+                         '{count} entities have been successfully modified.',
+                         count
+                        ).format(count=count),
                ]
 
 

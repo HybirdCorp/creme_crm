@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.persons.tests.base import (skipIfCustomAddress,
             skipIfCustomContact, skipIfCustomOrganisation)
@@ -491,7 +491,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         create_address(self.orga, address='St Victor', zipcode='13007', town=town.name, geoloc=(43.290347, 5.365572))
         create_address(contact, address='Commanderie', zipcode='13011', town=town.name, geoloc=(43.301963, 5.462410))
 
-        address = create_address(contact, address='Maire Aubagne', zipcode='0', town=u'Unknown')
+        address = create_address(contact, address='Maire Aubagne', zipcode='0', town='Unknown')
         GeoAddress.populate_geoaddress(address)
 
         self.assertEqual((None, None), (address.geoaddress.latitude, address.geoaddress.longitude))
@@ -500,8 +500,8 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         self.assertFalse(address.geoaddress.neighbours(distance=10000))
 
     def test_town_unicode(self):
-        self.assertEqual(u'13001 Marseille FRANCE', str(self.marseille1))
-        self.assertEqual(u'13002 Marseille FRANCE', str(self.marseille2))
+        self.assertEqual('13001 Marseille FRANCE', str(self.marseille1))
+        self.assertEqual('13002 Marseille FRANCE', str(self.marseille2))
 
     def test_town_search(self):
         town1 = self.marseille1

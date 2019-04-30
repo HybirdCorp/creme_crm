@@ -22,7 +22,7 @@ from functools import partial
 
 from django.db.models.query import QuerySet
 from django.forms.utils import ValidationError
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.fields import JSONField, ChoiceModelIterator
 from creme.creme_core.forms.widgets import ChainedInput, ActionButtonList
@@ -65,9 +65,10 @@ class CreatorCategorySelector(ActionButtonList):
         selector = ChainedInput(self.attrs)
         add = partial(selector.add_dselect, attrs={'auto': False})
         add('category', options=self.categories, label=_('Category'))
-        add('subcategory', options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
-                                                     .resolve('products__subcategories'),
-            label=_('Sub-category')
+        add('subcategory',
+            options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
+                                      .resolve('products__subcategories'),
+            label=_('Sub-category'),
            )
 
         self.delegate = selector

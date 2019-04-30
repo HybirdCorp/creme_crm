@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,25 +20,25 @@
 
 from django.db.models import CharField, TextField
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity
 
 
 class AbstractMessageTemplate(CremeEntity):
-    name    = CharField(_(u'Name'), max_length=100)
-    subject = CharField(_(u'Subject'), max_length=100)
-    body    = TextField(_(u'Body'))
+    name    = CharField(_('Name'), max_length=100)
+    subject = CharField(_('Subject'), max_length=100)
+    body    = TextField(_('Body'))
 
-    creation_label = pgettext_lazy('sms-template', u'Create a template')
-    save_label     = pgettext_lazy('sms-template', u'Save the template')
+    creation_label = pgettext_lazy('sms-template', 'Create a template')
+    save_label     = pgettext_lazy('sms-template', 'Save the template')
 
     class Meta:
         abstract = True
         manager_inheritance_from_future = True
         app_label = 'sms'
-        verbose_name = _(u'SMS Message template')
-        verbose_name_plural = _(u'SMS Messages templates')
+        verbose_name = _('SMS Message template')
+        verbose_name_plural = _('SMS Messages templates')
         ordering = ('name',)
 
     def __str__(self):

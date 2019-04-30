@@ -4,7 +4,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.db.models import Max
     from django.test.utils import override_settings
-    from django.utils.translation import ugettext as _, ungettext
+    from django.utils.translation import gettext as _, ngettext
 
     from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 
@@ -224,10 +224,10 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         vname = _('Opportunity')
         self.assertEqual([_('No «{model}» has been created.').format(model=vname),
                           _('No «{model}» has been updated.').format(model=vname),
-                          ungettext('{count} line in the file.',
-                                    '{count} lines in the file.',
-                                    1
-                                   ).format(count=1),
+                          ngettext('{count} line in the file.',
+                                   '{count} lines in the file.',
+                                   1
+                                  ).format(count=1),
                          ],
                          job.stats
                         )

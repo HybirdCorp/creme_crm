@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2018  Hybird
+#    Copyright (C) 2012-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.conf import settings
 from django.db.models import (CharField, TextField, BooleanField, NullBooleanField,
         PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, SET_NULL, CASCADE, ProtectedError)
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.utils import split_filter
@@ -179,7 +179,10 @@ class PollFormSection(CremeModel):
         for node in SectionTree(self.pform):
             if node.is_section and node.id == section_id:
                 if not node.has_line: break
-                raise ProtectedError(ugettext('There is at least one question in this section.'), [self])
+                raise ProtectedError(
+                    gettext('There is at least one question in this section.'),
+                    [self],
+                )
 
         super().delete(*args, **kwargs)
 
@@ -230,23 +233,23 @@ class PollFormLine(CremeModel, _PollLine):
 
     def delete(self, *args, **kwargs):
         if not self.disabled and PollFormLineCondition.objects.filter(source=self).exists():
-            raise ProtectedError(ugettext('There is at least one other '
-                                          'question which depends on this question.'
+            raise ProtectedError(gettext('There is at least one other '
+                                         'question which depends on this question.'
                                         ),
-                                 [self]
+                                 [self],
                                 )
 
         super().delete(*args, **kwargs)
 
     def disable(self):
         if self.disabled:
-            raise ProtectedError(ugettext('This question is already disabled.'), [self])
+            raise ProtectedError(gettext('This question is already disabled.'), [self])
 
         if PollFormLineCondition.objects.filter(source=self).exists():
-            raise ProtectedError(ugettext('There is at least one other question '
-                                          'which depends on this question.'
-                                         ),
-                                 [self]
+            raise ProtectedError(gettext('There is at least one other question '
+                                         'which depends on this question.'
+                                        ),
+                                 [self],
                                 )
 
         self.disabled = True
@@ -261,7 +264,7 @@ class PollFormLine(CremeModel, _PollLine):
 
     @property
     def verbose_conds_use_or(self):  # TODO: templatetag instead ?
-        return ugettext('OR') if self.conds_use_or else ugettext('AND')
+        return gettext('OR') if self.conds_use_or else gettext('AND')
 
 
 class PollFormLineCondition(CremeModel):

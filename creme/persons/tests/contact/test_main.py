@@ -7,7 +7,7 @@ try:
     from django.core.exceptions import ValidationError
     from django.urls import reverse
     from django.utils.html import escape
-    from django.utils.translation import ugettext as _, pgettext
+    from django.utils.translation import gettext as _, pgettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import field_printers_registry

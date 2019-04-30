@@ -8,7 +8,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query import Q, QuerySet
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from .. import fake_forms
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
@@ -84,14 +84,16 @@ class _JSONFieldBaseTestCase(FieldTestCase):
                                   )
 
     def create_employed_rtype(self):
-        return RelationType.create(('test-subject_employed_by', u'is an employee of', [FakeContact]),
-                                   ('test-object_employed_by',  u'employs',           [FakeOrganisation]),
-                                  )
+        return RelationType.create(
+            ('test-subject_employed_by', 'is an employee of', [FakeContact]),
+            ('test-object_employed_by',  'employs',           [FakeOrganisation]),
+        )
 
     def create_customer_rtype(self):
-        return RelationType.create(('test-subject_customer', u'is a customer of', [FakeContact, FakeOrganisation]),
-                                   ('test-object_customer',  u'is a supplier of', [FakeContact, FakeOrganisation]),
-                                  )
+        return RelationType.create(
+            ('test-subject_customer', 'is a customer of', [FakeContact, FakeOrganisation]),
+            ('test-object_customer',  'is a supplier of', [FakeContact, FakeOrganisation]),
+        )
 
     # def create_property_types(self):
     #     create_ptype = CremePropertyType.create
@@ -373,8 +375,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         exception = cm.exception
         self.assertEqual('linknotallowed', exception.code)
-        self.assertEqual(_(u'You are not allowed to link this entity: {}').format(
-                                _(u'Entity #{id} (not viewable)').format(id=contact.id)
+        self.assertEqual(_('You are not allowed to link this entity: {}').format(
+                                _('Entity #{id} (not viewable)').format(id=contact.id)
                             ),
                          exception.message
                         )
@@ -402,8 +404,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         exception = cm.exception
         self.assertEqual('viewnotallowed', exception.code)
-        self.assertEqual(_(u'You are not allowed to view this entity: {}').format(
-                                _(u'Entity #{id} (not viewable)').format(id=orga.id)
+        self.assertEqual(_('You are not allowed to view this entity: {}').format(
+                                _('Entity #{id} (not viewable)').format(id=orga.id)
                             ),
                          exception.message
                         )
@@ -431,8 +433,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         exception = cm.exception
         self.assertEqual('changenotallowed', exception.code)
-        self.assertEqual(_(u'You are not allowed to edit this entity: {}').format(
-                                _(u'Entity #{id} (not viewable)').format(id=orga.id)
+        self.assertEqual(_('You are not allowed to edit this entity: {}').format(
+                                _('Entity #{id} (not viewable)').format(id=orga.id)
                             ),
                          exception.message
                         )
@@ -739,8 +741,8 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         exception = cm.exception
         self.assertEqual('linknotallowed', exception.code)
-        self.assertEqual(_(u'Some entities are not linkable: {}').format(
-                                _(u'Entity #{id} (not viewable)').format(id=orga.id)
+        self.assertEqual(_('Some entities are not linkable: {}').format(
+                                _('Entity #{id} (not viewable)').format(id=orga.id)
                             ),
                          exception.message
                         )
@@ -1495,8 +1497,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         exception = cm.exception
         self.assertEqual('linknotallowed', exception.code)
-        self.assertEqual(_(u'Some entities are not linkable: {}').format(
-                                _(u'Entity #{id} (not viewable)').format(id=orga.id)
+        self.assertEqual(_('Some entities are not linkable: {}').format(
+                                _('Entity #{id} (not viewable)').format(id=orga.id)
                             ),
                          exception.message
                         )
@@ -1925,7 +1927,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             image_f = form.fields['image']
 
         self.assertIsInstance(image_f, CreatorEntityField)
-        self.assertEqual(_(u'Photograph'), image_f.label)
+        self.assertEqual(_('Photograph'), image_f.label)
         self.assertFalse(image_f.required)
         self.assertFalse(image_f.q_filter)
 
@@ -1936,7 +1938,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             image_f = form.fields['image']
 
         self.assertIsInstance(image_f, CreatorEntityField)
-        self.assertEqual(_(u'Logo'), image_f.label)
+        self.assertEqual(_('Logo'), image_f.label)
         self.assertTrue(callable(image_f.q_filter))
         self.assertQEqual(Q(user__is_staff=False), image_f.q_filter_query)
 
@@ -2204,7 +2206,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             mlists_f = form.fields['mailing_lists']
 
         self.assertIsInstance(mlists_f, MultiCreatorEntityField)
-        self.assertEqual(_(u'Related mailing lists'), mlists_f.label)
+        self.assertEqual(_('Related mailing lists'), mlists_f.label)
         self.assertFalse(mlists_f.required)
         self.assertFalse(mlists_f.q_filter)
 
@@ -2215,7 +2217,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             images_f = form.fields['images']
 
         self.assertIsInstance(images_f, CreatorEntityField)
-        self.assertEqual(_(u'Images'), images_f.label)
+        self.assertEqual(_('Images'), images_f.label)
         self.assertEqual({'user__is_active': True}, images_f.q_filter)
 
 

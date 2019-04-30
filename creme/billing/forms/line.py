@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from functools import partial
 from django.db.transaction import atomic
 from django.forms import (ModelChoiceField, TypedChoiceField, DecimalField,
         ValidationError, TextInput, Textarea)
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core import forms as core_forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField
@@ -188,14 +188,14 @@ class AddToCatalogForm(core_forms.CremeForm):
 
     def clean(self):
         if not self.user.has_perm_to_create(self.related_item_class):
-            raise ValidationError(ugettext('You are not allowed to create this entity'),
+            raise ValidationError(gettext('You are not allowed to create this entity'),
                                   code='forbidden_creation',
                                  )
 
         if not self.line.on_the_fly_item:
-            raise ValidationError(ugettext('You are not allowed to add this item '
-                                           'to the catalog because it is not on the fly'
-                                          ),
+            raise ValidationError(gettext('You are not allowed to add this item '
+                                          'to the catalog because it is not on the fly'
+                                         ),
                                   code='not_on_the_fly',
                                  )
 

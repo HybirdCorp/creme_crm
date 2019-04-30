@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.contrib.auth import get_user_model
 from django.forms.widgets import Select
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms.base import CremeModelForm
 
@@ -41,7 +41,7 @@ class UserThemeForm(CremeModelForm):
         model = User
         fields = ('theme',)
         widgets = {'theme': _build_select()}
-        labels = {'theme': _(u'Choose your theme')}
+        labels = {'theme': _('Choose your theme')}
 
 
 class UserTimeZoneForm(CremeModelForm):
@@ -49,4 +49,4 @@ class UserTimeZoneForm(CremeModelForm):
         model = User
         fields = ('time_zone',)
         widgets = {'time_zone': _build_select()}
-        labels = {'time_zone': _(u'Choose your time zone')}
+        labels = {'time_zone': _('Choose your time zone')}

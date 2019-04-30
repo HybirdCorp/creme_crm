@@ -26,7 +26,7 @@ from django.core.exceptions import ValidationError
 from django.forms.fields import (Field, IntegerField, CharField, TypedChoiceField,
          MultipleChoiceField, DateField)
 from django.forms.widgets import RadioSelect, Textarea
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.forms.fields import ChoiceOrCharField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
@@ -166,7 +166,7 @@ class IntPollLineType(PollLineType):
 
         if lower_bound is not None and upper_bound is not None:
             if lower_bound >= upper_bound:
-                raise ValidationError(ugettext('The upper bound must be greater than the lower bound.'),
+                raise ValidationError(gettext('The upper bound must be greater than the lower bound.'),
                                       code='invalid_bounds',
                                      )
 
@@ -180,14 +180,14 @@ class IntPollLineType(PollLineType):
             if max_value is None:
                 return self.verbose_name
 
-            return ugettext('Integer lesser than {max_value}').format(max_value=max_value)
+            return gettext('Integer lesser than {max_value}').format(max_value=max_value)
 
         if max_value is None:
-            return ugettext('Integer greater than {min_value}').format(min_value=min_value)
+            return gettext('Integer greater than {min_value}').format(min_value=min_value)
 
-        return ugettext('Integer between {min_value} and {max_value}').format(
-                            min_value=min_value,
-                            max_value=max_value,
+        return gettext('Integer between {min_value} and {max_value}').format(
+            min_value=min_value,
+            max_value=max_value,
         )
 
     def _formfield(self, initial):
@@ -275,7 +275,7 @@ class EnumPollLineType(PollLineType):
         choices = kwargs.get('choices') or ()
 
         if len(choices) < 2:
-            raise ValidationError(ugettext('Give 2 choices at least.'))
+            raise ValidationError(gettext('Give 2 choices at least.'))
 
         self._args['choices'] = choices
 
@@ -373,8 +373,7 @@ class EnumOrStringPollLineType(EnumPollLineType):
     def decode_condition(self, raw_cond_answer):  # TODO; factorise better like decode_answer() ??
         choice = json_load(raw_cond_answer)[0]  # [TODO: if len(cond_answer) > 1]
 
-        return super()._cast_answer_4_decoding(choice) if choice else \
-               ugettext('Other')
+        return super()._cast_answer_4_decoding(choice) if choice else gettext('Other')
 
     def encode_condition(self, cond_answer):
         # NB: we use a (json) list, in order to encode complexier conditions later,
@@ -386,7 +385,7 @@ class EnumOrStringPollLineType(EnumPollLineType):
         return ChoiceOrCharField(choices=self._args['choices'], initial=initial)
 
     def get_choices(self):
-        choices = [(0, ugettext('Other'))]
+        choices = [(0, gettext('Other'))]
         choices.extend(self._args['choices'])
         return choices
 
@@ -412,7 +411,7 @@ class EnumOrStringPollLineType(EnumPollLineType):
 
                 stats_append((label, count))
 
-            stats_append((ugettext('Other'), 0 if in_choices else 1))
+            stats_append((gettext('Other'), 0 if in_choices else 1))
 
         return stats
 

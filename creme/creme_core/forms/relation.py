@@ -22,7 +22,7 @@ from collections import OrderedDict
 
 from django.db.models import Q
 from django.forms import CharField, ModelMultipleChoiceField, ValidationError
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType
 from ..utils import entities2unicode
@@ -243,11 +243,11 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
 
         user = self.user
         fields = self.fields
-        fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext('NONE !')
+        fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else gettext('NONE !')
 
         if forbidden_subjects:
             fields['bad_entities_lbl'] = CharField(
-                label=ugettext('Unlinkable entities'),
+                label=gettext('Unlinkable entities'),
                 widget=Label,
                 initial=entities2unicode(forbidden_subjects, user),
             )

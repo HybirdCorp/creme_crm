@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.bricks import SimpleBrick, PaginatedBrick, QuerysetBrick
@@ -40,7 +40,7 @@ ProjectTask = projects.get_task_model()
 class ProjectExtraInfoBrick(SimpleBrick):
     id_           = SimpleBrick.generate_id('projects', 'project_extra_info')
     dependencies  = (ProjectTask,)
-    verbose_name  = _(u'Extra project information')
+    verbose_name  = _('Extra project information')
     template_name = 'projects/bricks/project-extra-info.html'
     target_ctypes = (Project,)
 
@@ -48,7 +48,7 @@ class ProjectExtraInfoBrick(SimpleBrick):
 class TaskExtraInfoBrick(SimpleBrick):
     id_           = SimpleBrick.generate_id('projects', 'task_extra_info')
     dependencies  = (Activity,)
-    verbose_name  = _(u'Extra project task information')
+    verbose_name  = _('Extra project task information')
     template_name = 'projects/bricks/task-extra-info.html'
     target_ctypes = (ProjectTask,)
 
@@ -56,7 +56,7 @@ class TaskExtraInfoBrick(SimpleBrick):
 class ParentTasksBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('projects', 'parent_tasks')
     dependencies  = (ProjectTask,)
-    verbose_name  = _(u'Parents of a task')
+    verbose_name  = _('Parents of a task')
     template_name = 'projects/bricks/parent-tasks.html'
     target_ctypes = (ProjectTask,)
 
@@ -69,7 +69,7 @@ class ParentTasksBrick(QuerysetBrick):
 class ProjectTasksBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('projects', 'project_tasks')
     dependencies  = (ProjectTask,)
-    verbose_name  = _(u'Tasks of a project')
+    verbose_name  = _('Tasks of a project')
     template_name = 'projects/bricks/tasks.html'
     target_ctypes = (Project,)
 
@@ -87,7 +87,7 @@ class ProjectTasksBrick(QuerysetBrick):
 class TaskResourcesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('projects', 'resources')
     dependencies  = (Resource,)
-    verbose_name  = _(u'Resources assigned to a task')
+    verbose_name  = _('Resources assigned to a task')
     template_name = 'projects/bricks/resources.html'
     target_ctypes = (ProjectTask,)
 
@@ -103,7 +103,7 @@ class TaskActivitiesBrick(PaginatedBrick):
     id_           = QuerysetBrick.generate_id('projects', 'task_activities')
     dependencies  = (Activity, Resource, Relation)
     relation_type_deps = (REL_OBJ_LINKED_2_PTASK, )
-    verbose_name  = _(u'Activities for this task')
+    verbose_name  = _('Activities for this task')
     template_name = 'projects/bricks/activities.html'
     target_ctypes = (ProjectTask,)
 

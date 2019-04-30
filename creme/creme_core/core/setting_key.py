@@ -22,7 +22,7 @@
 from json import loads as json_load
 import logging
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from ..utils import bool_from_str, bool_as_html
 from ..utils.serializers import json_encode

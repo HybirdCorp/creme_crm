@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from ..base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
             Contact, Address)

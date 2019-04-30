@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,14 +28,13 @@ from django.db.models import Q, UUIDField, CharField, BooleanField, ForeignKey, 
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.html import escape
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from .auth import Sandbox
 from .base import CremeModel
 from .fields import (CreationDateTimeField, ModificationDateTimeField,
          CremeUserForeignKey, CTypeForeignKey)
 from .manager import LowNullsQuerySet
-
 
 logger = logging.getLogger(__name__)
 _SEARCH_FIELD_MAX_LENGTH = 200
@@ -140,7 +139,7 @@ class CremeEntity(CremeModel):
 
     def allowed_str(self, user):
         return str(self) if user.has_perm_to_view(self) else \
-               ugettext('Entity #{id} (not viewable)').format(id=self.id)
+               gettext('Entity #{id} (not viewable)').format(id=self.id)
 
     def get_real_entity(self):
         entity = self._real_entity

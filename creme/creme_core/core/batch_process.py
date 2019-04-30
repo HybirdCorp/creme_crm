@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from collections import OrderedDict
 from itertools import chain
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 
 class CastError(Exception):
@@ -37,10 +37,10 @@ def cast_2_positive_int(value):
     try:
         value = int(value)
     except (ValueError, TypeError) as e:
-        raise CastError(ugettext('enter a whole number')) from e
+        raise CastError(gettext('enter a whole number')) from e
 
     if value < 1:
-        raise CastError(ugettext('enter a positive number'))
+        raise CastError(gettext('enter a positive number'))
 
     return value
 
@@ -156,12 +156,12 @@ class BatchAction:
             raise BatchAction.InvalidOperator()
 
         if operator.need_arg and not value:
-            raise BatchAction.ValueError(ugettext("The operator '{}' needs a value.").format(operator))
+            raise BatchAction.ValueError(gettext("The operator '{}' needs a value.").format(operator))
 
         try:
             self._value = operator.cast(value)
         except CastError as e:
-            raise BatchAction.ValueError(ugettext('{operator} : {message}.').format(
+            raise BatchAction.ValueError(gettext('{operator} : {message}.').format(
                                                 operator=operator,
                                                 message=e,
                                             )
@@ -189,5 +189,5 @@ class BatchAction:
         op = self._operator
         field = self._model._meta.get_field(self._field_name).verbose_name
 
-        return ugettext('{field} ➔ {operator}').format(field=field, operator=op) if not op.need_arg else \
-               ugettext('{field} ➔ {operator}: «{value}»').format(field=field, operator=op, value=self._value)
+        return gettext('{field} ➔ {operator}').format(field=field, operator=op) if not op.need_arg else \
+               gettext('{field} ➔ {operator}: «{value}»').format(field=field, operator=op, value=self._value)

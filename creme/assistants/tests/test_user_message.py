@@ -7,7 +7,7 @@ try:
     from django.core.mail.backends.locmem import EmailBackend
     from django.urls import reverse
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     from creme.creme_core.models import Job, JobResult, FakeOrganisation

@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.models import SearchConfigItem, UserRole, FieldsConfig
     from creme.creme_core.tests.base import CremeTestCase
@@ -119,15 +119,16 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self._find_field_index(fields, 'civility__title')
         self.assertNoChoice(fields, 'birthday')
 
-        self.assertNoFormError(self.client.post(url,
-                                                data={'role': role.id,
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'role': role.id,
 
-                                                      'fields_check_{}'.format(index): 'on',
-                                                      'fields_value_{}'.format(index): fname,
-                                                      'fields_order_{}'.format(index): 1,
-                                                     },
-                                               )
-                              )
+                'fields_check_{}'.format(index): 'on',
+                'fields_value_{}'.format(index): fname,
+                'fields_order_{}'.format(index): 1,
+            },
+        ))
 
         sc_items = SearchConfigItem.objects.filter(content_type=ct)
         self.assertEqual(1, len(sc_items))

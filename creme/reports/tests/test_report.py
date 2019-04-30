@@ -13,7 +13,7 @@ try:
     from django.utils.formats import date_format
     from django.utils.html import escape
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _, ungettext, pgettext
+    from django.utils.translation import gettext as _, ngettext, pgettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import REL_SUB_HAS
@@ -29,7 +29,6 @@ try:
     from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeLegalForm, FakePosition,
             FakeImage, FakeImageCategory, FakeEmailCampaign, FakeMailingList, FakeInvoice,
             FakeFolderCategory, FakeFolder as FakeCoreFolder, FakeDocument as FakeCoreDocument)
-
 
     from .base import BaseReportsTestCase, skipIfCustomReport, Report
     from .fake_models import FakeReportsFolder, FakeReportsDocument, Guild
@@ -417,10 +416,10 @@ class ReportTestCase(BaseReportsTestCase):
         url = self.build_inneredit_url(report, 'filter')
         response = self.assertGET200(url)
         self.assertContains(response,
-                            escape(ungettext('The filter cannot be changed because it is private.',
-                                             'The filters cannot be changed because they are private.',
-                                             1
-                                            )
+                            escape(ngettext('The filter cannot be changed because it is private.',
+                                            'The filters cannot be changed because they are private.',
+                                            1
+                                           )
                                   )
                            )
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2018  Hybird
+#    Copyright (C) 2014-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,12 +19,11 @@
 ################################################################################
 
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.bricks import Brick
 
 from creme import products
-
 
 Product = products.get_product_model()
 Service = products.get_service_model()
@@ -33,7 +32,7 @@ Service = products.get_service_model()
 class ImagesBrick(Brick):
     id_           = Brick.generate_id('products', 'images')
     # dependencies  = (Document,) ??
-    verbose_name  = _(u'Images of product/service')
+    verbose_name  = _('Images of product/service')
     template_name = 'products/bricks/images.html'
     target_ctypes = (Product, Service)
 
@@ -41,8 +40,8 @@ class ImagesBrick(Brick):
         entity = context['object']
         pk = entity.id
         return self._render(self.get_template_context(
-                    context,
-                    add_images_url=reverse('products__add_images_to_product', args=(pk,))
-                                   if isinstance(entity, Product) else
-                                   reverse('products__add_images_to_service', args=(pk,)),
+            context,
+            add_images_url=reverse('products__add_images_to_product', args=(pk,))
+                           if isinstance(entity, Product) else
+                           reverse('products__add_images_to_service', args=(pk,)),
         ))

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.models import SettingValue, FieldsConfig
 
@@ -33,9 +33,9 @@ class EmailsTestCase(_EmailsTestCase):
         fconf.descriptions = [('email', {FieldsConfig.HIDDEN: True})]
         fconf.save()
         fconf = self.refresh(fconf)
-        self.assertEqual([_(u'Warning: the app «{app}» need the field «{field}».').format(
-                                app=_(u'Emails'),
-                                field=_(u'Email address'),
+        self.assertEqual([_('Warning: the app «{app}» need the field «{field}».').format(
+                                app=_('Emails'),
+                                field=_('Email address'),
                             ),
                          ],
                          fconf.errors_on_hidden
