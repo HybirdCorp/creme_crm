@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-16 09:21+0100\n"
+"POT-Creation-Date: 2019-04-29 22:59+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,7 @@ msgstr "Télécharger en tant que PDF"
 msgid "Invoice number"
 msgstr "Numéro de Facture"
 
-#: actions.py:65 buttons.py:42
+#: actions.py:65 buttons.py:41
 #: templates/billing/buttons/generate-invoice-number.html:4
 msgid "Generate the number of the Invoice"
 msgstr "Générer le numéro de facture"
@@ -171,29 +171,29 @@ msgstr "Information de paiement par défaut"
 msgid "Billing statistics"
 msgstr "Statistiques de facturation"
 
-#: buttons.py:82
+#: buttons.py:81
 msgid "Create a related invoice"
 msgstr "Créer une facture liée"
 
-#: buttons.py:90
+#: buttons.py:89
 msgid "Create a related salesorder"
 msgstr "Créer un bon de commande lié"
 
-#: buttons.py:98
+#: buttons.py:97
 msgid "Create a related quote"
 msgstr "Créer un devis lié"
 
-#: buttons.py:127 templates/billing/frags/button_convert2invoice.html:8
+#: buttons.py:126 templates/billing/frags/button_convert2invoice.html:8
 #: templates/billing/frags/button_convert2invoice.html:16
 msgid "Convert to Invoice"
 msgstr "Convertir en Facture"
 
-#: buttons.py:134 templates/billing/frags/button_convert2order.html:8
+#: buttons.py:133 templates/billing/frags/button_convert2order.html:8
 #: templates/billing/frags/button_convert2order.html:16
 msgid "Convert to Salesorder"
 msgstr "Convertir en Bon de Commande"
 
-#: buttons.py:141
+#: buttons.py:140
 msgid "Convert to Quote"
 msgstr "Convertir en Devis"
 
@@ -205,13 +205,13 @@ msgstr "Pourcentage"
 msgid "Amount"
 msgstr "Montant"
 
-#: forms/base.py:54 forms/mass_import.py:60
+#: forms/base.py:54 forms/mass_import.py:61
 #: templates/billing/bricks/target.html:23
 msgctxt "billing"
 msgid "Source organisation"
 msgstr "Société émettrice"
 
-#: forms/base.py:55 forms/mass_import.py:63
+#: forms/base.py:55 forms/mass_import.py:66
 msgctxt "billing"
 msgid "Target"
 msgstr "Cible"
@@ -224,12 +224,12 @@ msgstr "Remise globale (en %)"
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: forms/base.py:150 forms/mass_import.py:94 forms/mass_import.py:120
+#: forms/base.py:150 forms/mass_import.py:97 forms/mass_import.py:123
 #: forms/templatebase.py:72 models/base.py:57
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/base.py:151 forms/mass_import.py:95 forms/mass_import.py:125
+#: forms/base.py:151 forms/mass_import.py:98 forms/mass_import.py:128
 #: forms/templatebase.py:73 models/base.py:62
 msgid "Shipping address"
 msgstr "Adresse de livraison"
@@ -300,11 +300,11 @@ msgstr "{currency} par unité"
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/line.py:191
+#: forms/line.py:185
 msgid "You are not allowed to create this entity"
 msgstr "Vous n'êtes pas autorisé à créer cette fiche"
 
-#: forms/line.py:196
+#: forms/line.py:186
 msgid ""
 "You are not allowed to add this item to the catalog because it is not on the "
 "fly"
@@ -312,20 +312,20 @@ msgstr ""
 "Vous n'êtes pas autorisé à ajouter cet élément au catalogue car il ne s'agit "
 "pas d'une ligne à la volée"
 
-#: forms/mass_import.py:66
+#: forms/mass_import.py:69
 msgid "Update the billing address"
 msgstr "Mettre à jour l'adresse de facturation"
 
-#: forms/mass_import.py:67
+#: forms/mass_import.py:70
 msgid "In update mode, update the billing address from the target."
 msgstr ""
 "En mode mise-à-jour, mettre à jour l'adresse de facturation depuis la cible."
 
-#: forms/mass_import.py:69
+#: forms/mass_import.py:72
 msgid "Update the shipping address"
 msgstr "Mettre à jour l'adresse de livraison"
 
-#: forms/mass_import.py:70
+#: forms/mass_import.py:73
 msgid "In update mode, update the shipping address from the target."
 msgstr ""
 "En mode mise-à-jour, mettre à jour l'adresse de livraison depuis la cible."
@@ -712,15 +712,15 @@ msgid "Save the quote"
 msgstr "Enregistrer le devis"
 
 # Already in creme_core
-#: models/quote.py:57
+#: models/quote.py:58
 msgid "N/A"
 msgstr ""
 
-#: models/quote.py:66
+#: models/quote.py:67
 msgid "Quote"
 msgstr "Devis"
 
-#: models/quote.py:67
+#: models/quote.py:68
 msgid "Quotes"
 msgstr "Devis"
 
@@ -1001,48 +1001,48 @@ msgstr ""
 "étant agrée formateur les formations pourront être prises en charge par "
 "votre OPCA"
 
-#: populate.py:294
+#: populate.py:290
 msgid "Invoice information"
 msgstr "Informations sur la facture"
 
-#: populate.py:302
+#: populate.py:298
 msgid "Credit note information"
 msgstr "Informations sur l'avoir"
 
-#: populate.py:307
+#: populate.py:303
 msgid "Quote information"
 msgstr "Informations sur le devis"
 
-#: populate.py:315
+#: populate.py:311
 msgid "Salesorder information"
 msgstr "Informations sur le bon de commande"
 
-#: populate.py:320
+#: populate.py:316
 msgctxt "billing"
 msgid "Template information"
 msgstr "Informations sur le patron de document"
 
-#: populate.py:415
+#: populate.py:411
 msgid "All invoices of the current year"
 msgstr "Toutes les factures de l'année en cours"
 
-#: populate.py:420
+#: populate.py:416
 msgid "Sum of current year invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures de l'année en cours / mois"
 
-#: populate.py:426
+#: populate.py:422
 msgid "Sum of current year invoices total without taxes / invoices status"
 msgstr "Somme des totaux HT des factures de l'année en cours / statut"
 
-#: populate.py:437
+#: populate.py:433
 msgid "Invoices unpaid of the current year"
 msgstr "Factures impayées de l'année en cours"
 
-#: populate.py:442
+#: populate.py:438
 msgid "Sum of current year and unpaid invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures impayées de l'année en cours / mois"
 
-#: setting_keys.py:11
+#: setting_keys.py:12
 msgid ""
 "Display payment information block only on the detailview of organisations "
 "managed by Creme"
@@ -1236,7 +1236,6 @@ msgstr "Contact récepteur"
 msgid "Totals"
 msgstr "Totaux"
 
-#: templates/billing/buttons/add-billing-document.html:8
 #: templates/billing/frags/button_convert2invoice.html:16
 #: templates/billing/frags/button_convert2order.html:16
 msgid "forbidden"
@@ -1265,7 +1264,7 @@ msgstr "Champ <em>«%(field_name)s»</em> :"
 msgid "{} %"
 msgstr "{} %"
 
-#: views/convert.py:85
+#: views/convert.py:80
 #, python-brace-format
 msgid "{src} (converted into {dest})"
 msgstr "{src} (converti en {dest})"
@@ -1304,11 +1303,11 @@ msgstr "Ajouter un ou plusieurs produits à «{entity}»"
 msgid "Add one or more service to «{entity}»"
 msgstr "Ajouter un ou plusieurs services à «{entity}»"
 
-#: views/line.py:134
+#: views/line.py:144
 msgid "Add this on the fly item to your catalog"
 msgstr "Ajouter cette ligne à la volée à vôtre catalogue"
 
-#: views/line.py:135
+#: views/line.py:145
 msgid "Add to the catalog"
 msgstr "Ajouter au catalogue"
 

@@ -20,13 +20,12 @@
 
 from django.db.models.query_utils import Q
 from django.forms.utils import ValidationError
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
 
 from .. import get_folder_model
-
 
 Folder = get_folder_model()
 
@@ -80,6 +79,11 @@ class ChildFolderForm(_FolderForm):
 
 
 class ParentFolderBulkForm(BulkDefaultEditForm):
+    error_messages = {
+        'itself': _('«%(folder)s» cannot be its own parent'),
+        'loop': _('This folder is one of the child folders of «%(folder)s»'),
+    }
+
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
 
@@ -92,17 +96,14 @@ class ParentFolderBulkForm(BulkDefaultEditForm):
 
         if parent_folder:
             if parent_folder == entity:
-                # TODO: self.error_messages ?
-                raise ValidationError(gettext('«%(folder)s» cannot be its own parent') % {
-                                            'folder': entity,
-                                        },
+                raise ValidationError(self.error_messages['itself'],
+                                      params={'folder': entity},
                                       code='itself',
                                      )
 
             if entity.already_in_children(parent_folder.id):
-                raise ValidationError(gettext('This folder is one of the child folders of «%(folder)s»') % {
-                                            'folder': entity,
-                                        },
+                raise ValidationError(self.error_messages['loop'],
+                                      params={'folder': entity},
                                       code='loop',
                                      )
 

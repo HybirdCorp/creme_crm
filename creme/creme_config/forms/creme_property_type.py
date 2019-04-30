@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import CharField, BooleanField, ValidationError
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremePropertyType
 from creme.creme_core.forms import CremeForm, MultiEntityCTypeChoiceField
@@ -41,11 +41,15 @@ class _CremePropertyTypeBaseForm(CremeForm):
 
 
 class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
+    error_messages = {
+        'duplicated_name': _('A property type with this name already exists.'),
+    }
+
     def clean_text(self):
         text = self.cleaned_data['text']
 
         if CremePropertyType.objects.filter(text=text).exists():  # TODO: unique constraint in model too ??
-            raise ValidationError(gettext("A property type with this name already exists"),
+            raise ValidationError(self.error_messages['duplicated_name'],
                                   code='duplicated_name',
                                  )
 

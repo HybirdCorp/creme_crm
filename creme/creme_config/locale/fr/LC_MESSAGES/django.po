@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-09 12:07+0200\n"
+"POT-Creation-Date: 2019-04-29 23:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -48,7 +48,7 @@ msgstr "Recherche"
 msgid "Roles and credentials"
 msgstr "Rôles et droits"
 
-#: apps.py:205 forms/user.py:220 templates/creme_config/bricks/users.html:7
+#: apps.py:205 forms/user.py:219 templates/creme_config/bricks/users.html:7
 #: templates/creme_config/user_portal.html:7
 msgid "Users"
 msgstr "Utilisateurs"
@@ -69,50 +69,50 @@ msgstr "Configuration des types de relation personnalisés"
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:379 bricks.py:609 forms/bricks.py:223 forms/bricks.py:299
-#: forms/search.py:68 forms/user.py:78 forms/user.py:119
+#: bricks.py:379 bricks.py:609 forms/bricks.py:224 forms/bricks.py:300
+#: forms/search.py:68 forms/user.py:77 forms/user.py:118
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
 #: templates/creme_config/bricks/users.html:33
 msgid "Superuser"
 msgstr "Super-utilisateur"
 
-#: forms/bricks.py:108
+#: forms/bricks.py:109
 msgid "Header block"
 msgstr "Bloc entête"
 
-#: forms/bricks.py:109
+#: forms/bricks.py:110
 msgid "Blocks to display on top"
 msgstr "Blocs à afficher en haut"
 
-#: forms/bricks.py:110
+#: forms/bricks.py:111
 msgid "Blocks to display on left side"
 msgstr "Blocs à afficher à gauche"
 
-#: forms/bricks.py:111
+#: forms/bricks.py:112
 msgid "Blocks to display on right side"
 msgstr "Blocs à afficher à droite"
 
-#: forms/bricks.py:112
+#: forms/bricks.py:113
 msgid "Blocks to display on bottom"
 msgstr "Blocs à afficher en bas"
 
-#: forms/bricks.py:115
+#: forms/bricks.py:116
 #, python-format
 msgid "The following block should be displayed only once: «%(block)s»"
 msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s»"
 
-#: forms/bricks.py:116
+#: forms/bricks.py:117
 msgid "Your configuration is empty !"
 msgstr "Votre configuration est vide !"
 
-#: forms/bricks.py:202 forms/bricks.py:279 forms/search.py:45 forms/user.py:66
-#: forms/user.py:109 templates/creme_config/bricks/bricklocations-home.html:17
+#: forms/bricks.py:203 forms/bricks.py:280 forms/search.py:45 forms/user.py:65
+#: forms/user.py:108 templates/creme_config/bricks/bricklocations-home.html:17
 #: templates/creme_config/bricks/users.html:19
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/bricks.py:207 templates/creme_config/bricks_portal.html:8
+#: forms/bricks.py:208 templates/creme_config/bricks_portal.html:8
 #: templates/creme_config/button_menu_portal.html:8
 #: templates/creme_config/custom_fields_portal.html:8
 #: templates/creme_config/fields_config_portal.html:8
@@ -131,32 +131,32 @@ msgstr "Rôle"
 msgid "Configuration"
 msgstr "Configuration"
 
-#: forms/bricks.py:283 forms/bricks.py:315
+#: forms/bricks.py:284 forms/bricks.py:316
 msgid "Blocks to display on the home"
 msgstr "Blocs à afficher sur l'accueil"
 
-#: forms/bricks.py:336
+#: forms/bricks.py:337
 msgid "Blocks to display on the «My Page» of the users"
 msgstr "Blocs à afficher sur le «Ma page» des utilisateurs"
 
-#: forms/bricks.py:378
+#: forms/bricks.py:379
 msgid "Customised resource"
 msgstr "Ressource personnalisée"
 
-#: forms/bricks.py:405
+#: forms/bricks.py:406
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/bricks.py:412
+#: forms/bricks.py:413
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/bricks.py:454 forms/button_menu.py:39 forms/custom_fields.py:75
+#: forms/bricks.py:455 forms/button_menu.py:39 forms/custom_fields.py:79
 #: forms/fields_config.py:33 forms/fields_config.py:54
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/bricks.py:485
+#: forms/bricks.py:486
 msgid "Lines"
 msgstr "Lignes"
 
@@ -190,9 +190,9 @@ msgstr "S'applique aux types de fiches"
 msgid "No selected type means that all types are accepted"
 msgstr "Aucun type séléctionné signifiera que tous les types sont acceptés"
 
-#: forms/creme_property_type.py:48
-msgid "A property type with this name already exists"
-msgstr "Un type de propriété avec ce nom existe déjà"
+#: forms/creme_property_type.py:45
+msgid "A property type with this name already exists."
+msgstr "Un type de propriété avec ce nom existe déjà."
 
 #: forms/custom_fields.py:35
 msgid "Type of field"
@@ -210,14 +210,14 @@ msgstr ""
 "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
 "\"Liste de choix\"."
 
-#: forms/custom_fields.py:52
+#: forms/custom_fields.py:45
 msgid ""
 "The choices list must not be empty if you choose the type \"Choice list\"."
 msgstr ""
 "La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
 "de choix\""
 
-#: forms/custom_fields.py:76
+#: forms/custom_fields.py:80
 msgid ""
 "The other custom fields for this type of resource will be chosen by editing "
 "the configuration"
@@ -225,23 +225,23 @@ msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
 "modifiant la configuration"
 
-#: forms/custom_fields.py:102 forms/custom_fields.py:139
+#: forms/custom_fields.py:96 forms/custom_fields.py:124
 msgid "There is already a custom field with this name."
 msgstr "Il y a déjà un champ personnalisé avec ce nom."
 
-#: forms/custom_fields.py:124
+#: forms/custom_fields.py:140
 msgid "Existing choices of the list"
 msgstr "Choix existants de la liste"
 
-#: forms/custom_fields.py:125
+#: forms/custom_fields.py:141
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/custom_fields.py:128
+#: forms/custom_fields.py:145
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/custom_fields.py:129
+#: forms/custom_fields.py:146
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
@@ -380,41 +380,41 @@ msgid "Value"
 msgstr "Valeur"
 
 # Already in django.contrib.auth
-#: forms/user.py:56 forms/user.py:134
+#: forms/user.py:55 forms/user.py:133
 msgid "The two password fields didn't match."
 msgstr ""
 
-#: forms/user.py:59 forms/user.py:137
+#: forms/user.py:58 forms/user.py:136
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user.py:62
+#: forms/user.py:61
 msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
 
 # Already in django.contrib.auth
-#: forms/user.py:64 forms/user.py:143
+#: forms/user.py:63 forms/user.py:142
 msgid "Enter the same password as before, for verification."
 msgstr ""
 
 # Already in django.contrib.auth
-#: forms/user.py:141
+#: forms/user.py:140
 msgid "Password (again)"
 msgstr ""
 
-#: forms/user.py:171 templates/creme_config/bricks/teams.html:25
+#: forms/user.py:170 templates/creme_config/bricks/teams.html:25
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: forms/user.py:180
+#: forms/user.py:179
 msgid "Team name"
 msgstr "Nom de l'équipe"
 
-#: forms/user.py:199
+#: forms/user.py:198
 msgid "Choose a user to transfer to"
 msgstr "Choisissez un utilisateur auquel transférer"
 
-#: forms/user.py:221 templates/creme_config/bricks/teams.html:7
+#: forms/user.py:220 templates/creme_config/bricks/teams.html:7
 msgid "Teams"
 msgstr "Équipes"
 
@@ -506,29 +506,29 @@ msgstr ""
 msgid "Actions"
 msgstr "Actions"
 
-#: forms/user_role.py:143
+#: forms/user_role.py:144
 msgid "Choose a role to transfer to"
 msgstr "Choisissez un rôle auquel transférer"
 
-#: forms/user_role.py:147
+#: forms/user_role.py:149
 msgid "Information"
 msgstr "Informations"
 
-#: forms/user_role.py:148
+#: forms/user_role.py:150
 msgid "This role is not used by any user, you can delete it safely."
 msgstr ""
 "Ce rôle n'est utilisé par aucun utilisateur, vous pouvez le supprimer en "
 "toute sécurité."
 
-#: forms/user_role.py:187 templates/creme_config/bricks/user-roles.html:24
+#: forms/user_role.py:189 templates/creme_config/bricks/user-roles.html:24
 msgid "Allowed applications"
 msgstr "Applications autorisées"
 
-#: forms/user_role.py:215 templates/creme_config/bricks/user-roles.html:25
+#: forms/user_role.py:217 templates/creme_config/bricks/user-roles.html:25
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
-#: forms/user_role.py:216
+#: forms/user_role.py:218
 msgid ""
 "These applications can be configured. For example, the concerned users can "
 "create new choices available in forms (eg: position for contacts)."
@@ -537,15 +537,15 @@ msgstr ""
 "concernés peuvent créer de nouveaux choix disponibles dans les formulaires "
 "(ex: la fonction pour les contacts)."
 
-#: forms/user_role.py:242
+#: forms/user_role.py:244
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: forms/user_role.py:257
+#: forms/user_role.py:259
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
-#: forms/user_role.py:258
+#: forms/user_role.py:260
 msgid ""
 "This types of entities can be downloaded as CSV/XLS files (in the "
 "corresponding list-views)."
@@ -553,11 +553,11 @@ msgstr ""
 "Ces types de fiches peuvent être téléchargés en tant que fichiers CSV/XLS "
 "(dans les vues en liste correspondantes)."
 
-#: forms/user_role.py:276
+#: forms/user_role.py:278
 msgid "First credentials"
 msgstr "Premiers droits"
 
-#: forms/user_role.py:284
+#: forms/user_role.py:286
 msgid "Yes"
 msgstr "Oui"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-18 17:15+0100\n"
+"POT-Creation-Date: 2019-04-29 23:00+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -63,21 +63,25 @@ msgstr "Documents crées à partir des fiches"
 msgid "Documents received by email"
 msgstr "Documents reçus par e-mail"
 
-#: forms/folder.py:38
+#: forms/fields.py:88 forms/fields.py:114 views/quick_forms.py:108
+msgid "Create an image"
+msgstr "Créer une image"
+
+#: forms/folder.py:37
 msgid "The parent's category will be copied if you do not select one."
 msgstr "La catégorie du parent sera copiée si vous n'en choisissez aucune."
 
-#: forms/folder.py:51 forms/folder.py:103
+#: forms/folder.py:50 forms/folder.py:84
 #, python-format
 msgid "This folder is one of the child folders of «%(folder)s»"
 msgstr "Ce classeur est un des classeurs enfant de «%(folder)s»"
 
-#: forms/folder.py:96
+#: forms/folder.py:83
 #, python-format
 msgid "«%(folder)s» cannot be its own parent"
 msgstr "«%(folder)s» ne peut pas être son propre parent"
 
-#: forms/quick.py:100
+#: forms/quick.py:101
 msgid "Image file"
 msgstr "Fichier image"
 
@@ -304,7 +308,7 @@ msgstr "Délier à un document"
 msgid "No linked document"
 msgstr "Aucun document lié"
 
-#: templates/documents/listview/buttons/parent-folder.html:4
+#: templates/documents/listview/buttons/parent-folder.html:9
 msgid "Previous folder"
 msgstr "Classeur parent"
 
@@ -312,7 +316,7 @@ msgstr "Classeur parent"
 msgid "CSV Documents"
 msgstr "Documents CSV"
 
-#: utils.py:31
+#: utils.py:32
 msgid "Folder containing all the CSV documents used when importing data"
 msgstr ""
 "Classeur contenant tous les documents CSV utilisés lors des imports de "
@@ -327,10 +331,6 @@ msgstr "Ajout de document à «{entity}»"
 #, python-brace-format
 msgid "List of sub-folders for «{parent}»"
 msgstr "Liste des sous-dossiers pour «{parent}»"
-
-#: views/quick_forms.py:108
-msgid "Create an image"
-msgstr "Créer une image"
 
 #: views/quick_forms.py:109
 msgid "Save the image"
