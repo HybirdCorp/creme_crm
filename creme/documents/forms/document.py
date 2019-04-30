@@ -121,16 +121,16 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
 
         get_or_create_folder = Folder.objects.get_or_create
         model_folder = get_or_create_folder(
-                            title=str(entity.entity_type),
-                            parent_folder=self.root_folder,
-                            category=category,
-                            defaults={'user': user},
+            title=str(entity.entity_type),
+            parent_folder=self.root_folder,
+            category=category,
+            defaults={'user': user},
         )[0]
         instance.linked_folder = get_or_create_folder(
-                            title=ellipsis(u'{}_{}'.format(entity.id, entity), _TITLE_MAX_LEN),  # Meh
-                            parent_folder=model_folder,
-                            category=category,
-                            defaults={'user': user},
+            title=ellipsis('{}_{}'.format(entity.id, entity), _TITLE_MAX_LEN),  # Meh
+            parent_folder=model_folder,
+            category=category,
+            defaults={'user': user},
         )[0]
 
         super().save(*args, **kwargs)

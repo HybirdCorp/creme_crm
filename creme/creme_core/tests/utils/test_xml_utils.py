@@ -61,8 +61,8 @@ class XMLUtilsTestCase(CremeTestCase):
         xml02 = '<?xml version="1.0" encoding="UTF-8"?><commands />'
         self.assertIsNone(xml_diff(xml01, xml02))
 
-        xml01 = u'<?xml version="1.0" encoding="utf-8"?><créer></créer>'
-        xml02 = u'<?xml version="1.0" encoding="UTF-8"?><créer />'
+        xml01 = '<?xml version="1.0" encoding="utf-8"?><créer></créer>'
+        xml02 = '<?xml version="1.0" encoding="UTF-8"?><créer />'
         self.assertIsNone(xml_diff(xml01, xml02))
 
     def test_xml_diff02(self):

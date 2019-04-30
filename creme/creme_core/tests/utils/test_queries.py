@@ -50,11 +50,11 @@ class QueriesTestCase(CremeTestCase):
         self.fighter = create_pos(title='Fighter')
 
         create_contact = partial(FakeContact.objects.create, user=self.user)
-        self.adrian   = create_contact(first_name='Adrian', last_name=u'Velba',
+        self.adrian   = create_contact(first_name='Adrian', last_name='Velba',
                                        birthday=date(year=2003, month=3, day=5),
                                        position=self.fighter,
                                       )
-        self.marianne = create_contact(first_name='Marianne', last_name=u'Velba',
+        self.marianne = create_contact(first_name='Marianne', last_name='Velba',
                                        birthday=date(year=1994, month=6, day=17),
                                        position=self.baker,
                                       )
@@ -81,8 +81,8 @@ class QueriesTestCase(CremeTestCase):
         user = self.login()
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        adrian = create_contact(first_name='Adrian', last_name=u'Velbà')
-        create_contact(first_name='Marianne', last_name=u'Velbà')
+        adrian = create_contact(first_name='Adrian', last_name='Velbà')
+        create_contact(first_name='Marianne', last_name='Velbà')
         create_contact(first_name='Richard',  last_name='Aldana')
 
         q1 = Q(last_name=adrian.last_name, first_name__startswith='Ad')
@@ -161,9 +161,9 @@ class QueriesTestCase(CremeTestCase):
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        create_orga(name=u'Vallée des rois',     capital=15000)
-        o2 = create_orga(name=u'Paxtown',        capital=5000)
-        create_orga(name=u'Zotis incorporation', capital=200)
+        create_orga(name='Vallée des rois',     capital=15000)
+        o2 = create_orga(name='Paxtown',        capital=5000)
+        create_orga(name='Zotis incorporation', capital=200)
 
         q = Q(capital__range=[1000, 10000])
         self._assertQIsOK(q, [o2])

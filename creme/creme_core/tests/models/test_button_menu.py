@@ -17,7 +17,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
 
         class TestButton(Button):
             id_          = Button.generate_id('creme_core', 'test_create_if_needed01')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
 
         button = TestButton()
 
@@ -40,7 +40,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
 
         class TestButton(Button):
             id_          = Button.generate_id('creme_core', 'test_create_if_needed01')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
 
         order = 10
         ButtonMenuItem.create_if_needed(pk, FakeContact, TestButton, order)
@@ -59,7 +59,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
         "Default config (content_type=None)"
         class TestButton(Button):
             id_          = Button.generate_id('creme_core', 'test_create_if_needed02')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
 
         old_count = ButtonMenuItem.objects.count()
         bmi = ButtonMenuItem.create_if_needed('creme_core-test_button', None, TestButton, 15)
@@ -70,7 +70,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
         "PK collision"
         class TestButton(Button):
             id_          = Button.generate_id('creme_core', 'test_create_if_needed03')
-            verbose_name = u'Testing purpose'
+            verbose_name = 'Testing purpose'
 
         old_count = ButtonMenuItem.objects.count()
         ButtonMenuItem.create_if_needed('creme_core-test_button', None, TestButton, 15)

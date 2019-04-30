@@ -133,7 +133,7 @@ class FieldInfo:
 
     @property
     def verbose_name(self):
-        return u' - '.join(str(field.verbose_name) for field in self.__fields)
+        return ' - '.join(str(field.verbose_name) for field in self.__fields)
 
     # TODO: probably does not work with several ManyToManyFields in the fields chain
     def value_from(self, instance):
@@ -274,7 +274,7 @@ class ModelFieldEnumerator:
                        )
             # A classical django choice. Eg: ('user__email', '[Owner user] - Email address')
             choice = ('__'.join(field.name for field in fields_info),
-                      u' - '.join(chain((u'[{}]'.format(vname) for vname in fk_vnames),
+                      ' - '.join(chain(('[{}]'.format(vname) for vname in fk_vnames),
                                         [terminal_vname]
                                        )
                                  )

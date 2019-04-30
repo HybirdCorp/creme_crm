@@ -103,7 +103,7 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
         message = messages[0]
         self.assertEqual(MySender.subject, message.subject)
-        self.assertEqual(u'{}\n--\n{}'.format(body, signature.body), message.body)
+        self.assertEqual('{}\n--\n{}'.format(body, signature.body), message.body)
         self.assertEqual(mail.sender, message.from_email)
 
         alternatives = message.alternatives

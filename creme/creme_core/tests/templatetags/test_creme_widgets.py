@@ -20,7 +20,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             tpl = Template(r'{% load creme_widgets %}{% widget_hyperlink object %}')
             render = tpl.render(Context({'object': s}))
 
-        self.assertEqual(render, u'&lt;i&gt;Yello&lt;/i&gt;')
+        self.assertEqual(render, '&lt;i&gt;Yello&lt;/i&gt;')
 
     def test_widget_hyperlink02(self):
         "get_absolute_url()"
@@ -31,7 +31,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             tpl = Template(r'{% load creme_widgets %}{% widget_hyperlink object %}')
             render = tpl.render(Context({'object': s}))
 
-        self.assertEqual(render, u'<a href="/creme_core/sectors">Yello&lt;br&gt;</a>')
+        self.assertEqual(render, '<a href="/creme_core/sectors">Yello&lt;br&gt;</a>')
 
     def test_widget_entity_hyperlink01(self):
         "Escaping"
@@ -45,7 +45,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render = tpl.render(Context({'user': user, 'my_entity': orga}))
 
         self.assertEqual(render,
-                         u'<a href="/tests/organisation/{}">{}</a>'.format(
+                         '<a href="/tests/organisation/{}">{}</a>'.format(
                                 orga.id, name + '&lt;br/&gt;'
                             )
                         )
@@ -73,7 +73,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render = tpl.render(Context({'user': user, 'my_entity': orga}))
 
         self.assertEqual(render, 
-                         u'<a href="/tests/organisation/{}" class="is_deleted">{}</a>'.format(
+                         '<a href="/tests/organisation/{}" class="is_deleted">{}</a>'.format(
                                 orga.id, str(orga)
                             )
                         )
@@ -86,7 +86,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render = tpl.render(Context({'text': 'Do not forget to visit www.cremecrm.com'}))
 
         self.assertEqual(render,
-                         u'Do not forget to visit <a href="http://www.cremecrm.com">www.cremecrm.com</a>'
+                         'Do not forget to visit <a href="http://www.cremecrm.com">www.cremecrm.com</a>'
                         )
 
     @override_settings(URLIZE_TARGET_BLANK=True)
@@ -96,8 +96,9 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             tpl = Template(r'{% load creme_widgets %}{{text|widget_urlize}}')
             render = tpl.render(Context({'text': 'Do not forget to visit www.cremecrm.com'}))
 
-        self.assertEqual(render,
-                         u'Do not forget to visit <a target="_blank" rel="noopener noreferrer" href="http://www.cremecrm.com">www.cremecrm.com</a>'
-                        )
+        self.assertEqual(
+            render,
+            'Do not forget to visit <a target="_blank" rel="noopener noreferrer" href="http://www.cremecrm.com">www.cremecrm.com</a>'
+        )
 
     # TODO: complete

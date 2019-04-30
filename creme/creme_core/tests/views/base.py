@@ -119,8 +119,8 @@ class MassImportBaseTestCaseMixin:
 
     def _build_doc(self, tmpfile):
         tmpfile.file.seek(0)
-        category = FolderCategory.objects.create(id=10, name=u'Test category')
-        folder = Folder.objects.create(user=self.user, title=u'Test folder',
+        category = FolderCategory.objects.create(id=10, name='Test category')
+        folder = Folder.objects.create(user=self.user, title='Test folder',
                                        parent_folder=None,
                                        category=category,
                                       )
@@ -132,7 +132,7 @@ class MassImportBaseTestCaseMixin:
                                           'description': 'CSV file for contacts',
                                           'filedata':    tmpfile,
                                           'linked_folder': folder.id,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 

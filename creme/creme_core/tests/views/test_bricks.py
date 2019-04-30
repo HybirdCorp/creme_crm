@@ -28,7 +28,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
     SET_STATE_URL = reverse('creme_core__set_brick_state')
 
     class TestBrick(Brick):
-        verbose_name = u'Testing purpose'
+        verbose_name = 'Testing purpose'
 
         string_format_detail = '<div id={}>DETAIL</div>'.format
         string_format_home   = '<div id={}>HOME</div>'.format
@@ -122,7 +122,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         ibci = InstanceBrickConfigItem.objects \
                                       .create(entity=casca,
                                               brick_id=InstanceBrickConfigItem.generate_id(ContactBrick, casca, ''),
-                                              verbose=u'I am an awesome brick',
+                                              verbose='I am an awesome brick',
                                               data='',
                                              )
 

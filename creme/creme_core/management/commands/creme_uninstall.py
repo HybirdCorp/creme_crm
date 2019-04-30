@@ -170,8 +170,8 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
                       }
 
             if parents:
-                stdout_write(u' Beware: the filter "{name}" (id={id}) was used as '
-                             u'sub-filter by the following filter(s): {parents}'.format(
+                stdout_write(' Beware: the filter "{name}" (id={id}) was used as '
+                             'sub-filter by the following filter(s): {parents}'.format(
                                     name=efilter.name,
                                     id=efilter.id,
                                     parents=', '.join('<"{}" (id="{}")>'.format(p.name, p.id)
@@ -311,17 +311,19 @@ class Command(AppCommand):
             if not progress:
                 extra_errors = max(0, len(errors) - errors.max_size)
 
-                raise CommandError(u'[KO] Cannot flush all instances: aborting.\n'
-                                   u'{errors}\n{extra_errors}'
-                                   u'Please delete the problematic instances '
-                                   u'manually before re-run this command.'.format(
-                                        errors=u'\n'.join(u'- Cannot delete "{obj}" (id={id}) (original error: {error})'.format(
-                                                             obj=obj, id=obj.id, error=error,
-                                                          ) for obj, error in errors
-                                                 ),
-                                        extra_errors='({} extra error(s))\n'.format(extra_errors) if extra_errors else '',
-                                    )
-                                  )
+                raise CommandError(
+                    '[KO] Cannot flush all instances: aborting.\n'
+                    '{errors}\n{extra_errors}'
+                    'Please delete the problematic instances '
+                    'manually before re-run this command.'.format(
+                        errors='\n'.join(
+                            '- Cannot delete "{obj}" (id={id}) (original error: {error})'.format(
+                                 obj=obj, id=obj.id, error=error,
+                            ) for obj, error in errors
+                        ),
+                        extra_errors='({} extra error(s))\n'.format(extra_errors) if extra_errors else '',
+                    )
+                )
 
             models_info = next_models_info
 
@@ -340,12 +342,13 @@ class Command(AppCommand):
 
             for ctype, error in ctypes_info:
                 if verbosity:
-                    self.stdout.write(u'Trying to delete the ContentType "{ctype}" (id={id}){again}...\n'.format(
-                                            ctype=ctype,
-                                            id=ctype.id,
-                                            again='' if error is None else ' again',
-                                        )
-                                     )
+                    self.stdout.write(
+                        'Trying to delete the ContentType "{ctype}" (id={id}){again}...\n'.format(
+                            ctype=ctype,
+                            id=ctype.id,
+                            again='' if error is None else ' again',
+                        )
+                    )
 
                 try:
                     ctype.delete()
@@ -363,16 +366,17 @@ class Command(AppCommand):
                 break
 
         if ctypes_info:
-            raise CommandError(u'There were errors when trying to the ContentTypes: aborting.\n'
-                               u'{}\n'
-                               u'Sadly you have to solve this problem manually '
-                               u'before re-run this command.'.format(
-                                    u'\n'.join(u'- Cannot delete ContentType for "{}" '
-                                               u'(original error: {})'.format(*ci)
-                                                for ci in ctypes_info
-                                              ),
-                                )
-                              )
+            raise CommandError(
+                'There were errors when trying to the ContentTypes: aborting.\n'
+                '{}\n'
+                'Sadly you have to solve this problem manually '
+                'before re-run this command.'.format(
+                    '\n'.join('- Cannot delete ContentType for "{}" '
+                              '(original error: {})'.format(*ci)
+                                for ci in ctypes_info
+                             ),
+                )
+            )
 
         if verbosity > 1:
             self.stdout.write(' [OK] All related ContentTypes have been deleted.',
@@ -396,8 +400,8 @@ class Command(AppCommand):
         models, dep_error = ordered_models_to_delete(app_config, connection)
 
         if dep_error:
-            self.stderr.write(u" [KO] Dependencies loop (cannot find a safe deletion order).\n"
-                              u"Tables:\n{}\n".format(u'\n'.join(model._meta.db_table for model in models))
+            self.stderr.write(' [KO] Dependencies loop (cannot find a safe deletion order).\n'
+                              'Tables:\n{}\n'.format('\n'.join(model._meta.db_table for model in models))
                              )
 
             raise CommandError('Sadly you have to DELETE the remaining tables MANUALLY, '
@@ -417,7 +421,7 @@ class Command(AppCommand):
 
                     if verbosity:
                         meta = model._meta
-                        self.stdout.write(u' Drop the model "{app}.{model}" (table: "{table}").'.format(
+                        self.stdout.write(' Drop the model "{app}.{model}" (table: "{table}").'.format(
                                                 app=meta.app_label,
                                                 model=model.__name__,
                                                 table=meta.db_table,
@@ -429,11 +433,11 @@ class Command(AppCommand):
                     if verbosity:
                         self.stdout.write(' [OK]', self.style.SUCCESS)
             except Exception as e:
-                self.stderr.write(u' [KO] Original error: {error}.\n'
-                                  u'Remaining tables:\n'
-                                  u'{models}\n'.format(
+                self.stderr.write(' [KO] Original error: {error}.\n'
+                                  'Remaining tables:\n'
+                                  '{models}\n'.format(
                                         error=force_text(e),  # PostGreSQL returns localized errors...
-                                        models=u'\n'.join(model._meta.db_table for model in models),
+                                        models='\n'.join(model._meta.db_table for model in models),
                                     )
                                  )
 

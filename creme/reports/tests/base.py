@@ -105,7 +105,7 @@ class BaseReportsTestCase(CremeTestCase):
     def _create_simple_organisations_report(self, name='Orga report', efilter=None):
         ct = ContentType.objects.get_for_model(FakeOrganisation)
         report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
-        Field.objects.create(report=report, name=u'name', type=RFT_FIELD, order=1)
+        Field.objects.create(report=report, name='name', type=RFT_FIELD, order=1)
 
         return report
 

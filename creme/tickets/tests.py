@@ -100,7 +100,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertEqual(title,       retr_ticket.title)
         self.assertEqual(description, retr_ticket.description)
 
-        self.assertEqual(u'#{} - {}'.format(ticket.number, title),
+        self.assertEqual('#{} - {}'.format(ticket.number, title),
                          str(retr_ticket)
                         )
 

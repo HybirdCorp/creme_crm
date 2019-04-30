@@ -826,14 +826,14 @@ def defaultSerialize(obj, buf, lineLength):
             groupString = obj.group + '.'
 
         if obj.useBegin:
-            foldOneLine(outbuf, str(groupString + u"BEGIN:" + obj.name), lineLength)
+            foldOneLine(outbuf, str(groupString + 'BEGIN:' + obj.name), lineLength)
 
         for child in obj.getSortedChildren():
             # validate is recursive, we only need to validate once
             child.serialize(outbuf, lineLength, validate=False)
 
         if obj.useBegin:
-            foldOneLine(outbuf, str(groupString + u"END:" + obj.name), lineLength)
+            foldOneLine(outbuf, str(groupString + 'END:' + obj.name), lineLength)
     elif isinstance(obj, ContentLine):
         startedEncoded = obj.encoded
 

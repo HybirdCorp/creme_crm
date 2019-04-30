@@ -42,26 +42,26 @@ class EntityFiltersTestCase(CremeTestCase):
         self.civ_mister = mister = FakeCivility.objects.create(title='Mister')
 
         self.contacts = {
-            'spike':  create(first_name=u'Spike',  last_name=u'Spiegel',   civility=mister),
-            'jet':    create(first_name=u'Jet',    last_name=u'Black',     civility=mister),
-            'faye':   create(first_name=u'Faye',   last_name=u'Valentine', civility=miss,
-                             description=u'Sexiest woman is the universe',
+            'spike':  create(first_name='Spike',  last_name='Spiegel',   civility=mister),
+            'jet':    create(first_name='Jet',    last_name='Black',     civility=mister),
+            'faye':   create(first_name='Faye',   last_name='Valentine', civility=miss,
+                             description='Sexiest woman is the universe',
                             ),
-            'ed':     create(first_name=u'Ed',     last_name=u'Wong', description=u''),
-            'rei':    create(first_name=u'Rei',    last_name=u'Ayanami'),
-            'misato': create(first_name=u'Misato', last_name=u'Katsuragi',
+            'ed':     create(first_name='Ed',     last_name='Wong', description=''),
+            'rei':    create(first_name='Rei',    last_name='Ayanami'),
+            'misato': create(first_name='Misato', last_name='Katsuragi',
                              birthday=date(year=1986, month=12, day=8)
                             ),
-            'asuka':  create(first_name=u'Asuka',  last_name=u'Langley',
+            'asuka':  create(first_name='Asuka',  last_name='Langley',
                              birthday=date(year=2001, month=12, day=4)
                             ),
-            'shinji': create(first_name=u'Shinji', last_name=u'Ikari',
+            'shinji': create(first_name='Shinji', last_name='Ikari',
                              birthday=date(year=2001, month=6, day=6)
                             ),
-            'yui':    create(first_name=u'Yui',    last_name=u'Ikari'),
-            'gendou': create(first_name=u'Gendô',  last_name=u'IKARI'),
-            'genji':  create(first_name=u'Genji',  last_name=u'Ikaru'),
-            'risato': create(first_name=u'Risato', last_name=u'Katsuragu'),
+            'yui':    create(first_name='Yui',    last_name='Ikari'),
+            'gendou': create(first_name='Gendô',  last_name='IKARI'),
+            'genji':  create(first_name='Genji',  last_name='Ikaru'),
+            'risato': create(first_name='Risato', last_name='Katsuragu'),
         }
 
         self.contact_ct = ContentType.objects.get_for_model(FakeContact)
@@ -282,7 +282,7 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter14 = create_ef(pk=base_pk + '[1.10.2 rc11]', name='Filter [1.10.2 rc11]')
         self.assertEqual(efilter14, EntityFilter.get_latest_version(base_pk))
 
-        create_ef(pk=base_pk + '[1.10.2 rc11]3', name=u'Filter | 1.10.2 rc11 | n°3')
+        create_ef(pk=base_pk + '[1.10.2 rc11]3', name='Filter | 1.10.2 rc11 | n°3')
         efilter16 = create_ef(pk=base_pk + '[1.10.2 rc11]12', name='Filter [1.10.2 rc11]#12')
         self.assertEqual(efilter16, EntityFilter.get_latest_version(base_pk))
 
@@ -306,9 +306,9 @@ class EntityFiltersTestCase(CremeTestCase):
                               )
                          )
 
-        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
-        hates = RelationType.create(('test-subject_hate', u'Is hating'),
-                                    ('test-object_hate',  u'Is hated by')
+        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
+        hates = RelationType.create(('test-subject_hate', 'Is hating'),
+                                    ('test-object_hate',  'Is hated by')
                                    )[0]
 
         cond1 = build_4_field()
@@ -1310,7 +1310,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 
     def test_properties01(self):
-        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
+        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
         cute_ones = ('faye', 'rei', 'misato', 'asuka')
 
         for fn in cute_ones:
@@ -1326,8 +1326,8 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_properties02(self):
         "Several conditions on properties"
         create_ptype = CremePropertyType.create
-        ptype1 = create_ptype(str_pk='test-prop_pretty',    text=u'Pretty')
-        ptype2 = create_ptype(str_pk='test-prop_beautiful', text=u'Beautiful')
+        ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
+        ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
 
         pretty_ones    = ('rei', 'asuka')
         beautiful_ones = ('asuka', 'misato')
@@ -1350,12 +1350,12 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, FakeContact, self._list_contact_ids('asuka'))
 
     def _aux_test_relations(self):
-        self.loves, self.loved = RelationType.create(('test-subject_love', u'Is loving'),
-                                                     ('test-object_love',  u'Is loved by')
+        self.loves, self.loved = RelationType.create(('test-subject_love', 'Is loving'),
+                                                     ('test-object_love',  'Is loved by')
                                                     )
 
-        self.hates, self.hated = RelationType.create(('test-subject_hate', u'Is hating'),
-                                                     ('test-object_hate',  u'Is hated by')
+        self.hates, self.hated = RelationType.create(('test-subject_hate', 'Is hating'),
+                                                     ('test-object_hate',  'Is hated by')
                                                     )
 
         bebop = FakeOrganisation.objects.create(user=self.user, name='Bebop')
@@ -1548,16 +1548,19 @@ class EntityFiltersTestCase(CremeTestCase):
 
         build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
 
-        sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter Rei', model=FakeContact,
-                                            conditions=[build_4_field(operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
-                                                        build_4_field(operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei']),
-                                                       ],
-                                           )
+        sub_efilter01 = EntityFilter.create(
+            pk='test-filter01', name='Filter Rei', model=FakeContact,
+            conditions=[
+                build_4_field(operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
+                build_4_field(operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei']),
+            ],
+        )
         self.assertExpectedFiltered(sub_efilter01, FakeContact, [self.contacts['rei'].id])
 
-        sub_efilter02 = EntityFilter.create(pk='test-filter02', name=u'Filter Gendô', model=FakeContact,
-                                            conditions=[build_4_field(operator=EntityFilterCondition.EQUALS, name='first_name', values=[u'Gendô'])],
-                                           )
+        sub_efilter02 = EntityFilter.create(
+            pk='test-filter02', name='Filter Gendô', model=FakeContact,
+            conditions=[build_4_field(operator=EntityFilterCondition.EQUALS, name='first_name', values=['Gendô'])],
+        )
         self.assertExpectedFiltered(sub_efilter02, FakeContact, [self.contacts['gendou'].id])
 
         efilter = EntityFilter.create(pk='test-filter03', name='Filter with 2 sublovers',
@@ -1576,22 +1579,26 @@ class EntityFiltersTestCase(CremeTestCase):
         build_4_field = partial(EntityFilterCondition.build_4_field, model=FakeContact)
 
         sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter Rei', model=FakeContact, is_custom=True)
-        sub_efilter01.set_conditions([build_4_field(operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
-                                      build_4_field(operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei'])
-                                    ])
+        sub_efilter01.set_conditions(
+            [build_4_field(operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
+            build_4_field(operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei']),
+        ])
         self.assertExpectedFiltered(sub_efilter01, FakeContact, [self.contacts['rei'].id])
 
         sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter Gendo', model=FakeContact, is_custom=True)
-        sub_efilter02.set_conditions([build_4_field(operator=EntityFilterCondition.EQUALS, name='first_name', values=[u'Gendô'])])
+        sub_efilter02.set_conditions([
+            build_4_field(operator=EntityFilterCondition.EQUALS, name='first_name', values=['Gendô']),
+        ])
         self.assertExpectedFiltered(sub_efilter02, FakeContact, [self.contacts['gendou'].id])
 
         efilter = EntityFilter.create(pk='test-filter03', name='Filter with 2 sublovers',
                                       model=FakeContact, use_or=False, is_custom=True,
                                      )
         build_4_relsubfilter = partial(EntityFilterCondition.build_4_relation_subfilter, has=True)
-        efilter.set_conditions([build_4_relsubfilter(rtype=loves,      subfilter=sub_efilter01),
-                                build_4_relsubfilter(rtype=self.hates, subfilter=sub_efilter02),
-                               ])
+        efilter.set_conditions([
+            build_4_relsubfilter(rtype=loves,      subfilter=sub_efilter01),
+            build_4_relsubfilter(rtype=self.hates, subfilter=sub_efilter02),
+        ])
         self.assertExpectedFiltered(efilter, FakeContact, [self.contacts['shinji'].id])
 
     def test_date01(self):
