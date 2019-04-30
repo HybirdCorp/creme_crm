@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
-from creme.creme_core.global_info import get_per_request_cache
+from creme.creme_core.global_info import cached_per_request  # get_per_request_cache
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import PhoneField
 
@@ -138,15 +138,17 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     # TODO: move in a manager ??
     @classmethod
+    @cached_per_request('persons-organisation-all_managed')
     def get_all_managed_by_creme(cls):
-        cache = get_per_request_cache()
-        cache_key = 'persons-organisation-all_managed'
-        qs = cache.get(cache_key)
-
-        if qs is None:
-            cache[cache_key] = qs = cls.objects.filter(is_managed=True, is_deleted=False)
-
-        return qs
+        # cache = get_per_request_cache()
+        # cache_key = 'persons-organisation-all_managed'
+        # qs = cache.get(cache_key)
+        #
+        # if qs is None:
+        #     cache[cache_key] = qs = cls.objects.filter(is_managed=True, is_deleted=False)
+        #
+        # return qs
+        return cls.objects.filter(is_managed=True, is_deleted=False)
 
     def _post_save_clone(self, source):
         self._aux_post_save_clone(source)

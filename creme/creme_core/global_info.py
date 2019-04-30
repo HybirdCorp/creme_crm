@@ -1,25 +1,32 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-#    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+# Copyright (c) 2009-2019 Hybird
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
 ################################################################################
 
 # See  middleware.global_info.GlobalInfoMiddleware
 
+from functools import wraps
 from collections import defaultdict
 
 try:
@@ -32,11 +39,21 @@ _globals = defaultdict(dict)
 
 
 def get_global_info(key):
+    """Get a global value, safely because stored in a per-thread way.
+
+    @param key: Hashable object (typically a string) as usual.
+    @return The value corresponding to the key.
+            <None> is returned if the key is not found.
+    """
     thread_globals = _globals.get(currentThread())
     return thread_globals and thread_globals.get(key)
 
 
 def set_global_info(**kwargs):
+    """Set some global values, safely because stored in a per-thread way.
+
+    @param kwargs: Each key-value are sored as global data.
+    """
     _globals[currentThread()].update(kwargs)
 
 
@@ -46,6 +63,10 @@ def clear_global_info():
 
 
 def get_per_request_cache():
+    """Get a special global data, which is a dictionary used as a per-request cache.
+
+    @return: A dictionary.
+    """
     cache = get_global_info('per_request_cache')
 
     if cache is None:
@@ -53,3 +74,26 @@ def get_per_request_cache():
         set_global_info(per_request_cache=cache)
 
     return cache
+
+
+def cached_per_request(cache_key):
+    """Decorator which caches the result in the per-request cache.
+    (see get_per_request_cache().
+
+    @param cache_key: The key used to identify the result.
+    """
+    def _decorator(function):
+        @wraps(function)
+        def _aux(*args, **kwargs):
+            cache = get_per_request_cache()
+
+            try:
+                cached_value = cache[cache_key]
+            except KeyError:
+                cache[cache_key] = cached_value = function(*args, **kwargs)
+
+            return cached_value
+
+        return _aux
+
+    return _decorator
