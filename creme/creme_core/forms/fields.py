@@ -29,7 +29,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet, Q
-from django.forms import fields, widgets, ValidationError, ModelChoiceField
+from django.forms import fields, widgets, ValidationError, models as mforms
 from django.urls import reverse
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
@@ -61,6 +61,7 @@ __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'ChoiceOrCharField',
            'CTypeChoiceField', 'EntityCTypeChoiceField',
            'MultiCTypeChoiceField', 'MultiEntityCTypeChoiceField',
+           'ForcedModelMultipleChoiceField',
           )
 
 
@@ -715,7 +716,7 @@ class MultiRelationEntityField(RelationEntityField):
             # Check if content type is allowed by relation type
             if allowed_ctype_ids and ctype_pk not in allowed_ctype_ids:
                 raise ValidationError(self.error_messages['ctypenotallowed'],
-                                      params={'ctype':ctype_pk}, code='ctypenotallowed',
+                                      params={'ctype': ctype_pk}, code='ctypenotallowed',
                                      )
 
             ctype, ctype_entity_pks = self._get_cache(ctypes_cache, ctype_pk,
@@ -1115,7 +1116,7 @@ class OptionalChoiceField(OptionalField):
 
 
 class OptionalModelChoiceField(OptionalChoiceField):
-    sub_field = ModelChoiceField
+    sub_field = mforms.ModelChoiceField
 
 
 class ListEditionField(fields.Field):
@@ -1197,7 +1198,7 @@ class AjaxMultipleChoiceField(fields.MultipleChoiceField):
         return [smart_text(val) for val in value]
 
 
-class AjaxModelChoiceField(ModelChoiceField):
+class AjaxModelChoiceField(mforms.ModelChoiceField):
     """
         Same as ModelChoiceField but bypass the choices validation due to the ajax filling
     """
@@ -1599,3 +1600,67 @@ class MultiEntityCTypeChoiceField(MultiCTypeChoiceField):
         ctypes = ctypes or creme_entity_content_types
         # super().__init__(ctypes=ctypes, *args, **kwargs)
         super().__init__(ctypes=ctypes, **kwargs)
+
+
+class ForcedModelChoiceIterator(mforms.ModelChoiceIterator):
+    def __init__(self, field):
+        super().__init__(field=field)
+        self.forced_values = field.forced_values
+        self.choice_cls = self.field.widget.Choice
+
+    def choice(self, obj):
+        pk, label = super().choice(obj)
+
+        return (
+            self.choice_cls(value=pk, readonly=(pk in self.forced_values)),
+            label,
+       )
+
+
+# TODO: ForcedMultipleChoiceField too ?
+class ForcedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
+    """Specialization of ModelMultipleChoiceField whichs allows to force
+    some choices.
+    The forced choices cannot be un-selected.
+    It's useful to show to the user the choices which will be automatically
+    applied (instead of hiding them).
+    """
+    widget = core_widgets.UnorderedMultipleChoiceWidget
+    iterator = ForcedModelChoiceIterator
+
+    def __init__(self, forced_values=(), **kwargs):
+        self._initial = None
+        self._forced_values = frozenset(forced_values)
+        super().__init__(**kwargs)
+
+    def prepare_value(self, value):
+        prepared_value = super().prepare_value(value)
+
+        if self._forced_values and isinstance(prepared_value, list):
+            prepared_value.extend(self._forced_values)
+
+        return prepared_value
+
+    @property
+    def forced_values(self):
+        return self._forced_values
+
+    @forced_values.setter
+    def forced_values(self, values):
+        self._forced_values = frozenset(values or ())
+        self.widget.choices = self.choices
+
+    @property
+    def initial(self):
+        result = set()
+        initial = self._initial
+        if initial is not None:
+            result.update(initial)
+
+        result.update(self._forced_values)
+
+        return result
+
+    @initial.setter
+    def initial(self, value):
+        self._initial = value
