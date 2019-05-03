@@ -10,7 +10,8 @@ QUnit.module("creme.mockajax.js", new QUnitMixin({
 
         this.backend = new creme.ajax.MockAjaxBackend({sync: false});
         $.extend(this.backend.GET, {'mock/html': this.backend.response(200, 'this is a test'),
-                                    'mock/json': this.backend.response(200, '{}', {'Content-Type': 'text/json'}),
+                                    'mock/json': this.backend.responseJSON(200, {a: 1, b: "test"}),
+                                    'mock/json/invalid': this.backend.response(200, '{"invalid json', {'Content-Type': 'text/json'}),
                                     'mock/add': this.backend.response(200, MOCK_AJAX_FORM_CONTENT),
                                     'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
                                     'mock/error': this.backend.response(500, 'HTTP - Error 500'),
@@ -33,11 +34,11 @@ QUnit.module("creme.mockajax.js", new QUnitMixin({
     },
 
     _custom_GET: function(url, data, options) {
-        return this.backend.response(200, $.toJSON({url: url, method: 'GET', data: data}));
+        return this.backend.responseJSON(200, {url: url, method: 'GET', data: data});
     },
 
     _custom_POST: function(url, data, options) {
-        return this.backend.response(200, $.toJSON({url: url, method: 'POST', data: data}));
+        return this.backend.responseJSON(200, {url: url, method: 'POST', data: data});
     }
 }));
 
@@ -146,15 +147,43 @@ QUnit.test('MockAjaxBackend.get (custom)', function(assert) {
     equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'GET', data: {a: 1, b: 'test'}}));
 });
 
-QUnit.test('MockAjaxBackend.get (json)', function(assert) {
+QUnit.test('MockAjaxBackend.get (json, dataType=text)', function(assert) {
     var response = {};
-    this.backend.get('mock/json', {}, function(responseText, data, xhr) { $.extend(response, {responseText: responseText, xhr: xhr}); },
-                                      function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
+    this.backend.get('mock/json', {},
+                     function(responseText, data, xhr) { $.extend(response, {responseText: responseText, xhr: xhr}); },
+                     function(responseText, xhr) { $.extend(response, xhr); },
+                     {sync: true});
 
-    equal(response.responseText, "{}");
+    equal(response.xhr.status, 200);
+    equal(response.responseText, $.toJSON({a: 1, b: 'test'}));
     equal('text/json', response.xhr.getResponseHeader('Content-Type'));
     equal('text/json', response.xhr.getResponseHeader('content-type'));
 });
+
+QUnit.test('MockAjaxBackend.get (json, dataType=json)', function(assert) {
+    var response = {};
+    this.backend.get('mock/json', {},
+                     function(responseText, data, xhr) { $.extend(response, {responseText: responseText, xhr: xhr}); },
+                     function(responseText, xhr) { $.extend(response, {xhr: xhr}); },
+                     {sync: true, dataType: 'json'});
+
+    equal(response.xhr.status, 200);
+    deepEqual(response.responseText, {a: 1, b: 'test'});
+    equal('text/json', response.xhr.getResponseHeader('Content-Type'));
+    equal('text/json', response.xhr.getResponseHeader('content-type'));
+});
+
+QUnit.test('MockAjaxBackend.get (text, dataType=json)', function(assert) {
+    var response = {};
+    this.backend.get('mock/html', {},
+                     function(responseText, data, xhr) { $.extend(response, {responseText: responseText, xhr: xhr}); },
+                     function(responseText, xhr) { $.extend(response, {responseText: responseText, xhr: xhr}); },
+                     {sync: true, dataType: 'json'});
+
+    equal(response.xhr.status, 500);
+    equal(true, response.responseText.indexOf('SyntaxError') !== -1);
+});
+
 
 QUnit.test('MockAjaxBackend.post', function(assert) {
     var response = {};
@@ -224,4 +253,5 @@ QUnit.test('MockAjaxBackend.post (custom)', function(assert) {
 
     equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'POST', data: {a: 1, b: 'test'}}));
 });
+
 }(jQuery));

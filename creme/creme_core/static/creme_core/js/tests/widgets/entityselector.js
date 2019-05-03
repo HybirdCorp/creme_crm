@@ -1,16 +1,17 @@
+/* globals QUnitWidgetMixin */
 (function($) {
 
 var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
 
 QUnit.module("creme.widget.entityselector.js", new QUnitMixin(QUnitAjaxMixin, QUnitWidgetMixin, {
     buildMockBackend: function() {
-        return new creme.ajax.MockAjaxBackend({sync:true, name: 'creme.widget.entityselector.js'});
+        return new creme.ajax.MockAjaxBackend({sync: true, name: 'creme.widget.entityselector.js'});
     },
 
     beforeEach: function() {
         this.setMockBackendGET({
-            'mock/label/1': this.backend.response(200, [['John Doe']]),
-            'mock/label/2': this.backend.response(200, [['Bean Bandit']]),
+            'mock/label/1': this.backend.responseJSON(200, [['John Doe']]),
+            'mock/label/2': this.backend.responseJSON(200, [['Bean Bandit']]),
             'mock/popup': this.backend.response(200, MOCK_FRAME_CONTENT),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500')
@@ -20,7 +21,7 @@ QUnit.module("creme.widget.entityselector.js", new QUnitMixin(QUnitAjaxMixin, QU
     afterEach: function() {
         $('.ui-dialog-content').dialog('destroy');
         creme.widget.shutdown($('body'));
-    },
+    }
 }));
 
 QUnit.test('creme.widget.EntitySelector.create (empty, auto)', function(assert) {
@@ -59,17 +60,19 @@ QUnit.test('creme.widget.EntitySelector.create (not empty, auto)', function(asse
     equal("", element.creme().widget().options().qfilter);
 });
 
-QUnit.test('creme.widget.EntitySelector.create (auto, disabled)', function(assert) {
-    var element = this.createEntitySelectorTag({disabled:''});
+QUnit.test('creme.widget.EntitySelector.create (auto, [disabled] attribute)', function(assert) {
+    var element = this.createEntitySelectorTag({disabled: ''});
     creme.widget.input(element).val('1');
 
-    var widget = creme.widget.create(element);
+    creme.widget.create(element);
     equal(element.hasClass('widget-ready'), true);
 
     equal($('button', element).is('[disabled]'), true);
     equal("1", element.creme().widget().val());
     equal(element.creme().widget().delegate._enabled, false);
+});
 
+QUnit.test('creme.widget.EntitySelector.create (auto, {disabled: true} option)', function(assert) {
     var element = this.createEntitySelectorTag();
     creme.widget.input(element).val('2');
 
@@ -86,7 +89,7 @@ QUnit.test('creme.widget.EntitySelector.create (auto, disabled)', function(asser
 });
 
 QUnit.test('creme.widget.EntitySelector.create (empty, popup url, auto)', function(assert) {
-    var element = this.createEntitySelectorTag({popupURL:'mock/label'});
+    var element = this.createEntitySelectorTag({popupURL: 'mock/label'});
 
     creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -102,7 +105,7 @@ QUnit.test('creme.widget.EntitySelector.create (empty, popup url, auto)', functi
 });
 
 QUnit.test('creme.widget.EntitySelector.create (empty, invalid label url, auto)', function(assert) {
-    var element = this.createEntitySelectorTag({labelURL:'mock/label/unknown'});
+    var element = this.createEntitySelectorTag({labelURL: 'mock/label/unknown'});
 
     creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -171,7 +174,7 @@ QUnit.test('creme.widget.EntitySelector.multiple', function(assert) {
     equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().delegate._popupURL.parameters().selection);
     equal(element.creme().widget().isMultiple(), true);
 
-    var element = this.createEntitySelectorTag({popupSelection: creme.widget.EntitySelectorMode.MULTIPLE});
+    element = this.createEntitySelectorTag({popupSelection: creme.widget.EntitySelectorMode.MULTIPLE});
     creme.widget.create(element);
 
     equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().options().popupSelection);
@@ -197,7 +200,7 @@ QUnit.test('creme.widget.EntitySelector.reload (url)', function(assert) {
 });
 
 QUnit.test('creme.widget.EntitySelector.reload (template url, multiple)', function(assert) {
-    var element = this.createEntitySelectorTag({popupURL:'mock/popup/${selection}'});
+    var element = this.createEntitySelectorTag({popupURL: 'mock/popup/${selection}'});
 
     creme.widget.create(element);
     deepEqual(['selection'], element.creme().widget().dependencies());
@@ -207,12 +210,12 @@ QUnit.test('creme.widget.EntitySelector.reload (template url, multiple)', functi
     element.creme().widget().isMultiple(true);
     equal("mock/popup/multiple", element.creme().widget().popupURL());
 
-    element.creme().widget().reload({selection:2});
+    element.creme().widget().reload({selection: 2});
     equal("mock/popup/2", element.creme().widget().popupURL());
 });
 
 QUnit.test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)', function(assert) {
-    var element = this.createEntitySelectorTag({popupURL:'mock/popup/${selection}?q_filter=${qfilter}'});
+    var element = this.createEntitySelectorTag({popupURL: 'mock/popup/${selection}?q_filter=${qfilter}'});
 
     creme.widget.create(element);
     deepEqual(['selection', 'qfilter'], element.creme().widget().dependencies());
@@ -222,12 +225,12 @@ QUnit.test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)
     element.creme().widget().reload({selection: creme.widget.EntitySelectorMode.MULTIPLE});
     equal("mock/popup/multiple?q_filter=", element.creme().widget().popupURL());
 
-    element.creme().widget().reload({qfilter:$.toJSON({"~pk__in":[1, 2]})});
-    equal("mock/popup/multiple?q_filter=" + $.toJSON({"~pk__in":[1, 2]}), element.creme().widget().popupURL());
+    element.creme().widget().reload({qfilter: $.toJSON({"~pk__in": [1, 2]})});
+    equal("mock/popup/multiple?q_filter=" + $.toJSON({"~pk__in": [1, 2]}), element.creme().widget().popupURL());
 
     element.creme().widget().reload('mock/popup/${ctype}/${selection}?q_filter=${qfilter}');
     deepEqual(['ctype', 'selection', 'qfilter'], element.creme().widget().dependencies());
-    equal("mock/popup/${ctype}/multiple?q_filter=" + $.toJSON({"~pk__in":[1, 2]}), element.creme().widget().popupURL());
+    equal("mock/popup/${ctype}/multiple?q_filter=" + $.toJSON({"~pk__in": [1, 2]}), element.creme().widget().popupURL());
 });
 
 QUnit.test('creme.widget.EntitySelector.reset', function(assert) {
@@ -246,5 +249,4 @@ QUnit.test('creme.widget.EntitySelector.reset', function(assert) {
     equal("", widget.val());
     equal("", widget.popupURL());
 });
-
 }(jQuery));

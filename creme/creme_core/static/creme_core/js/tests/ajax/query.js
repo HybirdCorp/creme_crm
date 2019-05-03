@@ -1,7 +1,6 @@
 /* globals setTimeout */
 
 (function($) {
-
 QUnit.module("creme.ajax.query.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMixin, {
     buildMockBackend: function() {
         return new creme.ajax.MockAjaxBackend({sync: true, name: 'creme.ajax.query.js'});
@@ -11,17 +10,17 @@ QUnit.module("creme.ajax.query.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMix
         var self = this;
 
         this.setMockBackendGET({
-            'mock/options/1': this.backend.response(200, ['a']),
-            'mock/options/2': this.backend.response(200, ['a', 'b']),
-            'mock/options/3': this.backend.response(200, ['a', 'b', 'c']),
-            'mock/options/empty': this.backend.response(200, []),
+            'mock/options/1': this.backend.responseJSON(200, ['a']),
+            'mock/options/2': this.backend.responseJSON(200, ['a', 'b']),
+            'mock/options/3': this.backend.responseJSON(200, ['a', 'b', 'c']),
+            'mock/options/empty': this.backend.responseJSON(200, []),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500'),
             'mock/custom': function(url, data, options) {
-                return self._customResponse('GET', url, data);
+                return self._customJSONResponse('GET', url, data);
             },
             'mock/custom/showoptions': function(url, data, options) {
-                return self._customResponse('GET', url, data, options);
+                return self._customJSONResponse('GET', url, data, options);
             }
         });
 
@@ -30,16 +29,16 @@ QUnit.module("creme.ajax.query.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMix
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500'),
             'mock/custom': function(url, data, options) {
-                return self._customResponse('POST', url, data);
+                return self._customJSONResponse('POST', url, data);
             }
         });
     },
 
-    _customResponse: function(action, url, data, options) {
+    _customJSONResponse: function(action, url, data, options) {
         if (Object.isNone(options) === false) {
-            return this.backend.response(200, $.toJSON({url: url, method: action, data: data, options: options}));
+            return this.backend.responseJSON(200, {url: url, method: action, data: data, options: options});
         } else {
-            return this.backend.response(200, $.toJSON({url: url, method: action, data: data}));
+            return this.backend.responseJSON(200, {url: url, method: action, data: data});
         }
     }
 }));
@@ -112,7 +111,7 @@ QUnit.test('creme.ajax.Query.get (url)', function(assert) {
     query.url('mock/options/1').get();
 
     deepEqual([
-               ['done', ['a']]
+               ['done', $.toJSON(['a'])]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -121,8 +120,8 @@ QUnit.test('creme.ajax.Query.get (url)', function(assert) {
     query.url('mock/options/3').get();
 
     deepEqual([
-               ['done', ['a']],
-               ['done', ['a', 'b', 'c']]
+               ['done', $.toJSON(['a'])],
+               ['done', $.toJSON(['a', 'b', 'c'])]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -210,7 +209,7 @@ QUnit.test('creme.ajax.Query.get (url, merge backend options)', function(assert)
     query.url('mock/custom/showoptions').get({c: 12});
 
     deepEqual([
-               ['done', $.toJSON({url: 'mock/custom/showoptions', method: 'GET', data: {c: 12}, options: $.extend({}, backend_options, {dataType: 'json'})})]
+               ['done', {url: 'mock/custom/showoptions', method: 'GET', data: {c: 12}, options: $.extend({}, backend_options, {dataType: 'json'})}]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -219,8 +218,8 @@ QUnit.test('creme.ajax.Query.get (url, merge backend options)', function(assert)
     query.get({a: 'test'}, {sync: true, custom: true});
 
     deepEqual([
-        ['done', $.toJSON({url: 'mock/custom/showoptions', method: 'GET', data: {c: 12}, options: $.extend({}, backend_options, {dataType: 'json'})})],
-        ['done', $.toJSON({url: 'mock/custom/showoptions', method: 'GET', data: {a: 'test'}, options: $.extend({}, backend_options, {sync: true, dataType: 'json', custom: true})})]
+        ['done', {url: 'mock/custom/showoptions', method: 'GET', data: {c: 12}, options: $.extend({}, backend_options, {dataType: 'json'})}],
+        ['done', {url: 'mock/custom/showoptions', method: 'GET', data: {a: 'test'}, options: $.extend({}, backend_options, {sync: true, dataType: 'json', custom: true})}]
        ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -229,8 +228,9 @@ QUnit.test('creme.ajax.Query.get (url, merge backend options)', function(assert)
     query.get({b: 53}, {dataType: 'text'});
 
     deepEqual([
-        ['done', $.toJSON({url: 'mock/custom/showoptions', method: 'GET', data: {c: 12}, options: $.extend({}, backend_options, {dataType: 'json'})})],
-        ['done', $.toJSON({url: 'mock/custom/showoptions', method: 'GET', data: {a: 'test'}, options: $.extend({}, backend_options, {sync: true, dataType: 'json', custom: true})})],
+        ['done', {url: 'mock/custom/showoptions', method: 'GET', data: {c: 12}, options: $.extend({}, backend_options, {dataType: 'json'})}],
+        ['done', {url: 'mock/custom/showoptions', method: 'GET', data: {a: 'test'}, options: $.extend({}, backend_options, {sync: true, dataType: 'json', custom: true})}],
+        // datatype is text, so the JSON response is not parsed
         ['done', $.toJSON({url: 'mock/custom/showoptions', method: 'GET', data: {b: 53}, options: $.extend({}, backend_options, {dataType: 'text'})})]
        ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
@@ -256,7 +256,7 @@ QUnit.test('creme.ajax.Query.get (async)', function(assert) {
     setTimeout(function() {
         deepEqual([], self.mockListenerCalls('cancel'));
         deepEqual([
-            ['done', ['a']]
+            ['done', $.toJSON(['a'])]
         ], self.mockListenerCalls('complete'));
         start();
     }, 400);
@@ -568,5 +568,4 @@ QUnit.test('creme.ajax.query (empty url)', function(assert) {
         ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
-
 }(jQuery));

@@ -210,8 +210,8 @@ QUnit.test('creme.bricks.Brick.action (refresh)', function(assert) {
     deepEqual([['done']], this.mockListenerCalls('action-done').map(function(e) { return e.slice(0, 1); }));
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
-    ], this.mockBackendUrlCalls('mock/brick/all/reload'));
+        ['mock/brick/all/reload', 'GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}, {dataType: "json", delay: 0,  enableUriSearch: false, sync: true}]
+    ], this.mockBackendCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (add, submit)', function(assert) {
