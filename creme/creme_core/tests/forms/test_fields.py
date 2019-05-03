@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.core.exceptions import ValidationError
     from django.contrib.contenttypes.models import ContentType
     from django.forms import IntegerField, ChoiceField
@@ -8,13 +10,16 @@ try:
     from django.utils.translation import gettext as _
 
     from .base import FieldTestCase
-    from ..fake_models import FakeContact, FakeOrganisation
+
     from creme.creme_core.forms.fields import (DatePeriodField, DateRangeField,
             DurationField, ColorField, ChoiceOrCharField,
             OptionalChoiceField,
             CTypeChoiceField, EntityCTypeChoiceField,
-            MultiCTypeChoiceField, MultiEntityCTypeChoiceField)
-    from creme.creme_core.models import RelationType, CremePropertyType, Currency
+            MultiCTypeChoiceField, MultiEntityCTypeChoiceField,
+            ForcedModelMultipleChoiceField)
+    from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+    from creme.creme_core.models import (RelationType, CremePropertyType, Currency,
+            FakeContact, FakeOrganisation, FakeSector)
     from creme.creme_core.utils.date_period import (DatePeriod, MinutesPeriod, HoursPeriod, DaysPeriod,
             DatePeriodRegistry, date_period_registry)
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
@@ -524,3 +529,165 @@ class MultiEntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
         self.assertFieldValidationError(MultiEntityCTypeChoiceField,
                                         'invalid_choice', clean, [self.ct2.id],
                                        )
+
+
+class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
+    def assertFoundChoice(self, pk, label, choices):
+        for choice in choices:
+            if choice[0].value == pk:
+                if choice[1] != label:
+                    self.fail('Choice with pk="{pk}" found with '
+                              'label "{found}" != "{label}"'.format(
+                        pk=pk,
+                        found=choice[1],
+                        label=label,
+                    ))
+
+                return choice
+
+        self.fail('Choice with pk="{}" not found'.format(pk))
+
+    def test_required(self):
+        field = ForcedModelMultipleChoiceField(queryset=FakeSector.objects.all())
+        self.assertTrue(field.required)
+        self.assertIsInstance(field.widget, UnorderedMultipleChoiceWidget)
+        self.assertSetEqual(set(), field.initial)
+
+        sectors = list(FakeSector.objects.all())
+        self.assertGreaterEqual(len(sectors), 3)
+
+        sector1 = sectors[0]
+        sector2 = sectors[1]
+        sector3 = sectors[2]
+
+        choices = list(field.choices)
+        choice1 = self.assertFoundChoice(sector1.id, sector1.title, choices)
+        self.assertFalse(choice1[0].readonly)
+
+        self.assertFoundChoice(sector2.id, sector2.title, choices)
+
+        clean = field.clean
+        self.assertSetEqual({sector1, sector3}, set(clean([sector1.id, sector3.id])))
+        self.assertSetEqual({sector1, sector3}, set(clean([str(sector1.id), str(sector3.id)])))
+
+        # NB: we need a 0-argument constructor
+        field_builder = partial(ForcedModelMultipleChoiceField, queryset=FakeSector.objects.all())
+        self.assertFieldValidationError(field_builder, 'required', clean, '')
+        self.assertFieldValidationError(field_builder, 'required', clean, [])
+        self.assertFieldValidationError(field_builder, 'required', clean, None)
+
+    def test_not_required(self):
+        field = ForcedModelMultipleChoiceField(queryset=FakeSector.objects.all(), required=False)
+
+        sector = FakeSector.objects.first()
+        self.assertIsNotNone(sector)
+
+        clean = field.clean
+        self.assertEqual([sector], list(clean([sector.id])))
+        self.assertFalse([], clean(''))
+        self.assertFalse([], clean([]))
+
+    def test_invalid(self):
+        field_builder = partial(ForcedModelMultipleChoiceField, queryset=FakeSector.objects.all())
+        field = field_builder()
+
+        invalid_pk = 1024
+        self.assertFalse(FakeSector.objects.filter(pk=invalid_pk))
+
+        self.assertFieldValidationError(field_builder, 'invalid_choice',
+                                        field.clean, [str(invalid_pk)],
+                                        message_args={'value': invalid_pk},
+                                       )
+
+    def test_forced_values01(self):
+        field_builder = partial(ForcedModelMultipleChoiceField,
+                                queryset=FakeSector.objects.all(),
+                                required=False,
+                               )
+        field1 = field_builder()
+        self.assertEqual(frozenset(), field1.forced_values)
+        self.assertFalse(field1.initial)
+
+        sectors = list(FakeSector.objects.all())
+        self.assertGreaterEqual(len(sectors), 3)
+
+        sector1, sector2, sector3 = sectors[:3]
+
+        field1.forced_values = [sector1.id, sector3.id]
+        self.assertEqual(frozenset([sector1.id, sector3.id]), field1.forced_values)
+        self.assertSetEqual({sector1.id, sector3.id}, field1.initial)
+
+        # --
+        choices = list(field1.choices)
+        choice1 = self.assertFoundChoice(sector1.id, sector1.title, choices)
+        self.assertTrue(choice1[0].readonly)
+
+        choice2 = self.assertFoundChoice(sector2.id, sector2.title, choices)
+        self.assertFalse(choice2[0].readonly)
+
+        # --
+        field2 = field_builder(forced_values=[sector2.id])
+        self.assertEqual(frozenset([sector2.id]), field2.forced_values)
+
+        clean = field2.clean
+        expected = {sector1, sector2}
+        self.assertSetEqual(expected, set(clean([sector1.id, sector2.id])))
+        self.assertSetEqual(expected, set(clean([sector1.id])))
+
+    def test_forced_values02(self):
+        "Use <to_field_name>."
+        field_builder = partial(ForcedModelMultipleChoiceField,
+                                queryset=FakeSector.objects.all(),
+                                required=False,
+                                to_field_name='title',
+                               )
+        sectors = list(FakeSector.objects.all())
+        self.assertGreaterEqual(len(sectors), 3)
+
+        sector1, sector2, sector3 = sectors[:3]
+
+        field = field_builder(forced_values=[sector2.title])
+
+        clean = field.clean
+        expected = {sector1, sector2}
+        self.assertSetEqual(expected, set(clean([sector1.title, sector2.title])))
+        self.assertSetEqual(expected, set(clean([sector1.title])))
+
+        # --
+        choices = list(field.choices)
+        choice1 = self.assertFoundChoice(sector1.title, sector1.title, choices)
+        self.assertFalse(choice1[0].readonly)
+
+        choice2 = self.assertFoundChoice(sector2.title, sector2.title, choices)
+        self.assertTrue(choice2[0].readonly)
+
+    def test_initial(self):
+        field = ForcedModelMultipleChoiceField(queryset=FakeSector.objects.all())
+        sector1, sector2 = FakeSector.objects.all()[:2]
+
+        field.initial = [sector2.id, sector1.id]
+        self.assertSetEqual({sector2.id, sector1.id}, field.initial)
+
+        field.initial = [sector1.id]
+        self.assertSetEqual({sector1.id}, field.initial)
+
+        field.initial = None
+        self.assertFalse(field.initial)
+
+        field.forced_values = [sector1.id]
+        field.initial = [sector2.id]
+        self.assertSetEqual({sector2.id, sector1.id}, field.initial)
+        self.assertEqual(frozenset([sector1.id]), field.forced_values)
+
+    def test_widget_choices(self):
+        field = ForcedModelMultipleChoiceField(queryset=FakeSector.objects.all())
+        sector1, sector2 = FakeSector.objects.all()[:2]
+        widget = field.widget
+        field.forced_values = [sector1.id]
+
+        choices = list(widget.choices)
+        choice1 = self.assertFoundChoice(sector1.id, sector1.title, choices)
+        self.assertTrue(choice1[0].readonly)
+
+        choice2 = self.assertFoundChoice(sector2.id, sector2.title, choices)
+        self.assertFalse(choice2[0].readonly)
