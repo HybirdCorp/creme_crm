@@ -1,4 +1,4 @@
-/* globals setTimeout QUnitConsoleMixin */
+/* globals setTimeout, QUnitConsoleMixin */
 
 (function($) {
 var PLOTSELECTOR_PIEGRAPH_SCRIPT = {
@@ -79,9 +79,9 @@ QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin,
         this.resetMockPlotSelectors();
 
         this.setMockBackendGET({
-            'mock/plot/1/data': this.backend.response(200, PLOTSELECTOR_PLOT_01_DATA),
-            'mock/plot/2/data': this.backend.response(200, PLOTSELECTOR_PLOT_02_DATA),
-            'mock/plot/invalid': this.backend.response(200, []),
+            'mock/plot/1/data': this.backend.responseJSON(200, PLOTSELECTOR_PLOT_01_DATA),
+            'mock/plot/2/data': this.backend.responseJSON(200, PLOTSELECTOR_PLOT_02_DATA),
+            'mock/plot/invalid': this.backend.responseJSON(200, []),
             'mock/plot/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/plot/error': this.backend.response(500, 'HTTP - Error 500')
         });
@@ -394,7 +394,7 @@ QUnit.test('creme.widget.PlotSelector.reload (no cache)', function(assert) {
 
     // replace backend data
     this.setMockBackendGET({
-        'mock/plot/1/data': this.backend.response(200, PLOTSELECTOR_PLOT_02_DATA)
+        'mock/plot/1/data': this.backend.responseJSON(200, PLOTSELECTOR_PLOT_02_DATA)
     });
 
     widget.reload({id: 1});
@@ -448,7 +448,7 @@ QUnit.test('creme.widget.PlotSelector.reload (cache, timeout)', function(assert)
 
     // replace backend data
     this.setMockBackendGET({
-        'mock/plot/1/data': this.backend.response(200, PLOTSELECTOR_PLOT_02_DATA)
+        'mock/plot/1/data': this.backend.responseJSON(200, PLOTSELECTOR_PLOT_02_DATA)
     });
 
     widget.reload({id: 1});
@@ -508,7 +508,7 @@ QUnit.test('creme.widget.PlotSelector.reload (cache, resetBackend)', function(as
 
     // replace backend data
     this.setMockBackendGET({
-        'mock/plot/1/data': this.backend.response(200, PLOTSELECTOR_PLOT_02_DATA)
+        'mock/plot/1/data': this.backend.responseJSON(200, PLOTSELECTOR_PLOT_02_DATA)
     });
 
     widget.reload({id: 1});

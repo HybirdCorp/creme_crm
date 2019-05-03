@@ -1,10 +1,12 @@
+/* globals notEqual, QUnitWidgetMixin */
+
 (function($) {
 
 var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
 
 QUnit.module("creme.widget.selectorlist.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMixin, QUnitWidgetMixin, {
     buildMockBackend: function() {
-        return new creme.ajax.MockAjaxBackend({sync:true, name: 'creme.widget.selectorlist.js'});
+        return new creme.ajax.MockAjaxBackend({sync: true, name: 'creme.widget.selectorlist.js'});
     },
 
     beforeEach: function() {
@@ -12,13 +14,13 @@ QUnit.module("creme.widget.selectorlist.js", new QUnitMixin(QUnitAjaxMixin, QUni
             'mock/entity/label/123': this.backend.response(200, [['John Doe']]),
             'mock/entity/label/456': this.backend.response(200, [['Bean Bandit']]),
             'mock/popup': this.backend.response(200, MOCK_FRAME_CONTENT),
-            'mock/options': this.backend.response(200, [[15, 'a'], [5, 'b'], [3, 'c'], [14, 't'], [42, 'y']]),
-            'mock/rtype/1/options': this.backend.response(200, [['rtype.1', 'a'], ['rtype.12', 'b'], ['rtype.3', 'c']]),
-            'mock/rtype/5/options': this.backend.response(200, [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]),
-            'mock/rtype/15/options': this.backend.response(200, [['rtype.12', 'b'], ['rtype.2', 'e']]),
-            'mock/entity/rtype.12/15/options': this.backend.response(200, [['123', 'John Doe'], ['456', 'Bean Bandit']]),
-            'mock/entity/rtype.22/5/options': this.backend.response(200, [['456', 'Bean Bandit'], ['789', 'Mini May']]),
-            'mock/options/empty': this.backend.response(200, []),
+            'mock/options': this.backend.responseJSON(200, [[15, 'a'], [5, 'b'], [3, 'c'], [14, 't'], [42, 'y']]),
+            'mock/rtype/1/options': this.backend.responseJSON(200, [['rtype.1', 'a'], ['rtype.12', 'b'], ['rtype.3', 'c']]),
+            'mock/rtype/5/options': this.backend.responseJSON(200, [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]),
+            'mock/rtype/15/options': this.backend.responseJSON(200, [['rtype.12', 'b'], ['rtype.2', 'e']]),
+            'mock/entity/rtype.12/15/options': this.backend.responseJSON(200, [['123', 'John Doe'], ['456', 'Bean Bandit']]),
+            'mock/entity/rtype.22/5/options': this.backend.responseJSON(200, [['456', 'Bean Bandit'], ['789', 'Mini May']]),
+            'mock/options/empty': this.backend.responseJSON(200, []),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500')
         });
@@ -44,9 +46,9 @@ QUnit.module("creme.widget.selectorlist.js", new QUnitMixin(QUnitAjaxMixin, QUni
     },
 
     appendSelectorListModelTag: function(element, selector, widget, options) {
-        var selector = creme.widget.buildTag(selector, widget, options, false);
-        $('.inner-selector-model', element).append(selector);
-        return selector;
+        var selectorTag = creme.widget.buildTag(selector, widget, options, false);
+        $('.inner-selector-model', element).append(selectorTag);
+        return selectorTag;
     },
 
     createCTypeSelectTag: function() {
@@ -56,7 +58,7 @@ QUnit.module("creme.widget.selectorlist.js", new QUnitMixin(QUnitAjaxMixin, QUni
         this.appendOptionTag(model, 'b', 5);
         this.appendOptionTag(model, 'c', 3);
 
-        return ctype;
+        return model;
     },
 
     createCTypeRTypeSelectorTag: function() {
@@ -109,7 +111,7 @@ QUnit.test('creme.widgets.selectorlist.create (empty, model)', function(assert) 
     equal(widget.selectorModel().creme().isActive(), false);
 });
 
-QUnit.test('creme.widgets.selectorlist.create (empty, model, disabled)', function(assert) {
+QUnit.test('creme.widgets.selectorlist.create (empty, model, [disabled])', function(assert) {
     var element = this.createSelectorListTag('', false, {disabled: ''});
     var ctype = this.createDynamicSelectTag();
     this.appendOptionTag(ctype, 'a', 15);
@@ -121,7 +123,9 @@ QUnit.test('creme.widgets.selectorlist.create (empty, model, disabled)', functio
 
     equal(element.is('[disabled]'), true);
     equal(widget.delegate._enabled, false);
+});
 
+QUnit.test('creme.widgets.selectorlist.create (empty, model, {disabled: true})', function(assert) {
     var element = this.createSelectorListTag();
     var ctype = this.createDynamicSelectTag();
     this.appendOptionTag(ctype, 'a', 15);
@@ -161,7 +165,7 @@ QUnit.test('creme.widgets.selectorlist.create (empty, chained selector)', functi
 });
 
 QUnit.test('creme.widgets.selectorlist.create (value, no selector)', function(assert) {
-    var element = this.createSelectorListTag($.toJSON([{ctype: '12', rtype:'rtype.3'}]));
+    var element = this.createSelectorListTag($.toJSON([{ctype: '12', rtype: 'rtype.3'}]));
     var widget = creme.widget.create(element);
 
     equal(element.hasClass('widget-active'), true);
@@ -263,13 +267,13 @@ QUnit.test('creme.widgets.selectorlist.value (value, no selector)', function(ass
     equal(widget.lastSelector().length, 0);
     equal(widget.selectors().length, 0);
 
-    widget.val($.toJSON([{ctype: '12', rtype:'rtype.3'}]));
+    widget.val($.toJSON([{ctype: '12', rtype: 'rtype.3'}]));
     equal(widget.val(), $.toJSON([]));
     equal(widget.selectorModel().length, 0);
     equal(widget.lastSelector().length, 0);
     equal(widget.selectors().length, 0);
 
-    widget.val([{ctype: '12', rtype:'rtype.3'}]);
+    widget.val([{ctype: '12', rtype: 'rtype.3'}]);
     equal(widget.val(), $.toJSON([]));
     equal(widget.selectorModel().length, 0);
     equal(widget.lastSelector().length, 0);
@@ -422,7 +426,7 @@ QUnit.test('creme.widgets.selectorlist.multiple-change (single selector)', funct
 
     var widget = creme.widget.create(element);
 
-    element.on('change-multiple', this.mockListener('change-multiple'))
+    element.on('change-multiple', this.mockListener('change-multiple'));
     deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
 
     // append [ctype=15]
@@ -488,7 +492,7 @@ QUnit.test('creme.widgets.selectorlist.multiple-change (multiple selector)', fun
 
     var widget = creme.widget.create(element);
 
-    element.on('change-multiple', this.mockListener('change-multiple'))
+    element.on('change-multiple', this.mockListener('change-multiple'));
     deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
 
     // append [{ctype=15, rtype=1}]
@@ -508,28 +512,28 @@ QUnit.test('creme.widgets.selectorlist.multiple-change (multiple selector)', fun
     ], this.mockListenerJQueryCalls('change-multiple'));
 
     equal(widget.selectors().length, 3);
-    equal(widget.val(), $.toJSON([{ctype: '15', rtype:'6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}]));
+    equal(widget.val(), $.toJSON([{ctype: '15', rtype: '6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}]));
 
     // append [{ctype=15, rtype=6}, {ctype=15, rtype=1}, {ctype=15, rtype=17}, {ctype=15, rtype=1}]
     selector = widget.appendSelector();
 
     equal(widget.selectors().length, 4);
-    equal(widget.val(), $.toJSON([{ctype: '15', rtype:'6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}, {ctype: '15', rtype: '1'}]));
+    equal(widget.val(), $.toJSON([{ctype: '15', rtype: '6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}, {ctype: '15', rtype: '1'}]));
 
     // single change [{ctype=15, rtype=6}, {ctype=15, rtype=1}, {ctype=15, rtype=17}, {ctype=24, rtype=1}]
     selector.selector('ctype').val('24').change();
     equal(widget.selectors().length, 4);
-    equal(widget.val(), $.toJSON([{ctype: '15', rtype:'6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}, {ctype: '24', rtype: '1'}]));
+    equal(widget.val(), $.toJSON([{ctype: '15', rtype: '6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}, {ctype: '24', rtype: '1'}]));
 
     // multiple change [{ctype=15, rtype=6}, {ctype=15, rtype=1}, {ctype=15, rtype=17}, {ctype=24, rtype=1}, {ctype=24, rtype=6}]
     selector.selector('rtype').trigger('change-multiple', [['1', '6']]);
     deepEqual([
-        ['change-multiple', [[{ctype: '15', rtype:'6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}]]],
-        ['change-multiple', [[{ctype: '24', rtype:'1'}, {ctype: '24', rtype: '6'}]]]
+        ['change-multiple', [[{ctype: '15', rtype: '6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}]]],
+        ['change-multiple', [[{ctype: '24', rtype: '1'}, {ctype: '24', rtype: '6'}]]]
     ], this.mockListenerJQueryCalls('change-multiple'));
 
     equal(widget.selectors().length, 5);
-    equal(widget.val(), $.toJSON([{ctype: '15', rtype:'6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}, {ctype: '24', rtype: '1'}, {ctype: '24', rtype: '6'}]));
+    equal(widget.val(), $.toJSON([{ctype: '15', rtype: '6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}, {ctype: '24', rtype: '1'}, {ctype: '24', rtype: '6'}]));
 });
 
 QUnit.test('creme.widgets.selectorlist.append (empty)', function(assert) {
@@ -801,6 +805,5 @@ QUnit.test('creme.widgets.selectorlist.appendLast (not empty, no clone last)', f
     equal(widget.selectorModel().length, 1);
     equal(widget.selectors().length, 3);
 });
-
 }(jQuery));
 

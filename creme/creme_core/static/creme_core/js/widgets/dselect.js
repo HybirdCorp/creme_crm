@@ -162,6 +162,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
             return;
         }
 
+        // TODO : a bit strange behaviour, remove it later
         if (!url) {
             this._onModelChange(element);
             creme.object.invoke(error_cb, element, new creme.ajax.AjaxResponse('404', ''));

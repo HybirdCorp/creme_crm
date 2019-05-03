@@ -92,13 +92,23 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
             console.log('mockajax > send > url:', url, 'options:', options, 'response:', response);
         }
 
+        var responseData = response.responseText;
+
+        try {
+            if (response.status === 200 && options.dataType === 'json') {
+                responseData = JSON.parse(responseData);
+            }
+        } catch (e) {
+            response = this.response(500, '' + e);
+        }
+
         if (response.status !== 200) {
             return creme.object.invoke(on_error, response.responseText, new creme.ajax.AjaxResponse(response.status,
                                                                                                     response.responseText,
                                                                                                     response.xhr));
         }
 
-        return creme.object.invoke(on_success, response.responseText, response.statusText, response);
+        return creme.object.invoke(on_success, responseData, response.statusText, response);
     },
 
     get: function(url, data, on_success, on_error, options) {

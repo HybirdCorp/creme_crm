@@ -22,9 +22,9 @@ QUnit.module("creme.widget.actionlist.js", new QUnitMixin(QUnitAjaxMixin,
         var backend = this.backend;
 
         this.setMockBackendGET({
-            'mock/options': backend.response(200, [[15, 'a'], [5, 'b'], [3, 'c'], [14, 't'], [42, 'y']]),
-            'mock/rtype/1/options': backend.response(200, [['rtype.1', 'a'], ['rtype.12', 'b'], ['rtype.3', 'c']]),
-            'mock/rtype/5/options': backend.response(200, [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]),
+            'mock/options': backend.responseJSON(200, [[15, 'a'], [5, 'b'], [3, 'c'], [14, 't'], [42, 'y']]),
+            'mock/rtype/1/options': backend.responseJSON(200, [['rtype.1', 'a'], ['rtype.12', 'b'], ['rtype.3', 'c']]),
+            'mock/rtype/5/options': backend.responseJSON(200, [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]),
             'mock/create/popup': backend.response(200, MOCK_CREATE_FORM),
             'mock/create/popup/fail': backend.response(400, 'HTTP - Error 400'),
             'mock/forbidden': backend.response(403, 'HTTP - Error 403'),

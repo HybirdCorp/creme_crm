@@ -27,7 +27,7 @@
 
             this.setMockBackendGET({
                 'mock/brick/status': function(url, data, options) {
-                    return backend.response(200, $.toJSON(self.mockBrickState));
+                    return backend.responseJSON(200, self.mockBrickState);
                 },
                 'mock/brick/all/reload': function(url, data, options) {
                     var brickContents = (data.brick_id || []).map(function(id) {
@@ -35,7 +35,7 @@
                         return [id, content || MOCK_BRICK_CONTENT.template({id: id})];
                     });
 
-                    return backend.response(200, brickContents);
+                    return backend.responseJSON(200, brickContents);
                 },
                 'mock/view': backend.response(200, MOCK_FRAME_CONTENT),
                 'mock/form': backend.response(200, MOCK_FRAME_CONTENT_FORM.template({action: 'mock/form'})),
@@ -48,18 +48,18 @@
             this.setMockBackendPOST({
                 'mock/brick/status': function(url, data, options) {
                     self.mockBrickState = data || {};
-                    return backend.response(200, $.toJSON(self.mockBrickState));
+                    return backend.responseJSON(200, self.mockBrickState);
                 },
                 'mock/brick/update': function(url, data, options) {
                     if (data.next) {
-                        return backend.response(200, data.next);
+                        return backend.responseJSON(200, data.next);
                     } else {
                         return backend.response(200);
                     }
                 },
                 'mock/brick/delete': backend.response(200),
                 'mock/form': backend.response(200),
-                'mock/form/redirect': backend.response(200, 'mock/redirect', {'Content-Type': 'text/json'}),
+                'mock/form/redirect': backend.response(200, 'mock/redirect', {'Content-Type': 'text/plain'}),
                 'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
                 'mock/error': backend.response(500, 'HTTP - Error 500')
             });

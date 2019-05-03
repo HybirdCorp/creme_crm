@@ -1,15 +1,15 @@
+/* globals QUnitWidgetMixin */
 (function($) {
-
-QUnit.module("creme.widget.dselect.js", new QUnitMixin(QUnitAjaxMixin, QUnitWidgetMixin, {
+QUnit.module("creme.widget.dselect.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMixin, QUnitWidgetMixin, {
     buildMockBackend: function() {
-        return new creme.ajax.MockAjaxBackend({sync:true, name: 'creme.widget.dselect.js'});
+        return new creme.ajax.MockAjaxBackend({sync: true});
     },
 
     beforeEach: function() {
         this.setMockBackendGET({
-            'mock/options': this.backend.response(200, [[1, 'a'], [15, 'b'], [12.5, 'c']]),
-            'mock/options/42': this.backend.response(200, [[1, 'a'], [15, 'b'], [12.5, 'c']]),
-            'mock/options/empty': this.backend.response(200, []),
+            'mock/options': this.backend.responseJSON(200, [[1, 'a'], [15, 'b'], [12.5, 'c']]),
+            'mock/options/42': this.backend.responseJSON(200, [[1, 'a'], [15, 'b'], [12.5, 'c'], [42, 'd']]),
+            'mock/options/empty': this.backend.responseJSON(200, []),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500')
         });
@@ -51,9 +51,9 @@ QUnit.test('creme.widget.DynamicSelect.create (static)', function(assert) {
     equal('5', $('option:nth(1)', element).attr('value'));
     equal('3', $('option:nth(2)', element).attr('value'));
 
-    deepEqual([1, 'a'], element.creme().widget().choice(1));
-    deepEqual([5, 'b'], element.creme().widget().choice(5));
-    deepEqual([3, 'c'], element.creme().widget().choice(3));
+    deepEqual([1, 'a'], widget.choice(1));
+    deepEqual([5, 'b'], widget.choice(5));
+    deepEqual([3, 'c'], widget.choice(3));
 });
 
 QUnit.test('creme.widget.DynamicSelect.create (static, disabled)', function(assert) {
@@ -71,13 +71,13 @@ QUnit.test('creme.widget.DynamicSelect.create (static, disabled)', function(asse
     equal(widget.delegate._enabled, false);
     equal(element.is('[disabled]'), true);
 
-    var element = this.createDynamicSelectTag();
+    element = this.createDynamicSelectTag();
     this.appendOptionTag(element, 'a', 1);
     this.appendOptionTag(element, 'b', 5);
 
     equal(element.is('[disabled]'), false);
 
-    var widget = creme.widget.create(element, {disabled: true});
+    widget = creme.widget.create(element, {disabled: true});
 
     equal(widget.delegate._enabled, false);
     equal(element.is('[disabled]'), true);
@@ -89,7 +89,7 @@ QUnit.test('creme.widget.DynamicSelect.create (static, empty url)', function(ass
     this.appendOptionTag(element, 'b', 5);
     this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {backend: this.backend});
+    var widget = creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -99,16 +99,16 @@ QUnit.test('creme.widget.DynamicSelect.create (static, empty url)', function(ass
     equal('5', $('option:nth(1)', element).attr('value'));
     equal('3', $('option:nth(2)', element).attr('value'));
 
-    deepEqual([1, 'a'], element.creme().widget().choice(1));
-    deepEqual([5, 'b'], element.creme().widget().choice(5));
-    deepEqual([3, 'c'], element.creme().widget().choice(3));
+    deepEqual([1, 'a'], widget.choice(1));
+    deepEqual([5, 'b'], widget.choice(5));
+    deepEqual([3, 'c'], widget.choice(3));
 });
 
 
 QUnit.test('creme.widget.DynamicSelect.create (url)', function(assert) {
     var element = this.createDynamicSelectTag('mock/options');
 
-    creme.widget.create(element, {backend: this.backend});
+    var widget = creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -123,9 +123,9 @@ QUnit.test('creme.widget.DynamicSelect.create (url)', function(assert) {
     equal('12.5', $('option:nth(2)', element).attr('value'));
     equal('c', $('option:nth(2)', element).text());
 
-    deepEqual([1, 'a'], element.creme().widget().choice(1));
-    deepEqual([15, 'b'], element.creme().widget().choice(15));
-    deepEqual([12.5, 'c'], element.creme().widget().choice(12.5));
+    deepEqual([1, 'a'], widget.choice(1));
+    deepEqual([15, 'b'], widget.choice(15));
+    deepEqual([12.5, 'c'], widget.choice(12.5));
 });
 
 QUnit.test('creme.widget.DynamicSelect.create (unknown url)', function(assert) {
@@ -164,40 +164,38 @@ QUnit.test('creme.widget.DynamicSelect.destroy', function(assert) {
     equal('12.5', $('option:nth(2)', element).attr('value'));
 });
 
-QUnit.test('creme.widget.DynamicSelect.choices', function()
-{
+QUnit.test('creme.widget.DynamicSelect.choices', function() {
     var element = this.createDynamicSelectTag();
     this.appendOptionTag(element, 'a', 1);
     this.appendOptionTag(element, 'b', 5);
     this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {backend: this.backend});
-    equal(element.creme().widget().url(), "");
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), "");
 
-    deepEqual(element.creme().widget().choices(), [['1', 'a'], ['5', 'b'], ['3', 'c']]);
-    deepEqual(element.creme().widget().choice('1'), ['1', 'a']);
-    deepEqual(element.creme().widget().choice('5'), ['5', 'b']);
-    deepEqual(element.creme().widget().choice('3'), ['3', 'c']);
-    equal(element.creme().widget().choice('15'), undefined);
+    deepEqual(widget.choices(), [['1', 'a'], ['5', 'b'], ['3', 'c']]);
+    deepEqual(widget.choice('1'), ['1', 'a']);
+    deepEqual(widget.choice('5'), ['5', 'b']);
+    deepEqual(widget.choice('3'), ['3', 'c']);
+    equal(widget.choice('15'), undefined);
 });
 
-QUnit.test('creme.widget.DynamicSelect.choices (json)', function()
-{
+QUnit.test('creme.widget.DynamicSelect.choices (json)', function() {
     var element = this.createDynamicSelectTag();
-    this.appendOptionTag(element, 'a', $.toJSON({id:1, name:'a'}));
-    this.appendOptionTag(element, 'b', $.toJSON({id:5, name:'b'}));
-    this.appendOptionTag(element, 'c', $.toJSON({id:3, name:'c'}));
+    this.appendOptionTag(element, 'a', $.toJSON({id: 1, name: 'a'}));
+    this.appendOptionTag(element, 'b', $.toJSON({id: 5, name: 'b'}));
+    this.appendOptionTag(element, 'c', $.toJSON({id: 3, name: 'c'}));
 
-    creme.widget.create(element, {backend: this.backend});
-    equal(element.creme().widget().url(), "");
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), "");
 
-    deepEqual(element.creme().widget().choices(), [[$.toJSON({id:1, name:'a'}), 'a'], 
-                                                   [$.toJSON({id:5, name:'b'}), 'b'], 
-                                                   [$.toJSON({id:3, name:'c'}), 'c']]);
-    deepEqual(element.creme().widget().choice($.toJSON({id:1, name:'a'})), [$.toJSON({id:1, name:'a'}), 'a']);
-    deepEqual(element.creme().widget().choice($.toJSON({id:5, name:'b'})), [$.toJSON({id:5, name:'b'}), 'b']);
-    deepEqual(element.creme().widget().choice($.toJSON({id:3, name:'c'})), [$.toJSON({id:3, name:'c'}), 'c']);
-    equal(element.creme().widget().choice('15'), undefined);
+    deepEqual(widget.choices(), [[$.toJSON({id: 1, name: 'a'}), 'a'],
+                                 [$.toJSON({id: 5, name: 'b'}), 'b'],
+                                 [$.toJSON({id: 3, name: 'c'}), 'c']]);
+    deepEqual(widget.choice($.toJSON({id: 1, name: 'a'})), [$.toJSON({id: 1, name: 'a'}), 'a']);
+    deepEqual(widget.choice($.toJSON({id: 5, name: 'b'})), [$.toJSON({id: 5, name: 'b'}), 'b']);
+    deepEqual(widget.choice($.toJSON({id: 3, name: 'c'})), [$.toJSON({id: 3, name: 'c'}), 'c']);
+    equal(widget.choice('15'), undefined);
 });
 
 QUnit.test('creme.widget.DynamicSelect.groups', function(assert) {
@@ -208,38 +206,38 @@ QUnit.test('creme.widget.DynamicSelect.groups', function(assert) {
     this.appendOptionTag(group1, 'b', 5);
 
     var group2 = this.appendOptionGroupTag(element, 'group2');
-    this.appendOptionTag(element, 'c', 3);
+    this.appendOptionTag(group2, 'c', 3);
 
     var widget = creme.widget.create(element, {backend: this.backend});
 
-    deepEqual(element.creme().widget().choices(), [['1', 'a'], ['5', 'b'], ['3', 'c']]);
-    deepEqual(element.creme().widget().choice('1'), ['1', 'a']);
-    deepEqual(element.creme().widget().choice('5'), ['5', 'b']);
-    deepEqual(element.creme().widget().choice('3'), ['3', 'c']);
-    equal(element.creme().widget().choice('15'), undefined);
+    deepEqual(widget.choices(), [['1', 'a'], ['5', 'b'], ['3', 'c']]);
+    deepEqual(widget.choice('1'), ['1', 'a']);
+    deepEqual(widget.choice('5'), ['5', 'b']);
+    deepEqual(widget.choice('3'), ['3', 'c']);
+    equal(widget.choice('15'), undefined);
 
-    deepEqual(element.creme().widget().groups(), ['group1', 'group2']);
+    deepEqual(widget.groups(), ['group1', 'group2']);
 });
 
-QUnit.test('creme.widget.DynamicSelect.url (static, unknown url)', function(assert) {
+QUnit.test('creme.widget.DynamicSelect.url (static, empty url)', function(assert) {
     var element = this.createDynamicSelectTag();
     this.appendOptionTag(element, 'a', 1);
     this.appendOptionTag(element, 'b', 5);
     this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {backend: this.backend});
-    equal(element.creme().widget().url(), "");
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), "");
 
     var response = [];
-    element.creme().widget().model().one({
-        'fetch-done': function() {response.push('ok');},
-        'fetch-error': function() {response.push('error');}
+    widget.model().one({
+        'fetch-done': function() { response.push('ok'); },
+        'fetch-error': function() { response.push('error'); }
     });
 
-    element.creme().widget().url('unknown');
+    widget.url('unknown');
     deepEqual(response, ['error']);
 
-    equal(element.creme().widget().url(), 'unknown');
+    equal(widget.url(), 'unknown');
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('1', $('option:nth(0)', element).attr('value'));
@@ -247,11 +245,11 @@ QUnit.test('creme.widget.DynamicSelect.url (static, unknown url)', function(asse
     equal('3', $('option:nth(2)', element).attr('value'));
 });
 
-QUnit.test('creme.widget.DynamicSelect.url (url, unknown url)', function(assert) {
+QUnit.test('creme.widget.DynamicSelect.url (static, unknown url)', function(assert) {
     var element = this.createDynamicSelectTag('mock/options');
 
-    creme.widget.create(element, {backend: this.backend});
-    equal(element.creme().widget().url(), "mock/options");
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), "mock/options");
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('1', $('option:nth(0)', element).attr('value'));
@@ -259,15 +257,15 @@ QUnit.test('creme.widget.DynamicSelect.url (url, unknown url)', function(assert)
     equal('12.5', $('option:nth(2)', element).attr('value'));
 
     var response = [];
-    element.creme().widget().model().one({
-        'fetch-done': function() {response.push('ok');},
-        'fetch-error': function() {response.push('error');}
+    widget.model().one({
+        'fetch-done': function() { response.push('ok'); },
+        'fetch-error': function() { response.push('error'); }
     });
 
-    element.creme().widget().url('unknown');
+    widget.url('unknown');
     deepEqual(response, ['error']);
 
-    equal(element.creme().widget().url(), 'unknown');
+    equal(widget.url(), 'unknown');
     equal(0, $('option', element).length);
     equal(element.is(':disabled'), true);
 });
@@ -278,88 +276,225 @@ QUnit.test('creme.widget.DynamicSelect.url (static)', function(assert) {
     this.appendOptionTag(element, 'b', 5);
     this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {backend: this.backend});
-    equal(element.creme().widget().url(), "");
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), "");
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('5', $('option:nth(1)', element).attr('value'));
     equal('3', $('option:nth(2)', element).attr('value'));
 
-    element.creme().widget().url('mock/options');
+    widget.url('mock/options');
 
-    equal(element.creme().widget().url(), 'mock/options');
+    equal(widget.url(), 'mock/options');
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('15', $('option:nth(1)', element).attr('value'));
     equal('12.5', $('option:nth(2)', element).attr('value'));
 
-    element.creme().widget().url('mock/options/empty');
+    widget.url('mock/options/empty');
 
-    equal(element.creme().widget().url(), 'mock/options/empty');
+    equal(widget.url(), 'mock/options/empty');
     equal(0, $('option', element).length);
     equal(element.is(':disabled'), true);
 });
 
-QUnit.test('creme.widget.DynamicSelect.reload (template url)', function(assert) {
+QUnit.test('creme.widget.DynamicSelect.url (force empty url)', function(assert) {
     var element = this.createDynamicSelectTag('mock/${name}${content}');
     this.appendOptionTag(element, 'a', 1);
     this.appendOptionTag(element, 'b', 5);
     this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {backend: this.backend});
-    equal(element.creme().widget().url(), null);
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), null);
 
-    var response = [];
-    element.creme().widget().reload({name:'options', content:''},
-                                    function() {response.push('ok');}, function() {response.push('error');});
-    deepEqual(response, ['ok'], 'template');
+    widget.reload({name: 'options', content: ''});
 
-    equal(element.creme().widget().url(), 'mock/options');
+    deepEqual([
+        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+    ], this.mockBackendCalls());
+
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('15', $('option:nth(1)', element).attr('value'));
     equal('12.5', $('option:nth(2)', element).attr('value'));
-
-    response = [];
-    element.creme().widget().reload({name:'options', content:'/empty'},
-                                    function() {response.push('ok');}, function() {response.push('error');});
-    deepEqual(response, ['ok'], 'other template data');
-
-    equal(element.creme().widget().url(), 'mock/options/empty');
-    equal(0, $('option', element).length);
-    equal(element.is(':disabled'), true);
 
     // invalid template (url is incomplete)
-    response = [];
-    element.creme().widget().model().one({
-        'fetch-done': function() {response.push('ok');},
-        'fetch-error': function() {response.push('error');}
-    });
-    element.creme().widget().url('');
-    deepEqual(response, [], 'empty template');
-
-    equal(0, $('option', element).length);
-    equal(element.is(':disabled'), true);
-
-    // force template in widgetoptions.url
-    response = [];
-    element.creme().widget().model().unbind(['fetch-done', 'fetch-error']);
-    element.creme().widget().model().one({
-        'fetch-done': function() {response.push('ok');},
-        'fetch-error': function() {response.push('error');}
+    widget.model().one({
+        'fetch-done': this.mockListenerCalls('fetch-done'),
+        'fetch-error': this.mockListenerCalls('fetch-error')
     });
 
-    element.creme().widget().url('mock/${name}');
-    deepEqual(['ok'], response, 'updated template data');
+    widget.url('');
+
+    // model is never fetched
+    deepEqual([], this.mockListenerCalls('fetch-done'));
+    deepEqual([], this.mockListenerCalls('fetch-error'));
+    deepEqual([
+        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+    ], this.mockBackendCalls());
+
+    equal('', widget.url());
+    equal(3, $('option', element).length);
+    equal(element.is(':disabled'), false);
+    equal('1', $('option:nth(0)', element).attr('value'));
+    equal('15', $('option:nth(1)', element).attr('value'));
+    equal('12.5', $('option:nth(2)', element).attr('value'));
+
+});
+
+QUnit.test('creme.widget.DynamicSelect.url (template, ok)', function(assert) {
+    var element = this.createDynamicSelectTag('mock/${name}${content}');
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
+
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), null);
+
+    widget.model().bind({
+        'fetch-done': this.mockListener('fetch-done'),
+        'fetch-error': this.mockListener('fetch-error')
+    });
+
+    widget.reload({name: 'options', content: ''});
 
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('15', $('option:nth(1)', element).attr('value'));
     equal('12.5', $('option:nth(2)', element).attr('value'));
+
+    deepEqual([
+        [{label: 'a', value: 1, disabled: false, selected: false, visible: true, group: undefined, help: undefined},
+         {label: 'b', value: 15, disabled: false, selected: false, visible: true, group: undefined, help: undefined},
+         {label: 'c', value: 12.5, disabled: false, selected: false, visible: true, group: undefined, help: undefined}
+        ]
+    ], this.mockListenerCalls('fetch-done').map(function(d) { return d[1]; }));
+    deepEqual([
+        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+    ], this.mockBackendCalls());
+
+    this.resetMockListenerCalls();
+
+    widget.url('mock/${name}/42');
+
+    equal(4, $('option', element).length);
+    equal(element.is(':disabled'), false);
+    equal('1', $('option:nth(0)', element).attr('value'));
+    equal('15', $('option:nth(1)', element).attr('value'));
+    equal('12.5', $('option:nth(2)', element).attr('value'));
+    equal('42', $('option:nth(3)', element).attr('value'));
+
+    deepEqual([
+        [{label: 'a', value: 1, disabled: false, selected: false, visible: true, group: undefined, help: undefined},
+         {label: 'b', value: 15, disabled: false, selected: false, visible: true, group: undefined, help: undefined},
+         {label: 'c', value: 12.5, disabled: false, selected: false, visible: true, group: undefined, help: undefined},
+         {label: 'd', value: 42, disabled: false, selected: false, visible: true, group: undefined, help: undefined}
+        ]
+    ], this.mockListenerCalls('fetch-done').map(function(d) { return d[1]; }));
+    deepEqual([], this.mockListenerCalls('error'));
+    deepEqual([
+        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}],
+        ['mock/options/42', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+    ], this.mockBackendCalls());
+});
+
+QUnit.test('creme.widget.DynamicSelect.reload (valid template => unknown)', function(assert) {
+    var element = this.createDynamicSelectTag('mock/${name}${content}');
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
+
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), null);
+
+    widget.reload({name: 'options', content: '/unknown'}, this.mockListener('done'), this.mockListener('error'));
+
+    equal(widget.url(), 'mock/options/unknown');
+    equal(3, $('option', element).length);
+    equal(element.is(':disabled'), false);
+    equal('1', $('option:nth(0)', element).attr('value'));
+    equal('5', $('option:nth(1)', element).attr('value'));
+    equal('3', $('option:nth(2)', element).attr('value'));
+
+    deepEqual([], this.mockListenerCalls('done'));
+    deepEqual([
+        [404, '']
+    ], this.mockListenerCalls('error').map(function(d) { return [d[1].status, d[1].message]; }));
+    deepEqual([], this.mockBackendCalls());
+});
+
+QUnit.test('creme.widget.DynamicSelect.reload (valid template => ok)', function(assert) {
+    var element = this.createDynamicSelectTag('mock/${name}${content}');
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
+
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), null);
+
+    widget.reload({name: 'options', content: ''}, this.mockListener('done'), this.mockListener('error'));
+
+    deepEqual([
+        [{label: 'a', value: 1, disabled: false, selected: false, visible: true, group: undefined, help: undefined},
+         {label: 'b', value: 15, disabled: false, selected: false, visible: true, group: undefined, help: undefined},
+         {label: 'c', value: 12.5, disabled: false, selected: false, visible: true, group: undefined, help: undefined}]
+    ], this.mockListenerCalls('done').map(function(d) { return d[1]; }));
+    deepEqual([], this.mockListenerCalls('error'));
+    deepEqual([
+        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+    ], this.mockBackendCalls());
+
+    equal(widget.url(), 'mock/options');
+    equal(3, $('option', element).length);
+    equal(element.is(':disabled'), false);
+    equal('1', $('option:nth(0)', element).attr('value'));
+    equal('15', $('option:nth(1)', element).attr('value'));
+    equal('12.5', $('option:nth(2)', element).attr('value'));
+
+});
+
+QUnit.test('creme.widget.DynamicSelect.reload (valid template => empty data)', function(assert) {
+    var element = this.createDynamicSelectTag('mock/${name}${content}');
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
+
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), null);
+
+    widget.reload({name: 'options', content: '/empty'}, this.mockListener('done'), this.mockListener('error'));
+    deepEqual([[element, []]], this.mockListenerCalls('done'));
+    deepEqual([], this.mockListenerCalls('error'));
+    deepEqual([
+        ['mock/options/empty', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+    ], this.mockBackendCalls());
+
+    equal(widget.url(), 'mock/options/empty');
+    equal(0, $('option', element).length);
+    equal(element.is(':disabled'), true);
+});
+
+QUnit.test('creme.widget.DynamicSelect.reload (incomplete template => clear)', function(assert) {
+    var element = this.createDynamicSelectTag('mock/${name}${content}');
+    this.appendOptionTag(element, 'a', 1);
+    this.appendOptionTag(element, 'b', 5);
+    this.appendOptionTag(element, 'c', 3);
+
+    var widget = creme.widget.create(element, {backend: this.backend});
+    equal(widget.url(), null);
+
+    widget.reload({name: 'options'}, this.mockListener('done'), this.mockListener('error'));
+    deepEqual([], this.mockListenerCalls('done'));
+    deepEqual([], this.mockListenerCalls('error'));
+    deepEqual([], this.mockBackendCalls());
+
+    equal(widget.url(), null);
+    equal(0, $('option', element).length);
+    equal(element.is(':disabled'), true);
 });
 
 QUnit.test('creme.widget.DynamicSelect.update (undefined)', function(assert) {
@@ -368,16 +503,16 @@ QUnit.test('creme.widget.DynamicSelect.update (undefined)', function(assert) {
     this.appendOptionTag(element, 'b', 5);
     this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {backend: this.backend});
+    var widget = creme.widget.create(element, {backend: this.backend});
 
-    element.creme().widget().update(undefined);
+    widget.update(undefined);
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('5', $('option:nth(1)', element).attr('value'));
     equal('3', $('option:nth(2)', element).attr('value'));
 
-    element.creme().widget().update(null);
+    widget.update(null);
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('1', $('option:nth(0)', element).attr('value'));
@@ -391,9 +526,9 @@ QUnit.test('creme.widget.DynamicSelect.update (add)', function(assert) {
     this.appendOptionTag(element, 'b', 5);
     this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {backend: this.backend});
+    var widget = creme.widget.create(element, {backend: this.backend});
 
-    element.creme().widget().update({added:[[15, 'd'], [6, 'e']]});
+    widget.update({added: [[15, 'd'], [6, 'e']]});
     equal(5, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('1', $('option:nth(0)', element).attr('value'));
@@ -402,7 +537,7 @@ QUnit.test('creme.widget.DynamicSelect.update (add)', function(assert) {
     equal('15', $('option:nth(3)', element).attr('value'));
     equal('6', $('option:nth(4)', element).attr('value'));
 
-    element.creme().widget().update('{"added":[[17, "f"], [35, "g"]]}');
+    widget.update('{"added":[[17, "f"], [35, "g"]]}');
     equal(7, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('1', $('option:nth(0)', element).attr('value'));
@@ -422,27 +557,27 @@ QUnit.test('creme.widget.DynamicSelect.update (remove)', function(assert) {
     this.appendOptionTag(element, 'd', 33.5);
     this.appendOptionTag(element, 'e', 12);
 
-    creme.widget.create(element, {backend: this.backend});
+    var widget = creme.widget.create(element, {backend: this.backend});
 
-    element.creme().widget().update({removed:[[1, 'a'], [33.5, 'd']]})
+    widget.update({removed: [[1, 'a'], [33.5, 'd']]});
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('5', $('option:nth(0)', element).attr('value'));
     equal('3', $('option:nth(1)', element).attr('value'));
     equal('12', $('option:nth(2)', element).attr('value'));
 
-    element.creme().widget().update({removed:[[152, 'x'], [112, 'y']]})
+    widget.update({removed: [[152, 'x'], [112, 'y']]});
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
     equal('5', $('option:nth(0)', element).attr('value'));
     equal('3', $('option:nth(1)', element).attr('value'));
     equal('12', $('option:nth(2)', element).attr('value'));
 
-    element.creme().widget().update({removed:[[5, 'b'], [3, 'c'], [12, 'e']]})
+    widget.update({removed: [[5, 'b'], [3, 'c'], [12, 'e']]});
     equal(0, $('option', element).length);
     equal(element.is(':disabled'), true);
 
-    element.creme().widget().update({removed:[[5, 'b'], [3, 'c'], [12, 'e']]})
+    widget.update({removed: [[5, 'b'], [3, 'c'], [12, 'e']]});
     equal(0, $('option', element).length);
     equal(element.is(':disabled'), true);
 });
@@ -453,9 +588,9 @@ QUnit.test('creme.widget.DynamicSelect.update (add/remove)', function(assert) {
     this.appendOptionTag(element, 'b', 5);
     this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {backend: this.backend});
+    var widget = creme.widget.create(element, {backend: this.backend});
 
-    element.creme().widget().update({added:[[6, 'bb']], removed:[5]})
+    widget.update({added: [[6, 'bb']], removed: [5]});
     equal(3, $('option', element).length);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('3', $('option:nth(1)', element).attr('value'));
@@ -469,20 +604,20 @@ QUnit.test('creme.widget.DynamicSelect.val (static)', function(assert) {
     this.appendOptionTag(element, 'b', 5);
     this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {backend: this.backend});
+    var widget = creme.widget.create(element, {backend: this.backend});
     equal(3, $('option', element).length);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('5', $('option:nth(1)', element).attr('value'));
     equal('3', $('option:nth(2)', element).attr('value'));
 
-    deepEqual(['1', 'a'], element.creme().widget().firstchoice());
-    equal('1', element.creme().widget().val());
+    deepEqual(['1', 'a'], widget.firstchoice());
+    equal('1', widget.val());
 
-    element.creme().widget().val(3);
-    equal('3', element.creme().widget().val(), 'existing choice');
+    widget.val(3);
+    equal('3', widget.val(), 'existing choice');
 
-    element.creme().widget().val(15);
-    equal('1', element.creme().widget().val(), 'unknown choice');
+    widget.val(15);
+    equal('1', widget.val(), 'unknown choice');
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (static, json)', function(assert) {
@@ -491,27 +626,27 @@ QUnit.test('creme.widget.DynamicSelect.val (static, json)', function(assert) {
     this.appendOptionTag(element, 'b', $.toJSON({'b': 5}));
     this.appendOptionTag(element, 'c', $.toJSON({'c': 3}));
 
-    creme.widget.create(element, {backend: this.backend});
+    var widget = creme.widget.create(element, {backend: this.backend});
     equal(3, $('option', element).length);
     equal($.toJSON({'a': 1}), $('option:nth(0)', element).attr('value'));
     equal($.toJSON({'b': 5}), $('option:nth(1)', element).attr('value'));
     equal($.toJSON({'c': 3}), $('option:nth(2)', element).attr('value'));
 
-    deepEqual([$.toJSON({'a': 1}), 'a'], element.creme().widget().firstchoice());
-    equal('json', element.creme().widget().options().datatype);
-    equal($.toJSON({'a': 1}), element.creme().widget().val());
+    deepEqual([$.toJSON({'a': 1}), 'a'], widget.firstchoice());
+    equal('json', widget.options().datatype);
+    equal($.toJSON({'a': 1}), widget.val());
 
-    element.creme().widget().val({'c': 3});
-    equal($.toJSON({'c': 3}), element.creme().widget().val(), 'existing choice');
-    deepEqual({'c': 3}, element.creme().widget().cleanedval(), 'cleaned');
+    widget.val({'c': 3});
+    equal($.toJSON({'c': 3}), widget.val(), 'existing choice');
+    deepEqual({'c': 3}, widget.cleanedval(), 'cleaned');
 
-    element.creme().widget().val($.toJSON({'b': 5}));
-    equal($.toJSON({'b': 5}), element.creme().widget().val(), 'existing choice');
-    deepEqual({'b': 5}, element.creme().widget().cleanedval(), 'cleaned');
+    widget.val($.toJSON({'b': 5}));
+    equal($.toJSON({'b': 5}), widget.val(), 'existing choice');
+    deepEqual({'b': 5}, widget.cleanedval(), 'cleaned');
 
-    element.creme().widget().val(15);
-    equal($.toJSON({'a': 1}), element.creme().widget().val(), 'unknown choice');
-    deepEqual({'a': 1}, element.creme().widget().cleanedval(), 'cleaned');
+    widget.val(15);
+    equal($.toJSON({'a': 1}), widget.val(), 'unknown choice');
+    deepEqual({'a': 1}, widget.cleanedval(), 'cleaned');
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (static, multiple)', function(assert) {
@@ -520,24 +655,24 @@ QUnit.test('creme.widget.DynamicSelect.val (static, multiple)', function(assert)
     this.appendOptionTag(element, 'b', 5);
     this.appendOptionTag(element, 'c', 3);
 
-    creme.widget.create(element, {multiple: true, backend: this.backend});
+    var widget = creme.widget.create(element, {multiple: true, backend: this.backend});
     equal(3, $('option', element).length);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('5', $('option:nth(1)', element).attr('value'));
     equal('3', $('option:nth(2)', element).attr('value'));
 
-    deepEqual(['1', 'a'], element.creme().widget().firstchoice());
-    equal(true, element.creme().widget().options().multiple);
-    equal(null, element.creme().widget().val());
+    deepEqual(['1', 'a'], widget.firstchoice());
+    equal(true, widget.options().multiple);
+    equal(null, widget.val());
 
-    element.creme().widget().val(3);
-    deepEqual(['3'], element.creme().widget().val());
+    widget.val(3);
+    deepEqual(['3'], widget.val());
 
-    element.creme().widget().val('3,4,5');
-    deepEqual(['5', '3'], element.creme().widget().val());
+    widget.val('3,4,5');
+    deepEqual(['5', '3'], widget.val());
 
-    element.creme().widget().val(15);
-    deepEqual(null, element.creme().widget().val());
+    widget.val(15);
+    deepEqual(null, widget.val());
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (static, multiple, json)', function(assert) {
@@ -548,27 +683,27 @@ QUnit.test('creme.widget.DynamicSelect.val (static, multiple, json)', function(a
     this.appendOptionTag(element, 'b', $.toJSON({'b': 5}));
     this.appendOptionTag(element, 'c', $.toJSON({'c': 3}));
 
-    creme.widget.create(element, {multiple: true, backend: this.backend});
+    var widget = creme.widget.create(element, {multiple: true, backend: this.backend});
     equal(3, $('option', element).length);
     equal($.toJSON({'a': 1}), $('option:nth(0)', element).attr('value'));
     equal($.toJSON({'b': 5}), $('option:nth(1)', element).attr('value'));
     equal($.toJSON({'c': 3}), $('option:nth(2)', element).attr('value'));
 
-    deepEqual([$.toJSON({'a': 1}), 'a'], element.creme().widget().firstchoice());
-    equal(true, element.creme().widget().options().multiple);
-    equal('json', element.creme().widget().options().datatype);
-    equal(null, element.creme().widget().val());
+    deepEqual([$.toJSON({'a': 1}), 'a'], widget.firstchoice());
+    equal(true, widget.options().multiple);
+    equal('json', widget.options().datatype);
+    equal(null, widget.val());
 
-    element.creme().widget().val({'c': 3});
-    deepEqual([$.toJSON({'c': 3})], element.creme().widget().val());
-    deepEqual([{'c': 3}], element.creme().widget().cleanedval(), 'cleaned');
+    widget.val({'c': 3});
+    deepEqual([$.toJSON({'c': 3})], widget.val());
+    deepEqual([{'c': 3}], widget.cleanedval(), 'cleaned');
 
-    element.creme().widget().val($.toJSON([{'b': 5}, {'c': 3}]));
-    deepEqual([$.toJSON({'b': 5}), $.toJSON({'c': 3})], element.creme().widget().val());
-    deepEqual([{'b': 5}, {'c': 3}], element.creme().widget().cleanedval(), 'cleaned');
+    widget.val($.toJSON([{'b': 5}, {'c': 3}]));
+    deepEqual([$.toJSON({'b': 5}), $.toJSON({'c': 3})], widget.val());
+    deepEqual([{'b': 5}, {'c': 3}], widget.cleanedval(), 'cleaned');
 
-    element.creme().widget().val(15);
-    deepEqual(null, element.creme().widget().val());
+    widget.val(15);
+    deepEqual(null, widget.val());
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (reload)', function(assert) {
@@ -579,16 +714,16 @@ QUnit.test('creme.widget.DynamicSelect.val (reload)', function(assert) {
 
 
     this.setMockBackendGET({
-        'mock/options': this.backend.response(200, [[1, 'a'], [24, 'b'], [5, 'D'], [12.5, 'c']])
+        'mock/options': this.backend.responseJSON(200, [[1, 'a'], [24, 'b'], [5, 'D'], [12.5, 'c']])
     });
 
-    creme.widget.create(element, {backend: this.backend});
+    var widget = creme.widget.create(element, {backend: this.backend});
 
-    element.creme().widget().val(5);
-    deepEqual(element.creme().widget().selected(), ['5', 'b']);
+    widget.val(5);
+    deepEqual(widget.selected(), ['5', 'b']);
 
-    element.creme().widget().url('mock/options');
-    deepEqual(element.creme().widget().selected(), ['5', 'D']);
+    widget.url('mock/options');
+    deepEqual(widget.selected(), ['5', 'D']);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('24', $('option:nth(1)', element).attr('value'));
     equal('5', $('option:nth(2)', element).attr('value'));
@@ -602,16 +737,16 @@ QUnit.test('creme.widget.DynamicSelect.val (reload, not exists)', function(asser
     this.appendOptionTag(element, 'c', 3);
 
     this.setMockBackendGET({
-        'mock/options': this.backend.response(200, [[1, 'a'], [24, 'b'], [5, 'D'], [12.5, 'c']])
+        'mock/options': this.backend.responseJSON(200, [[1, 'a'], [24, 'b'], [5, 'D'], [12.5, 'c']])
     });
 
-    creme.widget.create(element, {backend: this.backend});
+    var widget = creme.widget.create(element, {backend: this.backend});
 
-    element.creme().widget().val(3);
-    deepEqual(element.creme().widget().selected(), ['3', 'c']);
+    widget.val(3);
+    deepEqual(widget.selected(), ['3', 'c']);
 
-    element.creme().widget().url('mock/options');
-    deepEqual(element.creme().widget().selected(), ['1', 'a']);
+    widget.url('mock/options');
+    deepEqual(widget.selected(), ['1', 'a']);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('24', $('option:nth(1)', element).attr('value'));
     equal('5', $('option:nth(2)', element).attr('value'));
@@ -690,7 +825,7 @@ QUnit.test('creme.widget.DynamicSelect.filter (template)', function(assert) {
 
     var widget = creme.widget.create(element, {backend: this.backend});
     deepEqual([], widget.dependencies());
-    
+
     equal(5, $('option', element).length);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('5', $('option:nth(1)', element).attr('value'));
@@ -733,7 +868,7 @@ QUnit.test('creme.widget.DynamicSelect.filter (context)', function(assert) {
 
     var widget = creme.widget.create(element, {dependencies: ['max'], backend: this.backend});
     deepEqual(['max'], widget.dependencies());
-    
+
     equal(5, $('option', element).length);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('5', $('option:nth(1)', element).attr('value'));
@@ -771,7 +906,7 @@ QUnit.test('creme.widget.DynamicSelect.options (render label)', function(assert)
     var widget = creme.widget.create(element, {backend: this.backend});
 
     this.setMockBackendGET({
-        'mock/options': this.backend.response(200, [
+        'mock/options': this.backend.responseJSON(200, [
             {value: 1},
             {value: 24, label: 'A'},
             {value: 5, label: 'A', group: 'group A'},
