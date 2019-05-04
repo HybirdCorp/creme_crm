@@ -92,7 +92,7 @@ class CremePropertyManager(models.Manager):
 
         return prop
 
-    def safe_multi_save(self, properties):
+    def safe_multi_save(self, properties, check_existing=True):
         """Save several instances of CremeProperty by taking care of the UNIQUE
         constraint on ('type', 'creme_entity').
 
@@ -103,7 +103,9 @@ class CremePropertyManager(models.Manager):
         Compared to use N x 'safe_get_or_create()', this method will only
         perform 1 query to retrieve the existing CremeProperties.
 
-        @param properties: An iterable of CremeProperties (not save yet)
+        @param properties: An iterable of CremeProperties (not save yet).
+        @param check_existing: Perform a query to check existing CremeProperties.
+               You can pass False for newly created instances in order to avoid a query.
         @return: Number of CremeProperties inserted in base.
         """
         count = 0
@@ -113,15 +115,16 @@ class CremePropertyManager(models.Manager):
         }
 
         if unique_props:
-            existing_q = Q()
-            for prop in unique_props.values():
-                existing_q |= Q(type_id=prop.type_id,
-                                creme_entity_id=prop.creme_entity_id,
-                               )
+            if check_existing:
+                existing_q = Q()
+                for prop in unique_props.values():
+                    existing_q |= Q(type_id=prop.type_id,
+                                    creme_entity_id=prop.creme_entity_id,
+                                   )
 
-            for prop_sig in self.filter(existing_q) \
-                                .values_list('type', 'creme_entity'):
-                unique_props.pop(prop_sig, None)
+                for prop_sig in self.filter(existing_q) \
+                                    .values_list('type', 'creme_entity'):
+                    unique_props.pop(prop_sig, None)
 
             for prop in unique_props.values():
                 try:

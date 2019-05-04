@@ -88,7 +88,7 @@ class RelationManager(models.Manager):
 
         return relation
 
-    def safe_multi_save(self, relations):
+    def safe_multi_save(self, relations, check_existing=True):
         """Save several instances of Relation by taking care of the UNIQUE
         constraint on ('type', 'subject_entity', 'object_entity').
 
@@ -99,7 +99,9 @@ class RelationManager(models.Manager):
         Compared to use N x 'safe_get_or_create()', this method will only
         perform 1 query to retrieve the existing Relations.
 
-        @param relations: An iterable of Relations (not save yet)
+        @param relations: An iterable of Relations (not save yet).
+        @param check_existing: Perform a query to check existing Relations.
+               You can pass False for newly created instances in order to avoid a query.
         @return: Number of Relations inserted in base.
                  NB: the symmetrical instances are not counted.
         """
@@ -111,22 +113,23 @@ class RelationManager(models.Manager):
         for relation in relations:
             # NB: we could use a string '{type_is}#{sub_id}#{obj_id}' => what is the best ?
             unique_relations[(relation.type_id,
-                             relation.subject_entity_id,
-                             relation.object_entity_id,
-                            )] = relation
+                              relation.subject_entity_id,
+                              relation.object_entity_id,
+                             )] = relation
 
         if unique_relations:
-            # Remove all existing relations in the list of relation to be created.
-            existing_q = Q()
-            for relation in unique_relations.values():
-                existing_q |= Q(type_id=relation.type_id,
-                                subject_entity_id=relation.subject_entity_id,
-                                object_entity_id=relation.object_entity_id,
-                               )
+            if check_existing:
+                # Remove all existing relations in the list of relation to be created.
+                existing_q = Q()
+                for relation in unique_relations.values():
+                    existing_q |= Q(type_id=relation.type_id,
+                                    subject_entity_id=relation.subject_entity_id,
+                                    object_entity_id=relation.object_entity_id,
+                                   )
 
-            for rel_sig in self.filter(existing_q) \
-                               .values_list('type', 'subject_entity', 'object_entity'):
-                unique_relations.pop(rel_sig, None)
+                for rel_sig in self.filter(existing_q) \
+                                   .values_list('type', 'subject_entity', 'object_entity'):
+                    unique_relations.pop(rel_sig, None)
 
             # Creation (we take the first of each group to guaranty uniqueness)
             for relation in unique_relations.values():

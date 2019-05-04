@@ -31,7 +31,7 @@ from django.forms.fields import EmailField, BooleanField, CharField  # IntegerFi
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
+from creme.creme_core.forms import base as base_forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Relation, FieldsConfig
@@ -43,7 +43,6 @@ from creme import persons, emails
 from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, MAIL_STATUS_SENDINGERROR
 from ..creme_jobs import entity_emails_send_type
 
-
 logger = logging.getLogger(__name__)
 Document      = get_document_model()
 Contact       = persons.get_contact_model()
@@ -52,7 +51,9 @@ EntityEmail   = emails.get_entityemail_model()
 EmailTemplate = emails.get_emailtemplate_model()
 
 
-class EntityEmailForm(CremeEntityForm):
+# NB: CremeModelWithUserForm, not CremeEntityForm, to avoid CustomFields, Relations & CremeProperties
+# class EntityEmailForm(base_forms.CremeEntityForm):
+class EntityEmailForm(base_forms.CremeModelWithUserForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
     Mails are send to selected contacts/organisations.
     """
@@ -67,11 +68,11 @@ class EntityEmailForm(CremeEntityForm):
         'no_person': _('Select at least a Contact or an Organisation'),
     }
 
-    blocks = FieldBlockManager(
-            ('recipients', _('Who'),  ['user', 'sender', 'send_me', 'c_recipients', 'o_recipients']),
-            ('content',    _('What'), ['subject', 'body', 'body_html']),
-            ('extra',      _('With'), ['signature', 'attachments']),
-        )
+    blocks = base_forms.FieldBlockManager(
+        ('recipients', _('Who'),  ['user', 'sender', 'send_me', 'c_recipients', 'o_recipients']),
+        ('content',    _('What'), ['subject', 'body', 'body_html']),
+        ('extra',      _('With'), ['signature', 'attachments']),
+    )
 
     class Meta:
         model  = EntityEmail
@@ -163,11 +164,12 @@ class EntityEmailForm(CremeEntityForm):
         def create_n_send_mail(recipient_address):
             nonlocal sending_error
 
-            email = EntityEmail.create_n_send_mail(sender=sender, recipient=recipient_address,
-                                                   subject=subject, user=user,
-                                                   body=body, body_html=body_html,
-                                                   signature=signature, attachments=attachments,
-                                                  )
+            email = EntityEmail.create_n_send_mail(
+                sender=sender, recipient=recipient_address,
+                subject=subject, user=user,
+                body=body, body_html=body_html,
+                signature=signature, attachments=attachments,
+            )
 
             if email.status == MAIL_STATUS_SENDINGERROR:
                 sending_error = True
@@ -204,7 +206,7 @@ class EntityEmailForm(CremeEntityForm):
 #                      )
 
 
-class TemplateSelectionFormStep(CremeForm):
+class TemplateSelectionFormStep(base_forms.CremeForm):
     template = CreatorEntityField(label=pgettext_lazy('emails', 'Template'),
                                   model=EmailTemplate,
                                   credentials=EntityCredentials.VIEW,

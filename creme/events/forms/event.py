@@ -20,7 +20,7 @@
 
 from collections import defaultdict
 
-from django.db.transaction import atomic
+# from django.db.transaction import atomic
 from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import gettext_lazy as _, gettext, pgettext
 
@@ -158,13 +158,24 @@ class RelatedOpportunityCreateForm(OpportunityCreationForm):
                                                 queryset=qs, empty_label=None,
                                                )
 
-    @atomic
-    def save(self, *args, **kwargs):
-        opp = super().save(*args, **kwargs)
+    def _get_relations_to_create(self):
+        instance = self.instance
 
-        Relation.objects.create(user=self.user, subject_entity=opp,
-                                type_id=constants.REL_SUB_GEN_BY_EVENT,
-                                object_entity=self.event,
-                               )
+        return super()._get_relations_to_create().append(
+            Relation(user=instance.user,
+                     subject_entity=instance,
+                     type_id=constants.REL_SUB_GEN_BY_EVENT,
+                     object_entity=self.event,
+                    )
+        )
 
-        return opp
+    # @atomic
+    # def save(self, *args, **kwargs):
+    #     opp = super().save(*args, **kwargs)
+    #
+    #     Relation.objects.create(user=self.user, subject_entity=opp,
+    #                             type_id=constants.REL_SUB_GEN_BY_EVENT,
+    #                             object_entity=self.event,
+    #                            )
+    #
+    #     return opp

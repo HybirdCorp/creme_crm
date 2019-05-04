@@ -245,7 +245,7 @@ class ActTestCase(CommercialBaseTestCase):
                                           'target':      self.formfield_value_generic_entity(target),
                                           'emitter':     emitter.id,
                                           'currency':    DEFAULT_CURRENCY_PK,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 

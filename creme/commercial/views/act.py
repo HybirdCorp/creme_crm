@@ -232,16 +232,26 @@ class RelatedOpportunityCreation(generic.AddingInstanceToEntityPopup):
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
 
-    # @atomic
-    def form_valid(self, form):
-        response = super().form_valid(form=form)
-        Relation.objects.create(subject_entity=form.instance,
-                                type_id=constants.REL_SUB_COMPLETE_GOAL,
-                                object_entity=self.related_entity,
-                                user=self.request.user,
-                               )
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['forced_relations'] = [
+            Relation(type_id=constants.REL_SUB_COMPLETE_GOAL,
+                     object_entity=self.related_entity,
+                    ),
+        ]
 
-        return response
+        return kwargs
+
+    # # @atomic
+    # def form_valid(self, form):
+    #     response = super().form_valid(form=form)
+    #     Relation.objects.create(subject_entity=form.instance,
+    #                             type_id=constants.REL_SUB_COMPLETE_GOAL,
+    #                             object_entity=self.related_entity,
+    #                             user=self.request.user,
+    #                            )
+    #
+    #     return response
 
 
 class ActDetail(generic.EntityDetail):

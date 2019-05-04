@@ -178,8 +178,8 @@ class _CremeTestCase:
 
         if idx == -1:
             std_msg = '{sub} not found in {string}'.format(
-                            sub=safe_repr(x),
-                            string=safe_repr(string),
+                sub=safe_repr(x),
+                string=safe_repr(string),
             )
             self.fail(self._formatMessage(msg, std_msg))
 
@@ -189,14 +189,16 @@ class _CremeTestCase:
         try:
             index = sequence.index(elt)
         except ValueError:
-            self.fail('{0} not found'.format(elt))
+            self.fail('{} not found in {}'.format(elt, sequence))
 
         return index
 
     def assertIsSubclass(self, cls, parent_cls, msg=None):
         if not issubclass(cls, parent_cls):
             if msg is None:
-                msg = '{0} is not a subclass of {1} [list of parent classes {2}'.format(cls, parent_cls, cls.__mro__)
+                msg = '{} is not a subclass of {} [list of parent classes {}]'.format(
+                    cls, parent_cls, cls.__mro__
+                )
 
             self.fail(msg)
 
@@ -216,6 +218,7 @@ class _CremeTestCase:
         field_names = set()
 
         for field_name, message in errors:
+            # TODO: test all the errors in the field
             if field_name not in form_errors:
                 self.fail('The error "{field}" has not been found in the form (fields: {fields})'.format(
                     field=field_name,

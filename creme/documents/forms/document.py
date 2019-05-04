@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 import logging
 from os.path import basename
 
@@ -32,6 +33,7 @@ from creme.creme_core.utils import ellipsis
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 from creme import documents
+
 from .. import constants
 from ..models import FolderCategory
 
@@ -41,7 +43,7 @@ Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
 
 
-class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to_DocumentCreateBaseForm ?
+class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to _DocumentCreationBaseForm ?
     class Meta(CremeEntityForm.Meta):
         model = Document
 
@@ -100,45 +102,50 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         if not self._errors:
             self.folder_category = cat = FolderCategory.objects.filter(pk=constants.DOCUMENTS_FROM_ENTITIES).first()
             if cat is None:
-                raise ValidationError('Populate script has not been run (unknown folder category pk={}) ; '
-                                      'please contact your administrator'.format(constants.DOCUMENTS_FROM_ENTITIES)
-                                     )
+                raise ValidationError(
+                    'Populate script has not been run (unknown folder category pk={}) ; '
+                    'please contact your administrator'.format(constants.DOCUMENTS_FROM_ENTITIES)
+                )
 
             self.root_folder = folder = Folder.objects.filter(uuid=constants.UUID_FOLDER_RELATED2ENTITIES).first()
             if folder is None:
-                raise ValidationError('Populate script has not been run (unknown folder uuid={}) ; '
-                                      'please contact your administrator'.format(constants.UUID_FOLDER_RELATED2ENTITIES)
-                                     )
+                raise ValidationError(
+                    'Populate script has not been run (unknown folder uuid={}) ; '
+                    'please contact your administrator'.format(constants.UUID_FOLDER_RELATED2ENTITIES)
+                )
 
         return cleaned_data
 
-    @atomic
-    def save(self, *args, **kwargs):
+    def _get_relations_to_create(self):
         instance = self.instance
-        entity   = self.related_entity.get_real_entity()
-        user     = self.cleaned_data['user']
-        category = self.folder_category
 
-        get_or_create_folder = Folder.objects.get_or_create
+        return super()._get_relations_to_create().append(
+            Relation(subject_entity=self.related_entity.get_real_entity(),
+                     type_id=constants.REL_SUB_RELATED_2_DOC,
+                     object_entity=instance,
+                     user=instance.user,
+                    ),
+        )
+
+    def _get_folder(self):
+        entity = self.related_entity.get_real_entity()
+        get_or_create_folder = partial(
+            Folder.objects.get_or_create,
+            category=self.folder_category,
+            defaults={'user': self.cleaned_data['user']},
+        )
         model_folder = get_or_create_folder(
             title=str(entity.entity_type),
             parent_folder=self.root_folder,
-            category=category,
-            defaults={'user': user},
         )[0]
-        instance.linked_folder = get_or_create_folder(
+
+        return get_or_create_folder(
             title=ellipsis('{}_{}'.format(entity.id, entity), _TITLE_MAX_LEN),  # Meh
             parent_folder=model_folder,
-            category=category,
-            defaults={'user': user},
         )[0]
 
-        super().save(*args, **kwargs)
+    @atomic
+    def save(self, *args, **kwargs):
+        self.instance.linked_folder = self._get_folder()
 
-        Relation.objects.create(subject_entity=entity,
-                                type_id=constants.REL_SUB_RELATED_2_DOC,
-                                object_entity=instance,
-                                user=user,
-                               )
-
-        return instance
+        return super().save(*args, **kwargs)

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.test.utils import override_settings
     from django.urls import reverse
     from django.utils.translation import gettext as _
 
+    from creme.creme_core.models import CremeProperty
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.tests.base import skipIfCustomContact
@@ -32,7 +34,8 @@ class CommercialTestCase(CremeTestCase):
         self.get_object_or_fail(MarketSegment, property_type=None)
 
     @skipIfCustomContact
-    def test_salesman_create(self):
+    @override_settings(FORMS_RELATION_FIELDS=True)
+    def test_salesman_create01(self):
         user = self.login()
 
         url = self.ADD_SALESMAN_URL
@@ -46,21 +49,45 @@ class CommercialTestCase(CremeTestCase):
         first_name = 'John'
         last_name  = 'Doe'
         response = self.client.post(url, follow=True,
-                                    data={'user':       user.pk,
+                                    data={'user': user.pk,
                                           'first_name': first_name,
-                                          'last_name':  last_name,
-                                         }
+                                          'last_name': last_name,
+                                         },
                                    )
         self.assertNoFormError(response)
 
-        salesmen = Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN)
-        self.assertEqual(1, len(salesmen))
-
-        salesman = salesmen[0]
-        self.assertEqual(first_name, salesman.first_name)
-        self.assertEqual(last_name,  salesman.last_name)
+        salesman = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+        self.get_object_or_fail(
+            CremeProperty, type=PROP_IS_A_SALESMAN, creme_entity=salesman.id,
+        )
 
         self.assertRedirects(response, salesman.get_absolute_url())
+
+    @skipIfCustomContact
+    @override_settings(FORMS_RELATION_FIELDS=False)
+    def test_salesman_create02(self):
+        "No <properties> field."
+        user = self.login()
+
+        first_name = 'John'
+        last_name  = 'Smith'
+        response = self.client.post(self.ADD_SALESMAN_URL,
+                                    follow=True,
+                                    data={'user':       user.pk,
+                                          'first_name': first_name,
+                                          'last_name':  last_name,
+                                         },
+                                   )
+        self.assertNoFormError(response)
+
+        salesman = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+        self.get_object_or_fail(
+            CremeProperty, type=PROP_IS_A_SALESMAN, creme_entity=salesman.id,
+        )
 
     @skipIfCustomContact
     def test_salesman_listview01(self):
@@ -78,6 +105,7 @@ class CommercialTestCase(CremeTestCase):
         self.assertFalse(salesmen_page.paginator.count)
 
     @skipIfCustomContact
+    @override_settings(FORMS_RELATION_FIELDS=False)  # To avoid "properties" POST argument
     def test_salesman_listview02(self):
         user = self.login()
 
@@ -86,7 +114,7 @@ class CommercialTestCase(CremeTestCase):
                              data={'user':       user.pk,
                                    'first_name': first_name,
                                    'last_name':  last_name,
-                                  }
+                                  },
                             )
 
         add_salesman('first_name1', 'last_name1')

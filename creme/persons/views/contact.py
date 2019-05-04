@@ -22,6 +22,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth import build_creation_perm as cperm
 # from creme.creme_core.auth.decorators import login_required, permission_required
@@ -32,7 +33,6 @@ from creme.creme_core.views import generic
 from .. import get_contact_model, get_organisation_model
 from ..constants import DEFAULT_HFILTER_CONTACT
 from ..forms import contact as c_forms
-
 
 Contact = get_contact_model()
 
@@ -153,15 +153,19 @@ Contact = get_contact_model()
 # def listview(request):
 #     return generic.list_view(request, Contact, hf_pk=DEFAULT_HFILTER_CONTACT)
 
-
-class ContactCreation(generic.EntityCreation):
+class _ContactBaseCreation(generic.EntityCreation):
     model = Contact
     form_class = c_forms.ContactForm
     template_name = 'persons/add_contact_form.html'
 
 
-class RelatedContactCreation(ContactCreation):
+class ContactCreation(_ContactBaseCreation):
+    pass
+
+
+class RelatedContactCreation(_ContactBaseCreation):
     form_class = c_forms.RelatedContactForm
+    title = _('Create a contact related to «{organisation}»')
     orga_id_url_kwarg = 'orga_id'
     rtype_id_url_kwarg = 'rtype_id'
 
@@ -219,6 +223,12 @@ class RelatedContactCreation(ContactCreation):
 
     def get_success_url(self):
         return self.linked_orga.get_absolute_url()
+
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['organisation'] = self.linked_orga
+
+        return data
 
 
 class ContactDetail(generic.EntityDetail):

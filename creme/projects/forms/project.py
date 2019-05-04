@@ -44,15 +44,27 @@ class ProjectEditForm(CremeEntityForm):
 class ProjectCreateForm(ProjectEditForm):
     responsibles = MultiCreatorEntityField(label=_('Project leaders'), model=get_contact_model())
 
-    def save(self, *args, **kwargs):
-        instance = super().save(*args, **kwargs)
-        cleaned_data = self.cleaned_data
-        create_relation = partial(Relation.objects.create, user=cleaned_data['user'],
-                                  type_id=REL_OBJ_PROJECT_MANAGER,
-                                  subject_entity=instance,
-                                 )
+    def _get_relations_to_create(self):
+        instance = self.instance
+        build_relation = partial(Relation, user=instance.user,
+                                 type_id=REL_OBJ_PROJECT_MANAGER,
+                                 subject_entity=instance,
+                                )
 
-        for contact in cleaned_data['responsibles']:
-            create_relation(object_entity=contact)
+        return super()._get_relations_to_create().extend(
+            build_relation(object_entity=contact)
+                for contact in self.cleaned_data['responsibles']
+        )
 
-        return instance
+    # def save(self, *args, **kwargs):
+    #     instance = super().save(*args, **kwargs)
+    #     cleaned_data = self.cleaned_data
+    #     create_relation = partial(Relation.objects.create, user=cleaned_data['user'],
+    #                               type_id=REL_OBJ_PROJECT_MANAGER,
+    #                               subject_entity=instance,
+    #                              )
+    #
+    #     for contact in cleaned_data['responsibles']:
+    #         create_relation(object_entity=contact)
+    #
+    #     return instance

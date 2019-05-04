@@ -6,9 +6,11 @@ try:
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import CremeEntity, RelationType, Relation
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact, FakeOrganisation
+
+    from creme.creme_core.models import (CremeEntity, RelationType, Relation,
+            FakeContact, FakeOrganisation)
+    from creme.creme_core.utils.profiling import CaptureQueriesContext
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -241,7 +243,7 @@ class RelationsTestCase(CremeTestCase):
         self.assertEqual(rel1, rel2)
 
     def test_manager_safe_multi_save01(self):
-        "Create several relation"
+        "Create several relation."
         rtype1, srtype1 = RelationType.create(
             ('test-subject_challenge', 'challenges'),
             ('test-object_challenge',  'is challenged by')
@@ -276,7 +278,7 @@ class RelationsTestCase(CremeTestCase):
         self.assertEqual(srtype2,    rel2.symmetric_relation.type)
 
     def test_manager_safe_multi_save02(self):
-        "De-duplicates arguments"
+        "De-duplicates arguments."
         rtype = RelationType.create(('test-subject_foobar', 'challenges'),
                                     ('test-object_foobar',  'is challenged by')
                                    )[0]
@@ -300,7 +302,7 @@ class RelationsTestCase(CremeTestCase):
         self.assertEqual(1, count)
 
     def test_manager_safe_multi_save03(self):
-        "Avoid creating existing relations"
+        "Avoid creating existing relations."
         rtype1 = RelationType.create(
             ('test-subject_challenge', 'challenges'),
             ('test-object_challenge',  'is challenged by')
@@ -336,8 +338,41 @@ class RelationsTestCase(CremeTestCase):
         self.assertEqual(user.id,    rel2.user_id)
 
     def test_manager_safe_multi_save04(self):
-        "No query if no relations"
+        "No query if no relations."
         with self.assertNumQueries(0):
             count = Relation.objects.safe_multi_save([])
 
         self.assertEqual(0, count)
+
+    def test_manager_safe_multi_save05(self):
+        "Argument <check_existing>."
+        rtype1, srtype1 = RelationType.create(
+            ('test-subject_challenge', 'challenges'),
+            ('test-object_challenge',  'is challenged by')
+        )
+        rtype2, srtype2 = RelationType.create(
+            ('test-subject_foobar', 'loves'),
+            ('test-object_foobar',  'is loved by')
+        )
+
+        user = self.user
+        create_contact = partial(FakeContact.objects.create, user=user)
+        ryuko   = create_contact(first_name='Ryuko',   last_name='Matoi')
+        satsuki = create_contact(first_name='Satsuki', last_name='Kiryuin')
+
+        build_rel = partial(Relation, user=user, subject_entity=ryuko, object_entity=satsuki)
+
+        with CaptureQueriesContext() as ctxt1:
+            Relation.objects.safe_multi_save([build_rel(type=rtype1)],
+                                             check_existing=True,
+                                            )
+
+        with CaptureQueriesContext() as ctxt2:
+            Relation.objects.safe_multi_save([build_rel(type=rtype2)],
+                                             check_existing=False,
+                                            )
+
+        self.assertRelationCount(1, subject_entity=ryuko, type_id=rtype1.id, object_entity=satsuki)
+        self.assertRelationCount(1, subject_entity=ryuko, type_id=rtype2.id, object_entity=satsuki)
+
+        self.assertEqual(len(ctxt1), len(ctxt2) + 1)
