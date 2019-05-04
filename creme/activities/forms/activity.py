@@ -40,6 +40,7 @@ from .. import get_activity_model, constants
 from ..models import ActivityType, Calendar, ActivitySubType
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 from ..setting_keys import form_user_messages_key
+
 from .activity_type import ActivityTypeField
 from .fields import UserParticipationField
 
@@ -169,22 +170,22 @@ class _ActivityForm(CremeEntityForm):
     def _get_participants_2_check(self):
         return self.participants
 
+    def _get_relations_to_create(self):
+        instance = self.instance
+        build_rel = partial(Relation, user=instance.user, object_entity=instance,
+                            type_id=constants.REL_SUB_PART_2_ACTIVITY
+                           )
+
+        return super()._get_relations_to_create().extend(
+            build_rel(subject_entity=p) for p in self.participants
+        )
+
     def save(self, *args, **kwargs):
         instance = self.instance
         instance.floating_type = self.floating_type
         instance.type, instance.sub_type = self._get_activity_type_n_subtype()
 
-        super().save(*args, **kwargs)
-
-        Relation.objects.safe_multi_save(
-            Relation(subject_entity=participant,
-                     type_id=constants.REL_SUB_PART_2_ACTIVITY,
-                     object_entity=instance,
-                     user=instance.user,
-                    ) for participant in self.participants
-        )
-
-        return instance
+        return super().save(*args, **kwargs)
 
 
 class ActivityEditForm(_ActivityForm):
@@ -353,28 +354,29 @@ class ActivityCreateForm(_ActivityCreateForm):
 
         return super().clean()
 
+    def _get_relations_to_create(self):
+        instance = self.instance
+        cdata = self.cleaned_data
+        build_rel = partial(Relation, object_entity=instance, user=instance.user)
+
+        return super()._get_relations_to_create().extend(
+            build_rel(subject_entity_id=entity.id, type_id=rtype_id)
+                for entities, rtype_id in (
+                    (cdata['subjects'],        constants.REL_SUB_ACTIVITY_SUBJECT),
+                    (cdata['linked_entities'], constants.REL_SUB_LINKED_2_ACTIVITY),
+                  )
+                    for entity in entities
+        )
+
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
 
         self._generate_alerts()
         self._generate_user_messages()
 
-        cdata = self.cleaned_data
-
-        i_participate, my_calendar = cdata['my_participation']
+        i_participate, my_calendar = self.cleaned_data['my_participation']
         if i_participate:
             instance.calendars.add(my_calendar)
-
-        # TODO: improve Relation model in order to avoid duplication automatically + helper function
-        create_relation = partial(Relation.objects.get_or_create, object_entity_id=instance.id,
-                                  defaults={'user': instance.user},
-                                 )
-
-        for entities, rtype_id in ((cdata['subjects'],        constants.REL_SUB_ACTIVITY_SUBJECT),
-                                   (cdata['linked_entities'], constants.REL_SUB_LINKED_2_ACTIVITY),
-                                  ):
-            for entity in entities:
-                create_relation(subject_entity_id=entity.id, type_id=rtype_id)
 
         return instance
 
@@ -427,7 +429,11 @@ class ActivityCreateForm(_ActivityCreateForm):
             )
 
             # TODO: sender = the real user that created the activity ???
-            UserMessage.create_messages(raw_users, title, body, PRIO_NOT_IMP_PK, activity.user, activity)
+            UserMessage.create_messages(
+                users=raw_users, title=title,
+                body=body, priority_id=PRIO_NOT_IMP_PK,
+                sender=activity.user, entity=activity,
+            )
 
 
 class RelatedActivityCreateForm(ActivityCreateForm):

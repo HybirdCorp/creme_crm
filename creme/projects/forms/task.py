@@ -25,7 +25,8 @@ from django.forms import BooleanField, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.forms import CremeForm, CremeEntityForm, CreatorEntityField, MultiCreatorEntityField
+from creme.creme_core.forms import (CremeForm, CremeEntityForm,
+        CreatorEntityField, MultiCreatorEntityField)
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import ellipsis_multi
 
@@ -217,28 +218,30 @@ class RelatedActivityCreateForm(RelatedActivityEditForm):
         self._task = entity
         super().__init__(*args, **kwargs)
 
+    def _get_relations_to_create(self):
+        instance = self.instance
+
+        return super()._get_relations_to_create().append(
+            Relation(subject_entity=instance,
+                     type_id=REL_SUB_LINKED_2_PTASK,
+                     object_entity=self._task,
+                     user=instance.user,
+                    )
+        )
+
     def _get_task(self):
         return self._task
 
     def save(self, *args, **kwargs):
-        instance = self.instance
         task = self._task
         p_name, t_name = ellipsis_multi((task.linked_project.name, task.title),
                                         # 9 is the length of ' -  - XYZ' (ie: the 'empty' format string)
                                         Activity._meta.get_field('title').max_length - 9
                                        )
-        instance.title = '{project} - {task} - {count:03}'.format(
+        self.instance.title = '{project} - {task} - {count:03}'.format(
             project=p_name,
             task=t_name,
             count=len(task.related_activities) + 1,
         )
 
-        super().save(*args, **kwargs)
-
-        Relation.objects.create(subject_entity=instance,
-                                type_id=REL_SUB_LINKED_2_PTASK,
-                                object_entity=task,
-                                user=self.user,
-                               )
-
-        return instance
+        return super().save(*args, **kwargs)

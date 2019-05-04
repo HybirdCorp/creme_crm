@@ -19,6 +19,7 @@
 ################################################################################
 
 from collections import OrderedDict
+import warnings
 
 from django.db.models import Q
 from django.forms import CharField, ModelMultipleChoiceField, ValidationError
@@ -136,9 +137,9 @@ class _RelationsCreateForm(CremeForm):
                 if not needed_properties:
                     continue
 
-                subjects_prop_ids = {p.type_id for p in subject.get_properties()}
+                subject_prop_ids = {p.type_id for p in subject.get_properties()}
 
-                if any(ptype_id not in subjects_prop_ids for ptype_id in needed_properties.keys()):
+                if any(ptype_id not in subject_prop_ids for ptype_id in needed_properties.keys()):
                     if len(needed_properties) == 1:
                         raise ValidationError(
                                     self.error_messages['missing_property_single'],
@@ -203,7 +204,11 @@ class _RelationsCreateForm(CremeForm):
         return cdata
 
     @staticmethod
-    def _hash_relation(subject_id, rtype_id, object_id):  # TODO: remove ?
+    def _hash_relation(subject_id, rtype_id, object_id):
+        warnings.warn('The method _RelationsCreateForm._hash_relation() is deprecated.',
+                      DeprecationWarning
+                     )
+
         return '{}#{}#{}'.format(subject_id, rtype_id, object_id)
 
     def save(self):

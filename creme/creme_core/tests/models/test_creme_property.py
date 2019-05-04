@@ -9,6 +9,7 @@ try:
 
     from creme.creme_core.models import (CremeEntity, CremePropertyType, CremeProperty,
             FakeContact, FakeOrganisation)
+    from creme.creme_core.utils.profiling import CaptureQueriesContext
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -182,7 +183,7 @@ class CremePropertyTestCase(CremeTestCase):
         self.get_object_or_fail(CremeProperty, type=ptype2.id, creme_entity=entity2.id)
 
     def test_manager_safe_multi_save02(self):
-        "De-duplicates arguments"
+        "De-duplicates arguments."
         create_ptype = CremePropertyType.create
         ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
         ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
@@ -201,7 +202,7 @@ class CremePropertyTestCase(CremeTestCase):
         self.get_object_or_fail(CremeProperty, type=ptype2.id, creme_entity=entity.id)
 
     def test_manager_safe_multi_save03(self):
-        "Avoid creating existing properties"
+        "Avoid creating existing properties."
         create_ptype = CremePropertyType.create
         ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
         ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
@@ -230,3 +231,28 @@ class CremePropertyTestCase(CremeTestCase):
             count = CremeProperty.objects.safe_multi_save([])
 
         self.assertEqual(0, count)
+
+    def test_manager_safe_multi_save05(self):
+        "Argument <check_existing>."
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
+        ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
+
+        entity = CremeEntity.objects.create(user=self.user)
+
+        with CaptureQueriesContext() as ctxt1:
+            CremeProperty.objects.safe_multi_save(
+                [CremeProperty(type=ptype1, creme_entity=entity)],
+                check_existing=True,
+            )
+
+        with CaptureQueriesContext() as ctxt2:
+            CremeProperty.objects.safe_multi_save(
+                [CremeProperty(type=ptype2, creme_entity=entity)],
+                check_existing=False,
+            )
+
+        self.get_object_or_fail(CremeProperty, type=ptype1.id, creme_entity=entity.id)
+        self.get_object_or_fail(CremeProperty, type=ptype2.id, creme_entity=entity.id)
+
+        self.assertEqual(len(ctxt1), len(ctxt2) + 1)

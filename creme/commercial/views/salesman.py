@@ -22,12 +22,12 @@
 
 # from django.urls import reverse
 from django.db.models import Q
-from django.db.transaction import atomic
+# from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth import build_creation_perm as cperm
 # from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import CremeProperty
+# from creme.creme_core.models import CremeProperty
 # from creme.creme_core.views.generic import list_view, add_entity
 
 from creme.persons import get_contact_model
@@ -81,12 +81,18 @@ class SalesManCreation(contact_views.ContactCreation):
     title = _('Create a salesman')
     submit_label = _('Save the salesman')
 
-    def form_valid(self, form):
-        with atomic():
-            response = super().form_valid(form)
-            CremeProperty.objects.create(type_id=PROP_IS_A_SALESMAN, creme_entity=self.object)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['forced_ptypes'] = [PROP_IS_A_SALESMAN]
 
-        return response
+        return kwargs
+
+    # def form_valid(self, form):
+    #     with atomic():
+    #         response = super().form_valid(form)
+    #         CremeProperty.objects.create(type_id=PROP_IS_A_SALESMAN, creme_entity=self.object)
+    #
+    #     return response
 
 
 class SalesMenList(contact_views.ContactsList):

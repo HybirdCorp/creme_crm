@@ -200,7 +200,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                                             (self.rtype02.id, self.object02),
                                                             (self.rtype01.id, self.object01),
                                                         ),
-                                         }
+                                         },
                                    )
         self.assertFormError(response, 'form', 'relations',
                              _('There are duplicates: %(duplicates)s') % {
@@ -222,7 +222,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                                             (self.rtype01.id, self.object01),
                                                             (self.rtype02.id, self.object02),
                                                         ),
-                                          }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(2, self.subject01.relations.count())  # Not 3

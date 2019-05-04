@@ -31,7 +31,8 @@ from creme.persons.constants import REL_SUB_EMPLOYED_BY
 Contact = persons.get_contact_model()
 
 
-class RelatedContactForm(CremeModelWithUserForm):  # NB: not CremeEntityForm to ignore custom fields
+# NB: not CremeEntityForm to ignore custom fields, relations & properties
+class RelatedContactForm(CremeModelWithUserForm):
     class Meta:
         model = Contact
         fields = ('user', 'last_name', 'first_name', 'phone', 'email')

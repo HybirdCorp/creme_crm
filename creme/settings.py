@@ -467,6 +467,10 @@ DEFAULT_PAGE_SIZE_IDX = 1  # Index (0-based, in PAGE_SIZES) of the default size 
 # HeaderFilter (views of list) & EntityFilters.
 FILTERS_INITIAL_PRIVATE = False
 
+# Forms
+# Add some fields to create Relationships & Properties in all common entities creation forms.
+FORMS_RELATION_FIELDS = True
+
 # When <a> tags are generated in TextFields, add an attribute <target="_blank"> if the value is 'True'.
 URLIZE_TARGET_BLANK = False
 
