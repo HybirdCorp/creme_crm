@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2018  Hybird
+#    Copyright (C) 2014-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -67,7 +67,7 @@ class MobileContactCreateForm(ContactQuickForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance.user = self.user
-        del self.fields['user']  # TODO: useful ?? (not in MobileOrganisationCreateForm)
+        # del self.fields['user']
 
         errors = self.errors
 
@@ -81,7 +81,7 @@ class MobileContactCreateForm(ContactQuickForm):
                     attrs['required'] = ''
 
     def clean(self):
-        self.cleaned_data['user'] = self.user
+        self.cleaned_data['user'] = self.user  # NB: used in super().clean()
         return super().clean()
 
     def save(self, *args, **kwargs):

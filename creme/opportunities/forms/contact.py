@@ -22,7 +22,7 @@ from django.forms.fields import BooleanField
 from django.db.transaction import atomic
 from django.utils.translation import gettext as _
 
-from creme.creme_core.forms.base import CremeModelWithUserForm
+from creme.creme_core.forms.base import CremeModelForm  # CremeModelWithUserForm
 from creme.creme_core.models import Relation
 
 from creme import persons
@@ -32,7 +32,8 @@ Contact = persons.get_contact_model()
 
 
 # NB: not CremeEntityForm to ignore custom fields, relations & properties
-class RelatedContactForm(CremeModelWithUserForm):
+# class RelatedContactForm(CremeModelWithUserForm):
+class RelatedContactForm(CremeModelForm):
     class Meta:
         model = Contact
         fields = ('user', 'last_name', 'first_name', 'phone', 'email')

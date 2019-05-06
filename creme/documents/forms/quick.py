@@ -25,7 +25,7 @@ from django.forms import ImageField
 from django.utils.translation import gettext as _
 
 from creme.creme_core.backends import import_backend_registry
-from creme.creme_core.forms.base import CremeModelWithUserForm
+from creme.creme_core.forms.base import CremeModelForm  # CremeModelWithUserForm
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
@@ -36,7 +36,8 @@ from ..utils import get_csv_folder_or_create
 Document = get_document_model()
 
 
-class DocumentQuickForm(CremeModelWithUserForm):
+# class DocumentQuickForm(CremeModelWithUserForm):
+class DocumentQuickForm(CremeModelForm):
     class Meta:
         model = Document
         fields = ('user', 'filedata', 'linked_folder')
@@ -97,7 +98,8 @@ class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
 
 
 # TODO: factorise
-class ImageQuickForm(CremeModelWithUserForm):
+# class ImageQuickForm(CremeModelWithUserForm):
+class ImageQuickForm(CremeModelForm):
     image = ImageField(label=_('Image file'), max_length=Document._meta.get_field('filedata').max_length)
 
     class Meta:

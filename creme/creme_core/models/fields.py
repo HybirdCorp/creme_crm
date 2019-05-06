@@ -135,6 +135,13 @@ class CremeUserForeignKey(ForeignKey):
 
         return name, path, args, kwargs
 
+    def formfield(self, **kwargs):
+        from ..forms.fields import CremeUserChoiceField
+        defaults = {'form_class': CremeUserChoiceField}
+        defaults.update(kwargs)
+
+        return super().formfield(**defaults)
+
     def get_internal_type(self):
         return 'ForeignKey'
 

@@ -523,7 +523,7 @@ class CremeUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, first_name, last_name, email, password=None, **extra_fields):
-        "Creates and saves a superuser"
+        "Creates and saves a superuser."
         extra_fields['is_superuser'] = True
 
         return self.create_user(username=username,

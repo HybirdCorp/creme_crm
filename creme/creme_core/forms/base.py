@@ -21,10 +21,10 @@
 from collections import OrderedDict
 from functools import partial
 import logging
+import warnings
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.db.models import FieldDoesNotExist, Q
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _, gettext
@@ -284,14 +284,21 @@ class CremeModelWithUserForm(CremeModelForm):
     user = forms.ModelChoiceField(label=_('Owner user'), empty_label=None, queryset=None)
 
     def __init__(self, user, *args, **kwargs):
+        warnings.warn('CremeModelWithUserForm is deprecated ; '
+                      'use CremeModelForm instead.',
+                      DeprecationWarning
+                     )
+
+        from django.contrib.auth import get_user_model
+
         super().__init__(user=user, *args, **kwargs)
         user_f = self.fields['user']
-        # TODO: remove this ? (CremeUserForeignKey already exclude staff users)
         user_f.queryset = get_user_model().objects.filter(is_staff=False)
         user_f.initial = user.id
 
 
-class CremeEntityForm(CremeModelWithUserForm):
+# class CremeEntityForm(CremeModelWithUserForm):
+class CremeEntityForm(CremeModelForm):
     property_types = fields.ForcedModelMultipleChoiceField(
         queryset=CremePropertyType.objects.none(),
         label=_('Properties'),

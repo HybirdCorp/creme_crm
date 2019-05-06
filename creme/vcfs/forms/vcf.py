@@ -33,8 +33,8 @@ from django.forms import (IntegerField,FileField, ModelChoiceField, CharField,
         EmailField, URLField, BooleanField, HiddenInput)
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.forms import (CremeForm, CremeEntityForm,
-        CreatorEntityField, CremeModelWithUserForm)
+from creme.creme_core.forms import (CremeForm, CremeModelForm,
+        CreatorEntityField)  # CremeModelWithUserForm CremeEntityForm
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import RelationType, Relation, FieldsConfig
 from creme.creme_core.utils.secure_filename import secure_filename
@@ -49,7 +49,6 @@ from creme.persons.constants import REL_SUB_EMPLOYED_BY
 from creme.persons.models import Civility, Position
 
 from ..vcf_lib import readOne as read_vcf
-
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +90,8 @@ class VcfForm(CremeForm):
 _get_ct = ContentType.objects.get_for_model
 
 
-class VcfImportForm(CremeModelWithUserForm):
+# class VcfImportForm(CremeModelWithUserForm):
+class VcfImportForm(CremeModelForm):
     class Meta:
         model = Contact
         fields = ('user', 'civility', 'first_name', 'last_name', 'position')
@@ -191,7 +191,8 @@ class VcfImportForm(CremeModelWithUserForm):
                        ('region',   'department'),
                       ]
 
-    blocks = CremeModelWithUserForm.blocks.new(
+    # blocks = CremeModelWithUserForm.blocks.new(
+    blocks = CremeModelForm.blocks.new(
         ('details', _('Details'), contact_details),
         ('contact_address', _('Billing address'),
          [HOME_ADDR_PREFIX + n[0] for n in address_mapping]
