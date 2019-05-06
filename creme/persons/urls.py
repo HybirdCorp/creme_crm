@@ -46,6 +46,7 @@ urlpatterns += swap_manager.add_group(
     Swappable(re_path(r'^organisation/(?P<orga_id>\d+)[/]?$',      organisation.OrganisationDetail.as_view(),        name='persons__view_organisation'), check_args=Swappable.INT_ID),
     # Swappable(url(r'^leads_customers[/]?$',                    organisation.list_my_leads_my_customers,     name='persons__leads_customers')),
     Swappable(re_path(r'^leads_customers[/]?$',                    organisation.MyLeadsAndMyCustomersList.as_view(), name='persons__leads_customers')),
+    Swappable(re_path(r'^lead_customer/add[/]?$',                  organisation.CustomerCreation.as_view(),          name='persons__create_customer')),
     app_name='persons',
 ).kept_patterns()
 
