@@ -250,7 +250,7 @@ else:
                                        )
         last_name   = models.CharField(_('Last name'), max_length=100)
         first_name  = models.CharField(_('First name'), max_length=100,
-                                       blank=True, null=True,
+                                       blank=True,  # null=True,
                                       ).set_tags(optional=True)
         is_a_nerd   = models.BooleanField(_('Is a Nerd'), default=False)
         loves_comics = models.BooleanField(_('Loves comics'), default=None, null=True, blank=True)
@@ -303,7 +303,7 @@ else:
             index_together = ('last_name', 'first_name', 'cremeentity_ptr')
 
         def __str__(self):
-            return '{} {}'.format(self.first_name, self.last_name)
+            return '{} {} {}'.format(self.civility, self.first_name, self.last_name).strip()
 
         def clean(self):
             if self.is_user_id and not self.first_name:

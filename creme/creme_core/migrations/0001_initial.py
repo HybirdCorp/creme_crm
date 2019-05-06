@@ -886,7 +886,7 @@ class Migration(migrations.Migration):
                                                             )
                     ),
                     ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
-                    ('first_name', models.CharField(max_length=100, null=True, verbose_name='First name', blank=True)),
+                    ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),  # null=True
                     ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd')),
                     ('loves_comics', models.BooleanField(default=None, null=True, blank=True, verbose_name='Loves comics')),
                     ('description', models.TextField(null=True, verbose_name='Description', blank=True)),

@@ -22,23 +22,23 @@ def populate():
                  is_internal=True
                 )
 
-    create_civ = fake_models.FakeCivility.objects.create
+    create_civ = fake_models.FakeCivility.objects.get_or_create
     create_civ(title='Madam',  shortcut='Mrs.')
     create_civ(title='Miss',   shortcut='Ms.')
     create_civ(title='Mister', shortcut='Mr.')
     create_civ(title='N/A',    shortcut='')
 
-    create_pos = fake_models.FakePosition.objects.create
+    create_pos = fake_models.FakePosition.objects.get_or_create
     create_pos(title='CEO')
     create_pos(title='Secretary')
     create_pos(title='Technician')
 
-    create_sector = fake_models.FakeSector.objects.create
+    create_sector = fake_models.FakeSector.objects.get_or_create
     create_sector(title='Farming')
     create_sector(title='Industry')
     create_sector(title='Software')
 
-    create_cat = fake_models.FakeImageCategory.objects.create
+    create_cat = fake_models.FakeImageCategory.objects.get_or_create
     create_cat(name='Product image')
     create_cat(name='Organisation logo')
     create_cat(name='Contact photograph')

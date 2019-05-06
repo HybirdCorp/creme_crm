@@ -290,14 +290,15 @@ class HeaderFiltersTestCase(CremeTestCase):
                                             ],
                                 )
 
-        pos = FakePosition.objects.create(title='Pilot')
+        pos = FakePosition.objects.all()[0]
         civ = FakeCivility.objects.all()[0]
-        create_contact = partial(FakeContact.objects.create, user=user, position_id=pos.id,
-                                 civility_id=civ.id,
+        create_contact = partial(FakeContact.objects.create, user=user,
+                                 position=pos, civility=civ,
                                 )
-        contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
-                    create_contact(first_name='Shizuka', last_name='Hoshijiro'),
-                   ]
+        contact1 = create_contact(first_name='Nagate', last_name='Tanikaze')
+        contact2 = create_contact(first_name='Shizuka', last_name='Hoshijiro')
+        # NB: we refresh because the __str__() method retrieves the civility
+        contacts = [self.refresh(contact1), self.refresh(contact2)]
 
         with self.assertNumQueries(2):
             hf.populate_entities(contacts, user)
