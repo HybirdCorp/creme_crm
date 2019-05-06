@@ -301,7 +301,8 @@ button {
     list-style-image : url(icecream/images/wait.gif);
 }
 
-.main_content {
+/* .main_content { */
+.main-content {
     height: auto;
 
     /* 269px = 269px footer

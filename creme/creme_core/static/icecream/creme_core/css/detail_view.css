@@ -1,5 +1,7 @@
-.detailview {
-    padding-left: 5px;
+/* .detailview { */
+.content-detail-view {
+    margin-left: 1.4%;
+    width: 97.8%;
 }
 
 /* Layout with columns
@@ -7,14 +9,16 @@
    TODO: new file inner-popup.css ??
 */
 
-.detailview .column,
+/* .detailview .column, */
+.content-detail-view .column,
 .content-form-view .column,
 .inner-popup-content .column {
     float: left;
     margin-left: 0px;
 }
 
-.detailview .column.last,
+/* .detailview .column.last, */
+.content-detail-view .column.last,
 .content-form-view .column.last,
 .inner-popup-content .column.last {
     float: right;
@@ -22,15 +26,15 @@
 }
 
 /*
-.north,
-.west,
-.south,
-.east
-*/
 .detailview .north,
 .detailview .west,
 .detailview .south,
 .detailview .east,
+*/
+.content-detail-view .north,
+.content-detail-view .west,
+.content-detail-view .south,
+.content-detail-view .east,
 .content-form-view .north,
 .content-form-view .west,
 .content-form-view .south,
@@ -44,20 +48,20 @@
             box-sizing: border-box;
 }
 
-/* .north:not(:empty) { */
-.detailview .north:not(:empty),
+/* .detailview .north:not(:empty), */
+.content-detail-view .north:not(:empty),
 .content-form-view .north:not(:empty) {
     margin-bottom: 15px;
 }
 
-/* .south:not(:empty) { */
-.detailview .south:not(:empty),
+/* .detailview .south:not(:empty), */
+.content-detail-view .south:not(:empty),
 .content-form-view .south:not(:empty) {
     margin-top: 15px;
 }
 
-/*.east.column.last { */
-.detailview .east.column.last,
+/* .detailview .east.column.last, */
+.content-detail-view .east.column.last,
 .content-form-view .east.column.last {
     padding-left: 13px;
 }
@@ -67,8 +71,12 @@
          and just use regular width and padding to visually separate those columns */
 /* TMP: using calc() ensures only modern browsers will see the width change until then.
         Since the 2 columns are floated on opposite sides, shortening their width by x will create a 2x margin between them */
+/*
 .detailview .east,
 .detailview .west,
+*/
+.content-detail-view .east,
+.content-detail-view .west,
 .content-form-view .east,
 .content-form-view .west,
 .inner-popup-content .east,
@@ -77,14 +85,19 @@
     width: calc(49.9% - 3px);
 }
 
-.detailview .clear,
+/* .detailview .clear, */
+.content-detail-view .clear,
 .content-form-view .clear,
 .inner-popup-content .clear {
     clear: both;
 }
 
+/*
 .detailview .north,
 .detailview .south,
+*/
+.content-detail-view .north,
+.content-detail-view .south,
 .content-form-view .north,
 .content-form-view .south,
 .inner-popup-content .north,
@@ -95,31 +108,40 @@
 /* Layout with columns - end */
 
 /* Buttons lists (global, entity, business) */
-.detailview .global-buttons {
+/* .detailview .global-buttons { */
+.content-detail-view .global-buttons {
     padding-top: 5px;
     padding-bottom: 5px;
 }
 
+ /*
 .detailview .instance-buttons,
-.portal .instance-buttons /* HACK: remove when portals are gone */ {
+.portal .instance-buttons { */
+.content-detail-view .instance-buttons {
     padding-top: 5px;
     padding-bottom: 20px;
 }
 
-.detailview .entity-buttons {
+/* .detailview .entity-buttons { */
+.content-detail-view .entity-buttons {
     font-size: 0;
 }
 
-.detailview .entity-buttons > * {
+/* .detailview .entity-buttons > * { */
+.content-detail-view .entity-buttons > * {
     margin-left: 10px;
 }
 
-.detailview .entity-buttons a {
+/* .detailview .entity-buttons a { */
+.content-detail-view .entity-buttons a {
     cursor: pointer;
 }
 
+/*
 .detailview .entity-buttons .entity-button-restore,
-.detailview .entity-buttons .entity-button-delete {
+.detailview .entity-buttons .entity-button-delete { */
+.content-detail-view .entity-buttons .entity-button-restore,
+.content-detail-view .entity-buttons .entity-button-delete {
     margin-left: 20px;
 }
 
@@ -127,7 +149,8 @@
 
 /* Breadcrumbs */
 
-.detailview .listviews-breadcrumbs {
+/* .detailview .listviews-breadcrumbs { */
+.content-detail-view .listviews-breadcrumbs {
 /*    margin-bottom: 10px; */
     padding-top: 10px;
     padding-left: 10px;

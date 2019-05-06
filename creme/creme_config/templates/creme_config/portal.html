@@ -3,7 +3,9 @@
 
 {% block page_title %}{% trans 'Configuration' %} - {% endblock %}
 
-{% block before_content_1 %}<div class="portal the_cake_is_a_lie">{% endblock %}
+{% block content_extra_class %}content-config-portal{% endblock %}
+
+{# {% block before_content_1 %}<div class="portal the_cake_is_a_lie">{% endblock %} #}
 
 {% block content %}
     <div class="hat-bar-container">
@@ -90,4 +92,4 @@
     {% endblock %}
 {% endblock %}
 
-{% block after_content_3 %}</div>{% endblock %}
+{# {% block after_content_3 %}</div>{% endblock %} #}

@@ -200,7 +200,8 @@ td p {
     list-style-image : url(chantilly/images/wait.gif);
 }
 
-.main_content {
+/* .main_content { */
+.main-content {
     clear: both;
 
     height: auto;
