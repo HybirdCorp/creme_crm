@@ -52,7 +52,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     def test_populate(self):  # test get_compatible_ones() too
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(Opportunity)
-        relation_types = RelationType.get_compatible_ones(ct).in_bulk()
+        relation_types = RelationType.objects.compatible(ct).in_bulk()
 
         Product = products.get_product_model()
         Service = products.get_service_model()

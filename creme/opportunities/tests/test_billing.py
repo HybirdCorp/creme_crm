@@ -57,8 +57,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         sv.save()
 
     def test_populate(self):
-        ct = ContentType.objects.get_for_model(Opportunity)
-        relation_types = RelationType.get_compatible_ones(ct).in_bulk()
+        relation_types = RelationType.objects.compatible(Opportunity).in_bulk()
 
         self.assertIn(constants.REL_OBJ_LINKED_SALESORDER, relation_types)
         self.assertNotIn(constants.REL_SUB_LINKED_SALESORDER, relation_types)

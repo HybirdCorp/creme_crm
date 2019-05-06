@@ -62,7 +62,7 @@ class GraphInstanceBrickForm(CremeForm):
         self._rtypes = {}
         rtype_choices = []
 
-        for rtype in RelationType.get_compatible_ones(ct, include_internals=True):
+        for rtype in RelationType.objects.compatible(ct, include_internals=True):
             rtype_choices.append(('rtype-' + rtype.id, str(rtype)))
             self._rtypes[rtype.id] = rtype
 

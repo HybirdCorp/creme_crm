@@ -40,6 +40,18 @@ from .entity import CremeEntity
 logger = logging.getLogger(__name__)
 
 
+class RelationTypeManager(models.Manager):
+    def compatible(self, ct_or_model, include_internals=False):
+        ct = ct_or_model if isinstance(ct_or_model, ContentType) else \
+             ContentType.objects.get_for_model(ct_or_model)
+
+        types = self.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+        if not include_internals:
+            types = types.filter(Q(is_internal=False))
+
+        return types
+
+
 class RelationManager(models.Manager):
     def safe_create(self, **kwargs):
         """Create a Relation in DB by taking care of the UNIQUE constraint
@@ -188,6 +200,8 @@ class RelationType(CremeModel):
     predicate      = models.CharField(_('Predicate'), max_length=100)
     symmetric_type = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE)
 
+    objects = RelationTypeManager()
+
     creation_label = _('Create a type of relationship')
     save_label     = _('Save the type')
 
@@ -216,6 +230,10 @@ class RelationType(CremeModel):
 
     @staticmethod
     def get_compatible_ones(ct, include_internals=False):
+        warnings.warn('Relation.get_compatible_ones() is deprecated ; '
+                      'use RelationType.objects.compatible() instead.',
+                      DeprecationWarning
+                     )
         types = RelationType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
         if not include_internals:
             types = types.filter(Q(is_internal=False))

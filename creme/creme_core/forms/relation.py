@@ -74,7 +74,7 @@ class _RelationsCreateForm(CremeForm):
         sfrt_queryset = SemiFixedRelationType.objects.filter(object_entity__in=filter(user.has_perm_to_link, entities))
 
         if not relations_types:
-            relations_types = RelationType.get_compatible_ones(content_type)
+            relations_types = RelationType.objects.compatible(content_type)
             sfrt_queryset = sfrt_queryset.filter(Q(relation_type__subject_ctypes=content_type) |
                                                  Q(relation_type__subject_ctypes__isnull=True)
                                                 )

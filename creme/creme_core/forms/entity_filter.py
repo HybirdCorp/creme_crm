@@ -998,9 +998,7 @@ class RelationsConditionsField(_ConditionsField):
         self.widget.rtypes = CallableChoiceIterator(lambda: [(rt.id, rt) for rt in self._get_rtypes()])
 
     def _get_rtypes(self):
-        return RelationType.get_compatible_ones(ContentType.objects.get_for_model(self._model),
-                                                include_internals=True,
-                                               )
+        return RelationType.objects.compatible(self._model, include_internals=True)
 
     def _condition_to_dict(self, condition):
         value = condition.decoded_value
