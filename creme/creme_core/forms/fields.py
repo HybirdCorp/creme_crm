@@ -26,6 +26,7 @@ from json import loads as json_load  # dumps as json_dump
 import warnings
 
 from django.apps import apps
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet, Q
@@ -50,19 +51,45 @@ from . import validators as f_validators
 from . import widgets as core_widgets
 
 
-__all__ = ('GenericEntityField', 'MultiGenericEntityField',
-           'RelationEntityField', 'MultiRelationEntityField',
-           'CreatorEntityField', 'MultiCreatorEntityField',
-           'FilteredEntityTypeField',
-           'OptionalField', 'OptionalChoiceField', 'OptionalModelChoiceField',
-           'ListEditionField',
-           'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
-           'DatePeriodField', 'DateRangeField', 'ColorField', 'DurationField',
-           'ChoiceOrCharField',
-           'CTypeChoiceField', 'EntityCTypeChoiceField',
-           'MultiCTypeChoiceField', 'MultiEntityCTypeChoiceField',
-           'ForcedModelMultipleChoiceField',
-          )
+__all__ = (
+    'CremeUserChoiceField',
+    'GenericEntityField', 'MultiGenericEntityField',
+    'RelationEntityField', 'MultiRelationEntityField',
+    'CreatorEntityField', 'MultiCreatorEntityField',
+    'FilteredEntityTypeField',
+    'OptionalField', 'OptionalChoiceField', 'OptionalModelChoiceField',
+    'ListEditionField',
+    'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
+    'DatePeriodField', 'DateRangeField', 'ColorField', 'DurationField',
+    'ChoiceOrCharField',
+    'CTypeChoiceField', 'EntityCTypeChoiceField',
+    'MultiCTypeChoiceField', 'MultiEntityCTypeChoiceField',
+    'ForcedModelMultipleChoiceField',
+)
+
+
+class CremeUserChoiceField(mforms.ModelChoiceField):
+    """Specialization of ModelChoiceField the User model.
+    The user set by the form (see CremeForm/CremeModelForm) is used as initial
+    choice by default.
+    """
+    def __init__(self, queryset=None, *, user=None, empty_label=None, **kwargs):
+        super().__init__(
+            queryset=get_user_model().objects.all() if queryset is None else queryset,
+            empty_label=empty_label,  # NB: generally we avoid empty QuerySets.
+            **kwargs
+        )
+        self.user = user
+
+    @property
+    def user(self):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
+        if self.initial is None:
+            self.initial = None if user is None else user.id
 
 
 class JSONField(fields.CharField):
@@ -1619,7 +1646,7 @@ class ForcedModelChoiceIterator(mforms.ModelChoiceIterator):
 
 # TODO: ForcedMultipleChoiceField too ?
 class ForcedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
-    """Specialization of ModelMultipleChoiceField whichs allows to force
+    """Specialization of ModelMultipleChoiceField which allows to force
     some choices.
     The forced choices cannot be un-selected.
     It's useful to show to the user the choices which will be automatically

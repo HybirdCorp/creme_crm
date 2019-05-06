@@ -11,20 +11,67 @@ try:
 
     from .base import FieldTestCase
 
-    from creme.creme_core.forms.fields import (DatePeriodField, DateRangeField,
+    from creme.creme_core.forms.fields import (CremeUserChoiceField,
+            DatePeriodField, DateRangeField,
             DurationField, ColorField, ChoiceOrCharField,
             OptionalChoiceField,
             CTypeChoiceField, EntityCTypeChoiceField,
             MultiCTypeChoiceField, MultiEntityCTypeChoiceField,
             ForcedModelMultipleChoiceField)
     from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-    from creme.creme_core.models import (RelationType, CremePropertyType, Currency,
+    from creme.creme_core.models import (RelationType, CremePropertyType,
+            CremeUser, Currency,
             FakeContact, FakeOrganisation, FakeSector)
     from creme.creme_core.utils.date_period import (DatePeriod, MinutesPeriod, HoursPeriod, DaysPeriod,
             DatePeriodRegistry, date_period_registry)
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
+
+
+class CremeUserChoiceFieldTestCase(FieldTestCase):
+    def test_default(self):
+        user = self.login()
+        other_user = self.other_user
+        staff = CremeUser.objects.create(username='deunan', is_staff=True)
+
+        field = CremeUserChoiceField()
+        self.assertIsNone(field.empty_label)
+        self.assertIsNone(field.initial)
+        self.assertIsNone(field.user)
+
+        choices = list(field.choices)
+        self.assertIn((user.id, str(user)),             choices)
+        self.assertIn((other_user.id, str(other_user)), choices)
+        self.assertIn((staff.id, str(staff)),           choices)
+
+        field.user = user
+        self.assertEqual(user,    field.user)
+        self.assertEqual(user.id, field.initial)
+
+        clean = field.clean
+        self.assertEqual(user,       clean(str(user.id)))
+        self.assertEqual(other_user, clean(str(other_user.id)))
+
+    def test_queryset(self):
+        user = self.login()
+        other_user = self.other_user
+        staff = CremeUser.objects.create(username='deunan', is_staff=True)
+
+        field = CremeUserChoiceField(queryset=CremeUser.objects.exclude(is_staff=True))
+
+        choices = list(field.choices)
+        self.assertIn((user.id, str(user)),             choices)
+        self.assertIn((other_user.id, str(other_user)), choices)
+        self.assertNotIn((staff.id, str(staff)),        choices)
+
+    def test_initial(self):
+        self.login()
+        other_id = self.other_user.id
+
+        field = CremeUserChoiceField(initial=other_id)
+        self.assertEqual(other_id, field.initial)
+
 
 
 class DatePeriodFieldTestCase(FieldTestCase):

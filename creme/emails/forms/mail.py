@@ -51,9 +51,9 @@ EntityEmail   = emails.get_entityemail_model()
 EmailTemplate = emails.get_emailtemplate_model()
 
 
-# NB: CremeModelWithUserForm, not CremeEntityForm, to avoid CustomFields, Relations & CremeProperties
+# NB: CremeModelForm, not CremeEntityForm, to avoid CustomFields, Relations & CremeProperties
 # class EntityEmailForm(base_forms.CremeEntityForm):
-class EntityEmailForm(base_forms.CremeModelWithUserForm):
+class EntityEmailForm(base_forms.CremeModelForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
     Mails are send to selected contacts/organisations.
     """
@@ -76,7 +76,7 @@ class EntityEmailForm(base_forms.CremeModelWithUserForm):
 
     class Meta:
         model  = EntityEmail
-        fields = ('sender', 'subject', 'body', 'body_html', 'signature', 'attachments')
+        fields = ('user', 'sender', 'subject', 'body', 'body_html', 'signature', 'attachments')
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)

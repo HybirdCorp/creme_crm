@@ -110,10 +110,10 @@ class _LinesBrick(SimpleBrick):
         get_ct = ContentType.objects.get_for_model
         return self._render(self.get_template_context(
                     context,
-                    ct_id=get_ct(line_model).id,  # TODO:  templatetag instead ?
+                    ct_id=get_ct(line_model).id,  # TODO: templatetag instead ?
                     formset=lineformset,
                     item_count=len(lines),
-                    related_item_ct=get_ct(self.related_item_model),  # TODO:  templatetag instead ?
+                    related_item_ct=get_ct(self.related_item_model),  # TODO: templatetag instead ?
                     related_item_label=self.related_item_label,
         ))
 

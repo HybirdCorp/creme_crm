@@ -24,14 +24,15 @@ from django.forms import TypedChoiceField
 from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeModelWithUserForm
+from creme.creme_core.forms import CremeModelForm  # CremeModelWithUserForm
 from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.utils.dates import make_aware_dt
 
 from ..models import ToDo
 
 
-class ToDoForm(CremeModelWithUserForm):
+# class ToDoForm(CremeModelWithUserForm):
+class ToDoForm(CremeModelForm):
     deadline_hour = TypedChoiceField(
         label=_('Deadline hour'), coerce=int,
         choices=[(i, '%ih' % i) for i in range(0, 24)],
@@ -39,7 +40,8 @@ class ToDoForm(CremeModelWithUserForm):
         help_text=_('The hour is used only if you set the deadline date.'),
     )
 
-    class Meta(CremeModelWithUserForm.Meta):
+    # class Meta(CremeModelWithUserForm.Meta):
+    class Meta(CremeModelForm.Meta):
         model = ToDo
         widgets = {'deadline': CalendarWidget}
 

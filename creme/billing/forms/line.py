@@ -107,7 +107,8 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 
 
 # NB: model (ie: _meta.model) is set later, because this class is only used as base class
-class LineEditForm(core_forms.CremeModelWithUserForm):
+# class LineEditForm(core_forms.CremeModelWithUserForm):
+class LineEditForm(core_forms.CremeModelForm):
     # TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
     vat_value = ModelChoiceField(label=_('Vat'), queryset=Vat.objects.all(),
                                  required=True,  # TODO: remove when null=False in the model

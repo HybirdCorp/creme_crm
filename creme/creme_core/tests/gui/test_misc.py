@@ -24,7 +24,7 @@ try:
     from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
     from creme.creme_core.gui.field_printers import (_FieldPrintersRegistry,
             FKPrinter, simple_print_html)
-    from creme.creme_core.forms import CremeModelWithUserForm
+    from creme.creme_core.forms import CremeModelForm  # CremeModelWithUserForm
     from creme.creme_core.gui.icons import Icon, IconRegistry
     from creme.creme_core.gui.last_viewed import LastViewedItem
     from creme.creme_core.gui.quick_forms import QuickFormsRegistry
@@ -627,7 +627,8 @@ class GuiTestCase(CremeTestCase):
                         )
 
         # ---
-        class OtherContactQuickForm(CremeModelWithUserForm):
+        # class OtherContactQuickForm(CremeModelWithUserForm):
+        class OtherContactQuickForm(CremeModelForm):
             class Meta:
                 model = FakeContact
                 fields = ('user', 'last_name', 'first_name')

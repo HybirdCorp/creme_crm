@@ -23,7 +23,7 @@ from django.forms.fields import CharField
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms import CremeModelWithUserForm
+from creme.creme_core.forms import CremeModelForm  # CremeModelWithUserForm
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Relation
@@ -37,7 +37,8 @@ Organisation = persons.get_organisation_model()
 
 
 # NB: not CremeEntityForm to ignore custom fields, relationships & properties
-class ContactQuickForm(CremeModelWithUserForm):
+# class ContactQuickForm(CremeModelWithUserForm):
+class ContactQuickForm(CremeModelForm):
     organisation = CharField(label=_('Organisation'), required=False,
                              help_text=_('If no organisation is found, a new one will be created.'),
                             )
@@ -149,7 +150,8 @@ class ContactQuickForm(CremeModelWithUserForm):
         return contact
 
 
-class OrganisationQuickForm(CremeModelWithUserForm):
+# class OrganisationQuickForm(CremeModelWithUserForm):
+class OrganisationQuickForm(CremeModelForm):
     class Meta:
         model = Organisation
-        fields = ('name', 'user')
+        fields = ('user', 'name')
