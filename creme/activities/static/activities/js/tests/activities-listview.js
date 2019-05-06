@@ -5,7 +5,7 @@ QUnit.module("creme.activities.listview.actions", new QUnitMixin(QUnitEventMixin
 }));
 
 QUnit.test('creme.activities.ExportAsICalAction (no selection)', function(assert) {
-    var list = this.createListView();
+    var list = this.createListView().controller();
     var action = new creme.activities.ExportAsICalAction(list, {
         url: 'mock/activities/export/ical'
     }).on(this.listviewActionListeners);
@@ -25,7 +25,7 @@ QUnit.test('creme.activities.ExportAsICalAction (no selection)', function(assert
 });
 
 QUnit.test('creme.activities.ExportAsICalAction (ok)', function(assert) {
-    var list = this.createDefaultListView();
+    var list = this.createDefaultListView().controller();
     var action = new creme.activities.ExportAsICalAction(list, {
         url: 'mock/activities/export/ical'
     }).on(this.listviewActionListeners);
@@ -43,7 +43,7 @@ QUnit.test('creme.activities.ExportAsICalAction (ok)', function(assert) {
 
 /*
 QUnit.test('creme.activities.exportAsICal', function(assert) {
-    var list = this.createDefaultListView();
+    var list = this.createDefaultListView().controller();
 
     $(list).find('#selected_rows').val('1,2,3');
     equal(3, list.countEntities());

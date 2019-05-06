@@ -16,7 +16,7 @@ QUnit.module("creme.emails.listview.actions", new QUnitMixin(QUnitEventMixin,
 }));
 
 QUnit.test('creme.emails.ResendEMailsAction (no selection)', function(assert) {
-    var list = this.createListView();
+    var list = this.createListView().controller();
     var action = new creme.emails.ResendEMailsAction(list, {
         url: 'mock/emails/resend'
     }).on(this.listviewActionListeners);
@@ -36,7 +36,7 @@ QUnit.test('creme.emails.ResendEMailsAction (no selection)', function(assert) {
 });
 
 QUnit.test('creme.emails.ResendEMailsAction (not confirmed)', function(assert) {
-    var list = this.createDefaultListView();
+    var list = this.createDefaultListView().controller();
     var action = new creme.emails.ResendEMailsAction(list, {
         url: 'mock/emails/resend'
     }).on(this.listviewActionListeners);
@@ -64,7 +64,7 @@ QUnit.test('creme.emails.ResendEMailsAction (not confirmed)', function(assert) {
 });
 
 QUnit.test('creme.emails.ResendEMailsAction (error)', function(assert) {
-    var list = this.createDefaultListView();
+    var list = this.createDefaultListView().controller();
     var action = new creme.emails.ResendEMailsAction(list, {
         url: 'mock/emails/resend/fail'
     }).on(this.listviewActionListeners);
@@ -112,7 +112,7 @@ QUnit.test('creme.emails.ResendEMailsAction (error)', function(assert) {
 });
 
 QUnit.test('creme.emails.ResendEMailsAction (ok)', function(assert) {
-    var list = this.createDefaultListView();
+    var list = this.createDefaultListView().controller();
     var action = new creme.emails.ResendEMailsAction(list, {
         url: 'mock/emails/resend'
     }).on(this.listviewActionListeners);

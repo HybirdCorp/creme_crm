@@ -27,8 +27,9 @@
 
             this.setMockBackendPOST({
                 'mock/listview/reload': function(url, data, options) {
-                    var content = self._listviewReloadContent[data.id] || '';
-                    return backend.response(Object.isEmpty(content) ? 200 : 404, content);
+                    var q_filter = data.q_filter ? data.q_filter[0] : '';
+                    var content = self._listviewReloadContent[q_filter] || '';
+                    return backend.response(Object.isEmpty(content) ? 404 : 200, content);
                 },
                 'mock/entity/delete': function(url, data, options) {
                     return backend.response(200, '');
@@ -101,13 +102,18 @@
         },
 
         createActionHtml: function(options) {
+            var renderAttr = function(attr) {
+                return '${0}="${1}"'.template(attr);
+            };
+
             return (
-                '<a href="${url}" data-action="${action}" class="${classes}">'
+                '<a href="${url}" data-action="${action}" class="${classes}" ${attrs}>'
                   + '<script type="application/json"><!-- ${data} --></script>'
               + '</a>').template({
                 classes: (options.classes || []).join(' '),
                 url: options.url || '',
                 action: options.action || '',
+                attrs: Object.entries(options.attrs || {}).map(renderAttr).join(' '),
                 data: $.toJSON({
                     data: options.data || {},
                     options: options.options || {}
@@ -117,10 +123,6 @@
 
         createListViewHtml: function(options) {
             var defaultStatus = {
-                /* TODO: (genglert) in rea list-views
-                    - "sort_field" has been renamed "sort_key"
-                    - the value of "sort_order" is "ASC" or "DESC"
-                */
                 sort_key: 'regular_field-name',
                 sort_order: 'ASC',
                 selected_rows: '',
@@ -226,11 +228,10 @@
             var html = this.createListViewHtml(options);
             var element = $(html).appendTo(this.qunitFixture());
 
-            creme.widget.create(element);
+            var widget = creme.widget.create(element);
+            widget.controller().setReloadUrl('mock/listview/reload');
 
-            var listview = element.data('list_view');
-            listview.setReloadUrl('mock/listview/reload');
-            return listview;
+            return widget;
         },
 
         createCellHtml: function(name, content, options) {
@@ -319,12 +320,12 @@
         },
 
         createDefaultListView: function(options) {
-            var list_options = $.extend(this.defaultListViewHtmlOptions(), options || {});
+            var listOptions = $.extend(this.defaultListViewHtmlOptions(), options || {});
 
-            var html = this.createListViewHtml(list_options);
-            var list = this.createListView(list_options);
+            var html = this.createListViewHtml(listOptions);
+            var list = this.createListView(listOptions);
 
-            this.setListviewReloadContent(list_options.id || 'list', html);
+            this.setListviewReloadContent(listOptions.id || 'list', html);
             return list;
         },
 

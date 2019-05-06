@@ -46,16 +46,6 @@
                 {% blockjsondata %}{"data": {"search": "clear"}}{% endblockjsondata %}
                 {% trans 'Clear search'%}
             </a>
-{% comment %}
-            <button class="with-icon do-search button-right" value="0" type="button" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);">
-                {% trans 'Search' context 'creme_core-verb' as label %}
-                {% widget_icon name='search' label=label size='listview-button' %}
-                <span>{{label}}</span>
-            </button>
-            <button class="clear-search button-right" value="1" type="button" {% if not search_form.search_q %}disabled="true"{% else %}onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this, {search: 'clear'});"{% endif %}>
-                {% trans 'Clear search' %}
-            </button>
-{% endcomment %}
         </div>
     </div>
 </div>
@@ -169,7 +159,7 @@
 
                     <div class='list-footer-page-selector'>
                         <label for="id_page_selector_rows">{% trans 'Nb / Page' %} :</label>
-                        <select id="id_page_selector_rows" name="rows" onchange="creme.lv_widget.findList(this).list_view('getSubmit')(this);">
+                        <select id="id_page_selector_rows" name="rows" onchange="creme.lv_widget.findList(this).list_view('submitState', this);">
                         {% with rows=paginator.per_page %}
                             {% for size_option in page_sizes %}<option value="{{size_option}}"{% if rows == size_option %} selected{% endif %}>{{size_option}}</option>{% endfor %}
                         {% endwith %}

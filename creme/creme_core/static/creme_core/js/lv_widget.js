@@ -302,50 +302,21 @@ creme.lv_widget.handleSort = function(sort_key, sort_order, new_sort_key, input,
 */
 
 creme.lv_widget.initialize = function(options, listview) {
-    var submit_handler, history_handler;
-    var dialog = listview.parents('.ui-dialog-content:first');
-    var submit_url = options.reloadurl || window.location.pathname;
-    var id = dialog.length > 0 ? dialog.attr('id') : undefined;
+    var historyHandler;
+    var inPopup = listview.parents('.ui-dialog-content:first').length > 0;
+    var reloadUrl = options.reloadurl || window.location.href;
 
-    if (id) {
-        submit_handler = function(input, extra_data) {
-            var submit_options = {
-                    action: submit_url,
-                    success: function(event, data, status) {
-                        creme.widget.destroy(listview);
-                        listview.html(data);
-                        creme.widget.create(listview);
-                    }
-                };
-
-            listview.list_view('setReloadUrl', submit_url);
-            listview.list_view('handleSubmit', submit_options, input, extra_data);
-        };
-    } else {
-        history_handler = function(url) {
+    if (inPopup === false) {
+        historyHandler = function(url) {
             creme.history.push(url);
-        };
-        submit_handler = function(input, extra_data) {
-            var submit_options = {
-                    action: submit_url,
-                    success: function(event, data, status) {
-                        creme.widget.destroy(listview);
-                        listview.html(data);
-                        creme.widget.create(listview);
-                    }
-                };
-
-            listview.list_view('handleSubmit', submit_options, input, extra_data);
         };
     }
 
     listview.list_view({
-        o2m:              options.multiple ? 0 : 1,
-        historyHandler:   history_handler,
-        submitHandler:    submit_handler
+        multiple:         options.multiple ? 0 : 1,
+        historyHandler:   historyHandler,
+        reloadUrl:        reloadUrl
     });
-
-    listview.list_view('setReloadUrl', submit_url);
 };
 
 creme.lv_widget.listViewAction = function(url, options, data) {
@@ -467,7 +438,7 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
         var listview = this._list;
 
         return new creme.component.Action(function() {
-            listview.getSubmit(this)($(e.target), data);
+            listview.submitState(e.target, data);
             this.done();
         });
     },
@@ -701,7 +672,7 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
 
             this._header.bind(list);
             this._pager.on('refresh', function(event, page) {
-                            element.data('list_view').getSubmit()(null, {page: page});
+                            element.list_view('submitState', null, {page: page});
                         })
                        .bind(list.find('.listview-pagination'));
         }

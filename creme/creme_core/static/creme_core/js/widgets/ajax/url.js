@@ -141,6 +141,11 @@ creme.ajax.URL = creme.component.Component.sub({
         return this;
     },
 
+    updateSearchData: function(data) {
+        data = data || {};
+        return this.searchData($.extend({}, this._searchData, data));
+    },
+
     toString: function() {
         return this._parser.toString();
     }
