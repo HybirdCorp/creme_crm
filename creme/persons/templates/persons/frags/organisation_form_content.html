@@ -4,6 +4,8 @@
     {% with form.get_blocks as blocks %}
         {% include 'creme_core/generics/blockform/content.html' with form_block=blocks.general %}
 
+        {% include 'creme_core/generics/blockform/content.html' with form_block=blocks.customer_relation %}
+
         {% if not form.hide_billing_address or not form.hide_shipping_address %}
         <div class="dual_column-container clearfix">
             {% include 'persons/frags/billing_block.html' with form_block=blocks.billing_address %}

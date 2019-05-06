@@ -24,11 +24,13 @@ from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
 # from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic, decorators
 
@@ -117,10 +119,23 @@ Organisation = get_organisation_model()
 #     )
 
 
-class OrganisationCreation(generic.EntityCreation):
+class OrganisationCreationBase(generic.EntityCreation):
     model = Organisation
     form_class = orga_forms.OrganisationForm
     template_name = 'persons/add_organisation_form.html'
+
+
+class OrganisationCreation(OrganisationCreationBase):
+    pass
+
+
+class CustomerCreation(OrganisationCreationBase):
+    form_class = orga_forms.CustomerForm
+    title = _('Create a suspect / prospect / customer')
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        user.has_perm_to_link_or_die(Organisation)
 
 
 class OrganisationDetail(generic.EntityDetail):
@@ -141,11 +156,22 @@ class OrganisationsList(generic.EntitiesList):
     default_headerfilter_id = constants.DEFAULT_HFILTER_ORGA
 
 
-# TODO: creation button => create customers ?
 # TODO: set the HF in the url ?
 class MyLeadsAndMyCustomersList(OrganisationsList):
     title = _('List of my suspects / prospects / customers')
     default_headerfilter_id = constants.DEFAULT_HFILTER_ORGA_CUSTOMERS
+
+    def get_buttons(self):
+        # TODO: disable if cannot link
+        class CustomerCreationButton(CreationButton):
+            def get_label(this, request, model):
+                return CustomerCreation.title
+
+            def get_url(this, request, model):
+                return reverse('persons__create_customer')  # TODO: attribute ?
+
+        return super().get_buttons()\
+                      .replace(old=CreationButton, new=CustomerCreationButton)
 
     def get_internal_q(self):
         return Q(

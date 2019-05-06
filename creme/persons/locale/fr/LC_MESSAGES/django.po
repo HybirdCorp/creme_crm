@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PERSONS' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2019 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-04 00:35+0200\n"
+"POT-Creation-Date: 2019-05-05 23:18+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -134,11 +134,11 @@ msgstr "Adresse de facturation"
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/contact.py:43 populate.py:312
+#: forms/contact.py:41 populate.py:312
 msgid "Contact details"
 msgstr "Coordonnées du contact"
 
-#: forms/contact.py:132
+#: forms/contact.py:125
 #, python-brace-format
 msgid "Status in «{organisation}»"
 msgstr "Statut dans «{organisation}»"
@@ -147,7 +147,31 @@ msgstr "Statut dans «{organisation}»"
 msgid "Can not merge 2 Contacts which represent some users."
 msgstr "Impossible de fusionner 2 Contacts représentant des utilisateurs"
 
-#: forms/organisation.py:37
+#: forms/organisation.py:48
+msgid "Related managed organisation"
+msgstr "Société gérée liée"
+
+#: forms/organisation.py:53
+msgid "Relationships"
+msgstr "Relations"
+
+#: forms/organisation.py:55
+msgid "Is a customer"
+msgstr "Est un client"
+
+#: forms/organisation.py:56
+msgid "Is a prospect"
+msgstr "Est un prospect"
+
+#: forms/organisation.py:57
+msgid "Is a suspect"
+msgstr "Est un suspect"
+
+#: forms/organisation.py:62
+msgid "Suspect / prospect / customer"
+msgstr "Suspect / prospect / client"
+
+#: forms/organisation.py:94
 msgid "Set as managed"
 msgstr "Marquer comme géré"
 
@@ -1005,20 +1029,24 @@ msgstr "Modifier l'adresse de livraison pour «{entity}»"
 msgid "Create a contact related to «{organisation}»"
 msgstr "Créer un contact lié à «{organisation}»"
 
-#: views/organisation.py:147
+#: views/organisation.py:134
+msgid "Create a suspect / prospect / customer"
+msgstr "Créer un suspect / prospect / client"
+
+#: views/organisation.py:161
 msgid "List of my suspects / prospects / customers"
 msgstr "Liste de mes suspects / prospects / clients"
 
-#: views/organisation.py:163
+#: views/organisation.py:189
 msgid "Add some managed organisations"
 msgstr "Ajouter des sociétés gérées"
 
 # Already in creme_core
-#: views/organisation.py:164
+#: views/organisation.py:190
 msgid "Save the modifications"
 msgstr ""
 
-#: views/organisation.py:183
+#: views/organisation.py:209
 msgid "You must have at least one managed organisation."
 msgstr "Vous devez avoir au moins une société gérée."
 
@@ -1027,9 +1055,6 @@ msgstr "Vous devez avoir au moins une société gérée."
 
 #~ msgid "No one"
 #~ msgstr "Aucune"
-
-#~ msgid "Relation type"
-#~ msgstr "Type de relation"
 
 #~ msgid "Adding address to «%s»"
 #~ msgstr "Ajouter une addresse à «%s»"

@@ -429,6 +429,123 @@ class OrganisationTestCase(_BaseTestCase):
         # self.assertEqual(0, response.context['entities'].paginator.count)
         self.assertEqual(0, response.context['page_obj'].paginator.count)
 
+    def test_create_customer01(self):
+        user = self.login()
+
+        managed1 = self.get_object_or_fail(Organisation, is_managed=True)
+        managed2 = Organisation.objects.create(user=user, name='Nerv', is_managed=True)
+
+        url = reverse('persons__create_customer')
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            rtypes_f = fields['customers_rtypes']
+
+        self.assertEqual(_('Relationships'), rtypes_f.label)
+        self.assertIn('customers_managed_orga', fields)
+
+        def post(managed, name):
+            response = self.client.post(
+                url, follow=True,
+                data={
+                    'user':  user.id,
+                    'name':  name,
+
+                    'customers_managed_orga': managed.id,
+                    'customers_rtypes': [constants.REL_SUB_SUSPECT],
+                 },
+            )
+            self.assertNoFormError(response)
+
+            return self.get_object_or_fail(Organisation, name=name)
+
+        # ----
+        orga1 = post(managed2, name='Bebop')
+        self.assertRelationCount(0, orga1, constants.REL_SUB_CUSTOMER_SUPPLIER, managed2)
+        self.assertRelationCount(0, orga1, constants.REL_SUB_PROSPECT,          managed2)
+        self.assertRelationCount(1, orga1, constants.REL_SUB_SUSPECT,           managed2)
+
+        self.assertRelationCount(0, orga1, constants.REL_SUB_CUSTOMER_SUPPLIER, managed1)
+        self.assertRelationCount(0, orga1, constants.REL_SUB_PROSPECT,          managed1)
+        self.assertRelationCount(0, orga1, constants.REL_SUB_SUSPECT,           managed1)
+
+        # ----
+        orga2 = post(managed1, name='Red dragons')
+        self.assertRelationCount(1, orga2, constants.REL_SUB_SUSPECT, managed1)
+        self.assertRelationCount(0, orga2, constants.REL_SUB_SUSPECT, managed2)
+
+    def test_create_customer02(self):
+        "Not super-user."
+        user = self.login(is_superuser=False, creatable_models=[Organisation])
+
+        create_creds = partial(SetCredentials.objects.create, role=self.role)
+        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                           EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not 'LINK'
+                     set_type=SetCredentials.ESET_ALL,
+                    )
+        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                           EntityCredentials.DELETE | EntityCredentials.LINK | EntityCredentials.UNLINK,
+                     set_type=SetCredentials.ESET_OWN,
+                    )
+
+        managed1 = self.get_object_or_fail(Organisation, is_managed=True)
+        self.assertFalse(user.has_perm_to_link(managed1))
+
+        managed2 = Organisation.objects.create(user=user, name='Nerv', is_managed=True)
+        self.assertTrue(user.has_perm_to_link(managed2))
+
+        url = reverse('persons__create_customer')
+        name = 'Bebop'
+        data = {
+            'user': user.id,
+            'name': name,
+
+            'customers_managed_orga': managed1.id,
+            'customers_rtypes': [constants.REL_SUB_SUSPECT],
+         }
+        response = self.assertPOST200(url, follow=True, data=data)
+        self.assertFormError(
+            response, 'form', 'customers_managed_orga',
+            _('You are not allowed to link this entity: {}').format(managed1)
+        )
+
+        # ---
+        response = self.assertPOST200(
+            url, follow=True,
+            data=dict(data,
+                      user=self.other_user.id,  # <==
+                      customers_managed_orga=managed2.id,
+                     ),
+        )
+        self.assertFormError(
+            response, 'form', 'user',
+            _('You are not allowed to link with the «{models}» of this user.').format(
+                models=_('Organisations'),
+            )
+        )
+
+        # ---
+        response = self.assertPOST200(
+            url, follow=True,
+            data=dict(data, customers_managed_orga=managed2.id),
+        )
+        self.assertNoFormError(response)
+
+        orga = self.get_object_or_fail(Organisation, name=name)
+        self.assertRelationCount(1, orga, constants.REL_SUB_SUSPECT, managed2)
+
+    def test_create_customer03(self):
+        "Can never link."
+        self.login(is_superuser=False, creatable_models=[Organisation])
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                  EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not 'LINK'
+            set_type=SetCredentials.ESET_ALL,
+        )
+        self.assertPOST403(reverse('persons__create_customer'))
+
     def test_delete01(self):
         user = self.login()
         orga01 = Organisation.objects.create(user=user, name='Nerv')
