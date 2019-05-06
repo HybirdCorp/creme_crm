@@ -166,6 +166,28 @@ QUnit.test('creme.ajax.URL (data)', function(assert) {
     }, new creme.ajax.URL('/this/is/a/test?a%5Bone%5D=1&a%5Btwo%5D=2&a%5Bthree%5D=3&b=b%3D1%2C2%2C3&c%5B%5D=1&c%5B%5D=2&c%5B%5D=3').searchData());
 });
 
+QUnit.test('creme.ajax.URL (updateSearchData)', function(assert) {
+    var url = new creme.ajax.URL('http://admin.com:8080/this/is/a/test?a=1&b=2&c=true&d=');
+
+    deepEqual({
+        a: '1',
+        b: '2',
+        c: 'true',
+        d: ''
+    }, url.searchData());
+
+    url.updateSearchData({b: '5', e: ['a', 'b']});
+
+    deepEqual({
+        a: '1',
+        b: '5',
+        c: 'true',
+        d: '',
+        e: ['a', 'b']
+    }, url.searchData());
+    equal('http://admin.com:8080/this/is/a/test?a=1&b=5&c=true&d=&e=a&e=b', url.href());
+});
+
 QUnit.test('creme.ajax.URL (update data)', function(assert) {
     var url = new creme.ajax.URL('http://admin.com:8080/this/is/a/test?a=1&b=2&c=true&d=');
 

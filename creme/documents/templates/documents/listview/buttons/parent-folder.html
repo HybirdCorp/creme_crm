@@ -10,7 +10,7 @@
     {{label}}{% widget_icon name='previous' label=label size='listview-button' %}
 </a>
 {% comment %}
-<button class="with-icon parent-folder" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" name="parent_id" value="{{button.parent_folder.parent_folder_id|default:''}}" type="button">
+<button class="with-icon parent-folder" onclick="creme.lv_widget.findList(this).list_view('submitState', this);" name="parent_id" value="{{button.parent_folder.parent_folder_id|default:''}}" type="button">
     {% trans 'Previous folder' as label %}{% widget_icon name='previous' label=label size='listview-button' %}
     <span>{{label}}</span>
 </button>

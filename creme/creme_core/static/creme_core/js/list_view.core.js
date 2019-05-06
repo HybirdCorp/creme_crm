@@ -186,12 +186,9 @@
         $.fn.list_view.defaults = {
             user_page:          '#user_page',
             id_container:       '[name="entity_id"]',
-            beforeSubmit:       null,
-            afterSubmit:        null,
-            o2m:                false,
+            multiple:           false,
             serializer:         'input[name][type!="submit"], select[name]',
-            submitHandler:      null, // Use handleSubmit in it to easy list view's management
-            reload_url:         null,
+            reloadUrl:          null,
             historyHandler:     null,
             actionBuilders:     null,
             submitOnKey:        $.ui.keyCode.ENTER
@@ -202,8 +199,7 @@
         var publicMethods = ["countEntities", "getSelectedEntities",
                              "getSelectedEntities",
                              "option", "serializeState", "ensureSelection",
-                             "getSubmit",
-                             "setSubmit",
+                             "submitState",
                              "setReloadUrl", "getReloadUrl", "isLoading", "getActionBuilders"];
 
         if (isMethodCall && $.inArray(options, publicMethods) > -1) {
@@ -221,14 +217,12 @@
 
                 $.data(this, 'list_view', this);
 
-                me.beforeSubmit     = (Object.isFunc(opts.beforeSubmit))     ? opts.beforeSubmit     : false;
-                me.afterSubmit      = (Object.isFunc(opts.afterSubmit))      ? opts.afterSubmit      : false;
-                me.submitHandler    = (Object.isFunc(opts.submitHandler))    ? opts.submitHandler    : false;
+                me.reloadUrl = opts.reloadUrl;
                 me.historyHandler   = (Object.isFunc(opts.historyHandler))   ? opts.historyHandler   : false;
                 me.is_loading = false;
 
                 this._actionBuilders = new creme.lv_widget.ListViewActionBuilders(this);
-                this._selections = new ListViewSelectionController(self, {multiple: !opts.o2m});
+                this._selections = new ListViewSelectionController(self, {multiple: !opts.multiple});
 
                 self.trigger('listview-setup-actions', [this._actionBuilders]);
 
@@ -254,26 +248,12 @@
                     }
                 };
 
-                this.setSubmit = function(fn) {
-                    if (Object.isFunc(fn)) {
-                        me.submitHandler = fn;
-                    }
-                };
-
-                this.getSubmit = function() {
-                    if (me.submitHandler) {
-                        return me.submitHandler;
-                    } else {
-                        return _noop; // Null handler
-                    }
-                };
-
                 this.setReloadUrl = function(url) {
-                    me.reload_url = url;
+                    me.reloadUrl = url;
                 };
 
                 this.getReloadUrl = function() {
-                    return me.reload_url;
+                    return me.reloadUrl || window.location.href;
                 };
 
                 this.isLoading = function() {
@@ -282,7 +262,17 @@
 
                 /* **************** Helpers *************************** */
                 this.reload = function() {
-                    me.getSubmit()(null);
+                    me.handleSubmit();
+                };
+
+                this.submitState = function(target, data, listener) {
+                    data = data || {};
+
+                    if (Object.isEmpty($(target).attr('name')) === false) {
+                        data[$(target).attr('name')] = [$(target).val()];
+                    }
+
+                    me.handleSubmit(data, listener);
                 };
 
                 this.hasSelection = function() {
@@ -311,58 +301,74 @@
                         me.setState('sort_order', 'ASC');
                     }
 
-                    me.getSubmit()(target);
+                    me.submitState(target);
                 };
 
-                this.enableSortButtons = function() {
-                    self.find('.columns_top .column.sortable button:not(:disabled)')
-                        .click(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
+                this.bindSortButtons = function() {
+                    self.on('click', '.columns_top .column.sortable button:not(:disabled)', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                            var column = $(this).parent('.column:first');
-                            me.toggleSort(column.attr('data-column-key'), this);
-                        });
+                        var column = $(this).parent('.column:first');
+                        me.toggleSort(column.attr('data-column-key'), this);
+                    });
                 };
 
-                /* global creme_media_url */
-                this.enableFilters = function() {
-                    /* TODO: (genglert) we need a better system to initialize search widget, where each widget
-                             manage it's initialization, so an external app can easily add its own widgets.
-                    */
+                this.bindFiltersShortKeys = function() {
                     var handleSubmitKey = function(e) {
-                        if (e.which === opts.submitOnKey) {
+                        if (e.keyCode === opts.submitOnKey) {
                             e.preventDefault();
-                            e.stopPropagation();
-
-                            me.getSubmit()(e.target);
+                            me.submitState(e.target);
                         }
                     };
 
-                    self.find('.columns_bottom .column input[type="text"]')
-                        .bind('keydown', handleSubmitKey);
+                    self.on('keydown', '.columns_bottom .column input[type="text"]', handleSubmitKey);
+                    self.on('keydown', '.columns_bottom .column .lv-search-daterange input', handleSubmitKey);
+                };
 
+                this.bindRowSelection = function() {
+                    self.on('click', 'tr.selectable', function(e) {
+                        var $target = $(e.target);
+
+                        // Ignore clicks on links, they should not select the row
+                        var isClickFromLink = $target.is('a') || $target.parents('a').first().length === 1;
+                        if (isClickFromLink) {
+                            return;
+                        }
+
+                        me._selections.toggle($(this));
+                    });
+
+                    self.on('click', '[name="select_all"]', function(e) {
+                        me._selections.toggleAll($(this).prop('checked'));
+                    });
+                };
+
+                /* global creme_media_url */
+                this.buildColumnFilters = function() {
+                    /* TODO: (genglert) we need a better system to initialize search widget, where each widget
+                             manage it's initialization, so an external app can easily add its own widgets.
+                    */
                     self.find('.columns_bottom .column select')
                         .bind('change', function(event) {
                              event.stopPropagation();
-                             me.getSubmit()(this);
+                             me.submitState(this);
                          });
 
 //                    var date_inputs = self.find('.columns_bottom .column.datefield input');
                     var date_inputs = self.find('.columns_bottom .column .lv-search-daterange input');
-
-                    date_inputs.bind('keydown', handleSubmitKey);
 
                     date_inputs.each(function() {
                        $(this).datepicker({
                            showOn: 'both',
                            dateFormat: $(this).attr('data-format'),
                            buttonImage: creme_media_url('images/icon_calendar.gif'),
-                           buttonImageOnly: true});
+                           buttonImageOnly: true
+                       });
                     });
                 };
 
-                this.enableActions = function() {
+                this.buildActions = function() {
                     self.find('a[data-action]').each(function() {
                         var link = new creme.lv_widget.ListViewActionLink(me);
                         link.bind($(this));
@@ -385,25 +391,6 @@
                 };
 
                 /* **************** Row selection part **************** */
-                this.enableRowSelection = function() {
-                    self.on('click', 'tr.selectable', function(e) {
-                        var $target = $(e.target);
-
-                        // Ignore clicks on links, they should not select the row
-                        var isClickFromLink = $target.is('a') || $target.parents('a').first().length === 1;
-                        if (isClickFromLink) {
-                            return;
-                        }
-
-                        me._selections.toggle($(this));
-                    });
-                };
-
-                this.enableCheckAllBoxes = function() {
-                    self.find('[name="select_all"]').bind('click', function(e) {
-                        me._selections.toggleAll($(this).prop('checked'));
-                    });
-                };
 
                 // Firefox keeps the checked state of inputs on simple page reloads
                 // we could 1) incorporate those pre-selected rows into our initial selected_ids set
@@ -421,12 +408,13 @@
                 /* **************** Submit part **************** */
 
                 this.enableEvents = function() {
-                    this.enableRowSelection();
-                    this.enableSortButtons();
-                    this.enableFilters();
-                    this.enableActions();
+                    this.bindRowSelection();
+                    this.bindSortButtons();
+                    this.bindFiltersShortKeys();
+
+                    this.buildColumnFilters();
+                    this.buildActions();
                     // TODO: add inner edit launch event here
-                    if (!opts.o2m) this.enableCheckAllBoxes();
                 };
 
                 this.getState = function(key, defaults) {
@@ -446,7 +434,7 @@
                     });
 
                     data['page'] = data['page'] || $(opts.user_page, self).val();
-                    data['selection'] = opts.o2m ? 'single' : 'multiple';
+                    data['selection'] = opts.multiple ? 'single' : 'multiple';
 
                     delete data['entity_id'];
                     delete data['inner_header_from_url'];
@@ -470,22 +458,30 @@
                     }
                 };
 
-                this.handleSubmit = function(options, target, extra_data) {
+                this.nextStateUrl = function(data) {
+                    var link = new creme.ajax.URL(me.getReloadUrl());
+                    return link.updateSearchData(data || {}).href();
+                };
+
+                this.handleSubmit = function(data, listener) {
+                    data = data || {};
+                    // TODO : handle multiple listeners. needs before() feature in creme.component.EventHandler
+                    listener = $.extend({
+                        success: _noop,
+                        error: _noop,
+                        complete: _noop,
+                        cancel: _noop
+                    }, listener || {});
+
                     if (me.isLoading()) {
+                        listener.cancel();
                         return;
                     }
 
-                    options = $.extend({
-                        success: _noop,
-                        error: _noop,
-                        complete: _noop
-                    }, options || {});
+                    var nextUrl = me.getReloadUrl();
+                    var parameters = $.extend(me.serializeState(), data || {});
 
-                    var next_url = me.reload_url || window.location.pathname;
-                    var parameters = $.extend(this.serializeState(), extra_data || {});
-                    me.setParameter(parameters, $(target).attr('name'), $(target).val());
-
-                    var beforeComplete = options.beforeComplete;
+                    var beforeComplete = listener.beforeComplete;
                     var beforeCompleteWrapper = function(request, status) {
                         // Calling our beforeComplete callback
                         me.is_loading = false;
@@ -498,28 +494,34 @@
 
                     var complete = function(request, status) {
                         if (Object.isFunc(me.historyHandler)) {
-                            return me.historyHandler(next_url + '?' + $.param(parameters));
+                            return me.historyHandler(me.nextStateUrl(parameters));
                         }
                     };
 
-                    creme.utils.ajaxQuery(next_url, {
-                                              action: 'POST',
-                                              warnOnFail: false,
-                                              waitingOverlay: true
-                                          }, parameters)
+                    creme.utils.ajaxQuery(nextUrl, {
+                                      action: 'POST',
+                                      warnOnFail: false,
+                                      waitingOverlay: true
+                                  }, parameters)
                                .onStart(function() {
                                     me.is_loading = true;
+                                    me.clearRowSelection();
                                 })
-                               .onDone(options.success)
-                               .onFail(options.error)
+                               .onDone(function(event, data) {
+                                    var content = $(data.trim());
+                                    creme.widget.destroy(self);
+                                    self.replaceWith(content);
+                                    creme.widget.create(content);
+                                })
+                               .onFail(listener.error)
                                .onComplete(function(event, data, status) {
                                     beforeCompleteWrapper(data, status);
                                     complete(data, status);
                                 })
-                               .onComplete(options.complete)
+                               .onComplete(listener.complete)
                                .start();
 
-                    this.clearRowSelection();
+                    return this;
                 };
 
                 this.clearRowSelection();

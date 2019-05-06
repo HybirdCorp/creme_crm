@@ -82,7 +82,7 @@ QUnit.test('creme.projects.hatmenubar.close', function(assert) {
 });
 
 QUnit.test('creme.projects.listview.actions (projects-close, cancel)', function(assert) {
-    var list = this.createDefaultListView();
+    var list = this.createDefaultListView().controller();
     var registry = list.getActionBuilders();
 
     var builder = registry.get('projects-close');
@@ -100,7 +100,7 @@ QUnit.test('creme.projects.listview.actions (projects-close, cancel)', function(
 });
 
 QUnit.test('creme.projects.listview.actions (projects-close, ok)', function(assert) {
-    var list = this.createDefaultListView();
+    var list = this.createDefaultListView().controller();
     var registry = list.getActionBuilders();
 
     var builder = registry.get('projects-close');
@@ -130,7 +130,7 @@ QUnit.test('creme.projects.listview.actions (projects-close, ok)', function(asse
 });
 
 QUnit.test('creme.projects.listview.actions (projects-close, fail)', function(assert) {
-    var list = this.createDefaultListView();
+    var list = this.createDefaultListView().controller();
     var registry = list.getActionBuilders();
 
     var builder = registry.get('projects-close');
