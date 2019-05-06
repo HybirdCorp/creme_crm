@@ -1,7 +1,11 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n creme_widgets creme_bricks %}
 
-{% block before_content_1 %}<div class="my_page">{% endblock %}
+{% block page_title %}{% trans 'My page' %} - {% endblock %}
+
+{% block content_extra_class %}content-my_page{% endblock %}
+
+{# {% block before_content_1 %}<div class="my_page">{% endblock %} #}
 
 {% block content %}
     <div class="hat-bar-container">
@@ -16,4 +20,4 @@
     {% brick_end %}
 {% endblock %}
 
-{% block after_content_3 %}</div>{% endblock %}
+{# {% block after_content_3 %}</div>{% endblock %} #}

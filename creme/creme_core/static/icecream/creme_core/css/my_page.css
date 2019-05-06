@@ -1,11 +1,14 @@
-.my_page .hat-bar-container {
+/* .my_page .hat-bar-container { */
+.content-my_page .hat-bar-container {
     border: 0;
 }
 
-.my_page .hat-bar .bar-title {
+/* .my_page .hat-bar .bar-title { */
+.content-my_page .hat-bar .bar-title {
     width: 100%;
 }
 
-.my_page .hat-bar .bar-title h1 {
+/* .my_page .hat-bar .bar-title h1 { */
+.content-my_page .hat-bar .bar-title h1 {
     text-align: center;
 }

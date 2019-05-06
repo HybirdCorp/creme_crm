@@ -265,8 +265,7 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'last_name':  'Suruga',
 
                 'property_types': [ptype01.id, ptype03.id],
-
-             },
+            },
         )
         self.assertFalse(form.errors)
 
