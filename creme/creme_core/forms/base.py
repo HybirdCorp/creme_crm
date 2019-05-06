@@ -25,7 +25,7 @@ import warnings
 
 from django import forms
 from django.conf import settings
-from django.db.models import FieldDoesNotExist, Q
+from django.db.models import Q  # FieldDoesNotExist
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -370,16 +370,15 @@ class CremeEntityForm(CremeModelForm):
         ]
         self._build_relations_fields(forced_relations_info=forced_relations_info)
 
-        # TODO: move in CremeModelForm ???
-        # Populate help_text in form widgets
-        # Rule is form field help text or model field help text
-        for field_name, form_field in self.fields.items():
-            try:
-                model_field = self.instance._meta.get_field(field_name)
-                help_text = form_field.help_text if form_field.help_text not in (None, '') else model_field.help_text
-                form_field.widget.help_text = help_text
-            except FieldDoesNotExist:
-                form_field.widget.help_text = form_field.help_text
+        # # Populate help_text in form widgets
+        # # Rule is form field help text or model field help text
+        # for field_name, form_field in self.fields.items():
+        #     try:
+        #         model_field = self.instance._meta.get_field(field_name)
+        #         help_text = form_field.help_text if form_field.help_text not in (None, '') else model_field.help_text
+        #         form_field.widget.help_text = help_text
+        #     except FieldDoesNotExist:
+        #         form_field.widget.help_text = form_field.help_text
 
     def _build_customfields(self):
         self._customs = self.instance.get_custom_fields_n_values()
