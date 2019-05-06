@@ -115,7 +115,8 @@ class ReportGraphForm(CremeEntityForm):
                                     .exclude(absc_field_excluder) \
                                     .choices()
 
-        self.rtypes = rtypes = dict(RelationType.get_compatible_ones(report_ct, include_internals=True)
+        self.rtypes = rtypes = dict(RelationType.objects
+                                                .compatible(report_ct, include_internals=True)
                                                 .values_list('id', 'predicate')
                                    )
         abscissa_predicates = list(rtypes.items())

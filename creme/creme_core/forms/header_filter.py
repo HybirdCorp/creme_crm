@@ -231,7 +231,7 @@ class EntityCellsField(Field):
 
     def _choices_4_relationtypes(self, ct, builders):
         # Cache
-        self._relation_types = RelationType.get_compatible_ones(ct, include_internals=True) \
+        self._relation_types = RelationType.objects.compatible(ct, include_internals=True) \
                                            .order_by('predicate')  # TODO: unicode collation
         # TODO: sort ? smart categories ('all', 'contacts') ?
         self.widget.relation_types = rtypes_choices = []

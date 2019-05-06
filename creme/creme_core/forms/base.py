@@ -419,7 +419,7 @@ class CremeEntityForm(CremeModelWithUserForm):
             if self.user.has_perm_to_link(type(instance)):
                 ctype = instance.entity_type
                 fields['relation_types'].allowed_rtypes = \
-                    RelationType.get_compatible_ones(ctype)
+                    RelationType.objects.compatible(ctype)
 
                 # TODO: factorise ?
                 entities = [

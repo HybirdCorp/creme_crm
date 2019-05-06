@@ -212,7 +212,8 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
             if excluded_rtype_ids:
                 # Theses type are excluded to provide a better GUI, but they cannot cause business conflict
                 # (internal rtypes are always excluded), so it's not a problem to only excluded them only in GET part.
-                rtypes = RelationType.get_compatible_ones(subject_ctype) \
+                rtypes = RelationType.objects\
+                                     .compatible(subject_ctype) \
                                      .exclude(id__in=excluded_rtype_ids)
 
         return rtypes

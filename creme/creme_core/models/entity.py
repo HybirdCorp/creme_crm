@@ -424,7 +424,7 @@ class CremeEntity(CremeModel):
         """
         relation_create = Relation.objects.safe_create
 
-        query = Q(type__in=RelationType.get_compatible_ones(self.entity_type).filter(Q(is_copiable=True)))
+        query = Q(type__in=RelationType.objects.compatible(self.entity_type).filter(Q(is_copiable=True)))
 
         if allowed_internal:
             query |= Q(type__in=allowed_internal)

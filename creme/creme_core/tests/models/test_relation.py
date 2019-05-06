@@ -19,7 +19,7 @@ class RelationsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.contact_ct_id = ContentType.objects.get_for_model(FakeContact).id
+        cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
     def setUp(self):
         self.user = get_user_model().objects.create(username='name')
@@ -41,7 +41,8 @@ class RelationsTestCase(CremeTestCase):
             entity1  = CremeEntity.objects.create(user=self.user)
             entity2  = CremeEntity.objects.create(user=self.user)
             relation = Relation.objects.create(user=self.user, type=rtype1,
-                                               subject_entity=entity1, object_entity=entity2
+                                               subject_entity=entity1,
+                                               object_entity=entity2,
                                               )
 
         sym = relation.symmetric_relation
@@ -51,17 +52,21 @@ class RelationsTestCase(CremeTestCase):
 
     def test_relation02(self):
         "BEWARE: don't do this ! Bad usage of Relations"
-        rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
-                                             ('test-object_foobar',  'is loved by'))
+        rtype1, rtype2 = RelationType.create(
+            ('test-subject_foobar', 'is loving'),
+            ('test-object_foobar',  'is loved by'),
+        )
 
-        create_entity = CremeEntity.objects.create
-        relation = Relation.objects.create(user=self.user, type=rtype1,
-                                           subject_entity=create_entity(user=self.user),
-                                           object_entity=create_entity(user=self.user))
+        create_entity = partial(CremeEntity.objects.create, user=self.user)
+        relation = Relation.objects.create(
+            user=self.user, type=rtype1,
+            subject_entity=create_entity(),
+            object_entity=create_entity()
+        )
 
         # This will not update symmetric relation !!
-        relation.subject_entity = create_entity(user=self.user)
-        relation.object_entity  = create_entity(user=self.user)
+        relation.subject_entity = create_entity()
+        relation.object_entity  = create_entity()
 
         self.assertNotEqual(relation.subject_entity_id, relation.symmetric_relation.object_entity_id)
         self.assertNotEqual(relation.object_entity_id,  relation.symmetric_relation.subject_entity_id)
@@ -73,39 +78,41 @@ class RelationsTestCase(CremeTestCase):
         self.assertRaises(RelationType.DoesNotExist, RelationType.objects.get, id=rtype1.id)
         self.assertRaises(RelationType.DoesNotExist, RelationType.objects.get, id=rtype2.id)
 
-    def build_compatible_set(self, **kwargs):
-        return set(RelationType.get_compatible_ones(self.contact_ct_id, **kwargs)
+    def build_compatible_set_legacy(self, **kwargs):
+        return set(RelationType.get_compatible_ones(self.contact_ct.id, **kwargs)
                                .values_list('id', flat=True)
                   )
 
     def test_get_compatible_ones01(self):
-        orig_compat_ids = self.build_compatible_set()
-        orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
+        orig_compat_ids = self.build_compatible_set_legacy()
+        orig_internal_compat_ids = self.build_compatible_set_legacy(include_internals=True)
 
         create_rtype = RelationType.create
-        rtype = create_rtype(('test-subject_foobar', 'manages',       [FakeContact]),
-                             ('test-object_foobar',  'is managed by', [FakeOrganisation])
-                            )[0]
-        internal_rtype = create_rtype(('test-subject_foobar_2', 'manages internal',       [FakeContact]),
-                                      ('test-object_foobar_2',  'is managed by internal', [FakeOrganisation]),
-                                      is_internal=True,
-                                     )[0]
+        rtype = create_rtype(
+            ('test-subject_foobar', 'manages',       [FakeContact]),
+            ('test-object_foobar',  'is managed by', [FakeOrganisation])
+        )[0]
+        internal_rtype = create_rtype(
+            ('test-subject_foobar_2', 'manages internal',       [FakeContact]),
+            ('test-object_foobar_2',  'is managed by internal', [FakeOrganisation]),
+            is_internal=True,
+        )[0]
 
-        compatibles_ids = self.build_compatible_set()
+        compatibles_ids = self.build_compatible_set_legacy()
         self.assertEqual(len(orig_compat_ids) + 1, len(compatibles_ids))
         self.assertIn(rtype.id, compatibles_ids)
 
-        compatibles_ids = self.build_compatible_set(include_internals=True)
+        compatibles_ids = self.build_compatible_set_legacy(include_internals=True)
         self.assertEqual(len(orig_internal_compat_ids) + 2, len(compatibles_ids))
         self.assertIn(rtype.id,          compatibles_ids)
         self.assertIn(internal_rtype.id, compatibles_ids)
 
-        self.assertTrue(rtype.is_compatible(self.contact_ct_id))
+        self.assertTrue(rtype.is_compatible(self.contact_ct.id))
         self.assertFalse(rtype.is_compatible(ContentType.objects.get_for_model(FakeOrganisation).id))
 
     def test_get_compatible_ones02(self):
-        orig_compat_ids = self.build_compatible_set()
-        orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
+        orig_compat_ids = self.build_compatible_set_legacy()
+        orig_internal_compat_ids = self.build_compatible_set_legacy(include_internals=True)
 
         create_rtype = RelationType.create
         rtype = create_rtype(('test-subject_foobar', 'manages',       [FakeContact]),
@@ -117,6 +124,96 @@ class RelationsTestCase(CremeTestCase):
                                       ('test-object_foobar_2',  'is managed by internal', [FakeOrganisation]),
                                       is_internal=True,
                                      )[0]
+        self.assertEqual(orig_compat_ids, self.build_compatible_set_legacy())
+
+        compatibles_ids = self.build_compatible_set_legacy(include_internals=True)
+        self.assertEqual(len(orig_internal_compat_ids) + 2, len(compatibles_ids))
+        self.assertIn(rtype.id,          compatibles_ids)
+        self.assertIn(internal_rtype.id, compatibles_ids)
+
+    def test_get_compatible_ones03(self):
+        orig_compat_ids = self.build_compatible_set_legacy()
+        orig_internal_compat_ids = self.build_compatible_set_legacy(include_internals=True)
+
+        create_rtype = RelationType.create
+        rtype, sym_rtype = create_rtype(('test-subject_foobar', 'manages'),
+                                        ('test-object_foobar',  'is managed by')
+                                       )
+        internal_rtype, internal_sym_rtype = create_rtype(
+                ('test-subject_foobar_2', 'manages internal'),
+                ('test-object_foobar_2',  'is managed by internal'),
+                is_internal=True,
+            )
+
+        compatibles_ids = self.build_compatible_set_legacy()
+        self.assertEqual(len(orig_compat_ids) + 2, len(compatibles_ids))
+        self.assertIn(rtype.id, compatibles_ids)
+        self.assertIn(sym_rtype.id, compatibles_ids)
+
+        compatibles_ids = self.build_compatible_set_legacy(include_internals=True)
+        self.assertEqual(len(orig_internal_compat_ids) + 4, len(compatibles_ids))
+        self.assertIn(rtype.id,              compatibles_ids)
+        self.assertIn(sym_rtype.id,          compatibles_ids)
+        self.assertIn(internal_rtype.id,     compatibles_ids)
+        self.assertIn(internal_sym_rtype.id, compatibles_ids)
+
+        self.assertTrue(rtype.is_compatible(self.contact_ct.id))
+
+    def build_compatible_set(self, ct_or_model=None, **kwargs):
+        return set(RelationType.objects
+                               .compatible(ct_or_model or self.contact_ct, **kwargs)
+                               .values_list('id', flat=True)
+                  )
+
+    def test_manager_compatible01(self):
+        orig_compat_ids = self.build_compatible_set()
+        orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
+
+        create_rtype = RelationType.create
+        rtype = create_rtype(
+            ('test-subject_foobar', 'manages',       [FakeContact]),
+            ('test-object_foobar',  'is managed by', [FakeOrganisation])
+        )[0]
+        internal_rtype = create_rtype(
+            ('test-subject_foobar_2', 'manages internal',       [FakeContact]),
+            ('test-object_foobar_2',  'is managed by internal', [FakeOrganisation]),
+            is_internal=True,
+        )[0]
+
+        compatibles_ids = self.build_compatible_set()
+        self.assertEqual(len(orig_compat_ids) + 1, len(compatibles_ids))
+        self.assertIn(rtype.id, compatibles_ids)
+
+        compatibles_internal_ids = self.build_compatible_set(include_internals=True)
+        self.assertEqual(len(orig_internal_compat_ids) + 2, len(compatibles_internal_ids))
+        self.assertIn(rtype.id,          compatibles_internal_ids)
+        self.assertIn(internal_rtype.id, compatibles_internal_ids)
+
+        self.assertTrue(rtype.is_compatible(self.contact_ct.id))
+        self.assertFalse(rtype.is_compatible(ContentType.objects.get_for_model(FakeOrganisation).id))
+
+        # Model as argument
+        self.assertSetEqual(
+            compatibles_ids,
+            self.build_compatible_set(FakeContact),
+        )
+
+    def test_manager_compatible02(self):
+        orig_compat_ids = self.build_compatible_set()
+        orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
+
+        create_rtype = RelationType.create
+        rtype = create_rtype(
+            ('test-subject_foobar', 'manages',       [FakeContact]),
+            ('test-object_foobar',  'is managed by', [FakeOrganisation]),
+            is_internal=True,
+        )[0]
+
+        internal_rtype = create_rtype(
+            ('test-subject_foobar_2', 'manages internal',       [FakeContact]),
+            ('test-object_foobar_2',  'is managed by internal', [FakeOrganisation]),
+            is_internal=True,
+        )[0]
         self.assertEqual(orig_compat_ids, self.build_compatible_set())
 
         compatibles_ids = self.build_compatible_set(include_internals=True)
@@ -124,14 +221,15 @@ class RelationsTestCase(CremeTestCase):
         self.assertIn(rtype.id,          compatibles_ids)
         self.assertIn(internal_rtype.id, compatibles_ids)
 
-    def test_get_compatible_ones03(self):
+    def test_manager_compatible03(self):
         orig_compat_ids = self.build_compatible_set()
         orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
 
         create_rtype = RelationType.create
-        rtype, sym_rtype = create_rtype(('test-subject_foobar', 'manages'),
-                                        ('test-object_foobar',  'is managed by')
-                                       )
+        rtype, sym_rtype = create_rtype(
+            ('test-subject_foobar', 'manages'),
+            ('test-object_foobar',  'is managed by')
+        )
         internal_rtype, internal_sym_rtype = create_rtype(
                 ('test-subject_foobar_2', 'manages internal'),
                 ('test-object_foobar_2',  'is managed by internal'),
@@ -150,7 +248,7 @@ class RelationsTestCase(CremeTestCase):
         self.assertIn(internal_rtype.id,     compatibles_ids)
         self.assertIn(internal_sym_rtype.id, compatibles_ids)
 
-        self.assertTrue(rtype.is_compatible(self.contact_ct_id))
+        self.assertTrue(rtype.is_compatible(self.contact_ct.id))
 
     def test_manager_safe_create(self):
         rtype, srtype = RelationType.create(
