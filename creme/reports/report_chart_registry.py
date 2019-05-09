@@ -36,6 +36,7 @@ class ReportChartRegistry:
 
     def register(self, chart):
         self._charts[chart.name] = chart
+        return self
 
     def get(self, name):
         return self._charts.get(name)
@@ -48,6 +49,6 @@ class ReportChartRegistry:
 
 
 report_chart_registry = ReportChartRegistry()
-report_chart_registry.register(ReportChart('barchart',  _('Histogram')))
-report_chart_registry.register(ReportChart('piechart',  _('Pie')))
-report_chart_registry.register(ReportChart('tubechart', _('Tube')))
+report_chart_registry.register(ReportChart('barchart',  _('Histogram'))) \
+                     .register(ReportChart('piechart',  _('Pie'))) \
+                     .register(ReportChart('tubechart', _('Tube')))

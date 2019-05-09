@@ -25,7 +25,7 @@
             <div class="bar-title">
                 <h1>
                     {% blocktrans with verbose_name=object|get_meta_value:'verbose_name'|capfirst title=object|capfirst %}Rendered {{verbose_name}} : {{title}}{% endblocktrans %}
-                    {% if object.report.is_deleted %} [{% trans "deleted" %}]{% endif %}
+                    {% if object.report.is_deleted %} [{% trans 'deleted' %}]{% endif %}
                 </h1>
             </div>
         </div>

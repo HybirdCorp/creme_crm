@@ -7,7 +7,7 @@
     {% include 'reports/frags/graph_errors.html' with hand=object.hand %}
     <div chained-name="plot" class="ui-creme-chainedselect-item">
         <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector" 
-             plot-data-url="{% url 'reports__fetch_graph' object.id %}?order=${sort}"
+             plot-data-url="{% url 'reports__fetch_graph' object.id %}?chart=${graph}&order=${sort}&save_settings=true"
              plot-name="${graph}"
              style="width:100%;">
                 {% for name, chart in report_charts %} 

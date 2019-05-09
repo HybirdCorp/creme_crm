@@ -31,7 +31,6 @@ from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem
 
 from ..constants import RFT_RELATION, RFT_FIELD, GROUP_TYPES
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -44,6 +43,7 @@ class AbstractReportGraph(CremeEntity):
     days     = PositiveIntegerField(_('Days'), blank=True, null=True)
     is_count = BooleanField(_('Make a count instead of aggregate?'), default=False)  # TODO: 'count' function instead ?
     chart    = CharField(_('Chart type'), max_length=100, null=True)
+    asc      = BooleanField('ASC order', default=True, editable=False)  # TODO: not viewable ?
 
     creation_label = _("Create a report's graph")
     save_label     = pgettext_lazy('reports-graphs', 'Save the graph')
@@ -67,6 +67,7 @@ class AbstractReportGraph(CremeEntity):
     def get_related_entity(self):
         return self.linked_report
 
+    # TODO: use creme_core.utils.meta.Order
     def fetch(self, user, extra_q=None, order='ASC'):
         assert order == 'ASC' or order == 'DESC'
 

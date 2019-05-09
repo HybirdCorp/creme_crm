@@ -21,8 +21,8 @@
 
              var initial = {
                  chart: {% if graph.chart %}'{{graph.chart}}'{% else %}Object.keys(properties.charts)[0]{% endif %},
-{# TODO          sort:  {% if graph.sort %}'{{graph.sort}}'{% else %}Object.keys(properties.sorts)[0]{% endif %} #}
-                 sort:  Object.keys(properties.sorts)[0]
+{#                 sort:  Object.keys(properties.sorts)[0] #}
+                 sort:  '{% if graph.asc %}ASC{% else %}DESC{% endif %}'
              };
 
              var controller = new creme.reports.ChartController(properties);
@@ -75,9 +75,9 @@
     <div class="brick-graph-container graph_global_container_{{instance_brick_id}}">
         <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector"
              {% if object %}
-             plot-data-url="{% url 'reports__fetch_graph_from_brick' instance_brick_id object.id %}?order=${sort}"
+             plot-data-url="{% url 'reports__fetch_graph_from_brick' instance_brick_id object.id %}?chart=${chart}&order=${sort}&save_settings=true"
              {% else %}
-             plot-data-url="{% url 'reports__fetch_graph' graph.id %}?order=${sort}"
+             plot-data-url="{% url 'reports__fetch_graph' graph.id %}?chart=${chart}&order=${sort}&save_settings=true"
              {% endif %}
              plot-name="${chart}"
              style="width:100%;margin:0px;padding:0px;border:0px;">

@@ -73,7 +73,6 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(other_id, field.initial)
 
 
-
 class DatePeriodFieldTestCase(FieldTestCase):
     def test_ok01(self):
         "Days"
