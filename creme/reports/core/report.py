@@ -434,6 +434,7 @@ class RHFunctionField(ReportHand):
         return self._funcfield(entity, user).for_csv()
 
 
+# TODO: pass field_aggregation_registry as argument
 class RHAggregate(ReportHand):
     verbose_name = _('Aggregated value')
 
