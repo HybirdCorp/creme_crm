@@ -20,8 +20,9 @@
              };
 
              var initial = {
-                 chart: '{{rgraph.chart}}' || Object.keys(properties.charts)[0],
-                 sort:  '{{rgraph.sort}}' || Object.keys(properties.sorts)[0]
+                 chart: {% if graph.chart %}'{{graph.chart}}'{% else %}Object.keys(properties.charts)[0]{% endif %},
+{# TODO          sort:  {% if graph.sort %}'{{graph.sort}}'{% else %}Object.keys(properties.sorts)[0]{% endif %} #}
+                 sort:  Object.keys(properties.sorts)[0]
              };
 
              var controller = new creme.reports.ChartController(properties);
@@ -52,7 +53,7 @@
             <div class="graph-control graph-controls-type">
                 <span class="graph-control-name">{% trans 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
                 <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">
-                    {{rgraph.chart|default:_('Histogram')}}
+                    {{graph.chart|default:_('Histogram')}}
                 </a>
             </div>
             <div class="graph-control graph-controls-sort">
