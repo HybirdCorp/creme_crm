@@ -10,8 +10,8 @@
 <li chained-name="sort" class="ui-creme-chainedselect-item">
     {% trans 'Sorting' %}:
     <select auto="False" widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect" style="width:8em;">
-        <option value="ASC">{% trans 'Ascending' %}</option>
-        <option value="DESC">{% trans 'Descending' %}</option>
+        <option value="ASC"{% if rgraph.asc %} selected{% endif %}>{% trans 'Ascending' %}</option>
+        <option value="DESC"{% if not rgraph.asc %} selected{% endif %}>{% trans 'Descending' %}</option>
     </select>
 </li>
 <li class="ui-creme-chainedselect-item">

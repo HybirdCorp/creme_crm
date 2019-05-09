@@ -23,21 +23,29 @@ urlpatterns = [
     re_path(r'^report/(?P<report_id>\d+)/reorder_field/(?P<field_id>\d+)[/]?$', report.MoveField.as_view(),     name='reports__reorder_field'),
     re_path(r'^report/(?P<report_id>\d+)/edit_fields[/]?$',                     report.FieldsEdition.as_view(), name='reports__edit_fields'),
 
-    re_path(r'^graph/get_available_types/(?P<ct_id>\d+)[/]?$', graph.get_available_report_graph_types, name='reports__graph_types'),
+    re_path(r'^graph/get_available_types/(?P<ct_id>\d+)[/]?$',
+            graph.get_available_report_graph_types,
+            name='reports__graph_types'
+    ),
 
-    re_path(r'^graph/fetch/(?P<graph_id>\d+)[/]?$', graph.fetch_graph, name='reports__fetch_graph'),
-
+    re_path(r'^graph/fetch/(?P<graph_id>\d+)[/]?$',
+            # graph.fetch_graph,
+            graph.GraphFetching.as_view(),
+            name='reports__fetch_graph'
+    ),
     re_path(r'^graph/fetch/from_instance_brick/(?P<instance_brick_id>\d+)/(?P<entity_id>\d+)[/]?$',
-        graph.fetch_graph_from_instancebrick, name='reports__fetch_graph_from_brick',
-       ),
+            # graph.fetch_graph_from_instancebrick,
+            graph.GraphFetchingForInstance.as_view(),
+            name='reports__fetch_graph_from_brick',
+    ),
 
     re_path(r'^graph/(?P<graph_id>\d+)/brick/add[/]?$',
-        bricks.GraphInstanceBrickCreation.as_view(),
-        name='reports__create_instance_brick',
+            bricks.GraphInstanceBrickCreation.as_view(),
+            name='reports__create_instance_brick',
     ),
     re_path(r'^graph/(?P<graph_id>\d+)/bricks[/]?$',
-        bricks.GraphInstanceBricks.as_view(),
-        name='reports__instance_bricks_info',
+            bricks.GraphInstanceBricks.as_view(),
+            name='reports__instance_bricks_info',
     ),
 ]
 
@@ -63,12 +71,14 @@ if settings.TESTS_ON:
     from .tests import fake_views
 
     urlpatterns += [
-        re_path(r'^tests/folder/(?P<folder_id>\d+)[/]?$', fake_views.FakeReportsFolderDetail.as_view(),
-            name='reports__view_fake_folder',
-           ),
+        re_path(r'^tests/folder/(?P<folder_id>\d+)[/]?$',
+                fake_views.FakeReportsFolderDetail.as_view(),
+                name='reports__view_fake_folder',
+        ),
 
         # url(r'^tests/documents[/]?$', fake_views.document_listview, name='reports__list_fake_documents'),
-        re_path(r'^tests/documents[/]?$', fake_views.FakeReportsDocumentsList.as_view(),
-            name='reports__list_fake_documents',
-           ),
+        re_path(r'^tests/documents[/]?$',
+                fake_views.FakeReportsDocumentsList.as_view(),
+                name='reports__list_fake_documents',
+        ),
     ]

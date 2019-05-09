@@ -91,8 +91,8 @@ class BaseReportsTestCase(CremeTestCase):
 
         return report
 
-    def _create_simple_documents_report(self):
-        report = Report.objects.create(name="Documents report", user=self.user,
+    def _create_simple_documents_report(self, user=None):
+        report = Report.objects.create(name="Documents report", user=user or self.user,
                                            ct=ContentType.objects.get_for_model(FakeReportsDocument)
                                           )
 
