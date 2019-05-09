@@ -52,15 +52,11 @@
         <div class="graph-controls">
             <div class="graph-control graph-controls-type">
                 <span class="graph-control-name">{% trans 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">
-                    {{graph.chart|default:_('Histogram')}}
-                </a>
+                <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">Histogram{# Filled by JS #}</a>
             </div>
             <div class="graph-control graph-controls-sort">
                 <span class="graph-control-name">{% trans 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                <a class="graph-control-value" title="{% trans 'Select the sort order' %}">
-                    {% trans 'Ascending' %}
-                </a>
+                <a class="graph-control-value" title="{% trans 'Select the sort order' %}">Ascending{# Filled by JS #}</a>
             </div>
         </div>
         <div class="graph-actions">

@@ -29,6 +29,9 @@ class ReportsConfig(CremeAppConfig):
     dependencies = ['creme.creme_core']
 
     def ready(self):
+        self.register_reports_aggregations()
+        self.register_reports_charts()
+
         from . import signals
 
     def all_apps_ready(self):
@@ -80,3 +83,20 @@ class ReportsConfig(CremeAppConfig):
         creme_menu.get('creation', 'any_forms') \
                   .get_or_create_group('analysis', _('Analysis'), priority=500) \
                   .add_link('reports-create_report', Report, priority=20)
+
+    def register_reports_aggregations(self):
+        from django.db.models import aggregates
+
+        from .report_aggregation_registry import field_aggregation_registry as registry, FieldAggregation
+
+        registry.register(FieldAggregation('avg', aggregates.Avg, '{}__avg', _('Average'))) \
+                .register(FieldAggregation('min', aggregates.Min, '{}__min', _('Minimum'))) \
+                .register(FieldAggregation('max', aggregates.Max, '{}__max', _('Maximum'))) \
+                .register(FieldAggregation('sum', aggregates.Sum, '{}__sum', _('Sum')))
+
+    def register_reports_charts(self):
+        from .report_chart_registry import report_chart_registry, ReportChart
+
+        report_chart_registry.register(ReportChart('barchart',  _('Histogram'))) \
+                             .register(ReportChart('piechart',  _('Pie'))) \
+                             .register(ReportChart('tubechart', _('Tube')))

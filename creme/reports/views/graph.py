@@ -28,11 +28,11 @@ from django.utils.translation import gettext_lazy as _, gettext
 from creme.creme_core import utils
 from creme.creme_core.auth.decorators import login_required  # permission_required
 from creme.creme_core.http import CremeJsonResponse
+from creme.creme_core.models import InstanceBrickConfigItem, RelationType, CustomField  # CremeEntity
+from creme.creme_core.utils.meta import Order
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic import base
-from creme.creme_core.models import InstanceBrickConfigItem, RelationType, CustomField  # CremeEntity
-from creme.creme_core.utils.meta import Order
 
 from creme import reports
 
@@ -317,6 +317,7 @@ class GraphFetchingBase(base.CheckedView):
 
         if save_settings:
             if self.request.user.has_perm_to_change(rgraph):
+                # TODO: does need we a 'default' chart value ??
                 if (chart and chart != rgraph.chart) or asc != rgraph.asc:
                     type(rgraph).objects.filter(id=rgraph.id).update(**update_kw)
             else:
