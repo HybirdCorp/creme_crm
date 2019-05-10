@@ -74,7 +74,9 @@
                     } else {
                         return backend.response(200, '');
                     }
-                }
+                },
+                'mock/listview/filter/delete': backend.response(200, ''),
+                'mock/listview/view/delete': backend.response(200, '')
             });
 
             this.listviewActionListeners = {
@@ -138,6 +140,7 @@
                 columns: [],
                 rows: [],
                 actions: [],
+                hatbarcontrols: [],
                 hatbarbuttons: [],
                 status: {}
             }, options || {});
@@ -169,7 +172,7 @@
 
                 return createActionHtml($.extend({
                     classes: ['with-icon']
-                }, button));
+                }, button || {}));
             };
 
             var renderPopupMenuAction = function(button) {
@@ -180,10 +183,36 @@
                 return '<div class="listview-action">' + createActionHtml(button) + '</div>';
             };
 
+
+            var renderHeaderControl = function(options) {
+                if (Object.isString(options)) {
+                    return options;
+                }
+
+                options = options || {};
+
+                return (
+                    '<div class="list-control-group list-${group}">'
+                        + '<fieldset>'
+                            + '<select name="${name}" class="list-${group}-selector">${options}</select>'
+                            + '${actions}'
+                        + '</fieldset>'
+                    + '</div>').template({
+                        name: options.name || '',
+                        group: options.group || 'filters',
+                        options: (options.options || []).join(''),
+                        actions: (options.actions || []).map(createActionHtml)
+                    });
+            };
+
             return (
                 '<form class="ui-creme-widget widget-auto ui-creme-listview ${widgetclasses}" widget="ui-creme-listview" ${multiple} ${reloadurl}>'
                    + '<div class="list-header-container sticky-container sticky-container-standalone">'
                        + '<div class="list-header sticks-horizontally">'
+                           + '<div class="list-title-container">'
+                               + '<span class="list-title"></title>'
+                               + '<div class="list-controls">${hatbarcontrols}</div>'
+                           + '</div>'
                            + '<div class="list-header-buttons clearfix">${hatbarbuttons}</div>'
                        + '</div>'
                    + '</div>'
@@ -207,12 +236,25 @@
                            + '</tr>'
                        + '</thead>'
                        + '<tbody>${rows}</tbody>'
+                       + '<tfoot><tr><td>'
+                           + '<div class="list-footer-container sticks-horizontally">'
+                               + '<div class="list-footer-stats"></div>'
+                               + '<div class="listview-pagination"></div>'
+                               + '<div class="list-footer-page-selector">'
+                                   + '<select name="rows" class="list-pagesize-selector">'
+                                       + '<option value="10">10</option>'
+                                       + '<option value="25">25</option>'
+                                   + '</select>'
+                               + '</div>'
+                           + '</div>'
+                       + '</td></tr></tfoot>'
                    + '</table>'
                + '</form>').template({
                    id: options.id,
                    multiple: options.multiple ? 'multiple' : '',
                    reloadurl: options.reloadurl ? 'reload-url="' + options.reloadurl + '"' : '',
                    hatbarbuttons: options.hatbarbuttons.map(renderHatBarButton).join(''),
+                   hatbarcontrols: options.hatbarcontrols.map(renderHeaderControl).join(''),
                    widgetclasses: options.widgetclasses.join(' '),
                    tableclasses: options.tableclasses.join(' '),
                    formdata: renderStatus($.extend({}, defaultStatus, options.status)),

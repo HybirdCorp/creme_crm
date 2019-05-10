@@ -77,6 +77,11 @@
     margin-left: 10px;
 }
 
+.list-control-group a.is-disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
 .ui-creme-listview-standalone .button-right {
     float: right;
 }

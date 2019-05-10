@@ -1,9 +1,9 @@
-{% load i18n creme_widgets creme_ctype %}
+{% load i18n creme_core_tags creme_widgets creme_ctype %}
 <fieldset title="{% trans 'Filter the lines of the table' %}">
     <div class="legend">
         {% trans 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
     </div>
-    <select name="filter" id="list_filter" onchange="creme.lv_widget.findList(this).list_view('submitState', this);">
+    <select name="filter" class="list-filters-selector">
         <option value="">{% trans 'All' %}</option>
         {% for efilter in entity_filters %}
             <option value="{{efilter.id}}"{% if efilter_id == efilter.id %} selected{% endif %}>{{efilter.name}}</option>
@@ -13,15 +13,12 @@
         <a href="{% url 'creme_core__create_efilter' ctype.id %}">
             {% widget_icon name='add' label=_('Create a custom filter') size='listview-filter-action' %}
         </a>
-        {% if can_edit %}
-            <a href="{{entity_filters.selected.get_edit_absolute_url}}" id="filter_edit">
-                {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
-            </a>
-        {% endif %}
-        {% if can_delete %}
-            <a onclick="creme.lv_widget.deleteFilter(creme.lv_widget.findList(this), '{{efilter_id}}', '{% url 'creme_core__delete_efilter' %}');">
-                {% widget_icon name='delete' label=_('Delete this custom filter') size='listview-filter-action' %}
-            </a>
-        {% endif %}
+        <a href="{{entity_filters.selected.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
+            {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
+        </a>
+        <a href="{% url 'creme_core__delete_efilter' %}" data-action="delete" class="{% if not can_delete %}is-disabled{% endif %}">
+            {% widget_icon name='delete' label=_('Delete this custom filter') size='listview-filter-action' %}
+            {% blockjsondata class='listview-action-data' %}{"data": {"id": "{{efilter_id}}"}}{% endblockjsondata %}
+        </a>
     {% endif %}
 </fieldset>
