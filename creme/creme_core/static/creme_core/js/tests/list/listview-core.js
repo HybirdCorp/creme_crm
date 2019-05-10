@@ -43,13 +43,27 @@ QUnit.module("creme.listview.core", new QUnitMixin(QUnitEventMixin,
 }));
 
 QUnit.test('creme.listview.core', function(assert) {
-    var element = $(this.createListViewHtml()).appendTo(this.qunitFixture());
+    var element = $(this.createListViewHtml({
+        reloadurl: 'mock/listview/reload'
+    })).appendTo(this.qunitFixture());
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), false);
     equal(listview.count(), 0);
     equal(listview.pager().isBound(), false);
     equal(listview.header().isBound(), false);
+
+    equal('mock/listview/reload', element.list_view('option', 'reloadUrl'));
+
+    listview.controller().setReloadUrl('mock/listview/reload/alt');
+
+    equal('mock/listview/reload/alt', element.list_view('option', 'reloadUrl'));
+    equal('mock/listview/reload/alt', listview.controller().option('reloadUrl'));
+
+    element.list_view('option', 'reloadUrl', 'mock/listview/reload/alt/2');
+
+    equal('mock/listview/reload/alt/2', element.list_view('option', 'reloadUrl'));
+    equal('mock/listview/reload/alt/2', listview.controller().option('reloadUrl'));
 });
 
 QUnit.test('creme.listview.core (standalone)', function(assert) {
@@ -265,6 +279,13 @@ QUnit.test('creme.listview.core (select, link)', function(assert) {
     equal(false, $(lines[1]).is('.selected'));
     deepEqual(controller.getSelectedEntities(), []);
     equal(controller.hasSelection(), false);
+
+    controller._selections.toggle(lines);
+
+    equal(true, $(lines[0]).is('.selected'));
+    equal(true, $(lines[1]).is('.selected'));
+    deepEqual(controller.getSelectedEntities(), ['1', '2']);
+    equal(controller.hasSelection(), true);
 });
 
 QUnit.test('creme.listview.core (select, single)', function(assert) {
@@ -311,6 +332,16 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
     equal(controller.hasSelection(), true);
 
     $(lines[1]).click();
+
+    equal(false, $(lines[0]).is('.selected'));
+    equal(false, $(lines[1]).is('.selected'));
+    equal(false, $(lines[2]).is('.selected'));
+    deepEqual(controller.getSelectedEntities(), []);
+    equal(controller.hasSelection(), false);
+
+    this.assertRaises(function() {
+        controller._selections.toggle(lines);
+    }, Error, 'Error: Unable to toggle/select more than one row at once');
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));

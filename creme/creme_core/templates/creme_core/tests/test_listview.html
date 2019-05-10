@@ -26,35 +26,29 @@
         var openFilterSelection = function(ct_id, q_filter, multiple, listeners) {
             var url = "{% url 'creme_core__listview_popup' %}";
 
-            creme.lv_widget.listViewAction(url, {multiple: multiple}, {
-                                ct_id: ct_id,
-                                selection: multiple ? 'multiple' : 'single',
-                                q_filter: q_filter
-                            })
-                           .one(listeners)
-                           .start();
+            var action = new creme.lv_widget.ListViewDialogAction({
+                                                 url: url,
+                                                 selectionMode: multiple ? 'multiple' : 'single',
+                                                 data: {
+                                                     ct_id: ct_id,
+                                                     q_filter: q_filter
+                                                 }
+                                             });
+
+            return action.one(listeners).start();
         };
 
         var openFilterView = function(ct_id, q_filter) {
             var url = "{% url 'creme_core__listview_popup' %}";
-            var options = {
-                closeOnEscape: true,
-                open: function() {},
-                buttons: [{text: gettext("Ok"),
-                    click: function() {
-                        $(this).dialog("close");
-                    }
-                }]
-            };
-            var ajax_options = {
-                data: {
-                    ct_id: ct_id,
-                    selection: 'single',
-                    q_filter: q_filter
-                }
-            };
 
-            creme.utils.showInnerPopup(url, options, null, ajax_options);
+            var action = new creme.lv_widget.ListViewDialogAction({
+                                                 url: url,
+                                                 data: {
+                                                     ct_id: ct_id,
+                                                     q_filter: q_filter
+                                                 }
+                                             });
+            action.start();
         };
 
         $(document).ready(function() {

@@ -62,16 +62,19 @@ creme.utils.goTo = function(url, data) {
     }
 };
 
+// TODO : deprecate it ? never used
 creme.utils.showPageLoadOverlay = function() {
     // console.log('show loading overlay');
     creme.utils.loading('', false);
 };
 
+// TODO : deprecate it ? never used
 creme.utils.hidePageLoadOverlay = function() {
     // console.log('hide loading overlay');
     creme.utils.loading('', true);
 };
 
+// TODO : deprecate it ? Only used in old creme.ajax.* methods (see ajax.js)
 creme.utils.loading = function(div_id, is_loaded, params) {
     var overlay = creme.utils._overlay;
 
@@ -91,7 +94,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
     overlay.update(visible, null, visible ? 100 : 0);
 };
 
-// TODO : deprecate it ? (only used by creme.utils.showInnerPopup)
+/*
 creme.utils.showDialog = function(text, options, div_id) {
     div_id = Object.isEmpty(div_id) ? creme.utils.innerPopupUUID() : div_id;
     var $div = $('#' + div_id);
@@ -121,6 +124,7 @@ creme.utils.showDialog = function(text, options, div_id) {
         }
     }, options));
 };
+*/
 
 creme.utils.confirmSubmit = function(atag, msg) {
     creme.dialogs.confirm(msg || gettext('Are you sure ?'))
@@ -130,7 +134,7 @@ creme.utils.confirmSubmit = function(atag, msg) {
                  .open();
 };
 
-// Avoid the re-declaration in case of reload of creme_utils.js
+/*
 var __stackedPopups = [];
 
 creme.utils.innerPopupUUID = function() {
@@ -138,10 +142,6 @@ creme.utils.innerPopupUUID = function() {
     return d.getTime().toString() + Math.ceil(Math.random() * 1000000);
 };
 
-// BEWARE: DO NOT USE THIS, BECAUSE IT WILL PROBABLY BE REMOVED IN CREME 2.1
-//    (we do not deprecate it because it is still used by list-view,
-//     & we do not want to pollute terminal with annoying messages)
-// NB: only used by creme.utils.innerPopupFormAction()
 creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload) {
     reload = reload || false;
     div_id = Object.isEmpty(div_id) ? creme.utils.innerPopupUUID() : div_id;
@@ -217,8 +217,6 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload
     return div_id;
 };
 
-// TODO : This code is never reached in vanilla modules (new form dialog are used everywhere)
-// Keep it for compatibility with client modules.
 creme.utils.handleDialogSubmit = function(dialog) {
     console.warn('creme.utils.handleDialogSubmit() is deprecated.');
 
@@ -269,6 +267,7 @@ creme.utils.handleDialogSubmit = function(dialog) {
 
     return false;
 };
+*/
 
 creme.utils.scrollTo = function(element) {
     if (Object.isNone(element) === false) {
@@ -279,6 +278,7 @@ creme.utils.scrollTo = function(element) {
     }
 };
 
+/*
 creme.utils.closeDialog = function(dial, reload, beforeReloadCb, redirect_url) {
     $(dial).dialog("destroy");
 
@@ -301,10 +301,6 @@ creme.utils.closeDialog = function(dial, reload, beforeReloadCb, redirect_url) {
     }
 };
 
-// BEWARE: DO NOT USE THIS, BECAUSE IT WILL PROBABLY BE REMOVED IN CREME 2.1
-//    (we do not deprecate it because it is still used by list-view,
-//     & we do not want to pollute terminal with annoying messages)
-// NB: only used in creme.utils.closeDialog()
 creme.utils.reloadDialog = function(dial) {
     if (dial === window) {
         creme.utils.reload();
@@ -318,6 +314,7 @@ creme.utils.reloadDialog = function(dial) {
                   $(dial).html(data);
               }).get();
 };
+*/
 
 creme.utils.appendInUrl = function(url, strToAppend) {
     console.warn('creme.utils.appendInUrl() is deprecated; use creme.utils.goTo() or creme.ajax.URL class instead.');
@@ -443,9 +440,7 @@ creme.utils.ajaxQuery = function(url, options, data) {
     return action;
 };
 
-// BEWARE: DO NOT USE THIS, BECAUSE IT WILL PROBABLY BE REMOVED IN CREME 2.1
-//    (we do not deprecate it because it is still used by list-view,
-//     & we do not want to pollute terminal with annoying messages)
+/*
 creme.utils.innerPopupFormAction = function(url, options, data) {
     options = $.extend({
         submit_label: gettext("Save"),
@@ -492,7 +487,7 @@ creme.utils.innerPopupFormAction = function(url, options, data) {
            });
     });
 };
-
+*/
 creme.utils.isHTMLDataType = function(dataType) {
     return Object.isString(dataType) &&
            ['html', 'text/html'].indexOf(dataType.toLowerCase()) !== -1;

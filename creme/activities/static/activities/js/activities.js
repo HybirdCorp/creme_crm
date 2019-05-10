@@ -32,7 +32,7 @@ creme.activities.ExportAsICalAction = creme.component.Action.sub({
         options = $.extend({}, this.options(), options || {});
 
         var self = this;
-        var selection = creme.lv_widget.selectedLines(this._list);
+        var selection = $(this._list).list_view('getSelectedEntities');
 
         if (selection.length < 1) {
             creme.dialogs.warning(gettext('Please select at least a line in order to export.'))

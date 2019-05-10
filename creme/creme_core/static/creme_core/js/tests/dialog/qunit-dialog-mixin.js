@@ -51,6 +51,24 @@
             this.equalHtml(html, $('.ui-dialog .ui-dialog-title'), 'dialog title html');
         },
 
+        assertOpenedDialogs: function(count) {
+            count = count || 1;
+
+            var dialogs = $('.ui-dialog');
+
+            equal(count, dialogs.length, '%d dialog(s) have to be opened'.format(count));
+
+            return dialogs.sort(function(a, b) {
+                var za = parseInt($(a).css('z-index')),
+                    zb = parseInt($(b).css('z-index'));
+
+                za = isNaN(za) ? 0 : za;
+                zb = isNaN(zb) ? 0 : zb;
+
+                return za - zb;
+            }).get();
+        },
+
         assertOpenedDialog: function(message) {
             var dialogs = $('.ui-dialog');
 

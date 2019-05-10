@@ -85,7 +85,7 @@
                 fail: this.mockListener('action-fail'),
                 done: this.mockListener('action-done')
             };
-
+/*
             this._mockNextInnerPopupUUID = 1000;
             this.__innerPopupUUID = creme.utils.innerPopupUUID;
 
@@ -94,10 +94,11 @@
                 self._mockNextInnerPopupUUID += 1;
                 return next;
             };
+*/
         },
 
         afterEach: function(env) {
-            creme.utils.innerPopupUUID = this.__innerPopupUUID;
+            // creme.utils.innerPopupUUID = this.__innerPopupUUID;
 
             $('.ui-dialog-content').dialog('destroy');
             creme.widget.shutdown($('body'));
@@ -383,12 +384,25 @@
             $(list).find('#selected_rows').val(ids.join(','));
         },
 
-        assertOpenedListViewDialog: function() {
-            var dialog = $('.ui-dialog [widget="ui-creme-listview"]');
-            equal(1, dialog.length, 'is listview dialog opened');
-            return dialog;
+        validateListViewSelectionDialog: function(dialog) {
+            dialog = (dialog || $('.ui-dialog')).filter(function() {
+                return $(this).find('[widget="ui-creme-listview"]').length > 0;
+            });
+
+            var button = this.findDialogButtonsByLabel(gettext("Validate the selection"), dialog);
+            equal(1, button.length, 'is validation button exists');
+            button.click();
         },
 
+        assertOpenedListViewDialog: function() {
+            var dialog = $('.ui-dialog').filter(function() {
+                return $(this).find('[widget="ui-creme-listview"]').length > 0;
+            });
+
+            equal(1, dialog.length, 'is listview dialog opened');
+            return dialog;
+        }
+/*
         submitListViewSelectionDialog: function() {
             var button = this.findDialogButtonsByLabel(gettext("Validate the selection"));
             equal(1, button.length, 'is validation button exists');
@@ -398,5 +412,6 @@
         mockNextInnerPopupUUID: function() {
             return String(this._mockNextInnerPopupUUID);
         }
+*/
     };
 }(jQuery));

@@ -162,7 +162,7 @@ creme.emails.ResendEMailsAction = creme.component.Action.sub({
 
         var self = this;
         var list = this._list;
-        var selection = creme.lv_widget.selectedLines(list);
+        var selection = $(list).list_view('getSelectedEntities');
 
         if (Array.isArray(options.selection)) {
             selection = selection.concat(options.selection);

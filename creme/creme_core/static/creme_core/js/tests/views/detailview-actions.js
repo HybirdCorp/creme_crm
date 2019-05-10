@@ -55,25 +55,27 @@ QUnit.test('creme.detailview.brick.detailview-merge (empty selector)', function(
     }).start();
 
     deepEqual([
-        ['GET', {id1: '157'}]
+        ['GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var dialog = this.assertOpenedDialog();
+    var list = dialog.find('.ui-creme-listview').data('list_view');
 
     deepEqual([], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog(dialog);
 
+    this.assertOpenedDialogs(2);
     this.assertOpenedAlertDialog(gettext('Please select at least one entity.'));
     this.assertOpenedListViewDialog();
 
     this.closeTopDialog();
-    this.assertOpenedListViewDialog();
+    this.assertOpenedDialog();
 
     this.closeDialog();
 
     deepEqual([
-        ['mock/merge/selection', 'GET', {id1: '157'}]
+        ['mock/merge/selection', 'GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls());
 });
 
@@ -89,28 +91,30 @@ QUnit.test('creme.detailview.brick.detailview-merge (multiple selections)', func
     }).start();
 
     deepEqual([
-        ['GET', {id1: '157'}]
+        ['GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var dialog = this.assertOpenedDialog();
+    var list = dialog.find('.ui-creme-listview').data('list_view');
 
     this.setListviewSelection(list, ['2', '3']);
 
     equal(2, list.countEntities());
     deepEqual(['2', '3'], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog();
 
+    this.assertOpenedDialogs(2);
     this.assertOpenedAlertDialog(gettext('Please select only one entity.'));
     this.assertOpenedListViewDialog();
 
     this.closeTopDialog();
-    this.assertOpenedListViewDialog();
+    this.assertOpenedDialog();
 
     this.closeDialog();
 
     deepEqual([
-        ['mock/merge/selection', 'GET', {id1: '157'}]
+        ['mock/merge/selection', 'GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls());
 });
 
@@ -126,17 +130,18 @@ QUnit.test('creme.detailview.brick.detailview-merge (single selection)', functio
     }).start();
 
     deepEqual([
-        ['GET', {id1: '157'}]
+        ['GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var dialog = this.assertOpenedDialog();
+    var list = dialog.find('.ui-creme-listview').data('list_view');
 
     this.setListviewSelection(list, ['2']);
 
     equal(1, list.countEntities());
     deepEqual(['2'], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
     deepEqual([
@@ -156,11 +161,11 @@ QUnit.test('creme.detailview.brick.detailview-merge (cancel)', function(assert) 
     }).on('cancel', this.mockListener('cancel')).start();
 
     deepEqual([
-        ['GET', {id1: '157'}]
+        ['GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
-    this.assertOpenedListViewDialog();
-    this.findDialogButtonsByLabel(gettext('Cancel')).click();
+    var dialog = this.assertOpenedDialog();
+    this.findDialogButtonsByLabel(gettext('Cancel'), dialog).click();
     this.assertClosedDialog();
 
     deepEqual([['cancel']], this.mockListenerCalls('cancel'));
@@ -176,21 +181,19 @@ QUnit.test('creme.detailview.brick.detailview-merge (fail)', function(assert) {
     brick.action('creme_core-detailview-merge', 'mock/merge/fail', {}, {
         id: '157',
         selection_url: 'mock/merge/selection/fail'
-    }).on('fail', this.mockListener('fail')).start();
+    }).on('cancel', this.mockListener('cancel')).start();
 
     deepEqual([
-        ['GET', {id1: '157'}]
+        ['GET', {id1: '157', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/merge/selection/fail'));
 
-    this.assertOpenedAlertDialog(gettext('Error during loading the page.'));
+    var dialog = this.assertOpenedDialog();
+    equal(0, dialog.find('.ui-creme.listview').length);
 
     this.closeDialog();
     this.assertClosedDialog();
 
-    deepEqual([['fail', '']],
-        this.mockListenerCalls('fail').map(function(e) {
-            return e.slice(0, 2);
-        }));
+    deepEqual([['cancel']], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockRedirectCalls());
 });
 

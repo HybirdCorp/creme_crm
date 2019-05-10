@@ -27,7 +27,9 @@ creme.relations = creme.relations || {};
 
 creme.relations.AddRelationToAction = creme.component.Action.sub({
     _init_: function(options) {
-        options = options || {};
+        options = $.extend({
+            multiple: false
+        }, options || {});
 
         if (Object.isEmpty(options.addto_url)) {
             options.addto_url = $('body').attr('data-save-relations-url');
@@ -74,15 +76,6 @@ creme.relations.AddRelationToAction = creme.component.Action.sub({
         options = $.extend(this.options(), options || {});
 
         var self = this;
-        var selectorUrl = options.selector_url || '';
-        var selectorOptions = {
-            multiple: options.multiple || false
-        };
-        var selectorData = {
-            subject_id:    options.subject_id,
-            rtype_id:      options.rtype_id,
-            objects_ct_id: options.ctype_id
-        };
 
         if (Object.isEmpty(options.addto_url) || Object.isEmpty(options.selector_url)) {
             console.log('missing urls in options of AddRelationTo action', options);
@@ -90,23 +83,27 @@ creme.relations.AddRelationToAction = creme.component.Action.sub({
             return;
         }
 
-        var selector = creme.lv_widget.listViewAction(selectorUrl, selectorOptions, selectorData);
-        selector.onDone(function(event, data) {
-                     self._updateQuery(data, options).post({
-                         entities: data,
+        var selector = new creme.lv_widget.ListViewDialog({
+                                               url: options.selector_url || '',
+                                               selectionMode: options.multiple ? 'multiple' : 'single',
+                                               data: {
+                                                   subject_id:    options.subject_id,
+                                                   rtype_id:      options.rtype_id,
+                                                   objects_ct_id: options.ctype_id
+                                               }
+                                           });
+
+        selector.onValidate(function(event, selection) {
+                     self._updateQuery(selection, options).post({
+                         entities: selection,
                          subject_id: options.subject_id,
                          predicate_id: options.rtype_id
                      });
                  })
-                .on({
-                    fail: function() {
-                        self.fail();
-                    },
-                    cancel: function() {
-                        self.cancel();
-                    }
+                .onClose(function() {
+                    self.cancel();
                  })
-                .start();
+                .open();
     }
 });
 

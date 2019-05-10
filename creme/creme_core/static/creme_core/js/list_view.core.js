@@ -185,7 +185,6 @@
 
         $.fn.list_view.defaults = {
             multiple:           false,
-            serializer:         'input[name][type!="submit"], select[name]',
             reloadUrl:          null,
             historyHandler:     null,
             actionBuilders:     null,
@@ -248,6 +247,7 @@
 
                 this.setReloadUrl = function(url) {
                     me.reloadUrl = url;
+                    this.option('reloadUrl', url);
                 };
 
                 this.getReloadUrl = function() {
@@ -427,7 +427,7 @@
                 this.serializeState = function() {
                     var data = {};
 
-                    self.find(opts.serializer).serializeArray().forEach(function(e) {
+                    self.find('input[name][type!="submit"], select[name]').serializeArray().forEach(function(e) {
                         me.addParameter(data, e.name, e.value);
                     });
 
