@@ -83,21 +83,22 @@ QUnit.test('creme.detailview.hatmenubar (addrelationships)', function(assert) {
     $(widget.element).find('a.menu_button').click();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', selection: 'multiple'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var dialog = this.assertOpenedListViewDialog();
+    var list = $(dialog).find('.ui-creme-listview').data('list_view');
 
     this.setListviewSelection(list, ['2', '3']);
 
     equal(2, list.countEntities());
     deepEqual(['2', '3'], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog(dialog);
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', selection: 'multiple'}],
         ['mock/relation/add', 'POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 });

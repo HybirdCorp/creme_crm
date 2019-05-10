@@ -1,20 +1,37 @@
-/* globals QUnitWidgetMixin */
+/* globals QUnitWidgetMixin, QUnitListViewMixin */
 (function($) {
 
-var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
-
-QUnit.module("creme.widget.entityselector.js", new QUnitMixin(QUnitAjaxMixin, QUnitWidgetMixin, {
+QUnit.module("creme.widget.entityselector.js", new QUnitMixin(QUnitAjaxMixin,
+                                                              QUnitEventMixin,
+                                                              QUnitDialogMixin,
+                                                              QUnitWidgetMixin,
+                                                              QUnitListViewMixin, {
     buildMockBackend: function() {
         return new creme.ajax.MockAjaxBackend({sync: true, name: 'creme.widget.entityselector.js'});
     },
 
     beforeEach: function() {
+        var backend = this.backend;
+        backend.options.enableUriSearch = true;
+
+        var singleListViewHtml = this.createListViewHtml(this.defaultListViewHtmlOptions({
+            multiple: false,
+            reloadUrl: 'mock/listview/single'
+        }));
+
+        var multiListViewHtml = this.createListViewHtml(this.defaultListViewHtmlOptions({
+            multiple: true,
+            reloadUrl: 'mock/listview/multiple'
+        }));
+
         this.setMockBackendGET({
-            'mock/label/1': this.backend.responseJSON(200, [['John Doe']]),
-            'mock/label/2': this.backend.responseJSON(200, [['Bean Bandit']]),
-            'mock/popup': this.backend.response(200, MOCK_FRAME_CONTENT),
-            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-            'mock/error': this.backend.response(500, 'HTTP - Error 500')
+            'mock/listview/single': backend.response(200, singleListViewHtml),
+            'mock/listview/multiple': backend.response(200, multiListViewHtml),
+            'mock/label/1': backend.responseJSON(200, [['John Doe']]),
+            'mock/label/2': backend.responseJSON(200, [['Bean Bandit']]),
+            'mock/label/3': backend.responseJSON(200, [['Jean Bon']]),
+            'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
+            'mock/error': backend.response(500, 'HTTP - Error 500')
         });
     },
 
@@ -27,49 +44,49 @@ QUnit.module("creme.widget.entityselector.js", new QUnitMixin(QUnitAjaxMixin, QU
 QUnit.test('creme.widget.EntitySelector.create (empty, auto)', function(assert) {
     var element = this.createEntitySelectorTag();
 
-    creme.widget.create(element);
+    var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
     equal("select a mock", $('button', element).text());
-    equal("", element.creme().widget().val());
-    equal("", element.creme().widget().options().popupURL);
-    equal("mock/label/${id}", element.creme().widget().options().labelURL);
-    equal("select a mock", element.creme().widget().options().label);
-    equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().options().popupSelection);
-    equal("", element.creme().widget().options().qfilter);
+    equal("", widget.val());
+    equal("", widget.options().popupURL);
+    equal("mock/label/${id}", widget.options().labelURL);
+    equal("select a mock", widget.options().label);
+    equal(creme.widget.EntitySelectorMode.SINGLE, widget.options().popupSelection);
+    equal("", widget.options().qfilter);
 });
 
 QUnit.test('creme.widget.EntitySelector.create (not empty, auto)', function(assert) {
     var element = this.createEntitySelectorTag();
     creme.widget.input(element).val('1');
 
-    creme.widget.create(element);
+    var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
     equal("John Doe", $('button', element).text());
     equal($('button', element).is('[disabled]'), false);
-    equal(element.creme().widget().delegate._enabled, true);
+    equal(widget.delegate._enabled, true);
 
-    equal("1", element.creme().widget().val());
-    equal("", element.creme().widget().options().popupURL);
-    equal("mock/label/${id}", element.creme().widget().options().labelURL);
-    equal("select a mock", element.creme().widget().options().label);
-    equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().options().popupSelection);
-    equal("", element.creme().widget().options().qfilter);
+    equal("1", widget.val());
+    equal("", widget.options().popupURL);
+    equal("mock/label/${id}", widget.options().labelURL);
+    equal("select a mock", widget.options().label);
+    equal(creme.widget.EntitySelectorMode.SINGLE, widget.options().popupSelection);
+    equal("", widget.options().qfilter);
 });
 
 QUnit.test('creme.widget.EntitySelector.create (auto, [disabled] attribute)', function(assert) {
     var element = this.createEntitySelectorTag({disabled: ''});
     creme.widget.input(element).val('1');
 
-    creme.widget.create(element);
+    var widget = creme.widget.create(element);
     equal(element.hasClass('widget-ready'), true);
 
     equal($('button', element).is('[disabled]'), true);
-    equal("1", element.creme().widget().val());
-    equal(element.creme().widget().delegate._enabled, false);
+    equal("1", widget.val());
+    equal(widget.delegate._enabled, false);
 });
 
 QUnit.test('creme.widget.EntitySelector.create (auto, {disabled: true} option)', function(assert) {
@@ -85,158 +102,160 @@ QUnit.test('creme.widget.EntitySelector.create (auto, {disabled: true} option)',
     equal(widget.delegate._enabled, false);
 
     equal($('button', element).is('[disabled]'), true);
-    equal("2", element.creme().widget().val());
+    equal("2", widget.val());
 });
 
 QUnit.test('creme.widget.EntitySelector.create (empty, popup url, auto)', function(assert) {
     var element = this.createEntitySelectorTag({popupURL: 'mock/label'});
 
-    creme.widget.create(element);
+    var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
     equal("select a mock", $('button', element).text());
-    equal("", element.creme().widget().val());
-    equal("mock/label", element.creme().widget().options().popupURL);
-    equal("mock/label/${id}", element.creme().widget().options().labelURL);
-    equal("select a mock", element.creme().widget().options().label);
-    equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().options().popupSelection);
-    equal("", element.creme().widget().options().qfilter);
+    equal("", widget.val());
+    equal("mock/label", widget.options().popupURL);
+    equal("mock/label/${id}", widget.options().labelURL);
+    equal("select a mock", widget.options().label);
+    equal(creme.widget.EntitySelectorMode.SINGLE, widget.options().popupSelection);
+    equal("", widget.options().qfilter);
 });
 
 QUnit.test('creme.widget.EntitySelector.create (empty, invalid label url, auto)', function(assert) {
     var element = this.createEntitySelectorTag({labelURL: 'mock/label/unknown'});
 
-    creme.widget.create(element);
+    var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
     equal("select a mock", $('button', element).text());
-    equal("", element.creme().widget().val());
-    equal("", element.creme().widget().options().popupURL);
-    equal("mock/label/unknown", element.creme().widget().options().labelURL);
-    equal("select a mock", element.creme().widget().options().label);
-    equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().options().popupSelection);
-    equal("", element.creme().widget().options().qfilter);
+    equal("", widget.val());
+    equal("", widget.options().popupURL);
+    equal("mock/label/unknown", widget.options().labelURL);
+    equal("select a mock", widget.options().label);
+    equal(creme.widget.EntitySelectorMode.SINGLE, widget.options().popupSelection);
+    equal("", widget.options().qfilter);
 });
 
 QUnit.test('creme.widget.EntitySelector.create (not empty, invalid label url, auto)', function(assert) {
     var element = this.createEntitySelectorTag({labelURL: 'mock/label/unknown'});
     creme.widget.input(element).val('1');
 
-    creme.widget.create(element);
+    var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
 //    equal("select a mock", $('button', element).text());
     equal($('button', element).text(), gettext('Entity #%s (not viewable)').format('1'));
-    equal("1", element.creme().widget().val());
-    equal("", element.creme().widget().options().popupURL);
-    equal("mock/label/unknown", element.creme().widget().options().labelURL);
-    equal("select a mock", element.creme().widget().options().label);
-    equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().options().popupSelection);
-    equal("", element.creme().widget().options().qfilter);
+    equal("1", widget.val());
+    equal("", widget.options().popupURL);
+    equal("mock/label/unknown", widget.options().labelURL);
+    equal("select a mock", widget.options().label);
+    equal(creme.widget.EntitySelectorMode.SINGLE, widget.options().popupSelection);
+    equal("", widget.options().qfilter);
 });
 
 QUnit.test('creme.widget.EntitySelector.val', function(assert) {
     var element = this.createEntitySelectorTag();
 
-    creme.widget.create(element);
+    var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
     equal("select a mock", $('button', element).text());
-    equal("", element.creme().widget().val());
+    equal("", widget.val());
 
-    element.creme().widget().val('2');
+    widget.val('2');
     equal("Bean Bandit", $('button', element).text());
-    equal("2", element.creme().widget().val());
+    equal("2", widget.val());
 
-    element.creme().widget().val('1');
+    widget.val('1');
     equal("John Doe", $('button', element).text());
-    equal("1", element.creme().widget().val());
+    equal("1", widget.val());
 
-    element.creme().widget().val('unknown');
+    widget.val('unknown');
 //    equal("select a mock", $('button', element).text());
     equal($('button', element).text(), gettext('Entity #%s (not viewable)').format('unknown'));
-    equal("unknown", element.creme().widget().val());
+    equal("unknown", widget.val());
 });
 
-QUnit.test('creme.widget.EntitySelector.multiple', function(assert) {
+QUnit.test('creme.widget.EntitySelector.multiple (setter)', function(assert) {
     var element = this.createEntitySelectorTag();
-    creme.widget.create(element);
+    var widget = creme.widget.create(element);
 
-    equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().delegate._popupURL.parameters().selection);
-    equal(element.creme().widget().isMultiple(), false);
+    equal(creme.widget.EntitySelectorMode.SINGLE, widget.delegate._popupURL.parameters().selection);
+    equal(widget.isMultiple(), false);
 
-    element.creme().widget().isMultiple(true);
+    widget.isMultiple(true);
 
-    equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().delegate._popupURL.parameters().selection);
-    equal(element.creme().widget().isMultiple(), true);
+    equal(creme.widget.EntitySelectorMode.MULTIPLE, widget.delegate._popupURL.parameters().selection);
+    equal(widget.isMultiple(), true);
+});
 
-    element = this.createEntitySelectorTag({popupSelection: creme.widget.EntitySelectorMode.MULTIPLE});
-    creme.widget.create(element);
+QUnit.test('creme.widget.EntitySelector.multiple (constructor)', function(assert) {
+    var element = this.createEntitySelectorTag({popupSelection: creme.widget.EntitySelectorMode.MULTIPLE});
+    var widget = creme.widget.create(element);
 
-    equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().options().popupSelection);
-    equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().delegate._popupURL.parameters().selection);
-    equal(element.creme().widget().isMultiple(), true);
+    equal(creme.widget.EntitySelectorMode.MULTIPLE, widget.options().popupSelection);
+    equal(creme.widget.EntitySelectorMode.MULTIPLE, widget.delegate._popupURL.parameters().selection);
+    equal(widget.isMultiple(), true);
 });
 
 QUnit.test('creme.widget.EntitySelector.reload (url)', function(assert) {
     var element = this.createEntitySelectorTag();
-    creme.widget.create(element);
-    deepEqual([], element.creme().widget().dependencies());
+    var widget = creme.widget.create(element);
+    deepEqual([], widget.dependencies());
 
 
-    element.creme().widget().val('2');
+    widget.val('2');
     equal("Bean Bandit", $('button', element).text());
-    equal("2", element.creme().widget().val());
-    equal("", element.creme().widget().popupURL());
+    equal("2", widget.val());
+    equal("", widget.popupURL());
 
-    element.creme().widget().reload('mock/popup');
+    widget.reload('mock/listview');
     equal("select a mock", $('button', element).text());
-    equal("", element.creme().widget().val());
-    equal("mock/popup", element.creme().widget().popupURL());
+    equal("", widget.val());
+    equal("mock/listview", widget.popupURL());
 });
 
 QUnit.test('creme.widget.EntitySelector.reload (template url, multiple)', function(assert) {
-    var element = this.createEntitySelectorTag({popupURL: 'mock/popup/${selection}'});
+    var element = this.createEntitySelectorTag({popupURL: 'mock/listview/${selection}'});
 
-    creme.widget.create(element);
-    deepEqual(['selection'], element.creme().widget().dependencies());
+    var widget = creme.widget.create(element);
+    deepEqual(['selection'], widget.dependencies());
 
-    equal("mock/popup/single", element.creme().widget().popupURL());
+    equal("mock/listview/single", widget.popupURL());
 
-    element.creme().widget().isMultiple(true);
-    equal("mock/popup/multiple", element.creme().widget().popupURL());
+    widget.isMultiple(true);
+    equal("mock/listview/multiple", widget.popupURL());
 
-    element.creme().widget().reload({selection: 2});
-    equal("mock/popup/2", element.creme().widget().popupURL());
+    widget.reload({selection: 2});
+    equal("mock/listview/2", widget.popupURL());
 });
 
 QUnit.test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)', function(assert) {
-    var element = this.createEntitySelectorTag({popupURL: 'mock/popup/${selection}?q_filter=${qfilter}'});
+    var element = this.createEntitySelectorTag({popupURL: 'mock/listview/${selection}?q_filter=${qfilter}'});
 
-    creme.widget.create(element);
-    deepEqual(['selection', 'qfilter'], element.creme().widget().dependencies());
+    var widget = creme.widget.create(element);
+    deepEqual(['selection', 'qfilter'], widget.dependencies());
 
-    equal("mock/popup/single?q_filter=", element.creme().widget().popupURL());
+    equal("mock/listview/single?q_filter=", widget.popupURL());
 
-    element.creme().widget().reload({selection: creme.widget.EntitySelectorMode.MULTIPLE});
-    equal("mock/popup/multiple?q_filter=", element.creme().widget().popupURL());
+    widget.reload({selection: creme.widget.EntitySelectorMode.MULTIPLE});
+    equal("mock/listview/multiple?q_filter=", widget.popupURL());
 
-    element.creme().widget().reload({qfilter: $.toJSON({"~pk__in": [1, 2]})});
-    equal("mock/popup/multiple?q_filter=" + $.toJSON({"~pk__in": [1, 2]}), element.creme().widget().popupURL());
+    widget.reload({qfilter: $.toJSON({"~pk__in": [1, 2]})});
+    equal("mock/listview/multiple?q_filter=" + $.toJSON({"~pk__in": [1, 2]}), widget.popupURL());
 
-    element.creme().widget().reload('mock/popup/${ctype}/${selection}?q_filter=${qfilter}');
-    deepEqual(['ctype', 'selection', 'qfilter'], element.creme().widget().dependencies());
-    equal("mock/popup/${ctype}/multiple?q_filter=" + $.toJSON({"~pk__in": [1, 2]}), element.creme().widget().popupURL());
+    widget.reload('mock/listview/${ctype}/${selection}?q_filter=${qfilter}');
+    deepEqual(['ctype', 'selection', 'qfilter'], widget.dependencies());
+    equal("mock/listview/${ctype}/multiple?q_filter=" + $.toJSON({"~pk__in": [1, 2]}), widget.popupURL());
 });
 
 QUnit.test('creme.widget.EntitySelector.reset', function(assert) {
     var element = this.createEntitySelectorTag();
     var widget = creme.widget.create(element);
-    deepEqual([], element.creme().widget().dependencies());
+    deepEqual([], widget.dependencies());
 
     widget.val('2');
     equal("Bean Bandit", $('button', element).text());
@@ -249,4 +268,151 @@ QUnit.test('creme.widget.EntitySelector.reset', function(assert) {
     equal("", widget.val());
     equal("", widget.popupURL());
 });
+
+QUnit.test('creme.widget.EntitySelector.select (single)', function(assert) {
+    var element = this.createEntitySelectorTag({popupURL: 'mock/listview/${selection}'});
+
+    var widget = creme.widget.create(element);
+
+    deepEqual(['selection'], widget.dependencies());
+    equal("mock/listview/single", widget.popupURL());
+
+    element.on('change-multiple', this.mockListener('change-multiple'));
+    element.on('change', this.mockListener('change'));
+
+    this.assertClosedDialog();
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/single'));
+    deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change'));
+
+    $('button', element).click();
+
+    var dialog = this.assertOpenedListViewDialog();
+    var list = dialog.find('.ui-creme-listview').data('list_view');
+
+    deepEqual([
+        ['GET', {selection: 'single'}]
+    ], this.mockBackendUrlCalls('mock/listview/single'));
+    deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change'));
+
+    this.setListviewSelection(list, ['1']);
+    this.validateListViewSelectionDialog(dialog);
+
+    equal("John Doe", $('button', element).text());
+    equal('1', widget.val());
+    deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([['change']], this.mockListenerJQueryCalls('change'));
+});
+
+QUnit.test('creme.widget.EntitySelector.select (single, filtered)', function(assert) {
+    var element = this.createEntitySelectorTag({popupURL: 'mock/listview/${selection}'});
+
+    var widget = creme.widget.create(element);
+
+    deepEqual(['selection'], widget.dependencies());
+    equal("mock/listview/single", widget.popupURL());
+
+    element.on('change-multiple', this.mockListener('change-multiple'));
+    element.on('change', this.mockListener('change'));
+
+    this.assertClosedDialog();
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/single'));
+    deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change'));
+
+    $('button', element).click();
+
+    var dialog = this.assertOpenedListViewDialog();
+    var list = dialog.find('.ui-creme-listview').data('list_view');
+
+    deepEqual([
+        ['GET', {selection: 'single'}]
+    ], this.mockBackendUrlCalls('mock/listview/single'));
+    deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change'));
+
+    this.setListviewSelection(list, ['1']);
+    this.validateListViewSelectionDialog(dialog);
+
+    equal("John Doe", $('button', element).text());
+    equal('1', widget.val());
+    deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([['change']], this.mockListenerJQueryCalls('change'));
+});
+
+QUnit.test('creme.widget.EntitySelector.select (multiple)', function(assert) {
+    var element = this.createEntitySelectorTag({popupURL: 'mock/listview/${selection}'});
+    var widget = creme.widget.create(element);
+    widget.isMultiple(true);
+
+    equal("mock/listview/multiple", widget.popupURL());
+    this.assertClosedDialog();
+
+    element.on('change-multiple', this.mockListener('change-multiple'));
+    element.on('change', this.mockListener('change'));
+
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change'));
+
+    $('button', element).click();
+
+    var dialog = this.assertOpenedListViewDialog();
+    var list = dialog.find('.ui-creme-listview').data('list_view');
+
+    deepEqual([
+        ['GET', {selection: 'multiple'}]
+    ], this.mockBackendUrlCalls('mock/listview/multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change'));
+
+    this.setListviewSelection(list, ['1', '3']);
+    this.validateListViewSelectionDialog(dialog);
+
+    equal("John Doe", $('button', element).text());
+    equal('1', widget.val());
+
+    deepEqual([['change-multiple', [['1', '3']]]], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([['change']], this.mockListenerJQueryCalls('change'));
+});
+
+QUnit.test('creme.widget.EntitySelector.select (cancel)', function(assert) {
+    var element = this.createEntitySelectorTag({popupURL: 'mock/listview/${selection}'});
+    var widget = creme.widget.create(element);
+
+    deepEqual(['selection'], widget.dependencies());
+    equal("mock/listview/single", widget.popupURL());
+
+    element.on('change-multiple', this.mockListener('change-multiple'));
+    element.on('change', this.mockListener('change'));
+
+    this.assertClosedDialog();
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/single'));
+    deepEqual([], this.mockListenerCalls('change-multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change'));
+
+    $('button', element).click();
+
+    var dialog = this.assertOpenedListViewDialog();
+    var list = dialog.find('.ui-creme-listview').data('list_view');
+
+    deepEqual([
+        ['GET', {selection: 'single'}]
+    ], this.mockBackendUrlCalls('mock/listview/single'));
+    deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change'));
+
+    this.setListviewSelection(list, ['1']);
+    this.closeDialog();
+
+    this.assertClosedDialog();
+
+    equal("select a mock", $('button', element).text());
+    equal('', widget.val());
+
+    deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
+    deepEqual([], this.mockListenerJQueryCalls('change'));
+});
+
 }(jQuery));

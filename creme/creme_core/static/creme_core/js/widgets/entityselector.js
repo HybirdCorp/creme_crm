@@ -97,26 +97,25 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         var multiple = this.isMultiple(element);
         var url = this.popupURL(element);
 
-        creme.lv_widget.listViewAction(url, {
-                            multiple: multiple,
-                            closeOnEscape: true
-                        })
-                       .onDone(function(event, data) {
-                            self.val(element, data[0]);
+        var selector = new creme.lv_widget.ListViewDialog({
+                                               url: url,
+                                               selectionMode: multiple ? 'multiple' : 'single',
+                                               closeOnEscape: true
+                                           });
 
-                            if (data.length > 1) {
-                                $(element).trigger('change-multiple', [data]);
-                            }
+        selector.onValidate(function(event, data) {
+                     self.val(element, data[0]);
 
-                            creme.object.invoke(listeners.done, 'done', element, data);
-                        })
-                       .onCancel(function() {
-                            creme.object.invoke(listeners.cancel, 'cancel');
-                        })
-                       .onFail(function() {
-                            creme.object.invoke(listeners.fail, 'fail');
-                        })
-                       .start();
+                     if (data.length > 1) {
+                         $(element).trigger('change-multiple', [data]);
+                     }
+
+                     creme.object.invoke(listeners.done, 'done', element, data);
+                 })
+                .onClose(function() {
+                     creme.object.invoke(listeners.cancel, 'cancel');
+                 })
+                .open();
     },
 
     _reloadLabel: function(element, on_success, on_error, sync) {

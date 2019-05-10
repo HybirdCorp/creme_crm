@@ -25,7 +25,13 @@
 
     var detailViewActions = {
         'creme_core-detailview-merge': function(url, options, data) {
-            var action = creme.lv_widget.listViewAction(data.selection_url + '?' + $.param({id1: data.id}), {multiple: false});
+            var action = new creme.lv_widget.ListViewDialogAction({
+                url: data.selection_url,
+                selectionMode: 'single',
+                data: {
+                    id1: data.id
+                }
+            });
 
             action.onDone(function(event, selections) {
                 creme.utils.goTo(url, {id1: data.id, id2: selections[0]});

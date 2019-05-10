@@ -679,14 +679,14 @@ QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', functi
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
 
     deepEqual([], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog();
 
     this.assertOpenedAlertDialog(gettext('Please select at least one entity.'));
     this.assertOpenedListViewDialog();
@@ -701,7 +701,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, no selection)', functi
     this.closeDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual({
@@ -716,19 +716,20 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selec
         subject_id: '74',
         rtype_id: 'rtypes.1',
         ctype_id: '5',
-        selector_url: 'mock/relation/selector'
+        selector_url: 'mock/relation/selector',
+        selection: 'single'
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
 
     this.setListviewSelection(list, ['2', '3']);
     deepEqual(['2', '3'], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog();
 
     this.assertOpenedAlertDialog(gettext('Please select only one entity.'));
     this.assertOpenedListViewDialog();
@@ -739,7 +740,7 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, multiple selec
     this.closeDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls());
 
     deepEqual([], this.mockRedirectCalls());
@@ -760,19 +761,19 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single)', function(ass
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
 
     this.setListviewSelection(list, ['2']);
     deepEqual(['2'], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}],
         ['mock/relation/add', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
@@ -794,19 +795,19 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, fail)', functi
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
 
     this.setListviewSelection(list, ['2']);
     deepEqual(['2'], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}],
         ['mock/relation/add/fail', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
@@ -828,19 +829,19 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload)', func
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
 
     this.setListviewSelection(list, ['2']);
     deepEqual(['2'], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}],
         ['mock/relation/add', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
@@ -864,19 +865,19 @@ QUnit.test('creme.bricks.Brick.action (add relationships, single, reload, fail)'
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
 
     this.setListviewSelection(list, ['2']);
     deepEqual(['2'], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'single'}],
         ['mock/relation/add/fail', 'POST', {entities: ['2'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
@@ -895,21 +896,21 @@ QUnit.test('creme.bricks.Brick.action (add relationships, multiple)', function(a
     }).on(this.brickActionListeners).start();
 
     deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}]
+        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'multiple'}]
     ], this.mockBackendUrlCalls('mock/relation/selector'));
 
-    var list = this.assertOpenedListViewDialog().data('list_view');
+    var list = this.assertOpenedListViewDialog().find('.ui-creme-listview').data('list_view');
 
     this.setListviewSelection(list, ['2', '3']);
 
     equal(2, list.countEntities());
     deepEqual(['2', '3'], list.getSelectedEntities());
 
-    this.submitListViewSelectionDialog(list);
+    this.validateListViewSelectionDialog();
     this.assertClosedDialog();
 
     deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'}],
+        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5', selection: 'multiple'}],
         ['mock/relation/add', 'POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 
