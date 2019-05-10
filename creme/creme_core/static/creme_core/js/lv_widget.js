@@ -676,6 +676,18 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
                         })
                        .bind(list.find('.listview-pagination'));
         }
+
+        element.on('change', '.list-control-group.list-views select', function() {
+            element.list_view('submitState', null, {hfilter: $(this).val()});
+        });
+
+        element.on('change', '.list-control-group.list-filters select', function() {
+            element.list_view('submitState', null, {filter: $(this).val()});
+        });
+
+        list.on('change', 'select.list-pagesize-selector', function() {
+            element.list_view('submitState', null, {rows: $(this).val()});
+        });
     },
 
     _onDocumentScroll: function(e) {

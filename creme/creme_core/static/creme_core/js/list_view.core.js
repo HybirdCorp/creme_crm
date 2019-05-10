@@ -184,8 +184,6 @@
         var args = Array.prototype.slice.call(arguments, 1);
 
         $.fn.list_view.defaults = {
-            user_page:          '#user_page',
-            id_container:       '[name="entity_id"]',
             multiple:           false,
             serializer:         'input[name][type!="submit"], select[name]',
             reloadUrl:          null,
@@ -433,7 +431,6 @@
                         me.addParameter(data, e.name, e.value);
                     });
 
-                    data['page'] = data['page'] || $(opts.user_page, self).val();
                     data['selection'] = opts.multiple ? 'single' : 'multiple';
 
                     delete data['entity_id'];

@@ -73,6 +73,7 @@ QUnit.test('creme.listview.core (standalone)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            rows: ['10'],
             selected_rows: [''],
             selection: 'multiple',
             sort_key: ['regular_field-name'],
@@ -113,6 +114,7 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{a: 12}'],
+            rows: ['10'],
             selected_rows: [''],
             selection: 'multiple',
             sort_key: ['regular_field-name'],
@@ -135,6 +137,7 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{a: 12}'],
+            rows: ['10'],
             selected_rows: [''],
             selection: 'multiple',
             sort_key: ['regular_field-name'],
@@ -146,6 +149,7 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
             },
             ct_id: ['67'],
             q_filter: ['{}'],
+            rows: ['10'],
             selected_rows: [''],
             selection: 'multiple',
             sort_key: ['regular_field-name'],
@@ -375,6 +379,7 @@ QUnit.test('creme.listview.core (filter on <input> enter)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            rows: ['10'],
             selected_rows: [''],
             selection: 'multiple',
             sort_key: ['regular_field-name'],
@@ -418,6 +423,7 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            rows: ['10'],
             selected_rows: [''],
             selection: 'multiple',
             sort_key: ['regular_field-name'],
@@ -446,6 +452,7 @@ QUnit.test('creme.listview.core (toggle sort)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            rows: ['10'],
             selected_rows: [''],
             selection: 'multiple',
             sort_key: ['regular_field-name'],
@@ -511,6 +518,7 @@ QUnit.test('creme.listview.core (sort another column)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            rows: ['10'],
             selected_rows: [''],
             selection: 'multiple',
             sort_key: ['regular_field-phone'],
@@ -578,12 +586,225 @@ QUnit.test('creme.listview.core (hatbar buttons, submit-lv-state)', function(ass
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            rows: ['10'],
             selected_rows: [''],
             selection: 'multiple',
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
             'search-regular_field-name': ['C'],
             custom_state: 12
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.core (hatbar controls, entityfilter, change)', function(assert) {
+    var html = this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        hatbarcontrols: [{
+            name: 'filter',
+            group: 'filters',
+            options: [
+                '<option value="filter-a">Filter A</option>',
+                '<option value="filter-b">Filter B</option>'
+            ]
+        }]
+    });
+
+    var element = $(html).appendTo(this.qunitFixture());
+    var filter = element.find('.list-control-group.list-filters select');
+
+    var listview = creme.widget.create(element);
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(1, filter.length);
+
+    filter.val('filter-b').change();
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            rows: ['10'],
+            selected_rows: [''],
+            selection: 'multiple',
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            filter: 'filter-b'
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.core (hatbar controls, entityfilter, delete)', function(assert) {
+    var html = this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        hatbarcontrols: [{
+            name: 'filter',
+            group: 'filters',
+            options: [
+                '<option value="filter-a">Filter A</option>',
+                '<option value="filter-b">Filter B</option>'
+            ],
+            actions: [
+                {url: 'mock/listview/filter/delete', action: 'delete', data: {id: 'filter-b'}}
+            ]
+        }]
+    });
+
+    var element = $(html).appendTo(this.qunitFixture());
+    var listview = creme.widget.create(element);
+    var link = element.find('.list-control-group.list-filters a[data-action="delete"]');
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(1, link.length);
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/filter/delete'));
+
+    link.click();
+
+    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.acceptConfirmDialog();
+
+    deepEqual([
+        ['POST', {
+            id: 'filter-b'
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/filter/delete'));
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            rows: ['10'],
+            selected_rows: [''],
+            selection: 'multiple',
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            filter: ['filter-a']
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.core (hatbar controls, view, change)', function(assert) {
+    var html = this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        hatbarcontrols: [{
+            name: 'hfilter',
+            group: 'views',
+            options: [
+                '<option value="view-a">View A</option>',
+                '<option value="view-b">View B</option>'
+            ]
+        }]
+    });
+
+    var element = $(html).appendTo(this.qunitFixture());
+    var selector = element.find('.list-control-group.list-views select');
+
+    var listview = creme.widget.create(element);
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(1, selector.length);
+
+    selector.val('view-b').change();
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            rows: ['10'],
+            selected_rows: [''],
+            selection: 'multiple',
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            hfilter: 'view-b'
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.core (hatbar controls, view, delete)', function(assert) {
+    var html = this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        hatbarcontrols: [{
+            name: 'hfilter',
+            group: 'views',
+            options: [
+                '<option value="view-a">View A</option>',
+                '<option value="view-b">View B</option>'
+            ],
+            actions: [
+                {url: 'mock/listview/view/delete', action: 'delete', data: {id: 'view-b'}}
+            ]
+        }]
+    });
+
+    var element = $(html).appendTo(this.qunitFixture());
+    var listview = creme.widget.create(element);
+    var link = element.find('.list-control-group.list-views a[data-action="delete"]');
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(1, link.length);
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/view/delete'));
+
+    link.click();
+
+    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.acceptConfirmDialog();
+
+    deepEqual([
+        ['POST', {
+            id: 'view-b'
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/view/delete'));
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            rows: ['10'],
+            selected_rows: [''],
+            selection: 'multiple',
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            hfilter: ['view-a']
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.core (pagesize selector)', function(assert) {
+    var html = this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload'
+    });
+
+    var element = $(html).appendTo(this.qunitFixture());
+    var listview = creme.widget.create(element);
+    var selector = element.find('.list-pagesize-selector');
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(1, selector.length);
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+
+    selector.val('25').change();
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            selected_rows: [''],
+            selection: 'multiple',
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            rows: '25'
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });

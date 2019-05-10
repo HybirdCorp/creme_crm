@@ -102,6 +102,11 @@
     cursor: pointer;
 }
 
+.list-control-group a.is-disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
 .list-control-group select + a {
     margin-left: 20px;
 }
