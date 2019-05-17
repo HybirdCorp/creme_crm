@@ -169,10 +169,9 @@ class BillingConfig(CremeAppConfig):
     def register_mass_import(self, import_form_registry):
         from .forms.mass_import import get_import_form_builder
 
-        reg_import_form = import_form_registry.register
-        reg_import_form(self.Invoice,    get_import_form_builder)
-        reg_import_form(self.Quote,      get_import_form_builder)
-        reg_import_form(self.SalesOrder, get_import_form_builder)
+        import_form_registry.register(self.Invoice,    get_import_form_builder) \
+                            .register(self.Quote,      get_import_form_builder) \
+                            .register(self.SalesOrder, get_import_form_builder)
 
     def register_menu(self, creme_menu):
         CreditNote = self.CreditNote

@@ -73,9 +73,8 @@ class ProductsConfig(CremeAppConfig):
     def register_mass_import(self, import_form_registry):
         from .forms.mass_import import get_massimport_form_builder
 
-        register = import_form_registry.register
-        register(self.Product, get_massimport_form_builder)
-        register(self.Service, get_massimport_form_builder)
+        import_form_registry.register(self.Product, get_massimport_form_builder) \
+                            .register(self.Service, get_massimport_form_builder)
 
     def register_menu(self, creme_menu):
         Product = self.Product

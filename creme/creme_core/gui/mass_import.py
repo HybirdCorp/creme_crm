@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 
 class FormRegistry:
+    """Registry for forms importing entities from CSV/XLS."""
     class UnregisteredCTypeException(Exception):
         pass
 
@@ -27,19 +28,27 @@ class FormRegistry:
         self._form_factories = {}
 
     def register(self, model, factory=None):
-        """@param factory A callable that takes 2 parameters
-        header_dict, a dictionary key=column slugified name; value=column index
-        choices A list a choices, compliant with classical django Select widget.
-         and which returns a form class that inherits creme_core.forms.list_view_import.ImportForm.
-        'factory' can be None: it means that this ContentType use a generic import form.
+        """Register a form factory for a model.
+        @param model: Class inheriting CremeEntity.
+        @param factory: None or callable which takes 2 parameters
+               "header_dict" a dictionary key=column slugified name; value=column index
+               "choices" a list a choices, compliant with classical django Select widget.
+               and which returns a form class which inherits
+               <creme_core.forms.list_view_import.ImportForm>.
+               <None> means that this model uses a generic import form.
+        @return The registry instance (to chain register() calls).
         """
         self._form_factories[model] = factory
 
-    def get(self, ct):
+        return self
+
+    def get(self, ct):  # TODO: accept model directly ??
         try:
             return self._form_factories[ct.model_class()]
         except KeyError as e:
-            raise self.UnregisteredCTypeException('Unregistered ContentType: {}'.format(ct)) from e
+            raise self.UnregisteredCTypeException(
+                'Unregistered ContentType: {}'.format(ct)
+            ) from e
 
     def is_registered(self, ct):
         return ct.model_class() in self._form_factories  # TODO: accept model directly ??
