@@ -85,9 +85,9 @@ class OpportunitiesConfig(CremeAppConfig):
         icon_registry.register(self.Opportunity, 'images/opportunity_%(size)s.png')
 
     def register_mass_import(self, import_form_registry):
-        from .forms.mass_import import get_mass_form_builder
+        from .forms import mass_import
 
-        import_form_registry.register(self.Opportunity, get_mass_form_builder)
+        import_form_registry.register(self.Opportunity, mass_import.get_mass_form_builder)
 
     def register_menu(self, creme_menu):
         Opportunity = self.Opportunity

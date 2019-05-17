@@ -113,13 +113,12 @@ class PersonsConfig(CremeAppConfig):
         imprint_manager.register(self.Contact, hours=1)
 
     def register_mass_import(self, import_form_registry):
-        from .forms.mass_import import get_massimport_form_builder
+        from .forms.mass_import import get_massimport_form_builder as form_builder
 
-        reg_form = import_form_registry.register
         Contact = self.Contact
         Organisation = self.Organisation
-        reg_form(Contact, partial(get_massimport_form_builder, model=Contact))
-        reg_form(Organisation, partial(get_massimport_form_builder, model=Organisation))
+        import_form_registry.register(Contact,      partial(form_builder, model=Contact)) \
+                            .register(Organisation, partial(form_builder, model=Organisation))
 
     def register_menu(self, creme_menu):
         from django.urls import reverse_lazy as reverse
