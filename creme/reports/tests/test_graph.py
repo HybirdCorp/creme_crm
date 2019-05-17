@@ -2667,6 +2667,26 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(_('The relationship type is invalid.'), fetcher.error)
         self.assertEqual('??',                                   fetcher.verbose_volatile_column)
 
+    def test_delete_graph_instance(self):
+        "BrickDetailviewLocation instances must be deleted in cascade."
+        self.login()
+        rgraph = self._create_documents_rgraph()
+        ibci = rgraph.create_instance_brick_config_item()
+
+        brick_id = ibci.brick_id
+        bdl = BrickDetailviewLocation.create_if_needed(
+            brick_id=brick_id, order=1,
+            zone=BrickDetailviewLocation.RIGHT,
+            model=FakeContact,
+        )
+        bhl = BrickHomeLocation.objects.create(brick_id=brick_id, order=1)
+
+        rgraph.delete()
+        self.assertDoesNotExist(rgraph)
+        self.assertDoesNotExist(ibci)
+        self.assertDoesNotExist(bdl)
+        self.assertDoesNotExist(bhl)
+
     def test_get_available_report_graph_types01(self):
         self.login()
         url = self._build_graph_types_url(self.ct_orga)

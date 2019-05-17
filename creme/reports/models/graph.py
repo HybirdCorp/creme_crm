@@ -67,6 +67,14 @@ class AbstractReportGraph(CremeEntity):
     def get_related_entity(self):
         return self.linked_report
 
+    def delete(self, *args, **kwargs):
+        # NB: we call InstanceBrickConfigItem.delete() explicitly to delete
+        #     related BrickDetailviewLocation/BrickHomeLocation/... instances
+        for ibci in InstanceBrickConfigItem.objects.filter(entity=self.id):
+            ibci.delete()
+
+        super().delete(*args, **kwargs)
+
     # TODO: use creme_core.utils.meta.Order
     def fetch(self, user, extra_q=None, order='ASC'):
         assert order == 'ASC' or order == 'DESC'
