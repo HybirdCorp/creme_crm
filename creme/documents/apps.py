@@ -133,9 +133,9 @@ class DocumentsConfig(CremeAppConfig):
                   .add_link('documents-create_folder',   Folder,   priority=20)
 
     def register_merge_forms(self, merge_form_registry):
-        from .forms.folder import get_merge_form_builder
+        from .forms import folder
 
-        merge_form_registry.register(self.Folder, get_merge_form_builder)
+        merge_form_registry.register(self.Folder, folder.get_merge_form_builder)
 
     def register_quickforms(self, quickforms_registry):
         from .forms.quick import DocumentQuickForm
