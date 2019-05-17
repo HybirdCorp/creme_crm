@@ -133,24 +133,27 @@ def _fk_printer(field, val, user):
     return str(out)
 
 
+def _boolean_printer(field, val, user):
+    return gettext('Yes') if val else \
+           gettext('No') if val is False else \
+           gettext('N/A')
+
+
 # TODO: ClassKeyedMap ?
 _PRINTERS = {
-        'BooleanField': (lambda field, val, user: gettext('Yes') if val else gettext('No')),
-        'NullBooleanField': (lambda field, val, user: gettext('Yes') if val else
-                                                      gettext('No') if val is False else
-                                                      gettext('N/A')
-                            ),
+    'BooleanField': _boolean_printer,
+    'NullBooleanField': _boolean_printer,
 
-        'ForeignKey': _fk_printer,
+    'ForeignKey': _fk_printer,
 
-        'DateField':     lambda field, val, user: date_format(date_from_ISO8601(val), 'DATE_FORMAT') if val else '',
-        'DateTimeField': lambda field, val, user: date_format(localtime(dt_from_ISO8601(val)),
-                                                              'DATETIME_FORMAT',
-                                                             ) if val else '',
+    'DateField':     lambda field, val, user: date_format(date_from_ISO8601(val), 'DATE_FORMAT') if val else '',
+    'DateTimeField': lambda field, val, user: date_format(localtime(dt_from_ISO8601(val)),
+                                                          'DATETIME_FORMAT',
+                                                         ) if val else '',
 
-        # TODO remove 'use_l10n' when settings.USE_L10N == True
-        'FloatField': lambda field, val, user: number_format(val, use_l10n=True) if val is not None else '',
-    }
+    # TODO remove 'use_l10n' when settings.USE_L10N == True
+    'FloatField': lambda field, val, user: number_format(val, use_l10n=True) if val is not None else '',
+}
 
 
 class _HistoryLineTypeRegistry:
