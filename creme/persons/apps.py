@@ -154,13 +154,12 @@ class PersonsConfig(CremeAppConfig):
                   .add_link('create_organisation', Organisation, priority=5)
 
     def register_merge_forms(self, merge_form_registry):
-        from .forms.merge import get_merge_form_builder
+        from .forms.merge import get_merge_form_builder as form_builder
 
-        reg_merge_form = merge_form_registry.register
         Contact = self.Contact
         Organisation = self.Organisation
-        reg_merge_form(Contact,      partial(get_merge_form_builder, model=Contact))
-        reg_merge_form(Organisation, partial(get_merge_form_builder, model=Organisation))
+        merge_form_registry.register(Contact,      partial(form_builder, model=Contact)) \
+                           .register(Organisation, partial(form_builder, model=Organisation))
 
     def register_quickforms(self, quickforms_registry):
         from .forms.quick import ContactQuickForm, OrganisationQuickForm
