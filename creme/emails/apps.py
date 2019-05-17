@@ -75,8 +75,10 @@ class EmailsConfig(CremeAppConfig):
             bricks.LwMailPopupBrick,
             bricks.LwMailsHistoryBrick,
             bricks.MySignaturesBrick,
+        ).register_hat(
+            self.EntityEmail,
+            main_brick_cls=bricks.EntityEmailBarHatBrick,
         )
-        brick_registry.register_hat(self.EntityEmail, main_brick_cls=bricks.EntityEmailBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from . import models

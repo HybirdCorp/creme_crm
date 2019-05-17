@@ -45,12 +45,13 @@ class SMSConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.MessagingListsBlock,
-                                bricks.RecipientsBrick,
-                                bricks.ContactsBrick,
-                                bricks.MessagesBrick,
-                                bricks.SendingsBrick,
-                               )
+        brick_registry.register(
+            bricks.MessagingListsBlock,
+            bricks.RecipientsBrick,
+            bricks.ContactsBrick,
+            bricks.MessagesBrick,
+            bricks.SendingsBrick,
+        )
 
     def register_bulk_update(self, bulk_update_registry):
         bulk_update_registry.register(self.SMSCampaign, exclude=('lists',))

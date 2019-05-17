@@ -52,12 +52,12 @@ class ReportsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.ReportFieldsBrick,
-                                bricks.ReportGraphsBrick,
-                                bricks.InstanceBricksInfoBrick,
-                               )
-        brick_registry.register_4_instance(bricks.ReportGraphBrick)
-        brick_registry.register_hat(self.Report, main_brick_cls=bricks.ReportBarHatBrick)
+        brick_registry.register(
+            bricks.ReportFieldsBrick,
+            bricks.ReportGraphsBrick,
+            bricks.InstanceBricksInfoBrick,
+        ).register_4_instance(bricks.ReportGraphBrick) \
+         .register_hat(self.Report, main_brick_cls=bricks.ReportBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .forms.bulk import ReportFilterBulkForm

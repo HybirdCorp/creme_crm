@@ -52,12 +52,12 @@ class DocumentsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register_4_model(self.Document, bricks.DocumentBrick)
-        brick_registry.register(bricks.FolderDocsBrick,
+        brick_registry.register_4_model(self.Document, bricks.DocumentBrick) \
+                      .register(bricks.FolderDocsBrick,
                                 bricks.ChildFoldersBrick,
                                 bricks.LinkedDocsBrick,
-                               )
-        brick_registry.register_hat(self.Document, main_brick_cls=bricks.DocumentBarHatBrick)
+                               ) \
+                      .register_hat(self.Document, main_brick_cls=bricks.DocumentBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .forms.folder import ParentFolderBulkForm

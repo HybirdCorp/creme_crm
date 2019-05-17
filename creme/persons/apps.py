@@ -51,15 +51,17 @@ class PersonsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(*bricks.bricks_list)
-        brick_registry.register_hat(self.Contact,
-                                    main_brick_cls=bricks.ContactBarHatBrick,
-                                    secondary_brick_classes=(bricks.ContactCardHatBrick,),
-                                   )
-        brick_registry.register_hat(self.Organisation,
-                                    main_brick_cls=bricks.OrganisationBarHatBrick,
-                                    secondary_brick_classes=(bricks.OrganisationCardHatBrick,),
-                                   )
+        brick_registry.register(
+            *bricks.bricks_list
+        ).register_hat(
+            self.Contact,
+            main_brick_cls=bricks.ContactBarHatBrick,
+            secondary_brick_classes=(bricks.ContactCardHatBrick,),
+        ).register_hat(
+            self.Organisation,
+            main_brick_cls=bricks.OrganisationBarHatBrick,
+            secondary_brick_classes=(bricks.OrganisationCardHatBrick,),
+        )
 
     def register_bulk_update(self, bulk_update_registry):
         register = bulk_update_registry.register

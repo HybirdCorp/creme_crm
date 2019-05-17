@@ -628,12 +628,16 @@ class _BrickRegistry:
             if setdefault(brick_cls.id_, brick_cls) is not brick_cls:
                 raise self.RegistrationError("Duplicated brick's id: {}".format(brick_cls.id_))
 
+        return self
+
     def register_4_instance(self, *brick_classes):  # TODO: factorise
         setdefault = self._instance_brick_classes.setdefault
 
         for brick_cls in brick_classes:
             if setdefault(brick_cls.id_, brick_cls) is not brick_cls:
                 raise self.RegistrationError("Duplicated brick's id: {}".format(brick_cls.id_))
+
+        return self
 
     def register_invalid_models(self, *models):
         """Register some models which cannot have a bricks configuration for
@@ -646,6 +650,8 @@ class _BrickRegistry:
             assert issubclass(model, CremeEntity)
             add(model)
 
+        return self
+
     def register_4_model(self, model, brick_cls):  # TODO: had an 'overload' arg ??
         # assert brick_cls.id_ is None
         if brick_cls.id_ != MODELBRICK_ID:
@@ -656,6 +662,8 @@ class _BrickRegistry:
         # NB: the key is the class, not the ContentType.id because it can cause
         # some inconsistencies in DB problem in unit tests (contenttypes cache bug with tests ??)
         self._object_brick_classes[model] = brick_cls
+
+        return self
 
     def register_hat(self, model, main_brick_cls=None, secondary_brick_classes=()):
         brick_classes = self._hat_brick_classes[model]
@@ -687,6 +695,8 @@ class _BrickRegistry:
                 raise self.RegistrationError("Duplicated hat brick's id_: {}".format(brick_id))
 
             brick_classes[brick_id] = brick_cls
+
+        return self
 
     # @staticmethod
     # def _generate_modelbrick_id(model):
@@ -739,15 +749,18 @@ class _BrickRegistry:
         instance_ids = list(filter(InstanceBrickConfigItem.id_is_specific, brick_ids))
         custom_ids   = list(filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids)))
 
-        relation_bricks_items = {rbi.brick_id: rbi
-                                     for rbi in RelationBrickItem.objects.filter(brick_id__in=specific_ids)
-                                } if specific_ids else {}
-        instance_bricks_items = {ibi.brick_id: ibi
-                                     for ibi in InstanceBrickConfigItem.objects.filter(brick_id__in=instance_ids)
-                                } if instance_ids else {}
-        custom_bricks_items = {cbci.generate_id(): cbci
-                                   for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_ids)
-                              } if custom_ids else {}
+        relation_bricks_items = {
+            rbi.brick_id: rbi
+                for rbi in RelationBrickItem.objects.filter(brick_id__in=specific_ids)
+        } if specific_ids else {}
+        instance_bricks_items = {
+            ibi.brick_id: ibi
+                for ibi in InstanceBrickConfigItem.objects.filter(brick_id__in=instance_ids)
+        } if instance_ids else {}
+        custom_bricks_items = {
+            cbci.generate_id(): cbci
+                for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_ids)
+        } if custom_ids else {}
 
         for id_ in brick_ids:
             rbi = relation_bricks_items.get(id_)

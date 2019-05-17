@@ -40,8 +40,8 @@ class EventsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.ResutsBrick)
-        brick_registry.register_hat(self.Event, main_brick_cls=bricks.EventBarHatBrick)
+        brick_registry.register(bricks.ResutsBrick) \
+                      .register_hat(self.Event, main_brick_cls=bricks.EventBarHatBrick)
 
     def register_creme_config(self, config_registry):
         from . import models
