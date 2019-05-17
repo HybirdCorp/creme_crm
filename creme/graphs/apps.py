@@ -40,10 +40,13 @@ class GraphsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.RootNodesBrick,
-                                bricks.OrbitalRelationTypesBrick,
-                               )
-        brick_registry.register_hat(self.Graph, main_brick_cls=bricks.GraphBarHatBrick)
+        brick_registry.register(
+            bricks.RootNodesBrick,
+            bricks.OrbitalRelationTypesBrick,
+        ).register_hat(
+            self.Graph,
+            main_brick_cls=bricks.GraphBarHatBrick,
+        )
 
     def register_bulk_update(self, bulk_update_registry):
         bulk_update_registry.register(self.Graph, exclude=('orbital_relation_types',))

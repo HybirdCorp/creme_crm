@@ -56,8 +56,10 @@ class ActivitiesConfig(CremeAppConfig):
             bricks.PastActivitiesBrick,
             bricks.UserCalendarsBrick,
             bricks.RelatedCalendarBrick,
+        ).register_hat(
+            self.Activity,
+            main_brick_cls=bricks.ActivityBarHatBrick,
         )
-        brick_registry.register_hat(self.Activity, main_brick_cls=bricks.ActivityBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .forms.activity_type import BulkEditTypeForm

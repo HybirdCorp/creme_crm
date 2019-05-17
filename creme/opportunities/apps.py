@@ -60,9 +60,14 @@ class OpportunitiesConfig(CremeAppConfig):
         from . import bricks
 
         Opportunity = self.Opportunity
-        brick_registry.register(*bricks.bricks_list)
-        brick_registry.register_4_model(Opportunity, bricks.OpportunityBrick)
-        brick_registry.register_hat(Opportunity, secondary_brick_classes=(bricks.OpportunityCardHatBrick,))
+        brick_registry.register(
+            *bricks.bricks_list
+        ).register_4_model(
+            Opportunity, bricks.OpportunityBrick,
+        ).register_hat(
+            Opportunity,
+            secondary_brick_classes=(bricks.OpportunityCardHatBrick,),
+        )
 
     def register_buttons(self, button_registry):
         from . import buttons

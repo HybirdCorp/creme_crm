@@ -89,15 +89,12 @@ class BillingConfig(CremeAppConfig):
             bricks.BillingDetailedAddressBrick,
             bricks.BillingPrettyAddressBrick,
             bricks.PersonsStatisticsBrick,
-        )
-        brick_registry.register_invalid_models(self.ProductLine, self.ServiceLine)
-
-        register_hat = brick_registry.register_hat
-        register_hat(self.CreditNote,   main_brick_cls=bricks.CreditNoteBarHatBrick)
-        register_hat(self.Invoice,      main_brick_cls=bricks.InvoiceBarHatBrick)
-        register_hat(self.Quote,        main_brick_cls=bricks.QuoteBarHatBrick)
-        register_hat(self.SalesOrder,   main_brick_cls=bricks.SalesOrderBarHatBrick)
-        register_hat(self.TemplateBase, main_brick_cls=bricks.TemplateBaseBarHatBrick)
+        ).register_invalid_models(self.ProductLine, self.ServiceLine) \
+         .register_hat(self.CreditNote,   main_brick_cls=bricks.CreditNoteBarHatBrick) \
+         .register_hat(self.Invoice,      main_brick_cls=bricks.InvoiceBarHatBrick) \
+         .register_hat(self.Quote,        main_brick_cls=bricks.QuoteBarHatBrick) \
+         .register_hat(self.SalesOrder,   main_brick_cls=bricks.SalesOrderBarHatBrick) \
+         .register_hat(self.TemplateBase, main_brick_cls=bricks.TemplateBaseBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import PaymentInformation

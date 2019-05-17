@@ -42,13 +42,16 @@ class PollsConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        brick_registry.register(bricks.PollFormLinesBrick,
-                                bricks.PollReplyLinesBrick,
-                                bricks.PollRepliesBrick,
-                                bricks.PersonPollRepliesBrick,
-                                bricks.PollCampaignRepliesBrick,
-                               )
-        brick_registry.register_hat(self.PollForm, main_brick_cls=bricks.PollFormBarHatBrick)
+        brick_registry.register(
+            bricks.PollFormLinesBrick,
+            bricks.PollReplyLinesBrick,
+            bricks.PollRepliesBrick,
+            bricks.PersonPollRepliesBrick,
+            bricks.PollCampaignRepliesBrick,
+        ).register_hat(
+            self.PollForm,
+            main_brick_cls=bricks.PollFormBarHatBrick,
+        )
 
     def register_bulk_update(self, bulk_update_registry):
         from .forms.poll_reply import InnerEditPersonForm
