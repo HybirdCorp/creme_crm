@@ -65,10 +65,9 @@ class ProjectsConfig(CremeAppConfig):
     def register_icons(self, icon_registry):
         from .models import Resource
 
-        reg_icon = icon_registry.register
-        reg_icon(self.Project,     'images/project_%(size)s.png')
-        reg_icon(self.ProjectTask, 'images/task_%(size)s.png')
-        reg_icon(Resource,         'images/task_%(size)s.png')
+        icon_registry.register(self.Project,     'images/project_%(size)s.png') \
+                     .register(self.ProjectTask, 'images/task_%(size)s.png') \
+                     .register(Resource,         'images/task_%(size)s.png')
 
     def register_menu(self, creme_menu):
         Project = self.Project

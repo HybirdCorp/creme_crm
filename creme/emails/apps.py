@@ -113,13 +113,12 @@ class EmailsConfig(CremeAppConfig):
     def register_icons(self, icon_registry):
         from . import models
 
-        reg_icon = icon_registry.register
-        reg_icon(self.EntityEmail,        'images/email_%(size)s.png')
-        reg_icon(models.LightWeightEmail, 'images/email_%(size)s.png')
-        reg_icon(models.EmailSending,     'images/email_%(size)s.png')
-        reg_icon(self.MailingList,        'images/email_%(size)s.png')
-        reg_icon(self.EmailCampaign,      'images/email_%(size)s.png')
-        reg_icon(self.EmailTemplate,      'images/email_%(size)s.png')
+        icon_registry.register(self.EntityEmail,        'images/email_%(size)s.png') \
+                     .register(models.LightWeightEmail, 'images/email_%(size)s.png') \
+                     .register(models.EmailSending,     'images/email_%(size)s.png') \
+                     .register(self.MailingList,        'images/email_%(size)s.png') \
+                     .register(self.EmailCampaign,      'images/email_%(size)s.png') \
+                     .register(self.EmailTemplate,      'images/email_%(size)s.png')
 
     def register_menu(self, creme_menu):
         from django.apps import apps

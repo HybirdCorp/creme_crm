@@ -116,9 +116,8 @@ class DocumentsConfig(CremeAppConfig):
                                      )
 
     def register_icons(self, icon_registry):
-        reg_icon = icon_registry.register
-        reg_icon(self.Document, 'images/document_%(size)s.png')
-        reg_icon(self.Folder,   'images/document_%(size)s.png')
+        icon_registry.register(self.Document, 'images/document_%(size)s.png') \
+                     .register(self.Folder,   'images/document_%(size)s.png')
 
     def register_menu(self, creme_menu):
         Document = self.Document

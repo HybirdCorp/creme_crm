@@ -82,10 +82,9 @@ class CommercialConfig(CremeAppConfig):
         config_registry.register_model(models.ActType, 'act_type')
 
     def register_icons(self, icon_registry):
-        reg_icon = icon_registry.register
-        reg_icon(self.Act,      'images/commercial_%(size)s.png')
-        reg_icon(self.Pattern,  'images/commercial_%(size)s.png')
-        reg_icon(self.Strategy, 'images/commercial_%(size)s.png')
+        icon_registry.register(self.Act,      'images/commercial_%(size)s.png') \
+                     .register(self.Pattern,  'images/commercial_%(size)s.png') \
+                     .register(self.Strategy, 'images/commercial_%(size)s.png')
 
     def register_menu(self, creme_menu):
         from django.urls import reverse_lazy as reverse

@@ -153,15 +153,14 @@ class BillingConfig(CremeAppConfig):
             )
 
     def register_icons(self, icon_registry):
-        reg_icon = icon_registry.register
         icon_fmt = 'images/invoice_%(size)s.png'
-        reg_icon(self.Invoice,      icon_fmt)
-        reg_icon(self.Quote,        icon_fmt)
-        reg_icon(self.SalesOrder,   icon_fmt)
-        reg_icon(self.CreditNote,   icon_fmt)
-        reg_icon(self.TemplateBase, icon_fmt)
-        reg_icon(self.ProductLine,  icon_fmt)
-        reg_icon(self.ServiceLine,  icon_fmt)
+        icon_registry.register(self.Invoice,      icon_fmt) \
+                     .register(self.Quote,        icon_fmt) \
+                     .register(self.SalesOrder,   icon_fmt) \
+                     .register(self.CreditNote,   icon_fmt) \
+                     .register(self.TemplateBase, icon_fmt) \
+                     .register(self.ProductLine,  icon_fmt) \
+                     .register(self.ServiceLine,  icon_fmt)
 
     def register_mass_import(self, import_form_registry):
         from .forms.mass_import import get_import_form_builder
