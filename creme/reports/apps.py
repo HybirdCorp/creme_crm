@@ -69,9 +69,8 @@ class ReportsConfig(CremeAppConfig):
         register(self.ReportGraph, exclude=['days', 'is_count', 'chart'])  # TODO: chart -> innerform
 
     def register_icons(self, icon_registry):
-        reg_icon = icon_registry.register
-        reg_icon(self.Report,      'images/report_%(size)s.png')
-        reg_icon(self.ReportGraph, 'images/graph_%(size)s.png')
+        icon_registry.register(self.Report,      'images/report_%(size)s.png') \
+                     .register(self.ReportGraph, 'images/graph_%(size)s.png')
 
     def register_menu(self, creme_menu):
         Report = self.Report

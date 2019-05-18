@@ -107,9 +107,8 @@ class PersonsConfig(CremeAppConfig):
         print_foreignkey_html.register(get_user_model(), print_fk_user_html)
 
     def register_icons(self, icon_registry):
-        reg_icon = icon_registry.register
-        reg_icon(self.Contact,      'images/contact_%(size)s.png')
-        reg_icon(self.Organisation, 'images/organisation_%(size)s.png')
+        icon_registry.register(self.Contact,      'images/contact_%(size)s.png') \
+                     .register(self.Organisation, 'images/organisation_%(size)s.png')
 
     def register_imprints(self, imprint_manager):
         imprint_manager.register(self.Contact, hours=1)

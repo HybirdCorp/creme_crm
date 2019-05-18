@@ -66,9 +66,8 @@ class ProductsConfig(CremeAppConfig):
                                                          .edition(form_class=category.SubCategoryForm)
 
     def register_icons(self, icon_registry):
-        reg_icon = icon_registry.register
-        reg_icon(self.Product, 'images/product_%(size)s.png')
-        reg_icon(self.Service, 'images/service_%(size)s.png')
+        icon_registry.register(self.Product, 'images/product_%(size)s.png') \
+                     .register(self.Service, 'images/service_%(size)s.png')
 
     def register_mass_import(self, import_form_registry):
         from .forms.mass_import import get_massimport_form_builder

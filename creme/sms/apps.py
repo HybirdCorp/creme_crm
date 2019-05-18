@@ -57,10 +57,9 @@ class SMSConfig(CremeAppConfig):
         bulk_update_registry.register(self.SMSCampaign, exclude=('lists',))
 
     def register_icons(self, icon_registry):
-        reg_icon = icon_registry.register
-        reg_icon(self.SMSCampaign,     'images/sms_%(size)s.png')
-        reg_icon(self.MessagingList,   'images/sms_%(size)s.png')
-        reg_icon(self.MessageTemplate, 'images/sms_%(size)s.png')
+        icon_registry.register(self.SMSCampaign,     'images/sms_%(size)s.png') \
+                     .register(self.MessagingList,   'images/sms_%(size)s.png') \
+                     .register(self.MessageTemplate, 'images/sms_%(size)s.png')
 
     def register_menu(self, creme_menu):
         SMSCampaign = self.SMSCampaign

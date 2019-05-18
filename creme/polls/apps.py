@@ -68,10 +68,9 @@ class PollsConfig(CremeAppConfig):
         config_registry.register_model(models.PollType, 'poll_type')
 
     def register_icons(self, icon_registry):
-        reg_icon = icon_registry.register
-        reg_icon(self.PollForm,     'images/poll_%(size)s.png')
-        reg_icon(self.PollReply,    'images/poll_%(size)s.png')
-        reg_icon(self.PollCampaign, 'images/poll_%(size)s.png')
+        icon_registry.register(self.PollForm,     'images/poll_%(size)s.png') \
+                     .register(self.PollReply,    'images/poll_%(size)s.png') \
+                     .register(self.PollCampaign, 'images/poll_%(size)s.png')
 
     def register_menu(self, creme_menu):
         PCampaign = self.PollCampaign

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,6 @@ import logging
 from django.utils.html import format_html
 
 from ..utils.media import get_creme_media_url
-
 
 logger = logging.getLogger(__name__)
 
@@ -261,6 +260,8 @@ class IconRegistry:
         """eg: icon_registry.register(Ticket, 'images/ticket_%(size)s.png')"""
         self._icons[model] = path
 
+        return self
+
     def register_4_instance(self, model, info_function):
         """Setup the registry in order to retrieve an Icon corresponding to an instance of a model.
         Ie: instances of a same type can have different Icons.
@@ -274,6 +275,8 @@ class IconRegistry:
               Notice that it means there is currently a limitation on the image name/format.
         """
         self._icons_4_objects[model] = info_function
+
+        return self
 
     def get_4_model(self, model, theme, size_px):
         url = ''
@@ -298,7 +301,7 @@ class IconRegistry:
         if icon_info_function:
             info = icon_info_function(instance)
             if info:
-                # TODO: improve (with the future creme 1.8 asset managers) in order
+                # TODO: improve (needs the future asset managers) in order
                 #       to manage other formats (see SVGIcon etc...)
                 path_fmt = 'images/{}_%(size)s.png'.format(info[0])
                 label = info[1]
