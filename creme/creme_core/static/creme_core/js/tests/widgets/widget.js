@@ -1,14 +1,10 @@
-QUnit.module("creme.widgets.widget.js", {
-  setup: function() {
-  },
-  teardown: function() {
-      creme.widget.unregister('ui-test');
-  }
-});
+/* global notEqual */
+(function($) {
 
-MockWidget = function() {return {
+var MockWidget = function() {
+ return {
     options: {
-        initial:42
+        initial: 42
     },
 
     _create: function(element, options, cb, sync) {
@@ -28,12 +24,10 @@ MockWidget = function() {return {
         return 'protected';
     },
 
-    val: function(element, value)
-    {
+    val: function(element, value) {
         var input = creme.widget.input(element);
 
-        if (value !== undefined)
-            return input.val((typeof value !== 'string') ? $.toJSON(value) : value);
+        if (value !== undefined) { return input.val((typeof value !== 'string') ? $.toJSON(value) : value); }
 
         return input.val();
     },
@@ -41,12 +35,18 @@ MockWidget = function() {return {
     jsonval: function(element) {
         return $.toJSON(this.val(element));
     }
-}};
+};
+};
+
+QUnit.module("creme.widgets.widget.js", new QUnitMixin({
+    afterEach: function() {
+        creme.widget.unregister('ui-test');
+    }
+}));
 
 creme.widget.declare('ui-creme-mock', new MockWidget());
 
-function create_widget_element(name, initial, noauto)
-{
+function create_widget_element(name, initial, noauto) {
     var value = (initial !== undefined) ? $.toJSON(initial) : '42';
     var element =  $('<div widget="' + name + '" class="' + name + ' ui-creme-widget widget-auto" initial=\'' + value + '\'>')
                         .append($('<input type="text" class="ui-creme-input ' + name + '"/>'));
@@ -58,8 +58,7 @@ function create_widget_element(name, initial, noauto)
     return element;
 }
 
-function create_mock(initial)
-{
+function create_mock(initial) {
     var value = (initial !== undefined) ? $.toJSON(initial) : '42';
     var element = $('<div widget="ui-creme-mock" class="ui-creme-mock ui-creme-widget widget-auto" initial=\'' + value + '\'>')
                        .append($('<input type="text" class="ui-creme-input ui-creme-mock"/>'));
@@ -78,22 +77,18 @@ function create_input(initial) {
     return $('<input type="text" class="ui-creme-input" value="' + value + '"/>');
 }
 
-function create_mocks(initials)
-{
+function create_mocks(initials) {
     var element = $('<div>');
 
-    for(var i = 0; i < initials.length; ++i)
-        element.append(create_mock(initials[i]));
+    for (var i = 0; i < initials.length; ++i) { element.append(create_mock(initials[i])); }
 
     return element;
 }
 
-function create_inputs(initials)
-{
+function create_inputs(initials) {
     var element = $('<div>');
 
-    for(var i = 0; i < initials.length; ++i)
-        element.append(create_input(initials[i]));
+    for (var i = 0; i < initials.length; ++i) { element.append(create_input(initials[i])); }
 
     return element;
 }
@@ -116,10 +111,10 @@ QUnit.test('creme.widget.register', function(assert) {
     equal(creme.widget._widgets['ui-test'], undefined);
 
     var widget = {
-        options: {initial:42},
-        init:function() {},
-        clone:function() {}
-    }
+        options: {initial: 42},
+        init: function() {},
+        clone: function() {}
+    };
 
     creme.widget.register('ui-test', widget);
     deepEqual(creme.widget._widgets['ui-test'], widget);
@@ -144,7 +139,7 @@ QUnit.test('creme.widget.declare (object, override method)', function(assert) {
     equal(creme.widget._widgets['ui-test'], undefined);
 
     var widget = $.extend(new MockWidget(), {
-        jsonval: function(element) {return 'overriden jsonval';}
+        jsonval: function(element) { return 'overriden jsonval'; }
     });
     equal(widget.destroy, undefined);
     equal(typeof widget.jsonval, 'function');
@@ -155,7 +150,6 @@ QUnit.test('creme.widget.declare (object, override method)', function(assert) {
 
     deepEqual(creme.widget._widgets['ui-test'], declared);
     equal(declared.jsonval($('<div/>')), 'overriden jsonval');
-
 });
 
 QUnit.test('creme.widget.ready', function(assert) {
@@ -198,7 +192,7 @@ QUnit.test('creme.widget.ready (no auto)', function(assert) {
 });
 
 QUnit.test('creme.widget.is_valid', function(assert) {
-    var declared = creme.widget.declare('ui-creme-activatetest', new MockWidget());
+    creme.widget.declare('ui-creme-activatetest', new MockWidget());
 
     var element = $('<div widget="ui-creme-activatetest" class="ui-creme-activatetest ui-creme-widget" initial="51">')
                        .append($('<input type="text" class="ui-creme-input ui-creme-activatetest"/>'));
@@ -216,7 +210,7 @@ QUnit.test('creme.widget.is_valid', function(assert) {
 });
 
 QUnit.test('creme.widget.create (not registered)', function(assert) {
-    var declared = creme.widget.declare('ui-creme-activatetest', new MockWidget());
+    creme.widget.declare('ui-creme-activatetest', new MockWidget());
 
     var element = $('<div widget="ui-creme-notregistered" class="ui-creme-notregistered ui-creme-widget" initial="51">')
                        .append($('<input type="text" class="ui-creme-input ui-creme-notregistered"/>'));
@@ -276,14 +270,14 @@ QUnit.test('creme.widget.create (default options, extra options, create options)
     var element = $('<div widget="ui-creme-activatetest" class="ui-creme-activatetest ui-creme-widget widget-auto" arg1="value1" arg2="value2">')
                        .append($('<input type="text" class="ui-creme-input ui-creme-activatetest"/>'));
 
-    notEqual(creme.widget.create(element, {initial:58, other:'another'}), undefined);
+    notEqual(creme.widget.create(element, {initial: 58, other: 'another'}), undefined);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
     deepEqual(element.data('CremeWidget').delegate, $.extend({}, declared, {options: {'initial': 58, other: 'another'},
                                                                             arguments: {arg1: 'value1', arg2: 'value2'}}));
     deepEqual(element.data('CremeWidget').options(), {'initial': 58, other: 'another'});
-    deepEqual(element.data('CremeWidget').arguments(), {arg1:'value1', arg2:'value2'});
+    deepEqual(element.data('CremeWidget').arguments(), {arg1: 'value1', arg2: 'value2'});
 });
 
 QUnit.test('creme.widget.create (twice)', function(assert) {
@@ -300,20 +294,20 @@ QUnit.test('creme.widget.create (twice)', function(assert) {
 });
 
 QUnit.test('creme.widget.create (multiple instances)', function(assert) {
-    var declared = creme.widget.declare('ui-creme-activatetest', new MockWidget());
+    creme.widget.declare('ui-creme-activatetest', new MockWidget());
     var element = $('<div widget="ui-creme-activatetest" class="ui-creme-activatetest ui-creme-widget widget-auto" arg1="value1" arg2="value2">')
                        .append($('<input type="text" class="ui-creme-input ui-creme-activatetest"/>'));
 
     var element2 = element.clone();
 
-    var widget = creme.widget.create(element, {initial:58, other:'another'});
-    var widget2 = creme.widget.create(element2, {initial:51});
+    var widget = creme.widget.create(element, {initial: 58, other: 'another'});
+    var widget2 = creme.widget.create(element2, {initial: 51});
 
     equal(typeof widget, 'object');
     equal(typeof widget2, 'object');
 
-    deepEqual(widget.options(), {initial:58, other:'another'});
-    deepEqual(widget2.options(), {initial:51});
+    deepEqual(widget.options(), {initial: 58, other: 'another'});
+    deepEqual(widget2.options(), {initial: 51});
 });
 
 QUnit.test('creme.widget.destroy', function(assert) {
@@ -326,7 +320,7 @@ QUnit.test('creme.widget.destroy', function(assert) {
     equal(element.hasClass('widget-ready'), true);
 
     deepEqual(element.data('CremeWidget').delegate, declared);
-    deepEqual(element.data('CremeWidget').options(), {'initial':42});
+    deepEqual(element.data('CremeWidget').options(), {'initial': 42});
     deepEqual(element.data('CremeWidget').arguments(), {});
 
     creme.widget.destroy(element);
@@ -355,7 +349,7 @@ QUnit.test('creme.widget.values_list (setter, inputs: widget, values: object, pa
     creme.widget.values_list(element, ['array']);
     equal(input.val(), 'array');
 
-    creme.widget.values_list(element, {'0':'dict'});
+    creme.widget.values_list(element, {'0': 'dict'});
     equal(input.val(), '{"0":"dict"}');
 });
 
@@ -377,7 +371,7 @@ QUnit.test('creme.widget.values_list (setter, inputs: input, values: object, par
     creme.widget.values_list(input, ['array']);
     equal(input.val(), 'array');
 
-    creme.widget.values_list(input, {'0':'dict'});
+    creme.widget.values_list(input, {'0': 'dict'});
     equal(input.val(), '[object Object]');
 });
 
@@ -465,7 +459,7 @@ QUnit.test('creme.widget.values_list (setter, inputs: multiple input, values: va
 });
 
 QUnit.test('creme.widget.values_list (setter, inputs: widget , values: object array)', function(assert) {
-    var element = create_mocks([{'a':40}, {'b':41}, {'c':42}]);
+    var element = create_mocks([{'a': 40}, {'b': 41}, {'c': 42}]);
     var mocks = $('.ui-creme-widget.ui-creme-mock', element);
 
     equal(mocks.length, 3);
@@ -478,7 +472,7 @@ QUnit.test('creme.widget.values_list (setter, inputs: widget , values: object ar
     equal($(mocks[1]).creme().widget().val(), 'b');
     equal($(mocks[2]).creme().widget().val(), 'c');
 
-    creme.widget.values_list(mocks, [{'a':51}, {'b':52}]);
+    creme.widget.values_list(mocks, [{'a': 51}, {'b': 52}]);
     equal($(mocks[0]).creme().widget().val(), '{"a":51}');
     equal($(mocks[1]).creme().widget().val(), '{"b":52}');
     equal($(mocks[2]).creme().widget().val(), '');
@@ -530,14 +524,14 @@ QUnit.test('creme.widget.values_list (getter, inputs: input multiple)', function
 });
 
 QUnit.test('creme.widget.values_list (getter, inputs: widget)', function(assert) {
-    var element = create_mock({"a":152});
+    var element = create_mock({"a": 152});
 
     var values = creme.widget.values_list(element);
     deepEqual(values, ['{"a":152}']);
 });
 
 QUnit.test('creme.widget.values_list (getter, inputs: widget multiple)', function(assert) {
-    var element = create_mocks([{'a':40}, {'b':41}, {'c':42}]);
+    var element = create_mocks([{'a': 40}, {'b': 41}, {'c': 42}]);
     var mocks = $('.ui-creme-widget.ui-creme-mock', element);
 
     var values = creme.widget.values_list(mocks);
@@ -562,7 +556,7 @@ QUnit.test('creme.widget.proxy', function(assert) {
 });
 
 QUnit.test('creme.widget.proxy (protected methods)', function(assert) {
-    var delegate = $.extend({}, new creme.widget.Widget, new MockWidget());
+    var delegate = $.extend({}, new creme.widget.Widget(), new MockWidget());
     delegate.__private = function(element) {};
 
     var element = create_widget_element('ui-creme-mock');
@@ -591,7 +585,7 @@ QUnit.test('creme.widget', function(assert) {
     var delegate = proxy.delegate;
 
     deepEqual(proxy, element.creme().widget());
-    deepEqual({initial:'42'}, element.creme().widget().options());
+    deepEqual({initial: '42'}, element.creme().widget().options());
 
     element.creme().widget().val(15);
     equal('15', delegate.val(element));
@@ -599,3 +593,4 @@ QUnit.test('creme.widget', function(assert) {
     element.creme().widget().reset();
     equal('42', delegate.val(element));
 });
+}(jQuery));

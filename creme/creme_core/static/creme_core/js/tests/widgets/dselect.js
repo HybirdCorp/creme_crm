@@ -1,5 +1,6 @@
 /* globals QUnitWidgetMixin */
 (function($) {
+
 QUnit.module("creme.widget.dselect.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMixin, QUnitWidgetMixin, {
     buildMockBackend: function() {
         return new creme.ajax.MockAjaxBackend({sync: true});

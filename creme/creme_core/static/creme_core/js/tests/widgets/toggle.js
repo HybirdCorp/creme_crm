@@ -1,8 +1,9 @@
+(function($) {
+
 function mock_toggle_create(options, noauto) {
     var select =  creme.widget.writeAttr($('<div widget="ui-creme-toggle" class="ui-creme-toggle ui-creme-widget"/>'), options || {});
 
-    if (!noauto)
-        select.addClass('widget-auto');
+    if (!noauto) { select.addClass('widget-auto'); }
 
     return select;
 }
@@ -15,27 +16,19 @@ function mock_toggle_target(options) {
     return creme.widget.writeAttr($('<div class="toggle-target">'), options || {});
 }
 
-function append_mock_toggle_target(element, options)
-{
+function append_mock_toggle_target(element, options) {
     var target = mock_toggle_target(options);
     element.append(target);
     return target;
 }
 
-function append_mock_toggle_trigger(element, options)
-{
+function append_mock_toggle_trigger(element, options) {
     var target = mock_toggle_trigger(options);
     element.append(target);
     return target;
 }
 
-QUnit.module("creme.widgets.toggle.js", {
-  setup: function() {
-  },
-  teardown: function() {
-  }
-});
-
+QUnit.module("creme.widgets.toggle.js", new QUnitMixin());
 
 function assertActive(element) {
     equal(element.hasClass('widget-active'), true, 'is widget active');
@@ -46,10 +39,12 @@ function assertReady(element) {
     equal(element.hasClass('widget-ready'), true, 'is widget ready');
 }
 
+/*
 function assertNotReady(element) {
     assertActive(element);
     equal(element.hasClass('widget-ready'), false, 'is widget not ready');
 }
+*/
 
 function assertToggleOpen(element) {
     equal(element.hasClass('toggle-collapsed'), false, 'element opened');
@@ -106,7 +101,7 @@ QUnit.test('creme.widget.Toggle.expand (subtoggle, not recursive)', function(ass
 
     var widget = creme.widget.create(element);
     var sub_widget = creme.widget.create(sub_element);
-    
+
     equal(widget.is_opened(), false);
     equal(sub_widget.is_opened(), false);
 
@@ -124,11 +119,11 @@ QUnit.test('creme.widget.Toggle.expand (subtoggle, recursive)', function(assert)
 
     var widget = creme.widget.create(element);
     var sub_widget = creme.widget.create(sub_element);
-    
+
     equal(widget.is_opened(), false);
     equal(sub_widget.is_opened(), false);
 
-    widget.expand({recursive:true});
+    widget.expand({recursive: true});
 
     equal(widget.is_opened(), true);
     equal(sub_widget.is_opened(), true);
@@ -161,7 +156,7 @@ QUnit.test('creme.widget.Toggle.collapse (subtoggle, not recursive)', function(a
 
     var widget = creme.widget.create(element);
     var sub_widget = creme.widget.create(sub_element);
-    
+
     equal(widget.is_opened(), true);
     equal(sub_widget.is_opened(), true);
 
@@ -179,18 +174,18 @@ QUnit.test('creme.widget.Toggle.collapse (subtoggle, recursive)', function(asser
 
     var widget = creme.widget.create(element);
     var sub_widget = creme.widget.create(sub_element);
-    
+
     equal(widget.is_opened(), true);
     equal(sub_widget.is_opened(), true);
 
-    widget.collapse({recursive:true});
+    widget.collapse({recursive: true});
 
     equal(widget.is_opened(), false);
     equal(sub_widget.is_opened(), false);
 });
 
 QUnit.test('creme.widget.Toggle.toggle (single target)', function(assert) {
-    var element = mock_toggle_create().addClass('toggle-collapsed');;
+    var element = mock_toggle_create().addClass('toggle-collapsed'); ;
     var target = append_mock_toggle_target(element, {'toggle-open-rowspan': 1, 'toggle-close-rowspan': 5});
 
     var widget = creme.widget.create(element);
@@ -246,8 +241,10 @@ QUnit.test('creme.widget.Toggle.toggle (multiple targets)', function(assert) {
 
 QUnit.test('creme.widget.Toggle.toggle (attributes)', function(assert) {
     var element = mock_toggle_create().addClass('toggle-collapsed');
-    var target1 = append_mock_toggle_target(element, {'toggle-open-rowspan': 1, 'toggle-close-rowspan': 5,
-                                                      'toggle-open-name': 'open', 'toggle-close-name': 'close'});
+    var target1 = append_mock_toggle_target(element, {'toggle-open-rowspan': 1,
+'toggle-close-rowspan': 5,
+                                                      'toggle-open-name': 'open',
+'toggle-close-name': 'close'});
     var target2 = append_mock_toggle_target(element, {'toggle-open-rowspan': 8, 'toggle-close-rowspan': 4});
 
     var widget = creme.widget.create(element);
@@ -284,7 +281,12 @@ QUnit.test('creme.widget.Toggle.toggle (callback)', function(assert) {
     equal(self.mock_options, undefined);
 
     var element = mock_toggle_create().addClass('toggle-collapsed');
-    var widget = creme.widget.create(element, {'ontoggle': function(collapsed, options) {self.mock_collapsed=collapsed, self.mock_options=options;}});
+    var widget = creme.widget.create(element, {
+        'ontoggle': function(collapsed, options) {
+            self.mock_collapsed = collapsed;
+            self.mock_options = options;
+         }
+    });
 
     equal(self.mock_collapsed, undefined);
     equal(self.mock_options, undefined);
@@ -293,9 +295,9 @@ QUnit.test('creme.widget.Toggle.toggle (callback)', function(assert) {
     equal(self.mock_collapsed, false);
     deepEqual(self.mock_options, {});
 
-    widget.collapse({recursive:true});
+    widget.collapse({recursive: true});
     equal(self.mock_collapsed, true);
-    deepEqual(self.mock_options, {recursive:true});
+    deepEqual(self.mock_options, {recursive: true});
 });
 
 QUnit.test('creme.widget.Toggle.toggle (callback script)', function(assert) {
@@ -316,11 +318,11 @@ QUnit.test('creme.widget.Toggle.toggle (callback script)', function(assert) {
 });
 
 QUnit.test('creme.widget.Toggle.trigger (single target, click)', function(assert) {
-    var element = mock_toggle_create().addClass('toggle-collapsed');;
+    var element = mock_toggle_create().addClass('toggle-collapsed'); ;
     var target = append_mock_toggle_target(element, {'toggle-open-rowspan': 8, 'toggle-close-rowspan': 4});
-    var trigger = append_mock_toggle_trigger(element, {})
+    var trigger = append_mock_toggle_trigger(element, {});
 
-    var widget = creme.widget.create(element);
+    creme.widget.create(element);
 
     assertReady(element);
     equal(target.attr('rowspan'), 4);
@@ -335,9 +337,9 @@ QUnit.test('creme.widget.Toggle.trigger (single target, click)', function(assert
 QUnit.test('creme.widget.Toggle.trigger (single target, over)', function(assert) {
     var element = mock_toggle_create().addClass('toggle-collapsed');
     var target = append_mock_toggle_target(element, {'toggle-open-rowspan': 8, 'toggle-close-rowspan': 4});
-    var trigger = append_mock_toggle_trigger(element, {'toggle-event': 'over'})
+    var trigger = append_mock_toggle_trigger(element, {'toggle-event': 'over'});
 
-    var widget = creme.widget.create(element);
+    creme.widget.create(element);
 
     assertReady(element);
     equal(target.attr('rowspan'), 4);
@@ -357,11 +359,13 @@ QUnit.test('creme.widget.Toggle.trigger (single target, over)', function(assert)
 
 QUnit.test('creme.widget.Toggle.trigger (multiple targets)', function(assert) {
     var element = mock_toggle_create().addClass('toggle-collapsed');
-    var target1 = append_mock_toggle_target(element, {'toggle-open-rowspan': 1, 'toggle-close-rowspan': 5,
-                                                      'toggle-open-name': 'open', 'toggle-close-name': 'close'});
+    var target1 = append_mock_toggle_target(element, {'toggle-open-rowspan': 1,
+'toggle-close-rowspan': 5,
+                                                      'toggle-open-name': 'open',
+'toggle-close-name': 'close'});
     var target2 = append_mock_toggle_target(element, {'toggle-open-rowspan': 8, 'toggle-close-rowspan': 4});
-    var trigger = append_mock_toggle_trigger(element, {})
-    var widget = creme.widget.create(element);
+    var trigger = append_mock_toggle_trigger(element, {});
+    creme.widget.create(element);
 
     assertReady(element);
 
@@ -372,7 +376,7 @@ QUnit.test('creme.widget.Toggle.trigger (multiple targets)', function(assert) {
     equal(target2.attr('name'), undefined);
 
     trigger.trigger('click');
-    
+
     equal(target1.attr('rowspan'), 1);
     equal(target1.attr('name'), 'open');
 
@@ -387,3 +391,4 @@ QUnit.test('creme.widget.Toggle.trigger (multiple targets)', function(assert) {
     equal(target2.attr('rowspan'), 4);
     equal(target2.attr('name'), undefined);
 });
+}(jQuery));

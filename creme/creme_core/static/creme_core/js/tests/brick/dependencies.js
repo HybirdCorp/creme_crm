@@ -1,3 +1,5 @@
+(function($) {
+
 QUnit.module("creme.bricks.dependencies", new QUnitMixin());
 
 QUnit.test('creme.bricks.Dependencies (empty)', function(assert) {
@@ -130,10 +132,12 @@ QUnit.test('creme.bricks.Dependencies.add (wildcard)', function(assert) {
     deepEqual({}, deps._deps);
 
     deps = new creme.bricks.Dependencies(['a', 'b', 'c']);
-    other = new creme.bricks.Dependencies(['d', '*', 'f']);
+    var other = new creme.bricks.Dependencies(['d', '*', 'f']);
     deps.add(other);
 
     equal(false, deps.isEmpty());
     equal(true, deps.isWildcard());
     deepEqual({}, deps._deps);
 });
+
+}(jQuery));

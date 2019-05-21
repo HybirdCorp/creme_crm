@@ -1,38 +1,30 @@
-QUnit.module("creme.utils.converters.js", {
-    setup: function() {
-        this.str2int = function(data) {
-            var res = parseInt(data);
+(function($) {
 
-            if (isNaN(res))
-                throw '"' + data + '" <' + typeof data + '> is not a number';
-
-            return res;
-        };
-        this.str2float = function(data) {
-            var res = parseFloat(data);
-
-            if (isNaN(res))
-                throw '"' + data + '" <' + typeof data + '> is not a number';
-
-            return res;
-        };
-
+QUnit.module("creme.utils.converters.js", new QUnitMixin({
+    beforeEach: function() {
         this.converters = new creme.utils.ConverterRegistry();
     },
 
-    teardown: function() {
-    }
-});
+    str2int: function(data) {
+        var res = parseInt(data);
 
-function assertRaises(block, expected, message)
-{
-    QUnit.assert.raises(block,
-           function(error) {
-                ok(error instanceof expected);
-                equal(message, '' + error);
-                return true;
-           });
-}
+        if (isNaN(res)) {
+            throw new Error('"' + data + '" <' + typeof data + '> is not a number');
+        }
+
+        return res;
+    },
+
+    str2float: function(data) {
+        var res = parseFloat(data);
+
+        if (isNaN(res)) {
+            throw new Error('"' + data + '" <' + typeof data + '> is not a number');
+        }
+
+        return res;
+    }
+}));
 
 QUnit.test('creme.utils.ConverterRegistry.register', function(assert) {
     equal(this.converters.converter('string', 'int'), undefined);
@@ -53,7 +45,7 @@ QUnit.test('creme.utils.ConverterRegistry.register (fail)', function(assert) {
     this.converters.register('string', 'int', this.str2int);
     equal(this.converters.converter('string', 'int'), this.str2int);
 
-    assertRaises(function() {
+    this.assertRaises(function() {
                this.converters.register('string', 'int', this.str2float);
            }, Error, 'Error: converter "string-int" is already registered');
 });
@@ -79,7 +71,7 @@ QUnit.test('creme.utils.ConverterRegistry.unregister', function(assert) {
 QUnit.test('creme.utils.ConverterRegistry.unregister (fail)', function(assert) {
     equal(this.converters.converter('string', 'int'), undefined);
 
-    assertRaises(function() {
+    this.assertRaises(function() {
                this.converters.unregister('string', 'int');
            }, Error, 'Error: no such converter "string-int"');
 });
@@ -98,15 +90,15 @@ QUnit.test('creme.utils.ConverterRegistry.convert', function(assert) {
 QUnit.test('creme.utils.ConverterRegistry.convert (not found)', function(assert) {
     equal(this.converters.converter('string', 'int'), undefined);
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         this.converters.convert('string', 'int', '15446');
     }, Error, 'Error: no such converter "string-int"');
 });
 
 QUnit.test('creme.utils.ConverterRegistry.convert (fail)', function(assert) {
     this.converters.register('string', 'int', this.str2int);
-    
-    assertRaises(function() {
+
+    this.assertRaises(function() {
         this.converters.convert('string', 'int', {});
     }, Error, 'Error: unable to convert data from "string" to "int" : \"[object Object]\" <object> is not a number');
 });
@@ -129,15 +121,15 @@ QUnit.test('creme.utils.ConverterRegistry.convert (default)', function(assert) {
 QUnit.test('creme.utils.converters (string-number)', function(assert) {
     equal(true, Object.isFunc(creme.utils.converter('string', 'number')));
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         creme.utils.convert('string', 'number', 'nan');
     }, Error, 'Error: unable to convert data from \"string\" to \"number\" : "nan" is not a number');
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         creme.utils.convert('string', 'number', '');
     }, Error, 'Error: unable to convert data from \"string\" to \"number\" : "" is not a number');
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         creme.utils.convert('string', 'number', 454);
     }, Error, 'Error: unable to convert data from \"string\" to \"number\" : "454" is not a string');
 
@@ -148,15 +140,15 @@ QUnit.test('creme.utils.converters (string-number)', function(assert) {
 QUnit.test('creme.utils.converters (string-float)', function(assert) {
     equal(true, Object.isFunc(creme.utils.converter('string', 'float')));
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         creme.utils.convert('string', 'float', 'nan');
     }, Error, 'Error: unable to convert data from \"string\" to \"float\" : "nan" is not a number');
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         creme.utils.convert('string', 'float', '');
     }, Error, 'Error: unable to convert data from \"string\" to \"float\" : "" is not a number');
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         creme.utils.convert('string', 'float', 454);
     }, Error, 'Error: unable to convert data from \"string\" to \"float\" : "454" is not a string');
 
@@ -167,15 +159,15 @@ QUnit.test('creme.utils.converters (string-float)', function(assert) {
 QUnit.test('creme.utils.converters (string-int)', function(assert) {
     equal(true, Object.isFunc(creme.utils.converter('string', 'int')));
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         creme.utils.convert('string', 'int', 'nan');
     }, Error, 'Error: unable to convert data from \"string\" to \"int\" : "nan" is not a number');
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         creme.utils.convert('string', 'int', '');
     }, Error, 'Error: unable to convert data from \"string\" to \"int\" : "" is not a number');
 
-    assertRaises(function() {
+    this.assertRaises(function() {
         creme.utils.convert('string', 'int', 454);
     }, Error, 'Error: unable to convert data from \"string\" to \"int\" : "454" is not a string');
 
@@ -183,3 +175,4 @@ QUnit.test('creme.utils.converters (string-int)', function(assert) {
     equal(15, creme.utils.convert('string', 'int', '15ab'));
 });
 
+}(jQuery));

@@ -2,6 +2,20 @@
     "use strict";
 
     window.QUnitWidgetMixin = {
+        createDynamicInputTag: function(value, noauto) {
+            var select = $('<input type="text" widget="ui-creme-dinput" class="ui-creme-dinput ui-creme-widget"/>');
+
+            if (value !== undefined) {
+                select.attr('value', value);
+            }
+
+            if (!noauto) {
+                select.addClass('widget-auto');
+            }
+
+            return select;
+        },
+
         createDynamicSelectTag: function(url, noauto) {
             var select = $('<select widget="ui-creme-dselect" class="ui-creme-dselect ui-creme-widget"/>');
 
