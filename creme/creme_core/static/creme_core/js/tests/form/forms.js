@@ -1,3 +1,5 @@
+(function($) {
+
 QUnit.module("creme.forms.js", new QUnitMixin(QUnitEventMixin, {
     beforeEach: function() {
         var self = this;
@@ -355,3 +357,5 @@ QUnit.test('creme.forms.validateHtml5Form (errors + options.noValidate)', functi
 
     deepEqual({}, this.mockListenerJQueryCalls());
 });
+
+}(jQuery));

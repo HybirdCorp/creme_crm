@@ -1,40 +1,30 @@
-QUnit.module("creme.component.EventHandler.js", {
-  setup: function() {
-      this.resetMockCalls();
-  },
+(function($) {
 
-  teardown: function() {},
+QUnit.module("creme.component.EventHandler.js", new QUnitMixin(QUnitEventMixin, {
+    mockRawListener: function(name) {
+        var self = this;
 
-  resetMockCalls: function() {
-      this._eventListenerCalls = [];
-  },
+        return (function(name) {
+            return function() {
+                var calls = self._eventListenerCalls;
+                var listenerCalls = calls[name] || [];
 
-  mockListener: function(name) {
-      var self = this;
-      return (function(name) {return function() {
-          self._eventListenerCalls.push([name, this].concat(Array.copy(arguments)));
-      }})(name);
-  },
+                listenerCalls.push([this].concat(Array.copy(arguments)));
+                calls[name] = listenerCalls;
+            };
+        }(name));
+    },
 
-  assertRaises: function(block, expected, message) {
-      QUnit.assert.raises(block,
-             function(error) {
-                  ok(error instanceof expected, 'error is ' + expected);
-                  equal(message, '' + error);
-                  return true;
-             });
-  }
-});
-
-function assertListenerUUIDs(listeners, expected) {
-    var uuid_getter = function(l) {return l.__eventuuid__;};
-    deepEqual(listeners.map(uuid_getter), expected.map(uuid_getter));
-}
+    assertListenerUUIDs: function(listeners, expected) {
+        var uuid_getter = function(l) { return l.__eventuuid__; };
+        deepEqual(listeners.map(uuid_getter), expected.map(uuid_getter));
+    }
+}));
 
 QUnit.test('creme.component.EventHandler.bind (single key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('listener1'),
+        listener2 = this.mockRawListener('listener2');
 
     deepEqual({}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
@@ -42,35 +32,40 @@ QUnit.test('creme.component.EventHandler.bind (single key, single listener)', fu
 
     handler.bind('event1', listener);
 
-    deepEqual({'event1':[listener]}, handler._listeners);
+    deepEqual({'event1': [listener]}, handler._listeners);
     deepEqual([listener], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 
     handler.bind('event2', listener);
 
-    deepEqual({'event1':[listener], 'event2':[listener]}, handler._listeners);
+    deepEqual({'event1': [listener], 'event2': [listener]}, handler._listeners);
     deepEqual([listener], handler.listeners('event1'));
     deepEqual([listener], handler.listeners('event2'));
 
     handler.bind('event1', listener2);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener], handler.listeners('event2'));
 
     handler.trigger('event1', 'a');
-    deepEqual([['1', handler, 'event1', 'a'], ['2', handler, 'event1', 'a']], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[handler, 'event1', 'a']],
+        'listener2': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     handler.trigger('event2', 'b');
-    deepEqual([['1', handler, 'event2', 'b']], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[handler, 'event2', 'b']]
+    }, this.mockListenerCalls(), 'calls');
 });
 
 QUnit.test('creme.component.EventHandler.bind (single key, multiple listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('listener1'),
+        listener2 = this.mockRawListener('listener2');
 
     deepEqual({}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
@@ -78,18 +73,21 @@ QUnit.test('creme.component.EventHandler.bind (single key, multiple listener)', 
 
     handler.bind('event1', [listener, listener2]);
 
-    deepEqual({'event1':[listener, listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 
     handler.trigger('event1', 'a');
-    deepEqual([['1', handler, 'event1', 'a'], ['2', handler, 'event1', 'a']], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[handler, 'event1', 'a']],
+        'listener2': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 });
 
 QUnit.test('creme.component.EventHandler.bind (multiple key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('listener1'),
+        listener2 = this.mockRawListener('listener2');
 
     deepEqual({}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
@@ -98,39 +96,49 @@ QUnit.test('creme.component.EventHandler.bind (multiple key, single listener)', 
 
     handler.bind(['event1', 'event2'], listener);
 
-    deepEqual({'event1':[listener], 'event2':[listener]}, handler._listeners);
+    deepEqual({'event1': [listener], 'event2': [listener]}, handler._listeners);
     deepEqual([listener], handler.listeners('event1'));
     deepEqual([listener], handler.listeners('event2'));
     deepEqual([], handler.listeners('event3'));
 
     handler.bind(['event1', 'event2', 'event3'], listener2);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener, listener2], 'event3':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener, listener2], 'event3': [listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener, listener2], handler.listeners('event2'));
     deepEqual([listener2], handler.listeners('event3'));
 
     handler.trigger('event1', 'a');
-    deepEqual([['1', handler, 'event1', 'a'], ['2', handler, 'event1', 'a']], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[handler, 'event1', 'a']],
+        'listener2': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     handler.trigger('event2', 'b');
-    deepEqual([['1', handler, 'event2', 'b'], ['2', handler, 'event2', 'b']], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[handler, 'event2', 'b']],
+        'listener2': [[handler, 'event2', 'b']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     handler.trigger('event3', 'd');
-    deepEqual([['2', handler, 'event3', 'd']], this._eventListenerCalls);
+    deepEqual({
+        'listener2': [[handler, 'event3', 'd']]
+    }, this.mockListenerCalls(), 'calls');
 
     handler.trigger('event3', 'd');
-    deepEqual([['2', handler, 'event3', 'd'], ['2', handler, 'event3', 'd']], this._eventListenerCalls);
+    deepEqual({
+        'listener2': [[handler, 'event3', 'd'], [handler, 'event3', 'd']]
+    }, this.mockListenerCalls(), 'calls');
 });
 
 QUnit.test('creme.component.EventHandler.bind (multiple key, multiple listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('1'),
+        listener2 = this.mockRawListener('2');
 
     deepEqual({}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
@@ -139,16 +147,16 @@ QUnit.test('creme.component.EventHandler.bind (multiple key, multiple listener)'
 
     handler.bind(['event1', 'event2'], [listener, listener2]);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener, listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener, listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener, listener2], handler.listeners('event2'));
     deepEqual([], handler.listeners('event3'));
 
     handler.bind(['event1', 'event2', 'event3'], [listener, listener2]);
 
-    deepEqual({'event1':[listener, listener2, listener, listener2], 
-               'event2':[listener, listener2, listener, listener2],
-               'event3':[listener, listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2, listener, listener2],
+               'event2': [listener, listener2, listener, listener2],
+               'event3': [listener, listener2]}, handler._listeners);
     deepEqual([listener, listener2, listener, listener2], handler.listeners('event1'));
     deepEqual([listener, listener2, listener, listener2], handler.listeners('event2'));
     deepEqual([listener, listener2], handler.listeners('event3'));
@@ -156,8 +164,8 @@ QUnit.test('creme.component.EventHandler.bind (multiple key, multiple listener)'
 
 QUnit.test('creme.component.EventHandler.bind (split key, multiple listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('1'),
+        listener2 = this.mockRawListener('2');
 
     deepEqual({}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
@@ -166,16 +174,16 @@ QUnit.test('creme.component.EventHandler.bind (split key, multiple listener)', f
 
     handler.bind('event1 event2', [listener, listener2]);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener, listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener, listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener, listener2], handler.listeners('event2'));
     deepEqual([], handler.listeners('event3'));
 
     handler.bind('event1 event2 event3', [listener, listener2]);
 
-    deepEqual({'event1':[listener, listener2, listener, listener2], 
-               'event2':[listener, listener2, listener, listener2],
-               'event3':[listener, listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2, listener, listener2],
+               'event2': [listener, listener2, listener, listener2],
+               'event3': [listener, listener2]}, handler._listeners);
     deepEqual([listener, listener2, listener, listener2], handler.listeners('event1'));
     deepEqual([listener, listener2, listener, listener2], handler.listeners('event2'));
     deepEqual([listener, listener2], handler.listeners('event3'));
@@ -183,11 +191,11 @@ QUnit.test('creme.component.EventHandler.bind (split key, multiple listener)', f
 
 QUnit.test('creme.component.EventHandler.bind (decorator)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('listener1'),
+        listener2 = this.mockRawListener('listener2');
     var decorator = function(key, listener, args) {
         return listener.apply(this, args.concat(['decorated']));
-    }
+    };
 
     deepEqual({}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
@@ -198,23 +206,30 @@ QUnit.test('creme.component.EventHandler.bind (decorator)', function(assert) {
     handler.bind(['event1', 'event3'], listener2, decorator);
 
     handler.trigger('event1');
-    deepEqual([['1', handler, 'event1'], ['2', handler, 'event1', 'decorated']], this._eventListenerCalls);
-    
-    this.resetMockCalls();
-    handler.trigger('event2', 12);
-    deepEqual([['1', handler, 'event2', 12]], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[handler, 'event1']],
+        'listener2': [[handler, 'event1', 'decorated']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
+    handler.trigger('event2', 12);
+    deepEqual({
+        'listener1': [[handler, 'event2', 12]]
+    }, this.mockListenerCalls(), 'calls');
+
+    this.resetMockListenerCalls();
     handler.trigger('event3', 38);
-    deepEqual([['2', handler, 'event3', 38, 'decorated']], this._eventListenerCalls);
+    deepEqual({
+        'listener2': [[handler, 'event3', 38, 'decorated']]
+    }, this.mockListenerCalls(), 'calls');
 });
 
 QUnit.test('creme.component.EventHandler.bind (object)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listeners = {
-            event1: this.mockListener('1'),
-            event2: [this.mockListener('2'), this.mockListener('3')]
-        }
+            event1: this.mockRawListener('listener1'),
+            event2: [this.mockRawListener('listener2'), this.mockRawListener('listener3')]
+        };
 
     deepEqual({}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
@@ -222,30 +237,35 @@ QUnit.test('creme.component.EventHandler.bind (object)', function(assert) {
 
     handler.bind(listeners);
 
-    deepEqual({'event1':[listeners.event1], 
-               'event2':[listeners.event2[0], listeners.event2[1]]}, handler._listeners);
+    deepEqual({'event1': [listeners.event1],
+               'event2': [listeners.event2[0], listeners.event2[1]]}, handler._listeners);
 
     handler.trigger('event1');
-    deepEqual([['1', handler, 'event1']], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[handler, 'event1']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event2');
-    deepEqual([['2', handler, 'event2'], ['3', handler, 'event2']], this._eventListenerCalls);
+    deepEqual({
+        'listener2': [[handler, 'event2']],
+        'listener3': [[handler, 'event2']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event3');
-    deepEqual([], this._eventListenerCalls);
+    deepEqual({}, this.mockListenerCalls());
 });
 
 QUnit.test('creme.component.EventHandler.bind (object array)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listeners1 = {
-            event1: this.mockListener('1'),
-            event2: [this.mockListener('2'), this.mockListener('3')]
+            event1: this.mockRawListener('listener1'),
+            event2: [this.mockRawListener('listener2'), this.mockRawListener('listener3')]
         },
         listeners2 = {
-            event1: this.mockListener('2.1'),
-            event3: [this.mockListener('2.2'), this.mockListener('2.3')]
+            event1: this.mockRawListener('listener2.1'),
+            event3: [this.mockRawListener('listener2.2'), this.mockRawListener('listener2.3')]
         };
 
     deepEqual({}, handler._listeners);
@@ -255,20 +275,29 @@ QUnit.test('creme.component.EventHandler.bind (object array)', function(assert) 
 
     handler.bind([listeners1, listeners2]);
 
-    deepEqual({'event1':[listeners1.event1, listeners2.event1], 
-               'event2':[listeners1.event2[0], listeners1.event2[1]],
-               'event3':[listeners2.event3[0], listeners2.event3[1]]}, handler._listeners);
+    deepEqual({'event1': [listeners1.event1, listeners2.event1],
+               'event2': [listeners1.event2[0], listeners1.event2[1]],
+               'event3': [listeners2.event3[0], listeners2.event3[1]]}, handler._listeners);
 
     handler.trigger('event1');
-    deepEqual([['1', handler, 'event1'], ['2.1', handler, 'event1']], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[handler, 'event1']],
+        'listener2.1': [[handler, 'event1']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event2');
-    deepEqual([['2', handler, 'event2'], ['3', handler, 'event2']], this._eventListenerCalls);
+    deepEqual({
+        'listener2': [[handler, 'event2']],
+        'listener3': [[handler, 'event2']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event3');
-    deepEqual([['2.2', handler, 'event3'], ['2.3', handler, 'event3']], this._eventListenerCalls);
+    deepEqual({
+        'listener2.2': [[handler, 'event3']],
+        'listener2.3': [[handler, 'event3']]
+    }, this.mockListenerCalls(), 'calls');
 });
 
 QUnit.test('creme.component.EventHandler.bind (errors)', function(assert) {
@@ -292,168 +321,179 @@ QUnit.test('creme.component.EventHandler.bind (errors)', function(assert) {
 
 QUnit.test('creme.component.EventHandler.on/off (bind/unbind aliases)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1');
+    var listener = this.mockRawListener('listener1');
 
     handler.on('event1', listener);
 
     handler.trigger('event1');
-    deepEqual([['1', handler, 'event1']], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[handler, 'event1']]
+    }, this.mockListenerCalls(), 'calls');
 
     handler.off('event1', listener);
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event1');
 
-    deepEqual([], this._eventListenerCalls);
+    deepEqual({}, this.mockListenerCalls());
 });
 
 QUnit.test('creme.component.EventHandler.trigger', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('listener1'),
+        listener2 = this.mockRawListener('listener2');
 
     handler.bind('event1', listener);
     handler.bind(['event1', 'event2'], listener2);
 
     handler.trigger('event1');
-    deepEqual([['1', handler, 'event1'], ['2', handler, 'event1']], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[handler, 'event1']],
+        'listener2': [[handler, 'event1']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event1', [], this);
-    deepEqual([['1', this, 'event1'], ['2', this, 'event1']], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[this, 'event1']],
+        'listener2': [[this, 'event1']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event1', ['a', 12], this);
-    deepEqual([['1', this, 'event1', 'a', 12], ['2', this, 'event1', 'a', 12]], this._eventListenerCalls);
+    deepEqual({
+        'listener1': [[this, 'event1', 'a', 12]],
+        'listener2': [[this, 'event1', 'a', 12]]
+    }, this.mockListenerCalls(), 'calls');
 });
 
 QUnit.test('creme.component.EventHandler.unbind (single key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('1'),
+        listener2 = this.mockRawListener('2');
 
     handler.bind('event1', listener);
     handler.bind(['event1', 'event2'], listener2);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind('event2', listener); // not bound, do nothing
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind('event1', listener);
 
-    deepEqual({'event1':[listener2], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener2], 'event2': [listener2]}, handler._listeners);
     deepEqual([listener2], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind('event1', listener);
 
-    deepEqual({'event1':[listener2], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener2], 'event2': [listener2]}, handler._listeners);
     deepEqual([listener2], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 });
 
 QUnit.test('creme.component.EventHandler.unbind (single key, multiple listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('1'),
+        listener2 = this.mockRawListener('2');
 
     handler.bind('event1', listener);
     handler.bind(['event1', 'event2'], listener2);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind('event1', [listener, listener2]);
 
-    deepEqual({'event1':[], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': [listener2]}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind('event1', [listener, listener2]);
 
-    deepEqual({'event1':[], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': [listener2]}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 });
 
 QUnit.test('creme.component.EventHandler.unbind (multiple key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('1'),
+        listener2 = this.mockRawListener('2');
 
     handler.bind('event1', listener);
     handler.bind(['event1', 'event2'], listener2);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind(['event1', 'event2'], [listener2]);
 
-    deepEqual({'event1':[listener], 'event2':[]}, handler._listeners);
+    deepEqual({'event1': [listener], 'event2': []}, handler._listeners);
     deepEqual([listener], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 
     handler.unbind(['event1', 'event2'], [listener2]);
 
-    deepEqual({'event1':[listener], 'event2':[]}, handler._listeners);
+    deepEqual({'event1': [listener], 'event2': []}, handler._listeners);
     deepEqual([listener], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 });
 
 QUnit.test('creme.component.EventHandler.unbind (multiple key, multiple listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('1'),
+        listener2 = this.mockRawListener('2');
 
     handler.bind('event1', listener);
     handler.bind(['event1', 'event2'], listener2);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind(['event1', 'event2'], [listener, listener2]);
 
-    deepEqual({'event1':[], 'event2':[]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': []}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 
     handler.unbind(['event1', 'event2'], [listener, listener2]);
 
-    deepEqual({'event1':[], 'event2':[]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': []}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 });
 
 QUnit.test('creme.component.EventHandler.unbind (single key, all listeners)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('1'),
+        listener2 = this.mockRawListener('2');
 
     handler.bind('event1', listener);
     handler.bind(['event1', 'event2'], listener2);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind('event1');
 
-    deepEqual({'event1':[], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': [listener2]}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind('event1');
 
-    deepEqual({'event1':[], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': [listener2]}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 });
@@ -461,50 +501,50 @@ QUnit.test('creme.component.EventHandler.unbind (single key, all listeners)', fu
 
 QUnit.test('creme.component.EventHandler.unbind (multiple key, all listeners)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('1'),
+        listener2 = this.mockRawListener('2');
 
     handler.bind('event1', listener);
     handler.bind(['event1', 'event2'], listener2);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind(['event1', 'event2']);
 
-    deepEqual({'event1':[], 'event2':[]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': []}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 
     handler.unbind(['event1', 'event2']);
 
-    deepEqual({'event1':[], 'event2':[]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': []}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 });
 
 QUnit.test('creme.component.EventHandler.unbind (split key, all listeners)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('1'),
+        listener2 = this.mockRawListener('2');
 
     handler.bind('event1', listener);
     handler.bind(['event1', 'event2'], listener2);
 
-    deepEqual({'event1':[listener, listener2], 'event2':[listener2]}, handler._listeners);
+    deepEqual({'event1': [listener, listener2], 'event2': [listener2]}, handler._listeners);
     deepEqual([listener, listener2], handler.listeners('event1'));
     deepEqual([listener2], handler.listeners('event2'));
 
     handler.unbind(['event1 event2']);
 
-    deepEqual({'event1':[], 'event2':[]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': []}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 
     handler.unbind(['event1 event2']);
 
-    deepEqual({'event1':[], 'event2':[]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': []}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 });
@@ -512,24 +552,24 @@ QUnit.test('creme.component.EventHandler.unbind (split key, all listeners)', fun
 QUnit.test('creme.component.EventHandler.unbind (dict)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listeners = {
-            event1: this.mockListener('1'),
-            event2: [this.mockListener('2'), this.mockListener('3')]
-        }
+            event1: this.mockRawListener('1'),
+            event2: [this.mockRawListener('2'), this.mockRawListener('3')]
+        };
 
     handler.bind(listeners);
 
-    deepEqual({'event1':[listeners.event1], 
-               'event2':[listeners.event2[0], listeners.event2[1]]}, handler._listeners);
+    deepEqual({'event1': [listeners.event1],
+               'event2': [listeners.event2[0], listeners.event2[1]]}, handler._listeners);
 
     handler.unbind(listeners);
 
-    deepEqual({'event1':[], 'event2':[]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': []}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 
     handler.unbind(listeners);
 
-    deepEqual({'event1':[], 'event2':[]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': []}, handler._listeners);
     deepEqual([], handler.listeners('event1'));
     deepEqual([], handler.listeners('event2'));
 });
@@ -537,27 +577,27 @@ QUnit.test('creme.component.EventHandler.unbind (dict)', function(assert) {
 QUnit.test('creme.component.EventHandler.unbind (dict array)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listeners1 = {
-            event1: this.mockListener('1'),
-            event2: [this.mockListener('2'), this.mockListener('3')]
+            event1: this.mockRawListener('1'),
+            event2: [this.mockRawListener('2'), this.mockRawListener('3')]
         },
         listeners2 = {
-            event1: this.mockListener('2.1'),
-            event3: [this.mockListener('2.2'), this.mockListener('2.3')]
+            event1: this.mockRawListener('2.1'),
+            event3: [this.mockRawListener('2.2'), this.mockRawListener('2.3')]
         };
 
     handler.bind([listeners1, listeners2]);
 
-    deepEqual({'event1':[listeners1.event1, listeners2.event1], 
-               'event2':[listeners1.event2[0], listeners1.event2[1]],
-               'event3':[listeners2.event3[0], listeners2.event3[1]]}, handler._listeners);
+    deepEqual({'event1': [listeners1.event1, listeners2.event1],
+               'event2': [listeners1.event2[0], listeners1.event2[1]],
+               'event3': [listeners2.event3[0], listeners2.event3[1]]}, handler._listeners);
 
     handler.unbind([listeners1, listeners2]);
 
-    deepEqual({'event1':[], 'event2':[], 'event3':[]}, handler._listeners);
+    deepEqual({'event1': [], 'event2': [], 'event3': []}, handler._listeners);
 
     handler.unbind([listeners1, listeners2]);
 
-    deepEqual({'event1':[], 'event2':[], 'event3': []}, handler._listeners);
+    deepEqual({'event1': [], 'event2': [], 'event3': []}, handler._listeners);
 });
 
 QUnit.test('creme.component.EventHandler.error', function(assert) {
@@ -629,185 +669,222 @@ QUnit.test('creme.component.EventHandler.error (not a function)', function(asser
 
 QUnit.test('creme.component.EventHandler.one (single key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('listener1'),
+        listener2 = this.mockRawListener('listener2');
 
     handler.one('event1', listener);
     handler.bind('event1', listener2);
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener, listener2]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener, listener2]);
 
-    deepEqual([], this._eventListenerCalls);
+    deepEqual({}, this.mockListenerCalls());
 
     handler.trigger('event1', 'a');
-    deepEqual([['1', handler, 'event1', 'a'], ['2', handler, 'event1', 'a']], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener1': [[handler, 'event1', 'a']],
+        'listener2': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener2]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener2]);
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event1', 'a');
-    deepEqual([['2', handler, 'event1', 'a']], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener2': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener2]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener2]);
 });
 
 QUnit.test('creme.component.EventHandler.one (single key, multiple listeners)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2'),
-        listener3 = this.mockListener('3');
+    var listener = this.mockRawListener('listener1'),
+        listener2 = this.mockRawListener('listener2'),
+        listener3 = this.mockRawListener('listener3');
 
     handler.one('event1', [listener, listener2]);
     handler.bind('event1', listener3);
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener, listener2, listener3]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener, listener2, listener3]);
 
-    deepEqual([], this._eventListenerCalls);
+    deepEqual({}, this.mockListenerCalls());
 
     handler.trigger('event1', 'a');
-    deepEqual([['1', handler, 'event1', 'a'], ['2', handler, 'event1', 'a'], ['3', handler, 'event1', 'a']], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener1': [[handler, 'event1', 'a']],
+        'listener2': [[handler, 'event1', 'a']],
+        'listener3': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener3]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener3]);
 });
 
 QUnit.test('creme.component.EventHandler.one (multiple key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('listener1'),
+        listener2 = this.mockRawListener('listener2');
 
     handler.one(['event1', 'event2'], listener);
     handler.bind(['event1', 'event2'], listener2);
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener, listener2]);
-    assertListenerUUIDs(handler.listeners('event2'), [listener, listener2]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener, listener2]);
+    this.assertListenerUUIDs(handler.listeners('event2'), [listener, listener2]);
 
-    deepEqual([], this._eventListenerCalls);
+    deepEqual({}, this.mockListenerCalls());
 
     handler.trigger('event1', 'a');
-    deepEqual([['1', handler, 'event1', 'a'], ['2', handler, 'event1', 'a']], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener1': [[handler, 'event1', 'a']],
+        'listener2': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener2]);
-    assertListenerUUIDs(handler.listeners('event2'), [listener, listener2]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener2]);
+    this.assertListenerUUIDs(handler.listeners('event2'), [listener, listener2]);
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event1', 'a');
-    deepEqual([['2', handler, 'event1', 'a']], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener2': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener2]);
-    assertListenerUUIDs(handler.listeners('event2'), [listener, listener2]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener2]);
+    this.assertListenerUUIDs(handler.listeners('event2'), [listener, listener2]);
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event2', 12);
-    deepEqual([['1', handler, 'event2', 12], ['2', handler, 'event2', 12]], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener1': [[handler, 'event2', 12]],
+        'listener2': [[handler, 'event2', 12]]
+    }, this.mockListenerCalls(), 'calls');
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener2]);
-    assertListenerUUIDs(handler.listeners('event2'), [listener2]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener2]);
+    this.assertListenerUUIDs(handler.listeners('event2'), [listener2]);
 });
 
 QUnit.test('creme.component.EventHandler.one (multiple key, multiple listeners)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2'),
-        listener3 = this.mockListener('3');
+    var listener = this.mockRawListener('listener1'),
+        listener2 = this.mockRawListener('listener2'),
+        listener3 = this.mockRawListener('listener3');
 
     handler.one(['event1', 'event2'], [listener, listener2]);
     handler.bind(['event1', 'event2'], listener3);
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener, listener2, listener3]);
-    assertListenerUUIDs(handler.listeners('event2'), [listener, listener2, listener3]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener, listener2, listener3]);
+    this.assertListenerUUIDs(handler.listeners('event2'), [listener, listener2, listener3]);
 
-    deepEqual([], this._eventListenerCalls);
+    deepEqual({}, this.mockListenerCalls());
 
     handler.trigger('event1', 'a');
-    deepEqual([['1', handler, 'event1', 'a'], ['2', handler, 'event1', 'a'], ['3', handler, 'event1', 'a']], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener1': [[handler, 'event1', 'a']],
+        'listener2': [[handler, 'event1', 'a']],
+        'listener3': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener3]);
-    assertListenerUUIDs(handler.listeners('event2'), [listener, listener2, listener3]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener3]);
+    this.assertListenerUUIDs(handler.listeners('event2'), [listener, listener2, listener3]);
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event1', 'a');
-    deepEqual([['3', handler, 'event1', 'a']], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener3': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener3]);
-    assertListenerUUIDs(handler.listeners('event2'), [listener, listener2, listener3]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener3]);
+    this.assertListenerUUIDs(handler.listeners('event2'), [listener, listener2, listener3]);
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event2', 12);
-    deepEqual([['1', handler, 'event2', 12], ['2', handler, 'event2', 12], ['3', handler, 'event2', 12]], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener1': [[handler, 'event2', 12]],
+        'listener2': [[handler, 'event2', 12]],
+        'listener3': [[handler, 'event2', 12]]
+    }, this.mockListenerCalls(), 'calls');
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener3]);
-    assertListenerUUIDs(handler.listeners('event2'), [listener3]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener3]);
+    this.assertListenerUUIDs(handler.listeners('event2'), [listener3]);
 });
 
 QUnit.test('creme.component.EventHandler.one ()', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1'),
-        listener2 = this.mockListener('2');
+    var listener = this.mockRawListener('listener1'),
+        listener2 = this.mockRawListener('listener2');
 
     handler.one('event1', listener);
     handler.bind('event1', listener2);
     handler.one('event2', listener);
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener, listener2]);
-    assertListenerUUIDs(handler.listeners('event2'), [listener]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener, listener2]);
+    this.assertListenerUUIDs(handler.listeners('event2'), [listener]);
 
-    deepEqual([], this._eventListenerCalls);
+    deepEqual({}, this.mockListenerCalls());
 
     handler.trigger('event1', 'a');
-    deepEqual([['1', handler, 'event1', 'a'], ['2', handler, 'event1', 'a']], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener1': [[handler, 'event1', 'a']],
+        'listener2': [[handler, 'event1', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener2]);
-    assertListenerUUIDs(handler.listeners('event2'), [listener]);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener2]);
+    this.assertListenerUUIDs(handler.listeners('event2'), [listener]);
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event2', 12);
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener2]);
-    assertListenerUUIDs(handler.listeners('event2'), []);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener2]);
+    this.assertListenerUUIDs(handler.listeners('event2'), []);
 
-    deepEqual([['1', handler, 'event2', 12]], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener1': [[handler, 'event2', 12]]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event2', 12);
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener2]);
-    assertListenerUUIDs(handler.listeners('event2'), []);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener2]);
+    this.assertListenerUUIDs(handler.listeners('event2'), []);
 
-    deepEqual([], this._eventListenerCalls, 'calls');
-    
-    this.resetMockCalls();
+    deepEqual({}, this.mockListenerCalls(), 'calls');
+
+    this.resetMockListenerCalls();
     handler.trigger('event1', 12);
 
-    assertListenerUUIDs(handler.listeners('event1'), [listener2]);
-    assertListenerUUIDs(handler.listeners('event2'), []);
+    this.assertListenerUUIDs(handler.listeners('event1'), [listener2]);
+    this.assertListenerUUIDs(handler.listeners('event2'), []);
 
-    deepEqual([['2', handler, 'event1', 12]], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener2': [[handler, 'event1', 12]]
+    }, this.mockListenerCalls(), 'calls');
 });
 
 QUnit.test('creme.component.EventHandler.one (decorator)', function(assert) {
     var handler = new creme.component.EventHandler();
-    var listener = this.mockListener('1');
+    var listener = this.mockRawListener('listener1');
     var decorator_listeners = {
-         'event1-pre': this.mockListener('1a'),
-         'event1-post': this.mockListener('1b')
+         'event1-pre': this.mockRawListener('listener1a'),
+         'event1-post': this.mockRawListener('listener1b')
     };
 
     var decorator = function(key, listener, args) {
         handler.trigger(key + '-pre', Array.copy(args, 1));
         listener.apply(this, args);
         handler.trigger(key + '-post', Array.copy(args, 1));
-    }
+    };
 
     handler.on(decorator_listeners);
     handler.one('event1', listener, decorator);
     handler.trigger('event1', 'a');
 
-    deepEqual([['1a', handler, 'event1-pre', 'a'],
-               ['1', handler, 'event1', 'a'],
-               ['1b', handler, 'event1-post', 'a']], this._eventListenerCalls, 'calls');
+    deepEqual({
+        'listener1a': [[handler, 'event1-pre', 'a']],
+        'listener1': [[handler, 'event1', 'a']],
+        'listener1b': [[handler, 'event1-post', 'a']]
+    }, this.mockListenerCalls(), 'calls');
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
     handler.trigger('event1', 'a');
 
-    deepEqual([], this._eventListenerCalls, 'calls');
+    deepEqual({}, this.mockListenerCalls(), 'calls');
 });
+}(jQuery));

@@ -1,38 +1,11 @@
 (function($) {
 "use strict";
 
-var MockActionBuilderRegistry = creme.action.ActionBuilderRegistry.sub({
-    _init_: function(context, options) {
-        this._super_(creme.action.ActionBuilderRegistry, '_init_', options);
-        this.context = context;
-    },
 
-    _build_a: function(options) {
-        return this.context.mockActionA;
-    },
-    _build_b: function(options) {
-        return this.context.mockActionB;
-    },
-    _build_do_it: function(options) {
-        return this.context.mockActionDoIt;
-    },
-    _build_raises: function(options) {
-        return this.context.mockActionRaises;
-    },
-    _build_slow: function(options) {
-        return this.context.mockActionSlow;
-    },
-    _build_none: function(options) {
-        return null;
-    }
-});
-
-QUnit.module("creme.actionlink.js", {
-    setup: function() {
-        this.resetMockCalls();
+QUnit.module("creme.actionlink.js", new QUnitMixin(QUnitEventMixin, {
+    beforeEach: function() {
         this.resetMockActionCalls();
 
-        var actionCalls = this._mockActionCalls;
         var self = this;
 
         this.mockActionA = new creme.component.Action(function(options) {
@@ -95,10 +68,6 @@ QUnit.module("creme.actionlink.js", {
         this._mockActionCalls.push(Array.copy(arguments));
     },
 
-    resetMockCalls: function() {
-        this._eventListenerCalls = {};
-    },
-
     mapLinkStartEventType: function(d) {
         var uievent = d.length > 4 ? d[4] : undefined;
         var data = d.slice(0, 4);
@@ -108,31 +77,8 @@ QUnit.module("creme.actionlink.js", {
         }
 
         return data;
-    },
-
-    mockListenerCalls: function(name) {
-        if (this._eventListenerCalls[name] === undefined)
-            this._eventListenerCalls[name] = [];
-
-        return this._eventListenerCalls[name];
-    },
-
-    mockListener: function(name) {
-        var self = this;
-        return (function(name) {return function() {
-            self.mockListenerCalls(name).push(Array.copy(arguments));
-        }})(name);
-    },
-
-    assertRaises: function(block, expected, message) {
-        QUnit.assert.raises(block,
-               function(error) {
-                    ok(error instanceof expected, 'error is ' + expected);
-                    equal(message, '' + error, 'error message');
-                    return true;
-               });
     }
-});
+}));
 
 QUnit.test('creme.action.ActionBuilderRegistry (empty)', function(assert) {
     var registry = new creme.action.ActionBuilderRegistry();
@@ -207,7 +153,7 @@ QUnit.test('creme.action.ActionBuilderRegistry.fallback (null)', function(assert
 
     registry._build_a = function(key) {
         return test.mockActionA;
-    }
+    };
 
     deepEqual([], registry.actions());
     deepEqual([], registry.fallbackActions());
@@ -259,8 +205,8 @@ QUnit.test('creme.action.ActionBuilderRegistry.fallback (function)', function(as
     var fallback = function(key) {
         return function() {
             return test.mockActionDoIt;
-        }
-    }
+        };
+    };
 
     deepEqual([], registry.actions());
     deepEqual([], registry.fallbackActions());
@@ -310,7 +256,6 @@ QUnit.test('creme.action.ActionBuilderRegistry.register', function(assert) {
 });
 
 QUnit.test('creme.action.ActionBuilderRegistry.register (not a function)', function(assert) {
-    var test = this;
     var registry = new creme.action.ActionBuilderRegistry();
 
     this.assertRaises(function() {
@@ -465,9 +410,8 @@ QUnit.test('creme.action.ActionBuilderRegistry.unregister', function(assert) {
 QUnit.test('creme.action.ActionBuilderRegistry.unregister (not registered)', function(assert) {
     var registry = new creme.action.ActionBuilderRegistry();
 
-    self.assertRaises(function() {
+    this.assertRaises(function() {
         registry.unregister('action-A');
     }, Error, 'Error: action builder "action-A" is not registered');
 });
-
 }(jQuery));

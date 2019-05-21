@@ -1,32 +1,36 @@
-QUnit.module("creme.fallbacks.js", {
-    setup: function() {
-    },
+/* globals notEqual, notDeepEqual */
 
-    teardown: function() {
-    }
-});
+(function($) {
 
-MockObjectA = function(b) {
+var MockObjectA = function(b) {
     this.b = b;
-}
+};
 
 MockObjectA.prototype = {
-    'add': function(a) {return a + this.b;},
-    'mult': function(a) {return a * this.b;}
-}
+    add: function(a) {
+        return a + this.b;
+    },
+    mult: function(a) {
+        return a * this.b;
+    }
+};
 MockObjectA.prototype.constructor = MockObjectA;
 
-MockObjectB = function(b, c) {
+var MockObjectB = function(b, c) {
     this.b = b;
     this.c = c;
-}
+};
 
 MockObjectB.prototype = new MockObjectA();
 MockObjectB.prototype.constructor = MockObjectB;
 
 $.extend(MockObjectB.prototype, {
-    'add': function(a) {return (a + this.b) * this.c;}
+    add: function(a) {
+        return (a + this.b) * this.c;
+    }
 });
+
+QUnit.module("creme.fallbacks.js", new QUnitMixin());
 
 QUnit.test('fallbacks.Object.isNone', function() {
     equal(typeof Object.isNone, 'function');
@@ -50,7 +54,7 @@ QUnit.test('fallbacks.Object.isEmpty', function() {
 
     equal(Object.isEmpty(0), false);
     equal(Object.isEmpty(15), false);
-    equal(Object.isEmpty({a:12}), false);
+    equal(Object.isEmpty({a: 12}), false);
     equal(Object.isEmpty([12]), false);
     equal(Object.isEmpty('a'), false);
 });
@@ -95,7 +99,7 @@ QUnit.test('fallbacks.Object.isType (numeric)', function() {
     equal(Object.isType(12, 'object'),    false);
     equal(Object.isType(12, 'boolean'),   false);
     equal(Object.isType(12, 'string'),    false);
-    
+
     equal(Object.isType(12.55, 'undefined'), false);
     equal(Object.isType(12.55, 'null'),      false);
     equal(Object.isType(12.55, 'function'),  false);
@@ -138,8 +142,8 @@ QUnit.test('fallbacks.Object.keys', function() {
     equal({}.keys, undefined);
 
     deepEqual([], Object.keys({}));
-    deepEqual(['a', 'b'], Object.keys({a:1, b:2}));
-    deepEqual(['a', 'b', 'c', 'd', 'z'], Object.keys({a:1, b:2, c:5, d:7, z:8}));
+    deepEqual(['a', 'b'], Object.keys({a: 1, b: 2}));
+    deepEqual(['a', 'b', 'c', 'd', 'z'], Object.keys({a: 1, b: 2, c: 5, d: 7, z: 8}));
 });
 
 QUnit.test('fallbacks.Object.values', function() {
@@ -147,8 +151,8 @@ QUnit.test('fallbacks.Object.values', function() {
     equal({}.values, undefined);
 
     deepEqual([], Object.values({}));
-    deepEqual([1, 2], Object.values({a:1, b:2}));
-    deepEqual([1, 2, 5, 7, 8], Object.values({a:1, b:2, c:5, d:7, z:8}));
+    deepEqual([1, 2], Object.values({a: 1, b: 2}));
+    deepEqual([1, 2, 5, 7, 8], Object.values({a: 1, b: 2, c: 5, d: 7, z: 8}));
 });
 
 
@@ -157,8 +161,8 @@ QUnit.test('fallbacks.Object.entries', function() {
     equal({}.entries, undefined);
 
     deepEqual([], Object.entries({}));
-    deepEqual([['a', 1], ['b', 2]], Object.entries({a:1, b:2}));
-    deepEqual([['a', 1], ['b', 2], ['c', 5], ['d', 7], ['z', 8]], Object.entries({a:1, b:2, c:5, d:7, z:8}));
+    deepEqual([['a', 1], ['b', 2]], Object.entries({a: 1, b: 2}));
+    deepEqual([['a', 1], ['b', 2], ['c', 5], ['d', 7], ['z', 8]], Object.entries({a: 1, b: 2, c: 5, d: 7, z: 8}));
 });
 
 QUnit.test('fallbacks.Object.proxy (undefined)', function() {
@@ -172,8 +176,8 @@ QUnit.test('fallbacks.Object.proxy (no context)', function() {
     var a = new MockObjectA(5);
     var proxy = Object.proxy(a);
 
-    equal(a == proxy, false);
-    equal(a == proxy.__context__, true);
+    notDeepEqual(a, proxy);
+    deepEqual(a, proxy.__context__);
 
     equal(a.b, 5);
     equal(proxy.__context__.b, 5);
@@ -191,8 +195,8 @@ QUnit.test('fallbacks.Object.proxy (context)', function() {
     var a = new MockObjectA(5);
     var proxy = Object.proxy(a, {b: 12});
 
-    equal(a == proxy, false);
-    equal(a == proxy.__context__, false);
+    notDeepEqual(a, proxy);
+    notDeepEqual(a, proxy.__context__);
 
     equal(a.b, 5);
     equal(proxy.__context__.b, 12);
@@ -208,10 +212,10 @@ QUnit.test('fallbacks.Object.proxy (filter)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
-    var proxy = Object.proxy(a, undefined, {filter: function(key) {return key !== 'mult';}});
+    var proxy = Object.proxy(a, undefined, {filter: function(key) { return key !== 'mult'; }});
 
-    equal(a == proxy, false);
-    equal(a == proxy.__context__, true);
+    notDeepEqual(a, proxy);
+    deepEqual(a, proxy.__context__);
 
     equal(a.b, 5);
     equal(proxy.__context__.b, 5);
@@ -227,10 +231,10 @@ QUnit.test('fallbacks.Object.proxy (filter, context)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
-    var proxy = Object.proxy(a, {b: 12}, {filter: function(key) {return key !== 'mult';}});
+    var proxy = Object.proxy(a, {b: 12}, {filter: function(key) { return key !== 'mult'; }});
 
-    equal(a == proxy, false);
-    equal(a == proxy.__context__, false);
+    notDeepEqual(a, proxy);
+    notDeepEqual(a, proxy.__context__);
 
     equal(a.b, 5);
     equal(proxy.__context__.b, 12);
@@ -246,10 +250,10 @@ QUnit.test('fallbacks.Object.proxy (arguments)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
-    var proxy = Object.proxy(a, undefined, {arguments: function(args) {return [args[0] * 0.8];}});
+    var proxy = Object.proxy(a, undefined, {arguments: function(args) { return [args[0] * 0.8]; }});
 
-    equal(a == proxy, false);
-    equal(a == proxy.__context__, true);
+    notDeepEqual(a, proxy);
+    deepEqual(a, proxy.__context__);
 
     equal(a.add(2), 2 + 5);
     equal(proxy.add(2), (2 * 0.8) + 5);
@@ -262,9 +266,9 @@ QUnit.test('fallbacks.Object.proxy (arguments, context)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
-    var proxy = Object.proxy(a, {b: 12}, {arguments: function(args) {return [args[0] * 0.8];}});
+    var proxy = Object.proxy(a, {b: 12}, {arguments: function(args) { return [args[0] * 0.8]; }});
 
-    equal(a == proxy, false);
+    notDeepEqual(a, proxy);
 
     equal(a.add(2), 2 + 5);
     equal(proxy.add(2), (2 * 0.8) + 12);
@@ -279,11 +283,11 @@ QUnit.test('fallbacks.Object.proxy (arguments, filter)', function() {
 
     var a = new MockObjectA(5);
     var proxy = Object.proxy(a, undefined, {
-        arguments: function(args) {return [args[0] * 0.8];},
-        filter: function(key) {return key !== 'mult';}
+        arguments: function(args) { return [args[0] * 0.8]; },
+        filter: function(key) { return key !== 'mult'; }
     });
 
-    equal(a == proxy, false);
+    notDeepEqual(a, proxy);
 
     equal(a.add(2), 2 + 5);
     equal(proxy.add(2), (2 * 0.8) + 5);
@@ -297,11 +301,11 @@ QUnit.test('fallbacks.Object.proxy (arguments, filter, context)', function() {
 
     var a = new MockObjectA(5);
     var proxy = Object.proxy(a, {b: 12}, {
-        arguments: function(args) {return [args[0] * 0.8];},
-        filter: function(key) {return key !== 'mult';}
+        arguments: function(args) { return [args[0] * 0.8]; },
+        filter: function(key) { return key !== 'mult'; }
     });
 
-    equal(a == proxy, false);
+    notDeepEqual(a, proxy);
 
     equal(a.add(2), 2 + 5);
     equal(proxy.add(2), (2 * 0.8) + 12);
@@ -371,10 +375,10 @@ QUnit.test('fallbacks.Object.isString', function() {
     equal(typeof Object.isString, 'function');
 
     equal(Object.isString(''), true);
-    equal(Object.isString(new String('')), true);
+    equal(Object.isString(String('')), true);
     equal(Object.isString(false), false);
     equal(Object.isString([12, 13]), false);
-    equal(Object.isString(new Object()), false);
+    equal(Object.isString(new MockObjectA()), false);
     equal(Object.isString({}), false);
     equal(Object.isString(undefined), false);
     equal(Object.isString(null), false);
@@ -386,9 +390,9 @@ QUnit.test('fallbacks.Array.indexOf', function() {
 
     equal([12, 5, 8, 5, 44].indexOf(5), 1);
     equal([12, 5, 8, 5, 44].indexOf(5, 2), 3);
-    
+
     equal([12, 5, 8, 5, 44].indexOf(15), -1);
-    
+
     equal([12, 5, 8, 5, 44].indexOf(12), 0);
     equal([12, 5, 8, 5, 44].indexOf(12, 1), -1);
 });
@@ -403,7 +407,7 @@ QUnit.test('fallbacks.Array.slice', function() {
 
     deepEqual(original, [1, 2, 1, 4, 5, 4]);
     deepEqual(copy, [1, 2, 12, 4, 5, 4]);
-    
+
     deepEqual([1, 2, 1, 4, 5, 4].slice(3), [4, 5, 4]);
     deepEqual([1, 2, 1, 4, 5, 4].slice(1, 4), [2, 1, 4]);
 });
@@ -422,7 +426,7 @@ QUnit.test('fallbacks.Array.forEach', function() {
     equal(typeof [].forEach, 'function');
 
     var value = "";
-    ["This", "is", "a", "forEach", "test"].forEach(function(element, index, array) {value += element;});
+    ["This", "is", "a", "forEach", "test"].forEach(function(element, index, array) { value += element; });
 
     equal(value, 'ThisisaforEachtest');
 });
@@ -431,7 +435,7 @@ QUnit.test('fallbacks.Array.isArray', function() {
     equal(typeof Array.isArray, 'function');
     equal(Array.isArray([]), true);
     equal(Array.isArray([12, 5, 5]), true);
-    equal(Array.isArray(new Array()), true);
+    equal(Array.isArray(new Array()), true);  // eslint-disable-line no-array-constructor
 
     equal(Array.isArray(undefined), false);
     equal(Array.isArray(null), false);
@@ -480,95 +484,94 @@ QUnit.test('fallbacks.Array.copy (arguments)', function() {
     deepEqual([], f_1_2(['a', 'b', 'c']));
 });
 
-if (jQuery === undefined)
-{
-    test('fallbacks.Array.contains', function() {
+if (jQuery === undefined) {
+    QUnit.test('fallbacks.Array.contains', function() {
         equal(typeof Array.prototype.contains, 'function');
         equal(typeof [].contains, 'function');
-    
+
         equal([1, 2, 1, 4, 5, 4].contains(1), true);
         equal([1, 2, 1, 4, 5, 4].contains(2), true);
         equal([1, 2, 1, 4, 5, 4].contains(12), false);
     });
-    
-    test('fallbacks.Array.exfiltrate', function() {
+
+    QUnit.test('fallbacks.Array.exfiltrate', function() {
         equal(typeof Array.prototype.exfiltrate, 'function');
         equal(typeof [].exfiltrate, 'function');
-    
+
         deepEqual([1, 2, 1, 4, 5, 4].exfiltrate([1, 2]), [4, 5, 4]);
     });
-    
-    test('fallbacks.Array.every', function() {
+
+    QUnit.test('fallbacks.Array.every', function() {
         equal(typeof Array.prototype.every, 'function');
         equal(typeof [].every, 'function');
-    
+
         // all elements >= 15
         equal([22, 72, 16, 99, 254].every(function(element, index, array) {
                                               return element >= 15;
                                           }), true);
-    
+
         // first element is < 15
         equal([12, 72, 16, 99, 254].every(function(element, index, array) {
                                               return element >= 15;
                                           }), false);
     });
-    
-    test('fallbacks.Array.filter', function() {
+
+    QUnit.test('fallbacks.Array.filter', function() {
         equal(typeof Array.prototype.filter, 'function');
         equal(typeof [].filter, 'function');
-    
+
         deepEqual([12, 5, 8, 1, 44].filter(function(element, index, array) {
                                                return element >= 10;
                                            }), [12, 44]);
     });
 
-    test('fallbacks.Array.getRange', function() {
+    QUnit.test('fallbacks.Array.getRange', function() {
         equal(typeof Array.prototype.getRange, 'function');
         equal(typeof [].getRange, 'function');
-    
+
         deepEqual([1, 2, 1, 4, 5, 4].getRange(2, 4), [1, 4, 5]);
     });
-    
-    
-    test('fallbacks.Array.inArray', function() {
+
+
+    QUnit.test('fallbacks.Array.inArray', function() {
         equal(typeof Array.prototype.inArray, 'function');
         equal(typeof [].inArray, 'function');
-    
+
         equal([12, 5, 8, 5, 44].inArray(5), true);
         equal([12, 5, 8, 5, 44].inArray(58), false);
     });
-    
-    test('fallbacks.Array.insertAt', function() {
+
+    QUnit.test('fallbacks.Array.insertAt', function() {
         equal(typeof Array.prototype.insertAt, 'function');
         equal(typeof [].insertAt, 'function');
-    
+
         deepEqual(['dog', 'cat', 'horse'].insertAt(2, 'mouse'), ['dog', 'cat', 'mouse', 'horse']);
     });
-    
-    test('fallbacks.Array.removeAt', function() {
+
+    QUnit.test('fallbacks.Array.removeAt', function() {
         equal(typeof Array.prototype.removeAt, 'function');
         equal(typeof [].removeAt, 'function');
-    
+
         deepEqual(['dog', 'cat', 'mouse', 'horse'].removeAt(2), ['dog', 'cat', 'horse']);
     });
-    
-    test('fallbacks.Array.some', function() {
+
+    QUnit.test('fallbacks.Array.some', function() {
         equal(typeof Array.prototype.some, 'function');
         equal(typeof [].some, 'function');
-    
+
         equal([101, 199, 250, 20].some(function(element, index, array) {
                                             return element >= 100;
                                         }), true);
-        
+
         equal([11, 99, 50, 20].some(function(element, index, array) {
                                           return element >= 100;
                                     }), false);
     });
-    
-    test('fallbacks.Array.unique', function() {
+
+    QUnit.test('fallbacks.Array.unique', function() {
         equal(typeof Array.prototype.unique, 'function');
         equal(typeof [].unique, 'function');
-    
+
         deepEqual([1, 2, 1, 4, 5, 4].unique(), [1, 2, 4, 5]);
     });
 }
@@ -663,7 +666,7 @@ QUnit.test('fallbacks.String.format', function() {
     equal('00012', '%05d'.format(12));
     equal('   12', '%5d'.format(12));
     equal('12   ', '%-5d'.format(12));
-    
+
     equal('12.457000', '%f'.format(12.457));
     equal('12.457000', '%09f'.format(12.457));
     equal('12.457000', '%9f'.format(12.457));
@@ -735,4 +738,4 @@ QUnit.test('fallbacks.String.decodeHTMLEntities', function() {
     equal('&#200;&&#201;;'.decodeHTMLEntities(),     'È&É;');
     equal('\\u00C8&\\u00C9;'.decodeHTMLEntities(),     'È&É;');
 });
-
+}(jQuery));

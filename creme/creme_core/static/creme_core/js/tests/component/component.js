@@ -1,12 +1,6 @@
-QUnit.module("creme.component.js", {
-    setup: function() {
-    },
+(function($) {
 
-    teardown: function() {
-    }
-});
-
-MockComponentA = creme.component.Component.sub({
+var MockComponentA = creme.component.Component.sub({
    _init_: function(a) {
        this._a = a || 0;
    },
@@ -20,7 +14,7 @@ MockComponentA = creme.component.Component.sub({
    }
 });
 
-MockComponentAB = MockComponentA.sub({
+var MockComponentAB = MockComponentA.sub({
    _init_: function(a, b) {
        MockComponentAB.__super__._init_.apply(this, arguments);
        this._b = b || 0;
@@ -35,7 +29,7 @@ MockComponentAB = MockComponentA.sub({
    }
 });
 
-MockComponentAC = MockComponentA.sub({
+var MockComponentAC = MockComponentA.sub({
     _init_: function(a, c) {
         MockComponentAB.__super__._init_.apply(this, arguments);
         this._c = c || 0;;
@@ -50,7 +44,7 @@ MockComponentAC = MockComponentA.sub({
     }
  });
 
-MockCollection = creme.component.Component.sub({
+var MockCollection = creme.component.Component.sub({
     _init_: function() {
         this._data = {};
     },
@@ -72,35 +66,37 @@ MockCollection = creme.component.Component.sub({
     }
 });
 
-MockCollectionA = MockCollection.sub({
+var MockCollectionA = MockCollection.sub({
     set: function(key, data) {
         this._super_(MockCollection).set('A_' + key, data);
     }
 });
 
-MockCollectionB = MockCollection.sub({
+var MockCollectionB = MockCollection.sub({
     set: function(key, data) {
         this._super_(MockCollection).set('B_' + key, data);
     }
 });
 
-MockCollectionBC = MockCollectionB.sub({
+var MockCollectionBC = MockCollectionB.sub({
     set: function(key, data) {
         this._super_(MockCollectionB).set('C_' + key, data);
     }
 });
 
-QUnit.test('creme.component (Object)', function(assert) {
-    var klass = new creme.component.extend();
-    var obj = new klass();
+QUnit.module("creme.component.js", new QUnitMixin());
 
-    deepEqual(klass.__super__, Object.prototype);
+QUnit.test('creme.component (Object)', function(assert) {
+    var Klass = creme.component.extend();
+    var obj = new Klass();
+
+    deepEqual(Klass.__super__, Object.prototype);
 
     equal(Object.isFunc(obj._init_), true);
-    equal(Object.isFunc(klass.sub), true);
+    equal(Object.isFunc(Klass.sub), true);
 
     equal(Object.isSubClassOf(obj, Object), true, 'is Object');
-    equal(Object.isSubClassOf(obj, klass), true, 'is klass');
+    equal(Object.isSubClassOf(obj, Klass), true, 'is klass');
     equal(Object.isSubClassOf(obj, creme.component.Component), false);
     equal(Object.isSubClassOf(obj, MockComponentA), false);
     equal(Object.isSubClassOf(obj, MockComponentAB), false);
@@ -280,3 +276,5 @@ QUnit.test('creme.component.is', function(assert) {
     equal(true, creme.component.is(Object.getPrototypeOf(obj).constructor, creme.component.Component));
 });
 */
+
+}(jQuery));

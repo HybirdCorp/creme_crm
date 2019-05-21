@@ -1,7 +1,5 @@
-QUnit.module("creme.utils.template.js", {
-  setup: function() {},
-  teardown: function() {}
-});
+(function($) {
+QUnit.module("creme.utils.template.js", new QUnitMixin());
 
 QUnit.test('creme.utils.TemplateRenderer (constructor)', function(assert) {
     var renderer = new creme.utils.TemplateRenderer();
@@ -15,9 +13,9 @@ QUnit.test('creme.utils.Template (constructor)', function(assert) {
     deepEqual(undefined, template.parameters());
     equal('object', typeof template.renderer());
 
-    template = new creme.utils.Template('this is a ${object}', {object:'backpipe'});
+    template = new creme.utils.Template('this is a ${object}', {object: 'backpipe'});
     equal('this is a ${object}', template.pattern());
-    deepEqual({object:'backpipe'}, template.parameters());
+    deepEqual({object: 'backpipe'}, template.parameters());
     equal('object', typeof template.renderer());
 });
 
@@ -59,7 +57,7 @@ QUnit.test('creme.utils.Template (render, empty data)', function(assert) {
 });
 
 QUnit.test('creme.utils.Template (render, empty pattern)', function(assert) {
-    var template = new creme.utils.Template('', {tag:12});
+    var template = new creme.utils.Template('', {tag: 12});
     equal('', template.render());
 
     template.pattern(null);
@@ -67,9 +65,9 @@ QUnit.test('creme.utils.Template (render, empty pattern)', function(assert) {
 });
 
 QUnit.test('creme.utils.Template (render, dict)', function(assert) {
-    var data = {tag:12,
-                tag2:'string',
-                last_tag:{toString:function() {return 'yo';}}};
+    var data = {tag: 12,
+                tag2: 'string',
+                last_tag: {toString: function() { return 'yo'; }}};
 
     var template = new creme.utils.Template('this is a template', data);
     equal('this is a template', template.render());
@@ -107,8 +105,8 @@ QUnit.test('creme.utils.Template (render, array)', function(assert) {
 });
 
 QUnit.test('creme.utils.Template (render, function)', function(assert) {
-    var data = function(key) {return key + "_rendered";};
-    var extra = function(key) {return key + "_extra";};
+    var data = function(key) { return key + "_rendered"; };
+    var extra = function(key) { return key + "_extra"; };
 
     var template = new creme.utils.Template('this is a template', data);
 
@@ -171,18 +169,20 @@ QUnit.test('creme.utils.Template (render, empty object attribute)', function(ass
 
 QUnit.test('creme.utils.Template (render, object getters)', function(assert) {
     var data = {
-        firstname: function() {return 'John';},
-        lastname: function() {return 'Doe';},
-        fullname: function() {return 'JohnDoe';},
-        address: function() {return {
-            number: function() {return 38;},
+        firstname: function() { return 'John'; },
+        lastname: function() { return 'Doe'; },
+        fullname: function() { return 'JohnDoe'; },
+        address: function() {
+ return {
+            number: function() { return 38; },
             roadtype: 'rue',
             road: 'des plantes en pot',
             city: {
                 postalcode: 45007,
                 name: 'Melun Sud'
             }
-        };}
+        };
+}
     };
 
     var template = new creme.utils.Template('this is a template', data);
@@ -234,3 +234,4 @@ QUnit.test('creme.utils.templatize (template, context)', function(assert) {
     deepEqual({tag: 'tag1'}, template.parameters());
     equal('template tag1', template.render());
 });
+}(jQuery));

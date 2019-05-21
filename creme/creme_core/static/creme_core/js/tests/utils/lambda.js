@@ -1,17 +1,8 @@
-QUnit.module("creme.utils.lambda.js", {
-  setup: function() {},
-  teardown: function() {}
-});
+/* globals notEqual */
 
-function assertRaises(block, expected, message)
-{
-    QUnit.assert.raises(block,
-           function(error) {
-                ok(error instanceof expected);
-                equal(message, '' + error);
-                return true;
-           });
-}
+(function($) {
+
+QUnit.module("creme.utils.lambda.js", new QUnitMixin());
 
 QUnit.test('creme.utils.Lambda (constructor, default)', function(assert) {
     var lambda = new creme.utils.Lambda();
@@ -21,7 +12,7 @@ QUnit.test('creme.utils.Lambda (constructor, default)', function(assert) {
 });
 
 QUnit.test('creme.utils.Lambda (constructor, function)', function(assert) {
-    var f = function() {return 1;}
+    var f = function() { return 1; };
     var lambda = new creme.utils.Lambda(f);
 
     equal(true, lambda.isValid());
@@ -103,12 +94,12 @@ QUnit.test('creme.utils.Lambda (constructor, constant)', function(assert) {
 });
 
 QUnit.test('creme.utils.Lambda (constructor, invalid script)', function(assert) {
-    assertRaises(function() {
-        var lambda = new creme.utils.Lambda('');
+    this.assertRaises(function() {
+        return new creme.utils.Lambda('');
     }, Error, 'Error: empty lambda script');
 
     QUnit.assert.raises(function() {
-               var lambda = new creme.utils.Lambda('(new invalid;-4)');
+               return new creme.utils.Lambda('(new invalid;-4)');
            },
            function(error) {
                 ok(error instanceof Error);
@@ -118,7 +109,7 @@ QUnit.test('creme.utils.Lambda (constructor, invalid script)', function(assert) 
 });
 
 QUnit.test('creme.utils.Lambda (lambda)', function(assert) {
-    var f = function(b) {return (this.a || 0) - b;}
+    var f = function(b) { return (this.a || 0) - b; };
     var lambda = new creme.utils.Lambda();
 
     equal(false, lambda.isValid());
@@ -145,12 +136,12 @@ QUnit.test('creme.utils.Lambda (lambda)', function(assert) {
     equal('function', typeof lambda.callable());
     equal(lambda._lambda, lambda.callable());
 
-    this.a = 0,
+    this.a = 0;
     equal(12, lambda.call(this, 12));
 });
 
 QUnit.test('creme.utils.Lambda (bind)', function(assert) {
-    var f = function(b) {return (this.a || 0) - b;}
+    var f = function(b) { return (this.a || 0) - b; };
     var lambda = new creme.utils.Lambda(f);
 
     equal(true, lambda.isValid());
@@ -195,3 +186,5 @@ QUnit.test('creme.utils.Lambda (bind)', function(assert) {
     equal(47 - 3, lambda.apply(this, [3]));
     equal(78 - 4, lambda.callable().apply(this, [4]), 'callable.apply');
 });
+}(jQuery));
+

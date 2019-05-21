@@ -1,25 +1,12 @@
-function mock_dinput_create(value, noauto) {
-    var select = $('<input type="text" widget="ui-creme-dinput" class="ui-creme-dinput ui-creme-widget"/>');
+/* globals QUnitWidgetMixin */
+(function($) {
 
-    if (value !== undefined)
-        select.attr('value', value);
-
-    if (!noauto)
-        select.addClass('widget-auto');
-
-    return select;
-}
-
-
-QUnit.module("creme.widgets.dinput.js", {
-  setup: function() {
-  },
-  teardown: function() {
-  }
-});
+QUnit.module("creme.widgets.dinput.js", new QUnitMixin(QUnitAjaxMixin,
+                                                       QUnitEventMixin,
+                                                       QUnitWidgetMixin));
 
 QUnit.test('creme.widget.DynamicInput.create (empty)', function(assert) {
-    var element = mock_dinput_create();
+    var element = this.createDynamicInputTag();
 
     creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -30,7 +17,7 @@ QUnit.test('creme.widget.DynamicInput.create (empty)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicInput.create (static)', function(assert) {
-    var element = mock_dinput_create('this is a test');
+    var element = this.createDynamicInputTag('this is a test');
 
     creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -41,7 +28,7 @@ QUnit.test('creme.widget.DynamicInput.create (static)', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicInput.create (static, disabled)', function(assert) {
-    var element = mock_dinput_create('this is a test');
+    var element = this.createDynamicInputTag('this is a test');
     element.attr('disabled', '');
 
     var widget = creme.widget.create(element);
@@ -50,11 +37,10 @@ QUnit.test('creme.widget.DynamicInput.create (static, disabled)', function(asser
     equal(element.is('[disabled]'), true);
     equal(widget.delegate._enabled, false);
 
-    var element = mock_dinput_create('this is a test');
-
+    element = this.createDynamicInputTag('this is a test');
     equal(element.is('[disabled]'), false);
-    
-    var widget = creme.widget.create(element, {disabled: true});
+
+    widget = creme.widget.create(element, {disabled: true});
 
     equal(element.hasClass('widget-ready'), true);
     equal(element.is('[disabled]'), true);
@@ -62,7 +48,7 @@ QUnit.test('creme.widget.DynamicInput.create (static, disabled)', function(asser
 });
 
 QUnit.test('creme.widget.DynamicInput.placeholder', function(assert) {
-    var element = mock_dinput_create();
+    var element = this.createDynamicInputTag();
     element.attr('placeholder', 'edit this text');
 
     creme.widget.create(element);
@@ -78,7 +64,7 @@ QUnit.test('creme.widget.DynamicInput.placeholder', function(assert) {
 });
 
 QUnit.test('creme.widget.DynamicInput.reset', function(assert) {
-    var element = mock_dinput_create('this is a test');
+    var element = this.createDynamicInputTag('this is a test');
     var widget = creme.widget.create(element);
 
     equal('this is a test', widget.val());
@@ -87,3 +73,4 @@ QUnit.test('creme.widget.DynamicInput.reset', function(assert) {
     equal('', widget.val());
 });
 
+}(jQuery));
