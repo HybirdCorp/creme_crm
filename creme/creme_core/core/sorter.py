@@ -309,7 +309,7 @@ class CellSorterRegistry(AbstractCellSorter):
     DEFAULT_REGISTRIES = (
         (EntityCellRegularField.type_id,  RegularFieldSorterRegistry),
         (EntityCellFunctionField.type_id, FunctionFieldSorterRegistry),
-        #  NB: mess with JOIN if search at the same time
+        # NB: mess with JOIN if search at the same time
         #   (EntityCellCustomField.type_id,   ...),
         #   (EntityCellRelation.type_id,   ...),
         # NB: not useful because volatile cells cannot be retrieved by HeaderFilter.cells()
@@ -395,6 +395,25 @@ class QuerySorter:
 
         return EntityCellRegularField.build(model, ofield.field_name).key, ofield.order
 
+    # TODO: what about unique_together ??
+    # TODO: move to utils.meta ?
+    @staticmethod
+    def _get_local_id_field(model):
+        for field in model._meta.local_concrete_fields:
+            if field.unique:
+                return field
+
+        raise LookupError('No local unique field found')
+
+    @staticmethod
+    def _is_field_unique(model, field_name):
+        try:
+            field = model._meta.get_field(field_name)
+        except models.FieldDoesNotExist:
+            return False
+
+        return field.unique
+
     def get(self, model, cells, cell_key, order=None, fast_mode=False):
         """Get a QuerySortInfo instance for a model & a main ordering cell,
         using the natural ordering of this model & the DB-indices.
@@ -422,7 +441,7 @@ class QuerySorter:
                     if build_cell(name=OrderedField(ofield_str).field_name).key in cells_dict
         ]
 
-        # Name of the model-field used to perform the "ORDER BY" instruction.
+        # Name of the main model-field used to perform the "ORDER BY" instruction.
         sort_field = self._get_field_name(cells_dict, cell_key)
 
         if sort_field:
@@ -440,31 +459,44 @@ class QuerySorter:
         else:
             cell_key, order = self._default_key_n_order(model, ordering)
 
-        query_sorter = QuerySortInfo(cell_key=cell_key, order=order)
+        sort_info = QuerySortInfo(cell_key=cell_key, order=order)
 
-        # TODO: if not CremeEntity...
-        # NB: we order by 'id' ('cremeentity_ptr_id') in order to be sure that successive queries
-        #     give consistent contents. (if you order by 'name' & there are some duplicated names,
-        #     the order by directive can be respected, but the order of the duplicates in the
-        #     queries results be different -- so the paginated contents are not consistent).
-        last_field = order.prefix + 'cremeentity_ptr_id'
-
-        if ordering:
-            ind_ordering = get_indexed_ordering(model, ordering + ['*', last_field])
+        if sort_field and self._is_field_unique(model, sort_field):
+            ind_ordering = get_indexed_ordering(model, ordering + ['*'])
 
             if ind_ordering is not None:
-                query_sorter.field_names = ind_ordering
+                sort_info.field_names = ind_ordering
             elif fast_mode:
-                first_order = ordering[0]
-                ind_ordering = get_indexed_ordering(model, [first_order, '*', last_field])
-
-                query_sorter.field_names = (first_order, last_field) if ind_ordering is None else ind_ordering
+                o_sort_field = order.prefix + sort_field
+                ind_ordering = get_indexed_ordering(model, [o_sort_field, '*'])
+                sort_info.field_names = (o_sort_field,) if ind_ordering is None else ind_ordering
             else:
-                query_sorter.field_names = tuple(ordering + [last_field])
+                sort_info.field_names = tuple(ordering)
         else:
-            query_sorter.field_names = (last_field,)
+            # NB: we order by ID (like 'cremeentity_ptr_id' in entity sub-classes)
+            #     in order to be sure that successive queries give consistent contents
+            #     (if you order by 'name' & there are some duplicated names,
+            #     the order by directive can be respected, but the order of the
+            #     duplicates in the queries results be different -- so the
+            #     paginated contents are not consistent).
+            last_field = order.prefix + self._get_local_id_field(model).attname
 
-        return query_sorter
+            if ordering:
+                ind_ordering = get_indexed_ordering(model, ordering + ['*', last_field])
+
+                if ind_ordering is not None:
+                    sort_info.field_names = ind_ordering
+                elif fast_mode:
+                    first_order = ordering[0]
+                    ind_ordering = get_indexed_ordering(model, [first_order, '*', last_field])
+
+                    sort_info.field_names = (first_order, last_field) if ind_ordering is None else ind_ordering
+                else:
+                    sort_info.field_names = tuple(ordering + [last_field])
+            else:
+                sort_info.field_names = (last_field,)
+
+        return sort_info
 
     @property
     def registry(self):

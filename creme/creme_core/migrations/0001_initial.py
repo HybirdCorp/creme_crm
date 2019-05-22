@@ -714,6 +714,7 @@ class Migration(migrations.Migration):
                                                             )
                     ),
                     ('title', models.CharField(unique=True, max_length=100, verbose_name='Title')),
+                    ('place', models.CharField(max_length=100, verbose_name='Place')),
                     ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
                     ('end', models.DateTimeField(null=True, verbose_name='End', blank=True)),
                     ('type', models.ForeignKey(verbose_name='Activity type', to='creme_core.FakeActivityType', on_delete=models.PROTECT)),
