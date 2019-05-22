@@ -233,6 +233,7 @@ else:
             app_label = 'creme_core'
             verbose_name = 'Test address'
             verbose_name_plural = 'Test addresses'
+            # ordering = ('id',)  # See test_listview.ListViewTestCase.test_ordering_related_column()
 
         def __str__(self):
             return ' '.join(filter(None, [self.value, self.zipcode, self.city, self.department, self.country]))
@@ -415,6 +416,7 @@ else:
 
     class FakeActivity(CremeEntity):
         title = models.CharField(_('Title'), max_length=100, unique=True)
+        place = models.CharField(_('Place'), max_length=100)
         start = models.DateTimeField(_('Start'), blank=True, null=True)
         end   = models.DateTimeField(_('End'), blank=True, null=True)
         type  = models.ForeignKey(FakeActivityType, verbose_name=_('Activity type'),

@@ -415,6 +415,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                           ('end',             _('End')),
                           ('modified',        _('Last modification')),
                           ('user',            user_lbl),
+                          ('place',           _('Place')),
                           ('start',           _('Start')),
                           ('title',           _('Title')),
 
@@ -441,6 +442,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                           ('end',        _('End')),
                           ('modified',   _('Last modification')),
                           ('user',       _('Owner user')),
+                          ('place',      _('Place')),
                           ('start',      _('Start')),
                           ('title',      _('Title')),
 
@@ -464,6 +466,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                           ('user',            user_lbl),
                           ('start',           _('Start')),
                           ('title',           _('Title')),
+                          ('place',           _('Place')),
 
                           ('type__name',      fs(type_lbl, _('Name'))),
 
