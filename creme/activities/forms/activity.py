@@ -266,9 +266,12 @@ class ActivityCreateForm(_ActivityCreateForm):
                          )
 
     blocks = _ActivityForm.blocks.new(
-        ('datetime',       _('When'),         ['start', 'start_time', 'end', 'end_time', 'is_all_day']),
-        ('participants',   _('Participants'), ['my_participation', 'participating_users',
-                                                'other_participants', 'subjects', 'linked_entities']),
+        ('datetime', _('When'),
+         ['start', 'start_time', 'end', 'end_time', 'is_all_day']
+        ),
+        ('participants', _('Participants & subjects'),
+         ['my_participation', 'participating_users', 'other_participants', 'subjects', 'linked_entities']
+        ),
         ('alert_datetime', _('Generate an alert on a specific date'), ['alert_start']),
         ('alert_period',   _('Generate an alert in a while'),         ['alert_period']),
         ('informed_users', _('Users to keep informed'),               ['informed_users']),
