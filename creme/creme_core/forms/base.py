@@ -299,7 +299,7 @@ class CremeModelWithUserForm(CremeModelForm):
 
 # class CremeEntityForm(CremeModelWithUserForm):
 class CremeEntityForm(CremeModelForm):
-    property_types = fields.ForcedModelMultipleChoiceField(
+    property_types = fields.EnhancedModelMultipleChoiceField(
         queryset=CremePropertyType.objects.none(),
         label=_('Properties'),
         required=False,
