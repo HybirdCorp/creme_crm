@@ -64,7 +64,7 @@ __all__ = (
     'ChoiceOrCharField',
     'CTypeChoiceField', 'EntityCTypeChoiceField',
     'MultiCTypeChoiceField', 'MultiEntityCTypeChoiceField',
-    'ForcedModelMultipleChoiceField',
+    'EnhancedMultipleChoiceField', 'EnhancedModelMultipleChoiceField',
 )
 
 
@@ -1629,35 +1629,166 @@ class MultiEntityCTypeChoiceField(MultiCTypeChoiceField):
         super().__init__(ctypes=ctypes, **kwargs)
 
 
-class ForcedModelChoiceIterator(mforms.ModelChoiceIterator):
+class EnhancedChoiceIterator:
+    def __init__(self, field, choices):
+        self.field = field
+        self.choices = choices
+        self.forced_values = field.forced_values
+        self.choice_cls = field.widget.Choice
+
+    def __iter__(self):
+        choices = self.choices
+        forced_values = self.forced_values
+
+        for x in (choices() if callable(choices) else choices):
+            if isinstance(x, dict):
+                value = x['value']
+                label = x['label']
+                help = x.get('help', '')
+            else:
+                value, label = x
+                help = ''
+
+            yield (
+                self.choice_cls(value=value,
+                                readonly=(value in forced_values),
+                                help=help,
+                               ),
+                label,
+            )
+
+
+class EnhancedMultipleChoiceField(fields.MultipleChoiceField):
+    """Specialization of MultipleChoiceField with some improvements.
+    It allows:
+     - to force some choices. The forced choices cannot be un-selected.
+       It's useful to show to the user the choices which will be automatically
+       applied (instead of hiding them).
+     - to display a help text for each choice (you have to use the <dict>
+       format for choice).
+
+    Format for <choices> (constructor argument & property setter):
+        - Classical list of 2-tuples (value, label).
+        - List of dict {'value': value, 'label': label}
+          A key "help" is also available for the help text.
+        - A callable without argument which return one the the previous format.
+    """
+    widget = core_widgets.UnorderedMultipleChoiceWidget
+    iterator = EnhancedChoiceIterator
+
+    def __init__(self, *, forced_values=(), iterator=None, **kwargs):
+        """Constructor.
+
+        @param forced_values: Iterable of values (ie: the "value" part of choices).
+        @param iterator: Class with the interface of <EnhancedChoiceIterator>.
+        @param kwargs: See <MultipleChoiceField>.
+        """
+        self._raw_choices = None  # Backup of the choices, in order to build iterator.
+        self._initial = None
+        self._forced_values = frozenset(forced_values)
+
+        if iterator is not None:
+            self.iterator = iterator
+
+        super().__init__(**kwargs)
+
+    @fields.MultipleChoiceField.choices.setter
+    def choices(self, value):
+        self._raw_choices = value
+        self._choices = self.widget.choices = self.iterator(field=self, choices=value)
+
+    def clean(self, value):
+        value = super().clean(value)
+
+        for fv in self._forced_values:
+            v = str(fv)
+            if v not in value:
+                value.append(v)
+
+        return value
+
+    @property
+    def forced_values(self):
+        """@return: A frozenset of values."""
+        return self._forced_values
+
+    @forced_values.setter
+    def forced_values(self, values):
+        """@param values: Iterable of values (ie: the "value" part of choices)."""
+        self._forced_values = frozenset(values or ())
+        self.choices = self._raw_choices
+
+    @property
+    def initial(self):
+        result = set()
+
+        initial = self._initial
+        if initial is not None:
+            result.update(initial)
+
+        result.update(self._forced_values)
+
+        return result
+
+    @initial.setter
+    def initial(self, value):
+        self._initial = value
+
+
+class EnhancedModelChoiceIterator(mforms.ModelChoiceIterator):
     def __init__(self, field):
         super().__init__(field=field)
         self.forced_values = field.forced_values
-        self.choice_cls = self.field.widget.Choice
+        self.choice_cls = field.widget.Choice
+
+    def help(self, obj):
+        """Builds a help text for a choice.
+
+        Override this method to create not-empty messages.
+
+        @param obj: Instance of <django.db.models.Model>.
+        @return: A string.
+        """
+        return ''
 
     def choice(self, obj):
         pk, label = super().choice(obj)
 
         return (
-            self.choice_cls(value=pk, readonly=(pk in self.forced_values)),
+            self.choice_cls(value=pk,
+                            readonly=(pk in self.forced_values),
+                            help=self.help(obj),
+                           ),
             label,
        )
 
 
-# TODO: ForcedMultipleChoiceField too ?
-class ForcedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
-    """Specialization of ModelMultipleChoiceField which allows to force
-    some choices.
-    The forced choices cannot be un-selected.
-    It's useful to show to the user the choices which will be automatically
-    applied (instead of hiding them).
+class EnhancedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
+    """Specialization of ModelMultipleChoiceField with some improvements.
+    It allows:
+     - to force some choices. The forced choices cannot be un-selected.
+       It's useful to show to the user the choices which will be automatically
+       applied (instead of hiding them).
+     - to display a help text for each choice (you have to use a customised
+       choice iterator class).
     """
     widget = core_widgets.UnorderedMultipleChoiceWidget
-    iterator = ForcedModelChoiceIterator
+    iterator = EnhancedModelChoiceIterator
 
-    def __init__(self, forced_values=(), **kwargs):
+    def __init__(self, *, forced_values=(), iterator=None, **kwargs):
+        """Constructor.
+
+        @param forced_values: Iterable of PKs (or values of the attribute
+               corresponding to "to_field_name").
+        @param iterator: Class with the interface of <EnhancedModelChoiceIterator>.
+        @param kwargs: See <ModelMultipleChoiceField>.
+        """
         self._initial = None
         self._forced_values = frozenset(forced_values)
+
+        if iterator is not None:
+            self.iterator = iterator
+
         super().__init__(**kwargs)
 
     def prepare_value(self, value):
@@ -1670,10 +1801,12 @@ class ForcedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
 
     @property
     def forced_values(self):
+        """@return A frozenset of PKs."""
         return self._forced_values
 
     @forced_values.setter
     def forced_values(self, values):
+        """@param values: Iterable of PKs."""
         self._forced_values = frozenset(values or ())
         self.widget.choices = self.choices
 

@@ -58,6 +58,7 @@ class ButtonMenuAddForm(CremeForm):
 
 
 class ButtonMenuEditForm(CremeForm):
+    # TODO: use EnhancedMultipleChoiceField + description of the button as help text ?
     button_ids = MultipleChoiceField(label=_('Buttons to display'), required=False,
                                      choices=(), widget=OrderedMultipleChoiceWidget,
                                     )

@@ -17,7 +17,8 @@ try:
             OptionalChoiceField,
             CTypeChoiceField, EntityCTypeChoiceField,
             MultiCTypeChoiceField, MultiEntityCTypeChoiceField,
-            ForcedModelMultipleChoiceField)
+            EnhancedMultipleChoiceField, EnhancedChoiceIterator,
+            EnhancedModelMultipleChoiceField, EnhancedModelChoiceIterator)
     from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
     from creme.creme_core.models import (RelationType, CremePropertyType,
             CremeUser, Currency,
@@ -577,10 +578,286 @@ class MultiEntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
                                        )
 
 
-class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
+class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
+    def test_required(self):
+        choices = [(1, 'Sword'),
+                   (2, 'Axes'),
+                   (3, 'Spear'),
+                  ]
+        field = EnhancedMultipleChoiceField(choices=choices)
+        self.assertTrue(field.required)
+        self.assertIsInstance(field.widget, UnorderedMultipleChoiceWidget)
+        self.assertSetEqual(set(), field.initial)
+
+        clean = field.clean
+        self.assertSetEqual({'1', '3'}, set(clean([1, 3])))
+        self.assertSetEqual({'1', '3'}, set(clean(['1', '3'])))
+
+        # NB: we need a 0-argument constructor
+        field_builder = partial(EnhancedMultipleChoiceField, choices=choices)
+        self.assertFieldValidationError(field_builder, 'required', clean, '')
+        self.assertFieldValidationError(field_builder, 'required', clean, [])
+        self.assertFieldValidationError(field_builder, 'required', clean, None)
+
+    def test_not_required(self):
+        field = EnhancedMultipleChoiceField(
+            choices=[(1, 'Sword'),
+                     (2, 'Axes'),
+                     (3, 'Spear'),
+                    ],
+            required=False,
+        )
+
+        clean = field.clean
+        self.assertEqual(['2'], list(clean(['2'])))
+        self.assertFalse([], clean(''))
+        self.assertFalse([], clean([]))
+
+    def test_invalid(self):
+        choices = [(1, 'Sword'),
+                   (2, 'Axes'),
+                   (3, 'Spear'),
+                  ]
+        field_builder = partial(EnhancedMultipleChoiceField, choices=choices)
+        field = field_builder()
+
+        self.assertFieldValidationError(field_builder, 'invalid_choice',
+                                        field.clean, [str(4)],
+                                        message_args={'value': 4},
+                                       )
+
+    def test_choices01(self):
+        "From tuples."
+        field = EnhancedMultipleChoiceField(
+            choices=[(1, 'Sword'),
+                     (2, 'Axes'),
+                     (3, 'Spear'),
+                    ],
+        )
+
+        choices = list(field.choices)
+        choice1 = choices[0]
+        id1, label1 = choice1
+        self.assertEqual('Sword', label1)
+        self.assertEqual(1,       id1.value)
+        self.assertEqual('',      id1.help)
+        self.assertFalse(id1.readonly)
+
+        choice2 = choices[1]
+        id2, label2 = choice2
+        self.assertEqual('Axes', label2)
+        self.assertEqual(2,      id2.value)
+
+        wchoice = list(field.widget.choices)[0]
+        self.assertEqual('Sword', wchoice[1])
+        self.assertEqual(1,       wchoice[0].value)
+
+        self.assertFalse(field.forced_values)
+
+    def test_choices02(self):
+        "Callable"
+        def _choices():
+            return [
+                (1, 'Sword'),
+                (2, 'Axes'),
+                (3, 'Spear'),
+            ]
+
+        field = EnhancedMultipleChoiceField(choices=_choices)
+
+        choices = list(field.choices)
+        choice1 = choices[0]
+        id1, label1 = choice1
+        self.assertEqual('Sword', label1)
+        self.assertEqual(1,       id1.value)
+        self.assertEqual('',      id1.help)
+
+        choice2 = choices[1]
+        id2, label2 = choice2
+        self.assertEqual('Axes', label2)
+        self.assertEqual(2,      id2.value)
+
+        wchoice = list(field.widget.choices)[0]
+        self.assertEqual('Sword', wchoice[1])
+        self.assertEqual(1,       wchoice[0].value)
+
+    def test_choices03(self):
+        'From dict.'
+        help = 'Stronger than word'
+        field = EnhancedMultipleChoiceField(
+            choices=[
+                {'value': 1, 'label': 'Sword'},
+                {'value': 2, 'label': 'Axes', 'help': help},
+                {'value': 3, 'label': 'Spear'},
+            ],
+        )
+
+        choices = list(field.choices)
+        choice1 = choices[0]
+        id1, label1 = choice1
+        self.assertEqual('Sword', label1)
+        self.assertEqual(1,       id1.value)
+        self.assertEqual('',      id1.help)
+
+        choice2 = choices[1]
+        id2, label2 = choice2
+        self.assertEqual('Axes', label2)
+        self.assertEqual(2,    id2.value)
+        self.assertEqual(help, id2.help)
+
+        wchoice2 = list(field.widget.choices)[1]
+        self.assertEqual('Axes', wchoice2[1])
+        wid2 = wchoice2[0]
+        self.assertEqual(2,    wid2.value)
+        self.assertEqual(help, wid2.help)
+
+    def test_choices04(self):
+        'Dict + callable.'
+        help = 'Stronger than word'
+
+        def _choices():
+            return [
+                {'value': 1, 'label': 'Sword'},
+                {'value': 2, 'label': 'Axes', 'help': help},
+                {'value': 3, 'label': 'Spear'},
+            ]
+
+        field = EnhancedMultipleChoiceField(choices=_choices)
+
+        choices = list(field.choices)
+        choice1 = choices[0]
+        id1, label1 = choice1
+        self.assertEqual('Sword', label1)
+        self.assertEqual(1,       id1.value)
+        self.assertEqual('',      id1.help)
+        self.assertEqual(False,   id1.readonly)
+
+        choice2 = choices[1]
+        id2, label2 = choice2
+        self.assertEqual('Axes', label2)
+        self.assertEqual(2,    id2.value)
+        self.assertEqual(help, id2.help)
+
+        wchoice2 = list(field.widget.choices)[1]
+        self.assertEqual('Axes', wchoice2[1])
+        wid2 = wchoice2[0]
+        self.assertEqual(2,    wid2.value)
+        self.assertEqual(help, wid2.help)
+
+    def test_forced_values01(self):
+        "Tuple choices."
+        field_builder = partial(EnhancedMultipleChoiceField,
+                                choices=[(1, 'Sword'),
+                                         (2, 'Axes'),
+                                         (3, 'Spear'),
+                                        ],
+                                required=False,
+                               )
+        field1 = field_builder()
+        self.assertEqual(frozenset(), field1.forced_values)
+        self.assertFalse(field1.initial)
+        wchoices1 = iter(field1.choices)
+        old_wchoices1 = iter(field1.widget.choices)
+
+        field1.forced_values = [1, 3]
+        self.assertEqual(frozenset([1, 3]), field1.forced_values)  # TODO: '1', '3' ???
+        self.assertSetEqual({1, 3}, field1.initial)
+
+        self.assertFalse(next(wchoices1)[0].readonly)
+
+        # --
+        choices1 = list(field1.choices)
+        choice1 = choices1[0]
+        id1, label1 = choice1
+        self.assertEqual('Sword', label1)
+        self.assertEqual(1,       id1.value)
+        self.assertEqual('',      id1.help)
+        self.assertTrue(id1.readonly)
+
+        self.assertFalse(choices1[1][0].readonly)
+        self.assertTrue(choices1[2][0].readonly)
+
+        self.assertFalse(next(old_wchoices1)[0].readonly)
+        self.assertTrue(next(iter(field1.widget.choices))[0].readonly)
+
+        # --
+        field2 = field_builder(forced_values=[2])
+        self.assertEqual(frozenset([2]), field2.forced_values)
+        self.assertSetEqual({2}, field2.initial)
+
+        clean = field2.clean
+        expected = ['1', '2']
+        self.assertCountEqual(expected, clean(['1', '2']))
+        self.assertCountEqual(expected, clean(['1']))
+
+    def test_forced_values02(self):
+        "Dict + callable."
+        def _choices():
+            return [
+                {'value': 1, 'label': 'Sword'},
+                {'value': 2, 'label': 'Axes'},
+                {'value': 3, 'label': 'Spear'},
+                {'value': 4, 'label': 'Bow'},
+            ]
+
+        field = EnhancedMultipleChoiceField(choices=_choices)
+
+        field.forced_values = [2, 3]
+        self.assertEqual(frozenset([2, 3]), field.forced_values)
+        self.assertSetEqual({2, 3}, field.initial)
+
+        choices = list(field.choices)
+        self.assertFalse(choices[0][0].readonly)
+        self.assertTrue(choices[1][0].readonly)
+
+        self.assertCountEqual(['1', '2', '3'], field.clean(['1', '2']))
+
+    def test_initial(self):
+        field = EnhancedMultipleChoiceField(
+            choices=[(1, 'Sword'),
+                     (2, 'Axes'),
+                     (3, 'Spear'),
+                    ],
+        )
+
+        field.initial = [2, 1]
+        self.assertSetEqual({1, 2}, field.initial)
+
+        field.initial = None
+        self.assertFalse(field.initial)
+
+        field.forced_values = [1]
+        field.initial = [2]
+        self.assertSetEqual({1, 2}, field.initial)
+
+    def test_iterator(self):
+        class CustomIterator(EnhancedChoiceIterator):
+            def __iter__(self):
+                for x in self.choices:
+                    label = x[1]
+
+                    yield (
+                        self.choice_cls(value=x[0],
+                                        help='The "{}" weapon'.format(label),
+                                       ),
+                        label,
+                    )
+
+        field = EnhancedMultipleChoiceField(
+            choices=[(1, 'Sword'), (2, 'Axes')],
+            iterator=CustomIterator,
+        )
+
+        choice = list(field.choices)[0]
+        self.assertEqual('The "Sword" weapon', choice[0].help)
+
+
+class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
     def assertFoundChoice(self, pk, label, choices):
         for choice in choices:
-            if choice[0].value == pk:
+            id_obj = choice[0]
+
+            if id_obj.value == pk:
                 if choice[1] != label:
                     self.fail('Choice with pk="{pk}" found with '
                               'label "{found}" != "{label}"'.format(
@@ -589,12 +866,12 @@ class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
                         label=label,
                     ))
 
-                return choice
+                return id_obj
 
         self.fail('Choice with pk="{}" not found'.format(pk))
 
     def test_required(self):
-        field = ForcedModelMultipleChoiceField(queryset=FakeSector.objects.all())
+        field = EnhancedModelMultipleChoiceField(queryset=FakeSector.objects.all())
         self.assertTrue(field.required)
         self.assertIsInstance(field.widget, UnorderedMultipleChoiceWidget)
         self.assertSetEqual(set(), field.initial)
@@ -608,7 +885,8 @@ class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
 
         choices = list(field.choices)
         choice1 = self.assertFoundChoice(sector1.id, sector1.title, choices)
-        self.assertFalse(choice1[0].readonly)
+        self.assertFalse(choice1.readonly)
+        self.assertFalse(choice1.help)
 
         self.assertFoundChoice(sector2.id, sector2.title, choices)
 
@@ -617,13 +895,13 @@ class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertSetEqual({sector1, sector3}, set(clean([str(sector1.id), str(sector3.id)])))
 
         # NB: we need a 0-argument constructor
-        field_builder = partial(ForcedModelMultipleChoiceField, queryset=FakeSector.objects.all())
+        field_builder = partial(EnhancedModelMultipleChoiceField, queryset=FakeSector.objects.all())
         self.assertFieldValidationError(field_builder, 'required', clean, '')
         self.assertFieldValidationError(field_builder, 'required', clean, [])
         self.assertFieldValidationError(field_builder, 'required', clean, None)
 
     def test_not_required(self):
-        field = ForcedModelMultipleChoiceField(queryset=FakeSector.objects.all(), required=False)
+        field = EnhancedModelMultipleChoiceField(queryset=FakeSector.objects.all(), required=False)
 
         sector = FakeSector.objects.first()
         self.assertIsNotNone(sector)
@@ -634,7 +912,7 @@ class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertFalse([], clean([]))
 
     def test_invalid(self):
-        field_builder = partial(ForcedModelMultipleChoiceField, queryset=FakeSector.objects.all())
+        field_builder = partial(EnhancedModelMultipleChoiceField, queryset=FakeSector.objects.all())
         field = field_builder()
 
         invalid_pk = 1024
@@ -646,7 +924,7 @@ class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
                                        )
 
     def test_forced_values01(self):
-        field_builder = partial(ForcedModelMultipleChoiceField,
+        field_builder = partial(EnhancedModelMultipleChoiceField,
                                 queryset=FakeSector.objects.all(),
                                 required=False,
                                )
@@ -666,10 +944,10 @@ class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
         # --
         choices = list(field1.choices)
         choice1 = self.assertFoundChoice(sector1.id, sector1.title, choices)
-        self.assertTrue(choice1[0].readonly)
+        self.assertTrue(choice1.readonly)
 
         choice2 = self.assertFoundChoice(sector2.id, sector2.title, choices)
-        self.assertFalse(choice2[0].readonly)
+        self.assertFalse(choice2.readonly)
 
         # --
         field2 = field_builder(forced_values=[sector2.id])
@@ -682,7 +960,7 @@ class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
 
     def test_forced_values02(self):
         "Use <to_field_name>."
-        field_builder = partial(ForcedModelMultipleChoiceField,
+        field_builder = partial(EnhancedModelMultipleChoiceField,
                                 queryset=FakeSector.objects.all(),
                                 required=False,
                                 to_field_name='title',
@@ -702,13 +980,13 @@ class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
         # --
         choices = list(field.choices)
         choice1 = self.assertFoundChoice(sector1.title, sector1.title, choices)
-        self.assertFalse(choice1[0].readonly)
+        self.assertFalse(choice1.readonly)
 
         choice2 = self.assertFoundChoice(sector2.title, sector2.title, choices)
-        self.assertTrue(choice2[0].readonly)
+        self.assertTrue(choice2.readonly)
 
     def test_initial(self):
-        field = ForcedModelMultipleChoiceField(queryset=FakeSector.objects.all())
+        field = EnhancedModelMultipleChoiceField(queryset=FakeSector.objects.all())
         sector1, sector2 = FakeSector.objects.all()[:2]
 
         field.initial = [sector2.id, sector1.id]
@@ -726,14 +1004,30 @@ class ForcedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(frozenset([sector1.id]), field.forced_values)
 
     def test_widget_choices(self):
-        field = ForcedModelMultipleChoiceField(queryset=FakeSector.objects.all())
+        field = EnhancedModelMultipleChoiceField(queryset=FakeSector.objects.all())
         sector1, sector2 = FakeSector.objects.all()[:2]
         widget = field.widget
         field.forced_values = [sector1.id]
 
         choices = list(widget.choices)
         choice1 = self.assertFoundChoice(sector1.id, sector1.title, choices)
-        self.assertTrue(choice1[0].readonly)
+        self.assertTrue(choice1.readonly)
 
         choice2 = self.assertFoundChoice(sector2.id, sector2.title, choices)
-        self.assertFalse(choice2[0].readonly)
+        self.assertFalse(choice2.readonly)
+
+    def test_iterator(self):
+        class CustomIterator(EnhancedModelChoiceIterator):
+            def help(self, obj):
+                return 'The "{}" sector'.format(obj)
+
+        field = EnhancedModelMultipleChoiceField(
+            queryset=FakeSector.objects.all(),
+            iterator=CustomIterator,
+        )
+
+        sector = FakeSector.objects.first()
+
+        choices = list(field.choices)
+        choice = self.assertFoundChoice(sector.id, sector.title, choices)
+        self.assertEqual('The "{}" sector'.format(sector), choice.help)
