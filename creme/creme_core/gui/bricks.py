@@ -455,7 +455,7 @@ class SpecificRelationsBrick(QuerysetBrick):
             entity.srb_relation_cache = relation
             entities_by_ct[entity.entity_type_id].append(entity)
 
-        groups = []  # List of tuples (entities_with_same_ct, headerfilter_items)
+        groups = []  # List of tuples (entities_with_same_ct, entity_cells)
         unconfigured_group = []  # Entities that do not have a customised columns setting
         get_ct = ContentType.objects.get_for_id
 
