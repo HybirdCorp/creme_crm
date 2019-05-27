@@ -35,12 +35,19 @@
 {% with counter=entities|length %}
 {% if counter %}
     <div class="brick-list-item relation-item">
+        {% if cells %}
         <div class="relation-group relation-summary-group">
             <div class="relation-group-key">
                 {% ctype_counted_instances_label entities.0.entity_type counter as label %}{{label}}
             </div>
-{#            <div class="relation-group-value"></div> #}
         </div>
+        {% elif groups|length > 1 %}
+        <div class="relation-group relation-summary-group">
+            <div class="relation-group-key">
+                {% blocktrans count count=counter %}{{count}} Entity{% plural %}{{count}} Entities{% endblocktrans %}
+            </div>
+        </div>
+        {% endif %}
         <div class="relation-group relation-info-group brick-table">
             <table class="relation-group-value brick-table-content">
             {% if cells %}
