@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.contrib.contenttypes.models import ContentType
+    from django.db.models.query_utils import Q
     from django.urls import reverse
     from django.utils.translation import gettext as _
 
+    from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.forms import listview as lv_form
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.models import FieldsConfig
@@ -13,6 +18,7 @@ try:
     from .base import (skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation,
             Address, Organisation, Contact)
     from ..bricks import PrettyOtherAddressesBrick
+    from ..forms.listview import AddressFKField
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -447,14 +453,15 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         old_count = HistoryLine.objects.count()
         country = 'Japan'
         name = 'Gainax'
-        self.assertNoFormError(self.client.post(reverse('persons__create_organisation'),
-                                                follow=True,
-                                                data={'name': name,
-                                                      'user':  self.other_user.id,
-                                                      'billing_address-country': country,
-                                                     }
-                                               )
-                              )
+        self.assertNoFormError(
+            self.client.post(reverse('persons__create_organisation'),
+                             follow=True,
+                             data={'name': name,
+                                   'user':  self.other_user.id,
+                                   'billing_address-country': country,
+                                  },
+                            )
+        )
 
         gainax = self.get_object_or_fail(Organisation, name=name)
 
@@ -477,9 +484,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(gainax.entity_type, hline.entity_ctype)
         self.assertEqual(self.other_user,    hline.entity_owner)
         self.assertEqual(TYPE_AUX_CREATION,  hline.type)
-        self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, str(address)],
-                         hline.modifications
-                        )
+        self.assertEqual(
+            [ContentType.objects.get_for_model(address).id, address.id, str(address)],
+            hline.modifications
+        )
         self.assertEqual([_('Add <{type}>: “{value}”').format(
                                     type=_('Address'),
                                     value=address,
@@ -487,3 +495,150 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                          ],
                          hline.get_verbose_modifications(self.user)
                         )
+
+    # NB: keep as example
+    # def test_search_field(self):
+    #     self.login(create_orga=False)
+    #
+    #     field = AddressFKField(
+    #         cell=EntityCellRegularField.build(model=Organisation, name='billing_address'),
+    #         user=self.user,
+    #     )
+    #
+    #     expected_choices = [
+    #         {'value': '',                    'label': _('All')},
+    #         {'value': lv_form.NULL,          'label': _('* is empty *')},
+    #         {'value': AddressFKField.FILLED, 'label': _('* filled *')},
+    #     ]
+    #     self.assertEqual(expected_choices, field.choices)
+    #
+    #     widget = field.widget
+    #     self.assertIsInstance(widget, lv_form.SelectLVSWidget)
+    #     self.assertEqual(expected_choices, widget.choices)
+    #
+    #     to_python = field.to_python
+    #     self.assertEqual(Q(), to_python(value=''))
+    #     self.assertEqual(Q(), to_python(value=None))
+    #     self.assertEqual(Q(), to_python(value='invalid'))
+    #
+    #     create_orga = partial(Organisation.objects.create, user=self.user)
+    #     orga1 = create_orga(name='Orga without address')
+    #     orga2 = create_orga(name='Orga with empty address')
+    #     orga3 = create_orga(name='Orga with blank address')
+    #     orga4 = create_orga(name='Orga with address #1')
+    #     orga5 = create_orga(name='Orga with address #2')
+    #     orga6 = create_orga(name='Orga with empty address with a name')
+    #     orga_ids = [orga1.id, orga2.id, orga3.id, orga4.id, orga5.id, orga6.id]
+    #
+    #     create_address = Address.objects.create
+    #     addr2 = create_address(address='',                    owner=orga2)
+    #     addr3 = create_address(address='   ',                 owner=orga3)
+    #     addr4 = create_address(address='  42 Towel street  ', owner=orga4)
+    #     addr5 = create_address(city='Neo-tokyo',              owner=orga5)
+    #     addr6 = create_address(name='Billing',                owner=orga6)
+    #
+    #     orga2.billing_address = addr2; orga2.save()
+    #     orga3.billing_address = addr3; orga3.save()
+    #     orga4.billing_address = addr4; orga4.save()
+    #     orga5.billing_address = addr5; orga5.save()
+    #     orga6.billing_address = addr6; orga6.save()
+    #
+    #     # NULL ---
+    #     self.assertSetEqual(
+    #         {orga1, orga2, orga3, orga6},
+    #         set(Organisation.objects.filter(id__in=orga_ids)
+    #                                 .filter(to_python(value=lv_form.NULL))
+    #            )
+    #     )
+    #
+    #     # NOT NULL ---
+    #     self.assertSetEqual(
+    #         {orga4, orga5},
+    #         set(Organisation.objects.filter(id__in=orga_ids)
+    #                                 .filter(to_python(value=AddressFKField.FILLED))
+    #            )
+    #     )
+    def test_search_field01(self):
+        self.login(create_orga=False)
+
+        field = AddressFKField(
+            cell=EntityCellRegularField.build(model=Organisation, name='billing_address'),
+            user=self.user,
+        )
+        self.assertIsInstance(field.widget, lv_form.TextLVSWidget)
+
+        to_python = field.to_python
+        self.assertEqual(Q(), to_python(value=''))
+        self.assertEqual(Q(), to_python(value=None))
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        orga1 = create_orga(name='Orga without address')
+        orga2 = create_orga(name='Orga with empty address')
+        orga3 = create_orga(name='Orga with address #1')
+        orga4 = create_orga(name='Orga with address #2')
+        orga5 = create_orga(name='Orga with address #3 (not OK)')
+        orga6 = create_orga(name='Orga with named address')
+        orga_ids = [orga1.id, orga2.id, orga3.id, orga4.id, orga5.id, orga6.id]
+
+        create_address = Address.objects.create
+        addr2 = create_address(address='',                owner=orga2)
+        addr3 = create_address(address='42 Towel street', owner=orga3)
+        addr4 = create_address(city='TowelCity',          owner=orga4)
+        addr5 = create_address(address='42 Fish street',  owner=orga5)
+        addr6 = create_address(name='Towel',              owner=orga6)
+
+        orga2.billing_address = addr2; orga2.save()
+        orga3.billing_address = addr3; orga3.save()
+        orga4.billing_address = addr4; orga4.save()
+        orga5.billing_address = addr5; orga5.save()
+        orga6.billing_address = addr6; orga6.save()
+
+        self.assertSetEqual(
+            {orga3, orga4},
+            set(Organisation.objects.filter(id__in=orga_ids)
+                                    .filter(to_python(value='towel'))
+               )
+        )
+
+    def test_search_field02(self):
+        "Ignore hidden fields"
+        self.login(create_orga=False)
+
+        FieldsConfig.create(
+            Address,
+            descriptions=[('city', {FieldsConfig.HIDDEN: True})],
+        )
+
+        field = AddressFKField(
+            cell=EntityCellRegularField.build(model=Organisation, name='billing_address'),
+            user=self.user,
+        )
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        orga1 = create_orga(name='Orga without address')
+        orga2 = create_orga(name='Orga with empty address')
+        orga3 = create_orga(name='Orga with address #1')
+        orga4 = create_orga(name='Orga with address #2 (hidden field)')
+        orga5 = create_orga(name='Orga with address #3 (not OK)')
+        orga6 = create_orga(name='Orga with named address')
+        orga_ids = [orga1.id, orga2.id, orga3.id, orga4.id, orga5.id, orga6.id]
+
+        create_address = Address.objects.create
+        addr2 = create_address(address='',                owner=orga2)
+        addr3 = create_address(address='42 Towel street', owner=orga3)
+        addr4 = create_address(city='TowelCity',          owner=orga4)
+        addr5 = create_address(address='42 Fish street',  owner=orga5)
+        addr6 = create_address(name='Towel',              owner=orga6)
+
+        orga2.billing_address = addr2; orga2.save()
+        orga3.billing_address = addr3; orga3.save()
+        orga4.billing_address = addr4; orga4.save()
+        orga5.billing_address = addr5; orga5.save()
+        orga6.billing_address = addr6; orga6.save()
+
+        self.assertListEqual(
+            [orga3],
+            list(Organisation.objects.filter(id__in=orga_ids)
+                                    .filter(field.to_python(value='towel'))
+                )
+        )
