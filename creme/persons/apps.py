@@ -169,6 +169,19 @@ class PersonsConfig(CremeAppConfig):
         reg_qform(self.Contact,      ContactQuickForm)
         reg_qform(self.Organisation, OrganisationQuickForm)
 
+    def register_search_fields(self, search_field_registry):
+        from django.db.models import ForeignKey
+
+        from creme.creme_core.core.entity_cell import EntityCellRegularField
+
+        from .forms.listview import AddressFKField
+
+        search_field_registry[EntityCellRegularField.type_id]\
+                             .builder_4_model_field_type(ForeignKey)\
+                             .register_related_model(model=self.Address,
+                                                     sfield_builder=AddressFKField,
+                                                    )
+
     def register_smart_columns(self, smart_columns_registry):
         register = smart_columns_registry.register_model
         register(self.Contact).register_field('first_name') \
