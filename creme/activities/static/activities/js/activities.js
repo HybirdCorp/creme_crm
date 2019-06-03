@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2018  Hybird
+    Copyright (C) 2009-2019  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -82,7 +82,8 @@ creme.activities.calendar.addFilteringInput = function(input, filter_callable) {
     });
 };
 
-creme.activities.calendar.loadCalendarEventListeners = function(user, creme_calendars_by_user) {
+//creme.activities.calendar.loadCalendarEventListeners = function(user, creme_calendars_by_user) {
+creme.activities.calendar.loadCalendarEventListeners = function(user, select_calendars_url, creme_calendars_by_user) {
     var floatingEventFilter = function(input_value) {
         $('.floating_event').each(function(index, element) {
             var event = $(element);
@@ -128,6 +129,7 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
             widget.fullCalendar('removeEvents', function(event) {
                 return calendar_id === event.calendar;
             });
+            creme.ajax.query(select_calendars_url, {action: 'post'}, {remove: calendar_id}).start();
         }
     });
 
@@ -152,7 +154,8 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
             calendar: calendar,
             className: 'event event-' + calendar,
             url: element.attr('data-popup_url'),
-            calendar_color: color
+            /* calendar_color: color */
+            color: color
         };
 
         element.data('eventObject', event);
@@ -175,7 +178,9 @@ creme.activities.calendar.chooseForeground = function(target, bgColor) {
 };
 
 creme.activities.calendar.updater = function(update_url, event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-    creme.ajax.query(update_url, {action: 'POST'},
+    creme.ajax.query(update_url,
+                     /* {action: 'POST'}, */
+                     {},
                      {id: event.id,
                       start: event.start.getTime(),
                       end: event.end.getTime(),
@@ -276,7 +281,8 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
             gettext("Saturday")
         ],
         events: function(start, end, callback) {
-            var chk_boxes_q = 'input[type="checkbox"][name="selected_calendars"]';
+            /* var chk_boxes_q = 'input[type="checkbox"][name="selected_calendars"]'; */
+            var chk_boxes_q = 'input[type="checkbox"][name="calendar_id"]';
 
             var cal_ids = $(chk_boxes_q + ':checked').map(function() {
                 return $(this).val();
@@ -362,8 +368,10 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
                 }
             }
 
-            element.css('background-color', event.calendar_color);
-            creme.activities.calendar.chooseForeground(element, event.calendar_color);
+            /* element.css('background-color', event.calendar_color); */
+            element.css('background-color', event.color);
+            /* creme.activities.calendar.chooseForeground(element, event.calendar_color); */
+            creme.activities.calendar.chooseForeground(element, event.color);
         },
         eventDragStart: function(calEvent, domEvent, ui, view) {},
         eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
