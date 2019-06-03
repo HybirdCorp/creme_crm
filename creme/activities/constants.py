@@ -78,4 +78,4 @@ COLOR_POOL = ('c1d9ec', '94c6db',  # Blue icecream
               'ffcea6', 'ffab66',  # Oranges
              )
 
-MAX_ELEMENT_SEARCH = 10
+# MAX_ELEMENT_SEARCH = 10

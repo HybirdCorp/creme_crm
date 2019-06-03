@@ -20,7 +20,7 @@
 
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.auth import build_creation_perm as cperm
+from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
 from creme.creme_core.utils.media import get_current_theme_from_context
@@ -35,7 +35,7 @@ class AddRelatedActivityButton(Button):
     id_           = Button.generate_id('activities', 'add_activity')
     # template_name = 'activities/templatetags/button_add_related.html'
     template_name = 'activities/buttons/add-related.html'
-    permission    = cperm(Activity)
+    permission    = build_creation_perm(Activity)
     verbose_name  = _('Create a related activity')
     activity_type = None  # None means type is not fixed
 
