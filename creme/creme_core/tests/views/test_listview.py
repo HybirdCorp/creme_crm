@@ -15,6 +15,7 @@ try:
     from django.db.models import Q
     from django.test.utils import override_settings
     from django.urls import reverse
+    from django.utils.encoding import force_text
     from django.utils.http import urlquote
     from django.utils.timezone import now
     from django.utils.translation import gettext as _
@@ -86,16 +87,16 @@ class ListViewTestCase(ViewsTestCase):
     def _get_lv_node(self, response):
         page_tree = html5lib.parse(response.content, namespaceHTMLElements=False)
 
-        table_node = page_tree.find(".//table[@id='list']")
-        self.assertIsNotNone(table_node, 'The table id="list" is not found.')
+        node = page_tree.find(".//form[@widget='ui-creme-listview']//table[@data-total-count]")
+        self.assertIsNotNone(node, 'The table listview is not found.')
 
-        return table_node
+        return node
 
     def _get_lv_header_titles(self, lv_node):
         thead_node = lv_node.find('.//thead')
         self.assertIsNotNone(thead_node)
 
-        tr_node = thead_node.find(".//tr[@class='columns_top']")
+        tr_node = thead_node.find(".//tr[@class='lv-columns-header']")
         self.assertIsNotNone(tr_node)
 
         return [
@@ -107,7 +108,7 @@ class ListViewTestCase(ViewsTestCase):
         thead_node = lv_node.find('.//thead')
         self.assertIsNotNone(thead_node)
 
-        tr_node = thead_node.find(".//tr[@id='list_thead_search']")
+        tr_node = thead_node.find(".//tr[@class='lv-search-header']")
         self.assertIsNotNone(tr_node)
 
         # widget_nodes = tr_node.findall(".//{}[@name='{}']".format(input_type, cell_key))
@@ -117,10 +118,7 @@ class ListViewTestCase(ViewsTestCase):
         return widget_nodes
 
     def _assert_no_lv_header_widget_node(self, lv_node, cell_key):
-        thead_node = lv_node.find('.//thead')
-        self.assertIsNotNone(thead_node)
-
-        tr_node = thead_node.find(".//tr[@id='list_thead_search']")
+        tr_node = lv_node.find(".//thead//tr[@class='lv-search-header']")
         self.assertIsNotNone(tr_node)
 
         input_node = tr_node.find(".//*[@name='{}']".format(cell_key))
@@ -309,14 +307,15 @@ class ListViewTestCase(ViewsTestCase):
         create_contact(first_name='Spike', last_name='Spiegel')
         create_contact(first_name='Faye',  last_name='Valentine')
 
-        def post(selection, is_single):
-            response = self.assertPOST200(self.url, data={'selection': selection} if selection is not None else {})
-            pattern = r'<input[\s]+value="{}"[\s]+id="o2m"[\s]+type="hidden"[\s]+/>'.format(is_single)
-            self.assertIsNotNone(re.search(pattern, response.content.decode()))
+        def post(selection):
+            response = self.assertPOST200(self.url, data={'selection': selection})
+            self.assertInHTML('<input class="lv-state-field" value="{}" name="selection" type="hidden" />'.format(selection),
+                              force_text(response.content)
+                             )
 
-        post(None, False)
-        post('single', True)
-        post('multiple', False)
+        post('none')
+        post('single')
+        post('multiple')
 
         self.assertPOST404(self.url, data={'selection': 'unknown'})
 
@@ -327,14 +326,15 @@ class ListViewTestCase(ViewsTestCase):
         create_contact(first_name='Spike', last_name='Spiegel')
         create_contact(first_name='Faye',  last_name='Valentine')
 
-        def get(selection, is_single):
-            response = self.assertGET200(self.url, data={'selection': selection} if selection is not None else {})
-            pattern = r'<input[\s]+value="{}"[\s]+id="o2m"[\s]+type="hidden"[\s]+/>'.format(is_single)
-            self.assertIsNotNone(re.search(pattern, response.content.decode()))
+        def get(selection):
+            response = self.assertGET200(self.url, data={'selection': selection})
+            self.assertInHTML('<input class="lv-state-field" value="{}" name="selection" type="hidden" />'.format(selection),
+                              force_text(response.content)
+                             )
 
-        get(None, False)
-        get('single', True)
-        get('multiple', False)
+        get('none')
+        get('single')
+        get('multiple')
 
         self.assertGET404(self.url, data={'selection': 'unknown'})
 

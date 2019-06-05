@@ -108,7 +108,7 @@ QUnit.test('creme.emails.ResendEMailsAction (error)', function(assert) {
             selected_rows: ['1,2'],
             q_filter: ['{}'],
             ct_id: ['67'],
-            selection: 'multiple'}]
+            selection: ['multiple']}]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
@@ -142,7 +142,7 @@ QUnit.test('creme.emails.ResendEMailsAction (ok)', function(assert) {
             selected_rows: ['1,2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],
-            selection: 'multiple'}]
+            selection: ['multiple']}]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 

@@ -158,7 +158,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (error)', function(assert) {
             selected_rows: ['1,2'],
             q_filter: ['{}'],
             ct_id: ['67'],
-            selection: 'multiple'}]
+            selection: ['multiple']}]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
@@ -208,7 +208,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (not allowed)', function(assert)
             selected_rows: ['1,2'],
             q_filter: ['{}'],
             ct_id: ['67'],
-            selection: 'multiple'}]
+            selection: ['multiple']}]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
@@ -254,7 +254,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (partially allowed)', function(a
             selected_rows: ['1,2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],
-            selection: 'multiple'}]
+            selection: ['multiple']}]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
@@ -288,7 +288,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (ok)', function(assert) {
             selected_rows: ['1,2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],
-            selection: 'multiple'}]
+            selection: ['multiple']}]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
@@ -419,7 +419,7 @@ QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
             selected_rows: ['2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],
-            selection: 'multiple'}]
+            selection: ['multiple']}]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
@@ -549,7 +549,7 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
             selected_rows: ['2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],
-            selection: 'multiple'}]
+            selection: ['multiple']}]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
@@ -594,7 +594,7 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
             selected_rows: ['2,3'],
             q_filter: ['{}'],
             ct_id: ['67'],
-            selection: 'multiple'}]
+            selection: ['multiple']}]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
@@ -722,7 +722,7 @@ QUnit.test('creme.listview.row-action (update)', function(assert) {
             q_filter: ['{}'],
             rows: ['10'],
             selected_rows: [''],
-            selection: 'multiple',
+            selection: ['multiple'],
             sort_key: ['regular_field-name'],
             sort_order: ['ASC']
         }]
@@ -775,7 +775,7 @@ QUnit.test('creme.listview.row-action (delete)', function(assert) {
             q_filter: ['{}'],
             rows: ['10'],
             selected_rows: [''],
-            selection: 'multiple',
+            selection: ['multiple'],
             sort_key: ['regular_field-name'],
             sort_order: ['ASC']
         }]
@@ -857,7 +857,7 @@ QUnit.test('creme.listview.row-action (form)', function(assert) {
             q_filter: ['{}'],
             rows: ['10'],
             selected_rows: [''],
-            selection: 'multiple',
+            selection: ['multiple'],
             sort_key: ['regular_field-name'],
             sort_order: ['ASC']
         }]

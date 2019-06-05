@@ -1,4 +1,4 @@
-.list_view {
+.listview {
     width: 100%;
     padding: 0px 4px 0px 0px;
     margin: 12px 5px 15px 0px;
@@ -163,36 +163,40 @@
 
 /* Listview - header columns */
 
-.list_view thead {
+.listview thead {
     padding: 0px;
 }
 
-.list_view thead .lines_modifiers > th > table {
+.listview thead .lines_modifiers > th > table {
     width: 100%;
     border: 0;
 }
 
-.list_view .columns_top .column button {
+.listview .lv-state-form {
+    display: none;
+}
+
+.listview .lv-columns-header .column button {
     width: 100%;
     word-wrap: initial;
     padding: 1px 2px;
 }
 
-.list_view .columns_top .column button:focus {
+.listview .lv-columns-header .column button:focus {
     outline: none !important;
 }
 
-.list_view .columns_top .column button::-moz-focus-inner {
+.listview .lv-columns-header .column button::-moz-focus-inner {
     border: 0;
 }
 
-.list_view .columns_top .column button > div {
+.listview .lv-columns-header .column button > div {
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
 }
 
-.list_view .columns_top .column .lv-sort-toggle-title {
+.listview .lv-columns-header .column .lv-sort-toggle-title {
     -ms-flex-item-align: center;
      -webkit-align-self: center;
              align-self: center;
@@ -201,7 +205,7 @@
             flex-grow: 1;
 }
 
-.list_view .columns_top .column .lv-sort-toggle-flag {
+.listview .lv-columns-header .column .lv-sort-toggle-flag {
     min-width: 16px;
     visibility: hidden;
 
@@ -210,33 +214,33 @@
              align-self: center;
 }
 
-.list_view .columns_top .column.sorted .lv-sort-toggle-flag {
+.listview .lv-columns-header .column.sorted .lv-sort-toggle-flag {
     visibility: visible;
 }
 
-.list_view .columns_top th {
+.listview .lv-columns-header th {
     background: #e9f6fb;
 
     border-top:   1px solid #cce0e8;
     border-right: 1px solid #e1e9ec;
 }
 
-.list_view > thead tr.columns_top,
-.list_view > thead tr.columns_bottom,
-.list_view > tbody tr:not(.odd) {
+.listview > thead tr.lv-columns-header,
+.listview > thead tr.lv-search-header,
+.listview > tbody tr:not(.odd) {
     background: #fcfeff;
 }
 
-.list_view .columns_bottom th.search input,
-.list_view .columns_bottom th.search select /*,
-.list_view .columns_top th.search input,
-.list_view .columns_top th.search select */ {
+.listview .lv-search-header th.search input,
+.listview .lv-search-header th.search select /*,
+.listview .lv-columns-header th.search input,
+.listview .lv-columns-header th.search select */ {
     background-color: #FCD3CF;
     color: #C05C50;
     border: 1px solid #D87D72;
 }
 
-.list_view .columns_bottom th {
+.listview .lv-search-header th {
     padding-bottom: 2px;
 
     border-bottom: 1px solid #cce0e8;
@@ -247,11 +251,11 @@
     background: #e9f6fb;
 }
 
-.list_view .columns_bottom .text input {
+.listview .lv-search-header .text input {
     min-width: 50px;
 }
 
-.list_view .columns_bottom .lv-search-daterange {
+.listview .lv-search-header .lv-search-daterange {
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
@@ -261,8 +265,8 @@
     margin-right: -15px;
 }
 
-.list_view .columns_bottom .lv-search-daterange .date-start,
-.list_view .columns_bottom .lv-search-daterange .date-end {
+.listview .lv-search-header .lv-search-daterange .date-start,
+.listview .lv-search-header .lv-search-daterange .date-end {
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
@@ -274,7 +278,7 @@
             align-self: flex-end;
 }
 
-.list_view .columns_bottom .lv-search-daterange label {
+.listview .lv-search-header .lv-search-daterange label {
     margin: 2px;
 
     -ms-flex-item-align: center;
@@ -282,7 +286,7 @@
              align-self: center;
 }
 
-.list_view .columns_bottom .lv-search-daterange input {
+.listview .lv-search-header .lv-search-daterange input {
     width: 70px;
     padding-right: 20px;
 
@@ -291,7 +295,7 @@
              align-self: center;
 }
 
-.list_view .columns_bottom .lv-search-daterange .ui-datepicker-trigger {
+.listview .lv-search-header .lv-search-daterange .ui-datepicker-trigger {
     position: relative;
     height: 16px;
     right: 20px;
@@ -306,19 +310,19 @@
     z-index: 1;
 }
 
-.list_view thead button,
-.list_view thead button:hover {
+.listview thead button,
+.listview thead button:hover {
     border: 0 !important;
     background: none;
     color: currentColor;
     cursor: pointer;
 }
 
-.list_view thead th:last-child {
+.listview thead th:last-child {
     border-right: 1px solid #e1e9ec;
 }
 
-.list_view thead th .lv-sort-toggle-title {
+.listview thead th .lv-sort-toggle-title {
     text-transform: uppercase;
     font-size: 11px;
     font-weight: 600;
@@ -326,45 +330,45 @@
     padding-left: 1px;
 }
 
-.list_view thead th.left_align .lv-sort-toggle-title {
+.listview thead th.left_align .lv-sort-toggle-title {
     text-align: left;
 }
 
-.list_view thead th.right_align .lv-sort-toggle-flag:first-child {
+.listview thead th.right_align .lv-sort-toggle-flag:first-child {
     display: inline;
     width: 0;
     flex-grow: 1;
 }
 
-.list_view thead th.right_align .lv-sort-toggle-title {
+.listview thead th.right_align .lv-sort-toggle-title {
     text-align: right;
     margin-right: 21px;
 }
 
-.list_view thead th button:disabled .lv-sort-toggle-title {
+.listview thead th button:disabled .lv-sort-toggle-title {
     color: #777;
 }
 
-.list_view thead button:enabled .lv-sort-toggle-title {
+.listview thead button:enabled .lv-sort-toggle-title {
     position: relative;
     flex-grow: 0 !important;
 }
 
-.list_view thead .sorted .lv-sort-toggle-title {
+.listview thead .sorted .lv-sort-toggle-title {
     color: #666;
     font-weight: 700;
 }
 
-.list_view .lv-sort-toggle-flag {
+.listview .lv-sort-toggle-flag {
     display: none;  /* Hide the left-aligned sorted flags (TODO: remove from creme ??) */
 }
 
-.list_view .columns_top .column.sorted.right_align .lv-sort-toggle-flag {
+.listview .lv-columns-header .column.sorted.right_align .lv-sort-toggle-flag {
     visibility: hidden; /* Hide the right-aligned left sorted flag (TODO: remove from creme ??) */
 }
 
-.list_view thead button:enabled .lv-sort-toggle-title:hover::after,
-.list_view thead .sorted .lv-sort-toggle-flag.ui-icon-triangle-1-n + .lv-sort-toggle-title::after {
+.listview thead button:enabled .lv-sort-toggle-title:hover::after,
+.listview thead .sorted .lv-sort-toggle-flag.ui-icon-triangle-1-n + .lv-sort-toggle-title::after {
     content: '';
     display: inline-block;
     position: absolute;
@@ -381,7 +385,7 @@
     border-bottom: 4px solid currentColor;
 }
 
-.list_view thead .sorted .lv-sort-toggle-flag.ui-icon-triangle-1-s + .lv-sort-toggle-title::after {
+.listview thead .sorted .lv-sort-toggle-flag.ui-icon-triangle-1-s + .lv-sort-toggle-title::after {
     content: '';
     display: inline-block;
     position: absolute;
@@ -566,12 +570,12 @@
 
 /* Listview - row and header actions - end */
 
-/*.list_view tbody tr:nth-of-type(odd) { CSS3*/
-.list_view tbody tr.odd {
+/*.listview tbody tr:nth-of-type(odd) { CSS3*/
+.listview tbody tr.odd {
     background-color: #f8fdff;
 }
 
-.list_view tbody td {
+.listview tbody td {
     padding-left: 5px;
     padding-right: 5px;
     padding: 2px 6px;
@@ -583,59 +587,59 @@
     border-right:  1px solid #e1e9ec;
 }
 
-.list_view tbody td ul {
+.listview tbody td ul {
     margin: 3px;
     text-align: left;
 }
 
-.list_view tfoot tr td table tr td {
+.listview tfoot tr td table tr td {
     border: 0;
     color: #2C596C;
     font-weight: bold;
 }
 
-.list_view tfoot tr td {
+.listview tfoot tr td {
     border-right: 1px solid #e1e9ec;
     border-bottom: 1px solid #e1e9ec;
 }
 
-.list_view button[disabled="true"],
-.list_view button[disabled="true"]:hover,
-.list_view button[disabled="true"]:active {
+.listview button[disabled="true"],
+.listview button[disabled="true"]:hover,
+.listview button[disabled="true"]:active {
     color: #919191;
     cursor: auto;
 }
 
-.list_view button:active {
+.listview button:active {
     border: #548295 1px inset;
 }
 
-.list_view input,
-.list_view select,
-.list_view input,
-.list_view select {
+.listview input,
+.listview select,
+.listview input,
+.listview select {
     border: #548295 1px solid;
     border-radius: 4px;
     background-color: white;
 }
 
-.list_view input:hover,
-.list_view select:hover,
-.list_view input:focus,
-.list_view select:focus {
+.listview input:hover,
+.listview select:hover,
+.listview input:focus,
+.listview select:focus {
     background-color: #E9EEFF;
 }
 
-.list_view_actions {
+.listview_actions {
     max-width: 1%;
     width: 1%;
 }
 
-.list_view option.search-nullfk {
+.listview option.search-nullfk {
     font-style: italic;
 }
 
-.list_view .cl_lv {
+.listview .cl_lv {
     max-width: 200px;
     min-width: 120px;
 
@@ -643,31 +647,31 @@
     white-space:normal;
 }
 
-.list_view .hd_cl_lv {
+.listview .hd_cl_lv {
     word-wrap: break-word;
 }
 
-.list_view .hd_date_cl_lv {
+.listview .hd_date_cl_lv {
     max-width: 120px;
     word-wrap: break-word;
 }
 
 
-.list_view .cl_lv ul {
+.listview .cl_lv ul {
     padding: 0 0 0 15px;
 }
 
-.list_view tbody .lv-cell-content {
+.listview tbody .lv-cell-content {
     padding-right: 3px;
     text-align: center;
 }
 
-.list_view tbody .lv-cell-content a img {
+.listview tbody .lv-cell-content a img {
     width: 64px;
     height: 64px;
 }
 
-.list_view tbody .lv-cell-content a img.text_icon {
+.listview tbody .lv-cell-content a img.text_icon {
     width: 18px;
     height: 18px;
 }
@@ -677,7 +681,7 @@
 }
 
 /* hack for this theme */ 
-.list_view tbody .lv-cell-action {
+.listview tbody .lv-cell-action {
     height: 16px;
     max-width: 22px;
     min-width: 22px;
@@ -685,50 +689,50 @@
     padding: 0px;
 }
 
-.list_view tbody .lv-cell-action a {
+.listview tbody .lv-cell-action a {
     visibility: hidden;
     vertical-align: middle;
     margin: 0;
 }
 
-.list_view tbody tr:hover .lv-cell-action a {
+.listview tbody tr:hover .lv-cell-action a {
     visibility: visible;
 }
 
-.list_view tbody .lv-cell-action a:hover {
+.listview tbody .lv-cell-action a:hover {
     cursor: pointer;
 }
 
-.list_view tbody .lv-cell-action a img {
+.listview tbody .lv-cell-action a img {
     margin: 0;
     padding: 0;
 }
 
-.list_view tbody .lv-cell-action .forbidden {
+.listview tbody .lv-cell-action .forbidden {
     visibility: hidden;
 }
 
-.list_view .left_align.lv-cell-content {
+.listview .left_align.lv-cell-content {
     text-align: left;
     margin-left: 0px;
     padding-left: 5px;
 }
 
-.list_view .text_area.lv-cell-content {
+.listview .text_area.lv-cell-content {
     text-align: left;
     white-space: normal;
     margin-left: 0px;
 }
 
-.list_view .right_align.lv-cell-content {
+.listview .right_align.lv-cell-content {
     text-align: right;
     padding-right: 5px;
 }
 
 /* Listview - row selection */
 
-.listview.first-row-hovered .columns_bottom th,
-.listview.first-row-selected .columns_bottom th {
+.listview.first-row-hovered .lv-search-header th,
+.listview.first-row-selected .lv-search-header th {
     border-bottom: 1px solid #f49b90;
 }
 
@@ -736,21 +740,21 @@
     background: none !important;
 }
 
-.listview tr.selectable td {
+.listview tr.lv-row td {
     border-bottom: none;
     border-top: 1px solid rgba(84, 130, 149, 0.3);
     transition: background-color 0.1s ease-in-out;
 }
 
-.listview tr.selectable:first-child td {
+.listview tr.lv-row:first-child td {
     border-top: none;
 }
 
-.listview tr.selectable:not(.selected):last-child:not(:first-child) td {
+.listview tr.lv-row:not(.selected):last-child:not(:first-child) td {
     border-top: 1px solid rgba(84, 130, 149, 0.3);
 }
 
-.listview tr.selectable:last-child td {
+.listview tr.lv-row:last-child td {
     border-bottom: 1px solid rgba(84, 130, 149, 0.3);
 }
 
@@ -833,7 +837,7 @@
     display: block;
 }
 
-.floatThead-container.floated #list_thead_search th {
+.floatThead-container.floated .lv-search-header th {
     border-bottom: 1px solid rgba(84, 130, 149, 0.3) !important;
 }
 
@@ -841,7 +845,7 @@
 
 /* Listview - inner edition */
 
-.list_view tbody .lv-cell-action .listview-td-action.is-disabled {
+.listview tbody .lv-cell-action .listview-td-action.is-disabled {
     opacity: 0.6;
 }
 

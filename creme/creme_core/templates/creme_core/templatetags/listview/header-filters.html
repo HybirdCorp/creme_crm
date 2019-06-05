@@ -3,7 +3,7 @@
     <div class="legend">
         {% trans 'View of list' as label %}{% widget_icon name='header_filter' label=label size='listview-filter' %}{{label}}
     </div>
-    <select name="hfilter" class="list-views-selector">
+    <select name="hfilter" class="lv-state-field list-views-selector">
         {% for hfilter in header_filters %}
             <option value="{{hfilter.id}}"{% if hfilter_id == hfilter.id %} selected{% endif %}>{{hfilter.name}}</option>
         {% endfor %}

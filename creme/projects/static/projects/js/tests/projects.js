@@ -123,7 +123,7 @@ QUnit.test('creme.projects.listview.actions (projects-close, ok)', function(asse
             q_filter: ['{}'],
             rows: ['10'],
             selected_rows: [''],
-            selection: 'multiple',
+            selection: ['multiple'],
             sort_key: ['regular_field-name'],
             sort_order: ['ASC']
         }]

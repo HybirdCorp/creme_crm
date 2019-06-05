@@ -21,6 +21,20 @@
 
 creme.lv_widget = {};
 
+creme.lv_widget.ListViewSelectionMode = {
+    NONE: 'none',
+    MULTIPLE: 'multiple',
+    SINGLE: 'single'
+};
+
+creme.lv_widget.checkSelectionMode = function(mode) {
+    if (Object.values(creme.lv_widget.ListViewSelectionMode).indexOf(mode) === -1) {
+        throw Error('invalid listview selection mode ' + mode);
+    } else {
+        return mode;
+    }
+};
+
 // TODO: beware it won't work from a Popover element with would be displayed in a popup list-view
 //       (because popovers are detached from their original root in the DOM)
 //       It should be fixed with the new action system like the bricks' one.
@@ -48,14 +62,7 @@ creme.lv_widget.deleteFilter = function(list, filter_id, url) {
 
 creme.lv_widget.selectedLines = function(list) {
     console.warn('creme.lv_widget.selectedLines() is deprecated; use directly $(list).list_view("getSelectedEntities") instead');
-
-    list = $(list);
-
-    if (list.list_view('countEntities') === 0) {
-        return [];
-    }
-
-    return list.list_view('getSelectedEntities');
+    return $(list).list_view('getSelectedEntities');
 };
 
 creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
@@ -311,35 +318,56 @@ creme.lv_widget.ListViewDialog = creme.dialog.Dialog.sub({
     _init_: function(options) {
         options = $.extend({
             title: '',
-            selectionMode: null,
+            selectionMode: 'single',
             selectionValidator: this._defaultValidator,
             width: '80%'
         }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
         this.selectionValidator(options.selectionValidator);
+        this.selectionMode(options.selectionMode);
+    },
+
+    selectionMode: function(mode) {
+        if (mode === undefined) {
+            return this._selectionMode;
+        }
+
+        this._selectionMode = creme.lv_widget.checkSelectionMode(mode);
+
+        var controller = this.controller();
+
+        if (Object.isNone(controller) === false) {
+            controller.submitState(null, {selection: mode});
+        }
+
+        return this;
     },
 
     isSelectable: function() {
-        return this.options.selectionMode;
+        return this.selectionMode() !== creme.lv_widget.ListViewSelectionMode.NONE;
     },
 
     isMultiple: function() {
-        return this.options.selectionMode === 'multiple';
+        return this.selectionMode() === creme.lv_widget.ListViewSelectionMode.MULTIPLE;
     },
 
     isSingle: function() {
-        return this.options.selectionMode === 'single';
+        return this.selectionMode() === creme.lv_widget.ListViewSelectionMode.SINGLE;
     },
 
     _frameFetchData: function(options, data) {
         var fetchData = this._super_(creme.dialog.Dialog, '_frameFetchData', options, data);
         return $.extend({}, fetchData, {
-            selection: this.isMultiple() ? 'multiple' : 'single'
+            selection: this.selectionMode()
         });
     },
 
     _defaultValidator: function(rows) {
+        if (!this.isSelectable()) {
+            return true;
+        }
+
         if (Object.isEmpty(rows)) {
             creme.dialogs.warning(gettext('Please select at least one entity.'), {'title': gettext("Error")}).open();
             return false;
@@ -357,8 +385,13 @@ creme.lv_widget.ListViewDialog = creme.dialog.Dialog.sub({
         return Object.property(this, '_validator', validator);
     },
 
+    controller: function() {
+        return this.content().find('.ui-creme-listview').data('list_view');
+    },
+
     selected: function() {
-        return $('.ui-creme-listview', this.content()).list_view('getSelectedEntities') || [];
+        var controller = this.controller();
+        return Object.isNone(controller) ? [] : controller.getSelectedEntities();
     },
 
     validate: function() {
@@ -725,7 +758,7 @@ creme.lv_widget.ListViewHeader = creme.component.Component.sub({
 
 creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
     options: {
-        multiple:     false,
+        'selection-mode': 'single',
         'reload-url': ''
     },
 
@@ -735,7 +768,7 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
     },
 
     _create: function(element, options, cb, sync, args) {
-        var multiple = element.is('[multiple]') || options.multiple;
+        var selectionMode = options.selectionMode || element.attr('selection-mode');
         var list = this._list = element.find('.listview');
 
         this._isStandalone = list.hasClass('listview-standalone');
@@ -760,7 +793,7 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
         }
 
         this._initController(element, {
-            multiple:  multiple,
+            selectionMode: selectionMode,
             reloadurl: options['reload-url']
         });
 
@@ -810,9 +843,8 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
                 };
             }
 
-            // TODO : finish the refactor multiple: true|false => selectionMode: 'multiple'|'single'|'none'
             listview = element.list_view({
-                multiple:         options.multiple ? 0 : 1,
+                selectionMode:    options.selectionMode,
                 historyHandler:   historyHandler,
                 reloadUrl:        reloadUrl
             });

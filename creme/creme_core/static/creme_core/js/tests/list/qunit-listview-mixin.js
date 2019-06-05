@@ -9,9 +9,6 @@
 
     window.QUnitListViewMixin = {
         beforeEach: function() {
-            var self = this;
-            this.resetListviewReloadContent();
-
             var backend = this.backend;
 
             this.setMockBackendGET({
@@ -26,11 +23,6 @@
             });
 
             this.setMockBackendPOST({
-                'mock/listview/reload': function(url, data, options) {
-                    var q_filter = data.q_filter ? data.q_filter[0] : '';
-                    var content = self._listviewReloadContent[q_filter] || '';
-                    return backend.response(Object.isEmpty(content) ? 404 : 200, content);
-                },
                 'mock/entity/delete': function(url, data, options) {
                     return backend.response(200, '');
                 },
@@ -78,6 +70,9 @@
                 'mock/listview/filter/delete': backend.response(200, ''),
                 'mock/listview/view/delete': backend.response(200, '')
             });
+
+            // setup a default reload response for listviews
+            this.setListviewReloadResponse(this.createListViewHtml());
 
             this.listviewActionListeners = {
                 start: this.mockListener('action-start'),
@@ -128,14 +123,14 @@
             var defaultStatus = {
                 sort_key: 'regular_field-name',
                 sort_order: 'ASC',
+                selection: 'multiple',
                 selected_rows: '',
                 q_filter: '{}',
                 ct_id: 67
             };
 
             options = $.extend({
-                id: 'list',
-                multiple: true,
+                mode: 'multiple',
                 widgetclasses: [],
                 tableclasses: [],
                 columns: [],
@@ -143,11 +138,21 @@
                 actions: [],
                 hatbarcontrols: [],
                 hatbarbuttons: [],
-                status: {}
+                status: {},
+                reloadurl: 'mock/listview/reload'
             }, options || {});
 
+            var isSelectableMode = options.mode !== 'none';
+
             var renderRow = function(row) {
-                return Array.isArray(row) ? '<tr class="selectable">' + row.join('') + '</tr>' : row;
+                if (Object.isString(row)) {
+                    return row;
+                }
+
+                return '<tr class="lv-row ${selectable}">${cells}</tr>'.template({
+                    selectable: isSelectableMode ? 'selectable' : '',
+                    cells: row
+                });
             };
 
             var renderColumnTitle = function(column) {
@@ -160,7 +165,7 @@
 
             var renderStatus = function(status) {
                 return Object.entries(status).map(function(data) {
-                    return '<input value="${value}" id="${name}" type="hidden" name="${name}" />'.template({name: data[0], value: data[1]});
+                    return '<input class="lv-state-field" value="${value}" id="${name}" type="hidden" name="${name}" />'.template({name: data[0], value: data[1]});
                 }).join('');
             };
 
@@ -195,7 +200,7 @@
                 return (
                     '<div class="list-control-group list-${group}">'
                         + '<fieldset>'
-                            + '<select name="${name}" class="list-${group}-selector">${options}</select>'
+                            + '<select name="${name}" class="lv-state-field list-${group}-selector">${options}</select>'
                             + '${actions}'
                         + '</fieldset>'
                     + '</div>').template({
@@ -207,7 +212,7 @@
             };
 
             return (
-                '<form class="ui-creme-widget widget-auto ui-creme-listview ${widgetclasses}" widget="ui-creme-listview" ${multiple} ${reloadurl}>'
+                '<form class="ui-creme-widget widget-auto ui-creme-listview ${widgetclasses}" widget="ui-creme-listview" selection-mode="${selectionmode}" ${reloadurl}>'
                    + '<div class="list-header-container sticky-container sticky-container-standalone">'
                        + '<div class="list-header sticks-horizontally">'
                            + '<div class="list-title-container">'
@@ -217,10 +222,12 @@
                            + '<div class="list-header-buttons clearfix">${hatbarbuttons}</div>'
                        + '</div>'
                    + '</div>'
-                   + '<table id="${id}" class="list_view listview listview-selection-multiple ${tableclasses}" data-total-count="${rowcount}">'
+                   + '<table class="listview listview-selection-multiple ${tableclasses}" data-total-count="${rowcount}">'
                        + '<thead>'
-                           + '<tr><th>${formdata}</th></tr>'
-                           + '<tr class="columns_top">'
+                           + '<tr class="lv-state-form">'
+                               + '<th>${formdata}</th>'
+                           + '</tr>'
+                           + '<tr class="lv-columns-header">'
                                + '<th class="choices"><input name="select_all" value="all" type="checkbox" title="Select All"/></th>'
                                + '<th class="actions">'
                                   + '<ul class="header-actions-list">'
@@ -232,7 +239,7 @@
                                + '</th>'
                                + '${columns}'
                            + '</tr>'
-                           + '<tr id="list_thead_search" class="columns_bottom">'
+                           + '<tr class="lv-search-header">'
                                + '${searches}'
                            + '</tr>'
                        + '</thead>'
@@ -242,7 +249,7 @@
                                + '<div class="list-footer-stats"></div>'
                                + '<div class="listview-pagination"></div>'
                                + '<div class="list-footer-page-selector">'
-                                   + '<select name="rows" class="list-pagesize-selector">'
+                                   + '<select name="rows" class="lv-state-field list-pagesize-selector">'
                                        + '<option value="10">10</option>'
                                        + '<option value="25">25</option>'
                                    + '</select>'
@@ -252,7 +259,7 @@
                    + '</table>'
                + '</form>').template({
                    id: options.id,
-                   multiple: options.multiple ? 'multiple' : '',
+                   selectionmode: options.mode,
                    reloadurl: options.reloadurl ? 'reload-url="' + options.reloadurl + '"' : '',
                    hatbarbuttons: options.hatbarbuttons.map(renderHatBarButton).join(''),
                    hatbarcontrols: options.hatbarcontrols.map(renderHeaderControl).join(''),
@@ -270,9 +277,7 @@
         createListView: function(options) {
             var html = this.createListViewHtml(options);
             var element = $(html).appendTo(this.qunitFixture());
-
             var widget = creme.widget.create(element);
-            widget.controller().setReloadUrl('mock/listview/reload');
 
             return widget;
         },
@@ -320,7 +325,7 @@
 
             return (
                 '<th class="column hd_cl_lv ${sorted}">'
-                    + '<input name="${name}" title="${label}" type="text" value="${search}">'
+                    + '<input class="lv-state-field" name="${name}" title="${label}" type="text" value="${search}">'
                 + '</th>').template({
                     label: label,
                     name: options.name,
@@ -340,7 +345,7 @@
             };
 
             return (
-                '<td class="list_view_actions actions">'
+                '<td class="lv-actions actions">'
                    + '<ul class="row-actions-list">'
                      + '<li class="row-actions-trigger">'
                        + '<div class="listview-actions-container">${actions}</div>'
@@ -364,20 +369,15 @@
 
         createDefaultListView: function(options) {
             var listOptions = $.extend(this.defaultListViewHtmlOptions(), options || {});
-
-            var html = this.createListViewHtml(listOptions);
-            var list = this.createListView(listOptions);
-
-            this.setListviewReloadContent(listOptions.id || 'list', html);
-            return list;
+            return this.createListView(listOptions);
         },
 
-        resetListviewReloadContent: function() {
-            this._listviewReloadContent = {};
-        },
+        setListviewReloadResponse: function(content, id) {
+            var url = id ? 'mock/listview/reload/%s'.format(id) : 'mock/listview/reload';
+            var responses = {};
 
-        setListviewReloadContent: function(id, content) {
-            this._listviewReloadContent[id] = content;
+            responses[url] = this.backend.response(200, content);
+            this.setMockBackendPOST(responses);
         },
 
         setListviewSelection: function(list, ids) {

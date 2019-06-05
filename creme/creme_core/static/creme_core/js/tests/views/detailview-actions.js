@@ -10,10 +10,10 @@ QUnit.module("creme.detailview.brick.actions", new QUnitMixin(QUnitEventMixin,
         backend.options.enableUriSearch = true;
 
         var selectionListHtml = this.createListViewHtml(this.defaultListViewHtmlOptions({
-            id: 'selection-list'
+            reloadurl: 'mock/listview/reload/selection-list'
         }));
 
-        this.setListviewReloadContent('selection-list', selectionListHtml);
+        this.setListviewReloadResponse(selectionListHtml, 'selection-list');
 
         this.setMockBackendGET({
             'mock/merge/selection': backend.response(200, selectionListHtml),

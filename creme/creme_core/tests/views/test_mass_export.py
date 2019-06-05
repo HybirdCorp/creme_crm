@@ -616,8 +616,8 @@ class MassExportViewsTestCase(ViewsTestCase):
     def _get_lv_content(self, response):
         page_tree = html5lib.parse(response.content, namespaceHTMLElements=False)
 
-        content_node = page_tree.find(".//table[@id='list']")
-        self.assertIsNotNone(content_node, 'The table id="list" is not found.')
+        content_node = page_tree.find(".//form[@widget='ui-creme-listview']//table[@data-total-count]")
+        self.assertIsNotNone(content_node, 'The table listviews is not found.')
 
         tbody = content_node.find(".//tbody")
         self.assertIsNotNone(tbody)

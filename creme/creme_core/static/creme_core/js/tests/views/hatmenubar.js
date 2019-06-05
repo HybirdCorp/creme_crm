@@ -13,10 +13,10 @@ QUnit.module("creme.detailview.hatmenubar", new QUnitMixin(QUnitEventMixin,
         backend.options.enableUriSearch = true;
 
         var selectionListHtml = this.createListViewHtml(this.defaultListViewHtmlOptions({
-            id: 'selection-list'
+            reloadurl: 'mock/listview/reload/selection-list'
         }));
 
-        this.setListviewReloadContent('selection-list', selectionListHtml);
+        this.setListviewReloadResponse(selectionListHtml, 'selection-list');
 
         this.setMockBackendGET({
             'mock/relation/selector': backend.response(200, selectionListHtml)
