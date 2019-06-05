@@ -28,7 +28,7 @@ import logging
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db.transaction import atomic
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse  # Http404
 from django.shortcuts import get_object_or_404  # render
 from django.urls import reverse
 from django.utils.html import escape
@@ -40,7 +40,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import EntityCredentials
-from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils import get_from_POST_or_404, bool_from_str_extended
 from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.views import decorators, generic
 from creme.creme_core.views.decorators import jsonify
@@ -505,53 +505,105 @@ class CalendarsSelection(CalendarsMixin, generic.CheckedView):
         return HttpResponse()
 
 
-@login_required
-@permission_required('activities')
-@jsonify
-@decorators.POST_only
-@atomic
-def update_activity_date(request):
-    POST = request.POST
+# @login_required
+# @permission_required('activities')
+# @jsonify
+# @decorators.POST_only
+# @atomic
+# def update_activity_date(request):
+#     POST = request.POST
+#
+#     act_id          = POST['id']
+#     start_timestamp = POST['start']
+#     end_timestamp   = POST['end']
+#     is_all_day      = POST.get('allDay')
+#
+#     is_all_day = is_all_day.lower() in {'1', 'true'} if is_all_day else False
+#
+#     try:
+#         activity = Activity.objects.select_for_update().get(pk=act_id)
+#     except Activity.DoesNotExist as e:
+#         raise Http404(str(e)) from e
+#
+#     request.user.has_perm_to_change_or_die(activity)
+#
+#     # This view is used when drag and dropping event comming from calendar
+#     # or external events (floating events).
+#     # Dropping a floating event on the calendar fixes it.
+#     if activity.floating_type == constants.FLOATING:
+#         activity.floating_type = constants.NARROW
+#
+#     activity.start = _js_timestamp_to_datetime(start_timestamp)
+#     activity.end   = _js_timestamp_to_datetime(end_timestamp)
+#
+#     if is_all_day is not None and activity.floating_type != constants.FLOATING_TIME:
+#         activity.is_all_day = is_all_day
+#         activity.handle_all_day()
+#
+#     collisions = check_activity_collisions(
+#         activity.start, activity.end,
+#         participants=[r.object_entity for r in activity.get_participant_relations()],
+#         busy=activity.busy,
+#         exclude_activity_id=activity.id,
+#     )
+#
+#     if collisions:
+#         raise ConflictError(', '.join(collisions))
+#
+#     activity.save()
+class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView):
+    """This view is used when drag & dropping Activities in the Calendar."""
+    permissions = 'activities'
+    entity_classes = Activity
+    entity_select_for_update = True
 
-    act_id          = POST['id']
-    start_timestamp = POST['start']
-    end_timestamp   = POST['end']
-    is_all_day      = POST.get('allDay')
+    activity_id_arg = 'id'
+    start_arg = 'start'
+    end_arg = 'end'
+    all_day_arg = 'allDay'
 
-    is_all_day = is_all_day.lower() in {'1', 'true'} if is_all_day else False
+    def get_related_entity_id(self):
+        return get_from_POST_or_404(self.request.POST, key=self.activity_id_arg, cast=int)
 
-    try:
-        activity = Activity.objects.select_for_update().get(pk=act_id)
-    except Activity.DoesNotExist as e:
-        raise Http404(str(e)) from e
+    @atomic
+    def post(self, request, *args, **kwargs):
+        POST = request.POST
+        start = get_from_POST_or_404(POST, key=self.start_arg,
+                                     cast=_js_timestamp_to_datetime
+                                    )
+        end = get_from_POST_or_404(POST, key=self.end_arg,
+                                    cast=_js_timestamp_to_datetime
+                                   )
+        is_all_day = get_from_POST_or_404(POST, key=self.all_day_arg,
+                                          cast=bool_from_str_extended,
+                                          default='false',
+                                         )
 
-    request.user.has_perm_to_change_or_die(activity)
+        activity = self.get_related_entity()
 
-    # This view is used when drag and dropping event comming from calendar
-    # or external events (floating events).
-    # Dropping a floating event on the calendar fixes it.
-    if activity.floating_type == constants.FLOATING:
-        activity.floating_type = constants.NARROW
+        # Dropping a floating Activity on the Calendar fixes it.
+        if activity.floating_type == constants.FLOATING:
+            activity.floating_type = constants.NARROW
 
-    # TODO: factorise (_time_from_JS() function ??)
-    activity.start = _js_timestamp_to_datetime(start_timestamp)
-    activity.end   = _js_timestamp_to_datetime(end_timestamp)
-
-    if is_all_day is not None and activity.floating_type != constants.FLOATING_TIME:
+        activity.start = start
+        activity.end = end
         activity.is_all_day = is_all_day
+
         activity.handle_all_day()
 
-    collisions = check_activity_collisions(
-        activity.start, activity.end,
-        participants=[r.object_entity for r in activity.get_participant_relations()],
-        busy=activity.busy,
-        exclude_activity_id=activity.id,
-    )
+        collisions = check_activity_collisions(
+            activity.start, activity.end,
+            participants=[r.object_entity for r in activity.get_participant_relations()],
+            busy=activity.busy,
+            exclude_activity_id=activity.id,
+        )
 
-    if collisions:
-        raise ConflictError(', '.join(collisions))  # TODO: improve msg ??
+        if collisions:
+            raise ConflictError(', '.join(collisions))  # TODO: improve message?
 
-    activity.save()
+        activity.save()
+
+        return HttpResponse()
 
 
 class CalendarCreation(generic.CremeModelCreationPopup):

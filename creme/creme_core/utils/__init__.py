@@ -35,7 +35,6 @@ from django.utils.translation import gettext as _
 
 from ..signals import pre_replace_related
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -921,12 +921,14 @@ class CalendarTestCase(_ActivitiesTestCase):
                                      )
 
         url = self.UPDATE_URL
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET(405, url)
 
         offset = timedelta(days=1, hours=2)
         new_start = start + offset
         new_end   = end  + offset
-        self.assertPOST(400, url, data={'id': act.id})
+        # self.assertPOST(400, url, data={'id': act.id})
+        self.assertPOST404(url, data={'id': act.id})
         self.assertPOST200(url, data={'id':    act.id,
                                       'start': self._build_ts(new_start),
                                       'end':   self._build_ts(new_end),
@@ -980,9 +982,10 @@ class CalendarTestCase(_ActivitiesTestCase):
                                      )
 
         url = self.UPDATE_URL
-        self.assertGET404(url)
+        # self.assertGET404(url)
 
-        self.assertPOST(400, url, data={'id': act.id})
+        # self.assertPOST(400, url, data={'id': act.id})
+        self.assertPOST404(url, data={'id': act.id})
         self.assertPOST200(url, data={'id':     act.id,
                                       'start':  self._build_ts(start),
                                       'end':    self._build_ts(end),
