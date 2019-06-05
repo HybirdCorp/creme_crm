@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,6 @@ from . import get_activity_model, constants
 from .models import Calendar
 from .setting_keys import review_key
 
-
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
@@ -58,9 +57,9 @@ class ParticipantsBrick(QuerysetBrick):
     def detailview_display(self, context):
         activity = context['object']
         btc = self.get_template_context(
-                    context,
-                    activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
-                                      .select_related('type', 'object_entity'),
+            context,
+            activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
+                              .select_related('type', 'object_entity'),
         )
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??
@@ -77,7 +76,9 @@ class ParticipantsBrick(QuerysetBrick):
                                 if contact.is_user_id
                          }
 
-        for calendar in Calendar.objects.filter(user__in=users_contacts.keys(), activity=activity.id):
+        for calendar in Calendar.objects.filter(user__in=users_contacts.keys(),
+                                                activity=activity.id,
+                                               ):
             users_contacts[calendar.user_id].calendar_cache = calendar
 
         return self._render(btc)
@@ -95,9 +96,9 @@ class SubjectsBrick(QuerysetBrick):
     def detailview_display(self, context):
         activity = context['object']
         btc = self.get_template_context(
-                    context,
-                    activity.relations.filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
-                            .select_related('type', 'object_entity'),
+            context,
+            activity.relations.filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
+                    .select_related('type', 'object_entity'),
         )
 
         Relation.populate_real_object_entities(btc['page'].object_list)
@@ -108,17 +109,19 @@ class SubjectsBrick(QuerysetBrick):
 class FutureActivitiesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('activities', 'future_activities')
     dependencies  = (Relation, Activity)
-    relation_type_deps = (constants.REL_SUB_LINKED_2_ACTIVITY,
-                          constants.REL_SUB_ACTIVITY_SUBJECT,
-                          constants.REL_SUB_PART_2_ACTIVITY,
-                         )
+    relation_type_deps = (
+        constants.REL_SUB_LINKED_2_ACTIVITY,
+        constants.REL_SUB_ACTIVITY_SUBJECT,
+        constants.REL_SUB_PART_2_ACTIVITY,
+    )
     verbose_name  = _('Future activities')
     template_name = 'activities/bricks/future-activities.html'
 
-    _RTYPES_2_POP = (constants.REL_OBJ_PART_2_ACTIVITY,
-                     constants.REL_OBJ_ACTIVITY_SUBJECT,
-                     constants.REL_OBJ_LINKED_2_ACTIVITY,
-                    )
+    _RTYPES_2_POP = (
+        constants.REL_OBJ_PART_2_ACTIVITY,
+        constants.REL_OBJ_ACTIVITY_SUBJECT,
+        constants.REL_OBJ_LINKED_2_ACTIVITY,
+    )
 
     def _get_queryset_for_entity(self, entity, context):
         if isinstance(entity, Organisation):
@@ -155,17 +158,17 @@ class FutureActivitiesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    self._get_queryset_for_entity(context['object'], context).select_related('status'),
-                    rtype_id=constants.REL_SUB_LINKED_2_ACTIVITY,
+            context,
+            self._get_queryset_for_entity(context['object'], context).select_related('status'),
+            rtype_id=constants.REL_SUB_LINKED_2_ACTIVITY,
         ))
 
     def home_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    self._get_queryset_for_entity(context['user'].linked_contact, context)
-                        .select_related('status'),
-                    is_home=True,
+            context,
+            self._get_queryset_for_entity(context['user'].linked_contact, context)
+                .select_related('status'),
+            is_home=True,
         ))
 
 
@@ -188,17 +191,18 @@ class UserCalendarsBrick(QuerysetBrick):
     template_name = 'activities/bricks/user-calendars.html'
     configurable  = False
     order_by      = 'name'
-    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic ; None means 'No special permission required'
+    permission    = None  # NB: used by the view creme_core.views.bricks.reload_basic() ;
+                          #     None means "No special permission required".
 
     def detailview_display(self, context):
         # NB: credentials are OK, because we retrieve only Calendars related of the user.
         user = context['user']
         # In case the user has just been created, creates his default calendar
-        Calendar.get_user_default_calendar(user)
+        Calendar.objects.get_default_calendar(user)
         return self._render(self.get_template_context(
-                    context,
-                    Calendar.objects.filter(user=user),
-                    has_app_perm=user.has_perm('activities'),
+            context,
+            Calendar.objects.filter(user=user),
+            has_app_perm=user.has_perm('activities'),
         ))
 
 
@@ -215,6 +219,6 @@ class RelatedCalendarBrick(QuerysetBrick):
         user = context['user']
         activity = context['object']
         return self._render(self.get_template_context(
-                    context,
-                    activity.calendars.filter(user=user),
+            context,
+            activity.calendars.filter(user=user),
         ))

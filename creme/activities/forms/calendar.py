@@ -38,7 +38,8 @@ class CalendarForm(base.CremeModelForm):
         super().__init__(*args, **kwargs)
 
         if not self.instance.pk:
-            self.fields['color'].initial = Calendar.new_color()
+            # self.fields['color'].initial = Calendar.new_color()
+            self.fields['color'].initial = Calendar.objects.new_color()
 
     def get_user(self):
         return self.user
@@ -53,11 +54,12 @@ class CalendarConfigForm(CalendarForm):
         super().__init__(*args, **kwargs)
 
         if not self.instance.pk:
-            self.fields['user'] = ModelChoiceField(label=_('User'),
-                                                   queryset=get_user_model().objects.filter(is_staff=False),
-                                                   empty_label=None,
-                                                   initial=self.user.id,
-                                                  )
+            self.fields['user'] = ModelChoiceField(
+                label=_('User'),
+                queryset=get_user_model().objects.filter(is_staff=False),
+                empty_label=None,
+                initial=self.user.id,
+            )
 
     def get_user(self):
         return self.cleaned_data.get('user') or self.instance.user

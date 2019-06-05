@@ -124,6 +124,63 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(cal, def_cal)
         self.assertTrue(def_cal.is_default)
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendar01(self):
+        user = self.login()
+        self.assertFalse(Calendar.objects.filter(user=user))
+
+        with self.assertNumQueries(3):
+            def_cal = Calendar.objects.get_default_calendar(user)
+
+        self.assertEqual(_("{user}'s calendar").format(user=user),
+                         def_cal.name,
+                        )
+
+        def_cal2 = self.assertUserHasDefaultCalendar(user)
+        self.assertEqual(def_cal, def_cal2)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendar02(self):
+        "Default already exists."
+        user = self.login()
+
+        cal1 = Calendar.objects.create(is_default=True, user=user)
+
+        with self.assertNumQueries(1):
+            def_cal = Calendar.objects.get_default_calendar(user)
+
+        self.assertEqual(cal1, def_cal)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendar03(self):
+        "There are several default calendars."
+        user = self.login()
+        cal1 = Calendar.objects.create(is_default=True, user=user, name='Cal#1')
+        cal2 = Calendar.objects.create(user=user, name='Cal#2')
+        Calendar.objects.filter(id=cal2.id).update(is_default=True)
+
+        # Be sure that we well managed the automatic save() behaviour
+        self.assertEqual(2, Calendar.objects.filter(is_default=True, user=user).count())
+
+        self.assertEqual(cal1, Calendar.objects.get_default_calendar(user))
+        self.assertFalse(self.refresh(cal2).is_default)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendar04(self):
+        "No default Calendar in existing ones."
+        user = self.login()
+        cal = Calendar.objects.create(user=user, name='Cal #1')
+        Calendar.objects.filter(id=cal.id).update(is_default=False)
+
+        # Be sure that we well managed the automatic save() behaviour
+        self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
+
+        with self.assertNumQueries(2):
+            def_cal = Calendar.objects.get_default_calendar(user)
+
+        self.assertEqual(cal, def_cal)
+        self.assertTrue(def_cal.is_default)
+
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
     def test_user_default_calendar_auto01(self):
         user = self.login()
@@ -337,7 +394,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         create_act(1)
         act2 = create_act(2)
-        act2.calendars.add(Calendar.get_user_default_calendar(user))
+        act2.calendars.add(Calendar.objects.get_default_calendar(user))
 
         response = self.assertGET200(self.CALENDAR_URL)
 
@@ -392,7 +449,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_add_user_calendar02(self):
         "Only one default calendar."
         user = self.login(is_superuser=False)
-        cal1 = Calendar.get_user_default_calendar(user)
+        cal1 = Calendar.objects.get_default_calendar(user)
 
         name = 'My pretty calendar'
         self.assertNoFormError(self.client.post(self.ADD_URL,
@@ -416,7 +473,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_edit_user_calendar01(self):
         user = self.login()
-        cal = Calendar.get_user_default_calendar(user)
+        cal = Calendar.objects.get_default_calendar(user)
         url = reverse('activities__edit_calendar', args=(cal.id,))
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
@@ -439,26 +496,26 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_edit_user_calendar02(self):
         "Edit calendar of another user."
         self.login()
-        cal = Calendar.get_user_default_calendar(self.other_user)
+        cal = Calendar.objects.get_default_calendar(self.other_user)
         self.assertGET403(reverse('activities__edit_calendar', args=(cal.id,)))
 
     def test_edit_user_calendar03(self):
         "Not super-user"
         user = self.login(is_superuser=False, allowed_apps=['persons', 'activities'])
-        cal = Calendar.get_user_default_calendar(user)
+        cal = Calendar.objects.get_default_calendar(user)
         self.assertGET200(reverse('activities__edit_calendar', args=(cal.id,)))
 
     def test_edit_user_calendar04(self):
         "App credentials needed."
         user = self.login(is_superuser=False, allowed_apps=['persons'])  # 'activities'
-        cal = Calendar.get_user_default_calendar(user)
+        cal = Calendar.objects.get_default_calendar(user)
         self.assertGET403(reverse('activities__edit_calendar', args=(cal.id,)))
 
     def test_delete_calendar01(self):
         "Not custom -> error"
         user = self.login()
 
-        Calendar.get_user_default_calendar(user)
+        Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=False)
 
         url = self.DEL_CALENDAR_URL
@@ -477,7 +534,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_delete_calendar02(self):
         user = self.login()
 
-        Calendar.get_user_default_calendar(user)
+        Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
         url = self.DEL_CALENDAR_URL
@@ -489,7 +546,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         "No super user"
         user = self.login(is_superuser=False)
 
-        Calendar.get_user_default_calendar(user)
+        Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
         self.assertPOST200(self.DEL_CALENDAR_URL, data={'id': cal.id})
@@ -500,7 +557,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.login(is_superuser=False)
         other_user = self.other_user
 
-        Calendar.get_user_default_calendar(other_user)
+        Calendar.objects.get_default_calendar(other_user)
         cal = Calendar.objects.create(user=other_user, name='Cal #1', is_custom=True)
 
         self.assertPOST403(self.DEL_CALENDAR_URL, data={'id': cal.id})
@@ -509,7 +566,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_delete_calendar05(self):
         "reassign activities calendars"
         user = self.login()
-        default_calendar = Calendar.get_user_default_calendar(user)
+        default_calendar = Calendar.objects.get_default_calendar(user)
 
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
         act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
@@ -525,9 +582,9 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @skipIfCustomActivity
     def test_change_activity_calendar01(self):
-        "Reassign activity calendar"
+        "Reassign activity calendar."
         user = self.login()
-        default_calendar = Calendar.get_user_default_calendar(user)
+        default_calendar = Calendar.objects.get_default_calendar(user)
 
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
         act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
@@ -557,7 +614,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_change_activity_calendar02(self):
         "Multiple calendars => error (waiting the right solution)."
         user = self.login()
-        default_calendar = Calendar.get_user_default_calendar(user)
+        default_calendar = Calendar.objects.get_default_calendar(user)
 
         create_cal = partial(Calendar.objects.create, user=user, is_custom=True)
         cal1 = create_cal(name='Cal #1')
@@ -574,7 +631,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_change_activity_calendar03(self):
         "Credentials: user can always change its calendars"
         user = self.login(is_superuser=False)
-        default_calendar = Calendar.get_user_default_calendar(user)
+        default_calendar = Calendar.objects.get_default_calendar(user)
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
@@ -609,7 +666,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         act = Activity.objects.create(user=self.other_user,
                                       title='Act#1', type_id=ACTIVITYTYPE_TASK,
                                      )
-        act.calendars.add(Calendar.get_user_default_calendar(user))
+        act.calendars.add(Calendar.objects.get_default_calendar(user))
         self.assertGET403(self.build_link_url(act.id))
 
     # def test_get_users_activities01(self):
@@ -617,16 +674,16 @@ class CalendarTestCase(_ActivitiesTestCase):
         "One user, no Activity"
         user = self.login()
 
-        response = self._get_cal_activities([Calendar.get_user_default_calendar(user)])
+        response = self._get_cal_activities([Calendar.objects.get_default_calendar(user)])
         self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual([], response.json())
 
     @skipIfCustomActivity
     # def test_get_users_activities02(self):
     def test_activities_data02(self):
-        "One user, several activities"
+        "One user, several activities."
         user = self.login()
-        cal = Calendar.get_user_default_calendar(user)
+        cal = Calendar.objects.get_default_calendar(user)
         Calendar.objects.create(user=user, name='Other Cal #1', is_custom=True)
 
         create_dt = self.create_datetime
@@ -720,8 +777,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.login()
         other_user = self.other_user
 
-        cal1 = Calendar.get_user_default_calendar(user)
-        cal2 = Calendar.get_user_default_calendar(other_user)
+        cal1 = Calendar.objects.get_default_calendar(user)
+        cal2 = Calendar.objects.get_default_calendar(other_user)
         cal3 = Calendar.objects.create(user=other_user, name='Cal #3',
                                        is_custom=True, is_default=False,
                                        is_public=True,
@@ -777,8 +834,8 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         other_user = self.other_user
 
-        cal1 = Calendar.get_user_default_calendar(user)
-        cal2 = Calendar.get_user_default_calendar(other_user)
+        cal1 = Calendar.objects.get_default_calendar(user)
+        cal2 = Calendar.objects.get_default_calendar(other_user)
         cal3 = Calendar.objects.create(user=other_user, name='Cal #3',
                                        is_custom=True, is_default=False,
                                        is_public=True,
@@ -821,8 +878,8 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         other_user = self.other_user
 
-        cal1 = Calendar.get_user_default_calendar(user)
-        cal2 = Calendar.get_user_default_calendar(other_user)
+        cal1 = Calendar.objects.get_default_calendar(user)
+        cal2 = Calendar.objects.get_default_calendar(other_user)
         cal3 = Calendar.objects.create(user=other_user, name='Cal #3',
                                        is_custom=True, is_default=False,
                                        is_public=False,
@@ -966,7 +1023,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_config02(self): 
         "Only one default"
         user = self.login()
-        cal1 = Calendar.get_user_default_calendar(user)
+        cal1 = Calendar.objects.get_default_calendar(user)
 
         name = 'My default Cal'
         self.assertNoFormError(self.client.post(self.CONF_ADD_URL,
@@ -1001,7 +1058,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_config03(self): 
         "Edition"
         user = self.login()
-        cal1 = Calendar.get_user_default_calendar(user)
+        cal1 = Calendar.objects.get_default_calendar(user)
 
         name = 'cal#1'
         cal2 = Calendar.objects.create(user=user, name=name)
@@ -1037,7 +1094,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_colorfield(self):
         user = self.login()
-        cal = Calendar.get_user_default_calendar(user)
+        cal = Calendar.objects.get_default_calendar(user)
 
         cal.color = 'FF0000'
         with self.assertNoException():
@@ -1053,9 +1110,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.login()
         other_user = self.other_user
 
-        cal11 = Calendar.get_user_default_calendar(user)
+        cal11 = Calendar.objects.get_default_calendar(user)
         cal12 = Calendar.objects.create(user=user, name='Cal#12')
-        cal21 = Calendar.get_user_default_calendar(other_user)
+        cal21 = Calendar.objects.get_default_calendar(other_user)
         cal22 = Calendar.objects.create(user=other_user, name='Cal#22')
         self.assertTrue(self.refresh(cal11).is_default)
         self.assertFalse(self.refresh(cal12).is_default)

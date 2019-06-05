@@ -558,7 +558,7 @@ def _add_participants(activity, persons):
 
             # TODO: we should move this in a signal in activities
             if person.is_user:
-              activity.calendars.add(Calendar.get_user_default_calendar(person.is_user))
+                activity.calendars.add(Calendar.objects.get_default_calendar(person.is_user))
         else:
             create_relation(object_entity=person, type_id=act_constants.REL_OBJ_ACTIVITY_SUBJECT)
 

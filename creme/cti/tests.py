@@ -106,7 +106,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
         self.assertRelationCount(1, contact,      a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
 
-        calendar = Calendar.get_user_default_calendar(user)
+        calendar = Calendar.objects.get_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
 
     @skipIfCustomActivity
@@ -300,7 +300,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
         self.assertRelationCount(1, contact,      a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
 
-        calendar = Calendar.get_user_default_calendar(user)
+        calendar = Calendar.objects.get_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
 
     @skipIfCustomActivity
@@ -315,7 +315,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         phone_call = activities[0]
         self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
 
-        calendar = Calendar.get_user_default_calendar(user)
+        calendar = Calendar.objects.get_default_calendar(user)
         self.assertTrue(phone_call.calendars.filter(pk=calendar.id).exists())
 
     @skipIfCustomActivity
@@ -330,7 +330,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertRelationCount(1, self.contact,            a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
         self.assertRelationCount(1, self.contact_other_user, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
 
-        get_cal = Calendar.get_user_default_calendar
+        get_cal = Calendar.objects.get_default_calendar
         filter_calendars = phone_call.calendars.filter
         self.assertTrue(filter_calendars(pk=get_cal(user).id).exists())
         self.assertTrue(filter_calendars(pk=get_cal(self.other_user).id).exists())
