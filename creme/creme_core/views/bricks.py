@@ -85,10 +85,10 @@ def bricks_render_info(request, bricks, context=None,
 
     @param request: Classical 'request' argument of views.
     @param bricks: Iterable of Bricks instances.
-    @param context: Dictionnary used to render the template, or None (then a default one is used).
+    @param context: Dictionary used to render the template, or None (then a default one is used).
     @param brick_render_function: A callable which takes the 2 following arguments:
             - 'brick': a Brick instances (from 'bricks').
-            - 'context': the template context (dictionnary).
+            - 'context': the template context (dictionary).
             See render_detailview_brick()/render_home_brick().
     @param check_permission: A boolean indicating if the attribute 'permission' of the bricks
            instances has to be checked.

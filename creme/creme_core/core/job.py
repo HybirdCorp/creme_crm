@@ -142,7 +142,7 @@ class _BaseJobManagerQueue:
         Abstract method ; should be overridden.
         Overridding method should not raise exception, and raise 'False' instead.
         @param job: Instance of creme_core.models.Job.
-        @param data: JSON-compliant dictionnary containing new values for fields.
+        @param data: JSON-compliant dictionary containing new values for fields.
         @return Boolean ; 'True' means 'error'.
         """
         raise NotImplementedError
@@ -156,7 +156,7 @@ class _BaseJobManagerQueue:
                  The command's type is in {CMD_START, CMD_END, CMD_REFRESH, CMD_PING}.
                  The command's id is the related Job's id, excepted for the command CMD_PING,
                  where it is a string which should be given to the pong() method.
-                 The command's data is only for CMD_REFRESH (dictionnary with new values).
+                 The command's data is only for CMD_REFRESH (dictionary with new values).
         """
         raise NotImplementedError
 
