@@ -273,8 +273,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         # self.assertEqual(user.username, user_name)
 
         # self.assertEqual({}, others_calendars)
-        self.assertIsInstance(others_calendars, dict)
-        self.assertIsNone(others_calendars.get(self.other_user))
+        self.assertIsInstance(others_calendars, list)
+        self.assertIsNone(dict(others_calendars).get(self.other_user))
 
         self.assertIs(enable_calendars_search, False)
         self.assertIs(enable_floating_search, False)
@@ -285,12 +285,18 @@ class CalendarTestCase(_ActivitiesTestCase):
         "Some calendars selected ; floating activities."
         user = self.login()
         other_user = self.other_user
+        staff_user = CremeUser.objects.create_superuser(
+            username='staffman', first_name='Richard', last_name='Staffman',
+            email='richard@freestaffoundation.org',
+            is_staff=True,
+        )
 
         create_cal = Calendar.objects.create
         cal1 = create_cal(user=user,       is_default=True, name='Cal #1')
         cal2 = create_cal(user=other_user, is_default=True, name='Cal #2', is_public=True)
         cal3 = create_cal(user=other_user, name='Cal #3', is_public=False)
         cal4 = create_cal(user=other_user, name='Cal #4', is_public=True)
+        create_cal(user=staff_user, name='Cal #5', is_public=True)  # Should not be used
 
         create_act = partial(Activity.objects.create, user=user,
                              type_id=ACTIVITYTYPE_TASK, floating_type=FLOATING,
@@ -333,11 +339,10 @@ class CalendarTestCase(_ActivitiesTestCase):
             my_cal_ids = ctxt['my_selected_calendar_ids']
             # user_name = ctxt['user_username']
             # event_url = ctxt['events_url']
-            others_calendars = ctxt['others_calendars']
+            others_calendars = dict(ctxt['others_calendars'])
             other_cal_ids = ctxt['others_selected_calendar_ids']
             # n_others_calendars = ctxt['n_others_calendars']
             # creme_calendars_by_user = ctxt['creme_calendars_by_user']
-            calendars_by_user = ctxt['other_calendars_search_data']
             # creation_perm = ctxt['creation_perm']
 
         # self.assertEqual(user.username, user_name)
@@ -348,8 +353,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         # self.assertEqual(reverse('activities__calendars_activities'), event_url)
 
         # self.assertEqual({other_user: [cal2]}, others_calendars)
-        self.assertIsInstance(others_calendars, dict)
         self.assertCountEqual([cal2, cal4], others_calendars.get(other_user))
+        self.assertNotIn(staff_user, others_calendars)
+
         self.assertSetEqual({cal2.id}, other_cal_ids)
 
         # self.assertEqual(1, n_others_calendars)
@@ -361,17 +367,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         # self.assertEqual(json_dump({filter_key: [{'name': cal2.name, 'id': cal2.id}]}),
         #                  creme_calendars_by_user
         #                 )
-        self.assertIsInstance(calendars_by_user, dict)
-        self.assertEqual([{'name': cal2.name, 'id': cal2.id},
-                          {'name': cal4.name, 'id': cal4.id},
-                         ],
-                         calendars_by_user.get(
-                             '{} {} {}'.format(other_user.username,
-                                               other_user.first_name,
-                                               other_user.last_name,
-                                              )
-                            )
-                        )
 
         # self.assertIs(creation_perm, True)
 

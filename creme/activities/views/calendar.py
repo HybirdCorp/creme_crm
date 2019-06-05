@@ -31,7 +31,7 @@ from django.db.transaction import atomic
 from django.http import HttpResponse  # Http404
 from django.shortcuts import get_object_or_404  # render
 from django.urls import reverse
-from django.utils.html import escape
+# from django.utils.html import escape
 from django.utils.timezone import now, make_naive, get_current_timezone
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -42,6 +42,7 @@ from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import EntityCredentials
 from creme.creme_core.utils import get_from_POST_or_404, bool_from_str_extended
 from creme.creme_core.utils.dates import make_aware_dt
+from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import decorators, generic
 from creme.creme_core.views.decorators import jsonify
 
@@ -233,7 +234,10 @@ class CalendarView(generic.CheckedTemplateView):
     def get_calendars(self, user):
         # NB: we retrieve all the user's Calendars to check the presence of the
         #     default one (& create it if needed) by avoiding an extra query.
-        calendars = list(Calendar.objects.filter(Q(user=user) | Q(is_public=True)))
+        calendars = list(Calendar.objects.filter(Q(user=user) |
+                                                 Q(is_public=True, user__is_staff=False)
+                                                )
+                        )
 
         if next(self._filter_default_calendars(user, calendars), None) is None:
             calendars.append(Calendar.objects.create_default_calendar(user=user))
@@ -248,7 +252,6 @@ class CalendarView(generic.CheckedTemplateView):
 
         my_calendars = []
         others_calendars = defaultdict(list)
-        other_calendars_search_data = defaultdict(list)
         others_calendar_ids = []
 
         for calendar in calendars:
@@ -257,22 +260,15 @@ class CalendarView(generic.CheckedTemplateView):
             if cal_user == user:
                 my_calendars.append(calendar)
             else:
-                others_calendar_ids.append(calendar.id)
-                filter_key = escape('{} {} {}'.format(
-                    cal_user.username,
-                    cal_user.first_name,
-                    cal_user.last_name,
-                ))
-                cal_user.filter_key = filter_key
                 others_calendars[cal_user].append(calendar)
-                other_calendars_search_data[filter_key].append(
-                    {'name': escape(calendar.name),
-                     'id': calendar.id,
-                    }
-                )
+                others_calendar_ids.append(calendar.id)
 
         context['my_calendars'] = my_calendars
-        context['others_calendars'] = dict(others_calendars)  # defauldicts are a bad idea in templates...
+
+        sort_key = collator.sort_key
+        other_users = list(others_calendars.keys())
+        other_users.sort(key=lambda u: sort_key(str(u)))
+        context['others_calendars'] = [(u, others_calendars[u]) for u in other_users]
 
         selected_calendars_ids = set(
             self.get_selected_calendar_ids(calendars) or
@@ -290,7 +286,6 @@ class CalendarView(generic.CheckedTemplateView):
         context['enable_calendars_search'] = (
                 len(calendars) >= self.calendars_search_threshold
         )  # TODO: unit test for <True> case
-        context['other_calendars_search_data'] = other_calendars_search_data
 
         context['floating_activities'] = f_activities = self.get_floating_activities()
         context['enable_floating_activities_search'] = (

@@ -46,7 +46,6 @@ from ..utils.serializers import json_encode
 from ..utils.translation import plural
 from ..utils.unicode_collation import collator
 
-
 logger = logging.getLogger(__name__)
 register = Library()
 

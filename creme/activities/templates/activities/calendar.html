@@ -1,9 +1,16 @@
 {% extends 'creme_core/base.html' %}
-{% load i18n creme_core_tags creme_widgets %}
+{% load i18n creme_core_tags activities_tags %}
 
 {% block page_title %}{% trans 'Calendars' %} - {% endblock %}
 
 {% block extrahead %}
+    {% blockjsondata id='data-others-calendars' %}{
+      {% for user, calendars in others_calendars %}
+        "{{user|activities_user_key}}": [
+            {% for calendar in calendars %}{"name": "{{calendar.name}}", "id": {{calendar.id}} }{% if not forloop.last %}, {% endif %}{% endfor %}
+        ]{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    }{% endblockjsondata %}
     <script type='text/javascript'>
         $(document).ready(function() {
 {% comment %}
@@ -11,7 +18,10 @@
             creme.activities.calendar.loadCalendarEventListeners('{{user_username}}', {{creme_calendars_by_user|safe}});
 {% endcomment %}
             creme.activities.calendar.fullCalendar('{% url "activities__calendars_activities" %}', '{% url "activities__create_activity_popup" %}', '{% url "activities__set_activity_dates" %}');
-            creme.activities.calendar.loadCalendarEventListeners('{{user.username}}', '{% url 'activities__select_calendars' %}', {{other_calendars_search_data|jsonify|safe}});
+
+            /* Not a widget, so we cannot embed the <script> node with our data ; so we retrieve it manually. */
+            var calendarSearchData = JSON.parse(creme.utils.JSON.readScriptText($('script#data-others-calendars')));
+            creme.activities.calendar.loadCalendarEventListeners('{{user.username}}', '{% url 'activities__select_calendars' %}', calendarSearchData);
         });
     </script>
 {% endblock %}
@@ -69,11 +79,13 @@
                     <div class='calendar_filter toggle-target'><input type='search' placeholder="{% trans 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
                 {% endif %}
                 <div class="other_calendars menu_sub_element_list toggle-target">
-                    {% for user, calendars in others_calendars.items %}
-                        <h5 class="calendar_label_owner" data-user="{{user.filter_key}}">{{user}}</h5>
-                        <div class="calendar_user_group" data-user="{{user.filter_key}}">
+{#                    {% for user, calendars in others_calendars.items %} #}
+                    {% for user, calendars in others_calendars %}
+                    {% with user_key=user|activities_user_key %}
+                        <h5 class="calendar_label_owner" data-user="{{user_key}}">{{user}}</h5>
+                        <div class="calendar_user_group" data-user="{{user_key}}">
                             {% for calendar in calendars %}
-                                <div class="calendar_item calendar_label_container" data-user="{{user.filter_key}}" data-calendar="{{calendar.id}}">
+                                <div class="calendar_item calendar_label_container" data-user="{{user_key}}" data-calendar="{{calendar.id}}">
                                     <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
 {#                                    <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="selected_calendars" {% if calendar.id|str in current_calendars %} checked {% endif %} /> #}
                                     <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
@@ -81,6 +93,7 @@
                                 </div>
                             {% endfor %}
                         </div> <!-- /.calendar_user_group -->
+                    {% endwith %}
                     {% empty%}
                         {% trans 'No calendars' %}
                     {% endfor %}
