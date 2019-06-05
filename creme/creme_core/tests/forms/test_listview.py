@@ -36,7 +36,7 @@ class SearchWidgetsTestCase(CremeTestCase):
         self.assertEqual('baz', get_value(data={name: value}))
 
         self.assertHTMLEqual(
-            '<input name="{name}" type="text" value="{value}" />'.format(
+            '<input class="lv-state-field" name="{name}" type="text" value="{value}" />'.format(
                 name=name, value=value,
             ),
             widget.render(name=name, value=value)
@@ -54,7 +54,7 @@ class SearchWidgetsTestCase(CremeTestCase):
         self.assertEqual(False, get_value(data={name: '0'}))
 
         self.assertHTMLEqual(
-            '<select name="{name}">'
+            '<select class="lv-state-field" name="{name}">'
                '<option value="">{all}</option>'
                '<option value="1" selected>{yes}</option>'
                '<option value="0">{no}</option>'
@@ -81,7 +81,7 @@ class SearchWidgetsTestCase(CremeTestCase):
         self.assertEqual(False,  get_value(data={name: '0'}))
 
         self.assertHTMLEqual(
-            '<select name="{name}">'
+            '<select class="lv-state-field" name="{name}">'
                '<option value="">{all}</option>'
                '<option value="NULL" selected>{null}</option>'
                '<option value="1">{yes}</option>'
@@ -109,7 +109,7 @@ class SearchWidgetsTestCase(CremeTestCase):
         self.assertEqual((), widget.choices)
 
         self.assertHTMLEqual(
-            '<select name="{name}"></select>'.format(
+            '<select class="lv-state-field" name="{name}"></select>'.format(
                 name=name,
             ),
             widget.render(name=name, value=value)
@@ -128,7 +128,7 @@ class SearchWidgetsTestCase(CremeTestCase):
 
         name = 'foo'
         self.assertHTMLEqual(
-            '<select name="{name}">'
+            '<select class="lv-state-field" name="{name}">'
                '<option value="">All</option>'
                '<option value="1">one</option>'
                '<option value="2" selected>two</option>'
@@ -156,7 +156,7 @@ class SearchWidgetsTestCase(CremeTestCase):
 
         name = 'foob'
         self.assertHTMLEqual(
-            '<select name="{name}">'
+            '<select class="lv-state-field" name="{name}">'
                 '<option value="">All</option>'
                 '<option value="NULL" class="search-nullfk">Nothing</option>'
                 '<optgroup label="Numbers">'
@@ -189,7 +189,7 @@ class SearchWidgetsTestCase(CremeTestCase):
 
         name = 'search-birthday'
         self.assertHTMLEqual(
-            '<div class="lv-search-daterange">'
+            '<div class="lv-state-field lv-search-daterange">'
                 '<div class="date-start">'
                     '<label for="id_birth-start">{start_label}</label>'
                     '<input data-format="{format}" id="id_birth-start" name="{name}-start" value="12-02-2019" />'
@@ -916,7 +916,7 @@ class SearchFormTestCase(CremeTestCase):
         self.assertEqual(Q(), form.search_q)
 
         self.assertHTMLEqual(  # NB: not "required"
-            '<input id="id_search-{key}" name="search-{key}" type="text" />'.format(
+            '<input class="lv-state-field" id="id_search-{key}" name="search-{key}" type="text" />'.format(
                 key=fname_cell.key
             ),
             str(form[fname_cell.key])

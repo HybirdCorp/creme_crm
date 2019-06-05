@@ -102,7 +102,7 @@ QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', functi
             q_filter: ['{}'],
             rows: ['10'],
             selected_rows: [''],
-            selection: 'multiple',
+            selection: ['multiple'],
             sort_key: ['regular_field-name'],
             sort_order: ['ASC']
         }]

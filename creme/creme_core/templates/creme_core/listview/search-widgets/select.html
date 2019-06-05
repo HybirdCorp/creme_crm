@@ -1,4 +1,4 @@
-{% load i18n %}<select name="{{widget.name}}" {# title="{{cell.title}}" #} >
+{% load i18n %}<select class="lv-state-field" name="{{widget.name}}" {# title="{{cell.title}}" #} >
 {% with NULL_FK=widget.NULL_FK %}
 {% for group_name, group_choices in widget.choices %}
     {% if group_name %}<optgroup label="{{group_name}}">{% endif %}

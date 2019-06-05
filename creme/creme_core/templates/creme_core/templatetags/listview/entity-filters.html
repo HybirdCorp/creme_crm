@@ -3,7 +3,7 @@
     <div class="legend">
         {% trans 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
     </div>
-    <select name="filter" class="list-filters-selector">
+    <select name="filter" class="lv-state-field list-filters-selector">
         <option value="">{% trans 'All' %}</option>
         {% for efilter in entity_filters %}
             <option value="{{efilter.id}}"{% if efilter_id == efilter.id %} selected{% endif %}>{{efilter.name}}</option>

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from enum import Enum
 from functools import partial
 # from itertools import chain
 from json import loads as json_load  # dumps as json_dump
@@ -55,22 +56,21 @@ from . import base
 logger = logging.getLogger(__name__)
 
 # MODE_NORMAL = 0  # TODO ? (no selection)
-MODE_SINGLE_SELECTION = 1
-MODE_MULTIPLE_SELECTION = 2
+# MODE_SINGLE_SELECTION = 1
+# MODE_MULTIPLE_SELECTION = 2
 
-
-# TODO: move as EntitiesList method ?
-def str_to_mode(value):
-    """Convert a string to list-view mode.
-    Useful to convert a GET parameter.
-    """
-    if value == 'single':
-        return MODE_SINGLE_SELECTION
-
-    if value == 'multiple':
-        return MODE_MULTIPLE_SELECTION
-
-    raise ValueError('Must be "single" or "multiple"')
+# TODO: remove it later
+# def str_to_mode(value):
+#     """Convert a string to list-view mode.
+#     Useful to convert a GET parameter.
+#     """
+#     if value == 'single':
+#         return MODE_SINGLE_SELECTION
+# 
+#     if value == 'multiple':
+#         return MODE_MULTIPLE_SELECTION
+# 
+#     raise ValueError('Must be "single" or "multiple"')
 
 
 # def _clean_value(value, converter, default=None):
@@ -430,6 +430,12 @@ def str_to_mode(value):
 #     )
 
 
+class SelectionMode(Enum):
+    NONE = 'none'
+    SINGLE = 'single'
+    MULTIPLE = 'multiple'
+
+
 class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     """Base class for list-view of CremeEntities with a given type.
 
@@ -460,7 +466,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     title = _('List of {models}')
 
     mode = None
-    default_selection_mode = 'multiple'
+    default_selection_mode = SelectionMode.MULTIPLE
 
     # GET/POST parameters
     header_filter_id_arg = 'hfilter'
@@ -647,8 +653,9 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         # NB: cannot set it within the template because the reloading case needs it too
         context['is_popup_view'] = self.is_popup_view
 
-        # TODO: rename/manage better in template  => context['mode'] (friendly class ?)
-        context['o2m'] = (self.mode == MODE_SINGLE_SELECTION)
+        context['selection_mode'] = self.mode.value
+        context['is_selection_enabled'] = (self.mode is not SelectionMode.NONE)
+        context['is_selection_multiple'] = (self.mode is SelectionMode.MULTIPLE)
         context['buttons'] = self.get_buttons()
         context['page_sizes'] = settings.PAGE_SIZES
 
@@ -702,11 +709,10 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         )
 
     def get_mode(self):
-        """ @return: Value in (MODE_SINGLE_SELECTION, MODE_MULTIPLE_SELECTION)."""
+        """ @return: Value in (SelectionMode.NONE, SelectionMode.SINGLE, SelectionMode.MULTIPLE)."""
         func = get_from_POST_or_404 if self.request.method == 'POST' else get_from_GET_or_404
-
         return func(self.arguments, key=self.selection_arg,
-                    cast=str_to_mode, default=self.default_selection_mode,
+                    cast=SelectionMode, default=self.default_selection_mode,
                    )
 
     def get_cell_sorter_registry(self):

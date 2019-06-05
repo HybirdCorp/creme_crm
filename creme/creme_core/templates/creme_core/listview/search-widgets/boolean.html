@@ -1,4 +1,4 @@
-{% load i18n %}<select name="{{widget.name}}" {# title="{{cell.title}}" #}>
+{% load i18n %}<select class="lv-state-field" name="{{widget.name}}" {# title="{{cell.title}}" #}>
 {% with value=widget.value NULL_FK=widget.NULL_FK %}
     <option value=""{% if value == '' %} selected{% endif %}>{% trans 'All' %}</option>
     {% if widget.null %}<option value="{{NULL_FK}}"{% if value == NULL_FK %} selected{% endif %}>{% trans 'N/A' %}</option>{% endif %}

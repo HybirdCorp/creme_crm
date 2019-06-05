@@ -43,6 +43,7 @@
 
             var action = new creme.lv_widget.ListViewDialogAction({
                                                  url: url,
+                                                 selectionMode: 'none',
                                                  data: {
                                                      ct_id: ct_id,
                                                      q_filter: q_filter
@@ -86,7 +87,7 @@
             <span class="title">Contacts&nbsp;</span>
             <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts">single</a>&nbsp;|
             <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts" multiple>multiple&nbsp;|</a>
-            <a class="listview-open view"   ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts">view</a>
+            <a class="listview-open view"   ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts">view&nbsp;</a>
             <input id="contacts" type="text" disabled><span class="ui-icon ui-icon-close" target="contacts"></span>
         </li>
         <li class="listview-test">
@@ -94,7 +95,7 @@
             {% with qfilter='{&quot;op&quot;: &quot;EQ&quot;, &quot;val&quot;: [[&quot;first_name&quot;, &quot;Fulbert&quot;]]}'  %}
             <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{{qfilter}}">single</a>&nbsp;|
             <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{{qfilter}}" multiple>multiple&nbsp;|</a>
-            <a class="listview-open view"   ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{{qfilter}}">view</a>
+            <a class="listview-open view"   ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{{qfilter}}">view&nbsp;</a>
             <input id="contacts-filtered" type="text" disabled><span class="ui-icon ui-icon-close" target="contacts-filtered"></span>
             {% endwith %}
         </li>

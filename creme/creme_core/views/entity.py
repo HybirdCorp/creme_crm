@@ -538,7 +538,7 @@ class EntitiesToMergeSelection(base.EntityRelatedMixin,
     The second entity must have the same type than the first one, and cannot
     have the same ID.
     """
-    mode = listview.MODE_SINGLE_SELECTION  # TODO: move this constant to class attribute (EntitiesListPopup.MODE_SINGLE_SELECTION) ??
+    mode = listview.SelectionMode.SINGLE
     entity1_id_arg = 'id1'
 
     def check_related_entity_permissions(self, entity, user):

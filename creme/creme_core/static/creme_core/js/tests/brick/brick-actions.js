@@ -8,10 +8,10 @@ QUnit.module("creme.bricks.actions", new QUnitMixin(QUnitEventMixin,
     beforeEach: function() {
         var backend = this.backend;
         var selectionListHtml = this.createListViewHtml(this.defaultListViewHtmlOptions({
-            id: 'selection-list'
+            reloadurl: 'mock/listview/reload/selection-list'
         }));
 
-        this.setListviewReloadContent('selection-list', selectionListHtml);
+        this.setListviewReloadResponse(selectionListHtml, 'selection-list');
 
         this.setMockBackendGET({
             'mock/relation/selector': backend.response(200, selectionListHtml)
