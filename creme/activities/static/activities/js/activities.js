@@ -179,8 +179,7 @@ creme.activities.calendar.chooseForeground = function(target, bgColor) {
 
 creme.activities.calendar.updater = function(update_url, event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
     creme.ajax.query(update_url,
-                     /* {action: 'POST'}, */
-                     {},
+                     {action: 'POST'},
                      {id: event.id,
                       start: event.start.getTime(),
                       end: event.end.getTime(),
