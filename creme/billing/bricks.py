@@ -30,10 +30,10 @@ from creme import persons
 from creme.persons import bricks as persons_bricks
 
 from creme import billing
+
 from . import constants, function_fields
 from .models import PaymentInformation
 from .setting_keys import payment_info_key
-
 
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
@@ -101,20 +101,32 @@ class _LinesBrick(SimpleBrick):
         class _LineForm(LineEditForm):
             def __init__(self, *args, **kwargs):
                 self.empty_permitted = False
-                super().__init__(user=context['user'], related_document=document, *args, **kwargs)
+                super().__init__(
+                    user=context['user'],
+                    related_document=document,
+                    *args, **kwargs
+                )
 
         line_model = self.line_model
-        lineformset_class = modelformset_factory(line_model, can_delete=True, form=_LineForm, extra=0)
-        lineformset = lineformset_class(prefix=LINE_FORMSET_PREFIX[line_model], queryset=lines)
+        lineformset_class = modelformset_factory(
+            line_model,
+            can_delete=True,
+            form=_LineForm,
+            extra=0,
+        )
+        lineformset = lineformset_class(
+            prefix=LINE_FORMSET_PREFIX[line_model],
+            queryset=lines,
+        )
 
         get_ct = ContentType.objects.get_for_model
         return self._render(self.get_template_context(
-                    context,
-                    ct_id=get_ct(line_model).id,  # TODO: templatetag instead ?
-                    formset=lineformset,
-                    item_count=len(lines),
-                    related_item_ct=get_ct(self.related_item_model),  # TODO: templatetag instead ?
-                    related_item_label=self.related_item_label,
+            context,
+            ct_id=get_ct(line_model).id,  # TODO: templatetag instead ?
+            formset=lineformset,
+            item_count=len(lines),
+            related_item_ct=get_ct(self.related_item_model),  # TODO: templatetag instead ?
+            related_item_label=self.related_item_label,
         ))
 
 
@@ -155,14 +167,15 @@ class CreditNotesBrick(PaginatedBrick):
         is_hidden = context['fields_configs'].get_4_model(CreditNote).is_fieldname_hidden
 
         return self._render(self.get_template_context(
-                    context,
-                    billing_document.get_credit_notes(),
-                    rtype_id=self.relation_type_deps[0],
-                    add_title=_('Create a credit note'),
-                    hidden_fields={fname
-                                       for fname in ('issuing_date', 'expiration_date', 'comment')
-                                           if is_hidden(fname)
-                                  },
+            context,
+            billing_document.get_credit_notes(),
+            rtype_id=self.relation_type_deps[0],
+            add_title=_('Create a credit note'),
+            hidden_fields={
+                fname
+                    for fname in ('issuing_date', 'expiration_date', 'comment')
+                       if is_hidden(fname)
+            },
         ))
 
 
@@ -176,8 +189,8 @@ class TotalBrick(Brick):
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context,
-                    cell_class=getattr(settings, 'CSS_NUMBER_LISTVIEW', ''),
+            context,
+            cell_class=getattr(settings, 'CSS_NUMBER_LISTVIEW', ''),
         ))
 
 
@@ -203,11 +216,11 @@ class ReceivedInvoicesBrick(QuerysetBrick):
         is_hidden = context['fields_configs'].get_4_model(Invoice).is_fieldname_hidden
 
         return self._render(self.get_template_context(
-                    context,
-                    Invoice.objects.filter(relations__object_entity=person_id,
-                                           relations__type=constants.REL_SUB_BILL_RECEIVED,
-                                          ),
-                    hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
+            context,
+            Invoice.objects.filter(relations__object_entity=person_id,
+                                   relations__type=constants.REL_SUB_BILL_RECEIVED,
+                                  ),
+            hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
         ))
 
 
@@ -230,15 +243,15 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
         is_hidden = context['fields_configs'].get_4_model(model).is_fieldname_hidden
 
         return self._render(self.get_template_context(
-                    context,
-                    model.objects.filter(relations__object_entity=person_id,
-                                         relations__type=constants.REL_SUB_BILL_RECEIVED,
-                                        ),
-                    title=self._title,
-                    title_plural=self._title_plural,
-                    empty_title=self._empty_title,
-                    empty_msg=self._empty_msg,
-                    hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
+            context,
+            model.objects.filter(relations__object_entity=person_id,
+                                 relations__type=constants.REL_SUB_BILL_RECEIVED,
+                                ),
+            title=self._title,
+            title_plural=self._title_plural,
+            empty_title=self._empty_title,
+            empty_msg=self._empty_msg,
+            hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
         ))
 
 
@@ -288,12 +301,13 @@ class PaymentInformationBrick(QuerysetBrick):
     def detailview_display(self, context):
         organisation = context['object']
 
-        if not organisation.is_managed and SettingValue.objects.get_4_key(payment_info_key, default=True).value:
+        if not organisation.is_managed and \
+           SettingValue.objects.get_4_key(payment_info_key, default=True).value:
             return ''  # TODO: in template ? empty <table> ?
 
         return self._render(self.get_template_context(
-                context,
-                PaymentInformation.objects.filter(organisation=organisation),
+            context,
+            PaymentInformation.objects.filter(organisation=organisation),
         ))
 
 
@@ -303,9 +317,10 @@ class BillingPaymentInformationBrick(QuerysetBrick):
     template_name = 'billing/bricks/billing-payment-information.html'
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
     dependencies  = (Relation, PaymentInformation)
-    relation_type_deps = (constants.REL_OBJ_BILL_ISSUED, constants.REL_SUB_BILL_ISSUED,
-                          constants.REL_OBJ_BILL_RECEIVED, constants.REL_SUB_BILL_RECEIVED,
-                         )
+    relation_type_deps = (
+        constants.REL_OBJ_BILL_ISSUED, constants.REL_SUB_BILL_ISSUED,
+        constants.REL_OBJ_BILL_RECEIVED, constants.REL_SUB_BILL_RECEIVED,
+    )
     order_by      = 'name'
 
     def detailview_display(self, context):
@@ -319,9 +334,9 @@ class BillingPaymentInformationBrick(QuerysetBrick):
             pi_qs = PaymentInformation.objects.filter(organisation=organisation)
 
         return self._render(self.get_template_context(
-                    context, pi_qs,
-                    organisation=organisation,
-                    field_hidden=hidden,
+            context, pi_qs,
+            organisation=organisation,
+            field_hidden=hidden,
         ))
 
 
@@ -345,8 +360,8 @@ class PersonsStatisticsBrick(Brick):
         person = context['object']
         user = context['user']
         return self._render(self.get_template_context(
-                    context,
-                    total_pending=function_fields.get_total_pending(person, user),
-                    total_won_quote_last_year=function_fields.get_total_won_quote_last_year(person, user),
-                    total_won_quote_this_year=function_fields.get_total_won_quote_this_year(person, user),
+            context,
+            total_pending=function_fields.get_total_pending(person, user),
+            total_won_quote_last_year=function_fields.get_total_won_quote_last_year(person, user),
+            total_won_quote_this_year=function_fields.get_total_won_quote_this_year(person, user),
         ))
