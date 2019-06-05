@@ -18,22 +18,78 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, BooleanField
+import warnings
+
+from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext
 
-from creme.creme_core.models import CremeModel
-from creme.creme_core.models.fields import CremeUserForeignKey, ColorField
+from creme.creme_core.models import CremeModel, fields as core_fields
 
 from ..constants import COLOR_POOL, DEFAULT_CALENDAR_COLOR
 
 
+class CalendarManager(models.Manager):
+    def new_color(self):
+        return COLOR_POOL[self.count() % len(COLOR_POOL)]
+
+    def create_default_calendar(self, user, *, name=None, color=None, is_public=False, check_for_default=False):
+        """Creates a default Calendar for a given user.
+
+        @param user: 'django.contrib.auth.get_user_model()' instance.
+        @param name: Name of the new calendar ; <None> means a default one will be generated.
+        @param color: HTML color string ; <None> means a default one will be picked.
+        @param is_public: Boolean.
+        @param check_for_default: Boolean ; <True> means than a query is performed to search
+               if another default Calendar exists (it is set to is_default=false if needed).
+               <False> by default ; so you SHOULD check if there is already another default Calendar.
+        @return: A Calendar instance.
+        """
+        cal = self.model(
+            name=name or gettext("{user}'s calendar").format(user=user),
+            user=user, is_default=True, is_custom=False,
+            is_public=is_public,
+            color=color or self.new_color(),
+        )
+        cal._enable_default_checking = check_for_default
+        cal.save()
+
+        return cal
+
+    def get_default_calendar(self, user):
+        """Get the user's default Calendar ; creates it if necessary.
+
+        @param user: 'django.contrib.auth.get_user_model()' instance.
+        @return: A Calendar instance.
+        """
+        calendars = self.filter(user=user).order_by('-is_default')[:2]
+
+        if not calendars:
+            cal = self.create_default_calendar(user)
+        else:
+            defaults = [c for c in calendars if c.is_default]
+
+            if not defaults:
+                cal = calendars[0]
+                cal.is_default = True
+                self.filter(id=cal.id).update(is_default=True)
+            else:
+                cal = defaults[0]
+
+                if len(defaults) > 1:
+                    self.filter(user=user).exclude(id=cal.id).update(is_default=False)
+
+        return cal
+
+
 class Calendar(CremeModel):
-    name        = CharField(_('Name'), max_length=100)
-    is_default  = BooleanField(_('Is default?'), default=False)
-    is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
-    is_public   = BooleanField(default=False, verbose_name=_('Is public?'))
-    user        = CremeUserForeignKey(verbose_name=_('Calendar owner'))
-    color       = ColorField(_('Color'))
+    name       = models.CharField(_('Name'), max_length=100)
+    is_default = models.BooleanField(_('Is default?'), default=False)
+    is_custom  = models.BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
+    is_public  = models.BooleanField(default=False, verbose_name=_('Is public?'))
+    user       = core_fields.CremeUserForeignKey(verbose_name=_('Calendar owner'))
+    color      = core_fields.ColorField(_('Color'))
+
+    objects = CalendarManager()
 
     _enable_default_checking = True
 
@@ -51,7 +107,7 @@ class Calendar(CremeModel):
 
     @property
     def get_color(self):  # TODO: rename (safe_color ?)
-        "color can be null, so in this case a default color is used in templates"
+        "Color can be null, so in this case a default color is used in templates."
         return self.color or DEFAULT_CALENDAR_COLOR
 
     def delete(self, using=None, keep_parents=False):
@@ -64,16 +120,25 @@ class Calendar(CremeModel):
                 def_cal._enable_default_checking = False
                 def_cal.save()
 
-    @staticmethod
-    def new_color():
-        return COLOR_POOL[Calendar.objects.count() % len(COLOR_POOL)]
+    @classmethod
+    def new_color(cls):
+        warnings.warn('Calendar.new_color() is deprecated ; '
+                      'use Calendar.objects.new_color() instead.',
+                      DeprecationWarning
+                     )
+        return COLOR_POOL[cls.objects.count() % len(COLOR_POOL)]
 
-    @staticmethod
-    def _create_default_calendar(user, *, is_public=False):
+    @classmethod
+    def _create_default_calendar(cls, user, *, is_public=False):
+        warnings.warn('Calendar._create_default_calendar() is deprecated ; '
+                      'use Calendar.objects.create_default_calendar() instead.',
+                      DeprecationWarning
+                     )
+
         cal = Calendar(name=gettext("{user}'s calendar").format(user=user),
                        user=user, is_default=True, is_custom=False,
                        is_public=is_public,
-                       color=Calendar.new_color(),
+                       color=cls.new_color(),
                       )
         cal._enable_default_checking = False
         cal.save()
@@ -82,6 +147,8 @@ class Calendar(CremeModel):
 
     @staticmethod
     def get_user_calendars(user):
+        warnings.warn('Calendar.get_user_calendars() is deprecated.', DeprecationWarning)
+
         calendars = list(Calendar.objects.filter(user=user))
 
         if not calendars:
@@ -89,13 +156,18 @@ class Calendar(CremeModel):
 
         return calendars
 
-    @staticmethod
-    def get_user_default_calendar(user):
+    @classmethod
+    def get_user_default_calendar(cls, user):
         "Returns the default user calendar ; creates it if necessary."
-        calendars = Calendar.objects.filter(user=user)
+        warnings.warn('Calendar.get_user_default_calendar() is deprecated ; '
+                      'use Calendar.objects.get_default_calendar() instead.',
+                      DeprecationWarning
+                     )
+
+        calendars = cls.objects.filter(user=user)
 
         if not calendars:
-            cal = Calendar._create_default_calendar(user)
+            cal = cls._create_default_calendar(user)
         else:
             defaults = [c for c in calendars if c.is_default]
 
@@ -108,23 +180,26 @@ class Calendar(CremeModel):
                 cal = defaults[0]
 
                 if len(defaults) > 1:
-                    Calendar.objects.filter(user=user).exclude(id=cal.id).update(is_default=False)
+                    cls.objects.filter(user=user).exclude(id=cal.id).update(is_default=False)
 
         return cal
 
     def save(self, *args, **kwargs):
+        mngr = type(self).objects
+
         if not self.color:
-            self.color = self.new_color()
+            # self.color = self.new_color()
+            self.color = mngr.new_color()
 
         check = self._enable_default_checking
 
         if check and not self.is_default and \
-           not Calendar.objects.filter(user=self.user, is_default=True).exists():
+           not mngr.filter(user=self.user, is_default=True).exists():
             self.is_default = True
 
         super().save(*args, **kwargs)
 
         if check and self.is_default:
-            Calendar.objects.filter(user=self.user, is_default=True) \
-                            .exclude(id=self.id) \
-                            .update(is_default=False)
+            mngr.filter(user=self.user, is_default=True) \
+                .exclude(id=self.id) \
+                .update(is_default=False)

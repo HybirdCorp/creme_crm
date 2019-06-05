@@ -723,7 +723,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, len(activities))
 
         activity = activities[0]
-        self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
+        self.assertEqual([Calendar.objects.get_default_calendar(self.other_user)],
                          list(activity.calendars.all())
                         )
         url = self._build_edit_activity_url(activity)
@@ -824,7 +824,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, len(activities))
 
         activity = activities[0]
-        self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
+        self.assertEqual([Calendar.objects.get_default_calendar(self.other_user)],
                          list(activity.calendars.all())
                         )
 
@@ -886,7 +886,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity)
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
 
-        self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
+        self.assertEqual([Calendar.objects.get_default_calendar(self.other_user)],
                          list(activity.calendars.all())
                         )
 
@@ -1044,7 +1044,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(0, worker1, REL_SUB_PART_2_ACTIVITY, activity1)
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity1)
 
-        self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
+        self.assertEqual([Calendar.objects.get_default_calendar(self.other_user)],
                          list(activity1.calendars.all())
                         )
 
@@ -1095,7 +1095,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity)
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
 
-        get_cal = Calendar.get_user_default_calendar
+        get_cal = Calendar.objects.get_default_calendar
         self.assertEqual({get_cal(user), get_cal(self.other_user)},
                          set(activity.calendars.all())
                         )

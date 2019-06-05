@@ -138,8 +138,9 @@ class ParticipantCreateForm(CremeForm):
         for participant in self.participants:
             user = participant.is_user
             if user:
-                activity.calendars.add(self.cleaned_data['my_participation'][1] if user == me else
-                                       Calendar.get_user_default_calendar(user)
+                activity.calendars.add(self.cleaned_data['my_participation'][1]
+                                       if user == me else
+                                       Calendar.objects.get_default_calendar(user)
                                       )
 
             create_relation(subject_entity=participant)

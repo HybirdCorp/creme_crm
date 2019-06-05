@@ -142,7 +142,7 @@ class Populator(BasePopulator):
 
         # ---------------------------
         for user in get_user_model().objects.all():
-            Calendar.get_user_default_calendar(user)
+            Calendar.objects.get_default_calendar(user)
 
         # ---------------------------
         create_svalue = SettingValue.objects.get_or_create

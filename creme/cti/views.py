@@ -38,9 +38,8 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import build_context, bricks_render_info
 from creme.creme_core.views.decorators import jsonify
 
-from creme import persons
+from creme import persons, activities
 
-from creme import activities
 from creme.activities import constants as act_constants
 from creme.activities.models import Calendar
 
@@ -145,11 +144,11 @@ def _build_related_phonecall(user, entity_id, calltype_id, title_format, pcall_c
     entity = entity.get_real_entity()
     pcall = pcall_creator(user, title=title_format.format(entity=entity), calltype_id=calltype_id)
 
-    pcall.calendars.add(Calendar.get_user_default_calendar(user))
+    pcall.calendars.add(Calendar.objects.get_default_calendar(user))
 
     # If the entity is a contact with related user, should add the phone call to his calendar
     if isinstance(entity, Contact) and entity.is_user:
-        pcall.calendars.add(Calendar.get_user_default_calendar(entity.is_user))
+        pcall.calendars.add(Calendar.objects.get_default_calendar(entity.is_user))
 
     # TODO: link credentials
     caller_rtype = act_constants.REL_SUB_PART_2_ACTIVITY

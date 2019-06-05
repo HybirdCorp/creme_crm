@@ -44,7 +44,7 @@ class Command(BaseCommand):
                                                    )
 
             for user in users:
-                Calendar._create_default_calendar(user=user, is_public=is_public)
+                Calendar.objects.create_default_calendar(user=user, is_public=is_public)
 
             if verbosity >= 1:
                 self.stdout.write('{} calendar(s) created.'.format(len(users)))

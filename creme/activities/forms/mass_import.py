@@ -577,7 +577,10 @@ def get_massimport_form_builder(header_dict, choices):
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.fields['my_participation'].initial = (True, Calendar.get_user_default_calendar(self.user))
+            self.fields['my_participation'].initial = (
+                True,
+                Calendar.objects.get_default_calendar(self.user),
+            )
 
             self.user_participants = []
 
@@ -641,7 +644,7 @@ def get_massimport_form_builder(header_dict, choices):
 
                 if calendar is None:
                     default_calendars_cache[part_user.id] = calendar = \
-                        Calendar.get_user_default_calendar(part_user)
+                        Calendar.objects.get_default_calendar(part_user)
 
                 instance.calendars.add(calendar)
 
@@ -664,7 +667,7 @@ def get_massimport_form_builder(header_dict, choices):
 
                 part_user = participant.is_user
                 if part_user is not None:
-                    instance.calendars.add(Calendar.get_user_default_calendar(part_user))
+                    instance.calendars.add(Calendar.objects.get_default_calendar(part_user))
 
             # Subjects ----
             subjects, err_messages = cdata['subjects'].extract_value(line, self.user)

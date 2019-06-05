@@ -147,24 +147,26 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         title = 'Meeting #01'
-        my_calendar = Calendar.get_user_default_calendar(user)
-        response = self.client.post(url, follow=True,
-                                    data={'user':   user.pk,
-                                          'title':  title,
-                                          'status': Status.objects.all()[0].pk,
-                                          'start':  '2011-5-18',
+        my_calendar = Calendar.objects.get_default_calendar(user)
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':   user.id,
+                'title':  title,
+                'status': Status.objects.all()[0].pk,
+                'start':  '2011-5-18',
 
-                                          'type_selector': json_dump({
-                                                'type': ACTIVITYTYPE_MEETING,
-                                                'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                                          }),
+                'type_selector': json_dump({
+                    'type':     ACTIVITYTYPE_MEETING,
+                    'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                }),
 
-                                          'my_participation_0': True,
-                                          'my_participation_1': my_calendar.id,
+                'my_participation_0': True,
+                'my_participation_1': my_calendar.id,
 
-                                          'is_comapp': True,
-                                         }
-                                   )
+                'is_comapp': True,
+            },
+        )
         self.assertNoFormError(response)
         self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
         self.assertFalse(CommercialApproach.objects.all())
@@ -183,28 +185,32 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         title = 'Meeting #01'
         description = 'Stuffs about the fighting'
-        my_calendar = Calendar.get_user_default_calendar(user)
-        response = self.client.post(reverse('activities__create_activity'), follow=True,
-                                    data={'user':             user.pk,
-                                          'title':            title,
-                                          'type_selector':    json_dump({
-                                                'type': ACTIVITYTYPE_MEETING,
-                                                'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                                          }),
-                                          'description':      description,
-                                          'status':           Status.objects.all()[0].pk,
-                                          'start':            '2011-5-18',
+        my_calendar = Calendar.objects.get_default_calendar(user)
+        response = self.client.post(
+            reverse('activities__create_activity'),
+            follow=True,
+            data={
+                'user':        user.id,
+                'title':       title,
+                'description': description,
+                'status':      Status.objects.all()[0].pk,
+                'start':       '2011-5-18',
 
-                                          'my_participation_0': True,
-                                          'my_participation_1': my_calendar.id,
+                'type_selector':    json_dump({
+                    'type': ACTIVITYTYPE_MEETING,
+                    'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                }),
 
-                                          'other_participants': self.formfield_value_multi_creator_entity(genma),
-                                          'subjects':           self.formfield_value_multi_generic_entity(ranma),
-                                          'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
+                'my_participation_0': True,
+                'my_participation_1': my_calendar.id,
 
-                                          'is_comapp': True,
-                                         }
-                                   )
+                'other_participants': self.formfield_value_multi_creator_entity(genma),
+                'subjects':           self.formfield_value_multi_generic_entity(ranma),
+                'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
+
+                'is_comapp': True,
+            },
+        )
         self.assertNoFormError(response)
 
         meeting = self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
@@ -226,22 +232,25 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         title = 'meeting #01'
         description = 'Stuffs about the fighting'
         create_dt = self.create_datetime
-        meeting = Activity.objects.create(user=user, title=title, description=description,
-                                          type_id=ACTIVITYTYPE_MEETING,
-                                          start=create_dt(year=2011, month=5, day=18, hour=14, minute=0),
-                                          end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0),
-                                         )
+        meeting = Activity.objects.create(
+            user=user, title=title, description=description,
+            type_id=ACTIVITYTYPE_MEETING,
+            start=create_dt(year=2011, month=5, day=18, hour=14, minute=0),
+            end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0),
+        )
         contact = user.linked_contact
 
-        Relation.objects.create(subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY,
-                                object_entity=meeting, user=user
-                               )
+        Relation.objects.create(
+            subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY,
+            object_entity=meeting, user=user,
+        )
 
-        comapp = CommercialApproach.objects.create(title=title,
-                                                   description=description,
-                                                   related_activity_id=meeting.id,  # TODO: related_activity=instance after activities refactoring ?
-                                                   creme_entity=contact,
-                                                  )
+        comapp = CommercialApproach.objects.create(
+            title=title,
+            description=description,
+            related_activity_id=meeting.id,  # TODO: related_activity=instance after activities refactoring ?
+            creme_entity=contact,
+        )
 
         title = title.upper()
         meeting.title = title

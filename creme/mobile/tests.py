@@ -876,7 +876,7 @@ class MobileTestCase(CremeTestCase):
                          pcall.title
                         )
 
-        get_cal = Calendar.get_user_default_calendar
+        get_cal = Calendar.objects.get_default_calendar
         self.assertEqual({get_cal(user), get_cal(self.other_user)},
                          set(pcall.calendars.all())
                         )

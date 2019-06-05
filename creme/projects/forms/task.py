@@ -44,7 +44,7 @@ ProjectTask = get_task_model()
 
 def _link_contact_n_activity(contact, activity, user):
     if contact.is_user:
-        activity.calendars.add(Calendar.get_user_default_calendar(contact.is_user))
+        activity.calendars.add(Calendar.objects.get_default_calendar(contact.is_user))
 
     create_rel = partial(Relation.objects.safe_create,
                          subject_entity=contact,

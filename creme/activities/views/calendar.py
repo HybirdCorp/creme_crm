@@ -236,7 +236,7 @@ class CalendarView(generic.CheckedTemplateView):
         calendars = list(Calendar.objects.filter(Q(user=user) | Q(is_public=True)))
 
         if next(self._filter_default_calendars(user, calendars), None) is None:
-            calendars.append(Calendar._create_default_calendar(user=user))
+            calendars.append(Calendar.objects.create_default_calendar(user=user))
 
         return calendars
 
@@ -585,7 +585,8 @@ def delete_user_calendar(request):
         raise PermissionDenied(gettext('You are not allowed to delete this calendar.'))
 
     # Attach all existing activities to the default calendar
-    default_calendar = Calendar.get_user_default_calendar(user)
+    # default_calendar = Calendar.get_user_default_calendar(user)
+    default_calendar = Calendar.objects.get_default_calendar(user)
     for activity in calendar.activity_set.all():
         activity.calendars.add(default_calendar)
 

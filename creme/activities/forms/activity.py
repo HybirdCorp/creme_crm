@@ -249,7 +249,7 @@ class _ActivityCreateForm(_ActivityForm):
 
         for part_user in self.cleaned_data['participating_users']:
             # TODO: regroup queries ??
-            instance.calendars.add(Calendar.get_user_default_calendar(part_user))
+            instance.calendars.add(Calendar.objects.get_default_calendar(part_user))
 
         return instance
 
@@ -286,7 +286,7 @@ class ActivityCreateForm(_ActivityCreateForm):
             # TODO: improve help_text of end (we know the type default duration)
             fields['type_selector'].types = ActivityType.objects.filter(pk=activity_type_id)
 
-        fields['my_participation'].initial = (True, Calendar.get_user_default_calendar(user))
+        fields['my_participation'].initial = (True, Calendar.objects.get_default_calendar(user))
 
         subjects_field = fields['subjects']
         subjects_field.allowed_models = [ct.model_class() 

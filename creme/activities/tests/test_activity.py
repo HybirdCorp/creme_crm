@@ -191,7 +191,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         title = 'My task'
         status = Status.objects.all()[0]
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.client.post(
             url, follow=True,
             data={'user':               user.pk,
@@ -257,7 +257,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         dojo = Organisation.objects.create(user=other_user, name='Dojo')
 
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.assertPOST200(self.ADD_URL, follow=True,
                                       data={'user':                user.pk,
                                             'title':               'Fight !!',
@@ -313,26 +313,29 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         title  = 'My training'
         status = Status.objects.all()[0]
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         type_id = 'activities-activity_custom_1'
         ActivityType.objects.create(pk=type_id, name='Karate session',
-                                    default_day_duration=1, default_hour_duration="00:15:00",
+                                    default_day_duration=1,
+                                    default_hour_duration='00:15:00',
                                     is_custom=True,
                                    )
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user':               user.pk,
-                                          'title':              title,
-                                          'status':             status.pk,
-                                          'start':              '2013-3-26',
-                                          'start_time':         '12:10:00',
-                                          'my_participation_0': True,
-                                          'my_participation_1': my_calendar.pk,
-                                          'other_participants': '[{}, {}]'.format(genma.id, akane.id),
-                                          'subjects':           self.formfield_value_multi_generic_entity(ranma, rest),
-                                          'linked_entities':    self.formfield_value_multi_generic_entity(dojo_s),
-                                          'type_selector':      self._acttype_field_value(type_id),
-                                         }
-                                   )
+        response = self.client.post(
+            self.ADD_URL, follow=True,
+            data={
+                'user':               user.id,
+                'title':              title,
+                'status':             status.pk,
+                'start':              '2013-3-26',
+                'start_time':         '12:10:00',
+                'my_participation_0': True,
+                'my_participation_1': my_calendar.pk,
+                'other_participants': '[{}, {}]'.format(genma.id, akane.id),
+                'subjects':           self.formfield_value_multi_generic_entity(ranma, rest),
+                'linked_entities':    self.formfield_value_multi_generic_entity(dojo_s),
+                'type_selector':      self._acttype_field_value(type_id),
+            },
+        )
         self.assertNoFormError(response)
 
         act = self.get_object_or_fail(Activity, type=type_id, title=title)
@@ -367,7 +370,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             'type_selector': self._acttype_field_value(atype_id, subtype_id),
 
             'my_participation_0': True,
-            'my_participation_1': Calendar.get_user_default_calendar(user).pk,
+            'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
         }
         data.update(kwargs)
 
@@ -468,7 +471,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                )
 
         title = 'My task'
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user': user.pk,
                                           'title': title,
@@ -509,7 +512,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'title': title,
                                           'start': '2015-03-10',
                                           'my_participation_0':  True,
-                                          'my_participation_1':  Calendar.get_user_default_calendar(user).pk,
+                                          'my_participation_1':  Calendar.objects.get_default_calendar(user).pk,
                                           'participating_users': [team.id],
                                           'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
                                                                                      constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
@@ -535,7 +538,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             'end':           '2013-3-29',
 
             'my_participation_0': True,
-            'my_participation_1': Calendar.get_user_default_calendar(user).pk,
+            'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
         }
         url = self.ADD_URL
 
@@ -562,7 +565,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'title':              'My task',
                                             'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                                             'my_participation_0': True,
-                                            'my_participation_1': Calendar.get_user_default_calendar(user).pk,
+                                            'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
                                             'subjects':           self.formfield_value_multi_generic_entity(bad_subject),
                                            },
                                      )
@@ -582,7 +585,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'title':              'My task',
                                             'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                                             'my_participation_0': True,
-                                            'my_participation_1': Calendar.get_user_default_calendar(user).pk,
+                                            'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
                                             'subjects':           self.formfield_value_multi_generic_entity(ranma),
                                             'other_participants': self.formfield_value_multi_creator_entity(
                                                                         self.other_user.linked_contact,
@@ -598,7 +601,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
 
         title = 'Meeting01'
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':          user.id,
                                           'title':         title,
@@ -641,7 +644,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
 
         title = 'Meeting01'
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':          user.pk,
                                           'title':         title,
@@ -692,7 +695,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertIn('informed_users', fields)
 
         title = 'Meeting dojo'
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.client.post(url, follow=True,
                                     data={'user':          user.id,
                                           'title':         title,
@@ -783,7 +786,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         title  = 'My meeting'
         status = Status.objects.all()[0]
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.client.post(url, follow=True,
                                     data={'user':               user.pk,
                                           'title':              title,
@@ -827,7 +830,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(_('Create a phone call'), response.context.get('title'))
 
         title = 'My call'
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.client.post(url, follow=True,
                                     data={'user':             user.pk,
                                           'title':            title,
@@ -872,7 +875,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertGET200(url)
 
         title  = 'My call'
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.client.post(url, follow=True,
                                     data={'user':               user.pk,
                                           'title':              title,
@@ -1002,7 +1005,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         uri = self._build_add_related_uri(ryoga, constants.ACTIVITYTYPE_MEETING)
         title = 'My meeting'
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.client.post(uri, follow=True,
                                     data={'user':          user.pk,
                                           'title':         title,
@@ -1850,7 +1853,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertPOST200(self._buid_add_participants_url(phone_call), follow=True,
                            data={'my_participation_0':  True,
-                                 'my_participation_1':  Calendar.get_user_default_calendar(logged.is_user).pk,
+                                 'my_participation_1':  Calendar.objects.get_default_calendar(logged.is_user).pk,
                                  'participating_users': [other.is_user_id],
                                  'participants':        self.formfield_value_multi_creator_entity(contact3),
                                 }
@@ -1948,7 +1951,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         response = self.client.post(self._buid_add_participants_url(activity),
                                     data={'my_participation_0':  True,
-                                          'my_participation_1':  Calendar.get_user_default_calendar(user).pk,
+                                          'my_participation_1':  Calendar.objects.get_default_calendar(user).pk,
                                           'participating_users': [team.id, kojiro.id],
                                          },
                                    )
@@ -2080,7 +2083,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertGET200(url)
 
         status = Status.objects.all()[0]
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         response = self.assertPOST200(url, follow=True,
                                       data={'user':  user.id,
                                             'title': 'Away',
@@ -2213,7 +2216,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_popup1(self):
         "With existing activity type and start date given"
         user = self.login()
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
 
         url = self.ADD_POPUP_URL
         response = self.assertGET200(url)
@@ -2278,7 +2281,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_popup2(self):
         "With existing activity type and start date given"
         user = self.login()
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
         title = "meeting activity popup 2"
         response = self.client.post(
             self.ADD_POPUP_URL,
@@ -2311,7 +2314,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_popup3(self):
         "With custom activity type and without start date given"
         user = self.login()
-        my_calendar = Calendar.get_user_default_calendar(user)
+        my_calendar = Calendar.objects.get_default_calendar(user)
 
         atype = ActivityType.objects.create(id='activities-test_createview_popup3',
                                             name='Karate session',

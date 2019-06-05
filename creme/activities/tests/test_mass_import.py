@@ -195,7 +195,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                  (title4, user_contact.first_name, user_contact.last_name, ''),  # No duplicate
                 ]
 
-        Calendar.get_user_default_calendar(user)
+        Calendar.objects.get_default_calendar(user)
         my_calendar = Calendar.objects.create(user=user, is_default=False,
                                               name='Imported activities',
                                              )
@@ -243,7 +243,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, user_contact)
         self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
-        self.assertEqual({my_calendar, Calendar.get_user_default_calendar(other_user)},
+        self.assertEqual({my_calendar, Calendar.objects.get_default_calendar(other_user)},
                          set(act1.calendars.all())
                         )
 
@@ -351,7 +351,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertRelationCount(0, act2, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
 
         self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
-        self.assertEqual([Calendar.get_user_default_calendar(other_user)],
+        self.assertEqual([Calendar.objects.get_default_calendar(other_user)],
                          list(act2.calendars.all())
                         )
 

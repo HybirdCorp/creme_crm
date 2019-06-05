@@ -96,7 +96,7 @@ def _create_default_calendar(sender, instance, created, **kwargs):
         if is_public is None:
             pass
         elif isinstance(is_public, bool):
-            Calendar._create_default_calendar(user=instance, is_public=is_public)
+            Calendar.objects.create_default_calendar(user=instance, is_public=is_public)
         else:
             logger.critical(
                 'settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC must be True/False/None.'
