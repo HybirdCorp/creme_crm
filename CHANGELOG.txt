@@ -2407,7 +2407,7 @@
         # The logging configuration has been improved. See LOGGING* properties in settings.py for more information.
         # A new assertion, assertDatetimesAlmostEqual(), is available.
         # The ForeignKeys have 2 new methods : get_null_label() & set_null_label(). The null_label allows a pretty display of null values.
-        # A new collection is available: ClassKeyedMap ; it is kind of dictionnary where key must be classes and which manages inheritage.
+        # A new collection is available: ClassKeyedMap ; it is kind of dictionary where key must be classes and which manages inheritage.
         # The file 'requirements.txt' has been cleaned, and the recommended versions of these packages
           have been upgraded: Pillow, xlrd, south, pycrypto & restkit.
         # Apps :
