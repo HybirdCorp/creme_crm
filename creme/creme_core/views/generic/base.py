@@ -130,6 +130,11 @@ class EntityRelatedMixin:
     entity_id_url_kwarg = 'entity_id'
     entity_classes = None
     entity_form_kwarg = 'entity'
+    entity_select_for_update = False
+
+    def build_related_entity_queryset(self, model):
+        qs = model._default_manager.all()
+        return qs if not self.get_entity_select_for_update() else qs.select_for_update()
 
     def check_related_entity_permissions(self, entity, user):
         """ Check the permissions of the related entity which just has been retrieved.
@@ -167,23 +172,32 @@ class EntityRelatedMixin:
             entity_id = self.get_related_entity_id()
 
             if entity_classes is None:
-                entity = get_object_or_404(CremeEntity, id=entity_id).get_real_entity()
+                entity = get_object_or_404(
+                    self.build_related_entity_queryset(CremeEntity),
+                    id=entity_id,
+                ).get_real_entity()
             elif isinstance(entity_classes, (list, tuple)):  # Sequence of classes
                 get_for_ct = ContentType.objects.get_for_model
                 entity = get_object_or_404(
-                    CremeEntity,
+                    self.build_related_entity_queryset(CremeEntity),
                     id=entity_id,
                     entity_type__in=[get_for_ct(c) for c in entity_classes],
                 ).get_real_entity()
             else:
                 assert issubclass(entity_classes, CremeEntity)
-                entity = get_object_or_404(entity_classes, pk=entity_id)
+                entity = get_object_or_404(
+                    self.build_related_entity_queryset(entity_classes),
+                    id=entity_id,
+                )
 
             self.check_related_entity_permissions(entity=entity, user=self.request.user)
 
             self.related_entity = entity
 
         return entity
+
+    def get_entity_select_for_update(self):
+        return self.entity_select_for_update
 
     def set_entity_in_form_kwargs(self, form_kwargs):
         entity = self.get_related_entity()

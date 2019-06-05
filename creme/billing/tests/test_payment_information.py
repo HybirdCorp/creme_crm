@@ -152,7 +152,8 @@ class PaymentInformationTestCase(_BillingTestCase):
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
         url = self._build_setdefault_url(pi_sony, invoice)
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET(405, url)
         self.assertPOST200(url)
         self.assertEqual(pi_sony, self.refresh(invoice).payment_info)
 
@@ -172,8 +173,10 @@ class PaymentInformationTestCase(_BillingTestCase):
                                         .status_code
                             )
 
-        assertPostStatus(404, pi_nintendo)
-        assertPostStatus(404, pi_sega)
+        # assertPostStatus(404, pi_nintendo)
+        assertPostStatus(409, pi_nintendo)
+        # assertPostStatus(404, pi_sega)
+        assertPostStatus(409, pi_sega)
         assertPostStatus(200, pi_sony)
 
     @skipIfCustomInvoice
