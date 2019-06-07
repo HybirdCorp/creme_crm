@@ -623,7 +623,6 @@ class CalendarEdition(generic.CremeModelEditionPopup):
 @jsonify
 @decorators.POST_only
 def delete_user_calendar(request):
-    # TODO: Adding the possibility to transfer activities
     calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
     user = request.user
 
@@ -632,10 +631,19 @@ def delete_user_calendar(request):
         raise PermissionDenied(gettext('You are not allowed to delete this calendar.'))
 
     # Attach all existing activities to the default calendar
-    # default_calendar = Calendar.get_user_default_calendar(user)
-    default_calendar = Calendar.objects.get_default_calendar(user)
+    # replacement_calendar = Calendar.get_user_default_calendar(user)
+    replacement_calendar = Calendar.objects.get_default_calendar(user)
+    if replacement_calendar == calendar:
+        replacement_calendar = Calendar.objects.filter(user=user)\
+                                               .exclude(id=calendar.id)\
+                                               .order_by('id')\
+                                               .first()
+
+        if replacement_calendar is None:
+            raise ConflictError(gettext('You cannot delete your last calendar.'))
+
     for activity in calendar.activity_set.all():
-        activity.calendars.add(default_calendar)
+        activity.calendars.add(replacement_calendar)
 
     calendar.delete()
 

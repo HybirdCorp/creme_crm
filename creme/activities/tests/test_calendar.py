@@ -507,7 +507,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertGET403(reverse('activities__edit_calendar', args=(cal.id,)))
 
     def test_delete_calendar01(self):
-        "Not custom -> error"
+        "Not custom -> error."
         user = self.login()
 
         Calendar.objects.get_default_calendar(user)
@@ -538,7 +538,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertDoesNotExist(cal)
 
     def test_delete_calendar03(self):
-        "No super user"
+        "No super user."
         user = self.login(is_superuser=False)
 
         Calendar.objects.get_default_calendar(user)
@@ -559,7 +559,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @skipIfCustomActivity
     def test_delete_calendar05(self):
-        "reassign activities calendars"
+        "Reassign activities calendars."
         user = self.login()
         default_calendar = Calendar.objects.get_default_calendar(user)
 
@@ -574,6 +574,42 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         act = self.refresh(act)
         self.assertEqual([default_calendar], list(act.calendars.all()))
+
+    @skipIfCustomActivity
+    def test_delete_calendar06(self):
+        "Reassign activities calendars + deleted is the default calendar."
+        user = self.login()
+        not_custom_cal = Calendar.objects.get_default_calendar(user)
+        default_cal = Calendar.objects.create(user=user, name='Cal #2',
+                                              is_custom=True, is_default=True,
+                                             )
+        cal3 = Calendar.objects.create(user=user, name='Ahhh first calendar')
+        self.assertFalse(self.refresh(not_custom_cal).is_default)
+        self.assertEqual(cal3, Calendar.objects.filter(user=user).first())
+
+        act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
+        act.calendars.add(default_cal)
+        self.assertEqual([default_cal], list(act.calendars.all()))
+
+        url = self.DEL_CALENDAR_URL
+        self.assertPOST200(url, data={'id': default_cal.id})
+        self.assertDoesNotExist(default_cal)
+
+        self.assertTrue(self.refresh(not_custom_cal).is_default)
+        act = self.refresh(act)
+        self.assertEqual([not_custom_cal], list(act.calendars.all()))
+
+    def test_delete_calendar07(self):
+        "The deleted calendar is the last one (but custom -- should not happen btw)."
+        user = self.login()
+
+        cal = Calendar.objects.get_default_calendar(user)
+        Calendar.objects.filter(id=cal.id).update(is_custom=True)
+
+        url = self.DEL_CALENDAR_URL
+        self.assertGET404(url)
+        self.assertPOST409(url, data={'id': cal.id})
+        self.assertStillExists(cal)
 
     @skipIfCustomActivity
     def test_change_activity_calendar01(self):
