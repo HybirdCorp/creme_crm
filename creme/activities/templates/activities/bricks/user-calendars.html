@@ -32,7 +32,7 @@
             {% brick_table_action id='edit' url=edit_url label=_('Edit this calendar') %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=delete_url __id=calendar.id label=_('Delete this calendar') %}
+            {% brick_table_action id='delete' url=delete_url __id=calendar.id label=_('Delete this calendar') enabled=calendar.is_custom %}
         </td>
     </tr>
     {% endfor %}
