@@ -286,7 +286,7 @@ class ActivityCreateForm(_ActivityCreateForm):
             # TODO: improve help_text of end (we know the type default duration)
             fields['type_selector'].types = ActivityType.objects.filter(pk=activity_type_id)
 
-        fields['my_participation'].initial = (True, Calendar.objects.get_default_calendar(user))
+        fields['my_participation'].initial = (True, Calendar.objects.get_default_calendar(user).id)
 
         subjects_field = fields['subjects']
         subjects_field.allowed_models = [ct.model_class() 
