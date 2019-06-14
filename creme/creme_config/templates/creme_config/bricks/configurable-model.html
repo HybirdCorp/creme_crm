@@ -52,19 +52,23 @@
         {% endfor %}
 
             <td {% brick_table_data_status action %}>
+            {% block config_edition_action %}
 {% comment %}
                 {% url 'creme_config__edit_instance' app_name model_name object.id as edit_url %}
                 {% brick_table_action id='edit' url=edit_url %}
 {% endcomment %}
                 {% config_model_edition_url model_config=model_config instance=object user=user as edit_url %}
                 {% if edit_url %}{% brick_table_action id='edit' url=edit_url %}{% endif %}
+            {% endblock %}
             </td>
             <td {% brick_table_data_status action %}>
+            {% block config_deletion_action %}
 {% comment %}
                 {% brick_table_action id='delete' url=delete_url __id=object.pk enabled=object|is_custom %}
 {% endcomment %}
                 {% url 'creme_config__delete_instance' app_name model_name object.id as delete_url %}{# TODO: disable if a job exists for this model #}
                 {% brick_table_action id='edit' url=delete_url enabled=object|config_is_custom icon='delete' label=_('Delete') %}
+            {% endblock %}
             </td>
         </tr>
     {% endfor %}
