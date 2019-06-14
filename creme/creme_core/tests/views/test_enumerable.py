@@ -235,7 +235,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
     def test_choices_POST(self):
         self.login()
-        self.assertPOST(405, self._build_choices_url(models.FakeContact, 'civility'))
+        self.assertPOST405(self._build_choices_url(models.FakeContact, 'civility'))
 
     def test_choices_not_entity_model(self):
         self.login()

@@ -693,7 +693,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         onizuka.phone = phone
         onizuka.save()
-        self.assertPOST(405, url, data=data)
+        self.assertPOST405(url, data=data)
         self._assert_detailview(self.client.get(url, data=data, follow=True), onizuka)
 
     def test_search_and_view02(self):

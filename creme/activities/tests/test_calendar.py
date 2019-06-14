@@ -917,7 +917,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                                       )
 
         url = reverse('activities__select_calendars')
-        self.assertGET(405, url)
+        self.assertGET405(url)
 
         self.assertPOST200(url, data={'add': [str(cal1.id), str(cal2.id)]})
         sessions2 = self._get_user_sessions(user)
@@ -953,7 +953,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         url = self.UPDATE_URL
         # self.assertGET404(url)
-        self.assertGET(405, url)
+        self.assertGET405(url)
 
         offset = timedelta(days=1, hours=2)
         new_start = start + offset

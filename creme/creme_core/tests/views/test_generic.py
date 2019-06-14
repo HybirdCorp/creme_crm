@@ -101,7 +101,7 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         fox = FakeContact.objects.create(user=user, first_name='Fox', last_name='McCloud')
         url = fox.get_absolute_url()
-        self.assertPOST(405, url)  # TODO: specific template for 405 errors ?
+        self.assertPOST405(url)  # TODO: specific template for 405 errors ?
 
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/view_entity.html')

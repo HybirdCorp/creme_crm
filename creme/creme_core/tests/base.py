@@ -152,6 +152,9 @@ class _CremeTestCase:
     def assertGET404(self, *args, **kwargs):
         return self.assertGET(404, *args, **kwargs)
 
+    def assertGET405(self, *args, **kwargs):
+        return self.assertGET(405, *args, **kwargs)
+
     def assertGET409(self, *args, **kwargs):
         return self.assertGET(409, *args, **kwargs)
 
@@ -169,6 +172,9 @@ class _CremeTestCase:
 
     def assertPOST404(self, *args, **kwargs):
         return self.assertPOST(404, *args, **kwargs)
+
+    def assertPOST405(self, *args, **kwargs):
+        return self.assertPOST(405, *args, **kwargs)
 
     def assertPOST409(self, *args, **kwargs):
         return self.assertPOST(409, *args, **kwargs)

@@ -718,7 +718,7 @@ class ReportTestCase(BaseReportsTestCase):
         rfield = self.get_field_or_fail(report, 'user')
         url = reverse('reports__reorder_field', args=(report.id, rfield.id,))
         # self.assertGET404(url, data={'target': 1})
-        self.assertGET(405, url, data={'target': 1})
+        self.assertGET405(url, data={'target': 1})
 
         self.client.post(url, data={'target': 1})
         self.assertEqual(['user', 'last_name', REL_SUB_HAS, 'get_pretty_properties'],

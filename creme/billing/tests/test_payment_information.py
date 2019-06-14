@@ -153,7 +153,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
         url = self._build_setdefault_url(pi_sony, invoice)
         # self.assertGET404(url)
-        self.assertGET(405, url)
+        self.assertGET405(url)
         self.assertPOST200(url)
         self.assertEqual(pi_sony, self.refresh(invoice).payment_info)
 

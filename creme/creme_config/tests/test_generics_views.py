@@ -1238,7 +1238,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         url = self._build_finish_deletor_url(job)
-        self.assertGET(405, url)
+        self.assertGET405(url)
         self.assertPOST200(url)
 
         self.assertDoesNotExist(job)
@@ -1388,7 +1388,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                       args=('creme_core', 'fake_sector', sector1.id),
                      )
         data = {'target': max_order + 3}
-        self.assertGET(405, url, data=data)
+        self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data)
         self.assertEqual(max_order + 3, self.refresh(sector1).order)

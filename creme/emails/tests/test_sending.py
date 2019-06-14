@@ -280,7 +280,7 @@ class SendingsTestCase(_EmailsTestCase):
 
         # Detail view ----------------------------------------------------------
         detail_url = reverse('emails__view_sending', args=(sending.id,))
-        self.assertPOST(405, detail_url)
+        self.assertPOST405(detail_url)
 
         response = self.assertGET200(detail_url)
         self.assertTemplateUsed(response, 'emails/view_sending.html')
@@ -291,7 +291,7 @@ class SendingsTestCase(_EmailsTestCase):
 
         # HTML body ----------------------------------------------------------
         body_url = reverse('emails__sending_body', args=(sending.id,))
-        self.assertPOST(405, body_url)
+        self.assertPOST405(body_url)
 
         response = self.assertGET200(body_url)
         self.assertEqual(b'', response.content)
