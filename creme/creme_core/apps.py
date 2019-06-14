@@ -280,6 +280,7 @@ class CremeCoreConfig(CremeAppConfig):
         self.tag_ctype()
 
         self.hook_fk_formfield()
+        self.hook_fk_check()
         self.hook_m2m_formfield()
         self.hook_datetime_widgets()
         self.hook_multiselection_widgets()
@@ -462,6 +463,32 @@ class CremeCoreConfig(CremeAppConfig):
             return original_fk_formfield(self, **defaults)
 
         ForeignKey.formfield = new_fk_formfield
+
+    @staticmethod
+    def hook_fk_check():
+        from django.db.models import ForeignKey
+
+        from creme.creme_core.models.deletion import CREME_REPLACE_NULL
+
+        original_fk_check = ForeignKey.check
+
+        def new_fk_check(self, **kwargs):
+            errors = original_fk_check(self, **kwargs)
+            on_delete = getattr(self.remote_field, 'on_delete', None)
+
+            if on_delete == CREME_REPLACE_NULL and not self.null:
+                errors.append(
+                    checks.Error(
+                        'Field specifies on_delete=CREME_REPLACE_NULL, but cannot be null.',
+                        hint='Set null=True argument on the field, or change the on_delete rule.',
+                        obj=self,
+                        id='creme.E009',
+                    )
+                )
+
+            return errors
+
+        ForeignKey.check = new_fk_check
 
     # TODO: see hook_fk_formfield()
     @staticmethod
