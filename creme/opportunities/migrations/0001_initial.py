@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.db import models, migrations
-from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
+from django.db.models.deletion import CASCADE, PROTECT  # SET_NULL
 
-from creme.creme_core.models import fields as creme_fields
+from creme.creme_core.models import fields as creme_fields, CREME_REPLACE_NULL
 
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'opportunities', '0001_initial'),
-    #     (b'opportunities', '0002_v1_7__reference_not_null_1'),
-    #     (b'opportunities', '0003_v1_7__reference_not_null_2'),
-    #     (b'opportunities', '0004_v1_7__description_not_null_1'),
-    #     (b'opportunities', '0005_v1_7__description_not_null_2'),
-    #     (b'opportunities', '0006_v1_7__salesphase_lost_1'),
-    #     (b'opportunities', '0007_v1_7__salesphase_lost_2'),
+    #     ('opportunities', '0001_initial'),
+    #     ('opportunities', '0002_v1_7__reference_not_null_1'),
+    #     ('opportunities', '0003_v1_7__reference_not_null_2'),
+    #     ('opportunities', '0004_v1_7__description_not_null_1'),
+    #     ('opportunities', '0005_v1_7__description_not_null_2'),
+    #     ('opportunities', '0006_v1_7__salesphase_lost_1'),
+    #     ('opportunities', '0007_v1_7__salesphase_lost_2'),
     # ]
 
     initial = True
@@ -70,7 +69,8 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('first_action_date', models.DateField(null=True, verbose_name='Date of the first action', blank=True)),
                 ('currency', models.ForeignKey(on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
-                ('origin', models.ForeignKey(on_delete=SET_NULL, verbose_name='Origin', blank=True, to='opportunities.Origin', null=True)),
+                # ('origin', models.ForeignKey(on_delete=SET_NULL, verbose_name='Origin', blank=True, to='opportunities.Origin', null=True)),
+                ('origin', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Origin', blank=True, to='opportunities.Origin', null=True)),
                 ('sales_phase', models.ForeignKey(on_delete=PROTECT, verbose_name='Sales phase', to='opportunities.SalesPhase')),
             ],
             options={

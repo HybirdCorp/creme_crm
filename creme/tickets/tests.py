@@ -370,6 +370,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
     def test_delete_status(self):
         user = self.login()
 
+        status2 = Status.objects.first()
         status = Status.objects.create(name='Delete me please')
         ticket = Ticket.objects.create(user=user,
                                        title='title',
@@ -378,17 +379,35 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
                                        priority=Priority.objects.all()[0],
                                        criticity=Criticity.objects.all()[0],
                                       )
-        self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'status')),
-                           data={'id': status.pk}
-                          )
-        self.assertStillExists(status)
+        # self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'status')),
+        #                    data={'id': status.pk}
+        #                   )
+        # self.assertStillExists(status)
+        #
+        # ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
+        # self.assertEqual(status, ticket.status)
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('tickets', 'status', status.id)
+                   ),
+            data={
+                'replace_tickets__ticket_status':         status2.id,
+                'replace_tickets__tickettemplate_status': status2.id,
+            },
+        )
+        self.assertNoFormError(response)
 
-        ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
-        self.assertEqual(status, ticket.status)
+        job = self.get_deletion_command_or_fail(Status).job
+        job.type.execute(job)
+        self.assertDoesNotExist(status)
+
+        ticket = self.assertStillExists(ticket)
+        self.assertEqual(status2, ticket.status)
 
     def test_delete_priority(self):
         user = self.login()
 
+        priority2 = Priority.objects.first()
         priority = Priority.objects.create(name='Not so important')
         self.assertEqual(Priority.objects.count(), priority.order)
 
@@ -399,17 +418,35 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
                                        priority=priority,
                                        criticity=Criticity.objects.all()[0],
                                       )
-        self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'priority')),
-                           data={'id': priority.pk}
-                          )
-        self.assertStillExists(priority)
+        # self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'priority')),
+        #                    data={'id': priority.pk}
+        #                   )
+        # self.assertStillExists(priority)
+        #
+        # ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
+        # self.assertEqual(priority, ticket.priority)
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('tickets', 'priority', priority.id)
+                   ),
+            data={
+                'replace_tickets__ticket_priority':         priority2.id,
+                'replace_tickets__tickettemplate_priority': priority2.id,
+            },
+        )
+        self.assertNoFormError(response)
 
-        ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
-        self.assertEqual(priority, ticket.priority)
+        job = self.get_deletion_command_or_fail(Priority).job
+        job.type.execute(job)
+        self.assertDoesNotExist(priority)
+
+        ticket = self.assertStillExists(ticket)
+        self.assertEqual(priority2, ticket.priority)
 
     def test_delete_criticity(self):
         user = self.login()
 
+        criticity2 = Criticity.objects.first()
         criticity = Criticity.objects.create(name='Not so important')
         self.assertEqual(Criticity.objects.count(), criticity.order)
 
@@ -420,13 +457,30 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
                                        priority=Priority.objects.all()[0],
                                        criticity=criticity,
                                       )
-        self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'criticity')),
-                           data={'id': criticity.pk}
-                          )
-        self.assertStillExists(criticity)
+        # self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'criticity')),
+        #                    data={'id': criticity.pk}
+        #                   )
+        # self.assertStillExists(criticity)
+        #
+        # ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
+        # self.assertEqual(criticity, ticket.criticity)
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('tickets', 'criticity', criticity.id)
+                   ),
+            data={
+                'replace_tickets__ticket_criticity':         criticity2.id,
+                'replace_tickets__tickettemplate_criticity': criticity2.id,
+            },
+        )
+        self.assertNoFormError(response)
 
-        ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
-        self.assertEqual(criticity, ticket.criticity)
+        job = self.get_deletion_command_or_fail(Criticity).job
+        job.type.execute(job)
+        self.assertDoesNotExist(criticity)
+
+        ticket = self.assertStillExists(ticket)
+        self.assertEqual(criticity2, ticket.criticity)
 
     def test_mass_import(self):
         user = self.login()

@@ -587,47 +587,161 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertPOST200(url, follow=True)
         self.assertDoesNotExist(managed_orga)
 
-    def test_delete_sector(self):
-        "Set to null"
+    def test_delete_sector01(self):
+        "Set to NULL."
         user = self.login()
         hunting = Sector.objects.create(title='Bounty hunting')
         bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'sector')),
-                           data={'id': hunting.pk}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'sector')),
+        #                    data={'id': hunting.pk}
+        #                   )
+        # self.assertDoesNotExist(hunting)
+        #
+        # bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        # self.assertIsNone(bebop.sector)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('persons', 'sector', hunting.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Sector).job
+        job.type.execute(job)
         self.assertDoesNotExist(hunting)
 
-        bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        bebop = self.assertStillExists(bebop)
         self.assertIsNone(bebop.sector)
 
-    def test_delete_legal_form(self):
-        "Set to null"
+    def test_delete_sector02(self):
+        "Set to another value."
+        user = self.login()
+        sector2 = Sector.objects.first()
+        hunting = Sector.objects.create(title='Bounty hunting')
+        bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
+
+        # response = self.client.post(reverse('creme_config__delete_instance',
+        #                                     args=('persons', 'sector', hunting.id)
+        #                                    ),
+        #                            )
+        # self.assertNoFormError(response)
+        #
+        # job = self.get_deletion_command_or_fail(Sector).job
+        # job.type.execute(job)
+        # self.assertDoesNotExist(hunting)
+        #
+        # bebop = self.assertStillExists(bebop)
+        # self.assertIsNone(bebop.sector)
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('persons', 'sector', hunting.id)
+                   ),
+            data={'replace_persons__organisation_sector': sector2.id},
+        )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Sector).job
+        job.type.execute(job)
+        self.assertDoesNotExist(hunting)
+
+        bebop = self.assertStillExists(bebop)
+        self.assertEqual(sector2, bebop.sector)
+
+    def test_delete_legal_form01(self):
+        "Set to NULL."
         user = self.login()
         band = LegalForm.objects.create(title='Bounty hunting band')
         bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'legal_form')),
-                           data={'id': band.pk}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'legal_form')),
+        #                    data={'id': band.pk}
+        #                   )
+        # self.assertDoesNotExist(band)
+        #
+        # bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        # self.assertIsNone(bebop.legal_form)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('persons', 'legal_form', band.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(LegalForm).job
+        job.type.execute(job)
         self.assertDoesNotExist(band)
 
-        bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        bebop = self.assertStillExists(bebop)
         self.assertIsNone(bebop.legal_form)
 
-    def test_delete_staff_size(self):
-        "Set to null"
+    def test_delete_legal_form02(self):
+        "Set to another value."
+        user = self.login()
+        lform2 = LegalForm.objects.first()
+        band = LegalForm.objects.create(title='Bounty hunting band')
+        bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
+
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('persons', 'legal_form', band.id)
+                   ),
+            data={'replace_persons__organisation_legal_form': lform2.id},
+        )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(LegalForm).job
+        job.type.execute(job)
+        self.assertDoesNotExist(band)
+
+        bebop = self.assertStillExists(bebop)
+        self.assertEqual(lform2, bebop.legal_form)
+
+    def test_delete_staff_size01(self):
+        "Set to NULL."
         user = self.login()
         size = StaffSize.objects.create(size='4 and a dog')
         bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'staff_size')),
-                           data={'id': size.pk}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'staff_size')),
+        #                    data={'id': size.pk}
+        #                   )
+        # self.assertDoesNotExist(size)
+        #
+        # bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        # self.assertIsNone(bebop.staff_size)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('persons', 'staff_size', size.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(StaffSize).job
+        job.type.execute(job)
         self.assertDoesNotExist(size)
 
-        bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        bebop = self.assertStillExists(bebop)
         self.assertIsNone(bebop.staff_size)
+
+    def test_delete_staff_size02(self):
+        "Set to another value."
+        user = self.login()
+        size2 = StaffSize.objects.first()
+        size = StaffSize.objects.create(size='4 and a dog')
+        bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
+
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('persons', 'staff_size', size.id)
+                   ),
+            data={'replace_persons__organisation_staff_size': size2.id},
+        )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(StaffSize).job
+        job.type.execute(job)
+        self.assertDoesNotExist(size)
+
+        bebop = self.assertStillExists(bebop)
+        self.assertEqual(size2, bebop.staff_size)
 
     def test_set_orga_as_managed01(self):
         user = self.login()

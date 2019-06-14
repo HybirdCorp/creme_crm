@@ -27,7 +27,8 @@ def ready():
             get_csv_form_builder, get_merge_form_builder)
     from . import fake_function_fields
     from .fake_models import (FakeContact, FakeOrganisation, FakeImage,
-            FakeActivity, FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)
+            FakeActivity, FakeEmailCampaign, FakeMailingList,
+            FakeInvoice, FakeInvoiceLine, FakeTicket)
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
 
@@ -41,6 +42,7 @@ def ready():
         FakeInvoice,
         FakeInvoiceLine,
         FakeConfigEntity,
+        FakeTicket,
     )
 
     function_field_registry.register(CremeEntity,     fake_function_fields.FakeTodosField)

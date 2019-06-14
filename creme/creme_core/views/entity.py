@@ -56,7 +56,6 @@ from .decorators import jsonify, POST_only
 from .generic import base, listview
 # from .utils import build_cancel_path
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -36,7 +36,7 @@
 {% endblock %}
 
 {% block brick_table_body %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_instance' app_name model_name as delete_url %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{# {% url 'creme_config__delete_instance' app_name model_name as delete_url %} #}
 {% widget_icon name='reorder' size='brick-table-action' class='icon brick-reorderable-handle-icon' as reorder_icon %}
     <tbody {% if model_is_reorderable %}class="brick-reorderable-items ui-sortable"{% endif %}>
     {% for object in page.object_list %}
@@ -60,7 +60,11 @@
                 {% if edit_url %}{% brick_table_action id='edit' url=edit_url %}{% endif %}
             </td>
             <td {% brick_table_data_status action %}>
-                {% brick_table_action id='delete' url=delete_url __id=object.pk enabled=object|config_is_custom %}
+{% comment %}
+                {% brick_table_action id='delete' url=delete_url __id=object.pk enabled=object|is_custom %}
+{% endcomment %}
+                {% url 'creme_config__delete_instance' app_name model_name object.id as delete_url %}{# TODO: disable if a job exists for this model #}
+                {% brick_table_action id='edit' url=delete_url enabled=object|config_is_custom icon='delete' label=_('Delete') %}
             </td>
         </tr>
     {% endfor %}

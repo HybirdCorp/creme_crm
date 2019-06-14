@@ -23,14 +23,14 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db.models import (Model, PositiveIntegerField, CharField, TextField,
-        DateTimeField, ForeignKey, PROTECT)
+        DateTimeField, ForeignKey)  # PROTECT
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity, CREME_REPLACE
 
 from .criticity import Criticity
 from .priority import Priority
@@ -53,9 +53,18 @@ class TicketNumber(Model):
 class TicketMixin(CremeEntity):
     title        = CharField(_('Title'), max_length=100, blank=True, null=False)
     description  = TextField(_('Description'))
-    status       = ForeignKey(Status, verbose_name=_('Status'), on_delete=PROTECT).set_tags(clonable=False)
-    priority     = ForeignKey(Priority, verbose_name=_('Priority'), on_delete=PROTECT)
-    criticity    = ForeignKey(Criticity, verbose_name=_('Criticity'), on_delete=PROTECT)
+    status       = ForeignKey(Status, verbose_name=_('Status'),
+                              # on_delete=PROTECT
+                              on_delete=CREME_REPLACE,
+                             ).set_tags(clonable=False)
+    priority     = ForeignKey(Priority, verbose_name=_('Priority'),
+                              # on_delete=PROTECT
+                              on_delete=CREME_REPLACE,
+                             )
+    criticity    = ForeignKey(Criticity, verbose_name=_('Criticity'),
+                              # on_delete=PROTECT
+                              on_delete=CREME_REPLACE,
+                             )
     solution     = TextField(_('Solution'), blank=True, null=False)
 
     class Meta:

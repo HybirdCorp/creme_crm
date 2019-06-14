@@ -686,57 +686,165 @@ class ContactTestCase(_BaseTestCase):
         contact = user.linked_contact
         self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
 
-    def test_delete_civility(self):
-        "Set to null"
+    def test_delete_civility01(self):
+        "Set to NULL."
         user = self.login()
         captain = Civility.objects.create(title='Captain')
         harlock = Contact.objects.create(user=user, first_name='Harlock',
                                          last_name='Matsumoto', civility=captain,
                                         )
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'civility')),
-                           data={'id': captain.pk}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'civility')),
+        #                    data={'id': captain.pk}
+        #                   )
+        # self.assertDoesNotExist(captain)
+        #
+        # harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
+        # self.assertIsNone(harlock.civility)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('persons', 'civility', captain.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Civility).job
+        job.type.execute(job)
         self.assertDoesNotExist(captain)
 
-        harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
+        harlock = self.assertStillExists(harlock)
         self.assertIsNone(harlock.civility)
 
-    def test_delete_position(self):
-        "Set to null"
+    def test_delete_civility02(self):
+        "Set to another value."
+        user = self.login()
+        civ2 = Civility.objects.first()
+        captain = Civility.objects.create(title='Captain')
+        harlock = Contact.objects.create(user=user, first_name='Harlock',
+                                         last_name='Matsumoto', civility=captain,
+                                        )
+
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('persons', 'civility', captain.id)
+                   ),
+            data={'replace_persons__contact_civility': civ2.id},
+        )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Civility).job
+        job.type.execute(job)
+        self.assertDoesNotExist(captain)
+
+        harlock = self.assertStillExists(harlock)
+        self.assertEqual(civ2, harlock.civility)
+
+    def test_delete_position01(self):
+        "Set to NULL."
         user = self.login()
         captain = Position.objects.create(title='Captain')
         harlock = Contact.objects.create(user=user, first_name='Harlock',
                                          last_name='Matsumoto', position=captain,
                                         )
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'position')),
-                           data={'id': captain.pk}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'position')),
+        #                    data={'id': captain.pk}
+        #                   )
+        # self.assertDoesNotExist(captain)
+        #
+        # harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
+        # self.assertIsNone(harlock.position)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('persons', 'position', captain.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Position).job
+        job.type.execute(job)
         self.assertDoesNotExist(captain)
 
-        harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
+        harlock = self.assertStillExists(harlock)
         self.assertIsNone(harlock.position)
 
-    def test_delete_sector(self):
-        "Set to null"
+    def test_delete_position02(self):
+        "Set to another value."
+        user = self.login()
+        pos2 = Position.objects.first()
+        captain = Position.objects.create(title='Captain')
+        harlock = Contact.objects.create(user=user, first_name='Harlock',
+                                         last_name='Matsumoto', position=captain,
+                                        )
+
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('persons', 'position', captain.id)
+                   ),
+            data={'replace_persons__contact_position': pos2.id},
+        )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Position).job
+        job.type.execute(job)
+        self.assertDoesNotExist(captain)
+
+        harlock = self.assertStillExists(harlock)
+        self.assertEqual(pos2, harlock.position)
+
+    def test_delete_sector01(self):
+        "Set to NULL."
         user = self.login()
         piracy = Sector.objects.create(title='Piracy')
         harlock = Contact.objects.create(user=user, first_name='Harlock',
                                          last_name='Matsumoto', sector=piracy,
                                         )
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'sector')),
-                           data={'id': piracy.pk}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'sector')),
+        #                    data={'id': piracy.pk}
+        #                   )
+        # self.assertDoesNotExist(piracy)
+        #
+        # harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
+        # self.assertIsNone(harlock.sector)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('persons', 'sector', piracy.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Sector).job
+        job.type.execute(job)
         self.assertDoesNotExist(piracy)
 
-        harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
+        harlock = self.assertStillExists(harlock)
         self.assertIsNone(harlock.sector)
+
+    def test_delete_sector02(self):
+        "Set to another value."
+        user = self.login()
+        sector2 = Sector.objects.first()
+        piracy = Sector.objects.create(title='Piracy')
+        harlock = Contact.objects.create(user=user, first_name='Harlock',
+                                         last_name='Matsumoto', sector=piracy,
+                                        )
+
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('persons', 'sector', piracy.id)
+                   ),
+            data={'replace_persons__contact_sector': sector2.id},
+        )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Sector).job
+        job.type.execute(job)
+        self.assertDoesNotExist(piracy)
+
+        harlock = self.assertStillExists(harlock)
+        self.assertEqual(sector2, harlock.sector)
 
     @skipIfCustomDocument
     def test_delete_image(self):
-        "Set to null"
+        "Set to NULL."
         user = self.login()
         image = self._create_image()
         harlock = Contact.objects.create(user=user, last_name='Matsumoto', image=image)

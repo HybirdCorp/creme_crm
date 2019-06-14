@@ -492,12 +492,20 @@ class DocumentTestCase(_DocumentsTestCase):
         cat = FolderCategory.objects.create(name='Manga')
         folder = Folder.objects.create(user=user, title='One piece', category=cat)
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('documents', 'category')),
-                           data={'id': cat.pk}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('documents', 'category')),
+        #                    data={'id': cat.pk}
+        #                   )
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('documents', 'category', cat.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(FolderCategory).job
+        job.type.execute(job)
         self.assertDoesNotExist(cat)
 
-        folder = self.get_object_or_fail(Folder, pk=folder.pk)
+        folder = self.assertStillExists(folder)
         self.assertIsNone(folder.category)
 
     @skipIfCustomContact

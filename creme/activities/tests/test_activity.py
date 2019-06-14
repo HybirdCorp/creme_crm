@@ -43,7 +43,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     ADD_URL         = reverse('activities__create_activity')
     ADD_POPUP_URL   = reverse('activities__create_activity_popup')
     ADD_INDISPO_URL = reverse('activities__create_indispo')
-    DEL_ACTTYPE_URL = reverse('creme_config__delete_instance', args=('activities', 'activity_type'))
+    # DEL_ACTTYPE_URL = reverse('creme_config__delete_instance', args=('activities', 'activity_type'))
 
     def _buid_add_participants_url(self, activity):
         return reverse('activities__add_participants', args=(activity.id,))
@@ -2183,35 +2183,56 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_detete_activity_type01(self):
         self.login()
 
-        atype = ActivityType.objects.update_or_create(id='activities-activity_custom_1',
-                                                      defaults={'name':                 'Karate session',
-                                                                'default_day_duration':  0,
-                                                                'default_hour_duration': "00:15:00",
-                                                                'is_custom':             True,
-                                                               },
-                                                     )[0]
+        atype = ActivityType.objects.update_or_create(
+            id='activities-activity_custom_1',
+            defaults={'name':                 'Karate session',
+                      'default_day_duration':  0,
+                      'default_hour_duration': '00:15:00',
+                      'is_custom':             True,
+                     },
+        )[0]
 
-        self.assertPOST200(self.DEL_ACTTYPE_URL, data={'id': atype.pk})
+        # self.assertPOST200(self.DEL_ACTTYPE_URL, data={'id': atype.pk})
+        # self.assertDoesNotExist(atype)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('activities', 'activity_type', atype.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(ActivityType).job
+        job.type.execute(job)
         self.assertDoesNotExist(atype)
 
     def test_detete_activity_type02(self):
         user = self.login()
 
-        atype = ActivityType.objects.update_or_create(id='activities-activity_custom_1',
-                                                      defaults={'name':                 'Karate session',
-                                                                'default_day_duration':  0,
-                                                                'default_hour_duration': "00:15:00",
-                                                                'is_custom':             True,
-                                                               },
-                                                     )[0]
+        atype = ActivityType.objects.update_or_create(
+            id='activities-activity_custom_1',
+            defaults={'name':                 'Karate session',
+                      'default_day_duration':  0,
+                      'default_hour_duration': '00:15:00',
+                      'is_custom':             True,
+                     },
+        )[0]
 
-        activity = Activity.objects.create(user=user, type=atype)
+        # activity = \
+        Activity.objects.create(user=user, type=atype)
 
-        self.assertPOST404(self.DEL_ACTTYPE_URL, data={'id': atype.pk})
-        self.get_object_or_fail(ActivityType, pk=atype.pk)
-
-        activity = self.get_object_or_fail(Activity, pk=activity.pk)
-        self.assertEqual(atype, activity.type)
+        # self.assertPOST404(self.DEL_ACTTYPE_URL, data={'id': atype.pk})
+        # self.get_object_or_fail(ActivityType, pk=atype.pk)
+        #
+        # activity = self.get_object_or_fail(Activity, pk=activity.pk)
+        # self.assertEqual(atype, activity.type)
+        response = self.assertPOST200(reverse('creme_config__delete_instance',
+                                              args=('activities', 'activity_type', atype.id)
+                                             ),
+                                     )
+        self.assertFormError(
+            response, 'form',
+            'replace_activities__activity_type',
+            _('Deletion is not possible.')
+        )
 
     def test_createview_popup1(self):
         "With existing activity type and start date given"

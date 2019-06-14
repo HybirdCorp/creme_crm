@@ -7,7 +7,8 @@
     {% if not request.is_ajax and not job.is_finished %}
     <script type="text/javascript">
         $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
-            creme.jobs.checkJobManager('{% url 'creme_core__jobs_info' %}', brick._id, true);
+{#            creme.jobs.checkJobManager('{% url 'creme_core__jobs_info' %}', brick._id, true); #}
+            new creme.jobs.BrickJobsMonitor('{% url 'creme_core__jobs_info' %}', brick._id).onAllJobsFinished(creme.utils.reload).start();
         });
     </script>
     {% endif %}

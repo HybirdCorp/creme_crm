@@ -403,11 +403,15 @@ class CremeCoreConfig(CremeAppConfig):
             from .tests import fake_models, fake_bricks
 
             # NB: see creme.creme_config.tests.test_generics_views.GenericModelConfigTestCase
-            register_model(fake_models.FakeCivility,      'fake_civility')
-            register_model(fake_models.FakeSector,        'fake_sector')
-            register_model(fake_models.FakeImageCategory, 'fake_img_cat')
+            register_model(fake_models.FakeCivility,       'fake_civility')
+            register_model(fake_models.FakeSector,         'fake_sector')
+            register_model(fake_models.FakeImageCategory,  'fake_img_cat')
+            register_model(fake_models.FakeProductType,    'fake_product_type')
+            register_model(fake_models.FakeActivityType,   'fake_activity_type')
+            register_model(fake_models.FakeTicketStatus,   'fake_ticket_status')
+            register_model(fake_models.FakeTicketPriority, 'fake_ticket_priority')
 
-            # NB: we just need another URLs for creation/edition (even if these one are stupid)
+            # NB: we just need another URLs for creation/edition (even if these ones are stupid)
             register_model(fake_models.FakePosition, 'fake_position') \
                           .creation(enable_func=lambda user: False) \
                           .edition(url_name='creme_core__edit_fake_contact')

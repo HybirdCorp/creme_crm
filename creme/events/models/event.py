@@ -22,7 +22,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
-from creme.creme_core.models import CremeEntity, CremeModel, RelationType, Relation
+from creme.creme_core.models import (CremeEntity, CremeModel,
+    RelationType, Relation, CREME_REPLACE)
 
 from .. import constants
 
@@ -52,7 +53,10 @@ class EventType(CremeModel):
 
 class AbstractEvent(CremeEntity):
     name        = models.CharField(_('Name'), max_length=100)
-    type        = models.ForeignKey(EventType, verbose_name=_('Type'), on_delete=models.PROTECT)
+    type        = models.ForeignKey(EventType, verbose_name=_('Type'),
+                                    # on_delete=models.PROTECT
+                                    on_delete=CREME_REPLACE,
+                                   )
     description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
     place       = models.CharField(pgettext_lazy('events', 'Place'), max_length=100,
                                    blank=True,
@@ -107,13 +111,15 @@ class AbstractEvent(CremeEntity):
         return reverse('events__list_events')
 
     def get_stats(self):
-        types_count = dict(RelationType.objects.filter(id__in=_STATS_TYPES,
-                                                       relation__subject_entity=self.id,
-                                                      )
-                                               .annotate(relations_count=models.Count('relation'))
-                                               .values_list('id', 'relations_count')
-                                               .order_by()  # NB: do not use Meta.ordering (can be removed with django 3.1)
-                          )
+        types_count = dict(
+            RelationType.objects
+                        .filter(id__in=_STATS_TYPES,
+                                relation__subject_entity=self.id,
+                               )
+                        .annotate(relations_count=models.Count('relation'))
+                        .values_list('id', 'relations_count')
+                        .order_by()  # NB: do not use Meta.ordering (can be removed with django 3.1)
+        )
         get_count = types_count.get
 
         return {

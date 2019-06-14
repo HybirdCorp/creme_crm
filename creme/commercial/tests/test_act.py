@@ -1000,15 +1000,24 @@ class ActTestCase(CommercialBaseTestCase):
     def test_delete_type(self):
         self.login()
         act = self.create_act()
-        atype = act.act_type
-
-        self.assertPOST404(reverse('creme_config__delete_instance', args=('commercial', 'act_type')),
-                           data={'id': atype.pk}
-                          )
-        self.get_object_or_fail(ActType, pk=atype.pk)
-
-        act = self.get_object_or_fail(Act, pk=act.pk)
-        self.assertEqual(atype, act.act_type)
+        # atype = act.act_type
+        #
+        # self.assertPOST404(reverse('creme_config__delete_instance', args=('commercial', 'act_type')),
+        #                    data={'id': atype.pk}
+        #                   )
+        # self.get_object_or_fail(ActType, pk=atype.pk)
+        #
+        # act = self.get_object_or_fail(Act, pk=act.pk)
+        # self.assertEqual(atype, act.act_type)
+        response = self.assertPOST200(reverse('creme_config__delete_instance',
+                                              args=('commercial', 'act_type', act.act_type_id)
+                                             ),
+                                     )
+        self.assertFormError(
+            response, 'form',
+            'replace_commercial__act_act_type',
+            _('Deletion is not possible.')
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomActivity

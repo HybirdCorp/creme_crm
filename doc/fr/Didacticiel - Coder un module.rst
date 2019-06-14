@@ -936,7 +936,7 @@ Puis ajoutons un champ 'status' dans notre modèle ``Beaver`` : ::
     from django.urls import reverse
     from django.utils.translation import ugettext_lazy as _
 
-    from creme.creme_core.models import CremeEntity
+    from creme.creme_core.models import CremeEntity, CREME_REPLACE
 
     from status import Status  # <- NEW
 
@@ -944,10 +944,20 @@ Puis ajoutons un champ 'status' dans notre modèle ``Beaver`` : ::
     class Beaver(CremeEntity):
         name     = CharField(_('Name'), max_length=100)
         birthday = DateField(_('Birthday'))
-        status   = ForeignKey(Status, verbose_name=_('Status'))  # <- NEW
+        status   = ForeignKey(Status, verbose_name=_('Status'), on_delete=CREME_REPLACE)  # <- NEW
 
         [....]
 
+
+**Remarque** : nous avons utilisé une valeur spécifique à Creme pour l'attribut
+``on_delete`` : ``CREME_REPLACE``. Cette valeur est équivalente au classique
+``PROTECT`` de Django, mais dans l'interface de configuration, si vous supprimez
+une valeur de statut, Creme vous proposera de remplacer cette valeur dans les
+instances ``Beaver`` qui l'utilisent.
+
+- Il existe aussi ``CREME_REPLACE_NULL`` qui est équivalent à ``SET_NULL`` et
+  proposera aussi de mettre à ``null`` les ``ForeignKey`` concernées.
+- Les valeurs classiques (``PROTECT``, ``SET_NULL`` …) fonctionnent évidemment.
 
 Il faut maintenant générer la migration correspondante (pas de ``empty``
 puisque c'est une migration de schéma) : ::

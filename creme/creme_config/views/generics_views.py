@@ -20,16 +20,20 @@
 
 import logging
 
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.db.models import FieldDoesNotExist, IntegerField
-from django.db.models.deletion import ProtectedError
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404
+# from django.db.models.deletion import ProtectedError
+from django.http import HttpResponse, Http404
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.creme_jobs.deletor import _DeletorType
+# from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.models import DeletionCommand, Job, JobResult
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import bricks as bricks_views, generic
 from creme.creme_core.views.decorators import jsonify
@@ -37,6 +41,7 @@ from creme.creme_core.views.generic.order import ReorderInstances
 from creme.creme_core.views.utils import json_update_from_widget_response
 
 from ..bricks import SettingsBrick  # GenericModelBrick
+from ..forms.generics import DeletionForm
 from ..registry import config_registry
 
 logger = logging.getLogger(__name__)
@@ -214,26 +219,120 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
         return context
 
 
-@login_required
-def delete_model(request, app_name, model_name):
-    model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
-    instance = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
+# @login_required
+# def delete_model(request, app_name, model_name):
+#     model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
+#     instance = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
+#
+#     if not getattr(instance, 'is_custom', True):
+#         raise Http404('Can not delete (is not custom)')
+#
+#     try:
+#         instance.delete()
+#     except ProtectedError as e:
+#         msg = gettext('{} can not be deleted because of its dependencies.').format(instance)
+#
+#         if request.is_ajax():
+#             return HttpResponse(msg, status=400)
+#
+#         raise Http404(msg) from e
+#
+#     return HttpResponse()
+class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
+    template_name = 'creme_core/generics/blockform/delete-popup.html'
+    job_template_name = 'creme_config/deletion-job-popup.html'
 
-    if not getattr(instance, 'is_custom', True):
-        raise Http404('Can not delete (is not custom)')
+    title = _('Replace & delete «{object}»')
+    form_class = DeletionForm
 
-    try:
-        instance.delete()
-    except ProtectedError as e:
-        msg = gettext('{} can not be deleted because of its dependencies.').format(instance)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_message'] = _(
+            'The deleted value can be replaced in existing entities by another value. '
+            'If a field cannot be empty, you must chose a replacing value.'
+        )
 
-        # TODO: factorise ??
-        if request.is_ajax():
-            return HttpResponse(msg, status=400)
+        return context
 
-        raise Http404(msg) from e
+    def check_instance_permissions(self, instance, user):
+        if not getattr(instance, 'is_custom', True):
+            raise ConflictError('Can not delete (is not custom)')
 
-    return HttpResponse()
+        dcom = DeletionCommand.objects.filter(
+                content_type=ContentType.objects.get_for_model(type(instance)),
+        ).first()
+
+        if dcom is not None:
+            if dcom.job.status == Job.STATUS_OK:
+                dcom.job.delete()
+            else:
+                # TODO: if STATUS_ERROR, show a popup with the errors ?
+                raise ConflictError(
+                    gettext('A deletion process for an instance of «{model}» already exists.').format(
+                        model=type(instance)._meta.verbose_name,
+                ))
+
+    # TODO
+    # def get_form_class(self):
+    #     deletor = self.get_model_conf().deletor
+    #
+    #     if not deletor.enable_func(instance=self.object, user=self.request.user):
+    #         raise ConflictError('This model has been disabled for deletion.')
+    #
+    #     if deletor.url_name is not None:
+    #         raise ConflictError('This model does not use this deletion view.')
+    #
+    #     return deletor.form_class
+
+    def form_valid(self, form):
+        self.object = form.save()
+
+        return render(request=self.request,
+                      template_name=self.job_template_name,
+                      context={'job': self.object.job},
+                     )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = None
+        kwargs['instance_to_delete'] = self.object
+
+        return kwargs
+
+    def get_queryset(self):
+        return self.get_model_conf().model._default_manager.all()
+
+
+class DeletorEnd(generic.CheckedView):
+    job_id_url_kwarg = 'job_id'
+
+    def post(self, request, *args, **kwargs):
+        job = get_object_or_404(
+            Job,
+            id=self.kwargs[self.job_id_url_kwarg],
+            type_id=_DeletorType.id,
+        )
+
+        if job.user != request.user:
+            raise PermissionDenied('You can only terminate your deletion jobs.')
+
+        if not job.is_finished:
+            raise ConflictError('A non finished job cannot be terminated.')
+
+        jresult = JobResult.objects.filter(job=job).first()
+
+        if jresult is not None:
+            messages = jresult.messages
+
+            raise ConflictError(
+                gettext('Error. Please contact your administrator.')
+                if messages is None else
+                '\n'.join(messages)
+            )
+
+        job.delete()
+
+        return HttpResponse()
 
 
 class Reorder(ModelConfMixin, ReorderInstances):
