@@ -5,6 +5,7 @@ try:
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
+    from django.db.models import Max
     from django.db.models.deletion import SET_NULL, PROTECT
     from django.forms import CharField
     from django.urls import reverse
@@ -34,19 +35,19 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls._sector_backup = list(FakeSector.objects.all())
-        FakeSector.objects.all().delete()
+        # cls._sector_backup = list(FakeSector.objects.all())
+        # FakeSector.objects.all().delete()
 
         # # We import here in order to not launch the automatic registration before the fake bricks are registered.
         # from .. import registry
         # cls._ConfigRegistry = registry._ConfigRegistry
         # cls.NotRegisteredInConfig = registry.NotRegisteredInConfig
 
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        FakeSector.objects.all().delete()
-        FakeSector.objects.bulk_create(cls._sector_backup)
+    # @classmethod
+    # def tearDownClass(cls):
+    #     super().tearDownClass()
+    #     FakeSector.objects.all().delete()
+    #     FakeSector.objects.bulk_create(cls._sector_backup)
 
     def setUp(self):
         self.login()
@@ -1361,17 +1362,36 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
     def test_reorder(self):
+        # create_sector = FakeSector.objects.create
+        # sector1 = create_sector(title='Music', order=1)
+        # sector2 = create_sector(title='Movie', order=2)
+        # sector3 = create_sector(title='Book',  order=3)
+        # sector4 = create_sector(title='Web',   order=4)
+        #
+        # url = reverse('creme_config__reorder_instance', args=('creme_core', 'fake_sector', sector1.id))
+        # self.assertGET(405, url, data={'target': 3})
+        #
+        # self.assertPOST200(url, data={'target': 3})
+        # self.assertEqual(3, self.refresh(sector1).order)
+        # self.assertEqual(1, self.refresh(sector2).order)
+        # self.assertEqual(2, self.refresh(sector3).order)
+        # self.assertEqual(4, self.refresh(sector4).order)
+        max_order = FakeSector.objects.aggregate(Max('order'))['order__max']
+
         create_sector = FakeSector.objects.create
-        sector1 = create_sector(title='Music', order=1)
-        sector2 = create_sector(title='Movie', order=2)
-        sector3 = create_sector(title='Book',  order=3)
-        sector4 = create_sector(title='Web',   order=4)
+        sector1 = create_sector(title='Music', order=max_order + 1)
+        sector2 = create_sector(title='Movie', order=max_order + 2)
+        sector3 = create_sector(title='Book',  order=max_order + 3)
+        sector4 = create_sector(title='Web',   order=max_order + 4)
 
-        url = reverse('creme_config__reorder_instance', args=('creme_core', 'fake_sector', sector1.id))
-        self.assertGET(405, url, data={'target': 3})
+        url = reverse('creme_config__reorder_instance',
+                      args=('creme_core', 'fake_sector', sector1.id),
+                     )
+        data = {'target': max_order + 3}
+        self.assertGET(405, url, data=data)
 
-        self.assertPOST200(url, data={'target': 3})
-        self.assertEqual(3, self.refresh(sector1).order)
-        self.assertEqual(1, self.refresh(sector2).order)
-        self.assertEqual(2, self.refresh(sector3).order)
-        self.assertEqual(4, self.refresh(sector4).order)
+        self.assertPOST200(url, data=data)
+        self.assertEqual(max_order + 3, self.refresh(sector1).order)
+        self.assertEqual(max_order + 1, self.refresh(sector2).order)
+        self.assertEqual(max_order + 2, self.refresh(sector3).order)
+        self.assertEqual(max_order + 4, self.refresh(sector4).order)
