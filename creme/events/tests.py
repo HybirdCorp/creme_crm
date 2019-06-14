@@ -660,22 +660,38 @@ class EventsTestCase(CremeTestCase):
                                                                     ),
                                            }
                                      )
-        self.assertFormError(response, 'form', 'related_contacts',
-                             [_('Some entities are not linkable: {}').format(casca)]
-                            )
+        self.assertFormError(
+            response, 'form', 'related_contacts',
+            _('Some entities are not linkable: {}').format(casca)
+        )
 
     def test_delete_type(self):
         self.login()
         etype = EventType.objects.create(name='Natural')
+        etype2 = EventType.objects.exclude(id=etype.id)[0]
+
         event = self._create_event('Eclipse', etype)
 
-        self.assertPOST404(reverse('creme_config__delete_instance', args=('events', 'event_type')),
-                           data={'id': etype.pk}
-                          )
-        self.get_object_or_fail(EventType, pk=etype.pk)
+        # self.assertPOST404(reverse('creme_config__delete_instance', args=('events', 'event_type')),
+        #                    data={'id': etype.pk}
+        #                   )
+        # self.get_object_or_fail(EventType, pk=etype.pk)
+        # event = self.assertStillExists(event)
+        # self.assertEqual(etype, event.type)
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('events', 'event_type', etype.id),
+                   ),
+            data={'replace_events__event_type': etype2.id}
+        )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(EventType).job
+        job.type.execute(job)
+        self.assertDoesNotExist(etype)
 
         event = self.assertStillExists(event)
-        self.assertEqual(etype, event.type)
+        self.assertEqual(etype2, event.type)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation

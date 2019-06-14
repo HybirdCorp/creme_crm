@@ -25,13 +25,13 @@ from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
-        DateField, PROTECT, SET_NULL,  BooleanField)
+        DateField, PROTECT, BooleanField)
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import (CremeEntity, CremeModel, Relation,
-        Currency, Vat)
+        Currency, Vat, CREME_REPLACE_NULL)
 from creme.creme_core.models.fields import BasicAutoField
 
 from creme.persons import get_contact_model, get_organisation_model
@@ -104,7 +104,9 @@ class AbstractOpportunity(CremeEntity):
     closing_date          = DateField(_('Actual closing date'), blank=True, null=True)\
                                      .set_tags(optional=True)
     origin                = ForeignKey(Origin, verbose_name=_('Origin'),
-                                       blank=True, null=True, on_delete=SET_NULL,
+                                       blank=True, null=True,
+                                       # on_delete=SET_NULL,
+                                       on_delete=CREME_REPLACE_NULL,
                                       ).set_tags(optional=True)
     description           = TextField(_('Description'), blank=True).set_tags(optional=True)
     first_action_date     = DateField(_('Date of the first action'), blank=True, null=True)\

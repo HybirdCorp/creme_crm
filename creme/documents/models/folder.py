@@ -20,12 +20,12 @@
 
 from random import randint
 
-from django.db.models import CharField, TextField, ForeignKey, SET_NULL, PROTECT
+from django.db.models import CharField, TextField, ForeignKey, PROTECT  # SET_NULL
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL
 from creme.creme_core.utils import truncate_str
 
 from .. import constants
@@ -35,7 +35,7 @@ MAXINT = 100000
 
 
 class AbstractFolder(CremeEntity):
-    """Folder: contains Documents"""
+    """Folder: contains Documents."""
     title         = CharField(_('Title'), max_length=100)
     description   = TextField(_('Description'), blank=True).set_tags(optional=True)
     parent_folder = ForeignKey('self', verbose_name=_('Parent folder'),
@@ -44,7 +44,9 @@ class AbstractFolder(CremeEntity):
                                on_delete=PROTECT,
                               )
     category      = ForeignKey(FolderCategory, verbose_name=_('Category'),
-                               blank=True, null=True, on_delete=SET_NULL,
+                               blank=True, null=True,
+                               # on_delete=SET_NULL,
+                               on_delete=CREME_REPLACE_NULL,
                                related_name='folder_category_set',
                               )
 

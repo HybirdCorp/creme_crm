@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-29 23:01+0200\n"
+"POT-Creation-Date: 2019-06-12 21:27+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -121,7 +121,7 @@ msgstr "Rôle"
 #: templates/creme_config/generics/model-portal.html:4
 #: templates/creme_config/generics/model-portal.html:8
 #: templates/creme_config/history_portal.html:8
-#: templates/creme_config/portal.html:4 templates/creme_config/portal.html:11
+#: templates/creme_config/portal.html:4 templates/creme_config/portal.html:13
 #: templates/creme_config/property_type_portal.html:8
 #: templates/creme_config/relation_type_portal.html:8
 #: templates/creme_config/search_portal.html:8
@@ -160,7 +160,7 @@ msgstr "Ressource associée"
 msgid "Lines"
 msgstr "Lignes"
 
-#: forms/button_menu.py:61
+#: forms/button_menu.py:62
 msgid "Buttons to display"
 msgstr "Boutons à afficher"
 
@@ -259,6 +259,125 @@ msgstr "Tous les types de ressource configurables sont déjà configurés."
 #: templates/creme_config/bricks/fields-configs.html:18
 msgid "Hidden fields"
 msgstr "Champs cachés"
+
+#: forms/generics.py:108
+#, python-brace-format
+msgid "OK: no instance of «{model}»."
+msgstr "Ok : aucune instance de «{model}»"
+
+#: forms/generics.py:110
+#, python-brace-format
+msgid "BEWARE: {count} instance of «{model}»."
+msgid_plural "BEWARE: {count} instances of «{model}»."
+msgstr[0] "ATTENTION : {count} instance de «{model}»."
+msgstr[1] "ATTENTION : {count} instances de «{model}»."
+
+#: forms/generics.py:160
+#, python-brace-format
+msgid "OK: no instance of «{model}» have to be deleted."
+msgstr "OK : aucune instance de «{model}» n'a à être supprimé."
+
+#: forms/generics.py:162
+#, python-brace-format
+msgid "BEWARE: {count} instance of «{model}» will be deleted."
+msgid_plural "BEWARE: {count} instances of «{model}» will be deleted."
+msgstr[0] "ATTENTION : {count} instance de «{model}» va être supprimé."
+msgstr[1] "ATTENTION : {count} instances de «{model}» vont être supprimées."
+
+#: forms/generics.py:174
+#, python-brace-format
+msgid ""
+"OK: there is no related instance of «{model}», the deletion can be done."
+msgstr ""
+"OK : il n'y aucune instance de «{model}» liée, la suppression peut avoir "
+"lieu."
+
+#: forms/generics.py:178
+#, python-brace-format
+msgid ""
+"ERROR: {count} instance of «{model}» uses «{instance}» so the deletion is "
+"not possible."
+msgid_plural ""
+"ERROR: {count} instances of «{model}» use «{instance}» so the deletion is "
+"not possible."
+msgstr[0] ""
+"ERREUR : {count} instance de «{model}» utilise «{instance}» donc la "
+"suppression est impossible."
+msgstr[1] ""
+"ERREUR : {count} instances de «{model}» utilisent «{instance}» donc la "
+"suppression est impossible."
+
+#: forms/generics.py:196 forms/generics.py:209 forms/generics.py:258
+#, python-brace-format
+msgid "OK: no instance of «{model}» have to be updated."
+msgstr "OK : aucune instance de «{model}» ne doit être mise à jour."
+
+#: forms/generics.py:198
+#, python-brace-format
+msgid ""
+"BEWARE: {count} instance of «{model}» uses «{instance}» & will be updated "
+"(the field will be emptied)."
+msgid_plural ""
+"BEWARE: {count} instances of «{model}» use «{instance}» & will be updated "
+"(the field will be emptied)."
+msgstr[0] ""
+"ATTENTION : {count} instance de «{model}» utilise «{instance}» & va être "
+"mise à jour (le champ va être vidé)."
+msgstr[1] ""
+"ATTENTION : {count} instances de «{model}» utilisent «{instance}» & vont "
+"être mises à jour (le champ va être vidé)."
+
+#: forms/generics.py:211
+#, python-brace-format
+msgid ""
+"BEWARE: {count} instance of «{model}» uses «{instance}» & will be updated "
+"(the field will be set to «{fallback}»)."
+msgid_plural ""
+"BEWARE: {count} instances of «{model}» use «{instance}» & will be updated "
+"(the field will be set to «{fallback}»)."
+msgstr[0] ""
+"ATTENTION : {count} instance de «{model}» utilise «{instance}» & va être "
+"mise à jour (le champ va être mis à «{fallback}»)."
+msgstr[1] ""
+"ATTENTION : {count} instances de «{model}» utilisent «{instance}» & vont "
+"être mises à jour (le champ va être mis à «{fallback}»)."
+
+#: forms/generics.py:241
+msgid "ERROR: the default value is invalid. Please contact your administrator."
+msgstr ""
+"ERREUR : la valeur par défaut est invalide. Veuillez contacter votre "
+"administrateur."
+
+#: forms/generics.py:260
+#, python-brace-format
+msgid ""
+"BEWARE: {count} instance of «{model}» uses «{instance}» & will be updated "
+"(the field will be set to the fallback value)."
+msgid_plural ""
+"BEWARE: {count} instances of «{model}» use «{instance}» & will be updated "
+"(the field will be set to the fallback value)."
+msgstr[0] ""
+"ATTENTION : {count} instance de «{model}» utilise «{instance}» & va être "
+"mise à jour (le champ va recevoir une valeur de secours)."
+msgstr[1] ""
+"ATTENTION : {count} instances de «{model}» utilisent «{instance}» & vont "
+"être mise à jour (le champ va recevoir une valeur de secours)."
+
+#: forms/generics.py:302
+msgid "Replacement"
+msgstr "Remplacement"
+
+#: forms/generics.py:356
+msgid ""
+"The field \"{}.{}\" cannot be deleted because its \"on_delete\" constraint "
+"is not managed. Please contact your administrator."
+msgstr ""
+"Le champ \"{}.{}\" ne peut pas être supprimé car sa contrainte \"on_delete\" "
+"n'est pas gérée. Veuillez contacter votre administrateur."
+
+#: forms/generics.py:370
+msgid "Deletion is not possible."
+msgstr "La suppression n'est pas possible."
 
 #: forms/history.py:29
 msgid ""
@@ -426,7 +545,9 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Changer"
 
-#: forms/user_role.py:51 templates/creme_config/bricks/user-roles.html:57
+#: forms/user_role.py:51
+#: templates/creme_config/bricks/configurable-model.html:67
+#: templates/creme_config/bricks/user-roles.html:57
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -768,7 +889,7 @@ msgstr "Pas de bouton"
 msgid "New value"
 msgstr "Nouvelle valeur"
 
-#: templates/creme_config/bricks/configurable-model.html:71
+#: templates/creme_config/bricks/configurable-model.html:75
 msgid "No value for the moment"
 msgstr "Aucune valeur enregistrée pour le moment"
 
@@ -1163,6 +1284,7 @@ msgstr "Valeurs de réglage"
 
 #: templates/creme_config/bricks/setting-values.html:11
 #: templates/creme_config/bricks/user-setting-values.html:18
+#: templates/creme_config/deletion-job-popup.html:8
 msgid "Description"
 msgstr "Description"
 
@@ -1353,6 +1475,14 @@ msgstr "Configuration des champs personnalisés"
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
+#: templates/creme_config/deletion-job-popup.html:20
+msgid "Status"
+msgstr "Statut"
+
+#: templates/creme_config/deletion-job-popup.html:27
+msgid "Finish"
+msgstr "Terminer"
+
 #: templates/creme_config/fields_config_portal.html:4
 #: templates/creme_config/fields_config_portal.html:8
 msgid "Configuration of fields"
@@ -1371,68 +1501,68 @@ msgstr "Type : %(model_name)s"
 msgid "Configuration of history"
 msgstr "Configuration de l'historique"
 
-#: templates/creme_config/portal.html:13
+#: templates/creme_config/portal.html:15
 msgid "Creme configuration portal"
 msgstr "Portail de Configuration de Creme"
 
-#: templates/creme_config/portal.html:22
+#: templates/creme_config/portal.html:24
 msgid "General"
 msgstr "Général"
 
-#: templates/creme_config/portal.html:28
+#: templates/creme_config/portal.html:30
 msgid "Relation types settings"
 msgstr "Gestion des types de relation"
 
-#: templates/creme_config/portal.html:29
+#: templates/creme_config/portal.html:31
 msgid "Property types settings"
 msgstr "Gestion des types de propriété"
 
-#: templates/creme_config/portal.html:30
+#: templates/creme_config/portal.html:32
 msgid "Fields settings"
 msgstr "Gestion des champs"
 
-#: templates/creme_config/portal.html:31
+#: templates/creme_config/portal.html:33
 msgid "Custom fields settings"
 msgstr "Gestion des champs personnalisés (custom fields)"
 
-#: templates/creme_config/portal.html:32
+#: templates/creme_config/portal.html:34
 msgid "Blocks settings"
 msgstr "Gestion des blocs"
 
-#: templates/creme_config/portal.html:33
+#: templates/creme_config/portal.html:35
 msgid "Button menu settings"
 msgstr "Gestion du menu bouton"
 
-#: templates/creme_config/portal.html:34
+#: templates/creme_config/portal.html:36
 msgid "Search settings"
 msgstr "Gestion de la recherche"
 
-#: templates/creme_config/portal.html:35
+#: templates/creme_config/portal.html:37
 msgid "History settings"
 msgstr "Gestion de l'historique"
 
-#: templates/creme_config/portal.html:43
+#: templates/creme_config/portal.html:45
 msgid "Credentials management"
 msgstr "Gestion des droits"
 
-#: templates/creme_config/portal.html:49
+#: templates/creme_config/portal.html:51
 msgid "Users settings"
 msgstr "Gestion des utilisateurs"
 
-#: templates/creme_config/portal.html:50
+#: templates/creme_config/portal.html:52
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
-#: templates/creme_config/portal.html:62
+#: templates/creme_config/portal.html:64
 msgid "Applications portals"
 msgstr "Portails des applications"
 
-#: templates/creme_config/portal.html:74 templates/creme_config/portal.html:76
+#: templates/creme_config/portal.html:76 templates/creme_config/portal.html:78
 #, python-format
 msgid "%(app_name)s configuration portal"
 msgstr "Portail configuration %(app_name)s"
 
-#: templates/creme_config/portal.html:84
+#: templates/creme_config/portal.html:86
 msgid "No application requires configuration"
 msgstr "Aucune application ne nécessite de configuration"
 
@@ -1581,18 +1711,38 @@ msgid "New custom field for «{model}»"
 msgstr "Nouveau champ personnalisé pour «{model}»"
 
 # Already in creme_core
-#: views/generics_views.py:101
+#: views/generics_views.py:106
 msgid "Save"
 msgstr ""
 
-#: views/generics_views.py:120
+#: views/generics_views.py:125
 #, python-brace-format
 msgid "New value: {model}"
 msgstr "Nouvelle valeur : {model}"
 
-#: views/generics_views.py:228
-msgid "{} can not be deleted because of its dependencies."
-msgstr "{} ne peut pas être effacé à cause de ses dépendances."
+#: views/generics_views.py:245
+#, python-brace-format
+msgid "Replace & delete «{object}»"
+msgstr "Remplacer & supprimer «{object}»"
+
+#: views/generics_views.py:251
+msgid ""
+"The deleted value can be replaced in existing entities by another value. If "
+"a field cannot be empty, you must chose a replacing value."
+msgstr ""
+"La valeur supprimée peut être remplacée dans les fiches existantes par une "
+"autre valeur. Si un champ ne peut être vide, vous devez choisir une valeur "
+"de remplacement."
+
+#: views/generics_views.py:271
+#, python-brace-format
+msgid "A deletion process for an instance of «{model}» already exists."
+msgstr ""
+"Il y a déjà un processus de suppression pour une instance de «{model}»."
+
+#: views/generics_views.py:328
+msgid "Error. Please contact your administrator."
+msgstr "Erreur. Veuillez contacter votre administrateur."
 
 #: views/history.py:38
 msgid "New relation types"
@@ -1678,6 +1828,9 @@ msgstr "Supprimer le rôle"
 #: views/user_role.py:232
 msgid "You cannot delete this role. [original error: {}]"
 msgstr "Vous ne pouvez pas supprimer ce rôle. [erreur d'origine : {}]"
+
+#~ msgid "{} can not be deleted because of its dependencies."
+#~ msgstr "{} ne peut pas être effacé à cause de ses dépendances."
 
 #~ msgid "Can view"
 #~ msgstr "Peut voir"

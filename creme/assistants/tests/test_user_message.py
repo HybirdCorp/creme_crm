@@ -23,7 +23,7 @@ User = get_user_model()  # TODO: self.User
 
 
 class UserMessageTestCase(AssistantsTestCase):
-    DEL_PRIORITY_URL = reverse('creme_config__delete_instance', args=('assistants', 'message_priority'))
+    # DEL_PRIORITY_URL = reverse('creme_config__delete_instance', args=('assistants', 'message_priority'))
 
     @classmethod
     def setUpClass(cls):
@@ -291,7 +291,15 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_delete_priority01(self):
         priority = UserMessagePriority.objects.create(title='Important')
-        self.assertPOST200(self.DEL_PRIORITY_URL, data={'id': priority.pk})
+        # self.assertPOST200(self.DEL_PRIORITY_URL, data={'id': priority.pk})
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('assistants', 'message_priority', priority.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(UserMessagePriority).job
+        job.type.execute(job)
         self.assertDoesNotExist(priority)
 
     def test_delete_priority02(self):
@@ -301,13 +309,22 @@ class UserMessageTestCase(AssistantsTestCase):
         messages = UserMessage.objects.all()
         self.assertEqual(1, len(messages))
 
-        message = messages[0]
-
-        self.assertPOST404(self.DEL_PRIORITY_URL, data={'id': priority.pk})
-        self.assertStillExists(priority)
-
-        message = self.get_object_or_fail(UserMessage, pk=message.pk)
-        self.assertEqual(priority, message.priority)
+        # message = messages[0]
+        #
+        # self.assertPOST404(self.DEL_PRIORITY_URL, data={'id': priority.pk})
+        # self.assertStillExists(priority)
+        #
+        # message = self.get_object_or_fail(UserMessage, pk=message.pk)
+        # self.assertEqual(priority, message.priority)
+        response = self.assertPOST200(reverse('creme_config__delete_instance',
+                                              args=('assistants', 'message_priority', priority.id)
+                                             ),
+                                     )
+        self.assertFormError(
+            response, 'form',
+            'replace_assistants__usermessage_priority',
+            _('Deletion is not possible.')
+        )
 
     def test_job(self):
         "Error on email sending"

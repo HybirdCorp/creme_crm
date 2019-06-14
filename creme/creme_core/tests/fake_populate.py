@@ -47,6 +47,16 @@ def populate():
     create_actype(name='Phone call')
     create_actype(name='Meeting')
 
+    create_status = fake_models.FakeTicketStatus.objects.get_or_create
+    create_status(id=1, defaults={'name': 'Open',   'is_custom': False})
+    create_status(id=2, defaults={'name': 'Closed', 'is_custom': False})
+    create_status(name='Invalid')
+
+    create_priority = fake_models.FakeTicketPriority.objects.get_or_create
+    create_priority(id=1, defaults={'name': 'High',   'is_custom': False})
+    create_priority(id=2, defaults={'name': 'Medium', 'is_custom': False})
+    create_priority(id=3, defaults={'name': 'Low',    'is_custom': False})
+
     create_hf = HeaderFilter.create
     create_hf(pk='creme_core-hf_fakeimage', name='FakeImage view',
               model=fake_models.FakeImage,

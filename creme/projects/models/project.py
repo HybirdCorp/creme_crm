@@ -26,7 +26,7 @@ from django.utils.timezone import now, localtime
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.models import CremeEntity, Currency
+from creme.creme_core.models import CremeEntity, Currency, CREME_REPLACE
 
 from .projectstatus import ProjectStatus
 
@@ -35,7 +35,10 @@ class AbstractProject(CremeEntity):
     name               = CharField(_('Name of the project'), max_length=100)
     description        = TextField(_('Description'), blank=True)\
                                   .set_tags(optional=True)
-    status             = ForeignKey(ProjectStatus, verbose_name=_('Status'), on_delete=PROTECT)
+    status             = ForeignKey(ProjectStatus, verbose_name=_('Status'),
+                                    # on_delete=PROTECT
+                                    on_delete=CREME_REPLACE,
+                                   )
     start_date         = DateTimeField(_('Estimated start'), blank=True, null=True)\
                                       .set_tags(optional=True)
     end_date           = DateTimeField(_('Estimated end'), blank=True, null=True)\

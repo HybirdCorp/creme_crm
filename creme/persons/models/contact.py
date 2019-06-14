@@ -28,7 +28,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
-from creme.creme_core.models import CremeEntity, Language
+from creme.creme_core.models import CremeEntity, Language, CREME_REPLACE_NULL
 from creme.creme_core.models.fields import PhoneField
 from creme.creme_core.utils import update_model_instance
 
@@ -45,7 +45,9 @@ logger = logging.getLogger(__name__)
 
 class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     civility   = ForeignKey(other_models.Civility, verbose_name=_('Civility'),
-                            blank=True, null=True, on_delete=SET_NULL,
+                            blank=True, null=True,
+                            # on_delete=SET_NULL,
+                            on_delete=CREME_REPLACE_NULL,
                            )
     last_name  = CharField(_('Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
     first_name = CharField(_('First name'), max_length=100, blank=True)  # NB: same max_length than CremeUser.first_name
@@ -62,13 +64,17 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                        .set_tags(optional=True)
 
     position      = ForeignKey(other_models.Position, verbose_name=_('Position'),
-                               blank=True, null=True, on_delete=SET_NULL,
+                               blank=True, null=True,
+                               # on_delete=SET_NULL,
+                               on_delete=CREME_REPLACE_NULL,
                               ).set_tags(optional=True)
     full_position = CharField(_('Detailed position'), max_length=500, blank=True)\
                              .set_tags(optional=True)
 
     sector   = ForeignKey(other_models.Sector, verbose_name=_('Line of business'),
-                          blank=True, null=True, on_delete=SET_NULL,
+                          blank=True, null=True,
+                          # on_delete=SET_NULL,
+                          on_delete=CREME_REPLACE_NULL,
                          ).set_tags(optional=True)
 
     language = ManyToManyField(Language, verbose_name=_('Spoken language(s)'),

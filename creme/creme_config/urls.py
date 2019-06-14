@@ -160,15 +160,17 @@ urlpatterns = [
     re_path(r'^settings/',      include(setting_patterns)),
 
     # Generic portal config
-    re_path(r'^(?P<app_name>\w+)/portal[/]?$', generics_views.AppPortal.as_view(), name='creme_config__app_portal'),
-    re_path(r'^(?P<app_name>\w+)/reload[/]?$', generics_views.reload_app_bricks,   name='creme_config__reload_app_bricks'),
+    re_path(r'^deletor/finish/(?P<job_id>\d+)[/]?$', generics_views.DeletorEnd.as_view(), name='creme_config__finish_deletor'),
+    re_path(r'^(?P<app_name>\w+)/portal[/]?$',       generics_views.AppPortal.as_view(),  name='creme_config__app_portal'),
+    re_path(r'^(?P<app_name>\w+)/reload[/]?$',       generics_views.reload_app_bricks,    name='creme_config__reload_app_bricks'),
     re_path(r'^(?P<app_name>\w+)/(?P<model_name>\w+)/', include([
         re_path(r'^portal[/]?$',                        generics_views.ModelPortal.as_view(),        name='creme_config__model_portal'),
         re_path(r'^add[/]?$',                           generics_views.GenericCreation.as_view(),    name='creme_config__create_instance'),
         re_path(r'^add_widget[/]?$',                    generics_views.FromWidgetCreation.as_view(), name='creme_config__create_instance_from_widget'),
         re_path(r'^edit/(?P<object_id>[\w-]+)[/]?$',    generics_views.GenericEdition.as_view(),     name='creme_config__edit_instance'),
         re_path(r'^(?P<object_id>[\w-]+)/reorder[/]?$', generics_views.Reorder.as_view(),            name='creme_config__reorder_instance'),
-        re_path(r'^delete[/]?$',                        generics_views.delete_model,                 name='creme_config__delete_instance'),
+        # re_path(r'^delete[/]?$',                        generics_views.delete_model,                 name='creme_config__delete_instance'),
+        re_path(r'^delete/(?P<object_id>[\w-]+)[/]?$',  generics_views.GenericDeletion.as_view(),    name='creme_config__delete_instance'),
         re_path(r'^reload[/]?$',                        generics_views.reload_model_brick,           name='creme_config__reload_model_brick'),
     ])),
 ]

@@ -6,6 +6,8 @@ from django.conf import settings
 from django.db import models, migrations
 from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
 
+from creme.creme_core.models import CREME_REPLACE_NULL
+
 
 class Migration(migrations.Migration):
     # replaces = [
@@ -44,7 +46,8 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('category', models.ForeignKey(to='documents.FolderCategory',
-                                               on_delete=SET_NULL, null=True, blank=True,
+                                               # on_delete=SET_NULL, null=True, blank=True,
+                                               on_delete=CREME_REPLACE_NULL, null=True, blank=True,
                                                related_name='folder_category_set',
                                                verbose_name='Category',
                                               )

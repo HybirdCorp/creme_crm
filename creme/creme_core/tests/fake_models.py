@@ -2,6 +2,8 @@
 
 from django.conf import settings
 
+from creme.creme_core.models import CREME_REPLACE_NULL
+
 if not settings.TESTS_ON:
     __all__ = ()
 else:
@@ -13,16 +15,23 @@ else:
     from django.urls import reverse
     from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
-    from ..models import CremeModel, CremeEntity, Language, EntityFilter, fields as core_fields
+    from ..models import CremeModel, CremeEntity, Language, EntityFilter, fields as core_fields, deletion
 
     from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
 
-    __all__ = ('FakeFolderCategory', 'FakeFolder', 'FakeDocument', 'FakeFileComponent',
-               'FakeImageCategory', 'FakeImage', 'FakeCivility', 'FakePosition', 'FakeSector', 'FakeAddress',
-               'FakeContact', 'FakeLegalForm', 'FakeOrganisation', 'FakeActivityType', 'FakeActivity',
-               'FakeMailingList', 'FakeEmailCampaign', 'FakeInvoice', 'FakeInvoiceLine', 'FakeProduct',
-               'FakeReport',
-              )
+    __all__ = (
+        'FakeFolderCategory', 'FakeFolder',
+        'FakeDocument', 'FakeFileComponent',
+        'FakeImageCategory', 'FakeImage',
+        'FakeCivility', 'FakePosition', 'FakeSector', 'FakeAddress',
+        'FakeContact', 'FakeLegalForm', 'FakeOrganisation',
+        'FakeActivityType', 'FakeActivity',
+        'FakeMailingList', 'FakeEmailCampaign',
+        'FakeInvoice', 'FakeInvoiceLine',
+        'FakeProductType', 'FakeProduct',
+        'FakeReport',
+        'FakeTicketStatus', 'FakeTicketPriority', 'FakeTicket',
+    )
 
 
     class FakeFolderCategory(CremeModel):
@@ -247,8 +256,10 @@ else:
 
     class FakeContact(CremeEntity):
         civility    = models.ForeignKey(FakeCivility, verbose_name=_('Civility'),
-                                        blank=True, null=True, on_delete=models.SET_NULL,
-                                       )
+                                        blank=True, null=True,
+                                        # on_delete=models.SET_NULL,
+                                        on_delete=deletion.CREME_REPLACE_NULL,
+                                       ).set_tags(optional=True)
         last_name   = models.CharField(_('Last name'), max_length=100)
         first_name  = models.CharField(_('First name'), max_length=100,
                                        blank=True,  # null=True,
@@ -267,7 +278,9 @@ else:
                                         blank=True, null=True, on_delete=models.SET_NULL,
                                        ).set_tags(optional=True)
         sector      = models.ForeignKey(FakeSector, verbose_name=_('Line of business'),
-                                        blank=True, null=True, on_delete=models.SET_NULL,
+                                        blank=True, null=True,
+                                        # on_delete=models.SET_NULL,
+                                        on_delete=deletion.CREME_REPLACE_NULL,
                                         limit_choices_to=lambda: ~Q(title='[INVALID]'),
                                        ).set_tags(optional=True)
         email       = models.EmailField(_('Email address'), max_length=100, blank=True, null=True)
@@ -333,7 +346,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            verbose_name = 'Test legal form'
+            verbose_name = 'Test Legal form'
             verbose_name_plural = 'Test Legal forms'
             ordering = ('title',)
 
@@ -350,13 +363,20 @@ else:
                                           blank=True, null=True,
                                          ).set_tags(optional=True)
         sector          = models.ForeignKey(FakeSector, verbose_name=_('Sector'),
-                                            blank=True, null=True, on_delete=models.SET_NULL,
+                                            blank=True, null=True,
+                                            # on_delete=models.SET_NULL,
+                                            on_delete=deletion.CREME_REPLACE,
                                           ).set_tags(optional=True)
         capital         = models.PositiveIntegerField(_('Capital'), blank=True, null=True)\
                                 .set_tags(optional=True)
         subject_to_vat  = models.BooleanField(_('Subject to VAT'), default=True)
         legal_form      = models.ForeignKey(FakeLegalForm, verbose_name=_('Legal form'),
-                                            blank=True, null=True, on_delete=models.SET_NULL,
+                                            blank=True, null=True,
+                                            # on_delete=models.SET_NULL,
+                                            on_delete=CREME_REPLACE_NULL,
+                                            related_name='+',  # NB: see creme_config.tests.test_generics_views
+                                                               #                     .GenericModelConfigTestCase
+                                                               #                     .test_delete_hidden_related()
                                             limit_choices_to={'title__endswith': '[OK]'},
                                            )
         address         = models.ForeignKey(FakeAddress, verbose_name=_('Billing address'),
@@ -421,7 +441,7 @@ else:
         end   = models.DateTimeField(_('End'), blank=True, null=True)
         type  = models.ForeignKey(FakeActivityType, verbose_name=_('Activity type'),
                                   on_delete=models.PROTECT,  # editable=False,
-                                 )
+                                 ).set_tags(optional=True)
 
 #        creation_label = _('Create an activity')
 
@@ -565,8 +585,25 @@ else:
             return self.linked_invoice
 
 
+    class FakeProductType(CremeModel):
+        name = models.CharField(_('Name'), max_length=100)
+
+        def __str__(self):
+            return self.name
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test Product type'
+            verbose_name_plural = 'Test Product types'
+            ordering = ('name',)
+
+
     class FakeProduct(CremeEntity):
         name   = models.CharField(_('Name'), max_length=100)
+        type   = models.ForeignKey(FakeProductType, verbose_name=_('Type'),
+                                   on_delete=models.CASCADE,
+                                   null=True, blank=True,
+                                  ).set_tags(optional=True)
         images = models.ManyToManyField(FakeImage, blank=True, verbose_name=_('Images'),
                                         limit_choices_to={'user__is_active': True},
                                         # related_name='products',
@@ -610,3 +647,56 @@ else:
 
         def __str__(self):
             return self.name
+
+
+    class FakeTicketStatus(CremeModel):
+        name = models.CharField(_('Name'), max_length=100)
+        # NB: used by creme_config
+        is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test Ticket status'
+            verbose_name_plural = 'Test Ticket status'
+            ordering = ('name',)
+
+        def __str__(self):
+            return self.name
+
+
+    class FakeTicketPriority(CremeModel):
+        name = models.CharField(_('Name'), max_length=100)
+        # NB: used by creme_config
+        is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test Ticket priority'
+            verbose_name_plural = 'Test Ticket priorities'
+            ordering = ('name',)
+
+        def __str__(self):
+            return self.name
+
+
+    def get_sentinel_priority():
+        return FakeTicketPriority.objects.get_or_create(name='Deleted')[0]
+
+
+    class FakeTicket(CremeEntity):
+        title  = models.CharField(_('Title'), max_length=100)
+        status = models.ForeignKey(FakeTicketStatus, verbose_name=_('Status'),
+                                   on_delete=models.SET_DEFAULT,
+                                   default=1,
+                                  ).set_tags(optional=True)
+        priority = models.ForeignKey(FakeTicketPriority, verbose_name=_('Priority'),
+                                     on_delete=models.SET(get_sentinel_priority),
+                                     default=3,
+                                    ).set_tags(optional=True)
+
+        class Meta:
+            app_label = 'creme_core'
+            manager_inheritance_from_future = True
+            verbose_name = 'Test Ticket'
+            verbose_name_plural = 'Test Tickets'
+            ordering = ('title',)

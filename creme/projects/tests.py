@@ -1222,55 +1222,85 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task1))
         self.assertEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
 
-    def _delete_project_status(self, status):
-        return self.client.post(reverse('creme_config__delete_instance', args=('projects', 'projectstatus')),
-                                data={'id': status.pk}
-                               )
+    # def _delete_project_status(self, status):
+    #     return self.client.post(reverse('creme_config__delete_instance', args=('projects', 'projectstatus')),
+    #                             data={'id': status.pk}
+    #                            )
 
-    def test_delete_project_status01(self):
-        self.login()
-
-        status = ProjectStatus.objects.create(name='Sinking')
-        self.assertEqual(200, self._delete_project_status(status).status_code)
-        self.assertDoesNotExist(status)
+    # def test_delete_project_status01(self):
+    #     self.login()
+    #
+    #     status = ProjectStatus.objects.create(name='Sinking')
+    #     self.assertEqual(200, self._delete_project_status(status).status_code)
+    #     self.assertDoesNotExist(status)
 
     @skipIfCustomTask
-    def test_delete_project_status02(self):
+    # def test_delete_project_status02(self):
+    def test_delete_project_status(self):
         self.login()
 
+        status2 = ProjectStatus.objects.first()
         status = ProjectStatus.objects.create(name='Sinking')
         project = self.create_project('Project', status=status)[0]
-        self.assertEqual(404, self._delete_project_status(status).status_code)
-        self.get_object_or_fail(ProjectStatus, pk=status.pk)
+        # self.assertEqual(404, self._delete_project_status(status).status_code)
+        # self.get_object_or_fail(ProjectStatus, pk=status.pk)
+        #
+        # project = self.get_object_or_fail(Project, pk=project.pk)
+        # self.assertEqual(status, project.status)
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('projects', 'projectstatus', status.id)
+                   ),
+            data={'replace_projects__project_status': status2.id},
+        )
+        self.assertNoFormError(response)
 
-        project = self.get_object_or_fail(Project, pk=project.pk)
-        self.assertEqual(status, project.status)
-
-    def _delete_task_status(self, status):
-        return self.client.post(reverse('creme_config__delete_instance', args=('projects', 'taskstatus')),
-                                data={'id': status.pk}
-                               )
-
-    def test_delete_task_status01(self):
-        self.login()
-
-        status = TaskStatus.objects.create(name='Coming soon')
-        self.assertEqual(200, self._delete_task_status(status).status_code)
+        job = self.get_deletion_command_or_fail(ProjectStatus).job
+        job.type.execute(job)
         self.assertDoesNotExist(status)
 
+        project = self.assertStillExists(project)
+        self.assertEqual(status2, project.status)
+
+    # def _delete_task_status(self, status):
+    #     return self.client.post(reverse('creme_config__delete_instance', args=('projects', 'taskstatus')),
+    #                             data={'id': status.pk}
+    #                            )
+
+    # def test_delete_task_status01(self):
+    #     self.login()
+    #
+    #     status = TaskStatus.objects.create(name='Coming soon')
+    #     self.assertEqual(200, self._delete_task_status(status).status_code)
+    #     self.assertDoesNotExist(status)
+
     @skipIfCustomTask
-    def test_delete_task_status02(self):
+    # def test_delete_task_status02(self):
+    def test_delete_task_status(self):
         self.login()
 
         project = self.create_project('Eva01')[0]
+        status2 = TaskStatus.objects.first()
         status  = TaskStatus.objects.create(name='Coming soon')
         task    = self.create_task(project, 'Building head', status=status)
-        self.assertEqual(404, self._delete_task_status(status).status_code)
-        self.assertStillExists(status)
+        # self.assertEqual(404, self._delete_task_status(status).status_code)
+        # self.assertStillExists(status)
+        response = self.client.post(
+            reverse('creme_config__delete_instance',
+                    args=('projects', 'taskstatus', status.id)
+                   ),
+            data={'replace_projects__projecttask_tstatus': status2.id},
+        )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(TaskStatus).job
+        job.type.execute(job)
+        self.assertDoesNotExist(status)
 
         self.assertStillExists(project)
         task = self.assertStillExists(task)
-        self.assertEqual(status, task.tstatus)
+        # self.assertEqual(status, task.tstatus)
+        self.assertEqual(status2, task.tstatus)
 
     @skipIfCustomActivity
     @skipIfCustomTask

@@ -30,7 +30,7 @@ except Exception as e:
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class LineTestCase(_BillingTestCase):
-    DEL_VAT_URL = reverse('creme_config__delete_instance', args=('creme_core', 'vat_value'))
+    # DEL_VAT_URL = reverse('creme_config__delete_instance', args=('creme_core', 'vat_value'))
 
     def _build_msave_url(self, bdocument):
         return reverse('billing__multi_save_lines', args=(bdocument.id,))
@@ -435,7 +435,15 @@ class LineTestCase(_BillingTestCase):
         self.login()
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
-        self.assertPOST200(self.DEL_VAT_URL, data={'id': vat.pk})
+        # self.assertPOST200(self.DEL_VAT_URL, data={'id': vat.pk})
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('creme_core', 'vat_value', vat.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Vat).job
+        job.type.execute(job)
         self.assertDoesNotExist(vat)
 
     @skipIfCustomProductLine
@@ -444,17 +452,27 @@ class LineTestCase(_BillingTestCase):
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
         invoice = self.create_invoice_n_orgas('Nerv')[0]
-        line = ProductLine.objects.create(user=user, related_document=invoice,
-                                          on_the_fly_item='Flyyyyy', vat_value=vat,
-                                         )
+        # line = \
+        ProductLine.objects.create(user=user, related_document=invoice,
+                                   on_the_fly_item='Flyyyyy', vat_value=vat,
+                                  )
 
-        self.assertPOST404(self.DEL_VAT_URL, data={'id': vat.pk})
-        self.assertStillExists(vat)
-
-        self.get_object_or_fail(Invoice, pk=invoice.pk)
-
-        line = self.get_object_or_fail(ProductLine, pk=line.pk)
-        self.assertEqual(vat, line.vat_value)
+        # self.assertPOST404(self.DEL_VAT_URL, data={'id': vat.pk})
+        # self.assertStillExists(vat)
+        #
+        # self.get_object_or_fail(Invoice, pk=invoice.pk)
+        #
+        # line = self.get_object_or_fail(ProductLine, pk=line.pk)
+        # self.assertEqual(vat, line.vat_value)
+        response = self.assertPOST200(reverse('creme_config__delete_instance',
+                                              args=('creme_core', 'vat_value', vat.id)
+                                             ),
+                                     )
+        self.assertFormError(
+            response, 'form',
+            'replace_billing__productline_vat_value',
+            _('Deletion is not possible.')
+        )
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine

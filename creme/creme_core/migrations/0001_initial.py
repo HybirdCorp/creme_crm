@@ -11,7 +11,7 @@ from django.core.validators import RegexValidator
 from django.db import migrations, models
 from django.utils.timezone import now
 
-from creme.creme_core.models import fields as creme_fields
+from creme.creme_core.models import fields as creme_fields, deletion as creme_deletion
 
 
 class Migration(migrations.Migration):
@@ -32,7 +32,8 @@ class Migration(migrations.Migration):
     dependencies = [
         ('auth', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('contenttypes', '0001_initial'),
+        # ('contenttypes', '0001_initial'),
+        ('contenttypes', '0002_remove_content_type_name'),
     ]
 
     operations = [
@@ -691,6 +692,8 @@ class Migration(migrations.Migration):
     ]
 
     if settings.TESTS_ON:
+        from creme.creme_core.tests.fake_models import get_sentinel_priority
+
         operations.extend([
             migrations.CreateModel(
                 name='FakeActivityType',
@@ -897,9 +900,11 @@ class Migration(migrations.Migration):
                     ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                     ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
                     ('address', models.ForeignKey(related_name='+', blank=True, editable=False, to='creme_core.FakeAddress', null=True, verbose_name='Billing address', on_delete=models.SET_NULL)),
-                    ('civility', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Civility', blank=True, to='creme_core.FakeCivility', null=True)),
+                    # ('civility', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Civility', blank=True, to='creme_core.FakeCivility', null=True)),
+                    ('civility', models.ForeignKey(on_delete=creme_deletion.CREME_REPLACE_NULL, verbose_name='Civility', blank=True, to='creme_core.FakeCivility', null=True)),
                     ('position', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Position', blank=True, to='creme_core.FakePosition', null=True)),
-                    ('sector', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Line of business', blank=True, to='creme_core.FakeSector', null=True)),
+                    # ('sector', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Line of business', blank=True, to='creme_core.FakeSector', null=True)),
+                    ('sector', models.ForeignKey(on_delete=creme_deletion.CREME_REPLACE_NULL, verbose_name='Line of business', blank=True, to='creme_core.FakeSector', null=True)),
                     ('is_user', models.ForeignKey(related_name='+', on_delete=models.SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
                     ('languages', models.ManyToManyField(to='creme_core.Language', verbose_name='Spoken language(s)', blank=True)),
                     ('image', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Photograph', blank=True, to='creme_core.FakeImage', null=True)),
@@ -996,7 +1001,7 @@ class Migration(migrations.Migration):
                 ],
                 options={
                     'ordering': ('title',),
-                    'verbose_name': 'Test legal form',
+                    'verbose_name': 'Test Legal form',
                     'verbose_name_plural': 'Test Legal forms',
                 },
                 bases=(models.Model,),
@@ -1018,8 +1023,10 @@ class Migration(migrations.Migration):
                     ('creation_date', models.DateField(null=True, verbose_name='Date of creation', blank=True)),
                     ('address', models.ForeignKey(related_name='+', blank=True, editable=False, to='creme_core.FakeAddress', null=True, verbose_name='Billing address', on_delete=models.SET_NULL)),
                     ('image', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Logo', blank=True, to='creme_core.FakeImage', null=True)),
-                    ('legal_form', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Legal form', blank=True, to='creme_core.FakeLegalForm', null=True)),
-                    ('sector', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Sector', blank=True, to='creme_core.FakeSector', null=True)),
+                    # ('legal_form', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Legal form', blank=True, to='creme_core.FakeLegalForm', null=True)),
+                    ('legal_form', models.ForeignKey(related_name='+', on_delete=creme_deletion.CREME_REPLACE_NULL, verbose_name='Legal form', blank=True, to='creme_core.FakeLegalForm', null=True)),
+                    # ('sector', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Sector', blank=True, to='creme_core.FakeSector', null=True)),
+                    ('sector', models.ForeignKey(on_delete=creme_deletion.CREME_REPLACE, verbose_name='Sector', blank=True, to='creme_core.FakeSector', null=True)),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1030,6 +1037,19 @@ class Migration(migrations.Migration):
                 bases=('creme_core.cremeentity',),
             ),
             migrations.CreateModel(
+                name='FakeProductType',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Product type',
+                    'verbose_name_plural': 'Test Product types',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
                 name='FakeProduct',
                 fields=[
                     ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
@@ -1037,6 +1057,11 @@ class Migration(migrations.Migration):
                                                             )
                     ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('type',models.ForeignKey(on_delete=models.CASCADE, verbose_name='Type',
+                                              blank=True, null=True,
+                                              to='creme_core.FakeProductType',
+                                             )
+                    ),
                     ('images', models.ManyToManyField(verbose_name='Images', to='creme_core.FakeImage', blank=True)),
                 ],
                 options={
@@ -1061,6 +1086,60 @@ class Migration(migrations.Migration):
                     'ordering': ('name',),
                     'verbose_name': 'Test Report',
                     'verbose_name_plural': 'Test Reports',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
+            migrations.CreateModel(
+                name='FakeTicketStatus',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('is_custom', models.BooleanField(default=True)),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Ticket status',
+                    'verbose_name_plural': 'Test Ticket status',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
+                name='FakeTicketPriority',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('is_custom', models.BooleanField(default=True)),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Ticket priority',
+                    'verbose_name_plural': 'Test Ticket priorities',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
+                name='FakeTicket',
+                fields=[
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                             to='creme_core.CremeEntity', on_delete=models.CASCADE,
+                                                            )
+                    ),
+                    ('title', models.CharField(max_length=100, verbose_name='Title')),
+                    ('status', models.ForeignKey(on_delete=models.SET_DEFAULT,
+                                                 verbose_name='Status', default=1,
+                                                 to='creme_core.FakeTicketStatus',
+                                               )
+                    ),
+                    ('priority', models.ForeignKey(on_delete=models.SET(get_sentinel_priority),
+                                                   verbose_name='Priority', default=3,
+                                                   to='creme_core.FakeTicketPriority',
+                                                  )
+                    ),
+                ],
+                options={
+                    'ordering': ('title',),
+                    'verbose_name': 'Test Ticket',
+                    'verbose_name_plural': 'Test Tickets',
                 },
                 bases=('creme_core.cremeentity',),
             ),

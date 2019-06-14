@@ -22,20 +22,22 @@ from itertools import chain
 
 from django.conf import settings
 from django.db.models import (CharField, TextField, DateTimeField, PositiveIntegerField,
-        ForeignKey, ManyToManyField, PROTECT, CASCADE)
+        ForeignKey, ManyToManyField, CASCADE)  # PROTECT
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.models import CremeEntity, Relation, CREME_REPLACE
 
 from ..constants import COMPLETED_PK, CANCELED_PK, REL_OBJ_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE
+
 from .taskstatus import TaskStatus
 
 
 class AbstractProjectTask(CremeEntity):
     title        = CharField(_('Title'), max_length=100)
     linked_project = ForeignKey(settings.PROJECTS_PROJECT_MODEL, on_delete=CASCADE,
-                                verbose_name=_('Project'), related_name='tasks_set', editable=False,
+                                verbose_name=_('Project'), related_name='tasks_set',
+                                editable=False,
                                )
     order        = PositiveIntegerField(_('Order'), blank=True, null=True, editable=False)  # TODO: null = False ? remove blank
     parent_tasks = ManyToManyField('self', symmetrical=False,
@@ -45,7 +47,10 @@ class AbstractProjectTask(CremeEntity):
     end          = DateTimeField(_('End'), blank=True, null=True)
     duration     = PositiveIntegerField(_('Duration (in hours)'), blank=True, null=True)  # TODO: null=False (required in form) (idem with start/end)
     description  = TextField(_('Description'), blank=True)
-    tstatus      = ForeignKey(TaskStatus, verbose_name=_('Task situation'), on_delete=PROTECT)
+    tstatus      = ForeignKey(TaskStatus, verbose_name=_('Task situation'),
+                              # on_delete=PROTECT
+                              on_delete=CREME_REPLACE,
+                             )
 
     creation_label = _('Create a task')
     save_label     = _('Save the task')

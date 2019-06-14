@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.core.exceptions import ValidationError
     from django.urls import reverse
+    from django.utils.translation import gettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -14,7 +17,7 @@ except Exception as e:
 
 
 class SalesPhaseTestCase(CremeTestCase):
-    DELETE_URL = reverse('creme_config__delete_instance', args=('opportunities', 'sales_phase'))
+    # DELETE_URL = reverse('creme_config__delete_instance', args=('opportunities', 'sales_phase'))
     PORTAL_URL = reverse('creme_config__model_portal', args=('opportunities', 'sales_phase'))
 
     @classmethod
@@ -88,7 +91,15 @@ class SalesPhaseTestCase(CremeTestCase):
         self.login()
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)
-        self.assertPOST200(self.DELETE_URL, data={'id': sp.pk})
+        # self.assertPOST200(self.DELETE_URL, data={'id': sp.pk})
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('opportunities', 'sales_phase', sp.id),
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(SalesPhase).job
+        job.type.execute(job)
         self.assertDoesNotExist(sp)
 
     @skipIfCustomOpportunity
@@ -97,16 +108,27 @@ class SalesPhaseTestCase(CremeTestCase):
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)
 
-        create_orga = Organisation.objects.create
-        opp = Opportunity.objects.create(user=user, name='Opp', sales_phase=sp,
-                                         emitter=create_orga(user=user, name='My society'),
-                                         target=create_orga(user=user,  name='Target renegade'),
-                                        )
-        self.assertPOST404(self.DELETE_URL, data={'id': sp.pk})
-        self.assertStillExists(sp)
-
-        opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
-        self.assertEqual(sp, opp.sales_phase)
+        create_orga = partial(Organisation.objects.create, user=user)
+        # opp = \
+        Opportunity.objects.create(
+            user=user, name='Opp', sales_phase=sp,
+            emitter=create_orga(name='My society'),
+            target=create_orga(name='Target renegade'),
+        )
+        # self.assertPOST404(self.DELETE_URL, data={'id': sp.pk})
+        # self.assertStillExists(sp)
+        #
+        # opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
+        # self.assertEqual(sp, opp.sales_phase)
+        response = self.assertPOST200(reverse('creme_config__delete_instance',
+                                              args=('opportunities', 'sales_phase', sp.id)
+                                             ),
+                                     )
+        self.assertFormError(
+            response, 'form',
+            'replace_opportunities__opportunity_sales_phase',
+            _('Deletion is not possible.')
+        )
 
     def test_full_clean(self):
         sp = SalesPhase(name='Forthcoming', won=True, lost=True)

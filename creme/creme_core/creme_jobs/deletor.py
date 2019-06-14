@@ -1,0 +1,145 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2019 Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+from collections import Counter
+
+from django.db.models import ProtectedError, F
+from django.db.transaction import atomic
+from django.utils.translation import gettext_lazy as _, gettext, ngettext
+
+from ..models import DeletionCommand, JobResult, FieldsConfig
+from ..utils.translation import get_model_verbose_name
+
+from .base import JobType, JobProgress
+
+
+# TODO: possibility to resume the job if it failed ?
+class _DeletorType(JobType):
+    """Job which updates ForeignKeys referencing an instance before deleting it."""
+    id           = JobType.generate_id('creme_core', 'deletor')
+    verbose_name = _('Replace & delete')
+
+    def _execute(self, job):
+        dcom_mngr = DeletionCommand.objects
+        dcom = dcom_mngr.get(job=job)
+        instance_2_del = dcom.content_type \
+                             .model_class() \
+                             ._default_manager \
+                             .get(pk=dcom.pk_to_delete)
+
+        # TODO: is_deleted field ?
+        # TODO: regroup by same CType & update several fields at once when its possible
+        for replacement in dcom.replacers:
+            new_value = replacement.get_value()
+
+            model_field = replacement.model_field
+            rel_mngr   = model_field.model._default_manager
+            field_name = model_field.name
+
+            for pk in rel_mngr.filter(**{field_name: instance_2_del.pk}).values_list('pk', flat=True):
+                # NB1: we perform a .save(), not an .update() in order to:
+                #       - let the model compute it's business logic (if there is one).
+                #       - get an HistoryLine for entities.
+                # NB2: as in edition view, we perform a select_for_update() to avoid
+                #      overriding other fields (if there are concurrent accesses)
+                with atomic():
+                    related_instance = rel_mngr.select_for_update().filter(pk=pk).first()
+                    if related_instance is not None:
+                        setattr(related_instance, field_name, new_value)
+                        related_instance.save()
+
+                    dcom_mngr.filter(pk=dcom.pk).update(updated_count=F('updated_count') + 1)
+
+        # TODO: M2M ?
+
+        try:
+            instance_2_del.delete()
+        except ProtectedError as e:
+            counter = Counter(type(obj) for obj in e.args[1])
+            fmt = gettext('{count} {model}').format
+
+            JobResult.objects.create(
+                job=job,
+                messages=[
+                    gettext('«{instance}» can not be deleted because of its '
+                            'dependencies: {dependencies}').format(
+                        instance=instance_2_del,
+                        dependencies=', '.join(
+                            fmt(count=count,
+                                model=get_model_verbose_name(model=model, count=count),
+                               ) for model, count in counter.items()
+                        ),
+                    ),
+                ]
+            )
+
+    def progress(self, job):
+        dcom = DeletionCommand.objects.get(job=job)
+        total = dcom.total_count
+        updated = dcom.updated_count
+
+        return JobProgress(percentage=updated * 100 / total) \
+               if total else \
+               JobProgress(
+                   percentage=None,
+                   label=ngettext('{count} entity updated.',
+                                  '{count} entities updated.',
+                                  updated
+                                 ).format(count=updated),
+               )
+
+    def get_description(self, job):
+        dcom = DeletionCommand.objects.get(job=job)
+        model = dcom.content_type.model_class()
+
+        try:
+            instance_to_delete = model._default_manager.get(pk=dcom.pk_to_delete)
+        except model.DoesNotExist:
+            instance_to_delete = dcom.deleted_repr
+
+        description = [
+            gettext('Deleting «{object}» ({model})').format(
+                object=instance_to_delete,
+                model=model._meta.verbose_name,
+            ),
+        ]
+
+        get_model_conf = FieldsConfig.LocalCache().get_4_model
+
+        for replacement in dcom.replacers:
+            field = replacement.model_field
+
+            if not get_model_conf(field.model).is_field_hidden(field):
+                description.append(str(replacement))
+
+        return description
+
+    def get_stats(self, job):
+        count = DeletionCommand.objects.get(job=job).updated_count
+
+        return [
+            ngettext('{count} entity updated.',
+                     '{count} entities updated.',
+                     count
+                    ).format(count=count),
+        ] if count else []
+
+
+deletor_type = _DeletorType()

@@ -25,7 +25,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.global_info import cached_per_request  # get_per_request_cache
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL
 from creme.creme_core.models.fields import PhoneField
 
 from creme.documents.models.fields import ImageEntityForeignKey
@@ -48,13 +48,19 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     url_site = URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
 
     sector     = ForeignKey(other_models.Sector, verbose_name=_('Sector'),
-                            blank=True, null=True, on_delete=SET_NULL,
+                            blank=True, null=True,
+                            # on_delete=SET_NULL,
+                            on_delete=CREME_REPLACE_NULL,
                            ).set_tags(optional=True)
     legal_form = ForeignKey(other_models.LegalForm, verbose_name=_('Legal form'),
-                            blank=True, null=True, on_delete=SET_NULL,
+                            blank=True, null=True,
+                            # on_delete=SET_NULL,
+                            on_delete=CREME_REPLACE_NULL,
                            ).set_tags(optional=True)
     staff_size = ForeignKey(other_models.StaffSize, verbose_name=_('Staff size'),
-                            blank=True, null=True, on_delete=SET_NULL,
+                            blank=True, null=True,
+                            # on_delete=SET_NULL,
+                            on_delete=CREME_REPLACE_NULL,
                            ).set_tags(optional=True)
 
     capital        = PositiveIntegerField(_('Capital'), blank=True, null=True)\

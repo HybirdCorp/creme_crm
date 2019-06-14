@@ -291,9 +291,18 @@ class LanguageTestCase(ViewsTestCase):
     def test_delete(self):
         language = Language.objects.create(name='Klingon', code='KLN')
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('creme_core', 'language')),
-                           data={'id': language.id}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('creme_core', 'language')),
+        #                    data={'id': language.id}
+        #                   )
+        # self.assertDoesNotExist(language)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('creme_core', 'language', language.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Language).job
+        job.type.execute(job)
         self.assertDoesNotExist(language)
 
 
@@ -353,9 +362,18 @@ class CurrencyTestCase(ViewsTestCase):
         currency = Currency.objects.create(name='Berry', local_symbol='B',
                                            international_symbol='BRY',
                                           )
-        self.assertPOST200(reverse('creme_config__delete_instance',
-                                   args=('creme_core', 'currency'),
-                                  ),
-                           data={'id': currency.id}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance',
+        #                            args=('creme_core', 'currency'),
+        #                           ),
+        #                    data={'id': currency.id}
+        #                   )
+        # self.assertDoesNotExist(currency)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('creme_core', 'currency', currency.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Currency).job
+        job.type.execute(job)
         self.assertDoesNotExist(currency)

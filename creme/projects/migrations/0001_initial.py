@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
 from django.db.models.deletion import CASCADE, PROTECT
 
-from creme.creme_core.models import fields as creme_fields
+from creme.creme_core.models import fields as creme_fields, CREME_REPLACE
 
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'projects', '0001_initial'),
-    #     (b'projects', '0014_v1_8__linked_project_field_1'),
-    #     (b'projects', '0015_v1_8__linked_project_field_2'),
+    #     ('projects', '0001_initial'),
+    #     ('projects', '0014_v1_8__linked_project_field_1'),
+    #     ('projects', '0015_v1_8__linked_project_field_2'),
     # ]
 
     initial = True
@@ -51,7 +50,8 @@ class Migration(migrations.Migration):
                 ('start_date', models.DateTimeField(null=True, verbose_name='Estimated start', blank=True)),
                 ('end_date', models.DateTimeField(null=True, verbose_name='Estimated end', blank=True)),
                 ('effective_end_date', models.DateTimeField(null=True, verbose_name='Effective end date', blank=True)),
-                ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status', to='projects.ProjectStatus')),
+                # ('status', models.ForeignKey(on_delete=PROTECT, verbose_name='Status', to='projects.ProjectStatus')),
+                ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='projects.ProjectStatus')),
                 ('currency', models.ForeignKey(related_name='+', on_delete=PROTECT, default=1,
                                                verbose_name='Currency', to='creme_core.Currency',
                                               )
@@ -90,10 +90,6 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
-                # ('project', models.ForeignKey(related_name='tasks_set', editable=False, to=settings.PROJECTS_PROJECT_MODEL,
-                #                               verbose_name='Project', on_delete=CASCADE,
-                #                              )
-                # ),
                 ('linked_project', models.ForeignKey(related_name='tasks_set', editable=False,
                                                      to=settings.PROJECTS_PROJECT_MODEL,
                                                      verbose_name='Project', on_delete=CASCADE,
@@ -105,7 +101,8 @@ class Migration(migrations.Migration):
                 ('end',   models.DateTimeField(null=True, verbose_name='End', blank=True)),
                 ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hours)', blank=True)),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
-                ('tstatus', models.ForeignKey(on_delete=PROTECT, verbose_name='Task situation', to='projects.TaskStatus')),
+                # ('tstatus', models.ForeignKey(on_delete=PROTECT, verbose_name='Task situation', to='projects.TaskStatus')),
+                ('tstatus', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Task situation', to='projects.TaskStatus')),
             ],
             options={
                 'swappable': 'PROJECTS_TASK_MODEL',

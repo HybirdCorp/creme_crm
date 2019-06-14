@@ -17,7 +17,7 @@ from django.utils.timezone import utc, get_current_timezone, make_aware
 
 from ..global_info import clear_global_info
 from ..management.commands.creme_populate import Command as PopulateCommand
-from ..models import CremeUser, UserRole, RelationType, Relation, CremePropertyType
+from ..models import CremeUser, UserRole, RelationType, Relation, CremePropertyType, DeletionCommand
 from ..utils import print_traceback
 from ..utils.xml_utils import xml_diff, XMLDiffError
 
@@ -426,6 +426,12 @@ class _CremeTestCase:
             self.fail(str(e))
 
         return obj
+
+    def get_deletion_command_or_fail(self, model):
+        return self.get_object_or_fail(
+            DeletionCommand,
+            content_type=ContentType.objects.get_for_model(model),
+        )
 
     def get_relationtype_or_fail(self, pk, sub_models=(), obj_models=(), sub_props=(), obj_props=()):
         try:

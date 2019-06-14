@@ -26,7 +26,6 @@ from django.utils.timezone import now
 
 from ..models import Job, JobResult
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -37,8 +36,10 @@ class JobProgress:
         """Constructor.
 
         @param percentage: percentage of the progress (eg: 53 for '53%').
-               None means that we cannot precise a percentage (so an 'infinite' loop should be displayed).
-        @param label: string corresponding to the progress (eg: "53 entities have been processed").
+               None means that we cannot precise a percentage
+               (so an 'infinite' loop should be displayed).
+        @param label: string corresponding to the progress
+               (eg: "53 entities have been processed").
                If the label is empty, the percentage will be used.
         """
         self.percentage = percentage
@@ -97,7 +98,8 @@ class JobType:
         from ..bricks import JobErrorsBrick
         return [JobErrorsBrick()]
 
-    def execute(self, job):  # NB: we do not use __call__ because we want to use instances of JobType in template
+    # NB: we do not use __call__ because we want to use instances of JobType in template
+    def execute(self, job):
         if self.periodic != self.NOT_PERIODIC and job.last_run:
             # TODO: 'self.result_model' instead of 'JobResult' ??
             JobResult.objects.filter(job=job).delete()
@@ -161,7 +163,9 @@ class JobType:
                     (tip: you can simply return now_value).
         """
         if self.periodic != self.PSEUDO_PERIODIC:
-            raise ValueError('JobType.next_wakeup() should only be called with PSEUDO_PERIODIC jobs.')
+            raise ValueError(
+                'JobType.next_wakeup() should only be called with PSEUDO_PERIODIC jobs.'
+            )
 
         raise NotImplementedError
 
@@ -174,8 +178,9 @@ class JobType:
         try:
             job = Job.objects.get(type_id=self.id)
         except Job.DoesNotExist:
-            logger.critical('Job id="%s" does not exist ! Populate script has not ben run correctly.',
-                            self.id,
-                           )
+            logger.critical(
+                'Job id="%s" does not exist ! Populate script has not been run correctly.',
+                self.id,
+            )
         else:
             job.refresh(force=force)

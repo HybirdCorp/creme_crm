@@ -596,3 +596,33 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     margin-top: 0px;
     border-top: 2px solid #ccc;
 }
+
+/* Deletion popup */
+
+.config-deletion-job-info-tiles {
+    margin-top: 10px;
+    margin-left: 8px;
+}
+
+.config-deletion-job-info-tiles .config-deletion-job-info-tile {
+    margin-top: 5px;
+}
+
+.config-deletion-job-info-tiles .config-deletion-job-info-tile .config-deletion-job-tile-name {
+    display: flex;
+    flex-wrap: nowrap;
+
+    margin-top: 12px;
+
+    color: hsla(197,15%,50%,1);
+    text-transform: uppercase;
+}
+
+.config-deletion-job-info-tiles .config-deletion-job-info-tile .config-deletion-job-tile-value {
+    display: block;
+
+    margin-top: 1px;
+    margin-left: 3px;
+
+    word-wrap: break-word;
+}

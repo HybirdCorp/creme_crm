@@ -1080,11 +1080,22 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal3 = Calendar.objects.create(user=user, name='My third calendar')
 
         # Delete
-        self.assertPOST200(reverse('creme_config__delete_instance',
-                                   args=('activities', 'calendar'),
-                                  ),
-                           data={'id': cal2.id},
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance',
+        #                            args=('activities', 'calendar'),
+        #                           ),
+        #                    data={'id': cal2.id},
+        #                   )
+        # self.assertDoesNotExist(cal2)
+        # self.assertTrue(self.refresh(cal1).is_default)
+        # self.assertFalse(self.refresh(cal3).is_default)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                     args=('activities', 'calendar', cal2.id),
+                                    ),
+                            )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(Calendar).job
+        job.type.execute(job)
         self.assertDoesNotExist(cal2)
         self.assertTrue(self.refresh(cal1).is_default)
         self.assertFalse(self.refresh(cal3).is_default)

@@ -22,7 +22,6 @@ try:
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
-
 get_ct = ContentType.objects.get_for_model
 
 
@@ -1289,14 +1288,23 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                             )
 
     def test_delete_type(self):
-        "Set to null"
+        "Set to NULL."
         user = self.login()
         ptype = PollType.objects.create(name='Political poll')
         pform = PollForm.objects.create(user=user, name='Form#1', type=ptype)
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('polls', 'poll_type')),
-                           data={'id': ptype.pk}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('polls', 'poll_type')),
+        #                    data={'id': ptype.pk}
+        #                   )
+        # self.assertDoesNotExist(ptype)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('polls', 'poll_type', ptype.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(PollType).job
+        job.type.execute(job)
         self.assertDoesNotExist(ptype)
 
         pform = self.assertStillExists(pform)

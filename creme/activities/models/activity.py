@@ -26,7 +26,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeEntity  # SettingValue
+from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL  # SettingValue
 
 from ..constants import (NARROW, CREATION_LABELS,
         REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
@@ -53,7 +53,9 @@ class AbstractActivity(CremeEntity):
                                blank=True, null=True, on_delete=SET_NULL,
                               )
     status        = ForeignKey(Status, verbose_name=_('Status'),
-                               blank=True, null=True, on_delete=SET_NULL,
+                               blank=True, null=True,
+                               # on_delete=SET_NULL,
+                               on_delete=CREME_REPLACE_NULL,
                               )
     calendars     = ManyToManyField(Calendar, verbose_name=_('Calendars'),
                                     blank=True, editable=False,

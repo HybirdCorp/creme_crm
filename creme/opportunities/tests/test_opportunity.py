@@ -666,10 +666,19 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                                          emitter=create_orga(name='My society'),
                                          target=create_orga(name='Target renegade'),
                                         )
-        self.assertPOST404(reverse('creme_config__delete_instance', args=('creme_core', 'currency')),
-                           data={'id': currency.pk}
-                          )
-        self.assertStillExists(currency)
-
-        opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
-        self.assertEqual(currency, opp.currency)
+        # self.assertPOST404(reverse('creme_config__delete_instance', args=('creme_core', 'currency')),
+        #                    data={'id': currency.pk}
+        #                   )
+        # self.assertStillExists(currency)
+        #
+        # opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
+        # self.assertEqual(currency, opp.currency)
+        response = self.assertPOST200(reverse('creme_config__delete_instance',
+                                              args=('creme_core', 'currency', currency.id)
+                                             ),
+                                     )
+        self.assertFormError(
+            response, 'form',
+            'replace_opportunities__opportunity_currency',
+            _('Deletion is not possible.')
+        )

@@ -15,7 +15,6 @@ try:
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
-
 Document = get_document_model()
 Service = get_service_model()
 
@@ -135,28 +134,46 @@ class ServiceTestCase(_ProductsTestCase):
 
         service, cat, sub_cat = self._build_service_cat_subcat()
 
-        self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
-                           data={'id': sub_cat.pk}
-                          )
-        self.get_object_or_fail(SubCategory, pk=sub_cat.pk)
-
-        service = self.assertStillExists(service)
-        self.assertEqual(sub_cat, service.sub_category)
+        # self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
+        #                    data={'id': sub_cat.pk}
+        #                   )
+        # self.get_object_or_fail(SubCategory, pk=sub_cat.pk)
+        #
+        # service = self.assertStillExists(service)
+        # self.assertEqual(sub_cat, service.sub_category)
+        response = self.assertPOST200(reverse('creme_config__delete_instance',
+                                              args=('products', 'subcategory', sub_cat.id)
+                                             ),
+                                     )
+        self.assertFormError(
+            response, 'form',
+            'replace_products__service_sub_category',
+            _('Deletion is not possible.')
+        )
 
     def test_delete_category(self):
         self.login()
 
         service, cat, sub_cat = self._build_service_cat_subcat()
 
-        self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'category')),
-                           data={'id': cat.pk}
-                          )
-        self.get_object_or_fail(SubCategory, pk=sub_cat.pk)
-        self.get_object_or_fail(Category, pk=cat.pk)
-
-        service = self.assertStillExists(service)
-        self.assertEqual(sub_cat, service.sub_category)
-        self.assertEqual(cat,     service.category)
+        # self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'category')),
+        #                    data={'id': cat.pk}
+        #                   )
+        # self.get_object_or_fail(SubCategory, pk=sub_cat.pk)
+        # self.get_object_or_fail(Category, pk=cat.pk)
+        #
+        # service = self.assertStillExists(service)
+        # self.assertEqual(sub_cat, service.sub_category)
+        # self.assertEqual(cat,     service.category)
+        response = self.assertPOST200(reverse('creme_config__delete_instance',
+                                              args=('products', 'category', cat.id)
+                                             ),
+                                     )
+        self.assertFormError(
+            response, 'form',
+            'replace_products__service_category',
+            _('Deletion is not possible.')
+        )
 
     def test_add_images(self):
         user = self.login_as_basic_user(Service)

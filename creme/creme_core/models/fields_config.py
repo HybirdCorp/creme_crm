@@ -156,7 +156,7 @@ class FieldsConfig(CremeModel):
         """
         errors, desc = self._check_descriptions(self.content_type.model_class(),
                                                 json_load(self.raw_descriptions),
-                                                )
+                                               )
 
         if errors:
             logger.warning('FieldsConfig: we save the corrected descriptions.')

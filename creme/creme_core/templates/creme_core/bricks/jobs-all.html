@@ -7,7 +7,8 @@
     {% if not request.is_ajax %}
     <script type="text/javascript">
         $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
-            creme.jobs.checkJobManager('{% url 'creme_core__jobs_info' %}', brick._id, false);
+{#            creme.jobs.checkJobManager('{% url 'creme_core__jobs_info' %}', brick._id, false); #}
+            new creme.jobs.BrickJobsMonitor('{% url 'creme_core__jobs_info' %}', brick._id).start();
         });
     </script>
     {% endif %}

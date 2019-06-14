@@ -750,6 +750,10 @@ span.ui-creme-datepicker-trigger {
     height: 100%;
 }
 
+.ui-dialog-content .ui-creme-dialog-frame .global-error {
+    background-color: #f08080;
+}
+
 /* Dialog overrides - could be moved in a CSS file dedicated to the Dialogs widgets */
 /* HACK: the dialog title uses the same structure as the page title, creating side effects modifying both; Override those values here, until both templates are cleaned up */
 .ui-dialog-content .table_header,

@@ -19,7 +19,6 @@ try:
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
-
 Product = get_product_model()
 
 
@@ -199,9 +198,17 @@ class ProductTestCase(_ProductsTestCase):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
         sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
-                           data={'id': sub_cat.pk}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
+        #                    data={'id': sub_cat.pk}
+        #                   )
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('products', 'subcategory', sub_cat.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(SubCategory).job
+        job.type.execute(job)
         self.assertDoesNotExist(sub_cat)
 
     def _build_product_cat_subcat(self):
@@ -220,28 +227,46 @@ class ProductTestCase(_ProductsTestCase):
 
         product, cat, sub_cat = self._build_product_cat_subcat()
 
-        self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
-                           data={'id': sub_cat.pk}
-                          )
-        self.assertStillExists(sub_cat)
-
-        product = self.assertStillExists(product)
-        self.assertEqual(sub_cat, product.sub_category)
+        # self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
+        #                    data={'id': sub_cat.pk}
+        #                   )
+        # self.assertStillExists(sub_cat)
+        #
+        # product = self.assertStillExists(product)
+        # self.assertEqual(sub_cat, product.sub_category)
+        response = self.assertPOST200(reverse('creme_config__delete_instance',
+                                              args=('products', 'subcategory', sub_cat.id)
+                                             ),
+                                     )
+        self.assertFormError(
+            response, 'form',
+            'replace_products__product_sub_category',
+            _('Deletion is not possible.')
+        )
 
     def test_delete_category03(self):
         self.login()
 
         product, cat, sub_cat = self._build_product_cat_subcat()
 
-        self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'category')),
-                           data={'id': cat.pk}
-                          )
-        self.assertStillExists(sub_cat)
-        self.assertStillExists(cat)
-
-        product = self.assertStillExists(product)
-        self.assertEqual(sub_cat, product.sub_category)
-        self.assertEqual(cat,     product.category)
+        # self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'category')),
+        #                    data={'id': cat.pk}
+        #                   )
+        # self.assertStillExists(sub_cat)
+        # self.assertStillExists(cat)
+        #
+        # product = self.assertStillExists(product)
+        # self.assertEqual(sub_cat, product.sub_category)
+        # self.assertEqual(cat,     product.category)
+        response = self.assertPOST200(reverse('creme_config__delete_instance',
+                                              args=('products', 'category', cat.id)
+                                             ),
+                                     )
+        self.assertFormError(
+            response, 'form',
+            'replace_products__product_category',
+            _('Deletion is not possible.')
+        )
 
     def test_edit_inner_category(self):
         user = self.login()

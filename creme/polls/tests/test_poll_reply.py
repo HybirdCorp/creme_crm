@@ -1145,14 +1145,23 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual({preply1, preply2}, set(preply_page.object_list))
 
     def test_delete_type(self):
-        "Set to null"
+        "Set to NULL."
         self.login()
         ptype  = PollType.objects.create(name='Political poll')
         preply = self._build_preply(ptype=ptype)
 
-        self.assertPOST200(reverse('creme_config__delete_instance', args=('polls', 'poll_type')),
-                           data={'id': ptype.pk}
-                          )
+        # self.assertPOST200(reverse('creme_config__delete_instance', args=('polls', 'poll_type')),
+        #                    data={'id': ptype.pk}
+        #                   )
+        # self.assertDoesNotExist(ptype)
+        response = self.client.post(reverse('creme_config__delete_instance',
+                                            args=('polls', 'poll_type', ptype.id)
+                                           ),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.get_deletion_command_or_fail(PollType).job
+        job.type.execute(job)
         self.assertDoesNotExist(ptype)
 
         preply = self.assertStillExists(preply)
