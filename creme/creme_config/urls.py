@@ -37,13 +37,14 @@ user_settings_patterns = [
 ]
 
 role_patterns = [
-    re_path(r'^portal[/]?$',                            user_role.Portal.as_view(),             name='creme_config__roles'),
-    re_path(r'^wizard[/]?$',                            user_role.RoleCreationWizard.as_view(), name='creme_config__create_role'),
-    re_path(r'^wizard/(?P<role_id>\d+)[/]?$',           user_role.RoleEditionWizard.as_view(),  name='creme_config__edit_role'),
-    re_path(r'^delete/(?P<role_id>\d+)[/]?$',           user_role.RoleDeletion.as_view(),       name='creme_config__delete_role'),
-    re_path(r'^add_credentials/(?P<role_id>\d+)[/]?$',  user_role.CredentialsAdding.as_view(),  name='creme_config__add_credentials_to_role'),
-    re_path(r'^edit_credentials/(?P<cred_id>\d+)[/]?$', user_role.CredentialsEdition.as_view(), name='creme_config__edit_role_credentials'),
-    re_path(r'^delete_credentials[/]?$',                user_role.delete_credentials,           name='creme_config__remove_role_credentials'),
+    re_path(r'^portal[/]?$',                            user_role.Portal.as_view(),              name='creme_config__roles'),
+    re_path(r'^wizard[/]?$',                            user_role.RoleCreationWizard.as_view(),  name='creme_config__create_role'),
+    re_path(r'^wizard/(?P<role_id>\d+)[/]?$',           user_role.RoleEditionWizard.as_view(),   name='creme_config__edit_role'),
+    re_path(r'^delete/(?P<role_id>\d+)[/]?$',           user_role.RoleDeletion.as_view(),        name='creme_config__delete_role'),
+    re_path(r'^add_credentials/(?P<role_id>\d+)[/]?$',  user_role.CredentialsAdding.as_view(),   name='creme_config__add_credentials_to_role'),
+    re_path(r'^edit_credentials/(?P<cred_id>\d+)[/]?$', user_role.CredentialsEdition.as_view(),  name='creme_config__edit_role_credentials'),
+    # re_path(r'^delete_credentials[/]?$',                user_role.delete_credentials,           name='creme_config__remove_role_credentials'),
+    re_path(r'^delete_credentials[/]?$',                user_role.CredentialsDeletion.as_view(), name='creme_config__remove_role_credentials'),
 ]
 
 relation_type_patterns = [
