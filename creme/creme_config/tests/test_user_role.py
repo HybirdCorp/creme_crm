@@ -412,7 +412,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         sc2 = create_creds(value=EntityCredentials.CHANGE)
 
         url = self.DEL_CREDS_URL
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
         self.assertPOST404(url)
         self.assertPOST200(url, data={'id': sc1.id})
 

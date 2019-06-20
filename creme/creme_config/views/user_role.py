@@ -29,11 +29,11 @@ from django.utils.translation import gettext_lazy as _  # ugettext
 
 # from formtools.wizard.views import SessionWizardView
 
-from creme.creme_core.auth.decorators import login_required, superuser_required, _check_superuser
+from creme.creme_core.auth.decorators import _check_superuser  # login_required, superuser_required
 from creme.creme_core.models import UserRole, SetCredentials, lock
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import POST_only
+# from creme.creme_core.views.decorators import POST_only
 # from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms import user_role as role_forms
@@ -204,12 +204,27 @@ class CredentialsEdition(generic.CremeModelEditionPopup):
         return data
 
 
-@login_required
-@superuser_required
-@POST_only
-def delete_credentials(request):
-    get_object_or_404(SetCredentials, pk=get_from_POST_or_404(request.POST, 'id')).delete()
-    return HttpResponse()
+# @login_required
+# @superuser_required
+# @POST_only
+# def delete_credentials(request):
+#     get_object_or_404(SetCredentials, pk=get_from_POST_or_404(request.POST, 'id')).delete()
+#     return HttpResponse()
+class CredentialsDeletion(generic.CheckedView):
+    creds_id_arg = 'id'
+
+    # TODO: factorise/ "*super*" permission
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+        _check_superuser(user)
+
+    def post(self, request, *args, **kwargs):
+        get_object_or_404(
+            SetCredentials,
+            id=get_from_POST_or_404(request.POST, self.creds_id_arg),
+        ).delete()
+
+        return HttpResponse()
 
 
 class RoleDeletion(BaseRoleEdition):
