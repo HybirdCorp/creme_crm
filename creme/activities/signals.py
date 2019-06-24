@@ -90,7 +90,7 @@ def _set_orga_as_subject(sender, instance, **kwargs):
 
 @receiver(signals.post_save, sender=settings.AUTH_USER_MODEL)
 def _create_default_calendar(sender, instance, created, **kwargs):
-    if created and not instance.is_staff:
+    if created and not instance.is_staff and instance.is_active:
         is_public = settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC
 
         if is_public is None:
