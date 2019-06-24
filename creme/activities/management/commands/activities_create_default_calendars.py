@@ -39,7 +39,7 @@ class Command(BaseCommand):
             if verbosity >= 1:
                 self.stderr.write('ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC is None => no calendar created.')
         elif isinstance(is_public, bool):
-            users = get_user_model().objects.filter(is_staff=False,
+            users = get_user_model().objects.filter(is_staff=False, is_active=True,
                                                     calendar__is_default__isnull=True,
                                                    )
 

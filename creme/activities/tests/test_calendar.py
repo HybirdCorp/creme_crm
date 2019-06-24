@@ -215,6 +215,15 @@ class CalendarTestCase(_ActivitiesTestCase):
                                        )
         self.assertFalse(Calendar.objects.filter(user=user))
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
+    def test_user_default_calendar_auto04(self):
+        "Inactive user => no calendar."
+        user = CremeUser.objects.create(username='altena', email='altena@noir.jp',
+                                        first_name='Altena', last_name='??',
+                                        is_active=False,
+                                       )
+        self.assertFalse(Calendar.objects.filter(user=user))
+
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_get_user_calendars01(self):
         user = self.login()
@@ -290,13 +299,19 @@ class CalendarTestCase(_ActivitiesTestCase):
             email='richard@freestaffoundation.org',
             is_staff=True,
         )
+        inactive_user = CremeUser.objects.create(
+            username='rip', first_name='Alan', last_name='Ripman',
+            email='ripman@unused.org',
+            is_active=False,
+        )
 
         create_cal = Calendar.objects.create
         cal1 = create_cal(user=user,       is_default=True, name='Cal #1')
         cal2 = create_cal(user=other_user, is_default=True, name='Cal #2', is_public=True)
         cal3 = create_cal(user=other_user, name='Cal #3', is_public=False)
         cal4 = create_cal(user=other_user, name='Cal #4', is_public=True)
-        create_cal(user=staff_user, name='Cal #5', is_public=True)  # Should not be used
+        create_cal(user=staff_user,    name='Cal #5', is_public=True)  # Should not be used
+        create_cal(user=inactive_user, name='Cal #6', is_public=True)  # Should not be used
 
         create_act = partial(Activity.objects.create, user=user,
                              type_id=ACTIVITYTYPE_TASK, floating_type=FLOATING,
@@ -354,7 +369,8 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         # self.assertEqual({other_user: [cal2]}, others_calendars)
         self.assertCountEqual([cal2, cal4], others_calendars.get(other_user))
-        self.assertNotIn(staff_user, others_calendars)
+        self.assertNotIn(staff_user,    others_calendars)
+        self.assertNotIn(inactive_user, others_calendars)
 
         self.assertSetEqual({cal2.id}, other_cal_ids)
 
@@ -1221,17 +1237,21 @@ class CalendarTestCase(_ActivitiesTestCase):
                                 first_name='Altena', last_name='??',
                                 is_staff=True,
                                )
+            user4 = create_user(username='soldat#42', email='soldat42@noir.jp',
+                                first_name='Alan', last_name='Ripman',
+                                is_active=False,
+                               )
 
-        self.assertFalse(Calendar.objects.filter(user__in=[user1, user2, user3]))
+        self.assertFalse(Calendar.objects.filter(user__in=[user1, user2, user3, user4]))
 
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=is_public):
-            user4 = create_user(username='Chloe', email='chloe@noir.jp',
+            user5 = create_user(username='chloe', email='chloe@noir.jp',
                                 first_name='Chloé', last_name='??',
                                )
-        cal4_1 = self.get_object_or_fail(Calendar, is_default=True, user=user4)
+        cal4_1 = self.get_object_or_fail(Calendar, is_default=True, user=user5)
         cal4_2 = Calendar.objects.create(
             name='Private calendar of Chloé',
-            is_default=False, user=user4, is_public=False,
+            is_default=False, user=user5, is_public=False,
         )
 
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=is_public):
@@ -1244,10 +1264,11 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(is_public, cal2.is_public)
 
         self.assertFalse(Calendar.objects.filter(user=user3))
+        self.assertFalse(Calendar.objects.filter(user=user4))
 
         self.assertEqual(
             {cal4_1, cal4_2},
-            set(Calendar.objects.filter(user=user4))
+            set(Calendar.objects.filter(user=user5))
         )
 
     def test_command_create_default_calendar01(self):

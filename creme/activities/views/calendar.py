@@ -234,10 +234,10 @@ class CalendarView(generic.CheckedTemplateView):
     def get_calendars(self, user):
         # NB: we retrieve all the user's Calendars to check the presence of the
         #     default one (& create it if needed) by avoiding an extra query.
-        calendars = list(Calendar.objects.filter(Q(user=user) |
-                                                 Q(is_public=True, user__is_staff=False)
-                                                )
-                        )
+        calendars = list(Calendar.objects.filter(
+            Q(user=user) |
+            Q(is_public=True, user__is_staff=False, user__is_active=True)
+        ))
 
         if next(self._filter_default_calendars(user, calendars), None) is None:
             calendars.append(Calendar.objects.create_default_calendar(user=user))
