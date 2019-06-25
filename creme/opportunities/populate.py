@@ -22,7 +22,6 @@ import logging
 from functools import partial
 
 from django.apps import apps
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _, pgettext
 
 from creme.creme_core import bricks as core_bricks
@@ -38,7 +37,6 @@ from . import get_opportunity_model, bricks, constants
 from .buttons import LinkedOpportunityButton
 from .models import SalesPhase, Origin
 from .setting_keys import quote_key
-
 
 logger = logging.getLogger(__name__)
 Opportunity = get_opportunity_model()
@@ -189,7 +187,7 @@ class Populator(BasePopulator):
             cbci = CustomBrickConfigItem.objects.create(
                 id='opportunities-complementary',
                 name=_('Opportunity complementary information'),
-                content_type=ContentType.objects.get_for_model(Opportunity),  # TODO: @model
+                content_type=Opportunity,
                 cells=[
                     build_cell(Opportunity, 'reference'),
                     build_cell(Opportunity, 'currency'),
@@ -262,21 +260,24 @@ class Populator(BasePopulator):
                 self.create_report_n_graphes(rt_obj_emit_orga)
 
     def create_report_n_graphes(self, rt_obj_emit_orga):
-        "Create the report 'Opportunities' and 2 ReportGraphs"
+        "Create the report 'Opportunities' and 2 ReportGraphs."
         from django.contrib.auth import get_user_model
-        from django.contrib.contenttypes.models import ContentType
 
         from creme.creme_core.utils.meta import FieldInfo
 
+        from creme import reports
         from creme.reports import constants as rep_constants
-        from creme.reports.models import Report, Field, ReportGraph
+        from creme.reports.models import Field
 
         admin = get_user_model().objects.get_admin()
 
+        if reports.report_model_is_custom():
+            logger.info('Report model is custom => no Opportunity report is created.')
+            return
+
         # Create the report ----------------------------------------------------
-        report = Report.objects.create(name=_('Opportunities'), user=admin,
-                                       ct=ContentType.objects.get_for_model(Opportunity),
-                                      )
+        report = reports.get_report_model() \
+                        .objects.create(name=_('Opportunities'), user=admin, ct=Opportunity)
 
         # TODO: helper method(s) (see EntityFilterCondition)
         create_field = partial(Field.objects.create, report=report, type=rep_constants.RFT_FIELD)
@@ -287,8 +288,13 @@ class Populator(BasePopulator):
         create_field(name=rt_obj_emit_orga.id, order=5, type=rep_constants.RFT_RELATION)
 
         # Create 2 graphs -----------------------------------------------------
+        if reports.rgraph_model_is_custom():
+            logger.info('ReportGraph model is custom => no Opportunity report-graph is created.')
+            return
+
         # TODO: helper method ('sum' => is_count=False, range only on DateFields etc...)
-        create_graph = partial(ReportGraph.objects.create, linked_report=report, user=admin,
+        create_graph = partial(reports.get_rgraph_model().objects.create,
+                               linked_report=report, user=admin,
                                is_count=False, ordinate='estimated_sales__sum',
                               )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name
