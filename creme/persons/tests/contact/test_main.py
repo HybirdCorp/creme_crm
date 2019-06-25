@@ -3,7 +3,6 @@
 try:
     from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
     from django.urls import reverse
     from django.utils.html import escape
@@ -469,11 +468,10 @@ class ContactTestCase(_BaseTestCase):
         url = self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY)
         self.assertGET403(url)
 
-        get_ct = ContentType.objects.get_for_model
-        create_sc(value=EntityCredentials.LINK, ctype=get_ct(Organisation))
+        create_sc(value=EntityCredentials.LINK, ctype=Organisation)
         self.assertGET403(url)
 
-        create_sc(value=EntityCredentials.LINK, ctype=get_ct(Contact))
+        create_sc(value=EntityCredentials.LINK, ctype=Contact)
         self.assertGET200(url)
 
         response = self.assertPOST200(url, follow=True,
@@ -502,7 +500,7 @@ class ContactTestCase(_BaseTestCase):
             set_type=SetCredentials.ESET_ALL,
             value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
                   EntityCredentials.DELETE | EntityCredentials.UNLINK,
-            ctype=ContentType.objects.get_for_model(Contact),  # Not Organisation
+            ctype=Contact,  # Not Organisation
         )
 
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -522,18 +520,16 @@ class ContactTestCase(_BaseTestCase):
         "Cannot LINK the organisation => error."
         user = self.login(is_superuser=False, creatable_models=[Contact])
 
-        get_ct = ContentType.objects.get_for_model
-
         create_sc = partial(SetCredentials.objects.create, role=self.role,
                             set_type=SetCredentials.ESET_ALL,
                            )
         create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
                         EntityCredentials.DELETE | EntityCredentials.UNLINK,
-                  ctype=get_ct(Contact),  # Not Organisation
+                  ctype=Contact,  # Not Organisation
                  )
         create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                         EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
-                  ctype=get_ct(Organisation),
+                  ctype=Organisation,
                  )
 
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -616,15 +612,14 @@ class ContactTestCase(_BaseTestCase):
 
     @skipIfCustomAddress
     def test_clone(self):
-        "Addresses & is_user are problematic"
+        "Addresses & is_user are problematic."
         user = self.login()
         naruto = self.get_object_or_fail(Contact, is_user=user)
 
         create_address = partial(Address.objects.create,
                                  city='Konoha', state='Konoha', zipcode='111',
                                  country='The land of fire', department="Ninjas' homes",
-                                 content_type=ContentType.objects.get_for_model(Contact),
-                                 object_id=naruto.id,
+                                 owner=naruto,
                                 )
         naruto.billing_address  = create_address(name="Naruto's", address='Home', po_box='000')
         naruto.shipping_address = create_address(name="Naruto's", address='Home (second entry)', po_box='001')

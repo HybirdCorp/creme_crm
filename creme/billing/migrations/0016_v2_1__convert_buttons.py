@@ -2,6 +2,7 @@
 
 from django.db import migrations
 
+
 def add_convertion_buttons(apps, schema_editor):
     from creme.billing import buttons
 

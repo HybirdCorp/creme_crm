@@ -241,11 +241,11 @@ class FieldsConfigTestCase(CremeTestCase):
         "Auto-repair invalid field"
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
-                    content_type=ContentType.objects.get_for_model(FakeContact),
-                    descriptions=[(h_field,   {FieldsConfig.HIDDEN: True}),
-                                  ('invalid', {FieldsConfig.HIDDEN: True}),
-                                 ],
-                 )
+            content_type=FakeContact,
+            descriptions=[(h_field,   {FieldsConfig.HIDDEN: True}),
+                          ('invalid', {FieldsConfig.HIDDEN: True}),
+                         ],
+         )
 
         fconf = self.refresh(fconf)
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
@@ -255,12 +255,12 @@ class FieldsConfigTestCase(CremeTestCase):
         "Auto-repair invalid field"
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
-                    content_type=ContentType.objects.get_for_model(FakeContact),
-                    raw_descriptions=json_dump([(h_field, {FieldsConfig.HIDDEN: True}),
-                                                ('invalid', {FieldsConfig.HIDDEN: True}),
-                                                ]
-                                               ),
-                 )
+            content_type=FakeContact,
+            raw_descriptions=json_dump([(h_field, {FieldsConfig.HIDDEN: True}),
+                                        ('invalid', {FieldsConfig.HIDDEN: True}),
+                                       ]
+                                      ),
+        )
 
         fconf = self.refresh(fconf)
         self.assertEqual(1, len(fconf.descriptions))

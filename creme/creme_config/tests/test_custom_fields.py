@@ -78,7 +78,7 @@ class CustomFieldsTestCase(CremeTestCase):
         orga_ct    = get_ct(FakeOrganisation)
 
         name = 'Eva'
-        create_cf = partial(CustomField.objects.create)
+        create_cf = CustomField.objects.create
         create_cf(content_type=contact_ct, field_type=CustomField.BOOL, name='Operational ?')
         create_cf(content_type=orga_ct,    field_type=CustomField.INT,  name=name)  # <= same name but not same CT
 

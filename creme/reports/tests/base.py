@@ -75,26 +75,25 @@ class BaseReportsTestCase(CremeTestCase):
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':   self.user.pk,
                                           'name':   name,
-                                          'ct':     ContentType.objects.get_for_model(FakeContact).id,
+                                          'ct':     self.ct_contact.id,
                                           'hf':     hf.id,
                                           'filter': efilter.id if efilter else '',
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Report, name=name)
 
     def _create_simple_contacts_report(self, name='Contact report', efilter=None):
-        ct = ContentType.objects.get_for_model(FakeContact)
-        report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
+        report = Report.objects.create(user=self.user, name=name, ct=FakeContact, filter=efilter)
         Field.objects.create(report=report, name='last_name', type=RFT_FIELD, order=1)
 
         return report
 
     def _create_simple_documents_report(self, user=None):
         report = Report.objects.create(name="Documents report", user=user or self.user,
-                                           ct=ContentType.objects.get_for_model(FakeReportsDocument)
-                                          )
+                                       ct=FakeReportsDocument,
+                                      )
 
         create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
         create_field(name='title',       order=1)
@@ -103,8 +102,7 @@ class BaseReportsTestCase(CremeTestCase):
         return report
 
     def _create_simple_organisations_report(self, name='Orga report', efilter=None):
-        ct = ContentType.objects.get_for_model(FakeOrganisation)
-        report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
+        report = Report.objects.create(user=self.user, name=name, ct=FakeOrganisation, filter=efilter)
         Field.objects.create(report=report, name='name', type=RFT_FIELD, order=1)
 
         return report

@@ -87,10 +87,7 @@ class AbstractAddress(CremeModel):
 
     def clone(self, entity):
         """Returns a new cloned (saved) address for a (saved) entity."""
-        return Address.objects.create(object_id=entity.id,
-                                      content_type=ContentType.objects.get_for_model(entity),
-                                      **dict(self.info_fields)
-                                     )
+        return Address.objects.create(owner=entity, **dict(self.info_fields))
 
     @classmethod
     def info_field_names(cls):

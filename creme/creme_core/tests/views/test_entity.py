@@ -477,7 +477,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(entity03)
 
     def test_empty_trash03(self):
-        "Credentials on specific CT"
+        "Credentials on specific ContentType."
         user = self.login(is_superuser=False, allowed_apps=('creme_core',))  # NB: can delete ESET_OWN
         other_user = self.other_user
 
@@ -488,7 +488,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                             EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_ALL,
-                                      ctype=ContentType.objects.get_for_model(FakeOrganisation),
+                                      ctype=FakeOrganisation,
                                      )
 
         create_contact = partial(FakeContact.objects.create, user=user, is_deleted=True)
@@ -1335,7 +1335,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         # Float
         response = self.client.post(url, data={'field_value': '10.2',
                                                'entities': [mario.pk, luigi.pk]
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(Decimal("10.2"), self.get_cf_values(cf_float, self.refresh(mario)).value)
@@ -1344,7 +1344,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         # Float empty
         response = self.client.post(url, data={'field_value': '',
                                                'entities': [mario.pk, luigi.pk]
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertRaises(CustomFieldFloat.DoesNotExist, self.get_cf_values, cf_float, self.refresh(mario))
@@ -1467,7 +1467,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         # Enum
         response = self.client.post(url, data={'field_value': enum1.id,
                                                'entities': [mario.pk, luigi.pk]
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(enum1, get_cf_values(cf_enum, self.refresh(mario)).value)
@@ -1476,7 +1476,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         # Enum empty
         response = self.client.post(url, data={'field_value': '',
                                                'entities': [mario.pk, luigi.pk],
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, self.refresh(mario))

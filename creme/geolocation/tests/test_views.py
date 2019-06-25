@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -154,7 +153,7 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         self.login(is_superuser=False, allowed_apps=('creme_core', 'geolocation', 'persons'))
 
         SetCredentials.objects.create(role=self.user.role,
-                                      ctype=ContentType.objects.get_for_model(Organisation),
+                                      ctype=Organisation,
                                       value=EntityCredentials._ALL_CREDS,
                                       set_type=SetCredentials.ESET_OWN,
                                      )
@@ -265,7 +264,7 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         self.login(is_superuser=False, allowed_apps=('creme_core', 'geolocation', 'persons'))
 
         SetCredentials.objects.create(role=self.user.role,
-                                      ctype=ContentType.objects.get_for_model(Organisation),
+                                      ctype=Organisation,
                                       value=EntityCredentials._ALL_CREDS,
                                       set_type=SetCredentials.ESET_OWN,
                                      )
@@ -492,7 +491,7 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         user = self.login(is_superuser=False, allowed_apps=('creme_core', 'geolocation', 'persons'))
 
         SetCredentials.objects.create(role=self.role,
-                                      ctype=ContentType.objects.get_for_model(Organisation),
+                                      ctype=Organisation,
                                       value=EntityCredentials._ALL_CREDS,
                                       set_type=SetCredentials.ESET_OWN,
                                      )

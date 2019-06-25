@@ -22,7 +22,6 @@ import logging
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks, models as core_models
@@ -34,7 +33,6 @@ from creme.creme_core.utils import create_if_needed
 from . import get_contact_model, get_organisation_model
 from . import bricks, buttons, constants
 from .models import Civility, Sector, Position, StaffSize, LegalForm
-
 
 logger = logging.getLogger(__name__)
 
@@ -201,14 +199,13 @@ class Populator(BasePopulator):
             rbi_1 = core_models.RelationBrickItem.create(constants.REL_SUB_CUSTOMER_SUPPLIER)
             rbi_2 = core_models.RelationBrickItem.create(constants.REL_OBJ_CUSTOMER_SUPPLIER)
 
-            get_ct = ContentType.objects.get_for_model
             create_cbci = core_models.CustomBrickConfigItem.objects.create
             build_cell = EntityCellRegularField.build
 
             # cbci_orga_1 =
             create_cbci(id='persons-organisation_main_info',
                         name=_('Organisation information'),
-                        content_type=get_ct(Organisation),
+                        content_type=Organisation,
                         cells=[
                            build_cell(Organisation, 'name'),
                            build_cell(Organisation, 'is_managed'),
@@ -236,7 +233,7 @@ class Populator(BasePopulator):
             # cbci_orga_2 =
             create_cbci(id='persons-organisation_details',
                         name=_('Organisation details'),
-                        content_type=get_ct(Organisation),
+                        content_type=Organisation,
                         cells=[
                           build_cell(Organisation, 'phone'),
                           build_cell(Organisation, 'fax'),
@@ -246,7 +243,7 @@ class Populator(BasePopulator):
                        )
             cbci_orga_extra = create_cbci(id='persons-organisation_complementary',
                                           name=_('Organisation complementary information'),
-                                          content_type=get_ct(Organisation),
+                                          content_type=Organisation,
                                           cells=[
                                               build_cell(Organisation, 'staff_size'),
                                               build_cell(Organisation, 'sector'),
@@ -289,7 +286,7 @@ class Populator(BasePopulator):
 
             create_cbci(id='persons-contact_main_info',
                         name=_('Contact information'),
-                        content_type=get_ct(Contact),
+                        content_type=Contact,
                         cells=[
                            build_cell(Contact, 'civility'),
                            build_cell(Contact, 'first_name'),
@@ -310,7 +307,7 @@ class Populator(BasePopulator):
                        )
             create_cbci(id='persons-contact_details',
                         name=_('Contact details'),
-                        content_type=get_ct(Contact),
+                        content_type=Contact,
                         cells=[
                            build_cell(Contact, 'phone'),
                            build_cell(Contact, 'mobile'),
@@ -322,7 +319,7 @@ class Populator(BasePopulator):
                        )
             cbci_contact_extra = create_cbci(id='persons-contact_complementary',
                                              name=_('Contact complementary information'),
-                                             content_type=get_ct(Contact),
+                                             content_type=Contact,
                                              cells=[
                                                  build_cell(Contact, 'sector'),
                                                  build_cell(Contact, 'full_position'),

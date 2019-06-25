@@ -317,9 +317,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
                             set_type=SetCredentials.ESET_ALL
                            )
         create_sc(value=EntityCredentials.VIEW)
-        create_sc(value=EntityCredentials.LINK,
-                  ctype=ContentType.objects.get_for_model(Contact),
-                 )
+        create_sc(value=EntityCredentials.LINK, ctype=Contact)
 
         orga_count = Organisation.objects.count()
 
@@ -358,9 +356,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
                             set_type=SetCredentials.ESET_ALL,
                            )
         create_sc(value=EntityCredentials.VIEW)
-        create_sc(value=EntityCredentials.LINK,
-                  ctype=ContentType.objects.get_for_model(Organisation),
-                 )
+        create_sc(value=EntityCredentials.LINK, ctype=Organisation)
 
         response = self.assertGET200(self._build_quickform_url())
 
@@ -376,11 +372,10 @@ class ContactQuickFormTestCase(_BaseTestCase):
         "No permission to link Contact with a specific owner"
         self.login(is_superuser=False, creatable_models=[Contact, Organisation])
 
-        get_ct = ContentType.objects.get_for_model
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=get_ct(Organisation))
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN, ctype=get_ct(Contact))
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=Organisation)
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN, ctype=Contact)
 
         url = self._build_quickform_url()
         response = self.assertGET200(url)
@@ -487,9 +482,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL,
-                  ctype=ContentType.objects.get_for_model(Contact),
-                 )
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=Contact)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
 
         orga_name = 'Bebop'

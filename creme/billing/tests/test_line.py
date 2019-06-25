@@ -117,7 +117,7 @@ class LineTestCase(_BillingTestCase):
                         EntityCredentials.DELETE |
                         EntityCredentials.LINK   |
                         EntityCredentials.UNLINK,
-                  ctype=ContentType.objects.get_for_model(Organisation),
+                  ctype=Organisation,
         )
         create_sc(value=EntityCredentials.VIEW   |
                         EntityCredentials.CHANGE |

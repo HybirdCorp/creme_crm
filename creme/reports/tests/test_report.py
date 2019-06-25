@@ -553,8 +553,7 @@ class ReportTestCase(BaseReportsTestCase):
     def test_clone(self):
         user = self.login()
         efilter = EntityFilter.create('test-filter', 'Mihana family', FakeContact, is_custom=True)
-        ct = ContentType.objects.get_for_model(FakeContact)
-        report = Report.objects.create(user=user, name='Contact report', ct=ct, filter=efilter)
+        report = Report.objects.create(user=user, name='Contact report', ct=FakeContact, filter=efilter)
 
         create_field = partial(Field.objects.create, report=report)
         rfield1 = create_field(name='last_name',             order=1, type=RFT_FIELD)
@@ -1363,19 +1362,18 @@ class ReportTestCase(BaseReportsTestCase):
         "FK with depth=2"
         user = self.login()
 
-        report = Report.objects.create(name='Docs report', user=user,
-                                       ct=ContentType.objects.get_for_model(FakeCoreDocument),
-                                      )
+        report = Report.objects.create(name='Docs report', user=user, ct=FakeCoreDocument)
 
         # fname = 'folder__category'
         fname = 'linked_folder__category'
-        response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
-                                                            rfield1='title',
-                                                            rfield2=fname,
-                                                        ),
-                                              }
-                                   )
+        response = self.client.post(
+            self._build_editfields_url(report),
+            data={'columns': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                  rfield1='title',
+                                  rfield2=fname,
+                              ),
+                 },
+        )
         self.assertNoFormError(response)
 
         columns = report.columns
@@ -1443,9 +1441,7 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_edit_fields_errors02(self):
         user = self.login()
-        report = Report.objects.create(user=user, name='Report on docs',
-                                       ct=ContentType.objects.get_for_model(FakeReportsDocument),
-                                      )
+        report = Report.objects.create(user=user, name='Report on docs', ct=FakeReportsDocument)
         response = self.assertPOST200(self._build_editfields_url(report),
                                       data={'columns': 'regular_field-linked_folder__parent'},
                                      )
@@ -1463,9 +1459,7 @@ class ReportTestCase(BaseReportsTestCase):
     def test_invalid_hands02(self):
         user = self.login()
 
-        report = Report.objects.create(user=user, name='Report on docs',
-                                       ct=ContentType.objects.get_for_model(FakeReportsDocument),
-                                      )
+        report = Report.objects.create(user=user, name='Report on docs', ct=FakeReportsDocument)
 
         rfield = Field.objects.create(name='linked_folder__parent', report=report, type=RFT_FIELD, order=2)
         self.assertIsNone(rfield.hand)
@@ -1993,9 +1987,7 @@ class ReportTestCase(BaseReportsTestCase):
         doc1 = create_doc(title='Japan map',   linked_folder=folder1)
         doc2 = create_doc(title='Mars city 1', linked_folder=folder2)
 
-        report = Report.objects.create(name='Docs report', user=user,
-                                       ct=ContentType.objects.get_for_model(FakeCoreDocument),
-                                      )
+        report = Report.objects.create(name='Docs report', user=user, ct=FakeCoreDocument)
 
         create_field = partial(Field.objects.create, report=report,
                                selected=False, sub_report=None, type=RFT_FIELD,
@@ -2108,7 +2100,7 @@ class ReportTestCase(BaseReportsTestCase):
         ned_face = self.ned_face; aria_face = self.aria_face
 
         cf = CustomField.objects.create(content_type=self.ct_image,
-                                        name='Popularity', field_type=CustomField.INT
+                                        name='Popularity', field_type=CustomField.INT,
                                        )
 
         create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
@@ -2328,9 +2320,7 @@ class ReportTestCase(BaseReportsTestCase):
         guild1.members.set([contact1, contact2, contact3])
         guild2.members.set([contact4])
 
-        report = Report.objects.create(name='Guilds report', user=user,
-                                       ct=ContentType.objects.get_for_model(Guild),
-                                      )
+        report = Report.objects.create(name='Guilds report', user=user, ct=Guild)
 
         create_field = partial(Field.objects.create, report=report,
                                selected=False, sub_report=None, type=RFT_FIELD,
@@ -2743,9 +2733,7 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
         self._aux_test_fetch_persons(create_contacts=False, report_4_contact=False)
 
-        report_invoice = Report.objects.create(user=user, name='Report on invoices',
-                                               ct=ContentType.objects.get_for_model(FakeInvoice)
-                                              )
+        report_invoice = Report.objects.create(user=user, name='Report on invoices', ct=FakeInvoice)
 
         create_field = partial(Field.objects.create, selected=False, sub_report=None)
         create_field(report=report_invoice, name='name',           type=RFT_FIELD,     order=1)

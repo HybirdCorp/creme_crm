@@ -1,7 +1,6 @@
 try:
     from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.backends.base import SessionBase
     from django.test import RequestFactory
     from django.utils.translation import gettext as _
@@ -115,11 +114,10 @@ class BrickRegistryTestCase(CremeTestCase):
         RelationBrickItem.create(rtype1.id)
 
         create_cbci = CustomBrickConfigItem.objects.create
-        get_ct = ContentType.objects.get_for_model
-        cbci = create_cbci(id='test-contacts01', name='General (contact)', content_type=get_ct(FakeContact),
+        cbci = create_cbci(id='test-contacts01', name='General (contact)', content_type=FakeContact,
                            cells=[EntityCellRegularField.build(FakeContact, 'last_name')],
-                           )
-        create_cbci(id='test-organisations01', name='General (orga)', content_type=get_ct(FakeOrganisation),
+                          )
+        create_cbci(id='test-organisations01', name='General (orga)', content_type=FakeOrganisation,
                     cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
                    )  # Not compatible with Contact
 
@@ -405,10 +403,9 @@ class BrickRegistryTestCase(CremeTestCase):
         rbi = RelationBrickItem.create(rtype.id)
 
         cbci = CustomBrickConfigItem.objects.create(
-                    id='tests-organisations01', name='General',
-                    content_type=ContentType.objects.get_for_model(FakeOrganisation),
-                    cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
-                )
+            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
+        )
 
         brick_registry = _BrickRegistry()
         brick_registry.register(QuuxBrick1)
@@ -817,9 +814,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_brick01(self):
         cbci = CustomBrickConfigItem.objects.create(
-                id='tests-organisations01', name='General',
-                content_type=ContentType.objects.get_for_model(FakeOrganisation),
-                cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
+            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
 
         cbrick = CustomBrick(cbci.generate_id(), cbci)
@@ -833,11 +829,10 @@ class BrickTestCase(CremeTestCase):
                                    )[0]
 
         cbci = CustomBrickConfigItem.objects.create(
-                id='tests-organisations01', name='General',
-                content_type=ContentType.objects.get_for_model(FakeOrganisation),
-                cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
-                       EntityCellRelation(model=FakeOrganisation, rtype=rtype),
-                      ],
+            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
+                   EntityCellRelation(model=FakeOrganisation, rtype=rtype),
+                  ],
         )
 
         cbrick = CustomBrick(cbci.generate_id(), cbci)

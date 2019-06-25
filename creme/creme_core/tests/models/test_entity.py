@@ -214,7 +214,7 @@ class EntityTestCase(CremeTestCase):
     def test_clone03(self):
         create_cf = partial(CustomField.objects.create,
                             content_type=ContentType.objects.get_for_model(FakeOrganisation),
-                            )
+                           )
         cf_int        = create_cf(name='int',        field_type=CustomField.INT)
         cf_float      = create_cf(name='float',      field_type=CustomField.FLOAT)
         cf_bool       = create_cf(name='bool',       field_type=CustomField.BOOL)
@@ -377,7 +377,7 @@ class EntityTestCase(CremeTestCase):
     def test_customfield_value(self):
         create_field = partial(CustomField.objects.create,
                                content_type=ContentType.objects.get_for_model(FakeOrganisation),
-                               )
+                              )
         field_A = create_field(name='A', field_type=CustomField.INT)
         field_B = create_field(name='B', field_type=CustomField.INT)
         field_C = create_field(name='C', field_type=CustomField.INT)

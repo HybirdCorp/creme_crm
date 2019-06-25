@@ -169,9 +169,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                            )
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
 
-        create_cf = CustomField.objects.create
-        custom_field = create_cf(name='Profits',        field_type=CustomField.INT,  content_type=ct)
-        datecfield   = create_cf(name='Last gathering', field_type=CustomField.DATETIME, content_type=ct)
+        create_cf = partial(CustomField.objects.create, content_type=ct)
+        custom_field = create_cf(name='Profits',        field_type=CustomField.INT)
+        datecfield   = create_cf(name='Last gathering', field_type=CustomField.DATETIME)
 
         url = self._build_add_url(ct)
         response = self.assertGET200(url)
@@ -193,44 +193,45 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         cfield_operator = EntityFilterCondition.GT
         cfield_value = 10000
         datecfield_rtype = 'previous_quarter'
-        response = self.client.post(url, follow=True,
-                                    data={'name':        name,
-                                          'user':        user.id,
-                                          'is_private': 'on',
-                                          'use_or':     'True',
+        response = self.client.post(
+            url, follow=True,
+            data={'name':        name,
+                  'user':        user.id,
+                  'is_private': 'on',
+                  'use_or':     'True',
 
-                                          'fields_conditions':           self._build_rfields_data(
-                                                                                operator=field_operator,
-                                                                                name=field_name,
-                                                                                value=field_value,
-                                                                            ),
-                                          'datefields_conditions':       self._build_rdatefields_data(
-                                                                                type=daterange_type,
-                                                                                start='', end='',
-                                                                                name=date_field_name,
-                                                                            ),
-                                          'customfields_conditions':     self._build_cfields_data(
-                                                                                cfield_id=custom_field.id,
-                                                                                operator=cfield_operator,
-                                                                                value=cfield_value,
-                                                                            ),
-                                          'datecustomfields_conditions': self._build_cdatefields_data(
-                                                                                cfield_id=datecfield.id,
-                                                                                type=datecfield_rtype,
-                                                                            ),
-                                          'relations_conditions':        self._build_relations_data(rtype.id),
-                                          'relsubfilfers_conditions':    self._build_subfilters_data(
-                                                                                rtype_id=srtype.id,
-                                                                                ct_id=self.ct_contact.id,
-                                                                                efilter_id=relsubfilfer.id,
-                                                                            ),
-                                          'properties_conditions':       self._build_properties_data(
-                                                                                has=True,
-                                                                                ptype_id=ptype.id,
-                                                                            ),
-                                          'subfilters_conditions':       [subfilter.id],
-                                         }
-                                   )
+                  'fields_conditions':           self._build_rfields_data(
+                                                        operator=field_operator,
+                                                        name=field_name,
+                                                        value=field_value,
+                                                    ),
+                  'datefields_conditions':       self._build_rdatefields_data(
+                                                        type=daterange_type,
+                                                        start='', end='',
+                                                        name=date_field_name,
+                                                    ),
+                  'customfields_conditions':     self._build_cfields_data(
+                                                        cfield_id=custom_field.id,
+                                                        operator=cfield_operator,
+                                                        value=cfield_value,
+                                                    ),
+                  'datecustomfields_conditions': self._build_cdatefields_data(
+                                                        cfield_id=datecfield.id,
+                                                        type=datecfield_rtype,
+                                                    ),
+                  'relations_conditions':        self._build_relations_data(rtype.id),
+                  'relsubfilfers_conditions':    self._build_subfilters_data(
+                                                        rtype_id=srtype.id,
+                                                        ct_id=self.ct_contact.id,
+                                                        efilter_id=relsubfilfer.id,
+                                                    ),
+                  'properties_conditions':       self._build_properties_data(
+                                                        has=True,
+                                                        ptype_id=ptype.id,
+                                                    ),
+                  'subfilters_conditions':       [subfilter.id],
+                 },
+        )
         self.assertNoFormError(response)
 
         efilter = self.get_object_or_fail(EntityFilter, name=name)

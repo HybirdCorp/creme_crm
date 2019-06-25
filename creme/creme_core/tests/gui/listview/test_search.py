@@ -517,7 +517,7 @@ class ListViewSearchTestCase(CremeTestCase):
                 return cls(cell=cell, user=user)
 
         cfield = CustomField.objects.create(
-            content_type=ContentType.objects.get_for_model(FakeContact),
+            content_type=FakeContact,
             name='A', field_type=CustomField.STR,
         )
 
@@ -810,7 +810,7 @@ class ListViewSearchTestCase(CremeTestCase):
     def test_cell_registry_customfield(self):
         cfield = CustomField.objects.create(
             name='A', field_type=CustomField.STR,
-            content_type=ContentType.objects.get_for_model(FakeContact),
+            content_type=FakeContact,
         )
 
         cell = EntityCellCustomField(customfield=cfield)

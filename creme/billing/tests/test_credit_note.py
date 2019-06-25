@@ -4,7 +4,6 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
     from django.utils.translation import gettext as _
 
@@ -386,7 +385,7 @@ class CreditNoteTestCase(_BillingTestCase):
         create_sc(value=EntityCredentials.VIEW   |
                         EntityCredentials.CHANGE |
                         EntityCredentials.LINK,
-                  ctype=ContentType.objects.get_for_model(Organisation),
+                  ctype=Organisation,
                  )
         create_sc(value=EntityCredentials.VIEW   |
                         EntityCredentials.CHANGE |
