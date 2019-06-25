@@ -24,7 +24,8 @@ import uuid
 # import warnings
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q, UUIDField, CharField, BooleanField, ForeignKey, PROTECT
+from django.db import models
+from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.html import escape
@@ -58,17 +59,24 @@ _SEARCH_FIELD_MAX_LENGTH = 200
 
 
 class CremeEntity(CremeModel):
-    created  = CreationDateTimeField(_('Creation date'), editable=False).set_tags(clonable=False)
-    modified = ModificationDateTimeField(_('Last modification'), editable=False).set_tags(clonable=False)
+    created  = CreationDateTimeField(_('Creation date'), editable=False)\
+                                    .set_tags(clonable=False)
+    modified = ModificationDateTimeField(_('Last modification'), editable=False)\
+                                        .set_tags(clonable=False)
 
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
-    header_filter_search_field = CharField(max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False).set_tags(viewable=False)
+    header_filter_search_field = models.CharField(max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False)\
+                                       .set_tags(viewable=False)
 
-    is_deleted = BooleanField(default=False, editable=False).set_tags(viewable=False)
+    is_deleted = models.BooleanField(default=False, editable=False).set_tags(viewable=False)
     user       = CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    uuid    = UUIDField(unique=True, editable=False, default=uuid.uuid4).set_tags(viewable=False)
-    sandbox = ForeignKey(Sandbox, null=True, editable=False, on_delete=PROTECT).set_tags(viewable=False)
+    description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
+
+    uuid    = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)\
+                    .set_tags(viewable=False)
+    sandbox = models.ForeignKey(Sandbox, null=True, editable=False, on_delete=models.PROTECT)\
+                    .set_tags(viewable=False)
 
     objects = LowNullsQuerySet.as_manager()
 

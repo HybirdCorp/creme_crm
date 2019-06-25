@@ -7,10 +7,10 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_forms import FakeContactForm
-    from ..fake_models import FakeContact, FakeOrganisation, FakeCivility, FakeAddress, FakeEmailCampaign
 
     from creme.creme_core.global_info import set_global_info
-    from creme.creme_core.models import CremeEntity, FieldsConfig
+    from creme.creme_core.models import (CremeEntity, FieldsConfig,
+        FakeContact, FakeOrganisation, FakeCivility, FakeSector, FakeAddress)  # FakeEmailCampaign
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -75,22 +75,26 @@ class FieldsConfigTestCase(CremeTestCase):
                                )
 
     def test_create_errors_05(self):
-        "Invalid model"
+        "Invalid model."
         is_valid = FieldsConfig.is_model_valid
         self.assertTrue(is_valid(FakeContact))
         self.assertTrue(is_valid(FakeOrganisation))
         self.assertTrue(is_valid(FakeAddress))
-        self.assertFalse(is_valid(CremeEntity))       # No optional field
-        self.assertFalse(is_valid(FakeEmailCampaign)) # Idem
-        self.assertFalse(is_valid(FakeCivility))      # Idem
+        # self.assertFalse(is_valid(CremeEntity))       # No optional field
+        # self.assertFalse(is_valid(FakeEmailCampaign)) # Idem
+        self.assertFalse(is_valid(FakeCivility))  # No optional field
+        self.assertFalse(is_valid(FakeSector))    # Idem
 
         create_fc = FieldsConfig.create
 
-        with self.assertRaises(FieldsConfig.InvalidModel):
-            create_fc(CremeEntity)
+        # with self.assertRaises(FieldsConfig.InvalidModel):
+        #     create_fc(CremeEntity)
 
         with self.assertRaises(FieldsConfig.InvalidModel):
             create_fc(FakeCivility)
+
+        with self.assertRaises(FieldsConfig.InvalidModel):
+            create_fc(FakeSector)
 
     def test_get_4_model01(self):
         model = FakeContact
@@ -114,14 +118,17 @@ class FieldsConfigTestCase(CremeTestCase):
             FieldsConfig.get_4_model(model)
 
     def test_get_4_model02(self):
-        "No query for model which cannot be registered"
+        "No query for model which cannot be registered."
+        ContentType.objects.get_for_model(FakeCivility)  # Fill cache if needed
+
         with self.assertNumQueries(0):
-            fc = FieldsConfig.get_4_model(CremeEntity)
+            # fc = FieldsConfig.get_4_model(CremeEntity)
+            fc = FieldsConfig.get_4_model(FakeCivility)
 
         self.assertFalse(list(fc.hidden_fields))
 
     def test_get_4_model03(self):
-        "Cache not created"
+        "Cache not created."
         model = FakeContact
         FieldsConfig.create(model,
                             descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
@@ -196,7 +203,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn('phone',  fields)
         self.assertNotIn('mobile', fields)
 
-        # last_name = u'Senjōgahara' MySQL does not like this....
+        # last_name = 'Senjōgahara' MySQL does not like this....
         last_name = 'Senjougahara'
         first_name = 'Hitagi'
         response = self.client.post(url, follow=True,

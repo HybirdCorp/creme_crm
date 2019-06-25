@@ -20,7 +20,7 @@
 
 from random import randint
 
-from django.db.models import CharField, TextField, ForeignKey, PROTECT  # SET_NULL
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -29,6 +29,7 @@ from creme.creme_core.models import CremeEntity, CREME_REPLACE_NULL
 from creme.creme_core.utils import truncate_str
 
 from .. import constants
+
 from .other_models import FolderCategory
 
 MAXINT = 100000
@@ -36,25 +37,27 @@ MAXINT = 100000
 
 class AbstractFolder(CremeEntity):
     """Folder: contains Documents."""
-    title         = CharField(_('Title'), max_length=100)
-    description   = TextField(_('Description'), blank=True).set_tags(optional=True)
-    parent_folder = ForeignKey('self', verbose_name=_('Parent folder'),
-                               blank=True, null=True,
-                               related_name='children',
-                               on_delete=PROTECT,
-                              )
-    category      = ForeignKey(FolderCategory, verbose_name=_('Category'),
-                               blank=True, null=True,
-                               # on_delete=SET_NULL,
-                               on_delete=CREME_REPLACE_NULL,
-                               related_name='folder_category_set',
-                              )
+    title         = models.CharField(_('Title'), max_length=100)
+    # description   = models.TextField(_('Description'), blank=True).set_tags(optional=True)
+    parent_folder = models.ForeignKey('self', verbose_name=_('Parent folder'),
+                                      blank=True, null=True,
+                                      related_name='children',
+                                      on_delete=models.PROTECT,
+                                     )
+
+    category = models.ForeignKey(FolderCategory, verbose_name=_('Category'),
+                                 blank=True, null=True,
+                                 # on_delete=models.SET_NULL,
+                                 on_delete=CREME_REPLACE_NULL,
+                                 related_name='folder_category_set',
+                                )
 
     allowed_related = CremeEntity.allowed_related | {'document'}
 
-    not_deletable_UUIDs = {constants.UUID_FOLDER_RELATED2ENTITIES,
-                           constants.UUID_FOLDER_IMAGES,
-                          }
+    not_deletable_UUIDs = {
+        constants.UUID_FOLDER_RELATED2ENTITIES,
+        constants.UUID_FOLDER_IMAGES,
+    }
 
     creation_label = _('Create a folder')
     save_label     = _('Save the folder')

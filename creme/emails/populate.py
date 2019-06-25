@@ -22,7 +22,6 @@ import logging
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
@@ -32,13 +31,11 @@ from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValu
         BrickDetailviewLocation, CustomBrickConfigItem,
         ButtonMenuItem, HeaderFilter, Job)
 
-from creme import persons
+from creme import persons, emails
 
-from creme import emails
 from . import buttons, bricks, constants
 from .creme_jobs import entity_emails_send_type, campaign_emails_send_type
 from .setting_keys import emailcampaign_sender
-
 
 logger = logging.getLogger(__name__)
 
@@ -118,13 +115,12 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            get_ct = ContentType.objects.get_for_model
             create_cbci = CustomBrickConfigItem.objects.create
             build_cell = EntityCellRegularField.build
 
             cbci_email = create_cbci(id='emails-entityemail_info',
                                      name=_('Email information'),
-                                     content_type=get_ct(EntityEmail),
+                                     content_type=EntityEmail,
                                      cells=[
                                         build_cell(EntityEmail, 'user'),
                                         build_cell(EntityEmail, 'reads'),
@@ -135,11 +131,12 @@ class Populator(BasePopulator):
                                         build_cell(EntityEmail, 'reception_date'),
                                         build_cell(EntityEmail, 'attachments'),
                                         build_cell(EntityEmail, 'body'),
+                                        build_cell(EntityEmail, 'description'),
                                      ],
                                     )
             cbci_template = create_cbci(id='emails-emailtemplate_info',
                                         name=_('Email template information'),
-                                        content_type=get_ct(EmailTemplate),
+                                        content_type=EmailTemplate,
                                         cells=[
                                             build_cell(EmailTemplate, 'created'),
                                             build_cell(EmailTemplate, 'modified'),
@@ -148,6 +145,7 @@ class Populator(BasePopulator):
                                             build_cell(EmailTemplate, 'subject'),
                                             build_cell(EmailTemplate, 'body'),
                                             build_cell(EmailTemplate, 'signature'),
+                                            build_cell(EmailTemplate, 'description'),
                                         ],
                                        )
 

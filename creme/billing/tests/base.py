@@ -332,6 +332,8 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
                 'payment_terms_colselect':   0,
                 'payment_type_colselect':    0,
 
+                'description_colselect': 0,
+
                 # 'property_types',
                 # 'fixed_relations',
                 # 'dyn_relations',
@@ -496,6 +498,8 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
                                           'additional_info_colselect': 0,
                                           'payment_terms_colselect':   0,
                                           'payment_type_colselect':    0,
+
+                                          'description_colselect': 0,
 
                                           'source_persons_organisation_colselect': 3,
                                           'source_persons_organisation_create':    True,

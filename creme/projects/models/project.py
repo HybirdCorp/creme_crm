@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import ValidationError
-from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max, PROTECT
+from django.db import models
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.timezone import now, localtime
@@ -32,23 +32,26 @@ from .projectstatus import ProjectStatus
 
 
 class AbstractProject(CremeEntity):
-    name               = CharField(_('Name of the project'), max_length=100)
-    description        = TextField(_('Description'), blank=True)\
-                                  .set_tags(optional=True)
-    status             = ForeignKey(ProjectStatus, verbose_name=_('Status'),
-                                    # on_delete=PROTECT
-                                    on_delete=CREME_REPLACE,
-                                   )
-    start_date         = DateTimeField(_('Estimated start'), blank=True, null=True)\
-                                      .set_tags(optional=True)
-    end_date           = DateTimeField(_('Estimated end'), blank=True, null=True)\
-                                      .set_tags(optional=True)
-    effective_end_date = DateTimeField(_('Effective end date'), blank=True, null=True)\
-                                      .set_tags(optional=True)
-    currency           = ForeignKey(Currency, verbose_name=_('Currency'),
-                                    related_name='+',
-                                    default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
-                                   )
+    name = models.CharField(_('Name of the project'), max_length=100)
+    # description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
+
+    status = models.ForeignKey(ProjectStatus, verbose_name=_('Status'),
+                               # on_delete=models.PROTECT
+                               on_delete=CREME_REPLACE,
+                              )
+
+    start_date         = models.DateTimeField(_('Estimated start'), blank=True, null=True)\
+                                             .set_tags(optional=True)
+    end_date           = models.DateTimeField(_('Estimated end'), blank=True, null=True)\
+                                             .set_tags(optional=True)
+    effective_end_date = models.DateTimeField(_('Effective end date'), blank=True, null=True)\
+                                             .set_tags(optional=True)
+
+    currency = models.ForeignKey(Currency, verbose_name=_('Currency'),
+                                 related_name='+',
+                                 default=DEFAULT_CURRENCY_PK,
+                                 on_delete=models.PROTECT,
+                                )
 
     tasks_list = None
 
@@ -115,7 +118,7 @@ class AbstractProject(CremeEntity):
         return self.tasks_list
 
     def attribute_order_task(self):
-        max_order = self.get_tasks().aggregate(Max('order'))['order__max']
+        max_order = self.get_tasks().aggregate(models.Max('order'))['order__max']
         return (max_order + 1) if max_order is not None else 1
 
     def get_project_cost(self):

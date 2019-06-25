@@ -22,8 +22,7 @@ from datetime import timedelta
 # import warnings
 
 from django.conf import settings
-from django.db.models import (Model, PositiveIntegerField, CharField, TextField,
-        DateTimeField, ForeignKey)  # PROTECT
+from django.db import models
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.formats import date_format
@@ -37,7 +36,7 @@ from .priority import Priority
 from .status import Status, OPEN_PK, CLOSED_PK
 
 
-class TicketNumber(Model):
+class TicketNumber(models.Model):
     """This class is used to generate the value of Ticket.number.
     Only the ID/PK is useful, with its auto-increment feature:
         - the ID will be max ID + 1.
@@ -51,21 +50,21 @@ class TicketNumber(Model):
 
 
 class TicketMixin(CremeEntity):
-    title        = CharField(_('Title'), max_length=100, blank=True, null=False)
-    description  = TextField(_('Description'))
-    status       = ForeignKey(Status, verbose_name=_('Status'),
-                              # on_delete=PROTECT
-                              on_delete=CREME_REPLACE,
-                             ).set_tags(clonable=False)
-    priority     = ForeignKey(Priority, verbose_name=_('Priority'),
-                              # on_delete=PROTECT
-                              on_delete=CREME_REPLACE,
-                             )
-    criticity    = ForeignKey(Criticity, verbose_name=_('Criticity'),
-                              # on_delete=PROTECT
-                              on_delete=CREME_REPLACE,
-                             )
-    solution     = TextField(_('Solution'), blank=True, null=False)
+    title     = models.CharField(_('Title'), max_length=100, blank=True, null=False)
+    # description = models.TextField(_('Description'))
+    status    = models.ForeignKey(Status, verbose_name=_('Status'),
+                                  # on_delete=models.PROTECT
+                                  on_delete=CREME_REPLACE,
+                                 ).set_tags(clonable=False)
+    priority  = models.ForeignKey(Priority, verbose_name=_('Priority'),
+                                  # on_delete=models.PROTECT
+                                  on_delete=CREME_REPLACE,
+                                 )
+    criticity = models.ForeignKey(Criticity, verbose_name=_('Criticity'),
+                                  # on_delete=models.PROTECT
+                                  on_delete=CREME_REPLACE,
+                                 )
+    solution  = models.TextField(_('Solution'), blank=True, null=False)
 
     class Meta:
         app_label = 'tickets'
@@ -76,11 +75,13 @@ class TicketMixin(CremeEntity):
 
 
 class AbstractTicket(TicketMixin):
-    number       = PositiveIntegerField(_('Number'), unique=True, editable=False)\
-                                       .set_tags(clonable=False)
-    closing_date = DateTimeField(_('Closing date'), blank=True, null=True,
-                                 editable=False,
-                                ).set_tags(clonable=False)
+    number       = models.PositiveIntegerField(_('Number'),
+                                               unique=True, editable=False,
+                                              ).set_tags(clonable=False)
+    closing_date = models.DateTimeField(_('Closing date'),
+                                        blank=True, null=True,
+                                        editable=False,
+                                       ).set_tags(clonable=False)
 
     creation_label = _('Create a ticket')
     save_label     = _('Save the ticket')

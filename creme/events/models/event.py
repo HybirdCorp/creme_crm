@@ -27,7 +27,6 @@ from creme.creme_core.models import (CremeEntity, CremeModel,
 
 from .. import constants
 
-
 _STATS_TYPES = (
     constants.REL_OBJ_IS_INVITED_TO,
     constants.REL_OBJ_ACCEPTED_INVITATION,
@@ -57,7 +56,7 @@ class AbstractEvent(CremeEntity):
                                     # on_delete=models.PROTECT
                                     on_delete=CREME_REPLACE,
                                    )
-    description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
+    # description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
     place       = models.CharField(pgettext_lazy('events', 'Place'), max_length=100,
                                    blank=True,
                                   ).set_tags(optional=True)

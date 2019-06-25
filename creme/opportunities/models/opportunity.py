@@ -108,7 +108,7 @@ class AbstractOpportunity(CremeEntity):
                                        # on_delete=SET_NULL,
                                        on_delete=CREME_REPLACE_NULL,
                                       ).set_tags(optional=True)
-    description           = TextField(_('Description'), blank=True).set_tags(optional=True)
+    # description           = TextField(_('Description'), blank=True).set_tags(optional=True)
     first_action_date     = DateField(_('Date of the first action'), blank=True, null=True)\
                                      .set_tags(optional=True)
 

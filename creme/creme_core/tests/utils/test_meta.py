@@ -257,6 +257,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self._deactivate_translation()
 
         expected = [('created',                    _('Creation date')),
+                    ('description',                _('Description')),
                     ('header_filter_search_field', 'header filter search field'),
                     ('id',                         'ID'),
                     ('is_deleted',                 'is deleted'),
@@ -271,6 +272,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
         choices = meta.ModelFieldEnumerator(CremeEntity, only_leafs=False).choices()
         self.assertEqual([('created',                    _('Creation date')),
+                          ('description',                _('Description')),
                           ('entity_type',                'entity type'),
                           ('header_filter_search_field', 'header filter search field'),
                           ('id',                         'ID'),
@@ -287,8 +289,9 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         "Filter, exclude (simple)"
         self._deactivate_translation()
 
-        expected = [('created',  _('Creation date')),
-                    ('modified', _('Last modification')),
+        expected = [('created',     _('Creation date')),
+                    ('description', _('Description')),
+                    ('modified',    _('Last modification')),
                    ]
         choices = meta.ModelFieldEnumerator(CremeEntity).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
@@ -296,9 +299,10 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         choices = meta.ModelFieldEnumerator(CremeEntity).exclude(viewable=False).choices()
         self.assertEqual(expected, choices, choices)
 
-        expected = [('created',  _('Creation date')),
-                    ('modified', _('Last modification')),
-                    ('user',     _('Owner user'))
+        expected = [('created',     _('Creation date')),
+                    ('description', _('Description')),
+                    ('modified',    _('Last modification')),
+                    ('user',        _('Owner user'))
                    ]
         choices = meta.ModelFieldEnumerator(CremeEntity, only_leafs=False).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
@@ -311,8 +315,9 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self._deactivate_translation()
 
         fs = partial('[{user}] - {field}'.format, user=_('Owner user'))
-        expected = [('created',         _('Creation date')),
-                    ('modified',        _('Last modification')),
+        expected = [('created',     _('Creation date')),
+                    ('description', _('Description')),
+                    ('modified',    _('Last modification')),
 
                     ('user__email',     fs(field=_('Email address'))),
                     ('user__last_name', fs(field=_('Last name'))),
@@ -326,9 +331,10 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                          meta.ModelFieldEnumerator(CremeEntity, deep=1, only_leafs=True)
                              .filter(viewable=True).choices()
                         )
-        self.assertEqual([('created',         _('Creation date')),
-                          ('modified',        _('Last modification')),
-                          ('user',            _('Owner user')),  # <===
+        self.assertEqual([('created',     _('Creation date')),
+                          ('description', _('Description')),
+                          ('modified',    _('Last modification')),
+                          ('user',        _('Owner user')),  # <===
 
                           ('user__email',     fs(field=_('Email address'))),
                           ('user__last_name', fs(field=_('Last name'))),
@@ -339,7 +345,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                         )
 
     def test_field_enumerator04(self):
-        "Filter with function, exclude"
+        "Filter with function, exclude."
         self._deactivate_translation()
 
         self.assertEqual([('modified', _('Last modification'))],
@@ -347,17 +353,18 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                              .filter(lambda f, depth: f.name.endswith('ied'), viewable=True)
                              .choices()
                         )
-        self.assertEqual([('created', _('Creation date'))],
+        self.assertEqual([('description', _('Description'))],
                          meta.ModelFieldEnumerator(CremeEntity, deep=0)
-                             .exclude(lambda f, depth: f.name.endswith('ied'), viewable=False)
+                             .exclude(lambda f, depth: f.name.endswith('ed'), viewable=False)
                              .choices()
                         )
 
     def test_field_enumerator05(self):
-        "Other ct"
+        "Other ContentType."
         self._deactivate_translation()
 
         expected = [('created',     _('Creation date')),
+                    ('description', _('Description')),
                     ('modified',    _('Last modification')),
                     ('name',        _('Name of the campaign')),
                    ]
@@ -373,7 +380,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self.assertEqual(expected, choices, choices)
 
     def test_field_enumerator06(self):
-        "Filter/exclude : multiple conditions + field true attributes"
+        "Filter/exclude : multiple conditions + field true attributes."
         self._deactivate_translation()
 
         expected = [('birthday',     _('Birthday')),
@@ -402,7 +409,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self.assertEqual(expected, choices, choices)
 
     def test_field_enumerator07(self):
-        "Ordering of FKs"
+        "Ordering of FKs."
         self._deactivate_translation()
 
         choices = meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False) \
@@ -412,6 +419,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         user_lbl = _('Owner user')
         self.assertEqual([('type',            type_lbl),
                           ('created',         _('Creation date')),
+                          ('description',     _('Description')),
                           ('end',             _('End')),
                           ('modified',        _('Last modification')),
                           ('user',            user_lbl),
@@ -429,7 +437,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                         )
 
     def test_field_enumerator08(self):
-        "'depth' argument"
+        "'depth' argument."
         self._deactivate_translation()
 
         choices = meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False) \
@@ -437,14 +445,15 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                       .choices()
 
         type_lbl = _('Activity type')
-        self.assertEqual([('type',       type_lbl),
-                          ('created',    _('Creation date')),
-                          ('end',        _('End')),
-                          ('modified',   _('Last modification')),
-                          ('user',       _('Owner user')),
-                          ('place',      _('Place')),
-                          ('start',      _('Start')),
-                          ('title',      _('Title')),
+        self.assertEqual([('type',        type_lbl),
+                          ('created',     _('Creation date')),
+                          ('description', _('Description')),
+                          ('end',         _('End')),
+                          ('modified',    _('Last modification')),
+                          ('user',        _('Owner user')),
+                          ('place',       _('Place')),
+                          ('start',       _('Start')),
+                          ('title',       _('Title')),
 
                           ('type__name', '[{}] - {}'.format(type_lbl, _('Name'))),
                          ],
@@ -452,30 +461,32 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                         )
 
     def test_field_enumerator09(self):
-        "Translation activated"
+        "Translation activated."
         choices = set(meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False)
                           .filter(viewable=True).choices()
                      )
         fs = '[{}] - {}'.format
         type_lbl = _('Activity type')
         user_lbl = _('Owner user')
-        self.assertEqual({('type',            type_lbl),
-                          ('created',         _('Creation date')),
-                          ('end',             _('End')),
-                          ('modified',        _('Last modification')),
-                          ('user',            user_lbl),
-                          ('start',           _('Start')),
-                          ('title',           _('Title')),
-                          ('place',           _('Place')),
+        self.assertSetEqual(
+            {('type',        type_lbl),
+             ('created',     _('Creation date')),
+             ('description', _('Description')),
+             ('end',         _('End')),
+             ('modified',    _('Last modification')),
+             ('user',        user_lbl),
+             ('start',       _('Start')),
+             ('title',       _('Title')),
+             ('place',       _('Place')),
 
-                          ('type__name',      fs(type_lbl, _('Name'))),
+             ('type__name', fs(type_lbl, _('Name'))),
 
-                          ('user__email',     fs(user_lbl, _('Email address'))),
-                          ('user__last_name', fs(user_lbl, _('Last name'))),
-                          ('user__username',  fs(user_lbl, _('Username'))),
-                         },
-                         choices, choices
-                        )
+             ('user__email',     fs(user_lbl, _('Email address'))),
+             ('user__last_name', fs(user_lbl, _('Last name'))),
+             ('user__username',  fs(user_lbl, _('Username'))),
+            },
+            choices, choices
+        )
 
 
 class OrderTestCase(CremeTestCase):

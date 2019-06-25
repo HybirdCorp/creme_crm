@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import (CharField, ForeignKey, BooleanField, IntegerField,
-        DecimalField, PROTECT)
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -31,21 +30,30 @@ from . import other_models
 
 
 # TODO: use an abstract base class for Service and Products ??
-
-
 class AbstractService(CremeEntity):
-    name              = CharField(_('Name'), max_length=100)
-    description       = CharField(_('Description'), max_length=200)
-    reference         = CharField(_('Reference'), max_length=100)
-    category          = ForeignKey(other_models.Category, verbose_name=_('Category'), on_delete=PROTECT)
-    sub_category      = ForeignKey(other_models.SubCategory, verbose_name=_('Sub-category'), on_delete=PROTECT)
-    countable         = BooleanField(_('Countable'), default=False).set_tags(optional=True)
-    unit              = CharField(_('Unit'), max_length=100, blank=True).set_tags(optional=True)
-    quantity_per_unit = IntegerField(_('Quantity/Unit'), blank=True, null=True) \
+    name        = models.CharField(_('Name'), max_length=100)
+    # description = models.CharField(_('Description'), max_length=200)
+    reference   = models.CharField(_('Reference'), max_length=100)
+
+    category     = models.ForeignKey(other_models.Category,
+                                     verbose_name=_('Category'),
+                                     on_delete=models.PROTECT,
+                                    )
+    sub_category = models.ForeignKey(other_models.SubCategory,
+                                     verbose_name=_('Sub-category'),
+                                     on_delete=models.PROTECT,
+                                    )
+
+    countable         = models.BooleanField(_('Countable'), default=False)\
+                                           .set_tags(optional=True)
+    unit              = models.CharField(_('Unit'), max_length=100, blank=True)\
+                                        .set_tags(optional=True)
+    quantity_per_unit = models.IntegerField(_('Quantity/Unit'), blank=True, null=True) \
                                     .set_tags(optional=True)
-    unit_price        = DecimalField(_('Unit price'), max_digits=8, decimal_places=2)
-    web_site          = CharField(_('Web Site'), max_length=100, blank=True).set_tags(optional=True)
-    images            = ImageEntityManyToManyField(verbose_name=_('Images'), blank=True)
+    unit_price        = models.DecimalField(_('Unit price'), max_digits=8, decimal_places=2)
+
+    web_site = models.CharField(_('Web Site'), max_length=100, blank=True).set_tags(optional=True)
+    images   = ImageEntityManyToManyField(verbose_name=_('Images'), blank=True)
 
     creation_label = _('Create a service')
     save_label     = _('Save the service')

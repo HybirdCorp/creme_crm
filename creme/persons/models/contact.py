@@ -22,8 +22,7 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
-        DateField, EmailField, URLField, SET_NULL)
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
@@ -36,60 +35,63 @@ from creme.documents.models.fields import ImageEntityForeignKey
 
 from ..import constants, get_contact_model, get_organisation_model
 # from ..constants import REL_OBJ_EMPLOYED_BY
+
 from .base import PersonWithAddressesMixin
 from . import other_models
-
 
 logger = logging.getLogger(__name__)
 
 
 class AbstractContact(CremeEntity, PersonWithAddressesMixin):
-    civility   = ForeignKey(other_models.Civility, verbose_name=_('Civility'),
-                            blank=True, null=True,
-                            # on_delete=SET_NULL,
-                            on_delete=CREME_REPLACE_NULL,
-                           )
-    last_name  = CharField(_('Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
-    first_name = CharField(_('First name'), max_length=100, blank=True)  # NB: same max_length than CremeUser.first_name
+    civility   = models.ForeignKey(other_models.Civility,
+                                   verbose_name=_('Civility'),
+                                   blank=True, null=True,
+                                   # on_delete=models.SET_NULL,
+                                   on_delete=CREME_REPLACE_NULL,
+                                  )
+    last_name  = models.CharField(_('Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
+    first_name = models.CharField(_('First name'), max_length=100, blank=True)  # NB: same max_length than CremeUser.first_name
 
-    description = TextField(_('Description'), blank=True).set_tags(optional=True)
+    # description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
 
-    skype    = CharField('Skype', max_length=100, blank=True).set_tags(optional=True)
-    phone    = PhoneField(_('Phone number'), max_length=100, blank=True)\
-                         .set_tags(optional=True)
+    skype    = models.CharField('Skype', max_length=100, blank=True).set_tags(optional=True)
+    phone    = PhoneField(_('Phone number'), max_length=100, blank=True).set_tags(optional=True)
     mobile   = PhoneField(_('Mobile'), max_length=100, blank=True).set_tags(optional=True)
-    fax      = CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
-    email    = EmailField(_('Email address'), blank=True).set_tags(optional=True)
-    url_site = URLField(_('Web Site'), max_length=500, blank=True)\
-                       .set_tags(optional=True)
+    fax      = models.CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
+    email    = models.EmailField(_('Email address'), blank=True).set_tags(optional=True)
+    url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
 
-    position      = ForeignKey(other_models.Position, verbose_name=_('Position'),
+    position      = models.ForeignKey(other_models.Position,
+                                      verbose_name=_('Position'),
+                                      blank=True, null=True,
+                                      # on_delete=SET_NULL,
+                                      on_delete=CREME_REPLACE_NULL,
+                                     ).set_tags(optional=True)
+    full_position = models.CharField(_('Detailed position'), max_length=500, blank=True)\
+                                    .set_tags(optional=True)
+
+    sector = models.ForeignKey(other_models.Sector,
+                               verbose_name=_('Line of business'),
                                blank=True, null=True,
-                               # on_delete=SET_NULL,
+                               # on_delete=models.SET_NULL,
                                on_delete=CREME_REPLACE_NULL,
                               ).set_tags(optional=True)
-    full_position = CharField(_('Detailed position'), max_length=500, blank=True)\
-                             .set_tags(optional=True)
 
-    sector   = ForeignKey(other_models.Sector, verbose_name=_('Line of business'),
-                          blank=True, null=True,
-                          # on_delete=SET_NULL,
-                          on_delete=CREME_REPLACE_NULL,
-                         ).set_tags(optional=True)
+    language = models.ManyToManyField(Language, verbose_name=_('Spoken language(s)'),
+                                      blank=True, editable=False,
+                                     ).set_tags(viewable=False)  # TODO: remove this field
 
-    language = ManyToManyField(Language, verbose_name=_('Spoken language(s)'),
-                               blank=True, editable=False,
-                              ).set_tags(viewable=False) # TODO: remove this field
+    is_user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                verbose_name=_('Related user'),
+                                blank=True, null=True,
+                                related_name='related_contact',
+                                on_delete=models.SET_NULL, editable=False,
+                              ).set_tags(clonable=False) \
+                               .set_null_label(pgettext_lazy('persons-is_user', 'None'))
 
-    is_user = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Related user'),
-                         blank=True, null=True, related_name='related_contact',
-                         on_delete=SET_NULL, editable=False
-                        ).set_tags(clonable=False) \
-                         .set_null_label(pgettext_lazy('persons-is_user', 'None'))
-
-    birthday = DateField(_('Birthday'), blank=True, null=True).set_tags(optional=True)
+    birthday = models.DateField(_('Birthday'), blank=True, null=True).set_tags(optional=True)
     image    = ImageEntityForeignKey(verbose_name=_('Photograph'),
-                                     blank=True, null=True, on_delete=SET_NULL,
+                                     blank=True, null=True, on_delete=models.SET_NULL,
                                     ).set_tags(optional=True)
 
     search_score = 101
