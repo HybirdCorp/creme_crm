@@ -347,7 +347,7 @@ class DocumentTestCase(_DocumentsTestCase):
                  )
         create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
                         EntityCredentials.DELETE | EntityCredentials.UNLINK,
-                  ctype=ContentType.objects.get_for_model(Document),
+                  ctype=Document,
                  )
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')

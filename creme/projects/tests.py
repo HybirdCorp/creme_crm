@@ -953,7 +953,7 @@ class ProjectsTestCase(CremeTestCase):
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_ALL,
             # ctype=ContentType.objects.get_for_model(ProjectTask),
-            ctype=ContentType.objects.get_for_model(Project),
+            ctype=Project,
         )
 
         project = Project.objects.create(
@@ -978,7 +978,7 @@ class ProjectsTestCase(CremeTestCase):
             role=self.role,
             value=EntityCredentials.VIEW,  # | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_ALL,
-            ctype=ContentType.objects.get_for_model(Project),
+            ctype=Project,
         )
 
         project = Project.objects.create(

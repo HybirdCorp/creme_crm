@@ -139,7 +139,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                     data={'name':            name,
                                           'entity_counting': self.formfield_value_filtered_entity_type(ct),
                                           'success_rate':    15,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -161,7 +161,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                     data={'name':            name,
                                           'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
                                           'success_rate':    15,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -211,7 +211,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         response = self.client.post(url, data={'name':            name,
                                                'entity_counting': self.formfield_value_filtered_entity_type(ct),
                                                'success_rate':    60,
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(2, comp01.children.count())
@@ -275,7 +275,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                     data={'name':            name,
                                           'entity_counting': self.formfield_value_filtered_entity_type(ct),
                                           'success_rate':    20,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 

@@ -110,8 +110,8 @@ class DeletionCommandTestCase(CremeTestCase):
             job=job,
             instance_to_delete=sector2del,
             replacers=[FixedValueReplacer(model_field=field1, value=sector),
-                          FixedValueReplacer(model_field=field2, value=sector),
-                         ],
+                       FixedValueReplacer(model_field=field2, value=sector),
+                      ],
         )
 
         replacers = self.refresh(dcom).replacers

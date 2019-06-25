@@ -212,7 +212,7 @@ class ConvertTestCase(_BillingTestCase):
                                      issuing_date=now(),
                                      expiration_date=now() + timedelta(days=10),
                                      status=QuoteStatus.objects.all()[0],
-                                     )
+                                    )
         self.assertFalse(self.user.has_perm_to_view(quote))
 
         self._convert(403, quote, 'invoice')

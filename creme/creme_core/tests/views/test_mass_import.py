@@ -1155,7 +1155,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                             EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_ALL,
-                                      ctype=ContentType.objects.get_for_model(FakeContact),
+                                      ctype=FakeContact,
                                      )
 
         last_name = 'Ayanami'

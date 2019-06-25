@@ -467,8 +467,7 @@ class SearchFieldsTestCase(CremeTestCase):
 
     def test_custom_charfield(self):
         cfield = CustomField.objects.create(
-            name='Special attack', field_type=CustomField.STR,
-            content_type=ContentType.objects.get_for_model(FakeContact),
+            name='Special attack', field_type=CustomField.STR, content_type=FakeContact,
         )
 
         create_contact = partial(FakeContact.objects.create, user=self.user)
@@ -512,8 +511,7 @@ class SearchFieldsTestCase(CremeTestCase):
 
     def test_custom_booleanfield(self):
         cfield = CustomField.objects.create(
-            name='Shoto', field_type=CustomField.BOOL,
-            content_type=ContentType.objects.get_for_model(FakeContact),
+            name='Shoto', field_type=CustomField.BOOL, content_type=FakeContact,
         )
 
         create_contact = partial(FakeContact.objects.create, user=self.user)
@@ -566,8 +564,7 @@ class SearchFieldsTestCase(CremeTestCase):
 
     def test_custom_datefield(self):
         cfield = CustomField.objects.create(
-            name='Party', field_type=CustomField.DATETIME,
-            content_type=ContentType.objects.get_for_model(FakeContact),
+            name='Party', field_type=CustomField.DATETIME, content_type=FakeContact,
         )
 
         create_contact = partial(FakeContact.objects.create, user=self.user)
@@ -652,8 +649,7 @@ class SearchFieldsTestCase(CremeTestCase):
 
     def test_custom_enumfield(self):
         cfield = CustomField.objects.create(
-            name='Attack', field_type=CustomField.ENUM,
-            content_type=ContentType.objects.get_for_model(FakeContact),
+            name='Attack', field_type=CustomField.ENUM, content_type=FakeContact,
         )
 
         create_evalue = CustomFieldEnumValue.objects.create
@@ -725,8 +721,7 @@ class SearchFieldsTestCase(CremeTestCase):
 
     def test_custom_multienumfield(self):
         cfield = CustomField.objects.create(
-            name='Attack', field_type=CustomField.MULTI_ENUM,
-            content_type=ContentType.objects.get_for_model(FakeContact),
+            name='Attack', field_type=CustomField.MULTI_ENUM, content_type=FakeContact,
         )
 
         create_evalue = CustomFieldEnumValue.objects.create

@@ -22,7 +22,6 @@ from collections import defaultdict
 from json import loads as json_load  # dumps as json_dump
 import logging
 
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, CharField, TextField, BooleanField, Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
@@ -178,7 +177,7 @@ class HeaderFilter(Model):  # CremeModel ???
             hf = HeaderFilter.objects.create(
                 pk=pk, name=name, user=user,
                 is_custom=is_custom, is_private=is_private,
-                entity_type=ContentType.objects.get_for_model(model),
+                entity_type=model,
                 cells=cells,
             )
 

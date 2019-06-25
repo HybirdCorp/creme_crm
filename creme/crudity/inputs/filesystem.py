@@ -23,13 +23,11 @@ import logging
 from os import remove as remove_file
 
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from ..backends.models import CrudityBackend
 from ..models import WaitingAction
 from .base import CrudityInput
-
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +98,7 @@ class IniFileInput(CrudityInput):
                             # TODO: factorise with other inputs
                             WaitingAction.objects.create(
                                   action=self.method,
-                                  ct=ContentType.objects.get_for_model(backend.model),
+                                  ct=backend.model,
                                   source='{} - {}'.format(backend.fetcher_name, self.name),
                                   subject=backend.subject,
                                   user=owner,

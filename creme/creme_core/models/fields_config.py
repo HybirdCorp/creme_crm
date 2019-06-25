@@ -139,9 +139,7 @@ class FieldsConfig(CremeModel):
         if not cls.is_model_valid(model):
             raise cls.InvalidModel("This model cannot have a FieldsConfig")
 
-        return FieldsConfig.objects.create(content_type=ContentType.objects.get_for_model(model),
-                                           descriptions=descriptions,
-                                          )
+        return cls.objects.create(content_type=model, descriptions=descriptions)
 
     @property
     def descriptions(self):

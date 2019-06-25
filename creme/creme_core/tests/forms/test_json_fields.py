@@ -388,7 +388,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL,
-                                      ctype=ContentType.objects.get_for_model(FakeContact),
+                                      ctype=FakeContact,
                                      )
 
         contact = self.create_contact(user=self.other_user)
@@ -417,7 +417,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.CHANGE,
                                       set_type=SetCredentials.ESET_ALL,
-                                      ctype=ContentType.objects.get_for_model(FakeContact),
+                                      ctype=FakeContact,
                                      )
 
         contact = self.create_contact(user=self.other_user)

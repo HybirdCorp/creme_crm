@@ -1402,7 +1402,7 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         create_cfield = partial(CustomField.objects.create,
                                 field_type=CustomField.DATETIME,
                                 content_type=ContentType.objects.get_for_model(FakeContact),
-                                )
+                               )
         self.cfield01 = create_cfield(name='Day')
         self.cfield02 = create_cfield(name='First flight')
 

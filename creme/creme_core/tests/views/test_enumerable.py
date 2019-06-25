@@ -279,7 +279,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         custom_field = models.CustomField.objects.create(
             name='Eva',
             field_type=models.CustomField.ENUM,
-            content_type=ContentType.objects.get_for_model(models.FakeContact),
+            content_type=models.FakeContact,
         )
 
         create_evalue = models.CustomFieldEnumValue.objects.create

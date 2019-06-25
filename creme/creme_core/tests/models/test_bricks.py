@@ -307,9 +307,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_block(self):
         cbci = CustomBrickConfigItem.objects.create(
-                id='tests-organisations01', name='General',
-                content_type=ContentType.objects.get_for_model(FakeOrganisation),
-                cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
+            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
 
         cells = self.refresh(cbci).cells
@@ -321,11 +320,10 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_block_errors01(self):
         cbci = CustomBrickConfigItem.objects.create(
-                id='tests-organisations01', name='General',
-                content_type=ContentType.objects.get_for_model(FakeOrganisation),
-                cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
-                       EntityCellRegularField.build(FakeOrganisation, 'description'),
-                      ],
+            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
+                   EntityCellRegularField.build(FakeOrganisation, 'description'),
+                  ],
         )
 
         # Inject error by bypassing checkings
@@ -344,11 +342,10 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_block_errors02(self):
         cbci = CustomBrickConfigItem.objects.create(
-                id='tests-organisations01', name='General',
-                content_type=ContentType.objects.get_for_model(FakeOrganisation),
-                cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
-                       EntityCellRegularField.build(FakeOrganisation, 'invalid'),
-                      ],
+            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
+                   EntityCellRegularField.build(FakeOrganisation, 'invalid'),
+                  ],
         )
 
         cbci = self.refresh(cbci)

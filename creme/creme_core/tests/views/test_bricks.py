@@ -4,7 +4,6 @@ try:
     from functools import partial
     from json import dumps as json_dump
 
-    from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -625,20 +624,21 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         fname2 = 'phone'
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-                        id='tests-contacts1', name='Contact info',
-                        content_type=ContentType.objects.get_for_model(FakeContact),
-                        cells=[build_cell(FakeContact, fname1),
-                               build_cell(FakeContact, fname2),
-                              ],
-                    )
-        bdl = BrickDetailviewLocation.create_if_needed(brick_id=cbc_item.generate_id(),
-                                                       order=1000,
-                                                       model=FakeContact,
-                                                       zone=BrickDetailviewLocation.BOTTOM,
-                                                       )
-        naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
-                                          first_name='Naru', phone='1122334455',
-                                         )
+            id='tests-contacts1', name='Contact info',
+            content_type=FakeContact,
+            cells=[build_cell(FakeContact, fname1),
+                   build_cell(FakeContact, fname2),
+                  ],
+        )
+        bdl = BrickDetailviewLocation.create_if_needed(
+            brick_id=cbc_item.generate_id(),
+            order=1000,
+            model=FakeContact,
+            zone=BrickDetailviewLocation.BOTTOM,
+        )
+        naru = FakeContact.objects.create(
+            user=user, last_name='Narusegawa', first_name='Naru', phone='1122334455',
+        )
 
         content_node = self._get_contact_brick_content(naru, brick_id=bdl.brick_id)
         self.assertEqual(naru.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
@@ -654,20 +654,21 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                            )
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-                        id='tests-contacts1', name='Contact info',
-                        content_type=ContentType.objects.get_for_model(FakeContact),
-                        cells=[build_cell(FakeContact, 'last_name'),
-                               build_cell(FakeContact, hidden_fname),
-                              ],
-                    )
-        bdl = BrickDetailviewLocation.create_if_needed(brick_id=cbc_item.generate_id(),
-                                                       order=1000,
-                                                       model=FakeContact,
-                                                       zone=BrickDetailviewLocation.BOTTOM,
-                                                      )
-        naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
-                                          first_name='Naru', phone='1122334455',
-                                         )
+            id='tests-contacts1', name='Contact info',
+            content_type=FakeContact,
+            cells=[build_cell(FakeContact, 'last_name'),
+                   build_cell(FakeContact, hidden_fname),
+                  ],
+        )
+        bdl = BrickDetailviewLocation.create_if_needed(
+            brick_id=cbc_item.generate_id(),
+            order=1000,
+            model=FakeContact,
+            zone=BrickDetailviewLocation.BOTTOM,
+        )
+        naru = FakeContact.objects.create(
+            user=user, last_name='Narusegawa', first_name='Naru', phone='1122334455',
+        )
 
         content_node = self._get_contact_brick_content(naru, brick_id=bdl.brick_id)
         self.assertEqual(naru.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
@@ -683,13 +684,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                            )
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-                        id='tests-contacts1', name='Contact info',
-                        content_type=ContentType.objects.get_for_model(FakeContact),
-                        cells=[build_cell(FakeContact, 'last_name'),
-                               build_cell(FakeContact, 'address__' + hidden_fname),
-                               build_cell(FakeContact, 'address__city'),
-                              ],
-                    )
+            id='tests-contacts1', name='Contact info',
+            content_type=FakeContact,
+            cells=[build_cell(FakeContact, 'last_name'),
+                   build_cell(FakeContact, 'address__' + hidden_fname),
+                   build_cell(FakeContact, 'address__city'),
+                  ],
+        )
         bdl = BrickDetailviewLocation.create_if_needed(brick_id=cbc_item.generate_id(),
                                                        order=1000,  # Should be the last block
                                                        model=FakeContact,

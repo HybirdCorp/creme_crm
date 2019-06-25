@@ -270,7 +270,7 @@ class ActTestCase(CommercialBaseTestCase):
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
                         EntityCredentials.DELETE |
                         EntityCredentials.LINK | EntityCredentials.UNLINK,
-                  ctype=ContentType.objects.get_for_model(Opportunity)
+                  ctype=Opportunity,
                  )
 
         act = self.create_act()
@@ -294,7 +294,7 @@ class ActTestCase(CommercialBaseTestCase):
                                             EntityCredentials.DELETE |
                                             EntityCredentials.LINK | EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_ALL,
-                                      ctype=ContentType.objects.get_for_model(Act)
+                                      ctype=Act,
                                      )
 
         act = self.create_act()
@@ -489,7 +489,7 @@ class ActTestCase(CommercialBaseTestCase):
 
     @skipIfCustomPattern
     def test_add_objectives_from_pattern02(self):
-        "With components"
+        "With components."
         user = self.login()
         act = self.create_act(expected_sales=20000)
         pattern = ActObjectivePattern.objects.create(user=user, name='Mr Pattern',
@@ -691,20 +691,20 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(0, self.refresh(objective).counter)
 
     def test_incr_objective_counter02(self):
-        "Relationships counter -> error"
+        "Relationships counter -> error."
         self.login()
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=ContentType.objects.get_for_model(Organisation),
+                                                ctype=Organisation,
                                                )
         self.assertPOST409(self._build_incr_url(objective), data={'diff': 1})
 
     def test_objective_create_entity01(self):
-        "Alright (No filter, quick form exists, credentials are OK)"
+        "Alright (No filter, quick form exists, credentials are OK)."
         user = self.login()
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=ContentType.objects.get_for_model(Organisation),
+                                                ctype=Organisation,
                                                )
 
         url = self._build_create_related_entity_url(objective)
@@ -735,12 +735,10 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertGET409(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity03(self):
-        "No quick for this entity type"
+        "No quick for this entity type."
         self.login()
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Act counter', counter_goal=2,
-                                                ctype=ContentType.objects.get_for_model(Act),
-                                               )
+        objective = ActObjective.objects.create(act=act, name='Act counter', counter_goal=2, ctype=Act)
         self.assertGET409(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity04(self):
@@ -759,7 +757,7 @@ class ActTestCase(CommercialBaseTestCase):
                                      )
 
         objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=ContentType.objects.get_for_model(Organisation),
+                                                ctype=Organisation,
                                                 filter=efilter,
                                                )
         self.assertGET409(self._build_create_related_entity_url(objective))
@@ -769,24 +767,23 @@ class ActTestCase(CommercialBaseTestCase):
                    allowed_apps=['persons', 'commercial'],
                    creatable_models=[Organisation],
                   )
-        create_sc =  partial(
+        create_sc = partial(
             SetCredentials.objects.create,
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,  # | EntityCredentials.CHANGE
             set_type=SetCredentials.ESET_ALL,
         )
-        get_ct = ContentType.objects.get_for_model
-        create_sc(ctype=get_ct(Act))
-        create_sc(ctype=get_ct(Organisation))
+        create_sc(ctype=Act)
+        create_sc(ctype=Organisation)
 
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=ContentType.objects.get_for_model(Organisation),
-                                               )
+        objective = ActObjective.objects.create(
+            act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
+        )
         self.assertGET200(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity_not_superuser02(self):
-        "Creation permission is needed"
+        "Creation permission is needed."
         self.login(is_superuser=False,
                    allowed_apps=['persons', 'commercial'],
                    # creatable_models=[Organisation],
@@ -798,9 +795,9 @@ class ActTestCase(CommercialBaseTestCase):
         )
 
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=ContentType.objects.get_for_model(Organisation),
-                                               )
+        objective = ActObjective.objects.create(
+            act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
+        )
         self.assertGET403(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity_not_superuser03(self):
@@ -813,13 +810,13 @@ class ActTestCase(CommercialBaseTestCase):
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
-            ctype=ContentType.objects.get_for_model(Organisation),
+            ctype=Organisation,
         )
 
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=ContentType.objects.get_for_model(Organisation),
-                                               )
+        objective = ActObjective.objects.create(
+            act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
+        )
         self.assertGET403(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity_not_superuser04(self):
@@ -832,13 +829,13 @@ class ActTestCase(CommercialBaseTestCase):
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
-            ctype=ContentType.objects.get_for_model(Act),
+            ctype=Act,
         )
 
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=ContentType.objects.get_for_model(Organisation),
-                                               )
+        objective = ActObjective.objects.create(
+            act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
+        )
         self.assertGET403(self._build_create_related_entity_url(objective))
 
     @skipIfCustomContact
@@ -848,9 +845,9 @@ class ActTestCase(CommercialBaseTestCase):
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_COMPLETE_GOAL)
 
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=ContentType.objects.get_for_model(Organisation)
-                                               )
+        objective = ActObjective.objects.create(
+            act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
+        )
         self.assertEqual(0, objective.get_count())
         self.assertFalse(objective.reached)
 
@@ -883,20 +880,21 @@ class ActTestCase(CommercialBaseTestCase):
         "With filter"
         user = self.login()
 
-        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Organisation,
-                                                        operator=EntityFilterCondition.ICONTAINS,
-                                                        name='name', values=['Ferraille'],
-                                                    ),
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Acme', Organisation, is_custom=True,
+            conditions=[EntityFilterCondition.build_4_field(
+                              model=Organisation,
+                              operator=EntityFilterCondition.ICONTAINS,
+                              name='name', values=['Ferraille'],
+                          ),
+                       ],
+        )
 
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=ContentType.objects.get_for_model(Organisation),
-                                                filter=efilter,
-                                               )
+        objective = ActObjective.objects.create(
+            act=act, name='Orga counter', counter_goal=2,
+            ctype=Organisation, filter=efilter,
+        )
         self.assertEqual(0, objective.get_count())
 
         create_orga  = partial(Organisation.objects.create, user=user)
@@ -938,9 +936,7 @@ class ActTestCase(CommercialBaseTestCase):
 
         create_obj = partial(ActObjective.objects.create, act=act) 
         obj1 = create_obj(name='Hello counter')
-        obj2 = create_obj(name='Orga counter', counter_goal=2, filter=efilter,
-                          ctype=ContentType.objects.get_for_model(Organisation),
-                         )
+        obj2 = create_obj(name='Orga counter', counter_goal=2, filter=efilter, ctype=Organisation)
 
         cloned = act.clone()
         self.assertEqual(act.name,     cloned.name)
