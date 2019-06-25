@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from mimetypes import guess_type
 
 from django.conf import settings
-from django.db.models import CharField, TextField, FileField, ForeignKey, ManyToManyField, PROTECT
+from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -29,23 +29,29 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.models import CremeEntity, Relation
 
 from ..constants import REL_SUB_RELATED_2_DOC
-from .other_models import DocumentCategory, MimeType
+
+from . import other_models
 
 
 class AbstractDocument(CremeEntity):
-    title       = CharField(_('Name'), max_length=100)
-    description = TextField(_('Description'), blank=True).set_tags(optional=True)
-    filedata    = FileField(_('File'), max_length=500, upload_to='upload/documents')
-    linked_folder = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
-                               verbose_name=_('Folder'), on_delete=PROTECT,
-                              )
-    mime_type   = ForeignKey(MimeType, verbose_name=_('MIME type'),
-                             editable=False, on_delete=PROTECT,
-                             null=True,
-                            )
-    categories  = ManyToManyField(DocumentCategory, verbose_name=_('Categories'),
-                                  blank=True,
-                                 ).set_tags(optional=True)
+    title         = models.CharField(_('Name'), max_length=100)
+    # description   = models.TextField(_('Description'), blank=True).set_tags(optional=True)
+    filedata      = models.FileField(_('File'), max_length=500,
+                                     upload_to='upload/documents',
+                                    )
+    linked_folder = models.ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
+                                      verbose_name=_('Folder'),
+                                      on_delete=models.PROTECT,
+                                     )
+    mime_type     = models.ForeignKey(other_models.MimeType,
+                                      verbose_name=_('MIME type'),
+                                      editable=False, on_delete=models.PROTECT,
+                                      null=True,
+                                     )
+    categories    = models.ManyToManyField(other_models.DocumentCategory,
+                                           verbose_name=_('Categories'),
+                                           blank=True,
+                                          ).set_tags(optional=True)
 
     creation_label = _('Create a document')
     save_label     = _('Save the document')
@@ -102,7 +108,7 @@ class AbstractDocument(CremeEntity):
             mime_name = guess_type(self.filedata.name)[0]
 
             if mime_name is not None:
-                self.mime_type = MimeType.objects.get_or_create(name=mime_name)[0]
+                self.mime_type = other_models.MimeType.objects.get_or_create(name=mime_name)[0]
 
         super().save(*args, **kwargs)
 

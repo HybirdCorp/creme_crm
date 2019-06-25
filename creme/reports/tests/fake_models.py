@@ -5,7 +5,7 @@ from django.conf import settings
 if not settings.TESTS_ON:
     __all__ = ()
 else:
-    from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, PROTECT
+    from django.db.models import CharField, ForeignKey, ManyToManyField, PROTECT  # TextField
     from django.urls import reverse
     from django.utils.translation import gettext_lazy as _
 
@@ -17,7 +17,7 @@ else:
 
     class FakeReportsFolder(CremeEntity):
         title       = CharField(_('Title'), max_length=100, unique=True)
-        description = TextField(_('Description'), null=True, blank=True)
+        # description = TextField(_('Description'), null=True, blank=True)
         parent      = ForeignKey('self', verbose_name=_('Parent folder'),
                                  on_delete=PROTECT, null=True,
                                 )
@@ -40,7 +40,7 @@ else:
 
     class FakeReportsDocument(CremeEntity):
         title       = CharField(_('Title'), max_length=100)
-        description = TextField(_('Description'), blank=True, null=True)
+        # description = TextField(_('Description'), blank=True, null=True)
 #        filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
         linked_folder = ForeignKey(FakeReportsFolder, verbose_name=_('Folder'), on_delete=PROTECT)
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
@@ -10,9 +9,9 @@ from creme.creme_core.models import fields as creme_fields
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'reports', '0001_initial'),
-    #     (b'reports', '0004_v1_8__linked_report_field'),
-    #     (b'reports', '0005_v1_8__document_linked_folder'),
+    #     ('reports', '0001_initial'),
+    #     ('reports', '0004_v1_8__linked_report_field'),
+    #     ('reports', '0005_v1_8__document_linked_folder'),
     # ]
 
     initial = True
@@ -31,7 +30,10 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the report')),
                 ('ct', creme_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')),
-                ('filter', models.ForeignKey(on_delete=PROTECT, verbose_name='Filter', blank=True, to='creme_core.EntityFilter', null=True)),
+                ('filter', models.ForeignKey(on_delete=PROTECT, verbose_name='Filter', blank=True,
+                                             to='creme_core.EntityFilter', null=True,
+                                            )
+                ),
             ],
             options={
                 'swappable': 'REPORTS_REPORT_MODEL',
@@ -104,7 +106,7 @@ class Migration(migrations.Migration):
                                                             )
                     ),
                     ('title', models.CharField(unique=True, max_length=100, verbose_name='Title')),
-                    ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                    # ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('parent', models.ForeignKey(on_delete=PROTECT, verbose_name='Parent folder',
                                                  to='reports.FakeReportsFolder', null=True,
                                                 )
@@ -125,8 +127,7 @@ class Migration(migrations.Migration):
                                                             )
                     ),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
-                    ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
-                    # ('folder', models.ForeignKey(on_delete=PROTECT, verbose_name='Folder', to='reports.FakeReportsFolder')),
+                    # ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('linked_folder', models.ForeignKey(on_delete=PROTECT, verbose_name='Folder', to='reports.FakeReportsFolder')),
                 ],
                 options={

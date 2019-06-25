@@ -811,7 +811,7 @@ class Migration(migrations.Migration):
                                                             )
                     ),
                     ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
-                    ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                    # ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('filedata', models.FileField(upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File', editable=False)),
                     ('categories', models.ManyToManyField(related_name='+', verbose_name='Categories', to='creme_core.FakeImageCategory', blank=True)),
                     ('exif_date', models.DateField(null=True, verbose_name='Exif date', blank=True)),
@@ -893,7 +893,7 @@ class Migration(migrations.Migration):
                     ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),  # null=True
                     ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd')),
                     ('loves_comics', models.BooleanField(default=None, null=True, blank=True, verbose_name='Loves comics')),
-                    ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                    # ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('phone', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Phone number', blank=True)),
                     ('mobile', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Mobile', blank=True)),
                     ('email', models.EmailField(max_length=100, null=True, verbose_name='Email address', blank=True)),
@@ -1019,7 +1019,7 @@ class Migration(migrations.Migration):
                     ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                     ('capital', models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)),
                     ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT')),
-                    ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                    # ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('creation_date', models.DateField(null=True, verbose_name='Date of creation', blank=True)),
                     ('address', models.ForeignKey(related_name='+', blank=True, editable=False, to='creme_core.FakeAddress', null=True, verbose_name='Billing address', on_delete=models.SET_NULL)),
                     ('image', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Logo', blank=True, to='creme_core.FakeImage', null=True)),

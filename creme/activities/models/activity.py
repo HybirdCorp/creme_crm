@@ -20,8 +20,7 @@
 
 import warnings
 
-from django.db.models import (PositiveIntegerField, DateTimeField, CharField,
-        TextField, BooleanField, ManyToManyField, ForeignKey, PROTECT, SET_NULL)
+from django.db import models
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -38,34 +37,43 @@ from .other_models import ActivityType, ActivitySubType, Status
 
 class AbstractActivity(CremeEntity):
     """Activity : task, meeting, phone call, unavailability ..."""
-    title         = CharField(_('Title'), max_length=100)
-    start         = DateTimeField(_('Start'), blank=True, null=True)
-    end           = DateTimeField(_('End'), blank=True, null=True)
-    description   = TextField(_('Description'), blank=True).set_tags(optional=True)
-    minutes       = TextField(_('Minutes'), blank=True)
-    place         = CharField(_('Activity place'), max_length=500, blank=True)\
-                             .set_tags(optional=True)
-    duration      = PositiveIntegerField(_('Duration (in hour)'), blank=True, null=True)
-    type          = ForeignKey(ActivityType, verbose_name=_('Activity type'),
-                               on_delete=PROTECT,
-                              )
-    sub_type      = ForeignKey(ActivitySubType, verbose_name=_('Activity sub-type'),
-                               blank=True, null=True, on_delete=SET_NULL,
-                              )
-    status        = ForeignKey(Status, verbose_name=_('Status'),
-                               blank=True, null=True,
-                               # on_delete=SET_NULL,
-                               on_delete=CREME_REPLACE_NULL,
-                              )
-    calendars     = ManyToManyField(Calendar, verbose_name=_('Calendars'),
-                                    blank=True, editable=False,
-                                   )
-    is_all_day    = BooleanField(_('All day?'), blank=True, default=False)
-    busy          = BooleanField(_('Busy?'), default=False)
-    # TODO: use choices ; to be improved with choices: list-view search/field printers/history
-    floating_type = PositiveIntegerField(_('Floating type'), default=NARROW,
-                                         editable=False,
-                                        ).set_tags(viewable=False)
+    title = models.CharField(_('Title'), max_length=100)
+    start = models.DateTimeField(_('Start'), blank=True, null=True)
+    end   = models.DateTimeField(_('End'), blank=True, null=True)
+    # description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
+
+    minutes  = models.TextField(_('Minutes'), blank=True)
+    place    = models.CharField(_('Activity place'), max_length=500, blank=True)\
+                               .set_tags(optional=True)
+    duration = models.PositiveIntegerField(_('Duration (in hour)'),
+                                           blank=True, null=True,
+                                          )
+
+    type     = models.ForeignKey(ActivityType,
+                                 verbose_name=_('Activity type'),
+                                 on_delete=models.PROTECT,
+                                )
+    sub_type = models.ForeignKey(ActivitySubType,
+                                 verbose_name=_('Activity sub-type'),
+                                 blank=True, null=True,
+                                 on_delete=models.SET_NULL,
+                                )
+    status   = models.ForeignKey(Status, verbose_name=_('Status'),
+                                 blank=True, null=True,
+                                 # on_delete=models.SET_NULL,
+                                 on_delete=CREME_REPLACE_NULL,
+                                )
+
+    calendars = models.ManyToManyField(Calendar, verbose_name=_('Calendars'),
+                                       blank=True, editable=False,
+                                      )
+
+    is_all_day    = models.BooleanField(_('All day?'), blank=True, default=False)
+    busy          = models.BooleanField(_('Busy?'), default=False)
+    # TODO: use choices ?
+    floating_type = models.PositiveIntegerField(_('Floating type'), default=NARROW,
+                                                editable=False,
+                                               ).set_tags(viewable=False)
 
     creation_label = _('Create an activity')
     save_label = _('Save the activity')

@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import (CharField, TextField, ForeignKey, DateTimeField,
-        BooleanField, CASCADE)
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -28,17 +27,22 @@ from creme.creme_core.models.fields import CTypeForeignKey, DatePeriodField
 
 
 class AbstractRecurrentGenerator(CremeEntity):
-    name             = CharField(_('Name of the generator'), max_length=100, blank=True)
-    description      = TextField(_('Description'), blank=True)
-    first_generation = DateTimeField(_('Date of the first generation'))
-    last_generation  = DateTimeField(_('Date of the last generation'), null=True, editable=False)
+    name = models.CharField(_('Name of the generator'), max_length=100, blank=True)
+    # description = models.TextField(_('Description'), blank=True)
+
+    first_generation = models.DateTimeField(_('Date of the first generation'))
+    last_generation  = models.DateTimeField(_('Date of the last generation'),
+                                            null=True, editable=False,
+                                           )
     periodicity      = DatePeriodField(_('Periodicity of the generation'))
-    ct               = CTypeForeignKey(verbose_name=_('Type of the recurrent resource'), editable=False)
-    template         = ForeignKey(CremeEntity, verbose_name=_('Related model'),
-                                  related_name='template_set', editable=False,
-                                  on_delete=CASCADE,
-                                 )
-    is_working       = BooleanField(_('Active ?'), editable=False, default=True)  # TODO: useful ?
+
+    ct       = CTypeForeignKey(verbose_name=_('Type of the recurrent resource'), editable=False)
+    template = models.ForeignKey(CremeEntity, verbose_name=_('Related model'),
+                                 related_name='template_set', editable=False,
+                                 on_delete=models.CASCADE,
+                                )
+
+    is_working = models.BooleanField(_('Active ?'), editable=False, default=True)  # TODO: useful ?
 
     creation_label = _('Create a generator')
     save_label     = _('Save the generator')

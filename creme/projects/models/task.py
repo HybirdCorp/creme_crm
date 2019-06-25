@@ -21,8 +21,7 @@
 from itertools import chain
 
 from django.conf import settings
-from django.db.models import (CharField, TextField, DateTimeField, PositiveIntegerField,
-        ForeignKey, ManyToManyField, CASCADE)  # PROTECT
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -34,23 +33,28 @@ from .taskstatus import TaskStatus
 
 
 class AbstractProjectTask(CremeEntity):
-    title        = CharField(_('Title'), max_length=100)
-    linked_project = ForeignKey(settings.PROJECTS_PROJECT_MODEL, on_delete=CASCADE,
-                                verbose_name=_('Project'), related_name='tasks_set',
-                                editable=False,
+    title        = models.CharField(_('Title'), max_length=100)
+    linked_project = models.ForeignKey(settings.PROJECTS_PROJECT_MODEL,
+                                       on_delete=models.CASCADE,
+                                       verbose_name=_('Project'),
+                                       related_name='tasks_set',
+                                       editable=False,
+                                      )
+    order        = models.PositiveIntegerField(_('Order'), blank=True, null=True, editable=False)  # TODO: null = False ? remove blank
+    parent_tasks = models.ManyToManyField('self', symmetrical=False,
+                                          related_name='children_set',  # TODO: rename children ?
+                                          editable=False,
+                                         )
+
+    start    = models.DateTimeField(_('Start'), blank=True, null=True)
+    end      = models.DateTimeField(_('End'), blank=True, null=True)
+    duration = models.PositiveIntegerField(_('Duration (in hours)'), blank=True, null=True)  # TODO: null=False (required in form) (idem with start/end)
+    # description = models.TextField(_('Description'), blank=True)
+
+    tstatus = models.ForeignKey(TaskStatus, verbose_name=_('Task situation'),
+                                # on_delete=models.PROTECT
+                                on_delete=CREME_REPLACE,
                                )
-    order        = PositiveIntegerField(_('Order'), blank=True, null=True, editable=False)  # TODO: null = False ? remove blank
-    parent_tasks = ManyToManyField('self', symmetrical=False,
-                                   related_name='children_set', editable=False,  # TODO: rename children ?
-                                  )
-    start        = DateTimeField(_('Start'), blank=True, null=True)
-    end          = DateTimeField(_('End'), blank=True, null=True)
-    duration     = PositiveIntegerField(_('Duration (in hours)'), blank=True, null=True)  # TODO: null=False (required in form) (idem with start/end)
-    description  = TextField(_('Description'), blank=True)
-    tstatus      = ForeignKey(TaskStatus, verbose_name=_('Task situation'),
-                              # on_delete=PROTECT
-                              on_delete=CREME_REPLACE,
-                             )
 
     creation_label = _('Create a task')
     save_label     = _('Save the task')

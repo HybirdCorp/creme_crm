@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db import models
 from django.urls import reverse
-from django.db.models import CharField, IntegerField, DecimalField, ForeignKey, PROTECT  # ManyToManyField
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
@@ -30,24 +30,33 @@ from . import other_models
 
 
 class AbstractProduct(CremeEntity):
-    name              = CharField(_('Name'), max_length=100)
-    code              = IntegerField(_('Code'), default=0)
-    description       = CharField(_('Description'), max_length=200)
-    unit_price        = DecimalField(_('Unit price'), max_digits=8, decimal_places=2)
-    unit              = CharField(_('Unit'), max_length=100, blank=True).set_tags(optional=True)
-    quantity_per_unit = IntegerField(_('Quantity/Unit'), blank=True, null=True) \
-                                    .set_tags(optional=True)
-    weight            = DecimalField(_('Weight'), max_digits=8, decimal_places=2,
-                                     blank=True, null=True,
-                                    ).set_tags(optional=True)
-    stock             = IntegerField(_('Quantity/Stock'), blank=True, null=True) \
-                                    .set_tags(optional=True)
-    web_site          = CharField(_('Web Site'), max_length=100, blank=True).set_tags(optional=True)
-    category          = ForeignKey(other_models.Category, verbose_name=_('Category'), on_delete=PROTECT)
-    sub_category      = ForeignKey(other_models.SubCategory, verbose_name=_('Sub-category'),
-                                   on_delete=PROTECT,
-                                  )
-    images            = ImageEntityManyToManyField(verbose_name=_('Images'), blank=True)
+    name        = models.CharField(_('Name'), max_length=100)
+    code        = models.IntegerField(_('Code'), default=0)
+    # description = models.CharField(_('Description'), max_length=200)
+
+    category     = models.ForeignKey(other_models.Category,
+                                     verbose_name=_('Category'),
+                                     on_delete=models.PROTECT,
+                                    )
+    sub_category = models.ForeignKey(other_models.SubCategory,
+                                     verbose_name=_('Sub-category'),
+                                     on_delete=models.PROTECT,
+                                    )
+
+    unit_price        = models.DecimalField(_('Unit price'), max_digits=8, decimal_places=2)
+    unit              = models.CharField(_('Unit'), max_length=100, blank=True)\
+                                        .set_tags(optional=True)
+    quantity_per_unit = models.IntegerField(_('Quantity/Unit'), blank=True, null=True) \
+                                          .set_tags(optional=True)
+    weight            = models.DecimalField(_('Weight'), max_digits=8, decimal_places=2,
+                                            blank=True, null=True,
+                                           ).set_tags(optional=True)
+
+    stock  = models.IntegerField(_('Quantity/Stock'), blank=True, null=True) \
+                                .set_tags(optional=True)
+
+    web_site = models.CharField(_('Web Site'), max_length=100, blank=True).set_tags(optional=True)
+    images   = ImageEntityManyToManyField(verbose_name=_('Images'), blank=True)
 
     creation_label = _('Create a product')
     save_label     = _('Save the product')

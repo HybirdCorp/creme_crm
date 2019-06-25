@@ -10,10 +10,10 @@ from creme.creme_core.models import fields as creme_fields
 
 class Migration(migrations.Migration):
     # replaces = [
-    #     (b'assistants', '0001_initial'),
-    #     (b'assistants', '0006_v2_0__real_entity_fks_1'),
-    #     (b'assistants', '0007_v2_0__real_entity_fks_2'),
-    #     (b'assistants', '0008_v2_0__real_entity_fks_3'),
+    #     ('assistants', '0001_initial'),
+    #     ('assistants', '0006_v2_0__real_entity_fks_1'),
+    #     ('assistants', '0007_v2_0__real_entity_fks_2'),
+    #     ('assistants', '0008_v2_0__real_entity_fks_3'),
     # ]
 
     initial = True
@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('content', models.TextField(verbose_name='Content')),
-                ('on_homepage', models.BooleanField(default=False, verbose_name='Displayed on homepage')),
+                ('on_homepage', models.BooleanField(default=False, blank=True, verbose_name='Displayed on homepage')),
                 ('creation_date', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
                 # ('entity_id', models.PositiveIntegerField(editable=False)),
                 ('entity', models.ForeignKey(editable=False, on_delete=CASCADE,

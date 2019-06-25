@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerField,
-        BooleanField, DateField, EmailField, URLField, SET_NULL)
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -37,51 +36,56 @@ from . import base, other_models
 
 
 class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
-    name = CharField(_('Name'), max_length=200)
+    name = models.CharField(_('Name'), max_length=200)
 
-    description = TextField(_('Description'), blank=True).set_tags(optional=True)
-    is_managed  = BooleanField(_('Managed by Creme'), default=False, editable=False)
+    # description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
+    is_managed  = models.BooleanField(_('Managed by Creme'), default=False, editable=False)
 
     phone    = PhoneField(_('Phone number'), max_length=100, blank=True).set_tags(optional=True)
-    fax      = CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
-    email    = EmailField(_('Email address'), blank=True).set_tags(optional=True)
-    url_site = URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
+    fax      = models.CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
+    email    = models.EmailField(_('Email address'), blank=True).set_tags(optional=True)
+    url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
 
-    sector     = ForeignKey(other_models.Sector, verbose_name=_('Sector'),
-                            blank=True, null=True,
-                            # on_delete=SET_NULL,
-                            on_delete=CREME_REPLACE_NULL,
-                           ).set_tags(optional=True)
-    legal_form = ForeignKey(other_models.LegalForm, verbose_name=_('Legal form'),
-                            blank=True, null=True,
-                            # on_delete=SET_NULL,
-                            on_delete=CREME_REPLACE_NULL,
-                           ).set_tags(optional=True)
-    staff_size = ForeignKey(other_models.StaffSize, verbose_name=_('Staff size'),
-                            blank=True, null=True,
-                            # on_delete=SET_NULL,
-                            on_delete=CREME_REPLACE_NULL,
-                           ).set_tags(optional=True)
+    sector     = models.ForeignKey(other_models.Sector,
+                                   verbose_name=_('Sector'),
+                                   blank=True, null=True,
+                                   # on_delete=SET_NULL,
+                                   on_delete=CREME_REPLACE_NULL,
+                                  ).set_tags(optional=True)
+    legal_form = models.ForeignKey(other_models.LegalForm,
+                                   verbose_name=_('Legal form'),
+                                   blank=True, null=True,
+                                   # on_delete=SET_NULL,
+                                   on_delete=CREME_REPLACE_NULL,
+                                  ).set_tags(optional=True)
+    staff_size = models.ForeignKey(other_models.StaffSize,
+                                   verbose_name=_('Staff size'),
+                                   blank=True, null=True,
+                                   # on_delete=SET_NULL,
+                                   on_delete=CREME_REPLACE_NULL,
+                                  ).set_tags(optional=True)
 
-    capital        = PositiveIntegerField(_('Capital'), blank=True, null=True)\
-                                         .set_tags(optional=True)
-    annual_revenue = CharField(_('Annual revenue'), max_length=100, blank=True)\
-                              .set_tags(optional=True)
+    capital        = models.PositiveIntegerField(_('Capital'), blank=True, null=True)\
+                                                .set_tags(optional=True)
+    annual_revenue = models.CharField(_('Annual revenue'), max_length=100, blank=True)\
+                                     .set_tags(optional=True)
 
-    siren = CharField(_('SIREN'), max_length=100, blank=True).set_tags(optional=True)
-    naf   = CharField(_('NAF code'), max_length=100, blank=True).set_tags(optional=True)
-    siret = CharField(_('SIRET'), max_length=100, blank=True).set_tags(optional=True)
-    rcs   = CharField(_('RCS/RM'), max_length=100, blank=True).set_tags(optional=True)
+    siren = models.CharField(_('SIREN'),    max_length=100, blank=True).set_tags(optional=True)
+    naf   = models.CharField(_('NAF code'), max_length=100, blank=True).set_tags(optional=True)
+    siret = models.CharField(_('SIRET'),    max_length=100, blank=True).set_tags(optional=True)
+    rcs   = models.CharField(_('RCS/RM'),   max_length=100, blank=True).set_tags(optional=True)
 
-    tvaintra       = CharField(_('VAT number'), max_length=100, blank=True)\
-                              .set_tags(optional=True)
-    subject_to_vat = BooleanField(_('Subject to VAT'), default=True).set_tags(optional=True)
+    tvaintra       = models.CharField(_('VAT number'), max_length=100, blank=True)\
+                                     .set_tags(optional=True)
+    subject_to_vat = models.BooleanField(_('Subject to VAT'), default=True)\
+                                        .set_tags(optional=True)
 
-    creation_date = DateField(_('Date of creation of the organisation'),
-                              blank=True, null=True,
-                             ).set_tags(optional=True)
+    creation_date = models.DateField(_('Date of creation of the organisation'),
+                                     blank=True, null=True,
+                                   ).set_tags(optional=True)
     image         = ImageEntityForeignKey(verbose_name=_('Logo'),
-                                          blank=True, null=True, on_delete=SET_NULL,
+                                          blank=True, null=True,
+                                          on_delete=models.SET_NULL,
                                          ).set_tags(optional=True)
 
     search_score = 102

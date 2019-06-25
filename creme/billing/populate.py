@@ -21,7 +21,6 @@
 import logging
 
 from django.apps import apps
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _, pgettext
 
 from creme.creme_core import bricks as core_bricks
@@ -264,7 +263,6 @@ class Populator(BasePopulator):
             create_bmi(pk='billing-invoice_contact_button',    model=Contact, button=buttons.AddInvoiceButton,    order=102)
 
             # ---------------------------
-            get_ct = ContentType.objects.get_for_model
             create_cbci = CustomBrickConfigItem.objects.create
             build_cell = EntityCellRegularField.build
 
@@ -280,6 +278,7 @@ class Populator(BasePopulator):
                     build_cell(model, 'currency'),
                 ] + list(extra_cells) + [
                     build_cell(model, 'comment'),
+                    build_cell(model, 'description'),
                     # --
                     build_cell(model, 'created'),
                     build_cell(model, 'modified'),
@@ -288,7 +287,7 @@ class Populator(BasePopulator):
 
             cbci_invoice = create_cbci(id='billing-invoice_info',
                                        name=_('Invoice information'),
-                                       content_type=get_ct(Invoice),
+                                       content_type=Invoice,
                                        cells=build_cells(Invoice,
                                                          build_cell(Invoice, 'status'),
                                                          build_cell(Invoice, 'payment_type'),
@@ -296,12 +295,12 @@ class Populator(BasePopulator):
                                       )
             cbci_c_note   = create_cbci(id='billing-creditnote_info',
                                         name=_('Credit note information'),
-                                        content_type=get_ct(CreditNote),
+                                        content_type=CreditNote,
                                         cells=build_cells(CreditNote, build_cell(CreditNote, 'status')),
                                        )
             cbci_quote   = create_cbci(id='billing-quote_info',
                                        name=_('Quote information'),
-                                       content_type=get_ct(Quote),
+                                       content_type=Quote,
                                        cells=build_cells(Quote,
                                                          build_cell(Quote, 'status'),
                                                          build_cell(Quote, 'acceptation_date'),
@@ -309,12 +308,12 @@ class Populator(BasePopulator):
                                       )
             cbci_s_order = create_cbci(id='billing-salesorder_info',
                                        name=_('Salesorder information'),
-                                       content_type=get_ct(SalesOrder),
+                                       content_type=SalesOrder,
                                        cells=build_cells(SalesOrder, build_cell(SalesOrder, 'status')),
                                       )
             cbci_tbase   = create_cbci(id='billing-templatebase_info',
                                        name=pgettext('billing', 'Template information'),
-                                       content_type=get_ct(TemplateBase),
+                                       content_type=TemplateBase,
                                        cells=build_cells(TemplateBase,
                                                          EntityCellFunctionField.build(TemplateBase, 'get_verbose_status'),
                                                         ),
