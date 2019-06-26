@@ -480,17 +480,19 @@ class BrickState(CremeModel):
         try:
             return BrickState.objects.get(brick_id=brick_id, user=user)
         except BrickState.DoesNotExist:
-            states = {sv.key_id: sv.value
-                        for sv in SettingValue.objects.filter(key_id__in=[SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
-                                                                          SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
-                                                                         ],
-                                                             )
-                     }
+            states = {
+                sv.key_id: sv.value
+                    for sv in SettingValue.objects.filter(key_id__in=[SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
+                                                                      SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
+                                                                     ],
+                                                         )
+            }
 
-            return BrickState(brick_id=brick_id, user=user,
-                              is_open=states[SETTING_BRICK_DEFAULT_STATE_IS_OPEN],
-                              show_empty_fields=states[SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS],
-                             )
+            return BrickState(
+                brick_id=brick_id, user=user,
+                is_open=states[SETTING_BRICK_DEFAULT_STATE_IS_OPEN],
+                show_empty_fields=states[SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS],
+            )
 
     @staticmethod
     def get_for_brick_ids(brick_ids, user):
