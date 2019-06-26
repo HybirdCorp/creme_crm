@@ -167,7 +167,7 @@ class Clone(base.EntityRelatedMixin, base.CheckedView):
         return get_from_POST_or_404(self.request.POST, self.entity_id_arg)
 
     def post(self, request, *args, **kwargs):
-        new_entity = self.get_related_entity().clone()
+        new_entity = self.get_related_entity().clone()  # NB: clone() is @atomic
 
         if request.is_ajax():
             return HttpResponse(new_entity.get_absolute_url())

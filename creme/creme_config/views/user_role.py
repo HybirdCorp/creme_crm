@@ -21,7 +21,7 @@
 import logging
 
 from django.db import DatabaseError
-# from django.db.transaction import atomic
+from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 # from django.utils.decorators import method_decorator
@@ -218,6 +218,7 @@ class CredentialsDeletion(generic.CheckedView):
         super().check_view_permissions(user=user)
         _check_superuser(user)
 
+    @atomic
     def post(self, request, *args, **kwargs):
         get_object_or_404(
             SetCredentials,
