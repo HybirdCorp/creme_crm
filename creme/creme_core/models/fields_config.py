@@ -246,7 +246,7 @@ class FieldsConfig(CremeModel):
                 result[model] = fc
 
         # Step 2: fill 'result' with configs in DB
-        for fc in FieldsConfig.objects.filter(content_type__in=not_cached_ctypes):
+        for fc in cls.objects.filter(content_type__in=not_cached_ctypes):
             ct = fc.content_type
             result[ct.model_class()] = cache[cache_key_fmt.format(ct.id)] = fc
 
@@ -255,7 +255,7 @@ class FieldsConfig(CremeModel):
             if model not in result:
                 ct = get_ct(model)
                 result[model] = cache[cache_key_fmt.format(ct.id)] = \
-                    FieldsConfig(content_type=ct, descriptions=())
+                    cls(content_type=ct, descriptions=())
 
         return result
 
