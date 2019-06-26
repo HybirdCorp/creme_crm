@@ -41,7 +41,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     def _build_delete_url(self, user):
         return reverse('creme_config__delete_user', args=(user.id,))
 
-    def _build_edit_url(self, user_id, password=None):
+    def _build_edit_url(self, user_id, password=False):
         return reverse('creme_config__change_user_password' if password else 'creme_config__edit_user',
                        args=(user_id,)
                       )
@@ -558,7 +558,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_user_activation01(self):
-        "Not superuser"
+        "Not superuser."
         self.login_not_as_superuser()
         other_user = User.objects.create(username='deunan')
         self.assertGET403(self._build_activation_url(other_user.id, activation=False))
@@ -566,15 +566,16 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_user_activation02(self):
-        "Post only & Current user"
+        "Post only & Current user."
         user = self.login()
         url = self._build_activation_url(user.id, activation=False)
-        self.assertGET404(url)
+        # self.assertGET404(url)
+        self.assertGET405(url)
         self.assertPOST409(url)
 
     @skipIfNotCremeUser
     def test_user_activation03(self):
-        "user is staff"
+        "User is staff."
         self.login()
         other_user = User.objects.create(username='deunan', is_staff=True)
         self.assertPOST(400, self._build_activation_url(other_user.id, activation=True))
@@ -582,22 +583,15 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_user_activation04(self):
-        "user is staff"
-        self.login()
-        other_user = User.objects.create(username='deunan', is_staff=True)
-        self.assertPOST(400, self._build_activation_url(other_user.id, activation=True))
-        self.assertPOST(400, self._build_activation_url(other_user.id, activation=False))
-
-    @skipIfNotCremeUser
-    def test_user_activation05(self):
-        "user is staff"
+        "OK."
         self.login()
         other_user = User.objects.create(username='deunan')
 
-        self.assertPOST200(self._build_activation_url(other_user.id, activation=False))
+        build_url = self._build_activation_url
+        self.assertPOST200(build_url(other_user.id, activation=False))
         self.assertFalse(self.refresh(other_user).is_active)
 
-        self.assertPOST200(self._build_activation_url(other_user.id, activation=True))
+        self.assertPOST200(build_url(other_user.id, activation=True))
         self.assertTrue(self.refresh(other_user).is_active)
 
     @skipIfNotCremeUser

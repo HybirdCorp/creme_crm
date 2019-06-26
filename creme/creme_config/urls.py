@@ -10,13 +10,15 @@ from .views import (bricks, button_menu, creme_property_type, custom_fields,
 
 
 user_patterns = [
-    re_path(r'^portal[/]?$',                         user.Portal.as_view(),         name='creme_config__users'),
-    re_path(r'^add[/]?$',                            user.UserCreation.as_view(),   name='creme_config__create_user'),
-    re_path(r'^edit/(?P<user_id>\d+)[/]?$',          user.UserEdition.as_view(),    name='creme_config__edit_user'),
-    re_path(r'^activate/(?P<user_id>\d+)[/]?$',      user.activate,                 name='creme_config__activate_user'),
-    re_path(r'^deactivate/(?P<user_id>\d+)[/]?$',    user.deactivate,               name='creme_config__deactivate_user'),
-    re_path(r'^delete/(?P<user_id>\d+)[/]?$',        user.UserDeletion.as_view(),   name='creme_config__delete_user'),
-    re_path(r'^edit/password/(?P<user_id>\d+)[/]?$', user.PasswordChange.as_view(), name='creme_config__change_user_password'),
+    re_path(r'^portal[/]?$',                         user.Portal.as_view(),           name='creme_config__users'),
+    re_path(r'^add[/]?$',                            user.UserCreation.as_view(),     name='creme_config__create_user'),
+    re_path(r'^edit/(?P<user_id>\d+)[/]?$',          user.UserEdition.as_view(),      name='creme_config__edit_user'),
+    # re_path(r'^activate/(?P<user_id>\d+)[/]?$',      user.activate,                   name='creme_config__activate_user'),
+    re_path(r'^activate/(?P<user_id>\d+)[/]?$',      user.UserActivation.as_view(),   name='creme_config__activate_user'),
+    # re_path(r'^deactivate/(?P<user_id>\d+)[/]?$',    user.deactivate,               name='creme_config__deactivate_user'),
+    re_path(r'^deactivate/(?P<user_id>\d+)[/]?$',    user.UserDeactivation.as_view(), name='creme_config__deactivate_user'),
+    re_path(r'^delete/(?P<user_id>\d+)[/]?$',        user.UserDeletion.as_view(),     name='creme_config__delete_user'),
+    re_path(r'^edit/password/(?P<user_id>\d+)[/]?$', user.PasswordChange.as_view(),   name='creme_config__change_user_password'),
 ]
 
 team_patterns = [
