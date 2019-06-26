@@ -10,13 +10,15 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
+
+    from creme.creme_core import setting_keys
     from creme.creme_core.bricks import RelationsBrick, PropertiesBrick, CustomFieldsBrick, HistoryBrick
     from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
     from creme.creme_core.gui.bricks import Brick
-    from creme.creme_core.models import (BrickDetailviewLocation, UserRole,
-            BrickHomeLocation, BrickMypageLocation,
-            CremeEntity, InstanceBrickConfigItem,
-            RelationBrickItem, RelationType, CustomBrickConfigItem)
+    from creme.creme_core.models import (CremeEntity, UserRole, RelationType,
+            BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+            InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem,
+            BrickState, SettingValue)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -49,7 +51,7 @@ class BrickTestCase(CremeTestCase):
             try:
                 model.objects.bulk_create(backup)
             except Exception as e:
-                print('CremeBlockTagsTestCase: test-data backup problem with model={} ({})'.format(model, e))
+                print('BrickTestCase: test-data backup problem with model={} ({})'.format(model, e))
 
     def test_populate(self):
         self.assertLessEqual({'modelblock', CustomFieldsBrick.id_, RelationsBrick.id_,
@@ -62,7 +64,7 @@ class BrickTestCase(CremeTestCase):
         self.assertIn(brick_id, {bml.brick_id for bml in self._bml_backup if bml.user is None})
 
     def test_create_detailview02(self):
-        "For a ContentType"
+        "For a ContentType."
         self.assertFalse(BrickDetailviewLocation.config_exists(FakeContact))
 
         order = 4
@@ -78,7 +80,7 @@ class BrickTestCase(CremeTestCase):
         self.assertTrue(BrickDetailviewLocation.config_exists(FakeContact))
 
     def test_create_detailview03(self):
-        "Do not create if already exists (in any zone/order)"
+        "Do not create if already exists (in any zone/order)."
         brick_id = PropertiesBrick.id_
         order = 5
         zone = BrickDetailviewLocation.RIGHT
@@ -98,7 +100,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(zone,  loc.zone)
 
     def test_create_detailview04(self):
-        "For a Role"
+        "For a Role."
         role = UserRole.objects.create(name='Viewer')
 
         brick_id = PropertiesBrick.id_
@@ -132,7 +134,7 @@ class BrickTestCase(CremeTestCase):
         self.assertFalse(loc.superuser)
 
     def test_create_detailview05(self):
-        "For super-users"
+        "For super-users."
         brick_id = PropertiesBrick.id_
         order = 5
         zone = BrickDetailviewLocation.RIGHT
@@ -164,7 +166,7 @@ class BrickTestCase(CremeTestCase):
         self.assertFalse(loc.superuser)
 
     def test_create_detailview06(self):
-        "Default configuration cannot have a related role"
+        "Default configuration cannot have a related role."
         with self.assertRaises(ValueError):
             BrickDetailviewLocation.create_if_needed(
                     brick_id=PropertiesBrick.id_,
@@ -187,7 +189,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(zone,         loc.zone)
 
     def test_create_4_model_brick02(self):
-        "model = None"
+        "model = None."
         loc = BrickDetailviewLocation.create_4_model_brick(
                 order=8, zone=BrickDetailviewLocation.BOTTOM, model=None,
         )
@@ -196,7 +198,7 @@ class BrickTestCase(CremeTestCase):
         self.assertIsNone(loc.content_type)
 
     def test_create_4_model_brick03(self):
-        "With a Role"
+        "With a Role."
         role = UserRole.objects.create(name='Viewer')
         loc = BrickDetailviewLocation.create_4_model_brick(
                 model=FakeContact, role=role,
@@ -216,7 +218,7 @@ class BrickTestCase(CremeTestCase):
         user.save()
         self.get_object_or_fail(BrickMypageLocation, user=user, brick_id=brick_id, order=order)
 
-    def test_relation_block01(self):
+    def test_relation_brick01(self):
         rtype = RelationType.create(('test-subject_loves', 'loves'),
                                     ('test-object_loved',  'is loved by')
                                    )[0]
@@ -259,8 +261,8 @@ class BrickTestCase(CremeTestCase):
 
         self.assertEqual(1, len(rbi.get_cells(ct_orga)))
 
-    def test_relation_block02(self):
-        "All ctypes configured"
+    def test_relation_brick02(self):
+        "All ctypes configured."
         rtype = RelationType.create(('test-subject_rented', 'is rented by'),
                                     ('test-object_rented',  'rents', [FakeContact, FakeOrganisation]),
                                    )[0]
@@ -276,7 +278,7 @@ class BrickTestCase(CremeTestCase):
         rbi.save()
         self.assertTrue(self.refresh(rbi).all_ctypes_configured)
 
-    def test_relation_block_errors(self):
+    def test_relation_brick_errors(self):
         rtype = RelationType.create(('test-subject_rented', 'is rented by'),
                                     ('test-object_rented',  'rents'),
                                    )[0]
@@ -289,7 +291,7 @@ class BrickTestCase(CremeTestCase):
                      )
         rbi.save()
 
-        # Inject error by bypassing checkings
+        # Inject error by bypassing checks
         RelationBrickItem.objects.filter(id=rbi.id) \
             .update(json_cells_map=rbi.json_cells_map.replace('description', 'invalid'))
 
@@ -305,7 +307,7 @@ class BrickTestCase(CremeTestCase):
                          deserialized
                         )
 
-    def test_custom_block(self):
+    def test_custom_brick(self):
         cbci = CustomBrickConfigItem.objects.create(
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
@@ -318,7 +320,7 @@ class BrickTestCase(CremeTestCase):
         self.assertIsInstance(cell, EntityCellRegularField)
         self.assertEqual('name', cell.value)
 
-    def test_custom_block_errors01(self):
+    def test_custom_brick_errors01(self):
         cbci = CustomBrickConfigItem.objects.create(
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
@@ -326,7 +328,7 @@ class BrickTestCase(CremeTestCase):
                   ],
         )
 
-        # Inject error by bypassing checkings
+        # Inject error by bypassing checks
         CustomBrickConfigItem.objects.filter(id=cbci.id) \
             .update(json_cells=cbci.json_cells.replace('description', 'invalid'))
 
@@ -340,7 +342,7 @@ class BrickTestCase(CremeTestCase):
                          deserialized
                         )
 
-    def test_custom_block_errors02(self):
+    def test_custom_brick_errors02(self):
         cbci = CustomBrickConfigItem.objects.create(
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
@@ -351,20 +353,20 @@ class BrickTestCase(CremeTestCase):
         cbci = self.refresh(cbci)
         self.assertEqual(1, len(cbci.cells))
 
-    # See reports for InstanceBlockConfigItem with a working classes; here are the error cases
-    def test_instance_block(self):
+    # See reports for InstanceBrickConfigItem with a working classes; here are the error cases
+    def test_instance_brick(self):
         self.login()
 
-        class TestInstanceBlock(Brick):
+        class TestInstanceBrick(Brick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
 
         brick_entity = CremeEntity.objects.create(user=self.user)
 
         generate_id = InstanceBrickConfigItem.generate_id
-        self.assertRaises(ValueError, generate_id, TestInstanceBlock, brick_entity, 'foo#bar')
+        self.assertRaises(ValueError, generate_id, TestInstanceBrick, brick_entity, 'foo#bar')
 
         ibi = InstanceBrickConfigItem(
-                brick_id=generate_id(TestInstanceBlock, brick_entity, ''),
+                brick_id=generate_id(TestInstanceBrick, brick_entity, ''),
                 entity=brick_entity,
         )
 
@@ -374,11 +376,171 @@ class BrickTestCase(CremeTestCase):
 
         brick = ibi.brick
         self.assertIsInstance(brick, Brick)
-        self.assertFalse(isinstance(brick, TestInstanceBlock))  # Because the class is not registered
+        self.assertFalse(isinstance(brick, TestInstanceBrick))  # Because the class is not registered
         self.assertEqual('??', brick.verbose_name)
 
         errors = [_('Unknown type of block (bad uninstall ?)')]
         self.assertEqual(errors, getattr(brick, 'errors', None))
         self.assertEqual(errors, ibi.errors)
 
-# TODO: test BlockState
+    def test_brick_state_get_for_brick_ids01(self):
+        "States do not exist in DB."
+        user = self.login()
+
+        class TestBrick1(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_states01_01')
+
+        class TestBrick2(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_states01_02')
+
+        states = BrickState.get_for_brick_ids(
+            user=user,
+            brick_ids=[TestBrick1.id_, TestBrick2.id_],
+        )
+        self.assertIsInstance(states, dict)
+        self.assertEqual(2, len(states))
+
+        state1 = states.get(TestBrick1.id_)
+        self.assertIsInstance(state1, BrickState)
+        self.assertEqual(user, state1.user)
+        self.assertIs(state1.is_open,           True)
+        self.assertIs(state1.show_empty_fields, True)
+        self.assertIsNone(state1.pk)
+
+        state2 = states.get(TestBrick2.id_)
+        self.assertIsInstance(state2, BrickState)
+        self.assertEqual(user, state2.user)
+        self.assertIs(state2.is_open,           True)
+        self.assertIs(state2.show_empty_fields, True)
+        self.assertIsNone(state2.pk)
+
+    def test_brick_state_get_for_brick_ids02(self):
+        "A state is stored in DB."
+        user = self.login()
+
+        class TestBrick1(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_states02_01')
+
+        class TestBrick2(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_states02_02')
+
+        stored_state1 = BrickState.objects.create(
+            user=user,
+            brick_id=TestBrick1.id_,
+            is_open=False,
+            show_empty_fields=True,
+        )
+        BrickState.objects.create(
+            user=self.other_user,
+            brick_id=TestBrick2.id_,
+            is_open=True,
+            show_empty_fields=False,
+        )
+
+        states = BrickState.get_for_brick_ids(
+            user=user,
+            brick_ids=[TestBrick1.id_, TestBrick2.id_],
+        )
+        self.assertIsInstance(states, dict)
+        self.assertEqual(2, len(states))
+        self.assertEqual(stored_state1, states.get(TestBrick1.id_))
+
+        state2 = states.get(TestBrick2.id_)
+        self.assertIsNone(state2.pk)
+
+    def test_brick_state_get_for_brick_ids03(self):
+        "Other value for SettingValues."
+        user = self.login()
+
+        class TestBrick(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_states03')
+
+        sv_open = SettingValue.objects.get_4_key(setting_keys.block_opening_key)
+        sv_open.value = False
+        sv_open.save()
+
+        states = BrickState.get_for_brick_ids(
+            user=user,
+            brick_ids=[TestBrick.id_],
+        )
+        self.assertEqual(1, len(states))
+
+        state = states.get(TestBrick.id_)
+        self.assertFalse(state.is_open)
+        self.assertTrue(state.show_empty_fields)
+
+        # ---
+        sv_show = SettingValue.objects.get_4_key(setting_keys.block_showempty_key)
+        sv_show.value = False
+        sv_show.save()
+
+        states = BrickState.get_for_brick_ids(user=user, brick_ids=[TestBrick.id_])
+        self.assertEqual(1, len(states))
+
+        state = states.get(TestBrick.id_)
+        self.assertFalse(state.is_open)
+        self.assertFalse(state.show_empty_fields)
+
+    def test_brick_state_get_for_brick_id01(self):
+        "State does not exist in DB."
+        user = self.login()
+
+        class TestBrick(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_state01')
+
+        # Not used (other user)
+        BrickState.objects.create(
+            user=self.other_user,
+            brick_id=TestBrick.id_,
+            is_open=True,
+            show_empty_fields=False,
+        )
+
+        state = BrickState.get_for_brick_id(user=user, brick_id=TestBrick.id_)
+        self.assertIsInstance(state, BrickState)
+        self.assertEqual(user, state.user)
+        self.assertIs(state.is_open,           True)
+        self.assertIs(state.show_empty_fields, True)
+        self.assertIsNone(state.pk)
+
+    def test_brick_state_get_for_brick_id02(self):
+        "State stored in DB."
+        user = self.login()
+
+        class TestBrick(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_state02')
+
+        state = BrickState.objects.create(
+            user=user,
+            brick_id=TestBrick.id_,
+            is_open=True,
+            show_empty_fields=False,
+        )
+        self.assertEqual(
+            state,
+            BrickState.get_for_brick_id(user=user, brick_id=TestBrick.id_)
+        )
+
+    def test_brick_state_get_for_brick_id03(self):
+        "Other value for SettingValues."
+        user = self.login()
+
+        class TestBrick(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_state03')
+
+        sv_open = SettingValue.objects.get_4_key(setting_keys.block_opening_key)
+        sv_open.value = False
+        sv_open.save()
+
+        state = BrickState.get_for_brick_id(user=user, brick_id=TestBrick.id_)
+        self.assertFalse(state.is_open)
+        self.assertTrue(state.show_empty_fields)
+
+        # ---
+        sv_show = SettingValue.objects.get_4_key(setting_keys.block_showempty_key)
+        sv_show.value = False
+        sv_show.save()
+
+        state = BrickState.get_for_brick_id(user=user, brick_id=TestBrick.id_)
+        self.assertFalse(state.is_open)
+        self.assertFalse(state.show_empty_fields)
