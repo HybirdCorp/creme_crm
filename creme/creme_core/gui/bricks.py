@@ -577,15 +577,22 @@ class BricksManager:
         return list(self._bricks_groups.keys())
 
     def get_state(self, brick_id, user):
-        "Get the state for a brick and fill a cache to avoid multiple SQL requests"
+        "Get the state for a brick and fill a cache to avoid multiple SQL requests."
         _state_cache = self._state_cache
         if not _state_cache:
-            _state_cache = self._state_cache = BrickState.get_for_brick_ids([brick.id_ for brick in self._bricks], user)
+            # _state_cache = self._state_cache = BrickState.get_for_brick_ids([brick.id_ for brick in self._bricks], user)
+            _state_cache = self._state_cache = BrickState.objects.get_for_brick_ids(
+                brick_ids=[brick.id_ for brick in self._bricks],
+                user=user,
+            )
 
         state = _state_cache.get(brick_id)
         if state is None:
-            state = self._state_cache[brick_id] = BrickState.get_for_brick_id(brick_id, user)
-            logger.warning("State not set in cache for '%s'" % brick_id)
+            # state = self._state_cache[brick_id] = BrickState.get_for_brick_id(brick_id, user)
+            state = self._state_cache[brick_id] = BrickState.objects.get_for_brick_id(
+                brick_id=brick_id, user=user,
+            )
+            logger.warning("State not set in cache for '%s'", brick_id)
 
         return state
 
@@ -595,15 +602,16 @@ class BricksManager:
     @property
     def used_relationtypes_ids(self):
         if self._used_relationtypes is None:
-            self._used_relationtypes = {rt_id for brick in self._build_dependencies_map()[Relation]
-                                            for rt_id in brick.relation_type_deps
-                                       }
+            self._used_relationtypes = {
+                rt_id for brick in self._build_dependencies_map()[Relation]
+                    for rt_id in brick.relation_type_deps
+            }
 
         return self._used_relationtypes
 
     @used_relationtypes_ids.setter
     def used_relationtypes_ids(self, relationtypes_ids):
-        "@param relation_type_deps: Sequence of RelationType objects' IDs"
+        "@param relation_type_deps: Sequence of RelationType objects' IDs."
         self._used_relationtypes = set(relationtypes_ids)
 
 
