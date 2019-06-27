@@ -21,11 +21,11 @@
 from functools import partial
 from json import loads as json_load # dumps as json_dump
 import logging
+import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import (CharField, TextField, ForeignKey, OneToOneField,
-        PositiveIntegerField, PositiveSmallIntegerField, BooleanField, CASCADE)
+from django.db import models
 from django.db.models.signals import post_save
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
@@ -53,12 +53,14 @@ logger = logging.getLogger(__name__)
 
 class BrickDetailviewLocation(CremeModel):
     content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
-    role         = ForeignKey(UserRole, verbose_name=_('Related role'), null=True, default=None, on_delete=CASCADE)
+    role         = models.ForeignKey(UserRole, verbose_name=_('Related role'),
+                                     null=True, default=None, on_delete=models.CASCADE,
+                                    )
     # TODO: a UserRole for superusers instead ??
-    superuser    = BooleanField('related to superusers', default=False, editable=False)
-    brick_id     = CharField(max_length=100)
-    order        = PositiveIntegerField()
-    zone         = PositiveSmallIntegerField()
+    superuser    = models.BooleanField('related to superusers', default=False, editable=False)
+    brick_id     = models.CharField(max_length=100)
+    order        = models.PositiveIntegerField()
+    zone         = models.PositiveSmallIntegerField()
 
     TOP    = 1
     LEFT   = 2
@@ -140,11 +142,13 @@ class BrickDetailviewLocation(CremeModel):
 
 
 class BrickHomeLocation(CremeModel):
-    role         = ForeignKey(UserRole, verbose_name=_('Related role'), null=True, default=None, on_delete=CASCADE)
+    role      = models.ForeignKey(UserRole, verbose_name=_('Related role'),
+                                  null=True, default=None, on_delete=models.CASCADE,
+                                 )
     # TODO: a UserRole for superusers instead ??
-    superuser    = BooleanField('related to superusers', default=False, editable=False)
-    brick_id = CharField(max_length=100)
-    order    = PositiveIntegerField()
+    superuser = models.BooleanField('related to superusers', default=False, editable=False)
+    brick_id  = models.CharField(max_length=100)
+    order     = models.PositiveIntegerField()
 
     class Meta:
         app_label = 'creme_core'
@@ -166,11 +170,10 @@ class BrickHomeLocation(CremeModel):
         return next(brick_registry.get_bricks((self.brick_id,))).verbose_name
 
 
-# TODO: merge with BrickHomeLocation ?
 class BrickMypageLocation(CremeModel):
-    user     = ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=CASCADE)
-    brick_id = CharField(max_length=100)
-    order    = PositiveIntegerField()
+    user     = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
+    brick_id = models.CharField(max_length=100)
+    order    = models.PositiveIntegerField()
 
     class Meta:
         app_label = 'creme_core'
@@ -178,7 +181,7 @@ class BrickMypageLocation(CremeModel):
 
     def __repr__(self):
         return 'BrickMypageLocation(id={id}, user={user})'.format(
-            id=self.id, user=self.user_id
+            id=self.id, user=self.user_id,
         )
 
     @staticmethod
@@ -215,9 +218,11 @@ post_save.connect(BrickMypageLocation._copy_default_config, sender=settings.AUTH
 class RelationBrickItem(CremeModel):
     # TODO: 'brick_id' not really useful (can be dynamically generated with the RelationType)
     #        + in the 'brick_id': 1)remove the app_name  2)"specificblock_" => "rtypebrick_" (need data migration)
-    brick_id       = CharField(_('Block ID'), max_length=100, editable=False)
-    relation_type  = OneToOneField(RelationType, verbose_name=_('Related type of relationship'), on_delete=CASCADE)
-    json_cells_map = TextField(editable=False, default='{}')  # TODO: JSONField
+    brick_id       = models.CharField(_('Block ID'), max_length=100, editable=False)
+    relation_type  = models.OneToOneField(RelationType, on_delete=models.CASCADE,
+                                          verbose_name=_('Related type of relationship'),
+                                         )
+    json_cells_map = models.TextField(editable=False, default='{}')  # TODO: JSONField
 
     creation_label = _('Create a type of block')
     save_label     = _('Save the block')
@@ -320,10 +325,14 @@ class RelationBrickItem(CremeModel):
 
 
 class InstanceBrickConfigItem(CremeModel):
-    brick_id = CharField(_('Block ID'), max_length=300, blank=False, null=False, editable=False)
-    entity   = ForeignKey(CremeEntity, verbose_name=_('Block related entity'), on_delete=CASCADE)
-    data     = TextField(blank=True, null=True)
-    verbose  = CharField(_('Verbose'), max_length=200, blank=True, null=True)  # TODO: remove
+    brick_id = models.CharField(_('Block ID'), max_length=300, blank=False,
+                                null=False, editable=False,
+                               )
+    entity   = models.ForeignKey(CremeEntity, on_delete=models.CASCADE,
+                                 verbose_name=_('Block related entity'),
+                                )
+    data     = models.TextField(blank=True, null=True)
+    verbose  = models.CharField(_('Verbose'), max_length=200, blank=True, null=True)  # TODO: remove
 
     creation_label = _('Create a block')
     save_label     = _('Save the block')
@@ -387,10 +396,10 @@ class InstanceBrickConfigItem(CremeModel):
 
 
 class CustomBrickConfigItem(CremeModel):
-    id           = CharField(primary_key=True, max_length=100, editable=False)
+    id           = models.CharField(primary_key=True, max_length=100, editable=False)
     content_type = CTypeForeignKey(verbose_name=_('Related type'), editable=False)
-    name         = CharField(_('Name'), max_length=200)
-    json_cells   = TextField(editable=False, default='[]')  # TODO: JSONField
+    name         = models.CharField(_('Name'), max_length=200)
+    json_cells   = models.TextField(editable=False, default='[]')  # TODO: JSONField
 
     _cells = None
 
@@ -464,11 +473,61 @@ class CustomBrickConfigItem(CremeModel):
         return FieldsConfig.filter_cells(self.content_type.model_class(), self.cells)
 
 
+class BrickStateManager(models.Manager):
+    FIELDS = {
+        # SettingKey ID                                 BrickState field-name
+        SETTING_BRICK_DEFAULT_STATE_IS_OPEN:           'is_open',  # TODO: constants....
+        SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS: 'show_empty_fields',
+    }
+
+    def _get_fields_values(self):
+        FIELDS = self.FIELDS
+        svalues = SettingValue.objects.get_4_keys(
+            *[{'key': skey_id} for skey_id in FIELDS.keys()]
+        )
+
+        return {FIELDS[svalue.key_id]: svalue.value for svalue in svalues.values()}
+
+    def get_for_brick_id(self, *, brick_id, user):
+        """Returns current state of a brick.
+        @param brick_id: A brick id.
+        @param user: owner of the BrickState.
+        @returns: An instance of BrickState.
+        """
+        try:
+            return self.get(brick_id=brick_id, user=user)
+        except self.model.DoesNotExist:
+            return self.model(brick_id=brick_id, user=user, **self._get_fields_values())
+
+    def get_for_brick_ids(self, *, brick_ids, user):
+        """Get current states of several bricks.
+        @param brick_ids: a list of brick ids.
+        @param user: owner of the BrickStates.
+        @returns: A dict with brick_id as key and state as value.
+        """
+        states = {}
+
+        for state in self.filter(brick_id__in=brick_ids, user=user):
+            states[state.brick_id] = state
+
+        missing_brick_ids = set(brick_ids) - set(states.keys())  # IDs of bricks without state
+
+        if missing_brick_ids:
+            cls = partial(self.model, user=user, **self._get_fields_values())
+
+            for brick_id in missing_brick_ids:
+                states[brick_id] = cls(brick_id=brick_id)
+
+        return states
+
+
 class BrickState(CremeModel):
-    user              = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
-    brick_id          = CharField(_('Block ID'), max_length=100)
-    is_open           = BooleanField(default=True)  # Is brick has to appear as opened or closed
-    show_empty_fields = BooleanField(default=True)  # Are empty fields in brick have to be shown or not
+    user              = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    brick_id          = models.CharField(_('Block ID'), max_length=100)
+    is_open           = models.BooleanField(default=True)  # Is brick has to appear as opened or closed
+    show_empty_fields = models.BooleanField(default=True)  # Are empty fields in brick have to be shown or not
+
+    objects = BrickStateManager()
 
     class Meta:
         app_label = 'creme_core'
@@ -477,6 +536,11 @@ class BrickState(CremeModel):
     @staticmethod
     def get_for_brick_id(brick_id, user):
         """Returns current state of a brick."""
+        warnings.warn('BrickState.get_for_brick_id() is deprecated; '
+                      'use BrickState.objects.get_for_brick_id() instead.',
+                      DeprecationWarning
+                     )
+
         try:
             return BrickState.objects.get(brick_id=brick_id, user=user)
         except BrickState.DoesNotExist:
@@ -501,6 +565,11 @@ class BrickState(CremeModel):
         @param user: owner of a BrickState.
         @returns: A dict with brick_id as key and state as value.
         """
+        warnings.warn('BrickState.get_for_brick_ids() is deprecated; '
+                      'use BrickState.objects.get_for_brick_ids() instead.',
+                      DeprecationWarning
+                     )
+
         states = {}
 
         # TODO: Method for get_default_states?

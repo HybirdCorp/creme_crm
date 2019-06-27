@@ -544,3 +544,179 @@ class BrickTestCase(CremeTestCase):
         state = BrickState.get_for_brick_id(user=user, brick_id=TestBrick.id_)
         self.assertFalse(state.is_open)
         self.assertFalse(state.show_empty_fields)
+
+    def test_brick_state_manager_get_for_brick_id01(self):
+        "State does not exist in DB."
+        user = self.login()
+
+        class TestBrick(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_state01')
+
+        # Not used (other user)
+        BrickState.objects.create(
+            user=self.other_user,
+            brick_id=TestBrick.id_,
+            is_open=True,
+            show_empty_fields=False,
+        )
+
+        with self.assertNumQueries(2): # try to retrieve state + SettingValues
+            state = BrickState.objects.get_for_brick_id(user=user, brick_id=TestBrick.id_)
+
+        self.assertIsInstance(state, BrickState)
+        self.assertEqual(user, state.user)
+        self.assertIs(state.is_open,           True)
+        self.assertIs(state.show_empty_fields, True)
+        self.assertIsNone(state.pk)
+
+    def test_brick_state_manager_get_for_brick_id02(self):
+        "State stored in DB."
+        user = self.login()
+
+        class TestBrick(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_state02')
+
+        state = BrickState.objects.create(
+            user=user,
+            brick_id=TestBrick.id_,
+            is_open=True,
+            show_empty_fields=False,
+        )
+
+        with self.assertNumQueries(1):
+            stored_state = BrickState.objects.get_for_brick_id(
+                user=user,
+                brick_id=TestBrick.id_,
+            )
+
+        self.assertEqual(state, stored_state)
+
+    def test_brick_state_manager_get_for_brick_id03(self):
+        "Other value for SettingValues."
+        user = self.login()
+
+        class TestBrick(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_state03')
+
+        sv_open = SettingValue.objects.get_4_key(setting_keys.block_opening_key)
+        sv_open.value = False
+        sv_open.save()
+
+        state = BrickState.objects.get_for_brick_id(user=user, brick_id=TestBrick.id_)
+        self.assertFalse(state.is_open)
+        self.assertTrue(state.show_empty_fields)
+
+        # ---
+        sv_show = SettingValue.objects.get_4_key(setting_keys.block_showempty_key)
+        sv_show.value = False
+        sv_show.save()
+
+        state = BrickState.objects.get_for_brick_id(user=user, brick_id=TestBrick.id_)
+        self.assertFalse(state.is_open)
+        self.assertFalse(state.show_empty_fields)
+
+    def test_brick_state_manager_get_for_brick_ids01(self):
+        "States do not exist in DB."
+        user = self.login()
+
+        class TestBrick1(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_states01_01')
+
+        class TestBrick2(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_states01_02')
+
+        with self.assertNumQueries(2):
+            states = BrickState.objects.get_for_brick_ids(
+                user=user,
+                brick_ids=[TestBrick1.id_, TestBrick2.id_],
+            )
+
+        self.assertIsInstance(states, dict)
+        self.assertEqual(2, len(states))
+
+        state1 = states.get(TestBrick1.id_)
+        self.assertIsInstance(state1, BrickState)
+        self.assertEqual(user, state1.user)
+        self.assertIs(state1.is_open,           True)
+        self.assertIs(state1.show_empty_fields, True)
+        self.assertIsNone(state1.pk)
+
+        state2 = states.get(TestBrick2.id_)
+        self.assertIsInstance(state2, BrickState)
+        self.assertEqual(user, state2.user)
+        self.assertIs(state2.is_open,           True)
+        self.assertIs(state2.show_empty_fields, True)
+        self.assertIsNone(state2.pk)
+
+    def test_brick_state_manager_get_for_brick_ids02(self):
+        "A state is stored in DB."
+        user = self.login()
+
+        class TestBrick1(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_states02_01')
+
+        class TestBrick2(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_states02_02')
+
+        stored_state1 = BrickState.objects.create(
+            user=user,
+            brick_id=TestBrick1.id_,
+            is_open=False,
+            show_empty_fields=True,
+        )
+        BrickState.objects.create(
+            user=self.other_user,  # <== not used
+            brick_id=TestBrick2.id_,
+            is_open=True,
+            show_empty_fields=False,
+        )
+
+        states = BrickState.objects.get_for_brick_ids(
+            user=user,
+            brick_ids=[TestBrick1.id_, TestBrick2.id_],
+        )
+        self.assertIsInstance(states, dict)
+        self.assertEqual(2, len(states))
+        self.assertEqual(stored_state1, states.get(TestBrick1.id_))
+
+        state2 = states.get(TestBrick2.id_)
+        self.assertIsNone(state2.pk)
+
+        # ---
+        with self.assertNumQueries(1):
+            BrickState.objects.get_for_brick_ids(
+                user=user, brick_ids=[TestBrick1.id_],
+            )
+
+    def test_brick_state_manager_get_for_brick_ids03(self):
+        "Other value for SettingValues."
+        user = self.login()
+
+        class TestBrick(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_models_states03')
+
+        sv_open = SettingValue.objects.get_4_key(setting_keys.block_opening_key)
+        sv_open.value = False
+        sv_open.save()
+
+        states = BrickState.objects.get_for_brick_ids(
+            user=user,
+            brick_ids=[TestBrick.id_],
+        )
+        self.assertEqual(1, len(states))
+
+        state = states.get(TestBrick.id_)
+        self.assertFalse(state.is_open)
+        self.assertTrue(state.show_empty_fields)
+
+        # ---
+        sv_show = SettingValue.objects.get_4_key(setting_keys.block_showempty_key)
+        sv_show.value = False
+        sv_show.save()
+
+        states = BrickState.objects.get_for_brick_ids(user=user, brick_ids=[TestBrick.id_])
+        self.assertEqual(1, len(states))
+
+        state = states.get(TestBrick.id_)
+        self.assertFalse(state.is_open)
+        self.assertFalse(state.show_empty_fields)
