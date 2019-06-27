@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2018  Hybird
+#    Copyright (C) 2017-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,18 +23,19 @@ from json import loads as json_load
 import logging
 
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.http import HttpResponse, Http404
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.template.context import make_context
 from django.template.engine import Engine
 
+from .. import utils
 from ..auth.decorators import login_required
 from ..gui.bricks import brick_registry, BricksManager
 from ..models import CremeEntity, BrickState
-from ..utils import get_from_POST_or_404
 
 from .decorators import jsonify
-
+from .generic import CheckedView
 
 logger = logging.getLogger(__name__)
 
@@ -191,29 +192,67 @@ def reload_home(request):
                              )
 
 
-@login_required
-@jsonify
-def set_state(request):
-    POST = request.POST
+# @login_required
+# @jsonify
+# def set_state(request):
+#     POST = request.POST
+#
+#     brick_id = get_from_POST_or_404(POST, 'id')
+#
+#     POST_get = POST.get
+#     is_open           = POST_get('is_open')
+#     show_empty_fields = POST_get('show_empty_fields')
+#     state_changed = False
+#
+#     bs = BrickState.objects.get_or_create(brick_id=brick_id, user=request.user)[0]
+#
+#     if is_open is not None:
+#         bs.is_open = bool(int(is_open))
+#         state_changed = True
+#
+#     if show_empty_fields is not None:
+#         bs.show_empty_fields = bool(int(show_empty_fields))
+#         state_changed = True
+#
+#     if state_changed:
+#         bs.save()
+class BrickStateSetting(CheckedView):
+    brick_id_arg = 'id'
+    FIELDS = [
+        # MODEL FIELD         POST ARGUMENT
+        ('is_open',           'is_open'),
+        ('show_empty_fields', 'show_empty_fields'),
+    ]
 
-    # TODO: check that brick ID is valid ?
-    brick_id = get_from_POST_or_404(POST, 'id')
+    def get_fields_to_update(self, request):
+        fields_2_update = {}
+        get = request.POST.get
 
-    POST_get = POST.get
-    is_open           = POST_get('is_open')
-    show_empty_fields = POST_get('show_empty_fields')
-    state_changed = False
+        for field_name, post_key in self.FIELDS:
+            value_str = get(post_key)
 
-    # TODO: Avoid the query if there is no post param?
-    bs = BrickState.objects.get_or_create(brick_id=brick_id, user=request.user)[0]
+            if value_str is not None:
+                fields_2_update[field_name] = utils.bool_from_str_extended(value_str)
 
-    if is_open is not None:
-        bs.is_open = bool(int(is_open))
-        state_changed = True
+        return fields_2_update
 
-    if show_empty_fields is not None:
-        bs.show_empty_fields = bool(int(show_empty_fields))
-        state_changed = True
+    def post(self, request, **kwargs):
+        # TODO: check that brick ID is valid ?
+        brick_id = utils.get_from_POST_or_404(request.POST, self.brick_id_arg)
+        fields_2_update = self.get_fields_to_update(request)
 
-    if state_changed:
-        bs.save()
+        if fields_2_update:
+            # NB: we can still have a race condition because we do not use select_for_update ;
+            #     but it's a state related one user & one brick, so it would not be a real world problem.
+            for _i in range(10):
+                state = BrickState.objects.get_for_brick_id(brick_id=brick_id, user=request.user)
+
+                try:
+                    utils.update_model_instance(state, **fields_2_update)
+                except IntegrityError:
+                    logger.exception('Avoid a duplicate.')
+                    continue
+                else:
+                    break
+
+        return HttpResponse()

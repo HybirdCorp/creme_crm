@@ -40,62 +40,108 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_set_state01(self):
         user = self.login()
-        self.assertEqual(0, BrickState.objects.count())
-
         brick_id = RelationsBrick.id_
+
+        self.assertTrue(BrickState.objects.get_for_brick_id(brick_id=brick_id, user=user).is_open)
+        self.assertFalse(BrickState.objects.all())
+
         self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1})
-
-        bstates = BrickState.objects.all()
-        self.assertEqual(1, len(bstates))
-
-        bstate = bstates[0]
-        self.assertEqual(brick_id, bstate.brick_id)
-        self.assertEqual(user,     bstate.user)
-        self.assertTrue(bstate.is_open)
+        self.assertFalse(BrickState.objects.all())
+        # bstates = BrickState.objects.all()
+        # self.assertEqual(1, len(bstates))
+        #
+        # bstate = bstates[0]
+        # self.assertEqual(brick_id, bstate.brick_id)
+        # self.assertEqual(user,     bstate.user)
+        # self.assertTrue(bstate.is_open)
 
         self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 0})
         self.assertEqual(1, BrickState.objects.count())
 
         bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
         self.assertFalse(bstate.is_open)
+        self.assertTrue(bstate.show_empty_fields)
 
-        self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, })  # No data
+        self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id})  # No data
         self.assertEqual(1, BrickState.objects.count())
 
         bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
         self.assertFalse(bstate.is_open)
+        self.assertTrue(bstate.show_empty_fields)
 
     def test_set_state02(self):
         user = self.login()
         brick_id = RelationsBrick.id_
-        self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1})
 
-        bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
+        bstate = BrickState.objects.get_for_brick_id(brick_id=brick_id, user=user)
         self.assertTrue(bstate.is_open)
         self.assertTrue(bstate.show_empty_fields)
+        self.assertIsNone(bstate.pk)
 
+        # ---
+        self.assertPOST200(self.SET_STATE_URL,
+                           data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
+                          )
+        # bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
+        # self.assertTrue(bstate.is_open)
+        # self.assertTrue(bstate.show_empty_fields)
+        self.assertFalse(BrickState.objects.all())
+
+        # ---
+        self.assertPOST200(self.SET_STATE_URL,
+                           data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 0},
+                          )
+        bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
+        self.assertTrue(bstate.is_open)
+        self.assertFalse(bstate.show_empty_fields)
+
+    # def test_set_state03(self):
+    #     user = self.login()
+    #     brick_id = RelationsBrick.id_
+    #     self.client.post(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1})
+    #
+    #     self.client.logout()
+    #     self.client.login(username=self.other_user.username, password='test')
+    #
+    #     self.client.post(self.SET_STATE_URL,
+    #                      data={'id': brick_id, 'is_open': 0, 'show_empty_fields': 0}
+    #                     )
+    #
+    #     blocks_states = BrickState.objects.filter(brick_id=brick_id)
+    #
+    #     block_state_user = blocks_states.get(user=user)
+    #     block_state_other_user = blocks_states.get(user=self.other_user)
+    #
+    #     self.assertTrue(block_state_user.is_open)
+    #     self.assertTrue(block_state_user.show_empty_fields)
+    #
+    #     self.assertFalse(block_state_other_user.is_open)
+    #     self.assertFalse(block_state_other_user.show_empty_fields)
     def test_set_state03(self):
         user = self.login()
-        brick_id = RelationsBrick.id_
-        self.client.post(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1})
+        other_user = self.other_user
 
-        self.client.logout()
-        self.client.login(username=self.other_user.username, password='test')
+        brick_id = RelationsBrick.id_
+        BrickState.objects.get_for_brick_id(brick_id=brick_id, user=other_user).save()
 
         self.client.post(self.SET_STATE_URL,
-                         data={'id': brick_id, 'is_open': 0, 'show_empty_fields': 0}
+                         data={'id': brick_id, 'is_open': 0, 'show_empty_fields': 0},
                         )
 
-        blocks_states = BrickState.objects.filter(brick_id=brick_id)
+        bstates = BrickState.objects.filter(brick_id=brick_id)
+        user_bstates  = [bstate for bstate in bstates if bstate.user == user]
+        other_bstates = [bstate for bstate in bstates if bstate.user == other_user]
 
-        block_state_user = blocks_states.get(user=user)
-        block_state_other_user = blocks_states.get(user=self.other_user)
+        self.assertEqual(1, len(user_bstates))
+        self.assertEqual(1, len(other_bstates))
+        user_bstate = user_bstates[0]
+        other_bstate = other_bstates[0]
 
-        self.assertTrue(block_state_user.is_open)
-        self.assertTrue(block_state_user.show_empty_fields)
+        self.assertTrue(other_bstate.is_open)
+        self.assertTrue(other_bstate.show_empty_fields)
 
-        self.assertFalse(block_state_other_user.is_open)
-        self.assertFalse(block_state_other_user.show_empty_fields)
+        self.assertFalse(user_bstate.is_open)
+        self.assertFalse(user_bstate.show_empty_fields)
 
     def test_set_state04(self):
         "Brick ids with |"

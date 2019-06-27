@@ -88,7 +88,8 @@ bricks_patterns = [
     re_path(r'^reload/detailview/(?P<entity_id>\d+)[/]?$', bricks.reload_detailview, name='creme_core__reload_detailview_bricks'),
     re_path(r'^reload/home[/]?$',                          bricks.reload_home,       name='creme_core__reload_home_bricks'),
 
-    re_path(r'^set_state[/]?$', bricks.set_state, name='creme_core__set_brick_state'),
+    # re_path(r'^set_state[/]?$', bricks.set_state, name='creme_core__set_brick_state'),
+    re_path(r'^set_state[/]?$', bricks.BrickStateSetting.as_view(), name='creme_core__set_brick_state'),
 ]
 
 entity_filter_patterns = [
