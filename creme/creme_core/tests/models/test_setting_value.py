@@ -181,7 +181,7 @@ class SettingValueTestCase(CremeTestCase):
             sv.value = 'abc'
 
     def test_get_4_key01(self):
-        "Key ID"
+        "Key ID."
         sk = SettingKey(id='activities-test_get_4_key01', description='Display logo?',
                         app_label='activities', type=SettingKey.BOOL,
                        )
@@ -206,7 +206,7 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(pk, sv.pk)
 
     def test_get_4_key02(self):
-        "Key instance"
+        "Key instance."
         sk = SettingKey(id='activities-test_get_4_key02', description='Display logo?',
                         app_label='activities', type=SettingKey.BOOL,
                        )
@@ -225,7 +225,7 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(pk, sv.pk)
 
     def test_get_4_key03(self):
-        "Exceptions"
+        "Exceptions."
         sk = SettingKey(id='activities-test_get_4_key03', description='Display logo?',
                         app_label='activities', type=SettingKey.BOOL,
                        )
@@ -243,7 +243,7 @@ class SettingValueTestCase(CremeTestCase):
         self.assertIn(''"creme_populate"'', messages[0])
 
     def test_get_4_key04(self):
-        "Default value"
+        "Default value."
         sk = SettingKey(id='activities-test_get_4_key04', description='Display logo?',
                         app_label='activities', type=SettingKey.BOOL,
                        )
@@ -255,6 +255,83 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(1, len(messages))
         self.assertIn('creme_populate', messages[0])
 
+        self.assertEqual(sk.id, sv.key_id)
+        self.assertIs(False, sv.value)
+
+    def test_get_4_keys01(self):
+        sk1 = SettingKey(id='activities-test_get_4_keys01_1', description='Display logo?',
+                         app_label='activities', type=SettingKey.BOOL,
+                        )
+        sk2 = SettingKey(id='activities-test_get_4_keys02_2', description='Logo size',
+                         app_label='activities', type=SettingKey.INT,
+                        )
+        self._register_key(sk1)
+        self._register_key(sk2)
+
+        stored_sv1 = SettingValue(key=sk1); stored_sv1.value = True; stored_sv1.save()
+        stored_sv2 = SettingValue(key=sk2); stored_sv2.value = 100;  stored_sv2.save()
+
+        pk1 = stored_sv1.pk
+        pk2 = stored_sv2.pk
+
+        with self.assertNumQueries(1):
+            svalues = SettingValue.objects.get_4_keys(
+                {'key': sk1.id},  # <= Key ID
+                {'key': sk2},     # <= Key instance
+            )
+
+        self.assertIsInstance(svalues, dict)
+        self.assertEqual(2, len(svalues))
+
+        sv1 = svalues.get(sk1.id)
+        self.assertIsInstance(sv1, SettingValue)
+        self.assertEqual(pk1, sv1.pk)
+
+        sv2 = svalues.get(sk2.id)
+        self.assertEqual(pk2, sv2.pk)
+
+        # Cache
+        with self.assertNumQueries(0):
+            svalues = SettingValue.objects.get_4_keys({'key': sk1.id})
+        self.assertEqual(pk1, svalues[sk1.id].pk)
+
+        # Cache (shared with get_4_key() )
+        with self.assertNumQueries(0):
+            sv2 = SettingValue.objects.get_4_key(sk2.id)
+        self.assertEqual(pk2, sv2.pk)
+
+    def test_get_4_keys02(self):
+        "Exceptions."
+        sk = SettingKey(id='activities-test_get_4_key02_1', description='Display logo?',
+                        app_label='activities', type=SettingKey.BOOL,
+                       )
+        self._register_key(sk)
+
+        with self.assertRaises(KeyError):
+            SettingValue.objects.get_4_keys({'key': 'unknown'})
+
+        with self.assertLogs(level='CRITICAL') as log_cm:
+            with self.assertRaises(SettingValue.DoesNotExist):
+                SettingValue.objects.get_4_keys({'key': sk})
+
+        messages = log_cm.output
+        self.assertEqual(1, len(messages))
+        self.assertIn(''"creme_populate"'', messages[0])
+
+    def test_get_4_keys03(self):
+        "Default value."
+        sk = SettingKey(id='activities-test_get_4_key03_1', description='Display logo?',
+                        app_label='activities', type=SettingKey.BOOL,
+                       )
+
+        with self.assertLogs(level='CRITICAL') as log_cm:
+            svalues = SettingValue.objects.get_4_keys({'key': sk, 'default': False})
+
+        messages = log_cm.output
+        self.assertEqual(1, len(messages))
+        self.assertIn('creme_populate', messages[0])
+
+        sv = svalues.get(sk.id)
         self.assertEqual(sk.id, sv.key_id)
         self.assertIs(False, sv.value)
 
