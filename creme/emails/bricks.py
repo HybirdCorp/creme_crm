@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.apps import apps
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -30,7 +30,6 @@ from creme import documents, persons, emails
 
 from . import constants
 from .models import EmailSignature, EmailRecipient, EmailSending, LightWeightEmail
-
 
 Document      = documents.get_document_model()
 Contact       = persons.get_contact_model()
@@ -126,7 +125,7 @@ class EmailRecipientsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             EmailRecipient.objects.filter(ml=mailing_list.id),  # get_recipients() ???
-            ct_id=ContentType.objects.get_for_model(EmailRecipient).id,
+            # ct_id=ContentType.objects.get_for_model(EmailRecipient).id,
         ))
 
 
@@ -208,9 +207,9 @@ class SendingsBrick(QuerysetBrick):
     def detailview_display(self, context):
         campaign = context['object']
         return self._render(self.get_template_context(
-                    context,
-                    EmailSending.objects.filter(campaign=campaign.id),  # TODO: use related_name i.e:campaign.sendings_set.all()
-                    ct_id=ContentType.objects.get_for_model(EmailSending).id,
+            context,
+            EmailSending.objects.filter(campaign=campaign.id),  # TODO: use related_name i.e:campaign.sendings_set.all()
+            # ct_id=ContentType.objects.get_for_model(EmailSending).id,
         ))
 
 

@@ -1,5 +1,5 @@
-{% load i18n creme_core_tags creme_widgets %}{% has_perm_to link object as link_perm %}{% trans 'Link to' as link_label %}{# creme_block #}
-<a class="menu_button menu-button-icon {% if not link_perm %}is-disabled{% endif %}" data-action="emails-hatmenubar-linkto" href="{% url 'creme_core__create_relations_bulk' entity_email_ct_id %}">
+{% load i18n creme_core_tags creme_widgets %}{% has_perm_to link object as link_perm %}{% trans 'Link to' as link_label %}
+<a class="menu_button menu-button-icon {% if not link_perm %}is-disabled{% endif %}" data-action="emails-hatmenubar-linkto" href="{% url 'creme_core__create_relations_bulk' object.entity_type_id %}">
     {% widget_icon name='link' size='instance-button' label=link_label %}
     {{link_label}}
     {% blockjsondata %}{
