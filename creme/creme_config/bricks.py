@@ -29,7 +29,8 @@ from django.db.models import Count
 from django.utils.translation import gettext_lazy as _, gettext
 
 from creme.creme_core.core import setting_key
-from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick, brick_registry
+from creme.creme_core.gui.bricks import (Brick, PaginatedBrick, QuerysetBrick,
+        brick_registry, BricksManager)
 from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingValue,
         CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig,
         CustomField, CustomFieldEnumValue,
@@ -40,6 +41,7 @@ from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
 
+from .constants import BRICK_STATE_HIDE_INACTIVE_USERS
 
 _PAGE_SIZE = 20
 User = get_user_model()
@@ -295,7 +297,12 @@ class UsersBrick(_ConfigAdminBrick):
         if not context['user'].is_staff:
             users = users.exclude(is_staff=True)
 
-        btc = self.get_template_context(context, users)
+        hide_inactive = BricksManager.get(context).get_state(self.id_, context['user']) \
+                        .get_extra_data(BRICK_STATE_HIDE_INACTIVE_USERS)
+        if hide_inactive:
+            users = users.exclude(is_active=False)
+
+        btc = self.get_template_context(context, users, hide_inactive=hide_inactive)
         page = btc['page']
         page_users = page.object_list
         TIME_ZONE = settings.TIME_ZONE

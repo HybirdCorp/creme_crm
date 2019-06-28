@@ -615,6 +615,50 @@ class BrickTestCase(CremeTestCase):
         self.assertFalse(state.is_open)
         self.assertFalse(state.show_empty_fields)
 
+    def test_brick_state_extra_data(self):
+        user = self.login()
+
+        class TestBrick(Brick):
+            id_ = Brick.generate_id('creme_core', 'test_brick_state_extra')
+
+        state = BrickState.objects.create(user=user, brick_id=TestBrick.id_)
+        key1 = 'creme_core-foo'
+        self.assertIsNone(state.get_extra_data(key1))
+
+        foo_value = 'bar'
+        changed1 = state.set_extra_data(key1, foo_value)
+        self.assertIs(changed1, True)
+
+        state.save()
+        state = self.refresh(state)
+        self.assertEqual(foo_value, state.get_extra_data(key1))
+
+        # ---
+        key2 = 'creme_core-baz'
+        self.assertIsNone(state.get_extra_data(key2))
+
+        baz_value = 1
+        changed2 = state.set_extra_data(key2, baz_value)
+        self.assertIs(changed2, True)
+
+        state.save()
+
+        get_extra_data2 = self.refresh(state).get_extra_data
+        self.assertEqual(foo_value, get_extra_data2(key1))
+        self.assertEqual(baz_value, get_extra_data2(key2))
+
+        # ---
+        changed3 = state.set_extra_data(key2, baz_value)
+        self.assertIs(changed3, False)
+
+        # del_extra_data ---
+        state.del_extra_data(key2)
+        state.save()
+
+        get_extra_data3 = self.refresh(state).get_extra_data
+        self.assertEqual(foo_value, get_extra_data3(key1))
+        self.assertIsNone(get_extra_data3(key2))
+
     def test_brick_state_manager_get_for_brick_ids01(self):
         "States do not exist in DB."
         user = self.login()
