@@ -21,7 +21,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as edit_perm %}{% url 'creme_core__delete_related_to_entity' ct_id as delete_sending_url %}
+{% has_perm_to change object as edit_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_sending_url %}
     {% for sending in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %} data-type='date'>{{sending.sending_date}}</td>
