@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-12 21:27+0200\n"
+"POT-Creation-Date: 2019-06-28 11:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -48,32 +48,32 @@ msgstr "Recherche"
 msgid "Roles and credentials"
 msgstr "Rôles et droits"
 
-#: apps.py:205 forms/user.py:219 templates/creme_config/bricks/users.html:7
+#: apps.py:205 forms/user.py:219 templates/creme_config/bricks/users.html:13
 #: templates/creme_config/user_portal.html:7
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: bricks.py:145
+#: bricks.py:147
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: bricks.py:158
+#: bricks.py:160
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: bricks.py:174
+#: bricks.py:176
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: bricks.py:190
+#: bricks.py:192
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:379 bricks.py:609 forms/bricks.py:224 forms/bricks.py:300
+#: bricks.py:386 bricks.py:616 forms/bricks.py:224 forms/bricks.py:300
 #: forms/search.py:68 forms/user.py:77 forms/user.py:118
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
-#: templates/creme_config/bricks/users.html:33
+#: templates/creme_config/bricks/users.html:39
 msgid "Superuser"
 msgstr "Super-utilisateur"
 
@@ -108,7 +108,7 @@ msgstr "Votre configuration est vide !"
 
 #: forms/bricks.py:203 forms/bricks.py:280 forms/search.py:45 forms/user.py:65
 #: forms/user.py:108 templates/creme_config/bricks/bricklocations-home.html:17
-#: templates/creme_config/bricks/users.html:19
+#: templates/creme_config/bricks/users.html:25
 msgid "Role"
 msgstr "Rôle"
 
@@ -546,7 +546,7 @@ msgid "Change"
 msgstr "Changer"
 
 #: forms/user_role.py:51
-#: templates/creme_config/bricks/configurable-model.html:67
+#: templates/creme_config/bricks/configurable-model.html:70
 #: templates/creme_config/bricks/user-roles.html:57
 msgid "Delete"
 msgstr "Supprimer"
@@ -623,7 +623,7 @@ msgstr ""
 #: templates/creme_config/bricks/semi-fixed-relation-types.html:19
 #: templates/creme_config/bricks/teams.html:26
 #: templates/creme_config/bricks/user-roles.html:29
-#: templates/creme_config/bricks/users.html:29
+#: templates/creme_config/bricks/users.html:35
 msgid "Actions"
 msgstr "Actions"
 
@@ -889,7 +889,7 @@ msgstr "Pas de bouton"
 msgid "New value"
 msgstr "Nouvelle valeur"
 
-#: templates/creme_config/bricks/configurable-model.html:75
+#: templates/creme_config/bricks/configurable-model.html:79
 msgid "No value for the moment"
 msgstr "Aucune valeur enregistrée pour le moment"
 
@@ -1307,7 +1307,7 @@ msgstr "{count} Équipe"
 msgid "{count} Teams"
 msgstr "{count} Équipes"
 
-#: templates/creme_config/bricks/teams.html:12 views/user.py:66
+#: templates/creme_config/bricks/teams.html:12 views/user.py:69
 msgid "New team"
 msgstr "Nouvelle équipe"
 
@@ -1421,41 +1421,41 @@ msgstr "Aucun rôle pour le moment"
 msgid "N/A"
 msgstr "NC"
 
-#: templates/creme_config/bricks/users.html:7
+#: templates/creme_config/bricks/users.html:13
 #, python-brace-format
 msgid "{count} User"
 msgstr "{count} Utilisateur"
 
-#: templates/creme_config/bricks/users.html:7
+#: templates/creme_config/bricks/users.html:13
 #, python-brace-format
 msgid "{count} Users"
 msgstr "{count} Utilisateurs"
 
-#: templates/creme_config/bricks/users.html:12
+#: templates/creme_config/bricks/users.html:18
 msgid "New user"
 msgstr "Nouvel utilisateur"
 
-#: templates/creme_config/bricks/users.html:41
+#: templates/creme_config/bricks/users.html:47
 msgid "Yes,No"
 msgstr "Oui,Non"
 
-#: templates/creme_config/bricks/users.html:47
+#: templates/creme_config/bricks/users.html:53
 msgid "Deactivate"
 msgstr "Désactiver"
 
-#: templates/creme_config/bricks/users.html:49
+#: templates/creme_config/bricks/users.html:55
 msgid "Activate"
 msgstr "Activer"
 
-#: templates/creme_config/bricks/users.html:53
+#: templates/creme_config/bricks/users.html:59
 msgid "Change the password"
 msgstr "Changer le mot de passe"
 
-#: templates/creme_config/bricks/users.html:56
+#: templates/creme_config/bricks/users.html:62
 msgid "Edit this user"
 msgstr "Modifier cette utilisateur"
 
-#: templates/creme_config/bricks/users.html:59
+#: templates/creme_config/bricks/users.html:65
 msgid "Delete this user"
 msgstr "Supprimer cet utilisateur"
 
@@ -1624,6 +1624,14 @@ msgstr "Accueil"
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
+#: templatetags/creme_config_tags.py:52
+msgid "Hide inactive users"
+msgstr "Cacher les utilisateurs désactivés"
+
+#: templatetags/creme_config_tags.py:53
+msgid "Show inactive users"
+msgstr "Montrer les utilisateurs désactivés"
+
 #: views/base.py:30 views/bricks.py:166 views/bricks.py:267
 #: views/button_menu.py:58
 msgid "Save the configuration"
@@ -1764,41 +1772,41 @@ msgstr "Nouvelle configuration de recherche pour «{model}»"
 msgid "Edit «{key}»"
 msgstr "Modifier «{key}»"
 
-#: views/user.py:45
+#: views/user.py:48
 #, python-brace-format
 msgid "Change password for «{object}»"
 msgstr "Changer le mot de passe pour «{object}»"
 
-#: views/user.py:67
+#: views/user.py:70
 msgid "Save the team"
 msgstr "Enregistrer l'équipe"
 
-#: views/user.py:106
+#: views/user.py:109
 #, python-brace-format
 msgid "Delete «{object}» and assign his entities to user"
 msgstr "Supprimer «{object}» et réassigner ses fiches"
 
-#: views/user.py:107
+#: views/user.py:110
 msgid "Delete the user"
 msgstr "Supprimer l'utilisateur"
 
-#: views/user.py:113
+#: views/user.py:116
 msgid "You can't delete the current user."
 msgstr "Vous ne pouvez pas supprimer l'utilisateur courant."
 
-#: views/user.py:126
+#: views/user.py:129
 msgid "You cannot delete this user. [original error: {}]"
 msgstr "Vous ne pouvez pas supprimer cet utilisateur. [erreur d'origine : {}]"
 
-#: views/user.py:139
+#: views/user.py:166
 msgid "You can't deactivate the current user."
 msgstr "Vous ne pouvez pas désactiver l'utilisateur courant."
 
-#: views/user.py:144
+#: views/user.py:172
 msgid "You can't deactivate a staff user."
 msgstr "Vous ne pouvez pas désactiver un super administrateur."
 
-#: views/user.py:161
+#: views/user.py:210
 msgid "You can't activate a staff user."
 msgstr "Vous ne pouvez pas activer un super administrateur."
 
@@ -1816,16 +1824,16 @@ msgstr "Ajouter les droits"
 msgid "Edit credentials for «{role}»"
 msgstr "Modifier les droits de «{role}»"
 
-#: views/user_role.py:218
+#: views/user_role.py:234
 #, python-brace-format
 msgid "Delete role «{object}»"
 msgstr "Supprimer le rôle «{object}»"
 
-#: views/user_role.py:219
+#: views/user_role.py:235
 msgid "Delete the role"
 msgstr "Supprimer le rôle"
 
-#: views/user_role.py:232
+#: views/user_role.py:248
 msgid "You cannot delete this role. [original error: {}]"
 msgstr "Vous ne pouvez pas supprimer ce rôle. [erreur d'origine : {}]"
 

@@ -1,0 +1,1 @@
+BRICK_STATE_HIDE_INACTIVE_USERS = 'creme_config-hide_inactive_users'

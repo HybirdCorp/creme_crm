@@ -19,7 +19,9 @@
 ################################################################################
 
 from django.template import Library
+from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.templatetags.creme_bricks import _brick_menu_state_action  # TODO: public ?
 
 register = Library()
 
@@ -38,3 +40,16 @@ def config_model_creation_url(*, model_config, user):
 @register.simple_tag
 def config_model_edition_url(*, model_config, instance, user):
     return model_config.editor.get_url(instance=instance, user=user)
+
+
+@register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)
+def config_brick_menu_hide_inactive_users_action(context, url, hidden):
+    return _brick_menu_state_action(
+        context,
+        url=url,
+        action_id='update',
+        current_state=not hidden,
+        in_label=_('Hide inactive users'),
+        out_label=_('Show inactive users'),
+        __value='false' if hidden else 'true',
+    )

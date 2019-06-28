@@ -1,7 +1,13 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_bricks %}
+{% load i18n creme_core_tags creme_bricks creme_config_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-users-brick{% endblock %}
+
+{% block brick_menu_actions %}
+    {{block.super}}
+    <hr/>{% url 'creme_config__users_brick_hide_inactive' as hide_url %}
+    {% config_brick_menu_hide_inactive_users_action url=hide_url hidden=hide_inactive %}
+{% endblock %}
 
 {% block brick_header_title %}
     {% brick_header_title title=_('{count} User') plural=_('{count} Users') empty=_('Users') %}

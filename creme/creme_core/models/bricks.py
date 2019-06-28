@@ -529,9 +529,27 @@ class BrickState(CremeModel):
 
     objects = BrickStateManager()
 
+    # NB: do not use directly ; use the function get_extra_data() & set_extra_data()
+    json_extra_data = models.TextField(editable=False, default='{}').set_tags(viewable=False)  # TODO: JSONField ?
+
     class Meta:
         app_label = 'creme_core'
         unique_together = ('user', 'brick_id')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._extra_data = json_load(self.json_extra_data)
+
+    def __str__(self):
+        return 'BrickState(user="{user}", brick_id="{brick_id}", ' \
+               'is_open={is_open}, show_empty_fields={show}, ' \
+               'json_extra_data="{json}")'.format(
+            user=self.user,
+            brick_id=self.brick_id,
+            is_open=self.is_open,
+            show=self.show_empty_fields,
+            json=self.json_extra_data,
+        )
 
     @staticmethod
     def get_for_brick_id(brick_id, user):
@@ -588,3 +606,19 @@ class BrickState(CremeModel):
             states[brick_id] = block_state(brick_id=brick_id)
 
         return states
+
+    def del_extra_data(self, key):
+        del self._extra_data[key]
+
+    def get_extra_data(self, key):
+        return self._extra_data.get(key)
+
+    def set_extra_data(self, key, value):
+        old_value = self._extra_data.get(key)
+        self._extra_data[key] = value
+
+        return old_value != value
+
+    def save(self, **kwargs):
+        self.json_extra_data = json_encode(self._extra_data)
+        super().save(**kwargs)

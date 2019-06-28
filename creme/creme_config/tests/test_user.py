@@ -13,7 +13,7 @@ try:
     from creme.creme_core.core.setting_key import SettingKey, UserSettingKey, user_setting_key_registry
     from creme.creme_core.models import CremeUser as User
     from creme.creme_core.models import (CremeEntity, RelationType,
-            EntityCredentials, UserRole, SetCredentials, Mutex)
+            EntityCredentials, UserRole, SetCredentials, Mutex, BrickState)
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -21,6 +21,7 @@ try:
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
 
+    from .. import constants
     from ..bricks import UsersBrick, TeamsBrick, BrickMypageLocationsBrick
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -899,7 +900,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_user_delete_errors(self):
-        "Validation errors"
+        "Validation errors."
         user = self.login()
         root = User.objects.get(username='root')
 
@@ -921,12 +922,39 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_user_delete_credentials(self):
-        "Only super user are allowed"
+        "Only super user are allowed."
         user = self.login_not_as_superuser()
 
         url = self._build_delete_url(self.other_user)
         self.assertGET403(url)
         self.assertPOST403(url, data={'to_user': user.id})
+
+    def test_brick_hide_inactive_user(self):
+        user = self.login()
+
+        def get_state():
+            return BrickState.objects.get_for_brick_id(user=user, brick_id=UsersBrick.id_)
+
+        self.assertIsNone(get_state().pk)
+
+        url = reverse('creme_config__users_brick_hide_inactive')
+        self.assertGET405(url)
+
+        # ---
+        self.assertPOST200(url, data={'value': 'true'})
+        state1 = get_state()
+        self.assertIsNotNone(state1.pk)
+        self.assertIs(
+            state1.get_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS),
+            True
+        )
+
+        # ---
+        self.assertPOST200(url, data={'value': '0'})
+        self.assertIs(
+            get_state().get_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS),
+            False
+        )
 
 
 class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):

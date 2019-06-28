@@ -19,6 +19,12 @@ user_patterns = [
     re_path(r'^deactivate/(?P<user_id>\d+)[/]?$',    user.UserDeactivation.as_view(), name='creme_config__deactivate_user'),
     re_path(r'^delete/(?P<user_id>\d+)[/]?$',        user.UserDeletion.as_view(),     name='creme_config__delete_user'),
     re_path(r'^edit/password/(?P<user_id>\d+)[/]?$', user.PasswordChange.as_view(),   name='creme_config__change_user_password'),
+
+    re_path(
+        r'^bricks/hide_inactive[/]?$',
+        user.HideInactiveUsers.as_view(),
+        name='creme_config__users_brick_hide_inactive',
+    ),
 ]
 
 team_patterns = [

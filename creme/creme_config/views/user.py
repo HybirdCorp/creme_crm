@@ -21,18 +21,21 @@
 import logging
 
 from django.contrib.auth import get_user_model
-from django.db import DatabaseError
+from django.db import DatabaseError, IntegrityError
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _, gettext
 
+from creme.creme_core import utils
 from creme.creme_core.auth.decorators import _check_superuser  # login_required, superuser_required
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import lock
+from creme.creme_core.models import lock, BrickState
 from creme.creme_core.views import generic
 # from creme.creme_core.views.decorators import POST_only
 
+from ..bricks import UsersBrick
+from ..constants import BRICK_STATE_HIDE_INACTIVE_USERS
 from ..forms import user as user_forms
 
 logger = logging.getLogger(__name__)
@@ -209,5 +212,33 @@ class UserActivation(generic.CheckedView):
             if not user_to_activate.is_active:
                 user_to_activate.is_active = True
                 user_to_activate.save()
+
+        return HttpResponse()
+
+
+class HideInactiveUsers(generic.CheckedView):
+    value_arg = 'value'
+    brick_cls = UsersBrick
+
+    def post(self, request, **kwargs):
+        value = utils.get_from_POST_or_404(request.POST, key=self.value_arg,
+                                           cast=utils.bool_from_str_extended,
+                                          )
+
+        # NB: we can still have a race condition because we do not use select_for_update ;
+        #     but it's a state related one user & one brick, so it would not be a real world problem.
+        for _i in range(10):
+            state = BrickState.objects.get_for_brick_id(brick_id=self.brick_cls.id_,
+                                                        user=request.user,
+                                                       )
+
+            try:
+                if state.set_extra_data(key=BRICK_STATE_HIDE_INACTIVE_USERS, value=value):
+                    state.save()
+            except IntegrityError:
+                logger.exception('Avoid a duplicate.')
+                continue
+            else:
+                break
 
         return HttpResponse()
