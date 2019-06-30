@@ -47,17 +47,17 @@ class Populator(BasePopulator):
                   model=MessagingList,
                   name=_('Messaging list view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-                 )
+                  )
         create_hf(pk=constants.DEFAULT_HFILTER_SMSCAMPAIGN,
                   model=SMSCampaign,
                   name=_('Campaign view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-                 )
+                  )
         create_hf(pk=constants.DEFAULT_HFILTER_MTEMPLATE,
                   model=MessageTemplate,
                   name=_('Message template view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-                 )
+                  )
 
         # ---------------------------
         create_searchconf = SearchConfigItem.create_if_needed
@@ -66,27 +66,30 @@ class Populator(BasePopulator):
         create_searchconf(MessageTemplate, ['name', 'subject', 'body'])
 
         # ---------------------------
-        if not BrickDetailviewLocation.config_exists(SMSCampaign): # NB: no straightforward way to test that this populate script has not been already run
-            create_bdl = BrickDetailviewLocation.create_if_needed
+        # NB: no straightforward way to test that this populate script has not been already run
+        if not BrickDetailviewLocation.objects.filter_for_model(SMSCampaign).exists():
+            create_bdl         = BrickDetailviewLocation.objects.create_if_needed
+            create_bdl_4_model = BrickDetailviewLocation.objects.create_for_model_brick
+
             TOP   = BrickDetailviewLocation.TOP
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=SMSCampaign)
-            create_bdl(brick_id=bricks.SendingsBrick.id_,          order=2,   zone=TOP,   model=SMSCampaign)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=SMSCampaign)
-            create_bdl(brick_id=bricks.MessagingListsBlock.id_,    order=50,  zone=LEFT,  model=SMSCampaign)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=SMSCampaign)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=SMSCampaign)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=SMSCampaign)
+            create_bdl_4_model(                             order=5,   zone=LEFT,  model=SMSCampaign)
+            create_bdl(brick=bricks.SendingsBrick,          order=2,   zone=TOP,   model=SMSCampaign)
+            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=SMSCampaign)
+            create_bdl(brick=bricks.MessagingListsBlock,    order=50,  zone=LEFT,  model=SMSCampaign)
+            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=SMSCampaign)
+            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=SMSCampaign)
+            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=SMSCampaign)
 
-            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=MessagingList)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=MessagingList)
-            create_bdl(brick_id=bricks.RecipientsBrick.id_,        order=50,  zone=LEFT,  model=MessagingList)
-            create_bdl(brick_id=bricks.ContactsBrick.id_,          order=55,  zone=LEFT,  model=MessagingList)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=MessagingList)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=MessagingList)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=MessagingList)
+            create_bdl_4_model(                             order=5,   zone=LEFT,  model=MessagingList)
+            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=MessagingList)
+            create_bdl(brick=bricks.RecipientsBrick,        order=50,  zone=LEFT,  model=MessagingList)
+            create_bdl(brick=bricks.ContactsBrick,          order=55,  zone=LEFT,  model=MessagingList)
+            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=MessagingList)
+            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=MessagingList)
+            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=MessagingList)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
@@ -94,14 +97,14 @@ class Populator(BasePopulator):
                 from creme.assistants import bricks as a_bricks
 
                 for model in (SMSCampaign, MessagingList):
-                    create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.documents'):
                 # logger.info("Documents app is installed => we use the documents block on SMSCampaign's detail views")
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=SMSCampaign)
+                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=SMSCampaign)

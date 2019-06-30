@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-from json import loads as json_load # dumps as json_dump
+from json import loads as json_load  # dumps as json_dump
 import logging
 import warnings
 
@@ -51,6 +51,50 @@ __all__ = (
 logger = logging.getLogger(__name__)
 
 
+class BrickDetailviewLocationManager(models.Manager):
+    def create_if_needed(self, brick, order, zone, model=None, role=None):
+        """Create an instance of BrickDetailviewLocation, but if only if the
+        related brick is not already on the configuration.
+        @param brick: Brick ID (string) or Brick class.
+        @param order: Integer (see 'BrickDetailviewLocation.order').
+        @param zone: Value in BrickDetailviewLocation.{TOP|LEFT|RIGHT|BOTTOM}
+        @param model: Model corresponding to this configuration ; it can be :
+               - A class inheriting CremeEntity.
+               - An instance of ContentType (corresponding to a model inheriting CremeEntity).
+               - None, which means <default configuration>.
+        @param role: Can be None (ie: 'Default configuration'), a UserRole instance,
+                     or the string 'superuser'.
+        """
+        kwargs = {'role': None, 'superuser': False}
+
+        if role:
+            if model is None:
+                raise ValueError('The default configuration cannot have a related role.')
+
+            if role == 'superuser':
+                kwargs['superuser'] = True
+            else:
+                kwargs['role'] = role
+
+        return self.get_or_create(
+            content_type=model if model is None or isinstance(model, ContentType) else
+                         ContentType.objects.get_for_model(model),
+            brick_id=brick if isinstance(brick, str) else brick.id_,
+            defaults={'order': order, 'zone': zone},
+            **kwargs
+        )[0]
+
+    def create_for_model_brick(self, order, zone, model=None, role=None):
+        return self.create_if_needed(brick=MODELBRICK_ID, order=order,
+                                     zone=zone, model=model, role=role,
+                                    )
+
+    def filter_for_model(self, model):
+        return BrickDetailviewLocation.objects.filter(
+            content_type=ContentType.objects.get_for_model(model),
+        )
+
+
 class BrickDetailviewLocation(CremeModel):
     content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
     role         = models.ForeignKey(UserRole, verbose_name=_('Related role'),
@@ -61,6 +105,8 @@ class BrickDetailviewLocation(CremeModel):
     brick_id     = models.CharField(max_length=100)
     order        = models.PositiveIntegerField()
     zone         = models.PositiveSmallIntegerField()
+
+    objects = BrickDetailviewLocationManager()
 
     TOP    = 1
     LEFT   = 2
@@ -90,23 +136,28 @@ class BrickDetailviewLocation(CremeModel):
     def __repr__(self):
         return 'BrickDetailviewLocation(id={id}, content_type_id={ct_id}, role={role}, ' \
                                        'brick_id="{brick_id}", order={order}, zone={zone})'.format(
-                id=self.id,
-                ct_id=self.content_type_id,
-                role='superuser' if self.superuser else self.role,
-                brick_id=self.brick_id,
-                order=self.order,
-                zone=self.zone,
+            id=self.id,
+            ct_id=self.content_type_id,
+            role='superuser' if self.superuser else self.role,
+            brick_id=self.brick_id,
+            order=self.order,
+            zone=self.zone,
         )
 
     @staticmethod
     def create_if_needed(brick_id, order, zone, model=None, role=None):
         """Create an instance of BrickDetailviewLocation, but if only if the related
         brick is not already on the configuration.
-        @param zone: Value in BlockDetailviewLocation.{TOP|LEFT|RIGHT|BOTTOM}
+        @param zone: Value in BrickDetailviewLocation.{TOP|LEFT|RIGHT|BOTTOM}
         @param model: A class inheriting CremeEntity ; None means default configuration.
         @param role: Can be None (ie: 'Default configuration'), a UserRole instance,
                      or the string 'superuser'.
         """
+        warnings.warn('BrickDetailviewLocation.create_if_needed() is deprecated ; '
+                      'use BrickDetailviewLocation.objects.create_if_needed() instead.',
+                      DeprecationWarning
+                     )
+
         kwargs = {'role': None, 'superuser': False}
 
         if role:
@@ -127,16 +178,29 @@ class BrickDetailviewLocation(CremeModel):
 
     @staticmethod
     def create_4_model_brick(order, zone, model=None, role=None):
+        warnings.warn('BrickDetailviewLocation.create_4_model_brick() is deprecated ; '
+                      'use BrickDetailviewLocation.objects.create_for_model_brick() instead.',
+                      DeprecationWarning
+                     )
+
         return BrickDetailviewLocation.create_if_needed(brick_id=MODELBRICK_ID, order=order,
                                                         zone=zone, model=model, role=role,
                                                        )
 
     @staticmethod
-    def id_is_4_model(brick_id):  # TODO: deprecate or use ?
+    def id_is_4_model(brick_id):
+        warnings.warn('BrickDetailviewLocation.id_is_4_model() is deprecated.',
+                      DeprecationWarning
+                     )
         return brick_id == MODELBRICK_ID
 
     @staticmethod
     def config_exists(model):
+        warnings.warn('BrickDetailviewLocation.config_exists() is deprecated ; '
+                      'use BrickDetailviewLocation.filter_for_model() instead.',
+                      DeprecationWarning
+                     )
+
         ct = ContentType.objects.get_for_model(model)
         return BrickDetailviewLocation.objects.filter(content_type=ct).exists()
 
@@ -184,16 +248,20 @@ class BrickMypageLocation(CremeModel):
             id=self.id, user=self.user_id,
         )
 
-    @staticmethod
-    def _copy_default_config(sender, instance, created, **kwargs):
+    # @staticmethod
+    @classmethod
+    # def _copy_default_config(sender, instance, created, **kwargs):
+    def _copy_default_config(cls, sender, instance, created, **kwargs):
         if created:
-            from django.db.transaction import atomic
+            # from django.db.transaction import atomic
 
-            create = BrickMypageLocation.objects.create
+            # create = BrickMypageLocation.objects.create
+            create = cls.objects.create
 
             with atomic():
                 try:
-                    for loc in BrickMypageLocation.objects.filter(user=None):
+                    # for loc in BrickMypageLocation.objects.filter(user=None):
+                    for loc in cls.objects.filter(user=None):
                         create(user=instance, brick_id=loc.brick_id, order=loc.order)
                 except Exception:
                     # TODO: still useful ? (BrickMypageLocation table should exist when the first User is created)
@@ -527,10 +595,10 @@ class BrickState(CremeModel):
     is_open           = models.BooleanField(default=True)  # Is brick has to appear as opened or closed
     show_empty_fields = models.BooleanField(default=True)  # Are empty fields in brick have to be shown or not
 
-    objects = BrickStateManager()
-
     # NB: do not use directly ; use the function get_extra_data() & set_extra_data()
     json_extra_data = models.TextField(editable=False, default='{}').set_tags(viewable=False)  # TODO: JSONField ?
+
+    objects = BrickStateManager()
 
     class Meta:
         app_label = 'creme_core'

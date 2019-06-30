@@ -38,7 +38,6 @@ from creme import commercial
 from . import bricks, buttons, constants, creme_jobs, setting_keys
 from .models import MarketSegment, ActType
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -114,39 +113,40 @@ class Populator(BasePopulator):
                                             model=None, button=buttons.CompleteGoalButton, order=60,
                                            )
 
-            create_bdl = BrickDetailviewLocation.create_if_needed
-            TOP = BrickDetailviewLocation.TOP
+            create_bdl           = BrickDetailviewLocation.objects.create_if_needed
+            create_bdl_for_model = BrickDetailviewLocation.objects.create_for_model_brick
+            TOP   = BrickDetailviewLocation.TOP
             RIGHT = BrickDetailviewLocation.RIGHT
-            LEFT = BrickDetailviewLocation.LEFT
+            LEFT  = BrickDetailviewLocation.LEFT
 
-            create_bdl(brick_id=bricks.ApproachesBrick.id_, order=10, zone=RIGHT)
-            create_bdl(brick_id=bricks.ApproachesBrick.id_, order=10, zone=RIGHT, model=Contact)
-            create_bdl(brick_id=bricks.ApproachesBrick.id_, order=10, zone=RIGHT, model=Organisation)
+            create_bdl(brick=bricks.ApproachesBrick, order=10, zone=RIGHT)
+            create_bdl(brick=bricks.ApproachesBrick, order=10, zone=RIGHT, model=Contact)
+            create_bdl(brick=bricks.ApproachesBrick, order=10, zone=RIGHT, model=Organisation)
 
-            BrickDetailviewLocation.create_4_model_brick(             order=5,   zone=LEFT,  model=Act)
-            create_bdl(brick_id=bricks.ActObjectivesBrick.id_,        order=10,  zone=LEFT,  model=Act)
-            create_bdl(brick_id=bricks.RelatedOpportunitiesBrick.id_, order=20,  zone=LEFT,  model=Act)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Act)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,      order=450, zone=LEFT,  model=Act)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,       order=500, zone=LEFT,  model=Act)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,         order=20,  zone=RIGHT, model=Act)
+            create_bdl_for_model(                              order=5,   zone=LEFT,  model=Act)
+            create_bdl(brick=bricks.ActObjectivesBrick,        order=10,  zone=LEFT,  model=Act)
+            create_bdl(brick=bricks.RelatedOpportunitiesBrick, order=20,  zone=LEFT,  model=Act)
+            create_bdl(brick=core_bricks.CustomFieldsBrick,    order=40,  zone=LEFT,  model=Act)
+            create_bdl(brick=core_bricks.PropertiesBrick,      order=450, zone=LEFT,  model=Act)
+            create_bdl(brick=core_bricks.RelationsBrick,       order=500, zone=LEFT,  model=Act)
+            create_bdl(brick=core_bricks.HistoryBrick,         order=20,  zone=RIGHT, model=Act)
 
-            create_bdl(brick_id=bricks.PatternComponentsBrick.id_, order=10,  zone=TOP,   model=ActObjectivePattern)
-            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=ActObjectivePattern)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=ActObjectivePattern)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=ActObjectivePattern)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=ActObjectivePattern)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=ActObjectivePattern)
+            create_bdl(brick=bricks.PatternComponentsBrick, order=10,  zone=TOP,   model=ActObjectivePattern)
+            create_bdl_for_model(                           order=5,   zone=LEFT,  model=ActObjectivePattern)
+            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=ActObjectivePattern)
+            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=ActObjectivePattern)
+            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=ActObjectivePattern)
+            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=ActObjectivePattern)
 
-            create_bdl(brick_id=bricks.SegmentDescriptionsBrick.id_, order=10,  zone=TOP,   model=Strategy)
-            BrickDetailviewLocation.create_4_model_brick(            order=5,   zone=LEFT,  model=Strategy)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,   order=40,  zone=LEFT,  model=Strategy)
-            create_bdl(brick_id=bricks.EvaluatedOrgasBrick.id_,      order=50,  zone=LEFT,  model=Strategy)
-            create_bdl(brick_id=bricks.AssetsBrick.id_,              order=60,  zone=LEFT,  model=Strategy)
-            create_bdl(brick_id=bricks.CharmsBrick.id_,              order=70,  zone=LEFT,  model=Strategy)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,     order=450, zone=LEFT,  model=Strategy)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,      order=500, zone=LEFT,  model=Strategy)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,        order=20,  zone=RIGHT, model=Strategy)
+            create_bdl(brick=bricks.SegmentDescriptionsBrick, order=10,  zone=TOP,   model=Strategy)
+            create_bdl_for_model(                             order=5,   zone=LEFT,  model=Strategy)
+            create_bdl(brick=core_bricks.CustomFieldsBrick,   order=40,  zone=LEFT,  model=Strategy)
+            create_bdl(brick=bricks.EvaluatedOrgasBrick,      order=50,  zone=LEFT,  model=Strategy)
+            create_bdl(brick=bricks.AssetsBrick,              order=60,  zone=LEFT,  model=Strategy)
+            create_bdl(brick=bricks.CharmsBrick,              order=70,  zone=LEFT,  model=Strategy)
+            create_bdl(brick=core_bricks.PropertiesBrick,     order=450, zone=LEFT,  model=Strategy)
+            create_bdl(brick=core_bricks.RelationsBrick,      order=500, zone=LEFT,  model=Strategy)
+            create_bdl(brick=core_bricks.HistoryBrick,        order=20,  zone=RIGHT, model=Strategy)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
@@ -154,10 +154,10 @@ class Populator(BasePopulator):
                 from creme.assistants import bricks as assistants_bricks
 
                 for model in (Act, ActObjectivePattern, Strategy):
-                    create_bdl(brick_id=assistants_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick_id=assistants_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick_id=assistants_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick_id=assistants_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=model)
+                    create_bdl(brick=assistants_bricks.TodosBrick,        order=100, zone=RIGHT, model=model)
+                    create_bdl(brick=assistants_bricks.MemosBrick,        order=200, zone=RIGHT, model=model)
+                    create_bdl(brick=assistants_bricks.AlertsBrick,       order=300, zone=RIGHT, model=model)
+                    create_bdl(brick=assistants_bricks.UserMessagesBrick, order=400, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.documents'):
                 # logger.info("Documents app is installed => we use the documents blocks on Strategy's detail views")
@@ -165,4 +165,4 @@ class Populator(BasePopulator):
                 from creme.documents.bricks import LinkedDocsBrick
 
                 for model in (Act, ActObjectivePattern, Strategy):
-                    create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=model)
+                    create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=model)

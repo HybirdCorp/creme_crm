@@ -21,9 +21,9 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def setUpClass(cls):
         super().setUpClass()
 
-        BrickDetailviewLocation.create_if_needed(brick_id=ImprintsBrick.id_, order=1,
-                                                 zone=BrickDetailviewLocation.LEFT,
-                                                )
+        BrickDetailviewLocation.objects.create_if_needed(brick=ImprintsBrick, order=1,
+                                                         zone=BrickDetailviewLocation.LEFT,
+                                                        )
         BrickHomeLocation.objects.create(brick_id=ImprintsBrick.id_, order=1)
 
     def test_detailview(self):

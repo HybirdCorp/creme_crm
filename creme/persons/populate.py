@@ -30,7 +30,8 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import EntityFilter, EntityFilterCondition, EntityFilterVariable
 from creme.creme_core.utils import create_if_needed
 
-from . import get_contact_model, get_organisation_model
+from creme import persons
+
 from . import bricks, buttons, constants
 from .models import Civility, Sector, Position, StaffSize, LegalForm
 
@@ -43,8 +44,8 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = core_models.RelationType.objects.filter(pk=constants.REL_SUB_EMPLOYED_BY).exists()
 
-        Contact = get_contact_model()
-        Organisation = get_organisation_model()
+        Contact      = persons.get_contact_model()
+        Organisation = persons.get_organisation_model()
 
         rt_map = {}
         for rt_info in [((constants.REL_SUB_EMPLOYED_BY,       _('is an employee of'),          [Contact]),
@@ -270,19 +271,19 @@ class Populator(BasePopulator):
             LEFT  = core_models.BrickDetailviewLocation.LEFT
             RIGHT = core_models.BrickDetailviewLocation.RIGHT
 
-            create_bdl = core_models.BrickDetailviewLocation.create_if_needed
-            create_bdl(brick_id=bricks.OrganisationCardHatBrick.id_,  order=1,   zone=HAT,   model=Organisation)
-            create_bdl(brick_id=cbci_orga_extra.generate_id(),        order=5,   zone=LEFT,  model=Organisation)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Organisation)
-            create_bdl(brick_id=bricks.PrettyAddressesBrick.id_,      order=50,  zone=LEFT,  model=Organisation)
-            create_bdl(brick_id=bricks.PrettyOtherAddressesBrick.id_, order=60,  zone=LEFT,  model=Organisation)
-            create_bdl(brick_id=bricks.ManagersBrick.id_,             order=100, zone=LEFT,  model=Organisation)
-            create_bdl(brick_id=bricks.EmployeesBrick.id_,            order=120, zone=LEFT,  model=Organisation)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,      order=450, zone=LEFT,  model=Organisation)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,       order=500, zone=LEFT,  model=Organisation)
-            create_bdl(brick_id=rbi_1.brick_id,                       order=5,   zone=RIGHT, model=Organisation)
-            create_bdl(brick_id=rbi_2.brick_id,                       order=10,  zone=RIGHT, model=Organisation)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,         order=30,  zone=RIGHT, model=Organisation)
+            create_bdl = core_models.BrickDetailviewLocation.objects.create_if_needed
+            create_bdl(brick=bricks.OrganisationCardHatBrick,  order=1,   zone=HAT,   model=Organisation)
+            create_bdl(brick=cbci_orga_extra.generate_id(),    order=5,   zone=LEFT,  model=Organisation)
+            create_bdl(brick=core_bricks.CustomFieldsBrick,    order=40,  zone=LEFT,  model=Organisation)
+            create_bdl(brick=bricks.PrettyAddressesBrick,      order=50,  zone=LEFT,  model=Organisation)
+            create_bdl(brick=bricks.PrettyOtherAddressesBrick, order=60,  zone=LEFT,  model=Organisation)
+            create_bdl(brick=bricks.ManagersBrick,             order=100, zone=LEFT,  model=Organisation)
+            create_bdl(brick=bricks.EmployeesBrick,            order=120, zone=LEFT,  model=Organisation)
+            create_bdl(brick=core_bricks.PropertiesBrick,      order=450, zone=LEFT,  model=Organisation)
+            create_bdl(brick=core_bricks.RelationsBrick,       order=500, zone=LEFT,  model=Organisation)
+            create_bdl(brick=rbi_1.brick_id,                   order=5,   zone=RIGHT, model=Organisation)
+            create_bdl(brick=rbi_2.brick_id,                   order=10,  zone=RIGHT, model=Organisation)
+            create_bdl(brick=core_bricks.HistoryBrick,         order=30,  zone=RIGHT, model=Organisation)
 
             create_cbci(id='persons-contact_main_info',
                         name=_('Contact information'),
@@ -334,37 +335,37 @@ class Populator(BasePopulator):
                                              ],
                                             )
 
-            create_bdl(brick_id=bricks.ContactCardHatBrick.id_,       order=1,   zone=HAT,   model=Contact)
-            create_bdl(brick_id=cbci_contact_extra.generate_id(),     order=30,  zone=LEFT,  model=Contact)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Contact)
-            create_bdl(brick_id=bricks.PrettyAddressesBrick.id_,      order=50,  zone=LEFT,  model=Contact)
-            create_bdl(brick_id=bricks.PrettyOtherAddressesBrick.id_, order=60,  zone=LEFT,  model=Contact)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,      order=450, zone=LEFT,  model=Contact)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,       order=500, zone=LEFT,  model=Contact)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,         order=20,  zone=RIGHT, model=Contact)
+            create_bdl(brick=bricks.ContactCardHatBrick,       order=1,   zone=HAT,   model=Contact)
+            create_bdl(brick=cbci_contact_extra.generate_id(), order=30,  zone=LEFT,  model=Contact)
+            create_bdl(brick=core_bricks.CustomFieldsBrick,    order=40,  zone=LEFT,  model=Contact)
+            create_bdl(brick=bricks.PrettyAddressesBrick,      order=50,  zone=LEFT,  model=Contact)
+            create_bdl(brick=bricks.PrettyOtherAddressesBrick, order=60,  zone=LEFT,  model=Contact)
+            create_bdl(brick=core_bricks.PropertiesBrick,      order=450, zone=LEFT,  model=Contact)
+            create_bdl(brick=core_bricks.RelationsBrick,       order=500, zone=LEFT,  model=Contact)
+            create_bdl(brick=core_bricks.HistoryBrick,         order=20,  zone=RIGHT, model=Contact)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
                 from creme.assistants import bricks as a_bricks
 
-                create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Contact)
-                create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Contact)
-                create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Contact)
-                create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=500, zone=RIGHT, model=Contact)
+                create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=Contact)
+                create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=Contact)
+                create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=Contact)
+                create_bdl(brick=a_bricks.UserMessagesBrick, order=500, zone=RIGHT, model=Contact)
 
-                create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Organisation)
-                create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Organisation)
-                create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Organisation)
-                create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=500, zone=RIGHT, model=Organisation)
+                create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=Organisation)
+                create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=Organisation)
+                create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=Organisation)
+                create_bdl(brick=a_bricks.UserMessagesBrick, order=500, zone=RIGHT, model=Organisation)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail views')
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Contact)
-                create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Organisation)
+                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Contact)
+                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Organisation)
 
             if apps.is_installed('creme.activities'):
                 core_models.BrickHomeLocation.objects.create(brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15)

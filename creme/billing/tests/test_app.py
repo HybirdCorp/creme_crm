@@ -301,16 +301,17 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_brick_orga03(self):
-        "Statistics"
+        "Statistics."
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='NERV')
         brick_id = bricks.PersonsStatisticsBrick.id_
 
-        BrickDetailviewLocation.create_if_needed(brick_id=brick_id, order=1000,
-                                                 zone=BrickDetailviewLocation.LEFT,
-                                                 model=Organisation,
-                                                )
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=brick_id, order=1000,
+            zone=BrickDetailviewLocation.LEFT,
+            model=Organisation,
+        )
 
         response = self.assertGET200(orga.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/bricks/persons-statistics.html')

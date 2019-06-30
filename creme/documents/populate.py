@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 import logging
 
 from django.apps import apps
@@ -133,22 +134,22 @@ class Populator(BasePopulator):
         if not already_populated:
             LEFT = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
-            create_bdl = BrickDetailviewLocation.create_if_needed
+            create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed, model=Folder)
 
-            BrickDetailviewLocation.create_4_model_brick(order=5, zone=LEFT, model=Folder)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Folder)
-            create_bdl(brick_id=bricks.ChildFoldersBrick.id_,      order=50,  zone=LEFT,  model=Folder)
-            create_bdl(brick_id=bricks.FolderDocsBrick.id_,        order=60,  zone=LEFT,  model=Folder)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Folder)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Folder)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Folder)
+            BrickDetailviewLocation.objects.create_for_model_brick(order=5, zone=LEFT, model=Folder)
+            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT)
+            create_bdl(brick=bricks.ChildFoldersBrick,      order=50,  zone=LEFT)
+            create_bdl(brick=bricks.FolderDocsBrick,        order=60,  zone=LEFT)
+            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT)
+            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT)
+            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
                 from creme.assistants import bricks as a_bricks
 
-                create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Folder)
-                create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Folder)
-                create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Folder)
-                create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Folder)
+                create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT)
+                create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT)
+                create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT)
+                create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT)
