@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from functools import partial
 
 from django.conf import settings
 
@@ -49,11 +51,13 @@ class Populator(BasePopulator):
                                  )
 
         if not already_populated:
-            RIGHT = BrickDetailviewLocation.RIGHT
-            BrickDetailviewLocation.create_if_needed(brick_id=TodosBrick.id_,        order=100, zone=RIGHT)
-            BrickDetailviewLocation.create_if_needed(brick_id=MemosBrick.id_,        order=200, zone=RIGHT)
-            BrickDetailviewLocation.create_if_needed(brick_id=AlertsBrick.id_,       order=300, zone=RIGHT)
-            BrickDetailviewLocation.create_if_needed(brick_id=UserMessagesBrick.id_, order=400, zone=RIGHT)
+            create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
+                                 zone=BrickDetailviewLocation.RIGHT,
+                                )
+            create_bdl(brick=TodosBrick,        order=100)
+            create_bdl(brick=MemosBrick,        order=200)
+            create_bdl(brick=AlertsBrick,       order=300)
+            create_bdl(brick=UserMessagesBrick, order=400)
 
             BrickHomeLocation.objects.create(brick_id=MemosBrick.id_,        order=100)
             BrickHomeLocation.objects.create(brick_id=AlertsBrick.id_,       order=200)

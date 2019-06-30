@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 import logging
 
 from django.apps import apps
@@ -43,39 +44,40 @@ class Populator(BasePopulator):
                             name=_('Report view'), model=Report,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                                         (EntityCellRegularField, {'name': 'ct'}),
-                                       ],
-                           )
+                                        ],
+                            )
 
         # ---------------------------
         SearchConfigItem.create_if_needed(Report, ['name'])
 
         # ---------------------------
-        if not BrickDetailviewLocation.config_exists(Report):  # NB: no straightforward way to test that this populate script has not been already run
-            create_bdl = BrickDetailviewLocation.create_if_needed
+        # NB: no straightforward way to test that this populate script has not been already run
+        if not BrickDetailviewLocation.objects.filter_for_model(Report).exists():
+            create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed, model=Report)
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            BrickDetailviewLocation.create_4_model_brick(order=5, zone=LEFT, model=Report)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Report)
-            create_bdl(brick_id=bricks.ReportFieldsBrick.id_,      order=50,  zone=LEFT,  model=Report)
-            create_bdl(brick_id=bricks.ReportGraphsBrick.id_,      order=60,  zone=LEFT,  model=Report)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Report)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Report)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Report)
+            BrickDetailviewLocation.objects.create_for_model_brick(order=5,   zone=LEFT, model=Report)
+            create_bdl(brick=core_bricks.CustomFieldsBrick,        order=40,  zone=LEFT)
+            create_bdl(brick=bricks.ReportFieldsBrick,             order=50,  zone=LEFT)
+            create_bdl(brick=bricks.ReportGraphsBrick,             order=60,  zone=LEFT)
+            create_bdl(brick=core_bricks.PropertiesBrick,          order=450, zone=LEFT)
+            create_bdl(brick=core_bricks.RelationsBrick,           order=500, zone=LEFT)
+            create_bdl(brick=core_bricks.HistoryBrick,             order=20,  zone=RIGHT)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
                 from creme.assistants import bricks as a_bricks
 
-                create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Report)
-                create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Report)
-                create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Report)
-                create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Report)
+                create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT)
+                create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT)
+                create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT)
+                create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail views')
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Report)
+                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT)

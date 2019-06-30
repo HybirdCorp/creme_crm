@@ -149,48 +149,49 @@ class Populator(BasePopulator):
                                         ],
                                        )
 
-            create_bdl = BrickDetailviewLocation.create_if_needed
+            create_bdl         = BrickDetailviewLocation.objects.create_if_needed
+            create_bdl_4_model = BrickDetailviewLocation.objects.create_for_model_brick
             TOP   = BrickDetailviewLocation.TOP
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            create_bdl(brick_id=cbci_email.generate_id(),          order=5,   zone=LEFT,  model=EntityEmail)
-            create_bdl(brick_id=bricks.EmailHTMLBodyBrick.id_,     order=20,  zone=LEFT,  model=EntityEmail)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=EntityEmail)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=EntityEmail)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=EntityEmail)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=EntityEmail)
+            create_bdl(brick=cbci_email.generate_id(),      order=5,   zone=LEFT,  model=EntityEmail)
+            create_bdl(brick=bricks.EmailHTMLBodyBrick,     order=20,  zone=LEFT,  model=EntityEmail)
+            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=EntityEmail)
+            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=EntityEmail)
+            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=EntityEmail)
+            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=EntityEmail)
 
-            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=MailingList)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=MailingList)
-            create_bdl(brick_id=bricks.EmailRecipientsBrick.id_,   order=80,  zone=LEFT,  model=MailingList)
-            create_bdl(brick_id=bricks.ContactsBrick.id_,          order=90,  zone=LEFT,  model=MailingList)
-            create_bdl(brick_id=bricks.OrganisationsBrick.id_,     order=95,  zone=LEFT,  model=MailingList)
-            create_bdl(brick_id=bricks.ChildListsBrick.id_,        order=100, zone=LEFT,  model=MailingList)
-            create_bdl(brick_id=bricks.ParentListsBrick.id_,       order=105, zone=LEFT,  model=MailingList)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=MailingList)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=MailingList)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=MailingList)
+            create_bdl_4_model(                             order=5,   zone=LEFT,  model=MailingList)
+            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=MailingList)
+            create_bdl(brick=bricks.EmailRecipientsBrick,   order=80,  zone=LEFT,  model=MailingList)
+            create_bdl(brick=bricks.ContactsBrick,          order=90,  zone=LEFT,  model=MailingList)
+            create_bdl(brick=bricks.OrganisationsBrick,     order=95,  zone=LEFT,  model=MailingList)
+            create_bdl(brick=bricks.ChildListsBrick,        order=100, zone=LEFT,  model=MailingList)
+            create_bdl(brick=bricks.ParentListsBrick,       order=105, zone=LEFT,  model=MailingList)
+            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=MailingList)
+            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=MailingList)
+            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=MailingList)
 
-            create_bdl(brick_id=bricks.SendingsBrick.id_,          order=2,   zone=TOP,   model=EmailCampaign)
-            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=EmailCampaign)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=EmailCampaign)
-            create_bdl(brick_id=bricks.MailingListsBrick.id_,      order=120, zone=LEFT,  model=EmailCampaign)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=EmailCampaign)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=EmailCampaign)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=EmailCampaign)
+            create_bdl(brick=bricks.SendingsBrick,          order=2,   zone=TOP,   model=EmailCampaign)
+            create_bdl_4_model(                             order=5,   zone=LEFT,  model=EmailCampaign)
+            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=EmailCampaign)
+            create_bdl(brick=bricks.MailingListsBrick,      order=120, zone=LEFT,  model=EmailCampaign)
+            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=EmailCampaign)
+            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=EmailCampaign)
+            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=EmailCampaign)
 
-            create_bdl(brick_id=cbci_template.generate_id(),       order=5,   zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick_id=bricks.AttachmentsBrick.id_,       order=60,  zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick_id=bricks.TemplateHTMLBodyBrick.id_,  order=70,  zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=EmailTemplate)
+            create_bdl(brick=cbci_template.generate_id(),   order=5,   zone=LEFT,  model=EmailTemplate)
+            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=EmailTemplate)
+            create_bdl(brick=bricks.AttachmentsBrick,       order=60,  zone=LEFT,  model=EmailTemplate)
+            create_bdl(brick=bricks.TemplateHTMLBodyBrick,  order=70,  zone=LEFT,  model=EmailTemplate)
+            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=EmailTemplate)
+            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=EmailTemplate)
+            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=EmailTemplate)
 
             # 'persons' app
-            create_bdl(brick_id=bricks.MailsHistoryBrick.id_, order=600, zone=RIGHT, model=Contact)
-            create_bdl(brick_id=bricks.MailsHistoryBrick.id_, order=600, zone=RIGHT, model=Organisation)
+            create_bdl(brick=bricks.MailsHistoryBrick, order=600, zone=RIGHT, model=Contact)
+            create_bdl(brick=bricks.MailsHistoryBrick, order=600, zone=RIGHT, model=Organisation)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
@@ -198,17 +199,17 @@ class Populator(BasePopulator):
                 from creme.assistants import bricks as a_bricks
 
                 for model in (MailingList, EmailCampaign, EmailTemplate):
-                    create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.documents'):
                 # logger.info("Documents app is installed => we use the documents block on EmailCampaign's detail view")
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=EmailCampaign)
+                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=EmailCampaign)
 
             # ---------------------------
             ButtonMenuItem.create_if_needed(pk='emails-entity_email_link_button', model=EntityEmail, button=buttons.EntityEmailLinkButton, order=20)

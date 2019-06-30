@@ -98,12 +98,12 @@ class Populator(BasePopulator):
             # ---------------------------
             LEFT = BrickDetailviewLocation.LEFT
 
-            create_bdl = BrickDetailviewLocation.create_if_needed
-            BrickDetailviewLocation.create_4_model_brick(order=5,        zone=LEFT)
-            create_bdl(brick_id=bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT)
-            create_bdl(brick_id=bricks.PropertiesBrick.id_,   order=450, zone=LEFT)
-            create_bdl(brick_id=bricks.RelationsBrick.id_,    order=500, zone=LEFT)
-            create_bdl(brick_id=bricks.HistoryBrick.id_,      order=8,   zone=BrickDetailviewLocation.RIGHT)
+            create_bdl = BrickDetailviewLocation.objects.create_if_needed
+            BrickDetailviewLocation.objects.create_for_model_brick(order=5, zone=LEFT)
+            create_bdl(brick=bricks.CustomFieldsBrick, order=40,  zone=LEFT)
+            create_bdl(brick=bricks.PropertiesBrick,   order=450, zone=LEFT)
+            create_bdl(brick=bricks.RelationsBrick,    order=500, zone=LEFT)
+            create_bdl(brick=bricks.HistoryBrick,      order=8,   zone=BrickDetailviewLocation.RIGHT)
 
             BrickHomeLocation.objects.create(brick_id=bricks.StatisticsBrick.id_, order=8)
             BrickHomeLocation.objects.create(brick_id=bricks.HistoryBrick.id_,    order=10)

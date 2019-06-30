@@ -24,6 +24,12 @@ except Exception as e:
 
 
 class BrickTestCase(CremeTestCase):
+    class TestBrick01(Brick):
+        id_ = Brick.generate_id('creme_core', 'test_models_bricks01')
+
+    class TestBrick02(Brick):
+        id_ = Brick.generate_id('creme_core', 'test_models_bricks02')
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -63,7 +69,21 @@ class BrickTestCase(CremeTestCase):
         self.assertIn(brick_id, {bpl.brick_id for bpl in self._bpl_backup})
         self.assertIn(brick_id, {bml.brick_id for bml in self._bml_backup if bml.user is None})
 
-    def test_create_detailview02(self):
+    def test_create_detailview01(self):  # DEPRECATED
+        "Default configuration."
+        order = 25
+        zone = BrickDetailviewLocation.TOP
+        brick_id = RelationsBrick.id_
+        loc = BrickDetailviewLocation.create_if_needed(brick_id=brick_id, order=order, zone=zone)
+        self.assertIsInstance(loc, BrickDetailviewLocation)
+
+        loc = self.get_object_or_fail(BrickDetailviewLocation, pk=loc.pk)
+        self.assertIsNone(loc.content_type)
+        self.assertEqual(brick_id, loc.brick_id)
+        self.assertEqual(order,    loc.order)
+        self.assertEqual(zone,     loc.zone)
+
+    def test_create_detailview02(self):  # DEPRECATED
         "For a ContentType."
         self.assertFalse(BrickDetailviewLocation.config_exists(FakeContact))
 
@@ -79,7 +99,7 @@ class BrickTestCase(CremeTestCase):
 
         self.assertTrue(BrickDetailviewLocation.config_exists(FakeContact))
 
-    def test_create_detailview03(self):
+    def test_create_detailview03(self):  # DEPRECATED
         "Do not create if already exists (in any zone/order)."
         brick_id = PropertiesBrick.id_
         order = 5
@@ -99,7 +119,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(order, loc.order)
         self.assertEqual(zone,  loc.zone)
 
-    def test_create_detailview04(self):
+    def test_create_detailview04(self):  # DEPRECATED
         "For a Role."
         role = UserRole.objects.create(name='Viewer')
 
@@ -109,7 +129,7 @@ class BrickTestCase(CremeTestCase):
 
         create_bdl = partial(BrickDetailviewLocation.create_if_needed, brick_id=brick_id,
                              model=FakeContact, role=role,
-                             )
+                            )
         create_bdl(order=order, zone=zone)
         create_bdl(order=4, zone=BrickDetailviewLocation.LEFT)
 
@@ -133,7 +153,7 @@ class BrickTestCase(CremeTestCase):
         self.assertIsNone(loc.role)
         self.assertFalse(loc.superuser)
 
-    def test_create_detailview05(self):
+    def test_create_detailview05(self):  # DEPRECATED
         "For super-users."
         brick_id = PropertiesBrick.id_
         order = 5
@@ -165,7 +185,7 @@ class BrickTestCase(CremeTestCase):
         self.assertIsNone(loc.role)
         self.assertFalse(loc.superuser)
 
-    def test_create_detailview06(self):
+    def test_create_detailview06(self):  # DEPRECATED
         "Default configuration cannot have a related role."
         with self.assertRaises(ValueError):
             BrickDetailviewLocation.create_if_needed(
@@ -174,7 +194,145 @@ class BrickTestCase(CremeTestCase):
                     model=None, role='superuser', # <==
             )
 
-    def test_create_4_model_brick01(self):
+    def test_detail_manager_create_if_needed01(self):
+        "Default configuration + brick ID."
+        order = 25
+        zone = BrickDetailviewLocation.TOP
+        # brick_id = RelationsBrick.id_
+        brick_id = self.TestBrick01.id_
+
+        loc = BrickDetailviewLocation.objects.create_if_needed(brick=brick_id, order=order, zone=zone)
+        self.assertIsInstance(loc, BrickDetailviewLocation)
+
+        loc = self.get_object_or_fail(BrickDetailviewLocation, pk=loc.pk)
+        self.assertIsNone(loc.content_type)
+        self.assertEqual(brick_id, loc.brick_id)
+        self.assertEqual(order,    loc.order)
+        self.assertEqual(zone,     loc.zone)
+
+    def test_detail_manager_create_if_needed02(self):
+        "For a model + brick class."
+        self.assertFalse(BrickDetailviewLocation.objects.filter_for_model(FakeContact))
+
+        order = 4
+        zone = BrickDetailviewLocation.LEFT
+        TestBrick = self.TestBrick02
+        loc = BrickDetailviewLocation.objects.create_if_needed(
+            brick=TestBrick, order=order, zone=zone, model=FakeContact,
+        )
+
+        loc = self.refresh(loc)
+        self.assertEqual(FakeContact, loc.content_type.model_class())
+        self.assertEqual(TestBrick.id_, loc.brick_id)
+        self.assertEqual(order,         loc.order)
+        self.assertEqual(zone,          loc.zone)
+
+        self.assertListEqual(
+            [loc],
+            list(BrickDetailviewLocation.objects.filter_for_model(FakeContact))
+        )
+
+    def test_detail_manager_create_if_needed03(self):
+        "Do not create if already exists (in any zone/order)."
+        brick_id = self.TestBrick01.id_
+        order = 5
+        zone = BrickDetailviewLocation.RIGHT
+
+        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
+                             brick=brick_id, model=FakeContact,
+                            )
+        create_bdl(order=order, zone=zone)
+        create_bdl(order=4, zone=BrickDetailviewLocation.LEFT)
+
+        locs = BrickDetailviewLocation.objects.filter(
+            brick_id=brick_id,
+            content_type=ContentType.objects.get_for_model(FakeContact),
+        )
+        self.assertEqual(1, len(locs))
+
+        loc = locs[0]
+        self.assertEqual(order, loc.order)
+        self.assertEqual(zone,  loc.zone)
+
+    def test_detail_manager_create_if_needed04(self):
+        "For a Role + ContentType instance."
+        role = UserRole.objects.create(name='Viewer')
+        ctype = ContentType.objects.get_for_model(FakeContact)
+
+        brick_id = PropertiesBrick.id_
+        order = 5
+        zone = BrickDetailviewLocation.RIGHT
+
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            brick=brick_id, model=ctype, role=role,
+        )
+        create_bdl(order=order, zone=zone)
+        create_bdl(order=4,     zone=BrickDetailviewLocation.LEFT)
+
+        locs = BrickDetailviewLocation.objects.filter(
+            brick_id=brick_id,
+            content_type=ctype,
+            role=role, superuser=False,
+        )
+        self.assertEqual(1, len(locs))
+
+        loc = locs[0]
+        self.assertEqual(order, loc.order)
+        self.assertEqual(zone,  loc.zone)
+
+        # Do not avoid default configuration creation
+        count = BrickDetailviewLocation.objects.count()
+        zone = BrickDetailviewLocation.BOTTOM
+        loc = create_bdl(order=order, zone=zone, role=None)
+        self.assertEqual(count + 1, BrickDetailviewLocation.objects.count())
+        self.assertEqual(zone,  loc.zone)
+        self.assertIsNone(loc.role)
+        self.assertFalse(loc.superuser)
+
+    def test_detail_manager_create_if_needed05(self):
+        "For super-users."
+        MyBrick = self.TestBrick01
+        order = 5
+        zone = BrickDetailviewLocation.RIGHT
+
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            brick=MyBrick, model=FakeContact, role='superuser',
+        )
+        create_bdl(order=order, zone=zone)
+        create_bdl(order=4, zone=BrickDetailviewLocation.LEFT)
+
+        locs = BrickDetailviewLocation.objects.filter(
+            brick_id=MyBrick.id_,
+            content_type=ContentType.objects.get_for_model(FakeContact),
+            role=None, superuser=True,
+        )
+        self.assertEqual(1, len(locs))
+
+        loc = locs[0]
+        self.assertEqual(order, loc.order)
+        self.assertEqual(zone,  loc.zone)
+
+        # Do not avoid default configuration creation
+        count = BrickDetailviewLocation.objects.count()
+        zone = BrickDetailviewLocation.BOTTOM
+        loc = create_bdl(order=order, zone=zone, role=None)
+        self.assertEqual(count + 1, BrickDetailviewLocation.objects.count())
+        self.assertEqual(zone,  loc.zone)
+        self.assertIsNone(loc.role)
+        self.assertFalse(loc.superuser)
+
+    def test_detail_manager_create_if_needed06(self):
+        "Default configuration cannot have a related role."
+        with self.assertRaises(ValueError):
+            BrickDetailviewLocation.objects.create_if_needed(
+                brick=self.TestBrick01,
+                order=5, zone=BrickDetailviewLocation.RIGHT,
+                model=None, role='superuser',  # <==
+            )
+
+    def test_create_4_model_brick01(self):  # DEPRECATED
         order = 5
         zone = BrickDetailviewLocation.RIGHT
         model = FakeContact
@@ -188,7 +346,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(order,        loc.order)
         self.assertEqual(zone,         loc.zone)
 
-    def test_create_4_model_brick02(self):
+    def test_create_4_model_brick02(self):  # DEPRECATED
         "model = None."
         loc = BrickDetailviewLocation.create_4_model_brick(
                 order=8, zone=BrickDetailviewLocation.BOTTOM, model=None,
@@ -197,10 +355,46 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual('modelblock', loc.brick_id)
         self.assertIsNone(loc.content_type)
 
-    def test_create_4_model_brick03(self):
+    def test_create_4_model_brick03(self):  # DEPRECATED
         "With a Role."
         role = UserRole.objects.create(name='Viewer')
         loc = BrickDetailviewLocation.create_4_model_brick(
+                model=FakeContact, role=role,
+                order=8, zone=BrickDetailviewLocation.BOTTOM,
+        )
+        self.assertEqual(1, BrickDetailviewLocation.objects.count())
+        self.assertEqual('modelblock', loc.brick_id)
+        self.assertEqual(role,         loc.role)
+
+    def test_detail_manager_create_for_model_brick01(self):
+        order = 5
+        zone = BrickDetailviewLocation.RIGHT
+        model = FakeContact
+        loc = BrickDetailviewLocation.objects.create_for_model_brick(
+            order=order, zone=zone, model=model,
+        )
+
+        self.assertEqual(1, BrickDetailviewLocation.objects.count())
+
+        loc = self.get_object_or_fail(BrickDetailviewLocation, pk=loc.id)
+        self.assertEqual('modelblock', loc.brick_id)
+        self.assertEqual(model,        loc.content_type.model_class())
+        self.assertEqual(order,        loc.order)
+        self.assertEqual(zone,         loc.zone)
+
+    def test_detail_manager_create_for_model_brick02(self):
+        "model = None."
+        loc = BrickDetailviewLocation.objects.create_for_model_brick(
+            order=8, zone=BrickDetailviewLocation.BOTTOM, model=None,
+        )
+        self.assertEqual(1, BrickDetailviewLocation.objects.count())
+        self.assertEqual('modelblock', loc.brick_id)
+        self.assertIsNone(loc.content_type)
+
+    def test_detail_manager_create_for_model_brick03(self):
+        "With a Role."
+        role = UserRole.objects.create(name='Viewer')
+        loc = BrickDetailviewLocation.objects.create_for_model_brick(
                 model=FakeContact, role=role,
                 order=8, zone=BrickDetailviewLocation.BOTTOM,
         )

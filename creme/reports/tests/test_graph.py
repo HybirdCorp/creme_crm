@@ -2353,8 +2353,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         # Display on detailview
         ct = self.ct_invoice
         BrickDetailviewLocation.objects.filter(content_type=ct).delete()
-        BrickDetailviewLocation.create_if_needed(
-            brick_id=item.brick_id, order=1,
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=item.brick_id, order=1,
             zone=BrickDetailviewLocation.RIGHT, model=FakeInvoice,
         )
 
@@ -2453,8 +2453,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         ct = folder1.entity_type
         BrickDetailviewLocation.objects.filter(content_type=ct).delete()
-        BrickDetailviewLocation.create_if_needed(
-            brick_id=item.brick_id, order=1,
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=item.brick_id, order=1,
             zone=BrickDetailviewLocation.RIGHT, model=FakeReportsFolder,
         )
 
@@ -2674,8 +2674,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         ibci = rgraph.create_instance_brick_config_item()
 
         brick_id = ibci.brick_id
-        bdl = BrickDetailviewLocation.create_if_needed(
-            brick_id=brick_id, order=1,
+        bdl = BrickDetailviewLocation.objects.create_if_needed(
+            brick=brick_id, order=1,
             zone=BrickDetailviewLocation.RIGHT,
             model=FakeContact,
         )

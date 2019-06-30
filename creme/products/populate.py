@@ -31,7 +31,6 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from . import bricks, constants, get_product_model, get_service_model
 from .models import Category, SubCategory
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -50,8 +49,8 @@ class Populator(BasePopulator):
                               (EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'code'}),
                               (EntityCellRegularField, {'name': 'user'}),
-                             ],
-                 )
+                              ],
+                  )
 
         create_hf(pk=constants.DEFAULT_HFILTER_SERVICE,
                   model=Service,
@@ -60,8 +59,8 @@ class Populator(BasePopulator):
                               (EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'reference'}),
                               (EntityCellRegularField, {'name': 'user'}),
-                             ],
-                 )
+                              ],
+                  )
 
         # ---------------------------
         create_searchconf = SearchConfigItem.create_if_needed
@@ -116,19 +115,20 @@ class Populator(BasePopulator):
             create_subcat(name=_('Babies'), category=clothes)
 
         # ---------------------------
-        if not BrickDetailviewLocation.config_exists(Product):  # NB: no straightforward way to test that this populate script has not been already run
-            create_bdl = BrickDetailviewLocation.create_if_needed
+        # NB: no straightforward way to test that this populate script has not been already run
+        if not BrickDetailviewLocation.objects.filter_for_model(Product).exists():
+            create_bdl = BrickDetailviewLocation.objects.create_if_needed
             TOP   = BrickDetailviewLocation.TOP
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
             for model in (Product, Service):
-                create_bdl(brick_id=bricks.ImagesBrick.id_,             order=10, zone=TOP,   model=model)
-                BrickDetailviewLocation.create_4_model_brick(order=5, zone=LEFT, model=model)
-                create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=model)
-                create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=model)
-                create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=model)
-                create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=30,  zone=RIGHT, model=model)
+                create_bdl(brick=bricks.ImagesBrick,                   order=10,  zone=TOP,   model=model)
+                BrickDetailviewLocation.objects.create_for_model_brick(order=5,   zone=LEFT,  model=model)
+                create_bdl(brick=core_bricks.CustomFieldsBrick,        order=40,  zone=LEFT,  model=model)
+                create_bdl(brick=core_bricks.PropertiesBrick,          order=450, zone=LEFT,  model=model)
+                create_bdl(brick=core_bricks.RelationsBrick,           order=500, zone=LEFT,  model=model)
+                create_bdl(brick=core_bricks.HistoryBrick,             order=30,  zone=RIGHT, model=model)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
@@ -136,10 +136,10 @@ class Populator(BasePopulator):
                 from creme.assistants import bricks as a_bricks
 
                 for model in (Product, Service):
-                    create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=500, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=model)
+                    create_bdl(brick=a_bricks.UserMessagesBrick, order=500, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail views')
@@ -147,4 +147,4 @@ class Populator(BasePopulator):
                 from creme.documents.bricks import LinkedDocsBrick
 
                 for model in (Product, Service):
-                    create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=model)
+                    create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=model)

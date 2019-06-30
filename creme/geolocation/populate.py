@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2018  Hybird
+#    Copyright (C) 2014-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,6 @@ from creme import persons
 from . import bricks, constants, setting_keys
 from .management.commands.geolocation import Command as GeolocationCommand
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -55,11 +54,11 @@ class Populator(BasePopulator):
             Contact      = persons.get_contact_model()
             Organisation = persons.get_organisation_model()
 
-            create_bdl = BrickDetailviewLocation.create_if_needed
-            create_bdl(brick_id=bricks.GoogleDetailMapBrick.id_, order=70, zone=BrickDetailviewLocation.LEFT, model=Organisation)
-            create_bdl(brick_id=bricks.GoogleDetailMapBrick.id_, order=70, zone=BrickDetailviewLocation.LEFT, model=Contact)
-            create_bdl(brick_id=bricks.GoogleNeighboursMapBrick.id_, order=600, zone=BrickDetailviewLocation.BOTTOM, model=Organisation)
-            create_bdl(brick_id=bricks.GoogleNeighboursMapBrick.id_, order=600, zone=BrickDetailviewLocation.BOTTOM, model=Contact)
+            create_bdl = BrickDetailviewLocation.objects.create_if_needed
+            create_bdl(brick=bricks.GoogleDetailMapBrick, order=70, zone=BrickDetailviewLocation.LEFT, model=Organisation)
+            create_bdl(brick=bricks.GoogleDetailMapBrick, order=70, zone=BrickDetailviewLocation.LEFT, model=Contact)
+            create_bdl(brick=bricks.GoogleNeighboursMapBrick, order=600, zone=BrickDetailviewLocation.BOTTOM, model=Organisation)
+            create_bdl(brick=bricks.GoogleNeighboursMapBrick, order=600, zone=BrickDetailviewLocation.BOTTOM, model=Contact)
 
             BrickMypageLocation.objects.create(brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=None)
 

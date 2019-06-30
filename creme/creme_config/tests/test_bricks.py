@@ -1823,10 +1823,11 @@ class BricksConfigTestCase(CremeTestCase):
                                  ('test-objfoo', 'object_predicate'), is_custom=False
                                 )[0]
         rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
-        loc = BrickDetailviewLocation.create_if_needed(brick_id=rbi.brick_id, order=5,
-                                                       zone=BrickDetailviewLocation.RIGHT,
-                                                       model=FakeContact,
-                                                      )
+        loc = BrickDetailviewLocation.objects.create_if_needed(
+            brick=rbi.brick_id, order=5,
+            zone=BrickDetailviewLocation.RIGHT,
+            model=FakeContact,
+        )
 
         self.assertPOST200(reverse('creme_config__delete_rtype_brick'), data={'id': rbi.id})
         self.assertDoesNotExist(rbi)
@@ -1841,11 +1842,11 @@ class BricksConfigTestCase(CremeTestCase):
             entity=naru, verbose='All stuffes',
         )
 
-        create_bdl = partial(BrickDetailviewLocation.create_if_needed,
+        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
                              zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
                             )
-        dloc1 = create_bdl(brick_id=ibi.brick_id,       order=5)
-        dloc2 = create_bdl(brick_id=CompleteBrick1.id_, order=6)
+        dloc1 = create_bdl(brick=ibi.brick_id,       order=5)
+        dloc2 = create_bdl(brick=CompleteBrick1.id_, order=6)
 
         create_bhl = BrickHomeLocation.objects.create
         hloc1 = create_bhl(brick_id=ibi.brick_id,       order=5)
@@ -2093,8 +2094,8 @@ class BricksConfigTestCase(CremeTestCase):
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
         cbci = CustomBrickConfigItem.objects.create(content_type=ct, name='Info')
-        loc = BrickDetailviewLocation.create_if_needed(
-            brick_id=cbci.generate_id(), order=5,
+        loc = BrickDetailviewLocation.objects.create_if_needed(
+            brick=cbci.generate_id(), order=5,
             model=FakeContact,
             zone=BrickDetailviewLocation.RIGHT,
         )

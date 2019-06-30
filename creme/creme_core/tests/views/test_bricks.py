@@ -499,11 +499,15 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                     )[0]
         rbi = RelationBrickItem.create(rtype1.id)
 
-        BrickDetailviewLocation.create_4_model_brick(order=1, zone=BrickDetailviewLocation.LEFT, model=FakeContact)
+        BrickDetailviewLocation.objects.create_for_model_brick(
+            order=1, zone=BrickDetailviewLocation.LEFT, model=FakeContact,
+        )
 
-        create_bdl = partial(BrickDetailviewLocation.create_if_needed, zone=BrickDetailviewLocation.RIGHT, model=FakeContact)
-        create_bdl(brick_id=rbi.brick_id, order=2)
-        create_bdl(brick_id=rbrick_id,    order=3)
+        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
+                             zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
+                            )
+        create_bdl(brick=rbi.brick_id, order=2)
+        create_bdl(brick=rbrick_id,    order=3)
 
         create_contact = partial(FakeContact.objects.create, user=user)
         atom  = create_contact(first_name='Atom', last_name='Tenma')
@@ -564,11 +568,15 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                     )[0]
         rbi = RelationBrickItem.create(rtype1.id)
 
-        BrickDetailviewLocation.create_4_model_brick(order=1, zone=BrickDetailviewLocation.LEFT, model=FakeContact)
+        BrickDetailviewLocation.objects.create_for_model_brick(
+            order=1, zone=BrickDetailviewLocation.LEFT, model=FakeContact,
+        )
 
-        create_bdl = partial(BrickDetailviewLocation.create_if_needed, zone=BrickDetailviewLocation.RIGHT, model=FakeContact)
-        create_bdl(brick_id=rbi.brick_id, order=2)
-        create_bdl(brick_id=rbrick_id,    order=3)
+        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
+                             zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
+                            )
+        create_bdl(brick=rbi.brick_id, order=2)
+        create_bdl(brick=rbrick_id,    order=3)
 
         create_contact = partial(FakeContact.objects.create, user=user)
         atom  = create_contact(first_name='Atom', last_name='Tenma')
@@ -676,8 +684,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                    build_cell(FakeContact, fname2),
                   ],
         )
-        bdl = BrickDetailviewLocation.create_if_needed(
-            brick_id=cbc_item.generate_id(),
+        bdl = BrickDetailviewLocation.objects.create_if_needed(
+            brick=cbc_item.generate_id(),
             order=1000,
             model=FakeContact,
             zone=BrickDetailviewLocation.BOTTOM,
@@ -706,8 +714,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                    build_cell(FakeContact, hidden_fname),
                   ],
         )
-        bdl = BrickDetailviewLocation.create_if_needed(
-            brick_id=cbc_item.generate_id(),
+        bdl = BrickDetailviewLocation.objects.create_if_needed(
+            brick=cbc_item.generate_id(),
             order=1000,
             model=FakeContact,
             zone=BrickDetailviewLocation.BOTTOM,
@@ -721,7 +729,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertNoBrickTile(content_node, 'regular_field-phone')
 
     def test_display_custombrick03(self):
-        "With FieldsConfig on sub-fields"
+        "With FieldsConfig on sub-fields."
         user = self.login()
 
         hidden_fname = 'zipcode'
@@ -737,11 +745,12 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                    build_cell(FakeContact, 'address__city'),
                   ],
         )
-        bdl = BrickDetailviewLocation.create_if_needed(brick_id=cbc_item.generate_id(),
-                                                       order=1000,  # Should be the last block
-                                                       model=FakeContact,
-                                                       zone=BrickDetailviewLocation.BOTTOM,
-                                                      )
+        bdl = BrickDetailviewLocation.objects.create_if_needed(
+            brick=cbc_item.generate_id(),
+            order=1000,  # Should be the last block
+            model=FakeContact,
+            zone=BrickDetailviewLocation.BOTTOM,
+        )
         naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
                                           first_name='Naru', phone='1122334455',
                                          )
