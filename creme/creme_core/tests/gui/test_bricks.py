@@ -111,7 +111,7 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = _BrickRegistry()
 
         rtype1 = RelationType.create(('test-subject_loves', 'loves'), ('test-object_loved', 'is loved by'))[0]
-        RelationBrickItem.create(rtype1.id)
+        RelationBrickItem.objects.create_if_needed(rtype1)
 
         create_cbci = CustomBrickConfigItem.objects.create
         cbci = create_cbci(id='test-contacts01', name='General (contact)', content_type=FakeContact,
@@ -165,9 +165,9 @@ class BrickRegistryTestCase(CremeTestCase):
                               ('test-object_hires', 'is hired by')
                              )[0]
 
-        create_rbi = RelationBrickItem.create
-        create_rbi(rtype1.id)
-        create_rbi(rtype2.id)
+        create_rbi = RelationBrickItem.objects.create_if_needed
+        create_rbi(rtype1)
+        create_rbi(rtype2)
 
         brick_registry = _BrickRegistry()
 
@@ -400,7 +400,7 @@ class BrickRegistryTestCase(CremeTestCase):
             verbose_name = 'Testing purpose #1'
 
         rtype = RelationType.create(('test-subject_loves', 'loves'), ('test-object_loved', 'is loved by'))[0]
-        rbi = RelationBrickItem.create(rtype.id)
+        rbi = RelationBrickItem.objects.create_if_needed(rtype)
 
         cbci = CustomBrickConfigItem.objects.create(
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
@@ -719,7 +719,7 @@ class BricksManagerTestCase(CremeTestCase):
 
         brick1 = FoobarBrick1(); brick2 = FoobarBrick2()
         brick3 = FoobarBrick3(); brick4 = FoobarBrick4(); brick5 = FoobarBrick5()
-        brick6 = FoobarBrick6(RelationBrickItem.create(rtype2_pk))
+        brick6 = FoobarBrick6(RelationBrickItem.objects.create_if_needed(rtype2))
 
         mngr = BricksManager()
         mngr.add_group('gname1', brick1, brick2, brick3)
@@ -1027,7 +1027,7 @@ class BrickTestCase(CremeTestCase):
         rtype = RelationType.create(('test-subject_loves', predicate),
                                     ('test-object_loved', 'is loved by')
                                    )[0]
-        rbi = RelationBrickItem.create(rtype.id)
+        rbi = RelationBrickItem.objects.create_if_needed(rtype)
 
         brick = SpecificRelationsBrick(relationbrick_item=rbi)
         self.assertEqual((Relation,), brick.dependencies)
@@ -1044,7 +1044,7 @@ class BrickTestCase(CremeTestCase):
             ('test-subject_loves', 'loves', [FakeOrganisation, FakeContact]),
             ('test-object_loved', 'is loved by')
         )[0]
-        rbi = RelationBrickItem.create(rtype.id)
+        rbi = RelationBrickItem.objects.create_if_needed(rtype)
 
         brick = SpecificRelationsBrick(relationbrick_item=rbi)
         expected_models = {FakeOrganisation, FakeContact}

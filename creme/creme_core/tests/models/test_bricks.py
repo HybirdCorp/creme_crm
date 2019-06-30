@@ -412,7 +412,7 @@ class BrickTestCase(CremeTestCase):
         user.save()
         self.get_object_or_fail(BrickMypageLocation, user=user, brick_id=brick_id, order=order)
 
-    def test_relation_brick01(self):
+    def test_relation_brick_deprecated(self):
         rtype = RelationType.create(('test-subject_loves', 'loves'),
                                     ('test-object_loved',  'is loved by')
                                    )[0]
@@ -455,13 +455,71 @@ class BrickTestCase(CremeTestCase):
 
         self.assertEqual(1, len(rbi.get_cells(ct_orga)))
 
-    def test_relation_brick02(self):
-        "All ctypes configured."
-        rtype = RelationType.create(('test-subject_rented', 'is rented by'),
-                                    ('test-object_rented',  'rents', [FakeContact, FakeOrganisation]),
+        # ---
+        self.assertEqual(rbi, RelationBrickItem.create(rtype.id))
+
+    def test_relation_brick01(self):
+        rtype = RelationType.create(('test-subject_loves', 'loves'),
+                                    ('test-object_loved',  'is loved by')
                                    )[0]
 
-        rbi = RelationBrickItem.create(rtype.id)
+        rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
+        self.assertIsInstance(rbi, RelationBrickItem)
+        self.assertIsNotNone(rbi.pk)
+        self.assertEqual(rtype.id, rbi.relation_type_id)
+
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(FakeContact)
+        ct_orga = get_ct(FakeOrganisation)
+        ct_img = get_ct(FakeImage)
+
+        rbi = self.refresh(rbi)  # Test persistence
+        self.assertIsNone(rbi.get_cells(ct_contact))
+        self.assertIsNone(rbi.get_cells(ct_orga))
+        self.assertIsNone(rbi.get_cells(ct_img))
+        self.assertIs(rbi.all_ctypes_configured, False)
+
+        rbi.set_cells(ct_contact,
+                      [EntityCellRegularField.build(FakeContact, 'last_name'),
+                       EntityCellFunctionField.build(FakeContact, 'get_pretty_properties'),
+                      ],
+                     )
+        rbi.set_cells(ct_orga, [EntityCellRegularField.build(FakeOrganisation, 'name')])
+        rbi.save()
+
+        rbi = self.refresh(rbi)  # Test persistence
+        self.assertIsNone(rbi.get_cells(ct_img))
+        self.assertIs(rbi.all_ctypes_configured, False)
+
+        cells_contact = rbi.get_cells(ct_contact)
+        self.assertEqual(2, len(cells_contact))
+
+        cell_contact = cells_contact[0]
+        self.assertIsInstance(cell_contact, EntityCellRegularField)
+        self.assertEqual('last_name', cell_contact.value)
+
+        cell_contact = cells_contact[1]
+        self.assertIsInstance(cell_contact, EntityCellFunctionField)
+        self.assertEqual('get_pretty_properties', cell_contact.value)
+
+        self.assertEqual(1, len(rbi.get_cells(ct_orga)))
+
+        # ---
+        self.assertEqual(rbi, RelationBrickItem.objects.create_if_needed(rtype.id))
+
+    def test_relation_brick02(self):
+        "All ctypes configured + Relation instance."
+        rtype = RelationType.create(
+            ('test-subject_rented', 'is rented by'),
+            ('test-object_rented',  'rents', [FakeContact, FakeOrganisation]),
+        )[0]
+
+        # rbi = RelationBrickItem.create(rtype.id)
+        rbi = RelationBrickItem.objects.create_if_needed(rtype)
+        self.assertIsInstance(rbi, RelationBrickItem)
+        self.assertIsNotNone(rbi.pk)
+        self.assertEqual(rtype.id, rbi.relation_type_id)
+
         get_ct = ContentType.objects.get_for_model
 
         rbi.set_cells(get_ct(FakeContact), [EntityCellRegularField.build(FakeContact, 'last_name')])
@@ -472,12 +530,16 @@ class BrickTestCase(CremeTestCase):
         rbi.save()
         self.assertTrue(self.refresh(rbi).all_ctypes_configured)
 
+        # ---
+        self.assertEqual(rbi, RelationBrickItem.objects.create_if_needed(rtype))
+
     def test_relation_brick_errors(self):
         rtype = RelationType.create(('test-subject_rented', 'is rented by'),
                                     ('test-object_rented',  'rents'),
                                    )[0]
         ct_contact = ContentType.objects.get_for_model(FakeContact)
-        rbi = RelationBrickItem.create(rtype.id)
+        # rbi = RelationBrickItem.create(rtype.id)
+        rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
 
         build = partial(EntityCellRegularField.build, model=FakeContact)
         rbi.set_cells(ct_contact,

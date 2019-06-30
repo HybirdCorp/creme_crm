@@ -197,8 +197,9 @@ class Populator(BasePopulator):
             create_bmi(pk='persons-linked_contact_button', model=Organisation, button=buttons.AddLinkedContactButton, order=25)
 
             # Populate bricks ------------------
-            rbi_1 = core_models.RelationBrickItem.create(constants.REL_SUB_CUSTOMER_SUPPLIER)
-            rbi_2 = core_models.RelationBrickItem.create(constants.REL_OBJ_CUSTOMER_SUPPLIER)
+            create_rbi = core_models.RelationBrickItem.objects.create_if_needed
+            rbi_1 = create_rbi(constants.REL_SUB_CUSTOMER_SUPPLIER)
+            rbi_2 = create_rbi(constants.REL_OBJ_CUSTOMER_SUPPLIER)
 
             create_cbci = core_models.CustomBrickConfigItem.objects.create
             build_cell = EntityCellRegularField.build

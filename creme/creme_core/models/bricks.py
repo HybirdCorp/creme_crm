@@ -25,7 +25,7 @@ import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models.signals import post_save
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
@@ -283,6 +283,43 @@ post_save.connect(BrickMypageLocation._copy_default_config, sender=settings.AUTH
                  )
 
 
+class RelationBrickItemManager(models.Manager):
+    def create_if_needed(self, relation_type):
+        """Create an instance of RelationBrickItem corresponding to a RelationType
+        or return the existing one.
+
+        @param relation_type: Instance of RelationType, or RelationType ID.
+        @return: A saved instance of RelationBrickItem.
+        """
+        from creme.creme_core.gui.bricks import SpecificRelationsBrick
+
+        rtype_id = relation_type.id if isinstance(relation_type, RelationType) else relation_type
+
+        for _i in range(10):
+            try:
+                rbi = self.get(relation_type=rtype_id)
+            except self.model.DoesNotExist:
+                try:
+                    rbi = self.create(
+                        brick_id=SpecificRelationsBrick.generate_id('creme_config', rtype_id),
+                        relation_type_id=rtype_id,
+                    )
+                except IntegrityError:
+                    logger.exception('Avoid a RelationBrickItem duplicate: %s ?!',
+                                     relation_type,
+                                    )
+                    continue
+
+            break
+        else:
+            raise RuntimeError(
+                'It seems the RelationBrickItem <{}> keeps being '
+                'created & deleted.'.format(rtype_id)
+            )
+
+        return rbi
+
+
 class RelationBrickItem(CremeModel):
     # TODO: 'brick_id' not really useful (can be dynamically generated with the RelationType)
     #        + in the 'brick_id': 1)remove the app_name  2)"specificblock_" => "rtypebrick_" (need data migration)
@@ -291,6 +328,8 @@ class RelationBrickItem(CremeModel):
                                           verbose_name=_('Related type of relationship'),
                                          )
     json_cells_map = models.TextField(editable=False, default='{}')  # TODO: JSONField
+
+    objects = RelationBrickItemManager()
 
     creation_label = _('Create a type of block')
     save_label     = _('Save the block')
@@ -327,6 +366,11 @@ class RelationBrickItem(CremeModel):
 
     @staticmethod
     def create(relation_type_id):
+        warnings.warn('RelationBrickItem.create() is deprecated ; '
+                      'use RelationBrickItem.objects.create_if_needed() instead.',
+                      DeprecationWarning
+                     )
+
         try:
             rbi = RelationBrickItem.objects.get(relation_type=relation_type_id)
         except RelationBrickItem.DoesNotExist:
