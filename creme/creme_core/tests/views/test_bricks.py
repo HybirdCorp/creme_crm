@@ -497,7 +497,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         rtype2 = RelationType.create(('test-subject_brother', 'is the brother of'),
                                      ('test-object_sister',   'is the sister of')
                                     )[0]
-        rbi = RelationBrickItem.create(rtype1.id)
+        rbi = RelationBrickItem.objects.create_if_needed(rtype1)
 
         BrickDetailviewLocation.objects.create_for_model_brick(
             order=1, zone=BrickDetailviewLocation.LEFT, model=FakeContact,
@@ -566,7 +566,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         rtype2 = RelationType.create(('test-subject_brother', 'is the brother of'),
                                      ('test-object_sister',   'is the sister of')
                                     )[0]
-        rbi = RelationBrickItem.create(rtype1.id)
+        rbi = RelationBrickItem.objects.create_if_needed(rtype1)
 
         BrickDetailviewLocation.objects.create_for_model_brick(
             order=1, zone=BrickDetailviewLocation.LEFT, model=FakeContact,

@@ -102,7 +102,7 @@ class Populator(BasePopulator):
                 create_if_needed(Criticity, {'pk': i}, name=name, order=i)
 
             # ---------------------------
-            rbi = RelationBrickItem.create(constants.REL_OBJ_LINKED_2_TICKET)
+            rbi = RelationBrickItem.objects.create_if_needed(constants.REL_OBJ_LINKED_2_TICKET)
 
             create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed, model=Ticket)
             LEFT  = BrickDetailviewLocation.LEFT
