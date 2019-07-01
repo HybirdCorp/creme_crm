@@ -392,12 +392,13 @@ class ContactQuickFormTestCase(_BaseTestCase):
             'first_name': 'Faye',
             'last_name':  'Valentine',
         }
-        response = self.client.post(url, data=dict(data, organisation='Bebop'))
-        self.assertFormError(response, 'form', None,
-                             _('You are not allowed to link with the «{models}» of this user.').format(
-                                        models=_('Contacts'),
-                                    )
-                            )
+        response = self.client.post(url, data={**data, 'organisation': 'Bebop'})
+        self.assertFormError(
+            response, 'form', None,
+            _('You are not allowed to link with the «{models}» of this user.').format(
+                models=_('Contacts'),
+            )
+        )
 
         self.assertNoFormError(self.client.post(url, data=data))
         self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)

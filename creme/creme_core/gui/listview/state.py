@@ -104,7 +104,7 @@ class ListViewState:
         ))
 
     def register_in_session(self, request):
-        serialized = dict(self.__dict__)
+        serialized = {**self.__dict__}
 
         if self.extra_q is not None:
             serialized['extra_q'] = QSerializer().dumps(self.extra_q)

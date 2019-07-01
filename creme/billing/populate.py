@@ -276,7 +276,7 @@ class Populator(BasePopulator):
                     build_cell(model, 'additional_info'),
                     build_cell(model, 'payment_terms'),
                     build_cell(model, 'currency'),
-                ] + list(extra_cells) + [
+                    *extra_cells,
                     build_cell(model, 'comment'),
                     build_cell(model, 'description'),
                     # --

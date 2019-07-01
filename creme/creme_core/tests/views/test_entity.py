@@ -735,28 +735,29 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self._assert_detailview(self.client.get(url, data=data, follow=True), onizuka)
 
     def test_search_and_view04(self):
-        "Errors"
+        "Errors."
         user = self.login()
 
         url = self.SEARCHNVIEW_URL
-        base_data = {'models': 'creme_core-fakecontact,creme_core-fakeorganisation',
-                     'fields': 'mobile,phone',
-                     'value':  '696969',
-                    }
+        base_data = {
+            'models': 'creme_core-fakecontact,creme_core-fakeorganisation',
+            'fields': 'mobile,phone',
+            'value':  '696969',
+        }
         create_contact = partial(FakeContact.objects.create, user=user)
         create_contact(first_name='Eikichi', last_name='Onizuka', mobile='55555')
         create_contact(first_name='Ryuji',   last_name='Danma', phone='987654')
         FakeOrganisation.objects.create(user=user, name='Onibaku', phone='54631357')
 
-        self.assertGET404(url, data=dict(base_data, models='foo-bar'))
-        self.assertGET404(url, data=dict(base_data, models='foobar'))
-        self.assertGET404(url, data=dict(base_data, values=''))
-        self.assertGET404(url, data=dict(base_data, models=''))
-        self.assertGET404(url, data=dict(base_data), fields='')
-        self.assertGET404(url, data=dict(base_data, models='persons-civility'))  # Not CremeEntity
+        self.assertGET404(url, data={**base_data, 'models': 'foo-bar'})
+        self.assertGET404(url, data={**base_data, 'models': 'foobar'})
+        self.assertGET404(url, data={**base_data, 'values': ''})
+        self.assertGET404(url, data={**base_data, 'models': ''})
+        self.assertGET404(url, data={**base_data, 'fields': ''})
+        self.assertGET404(url, data={**base_data, 'models': 'persons-civility'})  # Not CremeEntity
 
     def test_search_and_view05(self):
-        "Credentials"
+        "Credentials."
         user = self.login(is_superuser=False)
 
         phone = '44444'
@@ -843,7 +844,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(constants.UUID_SANDBOX_SUPERUSERS, str(sandbox.uuid))
 
         # Unset
-        self.assertPOST200(url, data=dict(data, set='false'))
+        self.assertPOST200(url, data={**data, 'set': 'false'})
         self.assertIsNone(self.refresh(contact).sandbox)
 
     def test_restrict_entity_2_superusers02(self):
@@ -856,7 +857,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         data = {'id': contact.id}
         self.assertPOST409(self.RESTRICT_URL, data=data)
-        self.assertPOST409(self.RESTRICT_URL, data=dict(data, set='false'))
+        self.assertPOST409(self.RESTRICT_URL, data={**data, 'set': 'false'})
 
         self.assertEqual(sandbox, self.refresh(contact).sandbox)
 

@@ -342,26 +342,26 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
         self.assertFormError(response, 'form', 'source', _('Enter a valid value.'))
 
         response = self.assertPOST200(url,
-                                      data=dict(data,
-                                                source_persons_organisation_colselect=0,
-                                                source_persons_organisation_create=True,
-                                                target_persons_organisation_colselect=0,
-                                                target_persons_organisation_create=True,
-                                                target_persons_contact_colselect=0,
-                                                target_persons_contact_create=True,
-                                               )
+                                      data={**data,
+                                            'source_persons_organisation_colselect': 0,
+                                            'source_persons_organisation_create': True,
+                                            'target_persons_organisation_colselect': 0,
+                                            'target_persons_organisation_create': True,
+                                            'target_persons_contact_colselect': 0,
+                                            'target_persons_contact_create': True,
+                                           },
                                      )
         self.assertFormError(response, 'form', 'source', _('This field is required.'))
 
         response = self.client.post(url, follow=True,
-                                    data=dict(data,
-                                              source_persons_organisation_colselect=4,
-                                              source_persons_organisation_create=True,
-                                              target_persons_organisation_colselect=5,
-                                              target_persons_organisation_create=True,
-                                              target_persons_contact_colselect=6,
-                                              target_persons_contact_create=True,
-                                             )
+                                    data={**data,
+                                          'source_persons_organisation_colselect': 4,
+                                          'source_persons_organisation_create': True,
+                                          'target_persons_organisation_colselect': 5,
+                                          'target_persons_organisation_create': True,
+                                          'target_persons_contact_colselect': 6,
+                                          'target_persons_contact_create': True,
+                                         },
                                    )
         self.assertNoFormError(response)
 

@@ -591,18 +591,19 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         options = target_node.findall('option')
         self.assertTrue(options)  # At least, it must have empty choice
 
-        users_set = {('my:{}=""'.format(field_name), _('Select...'))}
-        users_set.update(('my:{}="{}"'.format(field_name, user.pk), str(user))
-                            for user in get_user_model().objects.all()
-                        )
-        self.assertEqual(users_set,
-                         {(option.find('{xsl}if'.format(xsl=xsl)).get('test'),
-                           re.search(r'if>(?P<username>.*)</option>',
-                                     tostring(option, encoding='utf8',
-                                    ).decode('utf8')).groupdict()['username']
-                          ) for option in options
-                         }
-                        )
+        self.assertSetEqual(
+            {('my:{}=""'.format(field_name), _('Select...')),
+             *(('my:{}="{}"'.format(field_name, user.pk), str(user))
+                   for user in get_user_model().objects.all()
+              ),
+            },
+            {(option.find('{xsl}if'.format(xsl=xsl)).get('test'),
+              re.search(r'if>(?P<username>.*)</option>',
+                        tostring(option, encoding='utf8',
+                       ).decode('utf8')).groupdict()['username']
+             ) for option in options
+            }
+        )
 
     @skipIfCustomDocument
     def test_view_xsl04(self):

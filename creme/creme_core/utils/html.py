@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,12 +26,12 @@ from django.utils.html import mark_safe
 
 
 IMG_SAFE_ATTRIBUTES = {'title', 'alt', 'width', 'height'}
-ALLOWED_ATTRIBUTES = dict(bleach.ALLOWED_ATTRIBUTES,
-                          **{'*': ['style', 'class'],
-                             'a': ['href', 'rel'],
-                             'img': ['src'] + list(IMG_SAFE_ATTRIBUTES),  # NB: 'filter_img_src' can be used here
-                            }
-                         )
+ALLOWED_ATTRIBUTES = {
+    **bleach.ALLOWED_ATTRIBUTES,
+    '*': ['style', 'class'],
+    'a': ['href', 'rel'],
+    'img': ['src', *IMG_SAFE_ATTRIBUTES],  # NB: 'filter_img_src' can be used here
+}
 ALLOWED_TAGS = [
     'a', 'abbr', 'acronym', 'address', 'area',
     'article', 'aside',  # 'audio',
@@ -85,12 +85,11 @@ def filter_img_src(tag, attr, value):
 
 def sanitize_html(html, allow_external_img=False):
     attributes = ALLOWED_ATTRIBUTES if allow_external_img else \
-                 dict(ALLOWED_ATTRIBUTES, img=filter_img_src)
+                 {**ALLOWED_ATTRIBUTES, 'img': filter_img_src}
 
     return bleach.clean(html, tags=ALLOWED_TAGS, attributes=attributes,
                         styles=ALLOWED_STYLES, strip=True,
                        )
-
 
 
 JSON_ESCAPES = {

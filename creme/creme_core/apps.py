@@ -457,10 +457,9 @@ class CremeCoreConfig(CremeAppConfig):
                                           q_filter=self.remote_field.limit_choices_to,
                                          )
 
-            defaults = {'form_class': CreatorModelChoiceField}
-            defaults.update(kwargs)
-
-            return original_fk_formfield(self, **defaults)
+            return original_fk_formfield(
+                self, **{'form_class': CreatorModelChoiceField, **kwargs}
+            )
 
         ForeignKey.formfield = new_fk_formfield
 
@@ -512,10 +511,8 @@ class CremeCoreConfig(CremeAppConfig):
                                                q_filter=self.remote_field.limit_choices_to,
                                               )
 
-            defaults = {'form_class': CreatorModelMultipleChoiceField}
-            defaults.update(kwargs)
-
-            return original_m2m_formfield(self, **defaults)
+            return original_m2m_formfield(
+                self, **{'form_class': CreatorModelMultipleChoiceField, **kwargs})
 
         ManyToManyField.formfield = new_m2m_formfield
 

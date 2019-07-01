@@ -240,8 +240,10 @@ class CSVTownPopulator(CSVPopulator):
 
     def save(self, entries, context):
         existings = dict(Town.objects.filter(zipcode__in=(t.zipcode for t in entries),
-                                             slug__in=(t.slug for t in entries))
-                                     .values_list('zipcode', 'pk'))
+                                             slug__in=(t.slug for t in entries),
+                                            )
+                                     .values_list('zipcode', 'pk')
+                        )
 
         find_pk = lambda town: existings.get(town.zipcode)
 

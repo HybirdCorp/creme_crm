@@ -61,10 +61,7 @@ class ColorField(CharField):
     def formfield(self, **kwargs):
         from ..forms.fields import ColorField as ColorFormField  # Lazy loading
 
-        defaults = {'form_class': ColorFormField}
-        defaults.update(kwargs)
-
-        return super().formfield(**defaults)
+        return super().formfield(**{'form_class': ColorFormField, **kwargs})
 
 
 class DatePeriodField(TextField):  # TODO: inherit from a JSONField
@@ -101,12 +98,9 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
     def formfield(self, **kwargs):
         from ..forms.fields import DatePeriodField as DatePeriodFormField  # Lazy loading
 
-        defaults = {'form_class': DatePeriodFormField}
-        defaults.update(kwargs)
-
         # BEWARE: we do not call TextField.formfield because it overload 'widget'
         # (we could define the 'widget' key in 'defaults'...)
-        return super(TextField, self).formfield(**defaults)
+        return super(TextField, self).formfield(**{'form_class': DatePeriodFormField, **kwargs})
 
 
 class MoneyField(DecimalField):
@@ -137,10 +131,8 @@ class CremeUserForeignKey(ForeignKey):
 
     def formfield(self, **kwargs):
         from ..forms.fields import CremeUserChoiceField
-        defaults = {'form_class': CremeUserChoiceField}
-        defaults.update(kwargs)
 
-        return super().formfield(**defaults)
+        return super().formfield(**{'form_class': CremeUserChoiceField, **kwargs})
 
     def get_internal_type(self):
         return 'ForeignKey'
@@ -185,12 +177,10 @@ class CTypeForeignKey(ForeignKey):
 
     def formfield(self, **kwargs):
         from ..forms.fields import CTypeChoiceField
-        defaults = {'form_class': CTypeChoiceField}
-        defaults.update(kwargs)
 
         # BEWARE: we don't call super(CTypeForeignKey, self).formfield(**defaults)
         # to avoid useless/annoying 'queryset' arg
-        return super(ForeignKey, self).formfield(**defaults)
+        return super(ForeignKey, self).formfield(**{'form_class': CTypeChoiceField, **kwargs})
 
 
 class EntityCTypeForeignKey(CTypeForeignKey):
@@ -201,10 +191,7 @@ class EntityCTypeForeignKey(CTypeForeignKey):
     def formfield(self, **kwargs):
         from ..forms.fields import EntityCTypeChoiceField
 
-        defaults = {'form_class': EntityCTypeChoiceField}
-        defaults.update(kwargs)
-
-        return super().formfield(**defaults)
+        return super().formfield(**{'form_class': EntityCTypeChoiceField, **kwargs})
 
 
 # TODO: factorise with CTypeForeignKey
@@ -248,12 +235,10 @@ class CTypeOneToOneField(OneToOneField):
 
     def formfield(self, **kwargs):
         from ..forms.fields import CTypeChoiceField
-        defaults = {'form_class': CTypeChoiceField}
-        defaults.update(kwargs)
 
         # BEWARE: we don't call super(CTypeOneToOneField, self).formfield(**defaults)
         # to avoid useless/annoying 'queryset' arg
-        return super(OneToOneField, self).formfield(**defaults)
+        return super(OneToOneField, self).formfield(**{'form_class': CTypeChoiceField, **kwargs})
 
 
 class RealEntityForeignKey:

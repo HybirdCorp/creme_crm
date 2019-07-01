@@ -759,14 +759,14 @@ class CremeEntityFormTestCase(CremeTestCase):
         }
 
         # KO ---
-        form1 = FakeContactForm(user=user, data=dict(data, user=self.other_user.id))
+        form1 = FakeContactForm(user=user, data={**data, 'user': self.other_user.id})
         self.assertFormInstanceErrors(
             form1,
             ('relation_types', _('You are not allowed to link the created entity (wrong owner?).')),
         )
 
         # OK ---
-        form2 = FakeContactForm(user=user, data=dict(data, user=user.id))
+        form2 = FakeContactForm(user=user, data={**data, 'user': user.id})
         self.assertFalse(form2.errors)
 
         subject = form2.save()
@@ -801,14 +801,14 @@ class CremeEntityFormTestCase(CremeTestCase):
         }
 
         # KO ---
-        form1 = FakeContactForm(user=user, data=dict(data, user=self.other_user.id))
+        form1 = FakeContactForm(user=user, data={**data, 'user': self.other_user.id})
         self.assertFormInstanceErrors(
             form1,
             ('semifixed_rtypes', _('You are not allowed to link the created entity (wrong owner?).')),
         )
 
         # OK ---
-        form2 = FakeContactForm(user=user, data=dict(data, user=user.id))
+        form2 = FakeContactForm(user=user, data={**data, 'user': user.id})
         self.assertFalse(form2.errors)
 
         subject = form2.save()
@@ -917,7 +917,10 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         form2 = FakeContactForm(
             user=user,
-            data=dict(data, relation_types=self.formfield_value_multi_relation_entity((rtype1.id, orga)))
+            data={
+                **data,
+                'relation_types': self.formfield_value_multi_relation_entity((rtype1.id, orga)),
+            },
         )
         self.assertFormInstanceErrors(
             form2,
@@ -932,7 +935,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         # --
         form3 = FakeContactForm(
             user=user,
-            data=dict(data, semifixed_rtypes=[sfrt.id]),
+            data={**data, 'semifixed_rtypes': [sfrt.id]},
         )
         self.assertFormInstanceErrors(
             form3,
@@ -947,7 +950,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         # --
         form4 = FakeContactForm(
             user=user,
-            data=dict(data, relation_types=self.formfield_value_multi_relation_entity((rtype2.id, orga))),
+            data={
+                **data,
+                'relation_types': self.formfield_value_multi_relation_entity((rtype2.id, orga)),
+            },
         )
         self.assertFormInstanceErrors(
             form4,
@@ -962,10 +968,11 @@ class CremeEntityFormTestCase(CremeTestCase):
         # --
         form4 = FakeContactForm(
             user=user,
-            data=dict(data,
-                      property_types=[ptype1.id],
-                      relation_types=self.formfield_value_multi_relation_entity((rtype2.id, orga))
-                     ),
+            data={
+                **data,
+                'property_types': [ptype1.id],
+                'relation_types': self.formfield_value_multi_relation_entity((rtype2.id, orga)),
+            },
         )
         self.assertFormInstanceErrors(
             form4,

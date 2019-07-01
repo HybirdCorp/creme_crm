@@ -107,7 +107,7 @@ class CremeHistoryTagsTestCase(CremeTestCase):
 
         togame = self.get_object_or_fail(FakeContact, last_name=last_name)
         response = self.client.post(togame.get_edit_absolute_url(), follow=True,
-                                    data=dict(data, phone='123456'),
+                                    data={**data, 'phone': '123456'},
                                    )
         self.assertNoFormError(response)
         self.assertEqual(2, HistoryLine.objects.filter(entity=togame.id).count())

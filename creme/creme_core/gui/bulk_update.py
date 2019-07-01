@@ -171,10 +171,10 @@ class _BulkUpdateRegistry:
         return bulk_status
 
     def _merge_innerforms(self, parent_status, child_status):
-        merged_innerforms = dict(parent_status._innerforms)
-        merged_innerforms.update(child_status._innerforms)
-
-        child_status._innerforms = merged_innerforms
+        child_status._innerforms = {
+            **parent_status._innerforms,
+            **child_status._innerforms,
+        }
 
     def register(self, model, exclude=None, expandables=None, innerforms=None):
         """Register a CremeEntity class.
@@ -192,10 +192,10 @@ class _BulkUpdateRegistry:
         bulk_status = self._get_or_create_status(model)
 
         if exclude:
-            bulk_status.excludes.update(set(exclude))
+            bulk_status.excludes.update(exclude)
 
         if expandables:
-            bulk_status.expandables.update(set(expandables))
+            bulk_status.expandables.update(expandables)
 
         if innerforms:
             bulk_status._innerforms.update(innerforms)

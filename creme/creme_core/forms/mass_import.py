@@ -961,28 +961,31 @@ class ImportForm(CremeModelForm):
     document   = IntegerField(widget=HiddenInput)
     has_header = BooleanField(widget=HiddenInput, required=False)
     key_fields = MultipleChoiceField(
-                        label=_('Key fields'), required=False,
-                        choices=(),
-                        widget=UnorderedMultipleChoiceWidget(columntype='wide'),
-                        help_text=_('Select at least one field if you want to use the "update" mode. '
-                                    'If an entity already exists with the same field values, it will be simply updated '
-                                    '(ie: a new entity will not be created).\n'
-                                    'But if several entities are found, a new entity is created (in order to avoid errors).'
-                                   ),
-                    )
+        label=_('Key fields'), required=False,
+        choices=(),
+        widget=UnorderedMultipleChoiceWidget(columntype='wide'),
+        help_text=_('Select at least one field if you want to use the "update" mode. '
+                    'If an entity already exists with the same field values, it will be simply updated '
+                    '(ie: a new entity will not be created).\n'
+                    'But if several entities are found, a new entity is created (in order to avoid errors).'
+                   ),
+    )
 
     error_messages = {
         'invalid_document': _("This document doesn't exist or doesn't exist any more."),
         'forbidden_read': _('You have not the credentials to read this document.'),
     }
 
-    choices = [(0, 'Not in the file')] + [(i, 'Column {}'.format(i)) for i in range(1, 21)]  # Overloaded by factory
+    choices = [
+        (0, 'Not in the file'),
+        *((i, 'Column {}'.format(i)) for i in range(1, 21)),
+    ]  # Overloaded by factory
     header_dict = {}  # Idem
 
     blocks = FieldBlockManager(
-        ('general', _('Update mode'),  ('step', 'document', 'has_header', 'key_fields',)),
+        ('general', _('Update mode'),  ('step', 'document', 'has_header', 'key_fields')),
         ('fields',  _('Field values'), '*'),
-       )
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1192,11 +1195,12 @@ class ImportForm4CremeEntity(ImportForm):
         ('fields',     _('Field values'),             '*'),
         ('properties', _('Related properties'),       ('property_types',)),
         ('relations',  _('Associated relationships'), ('fixed_relations', 'dyn_relations')),
-       )
+    )
 
-    error_messages = dict(ImportForm.error_messages,
-                          creation_forbidden=_('You are not allowed to create: %(model)s'),
-                         )
+    error_messages = {
+        **ImportForm.error_messages,
+        'creation_forbidden': _('You are not allowed to create: %(model)s'),
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

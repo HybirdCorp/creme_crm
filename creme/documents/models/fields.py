@@ -36,7 +36,7 @@ def _build_limit_choices_to(extra_limit_choices_to):
 
         if isinstance(extra_limit_choices_to, dict):
             # XXX: transform to Q VS let a dictionary like the user wanted
-            limit_choices_to = dict(extra_limit_choices_to, **kwargs)
+            limit_choices_to = {**extra_limit_choices_to, **kwargs}
         else:
             assert isinstance(extra_limit_choices_to, Q)
 

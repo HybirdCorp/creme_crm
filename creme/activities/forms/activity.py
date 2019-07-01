@@ -261,9 +261,10 @@ class ActivityCreateForm(_ActivityCreateForm):
     subjects            = MultiGenericEntityField(label=_('Subjects'), required=False)
     linked_entities     = MultiGenericEntityField(label=_('Entities linked to this activity'), required=False)
 
-    error_messages = dict(_ActivityCreateForm.error_messages,
-                          no_participant=_('No participant'),
-                         )
+    error_messages = {
+        **_ActivityCreateForm.error_messages,
+        'no_participant': _('No participant'),
+    }
 
     blocks = _ActivityForm.blocks.new(
         ('datetime', _('When'),

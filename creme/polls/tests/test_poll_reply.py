@@ -272,13 +272,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         not_applicable = kwargs.get('not_applicable', False)
 
         for answer in answers:
-            if isinstance(answer, dict):
-                data = dict(answer)
-            else:
-                data = {'answer': answer}
+            data = {**answer} if isinstance(answer, dict) else {'answer': answer}
 
             if not_applicable:
-                data.update(not_applicable='on')
+                data['not_applicable'] = 'on'
 
             response = self.assertPOST200(url, follow=True, data=data)
 
@@ -292,7 +289,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertFalse(PollReply.objects.all())
 
         pform = PollForm.objects.create(user=user, name='Form#1',
-                                        type=PollType.objects.all()[0]
+                                        type=PollType.objects.all()[0],
                                        )
 
         body = 'Blablabla'

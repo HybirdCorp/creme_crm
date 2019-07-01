@@ -976,7 +976,7 @@ class ReportTestCase(BaseReportsTestCase):
                }
 
         def export(status, **kwargs):
-            self.assertGET(status, url, data=dict(data, **kwargs))
+            self.assertGET(status, url, data={**data, **kwargs})
 
         export(404, date_field='invalidfield')
         export(404, date_field='first_name')  # Not a date field
@@ -1713,7 +1713,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertTrue(self.refresh(fk_rfield).selected)
         self.assertFalse(self.refresh(rel_rfield).selected)
 
-        self.assertPOST200(url, data=dict(data, checked=0))
+        self.assertPOST200(url, data={**data, 'checked': 0})
         self.assertFalse(self.refresh(fk_rfield).selected)
         self.assertFalse(self.refresh(rel_rfield).selected)
 

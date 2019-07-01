@@ -292,13 +292,15 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         gtype = RGT_DAY
 
         def post(**kwargs):
-            data = {'user':              user.id,
-                    'name':              name,
-                    'abscissa_group_by': gtype,
-                    'chart':             'barchart',
-                   }
-            data.update(**kwargs)
-            return self.client.post(url, data=data)
+            return self.client.post(
+                url,
+                data={'user':              user.id,
+                      'name':              name,
+                      'abscissa_group_by': gtype,
+                      'chart':             'barchart',
+                      **kwargs
+                     },
+            )
 
         response = post(abscissa_field='modified')
         self.assertEqual(200, response.status_code)
@@ -422,15 +424,17 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         ordinate = 'capital'
 
         def post(**kwargs):
-            data = {'user': self.user.pk,
-                    'name':              name,
-                    'abscissa_group_by': gtype,
-                    'aggregate_field':   ordinate,
-                    'aggregate':         'max',
-                    'chart':             'barchart',
-                   }
-            data.update(**kwargs)
-            return self.client.post(url, data=data)
+            return self.client.post(
+                url,
+                data={'user':              self.user.pk,
+                      'name':              name,
+                      'abscissa_group_by': gtype,
+                      'aggregate_field':   ordinate,
+                      'aggregate':         'max',
+                      'chart':             'barchart',
+                      **kwargs
+                },
+            )
 
         response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
@@ -472,15 +476,18 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         gtype = RGT_RANGE
 
         def post(**kwargs):
-            data = {'user':              user.id,
+            return self.client.post(
+                url,
+                data={
+                    'user':              user.id,
                     'name':              name,
                     'abscissa_group_by': gtype,
                     'aggregate_field':   ordinate,
                     'aggregate':         'max',
                     'chart':             'barchart',
-                   }
-            data.update(**kwargs)
-            return self.client.post(url, data=data)
+                    **kwargs
+                },
+            )
 
         response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
@@ -597,14 +604,17 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         name = 'My Graph #1'
 
         def post(**kwargs):
-            data = {'user':              self.user.pk,
+            return self.client.post(
+                url,
+                data={
+                    'user':              self.user.pk,
                     'name':              name,
                     'abscissa_group_by': gtype,
                     'is_count':          True,
                     'chart':             'barchart',
-                   }
-            data.update(**kwargs)
-            return self.client.post(url, data=data)
+                    **kwargs
+                   },
+            )
 
         response = post(abscissa_field=cf_int.id)
         self.assertEqual(200, response.status_code)
@@ -651,14 +661,16 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         gtype = RGT_CUSTOM_RANGE
 
         def post(**kwargs):
-            data = {'user':              user.pk,
-                    'name':              name,
-                    'abscissa_group_by': gtype,
-                    'is_count':          True,
-                    'chart':             'barchart',
-                   }
-            data.update(**kwargs)
-            return self.client.post(url, data=data)
+            return self.client.post(
+                url,
+                data={'user':              user.pk,
+                      'name':              name,
+                      'abscissa_group_by': gtype,
+                      'is_count':          True,
+                      'chart':             'barchart',
+                      **kwargs
+                },
+            )
 
         response = post(abscissa_field=cf_int.id)
         self.assertEqual(200, response.status_code)

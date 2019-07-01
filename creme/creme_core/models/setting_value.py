@@ -85,10 +85,7 @@ class SettingValueManager(models.Manager):
         #         sv = cache[cache_key] = DummySettingValue(key_id=key_id, value=kwargs['default'])
         #
         # return sv
-        g4k_kwargs = {'key': key}
-        g4k_kwargs.update(kwargs)
-
-        return next(iter(self.get_4_keys(g4k_kwargs).values()))
+        return next(iter(self.get_4_keys({'key': key, **kwargs}).values()))
 
     def get_4_keys(self, *values_info):
         """Get several SettingValue corresponding to several SettingKeys at once.

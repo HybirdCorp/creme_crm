@@ -197,10 +197,10 @@ class FlowPaginatorTestCase(CremeTestCase):
         info = page.next_page_info()
 
         with self.assertRaises(InvalidPage):
-            paginator.page(dict(info, type='invalid'))
+            paginator.page({**info, 'type': 'invalid'})
 
         # No type -----
-        info_tmp = dict(info)
+        info_tmp = {**info}
         del info_tmp['type']
 
         with self.assertRaises(InvalidPage):
@@ -208,13 +208,13 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         # Invalid offset --------------
         with self.assertRaises(InvalidPage):
-            paginator.page(dict(info, offset='notint'))
+            paginator.page({**info, 'offset': 'notint'})
 
         with self.assertRaises(InvalidPage):
-            paginator.page(dict(info, offset='-2'))
+            paginator.page({**info, 'offset': '-2'})
 
         # Key --------------
-        info_tmp = dict(info)
+        info_tmp = {**info}
         del info_tmp['key']
 
         with self.assertRaises(InvalidPage):
@@ -222,13 +222,13 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         # Key is different from paginator's one
         with self.assertRaises(InvalidPage):
-            paginator.page(dict(info, key='first_name'))
+            paginator.page({**info, 'key': 'first_name'})
 
         with self.assertRaises(InvalidPage):
-            paginator.page(dict(info, key='-last_name'))
+            paginator.page({**info, 'key': '-last_name'})
 
     def test_invalid_page_info02(self):
-        "Last page: key is different from paginator's one"
+        "Last page: key is different from paginator's one."
         self._build_contacts()
 
         contacts = FakeContact.objects.all()
@@ -237,7 +237,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         info = page.info()
 
         with self.assertRaises(InvalidPage):
-            paginator.page(dict(info, key='first_name'))
+            paginator.page({**info, 'key': 'first_name'})
 
     def test_invalid_page_info03(self):
         "Invalid date value"
@@ -253,7 +253,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             paginator.page(info)
 
         with self.assertRaises(InvalidPage):
-            paginator.page(dict(info, type='backward'))
+            paginator.page({**info, 'type': 'backward'})
 
     def test_invalid_page_info04(self):
         "Invalid integer value"
@@ -272,7 +272,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             paginator.page(info)
 
         with self.assertRaises(InvalidPage):
-            paginator.page(dict(info, type='backward'))
+            paginator.page({**info, 'type': 'backward'})
 
     def test_next_page01(self):
         self._build_contacts()
@@ -1632,7 +1632,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         info = page.next_page_info()
 
         with self.assertNoException():
-            page = paginator.get_page(dict(info, type='invalid'))
+            page = paginator.get_page({**info, 'type': 'invalid'})
 
         self.assertTrue(page.has_next())
         self.assertFalse(page.has_previous())

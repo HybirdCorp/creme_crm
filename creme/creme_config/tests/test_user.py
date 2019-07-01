@@ -254,20 +254,20 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFormError(response, 'form', 'password_2', msg)
 
         response = self.assertPOST200(url, follow=True,
-                                      data=dict(data, password_1='passwd'),
+                                      data={**data, 'password_1': 'passwd'},
                                      )
         self.assertFormError(response, 'form', 'password_2', msg)
 
         response = self.assertPOST200(url, follow=True,
-                                      data=dict(data, password_2='passwd'),
+                                      data={**data, 'password_2': 'passwd'},
                                      )
         self.assertFormError(response, 'form', 'password_1', msg)
 
         response = self.assertPOST200(url, follow=True,
-                                      data=dict(data,
-                                                password_1='password',
-                                                password_2='passwd',
-                                               ),
+                                      data={**data,
+                                            'password_1': 'password',
+                                            'password_2': 'passwd',
+                                           },
                                      )
         # self.assertFormError(response, 'form', 'password_2', _('Passwords are different'))
         self.assertFormError(response, 'form', 'password_2',
@@ -275,10 +275,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                             )
 
         response = self.assertPOST200(url, follow=True,
-                                      data=dict(data,
-                                                password_1='123',
-                                                password_2='123',
-                                               ),
+                                      data={**data,
+                                            'password_1': '123',
+                                            'password_2': '123',
+                                           },
                                      )
         self.assertFormError(response, 'form', 'password_2',
                              _('This password is entirely numeric.'),

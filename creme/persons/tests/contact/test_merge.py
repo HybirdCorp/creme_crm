@@ -325,7 +325,7 @@ class ContactMergeTestCase(_BaseTestCase):
         )
 
         response = self.client.post(url, follow=True,
-                                    data=dict(data, email_merged=contact01.email),
+                                    data={**data, 'email_merged': contact01.email},
                                    )
         self.assertNoFormError(response)
 
@@ -380,11 +380,11 @@ class ContactMergeTestCase(_BaseTestCase):
         )
 
         response = self.client.post(url, follow=True,
-                                    data=dict(data,
-                                              email_1=contact02.email,
-                                              email_2=contact01.email,
-                                              email_merged=contact02.email,
-                                             ),
+                                    data={**data,
+                                          'email_1':      contact02.email,
+                                          'email_2':      contact01.email,
+                                          'email_merged': contact02.email,
+                                         },
                                    )
         self.assertNoFormError(response)
 

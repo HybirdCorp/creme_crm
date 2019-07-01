@@ -69,12 +69,12 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         response = self.client.post(
             self._build_import_url(Organisation),
             follow=True,
-            data=dict(self.IMPORT_DATA,
-                      document=doc.id,
-                      user=user.id,
-                      billaddr_city_colselect=2,
-                      shipaddr_city_colselect=3,
-                     ),
+            data={**self.IMPORT_DATA,
+                  'document': doc.id,
+                  'user': user.id,
+                  'billaddr_city_colselect': 2,
+                  'shipaddr_city_colselect': 3,
+                 },
         )
         self.assertNoFormError(response)
 
@@ -146,14 +146,14 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         response = self.client.post(
             self._build_import_url(Organisation),
             follow=True,
-            data=dict(self.IMPORT_DATA,
-                      document=doc.id,
-                      user=user.id,
-                      key_fields=['name'],
-                      email_colselect=4,
-                      billaddr_address_colselect=2,
-                      shipaddr_address_colselect=3,
-                     ),
+            data={**self.IMPORT_DATA,
+                  'document': doc.id,
+                  'user': user.id,
+                  'key_fields': ['name'],
+                  'email_colselect': 4,
+                  'billaddr_address_colselect': 2,
+                  'shipaddr_address_colselect': 3,
+                 },
         )
         self.assertNoFormError(response)
 
@@ -186,13 +186,13 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         doc = self._build_csv_doc([(name, city, po_box)])
         response = self.client.post(
             self._build_import_url(Organisation), follow=True,
-            data=dict(self.IMPORT_DATA,
-                      document=doc.id,
-                      user=user.id,
+            data={**self.IMPORT_DATA,
+                  'document': doc.id,
+                  'user': user.id,
 
-                      billaddr_city_colselect=2,
-                      billaddr_po_box_colselect=3,  # Should not be used
-                     ),
+                  'billaddr_city_colselect':   2,
+                  'billaddr_po_box_colselect': 3,  # Should not be used
+                 },
         )
         self.assertNoFormError(response)
 
@@ -215,13 +215,13 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         doc = self._build_csv_doc([(name, 'Tokyo', 'ABC123')])
         response = self.client.post(
             self._build_import_url(Organisation), follow=True,
-            data=dict(self.IMPORT_DATA,
-                      document=doc.id,
-                      user=user.id,
+            data={**self.IMPORT_DATA,
+                  'document': doc.id,
+                  'user': user.id,
 
-                      billaddr_city_colselect=2,  # Should not be used
-                      billaddr_po_box_colselect=3,  # Should not be used
-                     ),
+                  'billaddr_city_colselect': 2,  # Should not be used
+                  'billaddr_po_box_colselect': 3,  # Should not be used
+                 },
         )
         self.assertNoFormError(response)
 

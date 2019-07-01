@@ -1214,7 +1214,7 @@ class ListViewTestCase(ViewsTestCase):
         url = self.url
         data = {'hfilter': hf.id}
         # response = self.assertPOST200(url, data=dict(data, **{cell.key: '1'}))
-        response = self.assertPOST200(url, data=dict(data, **{'search-' + cell.key: '1'}))
+        response = self.assertPOST200(url, data={**data, 'search-' + cell.key: '1'})
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop, orgas_set)
         self.assertIn(nerv,     orgas_set)
@@ -1225,7 +1225,7 @@ class ListViewTestCase(ViewsTestCase):
         # with context:
         # with CaptureQueriesContext() as context:  TODO
         # response = self.assertPOST200(url, data=dict(data, **{cell.key: '0'}))
-        response = self.assertPOST200(url, data=dict(data, **{'search-' + cell.key: '0'}))
+        response = self.assertPOST200(url, data={**data, 'search-' + cell.key: '0'})
 
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop,    orgas_set)
@@ -1267,7 +1267,7 @@ class ListViewTestCase(ViewsTestCase):
 
         # ----------------------------------------------------------------------
         # response = self.assertPOST200(url, data=dict(data, **{cell.key: str(mercenary.id)}))
-        response = self.assertPOST200(url, data=dict(data, **{'search-' + cell.key: str(mercenary.id)}))
+        response = self.assertPOST200(url, data={**data, 'search-' + cell.key: str(mercenary.id)})
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop,    orgas_set)
         self.assertNotIn(nerv,  orgas_set)
@@ -1275,7 +1275,7 @@ class ListViewTestCase(ViewsTestCase):
 
         # ----------------------------------------------------------------------
         # response = self.assertPOST200(url, data=dict(data, **{cell.key: 'NULL'}))
-        response = self.assertPOST200(url, data=dict(data, **{'search-' + cell.key: 'NULL'}))
+        response = self.assertPOST200(url, data={**data, 'search-' + cell.key: 'NULL'})
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop, orgas_set)
         self.assertNotIn(nerv,  orgas_set)
@@ -1310,7 +1310,7 @@ class ListViewTestCase(ViewsTestCase):
 
         # ----------------------------------------------------------------------
         # response = self.assertPOST200(url, data=dict(data, **{cell.key: '1'}))
-        response = self.assertPOST200(url, data=dict(data, **{'search-' + cell.key: '1'}))
+        response = self.assertPOST200(url, data={**data, 'search-' + cell.key: '1'})
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop, orgas_set)
         self.assertIn(seele, orgas_set)
@@ -1318,7 +1318,7 @@ class ListViewTestCase(ViewsTestCase):
 
         # ----------------------------------------------------------------------
         # response = self.assertPOST200(url, data=dict(data, **{cell.key: '0'}))
-        response = self.assertPOST200(url, data=dict(data, **{'search-' + cell.key: '0'}))
+        response = self.assertPOST200(url, data={**data, 'search-' + cell.key: '0'})
         orgas_set = self._get_entities_set(response)
         self.assertIn(nerv, orgas_set)
         self.assertNotIn(bebop, orgas_set)
@@ -3004,7 +3004,7 @@ class ListViewTestCase(ViewsTestCase):
         page2_info = page1.next_page_info()
 
         # Invalid Page => page 1
-        page1_info = dict(page2_info)
+        page1_info = {**page2_info}
         del page1_info['type']
 
         page = post(json_dump(page1_info))

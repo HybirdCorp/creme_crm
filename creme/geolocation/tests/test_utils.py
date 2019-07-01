@@ -25,25 +25,28 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         user = self.login()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
-        address = self.create_address(orga, zipcode='13012', town='Marseille', geoloc=(43.299991, 5.364832))
+        address = self.create_address(orga, zipcode='13012', town='Marseille',
+                                      geoloc=(43.299991, 5.364832),
+                                     )
 
-        self.assertDictEqual(dict(id=address.pk,
-                                  content='13 rue du yahourt 13012 Marseille 13',
-                                  title='13 rue du yahourt',
-                                  owner='Orga 1',
-                                  is_shipping=False,
-                                  is_billing=False,
-                                  is_complete=True,
-                                  latitude=43.299991,
-                                  longitude=5.364832,
-                                  draggable=True,
-                                  geocoded=False,
-                                  status_label='',
-                                  status=GeoAddress.COMPLETE,
-                                  url=orga.get_absolute_url(),
-                                 ),
-                             address_as_dict(address)
-                            )
+        self.assertDictEqual(
+            {'id': address.pk,
+             'content': '13 rue du yahourt 13012 Marseille 13',
+             'title': '13 rue du yahourt',
+             'owner': 'Orga 1',
+             'is_shipping': False,
+             'is_billing': False,
+             'is_complete': True,
+             'latitude': 43.299991,
+             'longitude': 5.364832,
+             'draggable': True,
+             'geocoded': False,
+             'status_label': '',
+             'status': GeoAddress.COMPLETE,
+             'url': orga.get_absolute_url(),
+            },
+            address_as_dict(address)
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -53,43 +56,45 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = self.create_billing_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
 
-        self.assertDictEqual(dict(id=address.pk,
-                                  content='',
-                                  title=_('Billing address'),
-                                  owner='Orga 1',
-                                  is_shipping=False,
-                                  is_billing=True,
-                                  is_complete=True,
-                                  latitude=43.299991,
-                                  longitude=5.364832,
-                                  draggable=True,
-                                  geocoded=False,
-                                  status_label='',
-                                  status=GeoAddress.COMPLETE,
-                                  url=orga.get_absolute_url(),
-                                 ),
-                             address_as_dict(address)
-                            )
+        self.assertDictEqual(
+            {'id': address.pk,
+             'content': '',
+             'title': _('Billing address'),
+             'owner': 'Orga 1',
+             'is_shipping': False,
+             'is_billing': True,
+             'is_complete': True,
+             'latitude': 43.299991,
+             'longitude': 5.364832,
+             'draggable': True,
+             'geocoded': False,
+             'status_label': '',
+             'status': GeoAddress.COMPLETE,
+             'url': orga.get_absolute_url(),
+            },
+            address_as_dict(address)
+        )
 
         address = self.create_shipping_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
 
-        self.assertDictEqual(dict(id=address.pk,
-                                  content='',
-                                  title=_('Shipping address'),
-                                  owner='Orga 1',
-                                  is_shipping=True,
-                                  is_complete=True,
-                                  is_billing=False,
-                                  latitude=43.299991,
-                                  longitude=5.364832,
-                                  draggable=True,
-                                  geocoded=False,
-                                  status_label='',
-                                  status=GeoAddress.COMPLETE,
-                                  url=orga.get_absolute_url(),
-                                 ),
-                             address_as_dict(address)
-                            )
+        self.assertDictEqual(
+            {'id': address.id,
+             'content': '',
+             'title': _('Shipping address'),
+             'owner': 'Orga 1',
+             'is_shipping': True,
+             'is_complete': True,
+             'is_billing': False,
+             'latitude': 43.299991,
+             'longitude': 5.364832,
+             'draggable': True,
+             'geocoded': False,
+             'status_label': '',
+             'status': GeoAddress.COMPLETE,
+             'url': orga.get_absolute_url(),
+            },
+            address_as_dict(address)
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -99,23 +104,24 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = self.create_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
 
-        self.assertDictEqual(dict(id=address.pk,
-                                  content='',
-                                  title='',
-                                  owner='Orga 1',
-                                  is_shipping=False,
-                                  is_billing=False,
-                                  is_complete=True,
-                                  latitude=43.299991,
-                                  longitude=5.364832,
-                                  draggable=True,
-                                  geocoded=False,
-                                  status_label='',
-                                  status=GeoAddress.COMPLETE,
-                                  url=orga.get_absolute_url()
-                                 ),
-                             address_as_dict(address)
-                            )
+        self.assertDictEqual(
+            {'id': address.pk,
+             'content': '',
+             'title': '',
+             'owner': 'Orga 1',
+             'is_shipping': False,
+             'is_billing': False,
+             'is_complete': True,
+             'latitude': 43.299991,
+             'longitude': 5.364832,
+             'draggable': True,
+             'geocoded': False,
+             'status_label': '',
+             'status': GeoAddress.COMPLETE,
+             'url': orga.get_absolute_url()
+            },
+            address_as_dict(address)
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -131,23 +137,24 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         with self.assertRaises(GeoAddress.DoesNotExist):
             address.geoaddress
 
-        self.assertDictEqual(dict(id=address.pk,
-                                  content='',
-                                  title='',
-                                  owner='Orga 1',
-                                  is_shipping=False,
-                                  is_billing=False,
-                                  is_complete=False,
-                                  latitude=None,
-                                  longitude=None,
-                                  draggable=True,
-                                  geocoded=False,
-                                  status_label=_('Not localized'),
-                                  status=GeoAddress.UNDEFINED,
-                                  url=orga.get_absolute_url(),
-                                 ),
-                             address_as_dict(address)
-                            )
+        self.assertDictEqual(
+            {'id': address.pk,
+             'content': '',
+             'title': '',
+             'owner': 'Orga 1',
+             'is_shipping': False,
+             'is_billing': False,
+             'is_complete': False,
+             'latitude': None,
+             'longitude': None,
+             'draggable': True,
+             'geocoded': False,
+             'status_label': _('Not localized'),
+             'status': GeoAddress.UNDEFINED,
+             'url': orga.get_absolute_url(),
+            },
+            address_as_dict(address)
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -163,23 +170,24 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         with self.assertRaises(GeoAddress.DoesNotExist):
             address.geoaddress
 
-        self.assertDictEqual(dict(id=address.pk,
-                                  content='',
-                                  title='',
-                                  owner='Orga 1',
-                                  is_shipping=False,
-                                  is_billing=False,
-                                  is_complete=False,
-                                  latitude=None,
-                                  longitude=None,
-                                  draggable=True,
-                                  geocoded=False,
-                                  status_label=_('Not localized'),
-                                  status=GeoAddress.UNDEFINED,
-                                  url=orga.get_absolute_url(),
-                                 ),
-                             address_as_dict(address)
-                            )
+        self.assertDictEqual(
+            {'id': address.pk,
+             'content': '',
+             'title': '',
+             'owner': 'Orga 1',
+             'is_shipping': False,
+             'is_billing': False,
+             'is_complete': False,
+             'latitude': None,
+             'longitude': None,
+             'draggable': True,
+             'geocoded': False,
+             'status_label': _('Not localized'),
+             'status': GeoAddress.UNDEFINED,
+             'url': orga.get_absolute_url(),
+            },
+            address_as_dict(address)
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomContact
@@ -202,9 +210,10 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                              [contact_address]
                             )
 
-        self.assertListEqual(sorted(list(addresses_from_persons(Organisation.objects.all(), user)), key=lambda a: a.pk),
-                             sorted([orga_address, orga2_address], key=lambda a: a.pk)
-                            )
+        self.assertListEqual(
+            sorted(list(addresses_from_persons(Organisation.objects.all(), user)), key=lambda a: a.pk),
+            sorted([orga_address, orga2_address], key=lambda a: a.pk)
+        )
 
     # def test_get_setting(self):
     #     self.assertIsNone(get_setting('unknown'))

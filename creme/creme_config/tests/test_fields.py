@@ -225,7 +225,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         widget = CreatorModelChoiceWidget(choices=[(1, 'A'), (2, 'B')],
                                           creation_url=self.ADD_URL,
                                           creation_allowed=True,
-                                          attrs=dict(disabled=True)
+                                          attrs={'disabled': True},
                                          )
         name = 'testnoaction'
 

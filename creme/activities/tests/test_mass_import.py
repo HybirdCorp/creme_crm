@@ -73,17 +73,17 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertNoFormError(response)
 
         response = self.client.post(url, follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              start_colselect=2,
-                                              end_colselect=3,
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                                    data={**self.lv_import_data,
+                                          'document': doc.id,
+                                          'user': user.id,
+                                          'start_colselect': 2,
+                                          'end_colselect': 3,
+                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                                              # Should not be used
-                                              busy_colselect=0,
-                                              busy_defval=True, 
-                                             )
+                                          # Should not be used
+                                          'busy_colselect': 0,
+                                          'busy_defval': True,
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -201,38 +201,41 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                                              )
 
         doc = self._build_csv_doc(lines)
-        data = dict(self.lv_import_data,
-                    document=doc.id,
-                    user=user.id,
-                    type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                            constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                           ),
+        data = {
+            **self.lv_import_data,
+            'document': doc.id,
+            'user': user.id,
+            'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                       constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                      ),
 
-                    my_participation_0=True,
-                    participating_users=other_user.pk,
+            'my_participation_0': True,
+            'participating_users': other_user.pk,
 
-                    participants_mode=1,  # Search with 1 or 2 columns
-                    participants_first_name_colselect=2,
-                    participants_last_name_colselect=3,
+            'participants_mode': 1,  # Search with 1 or 2 columns
+            'participants_first_name_colselect': 2,
+            'participants_last_name_colselect': 3,
 
-                    subjects_colselect=4,
-                   )
+            'subjects_colselect': 4,
+        }
 
         # Validation errors ----------
-        response = self.client.post(self._build_import_url(Activity), data=data)
+        response = self.assertPOST200(self._build_import_url(Activity), data=data)
         self.assertFormError(response, 'form', 'my_participation', _('Enter a value if you check the box.'))
 
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(data,
-                                              participants_first_name_colselect=100,  # Invalid choice
-                                             )
-                                   )
+        response = self.assertPOST200(
+            self._build_import_url(Activity), follow=True,
+            data={**data,
+                  'participants_first_name_colselect': 100,  # Invalid choice
+                 },
+        )
         self.assertFormError(response, 'form', 'participants', 'Invalid index')
 
         # ---------
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(data, my_participation_1=my_calendar.pk)
-                                   )
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={**data, 'my_participation_1': my_calendar.pk},
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -323,20 +326,22 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 ]
 
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                      constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                                                     ),
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                           constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                          ),
 
-                                              participants_mode='2',  # Search with pattern
-                                              participants_separator='/',
-                                              participants_pattern=4,  # '$last_name $first_name'
-                                              participants_pattern_colselect=2,
-                                             )
-                                   )
+                'participants_mode': '2',  # Search with pattern
+                'participants_separator': '/',
+                'participants_pattern': 4,  # '$last_name $first_name'
+                'participants_pattern_colselect': 2,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -399,20 +404,21 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Activity)
-        data = dict(self.lv_import_data,
-                    document=doc.id,
-                    user=user.id,
-                    type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                            constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                           ),
+        data = {
+            **self.lv_import_data,
+            'document': doc.id,
+            'user': user.id,
+            'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                       constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                      ),
 
-                    participants_mode=2,  # Search with pattern
-                    participants_separator='/',
-                    participants_pattern=1,  # $civility $first_name $last_name
-                    participants_pattern_colselect=2,
-                   )
+            'participants_mode': 2,  # Search with pattern
+            'participants_separator': '/',
+            'participants_pattern': 1,  # $civility $first_name $last_name
+            'participants_pattern_colselect': 2,
+        }
 
-        response = self.client.post(url, data=dict(data, participants_pattern=5))  # Invalid pattern
+        response = self.client.post(url, data={**data, 'participants_pattern': 5})  # Invalid pattern
         self.assertFormError(response, 'form', 'participants', 'Invalid pattern')
 
         # ----------
@@ -436,18 +442,20 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         orga = Organisation.objects.create(user=self.user, name=last_name)  # Should not be used as subject
 
         doc = self._build_csv_doc([(title, first_name, last_name)])
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                                              participants_mode=1,  # Search with 1 or 2 columns
-                                              participants_first_name_colselect=2,
-                                              participants_last_name_colselect=3,
-                                              participants_create=True,
-                                             )
-                                   )
+                'participants_mode': 1,  # Search with 1 or 2 columns
+                'participants_first_name_colselect': 2,
+                'participants_last_name_colselect': 3,
+                'participants_create': True,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -474,19 +482,21 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                                    )
                                   ]
                                  )
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                                              participants_mode=2,  # Search with pattern
-                                              participants_separator='#',
-                                              participants_pattern=3,  # '$first_name $last_name'
-                                              participants_pattern_colselect=2,
-                                              participants_create=True,
-                                             )
-                                   )
+                'participants_mode': 2,  # Search with pattern
+                'participants_separator': '#',
+                'participants_pattern': 3,  # '$first_name $last_name'
+                'participants_pattern_colselect': 2,
+                'participants_create': True,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -512,18 +522,20 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         first_name = 'Aoi'
         last_name = 'Kunieda'
         doc = self._build_csv_doc([(title, first_name, last_name)])
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=self.user.id,
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': self.user.id,
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                                              participants_mode=1,  # Search with 1 or 2 columns
-                                              participants_first_name_colselect=2,
-                                              participants_last_name_colselect=3,
-                                              participants_create=True,  # Not used
-                                             )
-                                   )
+                'participants_mode': 1,  # Search with 1 or 2 columns
+                'participants_first_name_colselect': 2,
+                'participants_last_name_colselect': 3,
+                'participants_create': True,  # Not used
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -538,15 +550,17 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         title = 'Task#1'
         doc = self._build_csv_doc([(title, 'Aoi', 'Kunieda')])
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                                              property_types=[ptype.id],
-                                             )
-                                   )
+                'property_types': [ptype.id],
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -583,16 +597,18 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                                    (title6, '{}/{}'.format(aoi, clan1.name)),
                                   ]
                                  )
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                                              subjects_colselect=2,
-                                              subjects_separator='/',
-                                             )
-                                   )
+                'subjects_colselect': 2,
+                'subjects_separator': '/',
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -667,16 +683,18 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         name = 'Ishiyama'
 
         doc = self._build_csv_doc([(title, ' {} '.format(name))])
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                                              subjects_colselect=2,
-                                              subjects_create=True,
-                                             )
-                                   )
+                'subjects_colselect': 2,
+                'subjects_create': True,
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -686,9 +704,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     def test_import_subjects03(self):
         "Subject: creation credentials."
-        self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'), 
-                   creatable_models=[Activity, Document],  # Not Organisation
-                  )
+        user = self.login(is_superuser=False,
+                          allowed_apps=('activities', 'persons', 'documents'),
+                          creatable_models=[Activity, Document],  # Not Organisation
+                         )
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW | EntityCredentials.LINK,
                                       set_type=SetCredentials.ESET_OWN,
@@ -697,16 +716,18 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         title = 'Task#1'
         name = 'Ishiyama'
         doc = self._build_csv_doc([(title, ' {} '.format(name))])
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=self.user.id,
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                                              subjects_colselect=2,
-                                              subjects_create=True,  # Should not be used
-                                             )
-                                   )
+                'subjects_colselect': 2,
+                'subjects_create': True,  # Should not be used
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -716,9 +737,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomOrganisation
     def test_import_subjects04(self):
         "Subject: view credentials."
-        self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
-                   creatable_models=[Activity, Document],
-                  )
+        user = self.login(is_superuser=False,
+                          allowed_apps=('activities', 'persons', 'documents'),
+                          creatable_models=[Activity, Document],
+                         )
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW | EntityCredentials.LINK,
                                       set_type=SetCredentials.ESET_OWN,
@@ -732,15 +754,17 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         orga2 = create_orga(user=self.other_user, name=name)
 
         doc = self._build_csv_doc([(title, name)])
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=self.user.id,
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                                              subjects_colselect=2,
-                                             )
-                                   )
+                'subjects_colselect': 2,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -779,25 +803,27 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 ]
 
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              key_fields=['title'],
+        response = self.client.post(
+            self._build_import_url(Activity), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'key_fields': ['title'],
 
-                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                      constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                                                     ),
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                           constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                          ),
 
-                                              participants_mode=1,  # Search with 1 or 2 columns
-                                              participants_first_name_colselect=2,
-                                              participants_last_name_colselect=3,
+                'participants_mode': 1,  # Search with 1 or 2 columns
+                'participants_first_name_colselect': 2,
+                'participants_last_name_colselect': 3,
 
-                                              subjects_colselect=4,
+                'subjects_colselect': 4,
 
-                                              place_colselect=5,
-                                             )
-                                   )
+                'place_colselect': 5,
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -825,25 +851,26 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         doc = self._build_csv_doc([(title, participant.first_name, participant.last_name, subject.name)])
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
-            data=dict(self.lv_import_data,
-                      document=doc.id,
-                      user=user.id,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
 
-                      fixed_relations=self.formfield_value_multi_relation_entity(
-                          [constants.REL_OBJ_ACTIVITY_SUBJECT, subject]
-                      ),
+                'fixed_relations': self.formfield_value_multi_relation_entity(
+                    [constants.REL_OBJ_ACTIVITY_SUBJECT, subject]
+                ),
 
-                      type_selector=self._acttype_field_value(
-                          constants.ACTIVITYTYPE_MEETING,
-                          constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                      ),
+                'type_selector': self._acttype_field_value(
+                    constants.ACTIVITYTYPE_MEETING,
+                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                ),
 
-                      participants_mode=1,  # Search with 1 or 2 columns
-                      participants_first_name_colselect=2,
-                      participants_last_name_colselect=3,
+                'participants_mode': 1,  # Search with 1 or 2 columns
+                'participants_first_name_colselect': 2,
+                'participants_last_name_colselect': 3,
 
-                      subjects_colselect=4,
-                     )
+                'subjects_colselect': 4,
+            },
         )
         self.assertNoFormError(response)
 
