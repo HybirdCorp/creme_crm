@@ -145,7 +145,7 @@ def bricks_render_info(request, bricks, context=None,
         # NB: the context is copied is order to a 'fresh' one for each brick, & so avoid annoying side-effects
         # Notice that build_context() creates a shared dictionary with the "shared" key in order to explicitly
         # share data between 2+ bricks.
-        brick_render = brick_render_function(brick, context=dict(context))
+        brick_render = brick_render_function(brick, context={**context})
 
         if brick_render is not None:
             brick_renders.append((brick.id_, brick_render))

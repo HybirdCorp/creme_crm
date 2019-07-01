@@ -16,7 +16,6 @@ try:
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
-
 create_town = Town.objects.create
 create_orga = Organisation.objects.create
 
@@ -38,8 +37,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
                 'status':    GeoAddress.COMPLETE,
                 'geocoded':  True,
                }
-        self.assertGET404(self.SET_ADDRESS_URL,  data=dict(data, id=address.id))
-        self.assertPOST200(self.SET_ADDRESS_URL, data=dict(data, id=address.id))
+        self.assertGET404(self.SET_ADDRESS_URL,  data={**data, 'id': address.id})
+        self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
 
         geoaddresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geoaddresses))
@@ -53,7 +52,7 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
                 'status':    GeoAddress.MANUAL,
                 'geocoded':  True,
                }
-        self.assertPOST200(self.SET_ADDRESS_URL, data=dict(data, id=address.id))
+        self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
 
         geoaddresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geoaddresses))
@@ -76,7 +75,7 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
             'status':    GeoAddress.COMPLETE,
             'geocoded':  True,
         }
-        self.assertPOST200(self.SET_ADDRESS_URL, data=dict(data, id=address.id))
+        self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
 
         address = self.refresh(address)
         self.assertEqual(1, GeoAddress.objects.count())
@@ -92,7 +91,7 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
             'status':    GeoAddress.COMPLETE,
             'geocoded':  True,
         }
-        self.assertPOST200(self.SET_ADDRESS_URL, data=dict(data, id=address.id))
+        self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
 
         geoaddresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geoaddresses))
@@ -127,7 +126,7 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
             'status':    GeoAddress.COMPLETE,
             'geocoded':  True,
         }
-        self.assertPOST200(self.SET_ADDRESS_URL, data=dict(data, id=address.id))
+        self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
 
         geoaddresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geoaddresses))
@@ -409,7 +408,7 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
 
         url = self.GET_NEIGHBOURS_URL
         GET_data = {'address_id': self.MARSEILLE_MAIRIE.id}
-        response = self.assertGET200(url, data=dict(GET_data, distance=1000))
+        response = self.assertGET200(url, data={**GET_data, 'distance': 1000})
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(data['addresses'],
@@ -418,7 +417,7 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
                                      ]
                                     )
 
-        response = self.assertGET200(url, data=dict(GET_data, distance=20000))
+        response = self.assertGET200(url, data={**GET_data, 'distance': 20000})
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(data['addresses'],
@@ -429,7 +428,7 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
                                      ]
                                     )
 
-        response = self.assertGET200(url, data=dict(GET_data, distance='NaN'))
+        response = self.assertGET200(url, data={**GET_data, 'distance': 'NaN'})
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(data['addresses'],
@@ -456,7 +455,7 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
 
         url = self.GET_NEIGHBOURS_URL
         GET_data = {'filter_id': efilter.id}
-        response = self.assertGET200(url, data=dict(GET_data, address_id=self.MARSEILLE_MAIRIE.id))
+        response = self.assertGET200(url, data={**GET_data, 'address_id': self.MARSEILLE_MAIRIE.id})
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(data['addresses'],
@@ -465,14 +464,14 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
                                      ]
                                     )
 
-        response = self.assertGET200(url, data=dict(GET_data, address_id=self.AUBAGNE_MAIRIE.id))
+        response = self.assertGET200(url, data={**GET_data, 'address_id': self.AUBAGNE_MAIRIE.id})
         self.assertDictEqual(response.json(),
                              {'source_address': address_as_dict(self.AUBAGNE_MAIRIE),
                               'addresses': [address_as_dict(self.MARSEILLE_COMMANDERIE)],
                              }
                             )
 
-        response = self.assertGET200(url, data=dict(GET_data, address_id=self.MARSEILLE_COMMANDERIE.id))
+        response = self.assertGET200(url, data={**GET_data, 'address_id': self.MARSEILLE_COMMANDERIE.id})
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_COMMANDERIE))
         self.assertListAddressAsDict(data['addresses'],
@@ -535,7 +534,10 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
     def test_get_neighbours_invalid_filter(self):
         user = self.login()
         self.populate_addresses(user)
-        self.assertGET404(self.GET_NEIGHBOURS_URL, data={'address_id': self.MARSEILLE_MAIRIE.id, 'filter_id': 'unknown'})
+        self.assertGET404(
+            self.GET_NEIGHBOURS_URL,
+            data={'address_id': self.MARSEILLE_MAIRIE.id, 'filter_id': 'unknown'},
+        )
 
     def test_get_neighbours_missing_address(self):
         self.login()

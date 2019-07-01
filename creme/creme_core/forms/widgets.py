@@ -387,7 +387,7 @@ class SelectorList(widgets.TextInput):
 
         @property
         def context(self):
-            attrs = dict(self.attrs)
+            attrs = {**self.attrs}
 
             if not self.enabled:
                 attrs['disabled'] = True

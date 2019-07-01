@@ -251,7 +251,7 @@ class AlertTestCase(AssistantsTestCase):
 
         # Reminders are not recreated if they already exist
         self.execute_reminder_job(job)
-        self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids + [reminder.id]))
+        self.assertFalse(DateReminder.objects.exclude(id__in=[*reminder_ids, reminder.id]))
         self.assertEqual(1, len(mail.outbox))
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=30)

@@ -125,10 +125,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertIn('value="1"', str(form['step']))
 
         response = self.client.post(url, follow=True,
-                                    data=dict(self.lv_import_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                             ),
+                                    data={**self.lv_import_data,
+                                          'document': doc.id,
+                                          'user': user.id,
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -231,7 +231,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
     def _test_import02(self, builder):
         "Use header, default value, model search and create, properties, fixed and dynamic relations"
-        self.login()
+        user = self.login()
 
         pos_title  = 'Pilot'
         sctr_title = 'Army'
@@ -275,33 +275,35 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         default_descr = 'A cute pilot'
         response = self.client.post(
-                          url, follow=True,
-                          data=dict(self.lv_import_data,
-                                    document=doc.id, has_header=True,
-                                    user=self.user.id,
+            url, follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'has_header': True,
+                'user': user.id,
 
-                                    description_colselect=0,
-                                    description_defval=default_descr,
+                'description_colselect': 0,
+                'description_defval': default_descr,
 
-                                    position_colselect=3,
-                                    position_subfield='title',
-                                    position_defval='',  # The browser POST an empty string
-                                    position_create=True,
+                'position_colselect': 3,
+                'position_subfield': 'title',
+                'position_defval': '',  # The browser POST an empty string
+                'position_create': True,
 
-                                    sector_colselect=4,
-                                    sector_subfield='title',
-                                    sector_defval='',  # The browser POST an empty string
-                                    # sector_create=False,
+                'sector_colselect': 4,
+                'sector_subfield': 'title',
+                'sector_defval': '',  # The browser POST an empty string
+                # sector_create=False,
 
-                                    property_types=[ptype.id],
-                                    fixed_relations=self.formfield_value_multi_relation_entity(
-                                                            [loves.id, shinji]
-                                                        ),
-                                    dyn_relations=self._dyn_relations_value(employed, FakeOrganisation, 6, 'name'),
+                'property_types': [ptype.id],
+                'fixed_relations': self.formfield_value_multi_relation_entity(
+                                        [loves.id, shinji]
+                                    ),
+                'dyn_relations': self._dyn_relations_value(employed, FakeOrganisation, 6, 'name'),
 
-                                    address_city_colselect=5,
-                                   )
-                    )
+                'address_city_colselect': 5,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -354,7 +356,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
     def _test_import03(self, builder):
         "Create entities to link with them"
-        self.login()
+        user = self.login()
         contact_ids = list(FakeContact.objects.values_list('id', flat=True))
 
         orga_name = 'Nerv'
@@ -364,14 +366,17 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                        ('persons-object_employed_by',  'employs')
                                       )[0]
         doc = builder([('Ayanami', 'Rei', orga_name)])
-        response = self.client.post(self._build_import_url(FakeContact), follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              user=self.user.id,
+        response = self.client.post(
+            self._build_import_url(FakeContact), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
 
-                                              dyn_relations=self._dyn_relations_value(employed, FakeOrganisation, 3, 'name'),
-                                              dyn_relations_can_create=True,
-                                             ),
-                                   )
+                'dyn_relations': self._dyn_relations_value(employed, FakeOrganisation, 3, 'name'),
+                'dyn_relations_can_create': True,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -436,10 +441,11 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertIn('value="1"', str(response.context['form']['step']))
 
         response = self.client.post(url, follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              has_header=True,
-                                              user=user.id,
-                                             ),
+                                    data={**self.lv_import_data,
+                                          'document': doc.id,
+                                          'has_header': True,
+                                          'user': user.id,
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -468,12 +474,13 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
         response = self.client.post(
             self._build_import_url(FakeContact), follow=True,
-            data=dict(self.lv_import_data,
-                      document=doc.id,
-                      user=user.id,
-                      fixed_relations=self.formfield_value_multi_relation_entity([employed.id, nerv]),
-                      dyn_relations=self._dyn_relations_value(employed, FakeOrganisation, 3, 'name'),
-                     ),
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'fixed_relations': self.formfield_value_multi_relation_entity([employed.id, nerv]),
+                'dyn_relations': self._dyn_relations_value(employed, FakeOrganisation, 3, 'name'),
+            },
         )
 
         self._execute_job(response)
@@ -482,18 +489,19 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertRelationCount(1, rei, employed.id, nerv)  # Not 2
 
     def test_default_value(self):
-        "Use default value when CSV value is empty (+ fix unicode bug)"
-        self.login()
+        "Use default value when CSV value is empty (+ fix unicode bug)."
+        user = self.login()
 
         first_name = 'Gentoku'
         last_name = 'Ryûbi'
         doc = self._build_csv_doc([(first_name, '')])
         response = self.client.post(self._build_import_url(FakeContact), follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              user=self.user.id,
+                                    data={**self.lv_import_data,
+                                          'document': doc.id,
+                                          'user': user.id,
 
-                                              last_name_defval=last_name,
-                                             ),
+                                          'last_name_defval': last_name,
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -532,15 +540,17 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(FakeContact),
                                     follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              has_header=True,
-                                              user=user.id,
-                                              key_fields=['first_name', 'last_name'],
-                                              **{'custom_field_{}_colselect'.format(cf_int.id): 3,
-                                                 'custom_field_{}_colselect'.format(cf_str.id): 0,
-                                                 'custom_field_{}_colselect'.format(cf_dec.id): 4,
-                                                }
-                                             ),
+                                    data={
+                                        **self.lv_import_data,
+                                        'document': doc.id,
+                                        'has_header': True,
+                                        'user': user.id,
+                                        'key_fields': ['first_name', 'last_name'],
+
+                                        'custom_field_{}_colselect'.format(cf_int.id): 3,
+                                        'custom_field_{}_colselect'.format(cf_str.id): 0,
+                                        'custom_field_{}_colselect'.format(cf_dec.id): 4,
+                                    },
                                    )
         self.assertNoFormError(response)
 
@@ -611,15 +621,17 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(FakeContact),
                                     follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              has_header=True,
-                                              user=user.id,
-                                              **{'custom_field_{}_colselect'.format(cf_enum.id):  3,
-                                                 'custom_field_{}_colselect'.format(cf_enum2.id): 0,
-                                                 'custom_field_{}_colselect'.format(cf_menum.id): 4,
-                                                }
-                                             ),
-                                    )
+                                    data={
+                                        **self.lv_import_data,
+                                        'document': doc.id,
+                                        'has_header': True,
+                                        'user': user.id,
+
+                                        'custom_field_{}_colselect'.format(cf_enum.id):  3,
+                                        'custom_field_{}_colselect'.format(cf_enum2.id): 0,
+                                        'custom_field_{}_colselect'.format(cf_menum.id): 4,
+                                    },
+                                   )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -679,19 +691,22 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                 ]
 
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(FakeContact),
-                                    follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              has_header=True,
-                                              user=user.id,
-                                              **{'custom_field_{}_colselect'.format(cf_enum.id): 3,
-                                                 'custom_field_{}_create'.format(cf_enum.id):    True,
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'has_header': True,
+                'user': user.id,
 
-                                                 'custom_field_{}_colselect'.format(cf_menum.id): 4,
-                                                 'custom_field_{}_create'.format(cf_menum.id):    True,
-                                                }
-                                             ),
-                                   )
+                'custom_field_{}_colselect'.format(cf_enum.id): 3,
+                'custom_field_{}_create'.format(cf_enum.id):    True,
+
+                'custom_field_{}_colselect'.format(cf_menum.id): 4,
+                'custom_field_{}_create'.format(cf_menum.id):    True,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -723,10 +738,11 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self._assertNoResultError(self._get_job_results(job))
 
     def test_mass_import_customfields04(self):
-        "CustomField.ENUM/MULTI_ENUM: creation credentials"
-        self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
-                   creatable_models=[FakeContact, Document],
-                  )
+        "CustomField.ENUM/MULTI_ENUM: creation credentials."
+        user = self.login(is_superuser=False,
+                          allowed_apps=['creme_core', 'documents'],
+                          creatable_models=[FakeContact, Document],
+                         )
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
         cf_enum  = create_cf(name='Attack',  field_type=CustomField.ENUM)
@@ -741,21 +757,24 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                 ]
 
         doc = self._build_csv_doc(lines)
+        url = self._build_import_url(FakeContact)
 
         def post():
-            return self.client.post(self._build_import_url(FakeContact),
-                                    follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              has_header=True,
-                                              user=self.user.id,
-                                              **{'custom_field_{}_colselect'.format(cf_enum.id): 3,
-                                                 'custom_field_{}_create'.format(cf_enum.id):    True,
+            return self.client.post(
+                url, follow=True,
+                data={
+                    **self.lv_import_data,
+                    'document': doc.id,
+                    'has_header': True,
+                    'user': user.id,
 
-                                                 'custom_field_{}_colselect'.format(cf_menum.id): 4,
-                                                 'custom_field_{}_create'.format(cf_menum.id):    True,
-                                                }
-                                             ),
-                                   )
+                    'custom_field_{}_colselect'.format(cf_enum.id): 3,
+                    'custom_field_{}_create'.format(cf_enum.id):    True,
+
+                    'custom_field_{}_colselect'.format(cf_menum.id): 4,
+                    'custom_field_{}_create'.format(cf_menum.id):    True,
+                },
+            )
 
         response = post()
         self.assertFormError(response, 'form', 'custom_field_{}'.format(cf_enum.id),
@@ -799,25 +818,28 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                 ]
 
         doc = self._build_csv_doc(lines)
+        url = self._build_import_url(FakeContact)
 
         def post(defint):
-            return self.client.post(self._build_import_url(FakeContact),
-                                    follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              has_header=True,
-                                              user=user.id,
-                                              key_fields=['first_name', 'last_name'],
-                                              **{'custom_field_{}_colselect'.format(cf_int.id): 3,
-                                                 'custom_field_{}_defval'.format(cf_int.id):    defint,
+            return self.client.post(
+                url, follow=True,
+                data={
+                    **self.lv_import_data,
+                    'document': doc.id,
+                    'has_header': True,
+                    'user': user.id,
+                    'key_fields': ['first_name', 'last_name'],
 
-                                                 'custom_field_{}_colselect'.format(cf_enum.id): 4,
-                                                 'custom_field_{}_defval'.format(cf_enum.id):    str(punch.id),
+                    'custom_field_{}_colselect'.format(cf_int.id): 3,
+                    'custom_field_{}_defval'.format(cf_int.id):    defint,
 
-                                                 'custom_field_{}_colselect'.format(cf_menum.id): 5,
-                                                 'custom_field_{}_defval'.format(cf_menum.id):    str(sword.id),
-                                                }
-                                             ),
-                                   )
+                    'custom_field_{}_colselect'.format(cf_enum.id): 4,
+                    'custom_field_{}_defval'.format(cf_enum.id):    str(punch.id),
+
+                    'custom_field_{}_colselect'.format(cf_menum.id): 5,
+                    'custom_field_{}_defval'.format(cf_menum.id):    str(sword.id),
+                },
+            )
 
         response = post('notint')
         self.assertFormError(response, 'form', 'custom_field_{}'.format(cf_int.id),
@@ -846,13 +868,14 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         doc = self._build_doc(self._build_file(b'Non Empty File...', 'doc'))
         response = self.assertPOST200(self._build_import_url(FakeContact),
-                                      data={'step': 0, 'document': doc.id}
+                                      data={'step': 0, 'document': doc.id},
                                      )
-        self.assertFormError(response, 'form', None,
-                             _('Error reading document, unsupported file type: {file}.').format(
-                                    file=doc.filedata.name,
-                                )
-                            )
+        self.assertFormError(
+            response, 'form', None,
+            _('Error reading document, unsupported file type: {file}.').format(
+                file=doc.filedata.name,
+            )
+        )
 
     def test_import_error02(self):
         "Validate default value"
@@ -864,32 +887,40 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         doc = self._build_csv_doc(lines, separator=';')
         url = self._build_import_url(FakeOrganisation)
-        response = self.client.post(url, data=dict(self.lv_import_data, document=doc.id,
-                                                   has_header=True,
-                                                   user=self.user.id,
-                                                   name_colselect=1,
+        response = self.assertPOST200(
+            url,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'has_header': True,
+                'user': self.user.id,
+                'name_colselect': 1,
 
-                                                   capital_colselect=2,
-                                                   capital_defval='notint',
-                                                  ),
-                                   )
+                'capital_colselect': 2,
+                'capital_defval': 'notint',
+            },
+        )
         self.assertFormError(response, 'form', 'capital', _('Enter a whole number.'))
 
     def test_import_error03(self):
         "Required field without column or default value"
-        self.login()
+        user = self.login()
 
         lines = [('Capital',), ('1000',)]  # No 'Name'
 
         doc = self._build_csv_doc(lines, separator=';')
         url = self._build_import_url(FakeOrganisation)
-        response = self.client.post(url, data=dict(self.lv_import_data, document=doc.id,
-                                                   has_header=True,
-                                                   user=self.user.id,
-                                                   name_colselect=0,
-                                                   capital_colselect=1,
-                                                  ),
-                                   )
+        response = self.assertPOST200(
+            url,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'has_header': True,
+                'user': user.id,
+                'name_colselect': 0,
+                'capital_colselect': 1,
+            },
+        )
         self.assertFormError(response, 'form', 'name', _('This field is required.'))
 
     @override_settings(MAX_JOBS_PER_USER=1)
@@ -915,49 +946,56 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
     def test_credentials02(self):
         "Creation credentials for 'auxiliary' models."
-        self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
-                   creatable_models=[FakeContact, FakeOrganisation, Document],
-                  )
+        user = self.login(is_superuser=False,
+                          allowed_apps=['creme_core', 'documents'],
+                          creatable_models=[FakeContact, FakeOrganisation, Document],
+                         )
 
         doc = self._build_csv_doc([('Ayanami', 'Rei', 'Pilot')])
-        response = self.assertPOST200(self._build_import_url(FakeContact),
-                                      data=dict(self.lv_import_data, document=doc.id,
-                                                user=self.user.id,
-                                                first_name_colselect=2,
-                                                last_name_colselect=1,
+        response = self.assertPOST200(
+            self._build_import_url(FakeContact),
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'first_name_colselect': 2,
+                'last_name_colselect': 1,
 
-                                                position_colselect=3,
-                                                position_subfield='title',
-                                                position_create=True,
-                                               ),
-                                     )
+                'position_colselect': 3,
+                'position_subfield': 'title',
+                'position_create': True,
+            },
+        )
         self.assertFormError(response, 'form', 'position', 'You can not create instances')
 
     def test_credentials03(self):
         "Creation credentials for related entities"
-        self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
-                   creatable_models=[FakeContact, Document],  # Not Organisation
-                  )
+        user = self.login(is_superuser=False,
+                          allowed_apps=['creme_core', 'documents'],
+                          creatable_models=[FakeContact, Document],  # Not Organisation
+                         )
 
         employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
                                        ('persons-object_employed_by',  'employs')
                                       )[0]
         doc = self._build_csv_doc([('Ayanami', 'Rei', 'NERV')])
-        response = self.assertPOST200(self._build_import_url(FakeContact),
-                                      data=dict(self.lv_import_data, document=doc.id,
-                                                user=self.user.id,
-                                                first_name_colselect=2,
-                                                last_name_colselect=1,
+        response = self.assertPOST200(
+            self._build_import_url(FakeContact),
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'first_name_colselect': 2,
+                'last_name_colselect': 1,
 
-                                                dyn_relations=self._dyn_relations_value(employed, FakeOrganisation, 3, 'name'),
-                                                dyn_relations_can_create=True,
-                                               ),
-                                     )
-        self.assertFormError(response, 'form', 'dyn_relations', 
-                             _('You are not allowed to create: %(model)s') % {
-                                    'model': 'Test Organisation',
-                                }
-                            )
+                'dyn_relations': self._dyn_relations_value(employed, FakeOrganisation, 3, 'name'),
+                'dyn_relations_can_create': True,
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'dyn_relations',
+            _('You are not allowed to create: %(model)s') % {'model': 'Test Organisation'}
+        )
 
     def test_import_with_update01(self):
         user = self.login()
@@ -1006,20 +1044,23 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                         for d in (rei_info, asuka_info)
                                   ]
                                  )
-        response = self.client.post(self._build_import_url(FakeContact),
-                                    follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              user=user.id,
-                                              key_fields=['first_name', 'last_name'],
-                                              phone_colselect=3,
-                                              email_colselect=4,
-                                              property_types=[ptype1.id, ptype2.id],
-                                              fixed_relations=self.formfield_value_multi_relation_entity(
-                                                                  (loves.id, shinji),
-                                                                  (loves.id, gendo),
-                                                                ),
-                                             ),
-                                   )
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'key_fields': ['first_name', 'last_name'],
+                'phone_colselect': 3,
+                'email_colselect': 4,
+                'property_types': [ptype1.id, ptype2.id],
+                'fixed_relations': self.formfield_value_multi_relation_entity(
+                    (loves.id, shinji),
+                    (loves.id, gendo),
+                ),
+            },
+        )
         self.assertNoFormError(response)
         job = self._execute_job(response)
 
@@ -1037,7 +1078,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertIsNone(self.refresh(rei2).phone)
 
         # asuka = self.get_object_or_fail(FakeContact, **asuka_info)  # TODO: if FakeContact.email.null == False
-        asuka = self.get_object_or_fail(FakeContact, first_name=asuka_info['first_name'], last_name=asuka_info['last_name'])
+        asuka = self.get_object_or_fail(FakeContact,
+                                        first_name=asuka_info['first_name'],
+                                        last_name=asuka_info['last_name'],
+                                       )
         self.assertEqual(asuka.phone, asuka_info['phone'])
         self.assertFalse(asuka.email)
 
@@ -1079,15 +1123,18 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         count = FakeContact.objects.count()
 
         doc = self._build_csv_doc([(last_name, first_name)])
-        response = self.client.post(self._build_import_url(FakeContact),
-                                    follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              user=user.id,
-                                              key_fields=['last_name'],
-                                              last_name_colselect=1,
-                                              first_name_colselect=2,
-                                             ),
-                                   )
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'key_fields': ['last_name'],
+                'last_name_colselect': 1,
+                'first_name_colselect': 2,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -1125,14 +1172,17 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         count = FakeContact.objects.count()
 
         doc = self._build_csv_doc([(last_name, first_name)])
-        response = self.client.post(self._build_import_url(FakeContact), follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              user=user.id,
-                                              key_fields=['last_name'],
-                                              last_name_colselect=1,
-                                              first_name_colselect=2,
-                                             ),
-                                   )
+        response = self.client.post(
+            self._build_import_url(FakeContact), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'key_fields': ['last_name'],
+                'last_name_colselect': 1,
+                'first_name_colselect': 2,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -1168,14 +1218,17 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         count = FakeContact.objects.count()
 
         doc = self._build_csv_doc([(last_name, first_name)])
-        response = self.client.post(self._build_import_url(FakeContact), follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              user=user.id,
-                                              key_fields=['last_name'],
-                                              last_name_colselect=1,
-                                              first_name_colselect=2,
-                                             ),
-                                   )
+        response = self.client.post(
+            self._build_import_url(FakeContact), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'key_fields': ['last_name'],
+                'last_name_colselect': 1,
+                'first_name_colselect': 2,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -1219,20 +1272,23 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertNotIn('languages', key_choices)  # M2M
 
         # Final POST
-        response = self.client.post(url, follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              user=user.id,
-                                              key_fields=['last_name', 'civility'],
+        response = self.client.post(
+            url, follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'key_fields': ['last_name', 'civility'],
 
-                                              first_name_colselect=0,
-                                              last_name_colselect=1,
+                'first_name_colselect': 0,
+                'last_name_colselect': 1,
 
-                                              civility_colselect=2,
-                                              civility_subfield='title',
+                'civility_colselect': 2,
+                'civility_subfield': 'title',
 
-                                              email_colselect=3,
-                                             ),
-                                   )
+                'email_colselect': 3,
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -1247,15 +1303,16 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         doc = self._build_csv_doc([('Rei', 'Ayanami', 'Pilot')])
         response = self.assertPOST200(
             self._build_import_url(FakeContact), follow=True,
-            data=dict(self.lv_import_data,
-                      document=doc.id,
-                      user=user.id,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
 
-                      position_colselect=3,
-                      position_subfield='invalid',  # <=
+                'position_colselect': 3,
+                'position_subfield': 'invalid',  # <=
 
-                      phone_subfield='wtf',  # <= should not crash...
-                     ),
+                'phone_subfield': 'wtf',  # <= should not crash...
+            },
         )
         self.assertFormError(
             response, 'form', 'position',
@@ -1292,19 +1349,22 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertNotIn(hidden_fname, fields)
 
         response = self.client.post(url, follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id,
-                                              user=user.id,
-                                              key_fields=['first_name', 'last_name'],
-                                              phone_colselect=3,  # Should be ignored
-                                              email_colselect=4,
-                                             ),
+                                    data={
+                                        **self.lv_import_data,
+                                        'document': doc.id,
+                                        'user': user.id,
+                                        'key_fields': ['first_name', 'last_name'],
+                                        'phone_colselect': 3,  # Should be ignored
+                                        'email_colselect': 4,
+                                    },
                                    )
         self.assertNoFormError(response)
 
         self._execute_job(response)
-        rei = self.get_object_or_fail(FakeContact, last_name=rei_info['last_name'],
+        rei = self.get_object_or_fail(FakeContact,
+                                      last_name=rei_info['last_name'],
                                       first_name=rei_info['first_name'],
-                                      )
+                                     )
         self.assertEqual(rei_info['email'], rei.email)
         self.assertIsNone(getattr(rei, hidden_fname))
 
@@ -1319,9 +1379,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         count = FakeContact.objects.count()
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(FakeContact), follow=True,
-                                    data=dict(self.lv_import_data, document=doc.id, user=user.id),
-                                    )
+        response = self.client.post(
+            self._build_import_url(FakeContact), follow=True,
+            data={**self.lv_import_data, 'document': doc.id, 'user': user.id},
+        )
         self.assertNoFormError(response)
 
         job = self._get_job(response)
@@ -1345,11 +1406,12 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         lines.append(('Asuka',    'Langley',   '01-02-1997'))  # OK
 
         doc = doc_builder(lines)
-        data = dict(self.lv_import_data,
-                    document=doc.id,
-                    user=user.id,
-                    birthday_colselect=3,
-                   )
+        data = {
+            **self.lv_import_data,
+            'document': doc.id,
+            'user': user.id,
+            'birthday_colselect': 3,
+        }
 
         if header:
            data['has_header'] = 'on'
@@ -1422,7 +1484,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                 )
 
     def test_dl_errors04(self):
-        "Bad Job type"
+        "Bad Job type."
         user = self.login()
         job = Job.objects.create(user=user,
                                  type_id=batch_process_type.id,
@@ -1434,7 +1496,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertGET404(self._build_dl_errors_url(job))
 
     def test_dl_errors05(self):
-        "Bad user"
+        "Bad user."
         self.login(is_superuser=False)
         job = Job.objects.create(user=self.other_user,
                                  type_id=mass_import_type.id,

@@ -459,9 +459,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         url = self._build_add_url(ct=self.ct_contact)
         response = self.assertPOST200(url, follow=True,
-                                      data=dict(data,
-                                                subfilters_conditions=[subfilter.id],
-                                               ),
+                                      data={**data,
+                                            'subfilters_conditions': [subfilter.id],
+                                           },
                                      )
         self.assertFormError(
             response, 'form', None,
@@ -631,7 +631,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                       follow=True, data=post_data,
                                      )
 
-        response = post(dict(data, subfilters_conditions=[subfilter.id]))
+        response = post({**data, 'subfilters_conditions': [subfilter.id]})
         self.assertFormError(response, 'form', 'subfilters_conditions',
                              _('Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': subfilter.id,
@@ -641,13 +641,13 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         rtype = RelationType.create(('test-subject_love', 'Is loving'),
                                     ('test-object_love',  'Is loved by')
                                    )[0]
-        response = post(dict(data,
-                             relsubfilfers_conditions=self._build_subfilters_data(
-                                                            rtype_id=rtype.id,
-                                                            ct_id=self.ct_contact.id,
-                                                            efilter_id=subfilter.id,
-                                                        ),
-                            )
+        response = post({**data,
+                         'relsubfilfers_conditions': self._build_subfilters_data(
+                            rtype_id=rtype.id,
+                            ct_id=self.ct_contact.id,
+                            efilter_id=subfilter.id,
+                         ),
+                        }
                        )
         self.assertFormError(response, 'form', 'relsubfilfers_conditions',
                              _('This filter is invalid.')

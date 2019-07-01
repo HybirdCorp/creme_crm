@@ -817,7 +817,7 @@ def brick_display(context, *bricks, **kwargs):
     # NB: the context is copied is order to a 'fresh' one for each brick, & so avoid annoying side-effects.
     return mark_safe(
         ''.join(filter(None,
-                       (render(brick, context=dict(context_dict))
+                       (render(brick, context={**context_dict})
                            for brick in bricks_to_render
                        )
     )))

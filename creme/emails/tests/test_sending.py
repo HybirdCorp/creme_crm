@@ -444,11 +444,11 @@ class SendingsTestCase(_EmailsTestCase):
                }
 
         post = partial(self.client.post, self._build_add_url(camp))
-        self.assertNoFormError(post(data=dict(data,
-                                              sending_date=naive_sending_date.strftime('%Y-%m-%d'),  # Future: OK
-                                              hour=naive_sending_date.hour,
-                                              minute=naive_sending_date.minute,
-                                             )
+        self.assertNoFormError(post(data={**data,
+                                          'sending_date': naive_sending_date.strftime('%Y-%m-%d'),  # Future: OK
+                                          'hour':         naive_sending_date.hour,
+                                          'minute':       naive_sending_date.minute,
+                                         },
                                    )
                               )
 
@@ -467,15 +467,15 @@ class SendingsTestCase(_EmailsTestCase):
                             )
 
         msg = _('Sending date must be is the future')
-        self.assertFormError(post(data=dict(data,
-                                            sending_date=(now_value - timedelta(days=1)).strftime('%Y-%m-%d')
-                                           )
+        self.assertFormError(post(data={**data,
+                                        'sending_date': (now_value - timedelta(days=1)).strftime('%Y-%m-%d'),
+                                       },
                                  ),
                              'form', 'sending_date', msg,
                             )
-        self.assertFormError(post(data=dict(data,
-                                            sending_date=now_value.strftime('%Y-%m-%d'),
-                                           )
+        self.assertFormError(post(data={**data,
+                                        'sending_date': now_value.strftime('%Y-%m-%d'),
+                                       },
                                  ),
                              'form', 'sending_date', msg,
                             )
@@ -496,11 +496,11 @@ class SendingsTestCase(_EmailsTestCase):
                }
 
         post = partial(self.client.post, self._build_add_url(camp))
-        self.assertNoFormError(post(data=dict(data,
-                                              sending_date=naive_sending_date.strftime('%Y-%m-%d'), # Future: OK
-                                              hour=naive_sending_date.hour,
-                                              minute=naive_sending_date.minute,
-                                             )
+        self.assertNoFormError(post(data={**data,
+                                          'sending_date': naive_sending_date.strftime('%Y-%m-%d'), # Future: OK
+                                          'hour':         naive_sending_date.hour,
+                                          'minute':       naive_sending_date.minute,
+                                         },
                                    )
                               )
 

@@ -105,7 +105,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertFalse(Act.objects.all())
 
     def test_create03(self):
-        "Error: start/due date not filled"
+        "Error: start/due date not filled."
         user = self.login()
 
         atype = ActType.objects.create(title='Show')
@@ -113,27 +113,29 @@ class ActTestCase(CommercialBaseTestCase):
 
         def post(**kwargs):
             return self.assertPOST200(self.ADD_URL, follow=True,
-                                    data=dict(user=user.id,
-                                              name='Act#1',
-                                              expected_sales=1000,
-                                              act_type=atype.id,
-                                              segment=segment.id,
-                                              **kwargs
-                                             )
-                                    )
+                                      data={
+                                          'user': user.id,
+                                          'name': 'Act#1',
+                                          'expected_sales': 1000,
+                                          'act_type': atype.id,
+                                          'segment': segment.id,
+                                          **kwargs
+                                      },
+                                     )
 
         msg = _('This field is required.')
         self.assertFormError(post(start='2011-11-20'),    'form', 'due_date', msg)
         self.assertFormError(post(due_date='2011-11-20'), 'form', 'start',    msg)
 
     def create_act(self, name='NAME', expected_sales=1000):
-        return Act.objects.create(user=self.user, name=name,
-                                  expected_sales=expected_sales, cost=50,
-                                  goal='GOAL', start=date(2010, 11, 25),
-                                  due_date=date(2011, 12, 26),
-                                  act_type=ActType.objects.create(title='Show'),
-                                  segment=self._create_segment('Segment - {}'.format(name)),
-                                 )
+        return Act.objects.create(
+            user=self.user, name=name,
+            expected_sales=expected_sales, cost=50,
+            goal='GOAL', start=date(2010, 11, 25),
+            due_date=date(2011, 12, 26),
+            act_type=ActType.objects.create(title='Show'),
+            segment=self._create_segment('Segment - {}'.format(name)),
+        )
 
     def test_edit(self):
         user = self.login()

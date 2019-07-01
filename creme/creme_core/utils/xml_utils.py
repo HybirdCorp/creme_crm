@@ -134,9 +134,10 @@ def xml_diff(xml1, xml2):
                 attr_value1 = attrs1.pop(attr_name2, None)
 
                 if attr_value1 is None:
-                    return XMLDiff('Attribute "{}" is missing in the first document'.format(attr_name2),
-                                   node1, tree1
-                                  )
+                    return XMLDiff(
+                        'Attribute "{}" is missing in the first document'.format(attr_name2),
+                        node1, tree1
+                    )
 
                 if attr_value1 != attr_value2:
                     return XMLDiff('Attribute "{}": "{}" != "{}"'.format(

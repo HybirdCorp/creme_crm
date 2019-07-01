@@ -830,7 +830,7 @@ class ProjectsTestCase(CremeTestCase):
 
         response = self.client.post(self._build_edit_activity_url(activity),
                                     follow=True,
-                                    data=dict(data, resource=resource2.id),
+                                    data={**data, 'resource': resource2.id},
                                    )
         self.assertNoFormError(response)
 
@@ -873,10 +873,10 @@ class ProjectsTestCase(CremeTestCase):
         activity = activities[0]
         response = self.client.post(self._build_edit_activity_url(activity),
                                     follow=True,
-                                    data=dict(data,
-                                              resource=resource2.id,
-                                              keep_participating='on',
-                                             ),
+                                    data={**data,
+                                          'resource': resource2.id,
+                                          'keep_participating': 'on',
+                                         },
                                    )
         self.assertNoFormError(response)
 

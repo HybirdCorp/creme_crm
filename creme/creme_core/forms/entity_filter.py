@@ -189,12 +189,13 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
         add_dselect = self.add_dselect
         add_dselect('field',    options=self._build_fieldchoices(self.fields), attrs=field_attrs)
         add_dselect('operator', options=self._build_operatorchoices(self.operators),
-                    attrs=dict(field_attrs,
-                               filter='context.field && item.value ? '
-                                      'item.value.types.split(" ").indexOf(context.field.type) !== -1 : '
-                                      'true',
-                               dependencies='field',
-                              ),
+                    attrs={
+                        **field_attrs,
+                        'filter': 'context.field && item.value ? '
+                                  'item.value.types.split(" ").indexOf(context.field.type) !== -1 : '
+                                  'true',
+                        'dependencies': 'field',
+                    },
                    )
         self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
 
@@ -399,7 +400,7 @@ class RelationsConditionsWidget(SelectorList):
         add_dselect = chained_input.add_dselect
         add_dselect('has', options=_HAS_RELATION_OPTIONS.items(), attrs=attrs_json)
         add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
-        add_dselect('ctype', options=ctype_url, attrs=dict(attrs_json, autocomplete=True))
+        add_dselect('ctype', options=ctype_url, attrs={**attrs_json, 'autocomplete': True})
 
         chained_input.add_input('entity', widget=RelationTargetWidget,
                                 attrs={'auto': False}, key='${ctype}', multiple=True,
@@ -423,7 +424,7 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         add_dselect = chained_input.add_dselect
         add_dselect('has', options=_HAS_RELATION_OPTIONS.items(), attrs=attrs_json)
         add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
-        add_dselect(ctype_name, attrs=dict(attrs_json, autocomplete=True),
+        add_dselect(ctype_name, attrs={**attrs_json, 'autocomplete': True},
                     # TODO: use a GET arg instead of using a TemplateURLBuilder ?
                     options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))
                                               .resolve('creme_core__ctypes_compatible_with_rtype'),

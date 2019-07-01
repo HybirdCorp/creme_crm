@@ -332,15 +332,16 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(discount_unit__isnull=True), to_python(value=lv_form.NULL))
 
     def test_regular_relatedfield01(self):
-        "Nullable FK"
+        "Nullable FK."
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='sector')
         field = lv_form.RegularRelatedField(cell=cell, user=self.user)
 
         expected_choices = [
              {'value': '',           'label': _('All')},
              {'value': lv_form.NULL, 'label': _('* is empty *')},
-        ] + [{'value': pk, 'label': title}
-                for pk, title in FakeSector.objects.values_list('id', 'title')
+             *({'value': pk, 'label': title}
+                  for pk, title in FakeSector.objects.values_list('id', 'title')
+              )
         ]
         self.assertEqual(expected_choices, field.choices)
 
@@ -382,9 +383,9 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(
             [{'value': '',           'label': _('All')},
              {'value': lv_form.NULL, 'label': _('* is empty *')},
-             ] + [
-                {'value': pk, 'label': name}
-                    for pk, name in FakeImageCategory.objects.values_list('id', 'name')
+             *({'value': pk, 'label': name}
+                   for pk, name in FakeImageCategory.objects.values_list('id', 'name')
+              )
             ],
             field.choices
         )
@@ -396,9 +397,9 @@ class SearchFieldsTestCase(CremeTestCase):
         expected_choices = [
             {'value': '',           'label': _('All')},
             {'value': lv_form.NULL, 'label': _('* is empty *')},
-        ] + [
-            {'value': pk, 'label': title}
-                for pk, title in FakeSector.objects.values_list('id', 'title')
+            *({'value': pk, 'label': title}
+                  for pk, title in FakeSector.objects.values_list('id', 'title')
+             )
         ]
 
         FakeSector.objects.create(title='[INVALID]')  # Excluded
@@ -428,11 +429,11 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(
             [{'value': '',           'label': _('All')},
              {'value': lv_form.NULL, 'label': _('* is empty *')},
-            ] + [
-                {'value': pk, 'label': title}
-                    for pk, title in FakeSector.objects
-                                               .exclude(id=s1.id)
-                                               .values_list('id', 'title')
+             *({'value': pk, 'label': title}
+                   for pk, title in FakeSector.objects
+                                              .exclude(id=s1.id)
+                                              .values_list('id', 'title')
+              )
             ],
             field.choices
         )
@@ -935,9 +936,9 @@ class SearchFormTestCase(CremeTestCase):
         form = lv_form.ListViewSearchForm(
             field_registry=ListViewSearchFieldRegistry(),
             cells=[fname_cell, lname_cell, nerd_cell, birth_cell],
-            data=dict(data,
-                      i_m_not_used='neither_do_i',  # <= not in filtered_data
-                     ),
+            data={**data,
+                  'i_m_not_used': 'neither_do_i',  # <= not in filtered_data
+                 },
             user=self.user,
         )
         form.full_clean()

@@ -462,7 +462,7 @@ class QuerySorter:
         sort_info = QuerySortInfo(cell_key=cell_key, order=order)
 
         if sort_field and self._is_field_unique(model, sort_field):
-            ind_ordering = get_indexed_ordering(model, ordering + ['*'])
+            ind_ordering = get_indexed_ordering(model, [*ordering, '*'])
 
             if ind_ordering is not None:
                 sort_info.field_names = ind_ordering
@@ -482,7 +482,7 @@ class QuerySorter:
             last_field = order.prefix + self._get_local_id_field(model).attname
 
             if ordering:
-                ind_ordering = get_indexed_ordering(model, ordering + ['*', last_field])
+                ind_ordering = get_indexed_ordering(model, [*ordering, '*', last_field])
 
                 if ind_ordering is not None:
                     sort_info.field_names = ind_ordering
@@ -492,7 +492,7 @@ class QuerySorter:
 
                     sort_info.field_names = (first_order, last_field) if ind_ordering is None else ind_ordering
                 else:
-                    sort_info.field_names = tuple(ordering + [last_field])
+                    sort_info.field_names = (*ordering, last_field)
             else:
                 sort_info.field_names = (last_field,)
 

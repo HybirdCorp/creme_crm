@@ -555,10 +555,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                              _("You can't set the end of your activity without setting its start")
                             )
 
-        response = self.assertPOST200(url, follow=True, data=dict(data, start='2013-3-30'))
+        response = self.assertPOST200(url, follow=True, data={**data, 'start': '2013-3-30'})
         self.assertFormError(response, 'form', None, _('End time is before start time'))
 
-        response = self.assertPOST200(url, follow=True, data=dict(data, start='2013-3-29', busy=True))
+        response = self.assertPOST200(url, follow=True, data={**data, 'start': '2013-3-29', 'busy': True})
         self.assertFormError(response, 'form', None,
                              _("A floating on the day activity can't busy its participants")
                             )
@@ -1242,12 +1242,14 @@ class ActivityTestCase(_ActivitiesTestCase):
                }
 
         response = self.assertPOST200(
-                url,
-                data=dict(data, type_selector=fvalue(constants.ACTIVITYTYPE_PHONECALL,
-                                                     constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                                    )
-                         ),
-            )
+            url,
+            data={
+                **data,
+                'type_selector': fvalue(constants.ACTIVITYTYPE_PHONECALL,
+                                        constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                                       ),
+            },
+        )
         self.assertFormError(response, 'form', 'type_selector',
                              _('This type causes constraint error.')
                             )
@@ -1256,9 +1258,9 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                  type_id=constants.ACTIVITYTYPE_INDISPO,
                                                 )
         response = self.client.post(
-                url, follow=True,
-                data=dict(data, type_selector=fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id)),
-            )
+            url, follow=True,
+            data={**data, 'type_selector': fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id)},
+        )
         self.assertNoFormError(response)
 
         activity = self.refresh(activity)
@@ -2287,15 +2289,15 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.client.post(url, data=data)
         self.assertFormError(response, 'form', None, _('No participant'))
 
-        response = self.client.post(url, data=dict(data, my_participation_0=True))
+        response = self.client.post(url, data={**data, 'my_participation_0': True})
         self.assertFormError(response, 'form', 'my_participation',
                              _('Enter a value if you check the box.')
                             )
 
-        response = self.client.post(url, data=dict(data,
-                                                   my_participation_0=True,
-                                                   my_participation_1=my_calendar.pk,
-                                                  )
+        response = self.client.post(url, data={**data,
+                                               'my_participation_0': True,
+                                               'my_participation_1': my_calendar.pk,
+                                              },
                                    )
         self.assertNoFormError(response)
         self.assertEqual(1, Activity.objects.count())

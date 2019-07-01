@@ -266,19 +266,21 @@ class RelationType(CremeModel):
             defaults = {'is_custom': is_custom, 'is_internal': is_internal}
             sub_relation_type = update_or_create(
                 id=pk_subject,
-                defaults=dict(defaults,
-                              predicate=pred_subject,
-                              is_copiable=is_copiable[0],
-                              minimal_display=minimal_display[0],
-                             )
+                defaults={
+                    **defaults,
+                    'predicate': pred_subject,
+                    'is_copiable': is_copiable[0],
+                    'minimal_display': minimal_display[0],
+                },
             )[0]
             obj_relation_type = update_or_create(
                 id=pk_object,
-                defaults=dict(defaults,
-                              predicate=pred_object,
-                              is_copiable=is_copiable[1],
-                              minimal_display=minimal_display[1],
-                             )
+                defaults={
+                    **defaults,
+                    'predicate': pred_object,
+                    'is_copiable': is_copiable[1],
+                    'minimal_display': minimal_display[1],
+                },
             )[0]
         else:
             from creme.creme_core.utils.id_generator import generate_string_id_and_save

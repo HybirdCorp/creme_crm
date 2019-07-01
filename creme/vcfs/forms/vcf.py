@@ -198,12 +198,12 @@ class VcfImportForm(CremeModelForm):
          [HOME_ADDR_PREFIX + n[0] for n in address_mapping]
         ),
         ('organisation', _('Organisation'),
-         ['create_or_attach_orga', 'organisation', 'relation']
-         + list(chain.from_iterable(('update_work_' + fn, 'work_' + fn) for fn in orga_fields)
-        )
+         ['create_or_attach_orga', 'organisation', 'relation',
+          *chain.from_iterable(('update_work_' + fn, 'work_' + fn) for fn in orga_fields)
+         ]
         ),
         ('organisation_address', _('Organisation billing address'),
-         ['update_work_address'] + [WORK_ADDR_PREFIX + n[0] for n in address_mapping]
+         ['update_work_address', *(WORK_ADDR_PREFIX + n[0] for n in address_mapping)]
         ),
     )
 

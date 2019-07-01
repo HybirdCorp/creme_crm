@@ -29,7 +29,7 @@ class VcfExportTestCase(CremeTestCase):
         return response
 
     def create_contact(self, **kwargs):
-        fields = {
+        return Contact.objects.create(**{
             'user': self.user,
             'last_name': 'Abitbol',
             'first_name': 'George',
@@ -38,10 +38,8 @@ class VcfExportTestCase(CremeTestCase):
             'fax': '0505050505',
             'email': 'a@aa.fr',
             'url_site': 'www.aaa.fr',
-        }
-        fields.update(kwargs)
-
-        return Contact.objects.create(**fields)
+            **kwargs
+        })
 
     def create_address(self, contact, prefix):
         return Address.objects.create(

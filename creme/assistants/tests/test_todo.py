@@ -129,7 +129,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
                              _('The hour is required if you set a date.')
                             )
 
-        self.assertNoFormError(self.client.post(url, data=dict(data, deadline_hour=9)))
+        self.assertNoFormError(self.client.post(url, data={**data, 'deadline_hour': 9}))
 
         todo = self.get_object_or_fail(ToDo, title=title)
         self.assertEqual(self.create_datetime(year=2013, month=6, day=7, hour=9),

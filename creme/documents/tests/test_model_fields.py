@@ -25,7 +25,7 @@ class ImageFieldsTestCase(_DocumentsTestCase):
         d2 = {'title__startswith': 'Birthday'}
         self.assertEqual(
             _build_limit_choices_to(d2),
-            dict(d2, mime_type__name__startswith=MIMETYPE_PREFIX_IMG)
+            {**d2, 'mime_type__name__startswith': MIMETYPE_PREFIX_IMG},
         )
 
     def test_deconstruct_limit_choices_to01(self):
@@ -48,7 +48,7 @@ class ImageFieldsTestCase(_DocumentsTestCase):
         self.assertTrue(d1)
 
         d2 = {'title__startswith': 'Birthday'}
-        limit = dict(d1, **d2)
+        limit = {**d1, **d2}
         deconstructed = _deconstruct_limit_choices_to(limit)
         self.assertEqual(d2, deconstructed)
         self.assertIsNot(deconstructed, limit)

@@ -513,10 +513,10 @@ class OrganisationTestCase(_BaseTestCase):
         # ---
         response = self.assertPOST200(
             url, follow=True,
-            data=dict(data,
-                      user=self.other_user.id,  # <==
-                      customers_managed_orga=managed2.id,
-                     ),
+            data={**data,
+                  'user': self.other_user.id,  # <==
+                  'customers_managed_orga': managed2.id,
+                 },
         )
         self.assertFormError(
             response, 'form', 'user',
@@ -528,7 +528,7 @@ class OrganisationTestCase(_BaseTestCase):
         # ---
         response = self.assertPOST200(
             url, follow=True,
-            data=dict(data, customers_managed_orga=managed2.id),
+            data={**data, 'customers_managed_orga': managed2.id},
         )
         self.assertNoFormError(response)
 

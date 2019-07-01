@@ -607,16 +607,20 @@ class ProductTestCase(_ProductsTestCase):
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', 'categories', msg)
 
-        response = self.assertPOST200(url, follow=True, data=dict(data, categories_subcat_defval=1024))
+        response = self.assertPOST200(
+            url, follow=True, data={**data, 'categories_subcat_defval': 1024},
+        )
         self.assertFormError(response, 'form', 'categories', msg)
 
-        response = self.assertPOST200(url, follow=True, data=dict(data, categories_subcat_defval='not a int'))
+        response = self.assertPOST200(
+            url, follow=True, data={**data, 'categories_subcat_defval': 'not a int'},
+        )
         self.assertFormError(response, 'form', 'categories', msg)
 
         # OK ------------------------
-        response = self.client.post(url, follow=True,
-                                    data=dict(data, categories_subcat_defval=sub_cat.id),
-                                   )
+        response = self.client.post(
+            url, follow=True, data={**data, 'categories_subcat_defval': sub_cat.id},
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -698,10 +702,13 @@ class ProductTestCase(_ProductsTestCase):
                }
 
         # Validation error ------------------------
-        response = self.assertPOST200(url, follow=True, data=dict(data, categories_subcat_colselect=0))
-        self.assertFormError(response, 'form', 'categories',
-                             _('Select a column for the sub-category if you select a column for the category.')
-                            )
+        response = self.assertPOST200(
+            url, follow=True, data={**data, 'categories_subcat_colselect': 0},
+        )
+        self.assertFormError(
+            response, 'form', 'categories',
+            _('Select a column for the sub-category if you select a column for the category.')
+        )
 
         # OK --------------------------------------
         response = self.client.post(url, follow=True, data=data)
@@ -923,7 +930,7 @@ class ProductTestCase(_ProductsTestCase):
                }
 
         # Validation error -----------
-        response = self.assertPOST200(url, follow=True, data=dict(data, categories_create='on'))
+        response = self.assertPOST200(url, follow=True, data={**data, 'categories_create': 'on'})
         self.assertFormError(response, 'form', 'categories', 'You cannot create Category or SubCategory')
 
         # OK --------------------------

@@ -204,42 +204,46 @@ class EntityFiltersTestCase(CremeTestCase):
         subfilter3 = create_subfilter(3, other_team)
         subfilter4 = create_subfilter(4, team)
 
-        conds = [EntityFilterCondition.build_4_field(
-                            model=FakeContact,
-                            operator=EntityFilterCondition.EQUALS,
-                            name='last_name', values=['Katsuragi'],
-                        ),
-                     ]
+        cond1 = EntityFilterCondition.build_4_field(
+            model=FakeContact,
+            operator=EntityFilterCondition.EQUALS,
+            name='last_name', values=['Katsuragi'],
+        )
 
         with self.assertRaises(EntityFilter.PrivacyError):
-            EntityFilter.create('creme_core-filter1', 'Misato Katsuragi', model=FakeContact,
-                                is_custom=True,
-                                conditions=conds + [EntityFilterCondition.build_4_subfilter(subfilter1)],
-                               )
+            EntityFilter.create(
+                'creme_core-filter1', 'Misato Katsuragi', model=FakeContact,
+                is_custom=True,
+                conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter1)],
+            )
 
         with self.assertRaises(EntityFilter.PrivacyError):
-            EntityFilter.create('creme_core-filter2', 'Misato Katsuragi', model=FakeContact,
-                                user=user, is_private=True, is_custom=True,
-                                conditions=conds + [EntityFilterCondition.build_4_subfilter(subfilter1)],
-                               )
+            EntityFilter.create(
+                'creme_core-filter2', 'Misato Katsuragi', model=FakeContact,
+                user=user, is_private=True, is_custom=True,
+                conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter1)],
+            )
 
         with self.assertNoException():
-            EntityFilter.create('creme_core-filter3', 'Misato Katsuragi', model=FakeContact,
-                                user=user, is_private=True, is_custom=True,
-                                conditions=conds + [EntityFilterCondition.build_4_subfilter(subfilter2)],
-                               )
+            EntityFilter.create(
+                'creme_core-filter3', 'Misato Katsuragi', model=FakeContact,
+                user=user, is_private=True, is_custom=True,
+                conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter2)],
+            )
 
         with self.assertRaises(EntityFilter.PrivacyError):
-            EntityFilter.create('creme_core-filter4', 'Misato Katsuragi', model=FakeContact,
-                                user=user, is_private=True, is_custom=True,
-                                conditions=conds + [EntityFilterCondition.build_4_subfilter(subfilter3)],
-                               )
+            EntityFilter.create(
+                'creme_core-filter4', 'Misato Katsuragi', model=FakeContact,
+                user=user, is_private=True, is_custom=True,
+                conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter3)],
+            )
 
         with self.assertNoException():
-            EntityFilter.create('creme_core-filter5', 'Misato Katsuragi', model=FakeContact,
-                                user=user, is_private=True, is_custom=True,
-                                conditions=conds + [EntityFilterCondition.build_4_subfilter(subfilter4)],
-                               )
+            EntityFilter.create(
+                'creme_core-filter5', 'Misato Katsuragi', model=FakeContact,
+                user=user, is_private=True, is_custom=True,
+                conditions=[cond1, EntityFilterCondition.build_4_subfilter(subfilter4)],
+            )
 
     def test_get_latest_version(self):
         base_pk = 'creme_core-testfilter'
@@ -1135,7 +1139,7 @@ class EntityFiltersTestCase(CremeTestCase):
                    'name':      'first_name',
                    'values':    ['Jet'],
                   }
-        kwargs2 = dict(kwargs1)
+        kwargs2 = {**kwargs1}
         kwargs2['operator'] = EntityFilterCondition.IEQUALS
 
         build = EntityFilterCondition.build_4_field

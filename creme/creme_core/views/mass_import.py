@@ -138,13 +138,19 @@ def download_errors(request, job_id):
     writerow = writer.writerow
 
     if header:
-        writerow([smart_str(h) for h in header] + [smart_str(_('Errors'))])
+        writerow(
+            [*(smart_str(h) for h in header),
+             smart_str(_('Errors')),
+            ]
+        )
 
     for job_result in MassImportJobResult.objects.filter(job=job) \
                                                  .exclude(raw_messages=None):  # TODO: '' too ?
-        writerow([smart_str(i) for i in job_result.line] +
-                 [smart_str('/'.join(job_result.messages))]
-                )
+        writerow(
+            [*(smart_str(i) for i in job_result.line),
+             smart_str('/'.join(job_result.messages)),
+            ]
+        )
 
     writer.save('{}-errors'.format(splitext(doc.title)[0]))
 

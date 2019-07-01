@@ -59,12 +59,12 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,
-            data=dict(self.IMPORT_DATA,
-                      document=doc.id,
-                      user=user.id,
-                      first_name_colselect=1,
-                      last_name_colselect=2,
-                     ),
+            data={**self.IMPORT_DATA,
+                  'document': doc.id,
+                  'user': user.id,
+                  'first_name_colselect': 1,
+                  'last_name_colselect': 2,
+                 },
         )
         self.assertNoFormError(response)
 
@@ -98,13 +98,15 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,
-            data=dict(self.IMPORT_DATA,
-                      document=doc.id, has_header=True,
-                      user=user.id,
-                      first_name_colselect=1,
-                      last_name_colselect=2,
-                      billaddr_city_colselect=3,
-                     ),
+            data={**self.IMPORT_DATA,
+                  'document': doc.id,
+                  'has_header': True,
+
+                  'user': user.id,
+                  'first_name_colselect': 1,
+                  'last_name_colselect': 2,
+                  'billaddr_city_colselect': 3,
+                 },
         )
         self.assertNoFormError(response)
 
@@ -150,14 +152,14 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,
-            data=dict(self.IMPORT_DATA,
-                      document=doc.id,
-                      user=user.id,
-                      key_fields=['first_name', 'last_name'],
-                      email_colselect=5,
-                      billaddr_address_colselect=3,
-                      shipaddr_address_colselect=4,
-                     ),
+            data={**self.IMPORT_DATA,
+                  'document': doc.id,
+                  'user': user.id,
+                  'key_fields': ['first_name', 'last_name'],
+                  'email_colselect': 5,
+                  'billaddr_address_colselect': 3,
+                  'shipaddr_address_colselect': 4,
+                 },
         )
         self.assertNoFormError(response)
 

@@ -90,13 +90,14 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         # Opportunity #5
         sp5 = SalesPhase.objects.all()[1]
 
-        lines = [('Opp01', sp1.name, '1000', '2000', target1.name, ''),
+        lines = [
+            ('Opp01', sp1.name, '1000', '2000', target1.name, ''),
                  ('Opp02', sp2_name, '100',  '200',  target2_name, ''),
                  ('Opp03', sp1.name, '100',  '200',  '',           target3.last_name),
                  ('Opp04', sp1.name, '100',  '200',  '',           target4_last_name),
                  ('Opp05', '',       '100',  '200',  target1.name, ''),
                  # TODO emitter by name
-                ]
+        ]
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Opportunity)
@@ -104,31 +105,33 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         self.assertNoFormError(self.client.post(url, data={'step':     0,
                                                            'document': doc.id,
                                                            # has_header
-                                                          }
+                                                          },
                                                )
                               )
 
-        response = self.client.post(url, follow=True,
-                                    data=dict(self.lvimport_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              emitter=emitter1.id,
+        response = self.client.post(
+            url, follow=True,
+            data={
+                **self.lvimport_data,
+                'document': doc.id,
+                'user': user.id,
+                'emitter': emitter1.id,
 
-                                              name_colselect=1,
-                                              estimated_sales_colselect=3,
-                                              made_sales_colselect=4,
+                'name_colselect': 1,
+                'estimated_sales_colselect': 3,
+                'made_sales_colselect': 4,
 
-                                              sales_phase_colselect=2,
-                                              sales_phase_subfield='name',
-                                              sales_phase_create=True,
-                                              sales_phase_defval=sp5.pk,
+                'sales_phase_colselect': 2,
+                'sales_phase_subfield': 'name',
+                'sales_phase_create': True,
+                'sales_phase_defval': sp5.pk,
 
-                                              target_persons_organisation_colselect=5,
-                                              target_persons_organisation_create=True,
-                                              target_persons_contact_colselect=6,
-                                              target_persons_contact_create=True,
-                                             )
-                                   )
+                'target_persons_organisation_colselect': 5,
+                'target_persons_organisation_create': True,
+                'target_persons_contact_colselect': 6,
+                'target_persons_contact_create': True,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -184,28 +187,30 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
         lines = [('Opp01', sp1_name, '1000', '2000', target1.name, '')]
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(Opportunity),
-                                    follow=True,
-                                    data=dict(self.lvimport_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              emitter=emitter.id,
+        response = self.client.post(
+            self._build_import_url(Opportunity),
+            follow=True,
+            data={
+                **self.lvimport_data,
+                'document': doc.id,
+                'user': user.id,
+                'emitter': emitter.id,
 
-                                              name_colselect=1,
-                                              estimated_sales_colselect=3,
-                                              made_sales_colselect=4,
+                'name_colselect': 1,
+                'estimated_sales_colselect': 3,
+                'made_sales_colselect': 4,
 
-                                              sales_phase_colselect=2,
-                                              sales_phase_subfield='name',
-                                              sales_phase_create='',  # <=======
-                                              # sales_phase_defval=[...],  # <=======
+                'sales_phase_colselect': 2,
+                'sales_phase_subfield': 'name',
+                'sales_phase_create': '',  # <=======
+                # sales_phase_defval=[...],  # <=======
 
-                                              target_persons_organisation_colselect=5,
-                                              target_persons_organisation_create=True,
-                                              target_persons_contact_colselect=6,
-                                              target_persons_contact_create=True,
-                                             )
-                                     )
+                'target_persons_organisation_colselect': 5,
+                'target_persons_organisation_create': True,
+                'target_persons_contact_colselect': 6,
+                'target_persons_contact_create': True,
+         },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -222,15 +227,16 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         self.assertEqual(2, len(result.messages))
 
         vname = _('Opportunity')
-        self.assertEqual([_('No «{model}» has been created.').format(model=vname),
-                          _('No «{model}» has been updated.').format(model=vname),
-                          ngettext('{count} line in the file.',
-                                   '{count} lines in the file.',
-                                   1
-                                  ).format(count=1),
-                         ],
-                         job.stats
-                        )
+        self.assertEqual(
+            [_('No «{model}» has been created.').format(model=vname),
+             _('No «{model}» has been updated.').format(model=vname),
+             ngettext('{count} line in the file.',
+                      '{count} lines in the file.',
+                      1
+                     ).format(count=1),
+            ],
+            job.stats
+        )
 
     def test_mass_import03(self):
         "SalesPhase is required"
@@ -241,27 +247,29 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
         lines = [('Opp01', '1000', '2000', target.name)]
         doc = self._build_csv_doc(lines)
-        response = self.assertPOST200(self._build_import_url(Opportunity),
-                                      data=dict(self.lvimport_data,
-                                                document=doc.id,
-                                                user=user.id,
-                                                emitter=emitter.id,
+        response = self.assertPOST200(
+            self._build_import_url(Opportunity),
+            data={
+                **self.lvimport_data,
+                'document': doc.id,
+                'user': user.id,
+                'emitter': emitter.id,
 
-                                                name_colselect=1,
-                                                estimated_sales_colselect=2,
-                                                made_sales_colselect=3,
+                'name_colselect': 1,
+                'estimated_sales_colselect': 2,
+                'made_sales_colselect': 3,
 
-                                                sales_phase_colselect=0,  # <=======
-                                                sales_phase_subfield='name',
-                                                sales_phase_create='',
-                                                # sales_phase_defval=[...],
+                'sales_phase_colselect': 0,  # <=======
+                'sales_phase_subfield': 'name',
+                'sales_phase_create': '',
+                # sales_phase_defval=[...],
 
-                                                target_persons_organisation_colselect=4,
-                                                target_persons_organisation_create='',
-                                                target_persons_contact_colselect=0,
-                                                target_persons_contact_create='',
-                                               )
-                                     )
+                'target_persons_organisation_colselect': 4,
+                'target_persons_organisation_create': '',
+                'target_persons_contact_colselect': 0,
+                'target_persons_contact_create': '',
+            },
+        )
         self.assertFormError(response, 'form', 'sales_phase',
                              _('This field is required.')
                             )
@@ -279,27 +287,29 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
                  ('Opp02', 'SP name', '1000', '2000', '',        contact_name),
                 ]
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(Opportunity),
-                                    follow=True,
-                                    data=dict(self.lvimport_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              emitter=emitter.id,
+        response = self.client.post(
+            self._build_import_url(Opportunity),
+            follow=True,
+            data={
+                **self.lvimport_data,
+                'document': doc.id,
+                'user': user.id,
+                'emitter': emitter.id,
 
-                                              name_colselect=1,
-                                              estimated_sales_colselect=3,
-                                              made_sales_colselect=4,
+                'name_colselect': 1,
+                'estimated_sales_colselect': 3,
+                'made_sales_colselect': 4,
 
-                                              sales_phase_colselect=2,
-                                              sales_phase_subfield='name',
-                                              sales_phase_create=True,
+                'sales_phase_colselect': 2,
+                'sales_phase_subfield': 'name',
+                'sales_phase_create': True,
 
-                                              target_persons_organisation_colselect=5,
-                                              target_persons_organisation_create='',  # <===
-                                              target_persons_contact_colselect=6,
-                                              target_persons_contact_create='',  # <===
-                                             )
-                                   )
+                'target_persons_organisation_colselect': 5,
+                'target_persons_organisation_create': '',  # <===
+                'target_persons_contact_colselect': 6,
+                'target_persons_contact_create': '',  # <===
+            },
+        )
         self.assertNoFormError(response)
 
         self._execute_job(response)
@@ -336,34 +346,36 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         emitter = Organisation.objects.filter(is_managed=True)[0]
         doc = self._build_csv_doc([('Opp01', '1000', '2000', 'Acme', 'New phase')])
         url = self._build_import_url(Opportunity)
-        data = dict(self.lvimport_data,
-                    document=doc.id,
-                    user=self.user.id,
-                    emitter=emitter.id,
+        data = {
+            **self.lvimport_data,
+            'document': doc.id,
+            'user': self.user.id,
+            'emitter': emitter.id,
 
-                    name_colselect=1,
-                    estimated_sales_colselect=2,
-                    made_sales_colselect=3,
+            'name_colselect': 1,
+            'estimated_sales_colselect': 2,
+            'made_sales_colselect': 3,
 
-                    sales_phase_colselect=5,
-                    sales_phase_subfield='name',
-                    sales_phase_create=True,
+            'sales_phase_colselect': 5,
+            'sales_phase_subfield': 'name',
+            'sales_phase_create': True,
 
-                    target_persons_organisation_colselect=4,
-                    # target_persons_organisation_create=True,
-                    target_persons_contact_colselect=0,
-                    target_persons_contact_create='',
-                   )
+            'target_persons_organisation_colselect': 4,
+            # 'target_persons_organisation_create': True,
+            'target_persons_contact_colselect': 0,
+            'target_persons_contact_create': '',
+        }
 
-        response = self.client.post(url, data=dict(data, target_persons_organisation_create=True))
-        self.assertFormError(response, 'form', 'target',
-                             _('You are not allowed to create: %(model)s') % {
-                                    'model': _('Organisation'),
-                                }
-                            )
-        self.assertFormError(response, 'form', 'sales_phase',
-                             'You can not create instances'
-                            )
+        response = self.assertPOST200(
+            url, data={**data, 'target_persons_organisation_create': True},
+        )
+        self.assertFormError(
+            response, 'form', 'target',
+            _('You are not allowed to create: %(model)s') % {'model': _('Organisation')}
+        )
+        self.assertFormError(
+            response, 'form', 'sales_phase', 'You can not create instances'
+        )
 
         role.admin_4_apps = ['opportunities']
         role.save()
@@ -371,9 +383,10 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         self.assertNoFormError(response)
 
         role.creatable_ctypes.add(ContentType.objects.get_for_model(Organisation))
-        response = self.client.post(url, follow=True,
-                                    data=dict(data, target_persons_organisation_create=True),
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={**data, 'target_persons_organisation_create': True},
+        )
         self.assertNoFormError(response)
 
     @skipIfCustomOrganisation
@@ -392,32 +405,35 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         opp1.sales_phase = phase1
         opp1.save()
 
-        doc = self._build_csv_doc([(opp1.name, '1000', '2000', target2.name, phase1.name),  # Should be updated
-                                   (opp1.name, '1000', '2000', target2.name, phase2.name),  # Phase is different => not updated
-                                  ]
-                                 )
-        response = self.client.post(self._build_import_url(Opportunity),
-                                    follow=True,
-                                    data=dict(self.lvimport_data,
-                                              document=doc.id,
-                                              user=user.id,
-                                              emitter=emitter.id,
+        doc = self._build_csv_doc(
+            [(opp1.name, '1000', '2000', target2.name, phase1.name),  # Should be updated
+             (opp1.name, '1000', '2000', target2.name, phase2.name),  # Phase is different => not updated
+            ]
+        )
+        response = self.client.post(
+            self._build_import_url(Opportunity),
+            follow=True,
+            data={
+                **self.lvimport_data,
+                'document': doc.id,
+                'user': user.id,
+                'emitter': emitter.id,
 
-                                              key_fields=['name', 'sales_phase'],
+                'key_fields': ['name', 'sales_phase'],
 
-                                              name_colselect=1,
-                                              estimated_sales_colselect=2,
-                                              made_sales_colselect=3,
+                'name_colselect': 1,
+                'estimated_sales_colselect': 2,
+                'made_sales_colselect': 3,
 
-                                              sales_phase_colselect=5,
-                                              sales_phase_subfield='name',
+                'sales_phase_colselect': 5,
+                'sales_phase_subfield': 'name',
 
-                                              target_persons_organisation_colselect=4,
-                                              target_persons_organisation_create=True,
-                                              target_persons_contact_colselect=0,
-                                              target_persons_contact_create='',
-                                             )
-                                     )
+                'target_persons_organisation_colselect': 4,
+                'target_persons_organisation_create': True,
+                'target_persons_contact_colselect': 0,
+                'target_persons_contact_create': '',
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)

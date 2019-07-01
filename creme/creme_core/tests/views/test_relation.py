@@ -885,9 +885,9 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual({self.contact01, self.contact02, self.contact03}, set(contacts))
 
         # 'selection'  TODO: test better
-        self.assertGET200(self.SELECTION_URL, data=dict(data, selection='single'))
-        self.assertGET200(self.SELECTION_URL, data=dict(data, selection='multiple'))
-        self.assertGET404(self.SELECTION_URL, data=dict(data, selection='invalid'))
+        self.assertGET200(self.SELECTION_URL, data={**data, 'selection': 'single'})
+        self.assertGET200(self.SELECTION_URL, data={**data, 'selection': 'multiple'})
+        self.assertGET404(self.SELECTION_URL, data={**data, 'selection': 'invalid'})
 
     def test_select_relations_objects02(self):
         self._aux_relation_objects_to_link_selection()
@@ -901,7 +901,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                      data={'subject_id':    self.subject.id,
                                            'rtype_id':      self.rtype.id,
                                            'objects_ct_id': self.ct_contact.id,
-                                          }
+                                          },
                                     )
 
         # contacts = response.context['entities'].object_list
