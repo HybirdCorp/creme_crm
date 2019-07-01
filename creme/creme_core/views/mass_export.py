@@ -28,7 +28,7 @@ from ..backends import export_backend_registry
 from ..core import sorter
 from ..core.paginator import FlowPaginator
 from ..forms.listview import ListViewSearchForm
-from ..gui.listview import ListViewState, search_field_registry
+from ..gui.listview import search_field_registry  # ListViewState
 from ..models import EntityFilter, EntityCredentials, HeaderFilter
 from ..models.history import _HLTEntityExport
 from ..utils import get_from_GET_or_404, bool_from_str_extended
@@ -42,7 +42,6 @@ logger = logging.getLogger(__name__)
 
 # TODO: stream response ??
 # TODO: factorise with generic.listview.EntitiesList ?
-# TODO: do not use ListViewState any more => only GET arguments ( + remove 'list_url' arg)
 class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
     ct_id_arg = 'ct_id'
     doc_type_arg = 'type'
@@ -51,6 +50,7 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
     entityfilter_id_arg = 'efilter'
     sort_cellkey_arg = 'sort_key'
     sort_order_arg = 'sort_order'
+    extra_q_arg = 'extra_q'
 
     page_size = 1024
 
@@ -118,13 +118,14 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
     def get_search_form_class(self):
         return self.search_form_class
 
-    def get_search_form(self, cells, state):
+    def get_search_form(self, cells):
         form_cls = self.get_search_form_class()
+        request = self.request
         form = form_cls(
             field_registry=self.get_search_field_registry(),
             cells=cells,
-            user=self.request.user,
-            data=state.search,
+            user=request.user,
+            data=request.GET,
         )
 
         form.full_clean()
@@ -156,7 +157,6 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
         return sort_info.field_names
 
     def get(self, request, *args, **kwargs):
-        GET = request.GET
         user = request.user
 
         header_only = self.get_header_only()
@@ -164,10 +164,6 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
         ct = self.get_ctype()
         model = ct.model_class()
         hf = self.get_header_filter()
-
-        # TODO: is it possible that session doesn't content the state (eg: url linked and open directly)
-        #   => now yes, the GET request doesn't create or update session state.
-        current_lvs = ListViewState.get_or_create_state(request, url=request.GET['list_url'])
 
         cells = self.get_cells(header_filter=hf)
 
@@ -187,13 +183,13 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
                 entities_qs = efilter.filter(entities_qs)
 
             # ----
-            extra_q = GET.get('extra_q')  # TODO: attribute
+            extra_q = request.GET.get(self.extra_q_arg)
             if extra_q is not None:
                 entities_qs = entities_qs.filter(QSerializer().loads(extra_q))
                 use_distinct = True  # TODO: test + only if needed
 
             # ----
-            search_form = self.get_search_form(cells=cells, state=current_lvs)
+            search_form = self.get_search_form(cells=cells)
             search_q = search_form.search_q
             if search_q:
                 try:
@@ -235,7 +231,9 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
                     writerow(line)
 
-            _HLTEntityExport.create_line(ctype=ct, user=user, count=total_count, hfilter=hf, efilter=efilter)
+            _HLTEntityExport.create_line(
+                ctype=ct, user=user, count=total_count, hfilter=hf, efilter=efilter,
+            )
 
         writer.save(ct.model)
 

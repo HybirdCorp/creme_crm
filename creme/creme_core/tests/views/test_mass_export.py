@@ -77,16 +77,16 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         create_contact = partial(FakeContact.objects.create, user=user)
         self.contacts = contacts = {
-                first_name: create_contact(first_name=first_name, last_name=last_name)
-                        for first_name, last_name in [('Spike', 'Spiegel'),
-                                                      ('Jet', 'Black'),
-                                                      ('Faye', 'Valentine'),
-                                                      ('Edward', 'Wong'),
-                                                     ]
-            }
+            first_name: create_contact(first_name=first_name, last_name=last_name)
+                for first_name, last_name in [('Spike', 'Spiegel'),
+                                              ('Jet', 'Black'),
+                                              ('Faye', 'Valentine'),
+                                              ('Edward', 'Wong'),
+                                             ]
+        }
 
         create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots,
-                             object_entity=organisations['Bebop']
+                             object_entity=organisations['Bebop'],
                             )
         create_rel(subject_entity=contacts['Jet'])
         create_rel(subject_entity=contacts['Spike'])
@@ -97,13 +97,14 @@ class MassExportViewsTestCase(ViewsTestCase):
         create_prop(type=ptype_girl,      creme_entity=contacts['Edward'])
         create_prop(type=ptype_beautiful, creme_entity=contacts['Faye'])
 
-        cells = [EntityCellRegularField.build(model=FakeContact, name='civility'),
-                 EntityCellRegularField.build(model=FakeContact, name='last_name'),
-                 EntityCellRegularField.build(model=FakeContact, name='first_name'),
-                 EntityCellRelation(model=FakeContact, rtype=rtype_pilots),
-                 # TODO: EntityCellCustomField
-                 EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
-                ]
+        cells = [
+            EntityCellRegularField.build(model=FakeContact, name='civility'),
+            EntityCellRegularField.build(model=FakeContact, name='last_name'),
+            EntityCellRegularField.build(model=FakeContact, name='first_name'),
+            EntityCellRelation(model=FakeContact, rtype=rtype_pilots),
+            # TODO: EntityCellCustomField
+            EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
+        ]
         hf = HeaderFilter.create(pk='test-hf_contact', name='Contact view',
                                  model=FakeContact, cells_desc=cells,
                                 )
@@ -112,15 +113,20 @@ class MassExportViewsTestCase(ViewsTestCase):
         return hf
 
     @staticmethod
-    def _build_dl_url(ct_id, doc_type='csv', header=False, list_url='', efilter_id=None, hfilter_id=None, **kwargs):
-        parameters = '?ct_id={ctid}&type={doctype}&list_url={url}{efilter}{hfilter}{header}'.format(
-                         ctid=ct_id or '',
-                         doctype=doc_type,
-                         url=list_url,
-                         header='&header=true' if header else '',
-                         efilter='&efilter={}'.format(efilter_id) if efilter_id is not None else '',
-                         hfilter='&hfilter={}'.format(hfilter_id) if hfilter_id is not None else '',
-                        )
+    # def _build_dl_url(ct_or_model, doc_type='csv', header=False, list_url='',
+    def _build_dl_url(ct_or_model, doc_type='csv', header=False,
+                      efilter_id=None, hfilter_id=None, **kwargs):
+        # parameters = '?ct_id={ctid}&type={doctype}&list_url={url}{efilter}{hfilter}{header}'.format(
+        parameters = '?ct_id={ctid}&type={doctype}{efilter}{hfilter}{header}'.format(
+            ctid=''             if ct_or_model is None                  else
+                 ct_or_model.id if isinstance(ct_or_model, ContentType) else
+                 ContentType.objects.get_for_model(ct_or_model).id,
+            doctype=doc_type,
+            # url=list_url,
+            header='&header=true' if header else '',
+            efilter='' if efilter_id is None else '&efilter={}'.format(efilter_id),
+            hfilter='' if hfilter_id is None else '&hfilter={}'.format(hfilter_id),
+        )
 
         if kwargs:
             parameters += '&{}'.format(urlencode(kwargs, doseq=True))
@@ -128,19 +134,22 @@ class MassExportViewsTestCase(ViewsTestCase):
         # return reverse('creme_core__dl_listview') + parameters
         return reverse('creme_core__mass_export') + parameters
 
-    def _build_contact_dl_url(self, list_url=None, hfilter_id=None, **kwargs):
+    # def _build_contact_dl_url(self, list_url=None, hfilter_id=None, **kwargs):
+    def _build_contact_dl_url(self, hfilter_id=None, **kwargs):
         ct = self.ct
 
         return self._build_dl_url(
-                ct_id=ct.id,
-                list_url=list_url or FakeContact.get_lv_absolute_url(),
-                hfilter_id=hfilter_id or
-                           HeaderFilter.objects.filter(entity_type=ct).values_list('id', flat=True).first(),
-                **kwargs
+            ct_or_model=ct,
+            # list_url=list_url or FakeContact.get_lv_absolute_url(),
+            hfilter_id=hfilter_id or
+                       HeaderFilter.objects.filter(entity_type=ct)
+                                           .values_list('id', flat=True)
+                                           .first(),
+            **kwargs
         )
 
     def test_export_error_invalid_doctype(self):
-        "Assert doc_type in ('xls', 'csv')"
+        "Assert doc_type in ('xls', 'csv')."
         self.login()
         self.assertGET404(self._build_contact_dl_url(doc_type='exe'))
 
@@ -148,47 +157,44 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.login()
         lv_url = FakeContact.get_lv_absolute_url()
 
-        self.assertGET404(self._build_dl_url(ct_id=None, list_url=lv_url))
+        self.assertGET404(self._build_dl_url(ct_or_model=None, list_url=lv_url))
 
     def test_export_error_invalid_hfilter(self):
         self.login()
         lv_url = FakeContact.get_lv_absolute_url()
+        build_url = partial(self._build_dl_url, ct_or_model=self.ct, list_url=lv_url)
 
         # HeaderFilter does not exist
-        self.assertGET404(self._build_dl_url(self.ct.id, list_url=lv_url))
+        self.assertGET404(build_url())
 
         # HeaderFilter not given
         # self.assertGET404(self._build_dl_url(self.ct.id, list_url=lv_url, hfilter_id=''))
-        self.assertGET404(self._build_dl_url(self.ct.id, list_url=lv_url, hfilter_id=None))
+        self.assertGET404(build_url(hfilter_id=None))
 
         # Unknown HeaderFilter id
-        self.assertGET404(self._build_dl_url(self.ct.id, list_url=lv_url,
-                                             hfilter_id='test-hf_contact-unknown',
-                                            )
-                         )
+        self.assertGET404(build_url(hfilter_id='test-hf_contact-unknown'))
 
         # HeaderFilter with wrong content type
-        hf = HeaderFilter.create(pk='test-hf_contact_test_invalid_hfilter',
-                                 name='Contact view', model=FakeContact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'created'}),
-                                            ],
-                                )
-        self.assertGET404(self._build_dl_url(ContentType.objects.get_for_model(FakeEmailCampaign).id,
-                                             list_url=lv_url,
-                                             hfilter_id=hf.id,
-                                            )
-                         )
+        hf = HeaderFilter.create(
+            pk='test-hf_contact_test_invalid_hfilter',
+            name='Contact view', model=FakeContact,
+            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                        (EntityCellRegularField, {'name': 'created'}),
+                       ],
+        )
+        self.assertGET404(build_url(ct_or_model=FakeEmailCampaign, hfilter_id=hf.id))
 
     def test_export_error_invalid_efilter(self):
         self.login()
-        HeaderFilter.create(pk='test-hf_contact', name='Contact view',
-                            model=FakeContact,
-                            cells_desc=[
-                                EntityCellRegularField.build(model=FakeContact, name='last_name'),
-                                EntityCellRegularField.build(model=FakeContact, name='first_name'),
-                            ],
-                           )
+        build_cell = EntityCellRegularField.build
+        HeaderFilter.create(
+            pk='test-hf_contact', name='Contact view',
+            model=FakeContact,
+            cells_desc=[
+                build_cell(model=FakeContact, name='last_name'),
+                build_cell(model=FakeContact, name='first_name'),
+            ],
+        )
         self.assertGET404(self._build_contact_dl_url(efilter_id='test-unknown'))
 
     def test_list_view_export_header(self):
@@ -199,9 +205,10 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url(header=True))
 
-        self.assertEqual([','.join('"{}"'.format(hfi.title) for hfi in cells)],
-                         [force_text(line) for line in response.content.splitlines()]
-                        )
+        self.assertListEqual(
+            [','.join('"{}"'.format(hfi.title) for hfi in cells)],
+            [force_text(line) for line in response.content.splitlines()],
+        )
         self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
 
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
@@ -211,7 +218,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         cells = self._build_hf_n_contacts().cells
 
         response = self.assertGET200(self._build_contact_dl_url(doc_type='xls', header=True),
-                                     follow=True
+                                     follow=True,
                                     )
 
         result = list(XlrdReader(None, file_contents=response.content))
@@ -219,7 +226,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(result[0], [hfi.title for hfi in cells])
 
     def test_list_view_export01(self):
-        "csv"
+        "csv."
         user = self.login()
         hf = self._build_hf_n_contacts()
         existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))
@@ -254,18 +261,19 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual([count, hf.name],
                          hline.modifications
                         )
-        self.assertEqual([_('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
-                                    count=count,
-                                    model='Test Contacts',
-                                    view=hf.name,
-                                    filter=_('All'),
-                                ),
-                         ],
-                         hline.get_verbose_modifications(user),
-                        )
+        self.assertListEqual(
+            [_('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+                    count=count,
+                    model='Test Contacts',
+                    view=hf.name,
+                    filter=_('All'),
+                ),
+            ],
+            hline.get_verbose_modifications(user),
+        )
 
     def test_list_view_export02(self):
-        "scsv"
+        "scsv."
         self.login()
         cells = self._build_hf_n_contacts().cells
 
@@ -286,7 +294,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             next(it)
 
     def test_list_view_export03(self):
-        "'export' credential"
+        "'export' credential."
         self.login(is_superuser=False)
         self._build_hf_n_contacts()
 
@@ -297,7 +305,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertGET200(url)
 
     def test_list_view_export04(self):
-        "Credential"
+        "Credential."
         user = self.login(is_superuser=False)
         self.role.exportable_ctypes.set([self.ct])
 
@@ -324,14 +332,15 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(result[3], '"","Wong","Edward","","is a girl"')
 
     def test_list_view_export05(self):
-        "Datetime field"
+        "Datetime field."
         user = self.login()
 
-        hf = HeaderFilter.create(pk='test-hf_contact_test_export05', name='Contact view', model=FakeContact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'created'}),
-                                            ],
-                                )
+        hf = HeaderFilter.create(
+            pk='test-hf_contact_test_export05', name='Contact view', model=FakeContact,
+            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                        (EntityCellRegularField, {'name': 'created'}),
+                       ],
+        )
 
         spike = FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
 
@@ -339,14 +348,15 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
-        self.assertEqual(result[1],
-                         '"{}","{}"'.format(spike.last_name,
-                                             date_format(localtime(spike.created), 'DATETIME_FORMAT'),
-                                            )
-                        )
+        self.assertEqual(
+            result[1],
+            '"{}","{}"'.format(spike.last_name,
+                               date_format(localtime(spike.created), 'DATETIME_FORMAT'),
+                              )
+        )
 
     def test_list_view_export06(self):
-        "FK field on CremeEntity"
+        "FK field on CremeEntity."
         user = self.login(is_superuser=False)
         self.role.exportable_ctypes.set([self.ct])
 
@@ -379,7 +389,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(next(it), '"Valentine","",""')
 
     def test_list_view_export07(self):
-        "M2M field on CremeEntities"
+        "M2M field on CremeEntities."
         user = self.login()
 
         create_camp = partial(FakeEmailCampaign.objects.create, user=user)
@@ -399,7 +409,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
         response = self.assertGET200(
-            self._build_dl_url(ContentType.objects.get_for_model(FakeEmailCampaign).id,
+            self._build_dl_url(FakeEmailCampaign,
                                list_url=FakeEmailCampaign.get_lv_absolute_url(),
                                hfilter_id=hf.id,
                               ),
@@ -423,18 +433,21 @@ class MassExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_contact_dl_url())
 
         it = (force_text(line) for line in response.content.splitlines())
-        self.assertEqual(next(it),
-                         ','.join('"{}"'.format(u)
-                                    for u in [_('Civility'), _('Last name'), 'pilots', _('Properties')]
-                                  )
-                        )
+        self.assertEqual(
+            next(it),
+            ','.join('"{}"'.format(u)
+                       for u in [_('Civility'), _('Last name'), 'pilots', _('Properties')]
+                    )
+        )
         self.assertEqual(next(it), '"","Black","Bebop",""')
 
     def test_extra_filter(self):
         self.login()
         self._build_hf_n_contacts()
 
-        response = self.assertGET200(self._build_contact_dl_url(extra_q=QSerializer().dumps(Q(last_name='Wong'))))
+        response = self.assertGET200(
+            self._build_contact_dl_url(extra_q=QSerializer().dumps(Q(last_name='Wong'))),
+        )
 
         result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
@@ -443,22 +456,25 @@ class MassExportViewsTestCase(ViewsTestCase):
     def test_list_view_export_with_filter01(self):
         user = self.login()
         hf = self._build_hf_n_contacts()
-        efilter = EntityFilter.create('test-filter01', 'Red', FakeContact,
-                                      user=user, is_custom=False,
-                                      conditions=[EntityFilterCondition.build_4_field(
-                                                        model=FakeContact,
-                                                        operator=EntityFilterCondition.ISTARTSWITH,
-                                                        name='last_name', values=['Wong'],
-                                                    ),
-                                                 ],
-                                     )
+        efilter = EntityFilter.create(
+            'test-filter01', 'Red', FakeContact,
+            user=user, is_custom=False,
+            conditions=[EntityFilterCondition.build_4_field(
+                              model=FakeContact,
+                              operator=EntityFilterCondition.ISTARTSWITH,
+                              name='last_name', values=['Wong'],
+                          ),
+                       ],
+        )
 
         existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))
 
         url = FakeContact.get_lv_absolute_url()
         # self.assertPOST200(url, data={'filter': efilter.id})
 
-        response = self.assertGET200(self._build_contact_dl_url(list_url=url, efilter_id=efilter.id))
+        response = self.assertGET200(
+            self._build_contact_dl_url(list_url=url, efilter_id=efilter.id),
+        )
         result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
 
@@ -472,15 +488,16 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual([1, hf.name, efilter.name],
                          hline.modifications
                         )
-        self.assertEqual([_('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
-                                    count=1,
-                                    model='Test Contact',
-                                    view=hf.name,
-                                    filter=efilter.name,
-                                ),
-                         ],
-                         hline.get_verbose_modifications(user),
-                        )
+        self.assertListEqual(
+            [_('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+                    count=1,
+                    model='Test Contact',
+                    view=hf.name,
+                    filter=efilter.name,
+                ),
+            ],
+            hline.get_verbose_modifications(user),
+        )
 
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export01(self):
@@ -537,7 +554,7 @@ class MassExportViewsTestCase(ViewsTestCase):
                                 )
 
         response = self.assertGET200(
-            self._build_dl_url(ContentType.objects.get_for_model(FakeOrganisation).id,
+            self._build_dl_url(FakeOrganisation,
                                doc_type='xls',
                                list_url=FakeOrganisation.get_lv_absolute_url(),
                                hfilter_id=hf.id,
@@ -568,10 +585,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         lv_url = FakeOrganisation.get_lv_absolute_url()
         response = self.assertGET200(
-            self._build_dl_url(ContentType.objects.get_for_model(FakeOrganisation).id,
-                               list_url=lv_url,
-                               hfilter_id=hf.id,
-                              ),
+            self._build_dl_url(FakeOrganisation, list_url=lv_url, hfilter_id=hf.id),
             follow=True,
         )
 
@@ -601,7 +615,7 @@ class MassExportViewsTestCase(ViewsTestCase):
                                 )
 
         response = self.assertGET200(
-            self._build_dl_url(ContentType.objects.get_for_model(FakeInvoiceLine).id,
+            self._build_dl_url(FakeInvoiceLine,
                                list_url=FakeInvoiceLine.get_lv_absolute_url(),
                                hfilter_id=hf.id,
                               ),
@@ -643,41 +657,44 @@ class MassExportViewsTestCase(ViewsTestCase):
     def test_quick_search(self):
         user = self.login()
 
-        hf = HeaderFilter.create(pk='test-hf_contact_test_quick_search', name='Contact view',
-                                 model=FakeContact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'phone'}),
-                                             (EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'first_name'}),
-                                            ],
-                                )
+        hf = HeaderFilter.create(
+            pk='test-hf_contact_test_quick_search', name='Contact view',
+            model=FakeContact,
+            cells_desc=[(EntityCellRegularField, {'name': 'phone'}),
+                        (EntityCellRegularField, {'name': 'last_name'}),
+                        (EntityCellRegularField, {'name': 'first_name'}),
+                       ],
+        )
 
         create_contact = partial(FakeContact.objects.create, user=user)
         spike = create_contact(first_name='Spike', last_name='Spiegel',   phone='123233')
         jet   = create_contact(first_name='Jet',   last_name='Black',     phone='123455')
         faye  = create_contact(first_name='Faye',  last_name='Valentine', phone='678678')
 
-        # Set the current list view state, with the quick search
-        response = self.assertPOST200(FakeContact.get_lv_absolute_url(),
-                                      # data={'_search': 1,
-                                      #       'regular_field-phone': '123',
-                                      #      }
-                                      data={'search-regular_field-phone': '123'},
-                                     )
-        content = self._get_lv_content(response)
-        self.assertCountOccurrences(spike.last_name, content, count=1)
-        self.assertCountOccurrences(jet.last_name, content, count=1)
-        self.assertNotIn(faye.last_name, content)
+        # # Set the current list view state, with the quick search
+        # response = self.assertPOST200(FakeContact.get_lv_absolute_url(),
+        #                               data={'_search': 1,
+        #                                     'regular_field-phone': '123',
+        #                                    }
+        #                              )
+        # content = self._get_lv_content(response)
+        # self.assertCountOccurrences(spike.last_name, content, count=1)
+        # self.assertCountOccurrences(jet.last_name, content, count=1)
+        # self.assertNotIn(faye.last_name, content)
 
         # ----------------------
-        response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
-
-        it = (force_text(line) for line in response.content.splitlines())
-        next(it)  # Header
-        self.assertEqual(next(it), '"123455","Black","Jet"')
-        self.assertEqual(next(it), '"123233","Spiegel","Spike"')
-
-        with self.assertRaises(StopIteration):
-            next(it)
+        response = self.assertGET200(
+            self._build_contact_dl_url(hfilter_id=hf.id,
+                                       **{'search-regular_field-phone': '123'}
+                                      )
+        )
+        self.assertListEqual(
+            ['"123455","Black","Jet"',
+             '"123233","Spiegel","Spike"',
+            ],
+            # NB: slice to remove the header
+            [force_text(line) for line in response.content.splitlines()[1:]]
+        )
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_sorting(self):
@@ -697,29 +714,29 @@ class MassExportViewsTestCase(ViewsTestCase):
         create_contact(first_name='Jet',   last_name='Black',     phone='123455')
         create_contact(first_name='Faye',  last_name='Valentine', phone='678678')
 
-        # Set the current list view state, with the search
-        self.assertPOST200(FakeContact.get_lv_absolute_url(),
-                           # data={'_search': 1,
-                           #       'regular_field-phone': '123',
-                           data={'search-regular_field-phone': '123',
-                                 # 'sort_field': 'regular_field-last_name',
-                                 # 'sort_order': '-',
-                                },
-                          )
+        # # Set the current list view state, with the search
+        # self.assertPOST200(FakeContact.get_lv_absolute_url(),
+        #                    data={'_search': 1,
+        #                          'regular_field-phone': '123',
+        #                          'sort_field': 'regular_field-last_name',
+        #                          'sort_order': '-',
+        #                         },
+        #                   )
 
         response = self.assertGET200(self._build_contact_dl_url(
             hfilter_id=hf.id,
             sort_key='regular_field-last_name',
             sort_order='DESC',
+            **{'search-regular_field-phone': '123'}
         ))
 
-        it = (force_text(line) for line in response.content.splitlines())
-        next(it)  # Header
-        self.assertEqual(next(it), '"123233","Spiegel","Spike"')
-        self.assertEqual(next(it), '"123455","Black","Jet"')
-
-        with self.assertRaises(StopIteration):
-            next(it)
+        self.assertListEqual(
+            ['"123233","Spiegel","Spike"',
+             '"123455","Black","Jet"',
+            ],
+            # NB: slice to remove the header
+            [force_text(line) for line in response.content.splitlines()[1:]]
+        )
 
     def test_distinct(self):
         user = self.login()
@@ -737,18 +754,20 @@ class MassExportViewsTestCase(ViewsTestCase):
         camp1.mailing_lists.set([ml1, ml2])
         camp2.mailing_lists.set([ml1])
 
-        HeaderFilter.create(pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
-                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                        (EntityCellRegularField, {'name': 'mailing_lists'}),
-                                       ],
-                           )
+        HeaderFilter.create(
+            pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
+            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                        (EntityCellRegularField, {'name': 'mailing_lists'}),
+                       ],
+        )
 
         # Set the current list view state, with the quick search
         lv_url = FakeEmailCampaign.get_lv_absolute_url()
-        response = self.assertPOST200(lv_url,
-                                      # data={'regular_field-mailing_lists': 'staff'}
-                                      data={'search-regular_field-mailing_lists': 'staff'}
-                                     )
+        response = self.assertPOST200(
+            lv_url,
+            # data={'regular_field-mailing_lists': 'staff'}
+            data={'search-regular_field-mailing_lists': 'staff'},
+        )
         content = self._get_lv_content(response)
 
         self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2

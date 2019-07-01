@@ -1075,7 +1075,15 @@ class ListViewTestCase(ViewsTestCase):
         # qdict = {'name': 'Bebop'}
         q_filter = QSerializer().dumps(Q(name='Bebop'))
         # response = self.assertGET200(self.url, data={'hfilter': hf.id, 'q_filter': json_dump(qdict)})
-        response = self.assertGET200(self.url, data={'hfilter': hf.id, 'q_filter': q_filter})
+        searched_phone = '#123'
+        response = self.assertGET200(
+            self.url,
+            data={
+                'hfilter': hf.id,
+                'q_filter': q_filter,
+                'search-regular_field-phone': searched_phone,
+            },
+        )
 
         page_tree = html5lib.parse(response.content, namespaceHTMLElements=False)
         buttons_node = page_tree.find(".//div[@class='list-header-buttons clearfix']")
@@ -1092,17 +1100,18 @@ class ListViewTestCase(ViewsTestCase):
         self.assertTrue(dl_uri.startswith(dl_url),
                         'URI <{}> does not starts with <{}>'.format(dl_uri, dl_url)
                        )
-        self.assertIn('list_url={}'.format(self.url), dl_uri)
+        # self.assertIn('list_url={}'.format(self.url), dl_uri)
         self.assertIn('hfilter={}'.format(hf.id),     dl_uri)
         # self.assertIn('extra_q={}'.format(urlquote(QSerializer().dumps(Q(**qdict)))), dl_uri)
-        self.assertIn('extra_q={}'.format(urlquote(q_filter)), dl_uri)
+        self.assertIn('&extra_q={}'.format(urlquote(q_filter)), dl_uri)
+        self.assertIn('&search-regular_field-phone={}'.format(urlquote(searched_phone)), dl_uri)
 
         # dl_header_uri = hrefs[2]
         dl_header_uri = data_hrefs[2]
         self.assertTrue(dl_header_uri.startswith(dl_url),
                         'URI <{}> does not starts with <{}>'.format(dl_header_uri, dl_url)
                        )
-        self.assertIn('header=true', dl_header_uri)
+        self.assertIn('&header=true', dl_header_uri)
 
         self.assertEqual(reverse('creme_core__mass_import',   args=(ct_id,)), hrefs[3])
         self.assertEqual(reverse('creme_core__batch_process', args=(ct_id,)), hrefs[4])
