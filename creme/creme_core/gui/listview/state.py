@@ -111,14 +111,17 @@ class ListViewState:
 
         request.session[self.url] = serialized
 
-    @staticmethod
-    def get_state(request, url=None):
+    # @staticmethod
+    @classmethod
+    # def get_state(request, url=None):
+    def get_state(cls, request, url=None):
         lvs = None
         data = request.session.get(url or request.path)
 
         if data is not None:
-            # lvs = object.__new__(ListViewState)  # NB: causes problem on attribute change (renaming...)
-            lvs = ListViewState()
+            # # lvs = object.__new__(ListViewState)  # NB: causes problem on attribute change (renaming...)
+            # lvs = ListViewState()
+            lvs = cls()
 
             for k, v in data.items():
                 setattr(lvs, k, v)
@@ -128,20 +131,27 @@ class ListViewState:
 
         return lvs
 
-    @staticmethod
-    def build_from_request(arguments, url, **kwargs):
+    # @staticmethod
+    @classmethod
+    # def build_from_request(arguments, url, **kwargs):
+    def build_from_request(cls, arguments, url, **kwargs):
         kwargs.update((str(k), v) for k, v in arguments.items())
         kwargs['url'] = url
 
-        return ListViewState(**kwargs)
+        # return ListViewState(**kwargs)
+        return cls(**kwargs)
 
-    @staticmethod
-    def get_or_create_state(request, url, **kwargs):
-        state = ListViewState.get_state(request, url)
+    # @staticmethod
+    @classmethod
+    # def get_or_create_state(request, url, **kwargs):
+    def get_or_create_state(cls, request, url, **kwargs):
+        # state = ListViewState.get_state(request, url)
+        state = cls.get_state(request, url)
 
         if state is None:
             arguments = request.POST if request.method == 'POST' else request.GET
-            state = ListViewState.build_from_request(arguments, url, **kwargs)
+            # state = ListViewState.build_from_request(arguments, url, **kwargs)
+            state = cls.build_from_request(arguments, url, **kwargs)
 
         return state
 
