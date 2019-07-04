@@ -25,7 +25,7 @@ try:
     from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomInvoice,
             skipIfCustomSalesOrder, skipIfCustomProductLine, skipIfCustomServiceLine,
             Organisation, Address,
-            CreditNote, Invoice, Quote, SalesOrder, ProductLine, ServiceLine)
+            Invoice, Quote, SalesOrder, ProductLine, ServiceLine)  # CreditNote
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

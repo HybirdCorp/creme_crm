@@ -3,18 +3,13 @@
 try:
     from functools import partial
 
-    from django.urls import reverse
     from django.utils.translation import gettext as _, ngettext
 
     from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig
+    from creme.creme_core.models import FieldsConfig
 
-    from creme.persons import constants
-    from creme.persons.models import StaffSize, Sector, LegalForm
-
-    from ..base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
-            skipIfCustomOrganisation, Organisation, Address, Contact)
+    from ..base import (_BaseTestCase, skipIfCustomAddress,
+            skipIfCustomOrganisation, Organisation, Address)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

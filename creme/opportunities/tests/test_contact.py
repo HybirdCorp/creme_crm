@@ -15,7 +15,6 @@ try:
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.opportunities.constants import REL_SUB_LINKED_CONTACT
-    from creme.opportunities.models import SalesPhase
 
     from .base import (OpportunitiesBaseTestCase, skipIfCustomOpportunity,
             Contact, Organisation, Opportunity)

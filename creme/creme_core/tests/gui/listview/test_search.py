@@ -16,7 +16,6 @@ try:
     from creme.creme_core.models import (CremeUser, CustomField, RelationType,
             FakeContact, FakeOrganisation, FakeInvoiceLine,
             FakeSector, FakeEmailCampaign)
-    from creme.creme_core.models.fields import CremeUserForeignKey
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))

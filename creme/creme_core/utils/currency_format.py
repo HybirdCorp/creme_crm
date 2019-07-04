@@ -53,7 +53,7 @@ def _get_locale_conv(category, locale_code):
         try:
             locale.setlocale(category, locale_arg)
             return locale.localeconv()   # NB: Windows can raise UnicodeDecodeError here
-        except (locale.Error, UnicodeDecodeError) as e:
+        except (locale.Error, UnicodeDecodeError):
             trials.append(locale_arg)
 
     logger.critical('Fail to set a locale among "%s"', trials)

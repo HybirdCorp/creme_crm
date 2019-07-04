@@ -10,7 +10,7 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.models import Job, JobResult, FakeOrganisation
+    from creme.creme_core.models import Job, JobResult  # FakeOrganisation
 
     from ..creme_jobs import usermessages_send_type
     from ..models import UserMessage, UserMessagePriority

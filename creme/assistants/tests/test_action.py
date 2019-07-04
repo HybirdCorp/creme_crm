@@ -12,7 +12,7 @@ try:
     from django.utils.translation import gettext as _
 
     from creme.creme_core.models import (CremeEntity, BrickDetailviewLocation,
-            FakeContact, FakeOrganisation, FakeMailingList)
+            FakeContact, FakeOrganisation)  # FakeMailingList
 
     from ..bricks import ActionsOnTimeBrick, ActionsNotOnTimeBrick
     from ..models import Action

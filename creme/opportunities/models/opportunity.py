@@ -24,8 +24,8 @@ import warnings
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
-from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
-        DateField, PROTECT, BooleanField)
+from django.db.models import (CharField, ForeignKey, PositiveIntegerField,
+        DateField, PROTECT, BooleanField)  # TextField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
