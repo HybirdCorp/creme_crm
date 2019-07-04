@@ -27,7 +27,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import _check_required_model_fields  # require_model_fields
+from creme.creme_core.views.decorators import _check_required_model_fields, POST_only  # require_model_fields
 
 from ... import billing
 
@@ -137,6 +137,7 @@ CreditNote = billing.get_credit_note_model()
 
 @login_required
 @permission_required('billing')
+@POST_only
 def delete_related_credit_note(request, credit_note_id, base_id):
     relation = get_object_or_404(Relation, subject_entity=base_id,
                                  object_entity=credit_note_id,

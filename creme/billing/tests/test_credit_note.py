@@ -425,11 +425,15 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 50)
 
-        response = self.client.post(self._build_deleterelated_url(credit_note, invoice), follow=True)
+        # response = self.client.post(self._build_deleterelated_url(credit_note, invoice), follow=True)
+        # self.assertNoFormError(response)
+        url = self._build_deleterelated_url(credit_note, invoice)
+        self.assertGET404(url)
 
-        self.assertNoFormError(response)
+        response = self.assertPOST200(url, follow=True)
+        self.assertRedirects(response, invoice.get_absolute_url())
 
-        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertFalse(Relation.objects.filter(object_entity=invoice, subject_entity=credit_note))
         self.assertInvoiceTotalToPay(invoice, 100)
 
     @skipIfCustomInvoice
