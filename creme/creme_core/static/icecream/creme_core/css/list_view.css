@@ -794,8 +794,8 @@
     padding-top: 7px !important;
 }
 
-.listview:not(.listview-selection-single) td.lv-cell:not(:first-child),
-.listview-selection-single td.lv-cell + td.lv-cell {
+.listview-selection-multiple td.lv-cell:not(:first-child),
+.listview td.lv-cell + td.lv-cell {
 /*        border-left: 0 !important;*/
     border-left-color: rgba(84, 130, 149, 0.1) !important;
 }
