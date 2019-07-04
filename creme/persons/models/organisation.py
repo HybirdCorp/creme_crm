@@ -130,7 +130,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     def get_lv_absolute_url():
         return reverse('persons__list_organisations')
 
-    # TODO: move in a manager ??
     # TODO: use FilteredRelation ?
     def get_managers(self):
         return get_contact_model().objects\
@@ -139,7 +138,7 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
                                           relations__object_entity=self.id,
                                          )
 
-    # TODO: move in a manager ??
+    # TODO: use FilteredRelation ?
     def get_employees(self):
         return get_contact_model().objects\
                                   .filter(is_deleted=False,

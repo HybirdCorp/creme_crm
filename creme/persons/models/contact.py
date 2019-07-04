@@ -36,8 +36,8 @@ from creme.documents.models.fields import ImageEntityForeignKey
 from ..import constants, get_contact_model, get_organisation_model
 # from ..constants import REL_OBJ_EMPLOYED_BY
 
-from .base import PersonWithAddressesMixin
 from . import other_models
+from .base import PersonWithAddressesMixin
 
 logger = logging.getLogger(__name__)
 
@@ -163,7 +163,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     def get_lv_absolute_url():
         return reverse('persons__list_contacts')
 
-    # TODO: move in a manager ??
     # TODO: use FilteredRelation ?
     def get_employers(self):
         # return get_organisation_model().objects.filter(relations__type=REL_OBJ_EMPLOYED_BY,
@@ -195,15 +194,17 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         self._check_deletion()
         super().trash()
 
-    @staticmethod
-    def _create_linked_contact(user, **kwargs):
+    # @staticmethod
+    @classmethod
+    def _create_linked_contact(cls, user, **kwargs):
         # TODO: assert user is not a team + enforce non team clean() ?
-        return get_contact_model().objects.create(user=user, is_user=user,
-                                                  last_name=user.last_name or user.username.title(),
-                                                  first_name=user.first_name or _('N/A'),
-                                                  email=user.email or _('complete@Me.com'),
-                                                  **kwargs
-                                                 )
+        # return get_contact_model().objects.create(user=user, is_user=user,
+        return cls.objects.create(user=user, is_user=user,
+                                  last_name=user.last_name or user.username.title(),
+                                  first_name=user.first_name or _('N/A'),
+                                  email=user.email or _('complete@Me.com'),
+                                  **kwargs
+                                 )
 
 
 class Contact(AbstractContact):
