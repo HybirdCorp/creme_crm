@@ -104,6 +104,7 @@ QUnit.test('creme.emails.ResendEMailsAction (error)', function(assert) {
         ['POST', {
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
+            content: 1,
             rows: ['10'],
             selected_rows: ['1,2'],
             q_filter: ['{}'],
@@ -138,6 +139,7 @@ QUnit.test('creme.emails.ResendEMailsAction (ok)', function(assert) {
         ['POST', {
             sort_key: ['regular_field-name'],
             sort_order: ['ASC'],
+            content: 1,
             rows: ['10'],
             selected_rows: ['1,2,3'],
             q_filter: ['{}'],

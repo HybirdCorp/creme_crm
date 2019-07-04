@@ -121,6 +121,7 @@ QUnit.test('creme.projects.listview.actions (projects-close, ok)', function(asse
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],

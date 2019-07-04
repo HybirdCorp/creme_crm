@@ -907,9 +907,11 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     def get_sub_title(self):
         return ''
 
-    # TODO: DO NOT WORK CORRECTLY with the popup view (is_ajax() always true, so "entities-popup.html" is never used)
     def get_template_names(self):
-        return self.content_template_name if self.request.is_ajax() else self.template_name
+        if self.arguments.get('content'):
+            return self.content_template_name
+        else:
+            return self.template_name
 
     def get_title_format_data(self):
         data = super().get_title_format_data()
