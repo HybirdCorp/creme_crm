@@ -133,8 +133,11 @@ class HeaderFilter(Model):  # CremeModel ???
 
         return self.can_edit(user)
 
-    @staticmethod
-    def create(pk, name, model, is_custom=False, user=None, is_private=False, cells_desc=()):
+    # TODO: move to a manager ?
+    # @staticmethod
+    @classmethod
+    # def create(pk, name, model, is_custom=False, user=None, is_private=False, cells_desc=()):
+    def create(cls, pk, name, model, is_custom=False, user=None, is_private=False, cells_desc=()):
         """Creation helper ; useful for populate.py scripts.
         @param cells_desc: List of objects where each one can other:
             - an instance of EntityCell (one of its child class of course).
@@ -158,8 +161,10 @@ class HeaderFilter(Model):  # CremeModel ???
                 raise ValueError('HeaderFilter.create(): a private filter must be custom.')
 
         try:
-            hf = HeaderFilter.objects.get(pk=pk)
-        except HeaderFilter.DoesNotExist:
+            # hf = HeaderFilter.objects.get(pk=pk)
+            hf = cls.objects.get(pk=pk)
+        # except HeaderFilter.DoesNotExist:
+        except cls.DoesNotExist:
             cells = []
 
             for cell_desc in cells_desc:
@@ -174,7 +179,8 @@ class HeaderFilter(Model):  # CremeModel ???
                     if cell is not None:
                         cells.append(cell)
 
-            hf = HeaderFilter.objects.create(
+            # hf = HeaderFilter.objects.create(
+            hf = cls.objects.create(
                 pk=pk, name=name, user=user,
                 is_custom=is_custom, is_private=is_private,
                 entity_type=model,
@@ -223,6 +229,8 @@ class HeaderFilter(Model):  # CremeModel ???
     def get_edit_absolute_url(self):
         return reverse('creme_core__edit_hfilter', args=(self.id,))
 
+    # TODO: move to a manager ? + rename (filter_...) + accept models
+    #       possible to separate into 2 methods (filter by user & filter by ct) ??
     @staticmethod
     def get_for_user(user, content_type=None):
         assert not user.is_team
