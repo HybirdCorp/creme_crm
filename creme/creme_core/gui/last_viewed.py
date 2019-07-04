@@ -49,9 +49,12 @@ class LastViewedItem:
                 'modified': dt_to_ISO8601(self.modified),
                }
 
-    @staticmethod
-    def from_dict(data):
-        instance = object.__new__(LastViewedItem)
+    # @staticmethod
+    @classmethod
+    # def from_dict(data):
+    def from_dict(cls, data):
+        # instance = object.__new__(LastViewedItem)
+        instance = object.__new__(cls)
 
         for attr in ('pk', 'url', 'name'):
             setattr(instance, attr, data[attr])
@@ -82,9 +85,12 @@ class LastViewedItem:
 
         self._serialize_all(session, last_viewed_items)
 
-    @staticmethod
-    def _deserialize_all(session):
-        from_dict = LastViewedItem.from_dict
+    # @staticmethod
+    @classmethod
+    # def _deserialize_all(session):
+    def _deserialize_all(cls, session):
+        # from_dict = LastViewedItem.from_dict
+        from_dict = cls.from_dict
         return [from_dict(data) for data in session.get('last_viewed_items', ())]
 
     @staticmethod
@@ -92,11 +98,14 @@ class LastViewedItem:
         session['last_viewed_items'] = [item.as_dict() for item in items]
 
     # TODO: use the future entity representation table
-    @staticmethod
-    def get_all(request):
+    # @staticmethod
+    @classmethod
+    # def get_all(request):
+    def get_all(cls, request):
         items = []
         session = request.session
-        old_items = LastViewedItem._deserialize_all(session)
+        # old_items = LastViewedItem._deserialize_all(session)
+        old_items = cls._deserialize_all(session)
 
         if old_items:
             MAX_LAST_ITEMS = settings.MAX_LAST_ITEMS
@@ -121,6 +130,7 @@ class LastViewedItem:
                     items.append(item)
 
             if updated:
-                LastViewedItem._serialize_all(session, items)
+                # LastViewedItem._serialize_all(session, items)
+                cls._serialize_all(session, items)
 
         return items
