@@ -69,15 +69,21 @@ class Mutex(models.Model):
 
         self.delete()
 
-    @staticmethod
-    def get_n_lock(id_):
-        mutex = Mutex(id=id_)
+    # @staticmethod
+    @classmethod
+    # def get_n_lock(id_):
+    def get_n_lock(cls, id_):
+        # mutex = Mutex(id=id_)
+        mutex = cls(id=id_)
         mutex.lock()
         return mutex
 
-    @staticmethod
-    def graceful_release(id_):
-        Mutex.objects.filter(id=id_).delete()
+    # @staticmethod
+    @classmethod
+    # def graceful_release(id_):
+    def graceful_release(cls, id_):
+        # Mutex.objects.filter(id=id_).delete()
+        cls.objects.filter(id=id_).delete()
 
     def save(self, *args, **kwargs):
         super().save(force_insert=True, *args, **kwargs)
