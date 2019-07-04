@@ -39,8 +39,8 @@ user_settings_patterns = [
     # url(r'^set_timezone[/]?$', user_settings.set_timezone,           name='creme_config__set_user_timezone'),
     re_path(r'^set_timezone[/]?$', user_settings.TimeZoneSetting.as_view(), name='creme_config__set_user_timezone'),
     re_path(r'^edit_value/(?P<skey_id>[\w-]+)[/]?$',
-        user_settings.UserSettingValueEdition.as_view(),
-        name='creme_config__edit_user_setting',
+            user_settings.UserSettingValueEdition.as_view(),
+            name='creme_config__edit_user_setting',
     ),
 ]
 
@@ -59,15 +59,17 @@ relation_type_patterns = [
     re_path(r'^portal[/]?$',                    relation_type.Portal.as_view(),               name='creme_config__rtypes'),
     re_path(r'^add[/]?$',                       relation_type.RelationTypeCreation.as_view(), name='creme_config__create_rtype'),
     re_path(r'^edit/(?P<rtype_id>[\w-]+)[/]?$', relation_type.RelationTypeEdition.as_view(),  name='creme_config__edit_rtype'),
-    re_path(r'^delete[/]?$',                    relation_type.delete,                         name='creme_config__delete_rtype'),
+    # re_path(r'^delete[/]?$',                    relation_type.delete,                         name='creme_config__delete_rtype'),
+    re_path(r'^delete[/]?$',                    relation_type.RelationTypeDeletion.as_view(), name='creme_config__delete_rtype'),
 
     re_path(r'^semi_fixed/add[/]?$',
-        relation_type.SemiFixedRelationTypeCreation.as_view(),
-        name='creme_config__create_semifixed_rtype'
+            relation_type.SemiFixedRelationTypeCreation.as_view(),
+            name='creme_config__create_semifixed_rtype',
     ),
     re_path(r'^semi_fixed/delete[/]?$',
-        relation_type.delete_semi_fixed,
-        name='creme_config__delete_semifixed_rtype'
+            # relation_type.delete_semi_fixed,
+            relation_type.SemiFixedRelationTypeDeletion.as_view(),
+            name='creme_config__delete_semifixed_rtype',
     ),
 ]
 
@@ -80,10 +82,11 @@ property_type_patterns = [
 
 fields_config_patterns = [
     # re_path(r'^portal[/]?$',                 fields_config.portal,                        name='creme_config__fields'),
-    re_path(r'^portal[/]?$',                 fields_config.Portal.as_view(),              name='creme_config__fields'),
-    re_path(r'^wizard[/]?$',                 fields_config.FieldsConfigWizard.as_view(),  name='creme_config__create_fields_config'),
-    re_path(r'^edit/(?P<fconf_id>\d+)[/]?$', fields_config.FieldsConfigEdition.as_view(), name='creme_config__edit_fields_config'),
-    re_path(r'^delete[/]?$',                 fields_config.delete,                        name='creme_config__delete_fields_config'),
+    re_path(r'^portal[/]?$',                 fields_config.Portal.as_view(),               name='creme_config__fields'),
+    re_path(r'^wizard[/]?$',                 fields_config.FieldsConfigWizard.as_view(),   name='creme_config__create_fields_config'),
+    re_path(r'^edit/(?P<fconf_id>\d+)[/]?$', fields_config.FieldsConfigEdition.as_view(),  name='creme_config__edit_fields_config'),
+    # re_path(r'^delete[/]?$',                 fields_config.delete,                        name='creme_config__delete_fields_config'),
+    re_path(r'^delete[/]?$',                 fields_config.FieldsConfigDeletion.as_view(), name='creme_config__delete_fields_config'),
 ]
 
 custom_fields_patterns = [
@@ -92,10 +95,12 @@ custom_fields_patterns = [
         custom_fields.FirstCTypeCustomFieldCreation.as_view(),
         name='creme_config__create_first_ctype_custom_field',
     ),
-    re_path(r'^ct/delete[/]?$',              custom_fields.delete_ct,                     name='creme_config__delete_ctype_custom_fields'),
-    re_path(r'^add/(?P<ct_id>\d+)[/]?$',     custom_fields.CustomFieldCreation.as_view(), name='creme_config__create_custom_field'),
-    re_path(r'^edit/(?P<field_id>\d+)[/]?$', custom_fields.CustomFieldEdition.as_view(),  name='creme_config__edit_custom_field'),
-    re_path(r'^delete[/]?$',                 custom_fields.delete,                        name='creme_config__delete_custom_field'),
+    # re_path(r'^ct/delete[/]?$',              custom_fields.delete_ct,                     name='creme_config__delete_ctype_custom_fields'),
+    re_path(r'^ct/delete[/]?$',              custom_fields.CTypeCustomFieldsDeletion.as_view(), name='creme_config__delete_ctype_custom_fields'),
+    re_path(r'^add/(?P<ct_id>\d+)[/]?$',     custom_fields.CustomFieldCreation.as_view(),       name='creme_config__create_custom_field'),
+    re_path(r'^edit/(?P<field_id>\d+)[/]?$', custom_fields.CustomFieldEdition.as_view(),        name='creme_config__edit_custom_field'),
+    # re_path(r'^delete[/]?$',                 custom_fields.delete,                        name='creme_config__delete_custom_field'),
+    re_path(r'^delete[/]?$',                 custom_fields.CustomFieldDeletion.as_view(),       name='creme_config__delete_custom_field'),
 ]
 
 bricks_patterns = [
@@ -103,49 +108,60 @@ bricks_patterns = [
 
     re_path(r'^detailview/add/(?P<ct_id>\d+)[/]?$',                bricks.BrickDetailviewLocationsCreation.as_view(), name='creme_config__create_detailviews_bricks'),
     re_path(r'^detailview/edit/(?P<ct_id>\d+)/(?P<role>\w+)[/]?$', bricks.BrickDetailviewLocationsEdition.as_view(),  name='creme_config__edit_detailview_bricks'),
-    re_path(r'^detailview/delete[/]?$',                            bricks.delete_detailview,                          name='creme_config__delete_detailview_bricks'),
+    # re_path(r'^detailview/delete[/]?$',                            bricks.delete_detailview,                          name='creme_config__delete_detailview_bricks'),
+    re_path(r'^detailview/delete[/]?$',                            bricks.BrickDetailviewLocationsDeletion.as_view(), name='creme_config__delete_detailview_bricks'),
 
     re_path(r'^home/add[/]?$',                bricks.HomeCreation.as_view(), name='creme_config__create_home_bricks'),
     # url(r'^home/edit[/]?$',   bricks.HomeEdition.as_view(),  name='creme_config__edit_home_bricks'),
     re_path(r'^home/edit/(?P<role>\w+)[/]?$', bricks.HomeEdition.as_view(),  name='creme_config__edit_home_bricks'),
-    re_path(r'^home/delete[/]?$',             bricks.delete_home,            name='creme_config__delete_home_brick'),
+    # re_path(r'^home/delete[/]?$',             bricks.delete_home,            name='creme_config__delete_home_brick'),
+    re_path(r'^home/delete[/]?$',             bricks.HomeDeletion.as_view(), name='creme_config__delete_home_brick'),  # TODO: 'creme_config__delete_home_brickS'
 
-    re_path(r'^mypage/edit/default[/]?$',   bricks.DefaultMyPageEdition.as_view(), name='creme_config__edit_default_mypage_bricks'),
-    re_path(r'^mypage/edit[/]?$',           bricks.MyPageEdition.as_view(),        name='creme_config__edit_mypage_bricks'),
-    re_path(r'^mypage/default/delete[/]?$', bricks.delete_default_mypage,          name='creme_config__delete_default_mypage_bricks'),
-    re_path(r'^mypage/delete[/]?$',         bricks.delete_mypage,                  name='creme_config__delete_mypage_bricks'),
+    re_path(r'^mypage/edit/default[/]?$',   bricks.DefaultMyPageEdition.as_view(),  name='creme_config__edit_default_mypage_bricks'),
+    re_path(r'^mypage/edit[/]?$',           bricks.MyPageEdition.as_view(),         name='creme_config__edit_mypage_bricks'),
+    # re_path(r'^mypage/default/delete[/]?$', bricks.delete_default_mypage,          name='creme_config__delete_default_mypage_bricks'),
+    re_path(r'^mypage/default/delete[/]?$', bricks.DefaultMyPageDeletion.as_view(), name='creme_config__delete_default_mypage_bricks'),
+    # re_path(r'^mypage/delete[/]?$',         bricks.delete_mypage,                   name='creme_config__delete_mypage_bricks'),
+    re_path(r'^mypage/delete[/]?$',         bricks.MyPageDeletion.as_view(),        name='creme_config__delete_mypage_bricks'),
 
     re_path(r'^rtype/add[/]?$',                                       bricks.RelationTypeBrickCreation.as_view(), name='creme_config__create_rtype_brick'),
     re_path(r'^rtype/(?P<rbi_id>\d+)/wizard[/]?$',                    bricks.RelationCTypeBrickWizard.as_view(),  name='creme_config__add_cells_to_rtype_brick'),
     re_path(r'^rtype/(?P<rbi_id>\d+)/edit_ctype/(?P<ct_id>\d+)[/]?$', bricks.RelationCTypeBrickEdition.as_view(), name='creme_config__edit_cells_of_rtype_brick'),
-    re_path(r'^rtype/(?P<rbi_id>\d+)/delete_ctype[/]?$',              bricks.delete_cells_of_rtype_brick,         name='creme_config__delete_cells_of_rtype_brick'),
-    re_path(r'^rtype/delete[/]?$',                                    bricks.delete_rtype_brick,                  name='creme_config__delete_rtype_brick'),
+    # re_path(r'^rtype/(?P<rbi_id>\d+)/delete_ctype[/]?$',              bricks.delete_cells_of_rtype_brick,         name='creme_config__delete_cells_of_rtype_brick'),
+    re_path(r'^rtype/(?P<rbi_id>\d+)/delete_ctype[/]?$',              bricks.CellsOfRtypeBrickDeletion.as_view(), name='creme_config__delete_cells_of_rtype_brick'),
+    # re_path(r'^rtype/delete[/]?$',                                    bricks.delete_rtype_brick,                  name='creme_config__delete_rtype_brick'),
+    re_path(r'^rtype/delete[/]?$',                                    bricks.RelationTypeBrickDeletion.as_view(), name='creme_config__delete_rtype_brick'),
 
-    re_path(r'^instance/delete[/]?$', bricks.delete_instance_brick, name='creme_config__delete_instance_brick'),
+    # re_path(r'^instance/delete[/]?$', bricks.delete_instance_brick, name='creme_config__delete_instance_brick'),
+    re_path(r'^instance/delete[/]?$', bricks.InstanceBrickDeletion.as_view(), name='creme_config__delete_instance_brick'),
 
-    re_path(r'^custom/wizard[/]?$',                    bricks.CustomBrickWizard.as_view(),  name='creme_config__create_custom_brick'),
-    re_path(r'^custom/edit/(?P<cbci_id>[-_\w]+)[/]?$', bricks.CustomBrickEdition.as_view(), name='creme_config__edit_custom_brick'),
-    re_path(r'^custom/delete[/]?$',                    bricks.delete_custom_brick,          name='creme_config__delete_custom_brick'),
+    re_path(r'^custom/wizard[/]?$',                    bricks.CustomBrickWizard.as_view(),   name='creme_config__create_custom_brick'),
+    re_path(r'^custom/edit/(?P<cbci_id>[-_\w]+)[/]?$', bricks.CustomBrickEdition.as_view(),  name='creme_config__edit_custom_brick'),
+    # re_path(r'^custom/delete[/]?$',                    bricks.delete_custom_brick,          name='creme_config__delete_custom_brick'),
+    re_path(r'^custom/delete[/]?$',                    bricks.CustomBrickDeletion.as_view(), name='creme_config__delete_custom_brick'),
 ]
 
 button_menu_patterns = [
-    re_path(r'^portal[/]?$',              button_menu.Portal.as_view(),            name='creme_config__buttons'),
-    re_path(r'^wizard[/]?$',              button_menu.ButtonMenuWizard.as_view(),  name='creme_config__add_buttons_to_ctype'),
-    re_path(r'^edit/(?P<ct_id>\d+)[/]?$', button_menu.ButtonMenuEdition.as_view(), name='creme_config__edit_ctype_buttons'),
-    re_path(r'^delete[/]?$',              button_menu.delete,                      name='creme_config__delete_ctype_buttons'),
+    re_path(r'^portal[/]?$',              button_menu.Portal.as_view(),             name='creme_config__buttons'),
+    re_path(r'^wizard[/]?$',              button_menu.ButtonMenuWizard.as_view(),   name='creme_config__add_buttons_to_ctype'),
+    re_path(r'^edit/(?P<ct_id>\d+)[/]?$', button_menu.ButtonMenuEdition.as_view(),  name='creme_config__edit_ctype_buttons'),
+    # re_path(r'^delete[/]?$',              button_menu.delete,                      name='creme_config__delete_ctype_buttons'),
+    re_path(r'^delete[/]?$',              button_menu.ButtonMenuDeletion.as_view(), name='creme_config__delete_ctype_buttons'),
 ]
 
 search_patterns = [
     re_path(r'^portal[/]?$',                         search.Portal.as_view(),               name='creme_config__search'),
     re_path(r'^add/(?P<ct_id>\d+)[/]?$',             search.SearchConfigCreation.as_view(), name='creme_config__create_search_config'),
     re_path(r'^edit/(?P<search_config_id>\d+)[/]?$', search.SearchConfigEdition.as_view(),  name='creme_config__edit_search_config'),
-    re_path(r'^delete[/]?$',                         search.delete,                         name='creme_config__delete_search_config'),
+    # re_path(r'^delete[/]?$',                         search.delete,                         name='creme_config__delete_search_config'),
+    re_path(r'^delete[/]?$',                         search.SearchItemEdition.as_view(),    name='creme_config__delete_search_config'),
 ]
 
 history_patterns = [
     re_path(r'^portal[/]?$',  history.Portal.as_view(),                name='creme_config__history'),
     re_path(r'^add[/]?$',     history.HistoryConfigCreation.as_view(), name='creme_config__create_history_configs'),
-    re_path(r'^delete[/]?$',  history.delete,                          name='creme_config__remove_history_config'),
+    # re_path(r'^delete[/]?$',  history.delete,                          name='creme_config__remove_history_config'),
+    re_path(r'^delete[/]?$',  history.HistoryItemDeletion.as_view(),   name='creme_config__remove_history_config'),
 ]
 
 setting_patterns = [

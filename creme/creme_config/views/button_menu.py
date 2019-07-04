@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import Http404, HttpResponse
+from django.http import Http404  # HttpResponse
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 # from formtools.wizard.views import SessionWizardView
 
-from creme.creme_core.auth import decorators
+# from creme.creme_core.auth import decorators
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
@@ -32,7 +32,7 @@ from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from ..forms import button_menu as button_forms
 
-from .base import ConfigEdition
+from . import base
 
 
 class Portal(generic.BricksView):
@@ -77,7 +77,7 @@ class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
         return kwargs
 
 
-class ButtonMenuEdition(EntityCTypeRelatedMixin, ConfigEdition):
+class ButtonMenuEdition(EntityCTypeRelatedMixin, base.ConfigEdition):
     model = ButtonMenuItem
     form_class = button_forms.ButtonMenuEditForm
     ct_id_0_accepted = True
@@ -116,10 +116,16 @@ class ButtonMenuEdition(EntityCTypeRelatedMixin, ConfigEdition):
                gettext('Edit default configuration')
 
 
-@decorators.login_required
-@decorators.permission_required('creme_core.can_admin')
-def delete(request):
-    ct_id = get_from_POST_or_404(request.POST, 'id')
-    ButtonMenuItem.objects.filter(content_type=ct_id).delete()
+# @decorators.login_required
+# @decorators.permission_required('creme_core.can_admin')
+# def delete(request):
+#     ct_id = get_from_POST_or_404(request.POST, 'id')
+#     ButtonMenuItem.objects.filter(content_type=ct_id).delete()
+#
+#     return HttpResponse()
+class ButtonMenuDeletion(base.ConfigDeletion):
+    ct_id_arg = 'id'
 
-    return HttpResponse()
+    def perform_deletion(self, request):
+        ct_id = get_from_POST_or_404(request.POST, self.ct_id_arg, cast=int)
+        ButtonMenuItem.objects.filter(content_type=ct_id).delete()
