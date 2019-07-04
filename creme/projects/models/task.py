@@ -174,15 +174,18 @@ class AbstractProjectTask(CremeEntity):
         for resource in source.get_resources():
             resource.clone_for_task(self)
 
-    @staticmethod
-    def clone_scope(tasks, project):
+    # @staticmethod
+    @classmethod
+    # def clone_scope(tasks, project):
+    def clone_scope(cls, tasks, project):
         """Clone each task in 'tasks', assign them to 'project', and restore links between each task.
         @params tasks: an iterable of ProjectTask.
         @params project: a Project instance.
         """
         context = {}
 
-        project_task_filter = ProjectTask.objects.filter
+        # project_task_filter = ProjectTask.objects.filter
+        project_task_filter = cls._default_manager.filter
 
         for task in tasks:
             new_task = task.clone()
