@@ -677,10 +677,11 @@ class MultiRelationEntityField(RelationEntityField):
                                  ) from e
 
         allowed_ctype_ids   = frozenset(ct.pk for ct in rtype.object_ctypes.all())
-        # TODO: use a list() instead
-        needed_property_ids = frozenset(rtype.object_properties.values_list('id', flat=True))
+        # needed_property_ids = frozenset(rtype.object_properties.values_list('id', flat=True))
+        needed_ptype_ids = list(rtype.object_properties.values_list('id', flat=True))
 
-        return rtype, allowed_ctype_ids, needed_property_ids
+        # return rtype, allowed_ctype_ids, needed_property_ids
+        return rtype, allowed_ctype_ids, needed_ptype_ids
 
     def _build_ctype_cache(self, ctype_pk):
         try:
@@ -734,10 +735,10 @@ class MultiRelationEntityField(RelationEntityField):
                                       code='rtypenotallowed',
                                      )
 
-            rtype, allowed_ctype_ids, needed_property_ids = \
+            rtype, allowed_ctype_ids, needed_ptype_ids = \
                 self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
 
-            if needed_property_ids:
+            if needed_ptype_ids:
                 need_property_validation = True
 
             # Check if content type is allowed by relation type
