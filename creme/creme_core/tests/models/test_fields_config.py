@@ -9,8 +9,8 @@ try:
     from ..fake_forms import FakeContactForm
 
     from creme.creme_core.global_info import set_global_info
-    from creme.creme_core.models import (CremeEntity, FieldsConfig,
-        FakeContact, FakeOrganisation, FakeCivility, FakeSector, FakeAddress)  # FakeEmailCampaign
+    from creme.creme_core.models import (FieldsConfig,
+        FakeContact, FakeOrganisation, FakeCivility, FakeSector, FakeAddress)  # CremeEntity FakeEmailCampaign
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

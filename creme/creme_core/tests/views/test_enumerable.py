@@ -7,7 +7,7 @@ try:
 
     from .base import ViewsTestCase
     from creme.creme_core import models
-    from creme.creme_core.utils.unicode_collation import collator
+    # from creme.creme_core.utils.unicode_collation import collator
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

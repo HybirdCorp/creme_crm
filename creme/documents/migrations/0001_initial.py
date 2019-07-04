@@ -4,7 +4,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
+from django.db.models.deletion import PROTECT, CASCADE  # SET_NULL
 
 from creme.creme_core.models import CREME_REPLACE_NULL
 

@@ -4,7 +4,6 @@ try:
     from functools import partial
 
     from django.apps import apps
-    from django.contrib.contenttypes.models import ContentType
     from django.db.models import Max
     from django.db.models.deletion import SET_NULL, PROTECT
     from django.forms import CharField

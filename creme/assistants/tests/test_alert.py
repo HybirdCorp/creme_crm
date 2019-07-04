@@ -7,7 +7,7 @@ try:
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.core import mail
-    from django.db.models.query import QuerySet
+    # from django.db.models.query import QuerySet
     from django.test.utils import override_settings
     from django.urls import reverse
     from django.utils.timezone import now
@@ -15,7 +15,7 @@ try:
 
     from creme.creme_core.core.function_field import function_field_registry
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.models import CremeEntity, DateReminder, FakeOrganisation, FakeMailingList
+    from creme.creme_core.models import CremeEntity, DateReminder  # FakeOrganisation FakeMailingList
 
     from ..models import Alert
     from .base import AssistantsTestCase

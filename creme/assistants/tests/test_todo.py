@@ -22,7 +22,7 @@ try:
             SettingValue, HistoryLine, JobResult)
     from creme.creme_core.models.history import (TYPE_AUX_CREATION,
             TYPE_AUX_EDITION, TYPE_AUX_DELETION)
-    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeMailingList
+    from creme.creme_core.tests.fake_models import FakeContact  # FakeOrganisation, FakeMailingList
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from ..bricks import TodosBrick

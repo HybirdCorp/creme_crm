@@ -8,7 +8,6 @@ try:
     from django.db.models import Q
     from django.utils.translation import gettext as _
 
-    from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellRelation)  # EntityCellFunctionField
     from creme.creme_core.core.enumerable import _EnumerableRegistry, QSEnumerator
@@ -18,7 +17,7 @@ try:
             CustomField, CustomFieldEnumValue,
             FakeContact, FakeOrganisation, FakeSector, FakeInvoiceLine,
             FakeActivity, FakeActivityType, FakeImage, FakeImageCategory)
-    from creme.creme_core.tests.fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT, FAKE_DISCOUNT_UNIT
+    from creme.creme_core.tests.fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
 
     from ..base import CremeTestCase
 except Exception as e:

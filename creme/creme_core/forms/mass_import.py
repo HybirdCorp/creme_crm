@@ -26,7 +26,7 @@ from os.path import splitext
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import validators
-from django.db.models import Q, ManyToManyField, BooleanField as ModelBooleanField
+from django.db.models import ManyToManyField, BooleanField as ModelBooleanField
 from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
 from django.forms.models import modelform_factory

@@ -20,7 +20,6 @@
 
 # import warnings
 
-from django.db.models import Q
 from django.forms import ModelMultipleChoiceField, CharField
 from django.utils.translation import gettext_lazy as _, gettext
 
