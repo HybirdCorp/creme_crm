@@ -307,7 +307,8 @@ ALLOWED_EXTENSIONS = [
     'odp', 'ods', 'odt', 'rtf', 'rm', 'ram', 'wma', 'wmv', 'swf', 'mov',
     'm4v', 'm4a', 'mp4', '3gp', '3g2', 'qt', 'avi', 'mpeg', 'mpg', 'mp3',
     'ogg', 'ogm',
-] + ALLOWED_IMAGES_EXTENSIONS
+    *ALLOWED_IMAGES_EXTENSIONS,
+]
 
 IMPORT_BACKENDS = [
     'creme.creme_core.backends.csv_import.CSVImportBackend',

@@ -29,7 +29,7 @@ from creme.creme_core.models import CremeModel, CremeEntity, fields as creme_fie
 
 class ToDoManager(models.Manager):
     def filter_by_user(self, user):
-        return self.filter(user__in=[user] + user.teams)
+        return self.filter(user__in=[user, *user.teams])
 
 
 class ToDo(CremeModel):

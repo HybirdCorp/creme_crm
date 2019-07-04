@@ -30,7 +30,7 @@ from creme.creme_core.models import fields as creme_fields
 
 class AlertManager(models.Manager):
     def filter_by_user(self, user):
-        return self.filter(user__in=[user] + user.teams)
+        return self.filter(user__in=[user, *user.teams])
 
 
 class Alert(creme_models.CremeModel):

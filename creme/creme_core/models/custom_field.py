@@ -320,10 +320,12 @@ class CustomFieldEnum(CustomFieldValue):
 
     @staticmethod
     def _build_formfield(custom_field, formfield, user=None):
-        choices = [('', '-------')]
-        choices += CustomFieldEnumValue.objects.filter(custom_field=custom_field) \
-                                               .values_list('id', 'value')
-        formfield.choices = choices
+        formfield.choices = [
+            ('', '-------'),
+            *CustomFieldEnumValue.objects
+                                 .filter(custom_field=custom_field)
+                                 .values_list('id', 'value'),
+        ]
 
     def _set_formfield_value(self, field):
         field.initial = self.value_id

@@ -1572,7 +1572,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         response = self.assertGET200(reverse('creme_core__efilter_user_choices'))
-        self.assertEqual([['__currentuser__', _('Current user')]] +
-                         [[u.id, str(u)] for u in get_user_model().objects.all()],
-                         response.json()
-                        )
+        self.assertEqual(
+            [['__currentuser__', _('Current user')],
+             *([u.id, str(u)] for u in get_user_model().objects.all()),
+            ],
+            response.json()
+        )

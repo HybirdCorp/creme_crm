@@ -30,7 +30,7 @@ from creme.creme_core.models import fields as creme_fields
 
 class ActionManager(models.Manager):
     def filter_by_user(self, user):
-        return self.filter(user__in=[user] + user.teams)
+        return self.filter(user__in=[user, *user.teams])
 
 
 class Action(creme_models.CremeModel):

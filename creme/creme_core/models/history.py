@@ -52,21 +52,22 @@ _get_ct = ContentType.objects.get_for_model
 #       or ClassKeyedMap + ModificationDateTimeField excluded
 _EXCLUDED_FIELDS = ('modified',)
 # TODO: ClassKeyedMap ??
-_SERIALISABLE_FIELDS = frozenset(('CharField',
+_SERIALISABLE_FIELDS = frozenset((
+    'CharField',
 
-                                  'IntegerField', 'BigIntegerField', 'PositiveIntegerField',
-                                  'PositiveSmallIntegerField', 'SmallIntegerField',
+    'IntegerField', 'BigIntegerField', 'PositiveIntegerField',
+    'PositiveSmallIntegerField', 'SmallIntegerField',
 
-                                  'BooleanField', 'NullBooleanField',
+    'BooleanField', 'NullBooleanField',
 
-                                  'DecimalField',
-                                  'FloatField',
+    'DecimalField',
+    'FloatField',
 
-                                  'DateField',
-                                  'DateTimeField',
-                                  'TimeField',
+    'DateField',
+    'DateTimeField',
+    'TimeField',
 
-                                  'ForeignKey',
+    'ForeignKey',
 
     # What about ?
         # BigIntegerField
@@ -79,7 +80,7 @@ _SERIALISABLE_FIELDS = frozenset(('CharField',
         # 'FilePathField' => not useful
         # 'TextField' => too long
         # 'FileField' => not serialisable
-                                ))
+))
 
 _TIME_FMT = '%H:%M:%S.%f'
 
@@ -497,7 +498,7 @@ class _HLTAuxEdition(_HLTAuxCreation):
             HistoryLine._create_line_4_instance(
                     related.get_related_entity(),
                     cls.type_id,
-                    modifs=[cls._build_modifs(related)] + fields_modifs,
+                    modifs=[cls._build_modifs(related), *fields_modifs],
                 )
         elif getattr(related, '_hline_reassigned', False):
             _HLTAuxCreation.create_line(related)

@@ -368,9 +368,10 @@ class SearchFieldsTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeActivity, name='type')
         field = lv_form.RegularRelatedField(cell=cell, user=self.user)
         self.assertEqual(
-            [{'value': '', 'label': _('All')}] +
-            [{'value': pk, 'label': name}
-                for pk, name in FakeActivityType.objects.values_list('id', 'name')
+            [{'value': '', 'label': _('All')},
+             *({'value': pk, 'label': name}
+                   for pk, name in FakeActivityType.objects.values_list('id', 'name')
+              )
             ],
             field.choices
         )

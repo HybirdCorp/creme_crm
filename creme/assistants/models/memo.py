@@ -31,7 +31,7 @@ from creme.creme_core.utils import ellipsis
 
 class MemoManager(models.Manager):
     def filter_by_user(self, user):
-        return self.filter(user__in=[user] + user.teams)
+        return self.filter(user__in=[user, *user.teams])
 
 
 class Memo(creme_models.CremeModel):

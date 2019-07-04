@@ -234,7 +234,7 @@ class HeaderFilter(Model):  # CremeModel ???
 
         return qs if user.is_staff else \
                qs.filter(Q(is_private=False) |
-                         Q(is_private=True, user__in=[user] + user.teams)
+                         Q(is_private=True, user__in=[user, *user.teams])
                         )
 
     # TODO: dispatch this job in Cells classes

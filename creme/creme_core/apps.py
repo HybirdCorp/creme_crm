@@ -60,7 +60,7 @@ AppConfig.get_extending_app_configs = __get_extending_app_configs
 # TODO: remove when MediaGenerator is not used
 class MediaGeneratorConfig(AppConfig):
     name = 'mediagenerator'
-    verbose_name = 'Media generator'  # _(u'Media generator')
+    verbose_name = 'Media generator'  # _('Media generator')
 
     def ready(self):
         self._build_MEDIA_BUNDLES()
@@ -71,21 +71,33 @@ class MediaGeneratorConfig(AppConfig):
 
         MEDIA_BUNDLES = [
             settings.CREME_I18N_JS,
-            settings.CREME_LIB_JS + [js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)],
-            settings.CREME_CORE_JS + [js for app, js in settings.CREME_OPT_JS if is_installed(app)],
+            [*settings.CREME_LIB_JS,
+             *(js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)),
+            ],
+            [*settings.CREME_CORE_JS,
+             *(js for app, js in settings.CREME_OPT_JS if is_installed(app)),
+            ],
         ]
 
         if settings.FORCE_JS_TESTVIEW:
             MEDIA_BUNDLES.append(settings.TEST_CREME_LIB_JS)
-            MEDIA_BUNDLES.append(settings.TEST_CREME_CORE_JS + [js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app)])
+            MEDIA_BUNDLES.append(
+                [*settings.TEST_CREME_CORE_JS,
+                 *(js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app)),
+                ]
+            )
 
         MEDIA_BUNDLES += settings.CREME_OPT_MEDIA_BUNDLES
 
-        CREME_CSS = settings.CREME_CORE_CSS + [css for app, css in settings.CREME_OPT_CSS if is_installed(app)]
+        CREME_CSS = [
+            *settings.CREME_CORE_CSS,
+            *(css for app, css in settings.CREME_OPT_CSS if is_installed(app)),
+        ]
         MEDIA_BUNDLES.extend(
-            [theme_dir + CREME_CSS[0]] +
-            [css_file if isinstance(css_file, dict) else '{}/{}'.format(theme_dir, css_file)
+            [theme_dir + CREME_CSS[0],
+             *(css_file if isinstance(css_file, dict) else '{}/{}'.format(theme_dir, css_file)
                   for css_file in CREME_CSS[1:]
+              ),
             ] for theme_dir, theme_vb_name in settings.THEMES
         )
 

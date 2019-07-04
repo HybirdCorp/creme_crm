@@ -376,10 +376,11 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         field = CTypeChoiceField(ctypes=[ct1, ct2], required=False)
         clean = field.clean
 
-        self.assertEqual([('', field.empty_label)] +
-                         sorted([(ct1.pk, str(ct1)),
-                                 (ct2.pk, str(ct2)),
-                                ], key=lambda ct: ct[1]),
+        self.assertEqual([('', field.empty_label),
+                          *sorted([(ct1.pk, str(ct1)), (ct2.pk, str(ct2))],
+                                  key=lambda ct: ct[1]
+                                 ),
+                         ],
                          list(field.widget.choices)
                         )
 

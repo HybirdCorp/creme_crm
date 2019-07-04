@@ -1546,10 +1546,7 @@ class CTypeChoiceField(fields.Field):
             )
 
     def _build_empty_choice(self, choices):
-        if not self.required:
-            return [('', self.empty_label)] + choices
-
-        return choices
+        return choices if self.required else [('', self.empty_label), *choices]
 
     def _build_ctype_choices(self, ctypes):
         return build_ct_choices(ctypes)

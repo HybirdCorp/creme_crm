@@ -278,7 +278,7 @@ class EntityFilter(Model):  # CremeModel ???
             else:
                 invalid_filter_names = EntityFilter.objects \
                                                    .filter(pk__in=ref_filter_ids, is_private=True) \
-                                                   .exclude(user__in=[owner] + owner.teams) \
+                                                   .exclude(user__in=[owner, *owner.teams]) \
                                                    .values_list('name', flat=True)
 
                 if invalid_filter_names:
@@ -506,7 +506,7 @@ class EntityFilter(Model):  # CremeModel ???
 
         return qs if user.is_staff else \
                qs.filter(Q(is_private=False) |
-                         Q(is_private=True, user__in=[user] + user.teams)
+                         Q(is_private=True, user__in=[user, *user.teams])
                         )
 
     def get_q(self, user=None):

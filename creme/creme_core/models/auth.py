@@ -382,7 +382,7 @@ class SetCredentials(Model):
                 else:  # SetCredentials.ESET_OWN (this case is probably not really useful...)
                     if allowed[0].set_type == ESET_ALL:
                         teams = user.teams
-                        filtered_qs = queryset.exclude(user__in=[user] + teams) if teams else \
+                        filtered_qs = queryset.exclude(user__in=[user, *teams]) if teams else \
                                       queryset.exclude(user=user)
                     else:  # SetCredentials.ESET_OWN
                         filtered_qs = queryset.none()
@@ -391,7 +391,7 @@ class SetCredentials(Model):
                     filtered_qs = queryset  # No additional filtering needed
                 else:  # SetCredentials.ESET_OWN
                     teams = user.teams
-                    filtered_qs = queryset.filter(user__in=[user] + teams) if teams else \
+                    filtered_qs = queryset.filter(user__in=[user, *teams]) if teams else \
                                   queryset.filter(user=user)
         else:
             filtered_qs = queryset.none()
@@ -480,7 +480,7 @@ class SetCredentials(Model):
 
             if ct_ids_own_allowed or ct_ids_own_forbidden:
                 teams = user.teams
-                user_kwargs = {'user__in': [user] + teams} if teams else {'user': user}
+                user_kwargs = {'user__in': [user, *teams]} if teams else {'user': user}
 
                 if ct_ids_own_allowed:
                     q |= Q(entity_type_id__in=ct_ids_own_allowed, **user_kwargs)

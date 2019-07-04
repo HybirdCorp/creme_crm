@@ -176,6 +176,7 @@ END:VEVENT
     @classmethod
     def _get_linked_for_orga(cls, orga):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+        # TODO: [orga, *orga.get_managers()....]
         entities = [orga]
         entities.extend(orga.get_managers().values_list('id', flat=True))
         entities.extend(orga.get_employees().values_list('id', flat=True))
