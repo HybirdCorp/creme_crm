@@ -70,7 +70,7 @@
                     <th class="actions">{% listview_header_actions cell=cell user=user %}</th>
                 {% else %}{# NB: TMP - this header currently adds the css class cell.listview_css_class until semantic information is provided in the template context #}
                     {# TODO: should this header also add the cell.header_listview_css_class ? #}
-                    <th data-column-key="{{cell.key}}" class="column{% if cell.key == list_view_state.sort_cell_key %} sorted{% if list_view_state.sort_order == 'DESC' %} reverse{% endif %}{% endif %}{% if cell|cell_is_sortable:cell_sorter_registry %} sortable{% endif %} cl_lv {{cell.listview_css_class}}"
+                    <th data-column-key="{{cell.key}}" class="lv-column{% if cell.key == list_view_state.sort_cell_key %} sorted{% if list_view_state.sort_order == 'DESC' %} reverse{% endif %}{% endif %}{% if cell|cell_is_sortable:cell_sorter_registry %} sortable{% endif %} cl_lv {{cell.listview_css_class}}"
                         colspan="{{cell|listview_column_colspan:is_popup_view}}">
                         <button type="button" {% if cell|cell_is_sortable:cell_sorter_registry %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}"{% else %}disabled="true"{% endif %}>
                             <div>
@@ -93,7 +93,7 @@
                         <span class='lv-search-title'>{% trans 'Quick search' %}</span>
                     </th>
                 {% else %}
-                    <th class="column {{cell.header_listview_css_class}} {{cell.listview_css_class}}{% if search_form.cleaned_data|get_by_index:cell.key %} search{% endif %}{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %}"{# {{widget.type}} {% if cell|cell_is_sortable:cell_sorter_registry %} sortable{% endif %} #}
+                    <th class="lv-column {{cell.header_listview_css_class}} {{cell.listview_css_class}}{% if search_form.cleaned_data|get_by_index:cell.key %} search{% endif %}{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %}"{# {{widget.type}} {% if cell|cell_is_sortable:cell_sorter_registry %} sortable{% endif %} #}
                         colspan="{{cell|listview_column_colspan:is_popup_view}}">
                         {{search_form|get_by_index:cell.key}}
                     </th>
@@ -112,7 +112,7 @@
                     {% if cell.type_id == 'actions' %}
                         <td class="lv-actions actions">{% listview_entity_actions cell=cell instance=entity user=user %}</td>
                     {% else %}
-                        <td class="lv-cell lv-cell-content{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} column cl_lv {{cell.listview_css_class}}" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
+                        <td class="lv-cell lv-cell-content{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} lv-column cl_lv {{cell.listview_css_class}}" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
                             {% cell_render cell=cell instance=entity user=user as cell_content %}
                             {% with data_type=cell.data_type %}
                             <div class="lv-cell-value{% if cell.is_multiline %} lv-cell-multiline-value{% endif %}{% if not cell_content %} lv-cell-empty-value{% endif %}" {% if data_type %}data-type="{{data_type}}"{% endif %}>
@@ -121,7 +121,7 @@
                             {% endwith %}
                         </td>
                         {% if not is_popup_view %}
-                        <td class="lv-cell lv-cell-action{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} column cl_lv" {% if cell.is_hidden %}style="display:none;"{% endif %}>
+                        <td class="lv-cell lv-cell-action{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} lv-column cl_lv" {% if cell.is_hidden %}style="display:none;"{% endif %}>
                             {% listview_td_action_for_cell cell=cell instance=entity user=user %}
                         </td>
                         {% endif %}

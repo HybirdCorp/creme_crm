@@ -339,11 +339,11 @@
             };
 
             this.bindSortButtons = function() {
-                self.on('click', '.lv-columns-header .column.sortable button:not(:disabled)', function(e) {
+                self.on('click', '.lv-columns-header .lv-column.sortable button:not(:disabled)', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    var column = $(this).parent('.column:first');
+                    var column = $(this).parent('.lv-column:first');
                     me.toggleSort(column.attr('data-column-key'), this);
                 });
             };
@@ -356,8 +356,8 @@
                     }
                 };
 
-                self.on('keydown', '.lv-search-header .column input[type="text"]', handleSubmitKey);
-                self.on('keydown', '.lv-search-header .column .lv-search-daterange input', handleSubmitKey);
+                self.on('keydown', '.lv-search-header .lv-column input[type="text"]', handleSubmitKey);
+                self.on('keydown', '.lv-search-header .lv-column .lv-search-daterange input', handleSubmitKey);
             };
 
             this.bindRowSelection = function() {
@@ -383,14 +383,14 @@
                 /* TODO: (genglert) we need a better system to initialize search widget, where each widget
                          manage it's initialization, so an external app can easily add its own widgets.
                 */
-                self.find('.lv-search-header .column select')
+                self.find('.lv-search-header .lv-column select')
                     .bind('change', function(event) {
                          event.stopPropagation();
                          me.submitState(this);
                      });
 
-//                    var date_inputs = self.find('.lv-search-header .column.datefield input');
-                var date_inputs = self.find('.lv-search-header .column .lv-search-daterange input');
+//                    var date_inputs = self.find('.lv-search-header .lv-column.datefield input');
+                var date_inputs = self.find('.lv-search-header .lv-column .lv-search-daterange input');
 
                 date_inputs.each(function() {
                    $(this).datepicker({
@@ -495,7 +495,7 @@
                 }
 
                 var nextUrl = me.getReloadUrl();
-                var parameters = $.extend(me.serializeState(), data || {});
+                var state = $.extend(me.serializeState(), data || {});
 
                 var beforeComplete = listener.beforeComplete;
                 var beforeCompleteWrapper = function(request, status) {
@@ -510,15 +510,17 @@
 
                 var complete = function(request, status) {
                     if (Object.isFunc(me.historyHandler)) {
-                        return me.historyHandler(me.nextStateUrl(parameters));
+                        return me.historyHandler(me.nextStateUrl(state));
                     }
                 };
 
-                creme.utils.ajaxQuery(nextUrl, {
-                                  action: 'POST',
-                                  warnOnFail: false,
-                                  waitingOverlay: true
-                              }, parameters)
+                creme.utils.ajaxQuery(
+                                nextUrl, {
+                                    action: 'POST',
+                                    warnOnFail: false,
+                                    waitingOverlay: true
+                                },
+                                $.extend({}, state, {content: 1}))
                            .onStart(function() {
                                 me.is_loading = true;
                                 me.clearRowSelection();

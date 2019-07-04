@@ -88,6 +88,7 @@ QUnit.test('creme.listview.core (standalone)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -126,6 +127,7 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -149,6 +151,7 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -161,6 +164,7 @@ QUnit.test('creme.listview.core (dialog)', function(assert) {
             },
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -474,6 +478,7 @@ QUnit.test('creme.listview.core (submitState)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -556,15 +561,15 @@ QUnit.test('creme.listview.core (filter on <input> enter)', function(assert) {
         tableclasses: ['listview-standalone'],
         reloadurl: 'mock/listview/reload',
         columns: [this.createCheckAllColumnHtml(), {
-                title: '<th class="sorted column sortable cl_lv">Name</th>',
-                search: '<th class="sorted column sortable text">' +
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: '<th class="sorted lv-column sortable text">' +
                             '<input name="search-regular_field-name" title="Name" type="text" value="C">' +
                         '</th>'
             }
         ]
     })).appendTo(this.qunitFixture());
     var table = element.find('table:first');
-    var column_searchinput = table.find('.lv-search-header .column input[type="text"]');
+    var column_searchinput = table.find('.lv-search-header .lv-column input[type="text"]');
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), true);
@@ -581,6 +586,7 @@ QUnit.test('creme.listview.core (filter on <input> enter)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -596,8 +602,8 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
         tableclasses: ['listview-standalone'],
         reloadurl: 'mock/listview/reload',
         columns: [this.createCheckAllColumnHtml(), {
-                title: '<th class="sorted column sortable cl_lv">Name</th>',
-                search: '<th class="sorted column sortable text">' +
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: '<th class="sorted lv-column sortable text">' +
                             '<select name="search-regular_field-name" title="Name">' +
                                  '<option value="opt-A">A</option>' +
                                  '<option value="opt-B" selected>B</option>' +
@@ -608,7 +614,7 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
         ]
     })).appendTo(this.qunitFixture());
     var table = element.find('table:first');
-    var column_searchselect = table.find('.lv-search-header .column select');
+    var column_searchselect = table.find('.lv-search-header .lv-column select');
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), true);
@@ -625,6 +631,7 @@ QUnit.test('creme.listview.core (filter on <select> change)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -642,7 +649,7 @@ QUnit.test('creme.listview.core (toggle sort)', function(assert) {
     }))).appendTo(this.qunitFixture());
 
     var table = element.find('table:first');
-    var column_name = table.find('.lv-columns-header .column.sortable[data-column-key="regular_field-name"]');
+    var column_name = table.find('.lv-columns-header .lv-column.sortable[data-column-key="regular_field-name"]');
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), true);
@@ -654,6 +661,7 @@ QUnit.test('creme.listview.core (toggle sort)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -689,7 +697,7 @@ QUnit.test('creme.listview.core (toggle sort, disabled)', function(assert) {
     }))).appendTo(this.qunitFixture());
 
     var table = element.find('table:first');
-    var column_name = table.find('.lv-columns-header .column.sortable[data-column-key="regular_field-name"]');
+    var column_name = table.find('.lv-columns-header .lv-column.sortable[data-column-key="regular_field-name"]');
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), true);
@@ -708,7 +716,7 @@ QUnit.test('creme.listview.core (sort another column)', function(assert) {
     }))).appendTo(this.qunitFixture());
 
     var table = element.find('table:first');
-    var column_phone = table.find('.lv-columns-header .column.sortable[data-column-key="regular_field-phone"]');
+    var column_phone = table.find('.lv-columns-header .lv-column.sortable[data-column-key="regular_field-phone"]');
     var listview = creme.widget.create(element);
 
     equal(listview.isStandalone(), true);
@@ -720,6 +728,7 @@ QUnit.test('creme.listview.core (sort another column)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -739,8 +748,8 @@ QUnit.test('creme.listview.core (hatbar buttons, unknow action)', function(asser
         ],
         reloadurl: 'mock/listview/reload',
         columns: [this.createCheckAllColumnHtml(), {
-                title: '<th class="sorted column sortable cl_lv">Name</th>',
-                search: '<th class="sorted column sortable text">' +
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: '<th class="sorted lv-column sortable text">' +
                             '<input name="regular_field-name" title="Name" type="text" value="C">' +
                         '</th>'
             }
@@ -765,8 +774,8 @@ QUnit.test('creme.listview.core (hatbar buttons, submit-lv-state)', function(ass
         ],
         reloadurl: 'mock/listview/reload',
         columns: [this.createCheckAllColumnHtml(), {
-                title: '<th class="sorted column sortable cl_lv">Name</th>',
-                search: '<th class="sorted column sortable text">' +
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: '<th class="sorted lv-column sortable text">' +
                             '<input class="lv-state-field" name="search-regular_field-name" title="Name" type="text" value="C">' +
                         '</th>'
             }
@@ -788,6 +797,7 @@ QUnit.test('creme.listview.core (hatbar buttons, submit-lv-state)', function(ass
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -828,6 +838,7 @@ QUnit.test('creme.listview.core (hatbar controls, entityfilter, change)', functi
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -880,6 +891,7 @@ QUnit.test('creme.listview.core (hatbar controls, entityfilter, delete)', functi
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -919,6 +931,7 @@ QUnit.test('creme.listview.core (hatbar controls, view, change)', function(asser
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -971,6 +984,7 @@ QUnit.test('creme.listview.core (hatbar controls, view, delete)', function(asser
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             rows: ['10'],
             selected_rows: [''],
             selection: ['multiple'],
@@ -1002,6 +1016,7 @@ QUnit.test('creme.listview.core (pagesize selector)', function(assert) {
         ['POST', {
             ct_id: ['67'],
             q_filter: ['{}'],
+            content: 1,
             selected_rows: [''],
             selection: ['multiple'],
             sort_key: ['regular_field-name'],

@@ -300,6 +300,47 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(bebop.name, content)
         self.assertNotIn(bebop.url_site, content, '"url_site" not hidden')
 
+    def test_content_template(self):
+        "Use reload template (content=1)"
+        user = self.login()
+
+        response = self.assertPOST200(self.url)
+        self.assertTemplateUsed(response, 'creme_core/generics/entities.html')
+
+        response = self.assertPOST200(self.url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertTemplateUsed(response, 'creme_core/generics/entities.html')
+
+        response = self.assertPOST200(self.url, data={'content': 1})
+        self.assertTemplateUsed(response, 'creme_core/listview/content.html')
+
+        response = self.assertPOST200(self.url, data={'content': 1}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertTemplateUsed(response, 'creme_core/listview/content.html')
+
+    def test_content_popup_template(self):
+        user = self.login()
+
+        response = self.assertPOST200(reverse('creme_core__listview_popup'),
+                                      data={'ct_id': self.ctype.id},
+                                     )
+        self.assertTemplateUsed(response, 'creme_core/generics/entities-popup.html')
+
+        response = self.assertPOST200(reverse('creme_core__listview_popup'),
+                                      data={'ct_id': self.ctype.id},
+                                      HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                                     )
+        self.assertTemplateUsed(response, 'creme_core/generics/entities-popup.html')
+
+        response = self.assertPOST200(reverse('creme_core__listview_popup'),
+                                      data={'ct_id': self.ctype.id, 'content': 1},
+                                     )
+        self.assertTemplateUsed(response, 'creme_core/listview/content.html')
+
+        response = self.assertPOST200(reverse('creme_core__listview_popup'),
+                                      data={'ct_id': self.ctype.id, 'content': 1},
+                                      HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                                     )
+        self.assertTemplateUsed(response, 'creme_core/listview/content.html')
+
     def test_selection_single(self):
         user = self.login()
 

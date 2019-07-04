@@ -176,27 +176,27 @@
     display: none;
 }
 
-.listview .lv-columns-header .column button {
+.listview .lv-columns-header .lv-column button {
     width: 100%;
     word-wrap: initial;
     padding: 1px 2px;
 }
 
-.listview .lv-columns-header .column button:focus {
+.listview .lv-columns-header .lv-column button:focus {
     outline: none !important;
 }
 
-.listview .lv-columns-header .column button::-moz-focus-inner {
+.listview .lv-columns-header .lv-column button::-moz-focus-inner {
     border: 0;
 }
 
-.listview .lv-columns-header .column button > div {
+.listview .lv-columns-header .lv-column button > div {
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
 }
 
-.listview .lv-columns-header .column .lv-sort-toggle-title {
+.listview .lv-columns-header .lv-column .lv-sort-toggle-title {
     -ms-flex-item-align: center;
      -webkit-align-self: center;
              align-self: center;
@@ -205,7 +205,7 @@
             flex-grow: 1;
 }
 
-.listview .lv-columns-header .column .lv-sort-toggle-flag {
+.listview .lv-columns-header .lv-column .lv-sort-toggle-flag {
     min-width: 16px;
     visibility: hidden;
 
@@ -214,7 +214,7 @@
              align-self: center;
 }
 
-.listview .lv-columns-header .column.sorted .lv-sort-toggle-flag {
+.listview .lv-columns-header .lv-column.sorted .lv-sort-toggle-flag {
     visibility: visible;
 }
 
@@ -363,7 +363,7 @@
     display: none;  /* Hide the left-aligned sorted flags (TODO: remove from creme ??) */
 }
 
-.listview .lv-columns-header .column.sorted.right_align .lv-sort-toggle-flag {
+.listview .lv-columns-header .lv-column.sorted.right_align .lv-sort-toggle-flag {
     visibility: hidden; /* Hide the right-aligned left sorted flag (TODO: remove from creme ??) */
 }
 

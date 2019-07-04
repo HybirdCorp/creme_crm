@@ -284,7 +284,7 @@
 
         createCellHtml: function(name, content, options) {
             options = options || {};
-            return '<td class="lv-cell lv-cell-content ${sorted} column" name="${name}">${content}</td>'.template({
+            return '<td class="lv-cell lv-cell-content ${sorted} lv-column" name="${name}">${content}</td>'.template({
                 name: name,
                 content: content,
                 sorted: options.sorted ? 'sorted' : ''
@@ -309,7 +309,7 @@
             var is_sortable = options.sortable || is_sorted;
 
             return (
-                '<th data-column-key="${name}" class="column cl_lv ${sortable} ${sorted}">'
+                '<th data-column-key="${name}" class="lv-column cl_lv ${sortable} ${sorted}">'
                     + '<button type="button" title="" ${disabled}>${label}</button>'
                 + '</th>').template({
                     label: label,
@@ -324,7 +324,7 @@
             options = options || {};
 
             return (
-                '<th class="column hd_cl_lv ${sorted}">'
+                '<th class="lv-column hd_cl_lv ${sorted}">'
                     + '<input class="lv-state-field" name="${name}" title="${label}" type="text" value="${search}">'
                 + '</th>').template({
                     label: label,
@@ -358,7 +358,7 @@
 
         defaultListViewHtmlOptions: function(options) {
             return $.extend({
-                columns: [this.createCheckAllColumnHtml(), '<th class="sorted column sortable cl_lv">Name</th>'],
+                columns: [this.createCheckAllColumnHtml(), '<th class="sorted lv-column sortable cl_lv">Name</th>'],
                 rows: [
                     [this.createCheckCellHtml('1'), this.createIdCellHtml('1'), this.createCellHtml('regular_field-name', 'A', {sorted: true})],
                     [this.createCheckCellHtml('2'), this.createIdCellHtml('2'), this.createCellHtml('regular_field-name', 'B', {sorted: true})],
