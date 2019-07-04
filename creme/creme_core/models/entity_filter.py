@@ -312,8 +312,11 @@ class EntityFilter(Model):  # CremeModel ???
         self._check_privacy_sub_filters(conditions, is_private, owner)
         self._check_privacy_parent_filters(is_private, owner)
 
-    @staticmethod
-    def create(pk, name, model, is_custom=False, user=None, use_or=False,
+    # TODO: move to a manager ?
+    # @staticmethod
+    @classmethod
+    # def create(pk, name, model, is_custom=False, user=None, use_or=False,
+    def create(cls, pk, name, model, is_custom=False, user=None, use_or=False,
                is_private=False, conditions=(),
               ):
         """Creation helper ; useful for populate.py scripts.
@@ -347,12 +350,14 @@ class EntityFilter(Model):  # CremeModel ???
 
         if is_custom:
             try:
-                ef = EntityFilter.objects.get(pk=pk)
+                # ef = EntityFilter.objects.get(pk=pk)
+                ef = cls.objects.get(pk=pk)
             except EntityFilter.DoesNotExist:
-                ef = EntityFilter.objects.create(pk=pk, name=name, is_custom=is_custom,
-                                                 user=user, use_or=use_or, entity_type=ct,
-                                                 is_private=is_private,
-                                                )
+                # ef = EntityFilter.objects.create(pk=pk, name=name, is_custom=is_custom,
+                ef = cls.objects.create(pk=pk, name=name, is_custom=is_custom,
+                                        user=user, use_or=use_or, entity_type=ct,
+                                        is_private=is_private,
+                                       )
             else:
                 if ef.entity_type != ct:
                     # Changing the ContentType would create mess in related Report for example.
@@ -369,11 +374,13 @@ class EntityFilter(Model):  # CremeModel ???
                                 )
 
             try:
-                ef = EntityFilter.get_latest_version(pk)
+                # ef = EntityFilter.get_latest_version(pk)
+                ef = cls.get_latest_version(pk)
             except EntityFilter.DoesNotExist:
-                ef = EntityFilter.objects.create(pk=pk, name=name, is_custom=is_custom,
-                                                 user=user, use_or=use_or, entity_type=ct,
-                                                )
+                # ef = EntityFilter.objects.create(pk=pk, name=name, is_custom=is_custom,
+                ef = cls.objects.create(pk=pk, name=name, is_custom=is_custom,
+                                        user=user, use_or=use_or, entity_type=ct,
+                                       )
             else:
                 if ef.entity_type != ct:
                     raise ValueError('You cannot change the entity type of an existing filter')
@@ -405,10 +412,11 @@ class EntityFilter(Model):  # CremeModel ???
                             new_pk += str(copy_num)
                             new_name += '({})'.format(copy_num)
 
-                    ef = EntityFilter.objects.create(pk=new_pk, name=new_name,
-                                                     is_custom=is_custom,
-                                                     user=user, use_or=use_or, entity_type=ct,
-                                                    )
+                    # ef = EntityFilter.objects.create(pk=new_pk, name=new_name,
+                    ef = cls.objects.create(pk=new_pk, name=new_name,
+                                            is_custom=is_custom,
+                                            user=user, use_or=use_or, entity_type=ct,
+                                           )
                 else:
                     update_model_instance(ef, name=name)
 
@@ -421,13 +429,13 @@ class EntityFilter(Model):  # CremeModel ???
             parents = {str(cond.filter) for cond in self._iter_parent_conditions()}
 
             if parents:
-                raise EntityFilter.DependenciesError(
+                # raise EntityFilter.DependenciesError(
+                raise self.DependenciesError(
                     gettext('You can not delete this filter, '
                             'because it is used as sub-filter by: {}'
                            ).format(', '.join(parents))
                 )
 
-        # super(EntityFilter, self).delete(*args, **kwargs)
         super().delete(*args, **kwargs)
 
     @property
@@ -488,6 +496,8 @@ class EntityFilter(Model):  # CremeModel ???
     def get_edit_absolute_url(self):
         return reverse('creme_core__edit_efilter', args=(self.id,))
 
+    # TODO: move to a manager + rename (filter_...) + accept models
+    #       possible to separate into 2 methods (filter by user & filter by ct) ??
     @staticmethod
     def get_for_user(user, content_type=None):
         """Get the EntityFilter queryset corresponding of filters which a user can see.
@@ -570,17 +580,23 @@ class EntityFilter(Model):  # CremeModel ???
         self._build_conditions_cache(conditions)
 
     # TODO: in the manager ?
-    @staticmethod
-    def get_latest_version(base_pk):
+    # @staticmethod
+    @classmethod
+    # def get_latest_version(base_pk):
+    def get_latest_version(cls, base_pk):
         """Get the latest EntityFilter from the family which uses the 'base_pk'.
         @raises EntityFilter.DoesNotExist If there is none instance in this family
         """
-        efilters = list(EntityFilter.objects.filter(Q(pk=base_pk) | Q(pk__startswith=base_pk + '[')))
+        # efilters = list(EntityFilter.objects.filter(Q(pk=base_pk) | Q(pk__startswith=base_pk + '[')))
+        efilters = list(cls.objects.filter(Q(pk=base_pk) | Q(pk__startswith=base_pk + '[')))
 
         if not efilters:
-            raise EntityFilter.DoesNotExist('No EntityFilter with pk="{}"'.format(base_pk))
+            # raise EntityFilter.DoesNotExist('No EntityFilter with pk="{}"'.format(base_pk))
+            raise cls.DoesNotExist('No EntityFilter with pk="{}"'.format(base_pk))
 
-        VERSION_RE = compile_re(r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$')
+        VERSION_RE = compile_re(
+            r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$'
+        )
 
         def key(efilter):
             # We build a tuple which can easily compared with the other generated tuples.
@@ -591,7 +607,8 @@ class EntityFilter(Model):  # CremeModel ???
             search = VERSION_RE.search(efilter.pk)
 
             if not search:
-                logger.critical('Malformed EntityFilter PK/version: %s', efilter.pk)
+                # logger.critical('Malformed EntityFilter PK/version: %s', efilter.pk)
+                logger.critical('Malformed %s PK/version: %s', cls.__name__, efilter.pk)
                 return ((-1,),)
 
             groupdict = search.groupdict()
@@ -616,13 +633,20 @@ class EntityFilter(Model):  # CremeModel ???
 
         return efilters[-1]  # TODO: max()
 
-    @staticmethod
-    def get_variable(value):
-        return EntityFilter._VARIABLE_MAP.get(value) if isinstance(value, str) else None
+    # @staticmethod
+    # def get_variable(value):
+    #     return EntityFilter._VARIABLE_MAP.get(value) if isinstance(value, str) else None
+    @classmethod
+    def get_variable(cls, value):
+        return cls._VARIABLE_MAP.get(value) if isinstance(value, str) else None
 
-    @staticmethod
-    def resolve_variable(value, user):
-        variable = EntityFilter.get_variable(value)
+    # @staticmethod
+    # def resolve_variable(value, user):
+    #     variable = EntityFilter.get_variable(value)
+    #     return variable.resolve(value, user) if variable else value
+    @classmethod
+    def resolve_variable(cls, value, user):
+        variable = cls.get_variable(value)
         return variable.resolve(value, user) if variable else value
 
 
