@@ -19,20 +19,20 @@
 ################################################################################
 
 from django.db.transaction import atomic
-from django.http import Http404, HttpResponse
+from django.http import Http404  # HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
 
 # from formtools.wizard.views import SessionWizardView
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.models import (UserRole,
         BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
         RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem)
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
-from creme.creme_core.views.decorators import POST_only
+# from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 # from creme.creme_core.views.generic.wizard import PopupWizardMixin
@@ -338,22 +338,39 @@ class RelationCTypeBrickEdition(EntityCTypeRelatedMixin, base.ConfigModelEdition
         return data
 
 
-@POST_only
-@login_required
-@permission_required('creme_core.can_admin')
-@atomic
-def delete_cells_of_rtype_brick(request, rbi_id):
-    ctype = get_ct_or_404(get_from_POST_or_404(request.POST, 'id'))
-    rbi = get_object_or_404(RelationBrickItem.objects.select_for_update(), id=rbi_id)
+# @POST_only
+# @login_required
+# @permission_required('creme_core.can_admin')
+# @atomic
+# def delete_cells_of_rtype_brick(request, rbi_id):
+#     ctype = get_ct_or_404(get_from_POST_or_404(request.POST, 'id'))
+#     rbi = get_object_or_404(RelationBrickItem.objects.select_for_update(), id=rbi_id)
+#
+#     try:
+#         rbi.delete_cells(ctype)
+#     except KeyError:
+#         raise Http404('This ContentType is not set in the RelationBrickItem.')
+#
+#     rbi.save()
+#
+#     return HttpResponse()
+class CellsOfRtypeBrickDeletion(base.ConfigDeletion):
+    rbi_id_url_kwarg = 'rbi_id'
+    ct_id_arg = 'id'
 
-    try:
-        rbi.delete_cells(ctype)
-    except KeyError:
-        raise Http404('This ContentType is not set in the RelationBrickItem.')
+    @atomic
+    def perform_deletion(self, request):
+        ctype = get_ct_or_404(get_from_POST_or_404(request.POST, self.ct_id_arg))
+        rbi = get_object_or_404(RelationBrickItem.objects.select_for_update(),
+                                id=self.kwargs[self.rbi_id_url_kwarg],
+                               )
 
-    rbi.save()
+        try:
+            rbi.delete_cells(ctype)
+        except KeyError:
+            raise Http404('This ContentType is not set in the RelationBrickItem.')
 
-    return HttpResponse()
+        rbi.save()
 
 
 class CustomBrickEdition(base.ConfigModelEdition):
@@ -363,20 +380,79 @@ class CustomBrickEdition(base.ConfigModelEdition):
     title = _('Edit the block «{object}»')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def delete_detailview(request):
-    POST = request.POST
-    ct_id = get_from_POST_or_404(POST, 'id', int)
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def delete_detailview(request):
+#     POST = request.POST
+#     ct_id = get_from_POST_or_404(POST, 'id', int)
+#
+#     if not ct_id:
+#         raise Http404('Default config can not be deleted')
+#
+#     role_id = None
+#     superuser = False
+#
+#     role_str = POST.get('role')
+#     if role_str:
+#         if role_str == 'superuser':
+#             superuser = True
+#         else:
+#             try:
+#                 role_id = int(role_str)
+#             except ValueError:
+#                 raise Http404('"role" argument must be "superuser" or an integer')
+#
+#     BrickDetailviewLocation.objects.filter(content_type=ct_id,
+#                                            role=role_id, superuser=superuser,
+#                                           ).delete()
+#
+#     return HttpResponse()
+class BrickDetailviewLocationsDeletion(base.ConfigDeletion):
+    ct_id_arg = 'id'
+    role_arg = 'role'
 
-    if not ct_id:
-        raise Http404('Default config can not be deleted')
+    def perform_deletion(self, request):
+        POST = request.POST
+        ct_id = get_from_POST_or_404(POST, self.ct_id_arg, cast=int)
 
-    role_id = None
-    superuser = False
+        if not ct_id:
+            raise Http404('Default config can not be deleted')
 
-    role_str = POST.get('role')
-    if role_str:
+        role_id = None
+        superuser = False
+
+        role_str = POST.get(self.role_arg)
+        if role_str:
+            if role_str == 'superuser':
+                superuser = True
+            else:
+                try:
+                    role_id = int(role_str)
+                except ValueError:
+                    raise Http404('"role" argument must be "superuser" or an integer')
+
+        BrickDetailviewLocation.objects.filter(content_type=ct_id,
+                                               role=role_id, superuser=superuser,
+                                              ).delete()
+
+
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def delete_home(request):
+#     get_object_or_404(BrickHomeLocation,
+#                       pk=get_from_POST_or_404(request.POST, 'id'),
+#                      ).delete()
+#
+#     return HttpResponse()
+class HomeDeletion(base.ConfigDeletion):
+    role_arg = 'role'
+
+    def perform_deletion(self, request):
+        role_str = get_from_POST_or_404(request.POST, self.role_arg)
+
+        role_id = None
+        superuser = False
+
         if role_str == 'superuser':
             superuser = True
         else:
@@ -385,83 +461,92 @@ def delete_detailview(request):
             except ValueError:
                 raise Http404('"role" argument must be "superuser" or an integer')
 
-    BrickDetailviewLocation.objects.filter(content_type=ct_id,
-                                           role=role_id, superuser=superuser,
-                                          ).delete()
-
-    return HttpResponse()
+        BrickHomeLocation.objects.filter(role=role_id, superuser=superuser).delete()
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def delete_home(request):
-    # get_object_or_404(BrickHomeLocation,
-    #                   pk=get_from_POST_or_404(request.POST, 'id'),
-    #                  ).delete()
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def delete_default_mypage(request):
+#     get_object_or_404(BrickMypageLocation,
+#                       pk=get_from_POST_or_404(request.POST, 'id'),
+#                       user=None,
+#                      ).delete()
+#
+#     return HttpResponse()
+class DefaultMyPageDeletion(base.ConfigDeletion):
+    id_arg = 'id'
 
-    role_str = get_from_POST_or_404(request.POST, 'role')
-
-    role_id = None
-    superuser = False
-
-    if role_str == 'superuser':
-        superuser = True
-    else:
-        try:
-            role_id = int(role_str)
-        except ValueError:
-            raise Http404('"role" argument must be "superuser" or an integer')
-
-    BrickHomeLocation.objects.filter(role=role_id, superuser=superuser).delete()
-
-    return HttpResponse()
+    def perform_deletion(self, request):
+        get_object_or_404(BrickMypageLocation,
+                          pk=get_from_POST_or_404(request.POST, self.id_arg),
+                          user=None,
+                         ).delete()
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def delete_default_mypage(request):
-    get_object_or_404(BrickMypageLocation,
-                      pk=get_from_POST_or_404(request.POST, 'id'),
-                      user=None,
-                     ).delete()
+# @login_required
+# def delete_mypage(request):
+#     get_object_or_404(BrickMypageLocation,
+#                       pk=get_from_POST_or_404(request.POST, 'id'),
+#                       user=request.user,
+#                      ).delete()
+#
+#     return HttpResponse()
+class MyPageDeletion(base.ConfigDeletion):
+    permissions = ''
+    id_arg = 'id'
 
-    return HttpResponse()
-
-
-@login_required
-def delete_mypage(request):
-    get_object_or_404(BrickMypageLocation,
-                      pk=get_from_POST_or_404(request.POST, 'id'),
-                      user=request.user,
-                     ).delete()
-
-    return HttpResponse()
+    def perform_deletion(self, request):
+        get_object_or_404(BrickMypageLocation,
+                          pk=get_from_POST_or_404(request.POST, self.id_arg),
+                          user=request.user,
+                         ).delete()
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def delete_rtype_brick(request):
-    get_object_or_404(RelationBrickItem,
-                      pk=get_from_POST_or_404(request.POST, 'id'),
-                     ).delete()
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def delete_rtype_brick(request):
+#     get_object_or_404(RelationBrickItem,
+#                       pk=get_from_POST_or_404(request.POST, 'id'),
+#                      ).delete()
+#
+#     return HttpResponse()
+class RelationTypeBrickDeletion(base.ConfigDeletion):
+    id_arg = 'id'
 
-    return HttpResponse()
-
-
-@login_required
-@permission_required('creme_core.can_admin')
-def delete_instance_brick(request):
-    get_object_or_404(InstanceBrickConfigItem,
-                      pk=get_from_POST_or_404(request.POST, 'id'),
-                     ).delete()
-
-    return HttpResponse()
+    def perform_deletion(self, request):
+        get_object_or_404(RelationBrickItem,
+                          pk=get_from_POST_or_404(request.POST, self.id_arg),
+                         ).delete()
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def delete_custom_brick(request):
-    cbci_id = get_from_POST_or_404(request.POST, 'id')
-    get_object_or_404(CustomBrickConfigItem, pk=cbci_id).delete()
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def delete_instance_brick(request):
+#     get_object_or_404(InstanceBrickConfigItem,
+#                       pk=get_from_POST_or_404(request.POST, 'id'),
+#                      ).delete()
+#
+#     return HttpResponse()
+class InstanceBrickDeletion(base.ConfigDeletion):
+    id_arg = 'id'
 
-    return HttpResponse()
+    def perform_deletion(self, request):
+        get_object_or_404(InstanceBrickConfigItem,
+                          pk=get_from_POST_or_404(request.POST, self.id_arg),
+                         ).delete()
+
+
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def delete_custom_brick(request):
+#     cbci_id = get_from_POST_or_404(request.POST, 'id')
+#     get_object_or_404(CustomBrickConfigItem, pk=cbci_id).delete()
+#
+#     return HttpResponse()
+class CustomBrickDeletion(base.ConfigDeletion):
+    id_arg = 'id'
+
+    def perform_deletion(self, request):
+        get_object_or_404(CustomBrickConfigItem,
+                          pk=get_from_POST_or_404(request.POST, self.id_arg),
+                         ).delete()

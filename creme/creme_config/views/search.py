@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse
+# from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth import decorators
+# from creme.creme_core.auth import decorators
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import SearchConfigItem
 from creme.creme_core.utils import get_from_POST_or_404
@@ -62,14 +62,27 @@ class SearchConfigEdition(base.ConfigModelEdition):
     pk_url_kwarg = 'search_config_id'
 
 
-@decorators.login_required
-@decorators.permission_required('creme_core.can_admin')
-def delete(request):
-    sci = get_object_or_404(SearchConfigItem, id=get_from_POST_or_404(request.POST, 'id'))
+# @decorators.login_required
+# @decorators.permission_required('creme_core.can_admin')
+# def delete(request):
+#     sci = get_object_or_404(SearchConfigItem, id=get_from_POST_or_404(request.POST, 'id'))
+#
+#     if sci.is_default:
+#         raise ConflictError('You cannot delete the default configuration')
+#
+#     sci.delete()
+#
+#     return HttpResponse()
+class SearchItemEdition(base.ConfigDeletion):
+    id_arg = 'id'
 
-    if sci.is_default:
-        raise ConflictError('You cannot delete the default configuration')
+    def perform_deletion(self, request):
+        sci = get_object_or_404(
+            SearchConfigItem,
+            id=get_from_POST_or_404(request.POST, self.id_arg),
+        )
 
-    sci.delete()
+        if sci.is_default:
+            raise ConflictError('You cannot delete the default configuration')
 
-    return HttpResponse()
+        sci.delete()

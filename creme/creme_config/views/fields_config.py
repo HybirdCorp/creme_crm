@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse
+# from django.http import HttpResponse
 from django.shortcuts import get_object_or_404  # render
 # from django.urls import reverse
 # from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -26,7 +26,7 @@ from django.utils.translation import gettext as _, pgettext_lazy
 
 # from formtools.wizard.views import SessionWizardView
 
-from creme.creme_core.auth import decorators
+# from creme.creme_core.auth import decorators
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import FieldsConfig
@@ -54,12 +54,20 @@ class FieldsConfigEdition(base.ConfigModelEdition):
     pk_url_kwarg = 'fconf_id'
 
 
-@decorators.login_required
-@decorators.permission_required('creme_core.can_admin')
-def delete(request):
-    get_object_or_404(FieldsConfig, pk=get_from_POST_or_404(request.POST, 'id')).delete()
+# @decorators.login_required
+# @decorators.permission_required('creme_core.can_admin')
+# def delete(request):
+#     get_object_or_404(FieldsConfig, pk=get_from_POST_or_404(request.POST, 'id')).delete()
+#
+#     return HttpResponse()
+class FieldsConfigDeletion(base.ConfigDeletion):
+    id_arg = 'id'
 
-    return HttpResponse()
+    def perform_deletion(self, request):
+        get_object_or_404(
+            FieldsConfig,
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+        ).delete()
 
 
 # class FieldConfigWizard(PopupWizardMixin, SessionWizardView):

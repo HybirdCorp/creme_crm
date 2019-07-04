@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.views import generic
@@ -44,3 +45,15 @@ class ConfigEdition(generic.CremeEditionPopup):
 
 class ConfigModelEdition(generic.CremeModelEditionPopup):
     permissions = _PERM
+
+
+class ConfigDeletion(generic.CheckedView):
+    permissions = 'creme_core.can_admin'
+
+    def perform_deletion(self, request):
+        raise NotImplementedError
+
+    def post(self, request, **kwargs):
+        self.perform_deletion(request)
+
+        return HttpResponse()

@@ -1246,8 +1246,10 @@ class BricksConfigTestCase(CremeTestCase):
         bhl03 = create_bhl(superuser=True)
         bhl04 = create_bhl(role=role, brick_id=bricks[1].id_, order=2)
 
-        self.assertGET404(reverse('creme_config__delete_home_brick'))
-        self.assertGET404(reverse('creme_config__delete_home_brick'), data={'role': role.id})
+        # self.assertGET404(reverse('creme_config__delete_home_brick'))
+        self.assertGET405(reverse('creme_config__delete_home_brick'))
+        # self.assertGET404(reverse('creme_config__delete_home_brick'), data={'role': role.id})
+        self.assertGET405(reverse('creme_config__delete_home_brick'), data={'role': role.id})
         self.assertPOST404(reverse('creme_config__delete_home_brick'))
 
         self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'role': role.id})
@@ -1812,7 +1814,8 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertPOST404(url, data={'id': get_ct(FakeOrganisation).id})
 
         data = {'id': ct.id}
-        self.assertGET404(url, data=data)  # Only POST
+        # self.assertGET404(url, data=data)  # Only POST
+        self.assertGET405(url, data=data)  # Only POST
 
         self.assertPOST200(url, data=data)
         self.assertIsNone(self.refresh(rb_item).get_cells(ct))
