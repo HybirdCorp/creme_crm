@@ -113,7 +113,7 @@ class EntityCredentials:
         """Filter a Queryset of CremeEntities by the credentials of a given user.
         Beware, the model class must be a child class of CremeEntity, but cannot be CremeEntity itself.
 
-        @param queryset: A get_user_model() instance.
+        @param user: A get_user_model() instance.
         @param queryset: A Queryset on a CremeEntity inheriting model (better if not yet retrieved).
         @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
         @return: A new Queryset on the same model, more selective (not retrieved).
@@ -142,7 +142,7 @@ class EntityCredentials:
         """Filter a Queryset of CremeEntities by the credentials of a given user.
         Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
 
-        @param queryset: A django.contrib.auth.get_user_model() instance.
+        @param user: A django.contrib.auth.get_user_model() instance.
         @param queryset: A Queryset with model=CremeEntity (better if not yet retrieved).
         @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
         @param as_model: A model inheriting CremeEntity, or None. If a model is given, all the
