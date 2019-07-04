@@ -31,7 +31,6 @@ from ..webservice.samoussa import (SamoussaBackEnd, SAMOUSSA_STATUS_ACCEPT,
         SAMOUSSA_STATUS_ERROR)
 from ..webservice.backend import WSException
 
-
 MESSAGE_STATUS_NOTSENT = 'notsent'
 MESSAGE_STATUS_WAITING = SAMOUSSA_STATUS_WAITING
 MESSAGE_STATUS_ACCEPT = SAMOUSSA_STATUS_ACCEPT
@@ -144,11 +143,15 @@ class Message(CremeModel):
 
         Message._disconnect(ws)
 
-    @staticmethod
-    def send(sending):
+    # @staticmethod
+    @classmethod
+    # def send(sending):
+    def send(cls, sending):
         content = sending.content
         sending_id = sending.id
         messages = sending.messages.filter(status=MESSAGE_STATUS_NOTSENT).values_list('pk', 'phone')
+
+        msg_mngr = cls._default_manager
 
         def action(ws, sending, chunk):
             pks = (m[0] for m in chunk)
@@ -159,19 +162,25 @@ class Message(CremeModel):
                 res = ws.send_messages(content, list(numbers), sending_id)
                 not_accepted = res.get('not_accepted', [])
             except WSException as err:
-                Message.objects.filter(pk__in=pks).update(status_message=str(err))
+                # Message.objects.filter(pk__in=pks).update(status_message=str(err))
+                msg_mngr.filter(pk__in=pks).update(status_message=str(err))
 
             for phone, status, status_message in not_accepted:
-                Message.objects.filter(phone=phone, sending__id=sending_id) \
-                               .update(status=status, status_message=status_message)
+                # Message.objects.filter(phone=phone, sending__id=sending_id) \
+                msg_mngr.filter(phone=phone, sending__id=sending_id) \
+                        .update(status=status, status_message=status_message)
 
-            Message.objects.filter(status=MESSAGE_STATUS_NOTSENT) \
-                           .update(status=MESSAGE_STATUS_ACCEPT, status_message='')
+            # Message.objects.filter(status=MESSAGE_STATUS_NOTSENT) \
+            msg_mngr.filter(status=MESSAGE_STATUS_NOTSENT) \
+                    .update(status=MESSAGE_STATUS_ACCEPT, status_message='')
 
-        Message._do_action(sending, messages, action, 256)
+        # Message._do_action(sending, messages, action, 256)
+        cls._do_action(sending, messages, action, 256)
 
-    @staticmethod
-    def sync(sending):
+    # @staticmethod
+    @classmethod
+    # def sync(sending):
+    def sync(cls, sending):
         sending_id = sending.id
         messages = sending.messages.values_list('pk', 'phone')
 
@@ -189,10 +198,12 @@ class Message(CremeModel):
             # print res
 
             for phone, status, status_message in res:
-                Message.objects.filter(phone=phone, sending__id=sending_id) \
-                               .update(status=status, status_message=status_message)
+                # Message.objects.filter(phone=phone, sending__id=sending_id) \
+                cls._default_manager.filter(phone=phone, sending__id=sending_id) \
+                                    .update(status=status, status_message=status_message)
 
-        Message._do_action(sending, messages, action, 256)
+        # Message._do_action(sending, messages, action, 256)
+        cls._do_action(sending, messages, action, 256)
 
     def sync_delete(self):
         ws = SamoussaBackEnd()

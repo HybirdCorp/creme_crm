@@ -144,7 +144,7 @@ class Photo(VCardTextBehavior):
     description = 'Photograph'
 
     @classmethod
-    def valueRepr( cls, line ):
+    def valueRepr(cls, line):
         return " (BINARY PHOTO DATA at 0x{}) ".format(id(line.value))
 
     @classmethod
