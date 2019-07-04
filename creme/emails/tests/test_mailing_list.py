@@ -320,12 +320,14 @@ class MailingListsTestCase(_EmailsTestCase):
         with self.assertNoException():
             choices = list(context['form'].fields['filters'].choices)
 
-        self.assertEqual([('', _('All'))] +
-                         [(ef.id, ef.name)
-                            for ef in EntityFilter.objects.filter(entity_type=ContentType.objects.get_for_model(Contact))
-                         ],
-                         choices
-                        )
+        self.assertEqual(
+            [('', _('All')),
+             *((ef.id, ef.name)
+                   for ef in EntityFilter.objects.filter(entity_type=ContentType.objects.get_for_model(Contact))
+              )
+            ],
+            choices
+        )
 
         self.assertNoFormError(self.client.post(url, data={'filters': efilter.id}))
         self.assertEqual(expected_ids, {c.id for c in mlist.contacts.all()})

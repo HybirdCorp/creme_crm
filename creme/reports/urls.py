@@ -47,25 +47,25 @@ urlpatterns = [
             bricks.GraphInstanceBricks.as_view(),
             name='reports__instance_bricks_info',
     ),
+
+    *swap_manager.add_group(
+        report_model_is_custom,
+        # Swappable(url(r'^reports[/]?$',                        report.listview,                 name='reports__list_reports')),
+        Swappable(re_path(r'^reports[/]?$',                        report.ReportsList.as_view(),    name='reports__list_reports')),
+        Swappable(re_path(r'^report/add[/]?$',                     report.ReportCreation.as_view(), name='reports__create_report')),
+        Swappable(re_path(r'^report/edit/(?P<report_id>\d+)[/]?$', report.ReportEdition.as_view(),  name='reports__edit_report'), check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^report/(?P<report_id>\d+)[/]?$',      report.ReportDetail.as_view(),   name='reports__view_report'), check_args=Swappable.INT_ID),
+        app_name='reports',
+    ).kept_patterns(),
+
+    *swap_manager.add_group(
+        rgraph_model_is_custom,
+        Swappable(re_path(r'^graph/(?P<report_id>\d+)/add[/]?$', graph.GraphCreation.as_view(), name='reports__create_graph'), check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.GraphEdition.as_view(),  name='reports__edit_graph'),   check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.GraphDetail.as_view(),   name='reports__view_graph'),   check_args=Swappable.INT_ID),
+        app_name='reports',
+    ).kept_patterns(),
 ]
-
-urlpatterns += swap_manager.add_group(
-    report_model_is_custom,
-    # Swappable(url(r'^reports[/]?$',                        report.listview,                 name='reports__list_reports')),
-    Swappable(re_path(r'^reports[/]?$',                        report.ReportsList.as_view(),    name='reports__list_reports')),
-    Swappable(re_path(r'^report/add[/]?$',                     report.ReportCreation.as_view(), name='reports__create_report')),
-    Swappable(re_path(r'^report/edit/(?P<report_id>\d+)[/]?$', report.ReportEdition.as_view(),  name='reports__edit_report'), check_args=Swappable.INT_ID),
-    Swappable(re_path(r'^report/(?P<report_id>\d+)[/]?$',      report.ReportDetail.as_view(),   name='reports__view_report'), check_args=Swappable.INT_ID),
-    app_name='reports',
-).kept_patterns()
-
-urlpatterns += swap_manager.add_group(
-    rgraph_model_is_custom,
-    Swappable(re_path(r'^graph/(?P<report_id>\d+)/add[/]?$', graph.GraphCreation.as_view(), name='reports__create_graph'), check_args=Swappable.INT_ID),
-    Swappable(re_path(r'^graph/edit/(?P<graph_id>\d+)[/]?$', graph.GraphEdition.as_view(),  name='reports__edit_graph'),   check_args=Swappable.INT_ID),
-    Swappable(re_path(r'^graph/(?P<graph_id>\d+)[/]?$',      graph.GraphDetail.as_view(),   name='reports__view_graph'),   check_args=Swappable.INT_ID),
-    app_name='reports',
-).kept_patterns()
 
 if settings.TESTS_ON:
     from .tests import fake_views

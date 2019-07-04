@@ -36,24 +36,24 @@ urlpatterns = [
     re_path(r'^linked_activity/unlink[/]?$',                        bricks.unlink_activity,              name='activities__unlink_activity'),
 
     re_path(r'^calendar/', include(calendar_patterns)),
+
+    *swap_manager.add_group(
+        activity_model_is_custom,
+        # Swappable(url(r'^activities[/]?$',  activity.listview,                                                name='activities__list_activities')),
+        # Swappable(url(r'^phone_calls[/]?$', activity.listview, {'type_id': constants.ACTIVITYTYPE_PHONECALL}, name='activities__list_phone_calls')),
+        # Swappable(url(r'^meetings[/]?$',    activity.listview, {'type_id': constants.ACTIVITYTYPE_MEETING},   name='activities__list_meetings')),
+        Swappable(re_path(r'^activities[/]?$',  activity.ActivitiesList.as_view(), name='activities__list_activities')),
+        Swappable(re_path(r'^phone_calls[/]?$', activity.PhoneCallsList.as_view(), name='activities__list_phone_calls')),
+        Swappable(re_path(r'^meetings[/]?$',    activity.MeetingsList.as_view(),   name='activities__list_meetings')),
+
+        Swappable(re_path(r'^activity/add[/]?$',                            activity.ActivityCreation.as_view(),        name='activities__create_activity')),
+        Swappable(re_path(r'^activity/add/(?P<act_type>\w+)[/]?$',          activity.ActivityCreation.as_view(),        name='activities__create_activity'),         check_args=('idxxx',)),
+        Swappable(re_path(r'^activity/add_indispo[/]?$',                    activity.UnavailabilityCreation.as_view(),  name='activities__create_indispo')),
+        Swappable(re_path(r'^activity/add_popup[/]?$',                      activity.ActivityCreationPopup.as_view(),   name='activities__create_activity_popup')),
+        Swappable(re_path(r'^activity/add_related/(?P<entity_id>\d+)[/]?$', activity.RelatedActivityCreation.as_view(), name='activities__create_related_activity'), check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^activity/edit/(?P<activity_id>\d+)[/]?$',      activity.ActivityEdition.as_view(),         name='activities__edit_activity'),           check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^activity/(?P<activity_id>\d+)[/]?$',           activity.ActivityDetail.as_view(),          name='activities__view_activity'),           check_args=Swappable.INT_ID),
+        Swappable(re_path(r'^activity/(?P<activity_id>\d+)/popup[/]?$',     activity.ActivityPopup.as_view(),           name='activities__view_activity_popup'),     check_args=Swappable.INT_ID),
+        app_name='activities',
+    ).kept_patterns(),
 ]
-
-urlpatterns += swap_manager.add_group(
-    activity_model_is_custom,
-    # Swappable(url(r'^activities[/]?$',  activity.listview,                                                name='activities__list_activities')),
-    # Swappable(url(r'^phone_calls[/]?$', activity.listview, {'type_id': constants.ACTIVITYTYPE_PHONECALL}, name='activities__list_phone_calls')),
-    # Swappable(url(r'^meetings[/]?$',    activity.listview, {'type_id': constants.ACTIVITYTYPE_MEETING},   name='activities__list_meetings')),
-    Swappable(re_path(r'^activities[/]?$',  activity.ActivitiesList.as_view(), name='activities__list_activities')),
-    Swappable(re_path(r'^phone_calls[/]?$', activity.PhoneCallsList.as_view(), name='activities__list_phone_calls')),
-    Swappable(re_path(r'^meetings[/]?$',    activity.MeetingsList.as_view(),   name='activities__list_meetings')),
-
-    Swappable(re_path(r'^activity/add[/]?$',                            activity.ActivityCreation.as_view(),        name='activities__create_activity')),
-    Swappable(re_path(r'^activity/add/(?P<act_type>\w+)[/]?$',          activity.ActivityCreation.as_view(),        name='activities__create_activity'),         check_args=('idxxx',)),
-    Swappable(re_path(r'^activity/add_indispo[/]?$',                    activity.UnavailabilityCreation.as_view(),  name='activities__create_indispo')),
-    Swappable(re_path(r'^activity/add_popup[/]?$',                      activity.ActivityCreationPopup.as_view(),   name='activities__create_activity_popup')),
-    Swappable(re_path(r'^activity/add_related/(?P<entity_id>\d+)[/]?$', activity.RelatedActivityCreation.as_view(), name='activities__create_related_activity'), check_args=Swappable.INT_ID),
-    Swappable(re_path(r'^activity/edit/(?P<activity_id>\d+)[/]?$',      activity.ActivityEdition.as_view(),         name='activities__edit_activity'),           check_args=Swappable.INT_ID),
-    Swappable(re_path(r'^activity/(?P<activity_id>\d+)[/]?$',           activity.ActivityDetail.as_view(),          name='activities__view_activity'),           check_args=Swappable.INT_ID),
-    Swappable(re_path(r'^activity/(?P<activity_id>\d+)/popup[/]?$',     activity.ActivityPopup.as_view(),           name='activities__view_activity_popup'),     check_args=Swappable.INT_ID),
-    app_name='activities',
-).kept_patterns()

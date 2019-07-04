@@ -201,14 +201,17 @@ class OrganisationBarHatBrick(SimpleBrick):
 
 class ContactCardHatBrick(Brick):
     id_ = SimpleBrick._generate_hat_id('persons', 'contact_card')
-    dependencies = [Contact, Organisation, Relation] + Activities4Card.dependencies\
-                                                     + Opportunities4Card.dependencies\
-                                                     + CommercialActs4Card.dependencies
+    dependencies = [Contact, Organisation, Relation,
+                    *Activities4Card.dependencies,
+                    *Opportunities4Card.dependencies,
+                    *CommercialActs4Card.dependencies
+                   ]
     relation_type_deps = [constants.REL_SUB_EMPLOYED_BY,
                           constants.REL_SUB_MANAGES,
-                         ] + Activities4Card.relation_type_deps \
-                           + Opportunities4Card.relation_type_deps \
-                           + CommercialActs4Card.relation_type_deps
+                          *Activities4Card.relation_type_deps,
+                          *Opportunities4Card.relation_type_deps,
+                          *CommercialActs4Card.relation_type_deps,
+                         ]
     verbose_name  = _('Card header block')
     template_name = 'persons/bricks/contact-hat-card.html'
 
@@ -217,28 +220,31 @@ class ContactCardHatBrick(Brick):
         is_hidden = context['fields_configs'].get_4_model(Contact).is_fieldname_hidden
 
         return self._render(self.get_template_context(
-                    context,
-                    hidden_fields={fname
-                                       for fname in ('phone', 'mobile', 'email', 'position')
-                                           if is_hidden(fname)
-                                  },
-                    activities=Activities4Card.get(context, contact),
-                    neglected_indicator=NeglectedContactIndicator(context, contact),
-                    opportunities=Opportunities4Card.get(context, contact),
-                    acts=CommercialActs4Card.get(context, contact),
+            context,
+            hidden_fields={fname
+                               for fname in ('phone', 'mobile', 'email', 'position')
+                                   if is_hidden(fname)
+                          },
+            activities=Activities4Card.get(context, contact),
+            neglected_indicator=NeglectedContactIndicator(context, contact),
+            opportunities=Opportunities4Card.get(context, contact),
+            acts=CommercialActs4Card.get(context, contact),
         ))
 
 
 class OrganisationCardHatBrick(Brick):
     id_ = SimpleBrick._generate_hat_id('persons', 'organisation_card')
-    dependencies = [Organisation, Contact, Address, Relation] + Activities4Card.dependencies\
-                                                              + Opportunities4Card.dependencies\
-                                                              + CommercialActs4Card.dependencies
+    dependencies = [Organisation, Contact, Address, Relation,
+                    *Activities4Card.dependencies,
+                    *Opportunities4Card.dependencies,
+                    *CommercialActs4Card.dependencies,
+                   ]
     relation_type_deps = [constants.REL_OBJ_CUSTOMER_SUPPLIER, constants.REL_SUB_CUSTOMER_SUPPLIER,
                           constants.REL_OBJ_MANAGES, constants.REL_OBJ_EMPLOYED_BY,
-                         ] + Activities4Card.relation_type_deps\
-                           + Opportunities4Card.relation_type_deps\
-                           + CommercialActs4Card.relation_type_deps
+                          *Activities4Card.relation_type_deps,
+                          *Opportunities4Card.relation_type_deps,
+                          *CommercialActs4Card.relation_type_deps,
+                         ]
     verbose_name  = _('Card header block')
     template_name = 'persons/bricks/organisation-hat-card.html'
 
@@ -251,28 +257,28 @@ class OrganisationCardHatBrick(Brick):
         is_hidden = get_fconfigs(Organisation).is_fieldname_hidden
 
         return self._render(self.get_template_context(
-                    context,
-                    hidden_fields={fname
-                                       for fname in ('phone', 'billing_address', 'legal_form')
-                                          if is_hidden(fname)
-                                  },
-                    position_is_hidden=get_fconfigs(Contact).is_fieldname_hidden('position'),
+            context,
+            hidden_fields={fname
+                               for fname in ('phone', 'billing_address', 'legal_form')
+                                  if is_hidden(fname)
+                          },
+            position_is_hidden=get_fconfigs(Contact).is_fieldname_hidden('position'),
 
-                    is_customer=managed_orgas.filter(relations__type=constants.REL_OBJ_CUSTOMER_SUPPLIER,
-                                                     relations__object_entity=organisation.id,
-                                                    )
-                                             .exists(),
-                    is_supplier=managed_orgas.filter(relations__type=constants.REL_SUB_CUSTOMER_SUPPLIER,
-                                                     relations__object_entity=organisation.id,
-                                                    )
-                                             .exists(),
+            is_customer=managed_orgas.filter(relations__type=constants.REL_OBJ_CUSTOMER_SUPPLIER,
+                                             relations__object_entity=organisation.id,
+                                            )
+                                     .exists(),
+            is_supplier=managed_orgas.filter(relations__type=constants.REL_SUB_CUSTOMER_SUPPLIER,
+                                             relations__object_entity=organisation.id,
+                                            )
+                                     .exists(),
 
-                    managers=EntityCredentials.filter(user, organisation.get_managers())[:16],
-                    employees=EntityCredentials.filter(user, organisation.get_employees())[:16],
+            managers=EntityCredentials.filter(user, organisation.get_managers())[:16],
+            employees=EntityCredentials.filter(user, organisation.get_employees())[:16],
 
-                    activities=Activities4Card.get(context, organisation),
-                    opportunities=Opportunities4Card.get(context, organisation),
-                    acts=CommercialActs4Card.get(context, organisation)
+            activities=Activities4Card.get(context, organisation),
+            opportunities=Opportunities4Card.get(context, organisation),
+            acts=CommercialActs4Card.get(context, organisation)
         ))
 
 

@@ -71,12 +71,14 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
     dependencies  = [Opportunity,
                      Organisation, Contact,
                      Relation,
-                    ] + Activities4Card.dependencies \
-                      + CommercialActs4Card.dependencies
+                     *Activities4Card.dependencies,
+                     *CommercialActs4Card.dependencies,
+                    ]
     relation_type_deps = [REL_SUB_EMPLOYED_BY,
                           constants.REL_OBJ_LINKED_CONTACT,
-                         ] + Activities4Card.relation_type_deps \
-                           + CommercialActs4Card.relation_type_deps
+                          *Activities4Card.relation_type_deps,
+                          *CommercialActs4Card.relation_type_deps
+                         ]
     verbose_name  = _('Card header block')
     template_name = 'opportunities/bricks/opportunity-hat-card.html'
 
@@ -98,21 +100,21 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
         target = opportunity.target
 
         return self._render(self.get_template_context(
-                    context,
-                    hidden_fields={fname
-                                       for fname in ('estimated_sales', 'made_sales')
-                                           if is_hidden(fname)
-                                  },
-                    is_neglected=is_neglected,
-                    target=target,
-                    target_is_organisation=isinstance(target, Organisation),
-                    contacts=Paginator(self.get_related_contacts(opportunity=opportunity,
-                                                                 rtype_id=constants.REL_SUB_LINKED_CONTACT,
-                                                                ),
-                                       per_page=self.displayed_contacts_number,
-                                      ).page(1),
-                    activities=Activities4Card.get(context, opportunity),
-                    acts=CommercialActs4Card.get(context, opportunity),
+            context,
+            hidden_fields={fname
+                               for fname in ('estimated_sales', 'made_sales')
+                                   if is_hidden(fname)
+                          },
+            is_neglected=is_neglected,
+            target=target,
+            target_is_organisation=isinstance(target, Organisation),
+            contacts=Paginator(self.get_related_contacts(opportunity=opportunity,
+                                                         rtype_id=constants.REL_SUB_LINKED_CONTACT,
+                                                        ),
+                               per_page=self.displayed_contacts_number,
+                              ).page(1),
+            activities=Activities4Card.get(context, opportunity),
+            acts=CommercialActs4Card.get(context, opportunity),
         ))
 
 
@@ -140,9 +142,9 @@ class _LinkedStuffBrick(QuerysetBrick):
         entity = context['object']
 
         return self._render(self.get_template_context(
-                    context,
-                    self._get_queryset(entity),
-                    predicate_id=self.relation_type_deps[0],
+            context,
+            self._get_queryset(entity),
+            predicate_id=self.relation_type_deps[0],
         ))
 
 

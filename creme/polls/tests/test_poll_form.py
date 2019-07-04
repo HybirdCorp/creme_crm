@@ -745,14 +745,15 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                               )
         plt = line.poll_line_type
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Orange']]
-        self.assertEqual([(0, _('Other'))] + choices, plt.get_choices())
+        self.assertEqual([(0, _('Other')), *choices], plt.get_choices())
         self.assertEqual(choices,                     plt.get_editable_choices())
 
         self.assertFalse(plt.get_deleted_choices())
         self.assertEqual(_('Choice list with free choice'), plt.verbose_name)
-        self.assertEqual(_('Choice list with free choice ({})').format('White / Black / Green / Orange'),
-                         plt.description
-                        )
+        self.assertEqual(
+            _('Choice list with free choice ({})').format('White / Black / Green / Orange'),
+            plt.description
+        )
 
     def test_add_line_comment01(self):
         user = self.login()
@@ -762,7 +763,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(self.client.post(self.build_addline_url(pform),
                                                 data={'question': question,
                                                       'type':     qtype,
-                                                     }
+                                                     },
                                                 )
                               )
 
@@ -1972,7 +1973,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                                  choices=choices,
                                                 )
         response = self.assertGET200(self.build_choices_url(line))
-        self.assertEqual([[0, _('Other')]] + choices, response.json())
+        self.assertEqual([[0, _('Other')], *choices], response.json())
 
     def test_get_choices04(self):
         "BOOL"

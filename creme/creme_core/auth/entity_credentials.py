@@ -103,7 +103,7 @@ class EntityCredentials:
     @classmethod
     def _build_sandbox_Q(cls, user):
         teams = user.teams
-        user_q = Q(sandbox__user__isnull=False, sandbox__user__in=[user] + teams) if teams else \
+        user_q = Q(sandbox__user__isnull=False, sandbox__user__in=[user, *teams]) if teams else \
                  Q(sandbox__user__isnull=False, sandbox__user=user)
 
         return Q(sandbox=None) | Q(sandbox__role__isnull=False, sandbox__role=user.role) | user_q

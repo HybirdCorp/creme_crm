@@ -155,9 +155,11 @@ class CommercialConfig(CremeAppConfig):
             if not cleaned_data.get('is_comapp', False):
                 return
 
-            comapp_subjects = list(cleaned_data['other_participants'])
-            comapp_subjects += cleaned_data['subjects']
-            comapp_subjects += cleaned_data['linked_entities']
+            comapp_subjects = [
+                *cleaned_data['other_participants'],
+                *cleaned_data['subjects'],
+                *cleaned_data['linked_entities'],
+            ]
 
             if not comapp_subjects:
                 return

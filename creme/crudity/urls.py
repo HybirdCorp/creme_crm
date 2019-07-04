@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from django.conf.urls import url
 from django.urls import re_path
 
 from .views import actions, history, infopath, email, filesystem
