@@ -21,7 +21,6 @@
 from collections import defaultdict
 from copy import deepcopy
 from functools import partial
-from itertools import chain
 from json import loads as json_load  # dumps as json_dump
 import warnings
 
@@ -1356,11 +1355,11 @@ class DateRangeField(fields.MultiValueField):
     def __init__(self, *, render_as='table', **kwargs):
         # TODO: are these attributes useful ??
         self.ranges = ranges = fields.ChoiceField(
-                required=False,
-                choices=lambda: chain([('', pgettext_lazy('creme_core-date_range', 'Customized'))],
-                                      date_range_registry.choices(),
-                                     )
-            )
+            required=False,
+            choices=lambda: [('', pgettext_lazy('creme_core-date_range', 'Customized')),
+                             *date_range_registry.choices(),
+                            ],
+        )
         self.start_date = fields.DateField(required=False)
         self.end_date   = fields.DateField(required=False)
         self.render_as  = render_as
@@ -1467,10 +1466,11 @@ class ChoiceOrCharField(fields.MultiValueField):
 
     @choices.setter
     def choices(self, value):
-        """See ChoiceField._set_choices()"""
-        choices = [(0, _('Other'))]
-        choices.extend(value)
-        self._choices = self.choice_field.choices = self.widget.choices = choices
+        """See ChoiceField._set_choices()."""
+        self._choices = self.choice_field.choices = self.widget.choices = [
+            (0, _('Other')),
+            *value,
+        ]
 
     def compress(self, data_list):
         index = None

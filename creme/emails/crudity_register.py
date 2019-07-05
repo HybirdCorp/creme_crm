@@ -19,7 +19,6 @@
 ################################################################################
 
 from functools import partial
-from itertools import chain
 from os.path import basename
 
 from django.db.transaction import atomic
@@ -39,7 +38,6 @@ from creme.crudity.models import History
 
 from . import get_entityemail_model, bricks
 from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
-
 
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
@@ -73,12 +71,10 @@ class EntityEmailBackend(CrudityBackend):
         )[0]
 
         mail = EntityEmail(status=MAIL_STATUS_SYNCHRONIZED_WAITING,
-                           # body=email.body.encode('utf-8'),
                            body=email.body,
-                           # body_html=email.body_html.encode('utf-8'),
                            body_html=email.body_html,
-                           sender=', '.join(set(email.senders)),
-                           recipient=', '.join(set(chain(email.tos, email.ccs))),
+                           sender=', '.join({*email.senders}),
+                           recipient=', '.join({*email.tos, *email.ccs}),
                            subject=email.subject,
                            user_id=current_user_id,
                           )

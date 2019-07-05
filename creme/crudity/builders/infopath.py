@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -351,7 +351,8 @@ class InfopathFormBuilder:
                 os.unlink(path_join(settings.CREME_ROOT, 'setup.inf'))
                 os.unlink(path_join(settings.CREME_ROOT, 'setup.rpt'))
             else:
-                subprocess.call(chain(['lcab', '-qn'], final_files_paths, [infopath_form_filepath]))
+                # subprocess.call(chain(['lcab', '-qn'], final_files_paths, [infopath_form_filepath]))
+                subprocess.call(['lcab', '-qn', *final_files_paths, infopath_form_filepath])
 
             with open(infopath_form_filepath, 'rb') as f:
                 # NB: does not work with Py3.

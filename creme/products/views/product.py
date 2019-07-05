@@ -104,10 +104,10 @@ Service = get_service_model()
 @login_required
 def get_subcategories(request, category_id):
     get_object_or_404(Category, pk=category_id)
-    return list(SubCategory.objects.filter(category=category_id)
-                                   .order_by('id')
-                                   .values_list('id', 'name')
-               )
+    return [*SubCategory.objects.filter(category=category_id)
+                                .order_by('id')
+                                .values_list('id', 'name')
+           ]
 
 
 @login_required

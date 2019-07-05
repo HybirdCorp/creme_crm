@@ -167,10 +167,10 @@ def get_content_types(request, rtype_id):
     content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all() or \
                     utils.creme_entity_content_types()
 
-    choices = [(0, gettext('All'))]
-    choices.extend((ct.id, str(ct)) for ct in content_types)
-
-    return choices
+    return [
+        (0, gettext('All')),
+        *((ct.id, str(ct)) for ct in content_types),
+    ]
 
 
 # @login_required
@@ -228,9 +228,8 @@ class UserChoicesView(base.CheckedView):
 
     def get(self, request, *args, **kwargs):
         return self.response_class(
-            list(chain((('__currentuser__', self.current_user_label),),
-                       ((e.id, str(e)) for e in get_user_model().objects.all()),
-                      )
-                ),
+            [('__currentuser__', self.current_user_label),
+             *((e.id, str(e)) for e in get_user_model().objects.all()),
+            ],
             safe=False,  # Result is not a dictionary
         )

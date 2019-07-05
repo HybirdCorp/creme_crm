@@ -187,13 +187,13 @@ def serializeFields(obj, order=None):
     If order is None, obj should be a list, backslash escape each field and
     return a ';' separated string.
     """
-    fields = []
-
     if order is None:
-        fields = [backslashEscape(val) for val in obj]
+        fields = (backslashEscape(val) for val in obj)
     else:
-        for field in order:
-            fields.append(','.join(backslashEscape(val) for val in toList(getattr(obj, field))))
+        fields = (
+            ','.join(backslashEscape(val) for val in toList(getattr(obj, field)))
+                for field in order
+        )
 
     return ';'.join(fields)
 

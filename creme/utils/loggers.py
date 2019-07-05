@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2019  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,12 +50,13 @@ class CremeFormatter(Formatter):
         Formatter.__init__(self, fmt=format, datefmt=datefmt)
         cremepath = dirname(__file__)[:-len(join('creme', 'creme_core'))]
 
-        self.prefixes = [('', cremepath)]
-        self.prefixes.extend(('python-packages', path) for path in syspath)
+        self.prefixes = [
+            ('', cremepath),
+            *(('python-packages', path) for path in syspath),
+        ]
 
         self.colorize = 'colored' in format
-        self.colors = {}
-        self.colors.update(CremeFormatter._COLORS)
+        self.colors = {**self._COLORS}
 
         if colors is not None:
             for key, color in colors.items():

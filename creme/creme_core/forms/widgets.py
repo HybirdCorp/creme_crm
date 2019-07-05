@@ -275,9 +275,10 @@ class DateRangeSelect(widgets.Widget):
         self.choices = choices
 
     def range_choices(self):
-        choices = [('', pgettext_lazy('creme_core-date_range', 'Customized'))]
-        choices.extend(date_range_registry.choices())
-        return choices
+        return [
+            ('', pgettext_lazy('creme_core-date_range', 'Customized')),
+            *date_range_registry.choices(),
+        ]
 
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-daterange-selector'
@@ -1100,9 +1101,10 @@ class ListEditionWidget(widgets.Widget):
         prefix_value_fmt = (name + '_value_{}').format
         get = data.get
 
-        return [get(prefix_value_fmt(i)) if (prefix_check_fmt(i) in data) else None
-                    for i in range(len(self.content))
-               ]
+        return [
+            get(prefix_value_fmt(i)) if (prefix_check_fmt(i) in data) else None
+                for i in range(len(self.content))
+        ]
 
 
 class DatePeriodWidget(widgets.MultiWidget):

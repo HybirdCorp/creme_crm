@@ -176,12 +176,15 @@ class ListViewTestCase(ViewsTestCase):
         page = response.context['page_obj']
         return page.paginator.object_list.query.get_compiler('default').as_sql()[0]
 
-    def _build_hf(self, *args):
-        cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
-        cells.extend(args)
-        return HeaderFilter.create(pk='test-hf_orga', name='Orga view',
-                                   model=FakeOrganisation, cells_desc=cells,
-                                  )
+    def _build_hf(self, *cells):
+        return HeaderFilter.create(
+            pk='test-hf_orga', name='Orga view',
+            model=FakeOrganisation,
+            cells_desc=[
+                EntityCellRegularField.build(model=FakeOrganisation, name='name'),
+                *cells,
+            ],
+        )
 
     def test_content01(self):
         user = self.login()

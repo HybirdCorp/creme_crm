@@ -148,14 +148,14 @@ class PollFormLineCreateForm(_PollFormLineForm):
         if section_lines:
             section_lines.reverse()
 
-            choices = [(0, gettext('Start of section'))]
-            msg_fmt = gettext('Before: «{question}» (#{number})')  # TODO: cached_gettext ??
-
-            choices.extend(
-                (i, msg_fmt.format(question=node.question, number=node.number))
-                    for i, node in enumerate(section_lines[1:], start=1)
-            )
-            choices.append((len(section_lines), gettext('End of section')))
+            msg_fmt = gettext('Before: «{question}» (#{number})').format  # TODO: cached_gettext ??
+            choices = [
+                (0, gettext('Start of section')),
+                *((i, msg_fmt(question=node.question, number=node.number))
+                      for i, node in enumerate(section_lines[1:], start=1)
+                ),
+                (len(section_lines), gettext('End of section'))
+            ]
 
             self.fields['index'] = TypedChoiceField(
                 label=gettext('Order'), coerce=int,
@@ -284,16 +284,19 @@ class PollFormLineEditForm(_PollFormLineForm):
         self.type_args = None
 
         if not self._errors and self.initial_choices:
-            choices_2_del = list(self.instance.poll_line_type.get_deleted_choices())  # TODO cache poll_line_type (in line ?)
-            choices_2_del.extend(self.choices_2_del)
+            choices_2_del = [
+                *self.instance.poll_line_type.get_deleted_choices(),  # TODO cache poll_line_type (in line ?)
+                *self.choices_2_del,
+            ]
 
             choices_2_keep = self.choices_2_keep
-            choices_2_keep.extend(enumerate(filter(None,  # TODO: factorise ---> in a new field 'MultipleCharField'
-                                            (choice.strip() for choice in cleaned_data.get('new_choices', '').split('\n'))
-                                           ),
-                                     start=len(choices_2_keep) + len(choices_2_del) + 1,
-                                    )
-                          )
+            choices_2_keep.extend(
+                enumerate(filter(None,  # TODO: factorise ---> in a new field 'MultipleCharField'
+                                 (choice.strip() for choice in cleaned_data.get('new_choices', '').split('\n'))
+                                ),
+                          start=len(choices_2_keep) + len(choices_2_del) + 1,
+                         )
+            )
 
             self.type_args = PollLineType.build_serialized_args(ptype=self.instance.type,
                                                                 choices=choices_2_keep,

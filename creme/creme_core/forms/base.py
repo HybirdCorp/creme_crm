@@ -175,9 +175,7 @@ class HookableForm:
 
     @classmethod
     def __add_callback(cls, attrname, callback):
-        callbacks = list(getattr(cls, attrname))
-        callbacks.append(callback)
-        setattr(cls, attrname, callbacks)
+        setattr(cls, attrname, [*getattr(cls, attrname), callback])
 
     @classmethod
     def add_post_clean_callback(cls, callback):

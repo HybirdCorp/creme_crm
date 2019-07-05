@@ -581,7 +581,7 @@ class MobileTestCase(CremeTestCase):
 
         # Phone calls ----------------------------------------------------------
         i = count(1)
-        create_pc = lambda **kwargs: self._create_pcall(title='Pcall#%i' % next(i), **kwargs)
+        create_pc = lambda **kwargs: self._create_pcall(title='Pcall#{}'.format(next(i)), **kwargs)
 
         pc1 = create_pc(start=yesterday,             status_id=STATUS_PLANNED,   participant=contact)
         pc2 = create_pc(start=now_val - timedelta(hours=25),                     participant=contact)  # Older than pc1 -> before
@@ -592,12 +592,15 @@ class MobileTestCase(CremeTestCase):
                          status_id=STATUS_PLANNED, participant=contact,
                         )  # Tomorrow
 
-        expected_pcalls = [pc2, pc1]
+        expected_pcalls = [
+            pc2, pc1,
+            *(create_pc(start=now_val - timedelta(hours=23, minutes=60 - minute),
+                        participant=contact,
+                       ) for minute in range(8)
+            ),
+        ]
 
-        for minute in range(8):
-            expected_pcalls.append(create_pc(start=now_val - timedelta(hours=23, minutes=60 - minute), participant=contact))
-
-        create_pc(start=now_val - timedelta(hours=23, minutes=minute), participant=contact)  # Already 10 PhoneCalls
+        create_pc(start=now_val - timedelta(hours=23, minutes=7), participant=contact)  # Already 10 PhoneCalls
 
         # Floating activities --------------------------------------------------
         create_floating = self._create_floating

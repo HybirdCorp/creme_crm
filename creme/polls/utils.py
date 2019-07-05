@@ -177,7 +177,6 @@ class ReplySectionTree(SectionTree):
 
 class StatsTree(SectionTree):
     def __init__(self, pform):
-        # super(StatsTree, self).__init__(pform)
         super().__init__(pform)
         flines = [node for node in self if not node.is_section]
         replies_map = defaultdict(list)

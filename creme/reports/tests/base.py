@@ -63,12 +63,13 @@ class BaseReportsTestCase(CremeTestCase):
         cls.ADD_URL = reverse('reports__create_report')
 
     def _create_report(self, name='Report #1', efilter=None, extra_cells=()):
-        cells = [EntityCellRegularField.build(model=FakeContact, name='last_name'),
-                 EntityCellRegularField.build(model=FakeContact, name='user'),
-                 EntityCellRelation(model=FakeContact, rtype=RelationType.objects.get(pk=REL_SUB_HAS)),
-                 EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
-                ]
-        cells.extend(extra_cells)
+        cells = [
+            EntityCellRegularField.build(model=FakeContact, name='last_name'),
+            EntityCellRegularField.build(model=FakeContact, name='user'),
+            EntityCellRelation(model=FakeContact, rtype=RelationType.objects.get(pk=REL_SUB_HAS)),
+            EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
+            *extra_cells,
+        ]
 
         hf = HeaderFilter.create(pk='test_hf', name='name', model=FakeContact, cells_desc=cells)
 

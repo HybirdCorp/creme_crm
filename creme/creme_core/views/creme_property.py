@@ -232,10 +232,12 @@ class PropertyTypeDetail(generic.CremeModelDetail):
         ptype = self.object
         ctypes = ptype.subject_ctypes.all()
 
-        bricks = [PropertyTypeInfoBrick(ptype, ctypes)]
-        bricks.extend(TaggedEntitiesBrick(ptype, ctype)
-                          for ctype in (ctypes or creme_entity_content_types())
-                     )
+        bricks = [
+            PropertyTypeInfoBrick(ptype, ctypes),
+            *(TaggedEntitiesBrick(ptype, ctype)
+                  for ctype in (ctypes or creme_entity_content_types())
+            ),
+        ]
 
         if ctypes:
             bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))

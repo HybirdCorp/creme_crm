@@ -267,17 +267,16 @@ class ModelFieldEnumerator:
 
             # The sort key (list.sort() will compare tuples, so the first elements,
             # then eventually the second ones etc...)
-            key = tuple(chain([len(fields_info)],  # NB: ensure that fields are first, then sub-fields...
-                              (sort_key(vname) for vname in fk_vnames),
-                              [sort_key(terminal_vname)]
-                             )
-                       )
+            key = (len(fields_info),  # NB: ensure that fields are first, then sub-fields...
+                   *(sort_key(vname) for vname in fk_vnames),
+                   sort_key(terminal_vname),
+                  )
             # A classical django choice. Eg: ('user__email', '[Owner user] - Email address')
             choice = ('__'.join(field.name for field in fields_info),
                       ' - '.join(chain(('[{}]'.format(vname) for vname in fk_vnames),
-                                        [terminal_vname]
-                                       )
-                                 )
+                                        [terminal_vname],
+                                      )
+                                )
                      )
 
             sortable_choices.append((key, choice))

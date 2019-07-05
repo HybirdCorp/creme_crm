@@ -146,8 +146,10 @@ class SendingCreateForm(CremeModelForm):
         for attachment in template.attachments.all():
             attachments.add(attachment)
 
-        varlist = list(self._get_variables(template.body))
-        varlist.extend(self._get_variables(template.body_html))
+        varlist = [
+            *self._get_variables(template.body),
+            *self._get_variables(template.body_html),
+        ]
 
         disable_history = HistoryLine.disable
 

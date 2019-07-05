@@ -122,8 +122,8 @@ class GraphsTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(url, data={'relation_types': rtypes_ids}))
 
         rtypes = graph.orbital_relation_types.all()
-        self.assertEqual(2,               len(rtypes))
-        self.assertEqual(set(rtypes_ids), {rt.id for rt in rtypes})
+        self.assertEqual(2,             len(rtypes))
+        self.assertEqual({*rtypes_ids}, {rt.id for rt in rtypes})
 
         self.assertPOST200(reverse('graphs__remove_rtype', args=(graph.id,)),
                            data={'id': rtype01.id}
